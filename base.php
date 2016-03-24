@@ -40,7 +40,7 @@ defined('APP_MULTI_MODULE') or define('APP_MULTI_MODULE', true); // 是否多模
 defined('APP_HOOK') or define('APP_HOOK', false); // 是否开启HOOK
 defined('ENV_PREFIX') or define('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
 defined('IS_API') or define('IS_API', false); // 是否API接口
-defined('APP_AUTO_RUN') or define('APP_AUTO_RUN', strrpos($_SERVER['PHP_SELF'], 'vendor/bin/') !== 0); // 是否自动运行
+defined('APP_AUTO_RUN') or define('APP_AUTO_RUN', true); // 是否自动运行
 defined('APP_ROUTE_ON') or define('APP_ROUTE_ON', true); // 是否允许路由
 defined('APP_ROUTE_MUST') or define('APP_ROUTE_MUST', true); // 是否严格检查路由
 defined('CLASS_APPEND_SUFFIX') or define('CLASS_APPEND_SUFFIX', false); // 是否追加类名后缀
