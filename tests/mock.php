@@ -15,7 +15,7 @@ date_default_timezone_set('UTC');
 // 定义项目测试基础路径
 define('TEST_PATH', __DIR__ . '/');
 // 定义项目路径
-define('APP_PATH', __DIR__ . '/../../application/');
+define('APP_PATH', __DIR__ . '/application/');
 // 开启调试模式
 define('APP_DEBUG', true);
 // 关闭应用自动执行

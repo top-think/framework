@@ -39,10 +39,10 @@ class buildTest extends \PHPUnit_Framework_TestCase
         ];
         Build::run($build);
 
-        $this->build_file_exists($build);
+        $this->buildFileExists($build);
     }
 
-    protected function build_file_exists($build)
+    protected function buildFileExists($build)
     {
         foreach ($build as $module => $list) {
             if ('__dir__' == $module || '__file__' == $module) {
