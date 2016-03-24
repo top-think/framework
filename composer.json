@@ -22,12 +22,7 @@
         "sebastian/phpcpd": "*",
         "squizlabs/php_codesniffer": "2.*"
     },
-    "config": {
-        "vendor-dir": "vendor"
-    },
-    "extra": {
-        "installer-paths": {
-            "thinkphp": ["type:thinkphp-framework"]
-        }
+    "autoload": {
+        "files": ["start.php"]
     }
 }
