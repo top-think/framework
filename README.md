@@ -1,13 +1,13 @@
 ThinkPHP 5.0.0 RC2
 ===============
 
-[![Build Status](https://img.shields.io/travis/top-think/framework.svg)](https://travis-ci.org/top-think/think)
-[![Coverage Status](https://img.shields.io/codecov/c/github/top-think/framework.svg)](https://codecov.io/github/top-think/think)
+[![Build Status](https://img.shields.io/travis/top-think/framework.svg)](https://travis-ci.org/top-think/framework)
+[![Coverage Status](https://img.shields.io/codecov/c/github/top-think/framework.svg)](https://codecov.io/github/top-think/framework)
 [![Downloads](https://img.shields.io/github/downloads/top-think/framework/total.svg)](https://github.com/top-think/framework/releases)
 [![Releases](https://img.shields.io/github/release/top-think/framework.svg)](https://github.com/top-think/framework/releases/latest)
 [![Releases Downloads](https://img.shields.io/github/downloads/top-think/framework/latest/total.svg)](https://github.com/top-think/framework/releases/latest)
-[![Packagist Status](https://img.shields.io/packagist/v/top-think/framework.svg)](https://packagist.org/packages/topthink/think)
-[![Packagist Downloads](https://img.shields.io/packagist/dt/top-think/framework.svg)](https://packagist.org/packages/topthink/think)
+[![Packagist Status](https://img.shields.io/packagist/v/top-think/framework.svg)](https://packagist.org/packages/topthink/framework)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/top-think/framework.svg)](https://packagist.org/packages/topthink/framework)
 
 ThinkPHP5在保持快速开发和大道至简的核心理念不变的同时，PHP版本要求提升到5.4，对已有的CBD模式做了更深的强化，优化核心，减少依赖，基于全新的架构思想和命名空间实现，是ThinkPHP突破原有框架思路的颠覆之作，其主要特性包括：
 
