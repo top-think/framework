@@ -35,13 +35,13 @@ install:
 
 script:
   ## LINT
-  - find thinkphp ! -path "vendor/*" -type f -name \*.php -exec php -l {} \;
+  - find ./ ! -path "vendor/*" -type f -name \*.php -exec php -l {} \;
   ## PHP_CodeSniffer
-  - vendor/bin/phpcs --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 --standard=PSR2 --ignore="vendor/*" thinkphp
+  - vendor/bin/phpcs --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 --standard=PSR2 --ignore="vendor/*" ./
   ## PHP Copy/Paste Detector
-  - vendor/bin/phpcpd --verbose --exclude vendor thinkphp || true
+  - vendor/bin/phpcpd --verbose --exclude vendor ./ || true
   ## PHPLOC
-  - vendor/bin/phploc --exclude vendor thinkphp
+  - vendor/bin/phploc --exclude vendor ./
   ## PHPUNIT
   - vendor/bin/phpunit --coverage-clover=coverage.xml --configuration=phpunit.xml
 
