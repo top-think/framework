@@ -11,7 +11,6 @@
 
 // 测试入口文件
 $_SERVER['REQUEST_METHOD'] = 'GET';
-date_default_timezone_set('UTC');
 // 定义项目测试基础路径
 define('TEST_PATH', __DIR__ . '/');
 // 定义项目路径

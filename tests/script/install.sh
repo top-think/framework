@@ -11,6 +11,8 @@ if [ $(phpenv version-name) != "hhvm" ]; then
 
     phpenv config-add tests/conf/memcached.ini
     phpenv config-add tests/conf/redis.ini
+
+    phpenv config-add tests/conf/timezone.ini
 fi
 
 composer install --no-interaction --ignore-platform-reqs
