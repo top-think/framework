@@ -127,7 +127,7 @@ class Route
                         $key    = substr($key, 1, -1);
                         $result = ['routes' => $val, 'option' => $option, 'pattern' => $pattern];
                     } elseif (is_array($val)) {
-                        $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => $val[2]];
+                        $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => isset($val[2]) ? $val[2] : []];
                     } else {
                         $result = ['route' => $val, 'option' => $option, 'pattern' => $pattern];
                     }
