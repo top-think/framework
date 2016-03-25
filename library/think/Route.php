@@ -602,21 +602,18 @@ class Route
             if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
                 foreach ($matches[1] as $name) {
                     if (strpos($name, '?')) {
-                        // 可选
-                        $name = substr($name, 0, -1);
-                        $val  = str_replace('<' . $name . '?>', '((' . $pattern[$name] . ')?)', $val);
+                        $name      = substr($name, 0, -1);
+                        $replace[] = '((' . (isset($pattern[$name]) ? $pattern[$name] : '') . ')?)';
                     } else {
-                        $val = str_replace('<' . $name . '>', '(' . $pattern[$name] . ')', $val);
+                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '') . ')';
                     }
+                    $value[] = $name;
                 }
+                $val = str_replace($matches[0], $replace, $val);
                 if (preg_match('/^' . $val . '$/', $m1[$key], $match)) {
                     array_shift($match);
-                    foreach ($matches[1] as $i => $name) {
-                        if (strpos($name, '?')) {
-                            $name = substr($name, 0, -1);
-                        }
-                        $var[$name] = $match[$i];
-                    }
+                    $match = array_slice($match, 0, count($value));
+                    $var   = array_merge($var, array_combine($value, $match));
                     continue;
                 } else {
                     return false;
@@ -634,7 +631,7 @@ class Route
                     // 检查变量规则
                     return false;
                 }
-                $var[$name] = $m1[$key];
+                $var[$name] = isset($m1[$key]) ? $m1[$key] : '';
             } elseif (0 !== strcasecmp($val, $m1[$key])) {
                 return false;
             }
