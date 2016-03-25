@@ -599,7 +599,7 @@ class Route
         $var = [];
         foreach ($m2 as $key => $val) {
             // val中定义了多个变量 <id><name>
-            if (preg_match_all('/<(\w+)>/', $val, $matches)) {
+            if (false !== strpos($val, '<') && preg_match_all('/<(\w+)>/', $val, $matches)) {
                 foreach ($matches[1] as $name) {
                     $val = str_replace('<' . $name . '>', '(' . $pattern[$name] . ')', $val);
                 }
