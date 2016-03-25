@@ -20,5 +20,5 @@ define('APP_DEBUG', true);
 // 关闭应用自动执行
 define('APP_AUTO_RUN', false);
 // 加载框架引导文件
-require __DIR__ . '/../think.php';
+require __DIR__ . '/../start.php';
 \think\Loader::addNamespace('tests', TEST_PATH);
