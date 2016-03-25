@@ -609,10 +609,18 @@ class Route
                         $val = str_replace('<' . $name . '>', '(' . $pattern[$name] . ')', $val);
                     }
                 }
-                if (!preg_match('/^' . $val . '$/', $m1[$key])) {
+                if (preg_match('/^' . $val . '$/', $m1[$key], $match)) {
+                    array_shift($match);
+                    foreach ($matches[1] as $i => $name) {
+                        if (strpos($name, '?')) {
+                            $name = substr($name, 0, -1);
+                        }
+                        $var[$name] = $match[$i];
+                    }
+                    continue;
+                } else {
                     return false;
                 }
-                continue;
             }
 
             if (0 === strpos($val, '[:')) {
