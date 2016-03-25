@@ -54,6 +54,9 @@ if (isset($mode['config'])) {
     is_array($mode['config']) ? Config::set($mode['config']) : Config::load($mode['config']);
 }
 
+// 是否开启HOOK
+defined('APP_HOOK') or define('APP_HOOK', false);
+
 // 加载模式行为定义
 if (APP_HOOK && isset($mode['tags'])) {
     Hook::import($mode['tags']);

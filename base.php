@@ -37,7 +37,6 @@ defined('VIEW_LAYER') or define('VIEW_LAYER', 'view');
 defined('CONTROLLER_LAYER') or define('CONTROLLER_LAYER', 'controller');
 defined('VALIDATE_LAYER') or define('VALIDATE_LAYER', 'validate');
 defined('APP_MULTI_MODULE') or define('APP_MULTI_MODULE', true); // 是否多模块
-defined('APP_HOOK') or define('APP_HOOK', false); // 是否开启HOOK
 defined('ENV_PREFIX') or define('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
 defined('IS_API') or define('IS_API', false); // 是否API接口
 defined('APP_AUTO_RUN') or define('APP_AUTO_RUN', true); // 是否自动运行

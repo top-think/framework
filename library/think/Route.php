@@ -598,6 +598,17 @@ class Route
         $m2  = explode('/', $rule);
         $var = [];
         foreach ($m2 as $key => $val) {
+            // val中定义了多个变量 <id><name>
+            if (preg_match_all('/<(\w+)>/', $val, $matches)) {
+                foreach ($matches[1] as $name) {
+                    $val = str_replace('<' . $name . '>', '(' . $pattern[$name] . ')', $val);
+                }
+                if (!preg_match('/^' . $val . '$/', $m1[$key])) {
+                    return false;
+                }
+                continue;
+            }
+
             if (0 === strpos($val, '[:')) {
                 // 可选参数
                 $val = substr($val, 1, -1);
