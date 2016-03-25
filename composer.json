@@ -21,8 +21,5 @@
         "phpunit/phpunit": "4.8.*",
         "sebastian/phpcpd": "*",
         "squizlabs/php_codesniffer": "2.*"
-    },
-    "autoload": {
-        "files": ["start.php"]
     }
 }
