@@ -498,7 +498,7 @@ class Validate
             default:
                 if (isset(self::$type[$rule])) {
                     // 注册的验证规则
-                    $result = call_user_func_array(self::$type[$rule], [$value, &$data]);
+                    $result = call_user_func_array(self::$type[$rule], [$value]);
                 } else {
                     // 正则验证
                     $result = $this->regex($value, $rule);
