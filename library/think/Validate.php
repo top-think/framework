@@ -508,6 +508,18 @@ class Validate
     }
 
     /**
+     * 验证是否为合格的域名或者IP 支持A，MX，NS，SOA，PTR，CNAME，AAAA，A6， SRV，NAPTR，TXT 或者 ANY类型
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function activeUrl($value, $rule)
+    {
+        return checkdnsrr($value, $rule);
+    }
+
+    /**
      * 验证时间和日期是否符合指定格式
      * @access protected
      * @param mixed $value  字段值
