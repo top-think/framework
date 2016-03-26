@@ -506,7 +506,7 @@ class Route
                     // 执行闭包
                     return ['type' => 'function', 'function' => $route, 'params' => $match];
                 }
-                return self::parseRule($rule, $route, $url);
+                return self::parseRule($rule, $route, $url, $match);
             }
         }
         return false;
@@ -641,15 +641,14 @@ class Route
     }
 
     // 解析规则路由
-    private static function parseRule($rule, $route, $pathinfo)
+    private static function parseRule($rule, $route, $pathinfo, $matches)
     {
         // 获取URL地址中的参数
         $paths = explode('/', $pathinfo);
         // 获取路由地址规则
         $url = is_array($route) ? $route[0] : $route;
         // 解析路由规则
-        $matches = [];
-        $rule    = explode('/', $rule);
+        $rule = explode('/', $rule);
         foreach ($rule as $item) {
             $fun = '';
             if (0 === strpos($item, '[:')) {
