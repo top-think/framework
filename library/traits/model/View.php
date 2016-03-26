@@ -38,7 +38,7 @@ trait View
                     // 2011/10/17 添加实际表名定义支持 可以实现同一个表的视图
                     $tableName .= $view['_table'];
                 } else {
-                    $tableName .= \think\Loader::model($name)->getTableName();
+                    $tableName .= \think\Loader::table($name)->getTableName();
                 }
                 // 表别名定义
                 $tableName .= !empty($view['_as']) ? ' ' . $view['_as'] : ' ' . $name;
@@ -111,7 +111,7 @@ trait View
     {
         if (false !== $pos = array_search('*', $fields)) {
             // 定义所有字段
-            $fields = array_merge($fields, \think\Loader::model($name)->getFields());
+            $fields = array_merge($fields, \think\Loader::table($name)->getFields());
             unset($fields[$pos]);
         }
 
@@ -213,7 +213,6 @@ trait View
      */
     protected function checkFields($fields = '*', $viewFields)
     {
-        var_dump($fields);
         if (is_string($fields)) {
             if ('*' == $fields) {
                 return $viewFields;
@@ -246,9 +245,9 @@ trait View
                 }
             } elseif (false !== $k = array_search($field, $viewFields, true)) {
                 // 存在视图字段
-                $field = $k . $alias;
+                $field = $k;
             }
-            $_fields[] = $field;
+            $_fields[] = $field . $alias;
         }
 
         return $_fields;
