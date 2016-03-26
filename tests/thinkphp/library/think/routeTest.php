@@ -69,6 +69,16 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['type' => 'module', 'module' => ['index', 'hello', null]], Route::check('hello'));
     }
 
+    public function testMixVar()
+    {
+        Route::get('hello-<name>', 'index/hello', [], ['name' => '\w+']);
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check('hello-thinkphp'));
+        Route::get('hello-<name><id?>', 'index/hello', [], ['name' => '\w+', 'id' => '\d+']);
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check('hello-thinkphp2016'));
+        Route::get('hello-<name>/[:id]', 'index/hello', [], ['name' => '\w+', 'id' => '\d+']);
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check('hello-thinkphp/2016'));
+    }
+
     public function testParseUrl()
     {
         $this->assertEquals(['type' => 'module', 'module' => ['hello', null, null]], Route::parseUrl('hello'));
