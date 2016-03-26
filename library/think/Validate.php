@@ -67,6 +67,8 @@ class Validate
         'eq'         => ':attribute必须等于 :rule',
         'unique'     => ':attribute已存在',
         'regex'      => ':attribute不符合指定规则',
+        'method'     => '无效的请求类型',
+        'token'      => '令牌数据无效',
     ];
 
     // 当前验证场景
@@ -356,6 +358,33 @@ class Validate
     }
 
     /**
+     * 验证表单令牌（需要配置令牌生成行为）
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @param array $data  数据
+     * @return bool
+     */
+    protected function token($value, $rule, $data)
+    {
+        if (!isset($data[$rule]) || !isset($_SESSION[$rule])) {
+            // 令牌数据无效
+            return false;
+        }
+
+        // 令牌验证
+        list($key, $value) = explode('_', $data[$rule]);
+        if (isset($_SESSION[$rule][$key]) && $value && $_SESSION[$rule][$key] === $value) {
+            // 防止重复提交
+            unset($_SESSION[$rule][$key]); // 验证完成销毁session
+            return true;
+        }
+        // 开启TOKEN重置
+        unset($_SESSION[$rule][$key]);
+        return false;
+    }
+
+    /**
      * 验证是否和某个字段的值一致
      * @access protected
      * @param mixed $value  字段值
@@ -517,6 +546,18 @@ class Validate
     protected function activeUrl($value, $rule)
     {
         return checkdnsrr($value, $rule);
+    }
+
+    /**
+     * 验证请求类型
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function method($value, $rule)
+    {
+        return REQUEST_METHOD == strtoupper($rule);
     }
 
     /**
