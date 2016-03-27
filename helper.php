@@ -220,7 +220,7 @@ function session($name, $value = '', $prefix = null)
     }
 }
 
-function cookie($name, $value = '')
+function cookie($name, $value = '', $option = null)
 {
     if (is_array($name)) {
         // 初始化
@@ -236,7 +236,7 @@ function cookie($name, $value = '')
         return \think\Cookie::delete($name);
     } else {
         // 设置session
-        return \think\Cookie::set($name, $value);
+        return \think\Cookie::set($name, $value, $option);
     }
 }
 
