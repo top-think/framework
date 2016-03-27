@@ -71,8 +71,6 @@ return [
     'pathinfo_depr'          => '/',
     // 获取当前页面地址的系统变量 默认为REQUEST_URI
     'url_request_uri'        => 'REQUEST_URI',
-    // 控制器版本参数
-    'var_version'            => 'v',
     // 基础URL路径
     'base_url'               => $_SERVER["SCRIPT_NAME"],
     // URL伪静态后缀

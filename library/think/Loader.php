@@ -322,10 +322,9 @@ class Loader
      * @param string $name 资源地址
      * @param string $layer 控制层名称
      * @param string $empty 空控制器名称
-     * @param string $version 版本号 例如 1.0 1.2.3
      * @return Object|false
      */
-    public static function controller($name, $layer = '', $empty = '', $version = null)
+    public static function controller($name, $layer = '', $empty = '')
     {
         static $_instance = [];
         $layer            = $layer ?: CONTROLLER_LAYER;
@@ -338,12 +337,9 @@ class Loader
             $module = APP_MULTI_MODULE ? MODULE_NAME : '';
         }
         $class = self::parseClass($module, $layer, $name);
-        if ($version) {
-            $filename = APP_PATH . str_replace(APP_NAMESPACE . '\\', '', dirname($class)) . DS . $version . DS . basename($class) . EXT;
-            if (is_file($filename)) {
-                require $filename;
-            }
-        }
+        // controller_load
+        APP_HOOK && Hook::listen('controller_load', $class);
+
         if (class_exists($class)) {
             $action                    = new $class;
             $_instance[$name . $layer] = $action;
