@@ -73,7 +73,7 @@ class App
         // 记录路由信息
         APP_DEBUG && Log::record('[ ROUTE ] ' . var_export(self::$dispatch, true), 'info');
         // 监听app_begin
-        APP_HOOK && Hook::listen('app_begin');
+        APP_HOOK && Hook::listen('app_begin', self::$dispatch);
 
         // 根据类型调度
         switch (self::$dispatch['type']) {
