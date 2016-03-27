@@ -600,6 +600,7 @@ class Route
         foreach ($m2 as $key => $val) {
             // val中定义了多个变量 <id><name>
             if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
+                $value = [];
                 foreach ($matches[1] as $name) {
                     if (strpos($name, '?')) {
                         $name      = substr($name, 0, -1);
