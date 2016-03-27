@@ -34,7 +34,8 @@ class urlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/hello/10', Url::build('index/hello?id=10'));
         $this->assertEquals('/hello/10.html', Url::build('index/hello', 'id=10', 'html'));
 
-        Route::get('hello-<name><id>', 'index/say');
+        Route::get('hello-<name><id?>', 'index/say');
+        $this->assertEquals('/hello-thinkphp', Url::build('index/say?name=thinkphp'));
         $this->assertEquals('/hello-thinkphp2016', Url::build('index/say?name=thinkphp&id=2016'));
     }
 

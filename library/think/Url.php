@@ -215,19 +215,12 @@ class Url
             }
             // 检查变量匹配
             if (self::pattern($pattern, $vars)) {
-                foreach ($vars as $key => $val) {
-                    if (false !== strpos($url, '[:' . $key . ']')) {
-                        $url = str_replace('[:' . $key . ']', $val, $url);
+                foreach ($pattern as $key => $val) {
+                    if (isset($vars[$key])) {
+                        $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                         unset($vars[$key]);
-                    } elseif (false !== strpos($url, ':' . $key)) {
-                        $url = str_replace(':' . $key, $val, $url);
-                        unset($vars[$key]);
-                    } elseif (false !== strpos($url, '<' . $key . '>')) {
-                        $url = str_replace('<' . $key . '>', $val, $url);
-                        unset($vars[$key]);
-                    } elseif (false !== strpos($url, '<' . $key . '?>')) {
-                        $url = str_replace('<' . $key . '?>', $val, $url);
-                        unset($vars[$key]);
+                    } else {
+                        $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
                 return $url;
