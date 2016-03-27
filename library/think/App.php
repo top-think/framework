@@ -224,7 +224,7 @@ class App
             // 安全检测
             throw new Exception('illegal controller name:' . CONTROLLER_NAME, 10000);
         }
-        $instance = Loader::controller(CONTROLLER_NAME, '', Config::get('empty_controller'));
+        $instance = Loader::controller(CONTROLLER_NAME, '', Config::get('empty_controller'), Input::get(Config::get('var_version')));
         // 获取当前操作名
         $action = ACTION_NAME . Config::get('action_suffix');
 
