@@ -71,12 +71,14 @@ www  WEB部署目录（或者子目录）
 │  ├─mode               应用模式目录
 │  ├─tpl                系统模板目录
 │  ├─tests              单元测试文件目录
-│  ├─vendor             第三方类库目录
 │  ├─base.php           基础定义文件
 │  ├─convention.php     框架惯例配置文件
 │  ├─helper.php         助手函数文件
 │  ├─phpunit.xml        phpunit配置文件
 │  └─start.php          框架入口文件
+│
+├─extend                扩展类库目录
+├─vendor                第三方类库目录（Composer依赖库）
 ~~~
 
 > router.php用于php自带webserver支持，可用于快速测试
