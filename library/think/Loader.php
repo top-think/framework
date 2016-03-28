@@ -337,9 +337,6 @@ class Loader
             $module = APP_MULTI_MODULE ? MODULE_NAME : '';
         }
         $class = self::parseClass($module, $layer, $name);
-        // controller_load
-        APP_HOOK && Hook::listen('controller_load', $class);
-
         if (class_exists($class)) {
             $action                    = new $class;
             $_instance[$name . $layer] = $action;
