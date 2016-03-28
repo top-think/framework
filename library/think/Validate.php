@@ -549,6 +549,21 @@ class Validate
     }
 
     /**
+     * 验证是否有效IP
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则 ipv4 ipv6
+     * @return bool
+     */
+    protected function ip($value, $rule)
+    {
+        if (!in_array($rule, ['ipv4', 'ipv6'])) {
+            $rule = 'ipv4';
+        }
+        return $this->filter($value, FILTER_VALIDATE_IP, 'ipv6' == $rule ? FILTER_FLAG_IPV6 : FILTER_FLAG_IPV4);
+    }
+
+    /**
      * 验证请求类型
      * @access protected
      * @param mixed $value  字段值
