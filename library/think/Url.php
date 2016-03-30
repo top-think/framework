@@ -270,6 +270,12 @@ class Url
                 $alias[$route][] = [$rule, $var];
             }
         }
+
+        // 检测路由映射
+        $maps = Route::map();
+        foreach ($maps as $rule => $route) {
+            $alias[$route][] = [$rule, []];
+        }
         !APP_DEBUG && Cache::set('think_route_alias', $alias);
         return $alias;
     }
