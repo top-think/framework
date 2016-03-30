@@ -186,18 +186,11 @@ class File
      */
     public function clear()
     {
-        $path = $this->options['path'];
-        if ($dir = opendir($path)) {
-            while ($file = readdir($dir)) {
-                $check = is_dir($file);
-                if (!$check) {
-                    $this->unlink($path . $file);
-                }
-
-            }
-            closedir($dir);
-            return true;
+        $fileLsit = (array)glob($this->options['path'].'*');
+        foreach ($fileLsit as $path) {
+            is_file($path) && unlink($path);
         }
+        return true;
     }
 
     /**
