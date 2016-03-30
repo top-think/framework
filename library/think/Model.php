@@ -1477,17 +1477,15 @@ class Model
             $prefix = $this->tablePrefix;
             // 传入的表名为数组
             if (is_array($join)) {
-                if (0 !== key($join)) {
-                    // 键名为表名，键值作为表的别名
-                    $table = key($join) . ' ' . current($join);
+                if (0 !== $key = key($join)) {
+                    // 设置了键名则键名为表名，键值作为表的别名
+                    $table = $key . ' ' . array_shift($join);
                 } else {
-                    $table = current($join);
+                    $table = array_shift($join);
                 }
-                if (isset($join[1])) {
-                    // 第二个元素为字符串则把第二元素作为表前缀
-                    if (is_string($join[1])) {
-                        $table = $join[1] . $table;
-                    }
+                if (count($join)) {
+                    // 有设置第二个元素则把第二元素作为表前缀
+                    $table = (string) current($join) . $table;
                 } else {
                     // 加上默认的表前缀
                     $table = $prefix . $table;
