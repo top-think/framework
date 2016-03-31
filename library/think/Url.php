@@ -214,18 +214,19 @@ class Url
                 $url = str_replace('$', '[--think--]', $url);
             }
             // 检查变量匹配
+            $array = $vars;
             if ($pattern && self::pattern($pattern, $vars)) {
                 foreach ($pattern as $key => $val) {
                     if (isset($vars[$key])) {
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
-                        unset($vars[$key]);
+                        unset($array[$key]);
                     } else {
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
-                return $url;
-            } elseif (!empty($param) && $param == $vars) {
-                $vars = [];
+            }
+            if (!empty($param) && array_intersect($param, $array) == $param) {
+                $vars = array_diff($array, $param);
                 return $url;
             }
         }
