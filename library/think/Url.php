@@ -224,8 +224,12 @@ class Url
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
+                $match = true;
             }
             if (!empty($param) && array_intersect($param, $array) == $param) {
+                $vars = array_diff($array, $param);
+                return $url;
+            } elseif (!empty($match)) {
                 $vars = array_diff($array, $param);
                 return $url;
             }
