@@ -208,13 +208,13 @@ class Url
     public static function getRouteUrl($alias, &$vars = [])
     {
         foreach ($alias as $key => $val) {
-            list($url, $pattern) = $val;
+            list($url, $pattern, $param) = $val;
             // 解析安全替换
             if (strpos($url, '$')) {
                 $url = str_replace('$', '[--think--]', $url);
             }
             // 检查变量匹配
-            if (self::pattern($pattern, $vars)) {
+            if ($pattern && self::pattern($pattern, $vars)) {
                 foreach ($pattern as $key => $val) {
                     if (isset($vars[$key])) {
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
@@ -223,6 +223,9 @@ class Url
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
+                return $url;
+            } elseif (!empty($param) && $param == $vars) {
+                $vars = [];
                 return $url;
             }
         }
@@ -237,9 +240,6 @@ class Url
         }
         // 获取路由定义
         $rules = Route::getRules();
-        if (empty($rules)) {
-            return [];
-        }
         foreach ($rules as $rule => $val) {
             if (!empty($val['routes'])) {
                 foreach ($val['routes'] as $key => $route) {
@@ -247,34 +247,43 @@ class Url
                         $key = array_shift($route);
                     }
                     $route = $route[0];
+                    $param = [];
                     if (is_array($route)) {
                         $route = implode('\\', $route);
                     } elseif ($route instanceof \Closure) {
                         continue;
                     } elseif (strpos($route, '?')) {
-                        $route = strstr($route, '?', true);
+                        list($route, $str) = explode('?', $route, 2);
+                        parse_str($str, $param);
                     }
                     $var             = self::parseVar($rule . '/' . $key);
-                    $alias[$route][] = [$rule . '/' . $key, $var];
+                    $alias[$route][] = [$rule . '/' . $key, $var, $param];
                 }
             } else {
                 $route = $val['route'];
+                $param = [];
                 if (is_array($route)) {
                     $route = implode('\\', $route);
                 } elseif ($route instanceof \Closure) {
                     continue;
                 } elseif (strpos($route, '?')) {
-                    $route = strstr($route, '?', true);
+                    list($route, $str) = explode('?', $route, 2);
+                    parse_str($str, $param);
                 }
                 $var             = self::parseVar($rule);
-                $alias[$route][] = [$rule, $var];
+                $alias[$route][] = [$rule, $var, $param];
             }
         }
 
         // 检测路由映射
         $maps = Route::map();
         foreach ($maps as $rule => $route) {
-            $alias[$route][] = [$rule, []];
+            $param = [];
+            if (strpos($route, '?')) {
+                list($route, $str) = explode('?', $route, 2);
+                parse_str($str, $param);
+            }
+            $alias[$route][] = [$rule, [], $param];
         }
         !APP_DEBUG && Cache::set('think_route_alias', $alias);
         return $alias;
