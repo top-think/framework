@@ -227,9 +227,10 @@ class Url
                 $match = true;
             }
             if (empty($pattern) && empty($param)) {
-                // 没有任何变量定义
+                // 没有任何变量
                 return $url;
-            } elseif (array_intersect($param, $array) == $param) {
+            } elseif (!empty($match) || !empty($param) && array_intersect($param, $array) == $param) {
+                // 存在变量定义
                 $vars = array_diff($array, $param);
                 return $url;
             }
