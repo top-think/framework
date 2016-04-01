@@ -226,10 +226,10 @@ class Url
                 }
                 $match = true;
             }
-            if (!empty($param) && array_intersect($param, $array) == $param) {
-                $vars = array_diff($array, $param);
+            if (empty($pattern) && empty($param)) {
+                // 没有任何变量定义
                 return $url;
-            } elseif (!empty($match)) {
+            } elseif (array_intersect($param, $array) == $param) {
                 $vars = array_diff($array, $param);
                 return $url;
             }
