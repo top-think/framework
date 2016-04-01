@@ -12,7 +12,8 @@ namespace think;
 
 class Build
 {
-    public static function run($build)
+    // 根据传入的build资料创建目录和文件
+    public static function run($build = [])
     {
         // 锁定
         $lockfile = APP_PATH . 'build.lock';
@@ -30,7 +31,7 @@ class Build
                 self::buildFile($list);
             } else {
                 // 创建模块
-                self::buildModule($module, $list);
+                self::module($module, $list);
             }
         }
         // 解除锁定
@@ -63,7 +64,7 @@ class Build
     }
 
     // 创建模块
-    protected static function buildModule($module, $list)
+    public static function module($module = '', $list = [])
     {
         $module = APP_MULTI_MODULE ? $module : '';
         if (!is_dir(APP_PATH . $module)) {
@@ -75,6 +76,13 @@ class Build
             self::buildCommon($module);
             // 创建模块的默认页面
             self::buildHello($module);
+        }
+        if (empty($list)) {
+            // 创建默认的模块目录和文件
+            $list = [
+                '__file__' => ['config.php', 'common.php'],
+                '__dir__'  => ['controller', 'model', 'view'],
+            ];
         }
         // 创建子目录和文件
         foreach ($list as $path => $file) {
@@ -101,13 +109,13 @@ class Build
                     $namespace = APP_NAMESPACE . '\\' . ($module ? $module . '\\' : '') . $path;
                     $class     = $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '');
                     switch ($path) {
-                        case CONTROLLER_LAYER:    // 控制器
+                        case CONTROLLER_LAYER: // 控制器
                             $content = "<?php\nnamespace {$namespace};\n\nclass {$class}\n{\n\n}";
                             break;
-                        case MODEL_LAYER:    // 模型
+                        case MODEL_LAYER: // 模型
                             $content = "<?php\nnamespace {$namespace};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
                             break;
-                        case VIEW_LAYER:    // 视图
+                        case VIEW_LAYER: // 视图
                             $filename = $modulePath . $path . DS . $val . '.html';
                             if (!is_dir(dirname($filename))) {
                                 // 创建目录
@@ -128,7 +136,7 @@ class Build
         }
     }
 
-    // 创建欢迎页面
+    // 创建模块的欢迎页面
     protected static function buildHello($module)
     {
         $filename = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER . DS . 'Index' . (CLASS_APPEND_SUFFIX ? ucfirst(CONTROLLER_LAYER) : '') . EXT;
@@ -142,12 +150,16 @@ class Build
         }
     }
 
-    // 创建模块公共文件
+    // 创建模块的公共文件
     protected static function buildCommon($module)
     {
         $filename = APP_PATH . ($module ? $module . DS : '') . 'config.php';
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\nreturn [\n\n];");
+        }
+        $filename = APP_PATH . ($module ? $module . DS : '') . 'common.php';
+        if (!is_file($filename)) {
+            file_put_contents($filename, "<?php\n;");
         }
     }
 }
