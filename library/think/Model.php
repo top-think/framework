@@ -209,7 +209,7 @@ class Model
                 throw new Exception('invalid data');
             }
         }
-        if (!empty($this->duplicate) && 'update' == $type) {
+        if (isset($find) && !empty($this->duplicate) && 'update' == $type) {
             // 存在数据副本
             foreach ($data as $key => $val) {
                 // 去除相同数据
@@ -220,7 +220,7 @@ class Model
             if (empty($data)) {
                 // 没有数据变化
                 return [];
-            } elseif (!empty($find)) {
+            } else {
                 // 更新操作保留主键信息
                 $pk = $this->getPk();
                 if (is_array($pk)) {
