@@ -202,6 +202,7 @@ class Model
             if (!empty($this->data)) {
                 // 没有传递数据，获取当前数据对象的值
                 $data = $this->data;
+                $find = true;
                 // 重置数据
                 $this->data = [];
             } else {
@@ -219,7 +220,7 @@ class Model
             if (empty($data)) {
                 // 没有数据变化
                 return [];
-            } else {
+            } elseif (!empty($find)) {
                 // 更新操作保留主键信息
                 $pk = $this->getPk();
                 if (is_array($pk)) {
