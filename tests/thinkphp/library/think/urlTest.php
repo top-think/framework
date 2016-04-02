@@ -43,6 +43,12 @@ class urlTest extends \PHPUnit_Framework_TestCase
     {
         Route::get('blog/:id', '@index/blog/read');
         $this->assertEquals('/blog/10.html', Url::build('@index/blog/read', 'id=10', 'html'));
+
+        Route::get('foo/bar', '@foo/bar/index');
+        $this->assertEquals('/foo/bar', Url::build('@foo/bar/index'));
+
+        Route::get('foo/bar/baz', '@foo/bar.BAZ/index');
+        $this->assertEquals('/foo/bar/baz', Url::build('@foo/bar.BAZ/index'));
     }
 
     public function testBuildMethod()
