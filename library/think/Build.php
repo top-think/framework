@@ -13,7 +13,7 @@ namespace think;
 class Build
 {
     // 根据传入的build资料创建目录和文件
-    public static function run($build = [])
+    public static function run(array $build = [])
     {
         // 锁定
         $lockfile = APP_PATH . 'build.lock';

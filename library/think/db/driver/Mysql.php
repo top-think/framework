@@ -103,7 +103,7 @@ class Mysql extends Driver
             list($field, $name) = explode($key, '$.');
             $key                = 'jsn_extract(' . $field . ', \'$.\'.' . $name . ')';
         }
-        if (!preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
+        if ($key && !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
             $key = '`' . $key . '`';
         }
         return $key;
