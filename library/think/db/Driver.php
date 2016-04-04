@@ -512,13 +512,13 @@ abstract class Driver
      */
     public function union($union, $all = false)
     {
-        $this->options['union']['type'] = $all?'UNION ALL':'UNION';
+        $this->options['union']['type'] = $all ? 'UNION ALL' : 'UNION';
 
-        if(is_array($union)){
-            $this->options['union'] = array_merge($this->options['union'],$union);
-        }else{
+        if (is_array($union)) {
+            $this->options['union'] = array_merge($this->options['union'], $union);
+        } else {
             $this->options['union'][] = $union;
-        }        
+        }
         return $this;
     }
 
@@ -663,7 +663,7 @@ abstract class Driver
      * @param mixed $condition 查询条件
      * @return Model
      */
-    public function or($field, $op = null, $condition = null)
+    public function whereOr($field, $op = null, $condition = null)
     {
         if ($field instanceof \Closure) {
             $where[] = $field;
@@ -1547,12 +1547,12 @@ abstract class Driver
             $whereStr .= $key . ' ' . $value;
         } elseif (in_array($exp, ['NOT IN', 'IN'])) {
             // IN 查询
-            if($value instanceof \Closure){
-                $whereStr .= $key . ' '.$exp . ' ' . $this->parseClosure($value);
-            }else{
+            if ($value instanceof \Closure) {
+                $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
+            } else {
                 $value = is_string($value) ? explode(',', $value) : $value;
                 $zone  = implode(',', $this->parseValue($value));
-                $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';                
+                $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询
@@ -1566,10 +1566,11 @@ abstract class Driver
     }
 
     // 执行闭包子查询
-    protected function parseClosure($call,$show=true){
+    protected function parseClosure($call, $show = true)
+    {
         $class = clone $this;
         call_user_func_array($call, [ & $class]);
-        return  $class->buildSql($show);
+        return $class->buildSql($show);
     }
 
     /**
@@ -1677,17 +1678,17 @@ abstract class Driver
      */
     protected function parseUnion($union)
     {
-        if(empty($union)){
+        if (empty($union)) {
             return '';
         }
         $type = $union['type'];
         unset($union['type']);
         foreach ($union as $u) {
-            if($u instanceof \Closure){
-                $sql[] = $type . ' ' . $this->parseClosure($u,false);                
-            }elseif(is_string($u)){
-                $sql[] = $type .' '.$this->parseSqlTable($u);
-            }           
+            if ($u instanceof \Closure) {
+                $sql[] = $type . ' ' . $this->parseClosure($u, false);
+            } elseif (is_string($u)) {
+                $sql[] = $type . ' ' . $this->parseSqlTable($u);
+            }
         }
         return implode(' ', $sql);
     }
@@ -1729,7 +1730,7 @@ abstract class Driver
         // 兼容数字传入方式
         $sql = ($replace ? 'REPLACE' : 'INSERT') . ' INTO ' . $this->parseTable($options['table']) . ' (' . implode(',', $fields) . ') VALUES (' . implode(',', $values) . ')';
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        $result = $this->execute($sql, isset($options['bind'])?$options['bind']:[], !empty($options['fetch_sql']) ? true : false);
+        $result = $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
         return $result;
     }
 
@@ -1754,7 +1755,7 @@ abstract class Driver
         }
         $sql = 'INSERT INTO ' . $this->parseTable($options['table']) . ' (' . implode(',', $fields) . ') ' . implode(' UNION ALL ', $values);
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->execute($sql, isset($options['bind'])?$options['bind']:[], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
     }
 
     /**
@@ -1775,7 +1776,7 @@ abstract class Driver
         $fields = array_map([$this, 'parseKey'], $fields);
         $sql    = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') ';
         $sql .= $this->buildSelectSql($options);
-        return $this->execute($sql, isset($options['bind'])?$options['bind']:[], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
     }
 
     /**
@@ -1832,7 +1833,7 @@ abstract class Driver
             . $this->parseLimit(!empty($options['limit']) ? $options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->execute($sql, isset($options['bind'])?$options['bind']:[], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
     }
 
     /**
@@ -1870,12 +1871,12 @@ abstract class Driver
             . $this->parseLimit(!empty($options['limit']) ? $options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->execute($sql, isset($options['bind'])?$options['bind']:[], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
     }
 
-    public function buildSql($sub=true)    
+    public function buildSql($sub = true)
     {
-        return $sub? '( ' . $this->select(false) . ' )' : $this->select(false);
+        return $sub ? '( ' . $this->select(false) . ' )' : $this->select(false);
     }
 
     /**
@@ -1896,7 +1897,7 @@ abstract class Driver
 
         $options   = $this->_parseOptions();
         $sql       = $this->buildSelectSql($options);
-        $resultSet = $this->query($sql, isset($options['bind'])?$options['bind']:[], !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
+        $resultSet = $this->query($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
 
         if (!empty($resultSet)) {
             if (is_string($resultSet)) {
@@ -1969,7 +1970,7 @@ abstract class Driver
         $options          = $this->_parseOptions();
         $options['limit'] = 1;
         $sql              = $this->buildSelectSql($options);
-        $result           = $this->query($sql, isset($options['bind'])?$options['bind']:[], !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
+        $result           = $this->query($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
 
         // 数据处理
         if (!empty($result)) {
