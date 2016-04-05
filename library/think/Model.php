@@ -439,12 +439,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function isUpdate($data = [])
     {
         $data = $data ?: $this->data;
-        $pk   = $this->pk;
-        // 如果存在主键数据 则自动作为更新条件
+        // 判断主键
+        $pk = $this->pk;
         if (is_string($pk) && isset($data[$pk])) {
             return true;
         } elseif (is_array($pk)) {
-            // 增加复合主键支持
             foreach ($pk as $field) {
                 if (isset($data[$field])) {
                     return true;
@@ -577,7 +576,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $localKey       = $localKey ?: $this->pk;
-        $foreignKey     = $foreignKey ?: $this->name . '_id';
+        $foreignKey     = $foreignKey ?: strtolower($this->name) . '_id';
         $this->relation = self::HAS_ONE;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
@@ -587,7 +586,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $foreignKey     = $foreignKey ?: $this->pk;
-        $localKey       = $localKey ?: basename(str_replace('\\', '/', $model)) . '_id';
+        $localKey       = $localKey ?: strtolower(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = self::BELONGS_TO;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
@@ -597,7 +596,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $localKey       = $localKey ?: $this->pk;
-        $foreignKey     = $foreignKey ?: $this->name . '_id';
+        $foreignKey     = $foreignKey ?: strtolower($this->name) . '_id';
         $this->relation = self::HAS_MANY;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
@@ -607,7 +606,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $foreignKey     = $foreignKey ?: $this->pk;
-        $localKey       = $localKey ?: basename(str_replace('\\', '/', $model)) . '_id';
+        $localKey       = $localKey ?: strtolower(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = self::BELONGS_TO_MANY;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
