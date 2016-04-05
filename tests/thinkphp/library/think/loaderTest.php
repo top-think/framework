@@ -51,13 +51,6 @@ class loaderTest extends \PHPUnit_Framework_TestCase
 
     public function testTable()
     {
-        Loader::table('', [
-            'connection' => [
-                'type'     => 'mysql',
-                'database' => 'test',
-                'username' => 'root',
-                'password' => '',
-            ]]);
         Loader::db('mysql://root@127.0.0.1/test#utf8');
     }
 
