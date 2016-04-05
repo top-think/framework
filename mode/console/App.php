@@ -23,6 +23,8 @@ class App
      */
     public static function run()
     {
+        self::init();
+
         // 实例化console
         $console = new Console('Think Console', '0.1');
         // 读取指令集
@@ -39,5 +41,68 @@ class App
         }
         // 运行
         $console->run();
+    }
+
+    private static function init()
+    {
+        // 加载初始化文件
+        if (is_file(APP_PATH . 'init' . EXT)) {
+            include APP_PATH . 'init' . EXT;
+
+            // 加载模块配置
+            $config = Config::get();
+        } else {
+            // 加载模块配置
+            $config = Config::load(APP_PATH . 'config' . EXT);
+
+            // 加载应用状态配置
+            if ($config['app_status']) {
+                $config = Config::load(APP_PATH . $config['app_status'] . EXT);
+            }
+
+            // 读取扩展配置文件
+            if ($config['extra_config_list']) {
+                foreach ($config['extra_config_list'] as $name => $file) {
+                    $filename = APP_PATH . $file . EXT;
+                    Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
+                }
+            }
+
+            // 加载别名文件
+            if (is_file(APP_PATH . 'alias' . EXT)) {
+                Loader::addMap(include APP_PATH . 'alias' . EXT);
+            }
+
+            // 加载行为扩展文件
+            if (APP_HOOK && is_file(APP_PATH . 'tags' . EXT)) {
+                Hook::import(include APP_PATH . 'tags' . EXT);
+            }
+
+            // 加载公共文件
+            if (is_file(APP_PATH . 'common' . EXT)) {
+                include APP_PATH . 'common' . EXT;
+            }
+        }
+
+        // 注册根命名空间
+        if (!empty($config['root_namespace'])) {
+            Loader::addNamespace($config['root_namespace']);
+        }
+
+        // 加载额外文件
+        if (!empty($config['extra_file_list'])) {
+            foreach ($config['extra_file_list'] as $file) {
+                $file = strpos($file, '.') ? $file : APP_PATH . $file . EXT;
+                if (is_file($file)) {
+                    include_once $file;
+                }
+            }
+        }
+
+        // 设置系统时区
+        date_default_timezone_set($config['default_timezone']);
+
+        // 监听app_init
+        APP_HOOK && Hook::listen('app_init');
     }
 }

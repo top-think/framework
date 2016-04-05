@@ -27,17 +27,6 @@ return [
         'think\Error' => MODE_PATH . 'console/Error' . EXT
     ],
     // 配置文件
-    'config'    => [
-        'log'   => [
-            'type' => 'File', // 支持 file socket trace sae
-            'path' => LOG_PATH,
-        ],
-        'cache' => [
-            'type'   => 'File',
-            'path'   => CACHE_PATH,
-            'prefix' => '',
-            'expire' => 0,
-        ]
-    ]
+    'config'    => THINK_PATH . 'convention' . EXT
 
 ];
