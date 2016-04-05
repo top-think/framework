@@ -49,8 +49,7 @@ class Console
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
         "think\\console\\command\\make\\Controller",
-        "think\\console\\command\\make\\Model",
-        "think\\console\\command\\cache\\Clear"
+        "think\\console\\command\\make\\Model"
     ];
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
