@@ -48,9 +48,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 字段完成规则
     protected $auto = [];
     // 新增的字段完成
-    protected $insert = [];
+    protected $insert = [
+        'create_time' => 'time',
+    ];
     // 更新的字段完成
-    protected $update = [];
+    protected $update = [
+        'update_time' => 'time',
+    ];
 
     // 当前执行的关联类型
     private $relation;
