@@ -15,6 +15,11 @@ use think\Cache;
 
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
+    const HAS_ONE         = 1;
+    const HAS_MANY        = 2;
+    const BELONGS_TO      = 3;
+    const BELONGS_TO_MANY = 4;
+
     // 当前实例
     private static $instance;
     // 数据库对象池
@@ -46,8 +51,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $insert = [];
     // 更新的字段完成
     protected $update = [];
-    // 关联
-    protected $relation = [];
+
+    // 当前执行的关联类型
+    private $relation;
 
     /**
      * 架构函数
@@ -155,12 +161,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (method_exists($this, $method)) {
             return $this->$method($value, $this->data);
         }
-        if (is_null($value)) {
-            // 检测关联数据
-            $method = 'getRelation' . Loader::parseName($name, 1);
-            if (method_exists($this, $method)) {
-                return $this->$method();
+        if (is_null($value) && method_exists($this, $name)) {
+            // 执行关联定义方法 （ 关联定义方法始终返回Db对象）
+            $db = $this->$name();
+            // 判断关联类型执行查询
+            switch ($this->relation) {
+                case self::HAS_ONE:
+                    $result = $db->find();
+                    break;
+                case self::HAS_MANY:
+                    $result = $db->select();
+                    break;
+                case self::BELONGS_TO:
+                    $result = $db->find();
+                    break;
+                case self::BELONGS_TO_MANY:
+                    $result = $db->select();
+                    break;
             }
+            // 避免影响其它操作方法
+            $this->relation = null;
+            return $result;
         }
         return $value;
     }
@@ -205,12 +226,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 保存当前数据对象的值 无需任何参数（自动识别新增或者更新）
+     * 保存当前数据对象的值（自动识别新增或者更新）
      * @access public
+     * @param array $data 数据
+     * @param array $where 更新条件
      * @return void
      */
-    public function save()
+    public function save($data = [], $where = [])
     {
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
+                $this->__set($key, $value);
+            }
+        }
         $data = $this->data;
 
         // 数据自动验证
@@ -226,9 +254,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $data[$name] = is_callable($rule) ? call_user_func_array($rule, [ & $data]) : $rule;
         }
 
-        if ($this->checkPkExists($data)) {
+        // 检测是否为更新数据
+        if ($this->isUpdate($data)) {
 
-            if (false === self::trigger('before_update', $data)) {
+            if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
             // 更新的时候检测字段更改
@@ -245,21 +274,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $data[$name] = is_callable($rule) ? call_user_func_array($rule, [ & $data]) : $rule;
             }
 
-            $result = self::db()->update($data);
-
-            // 关联更新
-            if (!empty($this->relation)) {
-                foreach ($this->relation as $key => $val) {
-                    if (isset($data[$key])) {
-                        $this->relationUpdate($key, $data[$key], $val);
-                    }
-                }
+            $db = self::db();
+            if (!empty($where)) {
+                $db->where($where);
             }
-            self::trigger('after_update', $data);
+            $result = $db->update($data);
+
+            $this->trigger('after_update', $this);
             return $result;
         } else {
 
-            if (false === self::trigger('before_insert', $data)) {
+            if (false === $this->trigger('before_insert', $this)) {
                 return false;
             }
 
@@ -277,15 +302,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->data[$this->pk] = $insertId;
             }
 
-            // 关联写入
-            if (!empty($this->relation)) {
-                foreach ($this->relation as $key => $val) {
-                    if (isset($data[$key])) {
-                        $this->relationInsert($key, $data[$key], $val);
-                    }
-                }
-            }
-            self::trigger('after_insert', $data);
+            $this->trigger('after_insert', $this);
             return $insertId ?: $result;
         }
     }
@@ -299,21 +316,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $data = $this->data;
 
-        if (false === self::trigger('before_delete', $data)) {
+        if (false === $this->trigger('before_delete', $this)) {
             return false;
         }
 
         $result = self::db()->delete($data);
 
-        // 关联删除
-        if ($result) {
-            if (!empty($this->relation)) {
-                foreach ($this->relation as $key => $val) {
-                    $this->relationDelete($key, $data, $val);
-                }
-            }
-        }
-        self::trigger('after_delete', $data);
+        $this->trigger('after_delete', $this);
         return $result;
     }
 
@@ -422,12 +431,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 检查数据中是否存在主键值
+     * 是否为更新操作
      * @access public
      * @param mixed $data 数据
      * @return bool
      */
-    public function checkPkExists($data = [])
+    public function isUpdate($data = [])
     {
         $data = $data ?: $this->data;
         $pk   = $this->pk;
@@ -442,6 +451,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
         }
+        // TODO 完善没有主键或者其他的情况
         return false;
     }
 
@@ -472,7 +482,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $event 事件名
      * @param mixed $params 传入参数（引用）
      */
-    protected static function trigger($event, &$params)
+    protected function trigger($event, &$params)
     {
         if (isset(self::$event[$event]) && is_callable(self::$event[$event])) {
             $result = call_user_func_array(self::$event[$event], [ & $params]);
@@ -536,26 +546,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 删除记录
      * @access public
      * @param mixed $data 主键列表
-     * @param bool $findFirst 是否查询
      * @return integer
      */
-    public static function destroy($data, $findFirst = false)
+    public static function destroy($data)
     {
-        // 保留删除的数据备用
-        if ($findFirst) {
-            $resultSet = self::all($data);
+        $model     = new static();
+        $resultSet = $model->select($data);
+        if ($resultSet) {
+            foreach ($resultSet as $data) {
+                $result = $data->delete();
+            }
         }
-
-        if (false === self::trigger('before_delete', $findFirst ? $resultSet : $data)) {
-            return false;
-        }
-
-        $result = self::db()->delete($data);
-
-        // 关联删除
-
-        // 删除回调
-        self::trigger('after_delete', $findFirst ? $resultSet : $data);
         return $result;
     }
 
@@ -571,136 +572,44 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $model;
     }
 
-    // 指定关联
-    public function relation($name, $relation = '')
-    {
-        if (is_array($name)) {
-            $this->relation = array_merge($this->relation, $name);
-        } else {
-            $this->relation[$name] = $relation;
-        }
-        return $this;
-    }
-
     // HAS ONE
     public function hasOne($model, $foreignKey = '', $localKey = '')
     {
-        $model      = $this->parseModel($model);
-        $localKey   = $localKey ?: $this->pk;
-        $foreignKey = $foreignKey ?: $this->name . '_id';
-        return $model::where($foreignKey, $this->data[$localKey])->find();
+        $model          = $this->parseModel($model);
+        $localKey       = $localKey ?: $this->pk;
+        $foreignKey     = $foreignKey ?: $this->name . '_id';
+        $this->relation = self::HAS_ONE;
+        return $model::where($foreignKey, $this->data[$localKey]);
     }
 
     // BELONGS TO
     public function belongsTo($model, $localKey = '', $foreignKey = '')
     {
-        $model      = $this->parseModel($model);
-        $foreignKey = $foreignKey ?: $this->pk;
-        $localKey   = $localKey ?: basename(str_replace('\\', '/', $model)) . '_id';
-        return $model::where($foreignKey, $this->data[$localKey])->find();
+        $model          = $this->parseModel($model);
+        $foreignKey     = $foreignKey ?: $this->pk;
+        $localKey       = $localKey ?: basename(str_replace('\\', '/', $model)) . '_id';
+        $this->relation = self::BELONGS_TO;
+        return $model::where($foreignKey, $this->data[$localKey]);
     }
 
     // HAS MANY
     public function hasMany($model, $foreignKey = '', $localKey = '')
     {
-        $model      = $this->parseModel($model);
-        $localKey   = $localKey ?: $this->pk;
-        $foreignKey = $foreignKey ?: $this->name . '_id';
-        return $model::where($foreignKey, $this->data[$localKey])->select();
+        $model          = $this->parseModel($model);
+        $localKey       = $localKey ?: $this->pk;
+        $foreignKey     = $foreignKey ?: $this->name . '_id';
+        $this->relation = self::HAS_MANY;
+        return $model::where($foreignKey, $this->data[$localKey]);
     }
 
     // BELONGS TO MANY
     public function belongsToMany($model, $localKey = '', $foreignKey = '')
     {
-        $model      = $this->parseModel($model);
-        $foreignKey = $foreignKey ?: $this->pk;
-        $localKey   = $localKey ?: basename(str_replace('\\', '/', $model)) . '_id';
-        return $model::where($foreignKey, $this->data[$localKey])->select();
-    }
-
-    // 关联写入
-    public function relationInsert($className, $data, $relation = [])
-    {
-        if (empty($relation) && isset($this->relation[$className])) {
-            $relation = $this->relation[$className];
-        }
-        $type       = isset($relation['relation_type']) ? $relation['relation_type'] : $relation;
-        $foreignKey = isset($relation['foreign_key']) ? $relation['foreign_key'] : strtolower($this->name) . '_id';
-        $className  = isset($relation['class_name']) ? $relation['class_name'] : $className;
-
-        $model = $this->parseModel(ucfirst($className));
-        switch ($type) {
-            case 'has_one':
-                $data[$foreignKey] = $this->data[$this->pk];
-                $model::create($data);
-                break;
-            case 'belongs_to':
-                break;
-            case 'has_many':
-                foreach ($data as $key => &$val) {
-                    $val[$foreignKey] = $this->data[$this->pk];
-                }
-                $model::insertAll($data);
-                break;
-        }
-        return $this;
-    }
-
-    // 关联更新
-    public function relationUpdate($className, $data, $relation = [])
-    {
-        if (empty($relation) && isset($this->relation[$className])) {
-            $relation = $this->relation[$className];
-        }
-        $type       = isset($relation['relation_type']) ? $relation['relation_type'] : $relation;
-        $foreignKey = isset($relation['foreign_key']) ? $relation['foreign_key'] : strtolower($this->name) . '_id';
-        $className  = isset($relation['class_name']) ? $relation['class_name'] : $className;
-
-        $model = $this->parseModel(ucfirst($className));
-        switch ($type) {
-            case 'has_one':
-                $class = new $model;
-                if ($class->checkPkExists($data)) {
-                    $class::update($data);
-                } else {
-                    $class::where($foreignKey, $this->data[$this->pk])->update($data);
-                }
-                break;
-            case 'belongs_to':
-                break;
-            case 'has_many':
-                $class = new $model;
-                foreach ($data as $key => $val) {
-                    $class::update($val);
-                }
-                break;
-        }
-        return $this;
-    }
-
-    // 关联删除
-    public function relationDelete($className, $data = '', $relation = [])
-    {
-        if (empty($relation) && isset($this->relation[$className])) {
-            $relation = $this->relation[$className];
-        }
-        $type       = isset($relation['relation_type']) ? $relation['relation_type'] : $relation;
-        $foreignKey = isset($relation['foreign_key']) ? $relation['foreign_key'] : strtolower($this->name) . '_id';
-        $className  = isset($relation['class_name']) ? $relation['class_name'] : $className;
-
-        $model = $this->parseModel(ucfirst($className));
-        $id    = $data ? $data[$this->pk] : $this->data[$this->pk];
-        switch ($type) {
-            case 'has_one':
-                $model::where($foreignKey, $id)->delete();
-                break;
-            case 'belongs_to':
-                break;
-            case 'has_many':
-                $model::where($foreignKey, $id)->delete();
-                break;
-        }
-        return $this;
+        $model          = $this->parseModel($model);
+        $foreignKey     = $foreignKey ?: $this->pk;
+        $localKey       = $localKey ?: basename(str_replace('\\', '/', $model)) . '_id';
+        $this->relation = self::BELONGS_TO_MANY;
+        return $model::where($foreignKey, $this->data[$localKey]);
     }
 
     /**

@@ -963,9 +963,9 @@ abstract class Driver
     public function bind($key, $value = false, $type = PDO::PARAM_STR)
     {
         if (is_array($key)) {
-            $this->options['bind'] = $key;
+            $this->bind = array_merge($this->bind, $key);
         } else {
-            $this->options['bind'][$key] = [$value, $type];
+            $this->bind[$key] = [$value, $type];
         }
         return $this;
     }
@@ -1224,16 +1224,16 @@ abstract class Driver
             if (isset($options['where']['AND'])) {
                 foreach ($options['where']['AND'] as $key => $val) {
                     $key = trim($key);
-                    if (in_array($key, $fields, true) && is_scalar($val) && empty($options['bind'][$key])) {
-                        $this->_parseType($options['where']['AND'], $key, $options['bind'], $options['table']);
+                    if (in_array($key, $fields, true) && is_scalar($val) && empty($this->bind[$key])) {
+                        $this->_parseType($options['where']['AND'], $key, $options['table']);
                     }
                 }
             }
             if (isset($options['where']['OR'])) {
                 foreach ($options['where']['OR'] as $key => $val) {
                     $key = trim($key);
-                    if (in_array($key, $fields, true) && is_scalar($val) && empty($options['bind'][$key])) {
-                        $this->_parseType($options['where']['OR'], $key, $options['bind'], $options['table']);
+                    if (in_array($key, $fields, true) && is_scalar($val) && empty($this->bind[$key])) {
+                        $this->_parseType($options['where']['OR'], $key, $options['table']);
                     }
                 }
             }
@@ -1243,9 +1243,6 @@ abstract class Driver
         if (!empty($options['alias'])) {
             $options['table'] .= ' ' . $options['alias'];
         }
-
-        // 参数绑定 全局化
-        $this->bind = !empty($options['bind']) ? $options['bind'] : [];
 
         // 查询过后清空sql表达式组装 避免影响下次查询
         $this->options = [];
@@ -1257,13 +1254,12 @@ abstract class Driver
      * @access protected
      * @param array $data 数据
      * @param string $key 字段名
-     * @param array $bind 参数绑定列表
      * @param string $tableName 表名
      * @return void
      */
-    protected function _parseType(&$data, $key, &$bind, $tableName = '')
+    protected function _parseType(&$data, $key, $tableName = '')
     {
-        if (':' == substr($data[$key], 0, 1) && isset($bind[substr($data[$key], 1)])) {
+        if (':' == substr($data[$key], 0, 1) && isset($this->bind[substr($data[$key], 1)])) {
             // 已经绑定 无需再次绑定 请确保bind方法优先执行
             return;
         }
@@ -1277,8 +1273,8 @@ abstract class Driver
         } elseif (false !== strpos($type[$key], 'bool')) {
             $data[$key] = (bool) $data[$key];
         }
-        $bind[$key] = [$data[$key], isset($binds[$key]) ? $binds[$key] : \PDO::PARAM_STR];
-        $data[$key] = ':' . $key;
+        $this->bind[$key] = [$data[$key], isset($binds[$key]) ? $binds[$key] : \PDO::PARAM_STR];
+        $data[$key]       = ':' . $key;
     }
 
     /**
@@ -1345,7 +1341,7 @@ abstract class Driver
                     $result[$item] = 'NULL';
                 } elseif (is_scalar($val)) {
                     // 过滤非标量数据
-                    $this->_parseType($data, $key, $this->bind);
+                    $this->_parseType($data, $key);
                     $result[$item] = $data[$key];
                 }
             }
@@ -1713,6 +1709,19 @@ abstract class Driver
     }
 
     /**
+     * 获取参数绑定信息并清空
+     * @access protected
+     * @param bool $reset 获取后清空
+     * @return array
+     */
+    protected function getBindParams()
+    {
+        $bind       = $this->bind;
+        $this->bind = [];
+        return $bind;
+    }
+
+    /**
      * 插入记录
      * @access public
      * @param mixed $data 数据
@@ -1730,7 +1739,7 @@ abstract class Driver
         // 兼容数字传入方式
         $sql = ($replace ? 'REPLACE' : 'INSERT') . ' INTO ' . $this->parseTable($options['table']) . ' (' . implode(',', $fields) . ') VALUES (' . implode(',', $values) . ')';
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        $result = $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
+        $result = $this->execute($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false);
         return $result;
     }
 
@@ -1755,7 +1764,7 @@ abstract class Driver
         }
         $sql = 'INSERT INTO ' . $this->parseTable($options['table']) . ' (' . implode(',', $fields) . ') ' . implode(' UNION ALL ', $values);
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false);
     }
 
     /**
@@ -1776,7 +1785,7 @@ abstract class Driver
         $fields = array_map([$this, 'parseKey'], $fields);
         $sql    = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') ';
         $sql .= $this->buildSelectSql($options);
-        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false);
     }
 
     /**
@@ -1833,7 +1842,7 @@ abstract class Driver
             . $this->parseLimit(!empty($options['limit']) ? $options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false);
     }
 
     /**
@@ -1871,7 +1880,7 @@ abstract class Driver
             . $this->parseLimit(!empty($options['limit']) ? $options['limit'] : '');
         }
         $sql .= $this->parseComment(!empty($options['comment']) ? $options['comment'] : '');
-        return $this->execute($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false);
+        return $this->execute($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false);
     }
 
     public function buildSql($sub = true)
@@ -1897,7 +1906,7 @@ abstract class Driver
 
         $options   = $this->_parseOptions();
         $sql       = $this->buildSelectSql($options);
-        $resultSet = $this->query($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
+        $resultSet = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
 
         if (!empty($resultSet)) {
             if (is_string($resultSet)) {
@@ -1970,7 +1979,7 @@ abstract class Driver
         $options          = $this->_parseOptions();
         $options['limit'] = 1;
         $sql              = $this->buildSelectSql($options);
-        $result           = $this->query($sql, isset($options['bind']) ? $options['bind'] : [], !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
+        $result           = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
 
         // 数据处理
         if (!empty($result)) {
