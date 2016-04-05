@@ -125,7 +125,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 设置数据对象的值 修改器
+     * 修改器 设置数据对象的值
      * @access public
      * @param string $name 名称
      * @param mixed $value 值
@@ -148,7 +148,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 获取数据对象的值 获取器
+     * 获取器 获取数据对象的值
      * @access public
      * @param string $name 名称
      * @return mixed
@@ -156,13 +156,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __get($name)
     {
         $value = isset($this->data[$name]) ? $this->data[$name] : null;
-        // 检测获取器
+
+        // 检测属性获取器
         $method = 'get' . Loader::parseName($name, 1) . 'Attr';
         if (method_exists($this, $method)) {
             return $this->$method($value, $this->data);
         }
+
         if (is_null($value) && method_exists($this, $name)) {
-            // 执行关联定义方法 （ 关联定义方法始终返回Db对象）
+            // 执行关联定义方法
             $db = $this->$name();
             // 判断关联类型执行查询
             switch ($this->relation) {
@@ -178,6 +180,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case self::BELONGS_TO_MANY:
                     $result = $db->select();
                     break;
+                default:
+                    // 直接返回
+                    $result = $db;
             }
             // 避免影响其它操作方法
             $this->relation = null;
@@ -342,6 +347,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 'rule' => $rule,
                 'msg'  => is_array($msg) ? $msg : [],
             ];
+        } else {
+            $this->validate = $rule;
         }
         return $this;
     }
