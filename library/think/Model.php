@@ -342,17 +342,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array $msg 提示信息
      * @return Model
      */
-    public function validate($rule = true, $msg = null)
+    public function validate($rule = true, $msg = [])
     {
-        if (true === $rule) {
-            $this->validate = $this->name;
-        } elseif (is_array($rule)) {
+        if (is_array($rule)) {
             $this->validate = [
                 'rule' => $rule,
-                'msg'  => is_array($msg) ? $msg : [],
+                'msg'  => $msg,
             ];
         } else {
-            $this->validate = $rule;
+            $this->validate = true === $rule ? strtolower($this->name) : $rule;
         }
         return $this;
     }
