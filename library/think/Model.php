@@ -12,6 +12,7 @@
 namespace think;
 
 use think\Cache;
+use think\Loader;
 
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
@@ -350,7 +351,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 'msg'  => $msg,
             ];
         } else {
-            $this->validate = true === $rule ? strtolower($this->name) : $rule;
+            $this->validate = true === $rule ? $this->name : $rule;
         }
         return $this;
     }
@@ -574,7 +575,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (false === strpos($model, '\\')) {
             $path = explode('\\', get_called_class());
             array_pop($path);
-            array_push($path, $model);
+            array_push($path, Loader::parseName($model, 1));
             $model = implode('\\', $path);
         }
         return $model;
@@ -585,7 +586,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $localKey       = $localKey ?: $this->pk;
-        $foreignKey     = $foreignKey ?: strtolower($this->name) . '_id';
+        $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $this->relation = self::HAS_ONE;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
@@ -595,7 +596,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $foreignKey     = $foreignKey ?: $this->pk;
-        $localKey       = $localKey ?: strtolower(basename(str_replace('\\', '/', $model))) . '_id';
+        $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = self::BELONGS_TO;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
@@ -605,7 +606,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $localKey       = $localKey ?: $this->pk;
-        $foreignKey     = $foreignKey ?: strtolower($this->name) . '_id';
+        $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $this->relation = self::HAS_MANY;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
@@ -615,7 +616,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model          = $this->parseModel($model);
         $foreignKey     = $foreignKey ?: $this->pk;
-        $localKey       = $localKey ?: strtolower(basename(str_replace('\\', '/', $model))) . '_id';
+        $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = self::BELONGS_TO_MANY;
         return $model::where($foreignKey, $this->data[$localKey]);
     }
