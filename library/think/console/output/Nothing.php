@@ -14,7 +14,7 @@ namespace think\console\output;
 
 use think\console\Output;
 
-class Null extends Output
+class Nothing extends Output
 {
     /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct()
