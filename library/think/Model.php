@@ -59,6 +59,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     // 当前执行的关联类型
     private $relation;
+    // 是否为更新
+    protected $isUpdate = null;
 
     /**
      * 架构函数
@@ -67,7 +69,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __construct($data = [])
     {
-        $this->data = $data;
+        if (empty($data)) {
+            $this->isUpdate = false;
+        } else {
+            $this->data = $data;
+        }
         $this->name = basename(str_replace('\\', '/', get_class($this)));
     }
 
@@ -112,6 +118,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             throw new Exception('data type invalid', 10300);
         }
         $this->data = $data;
+        // 标记为新增数据
+        $this->isUpdate = false;
         return $this;
     }
 
@@ -245,6 +253,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function save($data = [], $where = [])
     {
         if (!empty($data)) {
+            // 标记为更新数据
+            $this->isUpdate = true;
             foreach ($data as $key => $value) {
                 $this->__set($key, $value);
             }
@@ -405,16 +415,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 是否为更新操作
+     * 是否为数据库更新操作
      * @access public
      * @param mixed $data 数据
      * @return bool
      */
-    public function isUpdate($data = [])
+    public function isUpdate($data = null)
     {
+        if (is_bool($data)) {
+            $this->isUpdate = $data;
+            return $this;
+        }
+
+        // 检测isUpdate属性
+        if (isset($this->isUpdate)) {
+            return $this->isUpdate;
+        }
+
+        // 根据主键判断是否更新
         $data = $data ?: $this->data;
-        // 判断主键
-        $pk = $this->pk;
+        $pk   = $this->pk;
         if (is_string($pk) && isset($data[$pk])) {
             return true;
         } elseif (is_array($pk)) {
@@ -491,12 +511,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $guid   = 'model_' . $name . '_' . $data;
             $result = Cache::get($guid);
             if ($result) {
-                return new static($result);
+                $model = new static($result);
+                $model->isUpdate(true);
+                return $model;
             }
         }
 
         $result = self::db()->find($data);
 
+        if ($result) {
+            // 标记为更新数据
+            $result->isUpdate(true);
+        }
         if ($cache) {
             // 缓存模型数据
             Cache::set($guid, $result->toArray());
