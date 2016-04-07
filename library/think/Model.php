@@ -38,7 +38,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $cache = [];
     // 记录改变字段
     protected $change = [];
-    // 数据表主键
+    // 数据表主键 复合主键使用数组定义
     protected $pk = 'id';
     // 错误信息
     protected $error;
@@ -57,6 +57,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         'update_time' => 'time',
     ];
 
+    // 字段类型或者格式转换
+    protected $type = [];
     // 当前执行的关联类型
     private $relation;
     // 是否为更新
@@ -154,6 +156,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $value = $this->$method($value, $this->data);
         }
 
+        // 类型转换 或者 字符串处理
+        if (isset($this->type[$name])) {
+            $type = $this->type[$name];
+            switch ($type) {
+                case 'integer':
+                    $value = (int) $value;
+                    break;
+                case 'float':
+                    $value = (float) $value;
+                    break;
+                case 'boolean':
+                    $value = (bool) $value;
+                    break;
+                default:
+                    if (is_callable($type)) {
+                        $value = call_user_func_array($type, [$value]);
+                    }
+            }
+        }
+
         // 设置数据对象属性
         if (isset($this->data[$name]) && $this->data[$name] != $value && !in_array($name, $this->change)) {
             $this->change[] = $name;
@@ -171,6 +193,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __get($name)
     {
         $value = isset($this->data[$name]) ? $this->data[$name] : null;
+
+        // 类型转换
+        if (!is_null($value) && isset($this->type[$name])) {
+            $type = $this->type[$name];
+            switch ($type) {
+                case 'integer':
+                    $value = (int) $value;
+                    break;
+                case 'float':
+                    $value = (float) $value;
+                    break;
+                case 'boolean':
+                    $value = (bool) $value;
+                    break;
+                default:
+                    if (is_callable($type)) {
+                        $value = call_user_func_array($type, [$value]);
+                    }
+            }
+        }
 
         // 检测属性获取器
         $method = 'get' . Loader::parseName($name, 1) . 'Attr';

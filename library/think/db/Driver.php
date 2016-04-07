@@ -539,13 +539,13 @@ abstract class Driver
             $info = $this->getFields($tableName);
             // 字段大小写转换
             switch ($this->params[PDO::ATTR_CASE]) {
-                case \PDO::CASE_LOWER:
+                case PDO::CASE_LOWER:
                     $info = array_change_key_case($info);
                     break;
-                case \PDO::CASE_UPPER:
+                case PDO::CASE_UPPER:
                     $info = array_change_key_case($info, CASE_UPPER);
                     break;
-                case \PDO::CASE_NATURAL:
+                case PDO::CASE_NATURAL:
                 default:
                     // 不做转换
             }
@@ -556,11 +556,11 @@ abstract class Driver
                 // 记录字段类型
                 $type[$key] = $val['type'];
                 if (preg_match('/(int|double|float|decimal|real|numeric|serial)/is', $val['type'])) {
-                    $bind[$key] = \PDO::PARAM_INT;
+                    $bind[$key] = PDO::PARAM_INT;
                 } elseif (preg_match('/bool/is', $val['type'])) {
-                    $bind[$key] = \PDO::PARAM_BOOL;
+                    $bind[$key] = PDO::PARAM_BOOL;
                 } else {
-                    $bind[$key] = \PDO::PARAM_STR;
+                    $bind[$key] = PDO::PARAM_STR;
                 }
                 if (!empty($val['primary'])) {
                     $pk[] = $key;
@@ -1248,7 +1248,7 @@ abstract class Driver
                 foreach ($options['where']['AND'] as $key => $val) {
                     $key = trim($key);
                     if (in_array($key, $fields, true) && is_scalar($val) && empty($this->bind[$key])) {
-                        $this->_parseType($options['where']['AND'], $key, $options['table']);
+                        $this->parseTypeBind($options['where']['AND'], $key, $options['table']);
                     }
                 }
             }
@@ -1256,7 +1256,7 @@ abstract class Driver
                 foreach ($options['where']['OR'] as $key => $val) {
                     $key = trim($key);
                     if (in_array($key, $fields, true) && is_scalar($val) && empty($this->bind[$key])) {
-                        $this->_parseType($options['where']['OR'], $key, $options['table']);
+                        $this->parseTypeBind($options['where']['OR'], $key, $options['table']);
                     }
                 }
             }
@@ -1273,30 +1273,21 @@ abstract class Driver
     }
 
     /**
-     * 数据类型检测和自动转换
+     * 数据字段自动类型绑定
      * @access protected
      * @param array $data 数据
      * @param string $key 字段名
      * @param string $tableName 表名
      * @return void
      */
-    protected function _parseType(&$data, $key, $tableName = '')
+    protected function parseTypeBind(&$data, $key, $tableName = '')
     {
         if (':' == substr($data[$key], 0, 1) && isset($this->bind[substr($data[$key], 1)])) {
             // 已经绑定 无需再次绑定 请确保bind方法优先执行
             return;
         }
-        $binds = $this->getTableInfo($tableName, 'bind');
-        $type  = $this->getTableInfo($tableName, 'type');
-        // 强制类型转换
-        if (false !== strpos($type[$key], 'int') && false !== strpos($type[$key], 'int')) {
-            $data[$key] = (int) $data[$key];
-        } elseif (false !== strpos($type[$key], 'float') || false !== strpos($type[$key], 'double')) {
-            $data[$key] = (float) $data[$key];
-        } elseif (false !== strpos($type[$key], 'bool')) {
-            $data[$key] = (bool) $data[$key];
-        }
-        $this->bind[$key] = [$data[$key], isset($binds[$key]) ? $binds[$key] : \PDO::PARAM_STR];
+        $binds            = $this->getTableInfo($tableName, 'bind');
+        $this->bind[$key] = [$data[$key], isset($binds[$key]) ? $binds[$key] : PDO::PARAM_STR];
         $data[$key]       = ':' . $key;
     }
 
@@ -1367,7 +1358,7 @@ abstract class Driver
                     $result[$item] = 'NULL';
                 } elseif (is_scalar($val)) {
                     // 过滤非标量数据
-                    $this->_parseType($data, $key);
+                    $this->parseTypeBind($data, $key);
                     $result[$item] = $data[$key];
                 }
             }
