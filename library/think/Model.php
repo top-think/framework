@@ -256,6 +256,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
+        if (false === $this->trigger('before_write', $this)) {
+            return false;
+        }
+
         // 数据自动完成
         foreach ($this->auto as $name => $rule) {
             if (!in_array($name, $this->change)) {
@@ -290,8 +294,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             $result = $db->update($data);
 
+            // 赋值数据对象值
+            $this->data = $data;
+            // 更新回调
             $this->trigger('after_update', $this);
-            return $result;
+
         } else {
 
             if (false === $this->trigger('before_insert', $this)) {
@@ -308,13 +315,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 获取自动增长主键
             $insertId = self::db()->getLastInsID();
             if (is_string($this->pk) && $insertId) {
-                $data[$this->pk]       = $insertId;
-                $this->data[$this->pk] = $insertId;
+                $data[$this->pk] = $insertId;
             }
+            $result = $insertId ?: $result;
 
+            // 数据对象赋值
+            $this->data = $data;
+            // 新增回调
             $this->trigger('after_insert', $this);
-            return $insertId ?: $result;
+
         }
+
+        // 写入回调
+        $this->trigger('after_write', $this);
+
+        return $result;
     }
 
     /**
@@ -352,57 +367,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             ];
         } else {
             $this->validate = true === $rule ? $this->name : $rule;
-        }
-        return $this;
-    }
-
-    /**
-     * 设置字段自动完成（包括新增和更新）
-     * @access public
-     * @param string $field 字段名或者数组规则
-     * @param array|null $rule 完成规则
-     * @return Model
-     */
-    public function auto($field, $rule = null)
-    {
-        if (is_array($field)) {
-            $this->auto = array_merge($this->auto, $field);
-        } else {
-            $this->auto[$field] = $rule;
-        }
-        return $this;
-    }
-
-    /**
-     * 设置写入自动完成
-     * @access public
-     * @param string $field 字段名或者数组规则
-     * @param array|null $rule 完成规则
-     * @return Model
-     */
-    public function autoInsert($field, $rule = null)
-    {
-        if (is_array($field)) {
-            $this->insert = array_merge($this->insert, $field);
-        } else {
-            $this->insert[$field] = $rule;
-        }
-        return $this;
-    }
-
-    /**
-     * 设置更新自动完成
-     * @access public
-     * @param string $field 字段名或者数组规则
-     * @param array|null $rule 完成规则
-     * @return Model
-     */
-    public function autoUpdate($field, $rule = null)
-    {
-        if (is_array($field)) {
-            $this->update = array_merge($this->update, $field);
-        } else {
-            $this->update[$field] = $rule;
         }
         return $this;
     }
@@ -544,11 +508,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 查找多条记录
      * @access public
      * @param mixed $data 主键列表
+     * @param false|string|array $load 预载入模型
      * @return array|string
      */
-    public static function all($data = [])
+    public static function all($data = [], $load = false)
     {
-        return self::db()->select($data);
+        $resultSet = self::db()->select($data);
+        if ($load) {
+            // 预载入关联模型
+            if (is_string($load)) {
+                $load = (array) $load;
+            }
+
+            foreach ($resultSet as &$result) {
+                foreach ($load as $relation) {
+                    $model             = new static($result);
+                    $result->$relation = $model->$relation();
+                }
+            }
+        }
+        return $resultSet;
     }
 
     /**
@@ -598,6 +577,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey     = $foreignKey ?: $this->pk;
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = self::BELONGS_TO;
+
         return $model::where($foreignKey, $this->data[$localKey]);
     }
 
