@@ -323,11 +323,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $result = self::db()->insert($data);
 
             // 获取自动增长主键
-            $insertId = self::db()->getLastInsID();
-            if (is_string($this->pk) && $insertId) {
-                $data[$this->pk] = $insertId;
+            if ($result) {
+                $insertId = self::db()->getLastInsID();
+                if (is_string($this->pk) && $insertId) {
+                    $data[$this->pk] = $insertId;
+                }
             }
-            $result = $insertId ?: $result;
 
             // 数据对象赋值
             $this->data = $data;
