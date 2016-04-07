@@ -48,14 +48,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $validate;
     // 字段完成规则
     protected $auto = [];
+
+    // 自动时间戳记录
+    protected $timestamps = true;
+    // 新增时间戳字段
+    protected $createTimeField = 'create_time';
+    // 更新时间戳字段
+    protected $updateTimeField = 'update_time';
+
     // 新增的字段完成
-    protected $insert = [
-        'create_time' => 'time',
-    ];
+    protected $insert = [];
     // 更新的字段完成
-    protected $update = [
-        'update_time' => 'time',
-    ];
+    protected $update = [];
 
     // 字段类型或者格式转换
     protected $type = [];
@@ -169,10 +173,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'boolean':
                     $value = (bool) $value;
                     break;
-                default:
-                    if (is_callable($type)) {
-                        $value = call_user_func_array($type, [$value]);
-                    }
             }
         }
 
@@ -207,10 +207,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'boolean':
                     $value = (bool) $value;
                     break;
-                default:
-                    if (is_callable($type)) {
-                        $value = call_user_func_array($type, [$value]);
-                    }
             }
         }
 
@@ -318,10 +314,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         foreach ($this->auto as $name => $rule) {
             if (!in_array($name, $this->change)) {
                 $this->change[] = $name;
+                $data[$name]    = $this->auto($name, $rule, $data);
             }
-            $data[$name] = is_callable($rule) ? call_user_func_array($rule, [ & $data]) : $rule;
         }
 
+        if ($this->timestamps) {
+            $data[$this->updateTimeField] = NOW_TIME;
+        }
         // 检测是否为更新数据
         if ($this->isUpdate($data)) {
 
@@ -337,7 +336,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 自动更新
             foreach ($this->update as $name => $rule) {
-                $data[$name] = is_callable($rule) ? call_user_func_array($rule, [ & $data]) : $rule;
+                $data[$name] = $this->auto($name, $rule, $data);
             }
 
             $db = self::db();
@@ -357,9 +356,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
+            if ($this->timestamps) {
+                $data[$this->createTimeField] = NOW_TIME;
+            }
+
             // 自动写入
             foreach ($this->insert as $name => $rule) {
-                $data[$name] = is_callable($rule) ? call_user_func_array($rule, [ & $data]) : $rule;
+                $data[$name] = $this->auto($name, $rule, $data);
             }
 
             $result = self::db()->insert($data);
@@ -382,6 +385,28 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 写入回调
         $this->trigger('after_write', $this);
 
+        return $result;
+    }
+
+    /**
+     * 数据自动完成
+     * @access protected
+     * @return mixed
+     */
+    protected function auto($key, $val, &$data)
+    {
+        $value = isset($data[$key]) ? $data[$key] : null;
+        $rule  = isset($val[0]) ? $val[0] : $val;
+        $type  = isset($val[1]) ? $val[1] : 'value';
+        switch ($type) {
+            case 'callback':
+                $result = call_user_func_array($rule, [$value, &$data]);
+                break;
+            case 'value':
+            default:
+                $result = $rule;
+                break;
+        }
         return $result;
     }
 
