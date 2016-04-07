@@ -617,10 +617,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 初始化数据库对象
-     * @access private
+     * @access protected
      * @return object
      */
-    private static function db()
+    protected static function db()
     {
         $model = get_called_class();
         $name  = basename(str_replace('\\', '/', $model));

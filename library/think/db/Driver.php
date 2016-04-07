@@ -84,7 +84,7 @@ abstract class Driver
         'fields_strict' => true,
     ];
     // 数据库表达式
-    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS'];
+    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL'];
     // 查询表达式
     protected $selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
 
@@ -617,7 +617,7 @@ abstract class Driver
      * @param mixed $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @return Model
+     * @return Db
      */
     public function where($field, $op = null, $condition = null)
     {
@@ -625,29 +625,10 @@ abstract class Driver
             // 使用查询对象
             $this->options['where'] = $field;
             return $this;
-        } elseif ($field instanceof \Closure) {
-            // 闭包查询
-            $where[] = $field;
-        } elseif (is_null($op) && is_null($condition)) {
-            if (is_array($field)) {
-                // 数组批量查询
-                $where = $field;
-            } else {
-                // 字符串查询
-                $where[] = ['exp', $field];
-            }
-        } elseif (is_array($op)) {
-            // 字段多条件查询
-            $param = func_get_args();
-            array_shift($param);
-            $where[$field] = $param;
-        } elseif (is_null($condition)) {
-            // 字段相等查询
-            $where[$field] = ['eq', $op];
-        } else {
-            // 字段表达式查询
-            $where[$field] = [$op, $condition];
         }
+
+        $where = $this->parseWhereExp($field, $op, $condition);
+
         if (!isset($this->options['where']['AND'])) {
             $this->options['where']['AND'] = [];
         }
@@ -661,9 +642,27 @@ abstract class Driver
      * @param mixed $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @return Model
+     * @return Db
      */
     public function whereOr($field, $op = null, $condition = null)
+    {
+        $where = $this->parseWhereExp($field, $op, $condition);
+        if (!isset($this->options['where']['OR'])) {
+            $this->options['where']['OR'] = [];
+        }
+        $this->options['where']['OR'] = array_merge($this->options['where']['OR'], $where);
+        return $this;
+    }
+
+    /**
+     * 分析查询表达式
+     * @access public
+     * @param mixed $field 查询字段
+     * @param mixed $op 查询表达式
+     * @param mixed $condition 查询条件
+     * @return Db
+     */
+    protected function parseWhereExp($field, $op, $condition)
     {
         if ($field instanceof \Closure) {
             $where[] = $field;
@@ -679,23 +678,23 @@ abstract class Driver
             $param = func_get_args();
             array_shift($param);
             $where[$field] = $param;
+        } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
+            // null查询
+            $where[$field] = [$op, ''];
         } elseif (is_null($condition)) {
+            // 字段相等查询
             $where[$field] = ['eq', $op];
         } else {
             $where[$field] = [$op, $condition];
         }
-        if (!isset($this->options['where']['OR'])) {
-            $this->options['where']['OR'] = [];
-        }
-        $this->options['where']['OR'] = array_merge($this->options['where']['OR'], $where);
-        return $this;
+        return $where;
     }
 
     /**
      * 指定查询条件
      * @access public
      * @param mixed $where 条件表达式
-     * @return Model
+     * @return Db
      */
     public function whereExist($where)
     {
@@ -1541,6 +1540,9 @@ abstract class Driver
         } elseif ('EXP' == $exp) {
             // 表达式查询
             $whereStr .= $key . ' ' . $value;
+        } elseif (in_array($exp, ['NOT NULL', 'NULL'])) {
+            // NULL 查询
+            $whereStr .= $key . ' IS ' . $exp;
         } elseif (in_array($exp, ['NOT IN', 'IN'])) {
             // IN 查询
             if ($value instanceof \Closure) {
