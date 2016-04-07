@@ -1004,20 +1004,24 @@ abstract class Driver
     /**
      * 得到某个字段的值 或者多个字段列数组
      * @access public
-     * @return string
+     * @param string|array $field  字段名
+     * @param bool $resultSet  是否需要返回字段列表
+     * @return mixed
      */
     public function get($field, $resultSet = false)
     {
-        $options['field'] = $field;
         // 返回数据个数
         if (!$resultSet) {
-            $options['limit'] = 1;
+            $pdo = $this->field($field)->fetchPdo(true)->find();
+            return $pdo->fetchColumn();
+        } else {
+            $pdo = $this->field($field)->fetchPdo(true)->select();
+            if (1 == $pdo->columnCount()) {
+                return $pdo->fetchAll(PDO::FETCH_COLUMN);
+            }
+            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         }
-        $result = $this->options($options)->select();
-        if (1 == $options['limit']) {
-            $data = reset($result[0]);
-            return $data;
-        }
+
         $fields = array_keys($result[0]);
         $count  = count($fields);
         $key1   = array_shift($fields);
@@ -1027,33 +1031,61 @@ abstract class Driver
                 $array[$val[$key1]] = $val;
             } elseif (2 == $count) {
                 $array[$val[$key1]] = $val[$key2];
-            } else {
-                $array[] = $val[$key1];
             }
         }
         return $array;
     }
 
+    /**
+     * COUNT查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
     public function count($field = '*')
     {
         return $this->get('COUNT(' . $field . ') AS tp_count');
     }
 
+    /**
+     * SUM查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
     public function sum($field = '*')
     {
         return $this->get('SUM(' . $field . ') AS tp_sum');
     }
 
+    /**
+     * MIN查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
     public function min($field = '*')
     {
         return $this->get('MIN(' . $field . ') AS tp_min');
     }
 
+    /**
+     * MAX查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
     public function max($field = '*')
     {
         return $this->get('MAX(' . $field . ') AS tp_max');
     }
 
+    /**
+     * AVG查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
     public function avg($field = '*')
     {
         return $this->get('AVG(' . $field . ') AS tp_avg');
@@ -1902,7 +1934,7 @@ abstract class Driver
 
         $options   = $this->_parseOptions();
         $sql       = $this->buildSelectSql($options);
-        $resultSet = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_pdo']) ? $options['fetch_pdo'] : true);
+        $resultSet = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_pdo']) ? $options['fetch_pdo'] : false);
 
         if (!empty($resultSet)) {
             if (is_string($resultSet)) {
