@@ -217,10 +217,10 @@ abstract class Driver
      * @param array $bind 参数绑定
      * @param boolean $fetch  不执行只是获取SQL
      * @param boolean $master  是否在主服务器读操作
-     * @param boolean $mode  fetch Mode false表示不返回数据只返回 PDOStatement 对象
+     * @param bool $returnPdo  是否返回 PDOStatement 对象
      * @return mixed
      */
-    public function query($sql, $bind = [], $fetch = false, $master = false, $mode = true)
+    public function query($sql, $bind = [], $fetch = false, $master = false, $returnPdo = false)
     {
         $this->initConnect($master);
         if (!$this->linkID) {
@@ -250,7 +250,7 @@ abstract class Driver
             $result = $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
-            return $mode ? $this->getResult($mode) : $this->PDOStatement;
+            return $returnPdo ? $this->PDOStatement : $this->getResult();
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->queryStr);
         }
@@ -360,17 +360,9 @@ abstract class Driver
      * @access private
      * @return array
      */
-    private function getResult($mode)
+    private function getResult()
     {
-        if (true === $mode) {
-            $mode = PDO::FETCH_ASSOC;
-        }
-        // 根据fetchMode返回数据集
-        if (is_array($mode)) {
-            $result = $this->PDOStatement->fetchAll($mode[0], $mode[1]);
-        } else {
-            $result = $this->PDOStatement->fetchAll($mode);
-        }
+        $result        = $this->PDOStatement->fetchAll(PDO::FETCH_ASSOC);
         $this->numRows = count($result);
         return $result;
     }
@@ -919,12 +911,12 @@ abstract class Driver
     /**
      * 不主动获取数据集
      * @access public
-     * @param mixed $fetch fetch mode
+     * @param bool $pdo 是否返回 PDOStatement 对象
      * @return Model
      */
-    public function fetchMode($fetch = true)
+    public function fetchPdo($pdo = true)
     {
-        $this->options['fetch_mode'] = $fetch;
+        $this->options['fetch_pdo'] = $pdo;
         return $this;
     }
 
@@ -1195,7 +1187,7 @@ abstract class Driver
 
     public function options(array $options)
     {
-        $this->options = array_merge($this->options, $options);
+        $this->options = $options;
         return $this;
     }
 
@@ -1470,6 +1462,7 @@ abstract class Driver
                 if ($value instanceof \Closure) {
                     // 使用闭包查询
                     $class = clone $this;
+                    $class->options([]);
                     call_user_func_array($value, [ & $class]);
                     $str[] = ' ' . $key . ' ( ' . $class->buildWhere() . ' )';
                 } else {
@@ -1567,6 +1560,7 @@ abstract class Driver
     protected function parseClosure($call, $show = true)
     {
         $class = clone $this;
+        $class->options([]);
         call_user_func_array($call, [ & $class]);
         return $class->buildSql($show);
     }
@@ -1908,7 +1902,7 @@ abstract class Driver
 
         $options   = $this->_parseOptions();
         $sql       = $this->buildSelectSql($options);
-        $resultSet = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
+        $resultSet = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_pdo']) ? $options['fetch_pdo'] : true);
 
         if (!empty($resultSet)) {
             if (is_string($resultSet)) {
@@ -1981,7 +1975,7 @@ abstract class Driver
         $options          = $this->_parseOptions();
         $options['limit'] = 1;
         $sql              = $this->buildSelectSql($options);
-        $result           = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_mode']) ? $options['fetch_mode'] : true);
+        $result           = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_pdo']) ? $options['fetch_pdo'] : false);
 
         // 数据处理
         if (!empty($result)) {
