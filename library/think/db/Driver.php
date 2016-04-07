@@ -1350,6 +1350,9 @@ abstract class Driver
      */
     protected function parseData($data, $bind)
     {
+        if (empty($data)) {
+            return [];
+        }
         $fields = array_keys($bind);
         foreach ($data as $key => $val) {
             if (!in_array($key, $fields, true)) {
@@ -1761,7 +1764,10 @@ abstract class Driver
         $options = $this->_parseOptions();
         $bind    = $this->getTableInfo($options['table'], 'bind');
 
-        $data   = $this->parseData($data, $bind);
+        $data = $this->parseData($data, $bind);
+        if (empty($data)) {
+            return 0;
+        }
         $fields = array_keys($data);
         $values = array_values($data);
         // 兼容数字传入方式
@@ -1854,7 +1860,9 @@ abstract class Driver
         $bind  = $this->getTableInfo($options['table'], 'bind');
         $table = $this->parseTable($options['table']);
         $data  = $this->parseData($data, $bind);
-
+        if (empty($data)) {
+            return 0;
+        }
         foreach ($data as $key => $val) {
             $set[] = $key . '=' . $val;
         }

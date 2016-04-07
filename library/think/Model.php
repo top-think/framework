@@ -286,12 +286,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
-            // 更新的时候检测字段更改
-            if (!empty($this->change)) {
-                foreach ($data as $key => $val) {
-                    if (!in_array($key, $this->change) && !$this->isPk($key) && !isset($this->relation[$key])) {
-                        unset($data[$key]);
-                    }
+            // 去除没有更新的字段
+            foreach ($data as $key => $val) {
+                if (!in_array($key, $this->change) && !$this->isPk($key) && !isset($this->relation[$key])) {
+                    unset($data[$key]);
                 }
             }
 
