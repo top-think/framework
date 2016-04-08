@@ -179,7 +179,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 标记字段更改
-        if (isset($this->data[$name]) && $this->data[$name] != $value && !in_array($name, $this->change)) {
+        if (!isset($this->data[$name]) || (isset($this->data[$name]) && $this->data[$name] != $value && !in_array($name, $this->change))) {
             $this->change[] = $name;
         }
         // 设置数据对象属性
@@ -360,8 +360,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         // 写入回调
         $this->trigger('after_write', $this);
-        // 清空
-        $this->isUpdate = null;
+
+        // 标记为更新
+        $this->isUpdate = true;
         return $result;
     }
 
