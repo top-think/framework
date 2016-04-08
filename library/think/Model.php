@@ -481,7 +481,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 数据自动验证
-     * @access protected
+     * @access public
      * @return void
      */
     public function dataValidate()
