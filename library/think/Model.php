@@ -153,6 +153,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 如果是时间戳字段 则自动写入
             $value = NOW_TIME;
         } else {
+            // 旧值
+            $oldValue = isset($this->data[$name])?$this->data[$name]:null;
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
@@ -182,7 +184,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 标记字段更改
-        if (isset($this->data[$name]) && $this->data[$name] != $value && !in_array($name, $this->change)) {
+        if ($oldValue !== $value && !in_array($name, $this->change)) {
             $this->change[] = $name;
         }
         // 设置数据对象属性
