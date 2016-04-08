@@ -614,6 +614,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $result;
     }
 
+    // 命名范围
+    public static function scope($name)
+    {
+        $model = new static();
+        return $model->$name();
+    }
+
     // 解析模型的完整命名空间
     protected function parseModel($model)
     {
