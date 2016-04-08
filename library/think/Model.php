@@ -733,4 +733,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return call_user_func_array([self::db(), $method], $params);
     }
 
+    /**
+     * 解序列化后处理
+     */
+    public function __wakeup()
+    {
+        $this->initialize();
+    }
+
 }
