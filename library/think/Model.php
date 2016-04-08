@@ -305,7 +305,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 数据自动验证
-        if (!$this->dataValidate($this->data)) {
+        if (!$this->dataValidate()) {
             return false;
         }
 
@@ -367,6 +367,31 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->trigger('after_write', $this);
 
         return $result;
+    }
+    
+    /**
+     * 修改当前数据对象
+     * @access public
+     * @param array $data 数据
+     * @param array $where 更新条件
+     * @return integer
+     */
+    public function update($data = [], $where = [])
+    {
+        $this->isUpdate = true;
+        return $this->save($data, $where);
+    }
+
+    /**
+     * 保存当前数据对象
+     * @access public
+     * @param array $data 数据
+     * @return integer
+     */
+    public function insert($data = [])
+    {
+        $this->isUpdate = false;
+        return $this->save($data, []);
     }
 
     /**
@@ -456,11 +481,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 数据自动验证
-     * @access protected
-     * @param array $data  数据
+     * @access public
      * @return void
      */
-    protected function dataValidate(&$data)
+    public function dataValidate()
     {
         if (!empty($this->validate)) {
             $info = $this->validate;
@@ -478,7 +502,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $validate->scene($scene);
                 }
             }
-            if (!$validate->check($data)) {
+            if (!$validate->check($this->data)) {
                 $this->error = $validate->getError();
                 return false;
             }
