@@ -55,10 +55,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $createTimeField = 'create_time';
     // 更新时间戳字段
     protected $updateTimeField = 'update_time';
+    // 时间戳字段列表
+    protected $timestampField = [];
 
-    // 新增的字段完成
+    // 新增要自动完成的字段列表
     protected $insert = [];
-    // 更新的字段完成
+    // 更新要自动完成的字段列表
     protected $update = [];
 
     // 字段类型或者格式转换
@@ -307,10 +309,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->__set($key, $value);
             }
         }
-        $data = $this->data;
 
         // 数据自动验证
-        if (!$this->dataValidate($data)) {
+        if (!$this->dataValidate($this->data)) {
             return false;
         }
 
@@ -319,42 +320,45 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 数据自动完成
-        foreach ($this->auto as $name => $rule) {
-            if (!in_array($name, $this->change)) {
-                $this->change[] = $name;
-                $data[$name]    = $this->auto($name, $rule, $data);
+        foreach ($this->auto as $field) {
+            if (!in_array($field, $this->change)) {
+                // 没有经过修改器赋值则进行自动完成
+                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
             }
         }
 
         if ($this->timestamps) {
-            $data[$this->updateTimeField] = NOW_TIME;
+            // 自动更新时间戳
+            $this->data[$this->updateTimeField] = NOW_TIME;
         }
+
         // 检测是否为更新数据
-        if ($this->isUpdate($data)) {
+        if ($this->isUpdate()) {
 
             if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
-            // 去除没有更新的字段
-            foreach ($data as $key => $val) {
-                if (!in_array($key, $this->change) && !$this->isPk($key) && !isset($this->relation[$key])) {
-                    unset($data[$key]);
+
+            // 自动更新
+            foreach ($this->update as $field) {
+                if (!in_array($field, $this->change)) {
+                    $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
                 }
             }
 
-            // 自动更新
-            foreach ($this->update as $name => $rule) {
-                $data[$name] = $this->auto($name, $rule, $data);
+            // 去除没有更新的字段
+            foreach ($this->data as $key => $val) {
+                if (!in_array($key, $this->change) && !$this->isPk($key) && !isset($this->relation[$key])) {
+                    unset($this->data[$key]);
+                }
             }
 
             $db = self::db();
             if (!empty($where)) {
                 $db->where($where);
             }
-            $result = $db->update($data);
+            $result = $db->update($this->data);
 
-            // 赋值数据对象值
-            $this->data = $data;
             // 更新回调
             $this->trigger('after_update', $this);
 
@@ -365,26 +369,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             if ($this->timestamps) {
-                $data[$this->createTimeField] = NOW_TIME;
+                // 自动写入时间戳
+                $this->data[$this->createTimeField] = NOW_TIME;
             }
 
             // 自动写入
-            foreach ($this->insert as $name => $rule) {
-                $data[$name] = $this->auto($name, $rule, $data);
+            foreach ($this->insert as $field) {
+                if (!in_array($field, $this->change)) {
+                    $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
+                }
             }
 
-            $result = self::db()->insert($data);
+            $result = self::db()->insert($this->data);
 
             // 获取自动增长主键
             if ($result) {
                 $insertId = self::db()->getLastInsID();
                 if (is_string($this->pk) && $insertId) {
-                    $data[$this->pk] = $insertId;
+                    $this->data[$this->pk] = $insertId;
                 }
             }
 
-            // 数据对象赋值
-            $this->data = $data;
             // 新增回调
             $this->trigger('after_insert', $this);
 
@@ -397,41 +402,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 数据自动完成
-     * @access protected
-     * @return mixed
-     */
-    protected function auto($key, $val, &$data)
-    {
-        $value = isset($data[$key]) ? $data[$key] : null;
-        $rule  = isset($val[0]) ? $val[0] : $val;
-        $type  = isset($val[1]) ? $val[1] : 'value';
-        switch ($type) {
-            case 'callback':
-                $result = call_user_func_array($rule, [$value, &$data]);
-                break;
-            case 'value':
-            default:
-                $result = $rule;
-                break;
-        }
-        return $result;
-    }
-
-    /**
      * 删除当前的记录
      * @access public
      * @return integer
      */
     public function delete()
     {
-        $data = $this->data;
-
         if (false === $this->trigger('before_delete', $this)) {
             return false;
         }
 
-        $result = self::db()->delete($data);
+        $result = self::db()->delete($this->data);
 
         $this->trigger('after_delete', $this);
         return $result;
@@ -493,13 +474,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否为数据库更新操作
      * @access public
-     * @param mixed $data 数据
+     * @param bool|null $update 是否为更新数据
      * @return bool
      */
-    public function isUpdate($data = null)
+    public function isUpdate($update = null)
     {
-        if (is_bool($data)) {
-            $this->isUpdate = $data;
+        if (is_bool($update)) {
+            $this->isUpdate = $update;
             return $this;
         }
 
@@ -509,7 +490,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 根据主键判断是否更新
-        $data = $data ?: $this->data;
+        $data = $this->data;
         $pk   = $this->pk;
         if (is_string($pk) && isset($data[$pk])) {
             return true;
