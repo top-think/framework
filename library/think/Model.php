@@ -363,8 +363,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             $result = $db->update($this->data);
 
-            // 清空change
-            $this->change = [];
             // 更新回调
             $this->trigger('after_update', $this);
         } else {
@@ -393,6 +391,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 标记为更新
         $this->isUpdate = true;
+        // 清空change
+        $this->change = [];
         return $result;
     }
 
@@ -402,7 +402,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param bool $update
      * @return Model
      */
-    protected function isUpdate($update = true)
+    public function isUpdate($update = true)
     {
         $this->isUpdate = $update;
         return $this;
