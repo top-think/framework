@@ -614,12 +614,28 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $result;
     }
 
-    // 命名范围
+    /**
+     * 命名范围
+     * @access public
+     * @param string|Closure $name 命名范围名称 逗号分隔
+     * @return Db
+     */
     public static function scope($name)
     {
-        $model  = new static();
-        $method = 'scope' . $name;
-        return $model->$method();
+        $model = new static();
+        $class = self::db();
+        if ($name instanceof \Closure) {
+            call_user_func_array($name, [ & $class]);
+        } else {
+            $names = explode(',', $name);
+            foreach ($names as $scope) {
+                $method = 'scope' . $scope;
+                if (method_exists($model, $method)) {
+                    $model->$method($class);
+                }
+            }
+        }
+        return $class;
     }
 
     // 解析模型的完整命名空间
