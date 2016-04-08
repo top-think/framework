@@ -305,7 +305,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 数据自动验证
-        if (!$this->dataValidate($this->data)) {
+        if (!$this->dataValidate()) {
             return false;
         }
 
@@ -482,10 +482,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 数据自动验证
      * @access protected
-     * @param array $data  数据
      * @return void
      */
-    protected function dataValidate(&$data)
+    public function dataValidate()
     {
         if (!empty($this->validate)) {
             $info = $this->validate;
@@ -503,7 +502,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $validate->scene($scene);
                 }
             }
-            if (!$validate->check($data)) {
+            if (!$validate->check($this->data)) {
                 $this->error = $validate->getError();
                 return false;
             }
