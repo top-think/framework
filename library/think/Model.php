@@ -368,6 +368,31 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         return $result;
     }
+    
+    /**
+     * 修改当前数据对象
+     * @access public
+     * @param array $data 数据
+     * @param array $where 更新条件
+     * @return integer
+     */
+    public function update($data = [], $where = [])
+    {
+        $this->isUpdate = true;
+        return $this->save($data, $where);
+    }
+
+    /**
+     * 保存当前数据对象
+     * @access public
+     * @param array $data 数据
+     * @return integer
+     */
+    public function insert($data = [])
+    {
+        $this->isUpdate = false;
+        return $this->save($data, []);
+    }
 
     /**
      * 是否为更新数据
