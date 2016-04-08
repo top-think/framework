@@ -59,10 +59,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     // 字段类型或者格式转换
     protected $type = [];
-    // 当前执行的关联类型
-    private $relation;
     // 是否为更新数据
     protected $isUpdate = false;
+    // 当前执行的关联类型
+    private $relation;
 
     /**
      * 初始化过的模型.
@@ -108,9 +108,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @return void
      */
     protected static function init()
-    {
-
-    }
+    {}
 
     // JsonSerializable
     public function jsonSerialize()
@@ -330,6 +328,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 数据对象赋值
             foreach ($data as $key => $value) {
                 $this->__set($key, $value);
+            }
+            if (!empty($where)) {
+                $this->isUpdate = true;
             }
         }
         // 数据自动验证
