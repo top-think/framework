@@ -1002,26 +1002,33 @@ abstract class Driver
     }
 
     /**
-     * 得到某个字段的值 或者多个字段列数组
+     * 得到某个字段的值
      * @access public
-     * @param string|array $field  字段名
-     * @param bool $resultSet  是否需要返回字段列表
+     * @param string $field  字段名
      * @return mixed
      */
-    public function value($field, $resultSet = false)
+    public function value($field)
     {
         // 返回数据个数
-        if (!$resultSet) {
-            $pdo = $this->field($field)->fetchPdo(true)->find();
-            return $pdo->fetchColumn();
-        } else {
-            $pdo = $this->field($field)->fetchPdo(true)->select();
-            if (1 == $pdo->columnCount()) {
-                return $pdo->fetchAll(PDO::FETCH_COLUMN);
-            }
-            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        }
+        $pdo = $this->field($field)->fetchPdo(true)->find();
+        return $pdo->fetchColumn();
+    }
 
+    /**
+     * 得到某个列的数组
+     * @access public
+     * @param string $field  字段名 多个字段用逗号分隔
+     * @param string $key  索引
+     * @return array
+     */
+    public function column($field, $key = '')
+    {
+        $key = $key ? $key . ',' : '';
+        $pdo = $this->field($key . $field)->fetchPdo(true)->select();
+        if (1 == $pdo->columnCount()) {
+            return $pdo->fetchAll(PDO::FETCH_COLUMN);
+        }
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $fields = array_keys($result[0]);
         $count  = count($fields);
         $key1   = array_shift($fields);
