@@ -131,7 +131,7 @@ abstract class Driver
             // 根据某个字段获取记录的某个值
             $name         = Loader::parseName(substr($method, 10));
             $where[$name] = $args[0];
-            return $this->where($where)->get($args[1]);
+            return $this->where($where)->value($args[1]);
         } elseif (isset($this->scope[$method])) {
             // 命名范围的单独调用支持
             return $this->scope($method, $args[0]);
@@ -1008,7 +1008,7 @@ abstract class Driver
      * @param bool $resultSet  是否需要返回字段列表
      * @return mixed
      */
-    public function get($field, $resultSet = false)
+    public function value($field, $resultSet = false)
     {
         // 返回数据个数
         if (!$resultSet) {
@@ -1044,7 +1044,7 @@ abstract class Driver
      */
     public function count($field = '*')
     {
-        return $this->get('COUNT(' . $field . ') AS tp_count');
+        return $this->value('COUNT(' . $field . ') AS tp_count');
     }
 
     /**
@@ -1055,7 +1055,7 @@ abstract class Driver
      */
     public function sum($field = '*')
     {
-        return $this->get('SUM(' . $field . ') AS tp_sum');
+        return $this->value('SUM(' . $field . ') AS tp_sum');
     }
 
     /**
@@ -1066,7 +1066,7 @@ abstract class Driver
      */
     public function min($field = '*')
     {
-        return $this->get('MIN(' . $field . ') AS tp_min');
+        return $this->value('MIN(' . $field . ') AS tp_min');
     }
 
     /**
@@ -1077,7 +1077,7 @@ abstract class Driver
      */
     public function max($field = '*')
     {
-        return $this->get('MAX(' . $field . ') AS tp_max');
+        return $this->value('MAX(' . $field . ') AS tp_max');
     }
 
     /**
@@ -1088,7 +1088,7 @@ abstract class Driver
      */
     public function avg($field = '*')
     {
-        return $this->get('AVG(' . $field . ') AS tp_avg');
+        return $this->value('AVG(' . $field . ') AS tp_avg');
     }
 
     /**
