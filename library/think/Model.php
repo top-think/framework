@@ -74,7 +74,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 架构函数
      * @access public
-     * @param array $data 数据
+     * @param array|object $data 数据
      */
     public function __construct($data = [])
     {
