@@ -65,6 +65,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $isUpdate;
 
     /**
+     * 初始化过的模型.
+     *
+     * @var array
+     */
+    protected static $initialized = [];
+
+    /**
      * 架构函数
      * @access public
      * @param array $data 数据
@@ -77,6 +84,32 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->data = $data;
         }
         $this->name = basename(str_replace('\\', '/', get_class($this)));
+
+        $this->initialize();
+    }
+
+    /**
+     *  初始化模型
+     *
+     * @return void
+     */
+    protected function initialize()
+    {
+        $class = get_class($this);
+        if (!isset(static::$initialized[$class])) {
+            static::$initialized[$class] = true;
+            static::init();
+        }
+    }
+
+    /**
+     * 初始化处理
+     *
+     * @return void
+     */
+    protected static function init()
+    {
+
     }
 
     // JsonSerializable
