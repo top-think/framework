@@ -1204,10 +1204,10 @@ abstract class Driver
 
     /**
      * 得到完整的数据表名
-     * @access protected
+     * @access public
      * @return string
      */
-    protected function getTableName()
+    public function getTableName()
     {
         if (!$this->table) {
             $tableName = $this->config['prefix'];
