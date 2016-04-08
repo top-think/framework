@@ -312,7 +312,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
         // 数据自动完成
-        $this->autoDataComplete($this->auto);
+        $this->autoCompleteData($this->auto);
 
         if ($this->isUpdate()) {
             // 更新数据
@@ -320,7 +320,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
             // 自动更新
-            $this->autoDataComplete($this->update);
+            $this->autoCompleteData($this->update);
 
             // 去除没有更新的字段
             foreach ($this->data as $key => $val) {
@@ -344,7 +344,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             // 自动写入
-            $this->autoDataComplete($this->insert);
+            $this->autoCompleteData($this->insert);
 
             $result = self::db()->insert($this->data);
 
@@ -428,7 +428,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array $auto 要自动更新的字段列表
      * @return void
      */
-    protected function autoDataComplete($auto = [])
+    protected function autoCompleteData($auto = [])
     {
         foreach ($auto as $field) {
             if (!in_array($field, $this->change)) {
@@ -551,7 +551,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function create($data = [])
     {
         $model = new static();
-        return $model->data($data)->save();
+        return $model->insert($data);
     }
 
     /**
@@ -590,8 +590,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function all($data = [])
     {
-        $resultSet = self::db()->select($data);
-        return $resultSet;
+        return self::db()->select($data);
     }
 
     /**
@@ -641,7 +640,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey     = $foreignKey ?: $this->pk;
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = self::BELONGS_TO;
-
         return $model::where($foreignKey, $this->data[$localKey]);
     }
 
