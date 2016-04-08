@@ -173,6 +173,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'boolean':
                     $value = (bool) $value;
                     break;
+                case 'array':
+                    if (is_array($value)) {
+                        $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                    }
+                    break;
             }
         }
 
@@ -206,6 +211,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     break;
                 case 'boolean':
                     $value = (bool) $value;
+                    break;
+                case 'array':
+                    $value = json_decode($value, true);
                     break;
             }
         }
