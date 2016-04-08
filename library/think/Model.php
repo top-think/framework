@@ -149,12 +149,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __set($name, $value)
     {
+        // 旧值
+        $oldValue = isset($this->data[$name])?$this->data[$name]:null;
+        
         if (is_null($value) && in_array($name, $this->timestampField)) {
             // 如果是时间戳字段 则自动写入
             $value = NOW_TIME;
         } else {
-            // 旧值
-            $oldValue = isset($this->data[$name])?$this->data[$name]:null;
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
