@@ -126,15 +126,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 转换为数组
      * @access public
-     * @return Model
+     * @return array
      */
     public function toArray()
     {
-        if (!empty($this->data)) {
-            return $this->data;
-        } else {
-            return [];
-        }
+        return !empty($this->data) ? $this->data : [];
     }
 
     /**
@@ -179,12 +175,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 标记字段更改
-        if (!isset($this->data[$name]) || (isset($this->data[$name]) && $this->data[$name] != $value && !in_array($name, $this->change))) {
+        if (!isset($this->data[$name]) || ($this->data[$name] != $value && !in_array($name, $this->change))) {
             $this->change[] = $name;
         }
         // 设置数据对象属性
         $this->data[$name] = $value;
-
     }
 
     /**
