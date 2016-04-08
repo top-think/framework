@@ -61,8 +61,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $type = [];
     // 当前执行的关联类型
     private $relation;
-    // 是否为更新
-    protected $isUpdate = null;
 
     /**
      * 架构函数
@@ -71,7 +69,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __construct($data = [])
     {
-        $this->isUpdate = false;
         if (is_object($data)) {
             $this->data = get_object_vars($data);
         } else {
@@ -121,8 +118,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             throw new Exception('data type invalid', 10300);
         }
         $this->data = $data;
-        // 标记为新增数据
-        $this->isUpdate = false;
         return $this;
     }
 
@@ -293,17 +288,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 保存当前数据对象的值（自动识别新增或者更新）
+     * 保存当前数据对象的值
      * @access public
      * @param array $data 数据
-     * @param array $where 更新条件
-     * @return void
+     * @return integer
      */
-    public function save($data = [], $where = [])
+    public function save($data = [])
     {
         if (!empty($data)) {
-            // 标记为更新数据
-            $this->isUpdate = true;
             foreach ($data as $key => $value) {
                 $this->__set($key, $value);
             }
@@ -326,63 +318,94 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        // 检测是否为更新数据
-        if ($this->isUpdate()) {
-
-            if (false === $this->trigger('before_update', $this)) {
-                return false;
-            }
-
-            // 自动更新
-            foreach ($this->update as $field) {
-                if (!in_array($field, $this->change)) {
-                    $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
-                }
-            }
-
-            // 去除没有更新的字段
-            foreach ($this->data as $key => $val) {
-                if (!in_array($key, $this->change) && !$this->isPk($key) && !isset($this->relation[$key])) {
-                    unset($this->data[$key]);
-                }
-            }
-
-            $db = self::db();
-            if (!empty($where)) {
-                $db->where($where);
-            }
-            $result = $db->update($this->data);
-
-            // 更新回调
-            $this->trigger('after_update', $this);
-
-        } else {
-
-            if (false === $this->trigger('before_insert', $this)) {
-                return false;
-            }
-
-            // 自动写入
-            foreach ($this->insert as $field) {
-                if (!in_array($field, $this->change)) {
-                    $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
-                }
-            }
-
-            $result = self::db()->insert($this->data);
-
-            // 获取自动增长主键
-            if ($result) {
-                $insertId = self::db()->getLastInsID();
-                if (is_string($this->pk) && $insertId) {
-                    $this->data[$this->pk] = $insertId;
-                }
-            }
-
-            // 新增回调
-            $this->trigger('after_insert', $this);
-
+        if (false === $this->trigger('before_insert', $this)) {
+            return false;
         }
+
+        // 自动写入
+        foreach ($this->insert as $field) {
+            if (!in_array($field, $this->change)) {
+                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
+            }
+        }
+
+        $result = self::db()->insert($this->data);
+
+        // 获取自动增长主键
+        if ($result) {
+            $insertId = self::db()->getLastInsID();
+            if (is_string($this->pk) && $insertId) {
+                $this->data[$this->pk] = $insertId;
+            }
+        }
+
+        // 新增回调
+        $this->trigger('after_insert', $this);
+
+        // 写入回调
+        $this->trigger('after_write', $this);
+
+        return $result;
+    }
+
+    /**
+     * 更新当前数据对象
+     * @access public
+     * @param array $data 数据
+     * @param array $where 更新条件
+     * @return integer
+     */
+    public function update($data = [], $where = [])
+    {
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
+                $this->__set($key, $value);
+            }
+        }
+
+        // 数据自动验证
+        if (!$this->dataValidate($this->data)) {
+            return false;
+        }
+
+        if (false === $this->trigger('before_write', $this)) {
+            return false;
+        }
+
+        // 数据自动完成
+        foreach ($this->auto as $field) {
+            if (!in_array($field, $this->change)) {
+                // 没有经过修改器赋值则进行自动完成
+                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
+            }
+        }
+
+        if (false === $this->trigger('before_update', $this)) {
+            return false;
+        }
+
+        // 自动更新
+        foreach ($this->update as $field) {
+            if (!in_array($field, $this->change)) {
+                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
+            }
+        }
+
+        // 去除没有更新的字段
+        foreach ($this->data as $key => $val) {
+            if (!in_array($key, $this->change) && !$this->isPk($key) && !isset($this->relation[$key])) {
+                unset($this->data[$key]);
+            }
+        }
+
+        $db = self::db();
+        if (!empty($where)) {
+            $db->where($where);
+        }
+        $result = $db->update($this->data);
+
+        // 更新回调
+        $this->trigger('after_update', $this);
 
         // 写入回调
         $this->trigger('after_write', $this);
@@ -461,40 +484,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 是否为数据库更新操作
-     * @access public
-     * @param bool|null $update 是否为更新数据
-     * @return bool
-     */
-    public function isUpdate($update = null)
-    {
-        if (is_bool($update)) {
-            $this->isUpdate = $update;
-            return $this;
-        }
-
-        // 检测isUpdate属性
-        if (isset($this->isUpdate)) {
-            return $this->isUpdate;
-        }
-
-        // 根据主键判断是否更新
-        $data = $this->data;
-        $pk   = $this->pk;
-        if (is_string($pk) && isset($data[$pk])) {
-            return true;
-        } elseif (is_array($pk)) {
-            foreach ($pk as $field) {
-                if (isset($data[$field])) {
-                    return true;
-                }
-            }
-        }
-        // TODO 完善没有主键或者其他的情况
-        return false;
-    }
-
-    /**
      * 返回模型的错误信息
      * @access public
      * @return string
@@ -557,18 +546,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $guid   = 'model_' . $name . '_' . $data;
             $result = Cache::get($guid);
             if ($result) {
-                $model = new static($result);
-                $model->isUpdate(true);
-                return $model;
+                return new static($result);
             }
         }
 
         $result = self::db()->find($data);
 
-        if ($result) {
-            // 标记为更新数据
-            $result->isUpdate(true);
-        }
         if ($cache) {
             // 缓存模型数据
             Cache::set($guid, $result->toArray());
