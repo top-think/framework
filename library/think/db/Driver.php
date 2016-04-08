@@ -1951,6 +1951,7 @@ abstract class Driver
                     if (!empty($options['model'])) {
                         // 返回模型对象
                         $result = new $options['model']($result);
+                        $result->isUpdate(true);
                     }
                     $resultSet[$key] = $result;
                 }
@@ -2024,6 +2025,7 @@ abstract class Driver
             if (!empty($options['model'])) {
                 // 返回模型对象
                 $data = new $options['model']($data);
+                $data->isUpdate(true);
             }
         } else {
             $data = false;

@@ -62,7 +62,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 当前执行的关联类型
     private $relation;
     // 是否为更新数据
-    protected $isUpdate;
+    protected $isUpdate = false;
 
     /**
      * 初始化过的模型.
@@ -342,7 +342,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
-        if ($this->isUpdate()) {
+        if ($this->isUpdate) {
             // 更新数据
             if (false === $this->trigger('before_update', $this)) {
                 return false;
@@ -363,6 +363,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             $result = $db->update($this->data);
 
+            // 清空change
+            $this->change = [];
             // 更新回调
             $this->trigger('after_update', $this);
         } else {
@@ -395,60 +397,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 保存数据对象
-     * @access public
-     * @param array $data 数据
-     * @param array $where 更新条件
-     * @return integer
-     */
-    public function insert($data = [])
-    {
-        return $this->isUpdate(false)->save($data);
-    }
-
-    /**
-     * 更新数据对象
-     * @access public
-     * @param array $data 数据
-     * @param array $where 更新条件
-     * @return integer
-     */
-    public function update($data = [], $where = [])
-    {
-        return $this->isUpdate(true)->save($data, $where);
-    }
-
-    /**
      * 是否为更新数据
      * @access public
-     * @param bool|null $update
-     * @return bool|Model
+     * @param bool $update
+     * @return Model
      */
-    protected function isUpdate($update = null)
+    protected function isUpdate($update = true)
     {
-        if (is_bool($update)) {
-            $this->isUpdate = $update;
-            return $this;
-        }
-
-        if (isset($this->isUpdate)) {
-            return $this->isUpdate;
-        }
-
-        // 根据主键判断是否更新
-        $data = $this->data;
-        $pk   = $this->pk;
-        if (is_string($pk) && isset($data[$pk])) {
-            return true;
-        } elseif (is_array($pk)) {
-            foreach ($pk as $field) {
-                if (isset($data[$field])) {
-                    return true;
-                }
-            }
-        }
-        // TODO 完善没有主键或者其他的情况
-        return false;
+        $this->isUpdate = $update;
+        return $this;
     }
 
     /**
@@ -459,9 +416,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function autoCompleteData($auto = [])
     {
-        foreach ($auto as $field) {
+        foreach ($auto as $field => $value) {
+            if (is_integer($field)) {
+                $field = $value;
+                $value = null;
+            }
             if (!in_array($field, $this->change)) {
-                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : null);
+                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : $value);
             }
         }
     }
@@ -550,10 +511,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $event 事件名
      * @param callable $callback 回调方法
+     * @param bool $override 是否覆盖
+     * @return void
      */
-    public static function event($event, $callback)
+    public static function event($event, $callback, $override = false)
     {
-        self::$event[$event] = $callback;
+        if ($override) {
+            self::$event[$event] = [];
+        }
+        self::$event[$event][] = $callback;
     }
 
     /**
@@ -561,12 +527,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $event 事件名
      * @param mixed $params 传入参数（引用）
+     * @return bool
      */
     protected function trigger($event, &$params)
     {
-        if (isset(self::$event[$event]) && is_callable(self::$event[$event])) {
-            $result = call_user_func_array(self::$event[$event], [ & $params]);
-            return false === $result ? false : true;
+        if (isset(self::$event[$event])) {
+            foreach (self::$event[$event] as $callback) {
+                if (is_callable($callback)) {
+                    $result = call_user_func_array($callback, [ & $params]);
+                    if (false === $result) {
+                        return false;
+                    }
+                }
+            }
         }
         return true;
     }
