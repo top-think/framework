@@ -584,6 +584,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         return $result;
     }
+    
+    /**
+     * 获取当前主键名称
+     * @access public
+     * @param string $tableName  数据表名 留空自动获取
+     * @return mixed
+     */
+    public static function getPk($tableName = '')
+    {
+        if (is_null($this->pk)) {
+            $this->pk = self::db()->getTableInfo($tableName, 'pk');
+        }
+        return $this->pk;
+    }
 
     /**
      * 查找多条记录
