@@ -146,6 +146,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __set($name, $value)
     {
+        // 旧值
+        $oldValue = isset($this->data[$name])?$this->data[$name]:null;
+        
         if (is_null($value) && in_array($name, $this->timestampField)) {
             // 如果是时间戳字段 则自动写入
             $value = NOW_TIME;
@@ -179,7 +182,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 标记字段更改
-        if (isset($this->data[$name]) && $this->data[$name] != $value && !in_array($name, $this->change)) {
+        if ($oldValue !== $value && !in_array($name, $this->change)) {
             $this->change[] = $name;
         }
         // 设置数据对象属性
