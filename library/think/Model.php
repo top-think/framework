@@ -299,20 +299,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function save($data = [], $where = [])
     {
         if (!empty($data)) {
+            // 数据对象赋值
             foreach ($data as $key => $value) {
                 $this->__set($key, $value);
             }
         }
-
         // 数据自动验证
-        if (!$this->dataValidate($this->data)) {
+        if (!$this->validateData($this->data)) {
             return false;
         }
-
         if (false === $this->trigger('before_write', $this)) {
             return false;
         }
-
         // 数据自动完成
         $this->autoDataComplete($this->auto);
 
@@ -321,7 +319,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
-
             // 自动更新
             $this->autoDataComplete($this->update);
 
@@ -358,15 +355,38 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $this->data[$this->pk] = $insertId;
                 }
             }
-
             // 新增回调
             $this->trigger('after_insert', $this);
         }
-
         // 写入回调
         $this->trigger('after_write', $this);
-
+        // 清空
+        $this->isUpdate = null;
         return $result;
+    }
+
+    /**
+     * 保存数据对象
+     * @access public
+     * @param array $data 数据
+     * @param array $where 更新条件
+     * @return integer
+     */
+    public function insert($data = [])
+    {
+        return $this->isUpdate(false)->save($data);
+    }
+
+    /**
+     * 更新数据对象
+     * @access public
+     * @param array $data 数据
+     * @param array $where 更新条件
+     * @return integer
+     */
+    public function update($data = [], $where = [])
+    {
+        return $this->isUpdate(true)->save($data, $where);
     }
 
     /**
@@ -456,11 +476,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 数据自动验证
-     * @access protected
+     * @access public
      * @param array $data  数据
      * @return void
      */
-    protected function dataValidate(&$data)
+    public function validateData()
     {
         if (!empty($this->validate)) {
             $info = $this->validate;
@@ -478,7 +498,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $validate->scene($scene);
                 }
             }
-            if (!$validate->check($data)) {
+            if (!$validate->check($this->data)) {
                 $this->error = $validate->getError();
                 return false;
             }
