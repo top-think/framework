@@ -32,12 +32,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 回调事件
     protected static $event = [];
 
-    // 数据信息
-    protected $data = [];
-    // 缓存数据
-    protected $cache = [];
-    // 记录改变字段
-    protected $change = [];
     // 数据表主键 复合主键使用数组定义
     protected $pk = 'id';
     // 错误信息
@@ -46,16 +40,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $name;
     // 字段验证规则
     protected $validate;
-    // 字段完成规则
-    protected $auto = [];
 
+    // 数据信息
+    protected $data = [];
+    // 缓存数据
+    protected $cache = [];
+    // 记录改变字段
+    protected $change = [];
+
+    // 保存自动完成列表
+    protected $auto = [];
+    // 新增自动完成列表
+    protected $insert = [];
+    // 更新自动完成列表
+    protected $update = [];
     // 时间戳字段列表
     protected $timestampField = ['create_time', 'update_time'];
-
-    // 新增要自动完成的字段列表
-    protected $insert = [];
-    // 更新要自动完成的字段列表
-    protected $update = [];
 
     // 字段类型或者格式转换
     protected $type = [];
@@ -305,7 +305,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
         // 数据自动验证
-        if (!$this->validateData($this->data)) {
+        if (!$this->validateData()) {
             return false;
         }
         if (false === $this->trigger('before_write', $this)) {
@@ -393,7 +393,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 是否为更新数据
      * @access public
      * @param bool|null $update
-     * @return void
+     * @return bool|Model
      */
     protected function isUpdate($update = null)
     {
@@ -475,9 +475,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 数据自动验证
+     * 自动验证当前数据对象值
      * @access public
-     * @param array $data  数据
      * @return void
      */
     public function validateData()
