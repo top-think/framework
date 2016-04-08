@@ -49,14 +49,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 字段完成规则
     protected $auto = [];
 
-    // 自动时间戳记录
-    protected $timestamps = true;
-    // 新增时间戳字段
-    protected $createTimeField = 'create_time';
-    // 更新时间戳字段
-    protected $updateTimeField = 'update_time';
     // 时间戳字段列表
-    protected $timestampField = [];
+    protected $timestampField = ['create_time', 'update_time'];
 
     // 新增要自动完成的字段列表
     protected $insert = [];
@@ -77,9 +71,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __construct($data = [])
     {
-        if (empty($data)) {
-            $this->isUpdate = false;
-        } elseif (is_object($data)) {
+        $this->isUpdate = false;
+        if (is_object($data)) {
             $this->data = get_object_vars($data);
         } else {
             $this->data = $data;
@@ -156,37 +149,43 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __set($name, $value)
     {
-        // 检测修改器
-        $method = 'set' . Loader::parseName($name, 1) . 'Attr';
-        if (method_exists($this, $method)) {
-            $value = $this->$method($value, $this->data);
-        }
+        if (is_null($value) && in_array($name, $this->timestampField)) {
+            // 如果是时间戳字段 则自动写入
+            $value = NOW_TIME;
+        } else {
+            // 检测修改器
+            $method = 'set' . Loader::parseName($name, 1) . 'Attr';
+            if (method_exists($this, $method)) {
+                $value = $this->$method($value, $this->data);
+            }
 
-        // 类型转换 或者 字符串处理
-        if (isset($this->type[$name])) {
-            $type = $this->type[$name];
-            switch ($type) {
-                case 'integer':
-                    $value = (int) $value;
-                    break;
-                case 'float':
-                    $value = (float) $value;
-                    break;
-                case 'boolean':
-                    $value = (bool) $value;
-                    break;
-                case 'array':
-                    if (is_array($value)) {
-                        $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                    }
-                    break;
+            // 类型转换 或者 字符串处理
+            if (isset($this->type[$name])) {
+                $type = $this->type[$name];
+                switch ($type) {
+                    case 'integer':
+                        $value = (int) $value;
+                        break;
+                    case 'float':
+                        $value = (float) $value;
+                        break;
+                    case 'boolean':
+                        $value = (bool) $value;
+                        break;
+                    case 'array':
+                        if (is_array($value)) {
+                            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                        }
+                        break;
+                }
             }
         }
 
-        // 设置数据对象属性
+        // 标记字段更改
         if (isset($this->data[$name]) && $this->data[$name] != $value && !in_array($name, $this->change)) {
             $this->change[] = $name;
         }
+        // 设置数据对象属性
         $this->data[$name] = $value;
 
     }
@@ -327,11 +326,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        if ($this->timestamps) {
-            // 自动更新时间戳
-            $this->data[$this->updateTimeField] = NOW_TIME;
-        }
-
         // 检测是否为更新数据
         if ($this->isUpdate()) {
 
@@ -366,11 +360,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (false === $this->trigger('before_insert', $this)) {
                 return false;
-            }
-
-            if ($this->timestamps) {
-                // 自动写入时间戳
-                $this->data[$this->createTimeField] = NOW_TIME;
             }
 
             // 自动写入
@@ -591,25 +580,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 查找多条记录
      * @access public
      * @param mixed $data 主键列表
-     * @param false|string|array $load 预载入模型
      * @return array|string
      */
-    public static function all($data = [], $load = false)
+    public static function all($data = [])
     {
         $resultSet = self::db()->select($data);
-        if ($load) {
-            // 预载入关联模型
-            if (is_string($load)) {
-                $load = (array) $load;
-            }
-
-            foreach ($resultSet as &$result) {
-                foreach ($load as $relation) {
-                    $model             = new static($result);
-                    $result->$relation = $model->$relation();
-                }
-            }
-        }
         return $resultSet;
     }
 
