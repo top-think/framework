@@ -61,17 +61,11 @@ class Response
                     $handler = !empty($_GET[Config::get('var_jsonp_handler')]) ? $_GET[Config::get('var_jsonp_handler')] : Config::get('default_jsonp_handler');
                     $data    = $handler . '(' . json_encode($data, JSON_UNESCAPED_UNICODE) . ');';
                     break;
-                case '':
-                case 'html':
-                case 'text':
-                    // 不做处理
-                    break;
-                default:
-                    // 用于扩展其他返回格式数据
-                    APP_HOOK && Hook::listen('return_data', $data);
             }
         }
 
+        APP_HOOK && Hook::listen('return_data', $data);
+        
         if ($return) {
             return $data;
         }
