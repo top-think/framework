@@ -337,24 +337,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!$this->validateData()) {
             return false;
         }
-        if (false === $this->trigger('before_write', $this)) {
-            return false;
-        }
+
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
+        // 事件回调
+        if (false === $this->trigger('before_write', $this)) {
+            return false;
+        }
+
         if ($this->isUpdate) {
-            // 更新数据
             // 自动更新
             $this->autoCompleteData($this->update);
-
+            // 事件回调
             if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
 
             // 去除没有更新的字段
             foreach ($this->data as $key => $val) {
-                if (!in_array($key, $this->change) && !$this->isPk($key) && !isset($this->relation[$key])) {
+                if (!in_array($key, $this->change) && !$this->isPk($key)) {
                     unset($this->data[$key]);
                 }
             }
@@ -368,7 +370,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 更新回调
             $this->trigger('after_update', $this);
         } else {
-            // 新增数据
             // 自动写入
             $this->autoCompleteData($this->insert);
 
