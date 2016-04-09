@@ -554,7 +554,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function create($data = [])
     {
         $model = new static();
-        return $model->insert($data);
+        return $model->isUpdate(false)->save($data);
     }
 
     /**
@@ -620,18 +620,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string|Closure $name 命名范围名称 逗号分隔
      * @return Db
      */
-    public static function scope($name)
+    public static function scope($name, $params = [])
     {
         $model = new static();
         $class = self::db();
         if ($name instanceof \Closure) {
-            call_user_func_array($name, [ & $class]);
+            call_user_func_array($name, [ & $class, $params]);
         } else {
             $names = explode(',', $name);
             foreach ($names as $scope) {
                 $method = 'scope' . $scope;
                 if (method_exists($model, $method)) {
-                    $model->$method($class);
+                    $model->$method($class, $params);
                 }
             }
         }
@@ -724,6 +724,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         self::$links[$model]->model($model);
         // 返回当前数据库对象
         return self::$links[$model];
+    }
+
+    public function __call($method, $args)
+    {
+        if (method_exists($this, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            $class  = self::db();
+            array_unshift($args, $class);
+            call_user_func_array([$this, $method], $args);
+            return $class;
+        } else {
+            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+        }
     }
 
     public static function __callStatic($method, $params)

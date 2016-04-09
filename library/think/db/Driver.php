@@ -132,9 +132,6 @@ abstract class Driver
             $name         = Loader::parseName(substr($method, 10));
             $where[$name] = $args[0];
             return $this->where($where)->value($args[1]);
-        } elseif (isset($this->scope[$method])) {
-            // 命名范围的单独调用支持
-            return $this->scope($method, $args[0]);
         } else {
             throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
         }
@@ -964,39 +961,14 @@ abstract class Driver
     /**
      * 调用命名范围
      * @access public
-     * @param mixed $scope 命名范围名称 支持多个 和直接定义
-     * @param array $args 参数
-     * @return Model
+     * @param Closure $scope 命名范围 闭包定义
+     * @param mixed $args 参数
+     * @return Db
      */
     public function scope($scope = '', $args = null)
     {
-        if ('' === $scope) {
-            if (isset($this->scope['default'])) {
-                // 默认的命名范围
-                $options = $this->scope['default'];
-            } else {
-                return $this;
-            }
-        } elseif (is_string($scope)) {
-            // 支持多个命名范围调用 用逗号分割
-            $scopes  = explode(',', $scope);
-            $options = [];
-            foreach ($scopes as $name) {
-                if (!isset($this->scope[$name])) {
-                    continue;
-                }
-                $options = array_merge($options, $this->scope[$name]);
-            }
-            if (!empty($args) && is_array($args)) {
-                $options = array_merge($options, $args);
-            }
-        } else {
-            // 直接传入命名范围定义
-            $options = $scope;
-        }
-
-        if (is_array($options) && !empty($options)) {
-            $this->options = array_merge($this->options, array_change_key_case($options));
+        if ($scope instanceof \Closure) {
+            call_user_func_array($scope, [ & $this, $args]);
         }
         return $this;
     }
