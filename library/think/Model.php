@@ -345,11 +345,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if ($this->isUpdate) {
             // 更新数据
+            // 自动更新
+            $this->autoCompleteData($this->update);
+
             if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
-            // 自动更新
-            $this->autoCompleteData($this->update);
 
             // 去除没有更新的字段
             foreach ($this->data as $key => $val) {
@@ -368,12 +369,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->trigger('after_update', $this);
         } else {
             // 新增数据
+            // 自动写入
+            $this->autoCompleteData($this->insert);
+
             if (false === $this->trigger('before_insert', $this)) {
                 return false;
             }
-
-            // 自动写入
-            $this->autoCompleteData($this->insert);
 
             $result = self::db()->insert($this->data);
 
