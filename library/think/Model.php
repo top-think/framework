@@ -673,7 +673,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
         }
-        return $class;
+        return $model;
     }
 
     // 解析模型的完整命名空间
@@ -758,7 +758,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $class  = self::db();
             array_unshift($args, $class);
             call_user_func_array([$this, $method], $args);
-            return $class;
+            return $this;
         } else {
             throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
         }
