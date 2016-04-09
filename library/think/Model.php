@@ -54,8 +54,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $insert = [];
     // 更新自动完成列表
     protected $update = [];
-    // 时间戳字段列表
-    protected $timestampField = ['create_time', 'update_time'];
+    // 自动写入的时间戳字段列表
+    protected $autoTimeField = ['create_time', 'update_time', 'delete_time'];
+    // 时间字段取出后的时间格式
+    protected $dateFormat = 'Y-m-d H:i:s';
 
     // 字段类型或者格式转换
     protected $type = [];
@@ -173,18 +175,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __set($name, $value)
     {
-        if (is_null($value) && in_array($name, $this->timestampField)) {
-            // 如果是时间戳字段 则自动写入
+        if (is_null($value) && in_array($name, $this->autoTimeField)) {
+            // 自动写入的时间戳字段
             $value = NOW_TIME;
         } else {
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
                 $value = $this->$method($value, $this->data);
-            }
-
-            // 类型转换 或者 字符串处理
-            if (isset($this->type[$name])) {
+            } elseif (isset($this->type[$name])) {
+                // 类型转换
                 $type = $this->type[$name];
                 switch ($type) {
                     case 'integer':
@@ -195,6 +195,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         break;
                     case 'boolean':
                         $value = (bool) $value;
+                        break;
+                    case 'datetime':
+                        $value = strtotime($value);
+                        break;
+                    case 'object':
+                        if (is_object($value)) {
+                            $value = json_encode($value, JSON_FORCE_OBJECT);
+                        }
                         break;
                     case 'array':
                         if (is_array($value)) {
@@ -223,8 +231,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $value = isset($this->data[$name]) ? $this->data[$name] : null;
 
-        // 类型转换
-        if (!is_null($value) && isset($this->type[$name])) {
+        // 检测属性获取器
+        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
+        if (method_exists($this, $method)) {
+            return $this->$method($value, $this->data);
+        } elseif (!is_null($value) && isset($this->type[$name])) {
+            // 类型转换
             $type = $this->type[$name];
             switch ($type) {
                 case 'integer':
@@ -236,19 +248,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'boolean':
                     $value = (bool) $value;
                     break;
+                case 'datetime':
+                    $value = date($this->dateFormat, $value);
+                    break;
                 case 'array':
                     $value = json_decode($value, true);
                     break;
+                case 'object':
+                    $value = json_decode($value);
+                    break;
             }
-        }
-
-        // 检测属性获取器
-        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
-        if (method_exists($this, $method)) {
-            return $this->$method($value, $this->data);
-        }
-
-        if (is_null($value) && method_exists($this, $name)) {
+        } elseif (is_null($value) && method_exists($this, $name)) {
             // 执行关联定义方法
             $db = $this->$name();
             // 判断关联类型执行查询
@@ -299,6 +309,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 获取当前模型对象的主键
+     * @access public
+     * @param string $tableName 数据表名
+     * @return mixed
+     */
+    public function getPk($tableName = '')
+    {
+        if ($this->pk) {
+            return $this->pk;
+        } else {
+            return self::db()->getTableInfo($tableName, 'pk');
+        }
+    }
+
+    /**
      * 判断一个字段名是否为主键字段
      * @access public
      * @param string $key 名称
@@ -306,7 +331,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function isPk($key)
     {
-        $pk = $this->pk;
+        $pk = $this->getPk();
         if (is_string($pk) && $pk == $key) {
             return true;
         } elseif (is_array($pk) && in_array($key, $pk)) {
