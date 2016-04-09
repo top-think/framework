@@ -546,15 +546,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 创建数据并写入
+     * 写入数据
      * @access public
-     * @param mixed $data 数据 支持数组或者对象
-     * @return void
+     * @param array $data 数据数组
+     * @return integer
      */
     public static function create($data = [])
     {
         $model = new static();
         return $model->isUpdate(false)->save($data);
+    }
+
+    /**
+     * 更新数据
+     * @access public
+     * @param array $data 数据数组
+     * @return integer
+     */
+    public static function update($data = [])
+    {
+        $model = new static();
+        return $model->isUpdate(true)->save($data);
     }
 
     /**
@@ -688,20 +700,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = self::BELONGS_TO_MANY;
         return $model::where($foreignKey, $this->data[$localKey]);
-    }
-
-    /**
-     * 实例化模型
-     * @access public
-     * @param array $config  配置参数
-     * @return object
-     */
-    public static function instance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new static();
-        }
-        return self::$instance;
     }
 
     /**

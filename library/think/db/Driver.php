@@ -1324,6 +1324,7 @@ abstract class Driver
             return [];
         }
         $fields = array_keys($bind);
+        $result = [];
         foreach ($data as $key => $val) {
             if (!in_array($key, $fields, true)) {
                 if ($this->config['fields_strict']) {
