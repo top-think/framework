@@ -316,11 +316,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getPk($tableName = '')
     {
-        if ($this->pk) {
-            return $this->pk;
-        } else {
-            return self::db()->getTableInfo($tableName, 'pk');
+        if (!$this->pk) {
+            $this->pk = self::db()->getTableInfo($tableName, 'pk');
         }
+        return $this->pk;
     }
 
     /**
