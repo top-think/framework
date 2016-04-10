@@ -604,12 +604,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 查找单条记录
      * @access public
-     * @param array $data 主键值
+     * @param mixed $data 主键值或者查询条件（闭包）
      * @param bool $cache 是否缓存
      * @return mixed
      */
     public static function get($data = '', $cache = false)
     {
+        $db = self::db();
+        if ($data instanceof \Closure) {
+            call_user_func_array($data, [ & $db]);
+            $data = [];
+        }
+
         if ($cache) {
             // 查找是否存在缓存
             $name   = basename(str_replace('\\', '/', get_called_class()));
@@ -620,7 +626,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        $result = self::db()->find($data);
+        $result = $db->find($data);
 
         if ($cache) {
             // 缓存模型数据
@@ -632,13 +638,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 查找所有记录
      * @access public
-     * @param mixed $data 主键列表
+     * @param mixed $data 主键列表或者查询条件（闭包）
      * @param string $with 关联预查询
      * @return mixed
      */
     public static function all($data = [], $with = '')
     {
-        return self::db()->with($with)->select($data);
+        $db = self::db();
+        if ($data instanceof \Closure) {
+            call_user_func_array($data, [ & $db]);
+            $data = [];
+        }
+        return $db->with($with)->select($data);
     }
 
     /**

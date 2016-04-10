@@ -2267,7 +2267,9 @@ abstract class Driver
         } else {
             // 未注册监听则记录到日志中
             Log::record('[ SQL ] ' . $this->queryStr . ' [ RunTime:' . $runtime . 's ]', 'sql');
-            Log::record('[ EXPLAIN : ' . var_export($result, true) . ' ]', 'sql');
+            if (!empty($explain)) {
+                Log::record('[ EXPLAIN : ' . var_export($explain, true) . ' ]', 'sql');
+            }
         }
     }
 
