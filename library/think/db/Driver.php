@@ -1814,7 +1814,7 @@ abstract class Driver
     public function update(array $data)
     {
         $options = $this->_parseOptions();
-        if (!isset($options['where'])) {
+        if (empty($options['where'])) {
             $pk = $this->getTableInfo($options['table'], 'pk');
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {

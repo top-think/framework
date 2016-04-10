@@ -333,7 +333,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 判断一个字段名是否为主键字段
      * @access public
      * @param string $key 名称
-     * @return void
+     * @return bool
      */
     protected function isPk($key)
     {
@@ -392,11 +392,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            $db = self::db();
-            if (!empty($where)) {
-                $db->where($where);
-            }
-            $result = $db->update($this->data);
+            $result = self::db()->where($where)->update($this->data);
 
             // 更新回调
             $this->trigger('after_update', $this);
@@ -501,7 +497,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 自动验证当前数据对象值
      * @access public
-     * @return void
+     * @return bool
      */
     public function validateData()
     {
@@ -596,10 +592,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array $data 数据数组
      * @return integer
      */
-    public static function update($data = [])
+    public static function update($data = [], $where = [])
     {
         $model = new static();
-        return $model->isUpdate(true)->save($data);
+        return $model->isUpdate(true)->where($where)->save($data);
     }
 
     /**
@@ -663,7 +659,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 命名范围
      * @access public
      * @param string|Closure $name 命名范围名称 逗号分隔
-     * @return Db
+     * @return Model
      */
     public static function scope($name, $params = [])
     {
@@ -683,7 +679,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $model;
     }
 
-    // 解析模型的完整命名空间
+    /**
+     * 解析模型的完整命名空间
+     * @access public
+     * @param string $model 模型名（或者完整类名）
+     * @return string
+     */
     protected function parseModel($model)
     {
         if (false === strpos($model, '\\')) {
@@ -695,7 +696,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $model;
     }
 
-    // 查询当前模型的关联数据
+    /**
+     * 查询当前模型的关联数据
+     * @access public
+     * @param string|array $relations 关联名
+     * @return Model
+     */
     public function relation($relations)
     {
         if (is_string($relations)) {
@@ -707,20 +713,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $this;
     }
 
-    // 预载入关联查询
+    /**
+     * 预载入关联查询 返回数据集
+     * @access public
+     * @param array $resultSet 数据集
+     * @param string $relation 关联名
+     * @return array
+     */
     public function eagerly($resultSet, $relation)
     {
         $relations = explode(',', $relation);
 
-        // 获取关联外键列表
         foreach ($relations as $relation) {
             $range                              = [];
             $data                               = [];
             $model                              = $this->$relation();
             list($type, $foreignKey, $localKey) = $this->relation;
             foreach ($resultSet as $result) {
+                // 获取关联外键列表
                 $range[] = $result->$localKey;
             }
+            // 预载入关联查询
             $list = $model::where($foreignKey, 'in', $range)->select();
             switch ($type) {
                 case self::HAS_ONE:
@@ -736,6 +749,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     }
                     break;
             }
+            // 关联数据封装
             foreach ($resultSet as &$result) {
                 if (isset($data[$result->$localKey])) {
                     $result->$relation = $data[$result->$localKey];
@@ -746,7 +760,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $resultSet;
     }
 
-    // HAS ONE
+    /**
+     * HAS ONE 关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $foreignKey 关联外键
+     * @param string $localKey 关联主键
+     * @return mixed
+     */
     public function hasOne($model, $foreignKey = '', $localKey = '')
     {
         $model          = $this->parseModel($model);
@@ -762,7 +783,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
     }
 
-    // BELONGS TO
+    /**
+     * BELONGS TO 关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $foreignKey 关联外键
+     * @param string $localKey 关联主键
+     * @return mixed
+     */
     public function belongsTo($model, $localKey = '', $foreignKey = '')
     {
         $model          = $this->parseModel($model);
@@ -777,7 +805,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
     }
 
-    // HAS MANY
+    /**
+     * HAS MANY 关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $foreignKey 关联外键
+     * @param string $localKey 关联主键
+     * @return mixed
+     */
     public function hasMany($model, $foreignKey = '', $localKey = '')
     {
         $model          = $this->parseModel($model);
@@ -793,7 +828,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
     }
 
-    // BELONGS TO MANY
+    /**
+     * BELONGS TO MANY 关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $foreignKey 关联外键
+     * @param string $localKey 关联主键
+     * @return mixed
+     */
     public function belongsToMany($model, $localKey = '', $foreignKey = '')
     {
         $model          = $this->parseModel($model);
