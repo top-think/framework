@@ -665,11 +665,12 @@ abstract class Driver
         }
 
         $where = $this->parseWhereExp($field, $op, $condition);
-
-        if (!isset($this->options['where']['AND'])) {
-            $this->options['where']['AND'] = [];
+        if (!empty($where)) {
+            if (!isset($this->options['where']['AND'])) {
+                $this->options['where']['AND'] = [];
+            }
+            $this->options['where']['AND'] = array_merge($this->options['where']['AND'], $where);
         }
-        $this->options['where']['AND'] = array_merge($this->options['where']['AND'], $where);
         return $this;
     }
 
@@ -684,10 +685,12 @@ abstract class Driver
     public function whereOr($field, $op = null, $condition = null)
     {
         $where = $this->parseWhereExp($field, $op, $condition);
-        if (!isset($this->options['where']['OR'])) {
-            $this->options['where']['OR'] = [];
+        if (!empty($where)) {
+            if (!isset($this->options['where']['OR'])) {
+                $this->options['where']['OR'] = [];
+            }
+            $this->options['where']['OR'] = array_merge($this->options['where']['OR'], $where);
         }
-        $this->options['where']['OR'] = array_merge($this->options['where']['OR'], $where);
         return $this;
     }
 
