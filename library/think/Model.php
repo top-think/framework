@@ -259,31 +259,38 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     break;
             }
         } elseif (is_null($value) && method_exists($this, $name)) {
-            // 执行关联定义方法
-            $db = $this->$name();
-            // 判断关联类型执行查询
-            switch ($this->relation) {
-                case self::HAS_ONE:
-                    $result = $db->find();
-                    break;
-                case self::HAS_MANY:
-                    $result = $db->select();
-                    break;
-                case self::BELONGS_TO:
-                    $result = $db->find();
-                    break;
-                case self::BELONGS_TO_MANY:
-                    $result = $db->select();
-                    break;
-                default:
-                    // 直接返回
-                    $result = $db;
-            }
-            // 避免影响其它操作方法
-            $this->relation = null;
-            return $result;
+            // 获取关联数据
+            return $this->getRelation($name);
         }
         return $value;
+    }
+
+    // 获取关联数据
+    protected function getRelation($relation)
+    {
+        // 执行关联定义方法
+        $db = $this->$relation();
+        // 判断关联类型执行查询
+        switch ($this->relation[0]) {
+            case self::HAS_ONE:
+                $result = $db->find();
+                break;
+            case self::HAS_MANY:
+                $result = $db->select();
+                break;
+            case self::BELONGS_TO:
+                $result = $db->find();
+                break;
+            case self::BELONGS_TO_MANY:
+                $result = $db->select();
+                break;
+            default:
+                // 直接返回
+                $result = $db;
+        }
+        // 避免影响其它操作方法
+        $this->relation = [];
+        return $result;
     }
 
     /**
@@ -688,14 +695,71 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $model;
     }
 
+    // 查询当前模型的关联数据
+    public function relation($relations)
+    {
+        if (is_string($relations)) {
+            $relations = explode(',', $relations);
+        }
+        foreach ($relations as $relation) {
+            $this->data[$relation] = $this->getRelation($relation);
+        }
+        return $this;
+    }
+
+    // 预载入关联查询
+    public function eagerly($resultSet, $relation)
+    {
+        $relations = explode(',', $relation);
+
+        // 获取关联外键列表
+        foreach ($relations as $relation) {
+            $range                              = [];
+            $data                               = [];
+            $model                              = $this->$relation();
+            list($type, $foreignKey, $localKey) = $this->relation;
+            foreach ($resultSet as $result) {
+                $range[] = $result->$localKey;
+            }
+            $list = $model::where($foreignKey, 'in', $range)->select();
+            switch ($type) {
+                case self::HAS_ONE:
+                case self::BELONGS_TO:
+                    foreach ($list as $set) {
+                        $data[$set->$foreignKey] = $set;
+                    }
+                    break;
+                case self::HAS_MANY:
+                case self::BELONGS_TO_MANY:
+                    foreach ($list as $set) {
+                        $data[$set->$foreignKey][] = $set;
+                    }
+                    break;
+            }
+            foreach ($resultSet as &$result) {
+                if (isset($data[$result->$localKey])) {
+                    $result->$relation = $data[$result->$localKey];
+                }
+            }
+            $this->relation = [];
+        }
+        return $resultSet;
+    }
+
     // HAS ONE
     public function hasOne($model, $foreignKey = '', $localKey = '')
     {
         $model          = $this->parseModel($model);
         $localKey       = $localKey ?: $this->pk;
         $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        $this->relation = self::HAS_ONE;
-        return $model::where($foreignKey, $this->data[$localKey]);
+        $this->relation = [self::HAS_ONE, $foreignKey, $localKey];
+        if (isset($this->data[$localKey])) {
+            // 关联查询封装
+            return $model::where($foreignKey, $this->data[$localKey]);
+        } else {
+            // 预载入封装
+            return $model;
+        }
     }
 
     // BELONGS TO
@@ -704,8 +768,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model          = $this->parseModel($model);
         $foreignKey     = $foreignKey ?: $this->pk;
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
-        $this->relation = self::BELONGS_TO;
-        return $model::where($foreignKey, $this->data[$localKey]);
+        $this->relation = [self::BELONGS_TO, $foreignKey, $localKey];
+        if (isset($this->data[$localKey])) {
+            // 关联查询封装
+            return $model::where($foreignKey, $this->data[$localKey]);
+        } else {
+            return $model;
+        }
     }
 
     // HAS MANY
@@ -714,8 +783,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model          = $this->parseModel($model);
         $localKey       = $localKey ?: $this->pk;
         $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        $this->relation = self::HAS_MANY;
-        return $model::where($foreignKey, $this->data[$localKey]);
+        $this->relation = [self::HAS_MANY, $foreignKey, $localKey];
+
+        if (isset($this->data[$localKey])) {
+            // 关联查询封装
+            return $model::where($foreignKey, $this->data[$localKey]);
+        } else {
+            return $model;
+        }
     }
 
     // BELONGS TO MANY
@@ -724,8 +799,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model          = $this->parseModel($model);
         $foreignKey     = $foreignKey ?: $this->pk;
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
-        $this->relation = self::BELONGS_TO_MANY;
-        return $model::where($foreignKey, $this->data[$localKey]);
+        $this->relation = [self::BELONGS_TO_MANY, $foreignKey, $localKey];
+
+        if (isset($this->data[$localKey])) {
+            // 关联查询封装
+            return $model::where($foreignKey, $this->data[$localKey]);
+        } else {
+            return $model;
+        }
     }
 
     /**
@@ -736,14 +817,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static function db()
     {
         $model = get_called_class();
-        $name  = basename(str_replace('\\', '/', $model));
+
         if (!isset(self::$links[$model])) {
             self::$links[$model] = Db::connect(static::$connection);
-            self::$links[$model]->name($name);
-            if (isset(static::$tableName)) {
-                self::$links[$model]->setTable(static::$tableName);
-            }
         }
+        if (isset(static::$tableName)) {
+            self::$links[$model]->setTable(static::$tableName);
+        } else {
+            $name = basename(str_replace('\\', '/', $model));
+            self::$links[$model]->name($name);
+        }
+
         // 设置当前模型 确保查询返回模型对象
         self::$links[$model]->model($model);
         // 返回当前数据库对象
@@ -767,6 +851,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $params)
     {
         return call_user_func_array([self::db(), $method], $params);
+    }
+
+    public function __toString()
+    {
+        return json_encode($this->data);
     }
 
     /**

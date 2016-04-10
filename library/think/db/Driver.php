@@ -1190,12 +1190,24 @@ abstract class Driver
         return $tableName;
     }
 
+    /**
+     * 设置当前name
+     * @access public
+     * @param string $name
+     * @return Db
+     */
     public function name($name)
     {
         $this->name = $name;
         return $this;
     }
 
+    /**
+     * 得到完整的数据表名
+     * @access public
+     * @param array $options 表达式参数
+     * @return string
+     */
     public function options(array $options)
     {
         $this->options = $options;
@@ -1927,17 +1939,51 @@ abstract class Driver
 
             // 数据列表读取后的处理
             if (!empty($options['model'])) {
+
                 foreach ($resultSet as $key => $result) {
                     if (!empty($options['model'])) {
                         // 返回模型对象
                         $result = new $options['model']($result);
                         $result->isUpdate(true);
+                        // 关联查询
+                        if (!empty($options['relation'])) {
+                            $result->relation($options['relation']);
+                        }
                     }
                     $resultSet[$key] = $result;
+                }
+                if (!empty($options['with'])) {
+                    // 预载入
+                    $result = new $options['model']();
+                    return $result->eagerly($resultSet, $options['with']);
                 }
             }
         }
         return $resultSet;
+    }
+
+    /**
+     * 设置关联查询预载入
+     * @access public
+     * @param string $with 关联名称
+     * @return Db
+     */
+    public function with($with)
+    {
+        $this->options['with'] = $with;
+        return $this;
+    }
+
+    /**
+     * 设置关联查询
+     * @access public
+     * @param string $relation 关联名称
+     * @return Db
+     */
+    public function relation($relation)
+    {
+        $this->options['relation'] = $relation;
+        return $this;
     }
 
     /**
@@ -2006,6 +2052,10 @@ abstract class Driver
                 // 返回模型对象
                 $data = new $options['model']($data);
                 $data->isUpdate(true);
+                // 关联查询
+                if (!empty($options['relation'])) {
+                    $data->relation($options['relation']);
+                }
             }
         } else {
             $data = false;
