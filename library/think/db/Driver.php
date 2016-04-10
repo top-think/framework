@@ -372,16 +372,17 @@ abstract class Driver
      * @param callable $callback 数据操作方法回调
      * @return void
      */
-    public function transaction($callback){
+    public function transaction($callback)
+    {
         $this->startTrans();
         try {
             if (is_callable($callback)) {
-                call_user_func_array($callback, [$sql, $runtime, $explain]);
-            }   
-            $this->commit();  
-        }catch (\PDOException $e) {
-            $this->rollback()
-        } 
+                call_user_func_array($callback, []);
+            }
+            $this->commit();
+        } catch (\PDOException $e) {
+            $this->rollback();
+        }
     }
 
     /**
