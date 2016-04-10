@@ -578,12 +578,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 写入数据
      * @access public
      * @param array $data 数据数组
-     * @return integer
+     * @return Model
      */
     public static function create($data = [])
     {
         $model = new static();
-        return $model->isUpdate(false)->save($data);
+        $model->isUpdate(false)->save($data);
+        return $model;
     }
 
     /**
@@ -596,7 +597,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function update($data = [], $where = [])
     {
         $model = new static();
-        return $model->isUpdate(true)->where($where)->save($data);
+        $model->isUpdate(true)->where($where)->save($data);
+        return $model;
     }
 
     /**
@@ -628,14 +630,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 查找多条记录
+     * 查找所有记录
      * @access public
      * @param mixed $data 主键列表
-     * @return array|string
+     * @param string $with 关联预查询
+     * @return mixed
      */
-    public static function all($data = [])
+    public static function all($data = [], $with = '')
     {
-        return self::db()->select($data);
+        return self::db()->with($with)->select($data);
     }
 
     /**
