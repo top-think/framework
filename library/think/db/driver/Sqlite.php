@@ -110,6 +110,6 @@ class Sqlite extends Driver
      */
     protected function getExplain($sql)
     {
-
+        return [];
     }
 }

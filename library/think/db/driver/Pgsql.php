@@ -129,6 +129,6 @@ class Pgsql extends Driver
      */
     protected function getExplain($sql)
     {
-
+        return [];
     }
 }

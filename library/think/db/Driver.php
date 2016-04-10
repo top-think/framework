@@ -442,6 +442,33 @@ abstract class Driver
     }
 
     /**
+     * 批处理执行SQL语句
+     * 批处理的指令都认为是execute操作
+     * @access public
+     * @param array $sql  SQL批处理指令
+     * @return boolean
+     */
+    public function batchQuery($sql = [])
+    {
+        if (!is_array($sql)) {
+            return false;
+        }
+        // 自动启动事务支持
+        $this->startTrans();
+        try {
+            foreach ($sql as $_sql) {
+                $result = $this->execute($_sql);
+            }
+            // 提交事务
+            $this->commit();
+        } catch (\PDOException $e) {
+            $this->rollback();
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 将SQL语句中的__TABLE_NAME__字符串替换成带前缀的表名（小写）
      * @access protected
      * @param string $sql sql语句

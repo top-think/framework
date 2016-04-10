@@ -195,6 +195,6 @@ class Sqlsrv extends Driver
      */
     protected function getExplain($sql)
     {
-
+        return [];
     }
 }
