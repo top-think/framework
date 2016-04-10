@@ -46,6 +46,8 @@ abstract class Driver
     protected $linkID = null;
     // 查询参数
     protected $options = [];
+    // 监听回调
+    protected static $event = [];
 
     // 数据库连接参数配置
     protected $config = [
@@ -2176,14 +2178,50 @@ abstract class Driver
             } else {
                 // 记录操作结束时间
                 Debug::remark('queryEndTime', 'time');
-                $log = $this->queryStr . ' [ RunTime:' . Debug::getRangeTime('queryStartTime', 'queryEndTime') . 's ]';
+                $runtime = Debug::getRangeTime('queryStartTime', 'queryEndTime');
+                $log     = $this->queryStr . ' [ RunTime:' . $runtime . 's ]';
+                $result  = [];
                 // SQL性能分析
                 if (0 === stripos(trim($this->queryStr), 'select')) {
                     $result = $this->getExplain($this->queryStr);
-                    Log::record('[ EXPLAIN : ' . var_export($result, true) . ' ]', 'sql');
                 }
-                Log::record('[ SQL ] ' . $log, 'sql');
+                // SQL监听
+                $this->trigger($this->queryStr, $runtime, $result);
             }
+        }
+    }
+
+    /**
+     * 监听SQL执行
+     * @access public
+     * @param callable $callback 回调方法
+     * @return void
+     */
+    public function listen($callback)
+    {
+        self::$event[] = $callback;
+    }
+
+    /**
+     * 触发SQL事件
+     * @access protected
+     * @param string $sql SQL语句
+     * @param float $runtime SQL运行时间
+     * @param mixed $explain SQL分析
+     * @return bool
+     */
+    protected function trigger($sql, $runtime, $explain = [])
+    {
+        if (!empty(self::$event)) {
+            foreach (self::$event as $callback) {
+                if (is_callable($callback)) {
+                    call_user_func_array($callback, [$sql, $runtime, $explain]);
+                }
+            }
+        } else {
+            // 未注册监听则记录到日志中
+            Log::record('[ SQL ] ' . $this->queryStr . ' [ RunTime:' . $runtime . 's ]', 'sql');
+            Log::record('[ EXPLAIN : ' . var_export($result, true) . ' ]', 'sql');
         }
     }
 

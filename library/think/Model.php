@@ -547,22 +547,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function event($event, $callback, $override = false)
     {
         if ($override) {
-            self::$event[$event] = [];
+            static::$event[$event] = [];
         }
-        self::$event[$event][] = $callback;
+        static::$event[$event][] = $callback;
     }
 
     /**
      * 触发事件
-     * @access public
+     * @access protected
      * @param string $event 事件名
      * @param mixed $params 传入参数（引用）
      * @return bool
      */
     protected function trigger($event, &$params)
     {
-        if (isset(self::$event[$event])) {
-            foreach (self::$event[$event] as $callback) {
+        if (isset(static::$event[$event])) {
+            foreach (static::$event[$event] as $callback) {
                 if (is_callable($callback)) {
                     $result = call_user_func_array($callback, [ & $params]);
                     if (false === $result) {
