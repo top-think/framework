@@ -618,7 +618,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if ($cache) {
             // 查找是否存在缓存
-            $name   = basename(str_replace('\\', '/', get_called_class()));
+            $name   = basename(str_replace('\\', '/', static::class));
             $guid   = md5('model_' . $name . '_' . serialize($data));
             $result = Cache::get($guid);
             if ($result) {
@@ -873,7 +873,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected static function db()
     {
-        $model = get_called_class();
+        $model = static::class;
 
         if (!isset(self::$links[$model])) {
             self::$links[$model] = Db::connect(static::$connection);
