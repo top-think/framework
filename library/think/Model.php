@@ -619,7 +619,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($cache) {
             // 查找是否存在缓存
             $name   = basename(str_replace('\\', '/', get_called_class()));
-            $guid   = 'model_' . $name . '_' . $data;
+            $guid   = md5('model_' . $name . '_' . serialize($data));
             $result = Cache::get($guid);
             if ($result) {
                 return new static($result);
@@ -628,7 +628,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $result = $db->find($data);
 
-        if ($cache) {
+        if ($cache && $result instanceof Model) {
             // 缓存模型数据
             Cache::set($guid, $result->toArray());
         }
