@@ -1947,7 +1947,7 @@ abstract class Driver
                         $result->isUpdate(true);
                         // 关联查询
                         if (!empty($options['relation'])) {
-                            $result->relation($options['relation']);
+                            $result->relationQuery($options['relation']);
                         }
                     }
                     $resultSet[$key] = $result;
@@ -2054,7 +2054,7 @@ abstract class Driver
                 $data->isUpdate(true);
                 // 关联查询
                 if (!empty($options['relation'])) {
-                    $data->relation($options['relation']);
+                    $data->relationQuery($options['relation']);
                 }
             }
         } else {

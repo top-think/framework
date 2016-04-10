@@ -590,6 +590,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 更新数据
      * @access public
      * @param array $data 数据数组
+     * @param array $where 更新条件
      * @return integer
      */
     public static function update($data = [], $where = [])
@@ -702,7 +703,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string|array $relations 关联名
      * @return Model
      */
-    public function relation($relations)
+    public function relationQuery($relations)
     {
         if (is_string($relations)) {
             $relations = explode(',', $relations);
