@@ -295,7 +295,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 避免影响其它操作方法
         $this->relation = [];
         // 保存关联对象值
-        $this->data[$name] = $result;
+        $this->data[$relation] = $result;
 
         return $result;
     }
