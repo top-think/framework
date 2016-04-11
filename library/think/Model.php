@@ -747,8 +747,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $relations = explode(',', $relation);
 
         foreach ($relations as $relation) {
-            $range                              = [];
-            $data                               = [];
+            $range = [];
+            $data  = [];
+            if (strpos($relation, '.')) {
+                list($relation, $subRelation) = explode('.', $relation);
+            }
             $model                              = $this->$relation();
             list($type, $foreignKey, $localKey) = $this->relation;
             foreach ($resultSet as $result) {
@@ -756,7 +759,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $range[] = $result->$localKey;
             }
             // 预载入关联查询
-            $list = $model::where($foreignKey, 'in', $range)->select();
+            if (isset($subRelation)) {
+                // 嵌套预载入
+                $list = $model::where($foreignKey, 'in', $range)->with($subRelation)->select();
+            } else {
+                $list = $model::where($foreignKey, 'in', $range)->select();
+            }
             switch ($type) {
                 case self::HAS_ONE:
                 case self::BELONGS_TO:
