@@ -604,7 +604,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function update($data = [], $where = [])
     {
         $model = new static();
-        $model->isUpdate(true)->where($where)->save($data);
+        $model->isUpdate(true)->save($data, $where);
         return $model;
     }
 
@@ -662,13 +662,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 删除记录
      * @access public
-     * @param mixed $data 主键列表
+     * @param mixed $data 主键列表 支持闭包查询条件
      * @return integer
      */
     public static function destroy($data)
     {
-        $model     = new static();
-        $resultSet = $model->select($data);
+        $db = self::db();
+        if ($data instanceof \Closure) {
+            call_user_func_array($data, [ & $db]);
+            $data = [];
+        }
+        $resultSet = $db->select($data);
         if ($resultSet) {
             foreach ($resultSet as $data) {
                 $result = $data->delete();
