@@ -153,6 +153,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             throw new Exception('data type invalid', 10300);
         }
         $this->data = $data;
+        // 标记字段为更改
+        foreach ($data as $key => $val) {
+            $this->change[] = $key;
+        }
         return $this;
     }
 
