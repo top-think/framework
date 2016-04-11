@@ -1136,7 +1136,7 @@ abstract class Driver
         } else {
             $data[$field] = $value;
         }
-        return $this->save($data);
+        return $this->update($data);
     }
 
     /**
