@@ -1227,10 +1227,10 @@ abstract class Driver
 
     /**
      * 得到完整的数据表名
-     * @access protected
+     * @access public
      * @return string
      */
-    protected function getTableName()
+    public function getTableName()
     {
         if (!$this->table) {
             $tableName = $this->config['prefix'];
@@ -2050,7 +2050,7 @@ abstract class Driver
         if (is_string($pk)) {
             // 根据主键查询
             if (is_array($data)) {
-                $where[$pk] = ['in', $data];
+                $where[$pk] = isset($data[$pk]) ? $data[$pk] : ['in', $data];
             } else {
                 $where[$pk] = strpos($data, ',') ? ['IN', $data] : $data;
             }
