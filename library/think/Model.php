@@ -612,10 +612,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 查找单条记录
      * @access public
      * @param mixed $data 主键值或者查询条件（闭包）
+     * @param string $with 关联预查询
      * @param bool $cache 是否缓存
      * @return mixed
      */
-    public static function get($data = '', $cache = false)
+    public static function get($data = '', $with = '', $cache = false)
     {
         $db = self::db();
         if ($data instanceof \Closure) {
@@ -633,7 +634,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        $result = $db->find($data);
+        $result = self::with($with)->find($data);
 
         if ($cache && $result instanceof Model) {
             // 缓存模型数据
@@ -656,7 +657,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             call_user_func_array($data, [ & $db]);
             $data = [];
         }
-        return $db->with($with)->select($data);
+        return self::with($with)->select($data);
     }
 
     /**
@@ -739,6 +740,35 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $this;
     }
 
+    public static function with($with = '')
+    {
+        if (is_string($with)) {
+            $with = explode(',', $with);
+        }
+        $db = self::db();
+        if (empty($with)) {
+            return $db;
+        }
+        $class     = new static();
+        $joinName  = basename(str_replace('\\', '/', static::class));
+        $joinTable = Db::name($joinName)->getTableName();
+        $db->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
+        foreach ($with as $name) {
+            $model                              = $class->$name();
+            list($type, $foreignKey, $localKey) = $class->relation;
+            if (in_array($type, [self::HAS_ONE, self::BELONGS_TO])) {
+                // 预载入封装
+                $table = $model::getTableName();
+                $name  = basename(str_replace('\\', '/', $model));
+                $db->field($joinName . '.' . $localKey . ' as ' . $localKey)
+                    ->join($table . ' ' . $name, $joinName . '.' . $localKey . '=' . $name . '.' . $foreignKey)
+                    ->field(true, false, $table, $name);
+            }
+        }
+        return $db->with($with);
+
+    }
+
     /**
      * 预载入关联查询 返回数据集
      * @access public
@@ -748,7 +778,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function eagerly($resultSet, $relation)
     {
-        $relations = explode(',', $relation);
+
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
         foreach ($relations as $relation) {
             $range = [];
@@ -772,9 +803,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             switch ($type) {
                 case self::HAS_ONE:
                 case self::BELONGS_TO:
+                    /*
                     foreach ($list as $set) {
-                        $data[$set->$foreignKey] = $set;
-                    }
+                    $data[$set->$foreignKey] = $set;
+                    }*/
                     break;
                 case self::HAS_MANY:
                 case self::BELONGS_TO_MANY:

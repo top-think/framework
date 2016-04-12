@@ -624,25 +624,41 @@ abstract class Driver
     }
 
     /**
-     * 指定查询字段 支持字段排除
+     * 指定查询字段 支持字段排除和指定数据表
      * @access public
      * @param mixed $field
      * @param boolean $except 是否排除
+     * @param string $tableName 数据表名
+     * @param string $prefix 字段前缀
      * @return Model
      */
-    public function field($field, $except = false)
+    public function field($field, $except = false, $tableName = '', $prefix = '')
     {
+        if (is_string($field)) {
+            $field = explode(',', $field);
+        }
         if (true === $field) {
             // 获取全部字段
-            $fields = $this->getTableInfo('', 'fields');
+            $fields = $this->getTableInfo($tableName, 'fields');
             $field  = $fields ?: '*';
         } elseif ($except) {
             // 字段排除
-            if (is_string($field)) {
-                $field = explode(',', $field);
-            }
-            $fields = $this->getTableInfo('', 'fields');
+            $fields = $this->getTableInfo($tableName, 'fields');
             $field  = $fields ? array_diff($fields, $field) : $field;
+        }
+        if ($tableName) {
+            // 添加统一的前缀
+            $prefix = $prefix ?: $tableName;
+            foreach ($field as $key => $val) {
+                if (is_numeric($key)) {
+                    $val = $prefix . '.' . $val . ' AS ' . $prefix . '__' . $val;
+                }
+                $field[$key] = $val;
+            }
+        }
+
+        if (isset($this->options['field'])) {
+            $field = array_merge($this->options['field'], $field);
         }
         $this->options['field'] = $field;
         return $this;
@@ -1450,10 +1466,9 @@ abstract class Driver
      */
     protected function parseField($fields)
     {
-        if (is_string($fields) && strpos($fields, ',')) {
-            $fields = explode(',', $fields);
-        }
-        if (is_array($fields)) {
+        if ('*' == $fields || empty($fields)) {
+            $fieldsStr = '*';
+        } elseif (is_array($fields)) {
             // 支持 'field1'=>'field2' 这样的字段别名定义
             $array = [];
             foreach ($fields as $key => $field) {
@@ -1464,12 +1479,7 @@ abstract class Driver
                 }
             }
             $fieldsStr = implode(',', $array);
-        } elseif (is_string($fields) && !empty($fields)) {
-            $fieldsStr = $this->parseKey($fields);
-        } else {
-            $fieldsStr = '*';
         }
-        //TODO 如果是查询全部字段，并且是join的方式，那么就把要查的表加个别名，以免字段被覆盖
         return $fieldsStr;
     }
 
