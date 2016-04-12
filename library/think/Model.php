@@ -763,18 +763,24 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        $class     = new static();
-        $joinName  = strtolower(basename(str_replace('\\', '/', get_called_class())));
-        $joinTable = Db::name($joinName)->getTableName();
-        $db->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
+        $class = new static();
+
         foreach ($with as $key => $name) {
+            $i                                  = 0;
             $model                              = $class->$name();
             list($type, $foreignKey, $localKey) = $class->relation;
             if (in_array($type, [self::HAS_ONE, self::BELONGS_TO])) {
+                if (0 == $i) {
+                    $joinName  = strtolower(basename(str_replace('\\', '/', get_called_class())));
+                    $joinTable = Db::name($joinName)->getTableName();
+                    $db->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
+                }
+
                 // 预载入封装
                 $table = $model::getTableName();
                 $name  = strtolower(basename(str_replace('\\', '/', $model)));
                 $db->join($table . ' ' . $name, $joinName . '.' . $localKey . '=' . $name . '.' . $foreignKey)->field(true, false, $table, $name);
+                $i++;
             }
         }
         return $db->with($with)->model(get_called_class());
@@ -827,6 +833,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         foreach ($resultSet as &$result) {
                             if (isset($data[$result->$localKey])) {
                                 $result->__set($relation, $data[$result->$localKey]);
+                            } else {
+                                $result->__set($relation, []);
                             }
                         }
                     }
@@ -872,9 +880,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         $data = $this->modelRelationQuery($model, $resultSet, [$foreignKey => $result->$localKey], $relation, $subRelation);
 
                         // 关联数据封装
-                        if (isset($data[$result->$localKey])) {
-                            $result->__set($relation, $data[$result->$localKey]);
+                        if (!isset($data[$result->$localKey])) {
+                            $data[$result->$localKey] = [];
                         }
+                        $result->__set($relation, $data[$result->$localKey]);
                     }
                     break;
             }
@@ -915,10 +924,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        if (isset($list[$modelName])) {
+        if (!isset($list[$modelName])) {
             // 设置关联模型属性
-            $result->__set($relation, new $model($list[$modelName]));
+            $list[$modelName] = [];
         }
+        $result->__set($relation, new $model($list[$modelName]));
     }
 
     /**
@@ -938,6 +948,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $list = $model::where($where)->with($subRelation)->select();
 
         // 组装模型数据
+        $data = [];
         foreach ($list as $set) {
             $data[$set->$foreignKey][] = $set;
         }
