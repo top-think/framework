@@ -815,15 +815,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $range = [];
                     foreach ($resultSet as $result) {
                         // 获取关联外键列表
-                        $range[] = $result->$localKey;
+                        if (isset($result->$localKey)) {
+                            $range[] = $result->$localKey;
+                        }
                     }
-                    $where[$foreignKey] = ['in', $range];
-                    $data               = $this->modelRelationQuery($model, $where, $relation, $subRelation);
 
-                    // 关联数据封装
-                    foreach ($resultSet as &$result) {
-                        if (isset($data[$result->$localKey])) {
-                            $result->__set($relation, $data[$result->$localKey]);
+                    if (!empty($range)) {
+                        $data = $this->modelRelationQuery($model, [$foreignKey => ['in', $range]], $relation, $subRelation);
+
+                        // 关联数据封装
+                        foreach ($resultSet as &$result) {
+                            if (isset($data[$result->$localKey])) {
+                                $result->__set($relation, $data[$result->$localKey]);
+                            }
                         }
                     }
                     break;
@@ -864,12 +868,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     break;
                 case self::HAS_MANY:
                 case self::BELONGS_TO_MANY:
-                    $where[$foreignKey] = $result->$localKey;
-                    $data               = $this->modelRelationQuery($model, $resultSet, $where, $relation, $subRelation);
+                    if (isset($result->$localKey)) {
+                        $data = $this->modelRelationQuery($model, $resultSet, [$foreignKey => $result->$localKey], $relation, $subRelation);
 
-                    // 关联数据封装
-                    if (isset($data[$result->$localKey])) {
-                        $result->__set($relation, $data[$result->$localKey]);
+                        // 关联数据封装
+                        if (isset($data[$result->$localKey])) {
+                            $result->__set($relation, $data[$result->$localKey]);
+                        }
                     }
                     break;
             }
@@ -949,11 +954,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function hasOne($model, $foreignKey = '', $localKey = '')
     {
-        $model          = $this->parseModel($model);
+        // 记录当前关联信息
         $localKey       = $localKey ?: $this->pk;
         $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $this->relation = [self::HAS_ONE, $foreignKey, $localKey];
 
+        $model = $this->parseModel($model);
         if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
@@ -967,17 +973,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * BELONGS TO 关联定义
      * @access public
      * @param string $model 模型名
-     * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param string $foreignKey 关联外键
      * @return mixed
      */
     public function belongsTo($model, $localKey = '', $foreignKey = '')
     {
-        $model          = $this->parseModel($model);
+        // 记录当前关联信息
         $foreignKey     = $foreignKey ?: $this->pk;
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = [self::BELONGS_TO, $foreignKey, $localKey];
 
+        $model = $this->parseModel($model);
         if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
@@ -996,11 +1003,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function hasMany($model, $foreignKey = '', $localKey = '')
     {
-        $model          = $this->parseModel($model);
+        // 记录当前关联信息
         $localKey       = $localKey ?: $this->pk;
         $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $this->relation = [self::HAS_MANY, $foreignKey, $localKey];
 
+        $model = $this->parseModel($model);
         if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
@@ -1013,17 +1021,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * BELONGS TO MANY 关联定义
      * @access public
      * @param string $model 模型名
-     * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param string $foreignKey 关联外键
      * @return mixed
      */
     public function belongsToMany($model, $localKey = '', $foreignKey = '')
     {
-        $model          = $this->parseModel($model);
+        // 记录当前关联信息
         $foreignKey     = $foreignKey ?: $this->pk;
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = [self::BELONGS_TO_MANY, $foreignKey, $localKey];
 
+        $model = $this->parseModel($model);
         if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
