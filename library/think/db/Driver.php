@@ -2057,19 +2057,25 @@ abstract class Driver
     protected function parsePkWhere($data)
     {
         $pk = $this->getTableInfo('', 'pk');
+        // 获取当前数据表
+        if (!empty($this->options['alias'])) {
+            $alias = $this->options['alias'];
+        }
         if (is_string($pk)) {
+            $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
             if (is_array($data)) {
-                $where[$pk] = isset($data[$pk]) ? $data[$pk] : ['in', $data];
+                $where[$key] = isset($data[$pk]) ? $data[$pk] : ['in', $data];
             } else {
-                $where[$pk] = strpos($data, ',') ? ['IN', $data] : $data;
+                $where[$key] = strpos($data, ',') ? ['IN', $data] : $data;
             }
             $this->options['where']['AND'] = $where;
         } elseif (is_array($pk) && is_array($data) && !empty($data)) {
             // 根据复合主键查询
             foreach ($pk as $key) {
                 if (isset($data[$key])) {
-                    $where[$key] = $data[$key];
+                    $attr         = isset($alias) ? $alias . '.' . $key : $key;
+                    $where[$attr] = $data[$key];
                 } else {
                     throw new Exception('miss complex primary data');
                 }
