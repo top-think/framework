@@ -145,7 +145,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 设置数据对象值
      * @access public
      * @param mixed $data 数据
-     * @return Model
+     * @return $this
      */
     public function data($data = '')
     {
@@ -435,7 +435,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 是否为更新数据
      * @access public
      * @param bool $update
-     * @return Model
+     * @return $this
      */
     public function isUpdate($update = true)
     {
@@ -484,7 +484,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array|bool $rule 验证规则 true表示自动读取验证器类
      * @param array $msg 提示信息
-     * @return Model
+     * @return $this
      */
     public function validate($rule = true, $msg = [])
     {
@@ -583,7 +583,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 写入数据
      * @access public
      * @param array $data 数据数组
-     * @return Model
+     * @return $this
      */
     public static function create($data = [])
     {
@@ -597,7 +597,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array $data 数据数组
      * @param array $where 更新条件
-     * @return integer
+     * @return $this
      */
     public static function update($data = [], $where = [])
     {
@@ -612,7 +612,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param mixed $data 主键值或者查询条件（闭包）
      * @param string $with 关联预查询
      * @param bool $cache 是否缓存
-     * @return mixed
+     * @return \think\Model
      */
     public static function get($data = '', $with = [], $cache = false)
     {
@@ -646,7 +646,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param mixed $data 主键列表或者查询条件（闭包）
      * @param string $with 关联预查询
-     * @return mixed
+     * @return array|false|string
      */
     public static function all($data = [], $with = [])
     {
@@ -684,7 +684,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 命名范围
      * @access public
      * @param string|Closure $name 命名范围名称 逗号分隔
-     * @return Model
+     * @return \think\Model
      */
     public static function scope($name, $params = [])
     {
@@ -725,7 +725,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 查询当前模型的关联数据
      * @access public
      * @param string|array $relations 关联名
-     * @return Model
+     * @return $this
      */
     public function relationQuery($relations)
     {
@@ -742,7 +742,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 使用关联预载入查询
      * @access public
      * @param string|array $relations 关联名
-     * @return Db
+     * @return \think\db\Driver
      */
     public static function with($with = [])
     {
@@ -852,7 +852,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param Model $result 数据对象
      * @param string $relation 关联名
-     * @return Model
+     * @return \think\Model
      */
     public function eagerlyResult($result, $relation)
     {
@@ -961,7 +961,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return mixed
+     * @return \think\db\Driver|string
      */
     public function hasOne($model, $foreignKey = '', $localKey = '')
     {
@@ -986,7 +986,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
-     * @return mixed
+     * @return \think\db\Driver|string
      */
     public function belongsTo($model, $localKey = '', $foreignKey = '')
     {
@@ -1010,7 +1010,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return mixed
+     * @return \think\db\Driver|string
      */
     public function hasMany($model, $foreignKey = '', $localKey = '')
     {
@@ -1034,7 +1034,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
-     * @return mixed
+     * @return \think\db\Driver|string
      */
     public function belongsToMany($model, $localKey = '', $foreignKey = '')
     {
@@ -1055,7 +1055,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 初始化数据库对象
      * @access protected
-     * @return object
+     * @return \think\db\Driver
      */
     protected static function db()
     {

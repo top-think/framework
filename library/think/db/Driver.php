@@ -491,7 +491,7 @@ abstract class Driver
      * @param mixed $join 关联的表名
      * @param mixed $condition 条件
      * @param string $type JOIN类型
-     * @return Model
+     * @return $this
      */
     public function join($join, $condition = null, $type = 'INNER')
     {
@@ -545,7 +545,7 @@ abstract class Driver
      * @access public
      * @param mixed $union
      * @param boolean $all
-     * @return Model
+     * @return $this
      */
     public function union($union, $all = false)
     {
@@ -630,7 +630,7 @@ abstract class Driver
      * @param boolean $except 是否排除
      * @param string $tableName 数据表名
      * @param string $prefix 字段前缀
-     * @return Model
+     * @return $this
      */
     public function field($field, $except = false, $tableName = '', $prefix = '')
     {
@@ -670,7 +670,7 @@ abstract class Driver
      * @param mixed $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @return Db
+     * @return $this
      */
     public function where($field, $op = null, $condition = null)
     {
@@ -696,7 +696,7 @@ abstract class Driver
      * @param mixed $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @return Db
+     * @return $this
      */
     public function whereOr($field, $op = null, $condition = null)
     {
@@ -716,7 +716,7 @@ abstract class Driver
      * @param mixed $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @return Db
+     * @return $this
      */
     protected function parseWhereExp($field, $op, $condition)
     {
@@ -750,7 +750,7 @@ abstract class Driver
      * 指定查询条件
      * @access public
      * @param mixed $where 条件表达式
-     * @return Db
+     * @return $this
      */
     public function whereExist($where)
     {
@@ -762,7 +762,7 @@ abstract class Driver
      * 指定查询条件
      * @access public
      * @param mixed $where 条件表达式
-     * @return Model
+     * @return $this
      */
     public function whereOrExist($where)
     {
@@ -774,7 +774,7 @@ abstract class Driver
      * 指定查询条件
      * @access public
      * @param mixed $where 条件表达式
-     * @return Model
+     * @return $this
      */
     public function whereNotExist($where)
     {
@@ -786,7 +786,7 @@ abstract class Driver
      * 指定查询条件
      * @access public
      * @param mixed $where 条件表达式
-     * @return Model
+     * @return $this
      */
     public function whereOrNotExist($where)
     {
@@ -799,7 +799,7 @@ abstract class Driver
      * @access public
      * @param mixed $offset 起始位置
      * @param mixed $length 查询数量
-     * @return Model
+     * @return $this
      */
     public function limit($offset, $length = null)
     {
@@ -815,7 +815,7 @@ abstract class Driver
      * @access public
      * @param mixed $page 页数
      * @param mixed $listRows 每页数量
-     * @return Model
+     * @return $this
      */
     public function page($page, $listRows = null)
     {
@@ -830,7 +830,7 @@ abstract class Driver
      * 指定数据表
      * @access public
      * @param string $table 表名
-     * @return Model
+     * @return $this
      */
     public function table($table)
     {
@@ -846,7 +846,7 @@ abstract class Driver
      * USING支持 用于多表删除
      * @access public
      * @param mixed $using
-     * @return Model
+     * @return $this
      */
     public function using($using)
     {
@@ -863,7 +863,7 @@ abstract class Driver
      * @access public
      * @param string|array $field 排序字段
      * @param string $order 排序
-     * @return Model
+     * @return $this
      */
     public function order($field, $order = null)
     {
@@ -880,7 +880,7 @@ abstract class Driver
      * 指定group查询
      * @access public
      * @param string $group GROUP
-     * @return Model
+     * @return $this
      */
     public function group($group)
     {
@@ -892,7 +892,7 @@ abstract class Driver
      * 指定having查询
      * @access public
      * @param string $having having
-     * @return Model
+     * @return $this
      */
     public function having($having)
     {
@@ -904,7 +904,7 @@ abstract class Driver
      * 指定查询lock
      * @access public
      * @param boolean $lock 是否lock
-     * @return Model
+     * @return $this
      */
     public function lock($lock = false)
     {
@@ -916,7 +916,7 @@ abstract class Driver
      * 指定distinct查询
      * @access public
      * @param string $distinct 是否唯一
-     * @return Model
+     * @return $this
      */
     public function distinct($distinct)
     {
@@ -928,7 +928,7 @@ abstract class Driver
      * 指定数据表别名
      * @access public
      * @param string $alias 数据表别名
-     * @return Model
+     * @return $this
      */
     public function alias($alias)
     {
@@ -940,7 +940,7 @@ abstract class Driver
      * 指定强制索引
      * @access public
      * @param string $force 索引名称
-     * @return Model
+     * @return $this
      */
     public function force($force)
     {
@@ -952,7 +952,7 @@ abstract class Driver
      * 查询注释
      * @access public
      * @param string $comment 注释
-     * @return Model
+     * @return $this
      */
     public function comment($comment)
     {
@@ -964,7 +964,7 @@ abstract class Driver
      * 获取执行的SQL语句
      * @access public
      * @param boolean $fetch 是否返回sql
-     * @return Model
+     * @return $this
      */
     public function fetchSql($fetch = true)
     {
@@ -976,7 +976,7 @@ abstract class Driver
      * 不主动获取数据集
      * @access public
      * @param bool $pdo 是否返回 PDOStatement 对象
-     * @return Model
+     * @return $this
      */
     public function fetchPdo($pdo = true)
     {
@@ -987,7 +987,7 @@ abstract class Driver
     /**
      * 设置从主服务器读取数据
      * @access public
-     * @return Model
+     * @return $this
      */
     public function master()
     {
@@ -999,7 +999,7 @@ abstract class Driver
      * 指定当前模型
      * @access public
      * @param string $model  模型类名称
-     * @return object
+     * @return $this
      */
     public function model($model)
     {
@@ -1013,7 +1013,7 @@ abstract class Driver
      * @param mixed $key  参数名
      * @param mixed $value  绑定变量值
      * @param integer $type 绑定类型
-     * @return Model
+     * @return $this
      */
     public function bind($key, $value = false, $type = PDO::PARAM_STR)
     {
@@ -1030,7 +1030,7 @@ abstract class Driver
      * @access public
      * @param Closure $scope 命名范围 闭包定义
      * @param mixed $args 参数
-     * @return Db
+     * @return $this
      */
     public function scope($scope = '', $args = null)
     {
@@ -1143,7 +1143,7 @@ abstract class Driver
      * @access public
      * @param string|array $field  字段名
      * @param string $value  字段值
-     * @return boolean
+     * @return integer
      */
     public function setField($field, $value = '')
     {
@@ -1161,7 +1161,7 @@ abstract class Driver
      * @param string $field  字段名
      * @param integer $step  增长值
      * @param integer $lazyTime  延时时间(s)
-     * @return boolean
+     * @return integer|true
      * @throws \think\Exception
      */
     public function setInc($field, $step = 1, $lazyTime = 0)
@@ -1188,7 +1188,7 @@ abstract class Driver
      * @param string $field  字段名
      * @param integer $step  减少值
      * @param integer $lazyTime  延时时间(s)
-     * @return boolean
+     * @return integer|true
      * @throws \think\Exception
      */
     public function setDec($field, $step = 1, $lazyTime = 0)
@@ -1261,7 +1261,7 @@ abstract class Driver
      * 设置当前name
      * @access public
      * @param string $name
-     * @return Db
+     * @return $this
      */
     public function name($name)
     {
@@ -1270,10 +1270,10 @@ abstract class Driver
     }
 
     /**
-     * 得到完整的数据表名
+     * 查询参数赋值
      * @access public
      * @param array $options 表达式参数
-     * @return string
+     * @return $this
      */
     public function options(array $options)
     {
@@ -1972,7 +1972,7 @@ abstract class Driver
      * 查找记录
      * @access public
      * @param array $options 表达式
-     * @return array|string
+     * @return \PDOStatement|array|string|false
      */
     public function select($data = [])
     {
@@ -2089,7 +2089,7 @@ abstract class Driver
      * 查找单条记录
      * @access public
      * @param array $options 表达式
-     * @return mixed
+     * @return \think\Model|\PDOStatement|array|string|false
      */
     public function find($data = [])
     {
