@@ -63,7 +63,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $type = [];
     // 是否为更新数据
     protected $isUpdate = false;
-    // 当前执行的关联类型
+    // 当前执行的关联信息
     private $relation;
     // 是否预载入
     protected $eagerly = false;
@@ -624,7 +624,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if ($cache) {
             // 查找是否存在缓存
-            $name   = basename(str_replace('\\', '/', static::class));
+            $name   = basename(str_replace('\\', '/', get_called_class()));
             $guid   = md5('model_' . $name . '_' . serialize($data));
             $result = Cache::get($guid);
             if ($result) {
@@ -764,7 +764,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         $class     = new static();
-        $joinName  = strtolower(basename(str_replace('\\', '/', static::class)));
+        $joinName  = strtolower(basename(str_replace('\\', '/', get_called_class())));
         $joinTable = Db::name($joinName)->getTableName();
         $db->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
         foreach ($with as $key => $name) {
@@ -777,7 +777,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $db->join($table . ' ' . $name, $joinName . '.' . $localKey . '=' . $name . '.' . $foreignKey)->field(true, false, $table, $name);
             }
         }
-        return $db->with($with)->model(static::class);
+        return $db->with($with)->model(get_called_class());
     }
 
     /**
@@ -886,7 +886,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 关联模型拼装
+     * 一对一 关联模型预查询拼装
      * @access public
      * @param string $model 模型名称
      * @param string $relation 关联名
@@ -898,7 +898,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $modelName = strtolower(basename(str_replace('\\', '/', $model)));
         $currName  = strtolower($this->name);
         // 重新组装模型数据
-        foreach ($result->toarray() as $key => $val) {
+        foreach ($result->toArray() as $key => $val) {
             if (strpos($key, '__')) {
                 list($name, $attr) = explode('__', $key);
                 if (in_array($name, [$currName, $modelName])) {
@@ -922,7 +922,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 关联模型预查询
+     * 一对多 关联模型预查询
      * @access public
      * @param string $model 模型名称
      * @param array $where 关联预查询条件
@@ -1048,7 +1048,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected static function db()
     {
-        $model = static::class;
+        $model = get_called_class();
 
         if (!isset(self::$links[$model])) {
             self::$links[$model] = Db::connect(static::$connection);
