@@ -65,6 +65,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $isUpdate = false;
     // 当前执行的关联类型
     private $relation;
+    // 是否预载入
+    protected $eagerly = false;
 
     /**
      * 初始化过的模型.
@@ -787,10 +789,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function eagerlyResultSet($resultSet, $relation)
     {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+        $this->eagerly = true;
+        $relations     = is_string($relation) ? explode(',', $relation) : $relation;
 
         foreach ($relations as $relation) {
-            $subRelation = null;
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
@@ -862,6 +864,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             $this->relation = [];
         }
+        $this->eagerly = false;
         return $resultSet;
     }
 
@@ -872,9 +875,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $relation 关联名
      * @return Model
      */
-    public function eagerlyResult($result, $with)
+    public function eagerlyResult($result, $relation)
     {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+        $this->eagerly = true;
+        $relations     = is_string($relation) ? explode(',', $relation) : $relation;
 
         foreach ($relations as $relation) {
             if (strpos($relation, '.')) {
@@ -942,6 +946,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             $this->relation = [];
         }
+        $this->eagerly = false;
         return $result;
     }
 
@@ -959,7 +964,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $localKey       = $localKey ?: $this->pk;
         $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $this->relation = [self::HAS_ONE, $foreignKey, $localKey];
-        if (isset($this->data[$localKey])) {
+
+        if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
         } else {
@@ -982,7 +988,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey     = $foreignKey ?: $this->pk;
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = [self::BELONGS_TO, $foreignKey, $localKey];
-        if (isset($this->data[$localKey])) {
+
+        if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
         } else {
@@ -1005,7 +1012,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey     = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $this->relation = [self::HAS_MANY, $foreignKey, $localKey];
 
-        if (isset($this->data[$localKey])) {
+        if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
         } else {
@@ -1028,7 +1035,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $localKey       = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $this->relation = [self::BELONGS_TO_MANY, $foreignKey, $localKey];
 
-        if (isset($this->data[$localKey])) {
+        if (!$this->eagerly && isset($this->data[$localKey])) {
             // 关联查询封装
             return $model::where($foreignKey, $this->data[$localKey]);
         } else {
