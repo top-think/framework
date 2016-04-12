@@ -67,10 +67,14 @@ class Lang
         }
         $lang = [];
         foreach ($file as $_file) {
-            // 记录加载信息
-            APP_DEBUG && Log::record('[ LANG ] ' . $_file, 'info');
-            $_lang = is_file($_file) ? include $_file : [];
-            $lang  = array_change_key_case($_lang) + $lang;
+            if (is_file($_file)) {
+                // 记录加载信息
+                APP_DEBUG && Log::record('[ LANG ] ' . $_file, 'info');
+                $_lang = include $_file;
+            } else {
+                $_lang = [];
+            }
+            $lang = array_change_key_case($_lang) + $lang;
         }
         if (!empty($lang)) {
             self::$lang[$range] = $lang + self::$lang[$range];

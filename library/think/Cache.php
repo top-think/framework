@@ -33,6 +33,7 @@ class Cache
      */
     protected static $handler = null;
 
+    protected static $default = null;
     /**
      * 连接缓存
      * @access public
@@ -47,6 +48,9 @@ class Cache
             $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\cache\\driver\\') . ucwords($type);
             unset($options['type']);
             self::$instance[$md5] = new $class($options);
+            if($options['prefix']==C('cache.prefix') && !self::$default){//如果前缀与配置前缀一致.则为默认处理方法
+                self::$default = self::$instance[$md5];
+            }
             // 记录初始化信息
             APP_DEBUG && Log::record('[ CACHE ] INIT ' . $type . ':' . var_export($options, true), 'info');
         }
@@ -61,5 +65,16 @@ class Cache
             self::connect(Config::get('cache'));
         }
         return call_user_func_array([self::$handler, $method], $params);
+    }
+
+    /**
+     * 设置默认处理缓存句柄
+     * @access public
+     */
+    public static function setDefault(){
+
+        if (self::$handler != self::$default) {
+            self::$handler = self::$default;
+        }
     }
 }

@@ -260,27 +260,6 @@ class Loader
     }
 
     /**
-     * 实例化一个没有模型文件的Model（对应数据表）
-     * @param string $name Model名称 支持指定基础模型 例如 MongoModel:User
-     * @param array $options 模型参数
-     * @return Model
-     */
-    public static function table($name = '', array $options = [])
-    {
-        static $_model = [];
-        if (strpos($name, ':')) {
-            list($class, $name) = explode(':', $name);
-        } else {
-            $class = 'think\\Model';
-        }
-        $guid = $name . '_' . $class;
-        if (!isset($_model[$guid])) {
-            $_model[$guid] = new $class($name, $options);
-        }
-        return $_model[$guid];
-    }
-
-    /**
      * 实例化（分层）模型
      * @param string $name Model名称
      * @param string $layer 业务层名称
@@ -288,9 +267,6 @@ class Loader
      */
     public static function model($name = '', $layer = MODEL_LAYER)
     {
-        if (empty($name)) {
-            return new Model;
-        }
         static $_model = [];
         if (isset($_model[$name . $layer])) {
             return $_model[$name . $layer];
@@ -301,16 +277,14 @@ class Loader
             $module = APP_MULTI_MODULE ? MODULE_NAME : '';
         }
         $class = self::parseClass($module, $layer, $name);
-        $name  = basename($name);
         if (class_exists($class)) {
-            $model = new $class($name);
+            $model = new $class();
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . COMMON_MODULE . '\\', $class);
             if (class_exists($class)) {
-                $model = new $class($name);
+                $model = new $class();
             } else {
-                Log::record('实例化不存在的类：' . $class, 'notice');
-                $model = new Model($name);
+                throw new Exception('class [ ' . $class . ' ] not exists', 10001);
             }
         }
         $_model[$name . $layer] = $model;

@@ -602,7 +602,7 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        $model = Loader::table($rule[0]);
+        $db    = Db::table($rule[0]);
         $field = isset($rule[1]) ? $rule[1] : $field;
 
         if (strpos($field, '^')) {
@@ -617,14 +617,14 @@ class Validate
             $map[$field] = $data[$field];
         }
 
-        $key = strval(isset($rule[3]) ? $rule[3] : $model->getPk());
+        $key = strval(isset($rule[3]) ? $rule[3] : 'id');
         if (isset($rule[2])) {
             $map[$key] = ['neq', $rule[2]];
         } elseif (isset($data[$key])) {
             $map[$key] = ['neq', $data[$key]];
         }
 
-        if ($model->where($map)->field($key)->find()) {
+        if ($db->where($map)->field($key)->find()) {
             return false;
         }
         return true;

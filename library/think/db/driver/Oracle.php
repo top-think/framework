@@ -211,6 +211,6 @@ class Oracle extends Driver
      */
     protected function getExplain($sql)
     {
-
+        return [];
     }
 }
