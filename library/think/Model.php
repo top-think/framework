@@ -758,14 +758,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 // 支持闭包查询过滤关联条件
                 call_user_func_array($relation, [ & $db]);
                 $relation = $key;
-            } elseif (is_string($relation) && strpos($relation, '.')) {
-                list($relation, $subRelation) = explode('.', $relation);
             }
         }
 
         $class = new static();
 
         foreach ($with as $key => $name) {
+            if (is_string($name) && strpos($name, '.')) {
+                list($name) = explode('.', $name);
+            }
             $i                                  = 0;
             $model                              = $class->$name();
             list($type, $foreignKey, $localKey) = $class->relation;
@@ -877,8 +878,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case self::HAS_MANY:
                 case self::BELONGS_TO_MANY:
                     if (isset($result->$localKey)) {
-                        $data = $this->modelRelationQuery($model, $resultSet, [$foreignKey => $result->$localKey], $relation, $subRelation);
-
+                        $data = $this->modelRelationQuery($model, [$foreignKey => $result->$localKey], $relation, $subRelation);
                         // 关联数据封装
                         if (!isset($data[$result->$localKey])) {
                             $data[$result->$localKey] = [];
