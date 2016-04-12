@@ -612,7 +612,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param bool $cache 是否缓存
      * @return mixed
      */
-    public static function get($data = '', $with = '', $cache = false)
+    public static function get($data = '', $with = [], $cache = false)
     {
         $db = self::db();
         if ($data instanceof \Closure) {
@@ -646,7 +646,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $with 关联预查询
      * @return mixed
      */
-    public static function all($data = [], $with = '')
+    public static function all($data = [], $with = [])
     {
         $db = self::db();
         if ($data instanceof \Closure) {
@@ -742,7 +742,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string|array $relations 关联名
      * @return Db
      */
-    public static function with($with = '')
+    public static function with($with = [])
     {
         if (is_string($with)) {
             $with = explode(',', $with);
@@ -751,11 +751,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (empty($with)) {
             return $db;
         }
+        foreach ($with as $key => &$relation) {
+            if ($relation instanceof \Closure) {
+                // 支持闭包查询过滤关联条件
+                call_user_func_array($relation, [ & $db]);
+                $relation = $key;
+            } elseif (is_string($relation) && strpos($relation, '.')) {
+                list($relation, $subRelation) = explode('.', $relation);
+            }
+        }
+
         $class     = new static();
         $joinName  = strtolower(basename(str_replace('\\', '/', static::class)));
         $joinTable = Db::name($joinName)->getTableName();
         $db->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
-        foreach ($with as $name) {
+        foreach ($with as $key => $name) {
             $model                              = $class->$name();
             list($type, $foreignKey, $localKey) = $class->relation;
             if (in_array($type, [self::HAS_ONE, self::BELONGS_TO])) {
@@ -775,11 +785,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $relation 关联名
      * @return array
      */
-    public function eagerly($resultSet, $relation)
+    public function eagerlyResultSet($resultSet, $relation)
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
         foreach ($relations as $relation) {
+            $subRelation = null;
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
@@ -798,9 +809,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         // 重新组装模型数据
                         foreach ($result->toarray() as $key => $val) {
                             if (strpos($key, '__')) {
-                                list($name, $attr)  = explode('__', $key);
-                                $list[$name][$attr] = $val;
-                                unset($result->$key);
+                                list($name, $attr) = explode('__', $key);
+                                if (in_array($name, [$currName, $modelName])) {
+                                    $list[$name][$attr] = $val;
+                                    unset($result->$key);
+                                }
                             }
                         }
 
@@ -820,8 +833,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case self::HAS_MANY:
                 case self::BELONGS_TO_MANY:
                     $range = [];
-                    $data  = [];
-
                     foreach ($resultSet as $result) {
                         // 获取关联外键列表
                         $range[] = $result->$localKey;
@@ -836,6 +847,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     }
 
                     // 组装模型数据
+                    $data = [];
                     foreach ($list as $set) {
                         $data[$set->$foreignKey][] = $set;
                     }
@@ -851,6 +863,86 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->relation = [];
         }
         return $resultSet;
+    }
+
+    /**
+     * 预载入关联查询 返回模型对象
+     * @access public
+     * @param Model $result 数据对象
+     * @param string $relation 关联名
+     * @return Model
+     */
+    public function eagerlyResult($result, $with)
+    {
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+
+        foreach ($relations as $relation) {
+            if (strpos($relation, '.')) {
+                list($relation, $subRelation) = explode('.', $relation);
+            }
+            // 执行关联方法
+            $model = $this->$relation();
+            // 获取关联信息
+            list($type, $foreignKey, $localKey) = $this->relation;
+
+            switch ($type) {
+                case self::HAS_ONE:
+                case self::BELONGS_TO:
+                    $list      = [];
+                    $modelName = strtolower(basename(str_replace('\\', '/', $model)));
+                    $currName  = strtolower($this->name);
+
+                    // 重新组装模型数据
+                    foreach ($result->toarray() as $key => $val) {
+                        if (strpos($key, '__')) {
+                            list($name, $attr) = explode('__', $key);
+                            if (in_array($name, [$currName, $modelName])) {
+                                $list[$name][$attr] = $val;
+                                unset($result->$key);
+                            }
+                        }
+                    }
+
+                    // 当前模型属性设置
+                    if (isset($list[$currName])) {
+                        foreach ($list[$currName] as $name => $val) {
+                            $result->__set($name, $val);
+                        }
+                    }
+
+                    if (isset($list[$modelName])) {
+                        // 设置关联模型属性
+                        $result->__set($relation, new $model($list[$modelName]));
+                    }
+                    break;
+                case self::HAS_MANY:
+                case self::BELONGS_TO_MANY:
+
+                    // 预载入关联查询
+                    if (isset($subRelation)) {
+                        // 嵌套预载入
+                        $list = $model::where($foreignKey, $result->$localKey)->with($subRelation)->select();
+                    } else {
+                        $list = $model::where($foreignKey, $result->$localKey)->select();
+                    }
+
+                    // 组装模型数据
+                    $data = [];
+                    foreach ($list as $set) {
+                        $data[$set->$foreignKey][] = $set;
+                    }
+
+                    // 关联数据封装
+                    foreach ($resultSet as &$result) {
+                        if (isset($data[$result->$localKey])) {
+                            $result->__set($relation, $data[$result->$localKey]);
+                        }
+                    }
+                    break;
+            }
+            $this->relation = [];
+        }
+        return $result;
     }
 
     /**

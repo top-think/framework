@@ -2016,7 +2016,7 @@ abstract class Driver
                 if (!empty($options['with'])) {
                     // 预载入
                     $result = new $options['model']();
-                    return $result->eagerly($resultSet, $options['with']);
+                    return $result->eagerlyResultSet($resultSet, $options['with']);
                 }
             }
         }
@@ -2122,6 +2122,10 @@ abstract class Driver
                 // 关联查询
                 if (!empty($options['relation'])) {
                     $data->relationQuery($options['relation']);
+                }
+                if (!empty($options['with'])) {
+                    // 预载入
+                    $data->eagerlyResult($data, $options['with']);
                 }
             }
         } else {
