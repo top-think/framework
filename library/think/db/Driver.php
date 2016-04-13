@@ -1988,7 +1988,6 @@ abstract class Driver
      */
     public function select($data = [])
     {
-        dump($this->options['where']);
         if (false === $data) {
             // 用于子查询 不查询只返回SQL
             $this->options['fetch_sql'] = true;
@@ -1996,7 +1995,7 @@ abstract class Driver
             // AR模式主键条件分析
             $this->parsePkWhere($data);
         }
-        dump($this->options['where']);
+
         $options   = $this->_parseOptions();
         $sql       = $this->buildSelectSql($options);
         $resultSet = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_pdo']) ? $options['fetch_pdo'] : false);
@@ -2089,7 +2088,6 @@ abstract class Driver
         }
         $this->via();
         $this->model($currentModel);
-        dump($with);
         $this->options['with'] = $with;
         return $this;
     }
