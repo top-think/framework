@@ -21,6 +21,7 @@ use think\exception\DbBindParamException;
 use think\exception\PDOException;
 use think\Loader;
 use think\Log;
+use think\Model;
 
 abstract class Driver
 {
@@ -720,6 +721,9 @@ abstract class Driver
      */
     protected function parseWhereExp($field, $op, $condition)
     {
+        if (is_string($field) && !empty($this->options['via'])) {
+            $field = $this->options['via'] . '.' . $field;
+        }
         if ($field instanceof \Closure) {
             $where[] = $field;
         } elseif (is_null($op) && is_null($condition)) {
@@ -869,7 +873,15 @@ abstract class Driver
     {
         if (!empty($field)) {
             if (is_string($field)) {
+                if (!empty($this->options['via'])) {
+                    $field = $this->options['via'] . '.' . $field;
+                }
                 $field = empty($order) ? $field : [$field => $order];
+            } elseif (!empty($this->options['via'])) {
+                foreach ($field as $key => $val) {
+                    $field[$this->options['via'] . '.' . $key] = $val;
+                    unset($field[$key]);
+                }
             }
             $this->options['order'] = $field;
         }
@@ -1976,6 +1988,7 @@ abstract class Driver
      */
     public function select($data = [])
     {
+        dump($this->options['where']);
         if (false === $data) {
             // 用于子查询 不查询只返回SQL
             $this->options['fetch_sql'] = true;
@@ -1983,7 +1996,7 @@ abstract class Driver
             // AR模式主键条件分析
             $this->parsePkWhere($data);
         }
-
+        dump($this->options['where']);
         $options   = $this->_parseOptions();
         $sql       = $this->buildSelectSql($options);
         $resultSet = $this->query($sql, $this->getBindParams(), !empty($options['fetch_sql']) ? true : false, !empty($options['master']) ? true : false, isset($options['fetch_pdo']) ? $options['fetch_pdo'] : false);
@@ -2015,8 +2028,7 @@ abstract class Driver
                 }
                 if (!empty($options['with'])) {
                     // 预载入
-                    $result = new $options['model']();
-                    return $result->eagerlyResultSet($resultSet, $options['with']);
+                    $resultSet = $result->eagerlyResultSet($resultSet, $options['with']);
                 }
             }
         }
@@ -2024,14 +2036,73 @@ abstract class Driver
     }
 
     /**
-     * 设置关联查询预载入
+     * 设置关联查询JOIN预查询
      * @access public
-     * @param string $with 关联名称
+     * @param string|array $with 关联方法名称
      * @return Db
      */
     public function with($with)
     {
+        if (is_string($with) && strpos($with, ',')) {
+            $with = explode(',', $with);
+        }
+
+        if (empty($with)) {
+            return $this;
+        }
+
+        $i            = 0;
+        $currentModel = $this->options['model'];
+        $class        = new $this->options['model'];
+        foreach ($with as $key => $relation) {
+            $closure = false;
+            if ($relation instanceof \Closure) {
+                // 支持闭包查询过滤关联条件
+                $closure    = $relation;
+                $relation   = $key;
+                $with[$key] = $key;
+            } elseif (is_string($relation) && strpos($relation, '.')) {
+                $with[$key]                   = $relation;
+                list($relation, $subRelation) = explode('.', $relation, 2);
+            }
+
+            $model                              = $class->$relation();
+            list($type, $foreignKey, $localKey) = $class->getRelationInfo();
+            if (in_array($type, [Model::HAS_ONE, Model::BELONGS_TO])) {
+                if (0 == $i) {
+                    $joinName  = strtolower(basename(str_replace('\\', '/', $this->options['model'])));
+                    $joinTable = $this->getTableName();
+                    $this->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
+                }
+                // 预载入封装
+
+                $table = $model::getTableName();
+                $name  = strtolower(basename(str_replace('\\', '/', $model)));
+                $this->via($name);
+                $this->join($table . ' ' . $name, $joinName . '.' . $localKey . '=' . $name . '.' . $foreignKey)->field(true, false, $table, $name);
+                if ($closure) {
+                    // 执行闭包查询
+                    call_user_func_array($closure, [ & $this]);
+                }
+                $i++;
+            }
+        }
+        $this->via();
+        $this->model($currentModel);
+        dump($with);
         $this->options['with'] = $with;
+        return $this;
+    }
+
+    /**
+     * 设置当前字段添加的表别名
+     * @access public
+     * @param string $relation 关联名称
+     * @return Db
+     */
+    public function via($via = '')
+    {
+        $this->options['via'] = $via;
         return $this;
     }
 
@@ -2069,7 +2140,7 @@ abstract class Driver
             } else {
                 $where[$key] = strpos($data, ',') ? ['IN', $data] : $data;
             }
-            $this->options['where']['AND'] = $where;
+            $this->where($where);
         } elseif (is_array($pk) && is_array($data) && !empty($data)) {
             // 根据复合主键查询
             foreach ($pk as $key) {
@@ -2080,7 +2151,7 @@ abstract class Driver
                     throw new Exception('miss complex primary data');
                 }
             }
-            $this->options['where']['AND'] = $where;
+            $this->where($where);
         }
         return;
     }

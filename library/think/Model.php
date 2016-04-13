@@ -275,14 +275,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 判断关联类型执行查询
         switch ($this->relation[0]) {
             case self::HAS_ONE:
-                $result = $db->find();
-                break;
-            case self::HAS_MANY:
-                $result = $db->select();
-                break;
             case self::BELONGS_TO:
                 $result = $db->find();
                 break;
+            case self::HAS_MANY:
             case self::BELONGS_TO_MANY:
                 $result = $db->select();
                 break;
@@ -477,6 +473,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $this->trigger('after_delete', $this);
         return $result;
+    }
+
+    /**
+     * 设置自动完成的字段
+     * @access public
+     * @param array $fields 需要自动完成的字段（ 规则通过修改器定义）
+     * @return $this
+     */
+    public function auto($fields)
+    {
+        $this->auto = $fields;
+        return $this;
     }
 
     /**
@@ -738,53 +746,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $this;
     }
 
-    /**
-     * 使用关联预载入查询
-     * @access public
-     * @param string|array $relations 关联名
-     * @return \think\db\Driver
-     */
-    public static function with($with = [])
+    public function getRelationInfo()
     {
-        if (is_string($with)) {
-            $with = explode(',', $with);
-        }
-        $db = self::db();
-        if (empty($with)) {
-            return $db;
-        }
-        foreach ($with as $key => &$relation) {
-            if ($relation instanceof \Closure) {
-                // 支持闭包查询过滤关联条件
-                call_user_func_array($relation, [ & $db]);
-                $relation = $key;
-            }
-        }
-
-        $class = new static();
-
-        foreach ($with as $key => $name) {
-            if (is_string($name) && strpos($name, '.')) {
-                list($name) = explode('.', $name);
-            }
-            $i                                  = 0;
-            $model                              = $class->$name();
-            list($type, $foreignKey, $localKey) = $class->relation;
-            if (in_array($type, [self::HAS_ONE, self::BELONGS_TO])) {
-                if (0 == $i) {
-                    $joinName  = strtolower(basename(str_replace('\\', '/', get_called_class())));
-                    $joinTable = Db::name($joinName)->getTableName();
-                    $db->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
-                }
-
-                // 预载入封装
-                $table = $model::getTableName();
-                $name  = strtolower(basename(str_replace('\\', '/', $model)));
-                $db->join($table . ' ' . $name, $joinName . '.' . $localKey . '=' . $name . '.' . $foreignKey)->field(true, false, $table, $name);
-                $i++;
-            }
-        }
-        return $db->with($with)->model(get_called_class());
+        return $this->relation;
     }
 
     /**
@@ -812,7 +776,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             switch ($type) {
                 case self::HAS_ONE:
                 case self::BELONGS_TO:
-                    foreach ($resultSet as &$result) {
+                    foreach ($resultSet as $result) {
                         // 模型关联组装
                         $this->modelRelationBuild($model, $relation, $result);
                     }
@@ -831,7 +795,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         $data = $this->modelRelationQuery($model, [$foreignKey => ['in', $range]], $relation, $subRelation);
 
                         // 关联数据封装
-                        foreach ($resultSet as &$result) {
+                        foreach ($resultSet as $result) {
                             if (isset($data[$result->$localKey])) {
                                 $result->__set($relation, $data[$result->$localKey]);
                             } else {
