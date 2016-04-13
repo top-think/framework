@@ -129,8 +129,11 @@ class App
                     $vars = array_merge($_GET, $_POST);
                     break;
                 case 'PUT':
-                    parse_str(file_get_contents('php://input'), $vars);
-                    $vars = array_merge($_GET, $vars);
+                    static $_PUT = null;
+                    if (is_null($_PUT)) {
+                        parse_str(file_get_contents('php://input'), $_PUT);
+                    }
+                    $vars = array_merge($_GET, $_PUT);
                     break;
                 default:
                     $vars = $_GET;
