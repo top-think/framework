@@ -216,6 +216,15 @@ class Route
         }
     }
 
+    // 注册快捷路由
+    public static function express($rule, $route = '', $option = [], $pattern = [])
+    {
+        $method = ['get', 'post', 'put', 'delete'];
+        foreach ($method as $type) {
+            self::$type($rule . '/:action', $route . '/' . $type . ':action', $option, $pattern);
+        }
+    }
+
     // rest方法定义和修改
     public static function rest($name, $resource = [])
     {
