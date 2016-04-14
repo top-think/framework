@@ -35,6 +35,14 @@ class Route
         'delete' => ['DELETE', '/:id', 'delete'],
     ];
 
+    // 不同请求类型的方法前缀
+    private static $methodPrefix = [
+        'GET'    => '',
+        'POST'   => '',
+        'PUT'    => '',
+        'DELETE' => '',
+    ];
+
     // URL映射规则
     private static $map = [];
     // 子域名部署规则
@@ -216,12 +224,19 @@ class Route
         }
     }
 
-    // 注册快捷路由
-    public static function express($rule, $route = '', $option = [], $pattern = [])
+    // 注册别名路由
+    public static function alias($rule, $route = '', $option = [], $pattern = [])
     {
-        $method = ['get', 'post', 'put', 'delete'];
-        foreach ($method as $type) {
-            self::$type($rule . '/:action', $route . '/' . $type . ':action', $option, $pattern);
+        self::any($rule . '/:action', $route . '/:action', $option, $pattern);
+    }
+
+    // 设置不同请求类型下面的方法前缀
+    public static function setMethodPrefix($method, $prefix = '')
+    {
+        if (is_array($method)) {
+            self::$methodPrefix = array_merge(self::$methodPrefix, array_change_key_case($method, CASE_UPPER));
+        } else {
+            self::$methodPrefix[strtoupper($method)] = $prefix;
         }
     }
 
@@ -593,6 +608,8 @@ class Route
                 // REST 操作方法支持
                 if ('[rest]' == $action) {
                     $action = REQUEST_METHOD;
+                } elseif (isset(self::$methodPrefix[REQUEST_METHOD])) {
+                    $action = self::$methodPrefix[REQUEST_METHOD] . $action;
                 }
             }
             $route = [$module, $controller, $action];
