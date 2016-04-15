@@ -37,10 +37,10 @@ class Route
 
     // 不同请求类型的方法前缀
     private static $methodPrefix = [
-        'GET'    => '',
-        'POST'   => '',
-        'PUT'    => '',
-        'DELETE' => '',
+        'GET'    => 'get',
+        'POST'   => 'post',
+        'PUT'    => 'put',
+        'DELETE' => 'delete',
     ];
 
     // URL映射规则
@@ -227,7 +227,9 @@ class Route
     // 注册别名路由
     public static function alias($rule, $route = '', $option = [], $pattern = [])
     {
-        self::any($rule . '/:action', $route . '/:action', $option, $pattern);
+        foreach (self::$methodPrefix as $type => $val) {
+            self::$type($rule . '/:action', $route . '/' . $val . ':action', $option, $pattern);
+        }
     }
 
     // 设置不同请求类型下面的方法前缀
@@ -608,8 +610,9 @@ class Route
                 // REST 操作方法支持
                 if ('[rest]' == $action) {
                     $action = REQUEST_METHOD;
-                } elseif (isset(self::$methodPrefix[REQUEST_METHOD])) {
-                    $action = self::$methodPrefix[REQUEST_METHOD] . $action;
+                } elseif (Config::get('use_action_prefix') && !empty(self::$methodPrefix[REQUEST_METHOD])) {
+                    // 操作方法前缀支持
+                    $action = 0 !== strpos($action, self::$methodPrefix[REQUEST_METHOD]) ? self::$methodPrefix[REQUEST_METHOD] . $action : $action;
                 }
             }
             $route = [$module, $controller, $action];
