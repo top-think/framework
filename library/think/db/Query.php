@@ -789,23 +789,6 @@ class Query
     }
 
     /**
-     * 调用命名范围
-     * @access public
-     * @param Closure $scope 命名范围 闭包定义
-     * @param mixed $args 参数
-     * @return $this
-     */
-    public function scope($scope = '', $args = null)
-    {
-        if ($scope instanceof \Closure) {
-            call_user_func_array($scope, [ & $this, $args]);
-        } elseif ($scope instanceof Query) {
-            return $scope;
-        }
-        return $this;
-    }
-
-    /**
      * 查询参数赋值
      * @access public
      * @param array $options 表达式参数

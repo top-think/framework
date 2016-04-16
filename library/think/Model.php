@@ -684,6 +684,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 命名范围
      * @access public
      * @param string|Closure $name 命名范围名称 逗号分隔
+     * @param mixed $params 参数调用
      * @return \think\Model
      */
     public static function scope($name, $params = [])
