@@ -1218,7 +1218,7 @@ class Query
         // 生成删除SQL语句
         $sql = $this->builder()->delete($options);
         // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
+        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql']);
     }
 
     /**
