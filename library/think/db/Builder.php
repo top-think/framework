@@ -545,8 +545,8 @@ abstract class Builder
     {
         $fields = array_map([$this, 'parseKey'], array_keys($dataSet[0]));
         foreach ($dataSet as $data) {
-            //$data     = $this->parseData($data, $bind);
             $value    = array_values($data);
+            $value    = array_map([$this, 'parseValue'], $value);
             $values[] = 'SELECT ' . implode(',', $value);
         }
 
