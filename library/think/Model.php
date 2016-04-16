@@ -12,6 +12,8 @@
 namespace think;
 
 use think\Cache;
+use think\Db;
+use think\db\Query;
 use think\Loader;
 
 abstract class Model implements \JsonSerializable, \ArrayAccess
@@ -700,6 +702,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $class = self::db();
         if ($name instanceof \Closure) {
             call_user_func_array($name, [ & $class, $params]);
+        } elseif ($name instanceof Query) {
+            return $name;
         } else {
             $names = explode(',', $name);
             foreach ($names as $scope) {

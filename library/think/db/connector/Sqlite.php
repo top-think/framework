@@ -9,14 +9,14 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\db\driver;
+namespace think\db\connector;
 
-use think\db\Driver;
+use think\db\Connection;
 
 /**
  * Sqlite数据库驱动
  */
-class Sqlite extends Driver
+class Sqlite extends Connection
 {
 
     /**
@@ -71,35 +71,6 @@ class Sqlite extends Driver
             $info[$key] = current($val);
         }
         return $info;
-    }
-
-    /**
-     * limit
-     * @access public
-     * @return string
-     */
-    public function parseLimit($limit)
-    {
-        $limitStr = '';
-        if (!empty($limit)) {
-            $limit = explode(',', $limit);
-            if (count($limit) > 1) {
-                $limitStr .= ' LIMIT ' . $limit[1] . ' OFFSET ' . $limit[0] . ' ';
-            } else {
-                $limitStr .= ' LIMIT ' . $limit[0] . ' ';
-            }
-        }
-        return $limitStr;
-    }
-
-    /**
-     * 随机排序
-     * @access protected
-     * @return string
-     */
-    protected function parseRand()
-    {
-        return 'RANDOM()';
     }
 
     /**
