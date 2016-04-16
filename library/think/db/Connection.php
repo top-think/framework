@@ -125,13 +125,49 @@ abstract class Connection
 
     /**
      * 指定当前数据表
+     * @param string $table 数据表名称
      * @access public
+     * @return void
      */
     public function setTable($table)
     {
         $this->table = $table;
     }
 
+    /**
+     * 得到完整的数据表名
+     * @access public
+     * @return string
+     */
+    public function getTableName()
+    {
+        if (!$this->table) {
+            $tableName = $this->config['prefix'];
+            $tableName .= Loader::parseName($this->name);
+        } else {
+            $tableName = $this->table;
+        }
+        return $tableName;
+    }
+
+    /**
+     * 设置当前name
+     * @access public
+     * @param string $name
+     * @return $this
+     */
+    public function name($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * 获取数据库的配置参数
+     * @access public
+     * @param string $config 配置名称
+     * @return mixed
+     */
     public function getAttribute($config)
     {
         return $this->config[$config];
@@ -140,21 +176,27 @@ abstract class Connection
     /**
      * 连接数据库方法
      * @access public
+     * @param mixed $config 连接参数
+     * @param integer $linkNum 连接序号
+     * @param false|array $autoConnection 是否自动连接主数据库（用于分布式）
+     * @return \PDO
      */
     public function connect($config = '', $linkNum = 0, $autoConnection = false)
     {
         if (!isset($this->links[$linkNum])) {
-            if (empty($config)) {
-                $config = $this->config;
+            if (!empty($config)) {
+                $this->config = $config;
             }
+            // 连接参数
+            $params = $this->config['params'] + $this->params;
 
             try {
-                if (empty($config['dsn'])) {
-                    $config['dsn'] = $this->parseDsn($config);
+                if (empty($this->config['dsn'])) {
+                    $this->config['dsn'] = $this->parseDsn($this->config);
                 }
-                $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $this->params);
+                $this->links[$linkNum] = new PDO($this->config['dsn'], $this->config['username'], $this->config['password'], $params);
                 // 记录数据库连接信息
-                APP_DEBUG && Log::record('[ DB ] CONNECT: ' . $config['dsn'], 'info');
+                APP_DEBUG && Log::record('[ DB ] CONNECT: ' . $this->config['dsn'], 'info');
             } catch (\PDOException $e) {
                 if ($autoConnection) {
                     Log::record($e->getMessage(), 'error');
@@ -167,6 +209,11 @@ abstract class Connection
         return $this->links[$linkNum];
     }
 
+    /**
+     * 获取当前数据库的驱动类型
+     * @access public
+     * @return string
+     */
     public function getDriverName()
     {
         if ($this->linkID) {
@@ -177,13 +224,12 @@ abstract class Connection
     }
 
     /**
-     * 解析pdo连接的dsn信息
+     * 解析pdo连接的dsn信息（由驱动扩展）
      * @access public
      * @param array $config 连接信息
      * @return string
      */
-    protected function parseDsn($config)
-    {}
+    abstract protected function parseDsn($config);
 
     /**
      * 释放查询结果
@@ -197,6 +243,7 @@ abstract class Connection
     /**
      * 获取PDO对象
      * @access public
+     * @return \PDO|false
      */
     public function getPdo()
     {
@@ -302,7 +349,7 @@ abstract class Connection
     }
 
     /**
-     * 组装最终的SQL语句 便于调试
+     * 根据参数绑定组装最终的SQL语句 便于调试
      * @access public
      * @param string $sql 带参数绑定的sql语句
      * @param array $bind 参数绑定列表
@@ -354,10 +401,10 @@ abstract class Connection
 
     /**
      * 获得数据集
-     * @access private
+     * @access protected
      * @return array
      */
-    private function getResult()
+    protected function getResult()
     {
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
@@ -475,40 +522,12 @@ abstract class Connection
     public function parseSqlTable($sql)
     {
         if (false !== strpos($sql, '__')) {
-            $prefix = $this->tablePrefix;
+            $prefix = $this->config['prefix'];
             $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
                 return $prefix . strtolower($match[1]);
             }, $sql);
         }
         return $sql;
-    }
-
-    /**
-     * 得到完整的数据表名
-     * @access public
-     * @return string
-     */
-    public function getTableName()
-    {
-        if (!$this->table) {
-            $tableName = $this->config['prefix'];
-            $tableName .= Loader::parseName($this->name);
-        } else {
-            $tableName = $this->table;
-        }
-        return $tableName;
-    }
-
-    /**
-     * 设置当前name
-     * @access public
-     * @param string $name
-     * @return $this
-     */
-    public function name($name)
-    {
-        $this->name = $name;
-        return $this;
     }
 
     /**
@@ -745,57 +764,40 @@ abstract class Connection
     protected function multiConnect($master = false)
     {
         // 分布式数据库配置解析
-        $_config['username'] = explode(',', $this->config['username']);
-        $_config['password'] = explode(',', $this->config['password']);
-        $_config['hostname'] = explode(',', $this->config['hostname']);
-        $_config['hostport'] = explode(',', $this->config['hostport']);
-        $_config['database'] = explode(',', $this->config['database']);
-        $_config['dsn']      = explode(',', $this->config['dsn']);
-        $_config['charset']  = explode(',', $this->config['charset']);
+        foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
+            $_config[$name] = explode(',', $this->config[$name]);
+        }
 
+        // 主服务器序号
         $m = floor(mt_rand(0, $this->config['master_num'] - 1));
-        // 数据库读写是否分离
+
         if ($this->config['rw_separate']) {
             // 主从式采用读写分离
             if ($master)
             // 主服务器写入
             {
                 $r = $m;
+            } elseif (is_numeric($this->config['slave_no'])) {
+                // 指定服务器读
+                $r = $this->config['slave_no'];
             } else {
-                if (is_numeric($this->config['slave_no'])) {
-                    // 指定服务器读
-                    $r = $this->config['slave_no'];
-                } else {
-                    // 读操作连接从服务器
-                    $r = floor(mt_rand($this->config['master_num'], count($_config['hostname']) - 1)); // 每次随机连接的数据库
-                }
+                // 读操作连接从服务器 每次随机连接的数据库
+                $r = floor(mt_rand($this->config['master_num'], count($_config['hostname']) - 1));
             }
         } else {
-            // 读写操作不区分服务器
-            $r = floor(mt_rand(0, count($_config['hostname']) - 1)); // 每次随机连接的数据库
+            // 读写操作不区分服务器 每次随机连接的数据库
+            $r = floor(mt_rand(0, count($_config['hostname']) - 1));
         }
 
         if ($m != $r) {
-            $db_master = [
-                'username' => isset($_config['username'][$m]) ? $_config['username'][$m] : $_config['username'][0],
-                'password' => isset($_config['password'][$m]) ? $_config['password'][$m] : $_config['password'][0],
-                'hostname' => isset($_config['hostname'][$m]) ? $_config['hostname'][$m] : $_config['hostname'][0],
-                'hostport' => isset($_config['hostport'][$m]) ? $_config['hostport'][$m] : $_config['hostport'][0],
-                'database' => isset($_config['database'][$m]) ? $_config['database'][$m] : $_config['database'][0],
-                'dsn'      => isset($_config['dsn'][$m]) ? $_config['dsn'][$m] : $_config['dsn'][0],
-                'charset'  => isset($_config['charset'][$m]) ? $_config['charset'][$m] : $_config['charset'][0],
-            ];
+            foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
+                $dbMaster[$name] = isset($_config[$name][$m]) ? $_config[$name][$m] : $_config[$name][0];
+            }
         }
-        $db_config = [
-            'username' => isset($_config['username'][$r]) ? $_config['username'][$r] : $_config['username'][0],
-            'password' => isset($_config['password'][$r]) ? $_config['password'][$r] : $_config['password'][0],
-            'hostname' => isset($_config['hostname'][$r]) ? $_config['hostname'][$r] : $_config['hostname'][0],
-            'hostport' => isset($_config['hostport'][$r]) ? $_config['hostport'][$r] : $_config['hostport'][0],
-            'database' => isset($_config['database'][$r]) ? $_config['database'][$r] : $_config['database'][0],
-            'dsn'      => isset($_config['dsn'][$r]) ? $_config['dsn'][$r] : $_config['dsn'][0],
-            'charset'  => isset($_config['charset'][$r]) ? $_config['charset'][$r] : $_config['charset'][0],
-        ];
-        return $this->connect($db_config, $r, $r == $m ? false : $db_master);
+        foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
+            $dbConfig[$name] = isset($_config[$name][$r]) ? $_config[$name][$r] : $_config[$name][0];
+        }
+        return $this->connect($dbConfig, $r, $r == $m ? false : $dbMaster);
     }
 
     /**
