@@ -1051,6 +1051,8 @@ class Query
     {
         if ($data instanceof Query) {
             return $data->select();
+        } elseif ($data instanceof \Closure) {
+            call_user_func_array($data, [ & $this]);
         }
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -1123,6 +1125,8 @@ class Query
     {
         if ($data instanceof Query) {
             return $data->find();
+        } elseif ($data instanceof \Closure) {
+            call_user_func_array($data, [ & $this]);
         }
         // 分析查询表达式
         $options = $this->parseExpress();
