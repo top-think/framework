@@ -12,6 +12,7 @@
 namespace think\db;
 
 use PDO;
+use think\Cache;
 use think\Config;
 use think\Db;
 use think\Exception;
@@ -83,6 +84,207 @@ class Query
             $builder[$driver] = new $class($this->connection, $this);
         }
         return $builder[$driver];
+    }
+
+    /**
+     * 得到某个字段的值
+     * @access public
+     * @param string $field  字段名
+     * @return mixed
+     */
+    public function value($field)
+    {
+        // 返回数据个数
+        $pdo = $this->field($field)->fetchPdo(true)->find();
+        return $pdo->fetchColumn();
+    }
+
+    /**
+     * 得到某个列的数组
+     * @access public
+     * @param string $field  字段名 多个字段用逗号分隔
+     * @param string $key  索引
+     * @return array
+     */
+    public function column($field, $key = '')
+    {
+        $key = $key ? $key . ',' : '';
+        $pdo = $this->field($key . $field)->fetchPdo(true)->select();
+        if (1 == $pdo->columnCount()) {
+            return $pdo->fetchAll(PDO::FETCH_COLUMN);
+        }
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        $fields = array_keys($result[0]);
+        $count  = count($fields);
+        $key1   = array_shift($fields);
+        $key2   = $fields ? array_shift($fields) : '';
+        foreach ($result as $val) {
+            if ($count > 2) {
+                $array[$val[$key1]] = $val;
+            } elseif (2 == $count) {
+                $array[$val[$key1]] = $val[$key2];
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * COUNT查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
+    public function count($field = '*')
+    {
+        return $this->value('COUNT(' . $field . ') AS tp_count');
+    }
+
+    /**
+     * SUM查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
+    public function sum($field = '*')
+    {
+        return $this->value('SUM(' . $field . ') AS tp_sum');
+    }
+
+    /**
+     * MIN查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
+    public function min($field = '*')
+    {
+        return $this->value('MIN(' . $field . ') AS tp_min');
+    }
+
+    /**
+     * MAX查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
+    public function max($field = '*')
+    {
+        return $this->value('MAX(' . $field . ') AS tp_max');
+    }
+
+    /**
+     * AVG查询
+     * @access public
+     * @param string $field  字段名
+     * @return integer
+     */
+    public function avg($field = '*')
+    {
+        return $this->value('AVG(' . $field . ') AS tp_avg');
+    }
+
+    /**
+     * 设置记录的某个字段值
+     * 支持使用数据库字段和方法
+     * @access public
+     * @param string|array $field  字段名
+     * @param string $value  字段值
+     * @return integer
+     */
+    public function setField($field, $value = '')
+    {
+        if (is_array($field)) {
+            $data = $field;
+        } else {
+            $data[$field] = $value;
+        }
+        return $this->update($data);
+    }
+
+    /**
+     * 字段值(延迟)增长
+     * @access public
+     * @param string $field  字段名
+     * @param integer $step  增长值
+     * @param integer $lazyTime  延时时间(s)
+     * @return integer|true
+     * @throws \think\Exception
+     */
+    public function setInc($field, $step = 1, $lazyTime = 0)
+    {
+        $condition = !empty($this->options['where']) ? $this->options['where'] : [];
+        if (empty($condition)) {
+            // 没有条件不做任何更新
+            throw new Exception('no data to update');
+        }
+        if ($lazyTime > 0) {
+            // 延迟写入
+            $guid = md5($this->name . '_' . $field . '_' . serialize($condition));
+            $step = $this->lazyWrite($guid, $step, $lazyTime);
+            if (empty($step)) {
+                return true; // 等待下次写入
+            }
+        }
+        return $this->setField($field, ['exp', $field . '+' . $step]);
+    }
+
+    /**
+     * 字段值（延迟）减少
+     * @access public
+     * @param string $field  字段名
+     * @param integer $step  减少值
+     * @param integer $lazyTime  延时时间(s)
+     * @return integer|true
+     * @throws \think\Exception
+     */
+    public function setDec($field, $step = 1, $lazyTime = 0)
+    {
+        $condition = !empty($this->options['where']) ? $this->options['where'] : [];
+        if (empty($condition)) {
+            // 没有条件不做任何更新
+            throw new Exception('no data to update');
+        }
+        if ($lazyTime > 0) {
+            // 延迟写入
+            $guid = md5($this->name . '_' . $field . '_' . serialize($condition));
+            $step = $this->lazyWrite($guid, -$step, $lazyTime);
+            if (empty($step)) {
+                return true; // 等待下次写入
+            }
+        }
+        return $this->setField($field, ['exp', $field . '-' . $step]);
+    }
+
+    /**
+     * 延时更新检查 返回false表示需要延时
+     * 否则返回实际写入的数值
+     * @access public
+     * @param string $guid  写入标识
+     * @param integer $step  写入步进值
+     * @param integer $lazyTime  延时时间(s)
+     * @return false|integer
+     */
+    protected function lazyWrite($guid, $step, $lazyTime)
+    {
+        if (false !== ($value = Cache::get($guid))) {
+            // 存在缓存写入数据
+            if (NOW_TIME > Cache::get($guid . '_time') + $lazyTime) {
+                // 延时更新时间到了，删除缓存数据 并实际写入数据库
+                Cache::rm($guid);
+                Cache::rm($guid . '_time');
+                return $value + $step;
+            } else {
+                // 追加数据到缓存
+                Cache::set($guid, $value + $step, 0);
+                return false;
+            }
+        } else {
+            // 没有缓存数据
+            Cache::set($guid, $step, 0);
+            // 计时开始
+            Cache::set($guid . '_time', NOW_TIME, 0);
+            return false;
+        }
     }
 
     /**

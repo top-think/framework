@@ -108,7 +108,7 @@ abstract class Builder
      * value分析
      * @access protected
      * @param mixed $value
-     * @return string
+     * @return string|array
      */
     protected function parseValue($value)
     {
@@ -215,10 +215,9 @@ abstract class Builder
                 }
                 if ($value instanceof \Closure) {
                     // 使用闭包查询
-                    $class = clone $this->query;
-                    $class->options([]);
-                    call_user_func_array($value, [ & $class]);
-                    $str[] = ' ' . $key . ' ( ' . $this->buildWhere($class->getOptions('where'), $table) . ' )';
+                    $query = new Query($this->connection);
+                    call_user_func_array($value, [ & $query]);
+                    $str[] = ' ' . $key . ' ( ' . $this->buildWhere($query->getOptions('where'), $table) . ' )';
                 } else {
                     if (strpos($field, '|')) {
                         // 不同字段使用相同查询条件（OR）
@@ -313,10 +312,9 @@ abstract class Builder
     // 执行闭包子查询
     protected function parseClosure($call, $show = true)
     {
-        $class = clone $this->query;
-        $class->options([]);
-        call_user_func_array($call, [ & $class]);
-        return $class->buildSql($show);
+        $query = new Query($this->connection);
+        call_user_func_array($call, [ & $query]);
+        return $query->buildSql($show);
     }
 
     /**
@@ -461,6 +459,7 @@ abstract class Builder
     /**
      * 设置锁机制
      * @access protected
+     * @param bool $locl
      * @return string
      */
     protected function parseLock($lock = false)
@@ -484,18 +483,6 @@ abstract class Builder
             $offset                = $listRows * ($page - 1);
             $options['limit']      = $offset . ',' . $listRows;
         }
-        $sql = $this->parseSql($this->selectSql, $options);
-        return $sql;
-    }
-
-    /**
-     * 替换SQL语句中表达式
-     * @access public
-     * @param array $options 表达式
-     * @return string
-     */
-    public function parseSql($sql, $options = [])
-    {
         $sql = str_replace(
             ['%TABLE%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
             [
@@ -512,10 +499,18 @@ abstract class Builder
                 $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
                 $this->parseForce($options['force']),
-            ], $sql);
+            ], $this->selectSql);
         return $sql;
     }
 
+    /**
+     * 生成insert SQL
+     * @access public
+     * @param array $data 数据
+     * @param array $options 表达式
+     * @param bool $replace 是否replace
+     * @return string
+     */
     public function insert(array $data, $options = [], $replace = false)
     {
         // 分析并处理数据
@@ -539,6 +534,13 @@ abstract class Builder
         return $sql;
     }
 
+    /**
+     * 生成insertall SQL
+     * @access public
+     * @param array $dataSet 数据集
+     * @param array $options 表达式
+     * @return string
+     */
     public function insertAll($dataSet, $options)
     {
         $fields = array_map([$this, 'parseKey'], array_keys($dataSet[0]));
@@ -560,6 +562,14 @@ abstract class Builder
         return $sql;
     }
 
+    /**
+     * 生成slectinsert SQL
+     * @access public
+     * @param array $fields 数据
+     * @param string $table 数据表
+     * @param array $options 表达式
+     * @return string
+     */
     public function selectInsert($fields, $table, $options)
     {
         if (is_string($fields)) {
@@ -572,9 +582,15 @@ abstract class Builder
         return $sql;
     }
 
+    /**
+     * 生成update SQL
+     * @access public
+     * @param array $fields 数据
+     * @param array $options 表达式
+     * @return string
+     */
     public function update($data, $options)
     {
-
         $table = $this->parseTable($options['table']);
         $data  = $this->parseData($data, $options);
         if (empty($data)) {
@@ -600,6 +616,12 @@ abstract class Builder
         return $sql;
     }
 
+    /**
+     * 生成delete SQL
+     * @access public
+     * @param array $options 表达式
+     * @return string
+     */
     public function delete($options)
     {
         $sql = str_replace(
