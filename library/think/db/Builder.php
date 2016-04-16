@@ -59,8 +59,7 @@ abstract class Builder
      * 数据分析
      * @access protected
      * @param array $data 数据
-     * @param array $bind 参数绑定类型
-     * @param string $type insert update
+     * @param array $options 查询参数
      * @return array
      */
     protected function parseData($data, $options)
@@ -68,6 +67,7 @@ abstract class Builder
         if (empty($data)) {
             return [];
         }
+
         // 获取绑定信息
         $bind   = $this->connection->getTableInfo($options['table'], 'bind');
         $fields = array_keys($bind);
@@ -84,9 +84,13 @@ abstract class Builder
                 } elseif (is_null($val)) {
                     $result[$item] = 'NULL';
                 } elseif (is_scalar($val)) {
-                    // 过滤非标量数据
-                    $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
-                    $result[$item] = ':' . $key;
+                    if ($bindValue) {
+                        // 过滤非标量数据
+                        $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
+                        $result[$item] = ':' . $key;
+                    } else {
+                        $result[$item] = $this->parseValue($val);
+                    }
                 }
             }
         }
@@ -543,14 +547,24 @@ abstract class Builder
      */
     public function insertAll($dataSet, $options)
     {
-        $fields = array_map([$this, 'parseKey'], array_keys($dataSet[0]));
-        foreach ($dataSet as $data) {
+        // 获取绑定信息
+        $fields = $this->connection->getTableInfo($options['table'], 'fields');
+        foreach ($dataSet as &$data) {
+            foreach ($data as $key => $val) {
+                if (!in_array($key, $fields, true)) {
+                    if ($this->connection->getAttribute('fields_strict')) {
+                        throw new Exception(' fields not exists :[' . $key . ']');
+                    }
+                    unset($data[$key]);
+                } else {
+                    $data[$key] = $this->parseValue($val);
+                }
+            }
             $value    = array_values($data);
-            $value    = array_map([$this, 'parseValue'], $value);
             $values[] = 'SELECT ' . implode(',', $value);
         }
-
-        $sql = str_replace(
+        $fields = array_map([$this, 'parseKey'], array_keys($dataSet[0]));
+        $sql    = str_replace(
             ['%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
                 $this->parseTable($options['table']),
