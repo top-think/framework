@@ -21,7 +21,8 @@ use think\Model;
 class Query
 {
     // 数据库Connection对象实例
-    protected $connection = null;
+    protected $connection;
+    // 数据库驱动类型
     protected $driver;
 
     // 查询参数
@@ -36,13 +37,8 @@ class Query
      */
     public function __construct($connection = '')
     {
-        if ($connection) {
-            $this->connection = $connection;
-        } else {
-            $this->connection = Db::connect();
-        }
-
-        $this->driver = $this->connection->getDriverName();
+        $this->connection = $connection ?: Db::connect();
+        $this->driver     = $this->connection->getDriverName();
     }
 
     /**
@@ -937,7 +933,6 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
-        //$data    = $this->parseData($data, $options);
         // 生成SQL语句
         $sql = $this->builder()->insert($data, $options, $replace);
         // 执行操作
@@ -1170,6 +1165,11 @@ class Query
         return $data;
     }
 
+    /**
+     * 获取绑定的参数 并清空
+     * @access public
+     * @return array
+     */
     public function getBind()
     {
         $bind       = $this->bind;
@@ -1177,6 +1177,12 @@ class Query
         return $bind;
     }
 
+    /**
+     * 创建子查询SQL
+     * @access public
+     * @param array $data 表达式
+     * @return string
+     */
     public function buildSql($sub = true)
     {
         return $sub ? '( ' . $this->select(false) . ' )' : $this->select(false);
@@ -1211,7 +1217,6 @@ class Query
     /**
      * 分析表达式（可用于查询或者写入操作）
      * @access public
-     * @param array $options 表达式参数
      * @return array
      */
     public function parseExpress()
