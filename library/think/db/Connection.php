@@ -63,6 +63,7 @@ abstract class Connection
         'password'      => '',
         // 端口
         'hostport'      => '',
+        // 连接dsn
         'dsn'           => '',
         // 数据库连接参数
         'params'        => [],
@@ -80,8 +81,6 @@ abstract class Connection
         'master_num'    => 1,
         // 指定从服务器序号
         'slave_no'      => '',
-        // like字段自动替换为%%包裹
-        'like_fields'   => '',
         // 是否严格检查字段是否存在
         'fields_strict' => true,
     ];
@@ -124,6 +123,18 @@ abstract class Connection
     }
 
     /**
+     * 设置当前name
+     * @access public
+     * @param string $name
+     * @return $this
+     */
+    public function name($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
      * 指定当前数据表
      * @param string $table 数据表名称
      * @access public
@@ -148,18 +159,6 @@ abstract class Connection
             $tableName = $this->table;
         }
         return $tableName;
-    }
-
-    /**
-     * 设置当前name
-     * @access public
-     * @param string $name
-     * @return $this
-     */
-    public function name($name)
-    {
-        $this->name = $name;
-        return $this;
     }
 
     /**

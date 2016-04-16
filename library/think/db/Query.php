@@ -13,7 +13,6 @@ namespace think\db;
 
 use PDO;
 use think\Cache;
-use think\Config;
 use think\Db;
 use think\Exception;
 use think\Loader;
@@ -71,7 +70,7 @@ class Query
     }
 
     /**
-     * 获取当前的builder
+     * 获取当前的builder实例对象
      * @access protected
      * @return \think\db\Builder
      */
@@ -305,7 +304,7 @@ class Query
                 }
             }
         } else {
-            $prefix = $this->config['prefix'];
+            $prefix = $this->connection->getAttribute('prefix');
             // 传入的表名为数组
             if (is_array($join)) {
                 if (0 !== $key = key($join)) {
@@ -324,7 +323,7 @@ class Query
             } else {
                 $join = trim($join);
                 if (0 === strpos($join, '__')) {
-                    $table = $this->parseSqlTable($join);
+                    $table = $this->connection->parseSqlTable($join);
                 } elseif (false === strpos($join, '(') && !empty($prefix) && 0 !== strpos($join, $prefix)) {
                     // 传入的表名中不带有'('并且不以默认的表前缀开头时加上默认的表前缀
                     $table = $prefix . $join;
@@ -616,6 +615,26 @@ class Query
     }
 
     /**
+     * 查询缓存
+     * @access public
+     * @param mixed $key
+     * @param integer $expire
+     * @return $this
+     */
+    public function cache($key = true, $expire = null)
+    {
+        // 增加快捷调用方式 cache(10) 等同于 cache(true, 10)
+        if (is_numeric($key) && is_null($expire)) {
+            $expire = $key;
+            $key    = true;
+        }
+        if (false !== $key) {
+            $this->options['cache'] = ['key' => $key, 'expire' => $expire];
+        }
+        return $this;
+    }
+
+    /**
      * 指定group查询
      * @access public
      * @param string $group GROUP
@@ -839,7 +858,7 @@ class Query
             if (in_array($type, [Model::HAS_ONE, Model::BELONGS_TO])) {
                 if (0 == $i) {
                     $joinName  = strtolower(basename(str_replace('\\', '/', $this->options['model'])));
-                    $joinTable = $this->getTableName();
+                    $joinTable = $this->connection->getTableName();
                     $this->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
                 }
                 // 预载入封装
@@ -1030,6 +1049,9 @@ class Query
      */
     public function select($data = [])
     {
+        if ($data instanceof Query) {
+            return $data->select();
+        }
         // 分析查询表达式
         $options = $this->parseExpress();
 
@@ -1041,10 +1063,17 @@ class Query
             $this->parsePkWhere($data, $options);
         }
 
-        // 生成查询SQL
-        $sql = $this->builder()->select($options);
-        // 执行查询操作
-        $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+        if (isset($options['cache'])) {
+            // 判断查询缓存
+            $cache     = $options['cache'];
+            $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+            $resultSet = Cache::get($key);
+        } else {
+            // 生成查询SQL
+            $sql = $this->builder()->select($options);
+            // 执行查询操作
+            $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+        }
 
         // 返回结果处理
         if (!empty($resultSet)) {
@@ -1057,18 +1086,21 @@ class Query
                 return $resultSet;
             }
 
+            if (isset($cache)) {
+                // 缓存数据集
+                Cache::set($key, $resultSet, $cache['expire']);
+            }
+
             // 数据列表读取后的处理
             if (!empty($options['model'])) {
-
+                // 生成模型对象
+                $model = $options['model'];
                 foreach ($resultSet as $key => $result) {
-                    if (!empty($options['model'])) {
-                        // 返回模型对象
-                        $result = new $options['model']($result);
-                        $result->isUpdate(true);
-                        // 关联查询
-                        if (!empty($options['relation'])) {
-                            $result->relationQuery($options['relation']);
-                        }
+                    $result = new $model($result);
+                    $result->isUpdate(true);
+                    // 关联查询
+                    if (!empty($options['relation'])) {
+                        $result->relationQuery($options['relation']);
                     }
                     $resultSet[$key] = $result;
                 }
@@ -1089,6 +1121,9 @@ class Query
      */
     public function find($data = [])
     {
+        if ($data instanceof Query) {
+            return $data->find();
+        }
         // 分析查询表达式
         $options = $this->parseExpress();
 
@@ -1098,8 +1133,18 @@ class Query
         }
 
         $options['limit'] = 1;
-        $sql              = $this->builder()->select($options);
-        $result           = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+
+        if (isset($options['cache'])) {
+            // 判断查询缓存
+            $cache  = $options['cache'];
+            $key    = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+            $result = Cache::get($key);
+        } else {
+            // 生成查询SQL
+            $sql = $this->builder()->select($options);
+            // 执行查询
+            $result = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+        }
 
         // 数据处理
         if (!empty($result)) {
@@ -1111,6 +1156,11 @@ class Query
             if ($result instanceof \PDOStatement) {
                 // 返回PDOStatement对象
                 return $result;
+            }
+
+            if (isset($cache)) {
+                // 缓存数据
+                Cache::set($key, $result, $cache['expire']);
             }
 
             $data = $result[0];
@@ -1151,7 +1201,7 @@ class Query
      * @param array $data 表达式
      * @return integer
      */
-    public function delete($data)
+    public function delete($data = [])
     {
         // 分析查询表达式
         $options = $this->parseExpress();

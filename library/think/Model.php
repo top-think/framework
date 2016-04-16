@@ -630,24 +630,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($data instanceof \Closure) {
             call_user_func_array($data, [ & $db]);
             $data = [];
+        } elseif ($data instanceof Query) {
+            return $data->with($with)->cache($cache)->find();
         }
 
-        if ($cache) {
-            // 查找是否存在缓存
-            $name   = basename(str_replace('\\', '/', get_called_class()));
-            $guid   = md5('model_' . $name . '_' . serialize($data));
-            $result = Cache::get($guid);
-            if ($result) {
-                return new static($result);
-            }
-        }
+        $result = self::with($with)->cache($cache)->find($data);
 
-        $result = self::with($with)->find($data);
-
-        if ($cache && $result instanceof Model) {
-            // 缓存模型数据
-            Cache::set($guid, $result->toArray());
-        }
         return $result;
     }
 
@@ -664,6 +652,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($data instanceof \Closure) {
             call_user_func_array($data, [ & $db]);
             $data = [];
+        } elseif ($data instanceof Query) {
+            return $data->with($with)->select();
         }
         return self::with($with)->select($data);
     }
