@@ -58,11 +58,11 @@ class Sqlsrv extends Builder
 
     /**
      * limit
-     * @access public
+     * @access protected
      * @param mixed $limit
      * @return string
      */
-    public function parseLimit($limit)
+    protected function parseLimit($limit)
     {
         if (empty($limit)) {
             return '';

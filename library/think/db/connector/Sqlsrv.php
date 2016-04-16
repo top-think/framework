@@ -19,7 +19,6 @@ use think\db\Connection;
  */
 class Sqlsrv extends Connection
 {
-    protected $selectSql = 'SELECT T1.* FROM (SELECT thinkphp.*, ROW_NUMBER() OVER (%ORDER%) AS ROW_NUMBER FROM (SELECT %DISTINCT% %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%) AS thinkphp) AS T1 %LIMIT%%COMMENT%';
     // PDO连接参数
     protected $options = [
         PDO::ATTR_CASE              => PDO::CASE_LOWER,
@@ -46,6 +45,7 @@ class Sqlsrv extends Connection
     /**
      * 取得数据表的字段信息
      * @access public
+     * @param string $tableName
      * @return array
      */
     public function getFields($tableName)
@@ -61,6 +61,7 @@ class Sqlsrv extends Connection
         $info = [];
         if ($result) {
             foreach ($result as $key => $val) {
+                $val                       = array_change_key_case($val);
                 $info[$val['column_name']] = [
                     'name'    => $val['column_name'],
                     'type'    => $val['data_type'],
@@ -77,6 +78,7 @@ class Sqlsrv extends Connection
     /**
      * 取得数据表的字段信息
      * @access public
+     * @param string $dbName
      * @return array
      */
     public function getTables($dbName = '')

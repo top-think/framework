@@ -43,7 +43,7 @@ class Mysql extends Connection
     /**
      * 取得数据表的字段信息
      * @access public
-     * @param $tableName
+     * @param string $tableName
      * @return array
      */
     public function getFields($tableName)

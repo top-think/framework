@@ -41,11 +41,11 @@ class Oracle extends Builder
         }
         return $limitStr ? ' WHERE ' . $limitStr : '';
     }
+
     /**
      * 设置锁机制
      * @access protected
      * @param bool|false $lock
-     *
      * @return string
      */
     protected function parseLock($lock = false)

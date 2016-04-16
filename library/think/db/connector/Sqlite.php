@@ -34,6 +34,7 @@ class Sqlite extends Connection
     /**
      * 取得数据表的字段信息
      * @access public
+     * @param string $tableName
      * @return array
      */
     public function getFields($tableName)
@@ -43,6 +44,7 @@ class Sqlite extends Connection
         $info            = [];
         if ($result) {
             foreach ($result as $key => $val) {
+                $val                = array_change_key_case($val);
                 $info[$val['name']] = [
                     'name'    => $val['name'],
                     'type'    => $val['type'],
@@ -59,6 +61,7 @@ class Sqlite extends Connection
     /**
      * 取得数据库的表信息
      * @access public
+     * @param string $dbName
      * @return array
      */
     public function getTables($dbName = '')
