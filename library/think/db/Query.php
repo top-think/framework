@@ -362,6 +362,7 @@ class Query
      * @param boolean $except 是否排除
      * @param string $tableName 数据表名
      * @param string $prefix 字段前缀
+     * @param string $alias 别名前缀
      * @return $this
      */
     public function field($field, $except = false, $tableName = '', $prefix = '', $alias = '')

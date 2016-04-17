@@ -116,7 +116,6 @@ class Relation
                     }
                     break;
                 case self::HAS_MANY:
-                case self::BELONGS_TO_MANY:
                     $range = [];
                     foreach ($resultSet as $result) {
                         // 获取关联外键列表
@@ -126,12 +125,36 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $data = $this->eagerly($model, [$foreignKey => ['in', $range]], $relation, $subRelation);
+                        $data = $this->eagerlyOneToMany($model, [$foreignKey => ['in', $range]], $relation, $subRelation);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
                             if (isset($data[$result->$localKey])) {
                                 $result->__set($relation, $data[$result->$localKey]);
+                            } else {
+                                $result->__set($relation, []);
+                            }
+                        }
+                    }
+                    break;
+                case self::BELONGS_TO_MANY:
+                    $pk    = $resultSet[0]->getPk();
+                    $range = [];
+                    foreach ($resultSet as $result) {
+                        // 获取关联外键列表
+                        if (isset($result->$pk)) {
+                            $range[] = $result->$pk;
+                        }
+                    }
+
+                    if (!empty($range)) {
+                        $condition[$this->middle . '.' . $foreignKey] = ['in', $range];
+                        $data                                         = $this->eagerlyManyToMany($model, $condition, $relation, $subRelation);
+
+                        // 关联数据封装
+                        foreach ($resultSet as $result) {
+                            if (isset($data[$result->$pk])) {
+                                $result->__set($relation, $data[$result->$pk]);
                             } else {
                                 $result->__set($relation, []);
                             }
@@ -173,9 +196,8 @@ class Relation
                     $this->match($model, $relation, $result);
                     break;
                 case self::HAS_MANY:
-                case self::BELONGS_TO_MANY:
                     if (isset($result->$localKey)) {
-                        $data = $this->eagerly($model, [$foreignKey => $result->$localKey], $relation, $subRelation);
+                        $data = $this->eagerlyOneToMany($model, [$foreignKey => $result->$localKey], $relation, $subRelation);
                         // 关联数据封装
                         if (!isset($data[$result->$localKey])) {
                             $data[$result->$localKey] = [];
@@ -183,6 +205,19 @@ class Relation
                         $result->__set($relation, $data[$result->$localKey]);
                     }
                     break;
+                case self::BELONGS_TO_MANY:
+                    $pk                                           = $result->getPk();
+                    $condition[$this->middle . '.' . $foreignKey] = $this->parent->$pk;
+                    if (isset($result->$pk)) {
+                        $data = $this->eagerlyManyToMany($model, $condition, $relation, $subRelation);
+                        // 关联数据封装
+                        if (!isset($data[$result->$pk])) {
+                            $data[$result->$pk] = [];
+                        }
+                        $result->__set($relation, $data[$result->$pk]);
+                    }
+                    break;
+
             }
         }
         $this->eagerly = false;
@@ -227,11 +262,34 @@ class Relation
      * @param string $subRelation 子关联
      * @return void
      */
-    protected function eagerly($model, $where, $relation, $subRelation = '')
+    protected function eagerlyOneToMany($model, $where, $relation, $subRelation = '')
     {
         $foreignKey = $this->foreignKey;
         // 预载入关联查询 支持嵌套预载入
         $list = $model::where($where)->with($subRelation)->select();
+
+        // 组装模型数据
+        $data = [];
+        foreach ($list as $set) {
+            $data[$set->$foreignKey][] = $set;
+        }
+        return $data;
+    }
+
+    /**
+     * 多对多 关联模型预查询
+     * @access public
+     * @param string $model 模型名称
+     * @param array $where 关联预查询条件
+     * @param string $relation 关联名
+     * @param string $subRelation 子关联
+     * @return void
+     */
+    protected function eagerlyManyToMany($model, $where, $relation, $subRelation = '')
+    {
+        $foreignKey = $this->foreignKey;
+        // 预载入关联查询 支持嵌套预载入
+        $list = $this->belongsToManyQuery($model, $this->middle, $this->localKey, $this->foreignKey, $where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
@@ -249,7 +307,7 @@ class Relation
      * @param string $localKey 关联主键
      * @return \think\db\Query|string
      */
-    public function hasOne($model, $foreignKey = '', $localKey = '')
+    public function hasOne($model, $foreignKey, $localKey)
     {
         $this->type       = self::HAS_ONE;
         $this->model      = $model;
@@ -273,7 +331,7 @@ class Relation
      * @param string $foreignKey 关联外键
      * @return \think\db\Query|string
      */
-    public function belongsTo($model, $localKey = '', $foreignKey = '')
+    public function belongsTo($model, $localKey, $foreignKey)
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO;
@@ -298,7 +356,7 @@ class Relation
      * @param string $localKey 关联主键
      * @return \think\db\Query|string
      */
-    public function hasMany($model, $foreignKey = '', $localKey = '')
+    public function hasMany($model, $foreignKey, $localKey)
     {
         // 记录当前关联信息
         $this->type       = self::HAS_MANY;
@@ -319,25 +377,47 @@ class Relation
      * BELONGS TO MANY 关联定义
      * @access public
      * @param string $model 模型名
-     * @param string $localKey 关联主键
-     * @param string $foreignKey 关联外键
+     * @param string $table 中间表名
+     * @param string $localKey 当前模型关联键
+     * @param string $foreignKey 关联模型关联键
      * @return \think\db\Query|string
      */
-    public function belongsToMany($model, $localKey = '', $foreignKey = '')
+    public function belongsToMany($model, $table, $localKey, $foreignKey)
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO_MANY;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-
-        if (!$this->eagerly && isset($this->parent->$localKey)) {
-            // 关联查询封装
-            return $model::where($foreignKey, $this->parent->$localKey);
+        $this->middle     = $table;
+        $pk               = $this->parent->getPk();
+        if (!$this->eagerly && isset($this->parent->$pk)) {
+            // 关联查询
+            $condition[$table . '.' . $foreignKey] = $this->parent->$pk;
+            return $this->belongsToManyQuery($model, $table, $localKey, $foreignKey, $condition);
         } else {
             // 预载入封装
             return $model;
         }
+    }
+
+    /**
+     * BELONGS TO MANY 关联查询
+     * @access public
+     * @param string $model 模型名
+     * @param string $table 中间表名
+     * @param string $localKey 当前模型关联键
+     * @param string $foreignKey 关联模型关联键
+     * @param array $condition 关联查询条件
+     * @return \think\db\Query|string
+     */
+    protected function belongsToManyQuery($model, $table, $localKey, $foreignKey, $condition = [])
+    {
+        // 关联查询封装
+        $tableName  = $model::getTableName();
+        $relationFk = (new $model)->getPk();
+        return $model::join($table, $table . '.' . $localKey . '=' . $tableName . '.' . $relationFk)
+            ->where($condition);
     }
 
 }
