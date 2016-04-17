@@ -69,8 +69,13 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind   = $this->connection->getTableInfo($options['table'], 'bind');
-        $fields = array_keys($bind);
+        $bind = $this->connection->getTableInfo($options['table'], 'bind');
+        if ('*' == $options['field']) {
+            $fields = array_keys($bind);
+        } else {
+            $fields = is_array($options['field']) ? $options['field'] : explode(',', $options['field']);
+        }
+
         $result = [];
         foreach ($data as $key => $val) {
             if (!in_array($key, $fields, true)) {
@@ -543,8 +548,13 @@ abstract class Builder
      */
     public function insertAll($dataSet, $options)
     {
-        // 获取绑定信息
-        $fields = $this->connection->getTableInfo($options['table'], 'fields');
+        // 获取合法的字段
+        if ('*' == $options['field']) {
+            $fields = $this->connection->getTableInfo($options['table'], 'fields');
+        } else {
+            $fields = is_array($options['field']) ? $options['field'] : explode(',', $options['field']);
+        }
+
         foreach ($dataSet as &$data) {
             foreach ($data as $key => $val) {
                 if (!in_array($key, $fields, true)) {
