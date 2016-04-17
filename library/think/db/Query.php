@@ -17,6 +17,7 @@ use think\Db;
 use think\Exception;
 use think\Loader;
 use think\Model;
+use think\model\Relation;
 
 class Query
 {
@@ -363,7 +364,7 @@ class Query
      * @param string $prefix 字段前缀
      * @return $this
      */
-    public function field($field, $except = false, $tableName = '', $prefix = '')
+    public function field($field, $except = false, $tableName = '', $prefix = '', $alias = '')
     {
         if (is_string($field)) {
             $field = explode(',', $field);
@@ -382,7 +383,7 @@ class Query
             $prefix = $prefix ?: $tableName;
             foreach ($field as $key => $val) {
                 if (is_numeric($key)) {
-                    $val = $prefix . '.' . $val . ' AS ' . $prefix . '__' . $val;
+                    $val = $prefix . '.' . $val . ($alias ? ' AS ' . $alias . $val : '');
                 }
                 $field[$key] = $val;
             }
@@ -832,20 +833,19 @@ class Query
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
-            $model                              = $class->$relation();
-            list($type, $foreignKey, $localKey) = $class->getRelationInfo();
-            if (in_array($type, [Model::HAS_ONE, Model::BELONGS_TO])) {
+            $model = $class->$relation();
+            $info  = $class->getRelationInfo();
+            if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
                 if (0 == $i) {
                     $joinName  = strtolower(basename(str_replace('\\', '/', $this->options['model'])));
                     $joinTable = $this->connection->getTableName();
                     $this->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
                 }
                 // 预载入封装
-
                 $table = $model::getTableName();
                 $name  = strtolower(basename(str_replace('\\', '/', $model)));
                 $this->via($name);
-                $this->join($table . ' ' . $name, $joinName . '.' . $localKey . '=' . $name . '.' . $foreignKey)->field(true, false, $table, $name);
+                $this->join($table . ' ' . $name, $joinName . '.' . $info['localKey'] . '=' . $name . '.' . $info['foreignKey'])->field(true, false, $table, $name, $name . '__');
                 if ($closure) {
                     // 执行闭包查询
                     call_user_func_array($closure, [ & $this]);
