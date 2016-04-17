@@ -148,8 +148,8 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $condition[$this->middle . '.' . $foreignKey] = ['in', $range];
-                        $data                                         = $this->eagerlyManyToMany($model, $condition, $relation, $subRelation);
+                        // 查询关联数据
+                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => ['in', $range]], $relation, $subRelation);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
@@ -206,15 +206,17 @@ class Relation
                     }
                     break;
                 case self::BELONGS_TO_MANY:
-                    $pk                                           = $result->getPk();
-                    $condition[$this->middle . '.' . $foreignKey] = $this->parent->$pk;
+                    $pk = $result->getPk();
                     if (isset($result->$pk)) {
-                        $data = $this->eagerlyManyToMany($model, $condition, $relation, $subRelation);
+                        $pk = $result->$pk;
+                        // 查询管理数据
+                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => $pk], $relation, $subRelation);
+
                         // 关联数据封装
-                        if (!isset($data[$result->$pk])) {
-                            $data[$result->$pk] = [];
+                        if (!isset($data[$pk])) {
+                            $data[$pk] = [];
                         }
-                        $result->__set($relation, $data[$result->$pk]);
+                        $result->__set($relation, $data[$pk]);
                     }
                     break;
 
@@ -288,12 +290,24 @@ class Relation
     protected function eagerlyManyToMany($model, $where, $relation, $subRelation = '')
     {
         $foreignKey = $this->foreignKey;
+        $localKey   = $this->localKey;
         // 预载入关联查询 支持嵌套预载入
-        $list = $this->belongsToManyQuery($model, $this->middle, $this->localKey, $this->foreignKey, $where)->with($subRelation)->select();
+        $list = $this->belongsToManyQuery($model, $this->middle, $localKey, $foreignKey, $where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
         foreach ($list as $set) {
+            $pivot = [];
+            foreach ($set->toArray() as $key => $val) {
+                if (strpos($key, '__')) {
+                    list($name, $attr) = explode('__', $key);
+                    if ('pivot' == $name) {
+                        $pivot[$attr] = $val;
+                        unset($set->$key);
+                    }
+                }
+            }
+            $set->pivot                = new Pivot($pivot, $this->middle);
             $data[$set->$foreignKey][] = $set;
         }
         return $data;
@@ -393,7 +407,7 @@ class Relation
         $pk               = $this->parent->getPk();
         if (!$this->eagerly && isset($this->parent->$pk)) {
             // 关联查询
-            $condition[$table . '.' . $foreignKey] = $this->parent->$pk;
+            $condition['pivot.' . $foreignKey] = $this->parent->$pk;
             return $this->belongsToManyQuery($model, $table, $localKey, $foreignKey, $condition);
         } else {
             // 预载入封装
@@ -416,7 +430,9 @@ class Relation
         // 关联查询封装
         $tableName  = $model::getTableName();
         $relationFk = (new $model)->getPk();
-        return $model::join($table, $table . '.' . $localKey . '=' . $tableName . '.' . $relationFk)
+        return $model::field($tableName . '.*')
+            ->field(true, false, $table, 'pivot', 'pivot__')
+            ->join($table . ' pivot', 'pivot.' . $localKey . '=' . $tableName . '.' . $relationFk)
             ->where($condition);
     }
 
