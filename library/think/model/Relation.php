@@ -68,11 +68,10 @@ class Relation
     {
         // 执行关联定义方法
         $db = $this->parent->$relation();
-        dump($this->type);
         // 判断关联类型执行查询
         switch ($this->type) {
             case self::HAS_ONE:
-            case self::BELONGS_TO:echo 'one';
+            case self::BELONGS_TO:
                 $result = $db->find();
                 break;
             case self::HAS_MANY:
@@ -248,7 +247,7 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function hasOne($model, $foreignKey = '', $localKey = '')
     {
@@ -272,7 +271,7 @@ class Relation
      * @param string $model 模型名
      * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function belongsTo($model, $localKey = '', $foreignKey = '')
     {
@@ -297,7 +296,7 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function hasMany($model, $foreignKey = '', $localKey = '')
     {
@@ -322,7 +321,7 @@ class Relation
      * @param string $model 模型名
      * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function belongsToMany($model, $localKey = '', $foreignKey = '')
     {

@@ -754,7 +754,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function hasOne($model, $foreignKey = '', $localKey = '')
     {
@@ -771,7 +771,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function belongsTo($model, $localKey = '', $foreignKey = '')
     {
@@ -788,7 +788,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function hasMany($model, $foreignKey = '', $localKey = '')
     {
@@ -805,7 +805,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
-     * @return \think\db\Driver|string
+     * @return \think\db\Query|string
      */
     public function belongsToMany($model, $localKey = '', $foreignKey = '')
     {
