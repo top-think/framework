@@ -112,7 +112,7 @@ class Relation
                 case self::BELONGS_TO:
                     foreach ($resultSet as $result) {
                         // 模型关联组装
-                        $this->modelRelationBuild($model, $relation, $result);
+                        $this->match($model, $relation, $result);
                     }
                     break;
                 case self::HAS_MANY:
@@ -126,7 +126,7 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $data = $this->modelRelationQuery($model, [$foreignKey => ['in', $range]], $relation, $subRelation);
+                        $data = $this->eagerly($model, [$foreignKey => ['in', $range]], $relation, $subRelation);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
