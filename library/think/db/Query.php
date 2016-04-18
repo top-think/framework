@@ -462,9 +462,11 @@ class Query
             if (is_array($field)) {
                 // 数组批量查询
                 $where = $field;
-            } else {
+            } elseif ($field) {
                 // 字符串查询
                 $where[] = ['exp', $field];
+            } else {
+                $where = '';
             }
         } elseif (is_array($op)) {
             $param = func_get_args();
