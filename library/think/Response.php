@@ -14,7 +14,7 @@ namespace think;
 class Response
 {
     // 输出数据的转换方法
-    protected static $tramsform = null;
+    protected static $transform = null;
     // 输出数据的类型
     protected static $type = '';
     // 输出数据
@@ -48,8 +48,8 @@ class Response
         }
 
         $data = $data ?: self::$data;
-        if (is_callable(self::$tramsform)) {
-            $data = call_user_func_array(self::$tramsform, [$data]);
+        if (is_callable(self::$transform)) {
+            $data = call_user_func_array(self::$transform, [$data]);
         } else {
             switch ($type) {
                 case 'json':
@@ -65,7 +65,7 @@ class Response
         }
 
         APP_HOOK && Hook::listen('return_data', $data);
-        
+
         if ($return) {
             return $data;
         }
@@ -80,9 +80,9 @@ class Response
      * @param mixed $callback 调用的转换方法
      * @return void
      */
-    public static function tramsform($callback)
+    public static function transform($callback)
     {
-        self::$tramsform = $callback;
+        self::$transform = $callback;
     }
 
     /**
