@@ -77,60 +77,12 @@ class viewTest extends \PHPUnit_Framework_TestCase
     {
         $view_instance = \think\View::instance();
         $data          = $view_instance->engine('php');
-        $this->assertAttributeEquals('php', 'engine', $view_instance);
+        $php_engine    = new \think\view\driver\Php(['view_path' => 'view_path']);
+        $this->assertAttributeEquals($php_engine, 'engine', $view_instance);
         //测试模板引擎驱动
         $data         = $view_instance->engine('think');
         $think_engine = new \think\view\driver\Think(['view_path' => 'view_path']);
         $this->assertAttributeEquals($think_engine, 'engine', $view_instance);
-    }
-
-    /**
-     *  测试引擎设置
-     * @return  mixed
-     * @access public
-     */
-    public function testTheme()
-    {
-        $view_instance = \think\View::instance();
-        $data          = $view_instance->theme(true);
-        //反射类取出私有属性的值
-        $reflection = new \ReflectionClass('\think\View');
-        $property   = $reflection->getProperty('config');
-        $property->setAccessible(true);
-        $config_value = $property->getValue($view_instance);
-
-        $this->assertTrue($config_value['theme_on']);
-
-        //关闭主题测试
-        $data         = $view_instance->theme(false);
-        $config_value = $property->getValue($view_instance);
-        $this->assertFalse($config_value['theme_on']);
-
-        //指定主题测试
-        $data         = $view_instance->theme('theme_name');
-        $config_value = $property->getValue($view_instance);
-        $this->assertTrue($config_value['theme_on']);
-        $this->assertAttributeEquals('theme_name', 'theme', $view_instance);
-    }
-
-    /**
-     *  测试引擎设置
-     * @return  mixed
-     * @access public
-     */
-    public function testParseTemplate()
-    {
-        $view_instance = \think\View::instance();
-        $view_instance->theme('theme');
-        $view_instance->config(['view_path' => __DIR__ . DS . 'view' . DS]);
-        $method = new \ReflectionMethod('\think\View', 'ParseTemplate');
-        $method->setAccessible(true);
-        if (defined('CONTROLLER_NAME')) {
-            $expect_data = __DIR__ . DS . 'view' . DS . 'theme' . DS . CONTROLLER_NAME . DS . 'template.html';
-        } else {
-            $expect_data = __DIR__ . DS . 'view' . DS . 'theme' . DS . 'template.html';
-        }
-        $this->assertEquals($expect_data, $method->invoke($view_instance, 'template'));
     }
 
 }
