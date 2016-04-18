@@ -58,11 +58,11 @@ class viewTest extends \PHPUnit_Framework_TestCase
         $data          = $view_instance->config('key3', 'value3');
         $data          = $view_instance->config('key3', 'value_cover');
         //基础配置替换
-        $data = $view_instance->config(array('view_path' => 'view_path'));
+        $data = $view_instance->config(array('engine_type' => 'php'));
         //目标结果
         $this->assertAttributeContains('value2', "config", $view_instance);
         $this->assertAttributeContains('value_cover', "config", $view_instance);
-        $this->assertAttributeContains('view_path', "config", $view_instance);
+        $this->assertAttributeContains('php', "config", $view_instance);
     }
 
     /**
