@@ -40,6 +40,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 字段验证规则
     protected $validate;
 
+    // 字段属性
+    protected $field = [];
     // 数据信息
     protected $data = [];
     // 缓存数据
@@ -343,6 +345,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
+        // 检测字段
+        if (!empty($this->field)) {
+            foreach ($data as $key => $val) {
+                if (!in_array($key, $this->field)) {
+                    unset($data[$key]);
+                }
+            }
+        }
+
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
@@ -398,6 +409,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 清空change
         $this->change = [];
         return $result;
+    }
+
+    /**
+     * 设置允许写入的字段
+     * @access public
+     * @param bool $update
+     * @return $this
+     */
+    public function field($field)
+    {
+        $this->field = $field;
+        return $this;
     }
 
     /**

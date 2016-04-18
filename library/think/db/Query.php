@@ -367,6 +367,9 @@ class Query
      */
     public function field($field, $except = false, $tableName = '', $prefix = '', $alias = '')
     {
+        if (empty($field)) {
+            return $this;
+        }
         if (is_string($field)) {
             $field = explode(',', $field);
         }
