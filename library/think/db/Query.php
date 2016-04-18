@@ -1044,12 +1044,14 @@ class Query
             $this->parsePkWhere($data, $options);
         }
 
+        $resultSet = false;
         if (isset($options['cache'])) {
             // 判断查询缓存
             $cache     = $options['cache'];
             $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
             $resultSet = Cache::get($key);
-        } else {
+        }
+        if (!$resultSet) {
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询操作
@@ -1116,13 +1118,14 @@ class Query
         }
 
         $options['limit'] = 1;
-
+        $result           = false;
         if (isset($options['cache'])) {
             // 判断查询缓存
             $cache  = $options['cache'];
             $key    = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
             $result = Cache::get($key);
-        } else {
+        }
+        if (!$result) {
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询
