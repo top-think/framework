@@ -9,6 +9,18 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
+use think\Cache;
+use think\Config;
+use think\Cookie;
+use think\Db;
+use think\Debug;
+use think\Input;
+use think\Lang;
+use think\Loader;
+use think\Session;
+use think\Url;
+use think\View;
+
 //------------------------
 // ThinkPHP 助手函数
 //-------------------------
@@ -16,21 +28,21 @@
 // 获取多语言变量
 function L($name, $vars = [], $lang = '')
 {
-    return \think\Lang::get($name, $vars, $lang);
+    return Lang::get($name, $vars, $lang);
 }
 
 // 获取配置参数
 function C($name = '', $value = null, $range = '')
 {
     if (is_null($value) && is_string($name)) {
-        return \think\Config::get($name, $range);
+        return Config::get($name, $range);
     } else {
-        return \think\Config::set($name, $value, $range);
+        return Config::set($name, $value, $range);
     }
 }
 
 // 获取输入数据 支持默认值和过滤
-function I($key, $default = null, $filter = '', $merge = false)
+function I($key, $default = null, $filter = null, $merge = false)
 {
     if (0 === strpos($key, '?')) {
         $key = substr($key, 1);
@@ -50,7 +62,7 @@ function I($key, $default = null, $filter = '', $merge = false)
         // 默认为自动判断
         $method = 'param';
     }
-    return \think\Input::$method($has . $key, $default, $filter, $merge);
+    return Input::$method($has . $key, $default, $filter, $merge);
 }
 
 /**
@@ -63,22 +75,10 @@ function I($key, $default = null, $filter = '', $merge = false)
 function G($start, $end = '', $dec = 6)
 {
     if ('' == $end) {
-        \think\Debug::remark($start);
+        Debug::remark($start);
     } else {
-        return 'm' == $dec ? \think\Debug::getRangeMem($start, $end) : \think\Debug::getRangeTime($start, $end, $dec);
+        return 'm' == $dec ? Debug::getRangeMem($start, $end) : Debug::getRangeTime($start, $end, $dec);
     }
-}
-
-/**
- * 实例化一个没有模型文件的Model
- * @param string $name Model名称 支持指定基础模型 例如 MongoModel:User
- * @param string|null $tablePrefix 表前缀 null表示自动获取配置
- * @param mixed $connection 数据库连接信息
- * @return \Think\Model
- */
-function M($name = '', $tablePrefix = null, $connection = '')
-{
-    return \think\Loader::table($name, ['prefix' => $tablePrefix, 'connection' => $connection]);
 }
 
 /**
@@ -89,7 +89,7 @@ function M($name = '', $tablePrefix = null, $connection = '')
  */
 function D($name = '', $layer = MODEL_LAYER)
 {
-    return \think\Loader::model($name, $layer);
+    return Loader::model($name, $layer);
 }
 
 /**
@@ -99,7 +99,7 @@ function D($name = '', $layer = MODEL_LAYER)
  */
 function db($config = [])
 {
-    return \think\Db::connect($config);
+    return Db::connect($config);
 }
 
 /**
@@ -110,7 +110,7 @@ function db($config = [])
  */
 function A($name, $layer = CONTROLLER_LAYER)
 {
-    return \think\Loader::controller($name, $layer);
+    return Loader::controller($name, $layer);
 }
 
 /**
@@ -122,7 +122,7 @@ function A($name, $layer = CONTROLLER_LAYER)
  */
 function R($url, $vars = [], $layer = CONTROLLER_LAYER)
 {
-    return \think\Loader::action($url, $vars, $layer);
+    return Loader::action($url, $vars, $layer);
 }
 
 /**
@@ -134,7 +134,7 @@ function R($url, $vars = [], $layer = CONTROLLER_LAYER)
  */
 function import($class, $baseUrl = '', $ext = EXT)
 {
-    return \think\Loader::import($class, $baseUrl, $ext);
+    return Loader::import($class, $baseUrl, $ext);
 }
 
 /**
@@ -145,7 +145,7 @@ function import($class, $baseUrl = '', $ext = EXT)
  */
 function vendor($class, $ext = EXT)
 {
-    return \think\Loader::import($class, VENDOR_PATH, $ext);
+    return Loader::import($class, VENDOR_PATH, $ext);
 }
 
 /**
@@ -156,7 +156,7 @@ function vendor($class, $ext = EXT)
  */
 function T($class, $ext = EXT)
 {
-    return \think\Loader::import($class, TRAIT_PATH, $ext);
+    return Loader::import($class, TRAIT_PATH, $ext);
 }
 
 /**
@@ -164,12 +164,14 @@ function T($class, $ext = EXT)
  *
  * @param string  $msg  异常消息
  * @param integer $code 异常代码 默认为0
+ * @param string $exception 异常类
  *
- * @throws \think\Exception
+ * @throws Exception
  */
-function E($msg, $code = 0)
+function E($msg, $code = 0, $exception = '')
 {
-    throw new \think\Exception($msg, $code);
+    $e = $exception ?: '\think\Exception';
+    throw new $e($msg, $code);
 }
 
 /**
@@ -181,7 +183,7 @@ function E($msg, $code = 0)
  */
 function dump($var, $echo = true, $label = null)
 {
-    return \think\Debug::dump($var, $echo, $label);
+    return Debug::dump($var, $echo, $label);
 }
 
 /**
@@ -192,31 +194,31 @@ function dump($var, $echo = true, $label = null)
  */
 function W($name, $data = [])
 {
-    return \think\Loader::action($name, $data, 'widget');
+    return Loader::action($name, $data, 'widget');
 }
 
 function U($url = '', $vars = '', $suffix = true, $domain = false)
 {
-    return \think\Url::build($url, $vars, $suffix, $domain);
+    return Url::build($url, $vars, $suffix, $domain);
 }
 
 function session($name, $value = '', $prefix = null)
 {
     if (is_array($name)) {
         // 初始化
-        \think\Session::init($name);
+        Session::init($name);
     } elseif (is_null($name)) {
         // 清除
-        \think\Session::clear($value);
+        Session::clear($value);
     } elseif ('' === $value) {
         // 判断或获取
-        return 0 === strpos($name, '?') ? \think\Session::has(substr($name, 1), $prefix) : \think\Session::get($name, $prefix);
+        return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
     } elseif (is_null($value)) {
         // 删除session
-        return \think\Session::delete($name, $prefix);
+        return Session::delete($name, $prefix);
     } else {
         // 设置session
-        return \think\Session::set($name, $value, $prefix);
+        return Session::set($name, $value, $prefix);
     }
 }
 
@@ -224,19 +226,19 @@ function cookie($name, $value = '', $option = null)
 {
     if (is_array($name)) {
         // 初始化
-        \think\Cookie::init($name);
+        Cookie::init($name);
     } elseif (is_null($name)) {
         // 清除
-        \think\Cookie::clear($value);
+        Cookie::clear($value);
     } elseif ('' === $value) {
         // 获取
-        return \think\Cookie::get($name);
+        return Cookie::get($name);
     } elseif (is_null($value)) {
         // 删除session
-        return \think\Cookie::delete($name);
+        return Cookie::delete($name);
     } else {
         // 设置session
-        return \think\Cookie::set($name, $value, $option);
+        return Cookie::set($name, $value, $option);
     }
 }
 
@@ -251,17 +253,17 @@ function S($name, $value = '', $options = null)
 {
     if (is_array($options)) {
         // 缓存操作的同时初始化
-        \think\Cache::connect($options);
+        Cache::connect($options);
     } elseif (is_array($name)) {
         // 缓存初始化
-        return \think\Cache::connect($name);
+        return Cache::connect($name);
     }
     if ('' === $value) {
         // 获取缓存
-        return \think\Cache::get($name);
+        return Cache::get($name);
     } elseif (is_null($value)) {
         // 删除缓存
-        return \think\Cache::rm($name);
+        return Cache::rm($name);
     } else {
         // 缓存数据
         if (is_array($options)) {
@@ -269,7 +271,7 @@ function S($name, $value = '', $options = null)
         } else {
             $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
         }
-        return \think\Cache::set($name, $value, $expire);
+        return Cache::set($name, $value, $expire);
     }
 }
 
@@ -282,9 +284,9 @@ function S($name, $value = '', $options = null)
 function trace($log = '[think]', $level = 'log')
 {
     if ('[think]' === $log) {
-        return \think\Log::getLog();
+        return Log::getLog();
     } else {
-        \think\Log::record($log, $level);
+        Log::record($log, $level);
     }
 }
 
@@ -296,5 +298,5 @@ function trace($log = '[think]', $level = 'log')
  */
 function V($template = '', $vars = [])
 {
-    return \think\View::instance(\think\Config::get())->fetch($template, $vars);
+    return View::instance(Config::get('view'))->fetch($template, $vars);
 }

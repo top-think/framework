@@ -53,18 +53,15 @@ class viewTest extends \PHPUnit_Framework_TestCase
      */
     public function testConfig()
     {
-        $view_instance = \think\View::instance();
+        $view_instance = \think\View::instance([]);
         $data          = $view_instance->config('key2', 'value2');
         $data          = $view_instance->config('key3', 'value3');
         $data          = $view_instance->config('key3', 'value_cover');
-        //不应包含value
-        $data = $view_instance->config(array('key' => 'value'));
         //基础配置替换
         $data = $view_instance->config(array('view_path' => 'view_path'));
         //目标结果
         $this->assertAttributeContains('value2', "config", $view_instance);
         $this->assertAttributeContains('value_cover', "config", $view_instance);
-        $this->assertAttributeNotContains('value', "config", $view_instance);
         $this->assertAttributeContains('view_path', "config", $view_instance);
     }
 
@@ -77,11 +74,11 @@ class viewTest extends \PHPUnit_Framework_TestCase
     {
         $view_instance = \think\View::instance();
         $data          = $view_instance->engine('php');
-        $php_engine    = new \think\view\driver\Php(['view_path' => 'view_path']);
+        $php_engine    = new \think\view\driver\Php(['view_path' => '', 'view_suffix' => '.html', 'view_depr' => DS]);
         $this->assertAttributeEquals($php_engine, 'engine', $view_instance);
         //测试模板引擎驱动
         $data         = $view_instance->engine('think');
-        $think_engine = new \think\view\driver\Think(['view_path' => 'view_path']);
+        $think_engine = new \think\view\driver\Think(['view_path' => '', 'view_suffix' => '.html', 'view_depr' => DS]);
         $this->assertAttributeEquals($think_engine, 'engine', $view_instance);
     }
 
