@@ -30,9 +30,11 @@ class View
         'engine_config' => [],
     ];
 
-    public function __construct(array $config = [])
+    public function __construct($config = [])
     {
-        $this->config($config);
+        if (is_array($config)) {
+            $this->config($config);
+        }
     }
 
     /**
@@ -41,7 +43,7 @@ class View
      * @param array $config  配置参数
      * @return object
      */
-    public static function instance(array $config = [])
+    public static function instance($config = [])
     {
         if (is_null(self::$instance)) {
             self::$instance = new self($config);

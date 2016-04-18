@@ -82,7 +82,7 @@ class Controller
     }
 
     /**
-     * 加载模板和页面输出 可以返回输出内容
+     * 加载模板输出
      * @access public
      * @param string $template 模板文件名
      * @param array  $vars     模板输出变量
@@ -95,7 +95,7 @@ class Controller
     }
 
     /**
-     * 加载模板和页面输出 可以返回输出内容
+     * 渲染内容输出
      * @access public
      * @param string $template 模板文件名
      * @param array  $vars     模板输出变量
@@ -105,18 +105,6 @@ class Controller
     public function display($template = '', $vars = [], $config = [])
     {
         return $this->view->display($template, $vars, $config);
-    }
-
-    /**
-     * 渲染内容输出
-     * @access public
-     * @param string $content 内容
-     * @param array  $vars    模板输出变量
-     * @return mixed
-     */
-    public function show($content, $vars = [])
-    {
-        return $this->view->show($content, $vars);
     }
 
     /**

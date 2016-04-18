@@ -319,14 +319,14 @@ EOF;
         $template = new Template();
         $template->assign('name', 'name');
         $config = [
-            'strip_space'  => true,
-            'view_path'    => dirname(__FILE__) . '/',
-            'cache_id'     => '__CACHE_ID__',
-            'display_cache'=> true
+            'strip_space'   => true,
+            'view_path'     => dirname(__FILE__) . '/',
+            'cache_id'      => '__CACHE_ID__',
+            'display_cache' => true,
         ];
         $data = ['name' => 'value'];
         $template->layout('layout')->display('display', $data, $config);
-        $this->expectOutputString('value');
+        $this->expectOutputString('<div>value</div>');
     }
 
     public function testFetch()
@@ -385,7 +385,7 @@ EOF;
         $template->fetch($content);
         $this->expectOutputString($content2);
 //        $template->parse($content);
-//        var_dump($content);
+        //        var_dump($content);
     }
 
     public function testVarAssign()
@@ -406,7 +406,7 @@ EOF;
 
     public function testIsCache()
     {
-        $template = new Template(['cache_id' => '__CACHE_ID__','display_cache' => true]);
+        $template = new Template(['cache_id' => '__CACHE_ID__', 'display_cache' => true]);
         $this->assertTrue(!$template->isCache('__CACHE_ID__'));
         $template->display_cache = false;
         $this->assertTrue(!$template->isCache('__CACHE_ID__'));
