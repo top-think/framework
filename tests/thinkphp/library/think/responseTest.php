@@ -94,7 +94,7 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $result                                 = Response::send($dataArr, "jsonp", true);
         $this->assertEquals('callback({"key":"value"});', $result);
 
-        Response::tramsform(function () {
+        Response::transform(function () {
 
             return "callbackreturndata";
         });
@@ -105,12 +105,12 @@ class responseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Response::tramsform
-     * @todo Implement testTramsform().
+     * @covers think\Response::transform
+     * @todo Implement testtransform().
      */
-    public function testTramsform()
+    public function testtransform()
     {
-        Response::tramsform(function () {
+        Response::transform(function () {
 
             return "callbackreturndata";
         });
@@ -118,7 +118,7 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $result  = Response::send($dataArr, "", true);
         $this->assertEquals("callbackreturndata", $result);
 
-        Response::tramsform(null);
+        Response::transform(null);
     }
 
     /**
