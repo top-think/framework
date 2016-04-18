@@ -17,6 +17,7 @@ use think\Debug;
 use think\Input;
 use think\Lang;
 use think\Loader;
+use think\Route;
 use think\Session;
 use think\Url;
 use think\View;
@@ -82,12 +83,49 @@ function G($start, $end = '', $dec = 6)
 }
 
 /**
+ * 快速导入Traits PHP5.5以上无需调用
+ * @param string $class trait库
+ * @param string $ext 类库后缀
+ * @return boolean
+ */
+function T($class, $ext = EXT)
+{
+    return Loader::import($class, TRAIT_PATH, $ext);
+}
+
+/**
+ * 抛出异常处理
+ *
+ * @param string  $msg  异常消息
+ * @param integer $code 异常代码 默认为0
+ * @param string $exception 异常类
+ *
+ * @throws Exception
+ */
+function E($msg, $code = 0, $exception = '')
+{
+    $e = $exception ?: '\think\Exception';
+    throw new $e($msg, $code);
+}
+
+/**
+ * 渲染输出Widget
+ * @param string $name Widget名称
+ * @param array $data 传人的参数
+ * @return mixed
+ */
+function W($name, $data = [])
+{
+    return Loader::action($name, $data, 'widget');
+}
+
+/**
  * 实例化Model
  * @param string $name Model名称
  * @param string $layer 业务层名称
  * @return object
  */
-function D($name = '', $layer = MODEL_LAYER)
+function model($name = '', $layer = MODEL_LAYER)
 {
     return Loader::model($name, $layer);
 }
@@ -108,7 +146,7 @@ function db($config = [])
  * @param string $layer 控制层名称
  * @return object
  */
-function A($name, $layer = CONTROLLER_LAYER)
+function controller($name, $layer = CONTROLLER_LAYER)
 {
     return Loader::controller($name, $layer);
 }
@@ -120,7 +158,7 @@ function A($name, $layer = CONTROLLER_LAYER)
  * @param string $layer 要调用的控制层名称
  * @return mixed
  */
-function R($url, $vars = [], $layer = CONTROLLER_LAYER)
+function action($url, $vars = [], $layer = CONTROLLER_LAYER)
 {
     return Loader::action($url, $vars, $layer);
 }
@@ -149,32 +187,6 @@ function vendor($class, $ext = EXT)
 }
 
 /**
- * 快速导入Traits
- * @param string $class trait库
- * @param string $ext 类库后缀
- * @return boolean
- */
-function T($class, $ext = EXT)
-{
-    return Loader::import($class, TRAIT_PATH, $ext);
-}
-
-/**
- * 抛出异常处理
- *
- * @param string  $msg  异常消息
- * @param integer $code 异常代码 默认为0
- * @param string $exception 异常类
- *
- * @throws Exception
- */
-function E($msg, $code = 0, $exception = '')
-{
-    $e = $exception ?: '\think\Exception';
-    throw new $e($msg, $code);
-}
-
-/**
  * 浏览器友好的变量输出
  * @param mixed $var 变量
  * @param boolean $echo 是否输出 默认为true 如果为false 则返回输出字符串
@@ -186,18 +198,7 @@ function dump($var, $echo = true, $label = null)
     return Debug::dump($var, $echo, $label);
 }
 
-/**
- * 渲染输出Widget
- * @param string $name Widget名称
- * @param array $data 传人的参数
- * @return mixed
- */
-function W($name, $data = [])
-{
-    return Loader::action($name, $data, 'widget');
-}
-
-function U($url = '', $vars = '', $suffix = true, $domain = false)
+function url($url = '', $vars = '', $suffix = true, $domain = false)
 {
     return Url::build($url, $vars, $suffix, $domain);
 }
@@ -249,7 +250,7 @@ function cookie($name, $value = '', $option = null)
  * @param mixed $options 缓存参数
  * @return mixed
  */
-function S($name, $value = '', $options = null)
+function cache($name, $value = '', $options = null)
 {
     if (is_array($options)) {
         // 缓存操作的同时初始化
@@ -296,7 +297,21 @@ function trace($log = '[think]', $level = 'log')
  * @param array $vars 模板变量
  * @return string
  */
-function V($template = '', $vars = [])
+function view($template = '', $vars = [])
 {
     return View::instance(Config::get('view'))->fetch($template, $vars);
+}
+
+/**
+ * 路由注册
+ * @param string $rule 路由规则
+ * @param mixed $route 路由地址
+ * @param sting $type 请求类型
+ * @param array $option 路由参数
+ * @param array $pattern 变量规则
+ * @return void
+ */
+function route($rule = '', $route = [], $type = '*', $option = [], $pattern = [])
+{
+    Route::register($rule, $route, $type, $option, $pattern);
 }
