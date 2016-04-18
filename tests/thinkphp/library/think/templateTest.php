@@ -326,7 +326,7 @@ EOF;
         ];
         $data = ['name' => 'value'];
         $template->layout('layout')->display('display', $data, $config);
-        $this->expectOutputString('<div>value</div>');
+        $this->expectOutputString('value');
     }
 
     public function testFetch()
