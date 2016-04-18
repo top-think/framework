@@ -98,6 +98,22 @@ return [
     // | 视图及模板设置
     // +----------------------------------------------------------------------
 
+    'view'                   => [
+        // 模板引擎
+        'engine_type'   => 'think',
+        // 模板引擎配置
+        'engine_config' => [
+            // 模板路径
+            'view_path'   => '',
+            // 模板后缀
+            'view_suffix' => '.html',
+            // 模板文件名分隔符
+            'view_depr'   => DS,
+        ],
+        // 输出字符串替换
+        'parse_str'     => [],
+    ],
+
     // 默认跳转页面对应的模板文件
     'dispatch_success_tmpl'  => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',
     'dispatch_error_tmpl'    => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',

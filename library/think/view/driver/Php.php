@@ -12,12 +12,9 @@ namespace think\view\driver;
 
 use think\Exception;
 use think\Log;
-use think\Template;
 
-class Think
+class Php
 {
-    // 模板引擎实例
-    private $template = null;
     // 模板引擎参数
     protected $config = [
         // 模板起始路径
@@ -30,19 +27,17 @@ class Think
 
     public function __construct($config = [])
     {
-        $this->config   = array_merge($this->config, $config);
-        $this->template = new Template($this->config);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
      * 渲染模板文件
      * @access public
-     * @param string $template 模板文件或者内容
+     * @param string $template 模板文件
      * @param array $data 模板变量
-     * @param array $config 模板参数
      * @return void
      */
-    public function fetch($template, $data = [], $config = [])
+    public function fetch($template, $data = [])
     {
         if (!is_file($template)) {
             // 获取模板文件名
@@ -54,20 +49,21 @@ class Think
         }
         // 记录视图信息
         APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
-        $this->template->display($template, $data, $config);
+        extract($data, EXTR_OVERWRITE);
+        include $template;
     }
 
     /**
      * 渲染模板内容
      * @access public
-     * @param string $template 模板文件或者内容
+     * @param string $content 模板内容
      * @param array $data 模板变量
-     * @param array $config 模板参数
      * @return void
      */
-    public function display($template, $data = [], $config = [])
+    public function display($content, $data = [])
     {
-        $this->template->fetch($template, $data, $config);
+        extract($data, EXTR_OVERWRITE);
+        eval('?>' . $content);
     }
 
     /**
