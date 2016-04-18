@@ -181,7 +181,7 @@ class View
                 throw new Exception('template file not exists:' . $template, 10700);
             }
             // 记录视图信息
-            APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export($vars, true) . ' ]', 'info');
+            APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($vars), true) . ' ]', 'info');
         }
         if (is_null($this->engine)) {
             // 初始化模板引擎

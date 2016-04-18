@@ -299,13 +299,13 @@ abstract class Builder
             if ($value instanceof \Closure) {
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
             } else {
-                $value = is_string($value) ? explode(',', $value) : $value;
+                $value = is_array($value) ? $value : explode(',', $value) ;
                 $zone  = implode(',', $this->parseValue($value));
                 $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询
-            $data = is_string($value) ? explode(',', $value) : $value;
+            $data = is_array($value) ? $value  : explode(',', $value) ;
             $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($data[0]) . ' AND ' . $this->parseValue($data[1]);
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询

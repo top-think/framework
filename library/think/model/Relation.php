@@ -240,7 +240,7 @@ class Relation
         // 重新组装模型数据
         foreach ($result->toArray() as $key => $val) {
             if (strpos($key, '__')) {
-                list($name, $attr) = explode('__', $key);
+                list($name, $attr) = explode('__', $key,2);
                 if ($name == $modelName) {
                     $list[$name][$attr] = $val;
                     unset($result->$key);
@@ -300,7 +300,7 @@ class Relation
             $pivot = [];
             foreach ($set->toArray() as $key => $val) {
                 if (strpos($key, '__')) {
-                    list($name, $attr) = explode('__', $key);
+                    list($name, $attr) = explode('__', $key,2);
                     if ('pivot' == $name) {
                         $pivot[$attr] = $val;
                         unset($set->$key);
