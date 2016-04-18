@@ -105,6 +105,7 @@ class Build
             } else {
                 // 生成相关MVC文件
                 foreach ($file as $val) {
+                    $val       = trim($val);
                     $filename  = $modulePath . $path . DS . $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '') . EXT;
                     $namespace = APP_NAMESPACE . '\\' . ($module ? $module . '\\' : '') . $path;
                     $class     = $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '');
