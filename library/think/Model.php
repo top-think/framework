@@ -853,10 +853,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (!isset(self::$links[$model])) {
             self::$links[$model] = Db::connect(static::$connection);
-        }
-        if (isset(static::$tableName)) {
             self::$links[$model]->setTable(static::$tableName);
-        } else {
             $name = basename(str_replace('\\', '/', $model));
             self::$links[$model]->name($name);
         }
