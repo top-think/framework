@@ -20,7 +20,7 @@ class Php
         // 模板起始路径
         'view_path'   => '',
         // 模板文件后缀
-        'view_suffix' => '.html',
+        'view_suffix' => '.php',
         // 模板文件名分隔符
         'view_depr'   => DS,
     ];
