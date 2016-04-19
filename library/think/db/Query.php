@@ -1175,6 +1175,37 @@ class Query
     }
 
     /**
+     * 分批数据返回处理
+     * @access public
+     * @param integer $count 每次处理的数据数量
+     * @param callable $callback 处理回调方法
+     * @param string $column 分批处理的字段名
+     * @param array|Closure $where 查询条件
+     * @return array
+     */
+    public function chunk($count, $callback, $column = null, $where = [])
+    {
+        $column    = $column ?: $this->connection->getTableInfo('', 'pk');
+        $model     = isset($this->options['model']) ? $this->options['model'] : '';
+        $resultSet = $this->limit($count)->where($where)->order($column, 'asc')->select();
+
+        while (!empty($resultSet)) {
+            if (false === call_user_func($callback, $resultSet)) {
+                return false;
+            }
+            $end       = end($resultSet);
+            $lastId    = is_array($end) ? $end[$column] : $end->$column;
+            $resultSet = $this->model($model)
+                ->limit($count)
+                ->where($where)
+                ->where($column, '>', $lastId)
+                ->order($column, 'asc')
+                ->select();
+        }
+        return true;
+    }
+
+    /**
      * 获取绑定的参数 并清空
      * @access public
      * @return array
