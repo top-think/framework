@@ -1180,14 +1180,13 @@ class Query
      * @param integer $count 每次处理的数据数量
      * @param callable $callback 处理回调方法
      * @param string $column 分批处理的字段名
-     * @param array|Closure $where 查询条件
      * @return array
      */
-    public function chunk($count, $callback, $column = null, $where = [])
+    public function chunk($count, $callback, $column = null)
     {
         $column    = $column ?: $this->connection->getTableInfo('', 'pk');
-        $model     = isset($this->options['model']) ? $this->options['model'] : '';
-        $resultSet = $this->limit($count)->where($where)->order($column, 'asc')->select();
+        $options   = $this->getOptions();
+        $resultSet = $this->limit($count)->order($column, 'asc')->select();
 
         while (!empty($resultSet)) {
             if (false === call_user_func($callback, $resultSet)) {
@@ -1195,9 +1194,8 @@ class Query
             }
             $end       = end($resultSet);
             $lastId    = is_array($end) ? $end[$column] : $end->$column;
-            $resultSet = $this->model($model)
+            $resultSet = $this->options($options)
                 ->limit($count)
-                ->where($where)
                 ->where($column, '>', $lastId)
                 ->order($column, 'asc')
                 ->select();
