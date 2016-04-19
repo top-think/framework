@@ -77,8 +77,10 @@ class Query
         $driver         = $this->driver;
         if (!isset($builder[$driver])) {
             $class            = '\\think\\db\\builder\\' . ucfirst($driver);
-            $builder[$driver] = new $class($this->connection, $this);
+            $builder[$driver] = new $class($this->connection);
         }
+        // 设置当前查询对象
+        $builder[$driver]->setQuery($this);
         return $builder[$driver];
     }
 

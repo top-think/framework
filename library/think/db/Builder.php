@@ -38,10 +38,20 @@ abstract class Builder
      * @access public
      * @param object $db 数据库对象实例
      */
-    public function __construct($connection, $query)
+    public function __construct($connection)
     {
         $this->connection = $connection;
-        $this->query      = $query;
+    }
+
+    /**
+     * 设置当前的Query对象实例
+     * @access protected
+     * @param \think\db\Query $query 当前查询对象实例
+     * @return void
+     */
+    public function setQuery($query)
+    {
+        $this->query = $query;
     }
 
     /**
@@ -299,13 +309,13 @@ abstract class Builder
             if ($value instanceof \Closure) {
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
             } else {
-                $value = is_array($value) ? $value : explode(',', $value) ;
+                $value = is_array($value) ? $value : explode(',', $value);
                 $zone  = implode(',', $this->parseValue($value));
                 $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询
-            $data = is_array($value) ? $value  : explode(',', $value) ;
+            $data = is_array($value) ? $value : explode(',', $value);
             $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($data[0]) . ' AND ' . $this->parseValue($data[1]);
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询
