@@ -74,7 +74,7 @@ class viewTest extends \PHPUnit_Framework_TestCase
     {
         $view_instance = \think\View::instance();
         $data          = $view_instance->engine('php');
-        $php_engine    = new \think\view\driver\Php(['view_path' => '', 'view_suffix' => '.html', 'view_depr' => DS]);
+        $php_engine    = new \think\view\driver\Php(['view_path' => '', 'view_suffix' => '.php', 'view_depr' => DS]);
         $this->assertAttributeEquals($php_engine, 'engine', $view_instance);
         //测试模板引擎驱动
         $data         = $view_instance->engine('think');
