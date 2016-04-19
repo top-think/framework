@@ -9,6 +9,10 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
+//------------------------
+// ThinkPHP 助手函数
+//-------------------------
+
 use think\Cache;
 use think\Config;
 use think\Cookie;
@@ -23,17 +27,25 @@ use think\Session;
 use think\Url;
 use think\View;
 
-//------------------------
-// ThinkPHP 助手函数
-//-------------------------
-
-// 获取多语言变量
+/**
+ * 获取语言变量值
+ * @param string $name 语言变量名
+ * @param array $vars 动态变量值
+ * @param string $lang 语言
+ * @return mixed
+ */
 function L($name, $vars = [], $lang = '')
 {
     return Lang::get($name, $vars, $lang);
 }
 
-// 获取配置参数
+/**
+ * 获取和设置配置参数
+ * @param string $name 参数名
+ * @param mixed $value 参数值
+ * @param string $range 作用域
+ * @return mixed
+ */
 function C($name = '', $value = null, $range = '')
 {
     if (is_null($value) && is_string($name)) {
@@ -43,7 +55,14 @@ function C($name = '', $value = null, $range = '')
     }
 }
 
-// 获取输入数据 支持默认值和过滤
+/**
+ * 获取输入数据 支持默认值和过滤
+ * @param string $key 获取的变量名
+ * @param mixed $default 默认值
+ * @param string $filter 过滤方法
+ * @param bool $merge 是否合并系统默认过滤方法
+ * @return mixed
+ */
 function I($key, $default = null, $filter = null, $merge = false)
 {
     if (0 === strpos($key, '?')) {
@@ -71,7 +90,7 @@ function I($key, $default = null, $filter = null, $merge = false)
  * 记录时间（微秒）和内存使用情况
  * @param string $start 开始标签
  * @param string $end 结束标签
- * @param integer $dec 小数位
+ * @param integer|string $dec 小数位 如果是m 表示统计内存占用
  * @return mixed
  */
 function G($start, $end = '', $dec = 6)
@@ -124,7 +143,7 @@ function W($name, $data = [])
  * 实例化Model
  * @param string $name Model名称
  * @param string $layer 业务层名称
- * @return object
+ * @return \think\Model
  */
 function model($name = '', $layer = MODEL_LAYER)
 {
@@ -134,7 +153,7 @@ function model($name = '', $layer = MODEL_LAYER)
 /**
  * 实例化数据库类
  * @param array $config 数据库配置参数
- * @return object
+ * @return \think\db\Connection
  */
 function db($config = [])
 {
@@ -145,7 +164,7 @@ function db($config = [])
  * 实例化控制器 格式：[模块/]控制器
  * @param string $name 资源地址
  * @param string $layer 控制层名称
- * @return object
+ * @return \think\Controller
  */
 function controller($name, $layer = CONTROLLER_LAYER)
 {
@@ -199,11 +218,26 @@ function dump($var, $echo = true, $label = null)
     return Debug::dump($var, $echo, $label);
 }
 
+/**
+ * Url生成
+ * @param string $url 路由地址
+ * @param string|array $value 变量
+ * @param bool|string $suffix 前缀
+ * @param bool|string $domain 域名
+ * @return string
+ */
 function url($url = '', $vars = '', $suffix = true, $domain = false)
 {
     return Url::build($url, $vars, $suffix, $domain);
 }
 
+/**
+ * Session管理
+ * @param string|array $name session名称，如果为数组表示进行session设置
+ * @param mixed $value session值
+ * @param string $prefix 前缀
+ * @return mixed
+ */
 function session($name, $value = '', $prefix = null)
 {
     if (is_array($name)) {
@@ -224,6 +258,13 @@ function session($name, $value = '', $prefix = null)
     }
 }
 
+/**
+ * Cookie管理
+ * @param string|array $name cookie名称，如果为数组表示进行cookie设置
+ * @param mixed $value cookie值
+ * @param mixed $option 参数
+ * @return mixed
+ */
 function cookie($name, $value = '', $option = null)
 {
     if (is_array($name)) {
