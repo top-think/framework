@@ -32,8 +32,6 @@ class Relation
     protected $foreignKey;
     // 关联键
     protected $localKey;
-    // 是否预载入
-    protected $eagerly = false;
 
     /**
      * 架构函数
@@ -67,27 +65,45 @@ class Relation
     public function getRelation($relation)
     {
         // 执行关联定义方法
-        $db = $this->parent->$relation();
+        $model      = $this->parent->$relation();
+        $foreignKey = $this->foreignKey;
+        $localKey   = $this->localKey;
         // 判断关联类型执行查询
         switch ($this->type) {
             case self::HAS_ONE:
             case self::BELONGS_TO:
-                $result = $db->find();
+                $result = $model::where($foreignKey, $this->parent->$localKey)->find();
                 if (false === $result) {
                     $class               = $this->model;
                     $result              = new $class;
-                    $foreignKey          = $this->foreignKey;
-                    $localKey            = $this->localKey;
                     $result->$foreignKey = $this->parent->$localKey;
                 }
                 break;
             case self::HAS_MANY:
+                $result = $model::where($foreignKey, $this->parent->$localKey)->select();
+                break;
             case self::BELONGS_TO_MANY:
-                $result = $db->select();
+                // 关联查询
+                $pk                                = $this->parent->getPk();
+                $condition['pivot.' . $foreignKey] = $this->parent->$pk;
+                $result                            = $this->belongsToManyQuery($this->model, $this->middle, $localKey, $foreignKey, $condition)->select();
+                foreach ($result as $set) {
+                    $pivot = [];
+                    foreach ($set->toArray() as $key => $val) {
+                        if (strpos($key, '__')) {
+                            list($name, $attr) = explode('__', $key, 2);
+                            if ('pivot' == $name) {
+                                $pivot[$attr] = $val;
+                                unset($set->$key);
+                            }
+                        }
+                    }
+                    $set->pivot = new Pivot($pivot, $this->middle);
+                }
                 break;
             default:
                 // 直接返回
-                $result = $db;
+                $result = $model;
         }
         return $result;
     }
@@ -101,8 +117,7 @@ class Relation
      */
     public function eagerlyResultSet($resultSet, $relation)
     {
-        $this->eagerly = true;
-        $relations     = is_string($relation) ? explode(',', $relation) : $relation;
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
         foreach ($relations as $relation) {
             $subRelation = '';
@@ -171,7 +186,6 @@ class Relation
             }
             $this->relation = [];
         }
-        $this->eagerly = false;
         return $resultSet;
     }
 
@@ -184,8 +198,7 @@ class Relation
      */
     public function eagerlyResult($result, $relation)
     {
-        $this->eagerly = true;
-        $relations     = is_string($relation) ? explode(',', $relation) : $relation;
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
         foreach ($relations as $relation) {
             $subRelation = '';
@@ -229,7 +242,6 @@ class Relation
 
             }
         }
-        $this->eagerly = false;
         return $result;
     }
 
@@ -335,13 +347,8 @@ class Relation
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
 
-        if (!$this->eagerly && isset($this->parent->$localKey)) {
-            // 关联查询封装
-            return $model::where($foreignKey, $this->parent->$localKey);
-        } else {
-            // 预载入封装
-            return $model;
-        }
+        // 返回关联的模型对象
+        return new $model;
     }
 
     /**
@@ -360,13 +367,8 @@ class Relation
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
 
-        if (!$this->eagerly && isset($this->parent->$localKey)) {
-            // 关联查询封装
-            return $model::where($foreignKey, $this->parent->$localKey);
-        } else {
-            // 预载入封装
-            return $model;
-        }
+        // 返回关联的模型对象
+        return new $model;
     }
 
     /**
@@ -385,13 +387,8 @@ class Relation
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
 
-        if (!$this->eagerly && isset($this->parent->$localKey)) {
-            // 关联查询封装
-            return $model::where($foreignKey, $this->parent->$localKey);
-        } else {
-            // 预载入封装
-            return $model;
-        }
+        // 返回关联的模型对象
+        return new $model;
     }
 
     /**
@@ -411,15 +408,9 @@ class Relation
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
         $this->middle     = $table;
-        $pk               = $this->parent->getPk();
-        if (!$this->eagerly && isset($this->parent->$pk)) {
-            // 关联查询
-            $condition['pivot.' . $foreignKey] = $this->parent->$pk;
-            return $this->belongsToManyQuery($model, $table, $localKey, $foreignKey, $condition);
-        } else {
-            // 预载入封装
-            return $model;
-        }
+
+        // 返回关联的模型对象
+        return new $model;
     }
 
     /**
