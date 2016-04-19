@@ -412,12 +412,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 保存多个数据到当前数据对象
+     * @access public
+     * @param array $data 数据
+     * @return integer
+     */
+    public function saveAll($dataSet)
+    {
+        foreach ($dataSet as $data) {
+            $result = $this->save($data);
+        }
+        return $result;
+    }
+
+    /**
      * 设置允许写入的字段
      * @access public
      * @param bool $update
      * @return $this
      */
-    public function field($field)
+    public function allowField($field)
     {
         $this->field = $field;
         return $this;
