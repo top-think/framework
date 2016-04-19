@@ -17,6 +17,7 @@ use think\Debug;
 use think\Input;
 use think\Lang;
 use think\Loader;
+use think\Log;
 use think\Route;
 use think\Session;
 use think\Url;
