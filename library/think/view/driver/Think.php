@@ -30,7 +30,10 @@ class Think
 
     public function __construct($config = [])
     {
-        $this->config   = array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
+        if (empty($this->config['view_path']) && defined('VIEW_PATH')) {
+            $this->config['view_path'] = VIEW_PATH;
+        }
         $this->template = new Template($this->config);
     }
 
@@ -78,10 +81,6 @@ class Think
      */
     private function parseTemplate($template)
     {
-        if (empty($this->config['view_path']) && defined('VIEW_PATH')) {
-            $this->config['view_path'] = VIEW_PATH;
-        }
-
         $depr     = $this->config['view_depr'];
         $template = str_replace(['/', ':'], $depr, $template);
         if (strpos($template, '@')) {
