@@ -37,7 +37,7 @@ class Think
     /**
      * 渲染模板文件
      * @access public
-     * @param string $template 模板文件或者内容
+     * @param string $template 模板文件
      * @param array $data 模板变量
      * @param array $config 模板参数
      * @return void
@@ -60,7 +60,7 @@ class Think
     /**
      * 渲染模板内容
      * @access public
-     * @param string $template 模板文件或者内容
+     * @param string $template 模板内容
      * @param array $data 模板变量
      * @param array $config 模板参数
      * @return void
@@ -100,7 +100,7 @@ class Think
                 $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . $template;
             }
         }
-        return realpath($path) . DS . $template . $this->config['view_suffix'];
+        return $path . $template . $this->config['view_suffix'];
     }
 
     public function __call($method, $params)

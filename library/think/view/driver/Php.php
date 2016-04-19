@@ -96,7 +96,7 @@ class Php
                 $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . $template;
             }
         }
-        return realpath($path) . DS . $template . $this->config['view_suffix'];
+        return $path . $template . $this->config['view_suffix'];
     }
 
     public function __call($method, $params)
