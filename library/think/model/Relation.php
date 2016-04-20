@@ -12,6 +12,8 @@
 namespace think\model;
 
 use think\Db;
+use think\Exception;
+use think\model\Pivot;
 
 class Relation
 {
@@ -20,9 +22,9 @@ class Relation
     const BELONGS_TO      = 3;
     const BELONGS_TO_MANY = 4;
 
-    // 父模型
+    // 父模型对象
     protected $parent;
-    // 当前的模型类
+    // 当前关联的模型类
     protected $model;
     // 中间表模型
     protected $middle;
@@ -41,7 +43,6 @@ class Relation
     public function __construct($model)
     {
         $this->parent = $model;
-        $this->db     = $model->db();
     }
 
     /**
@@ -439,50 +440,69 @@ class Relation
      * 保存当前关联数据对象
      * @access public
      * @param array $data 数据
+     * @param array $pivot 中间表额外数据
      * @return integer
      */
-    public function save($data, $pivot = [])
+    public function save(array $data, array $pivot = [])
     {
-        // 判断关联类型执行查询
+        // 判断关联类型
         switch ($this->type) {
             case self::HAS_ONE:
             case self::BELONGS_TO:
             case self::HAS_MANY:
                 $data[$this->foreignKey] = $this->parent->{$this->localKey};
-                break;
+                $model                   = new $this->model;
+                return $model->save($data);
             case self::BELONGS_TO_MANY:
-                break;
+                // 保存关联表数据
+                $model  = new $this->model;
+                $result = $model->save($data);
+                if ($result) {
+                    // 保存中间表数据
+                    $pk                       = $this->parent->getPk();
+                    $relationFk               = $model->getPk();
+                    $pivot[$this->localKey]   = $this->parent->$pk;
+                    $pivot[$this->foreignKey] = $model->$relationFk;
+                    $result                   = Db::table($this->middle)->insert($pivot);
+                }
+                return $result;
         }
-        $model = new $this->model;
-        return $model->save($data);
     }
 
     /**
-     * 保存当前关联数据对象
+     * 批量保存当前关联数据对象
      * @access public
-     * @param array $data 数据
+     * @param array $dataSet 数据集
+     * @param array $pivot 中间表额外数据
      * @return integer
      */
-    public function saveAll($dataSet, $pivot = [])
+    public function saveAll(array $dataSet, array $pivot = [])
     {
-        foreach ($dataSet as $data) {
-            // 判断关联类型执行查询
+        $result = false;
+        foreach ($dataSet as $key => $data) {
+            // 判断关联类型
             switch ($this->type) {
                 case self::HAS_MANY:
                     $data[$this->foreignKey] = $this->parent->{$this->localKey};
+                    $result                  = $this->save($data);
                     break;
                 case self::BELONGS_TO_MANY:
+                    // TODO
+                    $result = $this->save($data, !empty($pivot) ? $pivot[$key] : []);
                     break;
             }
         }
-        $model = new $this->model;
-        return $model->saveAll($dataSet);
+        return $result;
     }
 
     public function __call($method, $args)
     {
-        $model = new $this->model;
-        return call_user_func_array([$model->db(), $method], $args);
+        if ($this->model) {
+            $model = new $this->model;
+            return call_user_func_array([$model->db(), $method], $args);
+        } else {
+            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+        }
     }
 
 }
