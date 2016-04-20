@@ -439,11 +439,11 @@ class Relation
     /**
      * 保存当前关联数据对象
      * @access public
-     * @param array $data 数据
+     * @param mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
      * @param array $pivot 中间表额外数据
      * @return integer
      */
-    public function save(array $data, array $pivot = [])
+    public function save($data, array $pivot = [])
     {
         // 判断关联类型
         switch ($this->type) {
@@ -454,18 +454,30 @@ class Relation
                 $model                   = new $this->model;
                 return $model->save($data);
             case self::BELONGS_TO_MANY:
-                // 保存关联表数据
-                $model  = new $this->model;
-                $result = $model->save($data);
-                if ($result) {
+                if (is_array($data)) {
+                    // 保存关联表数据
+                    $model = new $this->model;
+                    $model->save($data);
+                    $relationFk = $model->getPk();
+                    $id         = $model->$relationFk;
+                } elseif (is_int($data)) {
+                    // 根据关联表主键直接写入中间表
+                    $id = $data;
+                } elseif ($data instanceof Model) {
+                    // 根据关联表主键直接写入中间表
+                    $relationFk = $data->getPk();
+                    $id         = $data->$relationFk;
+                }
+
+                if ($id) {
                     // 保存中间表数据
                     $pk                       = $this->parent->getPk();
-                    $relationFk               = $model->getPk();
                     $pivot[$this->localKey]   = $this->parent->$pk;
-                    $pivot[$this->foreignKey] = $model->$relationFk;
-                    $result                   = Db::table($this->middle)->insert($pivot);
+                    $pivot[$this->foreignKey] = $id;
+                    return Db::table($this->middle)->insert($pivot);
+                } else {
+                    throw new Exception(' relation data write error');
                 }
-                return $result;
         }
     }
 
