@@ -880,11 +880,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (!isset(self::$links[$model])) {
             self::$links[$model] = Db::connect(static::$connection);
-            self::$links[$model]->setTable(static::$tableName);
-            $name = basename(str_replace('\\', '/', $model));
-            self::$links[$model]->name($name);
         }
-
+        self::$links[$model]->setTable(static::$tableName);
+        $name = basename(str_replace('\\', '/', $model));
+        self::$links[$model]->name($name);
         // 设置当前模型 确保查询返回模型对象
         self::$links[$model]->model($model);
         // 返回当前数据库对象
