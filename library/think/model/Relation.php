@@ -429,7 +429,7 @@ class Relation
     protected function belongsToManyQuery($model, $table, $localKey, $foreignKey, $condition = [])
     {
         // 关联查询封装
-        $tableName  = $model::getTableName();
+        $tableName  = $model::getTable();
         $relationFk = (new $model)->getPk();
         return $model::field($tableName . '.*')
             ->field(true, false, $table, 'pivot', 'pivot__')

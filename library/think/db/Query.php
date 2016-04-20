@@ -850,11 +850,11 @@ class Query
             if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
                 if (0 == $i) {
                     $joinName  = Loader::parseName(basename(str_replace('\\', '/', $this->options['model'])));
-                    $joinTable = $this->connection->getTableName();
+                    $joinTable = $this->connection->getTable();
                     $this->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
                 }
                 // 预载入封装
-                $table = $info['model']::getTableName();
+                $table = $info['model']::getTable();
                 $name  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
                 $this->via($name);
                 $this->join($table . ' ' . $name, $joinName . '.' . $info['localKey'] . '=' . $name . '.' . $info['foreignKey'])->field(true, false, $table, $name, $name . '__');
@@ -1269,7 +1269,7 @@ class Query
 
         // 获取数据表
         if (empty($options['table'])) {
-            $options['table'] = $this->connection->getTableName();
+            $options['table'] = $this->connection->getTable();
         }
 
         if (!isset($options['where'])) {

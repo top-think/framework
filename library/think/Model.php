@@ -20,14 +20,12 @@ use think\model\Relation;
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
 
-    // 当前实例
-    private static $instance;
     // 数据库对象池
     private static $links = [];
     // 数据库配置
     protected static $connection;
     // 数据表名称
-    protected static $tableName;
+    protected static $table;
     // 回调事件
     protected static $event = [];
 
@@ -116,33 +114,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static function init()
     {}
 
-    // JsonSerializable
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    // ArrayAccess
-    public function offsetSet($name, $value)
-    {
-        $this->__set($name, $value);
-    }
-
-    public function offsetExists($name)
-    {
-        return $this->__isset($name);
-    }
-
-    public function offsetUnset($name)
-    {
-        $this->__unset($name);
-    }
-
-    public function offsetGet($name)
-    {
-        return $this->__get($name);
-    }
-
     /**
      * 设置数据对象值
      * @access public
@@ -196,138 +167,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 修改器 设置数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @param mixed $value 值
-     * @return void
-     */
-    public function __set($name, $value)
-    {
-        if (is_null($value) && in_array($name, $this->autoTimeField)) {
-            // 自动写入的时间戳字段
-            $value = NOW_TIME;
-        } else {
-            // 检测修改器
-            $method = 'set' . Loader::parseName($name, 1) . 'Attr';
-            if (method_exists($this, $method)) {
-                $value = $this->$method($value, $this->data);
-            } elseif (isset($this->type[$name])) {
-                // 类型转换
-                $type = $this->type[$name];
-                switch ($type) {
-                    case 'integer':
-                        $value = (int) $value;
-                        break;
-                    case 'float':
-                        $value = (float) $value;
-                        break;
-                    case 'boolean':
-                        $value = (bool) $value;
-                        break;
-                    case 'datetime':
-                        $value = strtotime($value);
-                        break;
-                    case 'object':
-                        if (is_object($value)) {
-                            $value = json_encode($value, JSON_FORCE_OBJECT);
-                        }
-                        break;
-                    case 'array':
-                        if (is_array($value)) {
-                            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                        }
-                        break;
-                }
-            }
-        }
-
-        // 标记字段更改
-        if (!isset($this->data[$name]) || ($this->data[$name] != $value && !in_array($name, $this->change))) {
-            $this->change[] = $name;
-        }
-        // 设置数据对象属性
-        $this->data[$name] = $value;
-    }
-
-    /**
-     * 获取器 获取数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        $value = isset($this->data[$name]) ? $this->data[$name] : null;
-
-        // 检测属性获取器
-        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
-        if (method_exists($this, $method)) {
-            return $this->$method($value, $this->data);
-        } elseif (!is_null($value) && isset($this->type[$name])) {
-            // 类型转换
-            $type = $this->type[$name];
-            switch ($type) {
-                case 'integer':
-                    $value = (int) $value;
-                    break;
-                case 'float':
-                    $value = (float) $value;
-                    break;
-                case 'boolean':
-                    $value = (bool) $value;
-                    break;
-                case 'datetime':
-                    $value = date($this->dateFormat, $value);
-                    break;
-                case 'array':
-                    $value = json_decode($value, true);
-                    break;
-                case 'object':
-                    $value = json_decode($value);
-                    break;
-            }
-        } elseif (is_null($value) && method_exists($this, $name)) {
-            // 获取关联数据
-            $value = $this->relation->getRelation($name);
-            // 保存关联对象值
-            $this->data[$name] = $value;
-        }
-        return $value;
-    }
-
-    /**
-     * 检测数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @return boolean
-     */
-    public function __isset($name)
-    {
-        return isset($this->data[$name]);
-    }
-
-    /**
-     * 销毁数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @return void
-     */
-    public function __unset($name)
-    {
-        unset($this->data[$name]);
-    }
-
-    /**
      * 获取当前模型对象的主键
      * @access public
-     * @param string $tableName 数据表名
+     * @param string $table 数据表名
      * @return mixed
      */
-    public function getPk($tableName = '')
+    public function getPk($table = '')
     {
         if (!$this->pk) {
-            $this->pk = self::db()->getTableInfo($tableName, 'pk');
+            $this->pk = self::db()->getTableInfo($table, 'pk');
         }
         return $this->pk;
     }
@@ -877,7 +725,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTableName();
+        $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTable();
         $localKey   = $localKey ?: $name . '_id';
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
 
@@ -896,7 +744,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!isset(self::$links[$model])) {
             self::$links[$model] = Db::connect(static::$connection);
         }
-        self::$links[$model]->setTable(static::$tableName);
+        self::$links[$model]->setTable(static::$table);
         $name = basename(str_replace('\\', '/', $model));
         self::$links[$model]->name($name);
         // 设置当前模型 确保查询返回模型对象
@@ -924,9 +772,159 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return call_user_func_array([self::db(), $method], $params);
     }
 
+    /**
+     * 修改器 设置数据对象的值
+     * @access public
+     * @param string $name 名称
+     * @param mixed $value 值
+     * @return void
+     */
+    public function __set($name, $value)
+    {
+        if (is_null($value) && in_array($name, $this->autoTimeField)) {
+            // 自动写入的时间戳字段
+            $value = NOW_TIME;
+        } else {
+            // 检测修改器
+            $method = 'set' . Loader::parseName($name, 1) . 'Attr';
+            if (method_exists($this, $method)) {
+                $value = $this->$method($value, $this->data);
+            } elseif (isset($this->type[$name])) {
+                // 类型转换
+                $type = $this->type[$name];
+                switch ($type) {
+                    case 'integer':
+                        $value = (int) $value;
+                        break;
+                    case 'float':
+                        $value = (float) $value;
+                        break;
+                    case 'boolean':
+                        $value = (bool) $value;
+                        break;
+                    case 'datetime':
+                        $value = strtotime($value);
+                        break;
+                    case 'object':
+                        if (is_object($value)) {
+                            $value = json_encode($value, JSON_FORCE_OBJECT);
+                        }
+                        break;
+                    case 'array':
+                        if (is_array($value)) {
+                            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                        }
+                        break;
+                }
+            }
+        }
+
+        // 标记字段更改
+        if (!isset($this->data[$name]) || ($this->data[$name] != $value && !in_array($name, $this->change))) {
+            $this->change[] = $name;
+        }
+        // 设置数据对象属性
+        $this->data[$name] = $value;
+    }
+
+    /**
+     * 获取器 获取数据对象的值
+     * @access public
+     * @param string $name 名称
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        $value = isset($this->data[$name]) ? $this->data[$name] : null;
+
+        // 检测属性获取器
+        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
+        if (method_exists($this, $method)) {
+            return $this->$method($value, $this->data);
+        } elseif (!is_null($value) && isset($this->type[$name])) {
+            // 类型转换
+            $type = $this->type[$name];
+            switch ($type) {
+                case 'integer':
+                    $value = (int) $value;
+                    break;
+                case 'float':
+                    $value = (float) $value;
+                    break;
+                case 'boolean':
+                    $value = (bool) $value;
+                    break;
+                case 'datetime':
+                    $value = date($this->dateFormat, $value);
+                    break;
+                case 'array':
+                    $value = json_decode($value, true);
+                    break;
+                case 'object':
+                    $value = json_decode($value);
+                    break;
+            }
+        } elseif (is_null($value) && method_exists($this, $name)) {
+            // 获取关联数据
+            $value = $this->relation->getRelation($name);
+            // 保存关联对象值
+            $this->data[$name] = $value;
+        }
+        return $value;
+    }
+
+    /**
+     * 检测数据对象的值
+     * @access public
+     * @param string $name 名称
+     * @return boolean
+     */
+    public function __isset($name)
+    {
+        return isset($this->data[$name]);
+    }
+
+    /**
+     * 销毁数据对象的值
+     * @access public
+     * @param string $name 名称
+     * @return void
+     */
+    public function __unset($name)
+    {
+        unset($this->data[$name]);
+    }
+
     public function __toString()
     {
         return json_encode($this->toArray());
+    }
+
+    // JsonSerializable
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    // ArrayAccess
+    public function offsetSet($name, $value)
+    {
+        $this->__set($name, $value);
+    }
+
+    public function offsetExists($name)
+    {
+        return $this->__isset($name);
+    }
+
+    public function offsetUnset($name)
+    {
+        $this->__unset($name);
+    }
+
+    public function offsetGet($name)
+    {
+        return $this->__get($name);
     }
 
     /**

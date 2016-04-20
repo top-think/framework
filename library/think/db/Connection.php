@@ -135,7 +135,7 @@ abstract class Connection
     }
 
     /**
-     * 指定当前数据表
+     * 指定当前的数据表
      * @param string $table 数据表名称
      * @access public
      * @return void
@@ -146,11 +146,11 @@ abstract class Connection
     }
 
     /**
-     * 得到完整的数据表名
+     * 得到当前的数据表
      * @access public
      * @return string
      */
-    public function getTableName()
+    public function getTable()
     {
         if (!$this->table) {
             $tableName = $this->config['prefix'];
@@ -570,7 +570,7 @@ abstract class Connection
     {
         static $_info = [];
         if (!$tableName) {
-            $tableName = $this->getTableName();
+            $tableName = $this->getTable();
         }
         if (is_array($tableName)) {
             $tableName = key($tableName) ?: current($tableName);
