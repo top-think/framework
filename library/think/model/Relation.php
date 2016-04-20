@@ -450,34 +450,13 @@ class Relation
             case self::HAS_ONE:
             case self::BELONGS_TO:
             case self::HAS_MANY:
+                // 保存关联表数据
                 $data[$this->foreignKey] = $this->parent->{$this->localKey};
                 $model                   = new $this->model;
                 return $model->save($data);
             case self::BELONGS_TO_MANY:
-                if (is_array($data)) {
-                    // 保存关联表数据
-                    $model = new $this->model;
-                    $model->save($data);
-                    $relationFk = $model->getPk();
-                    $id         = $model->$relationFk;
-                } elseif (is_int($data)) {
-                    // 根据关联表主键直接写入中间表
-                    $id = $data;
-                } elseif ($data instanceof Model) {
-                    // 根据关联表主键直接写入中间表
-                    $relationFk = $data->getPk();
-                    $id         = $data->$relationFk;
-                }
-
-                if ($id) {
-                    // 保存中间表数据
-                    $pk                       = $this->parent->getPk();
-                    $pivot[$this->localKey]   = $this->parent->$pk;
-                    $pivot[$this->foreignKey] = $id;
-                    return Db::table($this->middle)->insert($pivot);
-                } else {
-                    throw new Exception(' relation data write error');
-                }
+                // 保存关联表/中间表数据
+                return $this->attach($data, $pivot);
         }
     }
 
@@ -500,11 +479,78 @@ class Relation
                     break;
                 case self::BELONGS_TO_MANY:
                     // TODO
-                    $result = $this->save($data, !empty($pivot) ? $pivot[$key] : []);
+                    $result = $this->attach($data, !empty($pivot) ? $pivot[$key] : []);
                     break;
             }
         }
         return $result;
+    }
+
+    /**
+     * 附加关联的一个中间表数据
+     * @access public
+     * @param mixed $data 数据 可以使用数组、关联模型对象 或者 关联对象的主键
+     * @param array $pivot 中间表额外数据
+     * @return integer
+     */
+    public function attach($data, $pivot = [])
+    {
+        if (is_array($data)) {
+            // 保存关联表数据
+            $model = new $this->model;
+            $model->save($data);
+            $relationFk = $model->getPk();
+            $id         = $model->$relationFk;
+        } elseif (is_int($data)) {
+            // 根据关联表主键直接写入中间表
+            $id = $data;
+        } elseif ($data instanceof Model) {
+            // 根据关联表主键直接写入中间表
+            $relationFk = $data->getPk();
+            $id         = $data->$relationFk;
+        }
+
+        if ($id) {
+            // 保存中间表数据
+            $pk                       = $this->parent->getPk();
+            $pivot[$this->localKey]   = $this->parent->$pk;
+            $pivot[$this->foreignKey] = $id;
+            return Db::table($this->middle)->insert($pivot);
+        } else {
+            throw new Exception(' miss relation data');
+        }
+    }
+
+    /**
+     * 解除关联的一个中间表数据
+     * @access public
+     * @param integer|array $data 数据 可以使用关联对象的主键
+     * @param bool $relationDel 是否同时删除关联表数据
+     * @return integer
+     */
+    public function detach($data, $relatinDel = false)
+    {
+        if (is_array($data)) {
+            $id = $data;
+        } elseif (is_int($data)) {
+            // 根据关联表主键直接写入中间表
+            $id = $data;
+        } elseif ($data instanceof Model) {
+            // 根据关联表主键直接写入中间表
+            $relationFk = $data->getPk();
+            $id         = $data->$relationFk;
+        }
+        // 删除中间表数据
+        $pk                       = $this->parent->getPk();
+        $pivot[$this->localKey]   = $this->parent->$pk;
+        $pivot[$this->foreignKey] = is_array($id) ? ['in', $id] : $id;
+        Db::table($this->middle)->where($pivot)->delete();
+
+        // 删除关联表数据
+        if ($relationDel) {
+            $model = $this->model;
+            $model::destroy($id);
+        }
     }
 
     public function __call($method, $args)
