@@ -163,11 +163,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取对象原始数据
      * @access public
+     * @param string $name 字段名 留空获取全部
      * @return array
      */
-    public function getData()
+    public function getData($name = '')
     {
-        return $this->data;
+        return isset($this->data[$name]) ? $this->data[$name] : $this->data;
     }
 
     /**
