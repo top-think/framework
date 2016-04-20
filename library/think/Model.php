@@ -161,7 +161,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 转换为数组
+     * 获取对象原始数据
+     * @access public
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * 转换当前模型对象为数组
      * @access public
      * @return array
      */
