@@ -66,6 +66,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $isUpdate = false;
     // 当前执行的关联对象
     protected $relation;
+    // 当前模型的父模型
+    protected $parent;
 
     /**
      * 初始化过的模型.
@@ -329,7 +331,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array $where 更新条件
      * @return integer
      */
-    public function save($data = [], $where = [])
+    public function save($data = [], $where = [], $getInsertId = true)
     {
         if (!empty($data)) {
             // 数据对象赋值
@@ -392,7 +394,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $result = self::db()->insert($this->data);
 
             // 获取自动增长主键
-            if ($result) {
+            if ($result && $getInsertId) {
                 $insertId = self::db()->getLastInsID();
                 if (is_string($this->pk) && $insertId) {
                     $this->data[$this->pk] = $insertId;
@@ -420,7 +422,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function saveAll($dataSet)
     {
         foreach ($dataSet as $data) {
-            $result = $this->save($data);
+            $result = $this->isUpdate(false)->save($data, [], false);
         }
         return $result;
     }
@@ -858,10 +860,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 初始化数据库对象
-     * @access protected
+     * @access public
      * @return \think\db\Driver
      */
-    protected static function db()
+    public static function db()
     {
         $model = get_called_class();
 

@@ -41,6 +41,7 @@ class Relation
     public function __construct($model)
     {
         $this->parent = $model;
+        $this->db     = $model->db();
     }
 
     /**
@@ -62,17 +63,17 @@ class Relation
     }
 
     // 获取关联数据
-    public function getRelation($relation)
+    public function getRelation($name)
     {
         // 执行关联定义方法
-        $model      = $this->parent->$relation();
+        $relation   = $this->parent->$name();
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
         // 判断关联类型执行查询
         switch ($this->type) {
             case self::HAS_ONE:
             case self::BELONGS_TO:
-                $result = $model::where($foreignKey, $this->parent->$localKey)->find();
+                $result = $relation->where($foreignKey, $this->parent->$localKey)->find();
                 if (false === $result) {
                     $class               = $this->model;
                     $result              = new $class;
@@ -80,7 +81,7 @@ class Relation
                 }
                 break;
             case self::HAS_MANY:
-                $result = $model::where($foreignKey, $this->parent->$localKey)->select();
+                $result = $relation->where($foreignKey, $this->parent->$localKey)->select();
                 break;
             case self::BELONGS_TO_MANY:
                 // 关联查询
@@ -147,7 +148,7 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $data = $this->eagerlyOneToMany($model, [$foreignKey => ['in', $range]], $relation, $subRelation);
+                        $data = $this->eagerlyOneToMany($this->model, [$foreignKey => ['in', $range]], $relation, $subRelation);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
@@ -171,7 +172,7 @@ class Relation
 
                     if (!empty($range)) {
                         // 查询关联数据
-                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => ['in', $range]], $relation, $subRelation);
+                        $data = $this->eagerlyManyToMany($this->model, ['pivot.' . $foreignKey => ['in', $range]], $relation, $subRelation);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
@@ -213,7 +214,7 @@ class Relation
                 case self::HAS_ONE:
                 case self::BELONGS_TO:
                     // 模型关联组装
-                    $this->match($model, $relation, $result);
+                    $this->match($this->model, $relation, $result);
                     break;
                 case self::HAS_MANY:
                     if (isset($result->$localKey)) {
@@ -230,7 +231,7 @@ class Relation
                     if (isset($result->$pk)) {
                         $pk = $result->$pk;
                         // 查询管理数据
-                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => $pk], $relation, $subRelation);
+                        $data = $this->eagerlyManyToMany($this->model, ['pivot.' . $foreignKey => $pk], $relation, $subRelation);
 
                         // 关联数据封装
                         if (!isset($data[$pk])) {
@@ -287,7 +288,7 @@ class Relation
     {
         $foreignKey = $this->foreignKey;
         // 预载入关联查询 支持嵌套预载入
-        $list = $model::where($where)->with($subRelation)->select();
+        $list = $model->where($where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
@@ -348,7 +349,7 @@ class Relation
         $this->localKey   = $localKey;
 
         // 返回关联的模型对象
-        return new $model;
+        return $this;
     }
 
     /**
@@ -368,7 +369,7 @@ class Relation
         $this->localKey   = $localKey;
 
         // 返回关联的模型对象
-        return new $model;
+        return $this;
     }
 
     /**
@@ -388,7 +389,7 @@ class Relation
         $this->localKey   = $localKey;
 
         // 返回关联的模型对象
-        return new $model;
+        return $this;
     }
 
     /**
@@ -410,7 +411,7 @@ class Relation
         $this->middle     = $table;
 
         // 返回关联的模型对象
-        return new $model;
+        return $this;
     }
 
     /**
@@ -432,6 +433,56 @@ class Relation
             ->field(true, false, $table, 'pivot', 'pivot__')
             ->join($table . ' pivot', 'pivot.' . $localKey . '=' . $tableName . '.' . $relationFk)
             ->where($condition);
+    }
+
+    /**
+     * 保存当前关联数据对象
+     * @access public
+     * @param array $data 数据
+     * @return integer
+     */
+    public function save($data, $pivot = [])
+    {
+        // 判断关联类型执行查询
+        switch ($this->type) {
+            case self::HAS_ONE:
+            case self::BELONGS_TO:
+            case self::HAS_MANY:
+                $data[$this->foreignKey] = $this->parent->{$this->localKey};
+                break;
+            case self::BELONGS_TO_MANY:
+                break;
+        }
+        $model = new $this->model;
+        return $model->save($data);
+    }
+
+    /**
+     * 保存当前关联数据对象
+     * @access public
+     * @param array $data 数据
+     * @return integer
+     */
+    public function saveAll($dataSet, $pivot = [])
+    {
+        foreach ($dataSet as $data) {
+            // 判断关联类型执行查询
+            switch ($this->type) {
+                case self::HAS_MANY:
+                    $data[$this->foreignKey] = $this->parent->{$this->localKey};
+                    break;
+                case self::BELONGS_TO_MANY:
+                    break;
+            }
+        }
+        $model = new $this->model;
+        return $model->saveAll($dataSet);
+    }
+
+    public function __call($method, $args)
+    {
+        $model = new $this->model;
+        return call_user_func_array([$model->db(), $method], $args);
     }
 
 }
