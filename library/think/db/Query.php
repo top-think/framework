@@ -610,8 +610,12 @@ class Query
                 $field = empty($order) ? $field : [$field => $order];
             } elseif (!empty($this->options['via'])) {
                 foreach ($field as $key => $val) {
-                    $field[$this->options['via'] . '.' . $key] = $val;
-                    unset($field[$key]);
+                    if (is_numeric($key)) {
+                        $field[$key] = $this->options['via'] . '.' . $val;
+                    } else {
+                        $field[$this->options['via'] . '.' . $key] = $val;
+                        unset($field[$key]);
+                    }
                 }
             }
             $this->options['order'] = $field;
