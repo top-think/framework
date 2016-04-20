@@ -845,13 +845,13 @@ class Query
             $info  = $class->getRelationInfo();
             if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
                 if (0 == $i) {
-                    $joinName  = strtolower(basename(str_replace('\\', '/', $this->options['model'])));
+                    $joinName  = Loader::parseName(basename(str_replace('\\', '/', $this->options['model'])));
                     $joinTable = $this->connection->getTableName();
                     $this->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
                 }
                 // 预载入封装
                 $table = $info['model']::getTableName();
-                $name  = strtolower(basename(str_replace('\\', '/', $info['model'])));
+                $name  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
                 $this->via($name);
                 $this->join($table . ' ' . $name, $joinName . '.' . $info['localKey'] . '=' . $name . '.' . $info['foreignKey'])->field(true, false, $table, $name, $name . '__');
                 if ($closure) {

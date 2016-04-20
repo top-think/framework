@@ -13,6 +13,7 @@ namespace think\model;
 
 use think\Db;
 use think\Exception;
+use think\Loader;
 use think\model\Pivot;
 
 class Relation
@@ -257,7 +258,7 @@ class Relation
      */
     protected function match($model, $relation, &$result)
     {
-        $modelName = strtolower(basename(str_replace('\\', '/', $model)));
+        $modelName = Loader::parseName(basename(str_replace('\\', '/', $model)));
         // 重新组装模型数据
         foreach ($result->toArray() as $key => $val) {
             if (strpos($key, '__')) {

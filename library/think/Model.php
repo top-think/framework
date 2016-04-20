@@ -862,9 +862,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $table      = $table ?: Db::name(strtolower($this->name . '_' . basename(str_replace('\\', '/', $model))))->getTableName();
-        $localKey   = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
-        $foreignKey = $foreignKey ?: strtolower($this->name) . '_id';
+        $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
+        $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTableName();
+        $localKey   = $localKey ?: $name . '_id';
+        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
 
         return $this->relation->belongsToMany($model, $table, $localKey, $foreignKey);
     }
