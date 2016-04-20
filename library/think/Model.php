@@ -119,7 +119,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // JsonSerializable
     public function jsonSerialize()
     {
-        return $this->data;
+        return $this->toArray();
     }
 
     // ArrayAccess
@@ -178,7 +178,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function toArray()
     {
-        return !empty($this->data) ? $this->data : [];
+        $item = [];
+        foreach ($this->data as $key => $val) {
+            if ($val instanceof Model) {
+                $item[$key] = $val->toArray();
+            } elseif (is_array($val) && $val[0] instanceof Model) {
+                $data = [];
+                foreach ($val as $k => $value) {
+                    $data[$k] = $value->toArray();
+                }
+                $item[$key] = $data;
+            } elseif (is_scalar($val)) {
+                $item[$key] = $val;
+            }
+        }
+        return !empty($item) ? $item : [];
     }
 
     /**
@@ -912,7 +926,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __toString()
     {
-        return json_encode($this->data);
+        return json_encode($this->toArray());
     }
 
     /**
