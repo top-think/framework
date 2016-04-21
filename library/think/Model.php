@@ -591,6 +591,44 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 根据关联条件查询当前模型
+     * @access public
+     * @param string $relation 关联方法名
+     * @param string $operator 比较操作符
+     * @param integer $count 个数
+     * @param string $id 关联表的统计字段
+     * @return \think\Model
+     */
+    public static function has($relation, $operator = '>=', $count = 1, $id = '*')
+    {
+        $class  = new static();
+        $model  = $class->$relation();
+        $info   = $class->getRelationInfo();
+        $result = $model->group($info['foreignKey'])
+            ->having('count(' . $id . ')' . $operator . $count)
+            ->column($info['foreignKey']);
+        return self::db()->where($info['localKey'], 'in', $result);
+    }
+
+    /**
+     * 根据关联条件查询当前模型
+     * @access public
+     * @param string $relation 关联方法名
+     * @param mixed $where 查询条件（数组或者闭包）
+     * @return \think\Model
+     */
+    public static function hasWhere($relation, $where = [])
+    {
+        $class  = new static();
+        $model  = $class->$relation();
+        $info   = $class->getRelationInfo();
+        $result = $model->group($info['foreignKey'])
+            ->where($where)
+            ->column($info['foreignKey']);
+        return self::db()->where($info['localKey'], 'in', $result);
+    }
+
+    /**
      * 解析模型的完整命名空间
      * @access public
      * @param string $model 模型名（或者完整类名）
