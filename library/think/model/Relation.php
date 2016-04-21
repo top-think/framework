@@ -122,8 +122,13 @@ class Relation
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
-        foreach ($relations as $relation) {
+        foreach ($relations as $key => $relation) {
             $subRelation = '';
+            $closure     = false;
+            if ($relation instanceof \Closure) {
+                $closure  = $relation;
+                $relation = $key;
+            }
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
@@ -150,7 +155,7 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $data = $this->eagerlyOneToMany($this->model, [$foreignKey => ['in', $range]], $relation, $subRelation);
+                        $data = $this->eagerlyOneToMany($this->model, [$foreignKey => ['in', $range]], $relation, $subRelation, $closure);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
@@ -203,8 +208,13 @@ class Relation
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
-        foreach ($relations as $relation) {
+        foreach ($relations as $key => $relation) {
             $subRelation = '';
+            $closure     = false;
+            if ($relation instanceof \Closure) {
+                $closure  = $relation;
+                $relation = $key;
+            }
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
@@ -220,7 +230,7 @@ class Relation
                     break;
                 case self::HAS_MANY:
                     if (isset($result->$localKey)) {
-                        $data = $this->eagerlyOneToMany($model, [$foreignKey => $result->$localKey], $relation, $subRelation);
+                        $data = $this->eagerlyOneToMany($model, [$foreignKey => $result->$localKey], $relation, $subRelation, $closure);
                         // 关联数据封装
                         if (!isset($data[$result->$localKey])) {
                             $data[$result->$localKey] = [];
@@ -286,11 +296,11 @@ class Relation
      * @param string $subRelation 子关联
      * @return void
      */
-    protected function eagerlyOneToMany($model, $where, $relation, $subRelation = '')
+    protected function eagerlyOneToMany($model, $where, $relation, $subRelation = '', $closure = false)
     {
         $foreignKey = $this->foreignKey;
         // 预载入关联查询 支持嵌套预载入
-        $list = $model->where($where)->with($subRelation)->select();
+        $list = $model->where($where)->where($closure)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];

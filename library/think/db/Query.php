@@ -890,6 +890,8 @@ class Query
                     call_user_func_array($closure, [ & $this]);
                 }
                 $i++;
+            } elseif ($closure) {
+                $with[$key] = $closure;
             }
         }
         $this->via();
