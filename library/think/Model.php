@@ -605,7 +605,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = $class->$relation();
         $info  = $class->getRelationInfo();
         $table = $info['model']::getTable();
-        return self::db()->alias('a')->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])->group('b.' . $info['foreignKey'])
+        return self::db()->alias('a')
+            ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
+            ->group('b.' . $info['foreignKey'])
             ->having('count(' . $id . ')' . $operator . $count);
     }
 
@@ -630,7 +632,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
         }
-        return self::db()->alias('a')->field('a.*')->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])->where($where);
+        return self::db()->alias('a')
+            ->field('a.*')
+            ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
+            ->where($where);
     }
 
     /**

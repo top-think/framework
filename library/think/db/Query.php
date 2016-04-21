@@ -106,6 +106,9 @@ class Query
                 // 缓存数据
                 Cache::set($key, $result, $cache['expire']);
             }
+        } else {
+            // 清空查询条件
+            $this->options = [];
         }
         return $result;
     }
@@ -149,6 +152,9 @@ class Query
                 // 缓存数据
                 Cache::set($guid, $result, $cache['expire']);
             }
+        } else {
+            // 清空查询条件
+            $this->options = [];
         }
         return $result;
     }
