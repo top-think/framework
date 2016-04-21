@@ -92,9 +92,22 @@ class Query
      */
     public function value($field)
     {
-        // 返回数据个数
-        $pdo = $this->field($field)->fetchPdo(true)->find();
-        return $pdo->fetchColumn();
+        $result = false;
+        if (!empty($this->options['cache'])) {
+            // 判断查询缓存
+            $cache  = $this->options['cache'];
+            $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
+            $result = Cache::get($key);
+        }
+        if (!$result) {
+            $pdo    = $this->field($field)->fetchPdo(true)->find();
+            $result = $pdo->fetchColumn();
+            if (isset($cache)) {
+                // 缓存数据
+                Cache::set($key, $result, $cache['expire']);
+            }
+        }
+        return $result;
     }
 
     /**
@@ -106,24 +119,38 @@ class Query
      */
     public function column($field, $key = '')
     {
-        $key = $key ? $key . ',' : '';
-        $pdo = $this->field($key . $field)->fetchPdo(true)->select();
-        if (1 == $pdo->columnCount()) {
-            return $pdo->fetchAll(PDO::FETCH_COLUMN);
+        $result = false;
+        if (!empty($this->options['cache'])) {
+            // 判断查询缓存
+            $cache  = $this->options['cache'];
+            $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
+            $result = Cache::get($guid);
         }
-        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $fields = array_keys($result[0]);
-        $count  = count($fields);
-        $key1   = array_shift($fields);
-        $key2   = $fields ? array_shift($fields) : '';
-        foreach ($result as $val) {
-            if ($count > 2) {
-                $array[$val[$key1]] = $val;
-            } elseif (2 == $count) {
-                $array[$val[$key1]] = $val[$key2];
+        if (!$result) {
+            $key = $key ? $key . ',' : '';
+            $pdo = $this->field($key . $field)->fetchPdo(true)->select();
+            if (1 == $pdo->columnCount()) {
+                $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
+            } else {
+                $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
+                $fields    = array_keys($resultSet[0]);
+                $count     = count($fields);
+                $key1      = array_shift($fields);
+                $key2      = $fields ? array_shift($fields) : '';
+                foreach ($resultSet as $val) {
+                    if ($count > 2) {
+                        $result[$val[$key1]] = $val;
+                    } elseif (2 == $count) {
+                        $result[$val[$key1]] = $val[$key2];
+                    }
+                }
+            }
+            if (isset($cache)) {
+                // 缓存数据
+                Cache::set($guid, $result, $cache['expire']);
             }
         }
-        return $array;
+        return $result;
     }
 
     /**
@@ -1056,7 +1083,7 @@ class Query
         }
 
         $resultSet = false;
-        if (isset($options['cache'])) {
+        if (!empty($options['cache'])) {
             // 判断查询缓存
             $cache     = $options['cache'];
             $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
@@ -1130,7 +1157,7 @@ class Query
 
         $options['limit'] = 1;
         $result           = false;
-        if (isset($options['cache'])) {
+        if (!empty($options['cache'])) {
             // 判断查询缓存
             $cache  = $options['cache'];
             $key    = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
