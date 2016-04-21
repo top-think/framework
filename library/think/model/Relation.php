@@ -558,7 +558,12 @@ class Relation
     {
         if ($this->model) {
             $model = new $this->model;
-            return call_user_func_array([$model->db(), $method], $args);
+            $db    = $model->db();
+            if (self::HAS_MANY == $this->type && isset($this->parent->{$this->localKey})) {
+                // 关联查询带入关联条件
+                $db->where($this->foreignKey, $this->parent->{$this->localKey});
+            }
+            return call_user_func_array([$db, $method], $args);
         } else {
             throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
         }
