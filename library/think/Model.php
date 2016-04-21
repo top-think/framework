@@ -601,13 +601,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
-        $class  = new static();
-        $model  = $class->$relation();
-        $info   = $class->getRelationInfo();
-        $result = $model->group($info['foreignKey'])
-            ->having('count(' . $id . ')' . $operator . $count)
-            ->column($info['foreignKey']);
-        return self::db()->where($info['localKey'], 'in', $result);
+        $class = new static();
+        $model = $class->$relation();
+        $info  = $class->getRelationInfo();
+        $table = $info['model']::getTable();
+        return self::db()->alias('a')->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])->group('b.' . $info['foreignKey'])
+            ->having('count(' . $id . ')' . $operator . $count);
     }
 
     /**
@@ -619,13 +618,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function hasWhere($relation, $where = [])
     {
-        $class  = new static();
-        $model  = $class->$relation();
-        $info   = $class->getRelationInfo();
-        $result = $model->group($info['foreignKey'])
-            ->where($where)
-            ->column($info['foreignKey']);
-        return self::db()->where($info['localKey'], 'in', $result);
+        $class = new static();
+        $model = $class->$relation();
+        $info  = $class->getRelationInfo();
+        $table = $info['model']::getTable();
+        if (is_array($where)) {
+            foreach ($where as $key => $val) {
+                if (false === strpos($key, '.')) {
+                    $where['b.' . $key] = $val;
+                    unset($where[$key]);
+                }
+            }
+        }
+        return self::db()->alias('a')->field('a.*')->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])->where($where);
     }
 
     /**
