@@ -137,7 +137,7 @@ class Relation
                 case self::BELONGS_TO:
                     foreach ($resultSet as $result) {
                         // 模型关联组装
-                        $this->match($model, $relation, $result);
+                        $this->match($this->model, $relation, $result);
                     }
                     break;
                 case self::HAS_MANY:
