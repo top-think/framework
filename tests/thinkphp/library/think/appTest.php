@@ -59,9 +59,9 @@ class appTest extends \PHPUnit_Framework_TestCase
         $ns->setAccessible(true);
         $this->assertEquals(true, in_array('/path/', $ns->getValue()));
 
-        $this->assertEquals(true, function_exists('L'));
-        $this->assertEquals(true, function_exists('C'));
-        $this->assertEquals(true, function_exists('I'));
+        $this->assertEquals(true, function_exists('lang'));
+        $this->assertEquals(true, function_exists('config'));
+        $this->assertEquals(true, function_exists('input'));
 
         $this->assertEquals(Config::get('default_timezone'), date_default_timezone_get());
 
