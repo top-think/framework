@@ -16,7 +16,7 @@ class Url
     /**
      * URL生成 支持路由反射
      * @param string $url URL表达式，
-     * 格式：'[模块/控制器/操作]?参数1=值1&参数2=值2...'
+     * 格式：'[模块/控制器/操作]?参数1=值1&参数2=值2...@域名'
      * @控制器/操作?参数1=值1&参数2=值2...
      * \\命名空间类\\方法?参数1=值1&参数2=值2...
      * @param string|array $vars 传入的参数，支持数组和字符串
@@ -26,7 +26,7 @@ class Url
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
-        if (is_bool($domain) && Config::get('url_domain_deploy')) {
+        if (fale === $domain && Config::get('url_domain_deploy')) {
             $domain = true;
         }
         // 解析URL
