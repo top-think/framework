@@ -426,18 +426,20 @@ abstract class Connection
      * 执行数据库事务
      * @access public
      * @param callable $callback 数据操作方法回调
-     * @return void
+     * @return mixed
      */
     public function transaction($callback)
     {
         $this->startTrans();
         try {
             if (is_callable($callback)) {
-                call_user_func_array($callback, []);
+                $result = call_user_func_array($callback, []);
             }
             $this->commit();
+            return $result;
         } catch (\PDOException $e) {
             $this->rollback();
+            return false;
         }
     }
 
