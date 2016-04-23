@@ -55,7 +55,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $update = [];
     // 自动写入的时间戳字段列表
     protected $autoTimeField = ['create_time', 'update_time', 'delete_time'];
-    // 时间字段取出后的时间格式
+    // 时间字段取出后的默认时间格式
     protected $dateFormat = 'Y-m-d H:i:s';
 
     // 字段类型或者格式转换
@@ -839,8 +839,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = $this->$method($value, $this->data);
             } elseif (isset($this->type[$name])) {
                 // 类型转换
-                $type               = $this->type[$name];
-                list($type, $param) = explode(':', $type);
+                $type = $this->type[$name];
+                if (strpos($type, ':')) {
+                    list($type, $param) = explode(':', $type, 2);
+                }
                 switch ($type) {
                     case 'integer':
                         $value = (int) $value;
@@ -897,8 +899,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return $this->$method($value, $this->data);
         } elseif (!is_null($value) && isset($this->type[$name])) {
             // 类型转换
-            $type               = $this->type[$name];
-            list($type, $param) = explode(':', $type);
+            $type = $this->type[$name];
+            if (strpos($type, ':')) {
+                list($type, $param) = explode(':', $type, 2);
+            }
             switch ($type) {
                 case 'integer':
                     $value = (int) $value;
@@ -914,7 +918,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $value = (bool) $value;
                     break;
                 case 'datetime':
-                    $format = $param ?: $this->dateFormat;
+                    $format = !empty($param) ? $param : $this->dateFormat;
                     $value  = date($format, $value);
                     break;
                 case 'json':
