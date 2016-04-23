@@ -26,6 +26,9 @@ class Url
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
+        if (is_bool($domain) && Config::get('url_domain_deploy')) {
+            $domain = true;
+        }
         // 解析URL
         $info = parse_url($url);
         $url  = !empty($info['path']) ? $info['path'] : '';
@@ -101,7 +104,6 @@ class Url
         } else {
             $url .= $suffix . $anchor;
         }
-
         // 检测域名
         $domain = self::parseDomain($url, $domain);
         // URL组装
@@ -139,7 +141,7 @@ class Url
     }
 
     // 检测域名
-    protected static function parseDomain($url, $domain)
+    protected static function parseDomain(&$url, $domain)
     {
         if ($domain) {
             if (true === $domain) {
@@ -151,6 +153,7 @@ class Url
                     foreach (Route::domain() as $key => $rule) {
                         $rule = is_array($rule) ? $rule[0] : $rule;
                         if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
+                            $url    = ltrim($url, $rule);
                             $domain = $key . strstr($domain, '.'); // 生成对应子域名
                             break;
                         }
