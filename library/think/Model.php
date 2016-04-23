@@ -839,13 +839,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = $this->$method($value, $this->data);
             } elseif (isset($this->type[$name])) {
                 // 类型转换
-                $type = $this->type[$name];
+                $type               = $this->type[$name];
+                list($type, $param) = explode(':', $type);
                 switch ($type) {
                     case 'integer':
                         $value = (int) $value;
                         break;
                     case 'float':
-                        $value = (float) $value;
+                        if (empty($param)) {
+                            $value = (float) $value;
+                        } else {
+                            $value = (float) number_format($value, $param);
+                        }
                         break;
                     case 'boolean':
                         $value = (bool) $value;
@@ -858,6 +863,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                             $value = json_encode($value, JSON_FORCE_OBJECT);
                         }
                         break;
+                    case 'json':
                     case 'array':
                         if (is_array($value)) {
                             $value = json_encode($value, JSON_UNESCAPED_UNICODE);
@@ -891,20 +897,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return $this->$method($value, $this->data);
         } elseif (!is_null($value) && isset($this->type[$name])) {
             // 类型转换
-            $type = $this->type[$name];
+            $type               = $this->type[$name];
+            list($type, $param) = explode(':', $type);
             switch ($type) {
                 case 'integer':
                     $value = (int) $value;
                     break;
                 case 'float':
-                    $value = (float) $value;
+                    if (empty($param)) {
+                        $value = (float) $value;
+                    } else {
+                        $value = (float) number_format($value, $param);
+                    }
                     break;
                 case 'boolean':
                     $value = (bool) $value;
                     break;
                 case 'datetime':
-                    $value = date($this->dateFormat, $value);
+                    $format = $param ?: $this->dateFormat;
+                    $value  = date($format, $value);
                     break;
+                case 'json':
                 case 'array':
                     $value = json_decode($value, true);
                     break;

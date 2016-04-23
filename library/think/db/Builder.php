@@ -89,7 +89,7 @@ abstract class Builder
         $result = [];
         foreach ($data as $key => $val) {
             if (!in_array($key, $fields, true)) {
-                if ($this->connection->getAttribute('fields_strict')) {
+                if ($this->connection->getConfig('fields_strict')) {
                     throw new Exception(' fields not exists :[' . $key . ']');
                 }
             } else {
@@ -106,7 +106,6 @@ abstract class Builder
                         $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
                         $result[$item] = ':' . $key;
                     }
-
                 }
             }
         }
@@ -573,7 +572,7 @@ abstract class Builder
         foreach ($dataSet as &$data) {
             foreach ($data as $key => $val) {
                 if (!in_array($key, $fields, true)) {
-                    if ($this->connection->getAttribute('fields_strict')) {
+                    if ($this->connection->getConfig('fields_strict')) {
                         throw new Exception(' fields not exists :[' . $key . ']');
                     }
                     unset($data[$key]);

@@ -167,9 +167,21 @@ abstract class Connection
      * @param string $config 配置名称
      * @return mixed
      */
-    public function getAttribute($config)
+    public function getConfig($config)
     {
         return $this->config[$config];
+    }
+
+    /**
+     * 设置数据库的配置参数
+     * @access public
+     * @param string $config 配置名称
+     * @param mixed $value 配置值
+     * @return void
+     */
+    public function setConfig($config, $value)
+    {
+        $this->config[$config] = $value;
     }
 
     /**

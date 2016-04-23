@@ -336,7 +336,7 @@ class Query
                 }
             }
         } else {
-            $prefix = $this->connection->getAttribute('prefix');
+            $prefix = $this->connection->getConfig('prefix');
             // 传入的表名为数组
             if (is_array($join)) {
                 if (0 !== $key = key($join)) {
