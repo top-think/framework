@@ -26,7 +26,7 @@ class Url
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
-        if (fale === $domain && Config::get('url_domain_deploy')) {
+        if (false === $domain && Config::get('url_domain_deploy')) {
             $domain = true;
         }
         // 解析URL
