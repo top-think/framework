@@ -74,12 +74,19 @@ class Relation
         // 判断关联类型执行查询
         switch ($this->type) {
             case self::HAS_ONE:
-            case self::BELONGS_TO:
                 $result = $relation->where($foreignKey, $this->parent->$localKey)->find();
                 if (false === $result) {
                     $class               = $this->model;
                     $result              = new $class;
                     $result->$foreignKey = $this->parent->$localKey;
+                }
+                break;
+            case self::BELONGS_TO:
+                $result = $relation->where($localKey, $this->parent->$foreignKey)->find();
+                if (false === $result) {
+                    $class             = $this->model;
+                    $result            = new $class;
+                    $result->$localKey = $this->parent->$foreignKey;
                 }
                 break;
             case self::HAS_MANY:
@@ -368,17 +375,17 @@ class Relation
      * BELONGS TO 关联定义
      * @access public
      * @param string $model 模型名
-     * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
+     * @param string $localKey 关联主键
      * @return \think\db\Query|string
      */
-    public function belongsTo($model, $localKey, $foreignKey)
+    public function belongsTo($model, $foreignKey, $otherKey)
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
-        $this->localKey   = $localKey;
+        $this->localKey   = $otherKey;
 
         // 返回关联的模型对象
         return $this;

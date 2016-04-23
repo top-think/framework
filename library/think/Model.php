@@ -729,17 +729,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * BELONGS TO 关联定义
      * @access public
      * @param string $model 模型名
-     * @param string $localKey 关联主键
      * @param string $foreignKey 关联外键
+     * @param string $otherKey 关联主键
      * @return \think\db\Query|string
      */
-    public function belongsTo($model, $localKey = '', $foreignKey = '')
+    public function belongsTo($model, $foreignKey = '', $otherKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $foreignKey = $foreignKey ?: $this->pk;
-        $localKey   = $localKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
-        return $this->relation->belongsTo($model, $foreignKey, $localKey);
+        $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
+        $otherKey   = $otherKey ?: (new $model)->getPk();
+        return $this->relation->belongsTo($model, $foreignKey, $otherKey);
     }
 
     /**
