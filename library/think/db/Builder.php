@@ -100,8 +100,13 @@ abstract class Builder
                     $result[$item] = 'NULL';
                 } elseif (is_scalar($val)) {
                     // 过滤非标量数据
-                    $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
-                    $result[$item] = ':' . $key;
+                    if ($this->query->isBind(substr($val, 1))) {
+                        $result[$item] = $val;
+                    } else {
+                        $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
+                        $result[$item] = ':' . $key;
+                    }
+
                 }
             }
         }
