@@ -89,7 +89,7 @@ abstract class Builder
         $result = [];
         foreach ($data as $key => $val) {
             if (!in_array($key, $fields, true)) {
-                if ($this->connection->getConfig('fields_strict')) {
+                if ($options['strict']) {
                     throw new Exception(' fields not exists :[' . $key . ']');
                 }
             } else {
@@ -572,7 +572,7 @@ abstract class Builder
         foreach ($dataSet as &$data) {
             foreach ($data as $key => $val) {
                 if (!in_array($key, $fields, true)) {
-                    if ($this->connection->getConfig('fields_strict')) {
+                    if ($options['strict']) {
                         throw new Exception(' fields not exists :[' . $key . ']');
                     }
                     unset($data[$key]);

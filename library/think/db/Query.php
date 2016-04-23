@@ -15,6 +15,7 @@ use PDO;
 use think\Cache;
 use think\Db;
 use think\Exception;
+use think\exception\DbException;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -796,6 +797,30 @@ class Query
     }
 
     /**
+     * 设置是否严格检查字段名
+     * @access public
+     * @param bool $strict 是否严格检查字段
+     * @return $this
+     */
+    public function strict($strict = true)
+    {
+        $this->options['strict'] = $strict;
+        return $this;
+    }
+
+    /**
+     * 设置查询数据不存在是否抛出异常
+     * @access public
+     * @param bool $fail 是否严格检查字段
+     * @return $this
+     */
+    public function failException($fail = true)
+    {
+        $this->options['fail'] = $fail;
+        return $this;
+    }
+
+    /**
      * 指定当前模型
      * @access public
      * @param string $model  模型类名称
@@ -1138,6 +1163,8 @@ class Query
                     $resultSet = $result->eagerlyResultSet($resultSet, $options['with']);
                 }
             }
+        } elseif (!empty($options['fail'])) {
+            throw new DbException('Data not Found', $options, $sql);
         }
         return $resultSet;
     }
@@ -1209,6 +1236,8 @@ class Query
                     $data->eagerlyResult($data, $options['with']);
                 }
             }
+        } elseif (!empty($options['fail'])) {
+            throw new DbException('Data not Found', $options, $sql);
         } else {
             $data = false;
         }
@@ -1318,6 +1347,10 @@ class Query
 
         if (!isset($options['field'])) {
             $options['field'] = '*';
+        }
+
+        if (!isset($options['strict'])) {
+            $options['strict'] = $this->connection->getConfig('fields_strict');
         }
 
         foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {
