@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Config;
+use think\Cookie;
+
 class Lang
 {
     // 语言参数
@@ -136,17 +139,17 @@ class Lang
         if (isset($_GET[$langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[$langDetectVar]);
-            \think\Cookie::set($langCookieVar, $langSet, 3600);
-        } elseif (\think\Cookie::get($langCookieVar)) {
+            Cookie::set($langCookieVar, $langSet, 3600);
+        } elseif (Cookie::get($langCookieVar)) {
             // 获取上次用户的选择
-            $langSet = strtolower(\think\Cookie::get($langCookieVar));
+            $langSet = strtolower(Cookie::get($langCookieVar));
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
             $langSet = strtolower($matches[1]);
-            \think\Cookie::set($langCookieVar, $langSet, 3600);
+            Cookie::set($langCookieVar, $langSet, 3600);
         }
-        if (in_array($langSet, \think\Config::get('lang_list'))) {
+        if (in_array($langSet, Config::get('lang_list'))) {
             // 合法的语言
             self::$range = $langSet;
         }

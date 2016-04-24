@@ -180,8 +180,6 @@ return [
     // | 数据库设置
     // +----------------------------------------------------------------------
 
-    'db_fields_strict'       => true,
-    'db_attr_case'           => \PDO::CASE_LOWER,
     'database'               => [
         // 数据库类型
         'type'        => 'mysql',
