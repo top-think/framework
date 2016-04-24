@@ -57,7 +57,7 @@ class Think
         }
         // 记录视图信息
         APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
-        $this->template->display($template, $data, $config);
+        $this->template->fetch($template, $data, $config);
     }
 
     /**
@@ -70,7 +70,7 @@ class Think
      */
     public function display($template, $data = [], $config = [])
     {
-        $this->template->fetch($template, $data, $config);
+        $this->template->display($template, $data, $config);
     }
 
     /**

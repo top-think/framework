@@ -161,7 +161,7 @@ class Template
      * @param array $config 模板参数
      * @return void
      */
-    public function display($template, $vars = [], $config = [])
+    public function fetch($template, $vars = [], $config = [])
     {
         if ($vars) {
             $this->data = $vars;
@@ -208,7 +208,7 @@ class Template
      * @param array $config 模板参数
      * @return void
      */
-    public function fetch($content, $vars = [], $config = [])
+    public function display($content, $vars = [], $config = [])
     {
         if ($vars) {
             $this->data = $vars;
