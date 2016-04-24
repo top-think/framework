@@ -509,17 +509,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function get($data = '', $with = [], $cache = false)
     {
-        $db = self::db();
-        if ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $db]);
-            $data = [];
-        } elseif ($data instanceof Query) {
-            return $data->with($with)->cache($cache)->find();
-        }
-
-        $result = self::with($with)->cache($cache)->find($data);
-
-        return $result;
+        $query = self::parseQuery($data, $with, $cache);
+        return $query->find($data);
     }
 
     /**
@@ -527,18 +518,34 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param mixed $data 主键列表或者查询条件（闭包）
      * @param string $with 关联预查询
+     * @param bool $cache 是否缓存
      * @return array|false|string
      */
-    public static function all($data = [], $with = [])
+    public static function all($data = [], $with = [], $cache = false)
     {
-        $db = self::db();
+        $query = self::parseQuery($data, $with, $cache);
+        return $query->select($data);
+    }
+
+    /**
+     * 分析查询表达式
+     * @access public
+     * @param mixed $data 主键列表或者查询条件（闭包）
+     * @param string $with 关联预查询
+     * @param bool $cache 是否缓存
+     * @return \think\db\Query
+     */
+    protected static function parseQuery(&$data, $with, $cache)
+    {
+        $result = self::with($with)->cache($cache);
         if ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $db]);
+            call_user_func_array($data, [ & $result]);
             $data = [];
         } elseif ($data instanceof Query) {
-            return $data->with($with)->select();
+            $result = $data->with($with)->cache($cache);
+            $data   = [];
         }
-        return self::with($with)->select($data);
+        return $result;
     }
 
     /**
@@ -559,8 +566,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             foreach ($resultSet as $data) {
                 $result = $data->delete();
             }
+            return $result;
+        } else {
+            return false;
         }
-        return $result;
     }
 
     /**
