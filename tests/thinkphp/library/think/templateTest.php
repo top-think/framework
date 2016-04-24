@@ -314,7 +314,7 @@ EOF;
         $this->assertEquals($data, $content);
     }
 
-    public function testDisplay()
+    public function testFetch()
     {
         $template = new Template();
         $template->assign('name', 'name');
@@ -325,11 +325,11 @@ EOF;
             'display_cache' => true,
         ];
         $data = ['name' => 'value'];
-        $template->layout('layout')->display('display', $data, $config);
+        $template->layout('layout')->fetch('display', $data, $config);
         $this->expectOutputString('value');
     }
 
-    public function testFetch()
+    public function testDisplay()
     {
         $config['view_path']   = dirname(__FILE__) . '/';
         $config['view_suffix'] = '.html';
@@ -382,7 +382,7 @@ value:
     php code</div>
 </nav>
 EOF;
-        $template->fetch($content);
+        $template->display($content);
         $this->expectOutputString($content2);
 //        $template->parse($content);
         //        var_dump($content);
