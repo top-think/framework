@@ -28,6 +28,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static $table;
     // 回调事件
     protected static $event = [];
+    // 数据库操作对象
+    protected $db;
 
     // 数据表主键 复合主键使用数组定义
     protected $pk = 'id';
@@ -87,6 +89,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->data = $data;
         }
         $this->name = basename(str_replace('\\', '/', get_class($this)));
+        $this->db   = self::db();
 
         $this->initialize();
         $this->relation = new Relation($this);
@@ -675,6 +678,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_string($relations)) {
             $relations = explode(',', $relations);
         }
+
         foreach ($relations as $relation) {
             $this->data[$relation] = $this->relation->getRelation($relation);
         }
@@ -714,7 +718,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function eagerlyResult($result, $relation)
     {
         return $this->relation->eagerlyResult($result, $relation);
-
     }
 
     /**
@@ -785,7 +788,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTable();
         $localKey   = $localKey ?: $name . '_id';
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-
         return $this->relation->belongsToMany($model, $table, $localKey, $foreignKey);
     }
 
@@ -797,10 +799,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function db()
     {
         $model = get_called_class();
-
         if (!isset(self::$links[$model])) {
             self::$links[$model] = Db::connect(static::$connection);
         }
+        // 设置当前数据表和模型名
         self::$links[$model]->setTable(static::$table);
         $name = basename(str_replace('\\', '/', $model));
         self::$links[$model]->name($name);
