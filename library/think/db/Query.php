@@ -411,11 +411,11 @@ class Query
         }
         if (true === $field) {
             // 获取全部字段
-            $fields = $this->connection->getTableInfo($tableName, 'fields');
+            $fields = $this->getTableInfo($tableName, 'fields');
             $field  = $fields ?: '*';
         } elseif ($except) {
             // 字段排除
-            $fields = $this->connection->getTableInfo($tableName, 'fields');
+            $fields = $this->getTableInfo($tableName, 'fields');
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
         if ($tableName) {
@@ -833,6 +833,85 @@ class Query
     }
 
     /**
+     * 设置当前name
+     * @access public
+     * @param string $name
+     * @return $this
+     */
+    public function name($name)
+    {
+        $this->options['name'] = $name;
+        return $this;
+    }
+
+    /**
+     * 得到当前的数据表
+     * @access public
+     * @return string
+     */
+    public function getTable()
+    {
+        if (empty($this->options['table'])) {
+            $tableName = $this->connection->getConfig('prefix');
+            $tableName .= Loader::parseName($this->options['name']);
+        } else {
+            $tableName = $this->options['table'];
+        }
+        return $tableName;
+    }
+
+    /**
+     * 获取数据表信息
+     * @access public
+     * @param string $fetch 获取信息类型 包括 fields type bind pk
+     * @param string $tableName  数据表名 留空自动获取
+     * @return mixed
+     */
+    public function getTableInfo($tableName = '', $fetch = '')
+    {
+        static $_info = [];
+        if (!$tableName) {
+            $tableName = $this->getTable();
+        }
+        if (is_array($tableName)) {
+            $tableName = key($tableName) ?: current($tableName);
+        }
+        if (strpos($tableName, ',')) {
+            // 多表不获取字段信息
+            return false;
+        }
+        $guid = md5($tableName);
+        if (!isset($_info[$guid])) {
+            $info   = $this->connection->getFields($tableName);
+            $fields = array_keys($info);
+            $bind   = $type   = [];
+            foreach ($info as $key => $val) {
+                // 记录字段类型
+                $type[$key] = $val['type'];
+                if (preg_match('/(int|double|float|decimal|real|numeric|serial)/is', $val['type'])) {
+                    $bind[$key] = PDO::PARAM_INT;
+                } elseif (preg_match('/bool/is', $val['type'])) {
+                    $bind[$key] = PDO::PARAM_BOOL;
+                } else {
+                    $bind[$key] = PDO::PARAM_STR;
+                }
+                if (!empty($val['primary'])) {
+                    $pk[] = $key;
+                }
+            }
+            if (isset($pk)) {
+                // 设置主键
+                $pk = count($pk) > 1 ? $pk : $pk[0];
+            } else {
+                $pk = null;
+            }
+            $result       = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
+            $_info[$guid] = $result;
+        }
+        return $fetch ? $_info[$guid][$fetch] : $_info[$guid];
+    }
+
+    /**
      * 参数绑定
      * @access public
      * @param mixed $key  参数名
@@ -908,7 +987,7 @@ class Query
             if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
                 if (0 == $i) {
                     $joinName  = Loader::parseName(basename(str_replace('\\', '/', $this->options['model'])));
-                    $joinTable = $this->connection->getTable();
+                    $joinTable = $this->getTable();
                     $this->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
                 }
                 // 预载入封装
@@ -965,7 +1044,7 @@ class Query
      */
     protected function parsePkWhere($data, &$options)
     {
-        $pk = $this->connection->getTableInfo($options['table'], 'pk');
+        $pk = $this->getTableInfo($options['table'], 'pk');
         // 获取当前数据表
         if (!empty($options['alias'])) {
             $alias = $options['alias'];
@@ -1058,7 +1137,7 @@ class Query
     {
         $options = $this->parseExpress();
         if (empty($options['where'])) {
-            $pk = $this->connection->getTableInfo($options['table'], 'pk');
+            $pk = $this->getTableInfo($options['table'], 'pk');
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
                 $where[$pk] = $data[$pk];
@@ -1254,27 +1333,21 @@ class Query
      */
     public function chunk($count, $callback, $column = null)
     {
-        $column  = $column ?: $this->connection->getTableInfo('', 'pk');
-        $options = $this->getOptions();
-        if (empty($options['table'])) {
-            $table = $this->connection->getTable();
-        }
+        $column    = $column ?: $this->getTableInfo('', 'pk');
+        $options   = $this->getOptions();
         $resultSet = $this->limit($count)->order($column, 'asc')->select();
 
         while (!empty($resultSet)) {
             if (false === call_user_func($callback, $resultSet)) {
                 return false;
             }
-            $end    = end($resultSet);
-            $lastId = is_array($end) ? $end[$column] : $end->$column;
-            $this->options($options)
+            $end       = end($resultSet);
+            $lastId    = is_array($end) ? $end[$column] : $end->$column;
+            $resultSet = $this->options($options)
                 ->limit($count)
                 ->where($column, '>', $lastId)
-                ->order($column, 'asc');
-            if (isset($table)) {
-                $this->table($table);
-            }
-            $resultSet = $this->select();
+                ->order($column, 'asc')
+                ->select();
         }
         return true;
     }
@@ -1339,7 +1412,7 @@ class Query
 
         // 获取数据表
         if (empty($options['table'])) {
-            $options['table'] = $this->connection->getTable();
+            $options['table'] = $this->getTable();
         }
 
         if (!isset($options['where'])) {

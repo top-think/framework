@@ -79,7 +79,7 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $this->connection->getTableInfo($options['table'], 'bind');
+        $bind = $this->query->getTableInfo($options['table'], 'bind');
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
         } else {
@@ -223,8 +223,8 @@ abstract class Builder
 
         $whereStr = '';
         // 获取字段信息
-        $fields = $this->connection->getTableInfo($table, 'fields');
-        $binds  = $this->connection->getTableInfo($table, 'bind');
+        $fields = $this->query->getTableInfo($table, 'fields');
+        $binds  = $this->query->getTableInfo($table, 'bind');
         foreach ($where as $key => $val) {
             $str = [];
             foreach ($val as $field => $value) {
@@ -564,7 +564,7 @@ abstract class Builder
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $fields = $this->connection->getTableInfo($options['table'], 'fields');
+            $fields = $this->query->getTableInfo($options['table'], 'fields');
         } else {
             $fields = is_array($options['field']) ? $options['field'] : explode(',', $options['field']);
         }

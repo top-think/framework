@@ -118,7 +118,7 @@ class Oracle extends Connection
                 ];
             }
         }
-        return $info;
+        return $this->fieldCase($info);
     }
 
     /**

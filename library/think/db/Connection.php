@@ -19,7 +19,6 @@ use think\Debug;
 use think\Exception;
 use think\exception\DbBindParamException;
 use think\exception\PDOException;
-use think\Loader;
 use think\Log;
 
 abstract class Connection
@@ -123,42 +122,26 @@ abstract class Connection
     }
 
     /**
-     * 设置当前name
+     * 对返数据表字段信息进行大小写转换出来
      * @access public
-     * @param string $name
-     * @return $this
+     * @param array $info 字段信息
+     * @return array
      */
-    public function name($name)
+    protected function fieldCase($info)
     {
-        $this->name = $name;
-        return $this;
-    }
-
-    /**
-     * 指定当前的数据表
-     * @param string $table 数据表名称
-     * @access public
-     * @return void
-     */
-    public function setTable($table)
-    {
-        $this->table = $table;
-    }
-
-    /**
-     * 得到当前的数据表
-     * @access public
-     * @return string
-     */
-    public function getTable()
-    {
-        if (!$this->table) {
-            $tableName = $this->config['prefix'];
-            $tableName .= Loader::parseName($this->name);
-        } else {
-            $tableName = $this->table;
+        // 字段大小写转换
+        switch ($this->params[PDO::ATTR_CASE]) {
+            case PDO::CASE_LOWER:
+                $info = array_change_key_case($info);
+                break;
+            case PDO::CASE_UPPER:
+                $info = array_change_key_case($info, CASE_UPPER);
+                break;
+            case PDO::CASE_NATURAL:
+            default:
+                // 不做转换
         }
-        return $tableName;
+        return $info;
     }
 
     /**
@@ -571,70 +554,6 @@ abstract class Connection
     public function close()
     {
         $this->linkID = null;
-    }
-
-    /**
-     * 获取数据表信息
-     * @access public
-     * @param string $fetch 获取信息类型 包括 fields type bind pk
-     * @param string $tableName  数据表名 留空自动获取
-     * @return mixed
-     */
-    public function getTableInfo($tableName = '', $fetch = '')
-    {
-        static $_info = [];
-        if (!$tableName) {
-            $tableName = $this->getTable();
-        }
-        if (is_array($tableName)) {
-            $tableName = key($tableName) ?: current($tableName);
-        }
-        if (strpos($tableName, ',')) {
-            // 多表不获取字段信息
-            return false;
-        }
-        $guid = md5($tableName);
-        if (!isset($_info[$guid])) {
-            $info = $this->getFields($tableName);
-            // 字段大小写转换
-            switch ($this->params[PDO::ATTR_CASE]) {
-                case PDO::CASE_LOWER:
-                    $info = array_change_key_case($info);
-                    break;
-                case PDO::CASE_UPPER:
-                    $info = array_change_key_case($info, CASE_UPPER);
-                    break;
-                case PDO::CASE_NATURAL:
-                default:
-                    // 不做转换
-            }
-
-            $fields = array_keys($info);
-            $bind   = $type   = [];
-            foreach ($info as $key => $val) {
-                // 记录字段类型
-                $type[$key] = $val['type'];
-                if (preg_match('/(int|double|float|decimal|real|numeric|serial)/is', $val['type'])) {
-                    $bind[$key] = PDO::PARAM_INT;
-                } elseif (preg_match('/bool/is', $val['type'])) {
-                    $bind[$key] = PDO::PARAM_BOOL;
-                } else {
-                    $bind[$key] = PDO::PARAM_STR;
-                }
-                if (!empty($val['primary'])) {
-                    $pk[] = $key;
-                }
-            }
-            if (isset($pk)) {
-                // 设置主键
-                $pk = count($pk) > 1 ? $pk : $pk[0];
-            } else {
-                $pk = null;
-            }
-            $result       = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
-            $_info[$guid] = $result;
-        }
-        return $fetch ? $_info[$guid][$fetch] : $_info[$guid];
     }
 
     /**
