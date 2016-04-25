@@ -912,6 +912,17 @@ class Query
     }
 
     /**
+     * 获取当前模型对象的主键
+     * @access public
+     * @param string $table 数据表名
+     * @return mixed
+     */
+    public function getPk($table = '')
+    {
+        return $this->getTableInfo($table, 'pk');
+    }
+
+    /**
      * 参数绑定
      * @access public
      * @param mixed $key  参数名
@@ -1044,7 +1055,7 @@ class Query
      */
     protected function parsePkWhere($data, &$options)
     {
-        $pk = $this->getTableInfo($options['table'], 'pk');
+        $pk = $this->getPk($options['table']);
         // 获取当前数据表
         if (!empty($options['alias'])) {
             $alias = $options['alias'];
@@ -1137,7 +1148,7 @@ class Query
     {
         $options = $this->parseExpress();
         if (empty($options['where'])) {
-            $pk = $this->getTableInfo($options['table'], 'pk');
+            $pk = $this->getPk($options['table']);
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
                 $where[$pk] = $data[$pk];
@@ -1333,7 +1344,7 @@ class Query
      */
     public function chunk($count, $callback, $column = null)
     {
-        $column    = $column ?: $this->getTableInfo('', 'pk');
+        $column    = $column ?: $this->getPk();
         $options   = $this->getOptions();
         $resultSet = $this->limit($count)->order($column, 'asc')->select();
 

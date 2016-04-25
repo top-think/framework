@@ -602,7 +602,7 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        $db    = Db::table($rule[0]);
+        $db    = Db::name($rule[0]);
         $field = isset($rule[1]) ? $rule[1] : $field;
 
         if (strpos($field, '^')) {
@@ -617,7 +617,7 @@ class Validate
             $map[$field] = $data[$field];
         }
 
-        $key = strval(isset($rule[3]) ? $rule[3] : 'id');
+        $key = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
         if (isset($rule[2])) {
             $map[$key] = ['neq', $rule[2]];
         } elseif (isset($data[$key])) {
