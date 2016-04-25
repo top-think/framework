@@ -334,7 +334,7 @@ class Cx extends Taglib
         } else {
             $value = '\'' . $value . '\'';
         }
-        switch($type) {
+        switch ($type) {
             case 'equal':
                 $type = 'eq';
                 break;
@@ -524,7 +524,7 @@ class Cx extends Taglib
             }
         } else {
             // 命名空间导入模式
-            $basepath = !empty($tag['basepath']) ? $tag['basepath'] : '/Public';
+            $basepath = !empty($tag['basepath']) ? $tag['basepath'] : '/public';
             // 命名空间方式导入外部文件
             $array = explode(',', $file);
             foreach ($array as $val) {
@@ -689,10 +689,10 @@ class Cx extends Taglib
      */
     public function _function($tag, $content)
     {
-        $name     = !empty($tag['name']) ? $tag['name'] : 'func';
-        $vars     = !empty($tag['vars']) ? $tag['vars'] : '';
-        $call     = !empty($tag['call']) ? $tag['call'] : '';
-        $use      = ['&$' . $name];
+        $name = !empty($tag['name']) ? $tag['name'] : 'func';
+        $vars = !empty($tag['vars']) ? $tag['vars'] : '';
+        $call = !empty($tag['call']) ? $tag['call'] : '';
+        $use  = ['&$' . $name];
         if (!empty($tag['use'])) {
             foreach (explode(',', $tag['use']) as $val) {
                 $use[] = '&' . ltrim(trim($val), '&');
