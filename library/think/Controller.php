@@ -97,14 +97,14 @@ class Controller
     /**
      * 渲染内容输出
      * @access public
-     * @param string $template 模板文件名
+     * @param string $content 模板内容
      * @param array  $vars     模板输出变量
      * @param array $config     模板参数
      * @return mixed
      */
-    public function display($template = '', $vars = [], $config = [])
+    public function display($content = '', $vars = [], $config = [])
     {
-        return $this->view->display($template, $vars, $config);
+        return $this->view->display($content, $vars, $config);
     }
 
     /**
