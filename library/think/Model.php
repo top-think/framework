@@ -28,8 +28,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static $table;
     // 回调事件
     protected static $event = [];
-    // 数据库操作对象
-    protected $db;
 
     // 数据表主键 复合主键使用数组定义
     protected $pk = 'id';
@@ -89,7 +87,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->data = $data;
         }
         $this->name = basename(str_replace('\\', '/', get_class($this)));
-        $this->db   = self::db();
 
         $this->initialize();
         $this->relation = new Relation($this);
