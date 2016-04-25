@@ -35,6 +35,11 @@ class View
         if (is_array($config)) {
             $this->config($config);
         }
+
+        // 初始化模板引擎
+        if (!empty($this->config['engine_type'])) {
+            $this->engine($this->config['engine_type'], $this->config['engine_config']);
+        }
     }
 
     /**
@@ -120,10 +125,7 @@ class View
     {
         // 模板变量
         $vars = array_merge($this->data, $vars);
-        if (is_null($this->engine)) {
-            // 初始化模板引擎
-            $this->engine($this->config['engine_type'], $this->config['engine_config']);
-        }
+
         // 页面缓存
         ob_start();
         ob_implicit_flush(0);
