@@ -152,15 +152,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $item = [];
         foreach ($this->data as $key => $val) {
             if ($val instanceof Model) {
+                // 关联模型对象
                 $item[$key] = $val->toArray();
-            } elseif (is_array($val) && $val[0] instanceof Model) {
+            } elseif (is_array($val) && isset($val[0]) && $val[0] instanceof Model) {
+                // 关联模型数据集
                 $data = [];
                 foreach ($val as $k => $value) {
                     $data[$k] = $value->toArray();
                 }
                 $item[$key] = $data;
-            } elseif (is_scalar($val)) {
-                $item[$key] = $val;
+            } else {
+                // 模型属性
+                $item[$key] = $this->$key;
             }
         }
         return !empty($item) ? $item : [];
