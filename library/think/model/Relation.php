@@ -103,7 +103,7 @@ class Relation
                 break;
             default:
                 // 直接返回
-                $result = $model;
+                $result = $relation;
         }
         return $result;
     }
@@ -536,7 +536,7 @@ class Relation
      * @param bool $relationDel 是否同时删除关联表数据
      * @return integer
      */
-    public function detach($data, $relatinDel = false)
+    public function detach($data, $relationDel = false)
     {
         if (is_array($data)) {
             $id = $data;
