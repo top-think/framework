@@ -75,19 +75,9 @@ class Relation
         switch ($this->type) {
             case self::HAS_ONE:
                 $result = $relation->where($foreignKey, $this->parent->$localKey)->find();
-                if (false === $result) {
-                    $class               = $this->model;
-                    $result              = new $class;
-                    $result->$foreignKey = $this->parent->$localKey;
-                }
                 break;
             case self::BELONGS_TO:
                 $result = $relation->where($localKey, $this->parent->$foreignKey)->find();
-                if (false === $result) {
-                    $class             = $this->model;
-                    $result            = new $class;
-                    $result->$localKey = $this->parent->$foreignKey;
-                }
                 break;
             case self::HAS_MANY:
                 $result = $relation->where($foreignKey, $this->parent->$localKey)->select();
