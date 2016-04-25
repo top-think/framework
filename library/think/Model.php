@@ -222,9 +222,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 检测字段
         if (!empty($this->field)) {
-            foreach ($data as $key => $val) {
+            foreach ($this->data as $key => $val) {
                 if (!in_array($key, $this->field)) {
-                    unset($data[$key]);
+                    unset($this->data[$key]);
                 }
             }
         }
