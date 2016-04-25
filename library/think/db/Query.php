@@ -1254,21 +1254,27 @@ class Query
      */
     public function chunk($count, $callback, $column = null)
     {
-        $column    = $column ?: $this->connection->getTableInfo('', 'pk');
-        $options   = $this->getOptions();
+        $column  = $column ?: $this->connection->getTableInfo('', 'pk');
+        $options = $this->getOptions();
+        if (empty($options['table'])) {
+            $table = $this->connection->getTable();
+        }
         $resultSet = $this->limit($count)->order($column, 'asc')->select();
 
         while (!empty($resultSet)) {
             if (false === call_user_func($callback, $resultSet)) {
                 return false;
             }
-            $end       = end($resultSet);
-            $lastId    = is_array($end) ? $end[$column] : $end->$column;
-            $resultSet = $this->options($options)
+            $end    = end($resultSet);
+            $lastId = is_array($end) ? $end[$column] : $end->$column;
+            $this->options($options)
                 ->limit($count)
                 ->where($column, '>', $lastId)
-                ->order($column, 'asc')
-                ->select();
+                ->order($column, 'asc');
+            if (isset($table)) {
+                $this->table($table);
+            }
+            $resultSet = $this->select();
         }
         return true;
     }
