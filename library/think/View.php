@@ -19,20 +19,20 @@ class View
     public $engine = null;
     // 模板变量
     protected $data = [];
-    // 视图替换
+    // 视图输出替换
     protected $replace = [];
 
     /**
      * 架构函数
      * @access public
      * @param array $engine  模板引擎参数
+     * @param array $replace  字符串替换参数
      */
-    public function __construct($engine = [])
+    public function __construct($engine = [], $replace = [])
     {
         // 初始化模板引擎
-        if (!empty($engine)) {
-            $this->engine($engine);
-        }
+        $this->engine((array) $engine);
+        $this->replace = $replace;
     }
 
     /**
@@ -73,7 +73,7 @@ class View
      * @param array $options 引擎参数
      * @return $this
      */
-    public function engine(array $options = [])
+    public function engine($options = [])
     {
         $type  = !empty($options['type']) ? $options['type'] : 'Think';
         $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\view\\driver\\') . ucfirst($type);
