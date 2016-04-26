@@ -250,10 +250,10 @@ function session($name, $value = '', $prefix = null)
         // 判断或获取
         return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
     } elseif (is_null($value)) {
-        // 删除session
+        // 删除
         return Session::delete($name, $prefix);
     } else {
-        // 设置session
+        // 设置
         return Session::set($name, $value, $prefix);
     }
 }
@@ -277,10 +277,10 @@ function cookie($name, $value = '', $option = null)
         // 获取
         return Cookie::get($name);
     } elseif (is_null($value)) {
-        // 删除session
+        // 删除
         return Cookie::delete($name);
     } else {
-        // 设置session
+        // 设置
         return Cookie::set($name, $value, $option);
     }
 }
