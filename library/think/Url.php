@@ -154,13 +154,18 @@ class Url
                         $rule = is_array($rule) ? $rule[0] : $rule;
                         if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
                             $url    = ltrim($url, $rule);
+                            $domain = $key;
                             // 生成对应子域名
                             if(!empty($urlDomainRoot)){
-                                $domain = $key . strstr($domain, '.');
-                            }else{
-                                $domain = $key;
+                                $domain .= $urlDomainRoot;
                             }
                             break;
+                        }else if(false !== strpos($key, '*')){
+                            $domain = str_replace('*',strstr($domain,'.',true),$key);
+                            if(!empty($urlDomainRoot)){
+                                $domain .= $urlDomainRoot;
+                            }
+                            echo $domain;exit;
                         }
                     }
                 }
