@@ -39,12 +39,13 @@ class View
      * 初始化视图
      * @access public
      * @param array $engine  模板引擎参数
+     * @param array $replace  字符串替换参数
      * @return object
      */
-    public static function instance($engine = [])
+    public static function instance($engine = [], $replace = [])
     {
         if (is_null(self::$instance)) {
-            self::$instance = new self($engine);
+            self::$instance = new self($engine, $replace);
         }
         return self::$instance;
     }
