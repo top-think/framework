@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\Config;
+
 class Input
 {
     // 全局过滤规则
@@ -58,7 +60,7 @@ class Input
         }
         return self::data($_PUT, $name, $default, $filter, $merge);
     }
-    
+
     /**
      * 获取delete变量
      * @param string $name 数据名称
@@ -192,7 +194,7 @@ class Input
     public static function path($name = '', $default = null, $filter = null, $merge = false)
     {
         if (!empty($_SERVER['PATH_INFO'])) {
-            $depr  = \think\Config::get('pathinfo_depr');
+            $depr  = Config::get('pathinfo_depr');
             $input = explode($depr, trim($_SERVER['PATH_INFO'], $depr));
             return self::data($input, $name, $default, $filter, $merge);
         } else {
@@ -393,7 +395,7 @@ class Input
     {
         if (is_null(static::$filters)) {
             // 从配置项中读取
-            $filters         = \think\Config::get('default_filter');
+            $filters         = Config::get('default_filter');
             static::$filters = empty($filters) ? [] : (is_array($filters) ? $filters : explode(',', $filters));
         }
         return static::$filters;
