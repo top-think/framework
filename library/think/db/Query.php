@@ -1455,6 +1455,15 @@ class Query
             }
         }
 
+        if (isset($options['page'])) {
+            // 根据页数计算limit
+            list($page, $listRows) = $options['page'];
+            $page                  = $page > 0 ? $page : 1;
+            $listRows              = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset                = $listRows * ($page - 1);
+            $options['limit']      = $offset . ',' . $listRows;
+        }
+
         $this->options = [];
         return $options;
     }
