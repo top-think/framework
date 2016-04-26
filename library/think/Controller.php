@@ -122,13 +122,12 @@ class Controller
     /**
      * 初始化模板引擎
      * @access protected
-     * @param string $engine 引擎名称
-     * @param array $config 引擎参数
+     * @param array|string $engine 引擎参数
      * @return void
      */
-    public function engine($engine, $config = [])
+    public function engine($engine)
     {
-        $this->view->engine($engine, $config);
+        $this->view->engine($engine);
     }
 
     /**
