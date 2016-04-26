@@ -163,7 +163,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $item[$key] = $data;
             } else {
                 // 模型属性
-                $item[$key] = $this->$key;
+                $item[$key] = $this->__get($key);
             }
         }
         return !empty($item) ? $item : [];
