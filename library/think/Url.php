@@ -148,13 +148,18 @@ class Url
                 // 自动判断域名
                 $domain = $_SERVER['HTTP_HOST'];
                 if (Config::get('url_domain_deploy')) {
-                    // 开启子域名部署
-                    $domain = $_SERVER['HTTP_HOST'];
+                    // 根域名
+                    $urlDomainRoot = Config::get('url_domain_root');
                     foreach (Route::domain() as $key => $rule) {
                         $rule = is_array($rule) ? $rule[0] : $rule;
                         if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
                             $url    = ltrim($url, $rule);
-                            $domain = $key . strstr($domain, '.'); // 生成对应子域名
+                            // 生成对应子域名
+                            if(!empty($urlDomainRoot)){
+                                $domain = $key . strstr($domain, '.');
+                            }else{
+                                $domain = $key;
+                            }
                             break;
                         }
                     }
