@@ -565,14 +565,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $data = [];
         }
         $resultSet = $db->select($data);
+        $result    = false;
         if ($resultSet) {
             foreach ($resultSet as $data) {
                 $result = $data->delete();
             }
-            return $result;
-        } else {
-            return false;
         }
+        return $result;
     }
 
     /**
