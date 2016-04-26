@@ -35,7 +35,7 @@ class Controller
      */
     public function __construct()
     {
-        $this->view = View::instance(Config::get('template'));
+        $this->view = View::instance(Config::get('template'), Config::get('view_replace_str'));
 
         // 控制器初始化
         if (method_exists($this, '_initialize')) {

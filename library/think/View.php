@@ -70,14 +70,22 @@ class View
     /**
      * 设置当前模板解析的引擎
      * @access public
-     * @param array $options 引擎参数
+     * @param array|string $options 引擎参数
      * @return $this
      */
     public function engine($options = [])
     {
-        $type  = !empty($options['type']) ? $options['type'] : 'Think';
+        if (is_string($options)) {
+            $type    = $options;
+            $options = [];
+        } else {
+            $type = !empty($options['type']) ? $options['type'] : 'Think';
+        }
+
         $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\view\\driver\\') . ucfirst($type);
-        unset($options['type']);
+        if (isset($options['type'])) {
+            unset($options['type']);
+        }
         $this->engine = new $class($options);
         return $this;
     }
