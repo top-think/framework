@@ -165,7 +165,7 @@ class Url
                             if(!empty($urlDomainRoot)){
                                 $domain .= $urlDomainRoot;
                             }
-                            echo $domain;exit;
+                            break;
                         }
                     }
                 }
