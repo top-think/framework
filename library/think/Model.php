@@ -23,7 +23,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 数据库对象池
     private static $links = [];
     // 数据库配置
-    protected static $connection;
+    protected static $connection = [];
     // 数据表名称
     protected static $table;
     // 回调事件

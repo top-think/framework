@@ -98,7 +98,7 @@ abstract class Connection
      * @access public
      * @param array $config 数据库配置数组
      */
-    public function __construct($config = '')
+    public function __construct(array $config = [])
     {
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
@@ -170,12 +170,12 @@ abstract class Connection
     /**
      * 连接数据库方法
      * @access public
-     * @param mixed $config 连接参数
+     * @param array $config 连接参数
      * @param integer $linkNum 连接序号
      * @param false|array $autoConnection 是否自动连接主数据库（用于分布式）
      * @return \PDO
      */
-    public function connect($config = '', $linkNum = 0, $autoConnection = false)
+    public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
     {
         if (!isset($this->links[$linkNum])) {
             if (!empty($config)) {
