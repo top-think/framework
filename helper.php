@@ -341,7 +341,7 @@ function trace($log = '[think]', $level = 'log')
  */
 function view($template = '', $vars = [])
 {
-    return View::instance(Config::get('template'))->fetch($template, $vars);
+    return View::instance(Config::get('template'), Config::get('view_replace_str'))->fetch($template, $vars);
 }
 
 /**

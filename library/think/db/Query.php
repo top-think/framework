@@ -349,7 +349,7 @@ class Query
                 if (count($join)) {
                     // 有设置第二个元素则把第二元素作为表前缀
                     $table = (string) current($join) . $table;
-                } else {
+                } elseif (false === strpos($table, '.')) {
                     // 加上默认的表前缀
                     $table = $prefix . $table;
                 }
@@ -357,7 +357,7 @@ class Query
                 $join = trim($join);
                 if (0 === strpos($join, '__')) {
                     $table = $this->connection->parseSqlTable($join);
-                } elseif (false === strpos($join, '(') && !empty($prefix) && 0 !== strpos($join, $prefix)) {
+                } elseif (false === strpos($join, '(') && false === strpos($join, '.') && !empty($prefix) && 0 !== strpos($join, $prefix)) {
                     // 传入的表名中不带有'('并且不以默认的表前缀开头时加上默认的表前缀
                     $table = $prefix . $join;
                 } else {
