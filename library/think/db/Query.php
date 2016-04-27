@@ -949,11 +949,11 @@ class Query
 
     /**
      * 查询参数赋值
-     * @access public
+     * @access protected
      * @param array $options 表达式参数
      * @return $this
      */
-    public function options(array $options)
+    protected function options(array $options)
     {
         $this->options = $options;
         return $this;
