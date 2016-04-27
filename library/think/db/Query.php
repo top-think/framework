@@ -179,7 +179,8 @@ class Query
      */
     public function sum($field = '*')
     {
-        return $this->value('SUM(' . $field . ') AS tp_sum');
+        $result = $this->value('SUM(' . $field . ') AS tp_sum');
+        return is_null($result) ? 0 : $result;
     }
 
     /**
@@ -190,7 +191,8 @@ class Query
      */
     public function min($field = '*')
     {
-        return $this->value('MIN(' . $field . ') AS tp_min');
+        $result = $this->value('MIN(' . $field . ') AS tp_min');
+        return is_null($result) ? 0 : $result;
     }
 
     /**
@@ -201,7 +203,8 @@ class Query
      */
     public function max($field = '*')
     {
-        return $this->value('MAX(' . $field . ') AS tp_max');
+        $result = $this->value('MAX(' . $field . ') AS tp_max');
+        return is_null($result) ? 0 : $result;
     }
 
     /**
@@ -212,7 +215,8 @@ class Query
      */
     public function avg($field = '*')
     {
-        return $this->value('AVG(' . $field . ') AS tp_avg');
+        $result = $this->value('AVG(' . $field . ') AS tp_avg');
+        return is_null($result) ? 0 : $result;
     }
 
     /**
