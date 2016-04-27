@@ -853,7 +853,9 @@ class Query
     {
         if (empty($this->options['table'])) {
             $tableName = $this->connection->getConfig('prefix');
-            $tableName .= Loader::parseName($this->options['name']);
+            if (isset($this->options['name'])) {
+                $tableName .= Loader::parseName($this->options['name']);
+            }
         } else {
             $tableName = $this->options['table'];
         }

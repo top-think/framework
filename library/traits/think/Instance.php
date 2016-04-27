@@ -15,7 +15,10 @@ trait Instance
 {
     protected static $instance = null;
 
-    // 实例化（单例）
+    /**
+     * @param array $options
+     * @return static
+     */
     public static function instance($options = [])
     {
         if (is_null(self::$instance)) {
