@@ -184,7 +184,7 @@ class Merge extends Model
                     $table = is_int($key) ? self::db()->name($model)->getTable() : $model;
                     // 处理关联模型数据
                     $data = $this->parseData($name, $this->data);
-                    self::db()->table($table)->strict(false)->where($this->fk, $this->data[$this->pk])->update($data);
+                    self::db()->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data);
                 }
                 // 新增回调
                 $this->trigger('after_update', $this);
@@ -238,7 +238,7 @@ class Merge extends Model
             $result = self::db()->delete($this->data);
             if ($result) {
                 // 获取主键数据
-                $pk = $this->data[$this->pk];
+                $pk = $this->data[$this->getPk()];
 
                 // 删除关联数据
                 foreach (static::$relationModel as $key => $model) {

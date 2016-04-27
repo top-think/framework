@@ -30,7 +30,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static $event = [];
 
     // 数据表主键 复合主键使用数组定义
-    protected $pk = 'id';
+    protected $pk;
     // 错误信息
     protected $error;
     // 当前模型名称
@@ -177,7 +177,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getPk($table = '')
     {
-        if (!$this->pk) {
+        if (empty($this->pk)) {
             $this->pk = self::db()->getTableInfo($table, 'pk');
         }
         return $this->pk;
@@ -272,8 +272,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 获取自动增长主键
             if ($result && $getInsertId) {
                 $insertId = self::db()->getLastInsID();
-                if (is_string($this->pk) && $insertId) {
-                    $this->data[$this->pk] = $insertId;
+                $pk       = $this->getPk();
+                if (is_string($pk) && $insertId) {
+                    $this->data[$pk] = $insertId;
                 }
             }
             // 新增回调
@@ -731,7 +732,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $localKey   = $localKey ?: $this->pk;
+        $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         return $this->relation->hasOne($model, $foreignKey, $localKey);
     }
@@ -765,7 +766,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $localKey   = $localKey ?: $this->pk;
+        $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         return $this->relation->hasMany($model, $foreignKey, $localKey);
     }
