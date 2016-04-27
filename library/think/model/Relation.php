@@ -86,7 +86,7 @@ class Relation
                 // 关联查询
                 $pk                                = $this->parent->getPk();
                 $condition['pivot.' . $foreignKey] = $this->parent->$pk;
-                $result                            = $this->belongsToManyQuery($this->model, $this->middle, $localKey, $foreignKey, $condition)->select();
+                $result                            = $this->belongsToManyQuery($relation, $this->middle, $localKey, $foreignKey, $condition)->select();
                 foreach ($result as $set) {
                     $pivot = [];
                     foreach ($set->toArray() as $key => $val) {
@@ -152,7 +152,7 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $data = $this->eagerlyOneToMany($this->model, [$foreignKey => ['in', $range]], $relation, $subRelation, $closure);
+                        $data = $this->eagerlyOneToMany($model, [$foreignKey => ['in', $range]], $relation, $subRelation, $closure);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
@@ -176,7 +176,7 @@ class Relation
 
                     if (!empty($range)) {
                         // 查询关联数据
-                        $data = $this->eagerlyManyToMany($this->model, ['pivot.' . $foreignKey => ['in', $range]], $relation, $subRelation);
+                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => ['in', $range]], $relation, $subRelation);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
@@ -240,7 +240,7 @@ class Relation
                     if (isset($result->$pk)) {
                         $pk = $result->$pk;
                         // 查询管理数据
-                        $data = $this->eagerlyManyToMany($this->model, ['pivot.' . $foreignKey => $pk], $relation, $subRelation);
+                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => $pk], $relation, $subRelation);
 
                         // 关联数据封装
                         if (!isset($data[$pk])) {
@@ -287,7 +287,7 @@ class Relation
     /**
      * 一对多 关联模型预查询
      * @access public
-     * @param string $model 模型名称
+     * @param object $model 关联模型对象
      * @param array $where 关联预查询条件
      * @param string $relation 关联名
      * @param string $subRelation 子关联
@@ -310,7 +310,7 @@ class Relation
     /**
      * 多对多 关联模型预查询
      * @access public
-     * @param string $model 模型名称
+     * @param object $model 关联模型对象
      * @param array $where 关联预查询条件
      * @param string $relation 关联名
      * @param string $subRelation 子关联
@@ -426,7 +426,7 @@ class Relation
     /**
      * BELONGS TO MANY 关联查询
      * @access public
-     * @param string $model 模型名
+     * @param object $model 关联模型对象
      * @param string $table 中间表名
      * @param string $localKey 当前模型关联键
      * @param string $foreignKey 关联模型关联键
@@ -436,8 +436,8 @@ class Relation
     protected function belongsToManyQuery($model, $table, $localKey, $foreignKey, $condition = [])
     {
         // 关联查询封装
-        $tableName  = $model::getTable();
-        $relationFk = (new $model)->getPk();
+        $tableName  = $model->getTable();
+        $relationFk = $model->getPk();
         return $model::field($tableName . '.*')
             ->field(true, false, $table, 'pivot', 'pivot__')
             ->join($table . ' pivot', 'pivot.' . $localKey . '=' . $tableName . '.' . $relationFk)
