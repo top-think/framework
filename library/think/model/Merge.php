@@ -67,7 +67,7 @@ class Merge extends Model
         foreach (static::$relationModel as $key => $model) {
             $name  = is_int($key) ? $model : $key;
             $table = is_int($key) ? self::db()->name($name)->getTable() : $model;
-            $query->join($table . ' ' . $name, $name . '.' . $class->fk . '=' . $master . '.' . $class->pk);
+            $query->join($table . ' ' . $name, $name . '.' . $class->fk . '=' . $master . '.' . $class->getPk());
             $fields = self::getModelField($name, $table, $class->mapFields);
             $query->field($fields);
         }
