@@ -450,19 +450,9 @@ class Query
      */
     public function where($field, $op = null, $condition = null)
     {
-        if ($field instanceof Query) {
-            // 使用查询对象
-            $this->options['where'] = $field;
-            return $this;
-        }
-
-        $where = $this->parseWhereExp($field, $op, $condition);
-        if (!empty($where)) {
-            if (!isset($this->options['where']['AND'])) {
-                $this->options['where']['AND'] = [];
-            }
-            $this->options['where']['AND'] = array_merge($this->options['where']['AND'], $where);
-        }
+        $param = func_get_args();
+        array_shift($param);
+        $this->parseWhereExp('AND', $field, $op, $condition, $param);
         return $this;
     }
 
@@ -476,32 +466,32 @@ class Query
      */
     public function whereOr($field, $op = null, $condition = null)
     {
-        $where = $this->parseWhereExp($field, $op, $condition);
-        if (!empty($where)) {
-            if (!isset($this->options['where']['OR'])) {
-                $this->options['where']['OR'] = [];
-            }
-            $this->options['where']['OR'] = array_merge($this->options['where']['OR'], $where);
-        }
+        $param = func_get_args();
+        array_shift($param);
+        $this->parseWhereExp('OR', $field, $op, $condition, $param);
         return $this;
     }
 
     /**
      * 分析查询表达式
      * @access public
-     * @param mixed $field 查询字段
+     * @param string|array|Closure $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @return $this
+     * @param string $operator and or
+     * @return void
      */
-    protected function parseWhereExp($field, $op, $condition)
+    protected function parseWhereExp($operator, $field, $op, $condition, $param = [])
     {
+        if ($field instanceof \Closure) {
+            call_user_func_array($field, [ & $this]);
+            return;
+        }
+
         if (is_string($field) && !empty($this->options['via'])) {
             $field = $this->options['via'] . '.' . $field;
         }
-        if ($field instanceof \Closure) {
-            $where[] = $field;
-        } elseif (is_null($op) && is_null($condition)) {
+        if (is_null($op) && is_null($condition)) {
             if (is_array($field)) {
                 // 数组批量查询
                 $where = $field;
@@ -512,8 +502,6 @@ class Query
                 $where = '';
             }
         } elseif (is_array($op)) {
-            $param = func_get_args();
-            array_shift($param);
             $where[$field] = $param;
         } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
             // null查询
@@ -524,7 +512,12 @@ class Query
         } else {
             $where[$field] = [$op, $condition];
         }
-        return $where;
+        if (!empty($where)) {
+            if (!isset($this->options['where'][$operator])) {
+                $this->options['where'][$operator] = [];
+            }
+            $this->options['where'][$operator] = array_merge($this->options['where'][$operator], $where);
+        }
     }
 
     /**
@@ -965,7 +958,7 @@ class Query
 
     public function getOptions($name = '')
     {
-        return empty($name) ? $this->options : $this->options[$name];
+        return isset($this->options[$name]) ? $this->options[$name] : $this->options;
     }
 
     /**

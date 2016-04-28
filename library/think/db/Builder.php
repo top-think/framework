@@ -282,8 +282,15 @@ abstract class Builder
 
         // 对一个字段使用多个查询条件
         if (is_array($exp)) {
+            $item = array_pop($val);
+            // 传入 or 或者 and
+            if (is_string($item) && in_array($item, ['AND', 'and', 'OR', 'or'])) {
+                $rule = $item;
+            } else {
+                array_push($val, $item);
+            }
             foreach ($val as $item) {
-                $str[] = $this->parseWhereItem($key, $item);
+                $str[] = $this->parseWhereItem($key, $item, $rule);
             }
             return '( ' . implode(' ' . $rule . ' ', $str) . ' )';
         }
