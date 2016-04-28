@@ -1094,16 +1094,29 @@ class Query
      * @access public
      * @param mixed $data 数据
      * @param boolean $replace 是否replace
+     * @param boolean $getLastInsID  是否获取自增ID
      * @return integer
      */
-    public function insert(array $data, $replace = false)
+    public function insert(array $data, $replace = false, $getLastInsID = false)
     {
         // 分析查询表达式
         $options = $this->parseExpress();
         // 生成SQL语句
         $sql = $this->builder()->insert($data, $options, $replace);
         // 执行操作
-        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql']);
+        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID);
+    }
+
+    /**
+     * 插入记录并获取自增ID
+     * @access public
+     * @param mixed $data 数据
+     * @param boolean $replace 是否replace
+     * @return integer
+     */
+    public function insertGetId(array $data, $replace = false)
+    {
+        return $this->insert($data, $replace, true);
     }
 
     /**

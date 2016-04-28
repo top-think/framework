@@ -303,9 +303,10 @@ abstract class Connection
      * @param string $sql  sql指令
      * @param array $bind 参数绑定
      * @param boolean $fetch  不执行只是获取SQL
+     * @param boolean $getLastInsID  是否获取自增ID
      * @return integer
      */
-    public function execute($sql, $bind = [], $fetch = false)
+    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false)
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -338,6 +339,9 @@ abstract class Connection
             $this->numRows = $this->PDOStatement->rowCount();
             if (preg_match("/^\s*(INSERT\s+INTO|REPLACE\s+INTO)\s+/i", $sql)) {
                 $this->lastInsID = $this->linkID->lastInsertId();
+                if ($getLastInsID) {
+                    return $this->lastInsID;
+                }
             }
             return $this->numRows;
         } catch (\PDOException $e) {

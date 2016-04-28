@@ -145,7 +145,7 @@ class Merge extends Model
      * @param array $where 更新条件
      * @return mixed
      */
-    public function save($data = [], $where = [], $getInsertId = true)
+    public function save($data = [], $where = [])
     {
         if (!empty($data)) {
             // 数据对象赋值
@@ -211,6 +211,7 @@ class Merge extends Model
                         $data = $this->parseData($name, $this->data, true);
                         self::db()->table($table)->strict(false)->insert($data);
                     }
+                    $result = $insertId;
                 }
                 // 新增回调
                 $this->trigger('after_insert', $this);
