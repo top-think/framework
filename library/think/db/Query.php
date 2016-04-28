@@ -491,7 +491,13 @@ class Query
         if (is_string($field) && !empty($this->options['via'])) {
             $field = $this->options['via'] . '.' . $field;
         }
-        if (is_null($op) && is_null($condition)) {
+        if (is_string($field) && strpos($field, ' ')) {
+            $where[] = ['exp', $field];
+            if (is_array($op)) {
+                // 参数绑定
+                $this->bind($op);
+            }
+        } elseif (is_null($op) && is_null($condition)) {
             if (is_array($field)) {
                 // 数组批量查询
                 $where = $field;

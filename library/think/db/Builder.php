@@ -311,7 +311,7 @@ abstract class Builder
             $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($value);
         } elseif ('EXP' == $exp) {
             // 表达式查询
-            $whereStr .= $key . ' ' . $value;
+            $whereStr .= '( ' . $key . ' ' . $value . ' )';
         } elseif (in_array($exp, ['NOT NULL', 'NULL'])) {
             // NULL 查询
             $whereStr .= $key . ' IS ' . $exp;
