@@ -14,9 +14,9 @@ namespace think;
 class View
 {
     // 视图实例
-    protected static $instance = null;
+    protected static $instance;
     // 模板引擎实例
-    public $engine = null;
+    public $engine;
     // 模板变量
     protected $data = [];
     // 视图输出替换

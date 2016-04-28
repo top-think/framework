@@ -17,8 +17,9 @@ use think\Exception;
 
 abstract class Builder
 {
-    // db对象实例
+    // connection对象实例
     protected $connection;
+    // 查询对象实例
     protected $query;
 
     // 查询参数
@@ -26,7 +27,8 @@ abstract class Builder
 
     // 数据库表达式
     protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL'];
-    // 查询表达式
+
+    // SQL表达式
     protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
     protected $insertSql    = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
     protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
@@ -36,7 +38,7 @@ abstract class Builder
     /**
      * 架构函数
      * @access public
-     * @param object $db 数据库对象实例
+     * @param \think\db\Connection $connection 数据库连接对象实例
      */
     public function __construct($connection)
     {

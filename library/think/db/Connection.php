@@ -24,7 +24,7 @@ use think\Log;
 abstract class Connection
 {
     // PDO操作实例
-    protected $PDOStatement = null;
+    protected $PDOStatement;
     // 当前操作的数据表名
     protected $table = '';
     // 当前操作的数据对象名
@@ -32,7 +32,7 @@ abstract class Connection
     // 当前SQL指令
     protected $queryStr = '';
     // 最后插入ID
-    protected $lastInsID = null;
+    protected $lastInsID;
     // 返回或者影响记录数
     protected $numRows = 0;
     // 事务指令数
@@ -42,7 +42,7 @@ abstract class Connection
     // 数据库连接ID 支持多个连接
     protected $links = [];
     // 当前连接ID
-    protected $linkID = null;
+    protected $linkID;
     // 查询结果类型
     protected $fetchType = PDO::FETCH_ASSOC;
     // 监听回调
@@ -102,9 +102,6 @@ abstract class Connection
     {
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
-            if (is_array($this->config['params'])) {
-                $this->params = $this->config['params'] + $this->params;
-            }
         }
         $this->query = new Query($this);
     }
@@ -178,19 +175,23 @@ abstract class Connection
     public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
     {
         if (!isset($this->links[$linkNum])) {
-            if (!empty($config)) {
-                $this->config = $config;
+            if (empty($config)) {
+                $config = $this->config;
             }
             // 连接参数
-            $params = $this->config['params'] + $this->params;
+            if (isset($config['params']) && is_array($config['params'])) {
+                $params = $config['params'] + $this->params;
+            } else {
+                $params = $this->params;
+            }
 
             try {
-                if (empty($this->config['dsn'])) {
-                    $this->config['dsn'] = $this->parseDsn($this->config);
+                if (empty($config['dsn'])) {
+                    $config['dsn'] = $this->parseDsn($config);
                 }
-                $this->links[$linkNum] = new PDO($this->config['dsn'], $this->config['username'], $this->config['password'], $params);
+                $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
                 // 记录数据库连接信息
-                APP_DEBUG && Log::record('[ DB ] CONNECT: ' . $this->config['dsn'], 'info');
+                APP_DEBUG && Log::record('[ DB ] CONNECT: ' . $config['dsn'], 'info');
             } catch (\PDOException $e) {
                 if ($autoConnection) {
                     Log::record($e->getMessage(), 'error');
