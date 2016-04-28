@@ -228,7 +228,7 @@ abstract class Builder
         foreach ($where as $key => $val) {
             $str = [];
             foreach ($val as $field => $value) {
-                if (in_array($field, $fields, true) && is_scalar($value) && !$this->query->isBind($field)) {
+                if ($fields && in_array($field, $fields, true) && is_scalar($value) && !$this->query->isBind($field)) {
                     $this->query->bind($field, $value, isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR);
                     $value = ':' . $field;
                 }
