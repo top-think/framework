@@ -37,6 +37,8 @@ abstract class Connection
     protected $numRows = 0;
     // 事务指令数
     protected $transTimes = 0;
+    // 事务标识
+    protected $transLabel = '';
     // 错误信息
     protected $error = '';
     // 数据库连接ID 支持多个连接
@@ -414,12 +416,12 @@ abstract class Connection
      */
     public function transaction($callback)
     {
-        $this->startTrans();
+        $this->startTrans(NOW_TIME);
         try {
             if (is_callable($callback)) {
                 $result = call_user_func_array($callback, []);
             }
-            $this->commit();
+            $this->commit(NOW_TIME);
             return $result;
         } catch (\PDOException $e) {
             $this->rollback();
@@ -430,9 +432,10 @@ abstract class Connection
     /**
      * 启动事务
      * @access public
+     * @param string $label  事务标识
      * @return void
      */
-    public function startTrans()
+    public function startTrans($label = '')
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -441,6 +444,7 @@ abstract class Connection
 
         //数据rollback 支持
         if (0 == $this->transTimes) {
+            $this->transLabel = $label;
             $this->linkID->beginTransaction();
         }
         $this->transTimes++;
@@ -450,11 +454,12 @@ abstract class Connection
     /**
      * 用于非自动提交状态下面的查询提交
      * @access public
+     * @param string $label  事务标识
      * @return boolen
      */
-    public function commit()
+    public function commit($label = '')
     {
-        if ($this->transTimes > 0) {
+        if ($this->transTimes > 0 && $label == $this->transLabel) {
             try {
                 $this->linkID->commit();
                 $this->transTimes = 0;
