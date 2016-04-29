@@ -1235,10 +1235,7 @@ class Query
             $sql = $this->builder()->select($options);
             // 执行查询操作
             $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
-        }
 
-        // 返回结果处理
-        if (!empty($resultSet)) {
             if (is_string($resultSet)) {
                 // 返回SQL
                 return $resultSet;
@@ -1252,6 +1249,10 @@ class Query
                 // 缓存数据集
                 Cache::set($key, $resultSet, $cache['expire']);
             }
+        }
+
+        // 返回结果处理
+        if (!empty($resultSet)) {
 
             // 数据列表读取后的处理
             if (!empty($options['model'])) {
@@ -1311,10 +1312,7 @@ class Query
             $sql = $this->builder()->select($options);
             // 执行查询
             $result = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
-        }
 
-        // 数据处理
-        if (!empty($result)) {
             if (is_string($result)) {
                 // 返回SQL
                 return $result;
@@ -1329,7 +1327,10 @@ class Query
                 // 缓存数据
                 Cache::set($key, $result, $cache['expire']);
             }
+        }
 
+        // 数据处理
+        if (!empty($result)) {
             $data = $result[0];
             if (!empty($options['model'])) {
                 // 返回模型对象

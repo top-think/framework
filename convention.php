@@ -29,12 +29,6 @@ return [
     'default_timezone'       => 'PRC',
     // 是否开启多语言
     'lang_switch_on'         => false,
-    // 支持的多语言列表
-    'lang_list'              => ['zh-cn'],
-    // 语言变量
-    'lang_detect_var'        => 'lang',
-    // 语言cookie变量
-    'lang_cookie_var'        => 'think_lang',
     // 默认全局过滤方法 用逗号分隔多个
     'default_filter'         => '',
     // 自动Response输出
