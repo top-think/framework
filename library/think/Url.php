@@ -150,22 +150,26 @@ class Url
                 if (Config::get('url_domain_deploy')) {
                     // 根域名
                     $urlDomainRoot = Config::get('url_domain_root');
-                    foreach (Route::domain() as $key => $rule) {
-                        $rule = is_array($rule) ? $rule[0] : $rule;
-                        if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
-                            $url    = ltrim($url, $rule);
-                            $domain = $key;
-                            // 生成对应子域名
-                            if(!empty($urlDomainRoot)){
-                                $domain .= $urlDomainRoot;
+                    $route_domain = array_keys(Route::domain());
+                    foreach($route_domain as $domain_prefix) {
+                        if(strpos($domain, trim($domain_prefix, '*.')) !== false) {
+                            foreach (Route::domain() as $key => $rule) {
+                                $rule = is_array($rule) ? $rule[0] : $rule;
+                                if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
+                                    $url    = ltrim($url, $rule);
+                                    $domain = $key;
+                                    // 生成对应子域名
+                                    if(!empty($urlDomainRoot)){
+                                        $domain .= $urlDomainRoot;
+                                    }
+                                    break;
+                                }else if(false !== strpos($key, '*')){
+                                    if(!empty($urlDomainRoot)){
+                                        $domain .= $urlDomainRoot;
+                                    }
+                                    break;
+                                }
                             }
-                            break;
-                        }else if(false !== strpos($key, '*')){
-                            $domain = str_replace('*',strstr($domain,'.',true),$key);
-                            if(!empty($urlDomainRoot)){
-                                $domain .= $urlDomainRoot;
-                            }
-                            break;
                         }
                     }
                 }
