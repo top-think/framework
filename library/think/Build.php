@@ -156,7 +156,7 @@ class Build
     {
         $filename = APP_PATH . ($module ? $module . DS : '') . 'config.php';
         if (!is_file($filename)) {
-            file_put_contents($filename, "<?php\nreturn [\n\n];");
+            file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
         }
         $filename = APP_PATH . ($module ? $module . DS : '') . 'common.php';
         if (!is_file($filename)) {
