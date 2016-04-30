@@ -119,7 +119,7 @@ class View
         APP_HOOK && Hook::listen('view_filter', $content);
         // 允许用户自定义模板的字符串替换
         if (!empty($this->replace)) {
-            $content = str_replace(array_keys($this->replace), array_values($this->replace), $content);
+            $content = strtr($content, $this->replace);
         }
         return $content;
     }
