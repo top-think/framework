@@ -49,6 +49,8 @@ abstract class Connection
     protected $linkID;
     // 查询结果类型
     protected $fetchType = PDO::FETCH_ASSOC;
+    // 字段属性大小写
+    protected $attrCase = PDO::CASE_LOWER;
     // 监听回调
     protected static $event = [];
 
@@ -131,7 +133,7 @@ abstract class Connection
     protected function fieldCase($info)
     {
         // 字段大小写转换
-        switch ($this->params[PDO::ATTR_CASE]) {
+        switch ($this->attrCase) {
             case PDO::CASE_LOWER:
                 $info = array_change_key_case($info);
                 break;
@@ -188,6 +190,8 @@ abstract class Connection
             } else {
                 $params = $this->params;
             }
+            // 记录当前字段属性大小写设置
+            $this->attrCase = $params[PDO::ATTR_CASE];
 
             try {
                 if (empty($config['dsn'])) {

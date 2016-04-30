@@ -491,7 +491,7 @@ class Query
         if (is_string($field) && !empty($this->options['via'])) {
             $field = $this->options['via'] . '.' . $field;
         }
-        if (is_string($field) && preg_match('/[,=\>\<\'\"\(`.\s]/', $field)) {
+        if (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
             $where[] = ['exp', $field];
             if (is_array($op)) {
                 // 参数绑定
