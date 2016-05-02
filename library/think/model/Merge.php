@@ -143,9 +143,10 @@ class Merge extends Model
      * @access public
      * @param mixed $data 数据
      * @param array $where 更新条件
+     * @param bool $getId 新增的时候是否获取id
      * @return mixed
      */
-    public function save($data = [], $where = [])
+    public function save($data = [], $where = [], $getId = true)
     {
         if (!empty($data)) {
             // 数据对象赋值
