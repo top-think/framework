@@ -152,12 +152,13 @@ function model($name = '', $layer = MODEL_LAYER)
 
 /**
  * 实例化数据库类
- * @param array $config 数据库配置参数
+ * @param string $name 操作的数据表名称（不含前缀）
+ * @param array|string $config 数据库配置参数
  * @return \think\db\Connection
  */
-function db($config = [])
+function db($name = '', $config = [])
 {
-    return Db::connect($config);
+    return Db::connect($config)->name($name);
 }
 
 /**

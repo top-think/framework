@@ -205,9 +205,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array $data 数据
      * @param array $where 更新条件
+     * @param bool $getId 新增的时候是否获取id
      * @return integer
      */
-    public function save($data = [], $where = [])
+    public function save($data = [], $where = [], $getId = true)
     {
         if (!empty($data)) {
             // 数据对象赋值
@@ -270,7 +271,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $result = self::db()->insert($this->data);
 
             // 获取自动增长主键
-            if ($result) {
+            if ($result && $getId) {
                 $insertId = self::db()->getLastInsID();
                 $pk       = $this->getPk();
                 if (is_string($pk) && $insertId) {
