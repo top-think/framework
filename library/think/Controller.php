@@ -137,7 +137,7 @@ class Controller
      * @param string|array $validate 验证器名或者验证规则数组
      * @param array $message 提示信息
      * @param mixed $callback 回调方法（闭包）
-     * @return void
+     * @return true|string|array
      */
     public function validate($data, $validate, $message = [], $callback = null)
     {

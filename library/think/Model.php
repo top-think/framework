@@ -874,7 +874,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         $value = (bool) $value;
                         break;
                     case 'datetime':
-                        $value = strtotime($value);
+                        if (!is_numeric($value)) {
+                            $value = strtotime($value);
+                        }
                         break;
                     case 'object':
                         if (is_object($value)) {
