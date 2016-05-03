@@ -131,7 +131,7 @@ class Query
             $result = Cache::get($guid);
         }
         if (!$result) {
-            $key = $key ? $key . ',' : '';
+            $key = ($key && '*' != $field) ? $key . ',' : '';
             $pdo = $this->field($key . $field)->fetchPdo(true)->select();
             if (1 == $pdo->columnCount()) {
                 $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
