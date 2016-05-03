@@ -131,8 +131,10 @@ class Query
             $result = Cache::get($guid);
         }
         if (!$result) {
-            $key = ($key && '*' != $field) ? $key . ',' : '';
-            $pdo = $this->field($key . $field)->fetchPdo(true)->select();
+            if ($key && '*' != $field) {
+                $field = $key . ',' . $field;
+            }
+            $pdo = $this->field($field)->fetchPdo(true)->select();
             if (1 == $pdo->columnCount()) {
                 $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
             } else {
@@ -141,11 +143,12 @@ class Query
                 $count     = count($fields);
                 $key1      = array_shift($fields);
                 $key2      = $fields ? array_shift($fields) : '';
+                $key       = $key ?: $key1;
                 foreach ($resultSet as $val) {
                     if ($count > 2) {
-                        $result[$val[$key1]] = $val;
+                        $result[$val[$key]] = $val;
                     } elseif (2 == $count) {
-                        $result[$val[$key1]] = $val[$key2];
+                        $result[$val[$key]] = $val[$key2];
                     }
                 }
             }
