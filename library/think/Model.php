@@ -170,6 +170,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 转换当前模型对象为JSON字符串
+     * @access public
+     * @param integer $options json参数
+     * @return string
+     */
+    public function toJson($options = JSON_UNESCAPED_UNICODE)
+    {
+        return json_encode($this->toArray(), $options);
+    }
+
+    /**
      * 获取当前模型对象的主键
      * @access public
      * @param string $table 数据表名
@@ -980,7 +991,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __toString()
     {
-        return json_encode($this->toArray());
+        return $this->toJson();
     }
 
     // JsonSerializable
