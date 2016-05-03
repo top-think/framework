@@ -515,7 +515,7 @@ class Route
         if ($len1 >= $len2 || strpos($rule, '[')) {
             if ('$' == substr($rule, -1, 1)) {
                 // 完整匹配
-                if ($len1 != $len2) {
+                if ($len1 != $len2 && false === strpos($rule, '[')) {
                     return false;
                 } else {
                     $rule = substr($rule, 0, -1);
