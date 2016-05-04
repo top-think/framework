@@ -263,13 +263,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             // 去除没有更新的字段
+            $data = [];
             foreach ($this->data as $key => $val) {
-                if (!in_array($key, $this->change) && !$this->isPk($key)) {
-                    unset($this->data[$key]);
+                if (in_array($key, $this->change) || $this->isPk($key)) {
+                    $data[$key] = $val;
                 }
             }
 
-            $result = self::db()->where($where)->update($this->data);
+            $result = self::db()->where($where)->update($data);
 
             // 更新回调
             $this->trigger('after_update', $this);
