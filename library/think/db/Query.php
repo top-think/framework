@@ -258,7 +258,7 @@ class Query
         }
         if ($lazyTime > 0) {
             // 延迟写入
-            $guid = md5($this->name . '_' . $field . '_' . serialize($condition));
+            $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
             $step = $this->lazyWrite($guid, $step, $lazyTime);
             if (empty($step)) {
                 return true; // 等待下次写入
@@ -285,7 +285,7 @@ class Query
         }
         if ($lazyTime > 0) {
             // 延迟写入
-            $guid = md5($this->name . '_' . $field . '_' . serialize($condition));
+            $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
             $step = $this->lazyWrite($guid, -$step, $lazyTime);
             if (empty($step)) {
                 return true; // 等待下次写入

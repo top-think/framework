@@ -24,6 +24,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private static $links = [];
     // 数据库配置
     protected static $connection = [];
+    // 当前模型名称
+    protected static $name;
     // 数据表名称
     protected static $table;
     // 回调事件
@@ -33,8 +35,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $pk;
     // 错误信息
     protected $error;
-    // 当前模型名称
-    protected $name;
     // 字段验证规则
     protected $validate;
 
@@ -86,7 +86,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $this->data = $data;
         }
-        $this->name = basename(str_replace('\\', '/', get_class($this)));
+        if (empty(static::$name)) {
+            static::$name = basename(str_replace('\\', '/', get_class($this)));
+        }
 
         $this->initialize();
         $this->relation = new Relation($this);
@@ -392,7 +394,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 设置字段验证
      * @access public
-     * @param array|bool $rule 验证规则 true表示自动读取验证器类
+     * @param array|string|bool $rule 验证规则 true表示自动读取验证器类
      * @param array $msg 提示信息
      * @return $this
      */
@@ -404,7 +406,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 'msg'  => $msg,
             ];
         } else {
-            $this->validate = true === $rule ? $this->name : $rule;
+            $this->validate = true === $rule ? static::$name : $rule;
         }
         return $this;
     }
@@ -423,7 +425,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $validate->rule($info['rule']);
                 $validate->message($info['msg']);
             } else {
-                $name = is_string($info) ? $info : $this->name;
+                $name = is_string($info) ? $info : static::$name;
                 if (strpos($name, '.')) {
                     list($name, $scene) = explode('.', $name);
                 }
@@ -746,7 +748,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
+        $foreignKey = $foreignKey ?: Loader::parseName(static::$name) . '_id';
         return $this->relation->hasOne($model, $foreignKey, $localKey);
     }
 
@@ -780,7 +782,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
+        $foreignKey = $foreignKey ?: Loader::parseName(static::$name) . '_id';
         return $this->relation->hasMany($model, $foreignKey, $localKey);
     }
 
@@ -798,9 +800,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTable();
+        $table      = $table ?: Db::name(Loader::parseName(static::$name) . '_' . $name)->getTable();
         $localKey   = $localKey ?: $name . '_id';
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
+        $foreignKey = $foreignKey ?: Loader::parseName(static::$name) . '_id';
         return $this->relation->belongsToMany($model, $table, $localKey, $foreignKey);
     }
 
@@ -819,7 +821,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!empty(static::$table)) {
             self::$links[$model]->table(static::$table);
         } else {
-            $name = basename(str_replace('\\', '/', $model));
+            $name = !empty(static::$name) ? static::$name : basename(str_replace('\\', '/', $model));
             self::$links[$model]->name($name);
         }
         // 设置当前模型 确保查询返回模型对象
