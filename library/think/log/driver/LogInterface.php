@@ -9,16 +9,17 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\config\driver;
+namespace think\log\driver;
 
-class Ini implements ConfigInterface
+interface LogInterface
 {
-    public function parse($config)
-    {
-        if (is_file($config)) {
-            return parse_ini_file($config, true);
-        } else {
-            return parse_ini_string($config, true);
-        }
-    }
+
+    /**
+     * 日志写入接口
+     * @access public
+     * @param array $log 日志信息
+     * @return bool
+     */
+    public function save(array $log = []);
+
 }

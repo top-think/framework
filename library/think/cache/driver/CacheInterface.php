@@ -11,13 +11,7 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
-
-/**
- * 测试缓存类
- * @author    liu21st <liu21st@gmail.com>
- */
-class Test implements CacheInterface
+interface CacheInterface
 {
 
     /**
@@ -26,10 +20,7 @@ class Test implements CacheInterface
      * @param string $name 缓存变量名
      * @return mixed
      */
-    public function get($name)
-    {
-        return false;
-    }
+    public function get($name);
 
     /**
      * 写入缓存
@@ -39,10 +30,7 @@ class Test implements CacheInterface
      * @param int $expire  有效时间 0为永久
      * @return boolean
      */
-    public function set($name, $value, $expire = null)
-    {
-        return true;
-    }
+    public function set($name, $value, $expire = null);
 
     /**
      * 删除缓存
@@ -50,18 +38,13 @@ class Test implements CacheInterface
      * @param string $name 缓存变量名
      * @return boolean
      */
-    public function rm($name)
-    {
-        return true;
-    }
+    public function rm($name);
 
     /**
      * 清除缓存
      * @access public
      * @return boolean
      */
-    public function clear()
-    {
-        return true;
-    }
+    public function clear();
+
 }

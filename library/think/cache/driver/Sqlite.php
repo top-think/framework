@@ -18,7 +18,7 @@ use think\Exception;
  * Sqlite缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Sqlite
+class Sqlite implements CacheInterface
 {
 
     protected $options = [

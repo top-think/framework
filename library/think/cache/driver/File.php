@@ -17,7 +17,7 @@ use think\Cache;
  * 文件类型缓存类
  * @author    liu21st <liu21st@gmail.com>
  */
-class File
+class File implements CacheInterface
 {
 
     protected $options = [
@@ -186,7 +186,7 @@ class File
      */
     public function clear()
     {
-        $fileLsit = (array)glob($this->options['path'].'*');
+        $fileLsit = (array) glob($this->options['path'] . '*');
         foreach ($fileLsit as $path) {
             is_file($path) && unlink($path);
         }

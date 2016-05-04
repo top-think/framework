@@ -18,7 +18,7 @@ use think\Exception;
  * Apc缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Apc
+class Apc implements CacheInterface
 {
 
     protected $options = [

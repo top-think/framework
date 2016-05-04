@@ -18,7 +18,7 @@ use think\Exception;
  * SAE Memcache缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Sae
+class Sae implements CacheInterface
 {
     protected $handler = null;
     protected $options = [

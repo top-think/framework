@@ -9,16 +9,26 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\config\driver;
+namespace think\view\driver;
 
-class Ini implements ConfigInterface
+interface ViewInterface
 {
-    public function parse($config)
-    {
-        if (is_file($config)) {
-            return parse_ini_file($config, true);
-        } else {
-            return parse_ini_string($config, true);
-        }
-    }
+    /**
+     * 渲染模板文件
+     * @access public
+     * @param string $template 模板文件
+     * @param array $data 模板变量
+     * @return void
+     */
+    public function fetch($template, $data = []);
+
+    /**
+     * 渲染模板内容
+     * @access public
+     * @param string $content 模板内容
+     * @param array $data 模板变量
+     * @return void
+     */
+    public function display($content, $data = []);
+
 }

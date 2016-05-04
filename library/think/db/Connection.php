@@ -21,7 +21,7 @@ use think\exception\DbBindParamException;
 use think\exception\PDOException;
 use think\Log;
 
-abstract class Connection
+abstract class Connection implements ConnectionInterface
 {
     // PDO操作实例
     protected $PDOStatement;
@@ -225,14 +225,6 @@ abstract class Connection
             return $this->config['type'];
         }
     }
-
-    /**
-     * 解析pdo连接的dsn信息（由驱动扩展）
-     * @access public
-     * @param array $config 连接信息
-     * @return string
-     */
-    abstract protected function parseDsn($config);
 
     /**
      * 释放查询结果

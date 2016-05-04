@@ -33,7 +33,7 @@ class Sqlsrv extends Connection
      * @param array $config 连接信息
      * @return string
      */
-    protected function parseDsn($config)
+    public function parseDsn($config)
     {
         $dsn = 'sqlsrv:Database=' . $config['database'] . ';Server=' . $config['hostname'];
         if (!empty($config['hostport'])) {
@@ -96,11 +96,11 @@ class Sqlsrv extends Connection
 
     /**
      * SQL性能分析
-     * @access protected
+     * @access public
      * @param string $sql
      * @return array
      */
-    protected function getExplain($sql)
+    public function getExplain($sql)
     {
         return [];
     }

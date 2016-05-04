@@ -14,7 +14,7 @@ namespace think\cache\driver;
 use think\Cache;
 use think\Exception;
 
-class Memcached
+class Memcached implements CacheInterface
 {
     protected $handler = null;
     protected $options = [

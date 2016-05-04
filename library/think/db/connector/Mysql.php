@@ -26,7 +26,7 @@ class Mysql extends Connection
      * @param array $config 连接信息
      * @return string
      */
-    protected function parseDsn($config)
+    public function parseDsn($config)
     {
         $dsn = 'mysql:dbname=' . $config['database'] . ';host=' . $config['hostname'];
         if (!empty($config['hostport'])) {
@@ -91,11 +91,11 @@ class Mysql extends Connection
 
     /**
      * SQL性能分析
-     * @access protected
+     * @access public
      * @param string $sql
      * @return array
      */
-    protected function getExplain($sql)
+    public function getExplain($sql)
     {
         $pdo    = $this->linkID->query("EXPLAIN " . $sql);
         $result = $pdo->fetch(\PDO::FETCH_ASSOC);

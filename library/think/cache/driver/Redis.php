@@ -19,7 +19,7 @@ use think\Exception;
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
-class Redis
+class Redis implements CacheInterface
 {
     protected $handler = null;
     protected $options = [
@@ -65,10 +65,10 @@ class Redis
     public function get($name)
     {
         Cache::$readTimes++;
-        $value = $this->handler->get($this->options['prefix'] . $name);
-        $jsonData  = json_decode( $value, true );
+        $value    = $this->handler->get($this->options['prefix'] . $name);
+        $jsonData = json_decode($value, true);
         // 检测是否为JSON数据 true 返回JSON解析数组, false返回源数据 byron sampson<xiaobo.sun@qq.com>
-        return ($jsonData === null) ? $value : $jsonData;
+        return (null === $jsonData) ? $value : $jsonData;
     }
 
     /**
@@ -87,7 +87,7 @@ class Redis
         }
         $name = $this->options['prefix'] . $name;
         //对数组/对象数据进行缓存处理，保证数据完整性  byron sampson<xiaobo.sun@qq.com>
-        $value  =  (is_object($value) || is_array($value)) ? json_encode($value) : $value;
+        $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
         if (is_int($expire)) {
             $result = $this->handler->setex($name, $expire, $value);
         } else {

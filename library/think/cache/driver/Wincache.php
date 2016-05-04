@@ -18,7 +18,7 @@ use think\Exception;
  * Wincache缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Wincache
+class Wincache implements CacheInterface
 {
 
     protected $options = [

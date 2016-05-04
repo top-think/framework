@@ -24,23 +24,23 @@ use think\Cache;
  *    );
  * @author    liu21st <liu21st@gmail.com>
  */
-class Db
+class Db implements CacheInterface
 {
 
     protected $handler = null;
     protected $options = [
-        'type'      => '',
-        'dsn'       => '',
-        'hostname'  => '',
-        'hostport'  => '',
-        'username'  => '',
-        'password'  => '',
-        'database'  => '',
-        'charset'   => '',
-        'table'     => '',
-        'prefix'    => '',
-        'expire'    => 0,
-        'length'    => 0,
+        'type'     => '',
+        'dsn'      => '',
+        'hostname' => '',
+        'hostport' => '',
+        'username' => '',
+        'password' => '',
+        'database' => '',
+        'charset'  => '',
+        'table'    => '',
+        'prefix'   => '',
+        'expire'   => 0,
+        'length'   => 0,
     ];
 
     /**

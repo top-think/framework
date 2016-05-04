@@ -17,7 +17,7 @@ use think\Cache;
  * Secache缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Secache
+class Secache implements CacheInterface
 {
 
     protected $handler = null;

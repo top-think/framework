@@ -11,14 +11,15 @@
 
 namespace think\config\driver;
 
-class Ini implements ConfigInterface
+interface ConfigInterface
 {
-    public function parse($config)
-    {
-        if (is_file($config)) {
-            return parse_ini_file($config, true);
-        } else {
-            return parse_ini_string($config, true);
-        }
-    }
+
+    /**
+     * 解析配置
+     * @access public
+     * @param mixed $config 配置
+     * @return mixed
+     */
+    public function parse($config);
+
 }

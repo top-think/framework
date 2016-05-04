@@ -18,7 +18,7 @@ use think\Exception;
  * Xcache缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Xcache
+class Xcache implements CacheInterface
 {
 
     protected $options = [

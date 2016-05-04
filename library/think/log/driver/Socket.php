@@ -5,7 +5,7 @@
  */
 namespace think\log\driver;
 
-class Socket
+class Socket implements LogInterface
 {
     public $port = 1116; //SocketLog 服务的http的端口号
 

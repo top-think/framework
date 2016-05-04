@@ -17,7 +17,7 @@ use think\Cache;
  * 文件类型缓存类
  * @author    liu21st <liu21st@gmail.com>
  */
-class Lite
+class Lite implements CacheInterface
 {
     protected $options = [
         'prefix' => '',
