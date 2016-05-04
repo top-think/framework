@@ -99,8 +99,4 @@ class Php
         return $path . $template . $this->config['view_suffix'];
     }
 
-    public function __call($method, $params)
-    {
-        return call_user_func_array([$this->template, $method], $params);
-    }
 }
