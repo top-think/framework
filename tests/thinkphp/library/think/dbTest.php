@@ -21,8 +21,7 @@ class dbTest extends \PHPUnit_Framework_TestCase
 {
     public function testConnect()
     {
-        Db::connect('mysql://root@127.0.0.1/test#utf8');
-        Db::execute('show databases');
+        Db::connect('mysql://root@127.0.0.1/test#utf8')->execute('show databases');
     }
 
 }
