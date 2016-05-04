@@ -23,11 +23,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 数据库对象池
     private static $links = [];
     // 数据库配置
-    protected static $connection = [];
+    protected $connection = [];
     // 当前模型名称
-    protected static $name;
+    protected $name;
     // 数据表名称
-    protected static $table;
+    protected $table;
     // 回调事件
     protected static $event = [];
 
@@ -86,8 +86,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $this->data = $data;
         }
-        if (empty(static::$name)) {
-            static::$name = basename(str_replace('\\', '/', get_class($this)));
+        if (empty($this->name)) {
+            $this->name = basename(str_replace('\\', '/', get_class($this)));
         }
 
         $this->initialize();
@@ -406,7 +406,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 'msg'  => $msg,
             ];
         } else {
-            $this->validate = true === $rule ? static::$name : $rule;
+            $this->validate = true === $rule ? $this->name : $rule;
         }
         return $this;
     }
@@ -425,7 +425,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $validate->rule($info['rule']);
                 $validate->message($info['msg']);
             } else {
-                $name = is_string($info) ? $info : static::$name;
+                $name = is_string($info) ? $info : $this->name;
                 if (strpos($name, '.')) {
                     list($name, $scene) = explode('.', $name);
                 }
@@ -748,7 +748,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName(static::$name) . '_id';
+        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         return $this->relation->hasOne($model, $foreignKey, $localKey);
     }
 
@@ -782,7 +782,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName(static::$name) . '_id';
+        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         return $this->relation->hasMany($model, $foreignKey, $localKey);
     }
 
@@ -800,9 +800,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: Db::name(Loader::parseName(static::$name) . '_' . $name)->getTable();
+        $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTable();
         $localKey   = $localKey ?: $name . '_id';
-        $foreignKey = $foreignKey ?: Loader::parseName(static::$name) . '_id';
+        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         return $this->relation->belongsToMany($model, $table, $localKey, $foreignKey);
     }
 
@@ -814,14 +814,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function db()
     {
         $model = get_called_class();
+        $class = new static;
         if (!isset(self::$links[$model])) {
-            self::$links[$model] = Db::connect(static::$connection);
+            self::$links[$model] = Db::connect($class->connection);
         }
         // 设置当前数据表和模型名
-        if (!empty(static::$table)) {
-            self::$links[$model]->table(static::$table);
+        if (!empty($class->table)) {
+            self::$links[$model]->table($class->table);
         } else {
-            $name = !empty(static::$name) ? static::$name : basename(str_replace('\\', '/', $model));
+            $name = !empty($class->name) ? $class->name : basename(str_replace('\\', '/', $model));
             self::$links[$model]->name($name);
         }
         // 设置当前模型 确保查询返回模型对象

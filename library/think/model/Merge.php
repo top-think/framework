@@ -32,7 +32,7 @@ class Merge extends Model
 
         // 设置默认外键名 仅支持单一外键
         if (empty($this->fk)) {
-            $this->fk = strtolower(static::$name) . '_id';
+            $this->fk = strtolower($this->name) . '_id';
         }
     }
 
@@ -164,7 +164,7 @@ class Merge extends Model
         // 数据自动完成
         $this->autoCompleteData($this->auto);
         // 处理模型数据
-        $data = $this->parseData(static::$name, $this->data);
+        $data = $this->parseData($this->name, $this->data);
 
         self::db()->startTrans();
         try {
@@ -198,7 +198,7 @@ class Merge extends Model
                 }
 
                 // 写入主表数据
-                $result = self::db()->name(static::$name)->strict(false)->insert($this->data);
+                $result = self::db()->name($this->name)->strict(false)->insert($this->data);
                 if ($result) {
                     $insertId = self::db()->getLastInsID();
                     // 写入外键数据
