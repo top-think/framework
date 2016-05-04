@@ -41,7 +41,7 @@ return [
     // 默认模块名
     'default_module'         => 'index',
     // 禁止访问模块
-    'deny_module_list'       => [COMMON_MODULE, 'runtime'],
+    'deny_module_list'       => [COMMON_MODULE],
     // 默认控制器名
     'default_controller'     => 'Index',
     // 默认操作名

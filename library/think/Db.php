@@ -18,8 +18,6 @@ class Db
 {
     //  数据库连接实例
     private static $instances = [];
-    //  当前数据库连接实例
-    private static $instance = null;
     // 查询次数
     public static $queryTimes = 0;
     // 执行次数
@@ -46,8 +44,7 @@ class Db
             // 记录初始化信息
             APP_DEBUG && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
         }
-        self::$instance = self::$instances[$md5];
-        return self::$instance;
+        return self::$instances[$md5];
     }
 
     /**
@@ -107,10 +104,7 @@ class Db
     // 调用驱动类的方法
     public static function __callStatic($method, $params)
     {
-        if (is_null(self::$instance)) {
-            // 自动初始化数据库
-            self::connect();
-        }
-        return call_user_func_array([self::$instance, $method], $params);
+        // 自动初始化数据库
+        return call_user_func_array([self::connect(), $method], $params);
     }
 }
