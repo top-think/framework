@@ -130,7 +130,7 @@ class Route
                     }
                     if (0 === strpos($key, '[')) {
                         if (empty($val)) {
-                            break;
+                            continue;
                         }
                         $key    = substr($key, 1, -1);
                         $result = ['routes' => $val, 'option' => $option, 'pattern' => $pattern];
