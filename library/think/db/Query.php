@@ -39,7 +39,7 @@ class Query
      */
     public function __construct($connection = '')
     {
-        $this->connection = $connection ?: Db::connect();
+        $this->connection = $connection ?: Db::connect([], true);
         $this->driver     = $this->connection->getDriverName();
     }
 
@@ -988,7 +988,7 @@ class Query
 
         $i            = 0;
         $currentModel = $this->options['model'];
-        $class        = new $this->options['model'];
+        $class        = new $currentModel;
         foreach ($with as $key => $relation) {
             $closure = false;
             if ($relation instanceof \Closure) {
@@ -1005,15 +1005,15 @@ class Query
             $info  = $class->getRelationInfo();
             if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
                 if (0 == $i) {
-                    $joinName  = Loader::parseName(basename(str_replace('\\', '/', $this->options['model'])));
-                    $joinTable = $this->getTable();
-                    $this->table($joinTable)->alias($joinName)->field(true, false, $joinTable, $joinName);
+                    $name  = Loader::parseName(basename(str_replace('\\', '/', $currentModel)));
+                    $table = $this->getTable();
+                    $this->table($table)->alias($name)->field(true, false, $table, $name);
                 }
                 // 预载入封装
-                $table = $info['model']::getTable();
-                $name  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
-                $this->via($name);
-                $this->join($table . ' ' . $name, $joinName . '.' . $info['localKey'] . '=' . $name . '.' . $info['foreignKey'])->field(true, false, $table, $name, $name . '__');
+                $joinTable = $model->getTable();
+                $joinName  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
+                $this->via($joinName);
+                $this->join($joinTable . ' ' . $joinName, $name . '.' . $info['localKey'] . '=' . $joinName . '.' . $info['foreignKey'])->field(true, false, $joinTable, $joinName, $joinName . '__');
                 if ($closure) {
                     // 执行闭包查询
                     call_user_func_array($closure, [ & $this]);
@@ -1024,7 +1024,6 @@ class Query
             }
         }
         $this->via();
-        $this->model($currentModel);
         $this->options['with'] = $with;
         return $this;
     }

@@ -834,7 +834,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = get_called_class();
         $class = new static;
         if (!isset(self::$links[$model])) {
-            self::$links[$model] = Db::connect($class->connection);
+            self::$links[$model] = Db::connect($class->connection, $model);
         }
         // 设置当前数据表和模型名
         if (!empty($class->table)) {

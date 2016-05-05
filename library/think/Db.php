@@ -28,23 +28,30 @@ class Db
      * @static
      * @access public
      * @param mixed $config 连接配置
-     * @return Object 返回数据库驱动类
+     * @param bool|string $name 连接标识 true 强制重新连接
+     * @return \think\db\Connection
      */
-    public static function connect($config = [])
+    public static function connect($config = [], $name = false)
     {
-        $md5 = md5(serialize($config));
-        if (!isset(self::$instances[$md5])) {
+        if (false === $name) {
+            $name = md5(serialize($config));
+        }
+        if (true === $name || !isset(self::$instances[$name])) {
             // 解析连接参数 支持数组和字符串
             $options = self::parseConfig($config);
             if (empty($options['type'])) {
                 throw new Exception('db type error');
             }
-            $class                 = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\db\\connector\\') . ucwords($options['type']);
-            self::$instances[$md5] = new $class($options);
+            $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\db\\connector\\') . ucwords($options['type']);
             // 记录初始化信息
             APP_DEBUG && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
+            if (true === $name) {
+                return new $class($options);
+            } else {
+                self::$instances[$name] = new $class($options);
+            }
         }
-        return self::$instances[$md5];
+        return self::$instances[$name];
     }
 
     /**
