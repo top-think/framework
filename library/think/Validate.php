@@ -469,7 +469,7 @@ class Validate
         switch ($rule) {
             case 'require':
                 // 必须
-                $result = !empty($value) && '0' != $value;
+                $result = !empty($value) || '0' == $value;
                 break;
             case 'accepted':
                 // 接受
