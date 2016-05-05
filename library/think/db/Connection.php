@@ -21,7 +21,7 @@ use think\exception\DbBindParamException;
 use think\exception\PDOException;
 use think\Log;
 
-abstract class Connection implements ConnectionInterface
+abstract class Connection
 {
     // PDO操作实例
     protected $PDOStatement;
@@ -123,6 +123,38 @@ abstract class Connection implements ConnectionInterface
     {
         return call_user_func_array([$this->query, $method], $args);
     }
+
+    /**
+     * 解析pdo连接的dsn信息
+     * @access protected
+     * @param array $config 连接信息
+     * @return string
+     */
+    abstract protected function parseDsn($config);
+
+    /**
+     * 取得数据表的字段信息
+     * @access public
+     * @param string $tableName
+     * @return array
+     */
+    abstract public function getFields($tableName);
+
+    /**
+     * 取得数据库的表信息
+     * @access public
+     * @param string $dbName
+     * @return array
+     */
+    abstract public function getTables($dbName);
+
+    /**
+     * SQL性能分析
+     * @access protected
+     * @param string $sql
+     * @return array
+     */
+    abstract protected function getExplain($sql);
 
     /**
      * 对返数据表字段信息进行大小写转换出来

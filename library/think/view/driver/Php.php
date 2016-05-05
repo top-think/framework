@@ -13,7 +13,7 @@ namespace think\view\driver;
 use think\Exception;
 use think\Log;
 
-class Php implements ViewInterface
+class Php
 {
     // 模板引擎参数
     protected $config = [

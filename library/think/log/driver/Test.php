@@ -13,7 +13,7 @@ namespace think\log\driver;
 /**
  * 模拟测试输出
  */
-class Test implements LogInterface
+class Test
 {
     /**
      * 日志写入接口

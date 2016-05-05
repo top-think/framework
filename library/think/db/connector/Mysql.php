@@ -22,11 +22,11 @@ class Mysql extends Connection
 
     /**
      * 解析pdo连接的dsn信息
-     * @access public
+     * @access protected
      * @param array $config 连接信息
      * @return string
      */
-    public function parseDsn($config)
+    protected function parseDsn($config)
     {
         $dsn = 'mysql:dbname=' . $config['database'] . ';host=' . $config['hostname'];
         if (!empty($config['hostport'])) {
@@ -91,11 +91,11 @@ class Mysql extends Connection
 
     /**
      * SQL性能分析
-     * @access public
+     * @access protected
      * @param string $sql
      * @return array
      */
-    public function getExplain($sql)
+    protected function getExplain($sql)
     {
         $pdo    = $this->linkID->query("EXPLAIN " . $sql);
         $result = $pdo->fetch(\PDO::FETCH_ASSOC);

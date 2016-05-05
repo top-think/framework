@@ -17,7 +17,7 @@ use think\Cache;
  * 测试缓存类
  * @author    liu21st <liu21st@gmail.com>
  */
-class Test implements CacheInterface
+class Test
 {
 
     /**

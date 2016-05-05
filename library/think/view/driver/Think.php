@@ -14,7 +14,7 @@ use think\Exception;
 use think\Log;
 use think\Template;
 
-class Think implements ViewInterface
+class Think
 {
     // 模板引擎实例
     private $template = null;

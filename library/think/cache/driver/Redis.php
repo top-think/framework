@@ -19,7 +19,7 @@ use think\Exception;
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
-class Redis implements CacheInterface
+class Redis
 {
     protected $handler = null;
     protected $options = [
@@ -64,7 +64,6 @@ class Redis implements CacheInterface
      */
     public function get($name)
     {
-        Cache::$readTimes++;
         $value    = $this->handler->get($this->options['prefix'] . $name);
         $jsonData = json_decode($value, true);
         // 检测是否为JSON数据 true 返回JSON解析数组, false返回源数据 byron sampson<xiaobo.sun@qq.com>
@@ -81,7 +80,6 @@ class Redis implements CacheInterface
      */
     public function set($name, $value, $expire = null)
     {
-        Cache::$writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -92,24 +90,6 @@ class Redis implements CacheInterface
             $result = $this->handler->setex($name, $expire, $value);
         } else {
             $result = $this->handler->set($name, $value);
-        }
-        if ($result && $this->options['length'] > 0) {
-            if ($this->options['length'] > 0) {
-                // 记录缓存队列
-                $queue = $this->handler->get('__info__');
-                $queue = explode(',', $queue);
-                if (false === array_search($name, $queue)) {
-                    array_push($queue, $name);
-                }
-
-                if (count($queue) > $this->options['length']) {
-                    // 出列
-                    $key = array_shift($queue);
-                    // 删除缓存
-                    $this->handler->delete($key);
-                }
-                $this->handler->set('__info__', implode(',', $queue));
-            }
         }
         return $result;
     }

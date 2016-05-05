@@ -13,7 +13,7 @@ namespace think\log\driver;
 /**
  * 本地化调试输出到文件
  */
-class File implements LogInterface
+class File
 {
     protected $config = [
         'time_format' => ' c ',
