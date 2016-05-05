@@ -445,7 +445,30 @@ class Relation
     }
 
     /**
-     * 保存当前关联数据对象
+     * 删除当前关联数据对象
+     * @access public
+     * @param mixed $where 删除条件 一对多删除可以指定条件 多对多可以使用关联对象的主键删除
+     * @return integer
+     */
+    public function delete($where = [])
+    {
+        // 判断关联类型
+        switch ($this->type) {
+            case self::HAS_ONE:
+            case self::BELONGS_TO:
+            case self::HAS_MANY:
+                // 保存关联表数据
+                $where[$this->foreignKey] = $this->parent->{$this->localKey};
+                $model                    = $this->model;
+                return $model::where($where)->delete();
+            case self::BELONGS_TO_MANY:
+                // 删除关联表/中间表数据
+                return $this->detach($where);
+        }
+    }
+
+    /**
+     * 保存（新增）当前关联数据对象
      * @access public
      * @param mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
      * @param array $pivot 中间表额外数据
