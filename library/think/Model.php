@@ -64,6 +64,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $type = [];
     // 是否为更新数据
     protected $isUpdate = false;
+    // 更新条件
+    protected $updateWhere;
     // 当前执行的关联对象
     protected $relation;
 
@@ -287,6 +289,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
+            if (empty($where) && !empty($this->updateWhere)) {
+                $where = $this->updateWhere;
+            }
+
+            if (!empty($where)) {
+                $pk = $this->getPk();
+                if (is_string($pk) && isset($data[$pk])) {
+                    unset($data[$pk]);
+                }
+            }
+
             $result = self::db()->where($where)->update($data);
 
             // 更新回调
@@ -353,11 +366,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 是否为更新数据
      * @access public
      * @param bool $update
+     * @param mixed $where
      * @return $this
      */
-    public function isUpdate($update = true)
+    public function isUpdate($update = true, $where = null)
     {
         $this->isUpdate = $update;
+        if (!empty($where)) {
+            $this->updateWhere = $where;
+        }
         return $this;
     }
 
