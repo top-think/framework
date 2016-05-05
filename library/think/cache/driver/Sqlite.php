@@ -56,7 +56,6 @@ class Sqlite implements CacheInterface
      */
     public function get($name)
     {
-        Cache::$readTimes++;
         $name   = $this->options['prefix'] . sqlite_escape_string($name);
         $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . time() . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
@@ -81,7 +80,6 @@ class Sqlite implements CacheInterface
      */
     public function set($name, $value, $expire = null)
     {
-        Cache::$writeTimes++;
         $name  = $this->options['prefix'] . sqlite_escape_string($name);
         $value = sqlite_escape_string(serialize($value));
         if (is_null($expire)) {
@@ -94,10 +92,6 @@ class Sqlite implements CacheInterface
         }
         $sql = 'REPLACE INTO ' . $this->options['table'] . ' (var, value,expire) VALUES (\'' . $name . '\', \'' . $value . '\', \'' . $expire . '\')';
         if (sqlite_query($this->handler, $sql)) {
-            if ($this->options['length'] > 0) {
-                // 记录缓存队列
-                $this->queue($name);
-            }
             return true;
         }
         return false;

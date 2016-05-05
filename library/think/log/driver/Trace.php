@@ -16,7 +16,7 @@ use think\Debug;
 /**
  * 页面Trace调试
  */
-class Trace implements LogInterface
+class Trace
 {
     protected $config = [
         'trace_file' => '',

@@ -13,7 +13,7 @@ namespace think\log\driver;
 /**
  * 调试输出到SAE
  */
-class Sae implements LogInterface
+class Sae
 {
     protected $config = [
         'log_time_format' => ' c ',

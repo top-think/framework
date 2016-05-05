@@ -17,7 +17,7 @@ use think\Cache;
  * 文件类型缓存类
  * @author    liu21st <liu21st@gmail.com>
  */
-class Lite implements CacheInterface
+class Lite
 {
     protected $options = [
         'prefix' => '',
@@ -61,7 +61,6 @@ class Lite implements CacheInterface
      */
     public function get($name)
     {
-        Cache::$readTimes++;
         $filename = $this->filename($name);
         if (is_file($filename)) {
             // 判断是否过期
@@ -87,7 +86,6 @@ class Lite implements CacheInterface
      */
     public function set($name, $value, $expire = null)
     {
-        Cache::$writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -96,14 +94,7 @@ class Lite implements CacheInterface
             $expire = 10 * 365 * 24 * 3600;
         }
         $filename = $this->filename($name);
-        // 缓存数据
-        /*
-        $dir = dirname($filename);
-        // 目录不存在则创建
-        if (!is_dir($dir))
-        mkdir($dir,0755,true);
-         */
-        $ret = file_put_contents($filename, ("<?php return " . var_export($value, true) . ";"));
+        $ret      = file_put_contents($filename, ("<?php return " . var_export($value, true) . ";"));
         // 通过设置修改时间实现有效期
         if ($ret) {
             touch($filename, time() + $expire);
