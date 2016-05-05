@@ -139,17 +139,21 @@ class Query
                 $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
             } else {
                 $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
-                $fields    = array_keys($resultSet[0]);
-                $count     = count($fields);
-                $key1      = array_shift($fields);
-                $key2      = $fields ? array_shift($fields) : '';
-                $key       = $key ?: $key1;
-                foreach ($resultSet as $val) {
-                    if ($count > 2) {
-                        $result[$val[$key]] = $val;
-                    } elseif (2 == $count) {
-                        $result[$val[$key]] = $val[$key2];
+                if ($resultSet) {
+                    $fields = array_keys($resultSet[0]);
+                    $count  = count($fields);
+                    $key1   = array_shift($fields);
+                    $key2   = $fields ? array_shift($fields) : '';
+                    $key    = $key ?: $key1;
+                    foreach ($resultSet as $val) {
+                        if ($count > 2) {
+                            $result[$val[$key]] = $val;
+                        } elseif (2 == $count) {
+                            $result[$val[$key]] = $val[$key2];
+                        }
                     }
+                } else {
+                    $result = [];
                 }
             }
             if (isset($cache)) {
