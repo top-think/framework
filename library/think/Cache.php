@@ -76,7 +76,7 @@ class Cache
     {
         self::init();
         self::$readTimes++;
-        return self::$hander->get($name);
+        return self::$handler->get($name);
     }
 
     /**
@@ -91,7 +91,7 @@ class Cache
     {
         self::init();
         self::$writeTimes++;
-        return self::$hander->set($name, $value, $expire);
+        return self::$handler->set($name, $value, $expire);
     }
 
     /**
@@ -103,7 +103,7 @@ class Cache
     public static function rm($name)
     {
         self::init();
-        return self::$hander->rm($name);
+        return self::$handler->rm($name);
     }
 
     /**
@@ -114,7 +114,7 @@ class Cache
     public static function clear()
     {
         self::init();
-        return self::$hander->clear();
+        return self::$handler->clear();
     }
 
 }
