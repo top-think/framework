@@ -40,6 +40,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     // 字段属性
     protected $field = [];
+    // 隐藏属性
+    protected $hidden = [];
     // 数据信息
     protected $data = [];
     // 缓存数据
@@ -64,8 +66,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $isUpdate = false;
     // 当前执行的关联对象
     protected $relation;
-    // 当前模型的父模型
-    protected $parent;
 
     /**
      * 初始化过的模型.
@@ -145,6 +145,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置需要隐藏的属性
+     * @access public
+     * @param array $hidden 属性列表
+     * @return $this
+     */
+    public function hidden($hidden = [])
+    {
+        $this->hidden = $hidden;
+        return $this;
+    }
+
+    /**
      * 转换当前模型对象为数组
      * @access public
      * @return array
@@ -153,6 +165,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $item = [];
         foreach ($this->data as $key => $val) {
+            // 如果是隐藏属性不输出
+            if (in_array($key, $this->hidden)) {
+                continue;
+            }
+
             if ($val instanceof Model) {
                 // 关联模型对象
                 $item[$key] = $val->toArray();
