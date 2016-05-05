@@ -41,6 +41,8 @@ class redisTest extends cacheTestCase
         $cache = $this->prepare();
         $this->assertEquals('string_test', $cache->get('string_test'));
         $this->assertEquals(11, $cache->get('number_test'));
+        $result =  $cache->get('array_test');
+        $this->assertEquals('array_test', $result['array_test']);
     }
 
     public function testStoreSpecialValues()
