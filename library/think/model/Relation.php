@@ -453,6 +453,9 @@ class Relation
      */
     public function save($data, array $pivot = [])
     {
+        if ($data instanceof Model) {
+            $data = $data->toArray();
+        }
         // 判断关联类型
         switch ($this->type) {
             case self::HAS_ONE:
