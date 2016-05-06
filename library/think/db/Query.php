@@ -81,7 +81,7 @@ class Query
     protected function builder()
     {
         static $builder = [];
-        $driver = $this->driver;
+        $driver         = $this->driver;
         if (!isset($builder[$driver])) {
             $class            = '\\think\\db\\builder\\' . ucfirst($driver);
             $builder[$driver] = new $class($this->connection);
@@ -107,6 +107,9 @@ class Query
             $result = Cache::get($key);
         }
         if (!$result) {
+            if (isset($this->options['field'])) {
+                unset($this->options['field']);
+            }
             $pdo    = $this->field($field)->fetchPdo(true)->find();
             $result = $pdo->fetchColumn();
             if (isset($cache)) {
@@ -137,6 +140,9 @@ class Query
             $result = Cache::get($guid);
         }
         if (!$result) {
+            if (isset($this->options['field'])) {
+                unset($this->options['field']);
+            }
             if ($key && '*' != $field) {
                 $field = $key . ',' . $field;
             }
@@ -365,7 +371,7 @@ class Query
                 }
                 if (count($join)) {
                     // 有设置第二个元素则把第二元素作为表前缀
-                    $table = (string)current($join) . $table;
+                    $table = (string) current($join) . $table;
                 } elseif (false === strpos($table, '.')) {
                     // 加上默认的表前缀
                     $table = $prefix . $table;
@@ -497,7 +503,7 @@ class Query
     protected function parseWhereExp($operator, $field, $op, $condition, $param = [])
     {
         if ($field instanceof \Closure) {
-            call_user_func_array($field, [& $this]);
+            call_user_func_array($field, [ & $this]);
             return;
         }
 
@@ -640,15 +646,14 @@ class Query
 
         $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\paginator\\driver\\') . ucwords($config['type']);
 
-        $page = isset($config['page']) ? (int)$config['page'] : call_user_func([
+        $page = isset($config['page']) ? (int) $config['page'] : call_user_func([
             $class,
-            'getCurrentPage'
+            'getCurrentPage',
         ], $config['var_page']);
 
         $page = $page < 1 ? 1 : $page;
 
         $config['path'] = isset($config['path']) ? $config['path'] : call_user_func([$class, 'getCurrentPath']);
-
 
         /** @var Paginator $paginator */
         if (!$simple) {
@@ -947,7 +952,7 @@ class Query
         if (!isset($_info[$guid])) {
             $info   = $this->connection->getFields($tableName);
             $fields = array_keys($info);
-            $bind   = $type = [];
+            $bind   = $type   = [];
             foreach ($info as $key => $val) {
                 // 记录字段类型
                 $type[$key] = $val['type'];
@@ -1054,7 +1059,7 @@ class Query
                 $relation   = $key;
                 $with[$key] = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                $with[$key] = $relation;
+                $with[$key]                   = $relation;
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
@@ -1074,7 +1079,7 @@ class Query
                 $this->join($joinTable . ' ' . $joinName, $name . '.' . $info['localKey'] . '=' . $joinName . '.' . $info['foreignKey'])->field(true, false, $joinTable, $joinName, $joinName . '__');
                 if ($closure) {
                     // 执行闭包查询
-                    call_user_func_array($closure, [& $this]);
+                    call_user_func_array($closure, [ & $this]);
                 }
                 $i++;
             } elseif ($closure) {
@@ -1275,7 +1280,7 @@ class Query
         if ($data instanceof Query) {
             return $data->select();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [& $this]);
+            call_user_func_array($data, [ & $this]);
         }
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -1358,7 +1363,7 @@ class Query
         if ($data instanceof Query) {
             return $data->find();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [& $this]);
+            call_user_func_array($data, [ & $this]);
         }
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -1549,10 +1554,10 @@ class Query
         if (isset($options['page'])) {
             // 根据页数计算limit
             list($page, $listRows) = $options['page'];
-            $page             = $page > 0 ? $page : 1;
-            $listRows         = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
-            $offset           = $listRows * ($page - 1);
-            $options['limit'] = $offset . ',' . $listRows;
+            $page                  = $page > 0 ? $page : 1;
+            $listRows              = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset                = $listRows * ($page - 1);
+            $options['limit']      = $offset . ',' . $listRows;
         }
 
         $this->options = [];
