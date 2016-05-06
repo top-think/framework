@@ -14,6 +14,7 @@ namespace think\model;
 use think\Db;
 use think\Exception;
 use think\Loader;
+use think\Model;
 use think\model\Pivot;
 
 class Relation
@@ -453,6 +454,9 @@ class Relation
      */
     public function save($data, array $pivot = [])
     {
+        if ($data instanceof Model) {
+            $data = $data->toArray();
+        }
         // 判断关联类型
         switch ($this->type) {
             case self::HAS_ONE:
