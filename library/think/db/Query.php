@@ -13,12 +13,15 @@ namespace think\db;
 
 use PDO;
 use think\Cache;
+use think\Collection;
+use think\Config;
 use think\Db;
 use think\Exception;
 use think\exception\DbException;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
+use think\Paginator;
 
 class Query
 {
@@ -35,7 +38,8 @@ class Query
     /**
      * 架构函数
      * @access public
-     * @param object $connection 数据库对象实例
+     * @param object|string $connection 数据库对象实例
+     * @throws Exception
      */
     public function __construct($connection = '')
     {
@@ -49,6 +53,8 @@ class Query
      * @param string $method 方法名称
      * @param array $args 调用参数
      * @return mixed
+     * @throws DbException
+     * @throws Exception
      */
     public function __call($method, $args)
     {
@@ -75,7 +81,7 @@ class Query
     protected function builder()
     {
         static $builder = [];
-        $driver         = $this->driver;
+        $driver = $this->driver;
         if (!isset($builder[$driver])) {
             $class            = '\\think\\db\\builder\\' . ucfirst($driver);
             $builder[$driver] = new $class($this->connection);
@@ -88,7 +94,7 @@ class Query
     /**
      * 得到某个字段的值
      * @access public
-     * @param string $field  字段名
+     * @param string $field 字段名
      * @return mixed
      */
     public function value($field)
@@ -117,8 +123,8 @@ class Query
     /**
      * 得到某个列的数组
      * @access public
-     * @param string $field  字段名 多个字段用逗号分隔
-     * @param string $key  索引
+     * @param string $field 字段名 多个字段用逗号分隔
+     * @param string $key 索引
      * @return array
      */
     public function column($field, $key = '')
@@ -156,7 +162,7 @@ class Query
                     $result = [];
                 }
             }
-            if (isset($cache)) {
+            if (isset($cache) && isset($guid)) {
                 // 缓存数据
                 Cache::set($guid, $result, $cache['expire']);
             }
@@ -170,7 +176,7 @@ class Query
     /**
      * COUNT查询
      * @access public
-     * @param string $field  字段名
+     * @param string $field 字段名
      * @return integer
      */
     public function count($field = '*')
@@ -181,7 +187,7 @@ class Query
     /**
      * SUM查询
      * @access public
-     * @param string $field  字段名
+     * @param string $field 字段名
      * @return integer
      */
     public function sum($field = '*')
@@ -193,7 +199,7 @@ class Query
     /**
      * MIN查询
      * @access public
-     * @param string $field  字段名
+     * @param string $field 字段名
      * @return integer
      */
     public function min($field = '*')
@@ -205,7 +211,7 @@ class Query
     /**
      * MAX查询
      * @access public
-     * @param string $field  字段名
+     * @param string $field 字段名
      * @return integer
      */
     public function max($field = '*')
@@ -217,7 +223,7 @@ class Query
     /**
      * AVG查询
      * @access public
-     * @param string $field  字段名
+     * @param string $field 字段名
      * @return integer
      */
     public function avg($field = '*')
@@ -230,8 +236,8 @@ class Query
      * 设置记录的某个字段值
      * 支持使用数据库字段和方法
      * @access public
-     * @param string|array $field  字段名
-     * @param string $value  字段值
+     * @param string|array $field 字段名
+     * @param string $value 字段值
      * @return integer
      */
     public function setField($field, $value = '')
@@ -247,9 +253,9 @@ class Query
     /**
      * 字段值(延迟)增长
      * @access public
-     * @param string $field  字段名
-     * @param integer $step  增长值
-     * @param integer $lazyTime  延时时间(s)
+     * @param string $field 字段名
+     * @param integer $step 增长值
+     * @param integer $lazyTime 延时时间(s)
      * @return integer|true
      * @throws \think\Exception
      */
@@ -274,9 +280,9 @@ class Query
     /**
      * 字段值（延迟）减少
      * @access public
-     * @param string $field  字段名
-     * @param integer $step  减少值
-     * @param integer $lazyTime  延时时间(s)
+     * @param string $field 字段名
+     * @param integer $step 减少值
+     * @param integer $lazyTime 延时时间(s)
      * @return integer|true
      * @throws \think\Exception
      */
@@ -302,9 +308,9 @@ class Query
      * 延时更新检查 返回false表示需要延时
      * 否则返回实际写入的数值
      * @access public
-     * @param string $guid  写入标识
-     * @param integer $step  写入步进值
-     * @param integer $lazyTime  延时时间(s)
+     * @param string $guid 写入标识
+     * @param integer $step 写入步进值
+     * @param integer $lazyTime 延时时间(s)
      * @return false|integer
      */
     protected function lazyWrite($guid, $step, $lazyTime)
@@ -359,7 +365,7 @@ class Query
                 }
                 if (count($join)) {
                     // 有设置第二个元素则把第二元素作为表前缀
-                    $table = (string) current($join) . $table;
+                    $table = (string)current($join) . $table;
                 } elseif (false === strpos($table, '.')) {
                     // 加上默认的表前缀
                     $table = $prefix . $table;
@@ -482,7 +488,7 @@ class Query
     /**
      * 分析查询表达式
      * @access public
-     * @param string|array|Closure $field 查询字段
+     * @param string|array|\Closure $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
      * @param string $operator and or
@@ -491,7 +497,7 @@ class Query
     protected function parseWhereExp($operator, $field, $op, $condition, $param = [])
     {
         if ($field instanceof \Closure) {
-            call_user_func_array($field, [ & $this]);
+            call_user_func_array($field, [& $this]);
             return;
         }
 
@@ -611,6 +617,51 @@ class Query
         }
         $this->options['page'] = [intval($page), intval($listRows)];
         return $this;
+    }
+
+    /**
+     * 分页查询
+     * @param int $listRows 每页数量
+     * @param bool $simple 简洁模式
+     * @param array $config 配置参数
+     *                      page:当前页,
+     *                      path:url路径,
+     *                      query:url额外参数,
+     *                      fragment:url锚点,
+     *                      var_page:分页变量,
+     *                      type:分页类名,
+     *                      namespace:分页类命名空间
+     * @return \think\paginator\Collection
+     * @throws DbException
+     */
+    public function paginate($listRows = 15, $simple = false, $config = [])
+    {
+        $config = array_merge(Config::get('paginate'), $config);
+
+        $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\paginator\\driver\\') . ucwords($config['type']);
+
+        $page = isset($config['page']) ? (int)$config['page'] : call_user_func([
+            $class,
+            'getCurrentPage'
+        ], $config['var_page']);
+
+        $page = $page < 1 ? 1 : $page;
+
+        $config['path'] = isset($config['path']) ? $config['path'] : call_user_func([$class, 'getCurrentPath']);
+
+
+        /** @var Paginator $paginator */
+        if (!$simple) {
+            $options   = $this->getOptions();
+            $total     = $this->count();
+            $results   = $this->options($options)->page($page, $listRows)->select();
+            $paginator = new $class($results, $listRows, $page, $simple, $total, $config);
+        } else {
+            $results   = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
+            $paginator = new $class($results, $listRows, $page, $simple, null, $config);
+        }
+
+        return $paginator->items();
     }
 
     /**
@@ -833,7 +884,7 @@ class Query
     /**
      * 指定当前模型
      * @access public
-     * @param string $model  模型类名称
+     * @param string $model 模型类名称
      * @return $this
      */
     public function model($model)
@@ -876,7 +927,7 @@ class Query
      * 获取数据表信息
      * @access public
      * @param string $fetch 获取信息类型 包括 fields type bind pk
-     * @param string $tableName  数据表名 留空自动获取
+     * @param string $tableName 数据表名 留空自动获取
      * @return mixed
      */
     public function getTableInfo($tableName = '', $fetch = '')
@@ -896,7 +947,7 @@ class Query
         if (!isset($_info[$guid])) {
             $info   = $this->connection->getFields($tableName);
             $fields = array_keys($info);
-            $bind   = $type   = [];
+            $bind   = $type = [];
             foreach ($info as $key => $val) {
                 // 记录字段类型
                 $type[$key] = $val['type'];
@@ -937,8 +988,8 @@ class Query
     /**
      * 参数绑定
      * @access public
-     * @param mixed $key  参数名
-     * @param mixed $value  绑定变量值
+     * @param mixed $key 参数名
+     * @param mixed $value 绑定变量值
      * @param integer $type 绑定类型
      * @return $this
      */
@@ -992,7 +1043,9 @@ class Query
 
         $i            = 0;
         $currentModel = $this->options['model'];
-        $class        = new $currentModel;
+
+        /** @var Model $class */
+        $class = new $currentModel;
         foreach ($with as $key => $relation) {
             $closure = false;
             if ($relation instanceof \Closure) {
@@ -1001,10 +1054,11 @@ class Query
                 $relation   = $key;
                 $with[$key] = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                $with[$key]                   = $relation;
+                $with[$key] = $relation;
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
+            /** @var Relation $model */
             $model = $class->$relation();
             $info  = $class->getRelationInfo();
             if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
@@ -1020,7 +1074,7 @@ class Query
                 $this->join($joinTable . ' ' . $joinName, $name . '.' . $info['localKey'] . '=' . $joinName . '.' . $info['foreignKey'])->field(true, false, $joinTable, $joinName, $joinName . '__');
                 if ($closure) {
                     // 执行闭包查询
-                    call_user_func_array($closure, [ & $this]);
+                    call_user_func_array($closure, [& $this]);
                 }
                 $i++;
             } elseif ($closure) {
@@ -1035,7 +1089,7 @@ class Query
     /**
      * 设置当前字段添加的表别名
      * @access public
-     * @param string $relation 关联名称
+     * @param string $via
      * @return Db
      */
     public function via($via = '')
@@ -1100,7 +1154,7 @@ class Query
      * @access public
      * @param mixed $data 数据
      * @param boolean $replace 是否replace
-     * @param boolean $getLastInsID  是否获取自增ID
+     * @param boolean $getLastInsID 是否获取自增ID
      * @return integer
      */
     public function insert(array $data, $replace = false, $getLastInsID = false)
@@ -1149,8 +1203,8 @@ class Query
      * @access public
      * @param string $fields 要插入的数据表字段名
      * @param string $table 要插入的数据表名
-     * @param array $option  查询数据参数
-     * @return integer
+     * @return int
+     * @throws \think\exception\PDOException
      */
     public function selectInsert($fields, $table)
     {
@@ -1166,7 +1220,9 @@ class Query
      * 更新记录
      * @access public
      * @param mixed $data 数据
-     * @return integer
+     * @return int
+     * @throws Exception
+     * @throws \think\exception\PDOException
      */
     public function update(array $data)
     {
@@ -1208,15 +1264,18 @@ class Query
     /**
      * 查找记录
      * @access public
-     * @param array $options 表达式
-     * @return \PDOStatement|array|string|false
+     * @param array $data
+     * @return Collection|false|\PDOStatement|string
+     * @throws DbException
+     * @throws Exception
+     * @throws \think\exception\PDOException
      */
     public function select($data = [])
     {
         if ($data instanceof Query) {
             return $data->select();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $this]);
+            call_user_func_array($data, [& $this]);
         }
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -1265,6 +1324,7 @@ class Query
                 // 生成模型对象
                 $model = $options['model'];
                 foreach ($resultSet as $key => $result) {
+                    /** @var Model $result */
                     $result = new $model($result);
                     $result->isUpdate(true);
                     // 关联查询
@@ -1281,21 +1341,24 @@ class Query
         } elseif (!empty($options['fail'])) {
             throw new DbException('Data not Found', $options, $sql);
         }
-        return $resultSet;
+        return Collection::make($resultSet);
     }
 
     /**
      * 查找单条记录
      * @access public
      * @param array $data 表达式
-     * @return \think\Model|\PDOStatement|array|string|false
+     * @return array|false|\PDOStatement|string|Model
+     * @throws DbException
+     * @throws Exception
+     * @throws \think\exception\PDOException
      */
     public function find($data = [])
     {
         if ($data instanceof Query) {
             return $data->find();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $this]);
+            call_user_func_array($data, [& $this]);
         }
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -1403,8 +1466,9 @@ class Query
     /**
      * 创建子查询SQL
      * @access public
-     * @param array $data 表达式
+     * @param bool $sub
      * @return string
+     * @throws DbException
      */
     public function buildSql($sub = true)
     {
@@ -1415,7 +1479,9 @@ class Query
      * 删除记录
      * @access public
      * @param array $data 表达式
-     * @return integer
+     * @return int
+     * @throws Exception
+     * @throws \think\exception\PDOException
      */
     public function delete($data = [])
     {
@@ -1483,10 +1549,10 @@ class Query
         if (isset($options['page'])) {
             // 根据页数计算limit
             list($page, $listRows) = $options['page'];
-            $page                  = $page > 0 ? $page : 1;
-            $listRows              = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
-            $offset                = $listRows * ($page - 1);
-            $options['limit']      = $offset . ',' . $listRows;
+            $page             = $page > 0 ? $page : 1;
+            $listRows         = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset           = $listRows * ($page - 1);
+            $options['limit'] = $offset . ',' . $listRows;
         }
 
         $this->options = [];

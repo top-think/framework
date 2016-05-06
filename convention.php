@@ -213,5 +213,10 @@ return [
         // 指定从服务器序号
         'slave_no'    => '',
     ],
+    //分页配置
+    'paginate' => [
+        'type'     => 'bootstrap',
+        'var_page' => 'page'
+    ]
 
 ];

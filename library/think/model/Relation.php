@@ -11,6 +11,7 @@
 
 namespace think\model;
 
+use think\Collection;
 use think\Db;
 use think\Exception;
 use think\Loader;
@@ -26,7 +27,7 @@ class Relation
 
     // 父模型对象
     protected $parent;
-    // 当前关联的模型类
+    /** @var  Model 当前关联的模型类 */
     protected $model;
     // 中间表模型
     protected $middle;
@@ -118,6 +119,7 @@ class Relation
      */
     public function eagerlyResultSet($resultSet, $relation)
     {
+        /** @var array $relations */
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
         foreach ($relations as $key => $relation) {
@@ -153,15 +155,19 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $data = $this->eagerlyOneToMany($model, [$foreignKey => ['in', $range]], $relation, $subRelation, $closure);
+                        $data = $this->eagerlyOneToMany($model, [
+                            $foreignKey => [
+                                'in',
+                                $range
+                            ]
+                        ], $relation, $subRelation, $closure);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
-                            if (isset($data[$result->$localKey])) {
-                                $result->__set($relation, $data[$result->$localKey]);
-                            } else {
-                                $result->__set($relation, []);
+                            if (!isset($data[$result->$localKey])) {
+                                $data[$result->$localKey] = [];
                             }
+                            $result->__set($relation, Collection::make($data[$result->$localKey]));
                         }
                     }
                     break;
@@ -177,20 +183,24 @@ class Relation
 
                     if (!empty($range)) {
                         // 查询关联数据
-                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => ['in', $range]], $relation, $subRelation);
+                        $data = $this->eagerlyManyToMany($model, [
+                            'pivot.' . $foreignKey => [
+                                'in',
+                                $range
+                            ]
+                        ], $relation, $subRelation);
 
                         // 关联数据封装
                         foreach ($resultSet as $result) {
-                            if (isset($data[$result->$pk])) {
-                                $result->__set($relation, $data[$result->$pk]);
-                            } else {
-                                $result->__set($relation, []);
+                            if (!isset($data[$result->$pk])) {
+                                $data[$result->$pk] = [];
                             }
+
+                            $result->__set($relation, Collection::make($data[$result->$pk]));
                         }
                     }
                     break;
             }
-            $this->relation = [];
         }
         return $resultSet;
     }
@@ -233,7 +243,7 @@ class Relation
                         if (!isset($data[$result->$localKey])) {
                             $data[$result->$localKey] = [];
                         }
-                        $result->__set($relation, $data[$result->$localKey]);
+                        $result->__set($relation, Collection::make($data[$result->$localKey]));
                     }
                     break;
                 case self::BELONGS_TO_MANY:
@@ -247,7 +257,7 @@ class Relation
                         if (!isset($data[$pk])) {
                             $data[$pk] = [];
                         }
-                        $result->__set($relation, $data[$pk]);
+                        $result->__set($relation, Collection::make($data[$pk]));
                     }
                     break;
 
@@ -292,7 +302,8 @@ class Relation
      * @param array $where 关联预查询条件
      * @param string $relation 关联名
      * @param string $subRelation 子关联
-     * @return void
+     * @param bool $closure
+     * @return array
      */
     protected function eagerlyOneToMany($model, $where, $relation, $subRelation = '', $closure = false)
     {
@@ -315,7 +326,7 @@ class Relation
      * @param array $where 关联预查询条件
      * @param string $relation 关联名
      * @param string $subRelation 子关联
-     * @return void
+     * @return array
      */
     protected function eagerlyManyToMany($model, $where, $relation, $subRelation = '')
     {
@@ -367,7 +378,7 @@ class Relation
      * @access public
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
-     * @param string $localKey 关联主键
+     * @param string $otherKey 关联主键
      * @return \think\db\Query|string
      */
     public function belongsTo($model, $foreignKey, $otherKey)

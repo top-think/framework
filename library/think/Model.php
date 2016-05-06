@@ -16,7 +16,13 @@ use think\Db;
 use think\db\Query;
 use think\Loader;
 use think\model\Relation;
+use think\paginator\Collection as PaginatorCollection;
 
+/**
+ * Class Model
+ * @package think
+ * @method PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) static 分页查询
+ */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
 
@@ -172,7 +178,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 continue;
             }
 
-            if ($val instanceof Model) {
+            if ($val instanceof Model || $val instanceof Collection) {
                 // 关联模型对象
                 $item[$key] = $val->toArray();
             } elseif (is_array($val) && isset($val[0]) && $val[0] instanceof Model) {

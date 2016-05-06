@@ -12,9 +12,8 @@
 namespace think\db;
 
 use PDO;
-use think\Config;
+use PDOStatement;
 use think\Db;
-use think\db\Query;
 use think\Debug;
 use think\Exception;
 use think\exception\DbBindParamException;
@@ -23,13 +22,16 @@ use think\Log;
 
 abstract class Connection
 {
-    // PDO操作实例
+
+    /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
+
     // 当前操作的数据表名
     protected $table = '';
     // 当前操作的数据对象名
     protected $name = '';
-    // 当前SQL指令
+
+    /** @var string 当前SQL指令 */
     protected $queryStr = '';
     // 最后插入ID
     protected $lastInsID;
@@ -43,10 +45,13 @@ abstract class Connection
     protected $transLabel = '';
     // 错误信息
     protected $error = '';
-    // 数据库连接ID 支持多个连接
+
+    /** @var PDO[] 数据库连接ID 支持多个连接 */
     protected $links = [];
-    // 当前连接ID
+
+    /** @var PDO 当前连接ID */
     protected $linkID;
+
     // 查询结果类型
     protected $fetchType = PDO::FETCH_ASSOC;
     // 字段属性大小写
@@ -207,8 +212,9 @@ abstract class Connection
      * @access public
      * @param array $config 连接参数
      * @param integer $linkNum 连接序号
-     * @param false|array $autoConnection 是否自动连接主数据库（用于分布式）
-     * @return \PDO
+     * @param array|bool $autoConnection 是否自动连接主数据库（用于分布式）
+     * @return PDO
+     * @throws Exception
      */
     public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
     {
@@ -284,12 +290,14 @@ abstract class Connection
     /**
      * 执行查询 返回数据集
      * @access public
-     * @param string $sql  sql指令
+     * @param string $sql sql指令
      * @param array $bind 参数绑定
-     * @param boolean $fetch  不执行只是获取SQL
-     * @param boolean $master  是否在主服务器读操作
-     * @param bool $returnPdo  是否返回 PDOStatement 对象
+     * @param boolean $fetch 不执行只是获取SQL
+     * @param boolean $master 是否在主服务器读操作
+     * @param bool $returnPdo 是否返回 PDOStatement 对象
      * @return mixed
+     * @throws DbBindParamException
+     * @throws PDOException
      */
     public function query($sql, $bind = [], $fetch = false, $master = false, $returnPdo = false)
     {
@@ -330,11 +338,13 @@ abstract class Connection
     /**
      * 执行语句
      * @access public
-     * @param string $sql  sql指令
+     * @param string $sql sql指令
      * @param array $bind 参数绑定
-     * @param boolean $fetch  不执行只是获取SQL
-     * @param boolean $getLastInsID  是否获取自增ID
-     * @return integer
+     * @param boolean $fetch 不执行只是获取SQL
+     * @param boolean $getLastInsID 是否获取自增ID
+     * @return int
+     * @throws DbBindParamException
+     * @throws PDOException
      */
     public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false)
     {
@@ -393,8 +403,8 @@ abstract class Connection
                 $val = $this->quote(is_array($val) ? $val[0] : $val);
                 // 判断占位符
                 $sql = is_numeric($key) ?
-                substr_replace($sql, $val, strpos($sql, '?'), 1) :
-                str_replace([':' . $key . ')', ':' . $key . ' '], [$val . ')', $val . ' '], $sql . ' ');
+                    substr_replace($sql, $val, strpos($sql, '?'), 1) :
+                    str_replace([':' . $key . ')', ':' . $key . ' '], [$val . ')', $val . ' '], $sql . ' ');
             }
         }
         return $sql;
@@ -452,6 +462,7 @@ abstract class Connection
     {
         $this->startTrans(NOW_TIME);
         try {
+            $result = null;
             if (is_callable($callback)) {
                 $result = call_user_func_array($callback, []);
             }
@@ -466,8 +477,8 @@ abstract class Connection
     /**
      * 启动事务
      * @access public
-     * @param string $label  事务标识
-     * @return void
+     * @param string $label 事务标识
+     * @return bool|null
      */
     public function startTrans($label = '')
     {
@@ -485,14 +496,15 @@ abstract class Connection
             }
         }
         $this->transTimes++;
-        return;
+        return null;
     }
 
     /**
      * 用于非自动提交状态下面的查询提交
      * @access public
-     * @param string $label  事务标识
-     * @return boolen
+     * @param string $label 事务标识
+     * @return boolean
+     * @throws PDOException
      */
     public function commit($label = '')
     {
@@ -513,7 +525,8 @@ abstract class Connection
     /**
      * 事务回滚
      * @access public
-     * @return boolen
+     * @return boolean
+     * @throws PDOException
      */
     public function rollback()
     {
@@ -535,7 +548,7 @@ abstract class Connection
      * 批处理执行SQL语句
      * 批处理的指令都认为是execute操作
      * @access public
-     * @param array $sql  SQL批处理指令
+     * @param array $sql SQL批处理指令
      * @return boolean
      */
     public function batchQuery($sql = [])
@@ -647,7 +660,7 @@ abstract class Connection
     /**
      * SQL指令安全过滤
      * @access public
-     * @param string $str  SQL字符串
+     * @param string $str SQL字符串
      * @return string
      */
     public function quote($str)
@@ -659,7 +672,7 @@ abstract class Connection
     /**
      * 数据库调试 记录当前SQL
      * @access protected
-     * @param boolean $start  调试开始标记 true 开始 false 结束
+     * @param boolean $start 调试开始标记 true 开始 false 结束
      */
     protected function debug($start)
     {
@@ -745,10 +758,11 @@ abstract class Connection
      * 连接分布式服务器
      * @access protected
      * @param boolean $master 主服务器
-     * @return void
+     * @return PDO
      */
     protected function multiConnect($master = false)
     {
+        $_config = [];
         // 分布式数据库配置解析
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
             $_config[$name] = explode(',', $this->config[$name]);
@@ -759,8 +773,7 @@ abstract class Connection
 
         if ($this->config['rw_separate']) {
             // 主从式采用读写分离
-            if ($master)
-            // 主服务器写入
+            if ($master) // 主服务器写入
             {
                 $r = $m;
             } elseif (is_numeric($this->config['slave_no'])) {
@@ -774,12 +787,14 @@ abstract class Connection
             // 读写操作不区分服务器 每次随机连接的数据库
             $r = floor(mt_rand(0, count($_config['hostname']) - 1));
         }
-
+        $dbMaster = false;
         if ($m != $r) {
+            $dbMaster = [];
             foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
                 $dbMaster[$name] = isset($_config[$name][$m]) ? $_config[$name][$m] : $_config[$name][0];
             }
         }
+        $dbConfig = [];
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
             $dbConfig[$name] = isset($_config[$name][$r]) ? $_config[$name][$r] : $_config[$name][0];
         }
