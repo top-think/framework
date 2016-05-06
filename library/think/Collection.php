@@ -24,7 +24,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
     public function __construct($items = [])
     {
-        $this->items = $items instanceof self ? $items->all() : (array)$items;
+        $this->items = $this->convertToArray($items);
     }
 
     public static function make($items = [])
@@ -51,6 +51,118 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function all()
     {
         return $this->items;
+    }
+
+    /**
+     * 合并数组
+     *
+     * @param  mixed $items
+     * @return static
+     */
+    public function merge($items)
+    {
+        return new static(array_merge($this->items, $this->convertToArray($items)));
+    }
+
+    /**
+     * 比较数组，返回差集
+     *
+     * @param  mixed $items
+     * @return static
+     */
+    public function diff($items)
+    {
+        return new static(array_diff($this->items, $this->convertToArray($items)));
+    }
+
+
+    /**
+     * 交换数组中的键和值
+     *
+     * @return static
+     */
+    public function flip()
+    {
+        return new static(array_flip($this->items));
+    }
+
+    /**
+     * 比较数组，返回交集
+     *
+     * @param  mixed $items
+     * @return static
+     */
+    public function intersect($items)
+    {
+        return new static(array_intersect($this->items, $this->convertToArray($items)));
+    }
+
+    /**
+     * 返回数组中所有的键名
+     *
+     * @return static
+     */
+    public function keys()
+    {
+        return new static(array_keys($this->items));
+    }
+
+    /**
+     * 删除数组的最后一个元素（出栈）
+     *
+     * @return mixed
+     */
+    public function pop()
+    {
+        return array_pop($this->items);
+    }
+
+
+    /**
+     * 通过使用用户自定义函数，以字符串返回数组
+     *
+     * @param  callable $callback
+     * @param  mixed $initial
+     * @return mixed
+     */
+    public function reduce(callable $callback, $initial = null)
+    {
+        return array_reduce($this->items, $callback, $initial);
+    }
+
+    /**
+     * 以相反的顺序返回数组。
+     *
+     * @return static
+     */
+    public function reverse()
+    {
+        return new static(array_reverse($this->items));
+    }
+
+    /**
+     * 删除数组中首个元素，并返回被删除元素的值
+     *
+     * @return mixed
+     */
+    public function shift()
+    {
+        return array_shift($this->items);
+    }
+
+
+    /**
+     * 将数组打乱
+     *
+     * @return static
+     */
+    public function shuffle()
+    {
+        $items = $this->items;
+
+        shuffle($items);
+
+        return new static($items);
     }
 
     /**
@@ -123,5 +235,19 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function __toString()
     {
         return $this->toJson();
+    }
+
+    /**
+     * 转换成数组
+     *
+     * @param  mixed $items
+     * @return array
+     */
+    protected function convertToArray($items)
+    {
+        if ($items instanceof self) {
+            return $items->all();
+        }
+        return (array)$items;
     }
 }
