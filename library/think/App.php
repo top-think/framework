@@ -227,7 +227,7 @@ class App
             // 安全检测
             throw new Exception('illegal controller name:' . CONTROLLER_NAME, 10000);
         }
-        $instance = Loader::controller(CONTROLLER_NAME, '', Config::get('empty_controller'));
+        $instance = Loader::controller(CONTROLLER_NAME, '', Config::get('use_controller_suffix'), Config::get('empty_controller'));
         // 获取当前操作名
         $action = ACTION_NAME . Config::get('action_suffix');
 
@@ -237,7 +237,7 @@ class App
             APP_HOOK && Hook::listen('action_begin', $call);
             if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
                 // 非法操作
-                throw new Exception('illegal action name :' . ACTION_NAME, 10001);
+                throw new \ReflectionException('illegal action name :' . ACTION_NAME);
             }
             // 执行操作方法
             $data = self::invokeMethod($call);

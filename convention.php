@@ -33,6 +33,8 @@ return [
     'default_filter'         => '',
     // 自动Response输出
     'response_auto_output'   => true,
+    // 是否启用控制器类后缀
+    'use_controller_suffix'  => false,
 
     // +----------------------------------------------------------------------
     // | 模块设置
