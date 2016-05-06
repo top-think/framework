@@ -47,6 +47,17 @@ class redisTest extends cacheTestCase
 
     public function testStoreSpecialValues()
     {
+        $redis = new \think\cache\driver\Redis(['length' => 3]);
+        $redis->set('key', 'value');
+        $redis->get('key');
+
+        $redis->handler()->setnx('key', 'value');
+        $value = $redis->handler()->get('key');
+        $this->assertEquals('value', $value);
+        
+        $redis->handler()->hset('hash', 'key', 'value');
+        $value = $redis->handler()->hget('hash', 'key');
+        $this->assertEquals('value', $value);
     }
 
     public function testExpire()
