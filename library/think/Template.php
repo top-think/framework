@@ -229,9 +229,10 @@ class Template
      * 设置布局
      * @access public
      * @param mixed $name 布局模板名称 false 则关闭布局
+     * @param string $replace 布局模板内容替换标识
      * @return object
      */
-    public function layout($name)
+    public function layout($name, $replace = '')
     {
         if (false === $name) {
             // 关闭布局
@@ -242,6 +243,9 @@ class Template
             // 名称必须为字符串
             if (is_string($name)) {
                 $this->config['layout_name'] = $name;
+            }
+            if (!empty($replace)) {
+                $this->config['layout_item'] = $replace;
             }
         }
         return $this;
