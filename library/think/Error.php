@@ -71,7 +71,6 @@ class Error
 
         // 记录异常日志
         Log::record($log, 'error');
-        Log::save();
 
         /* 非API模式下的部署模式，跳转到指定的 Error Page */
         $error_page = Config::get('error_page');
@@ -81,6 +80,8 @@ class Error
             // 输出错误信息
             self::output($exception, $data);
         }
+
+        Log::save();
         // 禁止往下传播已处理过的异常
         return true;
     }
