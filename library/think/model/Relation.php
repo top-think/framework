@@ -158,8 +158,8 @@ class Relation
                         $data = $this->eagerlyOneToMany($model, [
                             $foreignKey => [
                                 'in',
-                                $range
-                            ]
+                                $range,
+                            ],
                         ], $relation, $subRelation, $closure);
 
                         // 关联数据封装
@@ -186,8 +186,8 @@ class Relation
                         $data = $this->eagerlyManyToMany($model, [
                             'pivot.' . $foreignKey => [
                                 'in',
-                                $range
-                            ]
+                                $range,
+                            ],
                         ], $relation, $subRelation);
 
                         // 关联数据封装
@@ -465,14 +465,14 @@ class Relation
      */
     public function save($data, array $pivot = [])
     {
-        if ($data instanceof Model) {
-            $data = $data->toArray();
-        }
         // 判断关联类型
         switch ($this->type) {
             case self::HAS_ONE:
             case self::BELONGS_TO:
             case self::HAS_MANY:
+                if ($data instanceof Model) {
+                    $data = $data->toArray();
+                }
                 // 保存关联表数据
                 $data[$this->foreignKey] = $this->parent->{$this->localKey};
                 $model                   = new $this->model;
