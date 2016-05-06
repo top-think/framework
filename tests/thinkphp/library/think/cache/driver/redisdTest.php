@@ -9,13 +9,12 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
+namespace tests\thinkphp\library\think\cache\driver;
+
 /**
  * Redisd缓存驱动测试
  * @author 尘缘 <130775@qq.com>
  */
-
-namespace tests\thinkphp\library\think\cache\driver;
-
 class redisdTest extends cacheTestCase
 {
     private $_cacheInstance = null;
@@ -31,7 +30,7 @@ class redisdTest extends cacheTestCase
     protected function getCacheInstance()
     {
         if (null === $this->_cacheInstance) {
-            $this->_cacheInstance = new \think\cache\driver\Redisd(['length' => 3]);
+            $this->_cacheInstance = new \think\cache\driver\Redisd();
         }
         return $this->_cacheInstance;
     }
@@ -47,6 +46,20 @@ class redisdTest extends cacheTestCase
 
     public function testStoreSpecialValues()
     {
+        $redis = new \think\cache\driver\Redisd(['length' => 3]);
+        $redis->master(true);
+
+        $redis->handler()->setnx('key', 'value');
+        $value = $redis->handler()->get('key');
+        $this->assertEquals('value', $value);
+        
+        $redis->handler()->hset('hash', 'key', 'value');
+        $value = $redis->handler()->hget('hash', 'key');
+        $this->assertEquals('value', $value);
+        
+        $redis->master(true)->hset('hash', 'key', 'value');
+        $value = $redis->master(false)->hget('hash', 'key');
+        $this->assertEquals('value', $value);
     }
 
     public function testExpire()
