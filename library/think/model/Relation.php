@@ -14,6 +14,7 @@ namespace think\model;
 use think\Db;
 use think\Exception;
 use think\Loader;
+use think\Model;
 use think\model\Pivot;
 
 class Relation
