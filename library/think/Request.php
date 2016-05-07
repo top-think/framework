@@ -67,6 +67,21 @@ class Request
     ];
 
     /**
+     * 获取当前URL
+     * @access public
+     * @param string $url URL地址
+     * @return string
+     */
+    public static function url($url = '')
+    {
+        if (!empty($url)) {
+            self::$url = $url;
+        } else {
+            return self::$url ?: $_SERVER[Config::get('url_request_uri')];
+        }
+    }
+
+    /**
      * 获取基础URL
      * @access public
      * @param string $url URL地址
