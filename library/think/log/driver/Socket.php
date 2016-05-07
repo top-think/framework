@@ -1,10 +1,20 @@
 <?php
+// +----------------------------------------------------------------------
+// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
+// +----------------------------------------------------------------------
+// | Copyright (c) 2006-2016 http://thinkphp.cn All rights reserved.
+// +----------------------------------------------------------------------
+// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
+// +----------------------------------------------------------------------
+// | Author: luofei614 <weibo.com/luofei614>
+// +----------------------------------------------------------------------
+
+namespace think\log\driver;
+
 /**
  * github: https://github.com/luofei614/SocketLog
  * @author luofei614<weibo.com/luofei614>
  */
-namespace think\log\driver;
-
 class Socket
 {
     public $port = 1116; //SocketLog 服务的http的端口号
