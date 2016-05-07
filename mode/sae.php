@@ -86,6 +86,7 @@ return [
         'think\exception\ErrorException'       => CORE_PATH . 'exception' . DS . 'ErrorException' . EXT,
         'think\exception\DbBindParamException' => CORE_PATH . 'exception' . DS . 'DbBindParamException' . EXT,
         'think\exception\NotFoundException'    => CORE_PATH . 'exception' . DS . 'NotFoundException' . EXT,
+        'think\File'                           => CORE_PATH . 'File' . EXT,
         'think\Hook'                           => CORE_PATH . 'Hook' . EXT,
         'think\Input'                          => CORE_PATH . 'Input' . EXT,
         'think\Lang'                           => CORE_PATH . 'Lang' . EXT,
