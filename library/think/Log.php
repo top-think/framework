@@ -29,7 +29,10 @@ class Log
     // 通知发送驱动
     protected static $alarm = null;
 
-    // 日志初始化
+    /**
+     * 日志初始化
+     * @return void
+     */
     public static function init($config = [])
     {
         $type  = isset($config['type']) ? $config['type'] : 'File';
@@ -40,7 +43,10 @@ class Log
         APP_DEBUG && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
     }
 
-    // 通知初始化
+    /**
+     * 通知初始化
+     * @return void
+     */
     public static function alarm($config = [])
     {
         $type  = isset($config['type']) ? $config['type'] : 'Email';
@@ -128,7 +134,10 @@ class Log
         self::$alarm && self::$alarm->send($msg);
     }
 
-    // 静态调用
+    /**
+     * 静态调用
+     * @return void
+     */
     public static function __callStatic($method, $args)
     {
         if (in_array($method, self::$type)) {
