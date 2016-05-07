@@ -540,22 +540,20 @@ class Template
                             $replace = str_replace($baseBlocks[$key]['begin'] . $baseBlocks[$key]['content'] . $baseBlocks[$key]['end'], $blocks[$key]['content'], $replace);
                         }
                     }
-                    if (isset($blocks[$name])) {
-                        // 带有{__block__}表示与所继承模板的相应标签合并，而不是覆盖
-                        $replace = str_replace(['{__BLOCK__}', '{__block__}'], $replace, $blocks[$name]['content']);
-                        if (!empty($val['parent'])) {
-                            // 如果不是最顶层的block标签
-                            $parent = $val['parent'];
-                            if (isset($blocks[$parent])) {
-                                $blocks[$parent]['content'] = str_replace($blocks[$name]['begin'] . $blocks[$name]['content'] . $blocks[$name]['end'], $replace, $blocks[$parent]['content']);
-                            }
-                            $blocks[$name]['content'] = $replace;
-                            $children[$parent][]      = $name;
-                            continue;
+                    // 带有{__block__}表示与所继承模板的相应标签合并，而不是覆盖
+                    $replace = str_replace(['{__BLOCK__}', '{__block__}'], $replace, $val['content']);
+                    if (!empty($val['parent'])) {
+                        // 如果不是最顶层的block标签
+                        $parent = $val['parent'];
+                        if (isset($blocks[$parent])) {
+                            $blocks[$parent]['content'] = str_replace($val['begin'] . $val['content'] . $val['end'], $replace, $blocks[$parent]['content']);
                         }
+                        $blocks[$name]['content'] = $replace;
+                        $children[$parent][]      = $name;
+                    }else{
+                        // 替换模板中的block标签
+                        $extend = str_replace($val['begin'] . $val['content'] . $val['end'], $replace, $extend);
                     }
-                    // 替换模板中的block标签
-                    $extend = str_replace($val['begin'] . $val['content'] . $val['end'], $replace, $extend);
                 }
             }
             $content = $extend;
