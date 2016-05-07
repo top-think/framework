@@ -108,7 +108,7 @@ class Request
     public static function pathinfo()
     {
         if (is_null(self::$pathinfo)) {
-            if (Config::get('var_pathinfo')) {
+            if (isset($_GET[Config::get('var_pathinfo')])) {
                 // 判断URL里面是否有兼容模式参数
                 $_SERVER['PATH_INFO'] = $_GET[Config::get('var_pathinfo')];
                 unset($_GET[Config::get('var_pathinfo')]);
@@ -442,9 +442,8 @@ class Request
     {
         if (!empty($type)) {
             self::$dispatch = $dispatch;
-        } else {
-            return self::$dispatch;
         }
+        return self::$dispatch;
     }
 
 }

@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\Request;
+
 class Route
 {
     // 路由规则
@@ -362,11 +364,6 @@ class Route
             $url = str_replace($depr, '/', $url);
         }
 
-        // 优先检测是否存在PATH_INFO
-        if (empty($url)) {
-            $url = '/';
-        }
-
         if (isset(self::$map[$url])) {
             // URL映射
             return self::parseUrl(self::$map[$url], $depr);
@@ -421,6 +418,7 @@ class Route
                         }
                         $result = self::checkRule($key, $route, $url1, $pattern, $option);
                         if (false !== $result) {
+                            Request::route($route);
                             return $result;
                         }
                     }
@@ -433,6 +431,7 @@ class Route
                     // 规则路由
                     $result = self::checkRule($rule, $route, $url, $pattern, $option);
                     if (false !== $result) {
+                        Request::route($route);
                         return $result;
                     }
                 }
@@ -575,6 +574,7 @@ class Route
     // 地址格式 [模块/控制器/操作?]参数1=值1&参数2=值2...
     private static function parseRoute($url, $reverse = false)
     {
+        $url = trim($url, '/');
         $var = [];
         if (false !== strpos($url, '?')) {
             // [模块/控制器/操作?]参数1=值1&参数2=值2...
