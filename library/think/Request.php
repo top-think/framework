@@ -440,7 +440,7 @@ class Request
      */
     public static function dispatch($dispatch = [])
     {
-        if (!empty($type)) {
+        if (!empty($dispatch)) {
             self::$dispatch = $dispatch;
         }
         return self::$dispatch;
