@@ -11,7 +11,6 @@
 
 namespace think;
 
-
 use think\Console;
 
 class App
