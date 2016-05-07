@@ -11,7 +11,6 @@
 
 namespace think\process\pipes;
 
-
 use think\Process;
 
 class Unix extends Pipes

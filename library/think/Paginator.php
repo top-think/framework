@@ -11,7 +11,6 @@
 
 namespace think;
 
-
 use think\paginator\Collection as PaginatorCollection;
 
 abstract class Paginator

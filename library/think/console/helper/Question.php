@@ -11,7 +11,6 @@
 
 namespace think\console\helper;
 
-
 use think\console\Input;
 use think\console\Output;
 use think\console\helper\question\Question as OutputQuestion;

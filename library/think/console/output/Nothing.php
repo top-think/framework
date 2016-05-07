@@ -11,7 +11,6 @@
 
 namespace think\console\output;
 
-
 use think\console\Output;
 
 class Nothing extends Output
