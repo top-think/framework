@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\Input;
+
 class Validate
 {
     // 实例
@@ -40,6 +42,7 @@ class Validate
         'array'      => ':attribute必须是数组',
         'accepted'   => ':attribute必须是yes、on或者1',
         'date'       => ':attribute格式不符合',
+        'file'       => ':attribute不是有效的上传文件',
         'alpha'      => ':attribute只能是字母',
         'alphaNum'   => ':attribute只能是字母和数字',
         'alphaDash'  => ':attribute只能是字母、数字和下划线_及破折号-',
@@ -69,6 +72,9 @@ class Validate
         'regex'      => ':attribute不符合指定规则',
         'method'     => '无效的请求类型',
         'token'      => '令牌数据无效',
+        'fileSize'   => '上传文件大小不符',
+        'fileExt'    => '上传文件后缀不符',
+        'fileMime'   => '上传文件类型不符',
     ];
 
     // 当前验证场景
@@ -524,6 +530,10 @@ class Validate
                 // 是否为数组
                 $result = is_array($value);
                 break;
+            case 'file':
+                $file   = Input::file($value);
+                $result = !empty($file);
+                break;
             default:
                 if (isset(self::$type[$rule])) {
                     // 注册的验证规则
@@ -561,6 +571,90 @@ class Validate
             $rule = 'ipv4';
         }
         return $this->filter($value, FILTER_VALIDATE_IP, 'ipv6' == $rule ? FILTER_FLAG_IPV6 : FILTER_FLAG_IPV4);
+    }
+
+    /**
+     * 验证上传文件后缀
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function fileExt($value, $rule)
+    {
+        $file = Input::file($value);
+        if (empty($file)) {
+            return false;
+        }
+        if (is_string($rule)) {
+            $rule = explode(',', $rule);
+        }
+        if (is_array($file)) {
+            foreach ($file as $item) {
+                if (!in_array(strtolower($item->getExtension()), $rule)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return in_array(strtolower($file->getExtension()), $rule);
+        }
+    }
+
+    /**
+     * 验证上传文件类型
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function fileMime($value, $rule)
+    {
+        $file = Input::file($value);
+        if (empty($file)) {
+            return false;
+        }
+        if (is_string($rule)) {
+            $rule = explode(',', $rule);
+        }
+        if (is_array($file)) {
+            foreach ($file as $item) {
+                if (!in_array(strtolower($item->getMime()), $rule)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return in_array(strtolower($file->getMime()), $rule);
+        }
+    }
+
+    /**
+     * 验证上传文件大小
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function fileSize($value, $rule)
+    {
+        $file = Input::file($value);
+        if (empty($file)) {
+            return false;
+        }
+        if (is_string($rule)) {
+            $rule = explode(',', $rule);
+        }
+        if (is_array($file)) {
+            foreach ($file as $item) {
+                if ($item->getSize() > $rule) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return $file->getSize() <= $rule;
+        }
     }
 
     /**

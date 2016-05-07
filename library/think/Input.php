@@ -12,6 +12,7 @@
 namespace think;
 
 use think\Config;
+use think\File;
 
 class Input
 {
@@ -128,6 +129,9 @@ class Input
      */
     public static function session($name = '', $default = null, $filter = null, $merge = false)
     {
+        if (PHP_SESSION_DISABLED == session_status()) {
+            session_start();
+        }
         return self::data($_SESSION, $name, $default, $filter, $merge);
     }
 
@@ -205,14 +209,40 @@ class Input
     /**
      * 获取$_FILES
      * @param string $name 数据名称
-     * @param string $default 默认值
-     * @param string $filter 过滤方法
-     * @param boolean $merge 是否与默认的过虑方法合并
-     * @return mixed
+     * @return \think\File|array
      */
-    public static function file($name = '', $default = null, $filter = null, $merge = false)
+    public static function file($name = '')
     {
-        return self::data($_FILES, $name, $default, $filter, $merge);
+        if (!empty($_FILES)) {
+            if ('' === $name) {
+                // 获取全部文件
+                $file = [];
+                foreach ($_FILES as $name => $val) {
+                    if (empty($val['tmp_name'])) {
+                        continue;
+                    }
+                    if (is_array($val['tmp_name'])) {
+                        foreach ($val['tmp_name'] as $item) {
+                            $file[] = new File($item);
+                        }
+                    } else {
+                        $file[] = new File($val['tmp_name']);
+                    }
+                }
+                return $file;
+            } elseif (!empty($_FILES[$name]['tmp_name'])) {
+                if (is_array($_FILES[$name]['tmp_name'])) {
+                    $file = [];
+                    foreach ($_FILES[$name]['tmp_name'] as $item) {
+                        $file[] = new File($item);
+                    }
+                    return $file;
+                } else {
+                    return new File($_FILES[$name]['tmp_name']);
+                }
+            }
+        }
+        return null;
     }
 
     /**
