@@ -37,9 +37,9 @@ class Request
     protected static $path;
 
     /**
-     * @var string 路由
+     * @var array 路由
      */
-    protected static $route;
+    protected static $route = [];
 
     /**
      * @var array 调度信息
@@ -435,10 +435,10 @@ class Request
     /**
      * 获取当前请求的路由
      * @access public
-     * @param string $route 路由名称
-     * @return string
+     * @param array $route 路由名称
+     * @return array
      */
-    public static function route($route = '')
+    public static function route($route = [])
     {
         if (!empty($route)) {
             self::$route = $route;

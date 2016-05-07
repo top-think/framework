@@ -12,6 +12,7 @@
 namespace think;
 
 use think\Config;
+use think\Url;
 use think\View;
 
 class Response
@@ -178,7 +179,8 @@ class Response
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
         if ('html' == $type) {
-            $result = View::instance()->fetch(Config::get('dispatch_success_tmpl'), $result);
+            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_success_tmpl'), $result);
         }
         self::type($type);
         return $result;
@@ -211,7 +213,8 @@ class Response
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
         if ('html' == $type) {
-            $result = View::instance()->fetch(Config::get('dispatch_error_tmpl'), $result);
+            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_error_tmpl'), $result);
         }
         self::type($type);
         return $result;
