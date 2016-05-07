@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Config;
+use think\View;
+
 class Response
 {
     // 输出数据的转换方法
@@ -94,7 +97,7 @@ class Response
     public static function type($type = null)
     {
         if (is_null($type)) {
-            return self::$type ?: Config::get('default_return_type');
+            return self::$type ?: (IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type'));
         }
         self::$type = $type;
     }
@@ -175,7 +178,7 @@ class Response
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
         if ('html' == $type) {
-            $result = \think\View::instance()->fetch(Config::get('dispatch_success_tmpl'), $result);
+            $result = View::instance()->fetch(Config::get('dispatch_success_tmpl'), $result);
         }
         self::type($type);
         return $result;
@@ -208,7 +211,7 @@ class Response
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
         if ('html' == $type) {
-            $result = \think\View::instance()->fetch(Config::get('dispatch_error_tmpl'), $result);
+            $result = View::instance()->fetch(Config::get('dispatch_error_tmpl'), $result);
         }
         self::type($type);
         return $result;
