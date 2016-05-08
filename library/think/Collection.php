@@ -121,7 +121,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 通过使用用户自定义函数，以字符串返回数组
      *
      * @param  callable $callback
-     * @param  mixed $initial
+     * @param  mixed    $initial
      * @return mixed
      */
     public function reduce(callable $callback, $initial = null)
@@ -149,6 +149,132 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return array_shift($this->items);
     }
 
+    /**
+     * 把一个数组分割为新的数组块.
+     *
+     * @param  int  $size
+     * @param  bool $preserveKeys
+     * @return static
+     */
+    public function chunk($size, $preserveKeys = false)
+    {
+        $chunks = [];
+
+        foreach (array_chunk($this->items, $size, $preserveKeys) as $chunk) {
+            $chunks[] = new static($chunk);
+        }
+
+        return new static($chunks);
+    }
+
+    /**
+     * 在数组开头插入一个元素
+     * @param mixed $value
+     * @param null  $key
+     * @return int
+     */
+    public function unshift($value, $key = null)
+    {
+        if (is_null($key)) {
+            array_unshift($this->items, $value);
+        } else {
+            $this->items = [$key => $value] + $this->items;
+        }
+    }
+
+    /**
+     * 给每个元素执行个回调
+     *
+     * @param  callable $callback
+     * @return $this
+     */
+    public function each(callable $callback)
+    {
+        foreach ($this->items as $key => $item) {
+            if ($callback($item, $key) === false) {
+                break;
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * 用回调函数过滤数组中的元素
+     * @param callable|null $callback
+     * @return static
+     */
+    public function filter(callable $callback = null)
+    {
+        if ($callback) {
+            return new static(array_filter($this->items, $callback));
+        }
+
+        return new static(array_filter($this->items));
+    }
+
+    /**
+     * 返回数组中指定的一列
+     * @param      $column_key
+     * @param null $index_key
+     * @return array
+     */
+    public function column($column_key, $index_key = null)
+    {
+        if (function_exists('array_column')) {
+            return array_column($this->items, $column_key, $index_key);
+        }
+
+        $result = [];
+        foreach ($this->items as $row) {
+            $key    = $value = null;
+            $keySet = $valueSet = false;
+            if ($index_key !== null && array_key_exists($index_key, $row)) {
+                $keySet = true;
+                $key    = (string)$row[$index_key];
+            }
+            if ($column_key === null) {
+                $valueSet = true;
+                $value    = $row;
+            } elseif (is_array($row) && array_key_exists($column_key, $row)) {
+                $valueSet = true;
+                $value    = $row[$column_key];
+            }
+            if ($valueSet) {
+                if ($keySet) {
+                    $result[$key] = $value;
+                } else {
+                    $result[] = $value;
+                }
+            }
+        }
+        return $result;
+    }
+
+
+    /**
+     * 对数组排序
+     *
+     * @param  callable|null $callback
+     * @return static
+     */
+    public function sort(callable $callback = null)
+    {
+        $items = $this->items;
+
+        $callback ? uasort($items, $callback) : uasort($items, function ($a, $b) {
+
+            if ($a == $b) {
+                return 0;
+            }
+
+            return ($a < $b) ? -1 : 1;
+        });
+
+        return new static($items);
+    }
+
 
     /**
      * 将数组打乱
@@ -167,8 +293,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 截取数组
      *
-     * @param  int $offset
-     * @param  int $length
+     * @param  int  $offset
+     * @param  int  $length
      * @param  bool $preserveKeys
      * @return static
      */
