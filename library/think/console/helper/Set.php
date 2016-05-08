@@ -11,7 +11,6 @@
 
 namespace think\console\helper;
 
-
 use think\console\command\Command;
 
 class Set implements \IteratorAggregate

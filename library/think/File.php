@@ -29,7 +29,6 @@ class File extends SplFileObject
      */
     protected function checkPath($path)
     {
-
         if (is_dir($path)) {
             return true;
         }
@@ -37,7 +36,7 @@ class File extends SplFileObject
         if (mkdir($path, 0777, true)) {
             return true;
         } else {
-            $this->error = "目录 {$savepath} 创建失败！";
+            $this->error = "目录 {$path} 创建失败！";
             return false;
         }
     }

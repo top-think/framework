@@ -11,7 +11,6 @@
 
 namespace think\console\input;
 
-
 class Argument
 {
 

@@ -11,7 +11,6 @@
 
 namespace think;
 
-
 use think\process\exception\Failed as ProcessFailedException;
 use think\process\exception\Timeout as ProcessTimeoutException;
 use think\process\pipes\Pipes;

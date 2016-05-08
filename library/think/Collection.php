@@ -11,7 +11,6 @@
 
 namespace think;
 
-
 use ArrayAccess;
 use ArrayIterator;
 use Countable;

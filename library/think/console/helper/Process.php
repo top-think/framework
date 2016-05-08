@@ -11,7 +11,6 @@
 
 namespace think\console\helper;
 
-
 use think\console\Output;
 use think\process\Builder as ProcessBuilder;
 use think\process as ThinkProcess;
