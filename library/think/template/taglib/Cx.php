@@ -98,7 +98,7 @@ class Cx extends Taglib
         } else {
             $name = $this->autoBuildVar($name);
         }
-        $parseStr .= 'if(is_array(' . $name . ')): $' . $key . ' = 0;';
+        $parseStr .= 'if(is_array(' . $name . ')|| is_object(' . $name . ')): $' . $key . ' = 0;';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
             $parseStr .= '$__LIST__ = array_slice(' . $name . ',' . $offset . ',' . $length . ', true); ';
@@ -157,7 +157,7 @@ class Cx extends Taglib
         } else {
             $name = $this->autoBuildVar($name);
         }
-        $parseStr .= 'if(is_array(' . $name . ')): ';
+        $parseStr .= 'if(is_array(' . $name . ')||is_object(' . $name . ')): ';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
             if (!isset($var)) {
@@ -667,7 +667,7 @@ class Cx extends Taglib
         $vars   = isset($tag['vars']) ? $tag['vars'] : '';
         $suffix = isset($tag['suffix']) ? $tag['suffix'] : 'true';
         $domain = isset($tag['domain']) ? $tag['domain'] : 'false';
-        return '<?php echo U("' . $url . '","' . $vars . '",' . $suffix . ',' . $domain . ');?>';
+        return '<?php echo url("' . $url . '","' . $vars . '",' . $suffix . ',' . $domain . ');?>';
     }
 
     /**
