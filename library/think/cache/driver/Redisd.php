@@ -200,6 +200,7 @@ class Redisd
     {
         $this->master(false);
 
+        $value = null;
         try {
             $value = $this->handler->get($this->options['prefix'] . $name);
         } catch (\RedisException $e) {
