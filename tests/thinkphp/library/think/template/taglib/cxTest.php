@@ -88,7 +88,7 @@ EOF;
 {/foreach}
 EOF;
         $data = <<<EOF
-<?php if(is_array(\$list)): foreach(\$list as \$key=>\$val): ?>
+<?php if(is_array(\$list)||is_object(\$list)): foreach(\$list as \$key=>\$val): ?>
 
 <?php endforeach; endif; ?><?php if(empty(\$list)): echo '"empty'; endif; ?>
 EOF;
