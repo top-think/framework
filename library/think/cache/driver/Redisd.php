@@ -196,6 +196,7 @@ class Redisd
      *
      * @access public
      * @param  string $name 缓存key
+     * @param  bool   $master 指定主从节点，可以从主节点获取结果
      * @return mixed
      */
     public function get($name, $master = false)
@@ -301,10 +302,12 @@ class Redisd
      * 需要先执行 $redis->master() 连接到 DB
      *
      * @access public
+     * @param  bool   $master 指定主从节点，可以从主节点获取结果
      * @return object
      */
-    public function handler()
+    public function handler($master = true)
     {
+        $this->master($master);
         return $this->handler;
     }
 
