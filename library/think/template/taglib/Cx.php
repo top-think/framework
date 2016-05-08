@@ -98,10 +98,11 @@ class Cx extends Taglib
         } else {
             $name = $this->autoBuildVar($name);
         }
-        $parseStr .= 'if(is_array(' . $name . ')): $' . $key . ' = 0;';
+
+        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection): $' . $key . ' = 0;';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
-            $parseStr .= '$__LIST__ = array_slice(' . $name . ',' . $offset . ',' . $length . ', true); ';
+            $parseStr .= '$__LIST__ = is_array(' . $name . ') ? array_slice(' . $name . ',' . $offset . ',' . $length . ', true) : ' . $name . '->slice(' . $offset . ',' . $length . ', true); ';
         } else {
             $parseStr .= ' $__LIST__ = ' . $name . ';';
         }
@@ -144,6 +145,7 @@ class Cx extends Taglib
         $name   = $tag['name'];
         $key    = !empty($tag['key']) ? $tag['key'] : 'key';
         $item   = !empty($tag['id']) ? $tag['id'] : $tag['item'];
+        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
         $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
         $length = !empty($tag['length']) && is_numeric($tag['length']) ? intval($tag['length']) : 'null';
 
@@ -157,16 +159,20 @@ class Cx extends Taglib
         } else {
             $name = $this->autoBuildVar($name);
         }
-        $parseStr .= 'if(is_array(' . $name . ')): ';
+        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection): ';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
             if (!isset($var)) {
                 $var = '$_' . uniqid();
             }
-            $parseStr .= $var . ' = array_slice(' . $name . ',' . $offset . ',' . $length . ', true); ';
+            $parseStr .= $var . ' = is_array(' . $name . ') ? array_slice(' . $name . ',' . $offset . ',' . $length . ', true) : ' . $name . '->slice(' . $offset . ',' . $length . ', true); ';
         } else {
             $var = &$name;
         }
+
+        $parseStr .= 'if( count(' . $var . ')==0 ) : echo "' . $empty . '" ;';
+        $parseStr .= 'else: ';
+
         // 设置了索引项
         if (isset($tag['index'])) {
             $index = $tag['index'];
@@ -185,11 +191,7 @@ class Cx extends Taglib
         $parseStr .= '?>';
         // 循环体中的内容
         $parseStr .= $content;
-        $parseStr .= '<?php endforeach; endif; ?>';
-        // 设置了数组为空时的显示内容
-        if (isset($tag['empty'])) {
-            $parseStr .= '<?php if(empty(' . $var . ')): echo \'"' . $tag['empty'] . '\'; endif; ?>';
-        }
+        $parseStr .= '<?php endforeach; endif; else: echo "' . $empty . '" ;endif; ?>';
 
         if (!empty($parseStr)) {
             return $parseStr;
@@ -430,7 +432,7 @@ class Cx extends Taglib
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
-        $parseStr = '<?php if(empty(' . $name . ')): ?>' . $content . '<?php endif; ?>';
+        $parseStr = '<?php if(empty(' . $name . ') || (' . $name . ' instanceof \think\Collection && ' . $name . '->isEmpty())): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
 
@@ -447,7 +449,7 @@ class Cx extends Taglib
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
-        $parseStr = '<?php if(!empty(' . $name . ')): ?>' . $content . '<?php endif; ?>';
+        $parseStr = '<?php if(!(empty(' . $name . ') || (' . $name . ' instanceof \think\Collection && ' . $name . '->isEmpty()))): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
 
