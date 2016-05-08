@@ -599,7 +599,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $result = self::with($with)->cache($cache);
         if (is_array($data)) {
-            $result = self::db()->where($data);
+            $result = $result->where($data);
+            $data   = [];
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $result]);
             $data = [];
