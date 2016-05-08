@@ -98,7 +98,7 @@ class Cx extends Taglib
         } else {
             $name = $this->autoBuildVar($name);
         }
-        $parseStr .= 'if(is_array(' . $name . ')||is_object(' . $name . ')): $' . $key . ' = 0;';
+        $parseStr .= 'if(is_array(' . $name . ')|| is_object(' . $name . ')): $' . $key . ' = 0;';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
             $parseStr .= '$__LIST__ = array_slice(' . $name . ',' . $offset . ',' . $length . ', true); ';
