@@ -15,7 +15,9 @@ use think\Cache;
 use think\Exception;
 
 /**
- * Redis缓存驱动
+ * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
+ * 有需要在业务层实现读写分离、或者使用RedisCluster的需求，请使用Redisd驱动
+ * 
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
@@ -26,7 +28,7 @@ class Redis
         'host'       => '127.0.0.1',
         'port'       => 6379,
         'password'   => '',
-        'timeout'    => false,
+        'timeout'    => 0,
         'expire'     => false,
         'persistent' => false,
         'length'     => 0,
@@ -48,9 +50,8 @@ class Redis
         }
         $func          = $this->options['persistent'] ? 'pconnect' : 'connect';
         $this->handler = new \Redis;
-        false === $this->options['timeout'] ?
-        $this->handler->$func($this->options['host'], $this->options['port']) :
         $this->handler->$func($this->options['host'], $this->options['port'], $this->options['timeout']);
+
         if ('' != $this->options['password']) {
             $this->handler->auth($this->options['password']);
         }
