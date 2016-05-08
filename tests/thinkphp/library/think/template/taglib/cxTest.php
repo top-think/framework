@@ -47,7 +47,7 @@ EOF;
 {/volist}
 EOF;
         $data = <<<EOF
-<?php if(is_array(\$list)): \$key = 0; \$__LIST__ = \$list;if( count(\$__LIST__)==0 ) : echo "" ;else: foreach(\$__LIST__ as \$key=>\$vo): \$mod = (\$key % 2 );++\$key;?>
+<?php if(is_array(\$list)||is_object(\$list)): \$key = 0; \$__LIST__ = \$list;if( count(\$__LIST__)==0 ) : echo "" ;else: foreach(\$__LIST__ as \$key=>\$vo): \$mod = (\$key % 2 );++\$key;?>
 
 <?php endforeach; endif; else: echo "" ;endif; ?>
 EOF;
@@ -88,7 +88,7 @@ EOF;
 {/foreach}
 EOF;
         $data = <<<EOF
-<?php if(is_array(\$list)): foreach(\$list as \$key=>\$val): ?>
+<?php if(is_array(\$list)||is_object(\$list)): foreach(\$list as \$key=>\$val): ?>
 
 <?php endforeach; endif; ?><?php if(empty(\$list)): echo '"empty'; endif; ?>
 EOF;
