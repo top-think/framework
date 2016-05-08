@@ -598,7 +598,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static function parseQuery(&$data, $with, $cache)
     {
         $result = self::with($with)->cache($cache);
-        if ($data instanceof \Closure) {
+        if (is_array($data)) {
+            $result = self::db()->where($data);
+        } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $result]);
             $data = [];
         } elseif ($data instanceof Query) {
@@ -832,19 +834,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $model 模型名
      * @param string $table 中间表名
+     * @param string $foreignKey 关联外键
      * @param string $localKey 当前模型关联键
-     * @param string $foreignKey 关联模型关联键
      * @return \think\db\Query|string
      */
-    public function belongsToMany($model, $table = '', $localKey = '', $foreignKey = '')
+    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
         $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTable();
-        $localKey   = $localKey ?: $name . '_id';
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation->belongsToMany($model, $table, $localKey, $foreignKey);
+        $foreignKey = $foreignKey ?: $name . '_id';
+        $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
+        return $this->relation->belongsToMany($model, $table, $foreignKey, $localKey);
     }
 
     /**
