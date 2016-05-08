@@ -15,7 +15,9 @@ use think\Cache;
 use think\Exception;
 
 /**
- * Redis缓存驱动
+ * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
+ * 有需要在业务层实现读写分离、或者使用RedisCluster的需求，请使用Redisd驱动
+ * 
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
@@ -26,8 +28,8 @@ class Redis
         'host'       => '127.0.0.1',
         'port'       => 6379,
         'password'   => '',
-        'timeout'    => false,
-        'expire'     => false,
+        'timeout'    => 0,
+        'expire'     => 0,
         'persistent' => false,
         'length'     => 0,
         'prefix'     => '',
@@ -48,9 +50,8 @@ class Redis
         }
         $func          = $this->options['persistent'] ? 'pconnect' : 'connect';
         $this->handler = new \Redis;
-        false === $this->options['timeout'] ?
-        $this->handler->$func($this->options['host'], $this->options['port']) :
         $this->handler->$func($this->options['host'], $this->options['port'], $this->options['timeout']);
+
         if ('' != $this->options['password']) {
             $this->handler->auth($this->options['password']);
         }
@@ -86,7 +87,7 @@ class Redis
         $name = $this->options['prefix'] . $name;
         //对数组/对象数据进行缓存处理，保证数据完整性  byron sampson<xiaobo.sun@qq.com>
         $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
-        if (is_int($expire)) {
+        if (is_int($expire) && $expire) {
             $result = $this->handler->setex($name, $expire, $value);
         } else {
             $result = $this->handler->set($name, $value);

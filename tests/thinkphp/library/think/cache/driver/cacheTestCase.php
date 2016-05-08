@@ -75,6 +75,9 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
         $array = $cache->get('array_test');
         $this->assertArrayHasKey('array_test', $array);
         $this->assertEquals('array_test', $array['array_test']);
+        
+        $result = $cache->set('no_expire', 1, 0);
+        $this->assertTrue($result);
     }
 
     /**
