@@ -198,9 +198,9 @@ class Redisd
      * @param  string $name 缓存key
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $master = false)
     {
-        $this->master(false);
+        $this->master($master);
 
         $value = null;
         try {
