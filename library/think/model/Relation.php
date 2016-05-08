@@ -88,7 +88,7 @@ class Relation
                 // 关联查询
                 $pk                                = $this->parent->getPk();
                 $condition['pivot.' . $foreignKey] = $this->parent->$pk;
-                $result                            = $this->belongsToManyQuery($relation, $this->middle, $localKey, $foreignKey, $condition)->select();
+                $result                            = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
                 foreach ($result as $set) {
                     $pivot = [];
                     foreach ($set->toArray() as $key => $val) {
@@ -333,7 +333,7 @@ class Relation
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
         // 预载入关联查询 支持嵌套预载入
-        $list = $this->belongsToManyQuery($model, $this->middle, $localKey, $foreignKey, $where)->with($subRelation)->select();
+        $list = $this->belongsToManyQuery($model, $this->middle, $foreignKey, $localKey, $where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
@@ -360,7 +360,7 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return \think\db\Query|string
+     * @return $this
      */
     public function hasOne($model, $foreignKey, $localKey)
     {
@@ -379,7 +379,7 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $otherKey 关联主键
-     * @return \think\db\Query|string
+     * @return $this
      */
     public function belongsTo($model, $foreignKey, $otherKey)
     {
@@ -399,7 +399,7 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @return \think\db\Query|string
+     * @return $this
      */
     public function hasMany($model, $foreignKey, $localKey)
     {
@@ -418,11 +418,11 @@ class Relation
      * @access public
      * @param string $model 模型名
      * @param string $table 中间表名
+     * @param string $foreignKey 关联模型外键
      * @param string $localKey 当前模型关联键
-     * @param string $foreignKey 关联模型关联键
-     * @return \think\db\Query|string
+     * @return $this
      */
-    public function belongsToMany($model, $table, $localKey, $foreignKey)
+    public function belongsToMany($model, $table, $foreignKey, $localKey)
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO_MANY;
@@ -440,19 +440,19 @@ class Relation
      * @access public
      * @param object $model 关联模型对象
      * @param string $table 中间表名
-     * @param string $localKey 当前模型关联键
      * @param string $foreignKey 关联模型关联键
+     * @param string $localKey 当前模型关联键
      * @param array $condition 关联查询条件
      * @return \think\db\Query|string
      */
-    protected function belongsToManyQuery($model, $table, $localKey, $foreignKey, $condition = [])
+    protected function belongsToManyQuery($model, $table, $foreignKey, $localKey, $condition = [])
     {
         // 关联查询封装
         $tableName  = $model->getTable();
         $relationFk = $model->getPk();
         return $model::field($tableName . '.*')
             ->field(true, false, $table, 'pivot', 'pivot__')
-            ->join($table . ' pivot', 'pivot.' . $localKey . '=' . $tableName . '.' . $relationFk)
+            ->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
             ->where($condition);
     }
 
