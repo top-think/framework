@@ -29,7 +29,7 @@ class Redis
         'port'       => 6379,
         'password'   => '',
         'timeout'    => 0,
-        'expire'     => false,
+        'expire'     => 0,
         'persistent' => false,
         'length'     => 0,
         'prefix'     => '',
@@ -87,7 +87,7 @@ class Redis
         $name = $this->options['prefix'] . $name;
         //对数组/对象数据进行缓存处理，保证数据完整性  byron sampson<xiaobo.sun@qq.com>
         $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
-        if (is_int($expire)) {
+        if (is_int($expire) && $expire) {
             $result = $this->handler->setex($name, $expire, $value);
         } else {
             $result = $this->handler->set($name, $value);
