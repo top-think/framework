@@ -598,7 +598,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static function parseQuery(&$data, $with, $cache)
     {
         $result = self::with($with)->cache($cache);
-        if (is_array($data)) {
+        if (is_array($data) && key($data) !== 0) {
             $result = $result->where($data);
             $data   = [];
         } elseif ($data instanceof \Closure) {
