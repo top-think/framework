@@ -24,8 +24,10 @@ class Build extends Command
     protected function configure()
     {
         $this->setName('build')
-            ->setDefinition([new Option('config', null, Option::VALUE_OPTIONAL, "build.php path")])
-            ->setDefinition([new Option('module', null, Option::VALUE_OPTIONAL, "module name")])
+            ->setDefinition([
+                new Option('config', null, Option::VALUE_OPTIONAL, "build.php path"),
+                new Option('module', null, Option::VALUE_OPTIONAL, "module name")
+            ])
             ->setDescription('Build Application Dirs');
     }
 
