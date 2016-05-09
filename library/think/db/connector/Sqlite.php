@@ -11,6 +11,7 @@
 
 namespace think\db\connector;
 
+use PDO;
 use think\db\Connection;
 
 /**
@@ -42,7 +43,7 @@ class Sqlite extends Connection
         list($tableName) = explode(' ', $tableName);
         $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
         $pdo             = $this->linkID->query($sql);
-        $result          = $pdo->fetchAll(\PDO::FETCH_ASSOC);
+        $result          = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info            = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -72,7 +73,7 @@ class Sqlite extends Connection
             . "UNION ALL SELECT name FROM sqlite_temp_master "
             . "WHERE type='table' ORDER BY name";
         $pdo    = $this->linkID->query($sql);
-        $result = $pdo->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);

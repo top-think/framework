@@ -59,7 +59,7 @@ class Sqlsrv extends Connection
         AND t.table_name    = c.table_name
         WHERE   t.table_name = '$tableName'";
         $pdo    = $this->linkID->query($sql);
-        $result = $pdo->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -90,7 +90,7 @@ class Sqlsrv extends Connection
             WHERE TABLE_TYPE = 'BASE TABLE'
             ";
         $pdo    = $this->linkID->query($sql);
-        $result = $pdo->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
