@@ -11,7 +11,6 @@
 
 namespace think\model;
 
-use think\Collection;
 use think\Db;
 use think\Exception;
 use think\Loader;
@@ -115,9 +114,10 @@ class Relation
      * @access public
      * @param array $resultSet 数据集
      * @param string $relation 关联名
+     * @param string $class 数据集对象名 为空表示数组
      * @return array
      */
-    public function eagerlyResultSet($resultSet, $relation)
+    public function eagerlyResultSet($resultSet, $relation, $class = '')
     {
         /** @var array $relations */
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
@@ -167,7 +167,7 @@ class Relation
                             if (!isset($data[$result->$localKey])) {
                                 $data[$result->$localKey] = [];
                             }
-                            $result->__set($relation, Collection::make($data[$result->$localKey]));
+                            $result->__set($relation, $this->resultSetBuild($data[$result->$localKey], $class));
                         }
                     }
                     break;
@@ -196,7 +196,7 @@ class Relation
                                 $data[$result->$pk] = [];
                             }
 
-                            $result->__set($relation, Collection::make($data[$result->$pk]));
+                            $result->__set($relation, $this->resultSetBuild($data[$result->$pk], $class));
                         }
                     }
                     break;
@@ -206,13 +206,26 @@ class Relation
     }
 
     /**
+     * 封装关联数据集
+     * @access public
+     * @param array $resultSet 数据集
+     * @param string $class 数据集类名
+     * @return mixed
+     */
+    protected function resultSetBuild($resultSet, $class = '')
+    {
+        return $class ? new $class($resultSet) : $resultSet;
+    }
+
+    /**
      * 预载入关联查询 返回模型对象
      * @access public
      * @param Model $result 数据对象
      * @param string $relation 关联名
+     * @param string $class 数据集对象名 为空表示数组
      * @return \think\Model
      */
-    public function eagerlyResult($result, $relation)
+    public function eagerlyResult($result, $relation, $class = '')
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
@@ -243,7 +256,7 @@ class Relation
                         if (!isset($data[$result->$localKey])) {
                             $data[$result->$localKey] = [];
                         }
-                        $result->__set($relation, Collection::make($data[$result->$localKey]));
+                        $result->__set($relation, $this->resultSetBuild($data[$result->$localKey], $class));
                     }
                     break;
                 case self::BELONGS_TO_MANY:
@@ -257,7 +270,7 @@ class Relation
                         if (!isset($data[$pk])) {
                             $data[$pk] = [];
                         }
-                        $result->__set($relation, Collection::make($data[$pk]));
+                        $result->__set($relation, $this->resultSetBuild($data[$pk], $class));
                     }
                     break;
 

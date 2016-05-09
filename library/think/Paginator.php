@@ -44,7 +44,7 @@ abstract class Paginator
         'fragment' => ''
     ];
 
-    public function __construct(Collection $items, $listRows, $currentPage = null, $simple = false, $total = null, $options = [])
+    public function __construct($items, $listRows, $currentPage = null, $simple = false, $total = null, $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
@@ -53,17 +53,18 @@ abstract class Paginator
         $this->simple   = $simple;
         $this->listRows = $listRows;
 
+        $this->items = PaginatorCollection::make($items, $this);
+
         if ($simple) {
             $this->currentPage = $this->setCurrentPage($currentPage);
-            $this->hasMore     = count($items) > ($this->listRows);
-            $items             = $items->slice(0, $this->listRows);
+            $this->hasMore     = count($this->items) > ($this->listRows);
+            $this->items       = $this->items->slice(0, $this->listRows);
         } else {
             $this->lastPage    = (int)ceil($total / $listRows);
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = $this->currentPage < $this->lastPage;
         }
 
-        $this->items = PaginatorCollection::make($items, $this);
     }
 
     public function items()
@@ -113,7 +114,7 @@ abstract class Paginator
     /**
      * 自动获取当前页码
      * @param string $varPage
-     * @param int $default
+     * @param int    $default
      * @return int
      */
     public static function getCurrentPage($varPage = 'page', $default = 1)
@@ -165,6 +166,7 @@ abstract class Paginator
 
     /**
      * 数据是否足够分页
+     * @return boolean
      */
     public function hasPages()
     {
@@ -205,7 +207,7 @@ abstract class Paginator
      * 添加URL参数
      *
      * @param  array|string $key
-     * @param  string|null $value
+     * @param  string|null  $value
      * @return $this
      */
     public function appends($key, $value = null)

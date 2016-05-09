@@ -11,6 +11,7 @@
 
 namespace think\db\connector;
 
+use PDO;
 use think\db\Connection;
 use think\Log;
 
@@ -54,7 +55,8 @@ class Mysql extends Connection
             $tableName = str_replace('.', '`.`', $tableName);
         }
         $sql    = 'SHOW COLUMNS FROM `' . $tableName . '`';
-        $result = $this->query($sql);
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -81,7 +83,8 @@ class Mysql extends Connection
     public function getTables($dbName = '')
     {
         $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
-        $result = $this->query($sql);
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
@@ -98,7 +101,7 @@ class Mysql extends Connection
     protected function getExplain($sql)
     {
         $pdo    = $this->linkID->query("EXPLAIN " . $sql);
-        $result = $pdo->fetch(\PDO::FETCH_ASSOC);
+        $result = $pdo->fetch(PDO::FETCH_ASSOC);
         $result = array_change_key_case($result);
         if (isset($result['extra'])) {
             if (strpos($result['extra'], 'filesort') || strpos($result['extra'], 'temporary')) {

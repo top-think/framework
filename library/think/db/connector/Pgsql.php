@@ -11,6 +11,7 @@
 
 namespace think\db\connector;
 
+use PDO;
 use think\db\Connection;
 
 /**
@@ -43,7 +44,9 @@ class Pgsql extends Connection
     public function getFields($tableName)
     {
         list($tableName) = explode(' ', $tableName);
-        $result          = $this->query('select fields_name as "field",fields_type as "type",fields_not_null as "null",fields_key_name as "key",fields_default as "default",fields_default as "extra" from table_msg(' . $tableName . ');');
+        $sql             = 'select fields_name as "field",fields_type as "type",fields_not_null as "null",fields_key_name as "key",fields_default as "default",fields_default as "extra" from table_msg(' . $tableName . ');';
+        $pdo             = $this->linkID->query($sql);
+        $result          = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info            = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -69,7 +72,9 @@ class Pgsql extends Connection
      */
     public function getTables($dbName = '')
     {
-        $result = $this->query("select tablename as Tables_in_test from pg_tables where  schemaname ='public'");
+        $sql    = "select tablename as Tables_in_test from pg_tables where  schemaname ='public'";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);

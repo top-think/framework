@@ -13,6 +13,7 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
+use think\Collection;
 use think\Db;
 use think\Debug;
 use think\Exception;
@@ -53,6 +54,8 @@ abstract class Connection
     protected $linkID;
 
     // 查询结果类型
+    protected $resultSetType = Db::RESULTSET_ARRAY;
+    // 查询结果类型
     protected $fetchType = PDO::FETCH_ASSOC;
     // 字段属性大小写
     protected $attrCase = PDO::CASE_LOWER;
@@ -62,37 +65,39 @@ abstract class Connection
     // 数据库连接参数配置
     protected $config = [
         // 数据库类型
-        'type'          => '',
+        'type'           => '',
         // 服务器地址
-        'hostname'      => '',
+        'hostname'       => '',
         // 数据库名
-        'database'      => '',
+        'database'       => '',
         // 用户名
-        'username'      => '',
+        'username'       => '',
         // 密码
-        'password'      => '',
+        'password'       => '',
         // 端口
-        'hostport'      => '',
+        'hostport'       => '',
         // 连接dsn
-        'dsn'           => '',
+        'dsn'            => '',
         // 数据库连接参数
-        'params'        => [],
+        'params'         => [],
         // 数据库编码默认采用utf8
-        'charset'       => 'utf8',
+        'charset'        => 'utf8',
         // 数据库表前缀
-        'prefix'        => '',
+        'prefix'         => '',
         // 数据库调试模式
-        'debug'         => false,
+        'debug'          => false,
         // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-        'deploy'        => 0,
+        'deploy'         => 0,
         // 数据库读写是否分离 主从式有效
-        'rw_separate'   => false,
+        'rw_separate'    => false,
         // 读写分离后 主服务器数量
-        'master_num'    => 1,
+        'master_num'     => 1,
         // 指定从服务器序号
-        'slave_no'      => '',
+        'slave_no'       => '',
         // 是否严格检查字段是否存在
-        'fields_strict' => true,
+        'fields_strict'  => true,
+        // 数据集返回类型
+        'resultset_type' => Db::RESULTSET_ARRAY,
     ];
 
     // PDO连接参数
@@ -230,7 +235,10 @@ abstract class Connection
             }
             // 记录当前字段属性大小写设置
             $this->attrCase = $params[PDO::ATTR_CASE];
-
+            // 记录数据集返回类型
+            if (isset($config['resultset_type'])) {
+                $this->resultSetType = $config['resultset_type'];
+            }
             try {
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
@@ -294,12 +302,12 @@ abstract class Connection
      * @param array $bind 参数绑定
      * @param boolean $fetch 不执行只是获取SQL
      * @param boolean $master 是否在主服务器读操作
-     * @param bool $returnPdo 是否返回 PDOStatement 对象
+     * @param bool|string $class 指定返回的数据集对象
      * @return mixed
      * @throws DbBindParamException
      * @throws PDOException
      */
-    public function query($sql, $bind = [], $fetch = false, $master = false, $returnPdo = false)
+    public function query($sql, $bind = [], $fetch = false, $master = false, $class = false)
     {
         $this->initConnect($master);
         if (!$this->linkID) {
@@ -329,7 +337,7 @@ abstract class Connection
             $result = $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
-            return $returnPdo ? $this->PDOStatement : $this->getResult();
+            return $this->getResult($class);
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->queryStr);
         }
@@ -403,8 +411,8 @@ abstract class Connection
                 $val = $this->quote(is_array($val) ? $val[0] : $val);
                 // 判断占位符
                 $sql = is_numeric($key) ?
-                    substr_replace($sql, $val, strpos($sql, '?'), 1) :
-                    str_replace([':' . $key . ')', ':' . $key . ' '], [$val . ')', $val . ' '], $sql . ' ');
+                substr_replace($sql, $val, strpos($sql, '?'), 1) :
+                str_replace([':' . $key . ')', ':' . $key . ' '], [$val . ')', $val . ' '], $sql . ' ');
             }
         }
         return $sql;
@@ -443,12 +451,33 @@ abstract class Connection
     /**
      * 获得数据集
      * @access protected
-     * @return array
+     * @param bool|string $class true 返回PDOStatement 字符串用于指定返回的类名
+     * @return mixed
      */
-    protected function getResult()
+    protected function getResult($class = '')
     {
+        if (true === $class) {
+            // 返回PDOStatement对象处理
+            return $this->PDOStatement;
+        }
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
+
+        if (!empty($class)) {
+            // 返回指定数据集对象类
+            return new $class($result);
+        }
+        switch ($this->resultSetType) {
+            case Db::RESULTSET_COLLECTION:
+                // 返回数据集Collection对象
+                $result = new Collection($result);
+                break;
+            case Db::RESULTSET_CLASS:
+                break;
+            case Db::RESULTSET_ARRAY:
+            default:
+                // 返回二维数组
+        }
         return $result;
     }
 

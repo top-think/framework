@@ -51,14 +51,16 @@ class Sqlsrv extends Connection
     public function getFields($tableName)
     {
         list($tableName) = explode(' ', $tableName);
-        $result          = $this->query("SELECT   column_name,   data_type,   column_default,   is_nullable
+        $sql             = "SELECT   column_name,   data_type,   column_default,   is_nullable
         FROM    information_schema.tables AS t
         JOIN    information_schema.columns AS c
         ON  t.table_catalog = c.table_catalog
         AND t.table_schema  = c.table_schema
         AND t.table_name    = c.table_name
-        WHERE   t.table_name = '$tableName'");
-        $info = [];
+        WHERE   t.table_name = '$tableName'";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        $info   = [];
         if ($result) {
             foreach ($result as $key => $val) {
                 $val                       = array_change_key_case($val);
@@ -83,11 +85,13 @@ class Sqlsrv extends Connection
      */
     public function getTables($dbName = '')
     {
-        $result = $this->query("SELECT TABLE_NAME
+        $sql = "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_TYPE = 'BASE TABLE'
-            ");
-        $info = [];
+            ";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }

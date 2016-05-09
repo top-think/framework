@@ -847,7 +847,19 @@ class Query
      */
     public function fetchPdo($pdo = true)
     {
-        $this->options['fetch_pdo'] = $pdo;
+        $this->options['fetch_class'] = $pdo;
+        return $this;
+    }
+
+    /**
+     * 指定数据集返回对象
+     * @access public
+     * @param string $class 指定返回的数据集对象类名
+     * @return $this
+     */
+    public function fetchClass($class)
+    {
+        $this->options['fetch_class'] = $class;
         return $this;
     }
 
@@ -1304,7 +1316,7 @@ class Query
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询操作
-            $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+            $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
 
             if (is_string($resultSet)) {
                 // 返回SQL
@@ -1322,7 +1334,7 @@ class Query
         }
 
         // 返回结果处理
-        if (!empty($resultSet)) {
+        if ($resultSet) {
 
             // 数据列表读取后的处理
             if (!empty($options['model'])) {
@@ -1340,13 +1352,13 @@ class Query
                 }
                 if (!empty($options['with'])) {
                     // 预载入
-                    $resultSet = $result->eagerlyResultSet($resultSet, $options['with']);
+                    $resultSet = $result->eagerlyResultSet($resultSet, $options['with'], is_class($resultSet) ? get_class($resultSet) : '');
                 }
             }
         } elseif (!empty($options['fail'])) {
             throw new DbException('Data not Found', $options, $sql);
         }
-        return Collection::make($resultSet);
+        return $resultSet;
     }
 
     /**
@@ -1385,7 +1397,7 @@ class Query
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询
-            $result = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+            $result = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
 
             if (is_string($result)) {
                 // 返回SQL
@@ -1404,19 +1416,19 @@ class Query
         }
 
         // 数据处理
-        if (!empty($result)) {
+        if (!empty($result[0])) {
             $data = $result[0];
             if (!empty($options['model'])) {
                 // 返回模型对象
                 $data = new $options['model']($data);
-                $data->isUpdate(true, $options['where']['AND']);
+                $data->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
                 // 关联查询
                 if (!empty($options['relation'])) {
                     $data->relationQuery($options['relation']);
                 }
                 if (!empty($options['with'])) {
                     // 预载入
-                    $data->eagerlyResult($data, $options['with']);
+                    $data->eagerlyResult($data, $options['with'], is_object($result) ? get_class($result) : '');
                 }
             }
         } elseif (!empty($options['fail'])) {
@@ -1539,7 +1551,7 @@ class Query
             $options['strict'] = $this->connection->getConfig('fields_strict');
         }
 
-        foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {
+        foreach (['master', 'lock', 'fetch_class', 'fetch_sql', 'distinct'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
