@@ -111,7 +111,8 @@ class Redisd
     public function master($master = false)
     {
         if (isset(self::$redis_rw_handler[$master])) {
-            return $this->handler = self::$redis_rw_handler[$master];
+            $this->handler = self::$redis_rw_handler[$master];
+            return $this;
         }
 
         //如果不为主，则从配置的host剔除主，并随机读从，失败以后再随机选择从
@@ -186,7 +187,8 @@ class Redisd
             throw new Exception($e->getMessage(), $e->getCode());
         }
 
-        return self::$redis_rw_handler[$master] = $this->handler;
+        self::$redis_rw_handler[$master] = $this->handler;
+        return $this;
     }
 
     /**
@@ -194,12 +196,14 @@ class Redisd
      *
      * @access public
      * @param  string $name 缓存key
+     * @param  bool   $master 指定主从节点，可以从主节点获取结果
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $master = false)
     {
-        $this->master(false);
+        $this->master($master);
 
+        $value = null;
         try {
             $value = $this->handler->get($this->options['prefix'] . $name);
         } catch (\RedisException $e) {
@@ -298,10 +302,12 @@ class Redisd
      * 需要先执行 $redis->master() 连接到 DB
      *
      * @access public
+     * @param  bool   $master 指定主从节点，可以从主节点获取结果
      * @return object
      */
-    public function handler()
+    public function handler($master = true)
     {
+        $this->master($master);
         return $this->handler;
     }
 
