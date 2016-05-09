@@ -60,6 +60,7 @@ abstract class Paginator
             $this->hasMore     = count($this->items) > ($this->listRows);
             $this->items       = $this->items->slice(0, $this->listRows);
         } else {
+            $this->total       = $total;
             $this->lastPage    = (int)ceil($total / $listRows);
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = $this->currentPage < $this->lastPage;
