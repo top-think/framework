@@ -269,7 +269,9 @@ class Url
                     if (is_numeric($key)) {
                         $key = array_shift($route);
                     }
-                    $route = $route[0];
+                    if (is_array($route)) {
+                        $route = $route[0];
+                    }
                     $param = [];
                     if (is_array($route)) {
                         $route = implode('\\', $route);
