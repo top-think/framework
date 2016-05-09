@@ -33,10 +33,6 @@ class debugTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        if (strstr(PHP_VERSION, 'hhvm')) {
-            $this->markTestSkipped("HHVM下跳过测试");
-        }
-
         $this->object = new Debug();
     }
 
@@ -164,6 +160,10 @@ class debugTest extends \PHPUnit_Framework_TestCase
      */
     public function testDump()
     {
+        if (strstr(PHP_VERSION, 'hhvm')) {
+            return ;
+        }
+
         $var        = [];
         $var["key"] = "val";
         $output     = Debug::dump($var, false, $label = "label");
