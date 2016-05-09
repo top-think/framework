@@ -65,37 +65,39 @@ abstract class Connection
     // 数据库连接参数配置
     protected $config = [
         // 数据库类型
-        'type'          => '',
+        'type'           => '',
         // 服务器地址
-        'hostname'      => '',
+        'hostname'       => '',
         // 数据库名
-        'database'      => '',
+        'database'       => '',
         // 用户名
-        'username'      => '',
+        'username'       => '',
         // 密码
-        'password'      => '',
+        'password'       => '',
         // 端口
-        'hostport'      => '',
+        'hostport'       => '',
         // 连接dsn
-        'dsn'           => '',
+        'dsn'            => '',
         // 数据库连接参数
-        'params'        => [],
+        'params'         => [],
         // 数据库编码默认采用utf8
-        'charset'       => 'utf8',
+        'charset'        => 'utf8',
         // 数据库表前缀
-        'prefix'        => '',
+        'prefix'         => '',
         // 数据库调试模式
-        'debug'         => false,
+        'debug'          => false,
         // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-        'deploy'        => 0,
+        'deploy'         => 0,
         // 数据库读写是否分离 主从式有效
-        'rw_separate'   => false,
+        'rw_separate'    => false,
         // 读写分离后 主服务器数量
-        'master_num'    => 1,
+        'master_num'     => 1,
         // 指定从服务器序号
-        'slave_no'      => '',
+        'slave_no'       => '',
         // 是否严格检查字段是否存在
-        'fields_strict' => true,
+        'fields_strict'  => true,
+        // 数据集返回类型
+        'resultset_type' => Db::RESULTSET_ARRAY,
     ];
 
     // PDO连接参数
@@ -233,7 +235,10 @@ abstract class Connection
             }
             // 记录当前字段属性大小写设置
             $this->attrCase = $params[PDO::ATTR_CASE];
-
+            // 记录数据集返回类型
+            if (isset($config['resultset_type'])) {
+                $this->resultSetType = $config['resultset_type'];
+            }
             try {
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
@@ -453,16 +458,16 @@ abstract class Connection
     {
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
+        // 返回指定对象类
+        if (!empty($class)) {
+            return new $class($result);
+        }
         switch ($this->resultSetType) {
             case Db::RESULTSET_COLLECTION:
                 // 返回数据集Collection对象
                 $result = new Collection($result);
                 break;
             case Db::RESULTSET_CLASS:
-                // 返回指定对象类
-                if (!empty($class)) {
-                    $result = new $class($result);
-                }
                 break;
             case Db::RESULTSET_ARRAY:
             default:
