@@ -64,7 +64,7 @@ class App
         }
 
         // 获取当前请求的调度信息
-        $dispatch = Request::dispatch();
+        $dispatch = Request::instance()->dispatch();
         if (empty($dispatch)) {
             // 未指定调度类型 则进行URL路由检测
             $dispatch = self::route($config);
@@ -309,15 +309,15 @@ class App
     public static function route(array $config)
     {
 
-        define('__INFO__', Request::pathinfo());
-        define('__EXT__', Request::ext());
+        define('__INFO__', Request::instance()->pathinfo());
+        define('__EXT__', Request::instance()->ext());
 
         // 检测URL禁用后缀
         if ($config['url_deny_suffix'] && preg_match('/\.(' . $config['url_deny_suffix'] . ')$/i', __INFO__)) {
             throw new Exception('url suffix deny');
         }
 
-        $_SERVER['PATH_INFO'] = Request::path();
+        $_SERVER['PATH_INFO'] = Request::instance()->path();
         $depr                 = $config['pathinfo_depr'];
         $result               = false;
         // 路由检测
@@ -341,7 +341,7 @@ class App
         //保证$_REQUEST正常取值
         $_REQUEST = array_merge($_POST, $_GET, $_COOKIE);
         // 注册调度机制
-        return Request::dispatch($result);
+        return Request::instance()->dispatch($result);
     }
 
 }

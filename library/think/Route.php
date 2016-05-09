@@ -418,7 +418,7 @@ class Route
                         }
                         $result = self::checkRule($key, $route, $url1, $pattern, $option);
                         if (false !== $result) {
-                            Request::route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
+                            Request::instance()->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                             return $result;
                         }
                     }
@@ -431,7 +431,7 @@ class Route
                     // 规则路由
                     $result = self::checkRule($rule, $route, $url, $pattern, $option);
                     if (false !== $result) {
-                        Request::route(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
+                        Request::instance()->route(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                         return $result;
                     }
                 }

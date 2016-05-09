@@ -22,6 +22,7 @@ use think\Input;
 use think\Lang;
 use think\Loader;
 use think\Log;
+use think\Request;
 use think\Route;
 use think\Session;
 use think\Url;
@@ -357,4 +358,15 @@ function view($template = '', $vars = [])
 function route($rule = '', $route = [], $type = '*', $option = [], $pattern = [])
 {
     Route::register($rule, $route, $type, $option, $pattern);
+}
+
+/**
+ * 获取Request参数
+ * @param string $name 方法
+ * @param mixed $param 参数
+ * @return mixed
+ */
+function request($name, $param = '')
+{
+    return Request::instance()->$name($param);
 }
