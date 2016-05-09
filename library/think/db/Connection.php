@@ -302,12 +302,12 @@ abstract class Connection
      * @param array $bind 参数绑定
      * @param boolean $fetch 不执行只是获取SQL
      * @param boolean $master 是否在主服务器读操作
-     * @param bool|string $returnPdo 是否返回 PDOStatement 对象 如果为字符串则指定类
+     * @param bool|string $class 指定返回的数据集对象
      * @return mixed
      * @throws DbBindParamException
      * @throws PDOException
      */
-    public function query($sql, $bind = [], $fetch = false, $master = false, $returnPdo = false)
+    public function query($sql, $bind = [], $fetch = false, $master = false, $class = false)
     {
         $this->initConnect($master);
         if (!$this->linkID) {
@@ -337,7 +337,7 @@ abstract class Connection
             $result = $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
-            return true === $returnPdo ? $this->PDOStatement : $this->getResult($returnPdo);
+            return $this->getResult($class);
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->queryStr);
         }
@@ -451,15 +451,20 @@ abstract class Connection
     /**
      * 获得数据集
      * @access protected
-     * @param string $class 针对RESULTSET_CLASS 用于指定的类名
+     * @param bool|string $class true 返回PDOStatement 字符串用于指定返回的类名
      * @return mixed
      */
     protected function getResult($class = '')
     {
+        if (true === $class) {
+            // 返回PDOStatement对象处理
+            return $this->PDOStatement;
+        }
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
-        // 返回指定对象类
+
         if (!empty($class)) {
+            // 返回指定数据集对象类
             return new $class($result);
         }
         switch ($this->resultSetType) {

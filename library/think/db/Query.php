@@ -847,7 +847,19 @@ class Query
      */
     public function fetchPdo($pdo = true)
     {
-        $this->options['fetch_pdo'] = $pdo;
+        $this->options['fetch_class'] = $pdo;
+        return $this;
+    }
+
+    /**
+     * 指定数据集返回对象
+     * @access public
+     * @param string $class 指定返回的数据集对象类名
+     * @return $this
+     */
+    public function fetchClass($class)
+    {
+        $this->options['fetch_class'] = $class;
         return $this;
     }
 
@@ -1304,7 +1316,7 @@ class Query
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询操作
-            $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+            $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
 
             if (is_string($resultSet)) {
                 // 返回SQL
@@ -1385,7 +1397,7 @@ class Query
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询
-            $result = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_pdo']);
+            $result = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
 
             if (is_string($result)) {
                 // 返回SQL
@@ -1539,7 +1551,7 @@ class Query
             $options['strict'] = $this->connection->getConfig('fields_strict');
         }
 
-        foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {
+        foreach (['master', 'lock', 'fetch_class', 'fetch_sql', 'distinct'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
