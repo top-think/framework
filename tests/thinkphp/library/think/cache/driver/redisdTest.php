@@ -46,19 +46,19 @@ class redisdTest extends cacheTestCase
 
     public function testStoreSpecialValues()
     {
-        $redis = new \think\cache\driver\Redisd(['length' => 3]);
+        $redis = $this->getCacheInstance();
         $redis->master(true);
 
         $redis->handler()->setnx('key', 'value');
         $value = $redis->handler()->get('key');
         $this->assertEquals('value', $value);
         
-        $redis->handler()->hset('hash', 'key', 'value');
-        $value = $redis->handler()->hget('hash', 'key');
-        $this->assertEquals('value', $value);
+        $redis->master(true)->set('key', 'val');
+        $value = $redis->master(false)->get('key');
+        $this->assertEquals('val', $value);
         
-        $redis->master(true)->hset('hash', 'key', 'value');
-        $value = $redis->master(false)->hget('hash', 'key');
+        $redis->handler(true)->hset('hash', 'key', 'value');
+        $value = $redis->handler(false)->hget('hash', 'key');
         $this->assertEquals('value', $value);
     }
 

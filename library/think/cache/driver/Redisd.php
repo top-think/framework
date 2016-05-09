@@ -72,6 +72,7 @@ class Redisd
         'persistent' => false,
         'length'     => 0,
         'prefix'     => '',
+        'serialize'  => \Redis::SERIALIZER_PHP,
     ];
 
     /**
@@ -106,12 +107,14 @@ class Redisd
      * 一致Hash适合超高可用，跨网络读取，且从节点较多的情况，本业务不考虑该需求
      *
      * @access public
-     * @param bool $master true 默认主写
+     * @param  bool $master true 默认主写
+     * @return Redisd
      */
-    public function master($master = false)
+    public function master($master = true)
     {
         if (isset(self::$redis_rw_handler[$master])) {
-            return $this->handler = self::$redis_rw_handler[$master];
+            $this->handler = self::$redis_rw_handler[$master];
+            return $this;
         }
 
         //如果不为主，则从配置的host剔除主，并随机读从，失败以后再随机选择从
@@ -130,17 +133,23 @@ class Redisd
         $host  = isset($parse['host']) ? $parse['host'] : $host;
         $port  = isset($parse['host']) ? $parse['port'] : $this->options['port'];
 
-        $this->handler->$func($host, $port, $this->options['timeout']);
-
-        if (null != $this->options['password']) {
-            $this->handler->auth($this->options['password']);
-        }
-
-        APP_DEBUG && Log::record("[ CACHE ] INIT Redisd : {$host}:{$port} master->" . var_export($master, true), 'info');
-
         //发生错误则摘掉当前节点
         try {
-            $error = $this->handler->getLastError();
+            $result = $this->handler->$func($host, $port, $this->options['timeout']);
+            if($result === false) {
+                $this->handler->getLastError();
+            }
+
+            if (null != $this->options['password']) {
+                $this->handler->auth($this->options['password']);
+            }
+
+            $this->handler->setOption(\Redis::OPT_SERIALIZER, $this->options['serialize']);
+            if(strlen($this->options['prefix'])) {
+                $this->handler->setOption(\Redis::OPT_PREFIX, $this->options['prefix']);
+            }
+
+            APP_DEBUG && Log::record("[ CACHE ] INIT Redisd : {$host}:{$port} master->" . var_export($master, true), Log::ALERT);
         } catch (\RedisException $e) {
             //phpredis throws a RedisException object if it can't reach the Redis server.
             //That can happen in case of connectivity issues, if the Redis service is down, or if the redis host is overloaded.
@@ -186,7 +195,8 @@ class Redisd
             throw new Exception($e->getMessage(), $e->getCode());
         }
 
-        return self::$redis_rw_handler[$master] = $this->handler;
+        self::$redis_rw_handler[$master] = $this->handler;
+        return $this;
     }
 
     /**
@@ -194,14 +204,15 @@ class Redisd
      *
      * @access public
      * @param  string $name 缓存key
+     * @param  bool   $master 指定主从节点，可以从主节点获取结果
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $master = false)
     {
-        $this->master(false);
+        $this->master($master);
 
         try {
-            $value = $this->handler->get($this->options['prefix'] . $name);
+            $value = $this->handler->get($name);
         } catch (\RedisException $e) {
             unset(self::$redis_rw_handler[0]);
 
@@ -211,13 +222,7 @@ class Redisd
             Log::record($e->getMessage(), Log::ERROR);
         }
 
-        $jsonData = null;
-        //如果是对象则进行反转
-        if (!empty($value) && false !== strpos("[{", $value[0])) {
-            $jsonData = $value ? json_decode($value, true) : $value;
-        }
-
-        return (null === $jsonData) ? $value : $jsonData;
+        return isset($value) ? $value : null;
     }
 
     /**
@@ -236,21 +241,12 @@ class Redisd
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
-        $name = $this->options['prefix'] . $name;
 
-        /**
-         * 兼容历史版本
-         * Redis不支持存储对象，存入对象会转换成字符串
-         * 但在这里，对所有数据做json_decode会有性能开销
-         */
-        $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
-
-        if (null === $value) {
-            return $this->handler->delete($this->options['prefix'] . $name);
-        }
-
-        // $expire < 0 则等于ttl操作，列为todo吧
         try {
+            if (null === $value) {
+                return $this->handler->delete($name);
+            }
+
             if (is_int($expire) && $expire) {
                 $result = $this->handler->setex($name, $expire, $value);
             } else {
@@ -278,7 +274,7 @@ class Redisd
     public function rm($name)
     {
         $this->master(true);
-        return $this->handler->delete($this->options['prefix'] . $name);
+        return $this->handler->delete($name);
     }
 
     /**
@@ -298,10 +294,12 @@ class Redisd
      * 需要先执行 $redis->master() 连接到 DB
      *
      * @access public
-     * @return object
+     * @param  bool   $master 指定主从节点，可以从主节点获取结果
+     * @return \Redis
      */
-    public function handler()
+    public function handler($master = true)
     {
+        $this->master($master);
         return $this->handler;
     }
 

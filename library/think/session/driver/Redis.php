@@ -45,11 +45,11 @@ class Redis extends SessionHandler
             throw new Exception('_NOT_SUPPERT_:redis');
         }
         $this->handler = new \Redis;
+        
         // 建立连接
         $func = $this->config['persistent'] ? 'pconnect' : 'connect';
-        $this->config['timeout'] > 0 ?
-        $this->handler->$func($this->config['host'], $this->config['port'], $this->config['timeout']) :
-        $this->handler->$func($this->config['host'], $this->config['port']);
+        $this->handler->$func($this->config['host'], $this->config['port'], $this->config['timeout']);
+        
         if ('' != $this->config['password']) {
             $this->handler->auth($this->config['password']);
         }
