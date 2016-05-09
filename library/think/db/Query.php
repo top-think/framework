@@ -1409,7 +1409,7 @@ class Query
             if (!empty($options['model'])) {
                 // 返回模型对象
                 $data = new $options['model']($data);
-                $data->isUpdate(true, $options['where']['AND']);
+                $data->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
                 // 关联查询
                 if (!empty($options['relation'])) {
                     $data->relationQuery($options['relation']);
