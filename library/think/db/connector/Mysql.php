@@ -54,7 +54,8 @@ class Mysql extends Connection
             $tableName = str_replace('.', '`.`', $tableName);
         }
         $sql    = 'SHOW COLUMNS FROM `' . $tableName . '`';
-        $result = $this->query($sql);
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(\PDO::FETCH_ASSOC);
         $info   = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -81,7 +82,8 @@ class Mysql extends Connection
     public function getTables($dbName = '')
     {
         $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
-        $result = $this->query($sql);
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(\PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);

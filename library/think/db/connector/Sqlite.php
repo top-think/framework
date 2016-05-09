@@ -40,7 +40,9 @@ class Sqlite extends Connection
     public function getFields($tableName)
     {
         list($tableName) = explode(' ', $tableName);
-        $result          = $this->query('PRAGMA table_info( ' . $tableName . ' )');
+        $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
+        $pdo             = $this->linkID->query($sql);
+        $result          = $pdo->fetchAll(\PDO::FETCH_ASSOC);
         $info            = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -66,10 +68,12 @@ class Sqlite extends Connection
      */
     public function getTables($dbName = '')
     {
-        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table' "
+        $sql = "SELECT name FROM sqlite_master WHERE type='table' "
             . "UNION ALL SELECT name FROM sqlite_temp_master "
-            . "WHERE type='table' ORDER BY name");
-        $info = [];
+            . "WHERE type='table' ORDER BY name";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(\PDO::FETCH_ASSOC);
+        $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }

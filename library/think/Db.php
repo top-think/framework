@@ -16,6 +16,12 @@ namespace think;
  */
 class Db
 {
+    // 数组数据集
+    const RESULTSET_ARRAY = 1;
+    // 对象数据集
+    const RESULTSET_COLLECTION = 2;
+    // 自定义对象数据集
+    const RESULTSET_CLASS = 3;
     //  数据库连接实例
     private static $instances = [];
     // 查询次数

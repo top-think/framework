@@ -13,6 +13,7 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
+use think\Collection;
 use think\Db;
 use think\Debug;
 use think\Exception;
@@ -52,6 +53,8 @@ abstract class Connection
     /** @var PDO 当前连接ID */
     protected $linkID;
 
+    // 查询结果类型
+    protected $resultSetType = Db::RESULTSET_ARRAY;
     // 查询结果类型
     protected $fetchType = PDO::FETCH_ASSOC;
     // 字段属性大小写
@@ -294,7 +297,7 @@ abstract class Connection
      * @param array $bind 参数绑定
      * @param boolean $fetch 不执行只是获取SQL
      * @param boolean $master 是否在主服务器读操作
-     * @param bool $returnPdo 是否返回 PDOStatement 对象
+     * @param bool|string $returnPdo 是否返回 PDOStatement 对象 如果为字符串则指定类
      * @return mixed
      * @throws DbBindParamException
      * @throws PDOException
@@ -329,7 +332,7 @@ abstract class Connection
             $result = $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
-            return $returnPdo ? $this->PDOStatement : $this->getResult();
+            return true === $returnPdo ? $this->PDOStatement : $this->getResult($returnPdo);
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->queryStr);
         }
@@ -403,8 +406,8 @@ abstract class Connection
                 $val = $this->quote(is_array($val) ? $val[0] : $val);
                 // 判断占位符
                 $sql = is_numeric($key) ?
-                    substr_replace($sql, $val, strpos($sql, '?'), 1) :
-                    str_replace([':' . $key . ')', ':' . $key . ' '], [$val . ')', $val . ' '], $sql . ' ');
+                substr_replace($sql, $val, strpos($sql, '?'), 1) :
+                str_replace([':' . $key . ')', ':' . $key . ' '], [$val . ')', $val . ' '], $sql . ' ');
             }
         }
         return $sql;
@@ -443,12 +446,28 @@ abstract class Connection
     /**
      * 获得数据集
      * @access protected
-     * @return array
+     * @param string $class 针对RESULTSET_CLASS 用于指定的类名
+     * @return mixed
      */
-    protected function getResult()
+    protected function getResult($class = '')
     {
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
+        switch ($this->resultSetType) {
+            case Db::RESULTSET_COLLECTION:
+                // 返回数据集Collection对象
+                $result = new Collection($result);
+                break;
+            case Db::RESULTSET_CLASS:
+                // 返回指定对象类
+                if (!empty($class)) {
+                    $result = new $class($result);
+                }
+                break;
+            case Db::RESULTSET_ARRAY:
+            default:
+                // 返回二维数组
+        }
         return $result;
     }
 

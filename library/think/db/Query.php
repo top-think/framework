@@ -1322,7 +1322,7 @@ class Query
         }
 
         // 返回结果处理
-        if (!empty($resultSet)) {
+        if ($resultSet) {
 
             // 数据列表读取后的处理
             if (!empty($options['model'])) {
@@ -1340,13 +1340,13 @@ class Query
                 }
                 if (!empty($options['with'])) {
                     // 预载入
-                    $resultSet = $result->eagerlyResultSet($resultSet, $options['with']);
+                    $resultSet = $result->eagerlyResultSet($resultSet, $options['with'], is_class($resultSet) ? get_class($resultSet) : '');
                 }
             }
         } elseif (!empty($options['fail'])) {
             throw new DbException('Data not Found', $options, $sql);
         }
-        return Collection::make($resultSet);
+        return $resultSet;
     }
 
     /**
@@ -1404,7 +1404,7 @@ class Query
         }
 
         // 数据处理
-        if (!empty($result)) {
+        if (!empty($result[0])) {
             $data = $result[0];
             if (!empty($options['model'])) {
                 // 返回模型对象
@@ -1416,7 +1416,7 @@ class Query
                 }
                 if (!empty($options['with'])) {
                     // 预载入
-                    $data->eagerlyResult($data, $options['with']);
+                    $data->eagerlyResult($data, $options['with'], is_object($result) ? get_class($result) : '');
                 }
             }
         } elseif (!empty($options['fail'])) {
