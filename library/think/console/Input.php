@@ -361,7 +361,7 @@ class Input
         }
 
         return isset($this->arguments[$name]) ? $this->arguments[$name] : $this->definition->getArgument($name)
-                                                                                           ->getDefault();
+            ->getDefault();
     }
 
     /**
@@ -435,7 +435,7 @@ class Input
      */
     public function hasOption($name)
     {
-        return $this->definition->hasOption($name);
+        return $this->definition->hasOption($name) && isset($this->options[$name]);
     }
 
     /**
