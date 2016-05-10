@@ -28,6 +28,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     // 数据库对象池
     private static $links = [];
+    // 对象实例
+    private static $instance = [];
     // 数据库配置
     protected $connection = [];
     // 当前模型名称
@@ -858,10 +860,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function db()
     {
         $model = get_called_class();
-        $class = new static;
+
         if (!isset(self::$links[$model])) {
-            self::$links[$model] = Db::connect($class->connection, $model);
+            $class                  = new static;
+            self::$links[$model]    = Db::connect($class->connection, $model);
+            self::$instance[$model] = $class;
+        } else {
+            $class = self::$instance[$model];
         }
+
         // 设置当前数据表和模型名
         if (!empty($class->table)) {
             self::$links[$model]->table($class->table);
