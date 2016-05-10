@@ -525,7 +525,10 @@ class Route
                 // 匹配到路由规则
                 // 检测是否定义路由
                 if (!empty($option['after_behavior'])) {
-                    Hook::exec($option['after_behavior'], $route);
+                    $result = Hook::exec($option['after_behavior'], $route);
+                    if (false === $result) {
+                        return ['type' => 'finish'];
+                    }
                 }
                 if ($route instanceof \Closure) {
                     // 执行闭包

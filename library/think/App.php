@@ -94,13 +94,16 @@ class App
                 // 规则闭包
                 $data = self::invokeFunction($dispatch['function'], $dispatch['params']);
                 break;
+            case 'finish':
+                // 已经完成 不再继续执行
+                break;
             default:
                 throw new Exception('dispatch type not support', 10008);
         }
         // 监听app_end
         APP_HOOK && Hook::listen('app_end', $data);
         // 输出数据到客户端
-        if (Config::get('response_auto_output')) {
+        if (isset($data)) {
             // 自动响应输出
             return Response::send($data, Response::type(), Config::get('response_return'));
         }

@@ -31,8 +31,6 @@ return [
     'lang_switch_on'         => false,
     // 默认全局过滤方法 用逗号分隔多个
     'default_filter'         => '',
-    // 自动Response输出
-    'response_auto_output'   => true,
     // 是否启用控制器类后缀
     'use_controller_suffix'  => false,
 
@@ -214,9 +212,9 @@ return [
         'slave_no'    => '',
     ],
     //分页配置
-    'paginate' => [
+    'paginate'               => [
         'type'     => 'bootstrap',
-        'var_page' => 'page'
-    ]
+        'var_page' => 'page',
+    ],
 
 ];
