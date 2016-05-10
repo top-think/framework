@@ -263,17 +263,17 @@ class App
         } else {
             $path = APP_PATH . $module;
             // 加载模块配置
-            $config = Config::load(APP_PATH . $module . 'config' . EXT);
+            $config = Config::load(APP_PATH . $module . 'config' . CONF_EXT);
 
             // 加载应用状态配置
             if ($config['app_status']) {
-                $config = Config::load(APP_PATH . $module . $config['app_status'] . EXT);
+                $config = Config::load(APP_PATH . $module . $config['app_status'] . CONF_EXT);
             }
 
             // 读取扩展配置文件
             if ($config['extra_config_list']) {
                 foreach ($config['extra_config_list'] as $name => $file) {
-                    $filename = $path . $file . EXT;
+                    $filename = $path . $file . CONF_EXT;
                     Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
                 }
             }

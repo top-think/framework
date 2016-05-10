@@ -31,16 +31,17 @@ class Config
      * 解析配置文件或内容
      * @param string $config 配置文件路径或内容
      * @param string $type 配置解析类型
+     * @param string $name 配置名（如设置即表示二级配置）
      * @param string $range  作用域
      */
-    public static function parse($config, $type = '', $range = '')
+    public static function parse($config, $type = '', $name = '', $range = '')
     {
         $range = $range ?: self::$range;
         if (empty($type)) {
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
         $class = (false === strpos($type, '\\')) ? '\\think\\config\\driver\\' . ucwords($type) : $type;
-        self::set((new $class())->parse($config), '', $range);
+        self::set((new $class())->parse($config), $name, $range);
     }
 
     /**
@@ -59,7 +60,12 @@ class Config
         if (is_file($file)) {
             // 记录加载信息
             APP_DEBUG && Log::record('[ CONFIG ] ' . $file, 'info');
-            return self::set(include $file, $name, $range);
+            $type = pathinfo($file, PATHINFO_EXTENSION);
+            if ('php' != $type) {
+                return self::parse($config, $type, $name, $range);
+            } else {
+                return self::set(include $file, $name, $range);
+            }
         } else {
             return self::$config[$range];
         }
