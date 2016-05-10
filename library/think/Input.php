@@ -209,15 +209,17 @@ class Input
     /**
      * 获取$_FILES
      * @param string $name 数据名称
+     * @param array $files 上传文件
      * @return \think\File|array
      */
-    public static function file($name = '')
+    public static function file($name = '', $files = [])
     {
-        if (!empty($_FILES)) {
+        $files = $files ?: (isset($_FILES) ? $_FILES : []);
+        if (!empty($files)) {
             if ('' === $name) {
                 // 获取全部文件
                 $file = [];
-                foreach ($_FILES as $name => $val) {
+                foreach ($files as $name => $val) {
                     if (empty($val['tmp_name'])) {
                         continue;
                     }
@@ -230,15 +232,15 @@ class Input
                     }
                 }
                 return $file;
-            } elseif (!empty($_FILES[$name]['tmp_name'])) {
-                if (is_array($_FILES[$name]['tmp_name'])) {
+            } elseif (!empty($files[$name]['tmp_name'])) {
+                if (is_array($files[$name]['tmp_name'])) {
                     $file = [];
-                    foreach ($_FILES[$name]['tmp_name'] as $item) {
+                    foreach ($files[$name]['tmp_name'] as $item) {
                         $file[] = new File($item);
                     }
                     return $file;
                 } else {
-                    return new File($_FILES[$name]['tmp_name']);
+                    return new File($files[$name]['tmp_name']);
                 }
             }
         }

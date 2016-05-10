@@ -445,7 +445,7 @@ class Request
      */
     public function file($name = '')
     {
-        return Input::data($this->file ?: $_FILES, $name);
+        return Input::file($name, $this->file ?: $_FILES);
     }
 
     /**
