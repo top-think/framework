@@ -22,6 +22,11 @@ class Request
     protected static $instance;
 
     /**
+     * @var string URL地址
+     */
+    protected $url;
+
+    /**
      * @var string 基础URL
      */
     protected $baseUrl;
