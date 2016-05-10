@@ -30,7 +30,7 @@ class Pivot extends Model
             $this->data = $data;
         }
 
-        self::$table = $table;
+        $this->table = $table;
     }
 
 }
