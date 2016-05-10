@@ -81,7 +81,6 @@ class Error
             self::output($exception, $data);
         }
 
-        Log::save();
         // 禁止往下传播已处理过的异常
         return true;
     }
