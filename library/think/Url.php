@@ -150,21 +150,22 @@ class Url
                 if (Config::get('url_domain_deploy')) {
                     // 根域名
                     $urlDomainRoot = Config::get('url_domain_root');
-                    $route_domain = array_keys(Route::domain());
-                    foreach($route_domain as $domain_prefix) {
-                        if(strpos($domain, trim($domain_prefix, '*.')) !== false) {
-                            foreach (Route::domain() as $key => $rule) {
+                    $domains       = Route::domain();
+                    $route_domain  = array_keys($domains);
+                    foreach ($route_domain as $domain_prefix) {
+                        if (0 === strpos($domain_prefix, '*.') && strpos($domain, ltrim($domain_prefix, '*.')) !== false) {
+                            foreach ($domains as $key => $rule) {
                                 $rule = is_array($rule) ? $rule[0] : $rule;
                                 if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
                                     $url    = ltrim($url, $rule);
                                     $domain = $key;
                                     // 生成对应子域名
-                                    if(!empty($urlDomainRoot)){
+                                    if (!empty($urlDomainRoot)) {
                                         $domain .= $urlDomainRoot;
                                     }
                                     break;
-                                }else if(false !== strpos($key, '*')){
-                                    if(!empty($urlDomainRoot)){
+                                } else if (false !== strpos($key, '*')) {
+                                    if (!empty($urlDomainRoot)) {
                                         $domain .= $urlDomainRoot;
                                     }
                                     break;
@@ -269,7 +270,9 @@ class Url
                     if (is_numeric($key)) {
                         $key = array_shift($route);
                     }
-                    $route = $route[0];
+                    if (is_array($route)) {
+                        $route = $route[0];
+                    }
                     $param = [];
                     if (is_array($route)) {
                         $route = implode('\\', $route);
