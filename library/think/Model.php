@@ -400,7 +400,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = null;
             }
             if (!in_array($field, $this->change)) {
-                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : $value);
+                if(in_array($field, $this->autoTimeField)) {
+                    $this->__set($field, $value);
+                } else {
+                    $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : $value);
+                }
             }
         }
     }
