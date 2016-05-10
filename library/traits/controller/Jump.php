@@ -14,36 +14,76 @@
  */
 namespace traits\controller;
 
+use think\Config;
 use think\Response;
+use think\View;
 
 trait Jump
 {
     /**
-     * 操作错误跳转的快捷方法
-     * @access public
-     * @param mixed $msg 提示信息
-     * @param string $url 跳转的URL地址
-     * @param mixed $data 返回的数据
-     * @param integer $wait 跳转等待时间
-     * @return mixed
-     */
-    public function error($msg = '', $url = null, $data = '', $wait = 3)
-    {
-        return Response::error($msg, $data, $url, $wait);
-    }
-
-    /**
      * 操作成功跳转的快捷方法
      * @access public
      * @param mixed $msg 提示信息
-     * @param string $url 跳转的URL地址
      * @param mixed $data 返回的数据
+     * @param string $url 跳转的URL地址
      * @param integer $wait 跳转等待时间
      * @return mixed
      */
-    public function success($msg = '', $url = null, $data = '', $wait = 3)
+    public static function success($msg = '', $data = '', $url = null, $wait = 3)
     {
-        return Response::success($msg, $data, $url, $wait);
+        $code = 1;
+        if (is_numeric($msg)) {
+            $code = $msg;
+            $msg  = '';
+        }
+        $result = [
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data,
+            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
+            'wait' => $wait,
+        ];
+
+        $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
+
+        if ('html' == $type) {
+            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_success_tmpl'), $result);
+        }
+        Response::send($result, $type);
+    }
+
+    /**
+     * 操作错误跳转的快捷方法
+     * @access public
+     * @param mixed $msg 提示信息
+     * @param mixed $data 返回的数据
+     * @param string $url 跳转的URL地址
+     * @param integer $wait 跳转等待时间
+     * @return mixed
+     */
+    public static function error($msg = '', $data = '', $url = null, $wait = 3)
+    {
+        $code = 0;
+        if (is_numeric($msg)) {
+            $code = $msg;
+            $msg  = '';
+        }
+        $result = [
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data,
+            'url'  => is_null($url) ? 'javascript:history.back(-1);' : $url,
+            'wait' => $wait,
+        ];
+
+        $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
+
+        if ('html' == $type) {
+            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_error_tmpl'), $result);
+        }
+        Response::send($result, $type);
     }
 
     /**

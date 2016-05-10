@@ -23,6 +23,7 @@ use think\Lang;
 use think\Loader;
 use think\Log;
 use think\Request;
+use think\Response;
 use think\Route;
 use think\Session;
 use think\Url;
@@ -369,4 +370,15 @@ function route($rule = '', $route = [], $type = '*', $option = [], $pattern = []
 function request($name, $param = '')
 {
     return Request::instance()->$name($param);
+}
+
+/**
+ * 设置Response输出
+ * @param string $name 方法
+ * @param mixed $param 参数
+ * @return mixed
+ */
+function response($name, $param = '')
+{
+    return Response::$name($param);
 }

@@ -13,45 +13,98 @@ namespace think;
 
 use think\Config;
 use think\Url;
-use think\View;
 
 class Response
 {
     // 输出数据的转换方法
     protected static $transform = null;
-    // 输出数据的类型
-    protected static $type = '';
+
     // 输出数据
     protected static $data = '';
     // 是否exit
     protected static $isExit = false;
+    // 输出类型
+    protected static $type = '';
+    // contentType
+    protected static $contentType = [
+        'json'   => 'application/json',
+        'xml'    => 'text/xml',
+        'html'   => 'text/html',
+        'jsonp'  => 'application/javascript',
+        'script' => 'application/javascript',
+        'text'   => 'text/plain',
+    ];
+    // HTTP status
+    protected static $code = [
+        // Informational 1xx
+        100 => 'Continue',
+        101 => 'Switching Protocols',
+        // Success 2xx
+        200 => 'OK',
+        201 => 'Created',
+        202 => 'Accepted',
+        203 => 'Non-Authoritative Information',
+        204 => 'No Content',
+        205 => 'Reset Content',
+        206 => 'Partial Content',
+        // Redirection 3xx
+        300 => 'Multiple Choices',
+        301 => 'Moved Permanently',
+        302 => 'Moved Temporarily ', // 1.1
+        303 => 'See Other',
+        304 => 'Not Modified',
+        305 => 'Use Proxy',
+        // 306 is deprecated but reserved
+        307 => 'Temporary Redirect',
+        // Client Error 4xx
+        400 => 'Bad Request',
+        401 => 'Unauthorized',
+        402 => 'Payment Required',
+        403 => 'Forbidden',
+        404 => 'Not Found',
+        405 => 'Method Not Allowed',
+        406 => 'Not Acceptable',
+        407 => 'Proxy Authentication Required',
+        408 => 'Request Timeout',
+        409 => 'Conflict',
+        410 => 'Gone',
+        411 => 'Length Required',
+        412 => 'Precondition Failed',
+        413 => 'Request Entity Too Large',
+        414 => 'Request-URI Too Long',
+        415 => 'Unsupported Media Type',
+        416 => 'Requested Range Not Satisfiable',
+        417 => 'Expectation Failed',
+        // Server Error 5xx
+        500 => 'Internal Server Error',
+        501 => 'Not Implemented',
+        502 => 'Bad Gateway',
+        503 => 'Service Unavailable',
+        504 => 'Gateway Timeout',
+        505 => 'HTTP Version Not Supported',
+        509 => 'Bandwidth Limit Exceeded',
+    ];
 
     /**
      * 发送数据到客户端
-     * @access protected
-     * @param mixed $data 要返回的数据
-     * @param String $type 返回数据格式
+     * @access public
+     * @param mixed $data 数据
+     * @param string $type 返回类型
      * @param bool $return 是否返回数据
      * @return mixed
      */
-    public static function send($data = '', $type = '', $return = false)
+    public static function send($data = [], $type = '', $return = false)
     {
-        $type = strtolower($type ?: self::$type);
-
-        $headers = [
-            'json'   => 'application/json',
-            'xml'    => 'text/xml',
-            'html'   => 'text/html',
-            'jsonp'  => 'application/javascript',
-            'script' => 'application/javascript',
-            'text'   => 'text/plain',
-        ];
-
-        if (!headers_sent() && isset($headers[$type])) {
-            header('Content-Type:' . $headers[$type] . '; charset=utf-8');
+        if ('' == $type) {
+            $type = self::$type ?: (IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type'));
         }
 
         $data = $data ?: self::$data;
+
+        if (!headers_sent() && isset(self::$contentType[$type])) {
+            header('Content-Type:' . self::$contentType[$type] . '; charset=utf-8');
+        }
+
         if (is_callable(self::$transform)) {
             $data = call_user_func_array(self::$transform, [$data]);
         } else {
@@ -82,11 +135,22 @@ class Response
      * 转换控制器输出的数据
      * @access public
      * @param mixed $callback 调用的转换方法
-     * @return void
+     * @return $this
      */
     public static function transform($callback)
     {
         self::$transform = $callback;
+    }
+
+    /**
+     * 输出数据设置
+     * @access public
+     * @param mixed $data 输出数据
+     * @return $this
+     */
+    public static function data($data)
+    {
+        self::$data = $data;
     }
 
     /**
@@ -95,23 +159,9 @@ class Response
      * @param string $type 输出内容的格式类型
      * @return mixed
      */
-    public static function type($type = null)
+    public static function type($type)
     {
-        if (is_null($type)) {
-            return self::$type ?: (IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type'));
-        }
         self::$type = $type;
-    }
-
-    /**
-     * 输出数据设置
-     * @access public
-     * @param mixed $data 输出数据
-     * @return void
-     */
-    public static function data($data)
-    {
-        self::$data = $data;
     }
 
     /**
@@ -134,7 +184,6 @@ class Response
      * @param mixed $data 要返回的数据
      * @param integer $code 返回的code
      * @param string $msg 提示信息
-     * @param string $type 返回数据格式
      * @return mixed
      */
     public static function result($data, $code = 0, $msg = '', $type = '')
@@ -145,78 +194,7 @@ class Response
             'time' => NOW_TIME,
             'data' => $data,
         ];
-        if ($type) {
-            self::type($type);
-        }
-
-        return $result;
-    }
-
-    /**
-     * 操作成功跳转的快捷方法
-     * @access public
-     * @param mixed $msg 提示信息
-     * @param mixed $data 返回的数据
-     * @param string $url 跳转的URL地址
-     * @param integer $wait 跳转等待时间
-     * @return mixed
-     */
-    public static function success($msg = '', $data = '', $url = null, $wait = 3)
-    {
-        $code = 1;
-        if (is_numeric($msg)) {
-            $code = $msg;
-            $msg  = '';
-        }
-        $result = [
-            'code' => $code,
-            'msg'  => $msg,
-            'data' => $data,
-            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
-            'wait' => $wait,
-        ];
-
-        $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-
-        if ('html' == $type) {
-            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
-                ->fetch(Config::get('dispatch_success_tmpl'), $result);
-        }
-        self::type($type);
-        return $result;
-    }
-
-    /**
-     * 操作错误跳转的快捷方法
-     * @access public
-     * @param mixed $msg 提示信息
-     * @param mixed $data 返回的数据
-     * @param string $url 跳转的URL地址
-     * @param integer $wait 跳转等待时间
-     * @return mixed
-     */
-    public static function error($msg = '', $data = '', $url = null, $wait = 3)
-    {
-        $code = 0;
-        if (is_numeric($msg)) {
-            $code = $msg;
-            $msg  = '';
-        }
-        $result = [
-            'code' => $code,
-            'msg'  => $msg,
-            'data' => $data,
-            'url'  => is_null($url) ? 'javascript:history.back(-1);' : $url,
-            'wait' => $wait,
-        ];
-
-        $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-
-        if ('html' == $type) {
-            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
-                ->fetch(Config::get('dispatch_error_tmpl'), $result);
-        }
-        self::type($type);
+        self::$type = $type;
         return $result;
     }
 
@@ -255,61 +233,12 @@ class Response
      * @param integer $code 状态码
      * @return void
      */
-    public static function sendHttpStatus($code)
+    public static function code($code)
     {
-        static $_status = [
-            // Informational 1xx
-            100 => 'Continue',
-            101 => 'Switching Protocols',
-            // Success 2xx
-            200 => 'OK',
-            201 => 'Created',
-            202 => 'Accepted',
-            203 => 'Non-Authoritative Information',
-            204 => 'No Content',
-            205 => 'Reset Content',
-            206 => 'Partial Content',
-            // Redirection 3xx
-            300 => 'Multiple Choices',
-            301 => 'Moved Permanently',
-            302 => 'Moved Temporarily ', // 1.1
-            303 => 'See Other',
-            304 => 'Not Modified',
-            305 => 'Use Proxy',
-            // 306 is deprecated but reserved
-            307 => 'Temporary Redirect',
-            // Client Error 4xx
-            400 => 'Bad Request',
-            401 => 'Unauthorized',
-            402 => 'Payment Required',
-            403 => 'Forbidden',
-            404 => 'Not Found',
-            405 => 'Method Not Allowed',
-            406 => 'Not Acceptable',
-            407 => 'Proxy Authentication Required',
-            408 => 'Request Timeout',
-            409 => 'Conflict',
-            410 => 'Gone',
-            411 => 'Length Required',
-            412 => 'Precondition Failed',
-            413 => 'Request Entity Too Large',
-            414 => 'Request-URI Too Long',
-            415 => 'Unsupported Media Type',
-            416 => 'Requested Range Not Satisfiable',
-            417 => 'Expectation Failed',
-            // Server Error 5xx
-            500 => 'Internal Server Error',
-            501 => 'Not Implemented',
-            502 => 'Bad Gateway',
-            503 => 'Service Unavailable',
-            504 => 'Gateway Timeout',
-            505 => 'HTTP Version Not Supported',
-            509 => 'Bandwidth Limit Exceeded',
-        ];
-        if (isset($_status[$code])) {
-            header('HTTP/1.1 ' . $code . ' ' . $_status[$code]);
+        if (isset(self::$statusCode[$code])) {
+            header('HTTP/1.1 ' . $code . ' ' . self::$statusCode[$code]);
             // 确保FastCGI模式下正常
-            header('Status:' . $code . ' ' . $_status[$code]);
+            header('Status:' . $code . ' ' . self::$statusCode[$code]);
         }
     }
 }

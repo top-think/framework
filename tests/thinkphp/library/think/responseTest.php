@@ -129,10 +129,6 @@ class responseTest extends \PHPUnit_Framework_TestCase
     {
         $type = "json";
         Response::type($type);
-
-        $result = Response::type();
-        $this->assertEquals($type, $result);
-        Response::type($type);
     }
 
     /**
@@ -176,108 +172,6 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($msg, $result["msg"]);
         $this->assertEquals($data, $result["data"]);
         $this->assertEquals($_SERVER['REQUEST_TIME'], $result["time"]);
-        $this->assertEquals($type, Response::type());
-    }
-
-    /**
-     * @covers think\Response::success
-     * @todo Implement testSuccess().
-     */
-    public function testSuccess()
-    {
-        // round 1
-        $msg  = 1001;
-        $data = "data";
-
-        $url = "www.HTTP_REFERER.com";
-        if (isset($_SERVER["HTTP_REFERER"])) {
-            $HTTP_REFERER = $_SERVER["HTTP_REFERER"];
-        }
-        $_SERVER["HTTP_REFERER"] = $url;
-        Config::set('default_return_type', "json");
-
-        $result = Response::success($msg, $data);
-
-        $this->assertEquals($msg, $result["code"]);
-
-        $this->assertEquals($data, $result["data"]);
-        $this->assertEquals($url, $result["url"]);
-        $this->assertEquals("json", Response::type());
-        $this->assertEquals(3, $result["wait"]);
-
-        // round 2
-        $msg = "the msg";
-        $url = "www.thinkphptestsucess.com";
-
-        $result = Response::success($msg, $data, $url);
-
-        $this->assertEquals($msg, $result["msg"]);
-        $this->assertEquals($url, $result["url"]);
-
-        // round 3 异常在travis-ci中未能重现
-        // $this->setExpectedException('\think\Exception');
-        // FIXME 静态方法mock
-        // $oMockView = $this->getMockBuilder('\think\View')->setMethods(array(
-        // 'fetch'
-        // ))->getMock();
-
-        // $oMockView->expects($this->any())->method('fetch')->will($this->returnValue('content'));
-
-        // Config::set('default_return_type', "html");
-        // $result = Response::success($msg, $data, $url);
-
-        // FIXME 静态方法mock
-        // $this->assertEquals('content', $result);
-        if (isset($HTTP_REFERER)) {
-            $_SERVER["HTTP_REFERER"] = $HTTP_REFERER;
-        }
-
-    }
-
-    /**
-     * @covers think\Response::error
-     * @todo Implement testError().
-     */
-    public function testError()
-    {
-        // round 1
-        $msg  = 1001;
-        $data = "data";
-
-        Config::set('default_return_type', "json");
-
-        $result = Response::error($msg, $data);
-
-        $this->assertEquals($msg, $result["code"]);
-        $this->assertEquals($data, $result["data"]);
-        $this->assertEquals('javascript:history.back(-1);', $result["url"]);
-        $this->assertEquals("json", Response::type());
-        $this->assertEquals(3, $result["wait"]);
-
-        // round 2
-        $msg = "the msg";
-        $url = "www.thinkphptesterror.com";
-
-        $result = Response::error($msg, $data, $url);
-
-        $this->assertEquals($msg, $result["msg"]);
-        $this->assertEquals($url, $result["url"]);
-
-        // round 3 异常在travis-ci中未能重现
-        // $this->setExpectedException('\think\Exception');
-        // FIXME 静态方法mock
-        // $oMockView = $this->getMockBuilder('\think\View')->setMethods(array(
-        // 'fetch'
-        // ))->getMock();
-
-        // $oMockView->expects($this->any())->method('fetch')->will($this->returnValue('content'));
-
-        // Config::set('default_return_type', "html");
-
-        // $result = Response::error($msg, $data, $url);
-
-        // FIXME 静态方法mock
-        // $this->assertEquals('content', $result);
     }
 
     /**

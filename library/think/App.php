@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\Response;
+
 /**
  * App 应用管理
  * @author  liu21st <liu21st@gmail.com>
@@ -100,12 +102,12 @@ class App
             default:
                 throw new Exception('dispatch type not support', 10008);
         }
-        // 监听app_end
-        APP_HOOK && Hook::listen('app_end', $data);
         // 输出数据到客户端
-        if (isset($data)) {
+        if (isset($data) && !is_null($data)) {
+            // 监听app_end
+            APP_HOOK && Hook::listen('app_end', $data);
             // 自动响应输出
-            return Response::send($data, Response::type(), Config::get('response_return'));
+            return Response::send($data, '', Config::get('response_return'));
         }
     }
 
