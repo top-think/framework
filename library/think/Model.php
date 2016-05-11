@@ -400,7 +400,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = null;
             }
             if (!in_array($field, $this->change)) {
-                if(in_array($field, $this->autoTimeField)) {
+                if (in_array($field, $this->autoTimeField)) {
                     $this->__set($field, $value);
                 } else {
                     $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : $value);
@@ -867,7 +867,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (!isset(self::$links[$model])) {
             $class                  = new static;
-            self::$links[$model]    = Db::connect($class->connection, $model);
+            self::$links[$model]    = Db::connect($class->connection);
             self::$instance[$model] = $class;
         } else {
             $class = self::$instance[$model];
