@@ -28,7 +28,6 @@ class App
      */
     public static function run($request)
     {
-
         // 初始化应用（公共模块）
         self::initModule(COMMON_MODULE, Config::get());
 

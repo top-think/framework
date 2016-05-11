@@ -101,7 +101,7 @@ class Request
      * 初始化
      * @access public
      * @param array $options 参数
-     * @return object
+     * @return \think\Request
      */
     public static function instance($options = [])
     {
