@@ -53,6 +53,9 @@ class Route
     private static $pattern = [];
     // 域名绑定
     private static $bind = [];
+    // 当前分组
+    private static $group;
+    private static $option = [];
 
     // 添加URL映射规则
     public static function map($map = '', $route = '')
@@ -150,43 +153,118 @@ class Route
                 }
                 self::$rules[$type][$rule] = $result;
             }
+
         }
     }
 
-    // 路由分组
-    public static function group($name, $routes = [], $type = '*', $option = [], $pattern = [])
+    // 注册路由规则
+    public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [], $group = '')
     {
-        self::$rules[$type][$name] = ['routes' => $routes, 'option' => $option, 'pattern' => $pattern];
+        $group  = $group ?: self::$group;
+        $option = $option ?: self::$option;
+
+        if (strpos($type, '|')) {
+            foreach (explode('|', $type) as $val) {
+                self::rule($rule, $route, $val, $option, $pattern, $group);
+            }
+        } else {
+            $rules = [];
+            if (is_array($rule)) {
+                foreach ($rule as $key => $val) {
+                    if (is_numeric($key)) {
+                        $key = array_shift($val);
+                    }
+                    if (is_array($val)) {
+                        $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => isset($val[2]) ? $val[2] : []];
+                    } else {
+                        $result = ['route' => $val, 'option' => $option, 'pattern' => $pattern];
+                    }
+                    if ($group) {
+                        self::$rules[$type][$group]['routes'][$key] = $result['route'];
+                    } else {
+                        self::$rules[$type][$key] = $result;
+                    }
+                }
+            } else {
+                if ($group) {
+                    self::$rules[$type][$group]['routes'][$rule] = $route;
+                } else {
+                    self::$rules[$type][$rule] = ['route' => $route, 'option' => $option, 'pattern' => $pattern];
+                }
+            }
+        }
+    }
+
+    // 设置当前的路由分组
+    public static function setGroup($name)
+    {
+        self::$group = $name;
+    }
+
+    // 设置当前的路由分组
+    public static function setOption($option)
+    {
+        self::$option = $option;
+    }
+
+    // 路由分组
+    public static function group($name, $routes, $option = [], $type = '*', $pattern = [])
+    {
+        if (is_array($name)) {
+            $option = $name;
+            $name   = isset($option['name']) ? $option['name'] : '';
+        }
+        if (!empty($name)) {
+            if ($routes instanceof \Closure) {
+                self::setGroup($name);
+                call_user_func_array($routes, []);
+                self::setGroup(null);
+                self::$rules[$type][$name]['option']  = $option;
+                self::$rules[$type][$name]['pattern'] = $pattern;
+            } else {
+                self::$rules[$type][$name] = ['routes' => $routes, 'option' => $option, 'pattern' => $pattern];
+            }
+        } else {
+            if ($routes instanceof \Closure) {
+                // 闭包注册
+                self::setOption($option);
+                call_user_func_array($routes, []);
+                self::setOption([]);
+            } else {
+                // 批量注册路由
+                self::rule($routes, '', $type, $option, $pattern);
+            }
+        }
     }
 
     // 注册任意请求的路由规则
-    public static function any($rule, $route = '', $option = [], $pattern = [])
+    public static function any($rule, $route = '', $option = [], $pattern = [], $group = '')
     {
-        self::register($rule, $route, '*', $option, $pattern);
+        self::rule($rule, $route, '*', $option, $pattern, $group);
     }
 
     // 注册get请求的路由规则
-    public static function get($rule, $route = '', $option = [], $pattern = [])
+    public static function get($rule, $route = '', $option = [], $pattern = [], $group = '')
     {
-        self::register($rule, $route, 'GET', $option, $pattern);
+        self::rule($rule, $route, 'GET', $option, $pattern, $group);
     }
 
     // 注册post请求的路由规则
-    public static function post($rule, $route = '', $option = [], $pattern = [])
+    public static function post($rule, $route = '', $option = [], $pattern = [], $group = '')
     {
-        self::register($rule, $route, 'POST', $option, $pattern);
+        self::rule($rule, $route, 'POST', $option, $pattern, $group);
     }
 
     // 注册put请求的路由规则
-    public static function put($rule, $route = '', $option = [], $pattern = [])
+    public static function put($rule, $route = '', $option = [], $pattern = [], $group = '')
     {
-        self::register($rule, $route, 'PUT', $option, $pattern);
+        self::rule($rule, $route, 'PUT', $option, $pattern, $group);
     }
 
     // 注册delete请求的路由规则
-    public static function delete($rule, $route = '', $option = [], $pattern = [])
+    public static function delete($rule, $route = '', $option = [], $pattern = [], $group = '')
     {
-        self::register($rule, $route, 'DELETE', $option, $pattern);
+        self::rule($rule, $route, 'DELETE', $option, $pattern, $group);
     }
 
     // 注册资源路由
@@ -219,7 +297,7 @@ class Route
                 if (strpos($val[1], ':id') && isset($option['var'][$rule])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
                 }
-                self::register($rule . $val[1] . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
+                self::rule($rule . $val[1] . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
             }
         }
     }
@@ -255,7 +333,7 @@ class Route
     // 注册未匹配路由规则后的处理
     public static function miss($route, $method = '*', $option = [])
     {
-        self::register('__miss__', $route, $method, $option, []);
+        self::rule('__miss__', $route, $method, $option, []);
     }
 
     // 获取路由定义
@@ -395,8 +473,8 @@ class Route
                 unset($rules['__miss__']);
             }
             foreach ($rules as $rule => $val) {
-                $option  = $val['option'];
-                $pattern = $val['pattern'];
+                $option  = isset($val['option']) ? $val['option'] : [];
+                $pattern = isset($val['pattern']) ? $val['pattern'] : [];
 
                 // 参数有效性检查
                 if (!self::checkOption($option, $url)) {

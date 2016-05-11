@@ -85,9 +85,9 @@ class Relation
                 break;
             case self::BELONGS_TO_MANY:
                 // 关联查询
-                $pk                                = $this->parent->getPk();
-                $condition['pivot.' . $foreignKey] = $this->parent->$pk;
-                $result                            = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
+                $pk                              = $this->parent->getPk();
+                $condition['pivot.' . $localKey] = $this->parent->$pk;
+                $result                          = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
                 foreach ($result as $set) {
                     $pivot = [];
                     foreach ($set->toArray() as $key => $val) {

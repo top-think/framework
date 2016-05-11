@@ -24,60 +24,65 @@ class routeTest extends \PHPUnit_Framework_TestCase
 
     public function testRegister()
     {
-
+        $request = Request::instance();
         Route::get('hello/:name', 'index/hello');
         Route::get(['hello/:name' => 'index/hello']);
         Route::post('hello/:name', 'index/post');
         Route::put('hello/:name', 'index/put');
         Route::delete('hello/:name', 'index/delete');
         Route::any('user/:id', 'index/user');
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check(Request::instance(), 'hello/thinkphp'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'hello/thinkphp'));
         $this->assertEquals(['hello/:name' => ['route' => 'index/hello', 'option' => [], 'pattern' => []]], Route::getRules('GET'));
         Route::register('type/:name', 'index/type', 'PUT|POST');
+        Route::rule('type/:name', 'index/type', 'PUT|POST');
     }
 
     public function testResource()
     {
+        $request = Request::instance();
         Route::resource('res', 'index/blog');
         Route::resource(['res' => ['index/blog']]);
 
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'index']], Route::check(Request::instance(), 'res'));
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'create']], Route::check(Request::instance(), 'res/create'));
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'read']], Route::check(Request::instance(), 'res/8'));
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'edit']], Route::check(Request::instance(), 'res/8/edit'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'index']], Route::check($request, 'res'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'create']], Route::check($request, 'res/create'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'read']], Route::check($request, 'res/8'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'edit']], Route::check($request, 'res/8/edit'));
 
         Route::resource('blog.comment', 'index/comment');
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'comment', 'read']], Route::check(Request::instance(), 'blog/8/comment/10'));
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'comment', 'edit']], Route::check(Request::instance(), 'blog/8/comment/10/edit'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'comment', 'read']], Route::check($request, 'blog/8/comment/10'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'comment', 'edit']], Route::check($request, 'blog/8/comment/10/edit'));
     }
 
     public function testRest()
     {
+        $request = Request::instance();
         Route::rest('read', ['GET', '/:id', 'look']);
         Route::rest('create', ['GET', '/create', 'add']);
         Route::rest(['read' => ['GET', '/:id', 'look'], 'create' => ['GET', '/create', 'add']]);
         Route::resource('res', 'index/blog');
 
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'add']], Route::check(Request::instance(), 'res/create'));
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'look']], Route::check(Request::instance(), 'res/8'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'add']], Route::check($request, 'res/create'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'look']], Route::check($request, 'res/8'));
 
     }
 
     public function testRouteMap()
     {
+        $request = Request::instance();
         Route::map('hello', 'index/hello');
         $this->assertEquals('index/hello', Route::map('hello'));
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'hello', null]], Route::check(Request::instance(), 'hello'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'hello', null]], Route::check($request, 'hello'));
     }
 
     public function testMixVar()
     {
+        $request = Request::instance();
         Route::get('hello-<name>', 'index/hello', [], ['name' => '\w+']);
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check(Request::instance(), 'hello-thinkphp'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'hello-thinkphp'));
         Route::get('hello-<name><id?>', 'index/hello', [], ['name' => '\w+', 'id' => '\d+']);
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check(Request::instance(), 'hello-thinkphp2016'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'hello-thinkphp2016'));
         Route::get('hello-<name>/[:id]', 'index/hello', [], ['name' => '\w+', 'id' => '\d+']);
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check(Request::instance(), 'hello-thinkphp/2016'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'hello-thinkphp/2016'));
     }
 
     public function testParseUrl()
@@ -94,66 +99,72 @@ class routeTest extends \PHPUnit_Framework_TestCase
     {
         Route::get('hello/:name', 'index/hello');
         Route::get('blog/:id', 'blog/read', [], ['id' => '\d+']);
-
-        $this->assertEquals(false, Route::check(Request::instance(), 'test/thinkphp'));
-        $this->assertEquals(false, Route::check(Request::instance(), 'blog/thinkphp'));
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'blog', 'read']], Route::check(Request::instance(), 'blog/5'));
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check(Request::instance(), 'hello/thinkphp/abc/test'));
+        $request = Request::instance();
+        $this->assertEquals(false, Route::check($request, 'test/thinkphp'));
+        $this->assertEquals(false, Route::check($request, 'blog/thinkphp'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'blog', 'read']], Route::check($request, 'blog/5'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'hello/thinkphp/abc/test'));
     }
 
     public function testCheckRouteGroup()
     {
+        $request = Request::instance();
         Route::pattern(['id' => '\d+', 'name' => '\w{6,25}']);
         Route::group('group', [':id' => 'index/hello', ':name' => 'index/say']);
-        $this->assertEquals(false, Route::check(Request::instance(), 'empty/think'));
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'say']], Route::check(Request::instance(), 'group/think'));
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check(Request::instance(), 'group/10'));
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'say']], Route::check(Request::instance(), 'group/thinkphp'));
+        $this->assertEquals(false, Route::check($request, 'empty/think'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'say']], Route::check($request, 'group/think'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'group/10'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'say']], Route::check($request, 'group/thinkphp'));
     }
 
     public function testRouteToModule()
     {
+        $request = Request::instance();
         Route::get('hello/:name', 'index/hello');
         Route::get('blog/:id', 'blog/read', [], ['id' => '\d+']);
-        $this->assertEquals(false, Route::check(Request::instance(), 'test/thinkphp'));
-        $this->assertEquals(false, Route::check(Request::instance(), 'blog/thinkphp'));
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check(Request::instance(), 'hello/thinkphp'));
-        $this->assertEquals(['type' => 'module', 'module' => [null, 'blog', 'read']], Route::check(Request::instance(), 'blog/5'));
+        $this->assertEquals(false, Route::check($request, 'test/thinkphp'));
+        $this->assertEquals(false, Route::check($request, 'blog/thinkphp'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'hello/thinkphp'));
+        $this->assertEquals(['type' => 'module', 'module' => [null, 'blog', 'read']], Route::check($request, 'blog/5'));
     }
 
     public function testRouteToController()
     {
+        $request = Request::instance();
         Route::get('say/:name', '@app\index\controller\index\hello');
-        $this->assertEquals(['type' => 'controller', 'controller' => 'app\index\controller\index\hello', 'params' => ['name' => 'thinkphp']], Route::check(Request::instance(), 'say/thinkphp'));
+        $this->assertEquals(['type' => 'controller', 'controller' => 'app\index\controller\index\hello', 'params' => ['name' => 'thinkphp']], Route::check($request, 'say/thinkphp'));
     }
 
     public function testRouteToMethod()
     {
+        $request = Request::instance();
         Route::get('user/:name', '\app\index\service\User::get', [], ['name' => '\w+']);
         Route::get('info/:name', ['\app\index\model\Info', 'getInfo'], [], ['name' => '\w+']);
-        $this->assertEquals(['type' => 'method', 'method' => '\app\index\service\User::get', 'params' => ['name' => 'thinkphp']], Route::check(Request::instance(), 'user/thinkphp'));
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\model\Info', 'getInfo'], 'params' => ['name' => 'thinkphp']], Route::check(Request::instance(), 'info/thinkphp'));
+        $this->assertEquals(['type' => 'method', 'method' => '\app\index\service\User::get', 'params' => ['name' => 'thinkphp']], Route::check($request, 'user/thinkphp'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\model\Info', 'getInfo'], 'params' => ['name' => 'thinkphp']], Route::check($request, 'info/thinkphp'));
     }
 
     public function testRouteToRedirect()
     {
+        $request = Request::instance();
         Route::get('art/:id', '/article/read/id/:id', [], ['id' => '\d+']);
-        $this->assertEquals(['type' => 'redirect', 'url' => '/article/read/id/8', 'status' => 301], Route::check(Request::instance(), 'art/8'));
+        $this->assertEquals(['type' => 'redirect', 'url' => '/article/read/id/8', 'status' => 301], Route::check($request, 'art/8'));
     }
 
     public function testBind()
     {
+        $request = Request::instance();
         Route::bind('module', 'index/blog');
         $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'read']], Route::parseUrl('read/10'));
 
         Route::get('index/blog/:id', 'index/blog/read');
-        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'read']], Route::check(Request::instance(), '10'));
+        $this->assertEquals(['type' => 'module', 'module' => ['index', 'blog', 'read']], Route::check($request, '10'));
 
         Route::bind('namespace', '\app\index\controller');
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read'], 'params' => []], Route::check(Request::instance(), 'blog/read'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read'], 'params' => []], Route::check($request, 'blog/read'));
 
         Route::bind('class', '\app\index\controller\blog');
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read'], 'params' => []], Route::check(Request::instance(), 'read'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read'], 'params' => []], Route::check($request, 'read'));
     }
 
     public function testSsl()
