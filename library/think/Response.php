@@ -83,7 +83,7 @@ class Response
         if (is_callable($this->transform)) {
             $data = call_user_func_array($this->transform, [$data]);
         } else {
-            switch ($type) {
+            switch (strtolower($type)) {
                 case 'json':
                     // 返回JSON数据格式到客户端 包含状态信息
                     $data = json_encode($data, JSON_UNESCAPED_UNICODE);
