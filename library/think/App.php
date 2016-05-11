@@ -105,10 +105,14 @@ class App
         }
         // 输出数据到客户端
         if (isset($data)) {
-            // 监听app_end
-            APP_HOOK && Hook::listen('app_end', $data);
-            // 自动响应输出
-            return Response::send($data, '', Config::get('response_return'));
+            if ($data instanceof Response) {
+                return $data->send();
+            } else {
+                // 监听app_end
+                APP_HOOK && Hook::listen('app_end', $data);
+                // 自动响应输出
+                return Response::send($data, '', Config::get('response_return'));
+            }
         }
     }
 

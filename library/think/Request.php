@@ -120,7 +120,7 @@ class Request
      * @param array $cookie
      * @param array $files
      * @param array $server
-     * @return object
+     * @return \think\Request
      */
     public static function create($uri, $method = 'GET', $params = [], $cookie = [], $files = [], $server = [])
     {
