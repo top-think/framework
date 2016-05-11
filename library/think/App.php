@@ -111,7 +111,7 @@ class App
                 // 监听app_end
                 APP_HOOK && Hook::listen('app_end', $data);
                 // 自动响应输出
-                return Response::send($data, '', Config::get('response_return'));
+                return Response::instance()->send($data, '', Config::get('response_return'));
             }
         }
     }

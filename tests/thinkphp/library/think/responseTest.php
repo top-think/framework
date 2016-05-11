@@ -70,7 +70,7 @@ class responseTest extends \PHPUnit_Framework_TestCase
     {
         Config::set('default_ajax_return', $this->default_ajax_return);
         Config::set('default_return_type', $this->default_return_type);
-        Response::type(Config::get('default_return_type')); // 会影响其他测试
+        Response::instance()->type(Config::get('default_return_type')); // 会影响其他测试
     }
 
     /**
@@ -83,23 +83,24 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $dataArr["key"] = "value";
         //$dataArr->key   = "val";
 
-        $result = Response::send($dataArr, "", true);
+        $response = Response::instance();
+        $result = $response->send($dataArr, "", true);
         $this->assertArrayHasKey("key", $result);
 
-        $result = Response::send($dataArr, "json", true);
+        $result = $response->send($dataArr, "json", true);
         $this->assertEquals('{"key":"value"}', $result);
 
         $handler                                = "callback";
         $_GET[Config::get('var_jsonp_handler')] = $handler;
-        $result                                 = Response::send($dataArr, "jsonp", true);
+        $result                                 = $response->send($dataArr, "jsonp", true);
         $this->assertEquals('callback({"key":"value"});', $result);
 
-        Response::transform(function () {
+        $response->transform(function () {
 
             return "callbackreturndata";
         });
 
-        $result = Response::send($dataArr, "", true);
+        $result = $response->send($dataArr, "", true);
         $this->assertEquals("callbackreturndata", $result);
         $_GET[Config::get('var_jsonp_handler')] = "";
     }
@@ -110,15 +111,16 @@ class responseTest extends \PHPUnit_Framework_TestCase
      */
     public function testtransform()
     {
-        Response::transform(function () {
+        $response = Response::instance();
+        $response->transform(function () {
 
             return "callbackreturndata";
         });
         $dataArr = [];
-        $result  = Response::send($dataArr, "", true);
+        $result  = $response->send($dataArr, "", true);
         $this->assertEquals("callbackreturndata", $result);
 
-        Response::transform(null);
+        $response->transform(null);
     }
 
     /**
@@ -128,7 +130,7 @@ class responseTest extends \PHPUnit_Framework_TestCase
     public function testType()
     {
         $type = "json";
-        Response::type($type);
+        Response::instance()->type($type);
     }
 
     /**
@@ -138,8 +140,9 @@ class responseTest extends \PHPUnit_Framework_TestCase
     public function testData()
     {
         $data = "data";
-        Response::data($data);
-        Response::data(null);
+        $response = Response::instance();
+        $response->data($data);
+        $response->data(null);
     }
 
     /**
@@ -149,11 +152,12 @@ class responseTest extends \PHPUnit_Framework_TestCase
     public function testIsExit()
     {
         $isExit = true;
-        Response::isExit($isExit);
+        $response = Response::instance();
+        $response->isExit($isExit);
 
-        $result = Response::isExit();
+        $result = $response->isExit();
         $this->assertTrue($isExit, $result);
-        Response::isExit(false);
+        $response->isExit(false);
     }
 
     /**
@@ -166,7 +170,7 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $code   = "1001";
         $msg    = "the msg";
         $type   = "json";
-        $result = Response::result($data, $code, $msg, $type);
+        $result = Response::instance()->result($data, $code, $msg, $type);
 
         $this->assertEquals($code, $result["code"]);
         $this->assertEquals($msg, $result["msg"]);

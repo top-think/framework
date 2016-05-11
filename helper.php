@@ -371,12 +371,10 @@ function request()
 }
 
 /**
- * 设置Response输出
- * @param string $name 方法
- * @param mixed $param 参数
- * @return mixed
+ * 获取当前的Response对象实例
+ * @return \think\Response
  */
-function response($name, $param = '')
+function response()
 {
-    return Response::$name($param);
+    return Response::instance();
 }

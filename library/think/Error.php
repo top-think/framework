@@ -154,7 +154,7 @@ class Error
             // 异常信息输出监听
             APP_HOOK && Hook::listen('error_output', $data);
             // 输出异常内容
-            Response::send($data, $type, Config::get('response_return'));
+            Response::instance()->send($data, $type, Config::get('response_return'));
         } else {
             //ob_end_clean();
             extract($data);

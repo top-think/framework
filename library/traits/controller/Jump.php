@@ -50,7 +50,7 @@ trait Jump
             $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_success_tmpl'), $result);
         }
-        Response::send($result, $type);
+        Response::instance()->send($result, $type);
     }
 
     /**
@@ -83,7 +83,7 @@ trait Jump
             $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_error_tmpl'), $result);
         }
-        Response::send($result, $type);
+        Response::instance()->send($result, $type);
     }
 
     /**
@@ -97,7 +97,7 @@ trait Jump
      */
     public function result($data, $code = 0, $msg = '', $type = '')
     {
-        return Response::result($data, $code, $msg, $type);
+        return Response::instance()->result($data, $code, $msg, $type);
     }
 
     /**
@@ -109,7 +109,7 @@ trait Jump
      */
     public function redirect($url, $params = [])
     {
-        Response::redirect($url, $params);
+        Response::instance()->redirect($url, $params);
     }
 
 }
