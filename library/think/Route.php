@@ -254,6 +254,12 @@ class Route
         }
     }
 
+    // 注册未匹配路由规则后的处理
+    public static function miss($route, $method = '*', $option = [])
+    {
+        self::register('__miss__', $route, $method, $option, []);
+    }
+
     // 获取路由定义
     public static function getRules($method = '')
     {
@@ -385,6 +391,11 @@ class Route
 
         // 路由规则检测
         if (!empty($rules)) {
+            if (isset($rules['__miss__'])) {
+                // 指定未匹配路由的处理
+                $miss = $rules['__miss__'];
+                unset($rules['__miss__']);
+            }
             foreach ($rules as $rule => $val) {
                 $option  = $val['option'];
                 $pattern = $val['pattern'];
@@ -434,6 +445,12 @@ class Route
                         Request::instance()->route(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                         return $result;
                     }
+                }
+            }
+            if (isset($miss)) {
+                // 未匹配所有路由的路由规则处理
+                if (self::checkOption($miss['option'], $url)) {
+                    return self::parseRule('', $miss['route'], $url, []);
                 }
             }
         }
