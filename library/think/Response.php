@@ -98,7 +98,7 @@ class Response
         if ('' == $type) {
             $type = self::$type ?: (IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type'));
         }
-
+        $type = strtolower($type);
         $data = $data ?: self::$data;
 
         if (!headers_sent() && isset(self::$contentType[$type])) {
