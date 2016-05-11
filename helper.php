@@ -362,14 +362,12 @@ function route($rule = '', $route = [], $type = '*', $option = [], $pattern = []
 }
 
 /**
- * 获取Request参数
- * @param string $name 方法
- * @param mixed $param 参数
- * @return mixed
+ * 获取当前Request对象实例
+ * @return \think\Request
  */
-function request($name, $param = '')
+function request()
 {
-    return Request::instance()->$name($param);
+    return Request::instance();
 }
 
 /**
