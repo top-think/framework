@@ -103,7 +103,7 @@ class App
                 throw new Exception('dispatch type not support', 10008);
         }
         // 输出数据到客户端
-        if (isset($data) && !is_null($data)) {
+        if (isset($data)) {
             // 监听app_end
             APP_HOOK && Hook::listen('app_end', $data);
             // 自动响应输出
