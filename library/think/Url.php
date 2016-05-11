@@ -247,9 +247,9 @@ class Url
             if (empty($pattern) && empty($param)) {
                 // 没有任何变量
                 return $url;
-            } elseif (!empty($match) || !empty($param) && array_intersect($param, $array) == $param) {
+            } elseif (!empty($match) || (!empty($param) && array_intersect_assoc($param, $array) == $param)) {
                 // 存在变量定义
-                $vars = array_diff($array, $param);
+                $vars = array_diff_key($array, $param);
                 return $url;
             }
         }
