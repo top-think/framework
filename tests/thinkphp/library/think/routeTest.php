@@ -33,7 +33,6 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::any('user/:id', 'index/user');
         $this->assertEquals(['type' => 'module', 'module' => [null, 'index', 'hello']], Route::check($request, 'hello/thinkphp'));
         $this->assertEquals(['hello/:name' => ['route' => 'index/hello', 'option' => [], 'pattern' => []]], Route::getRules('GET'));
-        Route::register('type/:name', 'index/type', 'PUT|POST');
         Route::rule('type/:name', 'index/type', 'PUT|POST');
     }
 

@@ -191,17 +191,6 @@ class App
         if (APP_MULTI_MODULE) {
             // 多模块部署
             $module = strtolower($result[0] ?: $config['default_module']);
-            if ($maps = $config['url_module_map']) {
-                if (isset($maps[$module])) {
-                    // 记录当前别名
-                    define('MODULE_ALIAS', $module);
-                    // 获取实际的项目名
-                    $module = $maps[MODULE_ALIAS];
-                } elseif (array_search($module, $maps)) {
-                    // 禁止访问原始项目
-                    $module = '';
-                }
-            }
             // 获取模块名称
             define('MODULE_NAME', strip_tags($module));
 
@@ -335,8 +324,8 @@ class App
         if (APP_ROUTE_ON && !empty($config['url_route_on'])) {
             // 开启路由
             if (!empty($config['route'])) {
-                // 注册路由定义文件
-                Route::register($config['route']);
+                // 导入路由配置
+                Route::import($config['route']);
             }
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = Route::check($request, $_SERVER['PATH_INFO'], $depr, !IS_CLI ? $config['url_domain_deploy'] : false);

@@ -97,63 +97,46 @@ class Route
         }
     }
 
-    // 注册路由规则
-    public static function register($rule, $route = '', $type = '*', $option = [], $pattern = [])
+    // 导入配置文件定义的路由规则
+    public static function import(array $rule, $type = '*')
     {
-        if (strpos($type, '|')) {
-            foreach (explode('|', $type) as $val) {
-                self::register($rule, $route, $val, $option);
-            }
-        } else {
-            if (is_array($rule)) {
-                // 检查域名部署
-                if (isset($rule['__domain__'])) {
-                    self::domain($rule['__domain__']);
-                    unset($rule['__domain__']);
-                }
-                // 检查变量规则
-                if (isset($rule['__pattern__'])) {
-                    self::pattern($rule['__pattern__']);
-                    unset($rule['__pattern__']);
-                }
-                // 检查路由映射
-                if (isset($rule['__map__'])) {
-                    self::map($rule['__map__']);
-                    unset($rule['__map__']);
-                }
-                // 检查资源路由
-                if (isset($rule['__rest__'])) {
-                    self::resource($rule['__rest__']);
-                    unset($rule['__rest__']);
-                }
+        // 检查域名部署
+        if (isset($rule['__domain__'])) {
+            self::domain($rule['__domain__']);
+            unset($rule['__domain__']);
+        }
+        // 检查变量规则
+        if (isset($rule['__pattern__'])) {
+            self::pattern($rule['__pattern__']);
+            unset($rule['__pattern__']);
+        }
+        // 检查路由映射
+        if (isset($rule['__map__'])) {
+            self::map($rule['__map__']);
+            unset($rule['__map__']);
+        }
+        // 检查资源路由
+        if (isset($rule['__rest__'])) {
+            self::resource($rule['__rest__']);
+            unset($rule['__rest__']);
+        }
 
-                foreach ($rule as $key => $val) {
-                    if (is_numeric($key)) {
-                        $key = array_shift($val);
-                    }
-                    if (0 === strpos($key, '[')) {
-                        if (empty($val)) {
-                            continue;
-                        }
-                        $key    = substr($key, 1, -1);
-                        $result = ['routes' => $val, 'option' => $option, 'pattern' => $pattern];
-                    } elseif (is_array($val)) {
-                        $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => isset($val[2]) ? $val[2] : []];
-                    } else {
-                        $result = ['route' => $val, 'option' => $option, 'pattern' => $pattern];
-                    }
-                    self::$rules[$type][$key] = $result;
+        foreach ($rule as $key => $val) {
+            if (is_numeric($key)) {
+                $key = array_shift($val);
+            }
+            if (0 === strpos($key, '[')) {
+                if (empty($val)) {
+                    continue;
                 }
+                $key    = substr($key, 1, -1);
+                $result = ['routes' => $val, 'option' => [], 'pattern' => []];
+            } elseif (is_array($val)) {
+                $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => isset($val[2]) ? $val[2] : []];
             } else {
-                if (0 === strpos($rule, '[')) {
-                    $rule   = substr($rule, 1, -1);
-                    $result = ['routes' => $route, 'option' => $option, 'pattern' => $pattern];
-                } else {
-                    $result = ['route' => $route, 'option' => $option, 'pattern' => $pattern];
-                }
-                self::$rules[$type][$rule] = $result;
+                $result = ['route' => $val, 'option' => [], 'pattern' => []];
             }
-
+            self::$rules[$type][$key] = $result;
         }
     }
 

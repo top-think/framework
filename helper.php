@@ -358,7 +358,7 @@ function view($template = '', $vars = [])
  */
 function route($rule = '', $route = [], $type = '*', $option = [], $pattern = [])
 {
-    Route::register($rule, $route, $type, $option, $pattern);
+    Route::rule($rule, $route, $type, $option, $pattern);
 }
 
 /**
