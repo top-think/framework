@@ -11,8 +11,6 @@
 
 namespace think;
 
-use think\Request;
-
 class Route
 {
     // 路由规则
@@ -358,7 +356,7 @@ class Route
     }
 
     // 检测URL路由
-    public static function check($url, $depr = '/', $checkDomain = false)
+    public static function check($request, $url, $depr = '/', $checkDomain = false)
     {
         // 检测域名部署
         if ($checkDomain) {
@@ -429,7 +427,7 @@ class Route
                         }
                         $result = self::checkRule($key, $route, $url1, $pattern, $option);
                         if (false !== $result) {
-                            Request::instance()->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
+                            $request->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                             return $result;
                         }
                     }
@@ -442,7 +440,7 @@ class Route
                     // 规则路由
                     $result = self::checkRule($rule, $route, $url, $pattern, $option);
                     if (false !== $result) {
-                        Request::instance()->route(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
+                        $request->route(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                         return $result;
                     }
                 }

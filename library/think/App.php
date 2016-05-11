@@ -23,10 +23,12 @@ class App
     /**
      * 执行应用程序
      * @access public
+     * @param \think\Request $request Request对象
      * @return void
      */
-    public static function run()
+    public static function run($request)
     {
+
         // 初始化应用（公共模块）
         self::initModule(COMMON_MODULE, Config::get());
 
@@ -66,10 +68,10 @@ class App
         }
 
         // 获取当前请求的调度信息
-        $dispatch = Request::instance()->dispatch();
+        $dispatch = $request->dispatch();
         if (empty($dispatch)) {
             // 未指定调度类型 则进行URL路由检测
-            $dispatch = self::route($config);
+            $dispatch = self::route($request, $config);
         }
         // 记录路由信息
         APP_DEBUG && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
@@ -308,21 +310,22 @@ class App
     /**
      * URL路由检测（根据PATH_INFO)
      * @access public
+     * @param  \think\Request $request
      * @param  array $config
      * @throws Exception
      */
-    public static function route(array $config)
+    public static function route($request, array $config)
     {
 
-        define('__INFO__', Request::instance()->pathinfo());
-        define('__EXT__', Request::instance()->ext());
+        define('__INFO__', $request->pathinfo());
+        define('__EXT__', $request->ext());
 
         // 检测URL禁用后缀
         if ($config['url_deny_suffix'] && preg_match('/\.(' . $config['url_deny_suffix'] . ')$/i', __INFO__)) {
             throw new Exception('url suffix deny');
         }
 
-        $_SERVER['PATH_INFO'] = Request::instance()->path();
+        $_SERVER['PATH_INFO'] = $request->path();
         $depr                 = $config['pathinfo_depr'];
         $result               = false;
         // 路由检测
@@ -333,7 +336,7 @@ class App
                 Route::register($config['route']);
             }
             // 路由检测（根据路由定义返回不同的URL调度）
-            $result = Route::check($_SERVER['PATH_INFO'], $depr, !IS_CLI ? $config['url_domain_deploy'] : false);
+            $result = Route::check($request, $_SERVER['PATH_INFO'], $depr, !IS_CLI ? $config['url_domain_deploy'] : false);
             if (APP_ROUTE_MUST && false === $result && $config['url_route_must']) {
                 // 路由无效
                 throw new Exception('route not define ');
@@ -346,7 +349,7 @@ class App
         //保证$_REQUEST正常取值
         $_REQUEST = array_merge($_POST, $_GET, $_COOKIE);
         // 注册调度机制
-        return Request::instance()->dispatch($result);
+        return $request->dispatch($result);
     }
 
 }
