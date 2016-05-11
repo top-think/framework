@@ -16,6 +16,7 @@
 
 namespace tests\thinkphp\library\think;
 
+use think\Request;
 use think\Route;
 
 class routeTest extends \PHPUnit_Framework_TestCase
