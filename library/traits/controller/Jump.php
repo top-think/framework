@@ -29,7 +29,7 @@ trait Jump
      * @param integer $wait 跳转等待时间
      * @return void
      */
-    public static function success($msg = '', $url = null, $data = '', $wait = 3)
+    public function success($msg = '', $url = null, $data = '', $wait = 3)
     {
         $code = 1;
         if (is_numeric($msg)) {
@@ -62,7 +62,7 @@ trait Jump
      * @param integer $wait 跳转等待时间
      * @return void
      */
-    public static function error($msg = '', $url = null, $data = '', $wait = 3)
+    public function error($msg = '', $url = null, $data = '', $wait = 3)
     {
         $code = 0;
         if (is_numeric($msg)) {
