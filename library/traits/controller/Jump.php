@@ -24,12 +24,12 @@ trait Jump
      * 操作成功跳转的快捷方法
      * @access public
      * @param mixed $msg 提示信息
-     * @param mixed $data 返回的数据
      * @param string $url 跳转的URL地址
+     * @param mixed $data 返回的数据
      * @param integer $wait 跳转等待时间
-     * @return mixed
+     * @return void
      */
-    public static function success($msg = '', $data = '', $url = null, $wait = 3)
+    public static function success($msg = '', $url = null, $data = '', $wait = 3)
     {
         $code = 1;
         if (is_numeric($msg)) {
@@ -57,12 +57,12 @@ trait Jump
      * 操作错误跳转的快捷方法
      * @access public
      * @param mixed $msg 提示信息
-     * @param mixed $data 返回的数据
      * @param string $url 跳转的URL地址
+     * @param mixed $data 返回的数据
      * @param integer $wait 跳转等待时间
-     * @return mixed
+     * @return void
      */
-    public static function error($msg = '', $data = '', $url = null, $wait = 3)
+    public static function error($msg = '', $url = null, $data = '', $wait = 3)
     {
         $code = 0;
         if (is_numeric($msg)) {
