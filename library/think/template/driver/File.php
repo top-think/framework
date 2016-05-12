@@ -52,13 +52,16 @@ class File
 
     /**
      * 检查编译缓存是否有效
-     * @array $templates 用到的模板文件及更新时间列表
      * @string $cacheFile 缓存的文件名
      * @int $cacheTime 缓存时间
      * @return boolean
      */
     public function check($cacheFile, $cacheTime)
     {
+        // 缓存文件不存在, 直接返回false
+        if (!file_exists($cacheFile)) {
+            return false;
+        }
         if (0 != $cacheTime && time() > filemtime($cacheFile) + $cacheTime) {
             // 缓存是否在有效期
             return false;
