@@ -916,7 +916,23 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (is_null($value) && in_array($name, $this->autoTimeField)) {
             // 自动写入的时间戳字段
-            $value = NOW_TIME;
+            if (isset($this->type[$name])) {
+                $type = $this->type[$name];
+                if (strpos($type, ':')) {
+                    list($type, $param) = explode(':', $type, 2);
+                }
+                switch ($type) {
+                    case 'timestamp':
+                        $format = !empty($param) ? $param : $this->dateFormat;
+                        $value  = date($format, NOW_TIME);
+                        break;
+                    case 'datetime':
+                        $value = NOW_TIME;
+                        break;
+                }
+            } else {
+                $value = NOW_TIME;
+            }
         } else {
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
@@ -946,6 +962,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         if (!is_numeric($value)) {
                             $value = strtotime($value);
                         }
+                        break;
+                    case 'timestamp':
+                        $format = !empty($param) ? $param : $this->dateFormat;
+                        $value  = date($format, is_numeric($valiue) ? $value : strtotime($value));
                         break;
                     case 'object':
                         if (is_object($value)) {
@@ -1007,6 +1027,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'datetime':
                     $format = !empty($param) ? $param : $this->dateFormat;
                     $value  = date($format, $value);
+                    break;
+                case 'timestamp':
+                    $format = !empty($param) ? $param : $this->dateFormat;
+                    $value  = date($format, strtotime($value));
                     break;
                 case 'json':
                 case 'array':

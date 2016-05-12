@@ -50,6 +50,7 @@ class Sqlsrv extends Connection
      */
     public function getFields($tableName)
     {
+        $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
         $sql             = "SELECT   column_name,   data_type,   column_default,   is_nullable
         FROM    information_schema.tables AS t

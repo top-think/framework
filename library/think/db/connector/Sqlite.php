@@ -40,6 +40,7 @@ class Sqlite extends Connection
      */
     public function getFields($tableName)
     {
+        $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
         $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
         $pdo             = $this->linkID->query($sql);
