@@ -62,7 +62,7 @@ class Config
             APP_DEBUG && Log::record('[ CONFIG ] ' . $file, 'info');
             $type = pathinfo($file, PATHINFO_EXTENSION);
             if ('php' != $type) {
-                return self::parse($config, $type, $name, $range);
+                return self::parse($file, $type, $name, $range);
             } else {
                 return self::set(include $file, $name, $range);
             }

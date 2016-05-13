@@ -90,8 +90,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 架构函数
      * @access public
      * @param array|object $data 数据
+     * @param bool $init 是否需要初始化
      */
-    public function __construct($data = [])
+    public function __construct($data = [], $init = true)
     {
         if (is_object($data)) {
             $this->data = get_object_vars($data);
@@ -101,10 +102,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (empty($this->name)) {
             $this->name = basename(str_replace('\\', '/', get_class($this)));
         }
-        // 获取字段类型信息并缓存
-        $this->fieldType = self::db()->getTableInfo('', 'type');
-        $this->initialize();
-        $this->relation = new Relation($this);
+        if ($init) {
+            // 获取字段类型信息并缓存
+            $this->fieldType = self::db()->getTableInfo('', 'type');
+            $this->initialize();
+            $this->relation = new Relation($this);
+        }
     }
 
     /**
@@ -256,7 +259,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!empty($data)) {
             // 数据对象赋值
             foreach ($data as $key => $value) {
-                $this->__set($key, $value, $data);
+                $this->__set($key, $value);
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
@@ -869,7 +872,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = get_called_class();
 
         if (!isset(self::$links[$model])) {
-            $class                  = new static;
+            $class                  = new static([], false);
             self::$links[$model]    = Db::connect($class->connection);
             self::$instance[$model] = $class;
         } else {
@@ -914,10 +917,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $name 名称
      * @param mixed $value 值
-     * @param array $data 数据信息
      * @return void
      */
-    public function __set($name, $value, $data = [])
+    public function __set($name, $value)
     {
         if (is_null($value) && in_array($name, $this->autoTimeField)) {
             // 自动写入的时间戳字段
@@ -944,7 +946,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
-                $value = $this->$method($value, array_merge($data, $this->data));
+                $value = $this->$method($value, $this->data);
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $type = $this->type[$name];
