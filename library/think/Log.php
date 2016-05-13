@@ -68,7 +68,7 @@ class Log
 
     /**
      * 记录调试信息
-     * @param mixed $msg 调试信息
+     * @param mixed  $msg  调试信息
      * @param string $type 信息类型
      * @return void
      */
@@ -95,15 +95,25 @@ class Log
      */
     public static function save()
     {
-        if (is_null(self::$driver)) {
-            self::init(Config::get('log'));
+        if (!empty(self::$log)) {
+            if (is_null(self::$driver)) {
+                self::init(Config::get('log'));
+            }
+
+            $result = self::$driver->save(self::$log);
+
+            if ($result) {
+                self::$log = [];
+            }
+
+            return $result;
         }
-        return self::$driver->save(self::$log);
+        return true;
     }
 
     /**
      * 实时写入日志信息 并支持行为
-     * @param mixed $msg 调试信息
+     * @param mixed  $msg  调试信息
      * @param string $type 信息类型
      * @return bool
      */

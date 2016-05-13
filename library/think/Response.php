@@ -50,7 +50,7 @@ class Response
      * 初始化
      * @access public
      * @param string $type 输出类型
-     * @return \think\Request
+     * @return \think\Response
      */
     public static function instance($type = '')
     {

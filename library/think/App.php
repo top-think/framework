@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\exception\HttpResponseException;
 use think\Response;
 
 /**
@@ -24,7 +25,8 @@ class App
      * 执行应用程序
      * @access public
      * @param \think\Request $request Request对象
-     * @return void
+     * @return \think\Response
+     * @throws Exception
      */
     public static function run($request)
     {
@@ -76,32 +78,36 @@ class App
         APP_DEBUG && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
         // 监听app_begin
         APP_HOOK && Hook::listen('app_begin', $dispatch);
-        switch ($dispatch['type']) {
-            case 'redirect':
-                // 执行重定向跳转
-                header('Location: ' . $dispatch['url'], true, $dispatch['status']);
-                break;
-            case 'module':
-                // 模块/控制器/操作
-                $data = self::module($dispatch['module'], $config);
-                break;
-            case 'controller':
-                // 执行控制器操作
-                $data = Loader::action($dispatch['controller'], $dispatch['params']);
-                break;
-            case 'method':
-                // 执行回调方法
-                $data = self::invokeMethod($dispatch['method'], $dispatch['params']);
-                break;
-            case 'function':
-                // 规则闭包
-                $data = self::invokeFunction($dispatch['function'], $dispatch['params']);
-                break;
-            case 'finish':
-                // 已经完成 不再继续执行
-                break;
-            default:
-                throw new Exception('dispatch type not support', 10008);
+        try {
+            switch ($dispatch['type']) {
+                case 'redirect':
+                    // 执行重定向跳转
+                    header('Location: ' . $dispatch['url'], true, $dispatch['status']);
+                    break;
+                case 'module':
+                    // 模块/控制器/操作
+                    $data = self::module($dispatch['module'], $config);
+                    break;
+                case 'controller':
+                    // 执行控制器操作
+                    $data = Loader::action($dispatch['controller'], $dispatch['params']);
+                    break;
+                case 'method':
+                    // 执行回调方法
+                    $data = self::invokeMethod($dispatch['method'], $dispatch['params']);
+                    break;
+                case 'function':
+                    // 规则闭包
+                    $data = self::invokeFunction($dispatch['function'], $dispatch['params']);
+                    break;
+                case 'finish':
+                    // 已经完成 不再继续执行
+                    break;
+                default:
+                    throw new Exception('dispatch type not support', 10008);
+            }
+        } catch (HttpResponseException $exception){
+            $data = $exception->getResponse();
         }
         // 输出数据到客户端
         if (isset($data)) {

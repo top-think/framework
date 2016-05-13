@@ -17,11 +17,6 @@ namespace think;
  */
 class Exception extends \Exception
 {
-    /**
-     * 系统异常后发送给客户端的HTTP Status
-     * @var integer
-     */
-    protected $httpStatus = 500;
 
     /**
      * 保存异常页面显示的额外Debug数据
@@ -43,7 +38,7 @@ class Exception extends \Exception
      *   key2      value2
      *
      * @param string $label 数据分类，用于异常页面显示
-     * @param Array  $data  需要显示的数据，必须为关联数组
+     * @param array  $data  需要显示的数据，必须为关联数组
      */
     final protected function setData($label, array $data)
     {
@@ -59,13 +54,5 @@ class Exception extends \Exception
     {
         return $this->data;
     }
-
-    /**
-     * 获取要发送给客户端的HTTP Status
-     * @return integer HTTP Status
-     */
-    final public function getHttpStatus()
-    {
-        return $this->httpStatus;
-    }
+    
 }
