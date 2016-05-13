@@ -21,8 +21,6 @@ use think\db\Connection;
 class Oracle extends Connection
 {
 
-    private $table = '';
-
     /**
      * 解析pdo连接的dsn信息
      * @access protected
@@ -67,8 +65,8 @@ class Oracle extends Connection
         }
         $flag = false;
         if (preg_match("/^\s*(INSERT\s+INTO)\s+(\w+)\s+/i", $sql, $match)) {
-            $this->table = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
-            $flag        = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($this->table) . "'");
+            $table = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
+            $flag  = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($table) . "'");
         }
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
