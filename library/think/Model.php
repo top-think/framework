@@ -256,7 +256,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!empty($data)) {
             // 数据对象赋值
             foreach ($data as $key => $value) {
-                $this->__set($key, $value);
+                $this->__set($key, $value, $data);
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
@@ -914,9 +914,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $name 名称
      * @param mixed $value 值
+     * @param array $data 数据信息
      * @return void
      */
-    public function __set($name, $value)
+    public function __set($name, $value, $data = [])
     {
         if (is_null($value) && in_array($name, $this->autoTimeField)) {
             // 自动写入的时间戳字段
@@ -943,7 +944,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
-                $value = $this->$method($value, $this->data);
+                $value = $this->$method($value, array_merge($data, $this->data));
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $type = $this->type[$name];
