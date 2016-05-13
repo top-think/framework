@@ -76,6 +76,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $updateWhere;
     // 当前执行的关联对象
     protected $relation;
+    // 属性类型
+    protected $fieldType = [];
 
     /**
      * 初始化过的模型.
@@ -99,7 +101,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (empty($this->name)) {
             $this->name = basename(str_replace('\\', '/', get_class($this)));
         }
-
+        // 获取字段类型信息并缓存
+        $this->fieldType = self::db()->getTableInfo('', 'type');
         $this->initialize();
         $this->relation = new Relation($this);
     }
@@ -880,6 +883,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $name = !empty($class->name) ? $class->name : basename(str_replace('\\', '/', $model));
             self::$links[$model]->name($name);
         }
+
         // 设置当前模型 确保查询返回模型对象
         self::$links[$model]->model($model);
         // 返回当前数据库对象
@@ -930,6 +934,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         $value = NOW_TIME;
                         break;
                 }
+            } elseif (isset($this->fieldType[$name]) && preg_match('/(datetime|timestamp)/is', $this->fieldType[$name])) {
+                $value = date($this->dateFormat, NOW_TIME);
             } else {
                 $value = NOW_TIME;
             }
@@ -965,7 +971,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         break;
                     case 'timestamp':
                         $format = !empty($param) ? $param : $this->dateFormat;
-                        $value  = date($format, is_numeric($valiue) ? $value : strtotime($value));
+                        $value  = date($format, is_numeric($value) ? $value : strtotime($value));
                         break;
                     case 'object':
                         if (is_object($value)) {
