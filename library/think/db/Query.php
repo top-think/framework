@@ -1077,7 +1077,7 @@ class Query
 
             /** @var Relation $model */
             $model = $class->$relation();
-            $info  = $class->getRelationInfo();
+            $info  = $model->getRelationInfo();
             if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
                 if (0 == $i) {
                     $name  = Loader::parseName(basename(str_replace('\\', '/', $currentModel)));

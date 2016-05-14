@@ -90,7 +90,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 架构函数
      * @access public
      * @param array|object $data 数据
-     * @param bool $init 是否需要初始化
+     * @param bool $init 是否初始化
      */
     public function __construct($data = [], $init = true)
     {
@@ -102,12 +102,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (empty($this->name)) {
             $this->name = basename(str_replace('\\', '/', get_class($this)));
         }
+
         if ($init) {
             // 获取字段类型信息并缓存
-            $this->fieldType = self::db()->getTableInfo('', 'type');
+            $this->fieldType = self::db('info')->getTableInfo('', 'type');
             $this->initialize();
+        }
+
+    }
+
+    /**
+     *  获取关联模型实例
+     *
+     * @return \think\model\Relation
+     */
+    protected function relation()
+    {
+        if (is_null($this->relation)) {
             $this->relation = new Relation($this);
         }
+        return $this->relation;
     }
 
     /**
@@ -224,7 +238,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function getPk($table = '')
     {
         if (empty($this->pk)) {
-            $this->pk = self::db()->getTableInfo($table, 'pk');
+            $this->pk = self::db('info')->getTableInfo($table, 'pk');
         }
         return $this->pk;
     }
@@ -685,8 +699,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
         $class = new static();
-        $model = $class->$relation();
-        $info  = $class->getRelationInfo();
+        $info  = $class->$relation()->getRelationInfo();
         $table = $info['model']::getTable();
         return self::db()->alias('a')
             ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
@@ -704,8 +717,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function hasWhere($relation, $where = [])
     {
         $class = new static();
-        $model = $class->$relation();
-        $info  = $class->getRelationInfo();
+        $info  = $class->$relation()->getRelationInfo();
         $table = $info['model']::getTable();
         if (is_array($where)) {
             foreach ($where as $key => $val) {
@@ -749,22 +761,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_string($relations)) {
             $relations = explode(',', $relations);
         }
-
+        $this->relation();
         foreach ($relations as $relation) {
             $this->data[$relation] = $this->relation->getRelation($relation);
         }
         return $this;
-    }
-
-    /**
-     * 获取当前关联信息
-     * @access public
-     * @param string $name 关联信息
-     * @return array|string|integer
-     */
-    public function getRelationInfo($name = '')
-    {
-        return $this->relation->getRelationInfo($name);
     }
 
     /**
@@ -776,7 +777,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function eagerlyResultSet($resultSet, $relation)
     {
-        return $this->relation->eagerlyResultSet($resultSet, $relation);
+        return $this->relation()->eagerlyResultSet($resultSet, $relation);
     }
 
     /**
@@ -788,7 +789,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function eagerlyResult($result, $relation)
     {
-        return $this->relation->eagerlyResult($result, $relation);
+        return $this->relation()->eagerlyResult($result, $relation);
     }
 
     /**
@@ -805,7 +806,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation->hasOne($model, $foreignKey, $localKey);
+        return $this->relation()->hasOne($model, $foreignKey, $localKey);
     }
 
     /**
@@ -822,7 +823,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $otherKey   = $otherKey ?: (new $model)->getPk();
-        return $this->relation->belongsTo($model, $foreignKey, $otherKey);
+        return $this->relation()->belongsTo($model, $foreignKey, $otherKey);
     }
 
     /**
@@ -839,7 +840,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation->hasMany($model, $foreignKey, $localKey);
+        return $this->relation()->hasMany($model, $foreignKey, $localKey);
     }
 
     /**
@@ -859,21 +860,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTable();
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation->belongsToMany($model, $table, $foreignKey, $localKey);
+        return $this->relation()->belongsToMany($model, $table, $foreignKey, $localKey);
     }
 
     /**
      * 初始化数据库对象
      * @access public
+     * @param bool $new 是否采用新的数据库连接
      * @return \think\db\Driver
      */
-    public static function db()
+    public static function db($new = false)
     {
         $model = get_called_class();
 
-        if (!isset(self::$links[$model])) {
+        if ($new || !isset(self::$links[$model])) {
             $class                  = new static([], false);
-            self::$links[$model]    = Db::connect($class->connection);
+            self::$links[$model]    = Db::connect($class->connection, $new);
             self::$instance[$model] = $class;
         } else {
             $class = self::$instance[$model];
@@ -1051,7 +1053,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         } elseif (is_null($value) && method_exists($this, $name)) {
             // 获取关联数据
-            $value = $this->relation->getRelation($name);
+            $value = $this->relation()->getRelation($name);
             // 保存关联对象值
             $this->data[$name] = $value;
         }
