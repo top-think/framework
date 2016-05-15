@@ -13,6 +13,8 @@ namespace think\exception;
 
 use Exception;
 use think\Config;
+use think\Console;
+use think\console\Output;
 use think\Log;
 use think\Response;
 
@@ -80,6 +82,15 @@ class Handle
     }
 
     /**
+     * @param           $output
+     * @param Exception $e
+     */
+    public function renderForConsole(Output $output, Exception $e)
+    {
+        (new Console)->renderException($e, $output);
+    }
+
+    /**
      * @param HttpException $e
      * @return \think\Response
      */
@@ -110,8 +121,7 @@ class Handle
                 'code'    => $this->getCode($exception),
                 'source'  => $this->getSourceCode($exception),
                 'datas'   => $this->getExtendData($exception),
-
-                'tables' => [
+                'tables'  => [
                     'GET Data'              => $_GET,
                     'POST Data'             => $_POST,
                     'Files'                 => $_FILES,

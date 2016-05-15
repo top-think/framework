@@ -18,6 +18,7 @@ namespace tests\thinkphp\library\think;
 
 use ReflectionMethod;
 use think\Exception as ThinkException;
+use think\exception\HttpException;
 
 class MyException extends ThinkException
 {
@@ -29,9 +30,9 @@ class exceptionTest extends \PHPUnit_Framework_TestCase
     public function testGetHttpStatus()
     {
         try {
-            throw new ThinkException("Error Processing Request", 1);
-        } catch (ThinkException $e) {
-            $this->assertEquals(500, $e->getHttpStatus());
+            throw new HttpException(404, "Error Processing Request");
+        } catch (HttpException $e) {
+            $this->assertEquals(404, $e->getStatusCode());
         }
     }
 

@@ -14,6 +14,7 @@ namespace think;
 use think\exception\ErrorException;
 use think\exception\Handle;
 use think\exception\ThrowableError;
+use think\console\Output as ConsoleOutput;
 
 class Error
 {
@@ -35,7 +36,7 @@ class Error
 
     /**
      * Exception Handler
-     * @param  \Exception $e
+     * @param  \Exception|\Throwable $e
      */
     public static function appException($e)
     {
@@ -44,8 +45,11 @@ class Error
         }
         
         self::getExceptionHandler()->report($e);
-
-        self::getExceptionHandler()->render($e)->send();
+        if(IS_CLI){
+            self::getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
+        }else{
+            self::getExceptionHandler()->render($e)->send();
+        }
     }
 
     /**

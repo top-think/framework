@@ -16,7 +16,7 @@ use think\console\helper\Formatter as FormatterHelper;
 use think\console\helper\Process as ProcessHelper;
 use think\console\helper\Question as QuestionHelper;
 use think\console\helper\Set as HelperSet;
-use think\console\Input;
+use think\console\Input as ConsoleInput;
 use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
@@ -74,7 +74,7 @@ class Console
      */
     public function run()
     {
-        $input  = new Input();
+        $input  = new ConsoleInput();
         $output = new Output();
 
         $this->configureIO($input, $output);
@@ -112,11 +112,11 @@ class Console
 
     /**
      * 执行指令
-     * @param Input  $input
+     * @param ConsoleInput  $input
      * @param Output $output
      * @return int
      */
-    public function doRun(Input $input, Output $output)
+    public function doRun(ConsoleInput $input, Output $output)
     {
         if (true === $input->hasParameterOption(['--version', '-V'])) {
             $output->writeln($this->getLongVersion());
@@ -129,7 +129,7 @@ class Console
         if (true === $input->hasParameterOption(['--help', '-h'])) {
             if (!$name) {
                 $name  = 'help';
-                $input = new Input(['help']);
+                $input = new ConsoleInput(['help']);
             } else {
                 $this->wantHelps = true;
             }
@@ -137,7 +137,7 @@ class Console
 
         if (!$name) {
             $name  = $this->defaultCommand;
-            $input = new Input([$this->defaultCommand]);
+            $input = new ConsoleInput([$this->defaultCommand]);
         }
 
         $command = $this->find($name);
@@ -640,10 +640,10 @@ class Console
 
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
-     * @param Input  $input  输入实例
+     * @param ConsoleInput  $input  输入实例
      * @param Output $output 输出实例
      */
-    protected function configureIO(Input $input, Output $output)
+    protected function configureIO(ConsoleInput $input, Output $output)
     {
         if (true === $input->hasParameterOption(['--ansi'])) {
             $output->setDecorated(true);
@@ -683,22 +683,22 @@ class Console
     /**
      * 执行指令
      * @param Command $command 指令实例
-     * @param Input   $input   输入实例
+     * @param ConsoleInput   $input   输入实例
      * @param Output  $output  输出实例
      * @return int
      * @throws \Exception
      */
-    protected function doRunCommand(Command $command, Input $input, Output $output)
+    protected function doRunCommand(Command $command, ConsoleInput $input, Output $output)
     {
         return $command->run($input, $output);
     }
 
     /**
      * 获取指令的基础名称
-     * @param Input $input
+     * @param ConsoleInput $input
      * @return string
      */
-    protected function getCommandName(Input $input)
+    protected function getCommandName(ConsoleInput $input)
     {
         return $input->getFirstArgument();
     }
