@@ -242,6 +242,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         return $this->pk;
     }
+    
+    /**
+     * 标记字段更改
+     * @param $name 字段名
+     * @param $value 字段新值
+     * @return $this 当前对象
+     */
+    protected function change($name, $value)
+    {
+        // 标记字段更改
+        if (!isset($this->data[$name]) || ($this->data[$name] != $value && !in_array($name, $this->change))) {
+            $this->change[] = $name;
+        }
+        return $this;
+    }
 
     /**
      * 判断一个字段名是否为主键字段
@@ -271,12 +286,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function save($data = [], $where = [], $getId = true)
     {
         if (!empty($data)) {
+            if (!empty($where)) {
+                $this->isUpdate = true;
+            }
+            foreach($data as $name=>$value){
+                if($this->isUpdate){
+                    $this->change($name, $value);
+                } else {
+                    $this->change[] = $name;
+                }
+            }
+            $this->data = array_merge($this->data, $data);
             // 数据对象赋值
             foreach ($data as $key => $value) {
                 $this->__set($key, $value);
-            }
-            if (!empty($where)) {
-                $this->isUpdate = true;
             }
         }
         // 数据自动验证
@@ -994,9 +1017,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 标记字段更改
-        if (!isset($this->data[$name]) || ($this->data[$name] != $value && !in_array($name, $this->change))) {
-            $this->change[] = $name;
-        }
+        $this->change($name, $value);
         // 设置数据对象属性
         $this->data[$name] = $value;
     }
