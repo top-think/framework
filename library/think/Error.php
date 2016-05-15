@@ -43,11 +43,11 @@ class Error
         if (!$e instanceof \Exception) {
             $e = new ThrowableError($e);
         }
-        
+
         self::getExceptionHandler()->report($e);
-        if(IS_CLI){
+        if (IS_CLI) {
             self::getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
-        }else{
+        } else {
             self::getExceptionHandler()->render($e)->send();
         }
     }
@@ -77,12 +77,7 @@ class Error
     {
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至think\ErrorException
-            $exception = new ErrorException(
-                $error['type'],
-                $error['message'],
-                $error['file'],
-                $error['line']
-            );
+            $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
 
             self::appException($exception);
         }

@@ -38,7 +38,7 @@ class Console
     private $runningCommand;
 
     private $catchExceptions = true;
-    private $autoExit        = true;
+    private $autoExit = true;
     private $definition;
     private $helperSet;
     private $terminalDimensions;
@@ -90,7 +90,7 @@ class Console
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int) $exitCode;
+                $exitCode = (int)$exitCode;
                 if (0 === $exitCode) {
                     $exitCode = 1;
                 }
@@ -112,8 +112,8 @@ class Console
 
     /**
      * 执行指令
-     * @param ConsoleInput  $input
-     * @param Output $output
+     * @param ConsoleInput $input
+     * @param Output       $output
      * @return int
      */
     public function doRun(ConsoleInput $input, Output $output)
@@ -201,7 +201,7 @@ class Console
      */
     public function setCatchExceptions($boolean)
     {
-        $this->catchExceptions = (bool) $boolean;
+        $this->catchExceptions = (bool)$boolean;
     }
 
     /**
@@ -211,7 +211,7 @@ class Console
      */
     public function setAutoExit($boolean)
     {
-        $this->autoExit = (bool) $boolean;
+        $this->autoExit = (bool)$boolean;
     }
 
     /**
@@ -379,7 +379,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -417,7 +417,7 @@ class Console
         $expr        = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $name);
-        $commands = preg_grep('{^' . $expr . '}', $allCommands);
+        $commands    = preg_grep('{^' . $expr . '}', $allCommands);
 
         if (empty($commands) || count(preg_grep('{^' . $expr . '$}', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
@@ -606,19 +606,19 @@ class Console
 
         if ('\\' === DS) {
             if (preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim(getenv('ANSICON')), $matches)) {
-                return [(int) $matches[1], (int) $matches[2]];
+                return [(int)$matches[1], (int)$matches[2]];
             }
             if (preg_match('/^(\d+)x(\d+)$/', $this->getConsoleMode(), $matches)) {
-                return [(int) $matches[1], (int) $matches[2]];
+                return [(int)$matches[1], (int)$matches[2]];
             }
         }
 
         if ($sttyString = $this->getSttyColumns()) {
             if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
-                return [(int) $matches[2], (int) $matches[1]];
+                return [(int)$matches[2], (int)$matches[1]];
             }
             if (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
-                return [(int) $matches[2], (int) $matches[1]];
+                return [(int)$matches[2], (int)$matches[1]];
             }
         }
 
@@ -640,8 +640,8 @@ class Console
 
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
-     * @param ConsoleInput  $input  输入实例
-     * @param Output $output 输出实例
+     * @param ConsoleInput $input  输入实例
+     * @param Output       $output 输出实例
      */
     protected function configureIO(ConsoleInput $input, Output $output)
     {
@@ -663,18 +663,11 @@ class Console
         if (true === $input->hasParameterOption(['--quiet', '-q'])) {
             $output->setVerbosity(Output::VERBOSITY_QUIET);
         } else {
-            if ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3')
-                || $input->getParameterOption('--verbose') === 3
-            ) {
+            if ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
                 $output->setVerbosity(Output::VERBOSITY_DEBUG);
-            } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2')
-                || $input->getParameterOption('--verbose') === 2
-            ) {
+            } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
                 $output->setVerbosity(Output::VERBOSITY_VERY_VERBOSE);
-            } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1')
-                || $input->hasParameterOption('--verbose')
-                || $input->getParameterOption('--verbose')
-            ) {
+            } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
                 $output->setVerbosity(Output::VERBOSITY_VERBOSE);
             }
         }
@@ -682,9 +675,9 @@ class Console
 
     /**
      * 执行指令
-     * @param Command $command 指令实例
-     * @param ConsoleInput   $input   输入实例
-     * @param Output  $output  输出实例
+     * @param Command      $command 指令实例
+     * @param ConsoleInput $input   输入实例
+     * @param Output       $output  输出实例
      * @return int
      * @throws \Exception
      */
