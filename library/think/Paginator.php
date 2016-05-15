@@ -53,12 +53,13 @@ abstract class Paginator
         $this->simple   = $simple;
         $this->listRows = $listRows;
 
-        $this->items = PaginatorCollection::make($items, $this);
-
         if ($simple) {
+            if (!$items instanceof Collection) {
+                $items = Collection::make($items);
+            }
             $this->currentPage = $this->setCurrentPage($currentPage);
-            $this->hasMore     = count($this->items) > ($this->listRows);
-            $this->items       = $this->items->slice(0, $this->listRows);
+            $this->hasMore     = count($items) > ($this->listRows);
+            $items             = $items->slice(0, $this->listRows);
         } else {
             $this->total       = $total;
             $this->lastPage    = (int)ceil($total / $listRows);
@@ -66,6 +67,7 @@ abstract class Paginator
             $this->hasMore     = $this->currentPage < $this->lastPage;
         }
 
+        $this->items = PaginatorCollection::make($items, $this);
     }
 
     public function items()
