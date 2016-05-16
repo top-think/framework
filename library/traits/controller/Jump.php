@@ -104,12 +104,13 @@ trait Jump
      * URL重定向
      * @access protected
      * @param string $url 跳转的URL表达式
-     * @param array|int $params 其它URL参数或http code
+     * @param integer $code http code
+     * @param array $params 其它URL参数
      * @return void
      */
-    public function redirect($url, $params = [])
+    public function redirect($url, $code = 301, $params = [])
     {
-        Response::create()->isExit(true)->redirect($url, $params);
+        Response::create('redirect')->data($url)->code($code)->params($params);
     }
 
 }

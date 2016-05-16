@@ -95,12 +95,13 @@ class View
      * 解析和获取模板内容 用于输出
      * @param string $template 模板文件名或者内容
      * @param array  $vars     模板输出变量
+     * @param array  $replace 替换内容
      * @param array  $config     模板参数
-     * @param bool   $renderContent 是否渲染内容
+     * @param bool  $renderContent     是否渲染内容
      * @return string
      * @throws Exception
      */
-    public function fetch($template = '', $vars = [], $config = [], $renderContent = false)
+    public function fetch($template = '', $vars = [], $replace = [], $config = [], $renderContent = false)
     {
         // 模板变量
         $vars = array_merge($this->data, $vars);
@@ -118,8 +119,9 @@ class View
         // 内容过滤标签
         APP_HOOK && Hook::listen('view_filter', $content);
         // 允许用户自定义模板的字符串替换
-        if (!empty($this->replace)) {
-            $content = strtr($content, $this->replace);
+        $replace = array_merge($this->replace, $replace);
+        if (!empty($replace)) {
+            $content = strtr($content, $replace);
         }
         return $content;
     }
@@ -146,12 +148,13 @@ class View
      * @access public
      * @param string $content 内容
      * @param array  $vars    模板输出变量
+     * @param array  $replace 替换内容
      * @param array  $config     模板参数
      * @return mixed
      */
-    public function display($content, $vars = [], $config = [])
+    public function display($content, $vars = [], $replace = [], $config = [])
     {
-        return $this->fetch($content, $vars, $config, true);
+        return $this->fetch($content, $vars, $replace, $config, true);
     }
 
     /**

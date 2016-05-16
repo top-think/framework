@@ -340,14 +340,14 @@ function trace($log = '[think]', $level = 'log')
  * 渲染模板输出
  * @param string $template 模板文件
  * @param array $vars 模板变量
+ * @param integer $code 状态码
  * @param string $type 输出类型
  * @return \think\Response
  */
-function view($template = '', $vars = [], $type = 'html')
+function view($template = '', $vars = [], $code = 200)
 {
-    $data     = View::instance(Config::get('template'), Config::get('view_replace_str'))->fetch($template, $vars);
-    $response = Response::create($type);
-    return $response->data($data);
+    $response = new \think\response\Html();
+    return $response->data($template)->vars($vars)->code($code);
 }
 
 /**
@@ -386,10 +386,26 @@ function response($type = '', $options = [])
 
 /**
  * 获取\think\response\Json对象实例
- * @param array $options 参数
+ * @param mixed $data 返回的数据
+ * @param integer $code 状态码
+ * @param array $options 参数状
  * @return \think\response\Json
  */
-function json($options = [])
+function json($data = [], $code = 200, $options = [])
 {
-    return new \think\response\Json($options);
+    $response = new \think\response\Json($options);
+    return $response->data($data)->code($code);
+}
+
+/**
+ * 获取\think\response\Redirect对象实例
+ * @param mixed $url 重定向地址 支持Url::build方法的地址
+ * @param integer $code 状态码
+ * @param array $params 额外参数
+ * @return \think\response\Redirect
+ */
+function redirect($url = [], $code = 200, $params = [])
+{
+    $response = new \think\response\Redirect();
+    return $response->data($url)->code($code)->params($params);
 }

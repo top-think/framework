@@ -297,4 +297,13 @@ class Response
     {
         return !empty($name) ? $this->header[$name] : $this->header;
     }
+
+    /**
+     * 获取数据
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
 }

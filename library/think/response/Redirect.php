@@ -17,10 +17,10 @@ use think\Url;
 class Redirect extends Response
 {
 
-    protected $options = [
-        'http_response_code' => 301,
-        'http_url_params'    => [],
-    ];
+    protected $options = [];
+
+    // URL参数
+    protected $params = [];
 
     /**
      * 处理数据
@@ -31,10 +31,15 @@ class Redirect extends Response
     protected function output($data)
     {
         $this->isExit             = true;
-        $url                      = preg_match('/^(https?:|\/)/', $data) ? $data : Url::build($data, $this->options['http_url_params']);
+        $url                      = preg_match('/^(https?:|\/)/', $data) ? $data : Url::build($data, $this->params);
         $this->header['Location'] = $url;
-        $this->header['status']   = $this->options['http_response_code'];
+        $this->header['status']   = isset($this->header['status']) ? $this->header['status'] : 301;
         return;
     }
 
+    public function params($params = [])
+    {
+        $this->params = $params;
+        return $this;
+    }
 }
