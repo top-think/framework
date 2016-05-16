@@ -22,7 +22,7 @@ class Handle
 {
 
     protected $ignoreReport = [
-        '\\think\\exception\\HttpException'
+        '\\think\\exception\\HttpException',
     ];
 
     /**
@@ -40,15 +40,15 @@ class Handle
                     'file'    => $exception->getFile(),
                     'line'    => $exception->getLine(),
                     'message' => $exception->getMessage(),
-                    'code'    => $this->getCode($exception)
+                    'code'    => $this->getCode($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $exception->getCode(),
                     'message' => $exception->getMessage(),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}";
+                $log = "[{$data['code']}]{$data['message']}";
             }
 
             Log::record($log, 'error');
@@ -130,7 +130,7 @@ class Handle
                     'Server/Request Data'   => $_SERVER,
                     'Environment Variables' => $_ENV,
                     'ThinkPHP Constants'    => $this->getConst(),
-                ]
+                ],
             ];
         } else {
             // 部署模式仅显示 Code 和 Message
@@ -151,7 +151,7 @@ class Handle
         // 获取并清空缓存
         $content = ob_get_clean();
 
-        $response = Response::instance()->data($content);
+        $response = Response::create('html')->data($content);
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();
@@ -204,7 +204,6 @@ class Handle
         }
         return $source;
     }
-
 
     /**
      * 获取异常扩展信息

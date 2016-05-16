@@ -340,11 +340,14 @@ function trace($log = '[think]', $level = 'log')
  * 渲染模板输出
  * @param string $template 模板文件
  * @param array $vars 模板变量
- * @return string
+ * @param string $type 输出类型
+ * @return \think\Response
  */
-function view($template = '', $vars = [])
+function view($template = '', $vars = [], $type = 'html')
 {
-    return View::instance(Config::get('template'), Config::get('view_replace_str'))->fetch($template, $vars);
+    $data     = View::instance(Config::get('template'), Config::get('view_replace_str'))->fetch($template, $vars);
+    $response = Response::create($type);
+    return $response->data($data);
 }
 
 /**
@@ -371,10 +374,22 @@ function request()
 }
 
 /**
- * 获取当前的Response对象实例
+ * 创建Response对象实例
+ * @param string $type 输出类型
+ * @param array $options 参数
  * @return \think\Response
  */
-function response()
+function response($type = '', $options = [])
 {
-    return Response::instance();
+    return Response::create($type, $options);
+}
+
+/**
+ * 获取\think\response\Json对象实例
+ * @param array $options 参数
+ * @return \think\response\Json
+ */
+function json($options = [])
+{
+    return new \think\response\Json($options);
 }

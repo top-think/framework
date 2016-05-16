@@ -61,7 +61,8 @@ abstract class Connection
     protected $attrCase = PDO::CASE_LOWER;
     // 监听回调
     protected static $event = [];
-
+    // 查询对象
+    protected $query = [];
     // 数据库连接参数配置
     protected $config = [
         // 数据库类型
@@ -119,7 +120,20 @@ abstract class Connection
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
         }
-        $this->query = new Query($this);
+    }
+
+    /**
+     * 创建指定模型的查询对象
+     * @access public
+     * @param string $model 模型类名称
+     * @return \think\Query
+     */
+    public function model($model)
+    {
+        if (!isset($this->query[$model])) {
+            $this->query[$model] = new Query($this, $model);
+        }
+        return $this->query[$model];
     }
 
     /**
@@ -131,7 +145,10 @@ abstract class Connection
      */
     public function __call($method, $args)
     {
-        return call_user_func_array([$this->query, $method], $args);
+        if (!isset($this->query['database'])) {
+            $this->query['database'] = new Query($this);
+        }
+        return call_user_func_array([$this->query['database'], $method], $args);
     }
 
     /**

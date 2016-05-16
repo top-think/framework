@@ -106,7 +106,7 @@ class App
                 default:
                     throw new Exception('dispatch type not support', 10008);
             }
-        } catch (HttpResponseException $exception){
+        } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
         }
         // 输出数据到客户端
@@ -116,8 +116,9 @@ class App
             } else {
                 // 监听app_end
                 APP_HOOK && Hook::listen('app_end', $data);
+                $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
                 // 自动响应输出
-                return Response::instance()->send($data, '', Config::get('response_return'));
+                return Response::create($type)->send($data);
             }
         }
     }

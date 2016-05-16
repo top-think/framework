@@ -29,7 +29,12 @@ class Query
     protected $connection;
     // 数据库驱动类型
     protected $driver;
-
+    // 当前模型类名称
+    protected $model;
+    // 当前数据表名称（含前缀）
+    protected $table;
+    // 当前数据表名称（不含前缀）
+    protected $name;
     // 查询参数
     protected $options = [];
     // 参数绑定
@@ -41,10 +46,11 @@ class Query
      * @param object|string $connection 数据库对象实例
      * @throws Exception
      */
-    public function __construct($connection = '')
+    public function __construct($connection = '', $model = '')
     {
         $this->connection = $connection ?: Db::connect([], true);
         $this->driver     = $this->connection->getDriverName();
+        $this->model      = $model;
     }
 
     /**
@@ -71,6 +77,39 @@ class Query
         } else {
             throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
         }
+    }
+
+    /**
+     * 执行查询 返回数据集
+     * @access public
+     * @param string $sql sql指令
+     * @param array $bind 参数绑定
+     * @param boolean $fetch 不执行只是获取SQL
+     * @param boolean $master 是否在主服务器读操作
+     * @param bool|string $class 指定返回的数据集对象
+     * @return mixed
+     * @throws DbBindParamException
+     * @throws PDOException
+     */
+    public function query($sql, $bind = [], $fetch = false, $master = false, $class = false)
+    {
+        return $this->connection->query($sql, $bind, $fetch, $master, $class);
+    }
+
+    /**
+     * 执行语句
+     * @access public
+     * @param string $sql sql指令
+     * @param array $bind 参数绑定
+     * @param boolean $fetch 不执行只是获取SQL
+     * @param boolean $getLastInsID 是否获取自增ID
+     * @return int
+     * @throws DbBindParamException
+     * @throws PDOException
+     */
+    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false)
+    {
+        return $this->connection->execute($sql, $bind, $fetch, $getLastInsID);
     }
 
     /**
@@ -677,7 +716,7 @@ class Query
      */
     public function table($table)
     {
-        $this->options['table'] = $table;
+        $this->table = $table;
         return $this;
     }
 
@@ -899,18 +938,6 @@ class Query
     }
 
     /**
-     * 指定当前模型
-     * @access public
-     * @param string $model 模型类名称
-     * @return $this
-     */
-    public function model($model)
-    {
-        $this->options['model'] = $model;
-        return $this;
-    }
-
-    /**
      * 设置当前name
      * @access public
      * @param string $name
@@ -918,7 +945,7 @@ class Query
      */
     public function name($name)
     {
-        $this->options['name'] = $name;
+        $this->name = $name;
         return $this;
     }
 
@@ -929,13 +956,13 @@ class Query
      */
     public function getTable()
     {
-        if (empty($this->options['table'])) {
+        if (empty($this->table)) {
             $tableName = $this->connection->getConfig('prefix');
-            if (isset($this->options['name'])) {
-                $tableName .= Loader::parseName($this->options['name']);
+            if (isset($this->name)) {
+                $tableName .= Loader::parseName($this->name);
             }
         } else {
-            $tableName = $this->options['table'];
+            $tableName = $this->table;
         }
         return $tableName;
     }
@@ -1059,7 +1086,7 @@ class Query
         }
 
         $i            = 0;
-        $currentModel = $this->options['model'];
+        $currentModel = $this->model;
 
         /** @var Model $class */
         $class = new $currentModel;
@@ -1181,7 +1208,7 @@ class Query
         // 生成SQL语句
         $sql = $this->builder()->insert($data, $options, $replace);
         // 执行操作
-        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID);
+        return $this->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID);
     }
 
     /**
@@ -1212,7 +1239,7 @@ class Query
         // 生成SQL语句
         $sql = $this->builder()->insertAll($dataSet, $options);
         // 执行操作
-        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql']);
+        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
     }
 
     /**
@@ -1230,7 +1257,7 @@ class Query
         // 生成SQL语句
         $sql = $this->builder()->selectInsert($fields, $table, $options);
         // 执行操作
-        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql']);
+        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
     }
 
     /**
@@ -1275,7 +1302,7 @@ class Query
             return 0;
         }
         // 执行操作
-        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql']);
+        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
     }
 
     /**
@@ -1316,7 +1343,7 @@ class Query
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询操作
-            $resultSet = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
+            $resultSet = $this->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
 
             if (is_string($resultSet)) {
                 // 返回SQL
@@ -1337,9 +1364,9 @@ class Query
         if ($resultSet) {
 
             // 数据列表读取后的处理
-            if (!empty($options['model'])) {
+            if (!empty($this->model)) {
                 // 生成模型对象
-                $model = $options['model'];
+                $model = $this->model;
                 foreach ($resultSet as $key => $result) {
                     /** @var Model $result */
                     $result = new $model($result);
@@ -1397,7 +1424,7 @@ class Query
             // 生成查询SQL
             $sql = $this->builder()->select($options);
             // 执行查询
-            $result = $this->connection->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
+            $result = $this->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
 
             if (is_string($result)) {
                 // 返回SQL
@@ -1418,9 +1445,10 @@ class Query
         // 数据处理
         if (!empty($result[0])) {
             $data = $result[0];
-            if (!empty($options['model'])) {
+            if (!empty($this->model)) {
                 // 返回模型对象
-                $data = new $options['model']($data);
+                $model = $this->model;
+                $data  = new $model($data);
                 $data->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
                 // 关联查询
                 if (!empty($options['relation'])) {
@@ -1517,7 +1545,7 @@ class Query
         // 生成删除SQL语句
         $sql = $this->builder()->delete($options);
         // 执行操作
-        return $this->connection->execute($sql, $this->getBind(), $options['fetch_sql']);
+        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
     }
 
     /**

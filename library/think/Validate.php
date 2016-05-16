@@ -335,7 +335,7 @@ class Validate
                     }
 
                     // 如果不是require 有数据才会行验证
-                    if (0 === strpos($info, 'require') || !empty($value)) {
+                    if (0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                         // 验证类型
                         $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                         // 验证数据

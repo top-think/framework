@@ -63,10 +63,11 @@ class Request
     protected $file   = [];
     protected $cookie = [];
     protected $server = [];
+
     /**
      * @var array 资源类型
      */
-    protected $mime = [
+    protected $mimeType = [
         'html' => 'text/html,application/xhtml+xml,*/*',
         'xml'  => 'application/xml,text/xml,application/x-xml',
         'json' => 'application/json,text/x-json,application/jsonrequest,text/json',

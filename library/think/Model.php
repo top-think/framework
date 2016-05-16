@@ -28,8 +28,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     // 数据库对象池
     private static $links = [];
-    // 对象实例
-    private static $instance = [];
     // 数据库配置
     protected $connection = [];
     // 当前模型名称
@@ -90,9 +88,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 架构函数
      * @access public
      * @param array|object $data 数据
-     * @param bool $init 是否初始化
      */
-    public function __construct($data = [], $init = true)
+    public function __construct($data = [])
     {
         if (is_object($data)) {
             $this->data = get_object_vars($data);
@@ -103,12 +100,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->name = basename(str_replace('\\', '/', get_class($this)));
         }
 
-        if ($init) {
-            // 获取字段类型信息并缓存
-            $this->fieldType = self::db('info')->getTableInfo('', 'type');
-            $this->initialize();
-        }
-
+        $this->initialize();
     }
 
     /**
@@ -238,7 +230,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function getPk($table = '')
     {
         if (empty($this->pk)) {
-            $this->pk = self::db('info')->getTableInfo($table, 'pk');
+            $this->pk = self::db()->getTableInfo($table, 'pk');
         }
         return $this->pk;
     }
@@ -866,32 +858,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 初始化数据库对象
      * @access public
-     * @param bool $new 是否采用新的数据库连接
-     * @return \think\db\Driver
+     * @return \think\db\Query
      */
-    public static function db($new = false)
+    public static function db()
     {
         $model = get_called_class();
+        if (!isset(self::$links[$model])) {
+            $class = new static();
 
-        if ($new || !isset(self::$links[$model])) {
-            $class                  = new static([], false);
-            self::$links[$model]    = Db::connect($class->connection, $new);
-            self::$instance[$model] = $class;
-        } else {
-            $class = self::$instance[$model];
+            // 设置当前模型 确保查询返回模型对象
+            self::$links[$model] = Db::connect($class->connection)->model($model);
+
+            // 设置当前数据表和模型名
+            if (!empty($class->table)) {
+                self::$links[$model]->table($class->table);
+            } else {
+                $name = !empty($class->name) ? $class->name : basename(str_replace('\\', '/', $model));
+                self::$links[$model]->name($name);
+            }
         }
 
-        // 设置当前数据表和模型名
-        if (!empty($class->table)) {
-            self::$links[$model]->table($class->table);
-        } else {
-            $name = !empty($class->name) ? $class->name : basename(str_replace('\\', '/', $model));
-            self::$links[$model]->name($name);
-        }
-
-        // 设置当前模型 确保查询返回模型对象
-        self::$links[$model]->model($model);
-        // 返回当前数据库对象
+        // 返回当前模型的数据库查询对象
         return self::$links[$model];
     }
 
@@ -923,6 +910,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __set($name, $value)
     {
+        if (is_null($this->fieldType)) {
+            // 获取字段类型信息并缓存
+            $this->fieldType = self::db()->getTableInfo('', 'type');
+        }
         if (is_null($value) && in_array($name, $this->autoTimeField)) {
             // 自动写入的时间戳字段
             if (isset($this->type[$name])) {

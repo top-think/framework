@@ -92,7 +92,7 @@ abstract class Rest
      */
     protected function response($data, $type = '', $code = 200)
     {
-        return Response::instance()->data($data)->type($type)->code($code);
+        return Response::create($type)->data($data)->code($code);
     }
 
     /**
