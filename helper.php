@@ -387,12 +387,25 @@ function view($template = '', $vars = [], $code = 200)
  * 获取\think\response\Json对象实例
  * @param mixed $data 返回的数据
  * @param integer $code 状态码
- * @param array $options 参数状
+ * @param array $options 参数
  * @return \think\response\Json
  */
 function json($data = [], $code = 200, $options = [])
 {
     $response = new \think\response\Json($options);
+    return $response->data($data)->code($code);
+}
+
+/**
+ * 获取\think\response\Xml对象实例
+ * @param mixed $data 返回的数据
+ * @param integer $code 状态码
+ * @param array $options 参数
+ * @return \think\response\Xml
+ */
+function xml($data = [], $code = 200, $options = [])
+{
+    $response = new \think\response\Xml($options);
     return $response->data($data)->code($code);
 }
 

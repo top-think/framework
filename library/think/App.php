@@ -13,8 +13,6 @@ namespace think;
 
 use think\exception\HttpResponseException;
 use think\Response;
-use think\response\Json;
-use think\response\Jsonp;
 
 /**
  * App 应用管理
@@ -119,20 +117,12 @@ class App
                 // 监听app_end
                 APP_HOOK && Hook::listen('app_end', $data);
                 $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-                switch ($type) {
-                    case 'json':
-                        $response = new Json($data);
-                        break;
-                    case 'jsonp':
-                        $response = new Jsonp($data);
-                        break;
-                    case 'html':
-                    default:
-                        $response = new Response($data, $type);
-                        break;
+                if (in_array(strtolower($type), ['json', 'jsonp', 'xml'])) {
+                    $class = '\\think\\response\\' . ucfirst($type);
+                } else {
+                    $class = '\\think\\Response';
                 }
-                // 自动响应输出
-                return $response->send();
+                return (new $class($data, $type))->send();
             }
         }
     }
