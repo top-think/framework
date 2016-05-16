@@ -120,7 +120,7 @@ class Route
             self::resource($rule['__rest__']);
             unset($rule['__rest__']);
         }
-
+        $type = strtoupper($type);
         foreach ($rule as $key => $val) {
             if (is_numeric($key)) {
                 $key = array_shift($val);
@@ -146,6 +146,7 @@ class Route
         $group  = $group ?: self::$group;
         $option = $option ?: self::$option;
 
+        $type = strtoupper($type);
         if (strpos($type, '|')) {
             foreach (explode('|', $type) as $val) {
                 self::rule($rule, $route, $val, $option, $pattern, $group);
@@ -197,6 +198,7 @@ class Route
             $option = $name;
             $name   = isset($option['name']) ? $option['name'] : '';
         }
+        $type = strtoupper($type);
         if (!empty($name)) {
             if ($routes instanceof \Closure) {
                 self::setGroup($name);
