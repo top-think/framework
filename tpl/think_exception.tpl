@@ -211,7 +211,7 @@
                             isset($value['class']) ? parse_class($value['class']) : '',
                             isset($value['type'])  ? $value['type'] : '', 
                             $value['function'], 
-                            parse_args($value['args'])
+                            isset($value['args'])?parse_args($value['args']):''
                         );
                     }
 
