@@ -12,6 +12,7 @@
 namespace think\controller;
 
 use think\Response;
+use think\response\Json;
 
 abstract class Rest
 {
@@ -90,9 +91,13 @@ abstract class Rest
      * @param integer $code HTTP状态
      * @return void
      */
-    protected function response($data, $type = '', $code = 200)
+    protected function response($data, $type = 'json', $code = 200)
     {
-        return Response::create($type)->data($data)->code($code);
+        if('json'==$type){
+            return new Json($data)->code($code);
+        }else{
+            return new Response($data,$type)->code($code);
+        }
     }
 
     /**

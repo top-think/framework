@@ -15,8 +15,12 @@
 namespace traits\controller;
 
 use think\Config;
+use think\exception\HttpResponseException;
 use think\Response;
-use think\View;
+use think\response\Json;
+use think\response\Jsonp;
+use think\response\Redirect;
+use think\View as ViewTemplate;
 
 trait Jump
 {
@@ -46,11 +50,20 @@ trait Jump
 
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
-        if ('html' == $type) {
-            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
-                ->fetch(Config::get('dispatch_success_tmpl'), $result);
+        switch ($type) {
+            case 'html':
+                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                    ->fetch(Config::get('dispatch_success_tmpl'), $result);
+                $response = new Response($result, $type);
+                break;
+            case 'json':
+                $response = new Json($result);
+                break;
+            case 'jsonp':
+                $response = new Jsonp($result);
+                break;
         }
-        return Response::create($type)->data($result);
+        return $response;
     }
 
     /**
@@ -79,11 +92,20 @@ trait Jump
 
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
-        if ('html' == $type) {
-            $result = View::instance(Config::get('template'), Config::get('view_replace_str'))
-                ->fetch(Config::get('dispatch_error_tmpl'), $result);
+        switch ($type) {
+            case 'html':
+                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                    ->fetch(Config::get('dispatch_error_tmpl'), $result);
+                $response = new Response($result, $type);
+                break;
+            case 'json':
+                $response = new Json($result);
+                break;
+            case 'jsonp':
+                $response = new Jsonp($result);
+                break;
         }
-        return Response::create($type)->data($result);
+        throw new HttpResponseException($response);
     }
 
     /**
@@ -97,7 +119,7 @@ trait Jump
      */
     public function result($data, $code = 0, $msg = '', $type = '')
     {
-        return Response::create($type)->result($data, $code, $msg);
+        return (new Response([], $type))->result($data, $code, $msg);
     }
 
     /**
@@ -110,7 +132,7 @@ trait Jump
      */
     public function redirect($url, $code = 301, $params = [])
     {
-        return Response::create('redirect')->data($url)->code($code)->params($params);
+        return (new Redirect($url))->code($code)->params($params);
     }
 
 }

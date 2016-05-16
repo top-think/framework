@@ -337,20 +337,6 @@ function trace($log = '[think]', $level = 'log')
 }
 
 /**
- * 渲染模板输出
- * @param string $template 模板文件
- * @param array $vars 模板变量
- * @param integer $code 状态码
- * @param string $type 输出类型
- * @return \think\Response
- */
-function view($template = '', $vars = [], $code = 200)
-{
-    $response = new \think\response\Html();
-    return $response->data($template)->render(true)->vars($vars)->code($code);
-}
-
-/**
  * 路由注册
  * @param string $rule 路由规则
  * @param mixed $route 路由地址
@@ -379,9 +365,22 @@ function request()
  * @param array $options 参数
  * @return \think\Response
  */
-function response($type = '', $options = [])
+function response($data = [], $type = '', $options = [])
 {
-    return Response::create($type, $options);
+    return new Response($data, $type, $options);
+}
+
+/**
+ * 渲染模板输出
+ * @param string $template 模板文件
+ * @param array $vars 模板变量
+ * @param integer $code 状态码
+ * @return \think\response\View
+ */
+function view($template = '', $vars = [], $code = 200)
+{
+    $response = new \think\response\View();
+    return $response->data($template)->vars($vars)->code($code);
 }
 
 /**

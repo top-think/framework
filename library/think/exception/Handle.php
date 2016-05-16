@@ -151,7 +151,7 @@ class Handle
         // 获取并清空缓存
         $content = ob_get_clean();
 
-        $response = Response::create('html')->data($content);
+        $response = new Response($content, 'html');
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();

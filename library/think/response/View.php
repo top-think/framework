@@ -13,16 +13,15 @@ namespace think\response;
 
 use think\Config;
 use think\Response;
-use think\View;
+use think\View as ViewTemplate;
 
-class Html extends Response
+class View extends Response
 {
     // 输出参数
     protected $options     = [];
     protected $vars        = [];
     protected $replace     = [];
     protected $contentType = 'text/html';
-    protected $render      = false;
 
     /**
      * 处理数据
@@ -32,26 +31,9 @@ class Html extends Response
      */
     protected function output($data)
     {
-        // 返回JSON数据格式到客户端 包含状态信息
-        if ($this->render) {
-            // 渲染模板输出
-            return View::instance(Config::get('template'), Config::get('view_replace_str'))
-                ->fetch($data, $this->vars, $this->replace, [], false, false);
-        } else {
-            return $data;
-        }
-    }
-
-    /**
-     * 是否需要进行视图渲染
-     * @access protected
-     * @param bool $render 是否渲染
-     * @return $this
-     */
-    public function render($render = true)
-    {
-        $this->render = $render;
-        return $this;
+        // 渲染模板输出
+        return ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+            ->fetch($data, $this->vars, $this->replace);
     }
 
     /**

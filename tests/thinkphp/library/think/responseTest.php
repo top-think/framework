@@ -70,7 +70,6 @@ class responseTest extends \PHPUnit_Framework_TestCase
     {
         Config::set('default_ajax_return', $this->default_ajax_return);
         Config::set('default_return_type', $this->default_return_type);
-        Response::create(Config::get('default_return_type')); // 会影响其他测试
     }
 
     /**
@@ -83,61 +82,22 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $dataArr["key"] = "value";
         //$dataArr->key   = "val";
 
-        $response = Response::create();
-        $result   = $response->type('json')->send($dataArr);
+        $response = new \think\response\Json();
+        $result   = $response->send($dataArr);
         $this->assertEquals('{"key":"value"}', $result);
         $_GET['callback'] = 'callback';
-        $result           = $response->type('jsonp', ['var_jsonp_handler' => 'callback'])->send($dataArr);
+        $response         = new \think\response\Jsonp();
+        $result           = $response->options(['var_jsonp_handler' => 'callback'])->send($dataArr);
         $this->assertEquals('callback({"key":"value"});', $result);
 
+        $response = new Response();
         $response->transform(function () {
 
             return "callbackreturndata";
         });
-
         $result = $response->send($dataArr);
         $this->assertEquals("callbackreturndata", $result);
         $_GET[Config::get('var_jsonp_handler')] = "";
-    }
-
-    /**
-     * @covers think\Response::transform
-     * @todo Implement testtransform().
-     */
-    public function testtransform()
-    {
-        $response = Response::create();
-        $response->transform(function () {
-
-            return "callbackreturndata";
-        });
-        $dataArr = [];
-        $result  = $response->send($dataArr);
-        $this->assertEquals("callbackreturndata", $result);
-
-        $response->transform(null);
-    }
-
-    /**
-     * @covers think\Response::type
-     * @todo Implement testType().
-     */
-    public function testType()
-    {
-        $type = "json";
-        Response::create($type);
-    }
-
-    /**
-     * @covers think\Response::data
-     * @todo Implement testData().
-     */
-    public function testData()
-    {
-        $data     = "data";
-        $response = Response::create();
-        $response->data($data);
-        $response->data(null);
     }
 
     /**

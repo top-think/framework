@@ -21,7 +21,7 @@ class Jsonp extends Response
         'default_jsonp_handler' => 'jsonpReturn',
         'json_encode_param'     => JSON_UNESCAPED_UNICODE,
     ];
-    protected $contentType = 'application/json';
+    protected $contentType = 'application/javascript';
 
     /**
      * 处理数据

@@ -19,12 +19,13 @@ class Response
     protected $transform;
     // 输出数据
     protected $data;
+    protected $type;
     // 是否exit
     protected $isExit = false;
     // 当前的contentType
     protected $contentType;
     // 可用的输出类型
-    protected static $contentTypes = [
+    protected $contentTypes = [
         'json'   => 'application/json',
         'xml'    => 'text/xml',
         'html'   => 'text/html',
@@ -43,50 +44,16 @@ class Response
      * @access public
      * @param array $options 参数
      */
-    public function __construct($options = [])
+    public function __construct($data = [], $type = '', $options = [])
     {
+        $this->data = $data;
+        $this->type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
+
+        if (isset($this->contentTypes[$this->type])) {
+            $this->contentType($this->contentTypes[$this->type]);
+        }
+
         $this->options = array_merge($this->options, $options);
-    }
-
-    /**
-     * 创建一个response对象
-     * @access public
-     * @param string $type 输出类型
-     * @param array $options 参数
-     * @return \think\Response
-     */
-    public static function create($type = '', $options = [])
-    {
-        $type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
-        if (!isset(self::$instance[$type])) {
-
-            $class    = '\\think\\response\\' . ucfirst($type);
-            $response = class_exists($class) ? new $class($options) : new static($options);
-
-            if (isset(self::$contentTypes[$type])) {
-                $response->contentType(self::$contentTypes[$type]);
-            }
-
-            self::$instance[$type] = $response;
-        }
-        return self::$instance[$type];
-    }
-
-    /**
-     * 输出类型设置
-     * @access public
-     * @param string $type 输出内容的格式类型
-     * @param array $options 参数
-     * @return $this
-     */
-    public function type($type, $options = [])
-    {
-        $type = strtolower($type);
-        if (isset(self::$instance[$type])) {
-            return self::$instance[$type];
-        } else {
-            return self::create($type, $options);
-        }
     }
 
     /**
