@@ -144,7 +144,14 @@ class Handle
             // 不显示详细错误信息
             $data['message'] = Config::get('error_message');
         }
-        $response = Response::create('html')->render(true)->data(Config::get('exception_tmpl'))->vars($data);
+        ob_start();
+        ob_implicit_flush(0);
+        extract($data);
+        include Config::get('exception_tmpl');
+        // 获取并清空缓存
+        $content = ob_get_clean();
+
+        $response = Response::create('html')->data($content);
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();
