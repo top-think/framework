@@ -110,7 +110,7 @@ trait Jump
      */
     public function redirect($url, $code = 301, $params = [])
     {
-        Response::create('redirect')->data($url)->code($code)->params($params);
+        return Response::create('redirect')->data($url)->code($code)->params($params);
     }
 
 }

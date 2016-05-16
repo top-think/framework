@@ -347,7 +347,7 @@ function trace($log = '[think]', $level = 'log')
 function view($template = '', $vars = [], $code = 200)
 {
     $response = new \think\response\Html();
-    return $response->data($template)->vars($vars)->code($code);
+    return $response->data($template)->render(true)->vars($vars)->code($code);
 }
 
 /**

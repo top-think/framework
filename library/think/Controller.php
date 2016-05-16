@@ -86,12 +86,13 @@ class Controller
      * @access public
      * @param string $template 模板文件名
      * @param array  $vars     模板输出变量
+     * @param array $replace     模板替换
      * @param array $config     模板参数
      * @return mixed
      */
-    public function fetch($template = '', $vars = [], $config = [])
+    public function fetch($template = '', $vars = [], $replace = [], $config = [])
     {
-        return $this->view->fetch($template, $vars, $config);
+        return $this->view->fetch($template, $vars, $replace, $config = []);
     }
 
     /**

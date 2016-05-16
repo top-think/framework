@@ -21,8 +21,10 @@ class Response
     protected $data;
     // 是否exit
     protected $isExit = false;
-    // contentType
-    protected $contentType = [
+    // 当前的contentType
+    protected $contentType;
+    // 可用的输出类型
+    protected static $contentTypes = [
         'json'   => 'application/json',
         'xml'    => 'text/xml',
         'html'   => 'text/html',
@@ -57,10 +59,34 @@ class Response
     {
         $type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
         if (!isset(self::$instance[$type])) {
-            self::$instance[$type] = new static($options);
-            self::$instance[$type]->type($type, $options);
+
+            $class    = '\\think\\response\\' . ucfirst($type);
+            $response = class_exists($class) ? new $class($options) : new static($options);
+
+            if (isset(self::$contentTypes[$type])) {
+                $response->contentType(self::$contentTypes[$type]);
+            }
+
+            self::$instance[$type] = $response;
         }
         return self::$instance[$type];
+    }
+
+    /**
+     * 输出类型设置
+     * @access public
+     * @param string $type 输出内容的格式类型
+     * @param array $options 参数
+     * @return $this
+     */
+    public function type($type, $options = [])
+    {
+        $type = strtolower($type);
+        if (isset(self::$instance[$type])) {
+            return self::$instance[$type];
+        } else {
+            return self::create($type, $options);
+        }
     }
 
     /**
@@ -72,6 +98,10 @@ class Response
     public function send($data = [])
     {
         $data = $data ?: $this->data;
+
+        if (isset($this->contentType)) {
+            $this->contentType($this->contentType);
+        }
 
         if (is_callable($this->transform)) {
             $data = call_user_func_array($this->transform, [$data]);
@@ -144,26 +174,6 @@ class Response
     {
         $this->data = $data;
         return $this;
-    }
-
-    /**
-     * 输出类型设置
-     * @access public
-     * @param string $type 输出内容的格式类型
-     * @param array $options 参数
-     * @return $this
-     */
-    public function type($type, $options = [])
-    {
-        $type = strtolower($type);
-        if (!isset(self::$instance[$type])) {
-            $class                 = '\\think\\response\\' . ucfirst($type);
-            self::$instance[$type] = class_exists($class) ? new $class($options) : $this;
-        }
-        if (isset($this->contentType[$type])) {
-            self::$instance[$type]->contentType($this->contentType[$type]);
-        }
-        return self::$instance[$type];
     }
 
     /**

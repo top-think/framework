@@ -113,6 +113,16 @@ class Query
     }
 
     /**
+     * 获取最近插入的ID
+     * @access public
+     * @return string
+     */
+    public function getLastInsID()
+    {
+        return $this->connection->getLastInsID();
+    }
+
+    /**
      * 获取当前的builder实例对象
      * @access protected
      * @return \think\db\Builder
