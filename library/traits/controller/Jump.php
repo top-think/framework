@@ -50,18 +50,18 @@ trait Jump
 
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
-        switch ($type) {
-            case 'html':
-                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
-                    ->fetch(Config::get('dispatch_success_tmpl'), $result);
-                $response = new Response($result, $type);
-                break;
+        switch (strtolower($type)) {
             case 'json':
                 $response = new Json($result);
                 break;
             case 'jsonp':
                 $response = new Jsonp($result);
                 break;
+            case 'html':
+                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                    ->fetch(Config::get('dispatch_success_tmpl'), $result);
+            default:
+                $response = new Response($result, $type);
         }
         return $response;
     }
@@ -92,18 +92,18 @@ trait Jump
 
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
 
-        switch ($type) {
-            case 'html':
-                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
-                    ->fetch(Config::get('dispatch_error_tmpl'), $result);
-                $response = new Response($result, $type);
-                break;
+        switch (strtolower($type)) {
             case 'json':
                 $response = new Json($result);
                 break;
             case 'jsonp':
                 $response = new Jsonp($result);
                 break;
+            case 'html':
+                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                    ->fetch(Config::get('dispatch_error_tmpl'), $result);
+            default:
+                $response = new Response($result, $type);
         }
         throw new HttpResponseException($response);
     }
