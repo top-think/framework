@@ -100,9 +100,6 @@ class App
                     // 规则闭包
                     $data = self::invokeFunction($dispatch['function'], $dispatch['params']);
                     break;
-                case 'finish':
-                    // 已经完成 不再继续执行
-                    break;
                 default:
                     throw new Exception('dispatch type not support', 10008);
             }
@@ -111,16 +108,16 @@ class App
         }
 
         // 监听app_end
-        APP_HOOK && Hook::listen('app_end', isset($data) ? $data : '');
-        if (isset($data)) {
-            // 输出数据到客户端
-            if ($data instanceof Response) {
-                return $data->send();
-            } else {
-                $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-                return Response::create($data, $type)->send();
-            }
+        APP_HOOK && Hook::listen('app_end', $data);
+
+        // 输出数据到客户端
+        if ($data instanceof Response) {
+            return $data->send();
+        } elseif (!is_null($data)) {
+            $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
+            return Response::create($data, $type)->send();
         }
+
     }
 
     // 执行函数或者闭包方法 支持参数调用
