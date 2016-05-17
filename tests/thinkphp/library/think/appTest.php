@@ -87,12 +87,10 @@ class appTest extends \PHPUnit_Framework_TestCase
     // 类method调度
     public function testInvokeMethod()
     {
-        $_GET   = ['thinkphp'];
-        $result = App::invokeMethod(['tests\thinkphp\library\think\AppInvokeMethodTestClass', 'run']);
+        $result = App::invokeMethod(['tests\thinkphp\library\think\AppInvokeMethodTestClass', 'run'], ['thinkphp']);
         $this->assertEquals('thinkphp', $result);
 
-        $_GET   = ['thinkphp'];
-        $result = App::invokeMethod('tests\thinkphp\library\think\AppInvokeMethodTestClass::staticRun');
+        $result = App::invokeMethod('tests\thinkphp\library\think\AppInvokeMethodTestClass::staticRun', ['thinkphp']);
         $this->assertEquals('thinkphp', $result);
     }
 }
