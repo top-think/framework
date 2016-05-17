@@ -639,7 +639,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function destroy($data)
     {
         $db = self::db();
-        if ($data instanceof \Closure) {
+        if (is_array($data) && key($data) !== 0) {
+            $db->where($data);
+            $data = [];
+        } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $db]);
             $data = [];
         }
