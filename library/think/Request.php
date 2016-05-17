@@ -56,10 +56,10 @@ class Request
      */
     protected $dispatch = [];
 
-    protected $get    = [];
-    protected $post   = [];
-    protected $put    = [];
-    protected $delete = [];
+    /**
+     * @var array 请求参数
+     */
+    protected $param  = [];
     protected $file   = [];
     protected $cookie = [];
     protected $server = [];
@@ -154,20 +154,20 @@ class Request
         if (!isset($info['path'])) {
             $info['path'] = '/';
         }
-        $options                      = [];
-        $options[strtolower($method)] = $params;
-        $queryString                  = '';
+        $options          = [];
+        $options['param'] = $params;
+        $queryString      = '';
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
-            if (isset($options['get'])) {
-                $options['get'] = array_replace($query, $options['get']);
-                $queryString    = http_build_query($query, '', '&');
+            if (!empty($options['param'])) {
+                $options['param'] = array_replace($query, $options['param']);
+                $queryString      = http_build_query($query, '', '&');
             } else {
-                $options['get'] = $query;
-                $queryString    = $info['query'];
+                $options['param'] = $query;
+                $queryString      = $info['query'];
             }
-        } elseif (isset($options['get'])) {
-            $queryString = http_build_query($options['get'], '', '&');
+        } elseif (isset($options['param'])) {
+            $queryString = http_build_query($options['param'], '', '&');
         }
         $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
         $server['QUERY_STRING'] = $queryString;
@@ -350,61 +350,92 @@ class Request
      */
     public function param($name = '')
     {
-        $method = $this->method();
-        return $this->$method($name);
-    }
-
-    /**
-     * 当前请求的get参数
-     * @access public
-     * @param string $name 变量名
-     * @return mixed
-     */
-    public function get($name = '')
-    {
-        return Input::data($this->get ?: $_GET, $name);
-    }
-
-    /**
-     * 当前请求的post参数
-     * @access public
-     * @param string $name 变量名
-     * @return mixed
-     */
-    public function post($name = '')
-    {
-        return Input::data($this->post ?: $_POST, $name);
-    }
-
-    /**
-     * 当前请求的put参数
-     * @access public
-     * @param string $name 变量名
-     * @return mixed
-     */
-    public function put($name = '')
-    {
-        static $_PUT = null;
-        if (is_null($_PUT)) {
-            parse_str(file_get_contents('php://input'), $_PUT);
+        if (empty($this->param)) {
+            $method = $this->method();
+            // 自动获取请求变量
+            switch ($method) {
+                case 'POST':
+                    $vars = Input::post();
+                    break;
+                case 'PUT':
+                    $vars = Input::put();
+                    break;
+                case 'DELETE':
+                    $vars = Input::delete();
+                    break;
+                default:
+                    $vars = [];
+            }
+            // 当前请求参数和URL地址中的参数合并
+            $this->param = array_merge(Input::get(), $vars);
         }
-        return Input::data($this->put ?: $_PUT, $name);
+        if ($name) {
+            return isset($this->param[$name]) ? $this->param[$name] : null;
+        } else {
+            return $this->param;
+        }
     }
 
     /**
-     * 当前请求的delete参数
+     * 是否存在某个请求参数
      * @access public
      * @param string $name 变量名
+     * @param bool $checkEmpty 是否检测空值
      * @return mixed
      */
-    public function delete($name = '')
+    public function has($name, $checkEmpty = false)
     {
-        static $_DELETE = null;
-        if (is_null($_DELETE)) {
-            parse_str(file_get_contents('php://input'), $_DELETE);
-            $_DELETE = array_merge($_DELETE, $_GET);
+        if (empty($this->param)) {
+            $param = $this->param();
+        } else {
+            $param = $this->param;
         }
-        return Input::data($this->delete ?: $_DELETE, $name);
+        if (isset($this->param[$name])) {
+            return ($checkEmpty && '' === $this->param[$name]) ? false : true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 获取指定的参数
+     * @access public
+     * @param string|array $name 变量名
+     * @return mixed
+     */
+    public function only($name)
+    {
+        if (is_string($name)) {
+            return $this->param($name);
+        } else {
+            foreach ($name as $key) {
+                $item[$key] = $this->param($name);
+            }
+            return $item;
+        }
+    }
+
+    /**
+     * 排除指定参数获取
+     * @access public
+     * @param string|array $name 变量名
+     * @return mixed
+     */
+    public function except($name)
+    {
+        $param = $this->param();
+        if (is_string($name)) {
+            if (isset($param[$name])) {
+                unset($param[$name]);
+            }
+        } else {
+            foreach ($param as $key => $val) {
+                if (in_array($key, $name)) {
+                    unset($param[$key]);
+                }
+            }
+        }
+        return $param;
     }
 
     /**
