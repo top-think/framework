@@ -346,9 +346,10 @@ class Request
      * 当前请求的参数
      * @access public
      * @param string $name 变量名
+     * @param mixed $default 默认值
      * @return mixed
      */
-    public function param($name = '')
+    public function param($name = '', $default = null)
     {
         if (empty($this->param)) {
             $method = $this->method();
@@ -370,7 +371,7 @@ class Request
             $this->param = array_merge(Input::get(), $vars);
         }
         if ($name) {
-            return isset($this->param[$name]) ? $this->param[$name] : null;
+            return isset($this->param[$name]) ? $this->param[$name] : $default;
         } else {
             return $this->param;
         }
@@ -429,8 +430,8 @@ class Request
                 unset($param[$name]);
             }
         } else {
-            foreach ($param as $key => $val) {
-                if (in_array($key, $name)) {
+            foreach ($name as $key) {
+                if (isset($param[$key])) {
                     unset($param[$key]);
                 }
             }
