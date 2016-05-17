@@ -534,9 +534,7 @@ class Relation
         if (is_array($data)) {
             // 保存关联表数据
             $model = new $this->model;
-            $model->save($data);
-            $relationFk = $model->getPk();
-            $id         = $model->$relationFk;
+            $id    = $model->save($data);
         } elseif (is_int($data)) {
             // 根据关联表主键直接写入中间表
             $id = $data;
@@ -551,7 +549,8 @@ class Relation
             $pk                       = $this->parent->getPk();
             $pivot[$this->localKey]   = $this->parent->$pk;
             $pivot[$this->foreignKey] = $id;
-            return Db::table($this->middle)->insert($pivot);
+            $query                    = clone $this->parent->db();
+            return $query->table($this->middle)->insert($pivot);
         } else {
             throw new Exception(' miss relation data');
         }
@@ -580,7 +579,8 @@ class Relation
         $pk                       = $this->parent->getPk();
         $pivot[$this->localKey]   = $this->parent->$pk;
         $pivot[$this->foreignKey] = is_array($id) ? ['in', $id] : $id;
-        Db::table($this->middle)->where($pivot)->delete();
+        $query                    = clone $this->parent->db();
+        $query->table($this->middle)->where($pivot)->delete();
 
         // 删除关联表数据
         if ($relationDel) {
@@ -593,7 +593,7 @@ class Relation
     {
         if ($this->model) {
             $model = new $this->model;
-            $db    = $model->db();
+            $db    = $model::db();
             if (self::HAS_MANY == $this->type && isset($this->parent->{$this->localKey})) {
                 // 关联查询带入关联条件
                 $db->where($this->foreignKey, $this->parent->{$this->localKey});
