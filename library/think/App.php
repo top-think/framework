@@ -321,9 +321,9 @@ class App
             throw new Exception('url suffix deny');
         }
 
-        $path   = $request->path();
-        $depr   = $config['pathinfo_depr'];
-        $result = false;
+        $_SERVER['PATH_INFO'] = $request->path();
+        $depr                 = $config['pathinfo_depr'];
+        $result               = false;
         // 路由检测
         if (APP_ROUTE_ON && !empty($config['url_route_on'])) {
             // 开启路由
@@ -332,7 +332,7 @@ class App
                 Route::import($config['route']);
             }
             // 路由检测（根据路由定义返回不同的URL调度）
-            $result = Route::check($request, $path, $depr, !IS_CLI ? $config['url_domain_deploy'] : false);
+            $result = Route::check($request, $_SERVER['PATH_INFO'], $depr, !IS_CLI ? $config['url_domain_deploy'] : false);
             if (APP_ROUTE_MUST && false === $result && $config['url_route_must']) {
                 // 路由无效
                 throw new Exception('route not define ');
@@ -340,7 +340,7 @@ class App
         }
         if (false === $result) {
             // 路由无效默认分析为模块/控制器/操作/参数...方式URL
-            $result = Route::parseUrl($path, $depr);
+            $result = Route::parseUrl($_SERVER['PATH_INFO'], $depr);
         }
         //保证$_REQUEST正常取值
         $_REQUEST = array_merge($_POST, $_GET, $_COOKIE);
