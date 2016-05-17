@@ -608,7 +608,7 @@ class Route
                 // 检测是否定义路由
                 if (!empty($option['after_behavior'])) {
                     if ($option['after_behavior'] instanceof \Closure) {
-                        $result = call_user_method_array($option['after_behavior'], [$route]);
+                        $result = call_user_func_array($option['after_behavior'], [$route]);
                     } else {
                         $result = Hook::exec($option['after_behavior'], $route);
                     }
