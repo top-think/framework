@@ -261,39 +261,37 @@ class Input
         if (0 === strpos($name, '?')) {
             return self::has(substr($name, 1), $input);
         }
-        if (!empty($input)) {
-            $data = $input;
-            $name = (string) $name;
-            if ('' != $name) {
-                // 解析name
-                list($name, $type) = static::parseName($name);
-                // 按.拆分成多维数组进行判断
-                foreach (explode('.', $name) as $val) {
-                    if (isset($data[$val])) {
-                        $data = $data[$val];
-                    } else {
-                        // 无输入数据，返回默认值
-                        return $default;
-                    }
+
+        $data = $input;
+        $name = (string) $name;
+        if ('' != $name) {
+            // 解析name
+            list($name, $type) = static::parseName($name);
+            // 按.拆分成多维数组进行判断
+            foreach (explode('.', $name) as $val) {
+                if (isset($data[$val])) {
+                    $data = $data[$val];
+                } else {
+                    // 无输入数据，返回默认值
+                    return $default;
                 }
             }
-
-            // 解析过滤器
-            $filters = static::parseFilter($filter, $merge);
-            // 为方便传参把默认值附加在过滤器后面
-            $filters[] = $default;
-            if (is_array($data)) {
-                array_walk_recursive($data, 'self::filter', $filters);
-            } else {
-                self::filter($data, $name ?: 0, $filters);
-            }
-            if (isset($type) && $data !== $default) {
-                // 强制类型转换
-                static::typeCast($data, $type);
-            }
-        } else {
-            $data = [];
         }
+
+        // 解析过滤器
+        $filters = static::parseFilter($filter, $merge);
+        // 为方便传参把默认值附加在过滤器后面
+        $filters[] = $default;
+        if (is_array($data)) {
+            array_walk_recursive($data, 'self::filter', $filters);
+        } else {
+            self::filter($data, $name ?: 0, $filters);
+        }
+        if (isset($type) && $data !== $default) {
+            // 强制类型转换
+            static::typeCast($data, $type);
+        }
+
         return $data;
     }
 
