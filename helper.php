@@ -428,6 +428,5 @@ function xml($data = [], $code = 200, $options = [])
  */
 function redirect($url = [], $code = 200, $params = [])
 {
-    $response = Response::create($url, 'redirect')->code($code)->params($params);
-    throw new HttpResponseException($response);
+    return Response::create($url, 'redirect')->code($code)->params($params);
 }

@@ -82,7 +82,7 @@ class App
             switch ($dispatch['type']) {
                 case 'redirect':
                     // 执行重定向跳转
-                    header('Location: ' . $dispatch['url'], true, $dispatch['status']);
+                    $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
                     break;
                 case 'module':
                     // 模块/控制器/操作
