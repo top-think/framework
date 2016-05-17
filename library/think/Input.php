@@ -292,7 +292,7 @@ class Input
                 static::typeCast($data, $type);
             }
         } else {
-            $data = $default;
+            $data = [];
         }
         return $data;
     }
