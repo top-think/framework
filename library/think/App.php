@@ -11,8 +11,16 @@
 
 namespace think;
 
+use think\Config;
+use think\Exception;
 use think\exception\HttpResponseException;
+use think\Hook;
+use think\Lang;
+use think\Loader;
+use think\Log;
+use think\Request;
 use think\Response;
+use think\Route;
 
 /**
  * App 应用管理
@@ -137,20 +145,7 @@ class App
     {
         if (empty($vars)) {
             // 自动获取请求变量
-            switch (REQUEST_METHOD) {
-                case 'POST':
-                    $vars = array_merge($_GET, $_POST);
-                    break;
-                case 'PUT':
-                    static $_PUT = null;
-                    if (is_null($_PUT)) {
-                        parse_str(file_get_contents('php://input'), $_PUT);
-                    }
-                    $vars = array_merge($_GET, $_PUT);
-                    break;
-                default:
-                    $vars = $_GET;
-            }
+            $vars = Request::instance()->param();
         }
         if (is_array($method)) {
             $class   = is_object($method[0]) ? $method[0] : new $method[0];

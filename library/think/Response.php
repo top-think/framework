@@ -19,6 +19,7 @@ class Response
     protected $transform;
     // 输出数据
     protected $data;
+    // 输出类型
     protected $type;
     // 当前的contentType
     protected $contentType;
@@ -67,7 +68,7 @@ class Response
     {
         $type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
         if (!isset(self::$instance[$type])) {
-            $class = '\\think\response\\' . ucfirst($type);
+            $class = '\\think\\response\\' . ucfirst($type);
             if (class_exists($class)) {
                 $response = new $class($data, $type, $options);
             } else {
