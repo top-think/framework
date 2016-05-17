@@ -32,9 +32,9 @@ class Query
     // 当前模型类名称
     protected $model;
     // 当前数据表名称（含前缀）
-    protected $table;
+    protected $table = '';
     // 当前数据表名称（不含前缀）
-    protected $name;
+    protected $name = '';
     // 查询参数
     protected $options = [];
     // 参数绑定
@@ -43,7 +43,7 @@ class Query
     /**
      * 架构函数
      * @access public
-     * @param object|string $connection 数据库对象实例
+     * @param \think\db\Connection|string $connection 数据库对象实例
      * @throws Exception
      */
     public function __construct($connection = '', $model = '')
@@ -77,6 +77,16 @@ class Query
         } else {
             throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
         }
+    }
+
+    /**
+     * 获取当前的数据库Connection对象
+     * @access public
+     * @return \think\db\Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     /**
@@ -120,6 +130,63 @@ class Query
     public function getLastInsID()
     {
         return $this->connection->getLastInsID();
+    }
+
+    /**
+     * 执行数据库事务
+     * @access public
+     * @param callable $callback 数据操作方法回调
+     * @return mixed
+     */
+    public function transaction($callback)
+    {
+        return $this->connection->transaction($callback);
+    }
+
+    /**
+     * 启动事务
+     * @access public
+     * @param string $label 事务标识
+     * @return bool|null
+     */
+    public function startTrans($label = '')
+    {
+        return $this->connection->startTrans($label);
+    }
+
+    /**
+     * 用于非自动提交状态下面的查询提交
+     * @access public
+     * @param string $label 事务标识
+     * @return boolean
+     * @throws PDOException
+     */
+    public function commit($label = '')
+    {
+        return $this->connection->commit($label);
+    }
+
+    /**
+     * 事务回滚
+     * @access public
+     * @return boolean
+     * @throws PDOException
+     */
+    public function rollback()
+    {
+        return $this->connection->rollback();
+    }
+
+    /**
+     * 批处理执行SQL语句
+     * 批处理的指令都认为是execute操作
+     * @access public
+     * @param array $sql SQL批处理指令
+     * @return boolean
+     */
+    public function batchQuery($sql = [])
+    {
+        return $this->connection->batchQuery($sql);
     }
 
     /**
@@ -962,14 +1029,16 @@ class Query
     /**
      * 得到当前的数据表
      * @access public
+     * @param string $name
      * @return string
      */
-    public function getTable()
+    public function getTable($name = '')
     {
-        if (empty($this->table)) {
+        if ($name || empty($this->table)) {
+            $name      = $name ?: $this->name;
             $tableName = $this->connection->getConfig('prefix');
-            if (isset($this->name)) {
-                $tableName .= Loader::parseName($this->name);
+            if ($name) {
+                $tableName .= Loader::parseName($name);
             }
         } else {
             $tableName = $this->table;

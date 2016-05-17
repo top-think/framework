@@ -66,7 +66,7 @@ class Merge extends Model
 
         foreach (static::$relationModel as $key => $model) {
             $name  = is_int($key) ? $model : $key;
-            $table = is_int($key) ? self::db()->name($name)->getTable() : $model;
+            $table = is_int($key) ? self::db()->getTable($name) : $model;
             $query->join($table . ' ' . $name, $name . '.' . $class->fk . '=' . $master . '.' . $class->getPk());
             $fields = self::getModelField($name, $table, $class->mapFields);
             $query->field($fields);
@@ -182,10 +182,11 @@ class Merge extends Model
                 // 写入附表数据
                 foreach (static::$relationModel as $key => $model) {
                     $name  = is_int($key) ? $model : $key;
-                    $table = is_int($key) ? self::db()->name($model)->getTable() : $model;
+                    $table = is_int($key) ? self::db()->getTable($model) : $model;
                     // 处理关联模型数据
-                    $data = $this->parseData($name, $this->data);
-                    self::db()->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data);
+                    $data  = $this->parseData($name, $this->data);
+                    $query = clone self::db();
+                    $query->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data);
                 }
                 // 新增回调
                 $this->trigger('after_update', $this);
@@ -207,10 +208,11 @@ class Merge extends Model
                     // 写入附表数据
                     foreach (static::$relationModel as $key => $model) {
                         $name  = is_int($key) ? $model : $key;
-                        $table = is_int($key) ? self::db()->name($model)->getTable() : $model;
+                        $table = is_int($key) ? self::db()->getTable($model) : $model;
                         // 处理关联模型数据
-                        $data = $this->parseData($name, $this->data, true);
-                        self::db()->table($table)->strict(false)->insert($data);
+                        $data  = $this->parseData($name, $this->data, true);
+                        $query = clone self::db();
+                        $query->table($table)->strict(false)->insert($data);
                     }
                     $result = $insertId;
                 }
@@ -244,8 +246,9 @@ class Merge extends Model
 
                 // 删除关联数据
                 foreach (static::$relationModel as $key => $model) {
-                    $table = is_int($key) ? self::db()->name($model)->getTable() : $model;
-                    self::db()->table($table)->where($this->fk, $pk)->delete();
+                    $table = is_int($key) ? self::db()->getTable($model) : $model;
+                    $query = clone self::db();
+                    $query->table($table)->where($this->fk, $pk)->delete();
                 }
             }
             $this->trigger('after_delete', $this);
