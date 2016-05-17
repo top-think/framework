@@ -59,10 +59,11 @@ class Request
     /**
      * @var array 请求参数
      */
-    protected $param  = [];
-    protected $file   = [];
-    protected $cookie = [];
-    protected $server = [];
+    protected $param   = [];
+    protected $session = [];
+    protected $file    = [];
+    protected $cookie  = [];
+    protected $server  = [];
 
     /**
      * @var array 资源类型
@@ -391,8 +392,8 @@ class Request
         } else {
             $param = $this->param;
         }
-        if (isset($this->param[$name])) {
-            return ($checkEmpty && '' === $this->param[$name]) ? false : true;
+        if (isset($param[$name])) {
+            return ($checkEmpty && '' === $param[$name]) ? false : true;
         } else {
             return false;
         }
