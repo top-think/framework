@@ -30,10 +30,11 @@ class Redirect extends Response
      */
     protected function output($data)
     {
-        $this->isExit             = true;
-        $url                      = preg_match('/^(https?:|\/)/', $data) ? $data : Url::build($data, $this->params);
-        $this->header['Location'] = $url;
-        $this->header['status']   = isset($this->header['status']) ? $this->header['status'] : 301;
+        $this->isExit                  = true;
+        $url                           = preg_match('/^(https?:|\/)/', $data) ? $data : Url::build($data, $this->params);
+        $this->header['Location']      = $url;
+        $this->header['status']        = isset($this->header['status']) ? $this->header['status'] : 301;
+        $this->header['Cache-control'] = 'no-cache,must-revalidate';
         return;
     }
 

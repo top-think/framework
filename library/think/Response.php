@@ -20,8 +20,6 @@ class Response
     // 输出数据
     protected $data;
     protected $type;
-    // 是否exit
-    protected $isExit = false;
     // 当前的contentType
     protected $contentType;
     // 可用的输出类型
@@ -42,7 +40,9 @@ class Response
     /**
      * 架构函数
      * @access public
-     * @param array $options 参数
+     * @param mixed $data 输出数据
+     * @param string $type 输出类型
+     * @param array $options 输出参数
      */
     public function __construct($data = [], $type = '', $options = [])
     {
@@ -54,6 +54,28 @@ class Response
         }
 
         $this->options = array_merge($this->options, $options);
+    }
+
+    /**
+     * 创建Response对象
+     * @access public
+     * @param mixed $data 输出数据
+     * @param string $type 输出类型
+     * @param array $options 输出参数
+     */
+    public static function create($data = [], $type = '', $options = [])
+    {
+        $type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
+        if (!isset(self::$instance[$type])) {
+            $class = '\\think\response\\' . ucfirst($type);
+            if (class_exists($class)) {
+                $response = new $class($data, $type, $options);
+            } else {
+                $response = new static($data, $type, $options);
+            }
+            self::$instance[$type] = $response;
+        }
+        return self::$instance[$type];
     }
 
     /**
@@ -89,11 +111,7 @@ class Response
             }
         }
         echo $data;
-        if ($this->isExit) {
-            exit;
-        } else {
-            return $data;
-        }
+        return $data;
     }
 
     /**
@@ -140,18 +158,6 @@ class Response
     public function data($data)
     {
         $this->data = $data;
-        return $this;
-    }
-
-    /**
-     * 输出是否exit设置
-     * @access public
-     * @param bool $exit 是否退出
-     * @return $this
-     */
-    public function isExit($exit)
-    {
-        $this->isExit = (boolean) $exit;
         return $this;
     }
 
@@ -282,5 +288,14 @@ class Response
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * 获取输出类型
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }

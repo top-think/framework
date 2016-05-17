@@ -12,7 +12,6 @@
 namespace think\controller;
 
 use think\Response;
-use think\response\Json;
 
 abstract class Rest
 {
@@ -93,11 +92,7 @@ abstract class Rest
      */
     protected function response($data, $type = 'json', $code = 200)
     {
-        if('json'==$type){
-            return (new Json($data))->code($code);
-        }else{
-            return (new Response($data,$type))->code($code);
-        }
+        return Response::create($data, $type)->code($code);
     }
 
     /**

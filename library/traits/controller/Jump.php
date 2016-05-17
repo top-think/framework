@@ -17,8 +17,6 @@ namespace traits\controller;
 use think\Config;
 use think\exception\HttpResponseException;
 use think\Response;
-use think\response\Json;
-use think\response\Jsonp;
 use think\response\Redirect;
 use think\View as ViewTemplate;
 
@@ -49,21 +47,11 @@ trait Jump
         ];
 
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-
-        switch (strtolower($type)) {
-            case 'json':
-                $response = new Json($result);
-                break;
-            case 'jsonp':
-                $response = new Jsonp($result);
-                break;
-            case 'html':
-                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
-                    ->fetch(Config::get('dispatch_success_tmpl'), $result);
-            default:
-                $response = new Response($result, $type);
+        if ('html' == strtolower($type)) {
+            $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_success_tmpl'), $result);
         }
-        return $response;
+        return Response::create($result, $type);
     }
 
     /**
@@ -91,20 +79,11 @@ trait Jump
         ];
 
         $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-
-        switch (strtolower($type)) {
-            case 'json':
-                $response = new Json($result);
-                break;
-            case 'jsonp':
-                $response = new Jsonp($result);
-                break;
-            case 'html':
-                $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
-                    ->fetch(Config::get('dispatch_error_tmpl'), $result);
-            default:
-                $response = new Response($result, $type);
+        if ('html' == strtolower($type)) {
+            $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_error_tmpl'), $result);
         }
+        $response = Response::create($result, $type);
         throw new HttpResponseException($response);
     }
 
@@ -119,7 +98,7 @@ trait Jump
      */
     public function result($data, $code = 0, $msg = '', $type = '')
     {
-        return (new Response([], $type))->result($data, $code, $msg);
+        return Response::create([], $type)->result($data, $code, $msg);
     }
 
     /**
@@ -132,7 +111,9 @@ trait Jump
      */
     public function redirect($url, $code = 301, $params = [])
     {
-        return (new Redirect($url))->code($code)->params($params);
+        $response = new Redirect($url);
+        $response->code($code)->params($params);
+        throw new HttpResponseException($response);
     }
 
 }

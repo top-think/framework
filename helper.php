@@ -361,13 +361,14 @@ function request()
 
 /**
  * 创建Response对象实例
+ * @param mixed $data 输出数据
  * @param string $type 输出类型
  * @param array $options 参数
  * @return \think\Response
  */
 function response($data = [], $type = '', $options = [])
 {
-    return new Response($data, $type, $options);
+    return Response::create($data, $type, $options);
 }
 
 /**
@@ -379,8 +380,7 @@ function response($data = [], $type = '', $options = [])
  */
 function view($template = '', $vars = [], $code = 200)
 {
-    $response = new \think\response\View();
-    return $response->data($template)->vars($vars)->code($code);
+    return Response::create($template, 'view')->vars($vars)->code($code);
 }
 
 /**
@@ -392,8 +392,19 @@ function view($template = '', $vars = [], $code = 200)
  */
 function json($data = [], $code = 200, $options = [])
 {
-    $response = new \think\response\Json($options);
-    return $response->data($data)->code($code);
+    return Response::create($data, 'json', $options)->code($code);
+}
+
+/**
+ * 获取\think\response\Jsonp对象实例
+ * @param mixed $data 返回的数据
+ * @param integer $code 状态码
+ * @param array $options 参数
+ * @return \think\response\Jsonp
+ */
+function jsonp($data = [], $code = 200, $options = [])
+{
+    return Response::create($data, 'jsonp', $options)->code($code);
 }
 
 /**
@@ -405,8 +416,7 @@ function json($data = [], $code = 200, $options = [])
  */
 function xml($data = [], $code = 200, $options = [])
 {
-    $response = new \think\response\Xml($options);
-    return $response->data($data)->code($code);
+    return Response::create($data, 'xml', $options)->code($code);
 }
 
 /**
@@ -418,6 +428,6 @@ function xml($data = [], $code = 200, $options = [])
  */
 function redirect($url = [], $code = 200, $params = [])
 {
-    $response = new \think\response\Redirect();
-    return $response->data($url)->code($code)->params($params);
+    $response = Response::create($url, 'redirect')->code($code)->params($params);
+    throw new HttpResponseException($response);
 }

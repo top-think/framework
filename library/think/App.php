@@ -117,12 +117,7 @@ class App
                 // 监听app_end
                 APP_HOOK && Hook::listen('app_end', $data);
                 $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-                if (in_array(strtolower($type), ['json', 'jsonp', 'xml'])) {
-                    $class = '\\think\\response\\' . ucfirst($type);
-                } else {
-                    $class = '\\think\\Response';
-                }
-                return (new $class($data, $type))->send();
+                return Response::create($data, $type)->send();
             }
         }
     }
