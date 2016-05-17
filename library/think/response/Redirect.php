@@ -11,7 +11,9 @@
 
 namespace think\response;
 
+use think\Request;
 use think\Response;
+use think\Session;
 use think\Url;
 
 class Redirect extends Response
@@ -30,10 +32,9 @@ class Redirect extends Response
      */
     protected function output($data)
     {
-        $this->isExit                  = true;
         $url                           = preg_match('/^(https?:|\/)/', $data) ? $data : Url::build($data, $this->params);
         $this->header['Location']      = $url;
-        $this->header['status']        = isset($this->header['status']) ? $this->header['status'] : 301;
+        $this->header['status']        = isset($this->header['status']) ? $this->header['status'] : 302;
         $this->header['Cache-control'] = 'no-cache,must-revalidate';
         return;
     }
@@ -42,5 +43,24 @@ class Redirect extends Response
     {
         $this->params = $params;
         return $this;
+    }
+
+    /**
+     * 记住当前url后跳转
+     */
+    public function remember()
+    {
+        Session::set('redirect_url', Request::instance()->url());
+    }
+
+    /**
+     * 跳转到上次记住的url
+     */
+    public function restore()
+    {
+        if (Session::has('redirect_url')) {
+            $this->data = Session::get('redirect_url');
+            Session::delete('redirect_url');
+        }
     }
 }

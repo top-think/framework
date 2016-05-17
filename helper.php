@@ -426,7 +426,7 @@ function xml($data = [], $code = 200, $options = [])
  * @param array $params 额外参数
  * @return \think\response\Redirect
  */
-function redirect($url = [], $code = 200, $params = [])
+function redirect($url = [], $code = 302, $params = [])
 {
     return Response::create($url, 'redirect')->code($code)->params($params);
 }
