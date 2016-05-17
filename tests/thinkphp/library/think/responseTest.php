@@ -78,16 +78,15 @@ class responseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSend()
     {
-        $dataArr        = array();
+        $dataArr        = [];
         $dataArr["key"] = "value";
-        //$dataArr->key   = "val";
 
-        $response = new \think\response\Json();
-        $result   = $response->send($dataArr);
+        $response = Response::create($dataArr, 'json');
+        $result   = $response->send();
         $this->assertEquals('{"key":"value"}', $result);
         $_GET['callback'] = 'callback';
-        $response         = new \think\response\Jsonp();
-        $result           = $response->options(['var_jsonp_handler' => 'callback'])->send($dataArr);
+        $response         = Response::create($dataArr, 'jsonp');
+        $result           = $response->options(['var_jsonp_handler' => 'callback'])->send();
         $this->assertEquals('callback({"key":"value"});', $result);
 
         $response = new Response();
@@ -98,37 +97,6 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $result = $response->send($dataArr);
         $this->assertEquals("callbackreturndata", $result);
         $_GET[Config::get('var_jsonp_handler')] = "";
-    }
-
-    /**
-     * @#runInSeparateProcess
-     * @covers think\Response::redirect
-     * @todo Implement testRedirect().
-     */
-    public function testRedirect()
-    {
-        // $url = "http://www.testredirect.com";
-        // $params = array();
-        // $params[] = 301;
-
-        // // FIXME 静态方法mock Url::build
-        // // echo "\r\n" . json_encode(xdebug_get_headers()) . "\r\n";
-        // Response::redirect($url, $params);
-
-        // $this->assertContains('Location: ' . $url, xdebug_get_headers());
-    }
-
-    /**
-     * @#runInSeparateProcess
-     * @covers think\Response::header
-     * @todo Implement testHeader().
-     */
-    public function testHeader()
-    {
-        // $name = "Location";
-        // $url = "http://www.testheader.com/";
-        // Response::header($name, $url);
-        // $this->assertContains($name . ': ' . $url, xdebug_get_headers());
     }
 
 }
