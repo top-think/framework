@@ -192,8 +192,11 @@ class App
     }
 
     // 执行 模块/控制器/操作
-    private static function module($result, $config)
+    public static function module($result, $config)
     {
+        if (is_string($result)) {
+            $result = explode('/', $result);
+        }
         if (APP_MULTI_MODULE) {
             // 多模块部署
             $module = strtolower($result[0] ?: $config['default_module']);
