@@ -506,13 +506,14 @@ abstract class Connection
      */
     public function transaction($callback)
     {
-        $this->startTrans(NOW_TIME);
+        $label = microtime(true);
+        $this->startTrans($label);
         try {
             $result = null;
             if (is_callable($callback)) {
                 $result = call_user_func_array($callback, []);
             }
-            $this->commit(NOW_TIME);
+            $this->commit($label);
             return $result;
         } catch (\PDOException $e) {
             $this->rollback();

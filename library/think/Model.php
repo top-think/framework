@@ -293,6 +293,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
+        $db = self::db();
         if ($this->isUpdate) {
             // 自动更新
             $this->autoCompleteData($this->update);
@@ -320,7 +321,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            $result = self::db()->where($where)->update($data);
+            $result = $db->where($where)->update($data);
 
             // 更新回调
             $this->trigger('after_update', $this);
@@ -332,11 +333,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
-            $result = self::db()->insert($this->data);
+            $result = $db->insert($this->data);
 
             // 获取自动增长主键
             if ($result && $getId) {
-                $insertId = self::db()->getLastInsID();
+                $insertId = $db->getLastInsID();
                 $pk       = $this->getPk();
                 if (is_string($pk) && $insertId) {
                     $this->data[$pk] = $insertId;
