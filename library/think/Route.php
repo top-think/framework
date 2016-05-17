@@ -510,6 +510,10 @@ class Route
             }
             if (isset($miss)) {
                 // 未匹配所有路由的路由规则处理
+                if ($miss instanceof \Closure) {
+                    // 执行闭包
+                    return ['type' => 'function', 'function' => $miss, 'params' => []];
+                }
                 if (self::checkOption($miss['option'], $url)) {
                     return self::parseRule('', $miss['route'], $url, []);
                 }
@@ -603,9 +607,16 @@ class Route
                 // 匹配到路由规则
                 // 检测是否定义路由
                 if (!empty($option['after_behavior'])) {
-                    $result = Hook::exec($option['after_behavior'], $route);
-                    if (false === $result) {
-                        return ['type' => 'finish'];
+                    if ($option['after_behavior'] instanceof \Closure) {
+                        $result = call_user_method_array($option['after_behavior'], [$route]);
+                    } else {
+                        $result = Hook::exec($option['after_behavior'], $route);
+                    }
+                    // 路由规则重定向
+                    if ($result instanceof Response) {
+                        return ['type' => 'response', 'response' => $result, 'params' => $match];
+                    } elseif (is_array($result)) {
+                        return $result;
                     }
                 }
                 if ($route instanceof \Closure) {

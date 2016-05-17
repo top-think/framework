@@ -25,7 +25,7 @@ class App
      * 执行应用程序
      * @access public
      * @param \think\Request $request Request对象
-     * @return \think\Response
+     * @return mixed
      * @throws Exception
      */
     public static function run($request)
@@ -97,8 +97,11 @@ class App
                     $data = self::invokeMethod($dispatch['method'], $dispatch['params']);
                     break;
                 case 'function':
-                    // 规则闭包
+                    // 执行闭包
                     $data = self::invokeFunction($dispatch['function'], $dispatch['params']);
+                    break;
+                case 'response':
+                    $data = $dispatch['response'];
                     break;
                 default:
                     throw new Exception('dispatch type not support', 10008);
@@ -117,7 +120,6 @@ class App
             $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
             return Response::create($data, $type)->send();
         }
-
     }
 
     // 执行函数或者闭包方法 支持参数调用
