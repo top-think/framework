@@ -206,7 +206,6 @@ class Session
      * @param string $name session名称
      * @param string|null $prefix
      * @return bool
-     * @internal param mixed $value session值
      */
     public static function has($name, $prefix = null)
     {
