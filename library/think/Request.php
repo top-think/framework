@@ -406,14 +406,17 @@ class Request
      */
     public function only($name)
     {
+        $param = $this->param();
         if (is_string($name)) {
-            return $this->param($name);
-        } else {
-            foreach ($name as $key) {
-                $item[$key] = $this->param($name);
-            }
-            return $item;
+            $name = explode(',', $name);
         }
+        $item = [];
+        foreach ($name as $key) {
+            if (isset($param[$key])) {
+                $item[$key] = $param[$key];
+            }
+        }
+        return $item;
     }
 
     /**
@@ -426,14 +429,11 @@ class Request
     {
         $param = $this->param();
         if (is_string($name)) {
-            if (isset($param[$name])) {
-                unset($param[$name]);
-            }
-        } else {
-            foreach ($name as $key) {
-                if (isset($param[$key])) {
-                    unset($param[$key]);
-                }
+            $name = explode(',', $name);
+        }
+        foreach ($name as $key) {
+            if (isset($param[$key])) {
+                unset($param[$key]);
             }
         }
         return $param;
