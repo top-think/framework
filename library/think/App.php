@@ -109,13 +109,14 @@ class App
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
         }
-        // 输出数据到客户端
+
+        // 监听app_end
+        APP_HOOK && Hook::listen('app_end', isset($data) ? $data : '');
         if (isset($data)) {
+            // 输出数据到客户端
             if ($data instanceof Response) {
                 return $data->send();
             } else {
-                // 监听app_end
-                APP_HOOK && Hook::listen('app_end', $data);
                 $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
                 return Response::create($data, $type)->send();
             }
