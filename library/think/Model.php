@@ -50,8 +50,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $hidden = [];
     // 数据信息
     protected $data = [];
-    // 缓存数据
-    protected $cache = [];
     // 记录改变字段
     protected $change = [];
 

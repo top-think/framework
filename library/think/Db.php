@@ -23,7 +23,7 @@ class Db
     // 自定义对象数据集
     const RESULTSET_CLASS = 3;
     //  数据库连接实例
-    private static $instances = [];
+    private static $instance = [];
     // 查询次数
     public static $queryTimes = 0;
     // 执行次数
@@ -35,7 +35,7 @@ class Db
      * @access public
      * @param mixed $config 连接配置
      * @param bool|string $name 连接标识 true 强制重新连接
-     * @return db\Connection
+     * @return \think\db\Connection
      * @throws Exception
      */
     public static function connect($config = [], $name = false)
@@ -43,7 +43,7 @@ class Db
         if (false === $name) {
             $name = md5(serialize($config));
         }
-        if (true === $name || !isset(self::$instances[$name])) {
+        if (true === $name || !isset(self::$instance[$name])) {
             // 解析连接参数 支持数组和字符串
             $options = self::parseConfig($config);
             if (empty($options['type'])) {
@@ -55,10 +55,10 @@ class Db
             if (true === $name) {
                 return new $class($options);
             } else {
-                self::$instances[$name] = new $class($options);
+                self::$instance[$name] = new $class($options);
             }
         }
-        return self::$instances[$name];
+        return self::$instance[$name];
     }
 
     /**
