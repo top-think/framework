@@ -20,7 +20,7 @@ return [
     // response是否返回方式
     'response_return'        => false,
     // 默认AJAX 数据返回格式,可选JSON XML ...
-    'default_ajax_return'    => 'JSON',
+    'default_ajax_return'    => 'json',
     // 默认JSONP格式返回的处理方法
     'default_jsonp_handler'  => 'jsonpReturn',
     // 默认JSONP处理方法
