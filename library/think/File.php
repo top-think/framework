@@ -120,18 +120,18 @@ class File extends SplFileObject
         if (true === $savename) {
             // 自动生成文件名
             if ($this->rule instanceof \Closure) {
-                $savename = call_user_func_array($this->rule, [$this->getFilename()]);
+                $savename = call_user_func_array($this->rule, [$this]);
             } else {
                 switch ($this->rule) {
                     case 'uniqid':
                         $savename = uniqid();
                         break;
                     case 'md5':
-                        $md5      = md5_file($this->getFilename());
+                        $md5      = md5_file($this->getRealPath());
                         $savename = substr($md5, 0, 2) . DS . substr($md5, 2);
                         break;
                     case 'sha1':
-                        $sha1     = sha1_file($this->getFilename());
+                        $sha1     = sha1_file($this->getRealPath());
                         $savename = substr($sha1, 0, 2) . DS . substr($sha1, 2);
                         break;
                     case 'date':
