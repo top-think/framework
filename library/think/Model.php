@@ -859,10 +859,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 初始化数据库对象
-     * @access public
+     * @access protected
      * @return \think\db\Query
      */
-    public static function db()
+    protected static function db()
     {
         $model = get_called_class();
         if (!isset(self::$links[$model])) {
@@ -894,7 +894,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             call_user_func_array([$this, $method], $args);
             return $this;
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            return call_user_func_array([self::db(), $method], $args);
         }
     }
 
