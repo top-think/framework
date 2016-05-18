@@ -744,7 +744,7 @@ class Query
 
     /**
      * 分页查询
-     * @param int $listRows 每页数量
+     * @param int|null $listRows 每页数量
      * @param bool $simple 简洁模式
      * @param array $config 配置参数
      *                      page:当前页,
@@ -752,14 +752,17 @@ class Query
      *                      query:url额外参数,
      *                      fragment:url锚点,
      *                      var_page:分页变量,
+     *                      list_rows:每页数量
      *                      type:分页类名,
      *                      namespace:分页类命名空间
      * @return \think\paginator\Collection
      * @throws DbException
      */
-    public function paginate($listRows = 15, $simple = false, $config = [])
+    public function paginate($listRows = null, $simple = false, $config = [])
     {
         $config = array_merge(Config::get('paginate'), $config);
+
+        $listRows = $listRows ?: $config['list_rows'];
 
         $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\paginator\\driver\\') . ucwords($config['type']);
 
