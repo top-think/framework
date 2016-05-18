@@ -91,6 +91,50 @@ class Query
     }
 
     /**
+     * 指定默认的数据表名（不含前缀）
+     * @access public
+     * @param string $name
+     * @return $this
+     */
+    public function name($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * 指定默认数据表名（含前缀）
+     * @access public
+     * @param string $table 表名
+     * @return $this
+     */
+    public function setTable($table)
+    {
+        $this->table = $table;
+        return $this;
+    }
+
+    /**
+     * 得到当前的数据表
+     * @access public
+     * @param string $name
+     * @return string
+     */
+    public function getTable($name = '')
+    {
+        if ($name || empty($this->table)) {
+            $name      = $name ?: $this->name;
+            $tableName = $this->connection->getConfig('prefix');
+            if ($name) {
+                $tableName .= Loader::parseName($name);
+            }
+        } else {
+            $tableName = $this->table;
+        }
+        return $tableName;
+    }
+
+    /**
      * 执行查询 返回数据集
      * @access public
      * @param string $sql sql指令
@@ -760,13 +804,10 @@ class Query
      */
     public function paginate($listRows = null, $simple = false, $config = [])
     {
-        $config = array_merge(Config::get('paginate'), $config);
-
+        $config   = array_merge(Config::get('paginate'), $config);
         $listRows = $listRows ?: $config['list_rows'];
-
-        $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\paginator\\driver\\') . ucwords($config['type']);
-
-        $page = isset($config['page']) ? (int) $config['page'] : call_user_func([
+        $class    = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\paginator\\driver\\') . ucwords($config['type']);
+        $page     = isset($config['page']) ? (int) $config['page'] : call_user_func([
             $class,
             'getCurrentPage',
         ], $config['var_page']);
@@ -777,60 +818,16 @@ class Query
 
         /** @var Paginator $paginator */
         if (!$simple) {
-            $options   = $this->getOptions();
-            $total     = $this->count();
-            $results   = $this->options($options)->page($page, $listRows)->select();
-            $paginator = new $class($results, $listRows, $page, $simple, $total, $config);
+            $options = $this->getOptions();
+            $total   = $this->count();
+            $results = $this->options($options)->page($page, $listRows)->select();
         } else {
-            $results   = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
-            $paginator = new $class($results, $listRows, $page, $simple, null, $config);
+            $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
+            $total   = null;
         }
 
+        $paginator = new $class($results, $listRows, $page, $simple, $total, $config);
         return $paginator->items();
-    }
-
-    /**
-     * 指定默认的数据表名（不含前缀）
-     * @access public
-     * @param string $name
-     * @return $this
-     */
-    public function name($name)
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    /**
-     * 指定默认数据表名（含前缀）
-     * @access public
-     * @param string $table 表名
-     * @return $this
-     */
-    public function setTable($table)
-    {
-        $this->table = $table;
-        return $this;
-    }
-
-    /**
-     * 得到当前的数据表
-     * @access public
-     * @param string $name
-     * @return string
-     */
-    public function getTable($name = '')
-    {
-        if ($name || empty($this->table)) {
-            $name      = $name ?: $this->name;
-            $tableName = $this->connection->getConfig('prefix');
-            if ($name) {
-                $tableName .= Loader::parseName($name);
-            }
-        } else {
-            $tableName = $this->table;
-        }
-        return $tableName;
     }
 
     /**
