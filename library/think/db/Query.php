@@ -798,6 +798,26 @@ class Query
     }
 
     /**
+     * 得到当前的数据表
+     * @access public
+     * @param string $name
+     * @return string
+     */
+    public function getTable($name = '')
+    {
+        if ($name || empty($this->table)) {
+            $name      = $name ?: $this->name;
+            $tableName = $this->connection->getConfig('prefix');
+            if ($name) {
+                $tableName .= Loader::parseName($name);
+            }
+        } else {
+            $tableName = $this->table;
+        }
+        return $tableName;
+    }
+
+    /**
      * 指定当前操作的数据表
      * @access public
      * @param string $table 表名
@@ -1036,26 +1056,6 @@ class Query
     {
         $this->name = $name;
         return $this;
-    }
-
-    /**
-     * 得到当前的数据表
-     * @access public
-     * @param string $name
-     * @return string
-     */
-    public function getTable($name = '')
-    {
-        if ($name || empty($this->table)) {
-            $name      = $name ?: $this->name;
-            $tableName = $this->connection->getConfig('prefix');
-            if ($name) {
-                $tableName .= Loader::parseName($name);
-            }
-        } else {
-            $tableName = $this->table;
-        }
-        return $tableName;
     }
 
     /**

@@ -163,7 +163,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getData($name = '')
     {
-        return isset($this->data[$name]) ? $this->data[$name] : $this->data;
+        return array_key_exists($name, $this->data) ? $this->data[$name] : $this->data;
     }
 
     /**
