@@ -59,8 +59,8 @@ class Merge extends Model
      */
     protected static function attachQuery($query)
     {
-        $master = basename(str_replace('\\', '/', get_called_class()));
         $class  = new static();
+        $master = $class->name;
         $fields = self::getModelField($master, '', $class->mapFields);
         $query->alias($master)->field($fields);
 
