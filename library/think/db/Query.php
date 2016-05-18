@@ -786,14 +786,26 @@ class Query
     }
 
     /**
-     * 指定数据表
+     * 指定默认数据表
+     * @access public
+     * @param string $table 表名
+     * @return $this
+     */
+    public function setTable($table)
+    {
+        $this->table = $table;
+        return $this;
+    }
+
+    /**
+     * 指定当前操作的数据表
      * @access public
      * @param string $table 表名
      * @return $this
      */
     public function table($table)
     {
-        $this->table = $table;
+        $this->options['table'] = $table;
         return $this;
     }
 

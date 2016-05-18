@@ -875,7 +875,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 设置当前数据表和模型名
             if (!empty($class->table)) {
-                self::$links[$model]->table($class->table);
+                self::$links[$model]->setTable($class->table);
             } else {
                 $name = !empty($class->name) ? $class->name : basename(str_replace('\\', '/', $model));
                 self::$links[$model]->name($name);
