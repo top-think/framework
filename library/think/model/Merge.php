@@ -61,14 +61,14 @@ class Merge extends Model
     {
         $class  = new static();
         $master = $class->name;
-        $fields = self::getModelField($master, '', $class->mapFields);
+        $fields = self::getModelField($query, $master, '', $class->mapFields);
         $query->alias($master)->field($fields);
 
         foreach (static::$relationModel as $key => $model) {
             $name  = is_int($key) ? $model : $key;
             $table = is_int($key) ? $query->getTable($name) : $model;
             $query->join($table . ' ' . $name, $name . '.' . $class->fk . '=' . $master . '.' . $class->getPk());
-            $fields = self::getModelField($name, $table, $class->mapFields);
+            $fields = self::getModelField($query, $name, $table, $class->mapFields);
             $query->field($fields);
         }
         return $query;
@@ -77,15 +77,16 @@ class Merge extends Model
     /**
      * 获取关联模型的字段 并解决混淆
      * @access protected
+     * @param \think\db\Query $query 查询对象
      * @param string $name 模型名称
      * @param string $table 关联表名称
      * @param array $map 字段映射
      * @return array
      */
-    protected static function getModelField($name, $table = '', $map = [])
+    protected static function getModelField($query, $name, $table = '', $map = [])
     {
         // 获取模型的字段信息
-        $fields = self::db()->getTableInfo($table, 'fields');
+        $fields = $query->getTableInfo($table, 'fields');
         $array  = [];
         foreach ($fields as $field) {
             if ($key = array_search($name . '.' . $field, $map)) {
@@ -163,11 +164,16 @@ class Merge extends Model
         }
         // 数据自动完成
         $this->autoCompleteData($this->auto);
+
+        // 自动写入更新时间
+        if ($this->autoWriteTimestamp) {
+            $this->__set($this->updateTime, null);
+        }
+
         // 处理模型数据
         $data = $this->parseData($this->name, $this->data);
 
-        $db = self::db();
-        $db->startTrans('merge_save_' . $this->name);
+        $this->query->startTrans('merge_save_' . $this->name);
         try {
             if ($this->isUpdate) {
                 // 自动写入
@@ -178,15 +184,15 @@ class Merge extends Model
                 }
 
                 // 写入主表数据
-                $result = $db->strict(false)->update($data);
+                $result = $this->query->strict(false)->update($data);
 
                 // 写入附表数据
                 foreach (static::$relationModel as $key => $model) {
                     $name  = is_int($key) ? $model : $key;
-                    $table = is_int($key) ? $db->getTable($model) : $model;
+                    $table = is_int($key) ? $this->query->getTable($model) : $model;
                     // 处理关联模型数据
                     $data  = $this->parseData($name, $this->data);
-                    $query = clone $db;
+                    $query = clone $this->query;
                     $query->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data);
                 }
                 // 新增回调
@@ -194,6 +200,11 @@ class Merge extends Model
             } else {
                 // 自动写入
                 $this->autoCompleteData($this->insert);
+
+                // 自动写入创建时间
+                if ($this->autoWriteTimestamp) {
+                    $this->__set($this->createTime, null);
+                }
 
                 if (false === $this->trigger('before_insert', $this)) {
                     return false;
@@ -209,10 +220,10 @@ class Merge extends Model
                     // 写入附表数据
                     foreach (static::$relationModel as $key => $model) {
                         $name  = is_int($key) ? $model : $key;
-                        $table = is_int($key) ? $db->getTable($model) : $model;
+                        $table = is_int($key) ? $this->query->getTable($model) : $model;
                         // 处理关联模型数据
                         $data  = $this->parseData($name, $this->data, true);
-                        $query = clone $db;
+                        $query = clone $this->query;
                         $query->table($table)->strict(false)->insert($data);
                     }
                     $result = $insertId;
@@ -220,10 +231,10 @@ class Merge extends Model
                 // 新增回调
                 $this->trigger('after_insert', $this);
             }
-            $db->commit('merge_save_' . $this->name);
+            $this->query->commit('merge_save_' . $this->name);
             return $result;
         } catch (\PDOException $e) {
-            $db->rollback();
+            $this->query->rollback();
             return false;
         }
     }
@@ -238,26 +249,26 @@ class Merge extends Model
         if (false === $this->trigger('before_delete', $this)) {
             return false;
         }
-        $db = self::db();
-        $db->startTrans('merge_delete_' . $this->name);
+
+        $this->query->startTrans('merge_delete_' . $this->name);
         try {
-            $result = $db->delete($this->data);
+            $result = $this->query->delete($this->data);
             if ($result) {
                 // 获取主键数据
                 $pk = $this->data[$this->getPk()];
 
                 // 删除关联数据
                 foreach (static::$relationModel as $key => $model) {
-                    $table = is_int($key) ? $db->getTable($model) : $model;
-                    $query = clone $db;
+                    $table = is_int($key) ? $this->query->getTable($model) : $model;
+                    $query = clone $this->query;
                     $query->table($table)->where($this->fk, $pk)->delete();
                 }
             }
             $this->trigger('after_delete', $this);
-            $db->commit('merge_delete_' . $this->name);
+            $this->query->commit('merge_delete_' . $this->name);
             return $result;
         } catch (\PDOException $e) {
-            $db->rollback();
+            $this->query->rollback();
             return false;
         }
     }

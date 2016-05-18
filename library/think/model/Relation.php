@@ -593,7 +593,7 @@ class Relation
     {
         if ($this->model) {
             $model = new $this->model;
-            $db    = $model::db();
+            $db    = $model->db();
             if (self::HAS_MANY == $this->type && isset($this->parent->{$this->localKey})) {
                 // 关联查询带入关联条件
                 $db->where($this->foreignKey, $this->parent->{$this->localKey});
