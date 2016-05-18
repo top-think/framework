@@ -893,6 +893,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             } else {
                 $query->name($this->name);
             }
+
             self::$links[$model] = $query;
         }
         // 返回当前模型的数据库查询对象
@@ -916,8 +917,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = get_called_class();
         if (!isset(self::$links[$model])) {
-            $class               = new static();
-            self::$links[$model] = $class->db();
+            self::$links[$model] = (new static())->db();
         }
         $query = self::$links[$model];
         return call_user_func_array([$query, $method], $params);
