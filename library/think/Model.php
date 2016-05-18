@@ -59,11 +59,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $insert = [];
     // 更新自动完成列表
     protected $update = [];
-    // 自动写入的时间戳字段列表
-    protected $autoTimeField = ['create_time', 'update_time', 'delete_time'];
+    // 是否需要自动写入时间戳
+    protected $autoWriteTimestamp = true;
+    // 创建时间字段
+    protected $createTime = 'create_time';
+    // 更新时间字段
+    protected $updateTime = 'update_time';
+    // 删除时间字段
+    protected $deleteTime = 'delete_time';
     // 时间字段取出后的默认时间格式
     protected $dateFormat = 'Y-m-d H:i:s';
-
     // 字段类型或者格式转换
     protected $type = [];
     // 是否为更新数据
@@ -286,6 +291,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
+        // 自动写入更新时间
+        if ($this->autoWriteTimestamp) {
+            $this->__set($this->updateTime, null);
+        }
+
         // 事件回调
         if (false === $this->trigger('before_write', $this)) {
             return false;
@@ -295,6 +305,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($this->isUpdate) {
             // 自动更新
             $this->autoCompleteData($this->update);
+
             // 事件回调
             if (false === $this->trigger('before_update', $this)) {
                 return false;
@@ -326,6 +337,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             // 自动写入
             $this->autoCompleteData($this->insert);
+
+            // 自动写入创建时间
+            if ($this->autoWriteTimestamp) {
+                $this->__set($this->createTime, null);
+            }
 
             if (false === $this->trigger('before_insert', $this)) {
                 return false;
@@ -411,11 +427,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = null;
             }
             if (!in_array($field, $this->change)) {
-                if (in_array($field, $this->autoTimeField)) {
-                    $this->__set($field, $value);
-                } else {
-                    $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : $value);
-                }
+                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : $value);
             }
         }
     }
@@ -916,7 +928,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 获取字段类型信息并缓存
             $this->fieldType = self::db()->getTableInfo('', 'type');
         }
-        if (is_null($value) && in_array($name, $this->autoTimeField)) {
+        if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime, $this->deleteTime])) {
             // 自动写入的时间戳字段
             if (isset($this->type[$name])) {
                 $type = $this->type[$name];
