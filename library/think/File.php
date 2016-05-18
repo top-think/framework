@@ -127,7 +127,12 @@ class File extends SplFileObject
                         $savename = uniqid();
                         break;
                     case 'md5':
-                        $savename = md5($this->getFilename());
+                        $md5      = md5_file($this->getFilename());
+                        $savename = substr($md5, 0, 2) . DS . substr($md5, 2);
+                        break;
+                    case 'sha1':
+                        $sha1     = sha1_file($this->getFilename());
+                        $savename = substr($sha1, 0, 2) . DS . substr($sha1, 2);
                         break;
                     case 'date':
                         $savename = date('Y-m-d') . DS . md5(microtime(true));
