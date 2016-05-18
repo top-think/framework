@@ -15,12 +15,8 @@ return [
     'extra_file_list'        => [THINK_PATH . 'helper' . EXT],
     // 默认输出类型
     'default_return_type'    => 'html',
-    // 默认语言
-    'default_lang'           => 'zh-cn',
-    // response是否返回方式
-    'response_return'        => false,
-    // 默认AJAX 数据返回格式,可选JSON XML ...
-    'default_ajax_return'    => 'JSON',
+    // 默认AJAX 数据返回格式,可选json xml ...
+    'default_ajax_return'    => 'json',
     // 默认JSONP格式返回的处理方法
     'default_jsonp_handler'  => 'jsonpReturn',
     // 默认JSONP处理方法
@@ -31,6 +27,8 @@ return [
     'lang_switch_on'         => false,
     // 默认全局过滤方法 用逗号分隔多个
     'default_filter'         => '',
+    // 默认语言
+    'default_lang'           => 'zh-cn',
     // 是否启用控制器类后缀
     'use_controller_suffix'  => false,
 
