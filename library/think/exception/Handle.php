@@ -42,13 +42,13 @@ class Handle
                     'message' => $exception->getMessage(),
                     'code'    => $this->getCode($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $exception->getCode(),
                     'message' => $exception->getMessage(),
                 ];
-                $log = "[{$data['code']}]{$data['message']}";
+                $log  = "[{$data['code']}]{$data['message']}";
             }
 
             Log::record($log, 'error');
@@ -143,6 +143,10 @@ class Handle
         if (!APP_DEBUG && !Config::get('show_error_msg')) {
             // 不显示详细错误信息
             $data['message'] = Config::get('error_message');
+        }
+        //保留一层
+        while (ob_get_level() > 1) {
+            ob_end_clean();
         }
         ob_start();
         ob_implicit_flush(0);
