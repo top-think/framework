@@ -68,7 +68,7 @@ class Response
     {
         $type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
         if (!isset(self::$instance[$type])) {
-            $class = '\\think\\response\\' . ucfirst($type);
+            $class = (isset($options['namespace']) ? $options['namespace'] : '\\think\\response\\') . ucfirst($type);
             if (class_exists($class)) {
                 $response = new $class($data, $type, $options);
             } else {
