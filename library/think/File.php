@@ -23,6 +23,25 @@ class File extends SplFileObject
     // 文件上传命名规则
     protected $rule = 'date';
 
+    // 上传文件信息
+    protected $info;
+
+    public function __construct($filename, $info = [])
+    {
+        parent::__construct($filename);
+        $this->info = $info;
+    }
+
+    /**
+     * 获取上传文件的信息
+     * @param  string   $name
+     * @return array|string
+     */
+    public function getInfo($name = '')
+    {
+        return isset($this->info[$name]) ? $this->info[$name] : $this->info;
+    }
+
     /**
      * 检查目录是否可写
      * @param  string   $path    目录
@@ -139,7 +158,7 @@ class File extends SplFileObject
                 }
             }
             if (!strpos($savename, '.')) {
-                $savename .= '.' . $this->getExtension();
+                $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
             }
         } elseif ('' === $savename) {
             $savename = $this->getFilename();

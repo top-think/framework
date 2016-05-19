@@ -216,32 +216,38 @@ class Input
     {
         $files = $files ?: (isset($_FILES) ? $_FILES : []);
         if (!empty($files)) {
+            // 处理上传文件
+            $array = [];
+            $n     = 0;
+            foreach ($files as $key => $file) {
+                if (is_array($file['name'])) {
+                    $keys  = array_keys($file);
+                    $count = count($file['name']);
+                    for ($i = 0; $i < $count; $i++) {
+                        $array[$n]['key'] = $key;
+                        foreach ($keys as $_key) {
+                            $array[$n][$_key] = $file[$_key][$i];
+                        }
+                        $n++;
+                    }
+                } else {
+                    $array = $files;
+                    break;
+                }
+            }
+
             if ('' === $name) {
                 // 获取全部文件
-                $file = [];
-                foreach ($files as $name => $val) {
+                $item = [];
+                foreach ($array as $key => $val) {
                     if (empty($val['tmp_name'])) {
                         continue;
                     }
-                    if (is_array($val['tmp_name'])) {
-                        foreach ($val['tmp_name'] as $item) {
-                            $file[] = new File($item);
-                        }
-                    } else {
-                        $file[] = new File($val['tmp_name']);
-                    }
+                    $item[$key] = new File($val['tmp_name'], $val);
                 }
-                return $file;
-            } elseif (!empty($files[$name]['tmp_name'])) {
-                if (is_array($files[$name]['tmp_name'])) {
-                    $file = [];
-                    foreach ($files[$name]['tmp_name'] as $item) {
-                        $file[] = new File($item);
-                    }
-                    return $file;
-                } else {
-                    return new File($files[$name]['tmp_name']);
-                }
+                return $item;
+            } elseif (isset($array[$name])) {
+                return new File($array[$name]['tmp_name'], $array[$name]);
             }
         }
         return null;
