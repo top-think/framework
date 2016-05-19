@@ -123,9 +123,6 @@ class File extends SplFileObject
                 $savename = call_user_func_array($this->rule, [$this]);
             } else {
                 switch ($this->rule) {
-                    case 'uniqid':
-                        $savename = uniqid();
-                        break;
                     case 'md5':
                         $md5      = md5_file($this->getRealPath());
                         $savename = substr($md5, 0, 2) . DS . substr($md5, 2);
