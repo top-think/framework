@@ -158,13 +158,14 @@ class Query
      * @param array $bind 参数绑定
      * @param boolean $fetch 不执行只是获取SQL
      * @param boolean $getLastInsID 是否获取自增ID
+     * @param boolean $sequence 自增序列名
      * @return int
      * @throws DbBindParamException
      * @throws PDOException
      */
-    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false)
+    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false,$sequence = null)
     {
-        return $this->connection->execute($sql, $bind, $fetch, $getLastInsID);
+        return $this->connection->execute($sql, $bind, $fetch, $getLastInsID,$sequence);
     }
 
     /**
