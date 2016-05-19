@@ -234,10 +234,20 @@ class Request
         } elseif ($this->basePath) {
             return $this->basePath;
         } else {
-            $url = $this->scheme() . '://' . $this->host();
-            $url .= rtrim($_SERVER['SCRIPT_NAME'], '/');
-            $this->basePath = $url;
-            return $url;
+            $script_name = basename($_SERVER['SCRIPT_FILENAME']);
+            if (basename($_SERVER['SCRIPT_NAME']) === $script_name) {
+                $url = $_SERVER['SCRIPT_NAME'];
+            } elseif (basename($_SERVER['PHP_SELF']) === $script_name) {
+                $url = $_SERVER['PHP_SELF'];
+            } elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $script_name) {
+                $url = $_SERVER['ORIG_SCRIPT_NAME'];
+            } elseif (($pos = strpos($_SERVER['PHP_SELF'], '/' . $script_name)) !== false) {
+                $url = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $script_name;
+            } elseif (isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0) {
+                $url = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
+            }
+            $this->basePath = $this->scheme() . '://' . $this->host() . $url;
+            return $this->basePath;
         }
     }
 
@@ -254,8 +264,7 @@ class Request
         } elseif ($this->root) {
             return $this->root;
         } else {
-            $_root      = rtrim(dirname($this->baseUrl()), '/');
-            $this->root = ('/' == $_root || '\\' == $_root) ? '' : $_root;
+            $this->root = rtrim(str_replace('\\', '/', dirname($this->basePath())), '/');
             return $this->root;
         }
     }
