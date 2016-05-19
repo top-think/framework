@@ -216,10 +216,8 @@ class Request
         } elseif ($this->baseUrl) {
             return $this->baseUrl;
         } else {
-            $url = $this->scheme() . '://' . $this->host();
-            $url .= $_SERVER['PHP_SELF'];
-            $this->baseUrl = $url;
-            return $url;
+            $this->baseUrl = rtrim($this->url(), '?' . $this->query());
+            return $this->baseUrl;
         }
     }
 
