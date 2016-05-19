@@ -34,6 +34,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $name;
     // 数据表名称
     protected $table;
+    // 当前类名称
+    protected $class;
     // 回调事件
     protected static $event = [];
 
