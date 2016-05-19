@@ -137,8 +137,7 @@ abstract class Paginator
      */
     public static function getCurrentPath()
     {
-        //TODO 待Request类完善后这里再完善
-        return '/' . $_SERVER['PATH_INFO'];
+        return Request::instance()->url();
     }
 
     public function total()
