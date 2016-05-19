@@ -209,7 +209,7 @@ class Request
      * @param string $url URL地址
      * @return string
      */
-    public function baeUrl($url = '')
+    public function baseUrl($url = '')
     {
         if (!empty($url)) {
             $this->baseUrl = $url;
