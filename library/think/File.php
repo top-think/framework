@@ -91,7 +91,7 @@ class File extends SplFileObject
         $savename = $this->getSaveName($savename);
 
         // 检测目录
-        if (false === $this->checkPath(dirname($path . $savname))) {
+        if (false === $this->checkPath(dirname($path . $savename))) {
             return false;
         }
 
