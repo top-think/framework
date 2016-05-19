@@ -52,9 +52,9 @@ class Socket
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
         }
-        if (isset($this->config['allow_client_id'])) {
+        if (isset($this->config['force_client_id'])) {
             //兼容旧配置
-            $this->allow_client_ids = array_merge($this->allow_client_ids, [$this->config['allow_client_id']]);
+            $this->config['force_client_ids'] = array_merge($this->config['force_client_ids'], [$this->config['force_client_id']]);
         }
     }
 
