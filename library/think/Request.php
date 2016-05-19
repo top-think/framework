@@ -32,6 +32,11 @@ class Request
     protected $baseUrl;
 
     /**
+     * @var string 基础路径
+     */
+    protected $basePath;
+
+    /**
      * @var string 根目录
      */
     protected $root;
@@ -179,7 +184,7 @@ class Request
     }
 
     /**
-     * 获取当前URL
+     * 获取当前完整URL 包括QUERY_STRING
      * @access public
      * @param string $url URL地址
      * @return string
@@ -188,23 +193,53 @@ class Request
     {
         if (!empty($url)) {
             $this->url = $url;
+        } elseif ($this->url) {
+            return $this->url;
         } else {
-            return $this->url ?: $_SERVER[Config::get('url_request_uri')];
+            $url = $this->scheme() . '://' . $this->host();
+            $url .= $_SERVER[Config::get('url_request_uri')];
+            $this->url = $url;
+            return $url;
         }
     }
 
     /**
-     * 获取基础URL
+     * 获取当前URL 不含QUERY_STRING
      * @access public
      * @param string $url URL地址
      * @return string
      */
-    public function baseUrl($url = '')
+    public function baeUrl($url = '')
     {
         if (!empty($url)) {
             $this->baseUrl = $url;
+        } elseif ($this->baseUrl) {
+            return $this->baseUrl;
         } else {
-            return $this->baseUrl ?: rtrim($_SERVER['SCRIPT_NAME'], '/');
+            $url = $this->scheme() . '://' . $this->host();
+            $url .= $_SERVER['PHP_SELF'];
+            $this->baseUrl = $url;
+            return $url;
+        }
+    }
+
+    /**
+     * 获取URL基础路径 SCRIPT_NAME
+     * @access public
+     * @param string $url URL地址
+     * @return string
+     */
+    public function basePath($url = '')
+    {
+        if (!empty($url)) {
+            $this->basePath = $url;
+        } elseif ($this->basePath) {
+            return $this->basePath;
+        } else {
+            $url = $this->scheme() . '://' . $this->host();
+            $url .= rtrim($_SERVER['SCRIPT_NAME'], '/');
+            $this->basePath = $url;
+            return $url;
         }
     }
 
@@ -218,12 +253,12 @@ class Request
     {
         if (!empty($url)) {
             $this->root = $url;
-
         } elseif ($this->root) {
             return $this->root;
         } else {
-            $_root = rtrim(dirname($this->baseUrl()), '/');
-            return ('/' == $_root || '\\' == $_root) ? '' : $_root;
+            $_root      = rtrim(dirname($this->baseUrl()), '/');
+            $this->root = ('/' == $_root || '\\' == $_root) ? '' : $_root;
+            return $this->root;
         }
     }
 
@@ -587,6 +622,26 @@ class Request
     public function port()
     {
         return $_SERVER['SERVER_PORT'];
+    }
+
+    /**
+     * 当前请求 SERVER_PROTOCOL
+     * @access public
+     * @return integer
+     */
+    public function protocol()
+    {
+        return $_SERVER['SERVER_PROTOCOL'];
+    }
+
+    /**
+     * 当前请求 REMOTE_PORT
+     * @access public
+     * @return integer
+     */
+    public function remotePort()
+    {
+        return $_SERVER['REMOTE_PORT'];
     }
 
     /**
