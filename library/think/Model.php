@@ -616,10 +616,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 查找单条记录
      * @access public
-     * @param mixed $data 主键值或者查询条件（闭包）
-     * @param string $with 关联预查询
-     * @param bool $cache 是否缓存
-     * @return \think\Model
+     * @param mixed        $data  主键值或者查询条件（闭包）
+     * @param array|string $with  关联预查询
+     * @param bool         $cache 是否缓存
+     * @return static
+     * @throws exception\DbException
      */
     public static function get($data = '', $with = [], $cache = false)
     {
@@ -630,10 +631,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 查找所有记录
      * @access public
-     * @param mixed $data 主键列表或者查询条件（闭包）
-     * @param string $with 关联预查询
-     * @param bool $cache 是否缓存
-     * @return array|false|string
+     * @param mixed        $data  主键列表或者查询条件（闭包）
+     * @param array|string $with  关联预查询
+     * @param bool         $cache 是否缓存
+     * @return static[]|false
+     * @throws exception\DbException
      */
     public static function all($data = [], $with = [], $cache = false)
     {
