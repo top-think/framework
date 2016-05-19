@@ -80,7 +80,6 @@ class Loader
                 APP_DEBUG && self::$load[] = $filename;
                 include $filename;
             } else {
-                Log::record('autoloader error : ' . $filename, 'notice');
                 return false;
             }
         }
