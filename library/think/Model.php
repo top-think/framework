@@ -671,7 +671,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 删除记录
      * @access public
      * @param mixed $data 主键列表 支持闭包查询条件
-     * @return integer
+     * @return integer 成功删除的记录数
      */
     public static function destroy($data)
     {
@@ -685,13 +685,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $data = [];
         }
         $resultSet = $query->select($data);
-        $result    = false;
+        $count     = 0;
         if ($resultSet) {
             foreach ($resultSet as $data) {
                 $result = $data->delete();
+                $count += $result;
             }
         }
-        return $result;
+        return $count;
     }
 
     /**
