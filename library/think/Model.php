@@ -48,6 +48,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $field = [];
     // 隐藏属性
     protected $hidden = [];
+    // 追加属性
+    protected $append = [];
     // 数据信息
     protected $data = [];
     // 记录改变字段
@@ -175,6 +177,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置需要追加的输出属性
+     * @access public
+     * @param array $append 属性列表
+     * @return $this
+     */
+    public function append($append = [])
+    {
+        $this->append = $append;
+        return $this;
+    }
+
+    /**
      * 设置需要隐藏的属性
      * @access public
      * @param array $hidden 属性列表
@@ -194,6 +208,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function toArray()
     {
         $item = [];
+        if (!empty($this->append)) {
+            foreach ($this->append as $name) {
+                $item[$name] = $this->__get($name);
+            }
+        }
         foreach ($this->data as $key => $val) {
             // 如果是隐藏属性不输出
             if (in_array($key, $this->hidden)) {
