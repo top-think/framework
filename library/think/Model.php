@@ -34,8 +34,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $name;
     // 数据表名称
     protected $table;
-    // 查询对象
-    protected $query;
     // 回调事件
     protected static $event = [];
 
@@ -102,12 +100,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->data = $data;
         }
 
+        // 当前类名
+        $this->class = get_class($this);
+
         if (empty($this->name)) {
-            $this->name = basename(str_replace('\\', '/', get_class($this)));
+            $this->name = basename(str_replace('\\', '/', $this->class));
         }
 
-        // 当前模型的查询对象
-        $this->query = $this->db();
         // 执行初始化操作
         $this->initialize();
     }
@@ -239,7 +238,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function getPk($table = '')
     {
         if (empty($this->pk)) {
-            $this->pk = $this->query->getTableInfo($table, 'pk');
+            $this->pk = $this->db()->getTableInfo($table, 'pk');
         }
         return $this->pk;
     }
@@ -335,7 +334,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            $result = $this->query->where($where)->update($data);
+            $result = $this->db()->where($where)->update($data);
 
             // 更新回调
             $this->trigger('after_update', $this);
@@ -352,11 +351,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
-            $result = $this->query->insert($this->data);
+            $result = $this->db()->insert($this->data);
 
             // 获取自动增长主键
             if ($result && $getId) {
-                $insertId = $this->query->getLastInsID();
+                $insertId = $this->db()->getLastInsID();
                 $pk       = $this->getPk();
                 if (is_string($pk) && $insertId) {
                     $this->data[$pk] = $insertId;
@@ -448,7 +447,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
-        $result = $this->query->delete($this->data);
+        $result = $this->db()->delete($this->data);
 
         $this->trigger('after_delete', $this);
         return $result;
@@ -882,7 +881,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function db()
     {
-        $model = get_called_class();
+        $model = $this->class;
         if (!isset(self::$links[$model])) {
             // 设置当前模型 确保查询返回模型对象
             $query = Db::connect($this->connection)->model($model);
@@ -905,11 +904,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
-            array_unshift($args, $this->query);
+            array_unshift($args, $this->db());
             call_user_func_array([$this, $method], $args);
             return $this;
         } else {
-            return call_user_func_array([$this->query, $method], $args);
+            return call_user_func_array([$this->db(), $method], $args);
         }
     }
 
@@ -934,7 +933,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (is_null($this->fieldType)) {
             // 获取字段类型信息并缓存
-            $this->fieldType = $this->query->getTableInfo('', 'type');
+            $this->fieldType = $this->db()->getTableInfo('', 'type');
         }
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime, $this->deleteTime])) {
             // 自动写入的时间戳字段

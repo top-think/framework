@@ -173,7 +173,8 @@ class Merge extends Model
         // 处理模型数据
         $data = $this->parseData($this->name, $this->data);
 
-        $this->query->startTrans('merge_save_' . $this->name);
+        $db = $this->db();
+        $db->startTrans('merge_save_' . $this->name);
         try {
             if ($this->isUpdate) {
                 // 自动写入
@@ -184,15 +185,15 @@ class Merge extends Model
                 }
 
                 // 写入主表数据
-                $result = $this->query->strict(false)->update($data);
+                $result = $db->strict(false)->update($data);
 
                 // 写入附表数据
                 foreach (static::$relationModel as $key => $model) {
                     $name  = is_int($key) ? $model : $key;
-                    $table = is_int($key) ? $this->query->getTable($model) : $model;
+                    $table = is_int($key) ? $db->getTable($model) : $model;
                     // 处理关联模型数据
                     $data  = $this->parseData($name, $this->data);
-                    $query = clone $this->query;
+                    $query = clone $db;
                     $query->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data);
                 }
                 // 新增回调
@@ -220,10 +221,10 @@ class Merge extends Model
                     // 写入附表数据
                     foreach (static::$relationModel as $key => $model) {
                         $name  = is_int($key) ? $model : $key;
-                        $table = is_int($key) ? $this->query->getTable($model) : $model;
+                        $table = is_int($key) ? $db->getTable($model) : $model;
                         // 处理关联模型数据
                         $data  = $this->parseData($name, $this->data, true);
-                        $query = clone $this->query;
+                        $query = clone $db;
                         $query->table($table)->strict(false)->insert($data);
                     }
                     $result = $insertId;
@@ -231,10 +232,10 @@ class Merge extends Model
                 // 新增回调
                 $this->trigger('after_insert', $this);
             }
-            $this->query->commit('merge_save_' . $this->name);
+            $db->commit('merge_save_' . $this->name);
             return $result;
         } catch (\PDOException $e) {
-            $this->query->rollback();
+            $db->rollback();
             return false;
         }
     }
@@ -250,25 +251,26 @@ class Merge extends Model
             return false;
         }
 
-        $this->query->startTrans('merge_delete_' . $this->name);
+        $db = $this->query;
+        $db->startTrans('merge_delete_' . $this->name);
         try {
-            $result = $this->query->delete($this->data);
+            $result = $db->delete($this->data);
             if ($result) {
                 // 获取主键数据
                 $pk = $this->data[$this->getPk()];
 
                 // 删除关联数据
                 foreach (static::$relationModel as $key => $model) {
-                    $table = is_int($key) ? $this->query->getTable($model) : $model;
-                    $query = clone $this->query;
+                    $table = is_int($key) ? $db->getTable($model) : $model;
+                    $query = clone $db;
                     $query->table($table)->where($this->fk, $pk)->delete();
                 }
             }
             $this->trigger('after_delete', $this);
-            $this->query->commit('merge_delete_' . $this->name);
+            $db->commit('merge_delete_' . $this->name);
             return $result;
         } catch (\PDOException $e) {
-            $this->query->rollback();
+            $db->rollback();
             return false;
         }
     }
