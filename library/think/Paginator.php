@@ -137,7 +137,7 @@ abstract class Paginator
      */
     public static function getCurrentPath()
     {
-        return Request::instance()->url();
+        return Request::instance()->baseUrl();
     }
 
     public function total()
