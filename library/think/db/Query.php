@@ -1060,6 +1060,18 @@ class Query
     }
 
     /**
+     * 设置自增序列名
+     * @access public
+     * @param string $sequence 自增序列名
+     * @return $this
+     */
+    public function sequence($sequence = null)
+    {
+        $this->options['sequence'] = $sequence;
+        return $this;
+    }
+
+    /**
      * 获取数据表信息
      * @access public
      * @param string $tableName 数据表名 留空自动获取
@@ -1312,7 +1324,7 @@ class Query
         // 生成SQL语句
         $sql = $this->builder()->insert($data, $options, $replace);
         // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID);
+        return $this->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID, isset($options['sequence']) ? $options['sequence'] : null);
     }
 
     /**

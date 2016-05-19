@@ -367,11 +367,12 @@ abstract class Connection
      * @param array $bind 参数绑定
      * @param boolean $fetch 不执行只是获取SQL
      * @param boolean $getLastInsID 是否获取自增ID
+     * @param string $sequence 自增序列名
      * @return int
      * @throws DbBindParamException
      * @throws PDOException
      */
-    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false)
+    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null)
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -403,7 +404,7 @@ abstract class Connection
 
             $this->numRows = $this->PDOStatement->rowCount();
             if (preg_match("/^\s*(INSERT\s+INTO|REPLACE\s+INTO)\s+/i", $sql)) {
-                $this->lastInsID = $this->linkID->lastInsertId();
+                $this->lastInsID = $this->linkID->lastInsertId($sequence);
                 if ($getLastInsID) {
                     return $this->lastInsID;
                 }
