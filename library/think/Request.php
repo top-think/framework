@@ -42,7 +42,7 @@ class Request
     protected $baseFile;
 
     /**
-     * @var string 根目录
+     * @var string 访问的ROOT地址
      */
     protected $root;
 
