@@ -24,7 +24,7 @@ class Think
         // 模板起始路径
         'view_path'   => '',
         // 模板文件后缀
-        'view_suffix' => '.html',
+        'view_suffix' => 'html',
         // 模板文件名分隔符
         'view_depr'   => DS,
         // 是否开启模板编译缓存,设为false则每次都会重新编译
@@ -114,7 +114,7 @@ class Think
                 $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . $template;
             }
         }
-        return $path . $template . $this->config['view_suffix'];
+        return $path . $template . '.' . ltrim($this->config['view_suffix'], '.');
     }
 
     public function __call($method, $params)

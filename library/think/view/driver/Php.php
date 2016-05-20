@@ -21,7 +21,7 @@ class Php
         // 模板起始路径
         'view_path'   => '',
         // 模板文件后缀
-        'view_suffix' => '.php',
+        'view_suffix' => 'php',
         // 模板文件名分隔符
         'view_depr'   => DS,
     ];
@@ -109,7 +109,7 @@ class Php
                 $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . $template;
             }
         }
-        return $path . $template . $this->config['view_suffix'];
+        return $path . $template . '.' . ltrim($this->config['view_suffix'], '.');
     }
 
 }

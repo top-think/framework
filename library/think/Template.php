@@ -23,9 +23,9 @@ class Template
     // 引擎配置
     protected $config = [
         'view_path'          => '', // 模板路径
-        'view_suffix'        => '.html', // 默认模板文件后缀
+        'view_suffix'        => 'html', // 默认模板文件后缀
         'view_depr'          => DS,
-        'cache_suffix'       => '.php', // 默认模板缓存后缀
+        'cache_suffix'       => 'php', // 默认模板缓存后缀
         'tpl_deny_func_list' => 'echo,exit', // 模板引擎禁用函数
         'tpl_deny_php'       => false, // 默认模板引擎是否禁用PHP原生代码
         'tpl_begin'          => '{', // 模板引擎普通标签开始标记
@@ -179,7 +179,7 @@ class Template
         }
         $template = $this->parseTemplateFile($template);
         if ($template) {
-            $cacheFile = $this->config['cache_path'] . $this->config['cache_prefix'] . md5($template) . $this->config['cache_suffix'];
+            $cacheFile = $this->config['cache_path'] . $this->config['cache_prefix'] . md5($template) . '.' . ltrim($this->config['cache_suffix'], '.');
             if (!$this->checkCache($cacheFile)) {
                 // 缓存无效 重新模板编译
                 $content = file_get_contents($template);
@@ -216,7 +216,7 @@ class Template
         if ($config) {
             $this->config($config);
         }
-        $cacheFile = $this->config['cache_path'] . $this->config['cache_prefix'] . md5($content) . $this->config['cache_suffix'];
+        $cacheFile = $this->config['cache_path'] . $this->config['cache_prefix'] . md5($content) . '.' . ltrim($this->config['cache_suffix'], '.');
         if (!$this->checkCache($cacheFile)) {
             // 缓存无效 模板编译
             $this->compiler($content, $cacheFile);
@@ -1051,11 +1051,12 @@ class Template
             if (strpos($template, '@')) {
                 // 跨模块调用模板
                 $template = str_replace(['/', ':'], $this->config['view_depr'], $template);
-                $template = APP_PATH . str_replace('@', '/' . basename($this->config['view_path']) . '/', $template) . $this->config['view_suffix'];
+                $template = APP_PATH . str_replace('@', '/' . basename($this->config['view_path']) . '/', $template);
             } else {
                 $template = str_replace(['/', ':'], $this->config['view_depr'], $template);
-                $template = $this->config['view_path'] . $template . $this->config['view_suffix'];
+                $template = $this->config['view_path'] . $template;
             }
+            $template .= '.' . ltrim($this->config['view_suffix'], '.');
         }
         if (is_file($template)) {
             // 记录模板文件的更新时间

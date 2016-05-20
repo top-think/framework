@@ -64,7 +64,7 @@ return [
     // 获取当前页面地址的系统变量 默认为REQUEST_URI
     'url_request_uri'        => 'REQUEST_URI',
     // URL伪静态后缀
-    'url_html_suffix'        => '.html',
+    'url_html_suffix'        => 'html',
     // URL普通方式参数 用于自动生成
     'url_common_param'       => false,
     //url禁止访问的后缀
@@ -94,7 +94,7 @@ return [
         // 模板路径
         'view_path'    => '',
         // 模板后缀
-        'view_suffix'  => '.html',
+        'view_suffix'  => 'html',
         // 模板文件名分隔符
         'view_depr'    => DS,
         // 模板引擎普通标签开始标记
