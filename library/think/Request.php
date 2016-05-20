@@ -288,7 +288,11 @@ class Request
             $this->root = $url;
             return;
         } elseif (!$this->root) {
-            $this->root = rtrim(str_replace('\\', '/', dirname($this->baseFile())), '/');
+            $file = $this->baseFile();
+            if (0 !== strpos($this->url(), $file)) {
+                $file = str_replace('\\', '/', dirname($file));
+            }
+            $this->root = rtrim($file, '/');
         }
         return true === $url ? $this->domain() . $this->root : $this->root;
     }
