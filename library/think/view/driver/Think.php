@@ -52,7 +52,7 @@ class Think
             // 获取模板文件名
             $template = $this->parseTemplate($template);
         }
-        return is_file($template);
+        return is_file($template) ? $template : false;
     }
 
     /**
@@ -66,7 +66,8 @@ class Think
     public function fetch($template, $data = [], $config = [])
     {
         // 模板不存在 抛出异常
-        if (!$this->exists($template)) {
+        $template = $this->exists($template);
+        if (!$template) {
             throw new Exception('template file not exists:' . $template, 10700);
         }
         // 记录视图信息

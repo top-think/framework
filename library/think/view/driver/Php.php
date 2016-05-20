@@ -56,7 +56,8 @@ class Php
     public function fetch($template, $data = [])
     {
         // 模板不存在 抛出异常
-        if (!$this->exists($template)) {
+        $template = $this->exists($template);
+        if (!$template) {
             throw new Exception('template file not exists:' . $template, 10700);
         }
         // 记录视图信息
