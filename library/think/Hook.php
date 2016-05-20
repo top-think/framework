@@ -101,7 +101,12 @@ class Hook
 
                 if (APP_DEBUG) {
                     Debug::remark('behavior_end', 'time');
-                    Log::record('[ BEHAVIOR ] Run ' . ($name instanceof \Closure ? 'Closure' : $name) . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]', 'info');
+                    if ($name instanceof \Closure) {
+                        $name = 'Closure';
+                    } elseif (is_object($name)) {
+                        $name = get_class($name);
+                    }
+                    Log::record('[ BEHAVIOR ] Run ' . $name . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]', 'info');
                 }
                 if (false === $result) {
                     // 如果返回false 则中断行为执行
