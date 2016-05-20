@@ -32,6 +32,21 @@ class Php
     }
 
     /**
+     * 检测是否存在模板文件
+     * @access public
+     * @param string $template 模板文件或者模板规则
+     * @return bool
+     */
+    public function exists($template)
+    {
+        if (!is_file($template)) {
+            // 获取模板文件名
+            $template = $this->parseTemplate($template);
+        }
+        return is_file($template);
+    }
+
+    /**
      * 渲染模板文件
      * @access public
      * @param string $template 模板文件
@@ -40,12 +55,8 @@ class Php
      */
     public function fetch($template, $data = [])
     {
-        if (!is_file($template)) {
-            // 获取模板文件名
-            $template = $this->parseTemplate($template);
-        }
         // 模板不存在 抛出异常
-        if (!is_file($template)) {
+        if (!$this->exists($template)) {
             throw new Exception('template file not exists:' . $template, 10700);
         }
         // 记录视图信息
