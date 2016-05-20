@@ -955,7 +955,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __set($name, $value)
     {
-        if (is_null($this->fieldType)) {
+        if (empty($this->fieldType)) {
             // 获取字段类型信息并缓存
             $this->fieldType = $this->db()->getTableInfo('', 'type');
         }
