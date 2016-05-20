@@ -468,7 +468,14 @@ class Route
 
                 if (!empty($val['routes'])) {
                     // 分组路由
-                    if (0 !== strpos($url, $rule)) {
+                    if ($pos = strpos($rule, ':')) {
+                        $str = substr($rule, 0, $pos);
+                    } elseif ($pos = strpos($rule, '<')) {
+                        $str = substr($rule, 0, $pos);
+                    } else {
+                        $str = $rule;
+                    }
+                    if (0 !== strpos($url, $str)) {
                         continue;
                     }
                     // 匹配到路由分组
