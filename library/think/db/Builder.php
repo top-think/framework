@@ -85,7 +85,7 @@ abstract class Builder
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
         } else {
-            $fields = is_array($options['field']) ? $options['field'] : explode(',', $options['field']);
+            $fields = is_array($options['field']) ? $options['field'] : array_map('trim', explode(',', $options['field']));
         }
 
         $result = [];
@@ -567,7 +567,7 @@ abstract class Builder
         if ('*' == $options['field']) {
             $fields = $this->query->getTableInfo($options['table'], 'fields');
         } else {
-            $fields = is_array($options['field']) ? $options['field'] : explode(',', $options['field']);
+            $fields = is_array($options['field']) ? $options['field'] : array_map('trim', explode(',', $options['field']));
         }
 
         foreach ($dataSet as &$data) {
