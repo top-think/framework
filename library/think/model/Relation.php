@@ -535,7 +535,7 @@ class Relation
             // 保存关联表数据
             $model = new $this->model;
             $id    = $model->save($data);
-        } elseif (is_int($data)) {
+        } elseif (is_numeric($data)) {
             // 根据关联表主键直接写入中间表
             $id = $data;
         } elseif ($data instanceof Model) {
@@ -567,7 +567,7 @@ class Relation
     {
         if (is_array($data)) {
             $id = $data;
-        } elseif (is_int($data)) {
+        } elseif (is_numeric($data)) {
             // 根据关联表主键直接写入中间表
             $id = $data;
         } elseif ($data instanceof Model) {
