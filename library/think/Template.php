@@ -329,6 +329,8 @@ class Template
                     $content = str_replace($this->config['layout_item'], $content, file_get_contents($layoutFile));
                 }
             }
+        } else {
+            $content = str_replace('{__NOLAYOUT__}', '', $content);
         }
 
         // 模板解析

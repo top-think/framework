@@ -122,9 +122,9 @@ class Hook
     public static function exec($class, $tag = '', &$params = null)
     {
         if ($class instanceof \Closure) {
-            $result = call_user_func_array($class, [$params]);
+            $result = call_user_func_array($class, [ & $params]);
         } elseif (is_object($class)) {
-            $result = call_user_func_array([$class, $tag], [$params]);
+            $result = call_user_func_array([$class, $tag], [ & $params]);
         } else {
             $obj    = new $class();
             $result = ($tag && is_callable([$obj, $tag])) ? $obj->$tag($params) : $obj->run($params);
