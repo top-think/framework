@@ -289,7 +289,7 @@ class Request
             return;
         } elseif (!$this->root) {
             $file = $this->baseFile();
-            if (0 !== strpos($this->url(), $file)) {
+            if ($file && 0 !== strpos($this->url(), $file)) {
                 $file = str_replace('\\', '/', dirname($file));
             }
             $this->root = rtrim($file, '/');
