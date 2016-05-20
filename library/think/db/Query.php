@@ -632,6 +632,44 @@ class Query
     }
 
     /**
+     * 指定JOIN查询字段
+     * @access public
+     * @param string|array $table 数据表
+     * @param array $field 查询字段
+     * @param string|array $on JOIN条件
+     * @param string $type JOIN类型
+     * @return $this
+     */
+    public function view($join, $field, $on = null, $type = 'INNER')
+    {
+        $this->options['view'] = true;
+        if (is_array($join)) {
+            foreach ($join as $key => $val) {
+                $this->view($key, $val[0], isset($val[1]) ? $val[1] : null, isset($val[2]) ? $val[2] : 'INNER');
+            }
+        } else {
+            $fields = [];
+            $table  = $this->getTable($join);
+            foreach ($field as $key => $val) {
+                if (is_numeric($key)) {
+                    $fields[]                   = $join . '.' . $val;
+                    $this->options['map'][$val] = $join . '.' . $val;
+                } else {
+                    $fields[]                   = $join . '.' . $key . ' AS ' . $val;
+                    $this->options['map'][$val] = $join . '.' . $key;
+                }
+            }
+            $this->field($fields);
+            if ($on) {
+                $this->join($table . ' ' . $join, $on, $type);
+            } else {
+                $this->table($table . ' ' . $join);
+            }
+        }
+        return $this;
+    }
+
+    /**
      * 指定查询条件
      * @access public
      * @param mixed $field 查询字段
@@ -1692,6 +1730,49 @@ class Query
 
         if (!isset($options['where'])) {
             $options['where'] = [];
+        } elseif (isset($options['view'])) {
+            if (isset($options['where']['AND'])) {
+                foreach ($options['where']['AND'] as $key => $val) {
+                    if (array_key_exists($key, $options['map'])) {
+                        $options['where']['AND'][$options['map'][$key]] = $val;
+                        unset($options['where']['AND'][$key]);
+                    }
+                }
+            }
+            if (isset($options['where']['OR'])) {
+                foreach ($options['where']['OR'] as $key => $val) {
+                    if (array_key_exists($key, $options['map'])) {
+                        $options['where']['OR'][$options['map'][$key]] = $val;
+                        unset($options['where']['OR'][$key]);
+                    }
+                }
+            }
+            if (isset($options['order'])) {
+                if (is_string($options['order'])) {
+                    $options['order'] = explode(',', $options['order']);
+                }
+                foreach ($options['order'] as $key => $val) {
+                    if (is_numeric($key)) {
+                        if (strpos($val, ' ')) {
+                            list($field, $sort) = explode(' ', $val);
+                            if (array_key_exists($field, $options['map'])) {
+                                $options['order'][$options['map'][$field]] = $sort;
+                                unset($options['order'][$key]);
+                            }
+                        } else {
+                            if (array_key_exists($val, $options['map'])) {
+                                $options['order'][$options['map'][$val]] = 'asc';
+                                unset($options['order'][$key]);
+                            }
+                        }
+                    } else {
+                        if (array_key_exists($key, $options['map'])) {
+                            $options['order'][$options['map'][$key]] = $val;
+                            unset($options['order'][$key]);
+                        }
+                    }
+                }
+            }
         }
 
         // 表别名
