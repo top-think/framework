@@ -163,9 +163,9 @@ class Query
      * @throws DbBindParamException
      * @throws PDOException
      */
-    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false,$sequence = null)
+    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null)
     {
-        return $this->connection->execute($sql, $bind, $fetch, $getLastInsID,$sequence);
+        return $this->connection->execute($sql, $bind, $fetch, $getLastInsID, $sequence);
     }
 
     /**
@@ -1333,11 +1333,12 @@ class Query
      * @access public
      * @param mixed $data 数据
      * @param boolean $replace 是否replace
+     * @param string $sequence 自增序列名
      * @return integer
      */
-    public function insertGetId(array $data, $replace = false)
+    public function insertGetId(array $data, $replace = false, $sequence = null)
     {
-        return $this->insert($data, $replace, true);
+        return $this->insert($data, $replace, true, $sequence);
     }
 
     /**
