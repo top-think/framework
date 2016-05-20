@@ -468,16 +468,10 @@ class Route
 
                 if (!empty($val['routes'])) {
                     // 分组路由
-                    if ($pos = strpos($rule, ':')) {
-                        $str  = substr($rule, 0, $pos);
-                        $key1 = substr($rule, $pos) . '/';
-                    } elseif ($pos = strpos($rule, '<')) {
-                        $str  = substr($rule, 0, $pos);
-                        $key1 = substr($rule, $pos) . '/';
+                    if ($pos = strpos($rule, ':') || $pos = strpos($rule, '<')) {
+                        $str = substr($rule, 0, $pos);
                     } else {
-                        $pos  = strlen($rule) + 1;
-                        $key1 = '';
-                        $str  = $rule;
+                        $str = $rule;
                     }
                     if (0 !== strpos($url, $str)) {
                         continue;
@@ -487,9 +481,8 @@ class Route
                         if (is_numeric($key)) {
                             $key = array_shift($route);
                         }
-                        $url1 = substr($url, $pos);
-                        $key  = $key1 . $key;
 
+                        $key = $rule . '/' . $key;
                         // 检查规则路由
                         if (is_array($route)) {
                             $option1 = $route[1];
@@ -501,7 +494,7 @@ class Route
                             $route   = $route[0];
                             $option  = array_merge($option, $option1);
                         }
-                        $result = self::checkRule($key, $route, $url1, $pattern, $option);
+                        $result = self::checkRule($key, $route, $url, $pattern, $option);
                         if (false !== $result) {
                             $request->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                             return $result;
