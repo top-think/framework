@@ -179,6 +179,16 @@ class Query
     }
 
     /**
+     * 获取最近一次查询的sql语句
+     * @access public
+     * @return string
+     */
+    public function getLastSql()
+    {
+        return $this->connection->queryStr;
+    }
+
+    /**
      * 执行数据库事务
      * @access public
      * @param callable $callback 数据操作方法回调

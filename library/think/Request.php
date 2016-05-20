@@ -270,7 +270,7 @@ class Request
     }
 
     /**
-     * 获取URL访问根目录
+     * 获取URL访问根地址
      * @access public
      * @param string $url URL地址
      * @return string
