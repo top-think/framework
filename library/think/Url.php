@@ -107,7 +107,7 @@ class Url
         // 检测域名
         $domain = self::parseDomain($url, $domain);
         // URL组装
-        $url = $domain . Config::get('base_url') . '/' . ltrim($url, '/');
+        $url = $domain . Request::instance()->root() . '/' . ltrim($url, '/');
         return $url;
     }
 

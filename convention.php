@@ -63,8 +63,6 @@ return [
     'pathinfo_depr'          => '/',
     // 获取当前页面地址的系统变量 默认为REQUEST_URI
     'url_request_uri'        => 'REQUEST_URI',
-    // 基础URL路径
-    'base_url'               => $_SERVER["SCRIPT_NAME"],
     // URL伪静态后缀
     'url_html_suffix'        => '.html',
     // URL普通方式参数 用于自动生成
@@ -211,7 +209,7 @@ return [
     'paginate'               => [
         'type'      => 'bootstrap',
         'var_page'  => 'page',
-        'list_rows' => 15
+        'list_rows' => 15,
     ],
 
 ];

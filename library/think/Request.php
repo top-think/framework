@@ -22,6 +22,11 @@ class Request
     protected static $instance;
 
     /**
+     * @var string 域名
+     */
+    protected $domain;
+
+    /**
      * @var string URL地址
      */
     protected $url;
@@ -32,9 +37,9 @@ class Request
     protected $baseUrl;
 
     /**
-     * @var string 基础路径
+     * @var string 当前执行的文件
      */
-    protected $basePath;
+    protected $baseFile;
 
     /**
      * @var string 根目录
@@ -184,23 +189,38 @@ class Request
     }
 
     /**
+     * 获取当前包含协议的域名
+     * @access public
+     * @param string $url URL地址
+     * @return string
+     */
+    public function domain($domain = '')
+    {
+        if (!empty($domain)) {
+            $this->domain = $domain;
+            return;
+        } elseif (!$this->domain) {
+            $this->domain = $this->scheme() . '://' . $this->host();
+        }
+        return $this->domain;
+    }
+
+    /**
      * 获取当前完整URL 包括QUERY_STRING
      * @access public
      * @param string $url URL地址
+     * @param bool $domain 是否需要域名
      * @return string
      */
     public function url($url = '')
     {
         if (!empty($url)) {
             $this->url = $url;
-        } elseif ($this->url) {
-            return $this->url;
-        } else {
-            $url = $this->scheme() . '://' . $this->host();
-            $url .= $_SERVER[Config::get('url_request_uri')];
-            $this->url = $url;
-            return $url;
+            return;
+        } elseif (!$this->url) {
+            $this->url = $_SERVER[Config::get('url_request_uri')];
         }
+        return true === $url ? $this->domain() . $this->url : $this->url;
     }
 
     /**
@@ -213,27 +233,25 @@ class Request
     {
         if (!empty($url)) {
             $this->baseUrl = $url;
-        } elseif ($this->baseUrl) {
-            return $this->baseUrl;
-        } else {
+            return;
+        } elseif (!$this->baseUrl) {
             $this->baseUrl = rtrim($this->url(), '?' . $this->query());
-            return $this->baseUrl;
         }
+        return true === $url ? $this->domain() . $this->baseUrl : $this->baseUrl;
     }
 
     /**
-     * 获取URL基础路径 SCRIPT_NAME
+     * 获取当前执行的文件 SCRIPT_NAME
      * @access public
-     * @param string $url URL地址
+     * @param string $file 当前执行的文件
      * @return string
      */
-    public function basePath($url = '')
+    public function baseFile($file = '')
     {
-        if (!empty($url)) {
-            $this->basePath = $url;
-        } elseif ($this->basePath) {
-            return $this->basePath;
-        } else {
+        if (!empty($file)) {
+            $this->baseFile = $file;
+            return;
+        } elseif (!$this->baseFile) {
             $script_name = basename($_SERVER['SCRIPT_FILENAME']);
             if (basename($_SERVER['SCRIPT_NAME']) === $script_name) {
                 $url = $_SERVER['SCRIPT_NAME'];
@@ -246,9 +264,9 @@ class Request
             } elseif (isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0) {
                 $url = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
             }
-            $this->basePath = $this->scheme() . '://' . $this->host() . $url;
-            return $this->basePath;
+            $this->baseFile = $url;
         }
+        return true === $file ? $this->domain() . $this->baseFile : $this->baseFile;
     }
 
     /**
@@ -261,12 +279,11 @@ class Request
     {
         if (!empty($url)) {
             $this->root = $url;
-        } elseif ($this->root) {
-            return $this->root;
-        } else {
-            $this->root = rtrim(str_replace('\\', '/', dirname($this->basePath())), '/');
-            return $this->root;
+            return;
+        } elseif (!$this->root) {
+            $this->root = rtrim(str_replace('\\', '/', dirname($this->baseFile())), '/');
         }
+        return true === $url ? $this->domain() . $this->root : $this->root;
     }
 
     /**
