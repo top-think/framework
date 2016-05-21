@@ -635,7 +635,7 @@ class Query
      * 指定JOIN查询字段
      * @access public
      * @param string|array $table 数据表
-     * @param array $field 查询字段
+     * @param string|array $field 查询字段
      * @param string|array $on JOIN条件
      * @param string $type JOIN类型
      * @return $this
@@ -650,6 +650,9 @@ class Query
         } else {
             $fields = [];
             $table  = $this->getTable($join);
+            if (is_string($field)) {
+                $field = explode(',', $field);
+            }
             foreach ($field as $key => $val) {
                 if (is_numeric($key)) {
                     $fields[]                   = $join . '.' . $val;
