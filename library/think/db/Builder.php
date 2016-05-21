@@ -612,8 +612,7 @@ abstract class Builder
         }
 
         $fields = array_map([$this, 'parseKey'], $fields);
-        $sql    = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') ';
-        $sql .= $this->buildSelectSql($options);
+        $sql    = 'INSERT INTO ' . $this->parseTable($table) . ' (' . implode(',', $fields) . ') ' . $this->select($options);
         return $sql;
     }
 
