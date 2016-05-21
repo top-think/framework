@@ -161,7 +161,7 @@ class File extends SplFileObject
                 $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
             }
         } elseif ('' === $savename) {
-            $savename = $this->getFilename();
+            $savename = $this->getInfo('name');
         }
         return $savename;
     }
