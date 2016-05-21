@@ -602,12 +602,12 @@ class Query
             return $this;
         }
         if (is_string($field)) {
-            $field = explode(',', $field);
+            $field = array_map('trim', explode(',', $field));
         }
         if (true === $field) {
             // 获取全部字段
             $fields = $this->getTableInfo($tableName, 'fields');
-            $field  = $fields ?: '*';
+            $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
             $fields = $this->getTableInfo($tableName, 'fields');
