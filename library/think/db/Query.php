@@ -185,7 +185,7 @@ class Query
      */
     public function getLastSql()
     {
-        return $this->connection->queryStr;
+        return $this->connection->getLastSql();
     }
 
     /**
