@@ -651,7 +651,7 @@ class Route
     }
 
     // 解析模块的URL地址 [模块/控制器/操作?]参数1=值1&参数2=值2...
-    public static function parseUrl($url, $depr = '/')
+    public static function parseUrl($url, $depr = '/', $autoSearch = false)
     {
         if (isset(self::$bind['module'])) {
             // 如果有模块/控制器绑定
@@ -661,7 +661,9 @@ class Route
         if ('/' != $depr) {
             $url = str_replace($depr, '/', $url);
         }
-        $result = self::parseRoute($url, true);
+
+        $result = self::parseRoute($url, $autoSearch, true);
+
         if (!empty($result['var'])) {
             $_GET = array_merge($result['var'], $_GET);
         }
@@ -670,18 +672,18 @@ class Route
 
     // 解析规范的路由地址
     // 地址格式 [模块/控制器/操作?]参数1=值1&参数2=值2...
-    private static function parseRoute($url, $reverse = false)
+    private static function parseRoute($url, $autoSearch = false, $reverse = false)
     {
         $url = trim($url, '/');
         $var = [];
         if (false !== strpos($url, '?')) {
             // [模块/控制器/操作?]参数1=值1&参数2=值2...
             $info = parse_url($url);
-            $path = explode('/', $info['path'], APP_MULTI_MODULE ? 4 : 3);
+            $path = $info['path'];
             parse_str($info['query'], $var);
         } elseif (strpos($url, '/')) {
             // [模块/控制器/操作]
-            $path = explode('/', $url, APP_MULTI_MODULE ? 4 : 3);
+            $path = explode('/', $url);
         } elseif (false !== strpos($url, '=')) {
             // 参数1=值1&参数2=值2...
             parse_str($url, $var);
@@ -690,17 +692,33 @@ class Route
         }
         $route = [null, null, null];
         if (isset($path)) {
-            // 解析path额外的参数
-            if (!empty($path[APP_MULTI_MODULE ? 3 : 2])) {
-                preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$var) {
-                    $var[strtolower($match[1])] = strip_tags($match[2]);
-                }, array_pop($path));
-            }
-            // 解析[模块/控制器/操作]
             if ($reverse) {
-                $module     = APP_MULTI_MODULE ? array_shift($path) : null;
-                $controller = !empty($path) ? array_shift($path) : null;
-                $action     = !empty($path) ? array_shift($path) : null;
+                // 解析模块
+                $module = APP_MULTI_MODULE ? array_shift($path) : null;
+                if ($autoSearch) {
+                    // 自动搜索控制器
+                    $dir = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER;
+                    foreach ($path as $val) {
+                        $item[] = array_shift($path);
+                        if (is_file($dir . DS . $val . EXT)) {
+                            break;
+                        } else {
+                            $dir .= DS . $val;
+                        }
+                    }
+                    $controller = implode('.', $item);
+                } else {
+                    // 解析控制器
+                    $controller = !empty($path) ? array_shift($path) : null;
+                }
+                // 解析操作
+                $action = !empty($path) ? array_shift($path) : null;
+                // 解析额外参数
+                if (!empty($path)) {
+                    preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$var) {
+                        $var[strtolower($match[1])] = strip_tags($match[2]);
+                    }, implode('/', $path));
+                }
             } else {
                 $action     = array_pop($path);
                 $controller = !empty($path) ? array_pop($path) : null;
@@ -713,6 +731,8 @@ class Route
                     $action = 0 !== strpos($action, self::$methodPrefix[REQUEST_METHOD]) ? self::$methodPrefix[REQUEST_METHOD] . $action : $action;
                 }
             }
+
+            // 封装路由
             $route = [$module, $controller, $action];
         }
         return ['route' => $route, 'var' => $var];
