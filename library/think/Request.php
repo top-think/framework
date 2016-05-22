@@ -214,7 +214,7 @@ class Request
      */
     public function url($url = '')
     {
-        if (!empty($url)) {
+        if (is_string($url) && !empty($url)) {
             $this->url = $url;
             return;
         } elseif (!$this->url) {
@@ -235,7 +235,7 @@ class Request
      */
     public function baseUrl($url = '')
     {
-        if (!empty($url)) {
+        if (is_string($url) && !empty($url)) {
             $this->baseUrl = $url;
             return;
         } elseif (!$this->baseUrl) {
@@ -252,7 +252,7 @@ class Request
      */
     public function baseFile($file = '')
     {
-        if (!empty($file)) {
+        if (is_string($file) && !empty($file)) {
             $this->baseFile = $file;
             return;
         } elseif (!$this->baseFile) {
@@ -284,7 +284,7 @@ class Request
      */
     public function root($url = '')
     {
-        if (!empty($url)) {
+        if (is_string($url) && !empty($url)) {
             $this->root = $url;
             return;
         } elseif (!$this->root) {
@@ -371,14 +371,15 @@ class Request
      */
     public function type()
     {
-        if (!isset($_SERVER['HTTP_ACCEPT'])) {
+        $accept = isset($this->server['HTTP_ACCEPT']) ? $this->server['HTTP_ACCEPT'] : $_SERVER['HTTP_ACCEPT'];
+        if (empty($accept)) {
             return false;
         }
 
         foreach ($this->mimeType as $key => $val) {
             $array = explode(',', $val);
             foreach ($array as $k => $v) {
-                if (stristr($_SERVER['HTTP_ACCEPT'], $v)) {
+                if (stristr($accept, $v)) {
                     return $key;
                 }
             }
@@ -396,7 +397,6 @@ class Request
     public function mimeType($type, $val = '')
     {
         if (is_array($type)) {
-
             $this->mimeType = array_merge($this->mimeType, $type);
         } else {
             $this->mimeType[$type] = $val;
@@ -410,7 +410,8 @@ class Request
      */
     public function method()
     {
-        return IS_CLI ? 'GET' : $_SERVER['REQUEST_METHOD'];
+        $method = isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD'];
+        return IS_CLI ? 'GET' : $method;
     }
 
     /**
@@ -564,9 +565,12 @@ class Request
      */
     public function isSsl()
     {
-        if (isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))) {
+        $server = array_merge($_SERVER, $this->server);
+        if (isset($server['HTTPS']) && ('1' == $server['HTTPS'] || 'on' == strtolower($server['HTTPS']))) {
             return true;
-        } elseif (isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT'])) {
+        } elseif (isset($server['REQUEST_SCHEME']) && 'https' == $server['REQUEST_SCHEME']) {
+            return true;
+        } elseif (isset($server['SERVER_PORT']) && ('443' == $server['SERVER_PORT'])) {
             return true;
         }
         return false;
@@ -626,7 +630,7 @@ class Request
      */
     public function scheme()
     {
-        return $_SERVER['REQUEST_SCHEME'];
+        return $this->isSsl() ? 'https' : 'http';
     }
 
     /**
@@ -636,7 +640,7 @@ class Request
      */
     public function query()
     {
-        return $_SERVER['QUERY_STRING'];
+        return $this->server('QUERY_STRING');
     }
 
     /**
@@ -646,7 +650,7 @@ class Request
      */
     public function host()
     {
-        return $_SERVER['SERVER_NAME'];
+        return $this->server('SERVER_NAME');
     }
 
     /**
@@ -656,7 +660,7 @@ class Request
      */
     public function port()
     {
-        return $_SERVER['SERVER_PORT'];
+        return $this->server('SERVER_PORT');
     }
 
     /**
@@ -666,7 +670,7 @@ class Request
      */
     public function protocol()
     {
-        return $_SERVER['SERVER_PROTOCOL'];
+        return $this->server('SERVER_PROTOCOL');
     }
 
     /**
@@ -676,7 +680,7 @@ class Request
      */
     public function remotePort()
     {
-        return $_SERVER['REMOTE_PORT'];
+        return $this->server('REMOTE_PORT');
     }
 
     /**
