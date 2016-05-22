@@ -697,7 +697,8 @@ class Route
                 $module = APP_MULTI_MODULE ? array_shift($path) : null;
                 if ($autoSearch) {
                     // 自动搜索控制器
-                    $dir = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER;
+                    $dir  = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER;
+                    $item = [];
                     foreach ($path as $val) {
                         $item[] = array_shift($path);
                         if (is_file($dir . DS . $val . EXT)) {
