@@ -679,7 +679,7 @@ class Route
         if (false !== strpos($url, '?')) {
             // [模块/控制器/操作?]参数1=值1&参数2=值2...
             $info = parse_url($url);
-            $path = $info['path'];
+            $path = explode('/', $info['path']);
             parse_str($info['query'], $var);
         } elseif (strpos($url, '/')) {
             // [模块/控制器/操作]
