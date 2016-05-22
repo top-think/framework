@@ -170,9 +170,6 @@ class Merge extends Model
             $this->__set($this->updateTime, null);
         }
 
-        // 处理模型数据
-        $data = $this->parseData($this->name, $this->data);
-
         $db = $this->db();
         $db->startTrans('merge_save_' . $this->name);
         try {
@@ -184,6 +181,8 @@ class Merge extends Model
                     return false;
                 }
 
+                // 处理模型数据
+                $data = $this->parseData($this->name, $this->data);
                 // 写入主表数据
                 $result = $db->strict(false)->update($data);
 
@@ -211,8 +210,10 @@ class Merge extends Model
                     return false;
                 }
 
+                // 处理模型数据
+                $data = $this->parseData($this->name, $this->data);
                 // 写入主表数据
-                $result = $db->name($this->name)->strict(false)->insert($this->data);
+                $result = $db->name($this->name)->strict(false)->insert($data);
                 if ($result) {
                     $insertId = $db->getLastInsID();
                     // 写入外键数据
