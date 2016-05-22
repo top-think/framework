@@ -465,7 +465,11 @@ class Input
             // 字符串
             case 's':
             default:
-                $data = (string) $data;
+                if (is_scalar($data)) {
+                    $data = (string) $data;
+                } else {
+                    throw new Exception('变量类型不允许：' . gettype($data));
+                }
         }
     }
 }

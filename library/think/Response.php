@@ -111,7 +111,12 @@ class Response
                 header($name . ':' . $val);
             }
         }
-        echo $data;
+        if (is_scalar($data)) {
+            echo $data;
+        } else {
+            throw new Exception('不支持的数据类型输出：' . gettype($data));
+        }
+
         if (function_exists('fastcgi_finish_request')) {
             // 提高页面响应
             fastcgi_finish_request();
