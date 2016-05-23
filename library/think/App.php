@@ -130,7 +130,13 @@ class App
         }
     }
 
-    // 执行函数或者闭包方法 支持参数调用
+    /**
+     * 执行函数或者闭包方法 支持参数调用
+     * @access public
+     * @param string|array|\Closure $function 函数或者闭包
+     * @param array $vars 变量
+     * @return mixed
+     */
     public static function invokeFunction($function, $vars = [])
     {
         $reflect = new \ReflectionFunction($function);
@@ -140,7 +146,13 @@ class App
         return $reflect->invokeArgs($args);
     }
 
-    // 调用反射执行类的方法 支持参数绑定
+    /**
+     * 调用反射执行类的方法 支持参数绑定
+     * @access public
+     * @param string|array $method 方法
+     * @param array $vars 变量
+     * @return mixed
+     */
     public static function invokeMethod($method, $vars = [])
     {
         if (empty($vars)) {
@@ -160,7 +172,13 @@ class App
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
-    // 绑定参数
+    /**
+     * 绑定参数
+     * @access public
+     * @param \ReflectionMethod $reflect 反射类
+     * @param array $vars 变量
+     * @return array
+     */
     private static function bindParams($reflect, $vars)
     {
         $args = [];
@@ -186,7 +204,13 @@ class App
         return $args;
     }
 
-    // 执行 模块/控制器/操作
+    /**
+     * 执行模块
+     * @access public
+     * @param array $result 模块/控制器/操作
+     * @param array $config 配置参数
+     * @return mixed
+     */
     public static function module($result, $config)
     {
         if (is_string($result)) {
@@ -254,7 +278,13 @@ class App
         return $data;
     }
 
-    // 初始化模块
+    /**
+     * 初始化模块
+     * @access public
+     * @param string $module 模块名
+     * @param array $config 配置参数
+     * @return void
+     */
     private static function initModule($module, $config)
     {
         // 定位模块目录
@@ -308,6 +338,7 @@ class App
      * @access public
      * @param  \think\Request $request
      * @param  array $config
+     * @return array
      * @throws Exception
      */
     public static function route($request, array $config)

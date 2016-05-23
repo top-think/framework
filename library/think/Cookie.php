@@ -13,7 +13,6 @@ namespace think;
 
 class Cookie
 {
-
     protected static $config = [
         // cookie 名称前缀
         'prefix'    => '',

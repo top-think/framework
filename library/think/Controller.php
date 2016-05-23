@@ -110,7 +110,7 @@ class Controller
 
     /**
      * 模板变量赋值
-     * @access protected
+     * @access public
      * @param mixed $name  要显示的模板变量
      * @param mixed $value 变量的值
      * @return void
@@ -122,7 +122,7 @@ class Controller
 
     /**
      * 初始化模板引擎
-     * @access protected
+     * @access public
      * @param array|string $engine 引擎参数
      * @return void
      */
@@ -133,7 +133,7 @@ class Controller
 
     /**
      * 验证数据
-     * @access protected
+     * @access public
      * @param array $data 数据
      * @param string|array $validate 验证器名或者验证规则数组
      * @param array $message 提示信息

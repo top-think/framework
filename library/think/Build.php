@@ -13,7 +13,12 @@ namespace think;
 
 class Build
 {
-    // 根据传入的build资料创建目录和文件
+    /**
+     * 根据传入的build资料创建目录和文件
+     * @access protected
+     * @param  array $build build列表
+     * @return void
+     */
     public static function run(array $build = [])
     {
         // 锁定
@@ -39,7 +44,12 @@ class Build
         unlink($lockfile);
     }
 
-    // 创建目录
+    /**
+     * 创建目录
+     * @access protected
+     * @param  array $list 目录列表
+     * @return void
+     */
     protected static function buildDir($list)
     {
         foreach ($list as $dir) {
@@ -50,7 +60,12 @@ class Build
         }
     }
 
-    // 创建文件
+    /**
+     * 创建文件
+     * @access protected
+     * @param  array $list 文件列表
+     * @return void
+     */
     protected static function buildFile($list)
     {
         foreach ($list as $file) {
@@ -64,7 +79,13 @@ class Build
         }
     }
 
-    // 创建模块
+    /**
+     * 创建模块
+     * @access public
+     * @param  string $module 模块名
+     * @param  array $list build列表
+     * @return void
+     */
     public static function module($module = '', $list = [])
     {
         $module = APP_MULTI_MODULE ? $module : '';
@@ -138,7 +159,12 @@ class Build
         }
     }
 
-    // 创建模块的欢迎页面
+    /**
+     * 创建模块的欢迎页面
+     * @access public
+     * @param  string $module 模块名
+     * @return void
+     */
     protected static function buildHello($module)
     {
         $filename = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER . DS . 'Index' . (CLASS_APPEND_SUFFIX ? ucfirst(CONTROLLER_LAYER) : '') . EXT;
@@ -152,7 +178,12 @@ class Build
         }
     }
 
-    // 创建模块的公共文件
+    /**
+     * 创建模块的公共文件
+     * @access public
+     * @param  string $module 模块名
+     * @return void
+     */
     protected static function buildCommon($module)
     {
         $filename = APP_PATH . ($module ? $module . DS : '') . 'config.php';
