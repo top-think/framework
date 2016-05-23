@@ -112,7 +112,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         if (is_null($this->autoWriteTimestamp)) {
-            $this->autoWriteTimestamp = $this->getConfig('auto_timestamp');
+            $this->autoWriteTimestamp = $this->db()->getConfig('auto_timestamp');
         }
 
         // 执行初始化操作
