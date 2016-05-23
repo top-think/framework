@@ -2,7 +2,7 @@
 
 /**
  * 用法：
- * T('controller/Jump');
+ * load_trait('controller/Jump');
  * class index
  * {
  *     use \traits\controller\Jump;

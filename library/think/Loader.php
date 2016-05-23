@@ -332,6 +332,7 @@ class Loader
      */
     public static function validate($name = '', $layer = '', $appendSuffix = false)
     {
+        $name = $name ?: Config::get('default_validate');
         if (empty($name)) {
             return new Validate;
         }

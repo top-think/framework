@@ -520,7 +520,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!empty($this->validate)) {
             $info = $this->validate;
             if (is_array($info)) {
-                $validate = Loader::validate(Config::get('default_validate'));
+                $validate = Loader::validate();
                 $validate->rule($info['rule']);
                 $validate->message($info['msg']);
             } else {

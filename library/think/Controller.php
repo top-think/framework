@@ -143,7 +143,7 @@ class Controller
     public function validate($data, $validate, $message = [], $callback = null)
     {
         if (is_array($validate)) {
-            $v = Loader::validate(Config::get('default_validate'));
+            $v = Loader::validate();
             $v->rule($validate);
         } else {
             if (strpos($validate, '.')) {

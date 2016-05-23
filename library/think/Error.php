@@ -59,7 +59,6 @@ class Error
      * @param  string  $errfile 出错的文件
      * @param  integer $errline 出错行号
      * @param array    $errcontext
-     * @return bool true-禁止往下传播已处理过的异常
      * @throws ErrorException
      */
     public static function appError($errno, $errstr, $errfile = '', $errline = 0, $errcontext = [])
