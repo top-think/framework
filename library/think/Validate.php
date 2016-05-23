@@ -696,29 +696,29 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        $db    = Db::name($rule[0]);
-        $field = isset($rule[1]) ? $rule[1] : $field;
+        $db  = Db::name($rule[0]);
+        $key = isset($rule[1]) ? $rule[1] : $field;
 
-        if (strpos($field, '^')) {
+        if (strpos($key, '^')) {
             // 支持多个字段验证
-            $fields = explode('^', $field);
-            foreach ($fields as $field) {
-                $map[$field] = $data[$field];
+            $fields = explode('^', $key);
+            foreach ($fields as $key) {
+                $map[$key] = $data[$key];
             }
-        } elseif (strpos($field, '=')) {
-            parse_str($field, $map);
+        } elseif (strpos($key, '=')) {
+            parse_str($key, $map);
         } else {
-            $map[$field] = $data[$field];
+            $map[$key] = $data[$field];
         }
 
-        $key = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
+        $pk = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
         if (isset($rule[2])) {
-            $map[$key] = ['neq', $rule[2]];
-        } elseif (isset($data[$key])) {
-            $map[$key] = ['neq', $data[$key]];
+            $map[$pk] = ['neq', $rule[2]];
+        } elseif (isset($data[$pk])) {
+            $map[$pk] = ['neq', $data[$pk]];
         }
 
-        if ($db->where($map)->field($key)->find()) {
+        if ($db->where($map)->field($pk)->find()) {
             return false;
         }
         return true;
