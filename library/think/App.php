@@ -39,10 +39,7 @@ class App
     public static function run($request)
     {
         // 初始化应用（公共模块）
-        self::initModule(COMMON_MODULE, Config::get());
-
-        // 获取配置参数
-        $config = Config::get();
+        $config = self::initModule(COMMON_MODULE, Config::get());
 
         // 注册根命名空间
         if (!empty($config['root_namespace'])) {
@@ -227,7 +224,7 @@ class App
                 define('MODULE_PATH', APP_PATH . MODULE_NAME . DS);
                 define('VIEW_PATH', MODULE_PATH . VIEW_LAYER . DS);
                 // 初始化模块
-                self::initModule(MODULE_NAME, $config);
+                $config = self::initModule(MODULE_NAME, $config);
             } else {
                 throw new Exception('module [ ' . MODULE_NAME . ' ] not exists ', 10005);
             }
@@ -239,21 +236,21 @@ class App
         }
 
         // 获取控制器名
-        $controllerName = strip_tags($result[1] ?: Config::get('default_controller'));
-        defined('CONTROLLER_NAME') or define('CONTROLLER_NAME', Config::get('url_controller_convert') ? strtolower($controllerName) : $controllerName);
+        $controllerName = strip_tags($result[1] ?: $config['default_controller']);
+        defined('CONTROLLER_NAME') or define('CONTROLLER_NAME', $config['url_controller_convert'] ? strtolower($controllerName) : $controllerName);
 
         // 获取操作名
-        $actionName = strip_tags($result[2] ?: Config::get('default_action'));
-        defined('ACTION_NAME') or define('ACTION_NAME', Config::get('url_action_convert') ? strtolower($actionName) : $actionName);
+        $actionName = strip_tags($result[2] ?: $config['default_action']);
+        defined('ACTION_NAME') or define('ACTION_NAME', $config['url_action_convert'] ? strtolower($actionName) : $actionName);
 
         // 执行操作
         if (!preg_match('/^[A-Za-z](\/|\.|\w)*$/', CONTROLLER_NAME)) {
             // 安全检测
             throw new Exception('illegal controller name:' . CONTROLLER_NAME, 10000);
         }
-        $instance = Loader::controller(CONTROLLER_NAME, '', Config::get('use_controller_suffix'), Config::get('empty_controller'));
+        $instance = Loader::controller(CONTROLLER_NAME, '', $config['use_controller_suffix'], $config['empty_controller']);
         // 获取当前操作名
-        $action = ACTION_NAME . Config::get('action_suffix');
+        $action = ACTION_NAME . $config['action_suffix'];
 
         try {
             // 操作方法开始监听
@@ -331,6 +328,7 @@ class App
                 Lang::load($path . 'lang' . DS . LANG_SET . EXT);
             }
         }
+        return Config::get();
     }
 
     /**
