@@ -263,6 +263,7 @@ abstract class Builder
                     }
                 }
             }
+
             $whereStr .= empty($whereStr) ? substr(implode(' ', $str), strlen($key) + 1) : implode(' ', $str);
         }
         return $whereStr;

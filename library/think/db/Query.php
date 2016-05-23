@@ -727,7 +727,7 @@ class Query
     protected function parseWhereExp($operator, $field, $op, $condition, $param = [])
     {
         if ($field instanceof \Closure) {
-            call_user_func_array($field, [ & $this]);
+            $this->options['where'][$operator][] = $field;
             return;
         }
 
