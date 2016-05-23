@@ -1049,7 +1049,7 @@ class Template
      */
     private function parseTemplateFile($template)
     {
-        if (false === strpos($template, '.')) {
+        if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             if (strpos($template, '@')) {
                 // 跨模块调用模板
                 $template = str_replace(['/', ':'], $this->config['view_depr'], $template);
@@ -1060,6 +1060,7 @@ class Template
             }
             $template .= '.' . ltrim($this->config['view_suffix'], '.');
         }
+
         if (is_file($template)) {
             // 记录模板文件的更新时间
             $this->includeFile[$template] = filemtime($template);
