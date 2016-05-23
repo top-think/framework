@@ -99,6 +99,8 @@ abstract class Connection
         'fields_strict'  => true,
         // 数据集返回类型
         'resultset_type' => Db::RESULTSET_ARRAY,
+        // 自动写入时间戳字段
+        'auto_timestamp' => false,
     ];
 
     // PDO连接参数
@@ -212,9 +214,9 @@ abstract class Connection
      * @param string $config 配置名称
      * @return mixed
      */
-    public function getConfig($config)
+    public function getConfig($config = '')
     {
-        return $this->config[$config];
+        return $config ? $this->config[$config] : $this->config;
     }
 
     /**

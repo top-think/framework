@@ -124,7 +124,7 @@ class Query
     {
         if ($name || empty($this->table)) {
             $name      = $name ?: $this->name;
-            $tableName = $this->connection->getConfig('prefix');
+            $tableName = $this->getConfig('prefix');
             if ($name) {
                 $tableName .= Loader::parseName($name);
             }
@@ -243,6 +243,17 @@ class Query
     public function batchQuery($sql = [])
     {
         return $this->connection->batchQuery($sql);
+    }
+
+    /**
+     * 获取数据库的配置参数
+     * @access public
+     * @param string $name 参数名称
+     * @return boolean
+     */
+    public function getConfig($name = '')
+    {
+        return $this->connection->getConfig($name);
     }
 
     /**
@@ -532,7 +543,7 @@ class Query
                 }
             }
         } else {
-            $prefix = $this->connection->getConfig('prefix');
+            $prefix = $this->getConfig('prefix');
             // 传入的表名为数组
             if (is_array($join)) {
                 if (0 !== $key = key($join)) {
@@ -1788,7 +1799,7 @@ class Query
         }
 
         if (!isset($options['strict'])) {
-            $options['strict'] = $this->connection->getConfig('fields_strict');
+            $options['strict'] = $this->getConfig('fields_strict');
         }
 
         foreach (['master', 'lock', 'fetch_class', 'fetch_sql', 'distinct'] as $name) {

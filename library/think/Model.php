@@ -64,7 +64,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 更新自动完成列表
     protected $update = [];
     // 是否需要自动写入时间戳
-    protected $autoWriteTimestamp = true;
+    protected $autoWriteTimestamp;
     // 创建时间字段
     protected $createTime = 'create_time';
     // 更新时间字段
@@ -109,6 +109,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (empty($this->name)) {
             $this->name = basename(str_replace('\\', '/', $this->class));
+        }
+
+        if (is_null($this->autoWriteTimestamp)) {
+            $this->autoWriteTimestamp = $this->getConfig('auto_timestamp');
         }
 
         // 执行初始化操作
