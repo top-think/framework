@@ -221,16 +221,6 @@ class Session
     }
 
     /**
-     * 暂停session
-     * @return void
-     */
-    public static function pause()
-    {
-        // 暂停session
-        session_write_close();
-    }
-
-    /**
      * 启动session
      * @return void
      */
@@ -246,7 +236,9 @@ class Session
      */
     public static function destroy()
     {
-        $_SESSION = [];
+        if (!empty($_SESSION)) {
+            $_SESSION = [];
+        }
         session_unset();
         session_destroy();
     }
@@ -258,5 +250,15 @@ class Session
     private static function regenerate()
     {
         session_regenerate_id();
+    }
+
+    /**
+     * 暂停session
+     * @return void
+     */
+    public static function pause()
+    {
+        // 暂停session
+        session_write_close();
     }
 }
