@@ -37,6 +37,9 @@ class Cookie
      */
     public static function init(array $config = [])
     {
+        if (empty($config)) {
+            $config = Config::get('session');
+        }
         self::$config = array_merge(self::$config, array_change_key_case($config));
         if (!empty(self::$config['httponly'])) {
             ini_set('session.cookie_httponly', 1);
