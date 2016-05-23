@@ -146,6 +146,7 @@
         .exception-var table td{
             padding: 0 6px;
             vertical-align: top;
+            word-break: break-word;
         }
         .exception-var table td:first-child{
             width: 12px;
