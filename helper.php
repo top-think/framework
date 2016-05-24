@@ -24,7 +24,6 @@ use think\Loader;
 use think\Log;
 use think\Request;
 use think\Response;
-use think\Route;
 use think\Session;
 use think\Url;
 use think\View;
@@ -334,20 +333,6 @@ function trace($log = '[think]', $level = 'log')
     } else {
         Log::record($log, $level);
     }
-}
-
-/**
- * 路由注册
- * @param string $rule 路由规则
- * @param mixed $route 路由地址
- * @param sting $type 请求类型
- * @param array $option 路由参数
- * @param array $pattern 变量规则
- * @return void
- */
-function route($rule = '', $route = [], $type = '*', $option = [], $pattern = [])
-{
-    Route::rule($rule, $route, $type, $option, $pattern);
 }
 
 /**
