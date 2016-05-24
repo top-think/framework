@@ -166,11 +166,6 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read'], 'params' => []], Route::check($request, 'read'));
     }
 
-    public function testSsl()
-    {
-        $this->assertEquals(false, Route::isSsl());
-    }
-
     public function testDomain()
     {
         $_SERVER['HTTP_HOST']   = 'subdomain.thinkphp.cn';

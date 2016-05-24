@@ -645,7 +645,7 @@ class Route
                             $key = array_shift($route);
                         }
 
-                        $key = $rule . ($key ? '/' . $key : '');
+                        $key = $rule . ($key ? '/' . ltrim($key, '/') : '');
                         // 检查规则路由
                         if (is_array($route)) {
                             $option1 = $route[1];
