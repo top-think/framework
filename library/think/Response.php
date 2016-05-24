@@ -115,7 +115,7 @@ class Response
             //检查缓冲区内容
             $flush=ob_get_contents();
             //如果缓冲区内容包含<?php 那么就立即清空缓冲区
-            if(strpos($flush,'<?php')》-1)
+            if(strpos($flush,'<?php')>-1)
                 ob_end_clean();
             echo $data; 
         } elseif (!is_null($data)) {
