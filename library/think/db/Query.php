@@ -1294,13 +1294,15 @@ class Query
                 if (0 == $i) {
                     $name  = Loader::parseName(basename(str_replace('\\', '/', $currentModel)));
                     $table = $this->getTable();
-                    $this->table($table)->alias($name)->field(true, false, $table, $name);
+                    $alias = isset($info['alias'][$name]) ? $info['alias'][$name] : $name;
+                    $this->table($table)->alias($alias)->field(true, false, $table, $alias);
                 }
                 // 预载入封装
                 $joinTable = $model->getTable();
                 $joinName  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
-                $this->via($joinName);
-                $this->join($joinTable . ' ' . $joinName, $name . '.' . $info['localKey'] . '=' . $joinName . '.' . $info['foreignKey'])->field(true, false, $joinTable, $joinName, $joinName . '__');
+                $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $joinName;
+                $this->via($joinAlias);
+                $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey'])->field(true, false, $joinTable, $joinAlias, $joinName . '__');
                 if ($closure) {
                     // 执行闭包查询
                     call_user_func_array($closure, [ & $this]);

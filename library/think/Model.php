@@ -837,15 +837,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
      * @return \think\db\Query|string
      */
-    public function hasOne($model, $foreignKey = '', $localKey = '')
+    public function hasOne($model, $foreignKey = '', $localKey = '', $alias = [])
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation()->hasOne($model, $foreignKey, $localKey);
+        return $this->relation()->hasOne($model, $foreignKey, $localKey, $alias);
     }
 
     /**
@@ -854,15 +855,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $otherKey 关联主键
+     * @param array  $alias 别名定义
      * @return \think\db\Query|string
      */
-    public function belongsTo($model, $foreignKey = '', $otherKey = '')
+    public function belongsTo($model, $foreignKey = '', $otherKey = '', $alias = [])
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $otherKey   = $otherKey ?: (new $model)->getPk();
-        return $this->relation()->belongsTo($model, $foreignKey, $otherKey);
+        return $this->relation()->belongsTo($model, $foreignKey, $otherKey, $alias);
     }
 
     /**
@@ -871,15 +873,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
      * @return \think\db\Query|string
      */
-    public function hasMany($model, $foreignKey = '', $localKey = '')
+    public function hasMany($model, $foreignKey = '', $localKey = '', $alias = [])
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation()->hasMany($model, $foreignKey, $localKey);
+        return $this->relation()->hasMany($model, $foreignKey, $localKey, $alias);
     }
 
     /**
@@ -889,9 +892,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $table 中间表名
      * @param string $foreignKey 关联外键
      * @param string $localKey 当前模型关联键
+     * @param array  $alias 别名定义
      * @return \think\db\Query|string
      */
-    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '')
+    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '', $alias = [])
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -899,7 +903,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $table      = $table ?: Db::name(Loader::parseName($this->name) . '_' . $name)->getTable();
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation()->belongsToMany($model, $table, $foreignKey, $localKey);
+        return $this->relation()->belongsToMany($model, $table, $foreignKey, $localKey, $alias);
     }
 
     /**

@@ -36,6 +36,8 @@ class Relation
     protected $foreignKey;
     // 关联键
     protected $localKey;
+    // 数据表别名
+    protected $alias;
 
     /**
      * 架构函数
@@ -61,6 +63,7 @@ class Relation
             'middle'     => $this->middle,
             'foreignKey' => $this->foreignKey,
             'localKey'   => $this->localKey,
+            'alias'      => $this->alias,
         ];
         return $name ? $info[$name] : $info;
     }
@@ -372,19 +375,33 @@ class Relation
     }
 
     /**
+     * 设置当前关联定义的数据表别名
+     * @access public
+     * @param array  $alias 别名定义
+     * @return $this
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+        return $this;
+    }
+
+    /**
      * HAS ONE 关联定义
      * @access public
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
      * @return $this
      */
-    public function hasOne($model, $foreignKey, $localKey)
+    public function hasOne($model, $foreignKey, $localKey, $alias)
     {
         $this->type       = self::HAS_ONE;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
+        $this->alias      = $alias;
 
         // 返回关联的模型对象
         return $this;
@@ -396,15 +413,17 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $otherKey 关联主键
+     * @param array  $alias 别名定义
      * @return $this
      */
-    public function belongsTo($model, $foreignKey, $otherKey)
+    public function belongsTo($model, $foreignKey, $otherKey, $alias)
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $otherKey;
+        $this->alias      = $alias;
 
         // 返回关联的模型对象
         return $this;
@@ -416,15 +435,17 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
      * @return $this
      */
-    public function hasMany($model, $foreignKey, $localKey)
+    public function hasMany($model, $foreignKey, $localKey, $alias)
     {
         // 记录当前关联信息
         $this->type       = self::HAS_MANY;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
+        $this->alias      = $alias;
 
         // 返回关联的模型对象
         return $this;
@@ -437,9 +458,10 @@ class Relation
      * @param string $table 中间表名
      * @param string $foreignKey 关联模型外键
      * @param string $localKey 当前模型关联键
+     * @param array  $alias 别名定义
      * @return $this
      */
-    public function belongsToMany($model, $table, $foreignKey, $localKey)
+    public function belongsToMany($model, $table, $foreignKey, $localKey, $alias)
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO_MANY;
@@ -447,6 +469,7 @@ class Relation
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
         $this->middle     = $table;
+        $this->alias      = $alias;
 
         // 返回关联的模型对象
         return $this;
