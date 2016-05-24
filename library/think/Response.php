@@ -101,7 +101,7 @@ class Response
         $data = $this->output($data);
 
         // 监听response_data
-        APP_HOOK && Hook::listen('response_data', $data);
+        Hook::listen('response_data', $data);
 
         // 发送头部信息
         if (!headers_sent() && !empty($this->header)) {

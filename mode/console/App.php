@@ -73,7 +73,7 @@ class App
             }
 
             // 加载行为扩展文件
-            if (APP_HOOK && is_file(APP_PATH . 'tags' . EXT)) {
+            if (is_file(APP_PATH . 'tags' . EXT)) {
                 Hook::import(include APP_PATH . 'tags' . EXT);
             }
 
@@ -102,6 +102,6 @@ class App
         date_default_timezone_set($config['default_timezone']);
 
         // 监听app_init
-        APP_HOOK && Hook::listen('app_init');
+        Hook::listen('app_init');
     }
 }

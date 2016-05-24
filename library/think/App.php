@@ -71,7 +71,7 @@ class App
         date_default_timezone_set($config['default_timezone']);
 
         // 监听app_init
-        APP_HOOK && Hook::listen('app_init');
+        Hook::listen('app_init');
 
         // 开启多语言机制
         if ($config['lang_switch_on']) {
@@ -93,7 +93,7 @@ class App
         // 记录路由信息
         APP_DEBUG && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
         // 监听app_begin
-        APP_HOOK && Hook::listen('app_begin', $dispatch);
+        Hook::listen('app_begin', $dispatch);
         try {
             switch ($dispatch['type']) {
                 case 'redirect':
@@ -127,7 +127,7 @@ class App
         }
 
         // 监听app_end
-        APP_HOOK && Hook::listen('app_end', $data);
+        Hook::listen('app_end', $data);
 
         // 输出数据到客户端
         if ($data instanceof Response) {
@@ -266,7 +266,7 @@ class App
         try {
             // 操作方法开始监听
             $call = [$instance, $action];
-            APP_HOOK && Hook::listen('action_begin', $call);
+            Hook::listen('action_begin', $call);
             if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
                 // 非法操作
                 throw new \ReflectionException('illegal action name :' . ACTION_NAME);
@@ -325,7 +325,7 @@ class App
             }
 
             // 加载行为扩展文件
-            if (APP_HOOK && is_file($path . 'tags' . EXT)) {
+            if (is_file($path . 'tags' . EXT)) {
                 Hook::import(include $path . 'tags' . EXT);
             }
 

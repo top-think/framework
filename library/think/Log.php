@@ -126,7 +126,7 @@ class Log
         $log[] = ['type' => $type, 'msg' => $msg];
 
         // 监听log_write
-        APP_HOOK && Hook::listen('log_write', $log);
+        Hook::listen('log_write', $log);
         if (is_null(self::$driver)) {
             self::init(Config::get('log'));
         }

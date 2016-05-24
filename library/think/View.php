@@ -117,7 +117,7 @@ class View
         // 获取并清空缓存
         $content = ob_get_clean();
         // 内容过滤标签
-        APP_HOOK && Hook::listen('view_filter', $content);
+        Hook::listen('view_filter', $content);
         // 允许用户自定义模板的字符串替换
         $replace = array_merge($this->replace, $replace);
         if (!empty($replace)) {
