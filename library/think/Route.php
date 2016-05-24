@@ -650,7 +650,7 @@ class Route
                         if (is_array($route)) {
                             $option1 = $route[1];
                             // 检查参数有效性
-                            if (!self::checkOption($option1, $url, $rquest)) {
+                            if (!self::checkOption($option1, $url, $request)) {
                                 continue;
                             }
                             $pattern = array_merge($pattern, isset($route[2]) ? $route[2] : []);
