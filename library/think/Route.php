@@ -494,16 +494,16 @@ class Route
         $rules = self::$domain;
         // 开启子域名部署 支持二级和三级域名
         if (!empty($rules)) {
-            if (isset($rules[HTTP_HOST])) {
+            if (isset($rules[$_SERVER['HTTP_HOST']])) {
                 // 完整域名或者IP配置
-                $rule = $rules[HTTP_HOST];
+                $rule = $rules[$_SERVER['HTTP_HOST']];
             } else {
                 $rootDomain = Config::get('url_domain_root');
                 if ($rootDomain) {
                     // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-                    $domain = explode('.', rtrim(stristr(HTTP_HOST, $rootDomain, true), '.'));
+                    $domain = explode('.', rtrim(stristr($_SERVER['HTTP_HOST'], $rootDomain, true), '.'));
                 } else {
-                    $domain = explode('.', HTTP_HOST, -2);
+                    $domain = explode('.', $_SERVER['HTTP_HOST'], -2);
                 }
                 // 子域名配置
                 if (!empty($domain)) {
