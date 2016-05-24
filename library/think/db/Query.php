@@ -651,33 +651,39 @@ class Query
      * @param string $type JOIN类型
      * @return $this
      */
-    public function view($join, $field, $on = null, $type = 'INNER')
+    public function view($join, $field = null, $on = null, $type = 'INNER')
     {
         $this->options['view'] = true;
-        if (is_array($join)) {
+        if (is_array($join) && is_null($field)) {
             foreach ($join as $key => $val) {
                 $this->view($key, $val[0], isset($val[1]) ? $val[1] : null, isset($val[2]) ? $val[2] : 'INNER');
             }
         } else {
             $fields = [];
-            $table  = $this->getTable($join);
+            if (is_array($join)) {
+                // 支持数据表别名
+                list($join, $alias) = $join;
+            } else {
+                $alias = $join;
+            }
+            $table = $this->getTable($join);
             if (is_string($field)) {
                 $field = explode(',', $field);
             }
             foreach ($field as $key => $val) {
                 if (is_numeric($key)) {
-                    $fields[]                   = $join . '.' . $val;
-                    $this->options['map'][$val] = $join . '.' . $val;
+                    $fields[]                   = $alias . '.' . $val;
+                    $this->options['map'][$val] = $alias . '.' . $val;
                 } else {
-                    $fields[]                   = $join . '.' . $key . ' AS ' . $val;
-                    $this->options['map'][$val] = $join . '.' . $key;
+                    $fields[]                   = $alias . '.' . $key . ' AS ' . $val;
+                    $this->options['map'][$val] = $alias . '.' . $key;
                 }
             }
             $this->field($fields);
             if ($on) {
-                $this->join($table . ' ' . $join, $on, $type);
+                $this->join($table . ' ' . $alias, $on, $type);
             } else {
-                $this->table($table . ' ' . $join);
+                $this->table($table . ' ' . $alias);
             }
         }
         return $this;
