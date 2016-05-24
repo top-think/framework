@@ -410,8 +410,7 @@ class Request
      */
     public function method()
     {
-        $method = isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD'];
-        return IS_CLI ? 'GET' : $method;
+        return IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
     }
 
     /**
