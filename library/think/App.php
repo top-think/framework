@@ -32,12 +32,14 @@ class App
     /**
      * 执行应用程序
      * @access public
-     * @param \think\Request $request Request对象
+     * @param null|\think\Request $request Request对象
      * @return mixed
      * @throws Exception
      */
-    public static function run($request)
+    public static function run($request = null)
     {
+        is_null($request) && $request = Request::instance();
+
         // 初始化应用（公共模块）
         $config = self::initModule(COMMON_MODULE, Config::get());
 

@@ -64,5 +64,5 @@ if (APP_HOOK && isset($mode['tags'])) {
 
 // 是否自动运行
 if (APP_AUTO_RUN) {
-    App::run(Request::instance());
+    App::run();
 }
