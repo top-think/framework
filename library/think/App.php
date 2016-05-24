@@ -48,8 +48,6 @@ class App
         define('IS_DELETE', REQUEST_METHOD == 'DELETE' ? true : false);
         define('IS_AJAX', $request->isAjax());
         define('__EXT__', $request->ext());
-        define('IS_CGI', $request->isCgi());
-        define('IS_CLI', $request->isCli());
 
         // 初始化应用（公共模块）
         $config = self::initModule(COMMON_MODULE, Config::get());

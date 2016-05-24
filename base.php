@@ -48,5 +48,7 @@ defined('CLASS_APPEND_SUFFIX') or define('CLASS_APPEND_SUFFIX', false); // 是�
 defined('APP_MODE') or define('APP_MODE', function_exists('saeAutoLoader') ? 'sae' : 'common');
 
 // 环境常量
+define('IS_CGI', strpos(PHP_SAPI, 'cgi') === 0 ? 1 : 0);
+define('IS_CLI', PHP_SAPI == 'cli' ? 1 : 0);
 define('IS_WIN', strstr(PHP_OS, 'WIN') ? 1 : 0);
 define('IS_MAC', strstr(PHP_OS, 'Darwin') ? 1 : 0);
