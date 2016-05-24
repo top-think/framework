@@ -401,7 +401,7 @@ class Route
                 if (strpos($val[1], ':id') && isset($option['var'][$rule])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
                 }
-                $rule = $rule . $val[1];
+                $rule = ltrim($rule . $val[1], '/');
                 self::rule($rule ? $rule . '$' : '', $route . '/' . $val[2], $val[0], $option, $pattern);
             }
         }
