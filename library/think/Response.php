@@ -99,6 +99,10 @@ class Response
 
         // 处理输出数据
         $data = $this->output($data);
+
+        // 监听response_data
+        APP_HOOK && Hook::listen('response_data', $data);
+
         // 发送头部信息
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码

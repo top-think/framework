@@ -252,7 +252,7 @@ class Route
      * 注册路由分组
      * @access public
      * @param string|array $name 分组名称或者参数
-     * @param array $routes 路由地址
+     * @param array|\Closure $routes 路由地址
      * @param array $option 路由参数
      * @param string $type 请求类型
      * @param array $pattern 变量规则
@@ -493,16 +493,16 @@ class Route
         $rules = self::$domain;
         // 开启子域名部署 支持二级和三级域名
         if (!empty($rules)) {
-            if (isset($rules[$_SERVER['HTTP_HOST']])) {
+            if (isset($rules[HTTP_HOST])) {
                 // 完整域名或者IP配置
-                $rule = $rules[$_SERVER['HTTP_HOST']];
+                $rule = $rules[HTTP_HOST];
             } else {
                 $rootDomain = Config::get('url_domain_root');
                 if ($rootDomain) {
                     // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-                    $domain = explode('.', rtrim(stristr($_SERVER['HTTP_HOST'], $rootDomain, true), '.'));
+                    $domain = explode('.', rtrim(stristr(HTTP_HOST, $rootDomain, true), '.'));
                 } else {
-                    $domain = explode('.', $_SERVER['HTTP_HOST'], -2);
+                    $domain = explode('.', HTTP_HOST, -2);
                 }
                 // 子域名配置
                 if (!empty($domain)) {
@@ -586,7 +586,7 @@ class Route
     {
         // 检测域名部署
         if ($checkDomain) {
-            self::checkDomain();
+            self::checkDomain($request);
         }
 
         // 分隔符替换 确保路由定义使用统一的分隔符
@@ -625,7 +625,7 @@ class Route
                 $pattern = isset($val['pattern']) ? $val['pattern'] : [];
 
                 // 参数有效性检查
-                if (!self::checkOption($option, $url)) {
+                if (!self::checkOption($option, $url, $request)) {
                     continue;
                 }
 
@@ -645,12 +645,12 @@ class Route
                             $key = array_shift($route);
                         }
 
-                        $key = $rule . '/' . $key;
+                        $key = $rule . ($key ? '/' . $key : '');
                         // 检查规则路由
                         if (is_array($route)) {
                             $option1 = $route[1];
                             // 检查参数有效性
-                            if (!self::checkOption($option1, $url)) {
+                            if (!self::checkOption($option1, $url, $rquest)) {
                                 continue;
                             }
                             $pattern = array_merge($pattern, isset($route[2]) ? $route[2] : []);
@@ -683,7 +683,7 @@ class Route
                     // 执行闭包
                     return ['type' => 'function', 'function' => $miss, 'params' => []];
                 }
-                if (self::checkOption($miss['option'], $url)) {
+                if (self::checkOption($miss['option'], $url, $request)) {
                     return self::parseRule('', $miss['route'], $url, []);
                 }
             }
@@ -741,15 +741,16 @@ class Route
      * @access private
      * @param array $option 路由参数
      * @param string $url URL地址
+     * @param \think\Request $request Request对象
      * @return bool
      */
-    private static function checkOption($option, $url)
+    private static function checkOption($option, $url, $request)
     {
         // 请求类型检测
         if ((isset($option['method']) && false === stripos($option['method'], REQUEST_METHOD))
             || (isset($option['ext']) && false === stripos($option['ext'], __EXT__)) // 伪静态后缀检测
-             || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], self::$subDomain])) // 域名检测
-             || (!empty($option['https']) && !self::isSsl()) // https检测
+             || (isset($option['domain']) && !in_array($option['domain'], [HTTP_HOST, self::$subDomain])) // 域名检测
+             || (!empty($option['https']) && !$request->isSsl()) // https检测
              || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'], $url)) // 行为检测
              || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
         ) {
@@ -815,21 +816,6 @@ class Route
             }
         }
         return false;
-    }
-
-    /**
-     * 判断是否SSL协议
-     * @return boolean
-     */
-    public static function isSsl()
-    {
-        if (isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))) {
-            return true;
-        } elseif (isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT'])) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**

@@ -28,7 +28,6 @@ use think\Route;
  */
 class App
 {
-
     /**
      * 执行应用程序
      * @access public
@@ -39,6 +38,18 @@ class App
     public static function run($request = null)
     {
         is_null($request) && $request = Request::instance();
+
+        define('NOW_TIME', $request->time());
+        define('REQUEST_METHOD', $request->method());
+        define('HTTP_HOST', $request->host());
+        define('IS_GET', REQUEST_METHOD == 'GET' ? true : false);
+        define('IS_POST', REQUEST_METHOD == 'POST' ? true : false);
+        define('IS_PUT', REQUEST_METHOD == 'PUT' ? true : false);
+        define('IS_DELETE', REQUEST_METHOD == 'DELETE' ? true : false);
+        define('IS_AJAX', $request->isAjax());
+        define('__EXT__', $request->ext());
+        define('IS_CGI', $request->isCgi());
+        define('IS_CLI', $request->isCli());
 
         // 初始化应用（公共模块）
         $config = self::initModule(COMMON_MODULE, Config::get());
@@ -343,12 +354,8 @@ class App
      */
     public static function route($request, array $config)
     {
-
-        define('__INFO__', $request->pathinfo());
-        define('__EXT__', $request->ext());
-
         // 检测URL禁用后缀
-        if ($config['url_deny_suffix'] && preg_match('/\.(' . $config['url_deny_suffix'] . ')$/i', __INFO__)) {
+        if ($config['url_deny_suffix'] && preg_match('/\.(' . $config['url_deny_suffix'] . ')$/i', $request->pathinfo())) {
             throw new Exception('url suffix deny');
         }
 

@@ -21,6 +21,7 @@ class Request
      */
     protected static $instance;
 
+    protected $method;
     /**
      * @var string 域名
      */
@@ -406,11 +407,78 @@ class Request
     /**
      * 当前的请求类型
      * @access public
+     * @param string $method 请求类型
      * @return string
      */
-    public function method()
+    public function method($method = '')
     {
-        return IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+        if ($method) {
+            $this->method = $method;
+            return;
+        } elseif (!$this->method) {
+            $this->method = IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+        }
+        return $this->method;
+    }
+
+    /**
+     * 是否为GET请求
+     * @access public
+     * @return bool
+     */
+    public function isGet()
+    {
+        return $this->method() == 'GET';
+    }
+
+    /**
+     * 是否为POST请求
+     * @access public
+     * @return bool
+     */
+    public function isPost()
+    {
+        return $this->method() == 'POST';
+    }
+
+    /**
+     * 是否为PUT请求
+     * @access public
+     * @return bool
+     */
+    public function isPut()
+    {
+        return $this->method() == 'PUT';
+    }
+
+    /**
+     * 是否为DELTE请求
+     * @access public
+     * @return bool
+     */
+    public function isDelete()
+    {
+        return $this->method() == 'DELETE';
+    }
+
+    /**
+     * 是否为cli
+     * @access public
+     * @return bool
+     */
+    public function isCli()
+    {
+        return PHP_SAPI == 'cli';
+    }
+
+    /**
+     * 是否为cgi
+     * @access public
+     * @return bool
+     */
+    public function isCgi()
+    {
+        return strpos(PHP_SAPI, 'cgi') === 0;
     }
 
     /**
@@ -649,7 +717,7 @@ class Request
      */
     public function host()
     {
-        return $this->server('SERVER_NAME');
+        return $this->server('HTTP_HOST');
     }
 
     /**

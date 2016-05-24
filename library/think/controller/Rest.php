@@ -46,7 +46,7 @@ abstract class Rest
             $this->_type = __EXT__;
         }
         // 请求方式检测
-        $method = strtolower($_SERVER['REQUEST_METHOD']);
+        $method = strtolower(REQUEST_METHOD);
         if (false === stripos($this->restMethodList, $method)) {
             // 请求方式非法 则用默认请求方法
             $method = $this->restDefaultMethod;
