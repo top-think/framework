@@ -662,11 +662,11 @@ class Query
             $fields = [];
             if (is_array($join)) {
                 // 支持数据表别名
-                list($join, $alias) = $join;
+                list($join, $alias, $table) = array_pad($join, 3, '');
             } else {
                 $alias = $join;
             }
-            $table = $this->getTable($join);
+            $table = !empty($table) ? $table : $this->getTable($join);
             if (is_string($field)) {
                 $field = explode(',', $field);
             }
