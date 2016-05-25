@@ -90,10 +90,11 @@ class Hook
      * 监听标签的行为
      * @param string $tag 标签名称
      * @param mixed $params 传入参数
+     * @param mixed $extra 额外参数
      * @return void
      */
-    public static function listen($tag, &$params = null)
-    {
+    public static function listen($tag, &$params = null,$extra=null)    {
+        $result = true;
         if (isset(self::$tags[$tag])) {
             foreach (self::$tags[$tag] as $name) {
 
@@ -101,7 +102,7 @@ class Hook
                     Debug::remark('behavior_start', 'time');
                 }
 
-                $result = self::exec($name, $tag, $params);
+                $result = self::exec($name, $tag, $params,$extra);
 
                 if (APP_DEBUG) {
                     Debug::remark('behavior_end', 'time');
@@ -118,7 +119,7 @@ class Hook
                 }
             }
         }
-        return;
+        return $result;
     }
 
     /**
@@ -126,17 +127,18 @@ class Hook
      * @param mixed $class 要执行的行为
      * @param string $tag 方法名（标签名）
      * @param Mixed $params 传人的参数
+     * @param mixed $extra 额外参数
      * @return mixed
      */
-    public static function exec($class, $tag = '', &$params = null)
+    public static function exec($class, $tag = '', &$params = null,$extra=null)
     {
         if ($class instanceof \Closure) {
-            $result = call_user_func_array($class, [ & $params]);
+            $result = call_user_func_array($class, [ & $params,$extra]);
         } elseif (is_object($class)) {
-            $result = call_user_func_array([$class, $tag], [ & $params]);
+            $result = call_user_func_array([$class, $tag], [ & $params,$extra]);
         } else {
             $obj    = new $class();
-            $result = ($tag && is_callable([$obj, $tag])) ? $obj->$tag($params) : $obj->run($params);
+            $result = ($tag && is_callable([$obj, $tag])) ? $obj->$tag($params,$extra) : $obj->run($params,$extra);
         }
         return $result;
     }

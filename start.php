@@ -21,7 +21,7 @@ if (is_file(ROOT_PATH . 'env' . EXT)) {
     $env = include ROOT_PATH . 'env' . EXT;
     foreach ($env as $key => $val) {
         $name = ENV_PREFIX . $key;
-        putenv("$name=$val");
+        putenv("$name=".var_export($var,true));
     }
 }
 // 自动识别调试模式
