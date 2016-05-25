@@ -100,7 +100,7 @@ class Response
             $data = call_user_func_array($this->transform, [$data]);
         }
 
-        define('RESPONSE_TYPE',$this->type);
+        defined('RESPONSE_TYPE') or define('RESPONSE_TYPE',$this->type);
 
         // 处理输出数据
         $data = $this->output($data);
