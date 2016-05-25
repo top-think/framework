@@ -11,6 +11,10 @@
 
 namespace think;
 
+use think\Cache;
+use think\Config;
+use think\Route;
+
 class Url
 {
     /**

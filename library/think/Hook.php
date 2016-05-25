@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Debug;
+use think\Log;
+
 class Hook
 {
 
