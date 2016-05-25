@@ -32,6 +32,7 @@ defined('CACHE_PATH') or define('CACHE_PATH', RUNTIME_PATH . 'cache' . DS);
 defined('TEMP_PATH') or define('TEMP_PATH', RUNTIME_PATH . 'temp' . DS);
 defined('VENDOR_PATH') or define('VENDOR_PATH', ROOT_PATH . 'vendor' . DS);
 defined('EXT') or define('EXT', '.php');
+defined('CONF_PATH') or define('CONF_PATH', APP_PATH); // 配置文件目录
 defined('CONF_EXT') or define('CONF_EXT', EXT); // 配置文件后缀
 defined('MODEL_LAYER') or define('MODEL_LAYER', 'model');
 defined('VIEW_LAYER') or define('VIEW_LAYER', 'view');

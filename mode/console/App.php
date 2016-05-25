@@ -27,8 +27,8 @@ class App
         // 实例化console
         $console = new Console('Think Console', '0.1');
         // 读取指令集
-        if (is_file(APP_PATH . 'command' . EXT)) {
-            $commands = include APP_PATH . 'command' . EXT;
+        if (is_file(CONF_PATH . 'command' . EXT)) {
+            $commands = include CONF_PATH . 'command' . EXT;
             if (is_array($commands)) {
                 foreach ($commands as $command) {
                     if (class_exists($command) && is_subclass_of($command, "\\think\\console\\command\\Command")) {
@@ -52,29 +52,29 @@ class App
             $config = Config::get();
         } else {
             // 加载模块配置
-            $config = Config::load(APP_PATH . 'config' . EXT);
+            $config = Config::load(CONF_PATH . 'config' . CONF_EXT);
 
             // 加载应用状态配置
             if ($config['app_status']) {
-                $config = Config::load(APP_PATH . $config['app_status'] . EXT);
+                $config = Config::load(CONF_PATH . $config['app_status'] . CONF_EXT);
             }
 
             // 读取扩展配置文件
             if ($config['extra_config_list']) {
                 foreach ($config['extra_config_list'] as $name => $file) {
-                    $filename = APP_PATH . $file . EXT;
+                    $filename = CONF_PATH . $file . CONF_EXT;
                     Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
                 }
             }
 
             // 加载别名文件
-            if (is_file(APP_PATH . 'alias' . EXT)) {
-                Loader::addMap(include APP_PATH . 'alias' . EXT);
+            if (is_file(CONF_PATH . 'alias' . EXT)) {
+                Loader::addMap(include CONF_PATH . 'alias' . EXT);
             }
 
             // 加载行为扩展文件
-            if (is_file(APP_PATH . 'tags' . EXT)) {
-                Hook::import(include APP_PATH . 'tags' . EXT);
+            if (is_file(CONF_PATH . 'tags' . EXT)) {
+                Hook::import(include CONF_PATH . 'tags' . EXT);
             }
 
             // 加载公共文件

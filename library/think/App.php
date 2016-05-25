@@ -302,29 +302,29 @@ class App
         } else {
             $path = APP_PATH . $module;
             // 加载模块配置
-            $config = Config::load(APP_PATH . $module . 'config' . CONF_EXT);
+            $config = Config::load(CONF_PATH . $module . 'config' . CONF_EXT);
 
             // 加载应用状态配置
             if ($config['app_status']) {
-                $config = Config::load(APP_PATH . $module . $config['app_status'] . CONF_EXT);
+                $config = Config::load(CONF_PATH . $module . $config['app_status'] . CONF_EXT);
             }
 
             // 读取扩展配置文件
             if ($config['extra_config_list']) {
                 foreach ($config['extra_config_list'] as $name => $file) {
-                    $filename = $path . $file . CONF_EXT;
+                    $filename = CONF_PATH . $module . $file . CONF_EXT;
                     Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
                 }
             }
 
             // 加载别名文件
-            if (is_file($path . 'alias' . EXT)) {
-                Loader::addMap(include $path . 'alias' . EXT);
+            if (is_file(CONF_PATH . $module . 'alias' . EXT)) {
+                Loader::addMap(include CONF_PATH . $module . 'alias' . EXT);
             }
 
             // 加载行为扩展文件
-            if (is_file($path . 'tags' . EXT)) {
-                Hook::import(include $path . 'tags' . EXT);
+            if (is_file(CONF_PATH . $module . 'tags' . EXT)) {
+                Hook::import(include CONF_PATH . $module . 'tags' . EXT);
             }
 
             // 加载公共文件

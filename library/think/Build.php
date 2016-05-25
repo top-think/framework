@@ -186,7 +186,7 @@ class Build
      */
     protected static function buildCommon($module)
     {
-        $filename = APP_PATH . ($module ? $module . DS : '') . 'config.php';
+        $filename = CONF_PATH . ($module ? $module . DS : '') . 'config.php';
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
         }
