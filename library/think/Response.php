@@ -53,8 +53,11 @@ class Response
         if (isset($this->contentTypes[$this->type])) {
             $this->contentType($this->contentTypes[$this->type]);
         }
-
-        $this->options = array_merge($this->options, $options);
+        if(!empty($options)){
+            $this->options = array_merge($this->options, $options);
+        }
+        // 方便获取某个类型的实例
+        self::$instance[$this->type] = $this;        
     }
 
     /**
@@ -96,6 +99,8 @@ class Response
         if (is_callable($this->transform)) {
             $data = call_user_func_array($this->transform, [$data]);
         }
+
+        define('RESPONSE_TYPE',$this->type);
 
         // 处理输出数据
         $data = $this->output($data);
