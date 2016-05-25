@@ -19,12 +19,11 @@ use think\model\Pivot;
 
 class Relation
 {
-    const HAS_ONE         = 1;
-    const HAS_MANY        = 2;
-    const HAS_MANY_THROUGH= 5;
-    const BELONGS_TO      = 3;
-    const BELONGS_TO_MANY = 4;
-
+    const HAS_ONE          = 1;
+    const HAS_MANY         = 2;
+    const HAS_MANY_THROUGH = 5;
+    const BELONGS_TO       = 3;
+    const BELONGS_TO_MANY  = 4;
 
     // 父模型对象
     protected $parent;
@@ -37,7 +36,7 @@ class Relation
     // 关联表外键
     protected $foreignKey;
     // 中间关联表外键
-    protected $throughKey;    
+    protected $throughKey;
     // 关联表主键
     protected $localKey;
     // 数据表别名
@@ -469,7 +468,7 @@ class Relation
      * @param array  $alias 别名定义
      * @return $this
      */
-    public function hasManyThrough($model, $through,$foreignKey,$throughKey, $localKey, $alias)
+    public function hasManyThrough($model, $through, $foreignKey, $throughKey, $localKey, $alias)
     {
         // 记录当前关联信息
         $this->type       = self::HAS_MANY_THROUGH;
@@ -654,25 +653,25 @@ class Relation
         if ($this->model) {
             $model = new $this->model;
             $db    = $model->db();
-            switch($this->type){
+            switch ($this->type) {
                 case self::HAS_MANY:
                     if (isset($this->parent->{$this->localKey})) {
                         // 关联查询带入关联条件
                         $db->where($this->foreignKey, $this->parent->{$this->localKey});
-                    }       
+                    }
                     break;
                 case self::HAS_MANY_THROUGH:
-                    $through        = $this->middle;
-                    $model          = $this->model;
-                    $alias          = Loader::parseName(basename(str_replace('\\', '/', $model)));
-                    $throughTable   = $through::getTable();
-                    $pk             = (new $this->model)->getPk();
-                    $throughKey     = $this->throughKey;
-                    $modelTable     = $this->parent->getTable();
-                    $result         = $db->field($alias.'.*')->alias($alias)
-                        ->join($throughTable,$throughTable.'.'.$pk.'='.$alias.'.'.$throughKey)
-                        ->join($modelTable,$modelTable.'.'.$this->localKey.'='.$throughTable.'.'.$this->foreignKey)
-                        ->where($throughTable.'.'.$this->foreignKey, $this->parent->{$this->localKey});
+                    $through      = $this->middle;
+                    $model        = $this->model;
+                    $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
+                    $throughTable = $through::getTable();
+                    $pk           = (new $this->model)->getPk();
+                    $throughKey   = $this->throughKey;
+                    $modelTable   = $this->parent->getTable();
+                    $result       = $db->field($alias . '.*')->alias($alias)
+                        ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
+                        ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
+                        ->where($throughTable . '.' . $this->foreignKey, $this->parent->{$this->localKey});
                     break;
             }
             return call_user_func_array([$db, $method], $args);

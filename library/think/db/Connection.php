@@ -356,8 +356,8 @@ abstract class Connection
             $result = $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
-            $procedure = 0 === strpos(strtolower(substr(trim($sql),0,4)),'call');
-            return $this->getResult($class,$procedure);
+            $procedure = 0 === strpos(strtolower(substr(trim($sql), 0, 4)), 'call');
+            return $this->getResult($class, $procedure);
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->queryStr);
         }
@@ -476,13 +476,13 @@ abstract class Connection
      * @param bool $procedure 是否存储过程
      * @return mixed
      */
-    protected function getResult($class = '',$procedure=false)
+    protected function getResult($class = '', $procedure = false)
     {
         if (true === $class) {
             // 返回PDOStatement对象处理
             return $this->PDOStatement;
         }
-        if($procedure){
+        if ($procedure) {
             return $this->procedure($class);
         }
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
@@ -512,11 +512,12 @@ abstract class Connection
      * @param bool|string $class true 返回PDOStatement 字符串用于指定返回的类名
      * @return array
      */
-    protected function procedure($class){
+    protected function procedure($class)
+    {
         $item = [];
         do {
             $result = $this->getResult($class);
-            if($result){
+            if ($result) {
                 $item[] = $result;
             }
         } while ($this->PDOStatement->nextRowset());

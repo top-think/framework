@@ -740,14 +740,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = new static();
         $info  = $model->$relation()->getRelationInfo();
         $table = $info['model']::getTable();
-        switch($info['type']){
+        switch ($info['type']) {
             case Relation::HAS_MANY:
                 return $model->db()->alias('a')
                     ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
                     ->group('b.' . $info['foreignKey'])
-                    ->having('count(' . $id . ')' . $operator . $count);        
+                    ->having('count(' . $id . ')' . $operator . $count);
             case Relation::HAS_MANY_THROUGH:
-                // TODO    
+                // TODO
         }
 
     }
@@ -763,7 +763,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = new static();
         $info  = $model->$relation()->getRelationInfo();
-        switch($info['type']){
+        switch ($info['type']) {
             case Relation::HAS_MANY:
                 $table = $info['model']::getTable();
                 if (is_array($where)) {
@@ -777,9 +777,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return $model->db()->alias('a')
                     ->field('a.*')
                     ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
-                    ->where($where);    
+                    ->where($where);
             case Relation::HAS_MANY_THROUGH:
-                // TODO        
+                // TODO
         }
     }
 
@@ -907,7 +907,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array  $alias 别名定义
      * @return \think\db\Query|string
      */
-    public function hasManyThrough($model,$through,$foreignKey='',$throughKey='',$localKey='',$alias=[]){
+    public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '', $alias = [])
+    {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $through    = $this->parseModel($through);
@@ -915,7 +916,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $name       = Loader::parseName(basename(str_replace('\\', '/', $through)));
         $throughKey = $throughKey ?: $name . '_id';
-        return $this->relation()->hasManyThrough($model, $through,$foreignKey,$throughKey, $localKey, $alias);
+        return $this->relation()->hasManyThrough($model, $through, $foreignKey, $throughKey, $localKey, $alias);
     }
 
     /**
