@@ -664,13 +664,13 @@ class Relation
                 case self::HAS_MANY_THROUGH:
                     $through        = $this->middle;
                     $model          = $this->model;
-                    $table          = $model::getTable();
+                    $alias          = Loader::parseName(basename(str_replace('\\', '/', $model)));
                     $throughTable   = $through::getTable();
                     $pk             = (new $this->model)->getPk();
                     $throughKey     = $this->throughKey;
                     $modelTable     = $this->parent->getTable();
-                    $result         = $db->field($table.'.*')
-                        ->join($throughTable,$throughTable.'.'.$pk.'='.$table.'.'.$throughKey)
+                    $result         = $db->field($alias.'.*')->alias($alias)
+                        ->join($throughTable,$throughTable.'.'.$pk.'='.$alias.'.'.$throughKey)
                         ->join($modelTable,$modelTable.'.'.$this->localKey.'='.$throughTable.'.'.$this->foreignKey)
                         ->where($throughTable.'.'.$this->foreignKey, $this->parent->{$this->localKey});
                     break;

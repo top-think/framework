@@ -740,10 +740,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = new static();
         $info  = $model->$relation()->getRelationInfo();
         $table = $info['model']::getTable();
-        return $model->db()->alias('a')
-            ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
-            ->group('b.' . $info['foreignKey'])
-            ->having('count(' . $id . ')' . $operator . $count);
+        switch($info['type']){
+            case Relation::HAS_MANY:
+                return $model->db()->alias('a')
+                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
+                    ->group('b.' . $info['foreignKey'])
+                    ->having('count(' . $id . ')' . $operator . $count);        
+            case Relation::HAS_MANY_THROUGH:
+                // TODO    
+        }
+
     }
 
     /**
@@ -757,19 +763,24 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = new static();
         $info  = $model->$relation()->getRelationInfo();
-        $table = $info['model']::getTable();
-        if (is_array($where)) {
-            foreach ($where as $key => $val) {
-                if (false === strpos($key, '.')) {
-                    $where['b.' . $key] = $val;
-                    unset($where[$key]);
+        switch($info['type']){
+            case Relation::HAS_MANY:
+                $table = $info['model']::getTable();
+                if (is_array($where)) {
+                    foreach ($where as $key => $val) {
+                        if (false === strpos($key, '.')) {
+                            $where['b.' . $key] = $val;
+                            unset($where[$key]);
+                        }
+                    }
                 }
-            }
+                return $model->db()->alias('a')
+                    ->field('a.*')
+                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
+                    ->where($where);    
+            case Relation::HAS_MANY_THROUGH:
+                // TODO        
         }
-        return $model->db()->alias('a')
-            ->field('a.*')
-            ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
-            ->where($where);
     }
 
     /**
