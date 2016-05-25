@@ -886,6 +886,28 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * HAS MANY 远程关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $through 中间模型名
+     * @param string $foreignKey 关联外键
+     * @param string $throughKey 关联外键
+     * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
+     * @return \think\db\Query|string
+     */
+    public function hasManyThrough($model,$through,$foreignKey='',$throughKey='',$localKey='',$alias=[]){
+        // 记录当前关联信息
+        $model      = $this->parseModel($model);
+        $through    = $this->parseModel($through);
+        $localKey   = $localKey ?: $this->getPk();
+        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
+        $name       = Loader::parseName(basename(str_replace('\\', '/', $through)));
+        $throughKey = $throughKey ?: $name . '_id';
+        return $this->relation()->hasManyThrough($model, $through,$foreignKey,$throughKey, $localKey, $alias);
+    }
+
+    /**
      * BELONGS TO MANY 关联定义
      * @access public
      * @param string $model 模型名

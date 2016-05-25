@@ -21,8 +21,10 @@ class Relation
 {
     const HAS_ONE         = 1;
     const HAS_MANY        = 2;
+    const HAS_MANY_THROUGH= 5;
     const BELONGS_TO      = 3;
     const BELONGS_TO_MANY = 4;
+
 
     // 父模型对象
     protected $parent;
@@ -32,9 +34,11 @@ class Relation
     protected $middle;
     // 当前关联类型
     protected $type;
-    // 关联外键
+    // 关联表外键
     protected $foreignKey;
-    // 关联键
+    // 中间关联表外键
+    protected $throughKey;    
+    // 关联表主键
     protected $localKey;
     // 数据表别名
     protected $alias;
@@ -85,7 +89,10 @@ class Relation
                     $result = $relation->where($localKey, $this->parent->$foreignKey)->find();
                     break;
                 case self::HAS_MANY:
-                    $result = $relation->where($foreignKey, $this->parent->$localKey)->select();
+                    $result = $relation->select();
+                    break;
+                case self::HAS_MANY_THROUGH:
+                    $result = $relation->select();
                     break;
                 case self::BELONGS_TO_MANY:
                     // 关联查询
@@ -452,6 +459,32 @@ class Relation
     }
 
     /**
+     * HAS MANY 远程关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $through 中间模型名
+     * @param string $firstkey 关联外键
+     * @param string $secondKey 关联外键
+     * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
+     * @return $this
+     */
+    public function hasManyThrough($model, $through,$foreignKey,$throughKey, $localKey, $alias)
+    {
+        // 记录当前关联信息
+        $this->type       = self::HAS_MANY_THROUGH;
+        $this->model      = $model;
+        $this->middle     = $through;
+        $this->foreignKey = $foreignKey;
+        $this->throughKey = $throughKey;
+        $this->localKey   = $localKey;
+        $this->alias      = $alias;
+
+        // 返回关联的模型对象
+        return $this;
+    }
+
+    /**
      * BELONGS TO MANY 关联定义
      * @access public
      * @param string $model 模型名
@@ -621,9 +654,26 @@ class Relation
         if ($this->model) {
             $model = new $this->model;
             $db    = $model->db();
-            if (self::HAS_MANY == $this->type && isset($this->parent->{$this->localKey})) {
-                // 关联查询带入关联条件
-                $db->where($this->foreignKey, $this->parent->{$this->localKey});
+            switch($this->type){
+                case self::HAS_MANY:
+                    if (isset($this->parent->{$this->localKey})) {
+                        // 关联查询带入关联条件
+                        $db->where($this->foreignKey, $this->parent->{$this->localKey});
+                    }       
+                    break;
+                case self::HAS_MANY_THROUGH:
+                    $through        = $this->middle;
+                    $model          = $this->model;
+                    $table          = $model::getTable();
+                    $throughTable   = $through::getTable();
+                    $pk             = (new $this->model)->getPk();
+                    $throughKey     = $this->throughKey;
+                    $modelTable     = $this->parent->getTable();
+                    $result         = $db->field($table.'.*')
+                        ->join($throughTable,$throughTable.'.'.$pk.'='.$table.'.'.$throughKey)
+                        ->join($modelTable,$modelTable.'.'.$this->localKey.'='.$throughTable.'.'.$this->foreignKey)
+                        ->where($throughTable.'.'.$this->foreignKey, $this->parent->{$this->localKey});
+                    break;
             }
             return call_user_func_array([$db, $method], $args);
         } else {

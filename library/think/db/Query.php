@@ -667,17 +667,21 @@ class Query
                 $alias = $join;
             }
             $table = !empty($table) ? $table : $this->getTable($join);
-            if (is_string($field)) {
-                $field = explode(',', $field);
-            }
-            foreach ($field as $key => $val) {
-                if (is_numeric($key)) {
-                    $fields[]                   = $alias . '.' . $val;
-                    $this->options['map'][$val] = $alias . '.' . $val;
-                } else {
-                    $fields[]                   = $alias . '.' . $key . ' AS ' . $val;
-                    $this->options['map'][$val] = $alias . '.' . $key;
+            if(true === $field){
+                $fields = $alias . '.*';
+            }else{
+                if (is_string($field)) {
+                    $field = explode(',', $field);
                 }
+                foreach ($field as $key => $val) {
+                    if (is_numeric($key)) {
+                        $fields[]                   = $alias . '.' . $val;
+                        $this->options['map'][$val] = $alias . '.' . $val;
+                    } else {
+                        $fields[]                   = $alias . '.' . $key . ' AS ' . $val;
+                        $this->options['map'][$val] = $alias . '.' . $key;
+                    }
+                }                
             }
             $this->field($fields);
             if ($on) {
