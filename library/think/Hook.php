@@ -43,8 +43,9 @@ class Hook
      * @param boolean $recursive 是否递归合并
      * @return void
      */
-    public static function import(array $tags, $recursive = true)
+    public static function import($tags, $recursive = true)
     {
+        empty($tags) && $tags = [];
         if (!$recursive) {
             // 覆盖导入
             self::$tags = array_merge(self::$tags, $tags);

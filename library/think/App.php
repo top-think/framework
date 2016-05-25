@@ -39,9 +39,7 @@ class App
     {
         is_null($request) && $request = Request::instance();
 
-        define('NOW_TIME', $request->time());
         define('REQUEST_METHOD', $request->method());
-        define('HTTP_HOST', $request->host());
         define('IS_GET', REQUEST_METHOD == 'GET' ? true : false);
         define('IS_POST', REQUEST_METHOD == 'POST' ? true : false);
         define('IS_PUT', REQUEST_METHOD == 'PUT' ? true : false);

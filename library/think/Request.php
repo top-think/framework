@@ -240,7 +240,8 @@ class Request
             $this->baseUrl = $url;
             return;
         } elseif (!$this->baseUrl) {
-            $this->baseUrl = rtrim($this->url(), '?' . $this->query());
+            $str           = $this->url();
+            $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
         }
         return true === $url ? $this->domain() . $this->baseUrl : $this->baseUrl;
     }
