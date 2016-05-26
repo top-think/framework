@@ -162,10 +162,10 @@ class Route
             if (is_numeric($key)) {
                 $key = array_shift($val);
             }
+            if (empty($val)) {
+                continue;
+            }
             if (0 === strpos($key, '[')) {
-                if (empty($val)) {
-                    continue;
-                }
                 $key    = substr($key, 1, -1);
                 $result = ['routes' => $val, 'option' => [], 'pattern' => []];
             } elseif (is_array($val)) {
