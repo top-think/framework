@@ -936,7 +936,7 @@ class Route
     private static function match($url, $rule, $pattern, $merge)
     {
         $m2 = explode('/', $rule);
-        $m1 = explode('/', $url, $merge ? count($m2) : null);
+        $m1 = $merge ? explode('/', $url, count($m2)) : explode('/', $url);
 
         $var = [];
         foreach ($m2 as $key => $val) {
@@ -993,12 +993,12 @@ class Route
      * @param bool $merge 合并额外变量
      * @return array
      */
-    private static function parseRule($rule, $route, $pathinfo, $matches, $merge)
+    private static function parseRule($rule, $route, $pathinfo, $matches, $merge = false)
     {
         // 解析路由规则
         $rule = explode('/', $rule);
         // 获取URL地址中的参数
-        $paths = explode('/', $pathinfo, $merge ? count($rule) : null);
+        $paths = $merge ? explode('/', $pathinfo, count($rule)) : explode('/', $pathinfo);
         // 获取路由地址规则
         $url = is_array($route) ? $route[0] : $route;
 
