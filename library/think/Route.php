@@ -783,17 +783,20 @@ class Route
         }
         $len1 = substr_count($url, '/');
         $len2 = substr_count($rule, '/');
+        // 多余参数是否合并
+        $merge = !empty($option['merge_extra_vars']) ? true : false;
+
         if ($len1 >= $len2 || strpos($rule, '[')) {
             if ('$' == substr($rule, -1, 1)) {
                 // 完整匹配
-                if ($len1 != $len2 && false === strpos($rule, '[')) {
+                if (!$merge && $len1 != $len2 && false === strpos($rule, '[')) {
                     return false;
                 } else {
                     $rule = substr($rule, 0, -1);
                 }
             }
             $pattern = array_merge(self::$pattern, $pattern);
-            if (false !== $match = self::match($url, $rule, $pattern)) {
+            if (false !== $match = self::match($url, $rule, $pattern, $merge)) {
                 // 匹配到路由规则
                 // 检测是否定义路由
                 if (!empty($option['after_behavior'])) {
@@ -813,7 +816,7 @@ class Route
                     // 执行闭包
                     return ['type' => 'function', 'function' => $route, 'params' => $match];
                 }
-                return self::parseRule($rule, $route, $url, $match);
+                return self::parseRule($rule, $route, $url, $match, $merge);
             }
         }
         return false;
@@ -927,12 +930,14 @@ class Route
      * @param string $url URL地址
      * @param string $rule 路由规则
      * @param array $pattern 变量规则
+     * @param bool $merge 合并额外变量
      * @return array|false
      */
-    private static function match($url, $rule, $pattern)
+    private static function match($url, $rule, $pattern, $merge)
     {
-        $m1  = explode('/', $url);
-        $m2  = explode('/', $rule);
+        $m2 = explode('/', $rule);
+        $m1 = explode('/', $url, $merge ? count($m2) : null);
+
         $var = [];
         foreach ($m2 as $key => $val) {
             // val中定义了多个变量 <id><name>
@@ -985,16 +990,18 @@ class Route
      * @param string $route 路由地址
      * @param string $pathinfo URL地址
      * @param array $matches 匹配的变量
+     * @param bool $merge 合并额外变量
      * @return array
      */
-    private static function parseRule($rule, $route, $pathinfo, $matches)
+    private static function parseRule($rule, $route, $pathinfo, $matches, $merge)
     {
-        // 获取URL地址中的参数
-        $paths = explode('/', $pathinfo);
-        // 获取路由地址规则
-        $url = is_array($route) ? $route[0] : $route;
         // 解析路由规则
         $rule = explode('/', $rule);
+        // 获取URL地址中的参数
+        $paths = explode('/', $pathinfo, $merge ? count($rule) : null);
+        // 获取路由地址规则
+        $url = is_array($route) ? $route[0] : $route;
+
         foreach ($rule as $item) {
             $fun = '';
             if (0 === strpos($item, '[:')) {
