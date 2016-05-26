@@ -521,7 +521,8 @@ abstract class Connection
                 $item[] = $result;
             }
         } while ($this->PDOStatement->nextRowset());
-        return $result;
+        $this->numRows = count($item);
+        return $item;
     }
 
     /**
