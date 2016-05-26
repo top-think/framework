@@ -227,9 +227,20 @@ class App
             $module = strtolower($result[0] ?: $config['default_module']);
             // 获取模块名称
             define('MODULE_NAME', strip_tags($module));
+            $bind      = Route::bind('module');
+            $available = false;
+            if ($bind) {
+                // 绑定模块
+                list($bindModule) = explode('/', $bind);
+                if (MODULE_NAME == $bindModule) {
+                    $available = true;
+                }
+            } elseif (!in_array(MODULE_NAME, $config['deny_module_list']) && is_dir(APP_PATH . MODULE_NAME)) {
+                $available = true;
+            }
 
             // 模块初始化
-            if (MODULE_NAME && !in_array(MODULE_NAME, $config['deny_module_list']) && is_dir(APP_PATH . MODULE_NAME)) {
+            if (MODULE_NAME && $available) {
                 define('MODULE_PATH', APP_PATH . MODULE_NAME . DS);
                 define('VIEW_PATH', MODULE_PATH . VIEW_LAYER . DS);
                 // 初始化模块
