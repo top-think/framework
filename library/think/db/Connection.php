@@ -433,7 +433,10 @@ abstract class Connection
                 // 判断占位符
                 $sql = is_numeric($key) ?
                 substr_replace($sql, $val, strpos($sql, '?'), 1) :
-                str_replace([':' . $key . ')', ':' . $key . ' '], [$val . ')', $val . ' '], $sql . ' ');
+                str_replace(
+                    [':' . $key . ')', ':' . $key . ',', ':' . $key . ' '],
+                    [$val . ')', $val . ',', $val . ' '],
+                    $sql . ' ');
             }
         }
         return $sql;
