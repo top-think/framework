@@ -121,7 +121,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      *  获取关联模型实例
-     *
+     * @access protected
      * @return \think\model\Relation
      */
     protected function relation()
@@ -134,7 +134,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      *  初始化模型
-     *
+     * @access protected
      * @return void
      */
     protected function initialize()
@@ -148,7 +148,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 初始化处理
-     *
+     * @access protected
      * @return void
      */
     protected static function init()
