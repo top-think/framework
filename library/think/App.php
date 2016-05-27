@@ -163,7 +163,7 @@ class App
     {
         if (empty($vars)) {
             // 自动获取请求变量
-            $vars = Request::instance()->param();
+            $vars = Request::param();
         }
         if (is_array($method)) {
             $class   = is_object($method[0]) ? $method[0] : new $method[0];
@@ -193,8 +193,9 @@ class App
         if ($reflect->getNumberOfParameters() > 0) {
             $params = $reflect->getParameters();
             foreach ($params as $param) {
-                $name = $param->getName();
-                if ('think\Request' == $param->getClass()->name) {
+                $name  = $param->getName();
+                $class = $param->getClass();
+                if ($class && 'think\Request' == $class->getName()) {
                     $args[] = Request::instance();
                 } elseif (1 == $type && !empty($vars)) {
                     $args[] = array_shift($vars);

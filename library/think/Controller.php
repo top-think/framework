@@ -13,6 +13,7 @@ namespace think;
 
 \think\Loader::import('controller/Jump', TRAIT_PATH, EXT);
 
+use think\Request;
 use think\View;
 
 class Controller
@@ -21,6 +22,8 @@ class Controller
 
     // 视图类实例
     protected $view = null;
+    // Request实例
+    protected $request;
 
     /**
      * 前置操作方法列表
@@ -33,9 +36,10 @@ class Controller
      * 架构函数
      * @access public
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
-        $this->view = View::instance(Config::get('template'), Config::get('view_replace_str'));
+        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
+        $this->request = $request;
 
         // 控制器初始化
         if (method_exists($this, '_initialize')) {

@@ -313,11 +313,11 @@ class Loader
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
-            $action                    = new $class;
+            $action                    = new $class(Request::instance());
             $_instance[$name . $layer] = $action;
             return $action;
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
-            return new $emptyClass;
+            return new $emptyClass(Request::instance());
         } else {
             throw new Exception('class [ ' . $class . ' ] not exists', 10001);
         }
