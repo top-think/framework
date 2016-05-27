@@ -199,7 +199,6 @@ class Route
                 self::rule($rule, $route, $val, $option, $pattern, $group);
             }
         } else {
-            $rules = [];
             if (is_array($rule)) {
                 foreach ($rule as $key => $val) {
                     if (is_numeric($key)) {
@@ -218,9 +217,7 @@ class Route
                 }
             } else {
                 if ($group) {
-                    self::$rules[$type][$group]['option']        = $option;
-                    self::$rules[$type][$group]['pattern']       = $pattern;
-                    self::$rules[$type][$group]['routes'][$rule] = $route;
+                    self::$rules[$type][$group]['routes'][$rule] = [$route, $option, $pattern];
                 } else {
                     self::$rules[$type][$rule] = ['route' => $route, 'option' => $option, 'pattern' => $pattern];
                 }
