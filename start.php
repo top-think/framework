@@ -21,10 +21,10 @@ if (is_file(ROOT_PATH . 'env' . EXT)) {
     $env = include ROOT_PATH . 'env' . EXT;
     foreach ($env as $key => $val) {
         $name = ENV_PREFIX . $key;
-        if(is_bool($val)){
+        if (is_bool($val)) {
             $val = $val ? 1 : 0;
         }
-        putenv("$name=$var");
+        putenv("$name=$val");
     }
 }
 // 自动识别调试模式
