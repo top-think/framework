@@ -218,6 +218,8 @@ class Route
                 }
             } else {
                 if ($group) {
+                    self::$rules[$type][$group]['option']        = $option;
+                    self::$rules[$type][$group]['pattern']       = $pattern;
                     self::$rules[$type][$group]['routes'][$rule] = $route;
                 } else {
                     self::$rules[$type][$rule] = ['route' => $route, 'option' => $option, 'pattern' => $pattern];
