@@ -34,9 +34,10 @@ class Controller
 
     /**
      * 架构函数
+     * @param \think\Request    $request     Request对象
      * @access public
      */
-    public function __construct(Request $request)
+    public function __construct(Request $request = null)
     {
         $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
         $this->request = $request;
