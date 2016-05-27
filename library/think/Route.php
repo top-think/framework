@@ -210,7 +210,7 @@ class Route
                         $result = ['route' => $val, 'option' => $option, 'pattern' => $pattern];
                     }
                     if ($group) {
-                        self::$rules[$type][$group]['routes'][$key] = $result['route'];
+                        self::$rules[$type][$group]['routes'][$key] = [$result['route'], $result['option'], $result['pattern']];
                     } else {
                         self::$rules[$type][$key] = $result;
                     }
