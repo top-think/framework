@@ -702,7 +702,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 命名范围
      * @access public
-     * @param string|Closure $name 命名范围名称 逗号分隔
+     * @param string|array|Closure $name 命名范围名称 逗号分隔
      * @param mixed $params 参数调用
      * @return \think\Model
      */
@@ -715,9 +715,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif ($name instanceof Query) {
             return $name;
         } else {
-            $names = explode(',', $name);
+            if (is_string($name)) {
+                $names = explode(',', $name);
+            }
             foreach ($names as $scope) {
-                $method = 'scope' . $scope;
+                $method = 'scope' . trim($scope);
                 if (method_exists($model, $method)) {
                     $model->$method($query, $params);
                 }
