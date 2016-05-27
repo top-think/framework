@@ -97,7 +97,7 @@ class Controller
      */
     public function fetch($template = '', $vars = [], $replace = [], $config = [])
     {
-        return $this->view->fetch($template, $vars, $replace, $config = []);
+        return $this->view->fetch($template, $vars, $replace, $config);
     }
 
     /**
