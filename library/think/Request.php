@@ -640,6 +640,8 @@ class Request
             return true;
         } elseif (isset($server['SERVER_PORT']) && ('443' == $server['SERVER_PORT'])) {
             return true;
+        } elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']) {
+            return true;
         }
         return false;
     }
