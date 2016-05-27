@@ -28,8 +28,8 @@ class Route
     private static $rest = [
         'index'  => ['GET', '', 'index'],
         'create' => ['GET', '/create', 'create'],
-        'read'   => ['GET', '/:id', 'read'],
         'edit'   => ['GET', '/:id/edit', 'edit'],
+        'read'   => ['GET', '/:id', 'read'],
         'save'   => ['POST', '', 'save'],
         'update' => ['PUT', '/:id', 'update'],
         'delete' => ['DELETE', '/:id', 'delete'],

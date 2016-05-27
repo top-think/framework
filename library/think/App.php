@@ -194,7 +194,9 @@ class App
             $params = $reflect->getParameters();
             foreach ($params as $param) {
                 $name = $param->getName();
-                if (1 == $type && !empty($vars)) {
+                if ('think\Request' == $param->getClass()->name) {
+                    $args[] = Request::instance();
+                } elseif (1 == $type && !empty($vars)) {
                     $args[] = array_shift($vars);
                 } elseif (0 == $type && isset($vars[$name])) {
                     $args[] = $vars[$name];
