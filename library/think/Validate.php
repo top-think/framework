@@ -237,6 +237,19 @@ class Validate
 
         // 分析验证规则
         $scene = $this->getScene($scene);
+        if (is_array($scene)) {
+            // 处理场景验证字段
+            $change = [];
+            $array  = [];
+            foreach ($scene as $k => $val) {
+                if (is_numeric($k)) {
+                    $array[] = $val;
+                } else {
+                    $array[]    = $k;
+                    $change[$k] = $val;
+                }
+            }
+        }
 
         foreach ($rules as $key => $item) {
             // field => rule1|rule2... field=>['rule1','rule2',...]
@@ -264,8 +277,13 @@ class Validate
             if (!empty($scene)) {
                 if ($scene instanceof \Closure && !call_user_func_array($scene, [$key, &$data])) {
                     continue;
-                } elseif (is_array($scene) && !in_array($key, $scene)) {
-                    continue;
+                } elseif (is_array($scene)) {
+                    if (!in_array($key, $array)) {
+                        continue;
+                    } elseif (isset($change[$key])) {
+                        // 重载某个验证规则
+                        $rule = $change[$key];
+                    }
                 }
             }
 
