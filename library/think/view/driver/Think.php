@@ -48,7 +48,7 @@ class Think
      */
     public function exists($template)
     {
-        if (!is_file($template)) {
+        if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
             $template = $this->parseTemplate($template);
         }
@@ -65,7 +65,7 @@ class Think
      */
     public function fetch($template, $data = [], $config = [])
     {
-        if (!is_file($template)) {
+        if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
             $template = $this->parseTemplate($template);
         }
@@ -99,17 +99,20 @@ class Think
      */
     private function parseTemplate($template)
     {
-        $depr     = $this->config['view_depr'];
-        $template = str_replace(['/', ':'], $depr, $template);
+        // 获取视图根目录
         if (strpos($template, '@')) {
+            // 跨模块调用
             list($module, $template) = explode('@', $template);
-            $path                    = APP_PATH . (APP_MULTI_MODULE ? $module . DS : '') . VIEW_LAYER . DS;
+            $path                    = APP_PATH . $module . DS . VIEW_LAYER . DS;
         } else {
+            // 当前视图目录
             $path = $this->config['view_path'];
         }
 
         // 分析模板文件规则
-        if (defined('CONTROLLER_NAME')) {
+        if (defined('CONTROLLER_NAME') && 0 !== strpos($template, '/')) {
+            $depr     = $this->config['view_depr'];
+            $template = str_replace(['/', ':'], $depr, $template);
             if ('' == $template) {
                 // 如果模板文件名为空 按照默认规则定位
                 $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . ACTION_NAME;
@@ -117,7 +120,7 @@ class Think
                 $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . $template;
             }
         }
-        return $path . $template . '.' . ltrim($this->config['view_suffix'], '.');
+        return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
     }
 
     public function __call($method, $params)
