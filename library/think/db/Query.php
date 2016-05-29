@@ -667,9 +667,9 @@ class Query
                 $alias = $join;
             }
             $table = !empty($table) ? $table : $this->getTable($join);
-            if(true === $field){
+            if (true === $field) {
                 $fields = $alias . '.*';
-            }else{
+            } else {
                 if (is_string($field)) {
                     $field = explode(',', $field);
                 }
@@ -681,7 +681,7 @@ class Query
                         $fields[]                   = $alias . '.' . $key . ' AS ' . $val;
                         $this->options['map'][$val] = $alias . '.' . $key;
                     }
-                }                
+                }
             }
             $this->field($fields);
             if ($on) {
@@ -1196,7 +1196,7 @@ class Query
     }
 
     /**
-     * 获取当前模型对象的主键
+     * 获取当前数据表的主键
      * @access public
      * @param string $table 数据表名
      * @return string|array

@@ -255,15 +255,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 获取当前模型对象的主键
+     * 获取模型对象的主键
      * @access public
-     * @param string $table 数据表名
+     * @param string $name 模型名
      * @return mixed
      */
-    public function getPk($table = '')
+    public function getPk($name = '')
     {
-        if (empty($this->pk)) {
-            $this->pk = $this->db()->getTableInfo($table, 'pk');
+        if (!empty($name)) {
+            $table = $this->db()->getTable($name);
+            return $this->db()->getPk($table);
+        } elseif (empty($this->pk)) {
+            $this->pk = $this->db()->getPk();
         }
         return $this->pk;
     }
