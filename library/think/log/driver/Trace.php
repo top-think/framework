@@ -41,7 +41,7 @@ class Trace
      */
     public function save(array $log = [])
     {
-        if (IS_AJAX || IS_CLI || IS_API || (defined('RESPONSE_TYPE') && 'html' != RESPONSE_TYPE)) {
+        if (IS_AJAX || IS_CLI || IS_API || (defined('RESPONSE_TYPE') && in_array(RESPONSE_TYPE, ['html', 'view']))) {
             // ajax cli api方式下不输出
             return false;
         }
