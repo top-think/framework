@@ -766,7 +766,7 @@ class Query
     }
 
     /**
-     * 指定查询条件
+     * 指定AND查询条件
      * @access public
      * @param mixed $field 查询字段
      * @param mixed $op 查询表达式
@@ -782,7 +782,7 @@ class Query
     }
 
     /**
-     * 指定查询条件
+     * 指定OR查询条件
      * @access public
      * @param mixed $field 查询字段
      * @param mixed $op 查询表达式
@@ -798,22 +798,40 @@ class Query
     }
 
     /**
+     * 指定XOR查询条件
+     * @access public
+     * @param mixed $field 查询字段
+     * @param mixed $op 查询表达式
+     * @param mixed $condition 查询条件
+     * @return $this
+     */
+    public function whereXor($field, $op = null, $condition = null)
+    {
+        $param = func_get_args();
+        array_shift($param);
+        $this->parseWhereExp('XOR', $field, $op, $condition, $param);
+        return $this;
+    }
+
+    /**
      * 分析查询表达式
      * @access public
+     * @param string $logic 查询逻辑
      * @param string|array|\Closure $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @param string $operator and or
+     * @param string $logic and or xor
+     * @param array $param 查询参数
      * @return void
      */
-    protected function parseWhereExp($operator, $field, $op, $condition, $param = [])
+    protected function parseWhereExp($logic, $field, $op, $condition, $param = [])
     {
         if ($field instanceof \Closure) {
-            $this->options['where'][$operator][] = $field;
+            $this->options['where'][$logic][] = is_string($op) ? [$op, $field] : $field;
             return;
         }
 
-        if (is_string($field) && !empty($this->options['via'])) {
+        if (is_string($field) && !empty($this->options['via']) && !strpos($field, '.')) {
             $field = $this->options['via'] . '.' . $field;
         }
         if (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
@@ -844,59 +862,11 @@ class Query
             $where[$field] = [$op, $condition];
         }
         if (!empty($where)) {
-            if (!isset($this->options['where'][$operator])) {
-                $this->options['where'][$operator] = [];
+            if (!isset($this->options['where'][$logic])) {
+                $this->options['where'][$logic] = [];
             }
-            $this->options['where'][$operator] = array_merge($this->options['where'][$operator], $where);
+            $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
         }
-    }
-
-    /**
-     * 指定查询条件
-     * @access public
-     * @param mixed $where 条件表达式
-     * @return $this
-     */
-    public function whereExist($where)
-    {
-        $this->options['where']['AND'][] = ['EXISTS', $where];
-        return $this;
-    }
-
-    /**
-     * 指定查询条件
-     * @access public
-     * @param mixed $where 条件表达式
-     * @return $this
-     */
-    public function whereOrExist($where)
-    {
-        $this->options['where']['OR'][] = ['EXISTS', $where];
-        return $this;
-    }
-
-    /**
-     * 指定查询条件
-     * @access public
-     * @param mixed $where 条件表达式
-     * @return $this
-     */
-    public function whereNotExist($where)
-    {
-        $this->options['where']['AND'][] = ['NOT EXISTS', $where];
-        return $this;
-    }
-
-    /**
-     * 指定查询条件
-     * @access public
-     * @param mixed $where 条件表达式
-     * @return $this
-     */
-    public function whereOrNotExist($where)
-    {
-        $this->options['where']['OR'][] = ['NOT EXISTS', $where];
-        return $this;
     }
 
     /**
