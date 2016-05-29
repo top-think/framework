@@ -426,7 +426,7 @@ function redirect($url = [], $params = [], $code = 302)
  * @param string $message 错误信息
  * @param array $header 参数
  */
-function http($code, $message = null, $header = [])
+function abort($code, $message = null, $header = [])
 {
     throw new \think\exception\HttpException($code, $message, null, $header);
 }
