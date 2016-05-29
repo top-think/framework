@@ -407,11 +407,15 @@ function xml($data = [], $code = 200, $options = [])
 /**
  * 获取\think\response\Redirect对象实例
  * @param mixed $url 重定向地址 支持Url::build方法的地址
+ * @param array|integer $params 额外参数
  * @param integer $code 状态码
- * @param array $params 额外参数
  * @return \think\response\Redirect
  */
-function redirect($url = [], $code = 302, $params = [])
+function redirect($url = [], $params = [], $code = 302)
 {
+    if (is_integer($params)) {
+        $code   = $params;
+        $params = [];
+    }
     return Response::create($url, 'redirect')->code($code)->params($params);
 }

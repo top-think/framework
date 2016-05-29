@@ -105,13 +105,17 @@ trait Jump
      * URL重定向
      * @access protected
      * @param string $url 跳转的URL表达式
+     * @param array|integer $params 其它URL参数
      * @param integer $code http code
-     * @param array $params 其它URL参数
      * @return void
      */
-    public function redirect($url, $code = 301, $params = [])
+    public function redirect($url, $params = [], $code = 302)
     {
         $response = new Redirect($url);
+        if (is_integer($params)) {
+            $code   = $params;
+            $params = [];
+        }
         $response->code($code)->params($params);
         throw new HttpResponseException($response);
     }
