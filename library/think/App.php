@@ -293,7 +293,7 @@ class App
                 $data   = $method->invokeArgs($instance, [$action, '']);
                 APP_DEBUG && Log::record('[ RUN ] ' . $method->getFileName(), 'info');
             } else {
-                throw new Exception('method [ ' . (new \ReflectionClass($instance))->getName() . '->' . $action . ' ] not exists ', 10002);
+                throw new HttpException(404,'method [ ' . (new \ReflectionClass($instance))->getName() . '->' . $action . ' ] not exists ');
             }
         }
         return $data;
