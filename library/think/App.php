@@ -13,6 +13,7 @@ namespace think;
 
 use think\Config;
 use think\Exception;
+use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\Hook;
 use think\Lang;
@@ -249,7 +250,7 @@ class App
                 // 初始化模块
                 $config = self::initModule(MODULE_NAME, $config);
             } else {
-                throw new Exception('module [ ' . MODULE_NAME . ' ] not exists ', 10005);
+                throw new HttpException(404，'module [ ' . MODULE_NAME . ' ] not exists ');
             }
         } else {
             // 单一模块部署
@@ -383,7 +384,7 @@ class App
             $result = Route::check($request, $path, $depr, !IS_CLI ? $config['url_domain_deploy'] : false);
             if (APP_ROUTE_MUST && false === $result && $config['url_route_must']) {
                 // 路由无效
-                throw new Exception('route not define ');
+                throw new HttpException(404, 'Not Found');
             }
         }
         if (false === $result) {

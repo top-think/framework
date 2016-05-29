@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\exception\HttpException;
+
 class Loader
 {
     // 类名映射
@@ -319,7 +321,7 @@ class Loader
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
         } else {
-            throw new Exception('class [ ' . $class . ' ] not exists', 10001);
+            throw new HttpException(404, 'class [ ' . $class . ' ] not exists');
         }
     }
 

@@ -419,3 +419,14 @@ function redirect($url = [], $params = [], $code = 302)
     }
     return Response::create($url, 'redirect')->code($code)->params($params);
 }
+
+/**
+ * 抛出HTTP异常
+ * @param integer $code 状态码
+ * @param string $message 错误信息
+ * @param array $header 参数
+ */
+function http($code, $message = null, $header = [])
+{
+    throw new \think\exception\HttpException($code, $message, null, $header);
+}
