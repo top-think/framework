@@ -250,7 +250,7 @@ class App
                 // 初始化模块
                 $config = self::initModule(MODULE_NAME, $config);
             } else {
-                throw new HttpException(404，'module [ ' . MODULE_NAME . ' ] not exists ');
+                throw new HttpException(404, 'module [ ' . MODULE_NAME . ' ] not exists ');
             }
         } else {
             // 单一模块部署
@@ -293,7 +293,7 @@ class App
                 $data   = $method->invokeArgs($instance, [$action, '']);
                 APP_DEBUG && Log::record('[ RUN ] ' . $method->getFileName(), 'info');
             } else {
-                throw new HttpException(404,'method [ ' . (new \ReflectionClass($instance))->getName() . '->' . $action . ' ] not exists ');
+                throw new HttpException(404, 'method [ ' . (new \ReflectionClass($instance))->getName() . '->' . $action . ' ] not exists ');
             }
         }
         return $data;
