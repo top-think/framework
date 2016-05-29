@@ -78,48 +78,45 @@ class Relation
         $relation   = $this->parent->$name();
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
-        if ($relation instanceof Relation) {
-            // 判断关联类型执行查询
-            switch ($this->type) {
-                case self::HAS_ONE:
-                    $result = $relation->where($foreignKey, $this->parent->$localKey)->find();
-                    break;
-                case self::BELONGS_TO:
-                    $result = $relation->where($localKey, $this->parent->$foreignKey)->find();
-                    break;
-                case self::HAS_MANY:
-                    $result = $relation->select();
-                    break;
-                case self::HAS_MANY_THROUGH:
-                    $result = $relation->select();
-                    break;
-                case self::BELONGS_TO_MANY:
-                    // 关联查询
-                    $pk                              = $this->parent->getPk();
-                    $condition['pivot.' . $localKey] = $this->parent->$pk;
-                    $result                          = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
-                    foreach ($result as $set) {
-                        $pivot = [];
-                        foreach ($set->toArray() as $key => $val) {
-                            if (strpos($key, '__')) {
-                                list($name, $attr) = explode('__', $key, 2);
-                                if ('pivot' == $name) {
-                                    $pivot[$attr] = $val;
-                                    unset($set->$key);
-                                }
+
+        // 判断关联类型执行查询
+        switch ($this->type) {
+            case self::HAS_ONE:
+                $result = $relation->where($foreignKey, $this->parent->$localKey)->find();
+                break;
+            case self::BELONGS_TO:
+                $result = $relation->where($localKey, $this->parent->$foreignKey)->find();
+                break;
+            case self::HAS_MANY:
+                $result = $relation->select();
+                break;
+            case self::HAS_MANY_THROUGH:
+                $result = $relation->select();
+                break;
+            case self::BELONGS_TO_MANY:
+                // 关联查询
+                $pk                              = $this->parent->getPk();
+                $condition['pivot.' . $localKey] = $this->parent->$pk;
+                $result                          = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
+                foreach ($result as $set) {
+                    $pivot = [];
+                    foreach ($set->toArray() as $key => $val) {
+                        if (strpos($key, '__')) {
+                            list($name, $attr) = explode('__', $key, 2);
+                            if ('pivot' == $name) {
+                                $pivot[$attr] = $val;
+                                unset($set->$key);
                             }
                         }
-                        $set->pivot = new Pivot($pivot, $this->middle);
                     }
-                    break;
-                default:
-                    // 直接返回
-                    $result = $relation;
-            }
-            return $result;
-        } else {
-            return $relation;
+                    $set->pivot = new Pivot($pivot, $this->middle);
+                }
+                break;
+            default:
+                // 直接返回
+                $result = $relation;
         }
+        return $result;
     }
 
     /**
