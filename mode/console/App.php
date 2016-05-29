@@ -24,6 +24,8 @@ class App
     {
         self::init();
 
+        define('IS_AJAX', false);
+
         // 实例化console
         $console = new Console('Think Console', '0.1');
         // 读取指令集
