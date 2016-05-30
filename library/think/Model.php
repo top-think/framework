@@ -1175,7 +1175,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __isset($name)
     {
-        if (isset($this->data[$name])) {
+        if (array_key_exists($name, $this->data)) {
             return true;
         } elseif ($this->__get($name)) {
             return true;
