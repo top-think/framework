@@ -88,6 +88,7 @@ class Response
      * @access public
      * @param mixed $data 数据
      * @return mixed
+     * @throws Exception
      */
     public function send($data = [])
     {
