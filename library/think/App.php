@@ -164,7 +164,7 @@ class App
     {
         if (empty($vars)) {
             // 自动获取请求变量
-            $vars = Request::param();
+            $vars = Request::instance()->param();
         }
         if (is_array($method)) {
             $class   = is_object($method[0]) ? $method[0] : new $method[0];
