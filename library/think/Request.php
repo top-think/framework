@@ -417,7 +417,12 @@ class Request
             $this->method = $method;
             return;
         } elseif (!$this->method) {
-            $this->method = IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+            $mask = $this->param(Config::get('method_var'));
+            if ($mask) {
+                $this->method = $mask;
+            } else {
+                $this->method = IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+            }
         }
         return $this->method;
     }

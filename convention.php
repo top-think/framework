@@ -83,6 +83,8 @@ return [
     'url_controller_convert' => true,
     // 是否自动转换URL中的操作名
     'url_action_convert'     => true,
+    // 表单请求类型伪装变量
+    'method_var'             => '_method',
 
     // +----------------------------------------------------------------------
     // | 模板引擎设置
