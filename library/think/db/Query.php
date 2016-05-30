@@ -1202,10 +1202,14 @@ class Query
         if (is_array($tableName)) {
             $tableName = key($tableName) ?: current($tableName);
         }
+
         if (strpos($tableName, ',')) {
             // 多表不获取字段信息
             return false;
+        } else {
+            $tableName = $this->connection->parseSqlTable($tableName);
         }
+
         $guid = md5($tableName);
         if (!isset($_info[$guid])) {
             $info   = $this->connection->getFields($tableName);
