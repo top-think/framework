@@ -417,7 +417,7 @@ class Request
             $this->method = $method;
             return;
         } elseif (!$this->method) {
-            $mask = $this->param(Config::get('method_var'));
+            $mask = $this->param(Config::get('var_method'));
             if ($mask) {
                 $this->method = $mask;
             } else {
