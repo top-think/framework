@@ -1034,45 +1034,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = $this->$method($value, $this->data);
             } elseif (isset($this->type[$name])) {
                 // 类型转换
-                $type = $this->type[$name];
-                if (strpos($type, ':')) {
-                    list($type, $param) = explode(':', $type, 2);
-                }
-                switch ($type) {
-                    case 'integer':
-                        $value = (int) $value;
-                        break;
-                    case 'float':
-                        if (empty($param)) {
-                            $value = (float) $value;
-                        } else {
-                            $value = (float) number_format($value, $param);
-                        }
-                        break;
-                    case 'boolean':
-                        $value = (bool) $value;
-                        break;
-                    case 'datetime':
-                        if (!is_numeric($value)) {
-                            $value = strtotime($value);
-                        }
-                        break;
-                    case 'timestamp':
-                        $format = !empty($param) ? $param : $this->dateFormat;
-                        $value  = date($format, is_numeric($value) ? $value : strtotime($value));
-                        break;
-                    case 'object':
-                        if (is_object($value)) {
-                            $value = json_encode($value, JSON_FORCE_OBJECT);
-                        }
-                        break;
-                    case 'json':
-                    case 'array':
-                        if (is_array($value)) {
-                            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                        }
-                        break;
-                }
+                $value = $this->writeTransform($value, $this->type[$name]);
             }
         }
 
@@ -1082,6 +1044,56 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         // 设置数据对象属性
         $this->data[$name] = $value;
+    }
+
+    /**
+     * 数据写入 类型转换
+     * @access public
+     * @param mixed $value 值
+     * @param string $type 要转换的类型
+     * @return mixed
+     */
+    protected function writeTransform($value, $type)
+    {
+        if (strpos($type, ':')) {
+            list($type, $param) = explode(':', $type, 2);
+        }
+        switch ($type) {
+            case 'integer':
+                $value = (int) $value;
+                break;
+            case 'float':
+                if (empty($param)) {
+                    $value = (float) $value;
+                } else {
+                    $value = (float) number_format($value, $param);
+                }
+                break;
+            case 'boolean':
+                $value = (bool) $value;
+                break;
+            case 'datetime':
+                if (!is_numeric($value)) {
+                    $value = strtotime($value);
+                }
+                break;
+            case 'timestamp':
+                $format = !empty($param) ? $param : $this->dateFormat;
+                $value  = date($format, is_numeric($value) ? $value : strtotime($value));
+                break;
+            case 'object':
+                if (is_object($value)) {
+                    $value = json_encode($value, JSON_FORCE_OBJECT);
+                }
+                break;
+            case 'json':
+            case 'array':
+                if (is_array($value)) {
+                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                }
+                break;
+        }
+        return $value;
     }
 
     /**
@@ -1100,45 +1112,57 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return $this->$method($value, $this->data);
         } elseif (!is_null($value) && isset($this->type[$name])) {
             // 类型转换
-            $type = $this->type[$name];
-            if (strpos($type, ':')) {
-                list($type, $param) = explode(':', $type, 2);
-            }
-            switch ($type) {
-                case 'integer':
-                    $value = (int) $value;
-                    break;
-                case 'float':
-                    if (empty($param)) {
-                        $value = (float) $value;
-                    } else {
-                        $value = (float) number_format($value, $param);
-                    }
-                    break;
-                case 'boolean':
-                    $value = (bool) $value;
-                    break;
-                case 'datetime':
-                    $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = date($format, $value);
-                    break;
-                case 'timestamp':
-                    $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = date($format, strtotime($value));
-                    break;
-                case 'json':
-                case 'array':
-                    $value = json_decode($value, true);
-                    break;
-                case 'object':
-                    $value = json_decode($value);
-                    break;
-            }
+            $value = $this->readTransform($value, $this->type[$name]);
         } elseif (is_null($value) && method_exists($this, $name)) {
             // 获取关联数据
             $value = $this->relation()->getRelation($name);
             // 保存关联对象值
             $this->data[$name] = $value;
+        }
+        return $value;
+    }
+
+    /**
+     * 数据读取 类型转换
+     * @access public
+     * @param mixed $value 值
+     * @param string $type 要转换的类型
+     * @return mixed
+     */
+    protected function readTransform($value, $type)
+    {
+        if (strpos($type, ':')) {
+            list($type, $param) = explode(':', $type, 2);
+        }
+        switch ($type) {
+            case 'integer':
+                $value = (int) $value;
+                break;
+            case 'float':
+                if (empty($param)) {
+                    $value = (float) $value;
+                } else {
+                    $value = (float) number_format($value, $param);
+                }
+                break;
+            case 'boolean':
+                $value = (bool) $value;
+                break;
+            case 'datetime':
+                $format = !empty($param) ? $param : $this->dateFormat;
+                $value  = date($format, $value);
+                break;
+            case 'timestamp':
+                $format = !empty($param) ? $param : $this->dateFormat;
+                $value  = date($format, strtotime($value));
+                break;
+            case 'json':
+            case 'array':
+                $value = json_decode($value, true);
+                break;
+            case 'object':
+                $value = json_decode($value);
+                break;
         }
         return $value;
     }
