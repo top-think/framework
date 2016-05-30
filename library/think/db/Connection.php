@@ -128,7 +128,7 @@ abstract class Connection
      * 创建指定模型的查询对象
      * @access public
      * @param string $model 模型类名称
-     * @return \think\Query
+     * @return \think\db\Query
      */
     public function model($model)
     {
