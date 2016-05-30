@@ -195,7 +195,7 @@ class Request
      * @param string $url URL地址
      * @return string
      */
-    protected function domain($domain = '')
+    public function domain($domain = '')
     {
         if (!empty($domain)) {
             $this->domain = $domain;
@@ -213,7 +213,7 @@ class Request
      * @param bool $domain 是否需要域名
      * @return string
      */
-    protected function url($url = '')
+    public function url($url = '')
     {
         if (is_string($url) && !empty($url)) {
             $this->url = $url;
@@ -234,7 +234,7 @@ class Request
      * @param string $url URL地址
      * @return string
      */
-    protected function baseUrl($url = '')
+    public function baseUrl($url = '')
     {
         if (is_string($url) && !empty($url)) {
             $this->baseUrl = $url;
@@ -252,7 +252,7 @@ class Request
      * @param string $file 当前执行的文件
      * @return string
      */
-    protected function baseFile($file = '')
+    public function baseFile($file = '')
     {
         if (is_string($file) && !empty($file)) {
             $this->baseFile = $file;
@@ -284,7 +284,7 @@ class Request
      * @param string $url URL地址
      * @return string
      */
-    protected function root($url = '')
+    public function root($url = '')
     {
         if (is_string($url) && !empty($url)) {
             $this->root = $url;
@@ -304,7 +304,7 @@ class Request
      * @access public
      * @return string
      */
-    protected function pathinfo()
+    public function pathinfo()
     {
         if (is_null($this->pathinfo)) {
             if (isset($_GET[Config::get('var_pathinfo')])) {
@@ -336,7 +336,7 @@ class Request
      * @access public
      * @return string
      */
-    protected function path()
+    public function path()
     {
         if (is_null($this->path)) {
             // 去除正常的URL后缀
@@ -350,7 +350,7 @@ class Request
      * @access public
      * @return string
      */
-    protected function ext()
+    public function ext()
     {
         return pathinfo($this->pathinfo(), PATHINFO_EXTENSION);
     }
@@ -361,7 +361,7 @@ class Request
      * @param bool $float 是否使用浮点类型
      * @return integer|float
      */
-    protected function time($float = false)
+    public function time($float = false)
     {
         return $float ? $_SERVER['REQUEST_TIME_FLOAT'] : $_SERVER['REQUEST_TIME'];
     }
@@ -371,7 +371,7 @@ class Request
      * @access public
      * @return false|string
      */
-    protected function type()
+    public function type()
     {
         $accept = isset($this->server['HTTP_ACCEPT']) ? $this->server['HTTP_ACCEPT'] : $_SERVER['HTTP_ACCEPT'];
         if (empty($accept)) {
@@ -396,7 +396,7 @@ class Request
      * @param string $val 资源类型
      * @return void
      */
-    protected function mimeType($type, $val = '')
+    public function mimeType($type, $val = '')
     {
         if (is_array($type)) {
             $this->mimeType = array_merge($this->mimeType, $type);
@@ -411,7 +411,7 @@ class Request
      * @param string $method 请求类型
      * @return string
      */
-    protected function method($method = '')
+    public function method($method = '')
     {
         if ($method) {
             $this->method = $method;
@@ -427,7 +427,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isGet()
+    public function isGet()
     {
         return $this->method() == 'GET';
     }
@@ -437,7 +437,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isPost()
+    public function isPost()
     {
         return $this->method() == 'POST';
     }
@@ -447,7 +447,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isPut()
+    public function isPut()
     {
         return $this->method() == 'PUT';
     }
@@ -457,7 +457,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isDelete()
+    public function isDelete()
     {
         return $this->method() == 'DELETE';
     }
@@ -467,7 +467,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isCli()
+    public function isCli()
     {
         return PHP_SAPI == 'cli';
     }
@@ -477,7 +477,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isCgi()
+    public function isCgi()
     {
         return strpos(PHP_SAPI, 'cgi') === 0;
     }
@@ -489,7 +489,7 @@ class Request
      * @param mixed $default 默认值
      * @return mixed
      */
-    protected function param($name = '', $default = null)
+    public function param($name = '', $default = null)
     {
         if (empty($this->param)) {
             $method = $this->method();
@@ -524,7 +524,7 @@ class Request
      * @param bool $checkEmpty 是否检测空值
      * @return mixed
      */
-    protected function has($name, $checkEmpty = false)
+    public function has($name, $checkEmpty = false)
     {
         if (empty($this->param)) {
             $param = $this->param();
@@ -544,7 +544,7 @@ class Request
      * @param string|array $name 变量名
      * @return mixed
      */
-    protected function only($name)
+    public function only($name)
     {
         $param = $this->param();
         if (is_string($name)) {
@@ -565,7 +565,7 @@ class Request
      * @param string|array $name 变量名
      * @return mixed
      */
-    protected function except($name)
+    public function except($name)
     {
         $param = $this->param();
         if (is_string($name)) {
@@ -585,7 +585,7 @@ class Request
      * @param string $name 变量名
      * @return mixed
      */
-    protected function session($name = '')
+    public function session($name = '')
     {
         if (PHP_SESSION_DISABLED == session_status()) {
             session_start();
@@ -599,7 +599,7 @@ class Request
      * @param string $name 变量名
      * @return mixed
      */
-    protected function cookie($name = '')
+    public function cookie($name = '')
     {
         return Input::data($this->cookie ?: $_COOKIE, $name);
     }
@@ -610,7 +610,7 @@ class Request
      * @param string $name 变量名
      * @return mixed
      */
-    protected function server($name = '')
+    public function server($name = '')
     {
         return Input::data($this->server ?: $_SERVER, $name);
     }
@@ -621,7 +621,7 @@ class Request
      * @param string $name 名称
      * @return null|array|\think\File
      */
-    protected function file($name = '')
+    public function file($name = '')
     {
         return Input::file($name, $this->file ?: $_FILES);
     }
@@ -631,7 +631,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isSsl()
+    public function isSsl()
     {
         $server = array_merge($_SERVER, $this->server);
         if (isset($server['HTTPS']) && ('1' == $server['HTTPS'] || 'on' == strtolower($server['HTTPS']))) {
@@ -651,7 +651,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isAjax()
+    public function isAjax()
     {
         return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ? true : false;
     }
@@ -661,7 +661,7 @@ class Request
      * @access public
      * @return bool
      */
-    protected function isPjax()
+    public function isPjax()
     {
         return (isset($_SERVER['HTTP_X_PJAX']) && $_SERVER['HTTP_X_PJAX']) ? true : false;
     }
@@ -672,7 +672,7 @@ class Request
      * @param boolean $adv 是否进行高级模式获取（有可能被伪装）
      * @return mixed
      */
-    protected function ip($type = 0, $adv = false)
+    public function ip($type = 0, $adv = false)
     {
         $type      = $type ? 1 : 0;
         static $ip = null;
@@ -708,7 +708,7 @@ class Request
      * @access public
      * @return string
      */
-    protected function scheme()
+    public function scheme()
     {
         return $this->isSsl() ? 'https' : 'http';
     }
@@ -718,7 +718,7 @@ class Request
      * @access public
      * @return string
      */
-    protected function query()
+    public function query()
     {
         return $this->server('QUERY_STRING');
     }
@@ -728,7 +728,7 @@ class Request
      * @access public
      * @return string
      */
-    protected function host()
+    public function host()
     {
         return $this->server('HTTP_HOST');
     }
@@ -738,7 +738,7 @@ class Request
      * @access public
      * @return integer
      */
-    protected function port()
+    public function port()
     {
         return $this->server('SERVER_PORT');
     }
@@ -748,7 +748,7 @@ class Request
      * @access public
      * @return integer
      */
-    protected function protocol()
+    public function protocol()
     {
         return $this->server('SERVER_PROTOCOL');
     }
@@ -758,7 +758,7 @@ class Request
      * @access public
      * @return integer
      */
-    protected function remotePort()
+    public function remotePort()
     {
         return $this->server('REMOTE_PORT');
     }
@@ -769,7 +769,7 @@ class Request
      * @param array $route 路由名称
      * @return array
      */
-    protected function route($route = [])
+    public function route($route = [])
     {
         if (!empty($route)) {
             $this->route = $route;
@@ -784,7 +784,7 @@ class Request
      * @param array $dispatch 调度信息
      * @return array
      */
-    protected function dispatch($dispatch = [])
+    public function dispatch($dispatch = [])
     {
         if (!empty($dispatch)) {
             $this->dispatch = $dispatch;
@@ -792,18 +792,4 @@ class Request
         return $this->dispatch;
     }
 
-    public static function __callStatic($method, $params)
-    {
-        if (is_null(self::$instance)) {
-            self::instance();
-        }
-        return call_user_func_array([self::$instance, $method], $params);
-    }
-
-    public function __call($method, $params)
-    {
-        if (method_exists($this, $method)) {
-            return call_user_func_array([$this, $method], $params);
-        }
-    }
 }
