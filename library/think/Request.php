@@ -413,7 +413,10 @@ class Request
      */
     public function method($method = '')
     {
-        if ($method) {
+        if (true === $method) {
+            // 获取原始请求类型
+            return IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+        } elseif ($method) {
             $this->method = $method;
             return;
         } elseif (!$this->method) {
@@ -497,7 +500,7 @@ class Request
     public function param($name = '', $default = null)
     {
         if (empty($this->param)) {
-            $method = $this->method();
+            $method = $this->method(true);
             // 自动获取请求变量
             switch ($method) {
                 case 'POST':
