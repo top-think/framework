@@ -578,8 +578,11 @@ abstract class Builder
                         throw new Exception(' fields not exists :[' . $key . ']');
                     }
                     unset($data[$key]);
-                } else {
+                } elseif (is_scalar($val)) {
                     $data[$key] = $this->parseValue($val);
+                } else {
+                    // 过滤掉非标量数据
+                    unset($data[$key]);
                 }
             }
             $value    = array_values($data);
