@@ -32,7 +32,7 @@ class File
 
     /**
      * 架构函数
-     * @access public
+     * @param array $options
      */
     public function __construct($options = [])
     {
@@ -54,10 +54,11 @@ class File
     {
         // 创建项目缓存目录
         if (!is_dir($this->options['path'])) {
-            if (!mkdir($this->options['path'], 0755, true)) {
-                return false;
+            if (mkdir($this->options['path'], 0755, true)) {
+                return true;
             }
         }
+        return false;
     }
 
     /**

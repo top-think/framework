@@ -66,6 +66,7 @@ class Response
      * @param mixed $data 输出数据
      * @param string $type 输出类型
      * @param array $options 输出参数
+     * @return Response
      */
     public static function create($data = [], $type = '', $options = [])
     {

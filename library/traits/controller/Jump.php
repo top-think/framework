@@ -29,7 +29,7 @@ trait Jump
      * @param string $url 跳转的URL地址
      * @param mixed $data 返回的数据
      * @param integer $wait 跳转等待时间
-     * @return void
+     * @return array
      */
     public function success($msg = '', $url = null, $data = '', $wait = 3)
     {
