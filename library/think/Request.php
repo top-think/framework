@@ -192,7 +192,7 @@ class Request
     /**
      * 获取当前包含协议的域名
      * @access public
-     * @param string $url URL地址
+     * @param string $domain 域名
      * @return string
      */
     public function domain($domain = '')
@@ -209,8 +209,7 @@ class Request
     /**
      * 获取当前完整URL 包括QUERY_STRING
      * @access public
-     * @param string $url URL地址
-     * @param bool $domain 是否需要域名
+     * @param string|true $url URL地址 true 带域名获取
      * @return string
      */
     public function url($url = '')
@@ -221,8 +220,14 @@ class Request
         } elseif (!$this->url) {
             if (IS_CLI) {
                 $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+            } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
+                $this->url = $_SERVER['HTTP_X_REWRITE_URL'];
+            } elseif (isset($_SERVER['REQUEST_URI'])) {
+                $this->url = $_SERVER['REQUEST_URI'];
+            } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
+                $this->url = $_SERVER['ORIG_PATH_INFO'] . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
             } else {
-                $this->url = $_SERVER[Config::get('url_request_uri')];
+                $this->url = '';
             }
         }
         return true === $url ? $this->domain() . $this->url : $this->url;
@@ -466,6 +471,36 @@ class Request
     public function isDelete()
     {
         return $this->method() == 'DELETE';
+    }
+
+    /**
+     * 是否为HEAD请求
+     * @access public
+     * @return bool
+     */
+    public function isHead()
+    {
+        return $this->method() == 'HEAD';
+    }
+
+    /**
+     * 是否为PATCH请求
+     * @access public
+     * @return bool
+     */
+    public function isPatch()
+    {
+        return $this->method() == 'PATCH';
+    }
+
+    /**
+     * 是否为OPTIONS请求
+     * @access public
+     * @return bool
+     */
+    public function isOptions()
+    {
+        return $this->method() == 'OPTIONS';
     }
 
     /**
@@ -767,6 +802,21 @@ class Request
     public function cache()
     {
         return $this->server('HTTP_CACHE_CONTROL');
+    }
+
+    /**
+     * 获取当前请求的content type
+     * @access public
+     * @return string
+     */
+    public function getContentType()
+    {
+        if (isset($_SERVER["CONTENT_TYPE"])) {
+            return $_SERVER["CONTENT_TYPE"];
+        } elseif (isset($_SERVER["HTTP_CONTENT_TYPE"])) {
+            return $_SERVER["HTTP_CONTENT_TYPE"];
+        }
+        return null;
     }
 
     /**
