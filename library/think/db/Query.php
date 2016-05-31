@@ -1051,7 +1051,8 @@ class Query
      */
     public function lock($lock = false)
     {
-        $this->options['lock'] = $lock;
+        $this->options['lock']   = $lock;
+        $this->options['master'] = true;
         return $this;
     }
 
