@@ -545,9 +545,9 @@ abstract class Connection
             }
             $this->commit($label);
             return $result;
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             $this->rollback();
-            return false;
+            throw $e;
         }
     }
 
@@ -570,7 +570,7 @@ abstract class Connection
             $this->linkID->beginTransaction();
         }
         $this->transTimes++;
-        return null;
+        return;
     }
 
     /**
