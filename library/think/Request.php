@@ -710,16 +710,6 @@ class Request
     }
 
     /**
-     * 获取用户agent信息
-     * @access public
-     * @return string
-     */
-    public function agent()
-    {
-        return $this->server('HTTP_USER_AGENT');
-    }
-
-    /**
      * 检测是否使用手机访问
      * @access public
      * @return bool
@@ -737,6 +727,46 @@ class Request
         } else {
             return false;
         }
+    }
+
+    /**
+     * 获取请求的user agent信息
+     * @access public
+     * @return string
+     */
+    public function agent()
+    {
+        return $this->server('HTTP_USER_AGENT');
+    }
+
+    /**
+     * 获取请求的accept encoding
+     * @access public
+     * @return string
+     */
+    public function encode()
+    {
+        return $this->server('HTTP_ACCEPT_ENCODING');
+    }
+
+    /**
+     * 获取请求的accept language
+     * @access public
+     * @return string
+     */
+    public function language()
+    {
+        return $this->server('HTTP_ACCEPT_LANGUAGE');
+    }
+
+    /**
+     * 获取请求的cache control
+     * @access public
+     * @return string
+     */
+    public function cache()
+    {
+        return $this->server('HTTP_CACHE_CONTROL');
     }
 
     /**
