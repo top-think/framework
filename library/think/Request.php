@@ -411,7 +411,7 @@ class Request
      * @param bool $method  true 获取原始请求类型
      * @return string
      */
-    public function method($method = '')
+    public function method($method = false)
     {
         if (true === $method) {
             // 获取原始请求类型
