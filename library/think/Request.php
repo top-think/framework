@@ -420,9 +420,10 @@ class Request
             $this->method = $method;
             return;
         } elseif (!$this->method) {
-            $mask = $this->param(Config::get('var_method'));
-            if ($mask) {
-                $this->method = $mask;
+            if (isset($_POST[Config::get('var_method')])) {
+                $this->method = strtoupper($_POST[Config::get('var_method')]);
+            } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+                $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
             } else {
                 $this->method = IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
             }
