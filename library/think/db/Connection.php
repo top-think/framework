@@ -38,8 +38,6 @@ abstract class Connection
     protected $lastInsID;
     // 返回或者影响记录数
     protected $numRows = 0;
-    // 事务的数据库连接
-    protected $transPDO;
     // 事务指令数
     protected $transTimes = 0;
     // 事务标识
@@ -52,6 +50,8 @@ abstract class Connection
 
     /** @var PDO 当前连接ID */
     protected $linkID;
+    protected $linkRead;
+    protected $linkWrite;
 
     // 查询结果类型
     protected $resultSetType = Db::RESULTSET_ARRAY;
@@ -568,9 +568,6 @@ abstract class Connection
         if (0 == $this->transTimes) {
             $this->transLabel = $label;
             $this->linkID->beginTransaction();
-            if (1 == $this->config['deploy']) {
-                $this->transPDO = $this->linkID;
-            }
         }
         $this->transTimes++;
         return null;
@@ -585,13 +582,11 @@ abstract class Connection
      */
     public function commit($label = '')
     {
+        $this->initConnect(true);
         if ($this->transTimes > 0 && $label == $this->transLabel) {
             try {
                 $this->linkID->commit();
                 $this->transTimes = 0;
-                if (1 == $this->config['deploy']) {
-                    $this->transPDO = null;
-                }
             } catch (\PDOException $e) {
                 throw new PDOException($e, $this->config, $this->queryStr);
             }
@@ -607,13 +602,11 @@ abstract class Connection
      */
     public function rollback()
     {
+        $this->initConnect(true);
         if ($this->transTimes > 0) {
             try {
                 $this->linkID->rollback();
                 $this->transTimes = 0;
-                if (1 == $this->config['deploy']) {
-                    $this->transPDO = null;
-                }
             } catch (\PDOException $e) {
                 throw new PDOException($e, $this->config, $this->queryStr);
             }
@@ -820,12 +813,17 @@ abstract class Connection
     protected function initConnect($master = true)
     {
         if (!empty($this->config['deploy'])) {
-            if ($this->transPDO) {
-                // 使用事务连接
-                $this->linkID = $this->transPDO;
+            // 采用分布式数据库
+            if ($master) {
+                if (!$this->linkWrite) {
+                    $this->linkWrite = $this->multiConnect(true);
+                }
+                $this->linkID = $this->linkWrite;
             } else {
-                // 采用分布式数据库
-                $this->linkID = $this->multiConnect($master);
+                if (!$this->linkRead) {
+                    $this->linkRead = $this->multiConnect(false);
+                }
+                $this->linkID = $this->linkRead;
             }
         } elseif (!$this->linkID) {
             // 默认单数据库
