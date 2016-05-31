@@ -18,14 +18,14 @@ use think\db\Query;
  * @package think
  * @method Query table(string $table) static 指定数据表（含前缀）
  * @method Query name(string $name) static 指定数据表（不含前缀）
- * @method Query name(string $name) static 指定数据表（不含前缀）
- * @method Query where($field, $op = null, $condition = null) static 查询条件
- * @method Query join($join, $condition = null, $type = 'INNER') static JOIN查询
- * @method Query union($union, $all = false) static UNION查询
- * @method Query limit($offset, $length = null) static 查询LIMIT
- * @method Query order($field, $order = null) static 查询ORDER
- * @method mixed query($sql, $bind = [], $fetch = false, $master = false, $class = false) static SQL查询
- * @method integer execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null) static SQL执行
+ * @method Query where(array|string $field, string $op = null, mixed $condition = null) static 查询条件
+ * @method Query join(array|string $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
+ * @method Query union(string|array $union, boolean $all = false) static UNION查询
+ * @method Query limit(string|integer $offset, integer $length = null) static 查询LIMIT
+ * @method Query order(string|array $field, string $order = null) static 查询ORDER
+ * @method mixed query(string $sql, array $bind = [], boolean $fetch = false, boolean $master = false, mixed $class = false) static SQL查询
+ * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
+ * @method PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) static 分页查询
  */
 class Db
 {
