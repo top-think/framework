@@ -408,7 +408,7 @@ class Request
     /**
      * 当前的请求类型
      * @access public
-     * @param string $method 请求类型
+     * @param bool $method  true 获取原始请求类型
      * @return string
      */
     public function method($method = '')
@@ -416,9 +416,6 @@ class Request
         if (true === $method) {
             // 获取原始请求类型
             return IS_CLI ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
-        } elseif ($method) {
-            $this->method = $method;
-            return;
         } elseif (!$this->method) {
             if (isset($_POST[Config::get('var_method')])) {
                 $this->method = strtoupper($_POST[Config::get('var_method')]);
