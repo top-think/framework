@@ -1437,16 +1437,18 @@ class Query
      * @param mixed $data 数据
      * @param boolean $replace 是否replace
      * @param boolean $getLastInsID 是否获取自增ID
+     * @param string $sequence 自增序列名
      * @return integer
      */
-    public function insert(array $data, $replace = false, $getLastInsID = false)
+    public function insert(array $data, $replace = false, $getLastInsID = false, $sequence = null)
     {
         // 分析查询表达式
         $options = $this->parseExpress();
         // 生成SQL语句
-        $sql = $this->builder()->insert($data, $options, $replace);
+        $sql      = $this->builder()->insert($data, $options, $replace);
+        $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
         // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID, isset($options['sequence']) ? $options['sequence'] : null);
+        return $this->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID, $sequence);
     }
 
     /**
