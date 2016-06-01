@@ -1061,9 +1061,13 @@ class Route
     private static function parseUrlParams($url, $var)
     {
         if ($url) {
-            preg_replace_callback('/(\w+)\/([^\/]+)/', function ($match) use (&$var) {
-                $var[strtolower($match[1])] = strip_tags($match[2]);
-            }, $url);
+            if (Config::get('url_param_type')) {
+                $var += explode('/', $url);
+            } else {
+                preg_replace_callback('/(\w+)\/([^\/]+)/', function ($match) use (&$var) {
+                    $var[strtolower($match[1])] = strip_tags($match[2]);
+                }, $url);
+            }
         }
         $_GET = array_merge($var, $_GET);
     }
