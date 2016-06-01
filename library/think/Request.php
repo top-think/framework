@@ -203,7 +203,7 @@ class Request
     {
         if (!empty($domain)) {
             $this->domain = $domain;
-            return;
+            return $this;
         } elseif (!$this->domain) {
             $this->domain = $this->scheme() . '://' . $this->host();
         }
@@ -220,7 +220,7 @@ class Request
     {
         if (is_string($url) && !empty($url)) {
             $this->url = $url;
-            return;
+            return $this;
         } elseif (!$this->url) {
             if (IS_CLI) {
                 $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
@@ -247,7 +247,7 @@ class Request
     {
         if (is_string($url) && !empty($url)) {
             $this->baseUrl = $url;
-            return;
+            return $this;
         } elseif (!$this->baseUrl) {
             $str           = $this->url();
             $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
@@ -265,7 +265,7 @@ class Request
     {
         if (is_string($file) && !empty($file)) {
             $this->baseFile = $file;
-            return;
+            return $this;
         } elseif (!$this->baseFile) {
             $url = '';
             if (!IS_CLI) {
@@ -297,7 +297,7 @@ class Request
     {
         if (is_string($url) && !empty($url)) {
             $this->root = $url;
-            return;
+            return $this;
         } elseif (!$this->root) {
             $file = $this->baseFile();
             if ($file && 0 !== strpos($this->url(), $file)) {
@@ -922,6 +922,7 @@ class Request
     {
         if (!is_null($module)) {
             $this->module = $module;
+            return $this;
         } else {
             return $this->module ?: '';
         }
@@ -937,6 +938,7 @@ class Request
     {
         if (!is_null($controller)) {
             $this->controller = $controller;
+            return $this;
         } else {
             return $this->controller ?: '';
         }
@@ -952,6 +954,7 @@ class Request
     {
         if (!is_null($action)) {
             $this->action = $action;
+            return $this;
         } else {
             return $this->action ?: '';
         }

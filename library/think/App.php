@@ -271,9 +271,7 @@ class App
 
         // 设置当前请求的模块、控制器、操作
         $request = Request::instance();
-        $request->module($module);
-        $request->controller($controller);
-        $request->action($actionName);
+        $request->module($module)->controller($controller)->action($actionName);
 
         // 监听module_init
         Hook::listen('module_init', $request);
