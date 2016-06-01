@@ -827,9 +827,10 @@ class Route
      * @param string $url URL地址
      * @param string $depr URL分隔符
      * @param bool $autoSearch 是否自动深度搜索控制器
+     * @param integer $paramType URL参数解析方式 0 名称解析 1 顺序解析
      * @return array
      */
-    public static function parseUrl($url, $depr = '/', $autoSearch = false)
+    public static function parseUrl($url, $depr = '/', $autoSearch = false, $paramType = 0)
     {
         if (isset(self::$bind['module'])) {
             // 如果有模块/控制器绑定
@@ -840,7 +841,7 @@ class Route
             $url = str_replace($depr, '/', $url);
         }
 
-        $result = self::parseRoute($url, $autoSearch, true);
+        $result = self::parseRoute($url, $autoSearch, true, $paramType);
 
         if (!empty($result['var'])) {
             $_GET = array_merge($result['var'], $_GET);
@@ -854,9 +855,10 @@ class Route
      * @param string $url URL地址
      * @param bool $autoSearch 是否自动深度搜索控制器
      * @param bool $reverse 是否反转解析URL
+     * @param integer $paramType URL参数解析方式 0 名称解析 1 顺序解析
      * @return array
      */
-    private static function parseRoute($url, $autoSearch = false, $reverse = false)
+    private static function parseRoute($url, $autoSearch = false, $reverse = false, $paramType = 0)
     {
         $url = trim($url, '/');
         $var = [];
@@ -901,9 +903,13 @@ class Route
                 $action = !empty($path) ? array_shift($path) : null;
                 // 解析额外参数
                 if (!empty($path)) {
-                    preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$var) {
-                        $var[strtolower($match[1])] = strip_tags($match[2]);
-                    }, implode('/', $path));
+                    if ($paramType) {
+                        $var += $path;
+                    } else {
+                        preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$var) {
+                            $var[strtolower($match[1])] = strip_tags($match[2]);
+                        }, implode('/', $path));
+                    }
                 }
             } else {
                 $action     = array_pop($path);

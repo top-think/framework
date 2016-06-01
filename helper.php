@@ -337,7 +337,7 @@ function trace($log = '[think]', $level = 'log')
 
 /**
  * 获取当前Request对象实例
- * @return \think\Request
+ * @return Request
  */
 function request()
 {
@@ -349,7 +349,7 @@ function request()
  * @param mixed $data 输出数据
  * @param string $type 输出类型
  * @param array $options 参数
- * @return \think\Response
+ * @return Response
  */
 function response($data = [], $type = '', $options = [])
 {

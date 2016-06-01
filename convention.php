@@ -63,14 +63,14 @@ return [
     'pathinfo_fetch'         => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
     // pathinfo分隔符
     'pathinfo_depr'          => '/',
-    // 获取当前页面地址的系统变量 默认为REQUEST_URI
-    'url_request_uri'        => 'REQUEST_URI',
     // URL伪静态后缀
     'url_html_suffix'        => 'html',
     // URL普通方式参数 用于自动生成
     'url_common_param'       => false,
     //url禁止访问的后缀
     'url_deny_suffix'        => 'ico|png|gif|jpg',
+    // URL参数方式 0 按名称成对解析 1 按顺序解析
+    'url_param_type'         => 0,
     // 是否开启路由
     'url_route_on'           => true,
     // 是否强制使用路由
