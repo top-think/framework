@@ -15,6 +15,7 @@ use PDO;
 use PDOStatement;
 use think\Collection;
 use think\Db;
+use think\db\Query;
 use think\Debug;
 use think\Exception;
 use think\exception\DbBindParamException;
@@ -128,7 +129,7 @@ abstract class Connection
      * 创建指定模型的查询对象
      * @access public
      * @param string $model 模型类名称
-     * @return \think\db\Query
+     * @return Query
      */
     public function model($model)
     {

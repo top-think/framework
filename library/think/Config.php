@@ -177,7 +177,11 @@ class Config
      */
     public static function reset($range = '')
     {
-        $range                          = $range ?: self::$range;
-        true === $range ? self::$config = [] : self::$config[$range] = [];
+        $range = $range ?: self::$range;
+        if (true === $range) {
+            self::$config = [];
+        } else {
+            self::$config[$range] = [];
+        }
     }
 }

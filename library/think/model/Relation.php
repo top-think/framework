@@ -45,9 +45,9 @@ class Relation
     /**
      * 架构函数
      * @access public
-     * @param \think\Model $model 上级模型对象
+     * @param Model $model 上级模型对象
      */
-    public function __construct($model)
+    public function __construct(Model $model)
     {
         $this->parent = $model;
     }

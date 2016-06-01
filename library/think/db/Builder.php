@@ -13,6 +13,8 @@ namespace think\db;
 
 use PDO;
 use think\Db;
+use think\db\Connection;
+use think\db\Query;
 use think\Exception;
 
 abstract class Builder
@@ -38,9 +40,9 @@ abstract class Builder
     /**
      * 架构函数
      * @access public
-     * @param \think\db\Connection $connection 数据库连接对象实例
+     * @param Connection $connection 数据库连接对象实例
      */
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }
@@ -48,10 +50,10 @@ abstract class Builder
     /**
      * 设置当前的Query对象实例
      * @access protected
-     * @param \think\db\Query $query 当前查询对象实例
+     * @param Query $query 当前查询对象实例
      * @return void
      */
-    public function setQuery($query)
+    public function setQuery(Query $query)
     {
         $this->query = $query;
     }
