@@ -644,23 +644,6 @@ abstract class Connection
     }
 
     /**
-     * 将SQL语句中的__TABLE_NAME__字符串替换成带前缀的表名（小写）
-     * @access public
-     * @param string $sql sql语句
-     * @return string
-     */
-    public function parseSqlTable($sql)
-    {
-        if (false !== strpos($sql, '__')) {
-            $prefix = $this->config['prefix'];
-            $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
-                return $prefix . strtolower($match[1]);
-            }, $sql);
-        }
-        return $sql;
-    }
-
-    /**
      * 获得查询次数
      * @access public
      * @param boolean $execute 是否包含所有查询

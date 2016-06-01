@@ -66,7 +66,7 @@ abstract class Builder
      */
     protected function parseSqlTable($sql)
     {
-        return $this->connection->parseSqlTable($sql);
+        return $this->query->parseSqlTable($sql);
     }
 
     /**

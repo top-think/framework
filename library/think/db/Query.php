@@ -38,6 +38,8 @@ class Query
     protected $table = '';
     // 当前数据表名称（不含前缀）
     protected $name = '';
+    // 当前数据表前缀
+    protected $prefix = '';
     // 查询参数
     protected $options = [];
     // 参数绑定
@@ -53,6 +55,7 @@ class Query
     {
         $this->connection = $connection ?: Db::connect([], true);
         $this->driver     = $this->connection->getDriverName();
+        $this->prefix     = $this->connection->getConfig('prefix');
         $this->model      = $model;
     }
 
@@ -126,7 +129,7 @@ class Query
     {
         if ($name || empty($this->table)) {
             $name      = $name ?: $this->name;
-            $tableName = $this->getConfig('prefix');
+            $tableName = $this->prefix;
             if ($name) {
                 $tableName .= Loader::parseName($name);
             }
@@ -134,6 +137,23 @@ class Query
             $tableName = $this->table;
         }
         return $tableName;
+    }
+
+    /**
+     * 将SQL语句中的__TABLE_NAME__字符串替换成带前缀的表名（小写）
+     * @access public
+     * @param string $sql sql语句
+     * @return string
+     */
+    public function parseSqlTable($sql)
+    {
+        if (false !== strpos($sql, '__')) {
+            $prefix = $this->prefix;
+            $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
+                return $prefix . strtolower($match[1]);
+            }, $sql);
+        }
+        return $sql;
     }
 
     /**
@@ -603,7 +623,7 @@ class Query
                 }
             }
         } else {
-            $prefix = $this->getConfig('prefix');
+            $prefix = $this->prefix;
             // 传入的表名为数组
             if (is_array($join)) {
                 if (0 !== $key = key($join)) {
@@ -622,7 +642,7 @@ class Query
             } else {
                 $join = trim($join);
                 if (0 === strpos($join, '__')) {
-                    $table = $this->connection->parseSqlTable($join);
+                    $table = $this->parseSqlTable($join);
                 } elseif (false === strpos($join, '(') && false === strpos($join, '.') && !empty($prefix) && 0 !== strpos($join, $prefix)) {
                     // 传入的表名中不带有'('并且不以默认的表前缀开头时加上默认的表前缀
                     $table = $prefix . $join;
@@ -1210,7 +1230,7 @@ class Query
             // 多表不获取字段信息
             return false;
         } else {
-            $tableName = $this->connection->parseSqlTable($tableName);
+            $tableName = $this->parseSqlTable($tableName);
         }
 
         $guid = md5($tableName);
