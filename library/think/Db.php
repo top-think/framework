@@ -13,22 +13,21 @@ namespace think;
 
 use think\Collection;
 use think\db\Query;
-use think\Model;
 
 /**
  * Class Db
  * @package think
  * @method Query table(string $table) static 指定数据表（含前缀）
  * @method Query name(string $name) static 指定数据表（不含前缀）
- * @method Query where(array|string $field, string $op = null, mixed $condition = null) static 查询条件
- * @method Query join(array|string $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
- * @method Query union(string|array $union, boolean $all = false) static UNION查询
- * @method Query limit(string|integer $offset, integer $length = null) static 查询LIMIT
- * @method Query order(string|array $field, string $order = null) static 查询ORDER
+ * @method Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
+ * @method Query join(mixed $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
+ * @method Query union(mixed $union, boolean $all = false) static UNION查询
+ * @method Query limit(mixed $offset, integer $length = null) static 查询LIMIT
+ * @method Query order(mixed $field, string $order = null) static 查询ORDER
  * @method mixed value(string $field) static 获取某个字段的值
  * @method array column(string $field, string $key = '') static 获取某个列的值
- * @method array|false|\PDOStatement|string|Model find(mixed $data = []) static 查询单个记录
- * @method Collection|false|\PDOStatement|string select(mixed $data = []) static 查询多个记录
+ * @method mixed find(mixed $data = []) static 查询单个记录
+ * @method mixed select(mixed $data = []) static 查询多个记录
  * @method mixed query(string $sql, array $bind = [], boolean $fetch = false, boolean $master = false, mixed $class = false) static SQL查询
  * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
  * @method PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) static 分页查询
