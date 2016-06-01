@@ -18,6 +18,7 @@ namespace tests\thinkphp\library\think;
 
 use ReflectionClass;
 use think\Controller;
+use think\Request;
 use think\View;
 
 require_once CORE_PATH . '../../helper.php';
@@ -93,16 +94,16 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 {
     public function testInitialize()
     {
-        $foo = new Foo;
+        $foo = new Foo(Request::instance());
         $this->assertEquals('abcd', $foo->test);
     }
 
     public function testBeforeAction()
     {
-        $obj = new Bar;
+        $obj = new Bar(Request::instance());
         $this->assertEquals(7, $obj->test);
 
-        $obj = new Baz;
+        $obj = new Baz(Request::instance());
         $this->assertEquals(19, $obj->test);
     }
 
@@ -118,7 +119,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 
     public function testFetch()
     {
-        $controller      = new Foo;
+        $controller      = new Foo(Request::instance());
         $view            = $this->getView($controller);
         $template        = dirname(__FILE__) . '/display.html';
         $viewFetch       = $view->fetch($template, ['name' => 'ThinkPHP']);
@@ -138,7 +139,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 
     public function testAssign()
     {
-        $controller = new Foo;
+        $controller = new Foo(Request::instance());
         $view       = $this->getView($controller);
         $controller->assign('abcd', 'dcba');
         $controller->assign(['key1' => 'value1', 'key2' => 'value2']);
@@ -148,7 +149,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 
     public function testValidate()
     {
-        $controller = new Foo;
+        $controller = new Foo(Request::instance());
         $data       = [
             'username'   => 'username',
             'nickname'   => 'nickname',

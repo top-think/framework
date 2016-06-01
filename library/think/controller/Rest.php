@@ -76,7 +76,7 @@ abstract class Rest
             return $this->$fun();
         } else {
             // 抛出异常
-            throw new \Exception('error action :' . ACTION_NAME);
+            throw new \Exception('error action :' . $method);
         }
     }
 

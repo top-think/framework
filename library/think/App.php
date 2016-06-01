@@ -228,63 +228,68 @@ class App
         }
         if (APP_MULTI_MODULE) {
             // 多模块部署
-            $module = strtolower($result[0] ?: $config['default_module']);
-            // 获取模块名称
-            define('MODULE_NAME', strip_tags($module));
+            $module    = strip_tags(strtolower($result[0] ?: $config['default_module']));
             $bind      = Route::bind('module');
             $available = false;
             if ($bind) {
                 // 绑定模块
                 list($bindModule) = explode('/', $bind);
-                if (MODULE_NAME == $bindModule) {
+                if ($module == $bindModule) {
                     $available = true;
                 }
-            } elseif (!in_array(MODULE_NAME, $config['deny_module_list']) && is_dir(APP_PATH . MODULE_NAME)) {
+            } elseif (!in_array($module, $config['deny_module_list']) && is_dir(APP_PATH . $module)) {
                 $available = true;
             }
 
             // 模块初始化
-            if (MODULE_NAME && $available) {
-                define('MODULE_PATH', APP_PATH . MODULE_NAME . DS);
+            if ($module && $available) {
+                define('MODULE_PATH', APP_PATH . $module . DS);
                 define('VIEW_PATH', MODULE_PATH . 'view' . DS);
                 // 初始化模块
-                $config = self::initModule(MODULE_NAME, $config);
+                $config = self::initModule($module, $config);
             } else {
-                throw new HttpException(404, 'module [ ' . MODULE_NAME . ' ] not exists ');
+                throw new HttpException(404, 'module [ ' . $module . ' ] not exists ');
             }
         } else {
             // 单一模块部署
-            define('MODULE_NAME', '');
+            $module = '';
             define('MODULE_PATH', APP_PATH);
             define('VIEW_PATH', MODULE_PATH . 'view' . DS);
         }
 
         // 获取控制器名
-        $controllerName = strip_tags($result[1] ?: $config['default_controller']);
-        defined('CONTROLLER_NAME') or define('CONTROLLER_NAME', $config['url_controller_convert'] ? strtolower($controllerName) : $controllerName);
+        $controller = strip_tags($result[1] ?: $config['default_controller']);
+        $controller = $config['url_controller_convert'] ? strtolower($controller) : $controller;
 
         // 获取操作名
         $actionName = strip_tags($result[2] ?: $config['default_action']);
-        defined('ACTION_NAME') or define('ACTION_NAME', $config['url_action_convert'] ? strtolower($actionName) : $actionName);
+        $actionName = $config['url_action_convert'] ? strtolower($actionName) : $actionName;
 
         // 执行操作
-        if (!preg_match('/^[A-Za-z](\/|\.|\w)*$/', CONTROLLER_NAME)) {
+        if (!preg_match('/^[A-Za-z](\/|\.|\w)*$/', $controller)) {
             // 安全检测
-            throw new Exception('illegal controller name:' . CONTROLLER_NAME, 10000);
+            throw new Exception('illegal controller name:' . $controller, 10000);
         }
-        $instance = Loader::controller(CONTROLLER_NAME, $config['url_controller_layer'], $config['use_controller_suffix'], $config['empty_controller']);
-        // 获取当前操作名
-        $action = ACTION_NAME . $config['action_suffix'];
+
+        // 设置当前请求的模块、控制器、操作
+        $request = Request::instance();
+        $request->module($module);
+        $request->controller($controller);
+        $request->action($actionName);
 
         try {
-            // 操作方法开始监听
-            $call = [$instance, $action];
-            Hook::listen('action_begin', $call);
+            // 获取当前操作名
+            $action = $actionName . $config['action_suffix'];
             if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
                 // 非法操作
-                throw new \ReflectionException('illegal action name :' . ACTION_NAME);
+                throw new \ReflectionException('illegal action name :' . $actionName);
             }
+            $instance = Loader::controller($controller, $config['url_controller_layer'], $config['use_controller_suffix'], $config['empty_controller']);
+
             // 执行操作方法
+            $call = [$instance, $action];
+            Hook::listen('action_begin', $call);
+
             $data = self::invokeMethod($call);
         } catch (\ReflectionException $e) {
             // 操作不存在

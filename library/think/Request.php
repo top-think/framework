@@ -67,6 +67,10 @@ class Request
      */
     protected $dispatch = [];
 
+    protected $module;
+    protected $controller;
+    protected $action;
+
     /**
      * @var array 请求参数
      */
@@ -908,4 +912,48 @@ class Request
         return $this->dispatch;
     }
 
+    /**
+     * 设置或者获取当前的模块名
+     * @access public
+     * @param string $module 模块名
+     * @return string
+     */
+    public function module($module = null)
+    {
+        if (!is_null($module)) {
+            $this->module = $module;
+        } else {
+            return $this->module ?: '';
+        }
+    }
+
+    /**
+     * 设置或者获取当前的控制器名
+     * @access public
+     * @param string $controller 控制器名
+     * @return string
+     */
+    public function controller($controller = null)
+    {
+        if (!is_null($controller)) {
+            $this->controller = $controller;
+        } else {
+            return $this->controller ?: '';
+        }
+    }
+
+    /**
+     * 设置或者获取当前的操作名
+     * @access public
+     * @param string $action 操作名
+     * @return string
+     */
+    public function action($action = null)
+    {
+        if (!is_null($action)) {
+            $this->action = $action;
+        } else {
+            return $this->action ?: '';
+        }
+    }
 }

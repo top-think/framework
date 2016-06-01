@@ -12,6 +12,7 @@
 namespace think;
 
 use think\exception\HttpException;
+use think\Request;
 
 class Loader
 {
@@ -276,7 +277,7 @@ class Loader
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name, 2);
         } else {
-            $module = APP_MULTI_MODULE ? MODULE_NAME : '';
+            $module = APP_MULTI_MODULE ? Request::instance()->module() : '';
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
@@ -311,7 +312,7 @@ class Loader
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
-            $module = APP_MULTI_MODULE ? MODULE_NAME : '';
+            $module = APP_MULTI_MODULE ? Request::instance()->module() : '';
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
@@ -346,7 +347,7 @@ class Loader
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
-            $module = APP_MULTI_MODULE ? MODULE_NAME : '';
+            $module = APP_MULTI_MODULE ? Request::instance()->module() : '';
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
@@ -385,7 +386,7 @@ class Loader
     {
         $info   = pathinfo($url);
         $action = $info['basename'];
-        $module = '.' != $info['dirname'] ? $info['dirname'] : CONTROLLER_NAME;
+        $module = '.' != $info['dirname'] ? $info['dirname'] : Request::instance()->controller();
         $class  = self::controller($module, $layer, $appendSuffix);
         if ($class) {
             if (is_scalar($vars)) {

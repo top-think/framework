@@ -69,14 +69,14 @@ class Controller
             if (is_string($options['only'])) {
                 $options['only'] = explode(',', $options['only']);
             }
-            if (!in_array(ACTION_NAME, $options['only'])) {
+            if (!in_array($this->request->action(), $options['only'])) {
                 return;
             }
         } elseif (isset($options['except'])) {
             if (is_string($options['except'])) {
                 $options['except'] = explode(',', $options['except']);
             }
-            if (in_array(ACTION_NAME, $options['except'])) {
+            if (in_array($this->request->action(), $options['except'])) {
                 return;
             }
         }

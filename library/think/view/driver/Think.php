@@ -13,6 +13,7 @@ namespace think\view\driver;
 
 use think\Exception;
 use think\Log;
+use think\Request;
 use think\Template;
 
 class Think
@@ -110,14 +111,16 @@ class Think
         }
 
         // 分析模板文件规则
-        if (defined('CONTROLLER_NAME') && 0 !== strpos($template, '/')) {
+        $request    = Request::instance();
+        $controller = $request->controller();
+        if ($controller && 0 !== strpos($template, '/')) {
             $depr     = $this->config['view_depr'];
             $template = str_replace(['/', ':'], $depr, $template);
             if ('' == $template) {
                 // 如果模板文件名为空 按照默认规则定位
-                $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . ACTION_NAME;
+                $template = str_replace('.', DS, $controller) . $depr . $request->action();
             } elseif (false === strpos($template, $depr)) {
-                $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . $template;
+                $template = str_replace('.', DS, $controller) . $depr . $template;
             }
         }
         return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');

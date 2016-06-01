@@ -13,6 +13,7 @@ namespace think;
 
 use think\Cache;
 use think\Config;
+use think\Request;
 use think\Route;
 
 class Url
@@ -118,6 +119,7 @@ class Url
     // 直接解析URL地址
     protected static function parseUrl($url)
     {
+        $request = Request::instance();
         if (0 === strpos($url, '/')) {
             // 直接作为路由地址解析
             $url = substr($url, 1);
@@ -129,14 +131,16 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 模块/控制器/操作
-            $module = MODULE_NAME ? MODULE_NAME . '/' : '';
+            $module     = $request->module();
+            $module     = $module ? $module . '/' : '';
+            $controller = $request->controller();
             if ('' == $url) {
                 // 空字符串输出当前的 模块/控制器/操作
-                $url = $module . CONTROLLER_NAME . '/' . ACTION_NAME;
+                $url = $module . $controller . '/' . $request->action();
             } else {
                 $path       = explode('/', $url);
                 $action     = array_pop($path);
-                $controller = empty($path) ? CONTROLLER_NAME : (Config::get('url_controller_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
+                $controller = empty($path) ? $controller : (Config::get('url_controller_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
                 $module     = empty($path) ? $module : array_pop($path) . '/';
                 $url        = $module . $controller . '/' . $action;
             }
