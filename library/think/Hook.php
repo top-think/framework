@@ -88,13 +88,15 @@ class Hook
 
     /**
      * 监听标签的行为
-     * @param string $tag 标签名称
-     * @param mixed $params 传入参数
-     * @param mixed $extra 额外参数
-     * @return void
+     * @param string $tag    标签名称
+     * @param mixed  $params 传入参数
+     * @param mixed  $extra  额外参数
+     * @param bool   $once   只获取一个有效返回值
+     * @return bool|mixed|void
      */
-    public static function listen($tag, &$params = null,$extra=null)    {
-        $result = true;
+    public static function listen($tag, &$params = null, $extra = null, $once = false)
+    {
+        $results = [];
         if (isset(self::$tags[$tag])) {
             foreach (self::$tags[$tag] as $name) {
 
@@ -102,7 +104,11 @@ class Hook
                     Debug::remark('behavior_start', 'time');
                 }
 
-                $result = self::exec($name, $tag, $params,$extra);
+                $result = self::exec($name, $tag, $params, $extra);
+
+                if (!is_null($result) && $once) {
+                    return $result;
+                }
 
                 if (APP_DEBUG) {
                     Debug::remark('behavior_end', 'time');
@@ -115,11 +121,12 @@ class Hook
                 }
                 if (false === $result) {
                     // 如果返回false 则中断行为执行
-                    return;
+                    break;
                 }
+                $results[] = $result;
             }
         }
-        return $result;
+        return $once ? null : $results;
     }
 
     /**
