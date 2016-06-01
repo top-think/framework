@@ -92,7 +92,7 @@ class Hook
      * @param mixed  $params 传入参数
      * @param mixed  $extra  额外参数
      * @param bool   $once   只获取一个有效返回值
-     * @return bool|mixed|void
+     * @return mixed
      */
     public static function listen($tag, &$params = null, $extra = null, $once = false)
     {
