@@ -335,7 +335,11 @@ abstract class Builder
             $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($data[0]) . ' AND ' . $this->parseValue($data[1]);
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询
-            $whereStr .= $exp . ' ' . $this->parseClosure($value);
+            if ($value instanceof \Closure) {
+                $whereStr .= $exp . ' ' . $this->parseClosure($value);
+            } else {
+                $whereStr .= $exp . ' (' . $value . ')';
+            }
         }
         return $whereStr;
     }

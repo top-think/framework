@@ -267,7 +267,7 @@ class Loader
      * @param bool $appendSuffix 是否添加类名后缀
      * @return Object
      */
-    public static function model($name = '', $layer = MODEL_LAYER, $appendSuffix = false)
+    public static function model($name = '', $layer = 'model', $appendSuffix = false)
     {
         static $_model = [];
         if (isset($_model[$name . $layer])) {
@@ -301,10 +301,10 @@ class Loader
      * @param string $empty 空控制器名称
      * @return Object|false
      */
-    public static function controller($name, $layer = '', $appendSuffix = false, $empty = '')
+    public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
         static $_instance = [];
-        $layer            = $layer ?: CONTROLLER_LAYER;
+
         if (isset($_instance[$name . $layer])) {
             return $_instance[$name . $layer];
         }
@@ -332,14 +332,14 @@ class Loader
      * @param bool $appendSuffix 是否添加类名后缀
      * @return Object|false
      */
-    public static function validate($name = '', $layer = '', $appendSuffix = false)
+    public static function validate($name = '', $layer = 'validate', $appendSuffix = false)
     {
         $name = $name ?: Config::get('default_validate');
         if (empty($name)) {
             return new Validate;
         }
         static $_instance = [];
-        $layer            = $layer ?: VALIDATE_LAYER;
+
         if (isset($_instance[$name . $layer])) {
             return $_instance[$name . $layer];
         }
@@ -381,7 +381,7 @@ class Loader
      * @param bool $appendSuffix 是否添加类名后缀
      * @return mixed
      */
-    public static function action($url, $vars = [], $layer = CONTROLLER_LAYER, $appendSuffix = false)
+    public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
     {
         $info   = pathinfo($url);
         $action = $info['basename'];

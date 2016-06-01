@@ -83,6 +83,8 @@ return [
     'url_controller_convert' => true,
     // 是否自动转换URL中的操作名
     'url_action_convert'     => true,
+    // 默认的访问控制器层
+    'url_controller_layer'   => 'controller',
     // 表单请求类型伪装变量
     'var_method'             => '_method',
 

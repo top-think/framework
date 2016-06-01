@@ -96,7 +96,7 @@ class Php
 
         if (strpos($template, '@')) {
             list($module, $template) = explode('@', $template);
-            $path                    = APP_PATH . $module . DS . VIEW_LAYER . DS;
+            $path                    = APP_PATH . $module . DS . 'view' . DS;
         } else {
             $path = $this->config['view_path'];
         }

@@ -883,8 +883,8 @@ class Route
                 $module = APP_MULTI_MODULE ? array_shift($path) : null;
                 if ($autoSearch) {
                     // 自动搜索控制器
-                    $dir    = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER;
-                    $suffix = CLASS_APPEND_SUFFIX || Config::get('use_controller_suffix') ? ucfirst(CONTROLLER_LAYER) : '';
+                    $dir    = APP_PATH . ($module ? $module . DS : '') . 'controller';
+                    $suffix = CLASS_APPEND_SUFFIX || Config::get('use_controller_suffix') ? 'Controller' : '';
                     $item   = [];
                     foreach ($path as $val) {
                         $item[] = array_shift($path);

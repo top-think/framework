@@ -146,7 +146,7 @@ function widget($name, $data = [])
  * @param string $layer 业务层名称
  * @return \think\Model
  */
-function model($name = '', $layer = MODEL_LAYER)
+function model($name = '', $layer = 'model')
 {
     return Loader::model($name, $layer);
 }
@@ -168,7 +168,7 @@ function db($name = '', $config = [])
  * @param string $layer 控制层名称
  * @return \think\Controller
  */
-function controller($name, $layer = CONTROLLER_LAYER)
+function controller($name, $layer = 'controller')
 {
     return Loader::controller($name, $layer);
 }
@@ -180,7 +180,7 @@ function controller($name, $layer = CONTROLLER_LAYER)
  * @param string $layer 要调用的控制层名称
  * @return mixed
  */
-function action($url, $vars = [], $layer = CONTROLLER_LAYER)
+function action($url, $vars = [], $layer = 'controller')
 {
     return Loader::action($url, $vars, $layer);
 }

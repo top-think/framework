@@ -132,13 +132,13 @@ class Build
                     $namespace = APP_NAMESPACE . '\\' . ($module ? $module . '\\' : '') . $path;
                     $class     = $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '');
                     switch ($path) {
-                        case CONTROLLER_LAYER: // 控制器
+                        case 'controller': // 控制器
                             $content = "<?php\nnamespace {$namespace};\n\nclass {$class}\n{\n\n}";
                             break;
-                        case MODEL_LAYER: // 模型
+                        case 'model': // 模型
                             $content = "<?php\nnamespace {$namespace};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
                             break;
-                        case VIEW_LAYER: // 视图
+                        case 'view': // 视图
                             $filename = $modulePath . $path . DS . $val . '.html';
                             if (!is_dir(dirname($filename))) {
                                 // 创建目录
@@ -167,10 +167,10 @@ class Build
      */
     protected static function buildHello($module)
     {
-        $filename = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER . DS . 'Index' . (CLASS_APPEND_SUFFIX ? ucfirst(CONTROLLER_LAYER) : '') . EXT;
+        $filename = APP_PATH . ($module ? $module . DS : '') . 'controller' . DS . 'Index' . (CLASS_APPEND_SUFFIX ? 'Controller' : '') . EXT;
         if (!is_file($filename)) {
             $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
-            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [APP_NAMESPACE, $module ? $module . '\\' : '', CONTROLLER_LAYER, CLASS_APPEND_SUFFIX ? ucfirst(CONTROLLER_LAYER) : ''], $content);
+            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [APP_NAMESPACE, $module ? $module . '\\' : '', 'controller', CLASS_APPEND_SUFFIX ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
                 mkdir(dirname($filename), 0777, true);
             }

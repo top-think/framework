@@ -35,9 +35,6 @@ class baseTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty(TEMP_PATH);
         $this->assertNotEmpty(VENDOR_PATH);
         $this->assertNotEmpty(EXT);
-        $this->assertNotEmpty(MODEL_LAYER);
-        $this->assertNotEmpty(VIEW_LAYER);
-        $this->assertNotEmpty(CONTROLLER_LAYER);
         $this->assertTrue(is_bool(APP_DEBUG));
         $this->assertNotEmpty(ENV_PREFIX);
         $this->assertTrue(is_bool(IS_API));

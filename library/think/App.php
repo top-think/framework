@@ -246,7 +246,7 @@ class App
             // 模块初始化
             if (MODULE_NAME && $available) {
                 define('MODULE_PATH', APP_PATH . MODULE_NAME . DS);
-                define('VIEW_PATH', MODULE_PATH . VIEW_LAYER . DS);
+                define('VIEW_PATH', MODULE_PATH . 'view' . DS);
                 // 初始化模块
                 $config = self::initModule(MODULE_NAME, $config);
             } else {
@@ -256,7 +256,7 @@ class App
             // 单一模块部署
             define('MODULE_NAME', '');
             define('MODULE_PATH', APP_PATH);
-            define('VIEW_PATH', MODULE_PATH . VIEW_LAYER . DS);
+            define('VIEW_PATH', MODULE_PATH . 'view' . DS);
         }
 
         // 获取控制器名
@@ -272,7 +272,7 @@ class App
             // 安全检测
             throw new Exception('illegal controller name:' . CONTROLLER_NAME, 10000);
         }
-        $instance = Loader::controller(CONTROLLER_NAME, '', $config['use_controller_suffix'], $config['empty_controller']);
+        $instance = Loader::controller(CONTROLLER_NAME, $config['url_controller_layer'], $config['use_controller_suffix'], $config['empty_controller']);
         // 获取当前操作名
         $action = ACTION_NAME . $config['action_suffix'];
 

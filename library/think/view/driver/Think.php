@@ -103,7 +103,7 @@ class Think
         if (strpos($template, '@')) {
             // 跨模块调用
             list($module, $template) = explode('@', $template);
-            $path                    = APP_PATH . $module . DS . VIEW_LAYER . DS;
+            $path                    = APP_PATH . $module . DS . 'view' . DS;
         } else {
             // 当前视图目录
             $path = $this->config['view_path'];
