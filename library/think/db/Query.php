@@ -526,7 +526,7 @@ class Query
      * @param integer $step 增长值
      * @param integer $lazyTime 延时时间(s)
      * @return integer|true
-     * @throws \think\Exception
+     * @throws Exception
      */
     public function setInc($field, $step = 1, $lazyTime = 0)
     {
@@ -553,7 +553,7 @@ class Query
      * @param integer $step 减少值
      * @param integer $lazyTime 延时时间(s)
      * @return integer|true
-     * @throws \think\Exception
+     * @throws Exception
      */
     public function setDec($field, $step = 1, $lazyTime = 0)
     {
@@ -1420,7 +1420,7 @@ class Query
      * @param array|string $data 主键数据
      * @param mixed $options 表达式参数
      * @return void
-     * @throws \think\Exception
+     * @throws Exception
      */
     protected function parsePkWhere($data, &$options)
     {
