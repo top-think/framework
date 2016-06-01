@@ -69,31 +69,32 @@ class App
         // 设置系统时区
         date_default_timezone_set($config['default_timezone']);
 
-        // 监听app_init
-        Hook::listen('app_init');
-
-        // 开启多语言机制
-        if ($config['lang_switch_on']) {
-            // 获取当前语言
-            defined('LANG_SET') or define('LANG_SET', Lang::range());
-            // 加载系统语言包
-            Lang::load(THINK_PATH . 'lang' . DS . LANG_SET . EXT);
-            if (!APP_MULTI_MODULE) {
-                Lang::load(APP_PATH . 'lang' . DS . LANG_SET . EXT);
-            }
-        }
-
-        // 获取当前请求的调度信息
-        $dispatch = $request->dispatch();
-        if (empty($dispatch)) {
-            // 未指定调度类型 则进行URL路由检测
-            $dispatch = self::route($request, $config);
-        }
-        // 记录路由信息
-        APP_DEBUG && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
-        // 监听app_begin
-        Hook::listen('app_begin', $dispatch);
         try {
+            // 监听app_init
+            Hook::listen('app_init');
+
+            // 开启多语言机制
+            if ($config['lang_switch_on']) {
+                // 获取当前语言
+                defined('LANG_SET') or define('LANG_SET', Lang::range());
+                // 加载系统语言包
+                Lang::load(THINK_PATH . 'lang' . DS . LANG_SET . EXT);
+                if (!APP_MULTI_MODULE) {
+                    Lang::load(APP_PATH . 'lang' . DS . LANG_SET . EXT);
+                }
+            }
+
+            // 获取当前请求的调度信息
+            $dispatch = $request->dispatch();
+            if (empty($dispatch)) {
+                // 未指定调度类型 则进行URL路由检测
+                $dispatch = self::route($request, $config);
+            }
+            // 记录路由信息
+            APP_DEBUG && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
+            // 监听app_begin
+            Hook::listen('app_begin', $dispatch);
+
             switch ($dispatch['type']) {
                 case 'redirect':
                     // 执行重定向跳转
