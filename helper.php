@@ -84,7 +84,7 @@ function lang($name, $vars = [], $lang = '')
 
 /**
  * 获取和设置配置参数
- * @param string $name 参数名
+ * @param string|array $name 参数名
  * @param mixed $value 参数值
  * @param string $range 作用域
  * @return mixed
