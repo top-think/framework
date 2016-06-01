@@ -275,6 +275,9 @@ class App
         $request->controller($controller);
         $request->action($actionName);
 
+        // 监听module_init
+        Hook::listen('module_init', $request);
+
         try {
             // 获取当前操作名
             $action = $actionName . $config['action_suffix'];
