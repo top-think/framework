@@ -16,8 +16,11 @@ use think\Cache;
 use think\Collection;
 use think\Config;
 use think\Db;
+use think\db\Builder;
+use think\db\Connection;
 use think\Exception;
 use think\exception\DbException;
+use think\exception\PDOException;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -43,11 +46,10 @@ class Query
     /**
      * 架构函数
      * @access public
-     * @param \think\db\Connection|string $connection 数据库对象实例
+     * @param Connection $connection 数据库对象实例
      * @param string $model 模型名
-     * @throws Exception
      */
-    public function __construct($connection = '', $model = '')
+    public function __construct(Connection $connection = null, $model = '')
     {
         $this->connection = $connection ?: Db::connect([], true);
         $this->driver     = $this->connection->getDriverName();
@@ -83,7 +85,7 @@ class Query
     /**
      * 获取当前的数据库Connection对象
      * @access public
-     * @return \think\db\Connection
+     * @return Connection
      */
     public function getConnection()
     {
@@ -115,7 +117,7 @@ class Query
     }
 
     /**
-     * 得到当前的数据表
+     * 得到当前或者指定名称的数据表
      * @access public
      * @param string $name
      * @return string
@@ -317,7 +319,7 @@ class Query
     /**
      * 获取当前的builder实例对象
      * @access protected
-     * @return \think\db\Builder
+     * @return Builder
      */
     protected function builder()
     {
@@ -1395,7 +1397,7 @@ class Query
     /**
      * 把主键值转换为查询条件 支持复合主键
      * @access public
-     * @param array $data 主键数据
+     * @param array|string $data 主键数据
      * @param mixed $options 表达式参数
      * @return void
      * @throws \think\Exception
@@ -1489,7 +1491,7 @@ class Query
      * @param string $fields 要插入的数据表字段名
      * @param string $table 要插入的数据表名
      * @return int
-     * @throws \think\exception\PDOException
+     * @throws PDOException
      */
     public function selectInsert($fields, $table)
     {
@@ -1507,7 +1509,7 @@ class Query
      * @param mixed $data 数据
      * @return int
      * @throws Exception
-     * @throws \think\exception\PDOException
+     * @throws PDOException
      */
     public function update(array $data)
     {
@@ -1549,11 +1551,11 @@ class Query
     /**
      * 查找记录
      * @access public
-     * @param array $data
+     * @param array|string|Query|\Closure $data
      * @return Collection|false|\PDOStatement|string
      * @throws DbException
      * @throws Exception
-     * @throws \think\exception\PDOException
+     * @throws PDOException
      */
     public function select($data = [])
     {
@@ -1632,11 +1634,11 @@ class Query
     /**
      * 查找单条记录
      * @access public
-     * @param array $data 表达式
+     * @param array|string|Query|\Closure $data
      * @return array|false|\PDOStatement|string|Model
      * @throws DbException
      * @throws Exception
-     * @throws \think\exception\PDOException
+     * @throws PDOException
      */
     public function find($data = [])
     {
@@ -1769,7 +1771,7 @@ class Query
      * @param array $data 表达式
      * @return int
      * @throws Exception
-     * @throws \think\exception\PDOException
+     * @throws PDOException
      */
     public function delete($data = [])
     {
