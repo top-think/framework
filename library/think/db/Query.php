@@ -1720,6 +1720,7 @@ class Query
     {
         $column    = $column ?: $this->getPk();
         $options   = $this->getOptions();
+        $bind      = $this->bind;
         $resultSet = $this->limit($count)->order($column, 'asc')->select();
 
         while (!empty($resultSet)) {
@@ -1730,6 +1731,7 @@ class Query
             $lastId    = is_array($end) ? $end[$column] : $end->$column;
             $resultSet = $this->options($options)
                 ->limit($count)
+                ->bind($bind)
                 ->where($column, '>', $lastId)
                 ->order($column, 'asc')
                 ->select();
