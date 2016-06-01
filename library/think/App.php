@@ -243,8 +243,6 @@ class App
 
             // 模块初始化
             if ($module && $available) {
-                define('MODULE_PATH', APP_PATH . $module . DS);
-                define('VIEW_PATH', MODULE_PATH . 'view' . DS);
                 // 初始化模块
                 $config = self::initModule($module, $config);
             } else {
@@ -253,9 +251,9 @@ class App
         } else {
             // 单一模块部署
             $module = '';
-            define('MODULE_PATH', APP_PATH);
-            define('VIEW_PATH', MODULE_PATH . 'view' . DS);
         }
+        // 当前模块路径
+        define('MODULE_PATH', APP_PATH . ($module ? $module . DS : ''));
 
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $config['default_controller']);

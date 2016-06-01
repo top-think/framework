@@ -91,8 +91,8 @@ class Php
      */
     private function parseTemplate($template)
     {
-        if (empty($this->config['view_path']) && defined('VIEW_PATH')) {
-            $this->config['view_path'] = VIEW_PATH;
+        if (empty($this->config['view_path']) && defined('MODULE_PATH')) {
+            $this->config['view_path'] = MODULE_PATH . 'view' . DS;
         }
 
         if (strpos($template, '@')) {

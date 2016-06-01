@@ -35,8 +35,8 @@ class Think
     public function __construct($config = [])
     {
         $this->config = array_merge($this->config, $config);
-        if (empty($this->config['view_path']) && defined('VIEW_PATH')) {
-            $this->config['view_path'] = VIEW_PATH;
+        if (empty($this->config['view_path']) && defined('MODULE_PATH')) {
+            $this->config['view_path'] = MODULE_PATH . 'view' . DS;
         }
         $this->template = new Template($this->config);
     }
