@@ -411,6 +411,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function saveAll($dataSet)
     {
+        $result = 0;
         foreach ($dataSet as $data) {
             $result = $this->isUpdate(false)->save($data, [], false);
         }
