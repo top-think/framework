@@ -63,9 +63,12 @@ class Error
      */
     public static function appError($errno, $errstr, $errfile = '', $errline = 0, $errcontext = [])
     {
+        $exception = new ErrorException($errno, $errstr, $errfile, $errline, $errcontext);
         if (error_reporting() & $errno) {
             // 将错误信息托管至 think\exception\ErrorException
-            throw new ErrorException($errno, $errstr, $errfile, $errline, $errcontext);
+            throw $exception;
+        }else{
+            self::getExceptionHandler()->report($exception);
         }
     }
 
