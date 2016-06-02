@@ -13,12 +13,17 @@ namespace think;
 
 \think\Loader::import('controller/Jump', TRAIT_PATH, EXT);
 
+use think\Request;
+use think\View;
+
 class Controller
 {
     use \traits\controller\Jump;
 
     // 视图类实例
     protected $view = null;
+    // Request实例
+    protected $request;
 
     /**
      * 前置操作方法列表
@@ -29,11 +34,13 @@ class Controller
 
     /**
      * 架构函数
+     * @param \think\Request    $request     Request对象
      * @access public
      */
-    public function __construct()
+    public function __construct(Request $request = null)
     {
-        $this->view = \think\View::instance(Config::get());
+        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
+        $this->request = $request;
 
         // 控制器初始化
         if (method_exists($this, '_initialize')) {
@@ -62,14 +69,14 @@ class Controller
             if (is_string($options['only'])) {
                 $options['only'] = explode(',', $options['only']);
             }
-            if (!in_array(ACTION_NAME, $options['only'])) {
+            if (!in_array($this->request->action(), $options['only'])) {
                 return;
             }
         } elseif (isset($options['except'])) {
             if (is_string($options['except'])) {
                 $options['except'] = explode(',', $options['except']);
             }
-            if (in_array(ACTION_NAME, $options['except'])) {
+            if (in_array($this->request->action(), $options['except'])) {
                 return;
             }
         }
@@ -80,46 +87,35 @@ class Controller
     }
 
     /**
-     * 加载模板和页面输出 可以返回输出内容
+     * 加载模板输出
      * @access public
      * @param string $template 模板文件名
      * @param array  $vars     模板输出变量
+     * @param array $replace     模板替换
      * @param array $config     模板参数
      * @return mixed
      */
-    public function fetch($template = '', $vars = [], $config = [])
+    public function fetch($template = '', $vars = [], $replace = [], $config = [])
     {
-        return $this->view->fetch($template, $vars, $config);
-    }
-
-    /**
-     * 加载模板和页面输出 可以返回输出内容
-     * @access public
-     * @param string $template 模板文件名
-     * @param array  $vars     模板输出变量
-     * @param array $config     模板参数
-     * @return mixed
-     */
-    public function display($template = '', $vars = [], $config = [])
-    {
-        return $this->view->fetch($template, $vars, $config);
+        return $this->view->fetch($template, $vars, $replace, $config);
     }
 
     /**
      * 渲染内容输出
      * @access public
-     * @param string $content 内容
-     * @param array  $vars    模板输出变量
+     * @param string $content 模板内容
+     * @param array  $vars     模板输出变量
+     * @param array $config     模板参数
      * @return mixed
      */
-    public function show($content, $vars = [])
+    public function display($content = '', $vars = [], $config = [])
     {
-        return $this->view->show($content, $vars);
+        return $this->view->display($content, $vars, $config);
     }
 
     /**
      * 模板变量赋值
-     * @access protected
+     * @access public
      * @param mixed $name  要显示的模板变量
      * @param mixed $value 变量的值
      * @return void
@@ -131,29 +127,28 @@ class Controller
 
     /**
      * 初始化模板引擎
-     * @access protected
-     * @param string $engine 引擎名称
-     * @param array $config 引擎参数
+     * @access public
+     * @param array|string $engine 引擎参数
      * @return void
      */
-    public function engine($engine, $config = [])
+    public function engine($engine)
     {
-        $this->view->engine($engine, $config);
+        $this->view->engine($engine);
     }
 
     /**
      * 验证数据
-     * @access protected
+     * @access public
      * @param array $data 数据
      * @param string|array $validate 验证器名或者验证规则数组
      * @param array $message 提示信息
      * @param mixed $callback 回调方法（闭包）
-     * @return void
+     * @return true|string|array
      */
     public function validate($data, $validate, $message = [], $callback = null)
     {
         if (is_array($validate)) {
-            $v = Loader::validate(Config::get('default_validate'));
+            $v = Loader::validate();
             $v->rule($validate);
         } else {
             if (strpos($validate, '.')) {

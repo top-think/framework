@@ -2,7 +2,7 @@
 
 /**
  * 用法：
- * T('controller/Jump');
+ * load_trait('controller/Jump');
  * class index
  * {
  *     use \traits\controller\Jump;
@@ -14,24 +14,15 @@
  */
 namespace traits\controller;
 
+use think\Config;
+use think\exception\HttpResponseException;
+use think\Request;
 use think\Response;
+use think\response\Redirect;
+use think\View as ViewTemplate;
 
 trait Jump
 {
-    /**
-     * 操作错误跳转的快捷方法
-     * @access public
-     * @param mixed $msg 提示信息
-     * @param string $url 跳转的URL地址
-     * @param mixed $data 返回的数据
-     * @param integer $wait 跳转等待时间
-     * @return mixed
-     */
-    public function error($msg = '', $url = null, $data = '', $wait = 3)
-    {
-        return Response::error($msg, $data, $url, $wait);
-    }
-
     /**
      * 操作成功跳转的快捷方法
      * @access public
@@ -39,11 +30,62 @@ trait Jump
      * @param string $url 跳转的URL地址
      * @param mixed $data 返回的数据
      * @param integer $wait 跳转等待时间
-     * @return mixed
+     * @return array
      */
     public function success($msg = '', $url = null, $data = '', $wait = 3)
     {
-        return Response::success($msg, $data, $url, $wait);
+        $code = 1;
+        if (is_numeric($msg)) {
+            $code = $msg;
+            $msg  = '';
+        }
+        $result = [
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data,
+            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
+            'wait' => $wait,
+        ];
+
+        $type = $this->getResponseType();
+        if ('html' == strtolower($type)) {
+            $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_success_tmpl'), $result);
+        }
+        return Response::create($result, $type);
+    }
+
+    /**
+     * 操作错误跳转的快捷方法
+     * @access public
+     * @param mixed $msg 提示信息
+     * @param string $url 跳转的URL地址
+     * @param mixed $data 返回的数据
+     * @param integer $wait 跳转等待时间
+     * @return void
+     */
+    public function error($msg = '', $url = null, $data = '', $wait = 3)
+    {
+        $code = 0;
+        if (is_numeric($msg)) {
+            $code = $msg;
+            $msg  = '';
+        }
+        $result = [
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data,
+            'url'  => is_null($url) ? 'javascript:history.back(-1);' : $url,
+            'wait' => $wait,
+        ];
+
+        $type = $this->getResponseType();
+        if ('html' == strtolower($type)) {
+            $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+                ->fetch(Config::get('dispatch_error_tmpl'), $result);
+        }
+        $response = Response::create($result, $type);
+        throw new HttpResponseException($response);
     }
 
     /**
@@ -57,19 +99,36 @@ trait Jump
      */
     public function result($data, $code = 0, $msg = '', $type = '')
     {
-        return Response::result($data, $code, $msg, $type);
+        return Response::create([], $type)->result($data, $code, $msg);
     }
 
     /**
      * URL重定向
      * @access protected
      * @param string $url 跳转的URL表达式
-     * @param array|int $params 其它URL参数或http code
+     * @param array|integer $params 其它URL参数
+     * @param integer $code http code
      * @return void
      */
-    public function redirect($url, $params = [])
+    public function redirect($url, $params = [], $code = 302)
     {
-        Response::redirect($url, $params);
+        $response = new Redirect($url);
+        if (is_integer($params)) {
+            $code   = $params;
+            $params = [];
+        }
+        $response->code($code)->params($params);
+        throw new HttpResponseException($response);
     }
 
+    /**
+     * 获取当前的response 输出类型
+     * @access public
+     * @return string
+     */
+    public function getResponseType()
+    {
+        $isAjax = Request::instance()->isAjax();
+        return $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
+    }
 }

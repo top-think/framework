@@ -21,6 +21,9 @@ if (is_file(ROOT_PATH . 'env' . EXT)) {
     $env = include ROOT_PATH . 'env' . EXT;
     foreach ($env as $key => $val) {
         $name = ENV_PREFIX . $key;
+        if (is_bool($val)) {
+            $val = $val ? 1 : 0;
+        }
         putenv("$name=$val");
     }
 }
@@ -54,11 +57,8 @@ if (isset($mode['config'])) {
     is_array($mode['config']) ? Config::set($mode['config']) : Config::load($mode['config']);
 }
 
-// 是否开启HOOK
-defined('APP_HOOK') or define('APP_HOOK', false);
-
 // 加载模式行为定义
-if (APP_HOOK && isset($mode['tags'])) {
+if (isset($mode['tags'])) {
     Hook::import($mode['tags']);
 }
 

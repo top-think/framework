@@ -18,6 +18,13 @@ use think\Exception;
  */
 class DbException extends Exception 
 {
+    /**
+     * DbException constructor.
+     * @param string $message
+     * @param array $config
+     * @param string $sql
+     * @param int $code
+     */
     public function __construct($message, Array $config, $sql, $code = 10500)
     {
         $this->message  = $message;

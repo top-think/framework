@@ -32,7 +32,7 @@ class File
 
     /**
      * 架构函数
-     * @access public
+     * @param array $options
      */
     public function __construct($options = [])
     {
@@ -54,10 +54,11 @@ class File
     {
         // 创建项目缓存目录
         if (!is_dir($this->options['path'])) {
-            if (!mkdir($this->options['path'], 0755, true)) {
-                return false;
+            if (mkdir($this->options['path'], 0755, true)) {
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -98,7 +99,6 @@ class File
         if (!is_file($filename)) {
             return false;
         }
-        Cache::$readTimes++;
         $content = file_get_contents($filename);
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
@@ -129,7 +129,6 @@ class File
      */
     public function set($name, $value, $expire = null)
     {
-        Cache::$writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -142,25 +141,6 @@ class File
         $data   = "<?php\n//" . sprintf('%012d', $expire) . $data . "\n?>";
         $result = file_put_contents($filename, $data);
         if ($result) {
-            if ($this->options['length'] > 0) {
-                // 记录缓存队列
-                $queue_file = dirname($filename) . '/__info__.php';
-                $queue      = unserialize(file_get_contents($queue_file));
-                if (!$queue) {
-                    $queue = [];
-                }
-                if (false === array_search($name, $queue)) {
-                    array_push($queue, $name);
-                }
-
-                if (count($queue) > $this->options['length']) {
-                    // 出列
-                    $key = array_shift($queue);
-                    // 删除缓存
-                    $this->unlink($this->filename($key));
-                }
-                file_put_contents($queue_file, serialize($queue));
-            }
             clearstatcache();
             return true;
         } else {
@@ -186,7 +166,7 @@ class File
      */
     public function clear()
     {
-        $fileLsit = (array)glob($this->options['path'].'*');
+        $fileLsit = (array) glob($this->options['path'] . '*');
         foreach ($fileLsit as $path) {
             is_file($path) && unlink($path);
         }

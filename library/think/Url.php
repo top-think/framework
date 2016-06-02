@@ -11,12 +11,17 @@
 
 namespace think;
 
+use think\Cache;
+use think\Config;
+use think\Request;
+use think\Route;
+
 class Url
 {
     /**
      * URL生成 支持路由反射
      * @param string $url URL表达式，
-     * 格式：'[模块/控制器/操作]?参数1=值1&参数2=值2...'
+     * 格式：'[模块/控制器/操作]?参数1=值1&参数2=值2...@域名'
      * @控制器/操作?参数1=值1&参数2=值2...
      * \\命名空间类\\方法?参数1=值1&参数2=值2...
      * @param string|array $vars 传入的参数，支持数组和字符串
@@ -26,6 +31,9 @@ class Url
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
+        if (false === $domain && Config::get('url_domain_deploy')) {
+            $domain = true;
+        }
         // 解析URL
         $info = parse_url($url);
         $url  = !empty($info['path']) ? $info['path'] : '';
@@ -101,17 +109,17 @@ class Url
         } else {
             $url .= $suffix . $anchor;
         }
-
         // 检测域名
         $domain = self::parseDomain($url, $domain);
         // URL组装
-        $url = $domain . Config::get('base_url') . '/' . ltrim($url, '/');
+        $url = $domain . Request::instance()->root() . '/' . ltrim($url, '/');
         return $url;
     }
 
     // 直接解析URL地址
     protected static function parseUrl($url)
     {
+        $request = Request::instance();
         if (0 === strpos($url, '/')) {
             // 直接作为路由地址解析
             $url = substr($url, 1);
@@ -123,14 +131,16 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 模块/控制器/操作
-            $module = MODULE_NAME ? MODULE_NAME . '/' : '';
+            $module     = $request->module();
+            $module     = $module ? $module . '/' : '';
+            $controller = $request->controller();
             if ('' == $url) {
                 // 空字符串输出当前的 模块/控制器/操作
-                $url = $module . CONTROLLER_NAME . '/' . ACTION_NAME;
+                $url = $module . $controller . '/' . $request->action();
             } else {
                 $path       = explode('/', $url);
                 $action     = array_pop($path);
-                $controller = empty($path) ? CONTROLLER_NAME : (Config::get('url_controller_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
+                $controller = empty($path) ? $controller : (Config::get('url_controller_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
                 $module     = empty($path) ? $module : array_pop($path) . '/';
                 $url        = $module . $controller . '/' . $action;
             }
@@ -139,20 +149,36 @@ class Url
     }
 
     // 检测域名
-    protected static function parseDomain($url, $domain)
+    protected static function parseDomain(&$url, $domain)
     {
         if ($domain) {
             if (true === $domain) {
                 // 自动判断域名
                 $domain = $_SERVER['HTTP_HOST'];
                 if (Config::get('url_domain_deploy')) {
-                    // 开启子域名部署
-                    $domain = $_SERVER['HTTP_HOST'];
-                    foreach (Route::domain() as $key => $rule) {
-                        $rule = is_array($rule) ? $rule[0] : $rule;
-                        if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
-                            $domain = $key . strstr($domain, '.'); // 生成对应子域名
-                            break;
+                    // 根域名
+                    $urlDomainRoot = Config::get('url_domain_root');
+                    $domains       = Route::domain();
+                    $route_domain  = array_keys($domains);
+                    foreach ($route_domain as $domain_prefix) {
+                        if (0 === strpos($domain_prefix, '*.') && strpos($domain, ltrim($domain_prefix, '*.')) !== false) {
+                            foreach ($domains as $key => $rule) {
+                                $rule = is_array($rule) ? $rule[0] : $rule;
+                                if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
+                                    $url    = ltrim($url, $rule);
+                                    $domain = $key;
+                                    // 生成对应子域名
+                                    if (!empty($urlDomainRoot)) {
+                                        $domain .= $urlDomainRoot;
+                                    }
+                                    break;
+                                } else if (false !== strpos($key, '*')) {
+                                    if (!empty($urlDomainRoot)) {
+                                        $domain .= $urlDomainRoot;
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -229,9 +255,9 @@ class Url
             if (empty($pattern) && empty($param)) {
                 // 没有任何变量
                 return $url;
-            } elseif (!empty($match) || !empty($param) && array_intersect($param, $array) == $param) {
+            } elseif (!empty($match) || (!empty($param) && array_intersect_assoc($param, $array) == $param)) {
                 // 存在变量定义
-                $vars = array_diff($array, $param);
+                $vars = array_diff_key($array, $param);
                 return $url;
             }
         }
@@ -252,7 +278,9 @@ class Url
                     if (is_numeric($key)) {
                         $key = array_shift($route);
                     }
-                    $route = $route[0];
+                    if (is_array($route)) {
+                        $route = $route[0];
+                    }
                     $param = [];
                     if (is_array($route)) {
                         $route = implode('\\', $route);

@@ -20,7 +20,6 @@ use think\Exception;
  */
 class Wincache
 {
-
     protected $options = [
         'prefix' => '',
         'expire' => 0,
@@ -51,7 +50,6 @@ class Wincache
      */
     public function get($name)
     {
-        Cache::$readTimes++;
         $name = $this->options['prefix'] . $name;
         return wincache_ucache_exists($name) ? wincache_ucache_get($name) : false;
     }
@@ -66,30 +64,11 @@ class Wincache
      */
     public function set($name, $value, $expire = null)
     {
-        Cache::$writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
         $name = $this->options['prefix'] . $name;
         if (wincache_ucache_set($name, $value, $expire)) {
-            if ($this->options['length'] > 0) {
-                // 记录缓存队列
-                $queue = wincache_ucache_get('__info__');
-                if (!$queue) {
-                    $queue = [];
-                }
-                if (false === array_search($name, $queue)) {
-                    array_push($queue, $name);
-                }
-
-                if (count($queue) > $this->options['length']) {
-                    // 出列
-                    $key = array_shift($queue);
-                    // 删除缓存
-                    wincache_ucache_delete($key);
-                }
-                wincache_ucache_set('__info__', $queue);
-            }
             return true;
         }
         return false;

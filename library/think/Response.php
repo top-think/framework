@@ -11,117 +11,187 @@
 
 namespace think;
 
+use think\Hook;
+use think\Request;
+
 class Response
 {
+    // 输出类型的实例化对象
+    protected static $instance = [];
     // 输出数据的转换方法
-    protected static $tramsform = null;
-    // 输出数据的类型
-    protected static $type = '';
+    protected $transform;
     // 输出数据
-    protected static $data = '';
-    // 是否exit
-    protected static $isExit = false;
+    protected $data;
+    // 输出类型
+    protected $type;
+    // 当前的contentType
+    protected $contentType;
+    // 可用的输出类型
+    protected $contentTypes = [
+        'json'   => 'application/json',
+        'xml'    => 'text/xml',
+        'html'   => 'text/html',
+        'jsonp'  => 'application/javascript',
+        'script' => 'application/javascript',
+        'text'   => 'text/plain',
+    ];
+
+    // 输出参数
+    protected $options = [];
+    // header参数
+    protected $header = [];
+
+    /**
+     * 架构函数
+     * @access public
+     * @param mixed $data 输出数据
+     * @param string $type 输出类型
+     * @param array $options 输出参数
+     */
+    public function __construct($data = [], $type = '', $options = [])
+    {
+        $this->data = $data;
+        if (empty($type)) {
+            $isAjax = Request::instance()->isAjax();
+            $type   = $isAjax ? 'json' : 'html';
+        }
+        $this->type = strtolower($type);
+
+        if (isset($this->contentTypes[$this->type])) {
+            $this->contentType($this->contentTypes[$this->type]);
+        }
+        if (!empty($options)) {
+            $this->options = array_merge($this->options, $options);
+        }
+        // 方便获取某个类型的实例
+        self::$instance[$this->type] = $this;
+    }
+
+    /**
+     * 创建Response对象
+     * @access public
+     * @param mixed $data 输出数据
+     * @param string $type 输出类型
+     * @param array $options 输出参数
+     * @return Response
+     */
+    public static function create($data = [], $type = '', $options = [])
+    {
+        if (empty($type)) {
+            $isAjax = Request::instance()->isAjax();
+            $type   = $isAjax ? 'json' : 'html';
+        }
+        $type = strtolower($type);
+
+        if (!isset(self::$instance[$type])) {
+            $class = (isset($options['namespace']) ? $options['namespace'] : '\\think\\response\\') . ucfirst($type);
+            if (class_exists($class)) {
+                $response = new $class($data, $type, $options);
+            } else {
+                $response = new static($data, $type, $options);
+            }
+            self::$instance[$type] = $response;
+        }
+        return self::$instance[$type];
+    }
 
     /**
      * 发送数据到客户端
-     * @access protected
-     * @param mixed $data 要返回的数据
-     * @param String $type 返回数据格式
-     * @param bool $return 是否返回数据
+     * @access public
+     * @param mixed $data 数据
      * @return mixed
+     * @throws Exception
      */
-    public static function send($data = '', $type = '', $return = false)
+    public function send($data = null)
     {
-        $type = strtolower($type ?: self::$type);
+        $data = !is_null($data) ? $data : $this->data;
 
-        $headers = [
-            'json'   => 'application/json',
-            'xml'    => 'text/xml',
-            'html'   => 'text/html',
-            'jsonp'  => 'application/javascript',
-            'script' => 'application/javascript',
-            'text'   => 'text/plain',
-        ];
-
-        if (!headers_sent() && isset($headers[$type])) {
-            header('Content-Type:' . $headers[$type] . '; charset=utf-8');
+        if (isset($this->contentType)) {
+            $this->contentType($this->contentType);
         }
 
-        $data = $data ?: self::$data;
-        if (is_callable(self::$tramsform)) {
-            $data = call_user_func_array(self::$tramsform, [$data]);
-        } else {
-            switch ($type) {
-                case 'json':
-                    // 返回JSON数据格式到客户端 包含状态信息
-                    $data = json_encode($data, JSON_UNESCAPED_UNICODE);
-                    break;
-                case 'jsonp':
-                    // 返回JSON数据格式到客户端 包含状态信息
-                    $handler = !empty($_GET[Config::get('var_jsonp_handler')]) ? $_GET[Config::get('var_jsonp_handler')] : Config::get('default_jsonp_handler');
-                    $data    = $handler . '(' . json_encode($data, JSON_UNESCAPED_UNICODE) . ');';
-                    break;
+        if (is_callable($this->transform)) {
+            $data = call_user_func_array($this->transform, [$data]);
+        }
+
+        defined('RESPONSE_TYPE') or define('RESPONSE_TYPE', $this->type);
+
+        // 处理输出数据
+        $data = $this->output($data);
+
+        // 监听response_data
+        Hook::listen('response_data', $data, $this);
+
+        // 发送头部信息
+        if (!headers_sent() && !empty($this->header)) {
+            // 发送状态码
+            if (isset($this->header['status'])) {
+                http_response_code($this->header['status']);
+                unset($this->header['status']);
+            }
+
+            foreach ($this->header as $name => $val) {
+                header($name . ':' . $val);
             }
         }
-
-        APP_HOOK && Hook::listen('return_data', $data);
-        
-        if ($return) {
-            return $data;
+        if (is_scalar($data)) {
+            echo $data;
+        } elseif (!is_null($data)) {
+            throw new Exception('不支持的数据类型输出：' . gettype($data));
         }
 
-        echo $data;
-        self::isExit() && exit();
+        if (function_exists('fastcgi_finish_request')) {
+            // 提高页面响应
+            fastcgi_finish_request();
+        }
+        return $data;
+    }
+
+    /**
+     * 处理数据
+     * @access protected
+     * @param mixed $data 要处理的数据
+     * @return mixed
+     */
+    protected function output($data)
+    {
+        return $data;
     }
 
     /**
      * 转换控制器输出的数据
      * @access public
      * @param mixed $callback 调用的转换方法
-     * @return void
+     * @return $this
      */
-    public static function tramsform($callback)
+    public function transform($callback)
     {
-        self::$tramsform = $callback;
+        $this->transform = $callback;
+        return $this;
     }
 
     /**
-     * 输出类型设置
+     * 输出的参数
      * @access public
-     * @param string $type 输出内容的格式类型
-     * @return mixed
+     * @param mixed $options 输出参数
+     * @return $this
      */
-    public static function type($type = null)
+    public function options($options = [])
     {
-        if (is_null($type)) {
-            return self::$type ?: Config::get('default_return_type');
-        }
-        self::$type = $type;
+        $this->options = array_merge($this->options, $options);
+        return $this;
     }
 
     /**
      * 输出数据设置
      * @access public
      * @param mixed $data 输出数据
-     * @return void
+     * @return $this
      */
-    public static function data($data)
+    public function data($data)
     {
-        self::$data = $data;
-    }
-
-    /**
-     * 输出是否exit设置
-     * @access public
-     * @param bool $exit 是否退出
-     * @return mixed
-     */
-    public static function isExit($exit = null)
-    {
-        if (is_null($exit)) {
-            return self::$isExit;
-        }
-        self::$isExit = (boolean) $exit;
+        $this->data = $data;
+        return $this;
     }
 
     /**
@@ -130,106 +200,17 @@ class Response
      * @param mixed $data 要返回的数据
      * @param integer $code 返回的code
      * @param string $msg 提示信息
-     * @param string $type 返回数据格式
      * @return mixed
      */
-    public static function result($data, $code = 0, $msg = '', $type = '')
+    public function result($data, $code = 0, $msg = '')
     {
         $result = [
             'code' => $code,
             'msg'  => $msg,
-            'time' => NOW_TIME,
+            'time' => $_SERVER['REQUEST_TIME'],
             'data' => $data,
         ];
-        if ($type) {
-            self::type($type);
-        }
-
-        return $result;
-    }
-
-    /**
-     * 操作成功跳转的快捷方法
-     * @access public
-     * @param mixed $msg 提示信息
-     * @param mixed $data 返回的数据
-     * @param string $url 跳转的URL地址
-     * @param integer $wait 跳转等待时间
-     * @return mixed
-     */
-    public static function success($msg = '', $data = '', $url = null, $wait = 3)
-    {
-        $code = 1;
-        if (is_numeric($msg)) {
-            $code = $msg;
-            $msg  = '';
-        }
-        $result = [
-            'code' => $code,
-            'msg'  => $msg,
-            'data' => $data,
-            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
-            'wait' => $wait,
-        ];
-
-        $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-
-        if ('html' == $type) {
-            $result = \think\View::instance()->fetch(Config::get('dispatch_success_tmpl'), $result);
-        }
-        self::type($type);
-        return $result;
-    }
-
-    /**
-     * 操作错误跳转的快捷方法
-     * @access public
-     * @param mixed $msg 提示信息
-     * @param mixed $data 返回的数据
-     * @param string $url 跳转的URL地址
-     * @param integer $wait 跳转等待时间
-     * @return mixed
-     */
-    public static function error($msg = '', $data = '', $url = null, $wait = 3)
-    {
-        $code = 0;
-        if (is_numeric($msg)) {
-            $code = $msg;
-            $msg  = '';
-        }
-        $result = [
-            'code' => $code,
-            'msg'  => $msg,
-            'data' => $data,
-            'url'  => is_null($url) ? 'javascript:history.back(-1);' : $url,
-            'wait' => $wait,
-        ];
-
-        $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
-
-        if ('html' == $type) {
-            $result = \think\View::instance()->fetch(Config::get('dispatch_error_tmpl'), $result);
-        }
-        self::type($type);
-        return $result;
-    }
-
-    /**
-     * URL重定向
-     * @access public
-     * @param string $url 跳转的URL表达式
-     * @param array|int $params 其它URL参数或http code
-     * @return void
-     */
-    public static function redirect($url, $params = [])
-    {
-        $http_response_code = 301;
-        if (is_int($params) && in_array($params, [301, 302])) {
-            $http_response_code = $params;
-            $params             = [];
-        }
-        $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url, $params);
-        header('Location: ' . $url, true, $http_response_code);
+        return $this->data($result);
     }
 
     /**
@@ -237,11 +218,117 @@ class Response
      * @access public
      * @param string $name 参数名
      * @param string $value 参数值
-     * @return void
+     * @return $this
      */
-    public static function header($name, $value)
+    public function header($name, $value)
     {
-        header($name . ':' . $value);
+        $this->header[$name] = $value;
+        return $this;
     }
 
+    /**
+     * 发送HTTP Location
+     * @param string $url Location地址
+     * @return $this
+     */
+    public function location($url)
+    {
+        $this->header['Location'] = $url;
+        return $this;
+    }
+
+    /**
+     * 发送HTTP状态
+     * @param integer $code 状态码
+     * @return $this
+     */
+    public function code($code)
+    {
+        $this->header['status'] = $code;
+        return $this;
+    }
+
+    /**
+     * LastModified
+     * @param string $time
+     * @return $this
+     */
+    public function lastModified($time)
+    {
+        $this->header['Last-Modified'] = $time;
+        return $this;
+    }
+
+    /**
+     * Expires
+     * @param string $time
+     * @return $this
+     */
+    public function expires($time)
+    {
+        $this->header['Expires'] = $time;
+        return $this;
+    }
+
+    /**
+     * ETag
+     * @param string $etag
+     * @return $this
+     */
+    public function eTag($etag)
+    {
+        $this->header['etag'] = $etag;
+        return $this;
+    }
+
+    /**
+     * 页面缓存控制
+     * @param string $cache 状态码
+     * @return $this
+     */
+    public function cacheControl($cache)
+    {
+        $this->header['Cache-control'] = $cache;
+        return $this;
+    }
+
+    /**
+     * 页面输出类型
+     * @param string $contentType 输出类型
+     * @param string $charset 输出编码
+     * @return $this
+     */
+    public function contentType($contentType, $charset = 'utf-8')
+    {
+        $this->header['Content-Type'] = $contentType . '; charset=' . $charset;
+        return $this;
+    }
+
+    /**
+     * 获取头部信息
+     * @param string $name 头部名称
+     * @return mixed
+     */
+    public function getHeader($name = '')
+    {
+        return !empty($name) ? $this->header[$name] : $this->header;
+    }
+
+    /**
+     * 获取数据
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * 获取输出类型
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
 }

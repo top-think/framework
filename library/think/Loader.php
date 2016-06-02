@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\exception\HttpException;
+use think\Request;
+
 class Loader
 {
     // 类名映射
@@ -80,7 +83,6 @@ class Loader
                 APP_DEBUG && self::$load[] = $filename;
                 include $filename;
             } else {
-                Log::record('autoloader error : ' . $filename, 'notice');
                 return false;
             }
         }
@@ -260,37 +262,15 @@ class Loader
     }
 
     /**
-     * 实例化一个没有模型文件的Model（对应数据表）
-     * @param string $name Model名称 支持指定基础模型 例如 MongoModel:User
-     * @param array $options 模型参数
-     * @return Model
-     */
-    public static function table($name = '', array $options = [])
-    {
-        static $_model = [];
-        if (strpos($name, ':')) {
-            list($class, $name) = explode(':', $name);
-        } else {
-            $class = 'think\\Model';
-        }
-        $guid = $name . '_' . $class;
-        if (!isset($_model[$guid])) {
-            $_model[$guid] = new $class($name, $options);
-        }
-        return $_model[$guid];
-    }
-
-    /**
      * 实例化（分层）模型
      * @param string $name Model名称
      * @param string $layer 业务层名称
+     * @param bool $appendSuffix 是否添加类名后缀
+     * @param string $common 公共模块名
      * @return Object
      */
-    public static function model($name = '', $layer = MODEL_LAYER)
+    public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
-        if (empty($name)) {
-            return new Model;
-        }
         static $_model = [];
         if (isset($_model[$name . $layer])) {
             return $_model[$name . $layer];
@@ -298,19 +278,17 @@ class Loader
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name, 2);
         } else {
-            $module = APP_MULTI_MODULE ? MODULE_NAME : '';
+            $module = Request::instance()->module();
         }
-        $class = self::parseClass($module, $layer, $name);
-        $name  = basename($name);
+        $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
-            $model = new $class($name);
+            $model = new $class();
         } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . COMMON_MODULE . '\\', $class);
+            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
-                $model = new $class($name);
+                $model = new $class();
             } else {
-                Log::record('实例化不存在的类：' . $class, 'notice');
-                $model = new Model($name);
+                throw new Exception('class [ ' . $class . ' ] not exists', 10001);
             }
         }
         $_model[$name . $layer] = $model;
@@ -321,30 +299,31 @@ class Loader
      * 实例化（分层）控制器 格式：[模块名/]控制器名
      * @param string $name 资源地址
      * @param string $layer 控制层名称
+     * @param bool $appendSuffix 是否添加类名后缀
      * @param string $empty 空控制器名称
      * @return Object|false
      */
-    public static function controller($name, $layer = '', $empty = '')
+    public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
         static $_instance = [];
-        $layer            = $layer ?: CONTROLLER_LAYER;
+
         if (isset($_instance[$name . $layer])) {
             return $_instance[$name . $layer];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
-            $module = APP_MULTI_MODULE ? MODULE_NAME : '';
+            $module = Request::instance()->module();
         }
-        $class = self::parseClass($module, $layer, $name);
+        $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
-            $action                    = new $class;
+            $action                    = new $class(Request::instance());
             $_instance[$name . $layer] = $action;
             return $action;
-        } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty))) {
-            return new $emptyClass;
+        } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
+            return new $emptyClass(Request::instance());
         } else {
-            throw new Exception('class [ ' . $class . ' ] not exists', 10001);
+            throw new HttpException(404, 'class [ ' . $class . ' ] not exists');
         }
     }
 
@@ -352,28 +331,31 @@ class Loader
      * 实例化验证类 格式：[模块名/]验证器名
      * @param string $name 资源地址
      * @param string $layer 验证层名称
+     * @param bool $appendSuffix 是否添加类名后缀
+     * @param string $common 公共模块名
      * @return Object|false
      */
-    public static function validate($name = '', $layer = '')
+    public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
+        $name = $name ?: Config::get('default_validate');
         if (empty($name)) {
             return new Validate;
         }
         static $_instance = [];
-        $layer            = $layer ?: VALIDATE_LAYER;
+
         if (isset($_instance[$name . $layer])) {
             return $_instance[$name . $layer];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
-            $module = APP_MULTI_MODULE ? MODULE_NAME : '';
+            $module = Request::instance()->module();
         }
-        $class = self::parseClass($module, $layer, $name);
+        $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
             $validate = new $class;
         } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . COMMON_MODULE . '\\', $class);
+            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
                 $validate = new $class;
             } else {
@@ -399,14 +381,15 @@ class Loader
      * @param string $url 调用地址
      * @param string|array $vars 调用参数 支持字符串和数组
      * @param string $layer 要调用的控制层名称
+     * @param bool $appendSuffix 是否添加类名后缀
      * @return mixed
      */
-    public static function action($url, $vars = [], $layer = CONTROLLER_LAYER)
+    public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
     {
         $info   = pathinfo($url);
         $action = $info['basename'];
-        $module = '.' != $info['dirname'] ? $info['dirname'] : CONTROLLER_NAME;
-        $class  = self::controller($module, $layer);
+        $module = '.' != $info['dirname'] ? $info['dirname'] : Request::instance()->controller();
+        $class  = self::controller($module, $layer, $appendSuffix);
         if ($class) {
             if (is_scalar($vars)) {
                 if (strpos($vars, '=')) {
@@ -469,11 +452,11 @@ class Loader
      * @param string $name 类名
      * @return string
      */
-    public static function parseClass($module, $layer, $name)
+    public static function parseClass($module, $layer, $name, $appendSuffix = false)
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1) . (CLASS_APPEND_SUFFIX ? ucfirst($layer) : '');
+        $class = self::parseName(array_pop($array), 1) . (CLASS_APPEND_SUFFIX || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
         return APP_NAMESPACE . '\\' . (APP_MULTI_MODULE ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }

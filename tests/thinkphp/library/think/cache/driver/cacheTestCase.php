@@ -75,6 +75,9 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
         $array = $cache->get('array_test');
         $this->assertArrayHasKey('array_test', $array);
         $this->assertEquals('array_test', $array['array_test']);
+        
+        $result = $cache->set('no_expire', 1, 0);
+        $this->assertTrue($result);
     }
 
     /**
@@ -160,14 +163,4 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
         $this->assertNotNull(Cache::rm('a'));
     }
 
-    public function testQueue()
-    {
-        $cache = $this->prepare();
-        $this->assertTrue($cache->set('1', '1'));
-        $this->assertTrue($cache->set('2', '2'));
-        $this->assertTrue($cache->set('3', '3'));
-        $this->assertEquals(1, $cache->get('1'));
-        $this->assertTrue($cache->set('4', '4'));
-        $this->assertFalse($cache->get('1'));
-    }
 }

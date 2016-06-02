@@ -70,7 +70,6 @@ class responseTest extends \PHPUnit_Framework_TestCase
     {
         Config::set('default_ajax_return', $this->default_ajax_return);
         Config::set('default_return_type', $this->default_return_type);
-        Response::type(Config::get('default_return_type')); // 会影响其他测试
     }
 
     /**
@@ -79,236 +78,25 @@ class responseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSend()
     {
-        $dataArr        = array();
+        $dataArr        = [];
         $dataArr["key"] = "value";
-        //$dataArr->key   = "val";
 
-        $result = Response::send($dataArr, "", true);
-        $this->assertArrayHasKey("key", $result);
-
-        $result = Response::send($dataArr, "json", true);
+        $response = Response::create($dataArr, 'json');
+        $result   = $response->send();
         $this->assertEquals('{"key":"value"}', $result);
-
-        $handler                                = "callback";
-        $_GET[Config::get('var_jsonp_handler')] = $handler;
-        $result                                 = Response::send($dataArr, "jsonp", true);
+        $_GET['callback'] = 'callback';
+        $response         = Response::create($dataArr, 'jsonp');
+        $result           = $response->options(['var_jsonp_handler' => 'callback'])->send();
         $this->assertEquals('callback({"key":"value"});', $result);
 
-        Response::tramsform(function () {
+        $response = new Response();
+        $response->transform(function () {
 
             return "callbackreturndata";
         });
-
-        $result = Response::send($dataArr, "", true);
+        $result = $response->send($dataArr);
         $this->assertEquals("callbackreturndata", $result);
         $_GET[Config::get('var_jsonp_handler')] = "";
-    }
-
-    /**
-     * @covers think\Response::tramsform
-     * @todo Implement testTramsform().
-     */
-    public function testTramsform()
-    {
-        Response::tramsform(function () {
-
-            return "callbackreturndata";
-        });
-        $dataArr = [];
-        $result  = Response::send($dataArr, "", true);
-        $this->assertEquals("callbackreturndata", $result);
-
-        Response::tramsform(null);
-    }
-
-    /**
-     * @covers think\Response::type
-     * @todo Implement testType().
-     */
-    public function testType()
-    {
-        $type = "json";
-        Response::type($type);
-
-        $result = Response::type();
-        $this->assertEquals($type, $result);
-        Response::type($type);
-    }
-
-    /**
-     * @covers think\Response::data
-     * @todo Implement testData().
-     */
-    public function testData()
-    {
-        $data = "data";
-        Response::data($data);
-        Response::data(null);
-    }
-
-    /**
-     * @covers think\Response::isExit
-     * @todo Implement testIsExit().
-     */
-    public function testIsExit()
-    {
-        $isExit = true;
-        Response::isExit($isExit);
-
-        $result = Response::isExit();
-        $this->assertTrue($isExit, $result);
-        Response::isExit(false);
-    }
-
-    /**
-     * @covers think\Response::result
-     * @todo Implement testResult().
-     */
-    public function testResult()
-    {
-        $data   = "data";
-        $code   = "1001";
-        $msg    = "the msg";
-        $type   = "json";
-        $result = Response::result($data, $code, $msg, $type);
-
-        $this->assertEquals($code, $result["code"]);
-        $this->assertEquals($msg, $result["msg"]);
-        $this->assertEquals($data, $result["data"]);
-        $this->assertEquals($_SERVER['REQUEST_TIME'], $result["time"]);
-        $this->assertEquals($type, Response::type());
-    }
-
-    /**
-     * @covers think\Response::success
-     * @todo Implement testSuccess().
-     */
-    public function testSuccess()
-    {
-        // round 1
-        $msg  = 1001;
-        $data = "data";
-
-        $url = "www.HTTP_REFERER.com";
-        if (isset($_SERVER["HTTP_REFERER"])) {
-            $HTTP_REFERER = $_SERVER["HTTP_REFERER"];
-        }
-        $_SERVER["HTTP_REFERER"] = $url;
-        Config::set('default_return_type', "json");
-
-        $result = Response::success($msg, $data);
-
-        $this->assertEquals($msg, $result["code"]);
-
-        $this->assertEquals($data, $result["data"]);
-        $this->assertEquals($url, $result["url"]);
-        $this->assertEquals("json", Response::type());
-        $this->assertEquals(3, $result["wait"]);
-
-        // round 2
-        $msg = "the msg";
-        $url = "www.thinkphptestsucess.com";
-
-        $result = Response::success($msg, $data, $url);
-
-        $this->assertEquals($msg, $result["msg"]);
-        $this->assertEquals($url, $result["url"]);
-
-        // round 3 异常在travis-ci中未能重现
-        // $this->setExpectedException('\think\Exception');
-        // FIXME 静态方法mock
-        // $oMockView = $this->getMockBuilder('\think\View')->setMethods(array(
-        // 'fetch'
-        // ))->getMock();
-
-        // $oMockView->expects($this->any())->method('fetch')->will($this->returnValue('content'));
-
-        // Config::set('default_return_type', "html");
-        // $result = Response::success($msg, $data, $url);
-
-        // FIXME 静态方法mock
-        // $this->assertEquals('content', $result);
-        if (isset($HTTP_REFERER)) {
-            $_SERVER["HTTP_REFERER"] = $HTTP_REFERER;
-        }
-
-    }
-
-    /**
-     * @covers think\Response::error
-     * @todo Implement testError().
-     */
-    public function testError()
-    {
-        // round 1
-        $msg  = 1001;
-        $data = "data";
-
-        Config::set('default_return_type', "json");
-
-        $result = Response::error($msg, $data);
-
-        $this->assertEquals($msg, $result["code"]);
-        $this->assertEquals($data, $result["data"]);
-        $this->assertEquals('javascript:history.back(-1);', $result["url"]);
-        $this->assertEquals("json", Response::type());
-        $this->assertEquals(3, $result["wait"]);
-
-        // round 2
-        $msg = "the msg";
-        $url = "www.thinkphptesterror.com";
-
-        $result = Response::error($msg, $data, $url);
-
-        $this->assertEquals($msg, $result["msg"]);
-        $this->assertEquals($url, $result["url"]);
-
-        // round 3 异常在travis-ci中未能重现
-        // $this->setExpectedException('\think\Exception');
-        // FIXME 静态方法mock
-        // $oMockView = $this->getMockBuilder('\think\View')->setMethods(array(
-        // 'fetch'
-        // ))->getMock();
-
-        // $oMockView->expects($this->any())->method('fetch')->will($this->returnValue('content'));
-
-        // Config::set('default_return_type', "html");
-
-        // $result = Response::error($msg, $data, $url);
-
-        // FIXME 静态方法mock
-        // $this->assertEquals('content', $result);
-    }
-
-    /**
-     * @#runInSeparateProcess
-     * @covers think\Response::redirect
-     * @todo Implement testRedirect().
-     */
-    public function testRedirect()
-    {
-        // $url = "http://www.testredirect.com";
-        // $params = array();
-        // $params[] = 301;
-
-        // // FIXME 静态方法mock Url::build
-        // // echo "\r\n" . json_encode(xdebug_get_headers()) . "\r\n";
-        // Response::redirect($url, $params);
-
-        // $this->assertContains('Location: ' . $url, xdebug_get_headers());
-    }
-
-    /**
-     * @#runInSeparateProcess
-     * @covers think\Response::header
-     * @todo Implement testHeader().
-     */
-    public function testHeader()
-    {
-        // $name = "Location";
-        // $url = "http://www.testheader.com/";
-        // Response::header($name, $url);
-        // $this->assertContains($name . ': ' . $url, xdebug_get_headers());
     }
 
 }

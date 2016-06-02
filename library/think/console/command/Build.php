@@ -24,12 +24,20 @@ class Build extends Command
     protected function configure()
     {
         $this->setName('build')
-             ->setDefinition([new Option('config', null, Option::VALUE_OPTIONAL, "build.php path", APP_PATH . 'build.php')])
-             ->setDescription('Build Application Dirs');
+            ->setDefinition([
+                new Option('config', null, Option::VALUE_OPTIONAL, "build.php path"),
+                new Option('module', null, Option::VALUE_OPTIONAL, "module name")
+            ])
+            ->setDescription('Build Application Dirs');
     }
 
     protected function execute(Input $input, Output $output)
     {
+        if ($input->hasOption('module')) {
+            \think\Build::module($input->getOption('module'));
+            $output->writeln("Successed");
+            return;
+        }
 
         if ($input->hasOption('config')) {
             $build = include $input->getOption('config');

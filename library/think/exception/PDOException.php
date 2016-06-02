@@ -19,6 +19,13 @@ use think\exception\DbException;
  */
 class PDOException extends DbException 
 {
+    /**
+     * PDOException constructor.
+     * @param \PDOException $exception
+     * @param array $config
+     * @param string $sql
+     * @param int $code
+     */
     public function __construct(\PDOException $exception, Array $config, $sql, $code = 10501)
     {
         $error = $exception->errorInfo;

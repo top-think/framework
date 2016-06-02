@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Debug;
+use think\Log;
+
 class Hook
 {
 
@@ -43,8 +46,9 @@ class Hook
      * @param boolean $recursive 是否递归合并
      * @return void
      */
-    public static function import(array $tags, $recursive = true)
+    public static function import($tags, $recursive = true)
     {
+        empty($tags) && $tags = [];
         if (!$recursive) {
             // 覆盖导入
             self::$tags = array_merge(self::$tags, $tags);
@@ -84,12 +88,15 @@ class Hook
 
     /**
      * 监听标签的行为
-     * @param string $tag 标签名称
-     * @param mixed $params 传入参数
-     * @return void
+     * @param string $tag    标签名称
+     * @param mixed  $params 传入参数
+     * @param mixed  $extra  额外参数
+     * @param bool   $once   只获取一个有效返回值
+     * @return mixed
      */
-    public static function listen($tag, &$params = null)
+    public static function listen($tag, &$params = null, $extra = null, $once = false)
     {
+        $results = [];
         if (isset(self::$tags[$tag])) {
             foreach (self::$tags[$tag] as $name) {
 
@@ -97,34 +104,49 @@ class Hook
                     Debug::remark('behavior_start', 'time');
                 }
 
-                $result = self::exec($name, $tag, $params);
+                $result = self::exec($name, $tag, $params, $extra);
+
+                if (!is_null($result) && $once) {
+                    return $result;
+                }
 
                 if (APP_DEBUG) {
                     Debug::remark('behavior_end', 'time');
-                    Log::record('[ BEHAVIOR ] Run ' . ($name instanceof \Closure ? 'Closure' : $name) . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]', 'info');
+                    if ($name instanceof \Closure) {
+                        $name = 'Closure';
+                    } elseif (is_object($name)) {
+                        $name = get_class($name);
+                    }
+                    Log::record('[ BEHAVIOR ] Run ' . $name . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]', 'info');
                 }
                 if (false === $result) {
                     // 如果返回false 则中断行为执行
-                    return;
+                    break;
                 }
+                $results[] = $result;
             }
         }
-        return;
+        return $once ? null : $results;
     }
 
     /**
      * 执行某个行为
-     * @param string $class 行为类名称
+     * @param mixed $class 要执行的行为
      * @param string $tag 方法名（标签名）
      * @param Mixed $params 传人的参数
+     * @param mixed $extra 额外参数
      * @return mixed
      */
-    public static function exec($class, $tag = '', &$params = null)
+    public static function exec($class, $tag = '', &$params = null,$extra=null)
     {
         if ($class instanceof \Closure) {
-            return $class($params);
+            $result = call_user_func_array($class, [ & $params,$extra]);
+        } elseif (is_object($class)) {
+            $result = call_user_func_array([$class, $tag], [ & $params,$extra]);
+        } else {
+            $obj    = new $class();
+            $result = ($tag && is_callable([$obj, $tag])) ? $obj->$tag($params,$extra) : $obj->run($params,$extra);
         }
-        $obj = new $class();
-        return ($tag && is_callable([$obj, $tag])) ? $obj->$tag($params) : $obj->run($params);
+        return $result;
     }
 }

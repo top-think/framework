@@ -175,7 +175,7 @@ class inputTest extends \PHPUnit_Framework_TestCase
         //$this->assertEquals($path, Input::path('0', ''));
 
         $_FILES = ['file' => ['name' => 'test.png', 'type' => 'image/png', 'tmp_name' => '/tmp/php5Wx0aJ', 'error' => 0, 'size' => 15726]];
-        $this->assertEquals('image/png', Input::file('file.type'));
+        $this->assertEquals(null, Input::file('file.type'));
 
     }
 

@@ -13,7 +13,6 @@ namespace think;
 
 class Cookie
 {
-
     protected static $config = [
         // cookie 名称前缀
         'prefix'    => '',
@@ -38,6 +37,9 @@ class Cookie
      */
     public static function init(array $config = [])
     {
+        if (empty($config)) {
+            $config = Config::get('cookie');
+        }
         self::$config = array_merge(self::$config, array_change_key_case($config));
         if (!empty(self::$config['httponly'])) {
             ini_set('session.cookie_httponly', 1);

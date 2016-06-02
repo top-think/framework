@@ -6,22 +6,31 @@
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: 麦当苗儿 <zuojiazi@vip.qq.com> <http://zjzit.cn>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\exception;
+namespace think\model;
 
-use think\Exception;
+use think\Model;
 
-/**
- * Database相关异常处理类
- */
-class NotFoundException extends Exception 
+class Pivot extends Model
 {
+
     /**
-     * 系统异常后发送给客户端的HTTP Status
-     * @var integer
+     * 架构函数
+     * @access public
+     * @param array|object $data 数据
+     * @param string $table 中间数据表名
      */
-    protected $httpStatus = 404;
-    
+    public function __construct($data = [], $table = '')
+    {
+        if (is_object($data)) {
+            $this->data = get_object_vars($data);
+        } else {
+            $this->data = $data;
+        }
+
+        $this->table = $table;
+    }
+
 }

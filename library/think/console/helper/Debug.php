@@ -11,7 +11,6 @@
 
 namespace think\console\helper;
 
-
 class Debug extends Helper
 {
 

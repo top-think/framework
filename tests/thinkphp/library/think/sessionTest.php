@@ -122,7 +122,11 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         // PHP_SESSION_NONE
         // PHP_SESSION_ACTIVE
         // session_status()
-        $this->assertEquals(0, ini_get('session.auto_start'));
+        if (strstr(PHP_VERSION, 'hhvm')) {
+            $this->assertEquals('', ini_get('session.auto_start'));
+        }else{
+            $this->assertEquals(0, ini_get('session.auto_start'));
+        }
 
         $this->assertEquals($config['use_trans_sid'], ini_get('session.use_trans_sid'));
 

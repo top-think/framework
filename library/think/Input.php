@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Config;
+use think\File;
+
 class Input
 {
     // 全局过滤规则
@@ -58,7 +61,7 @@ class Input
         }
         return self::data($_PUT, $name, $default, $filter, $merge);
     }
-    
+
     /**
      * 获取delete变量
      * @param string $name 数据名称
@@ -126,6 +129,9 @@ class Input
      */
     public static function session($name = '', $default = null, $filter = null, $merge = false)
     {
+        if (PHP_SESSION_DISABLED == session_status()) {
+            session_start();
+        }
         return self::data($_SESSION, $name, $default, $filter, $merge);
     }
 
@@ -192,7 +198,7 @@ class Input
     public static function path($name = '', $default = null, $filter = null, $merge = false)
     {
         if (!empty($_SERVER['PATH_INFO'])) {
-            $depr  = \think\Config::get('pathinfo_depr');
+            $depr  = Config::get('pathinfo_depr');
             $input = explode($depr, trim($_SERVER['PATH_INFO'], $depr));
             return self::data($input, $name, $default, $filter, $merge);
         } else {
@@ -203,14 +209,48 @@ class Input
     /**
      * 获取$_FILES
      * @param string $name 数据名称
-     * @param string $default 默认值
-     * @param string $filter 过滤方法
-     * @param boolean $merge 是否与默认的过虑方法合并
-     * @return mixed
+     * @param array $files 上传文件
+     * @return \think\File|array
      */
-    public static function file($name = '', $default = null, $filter = null, $merge = false)
+    public static function file($name = '', $files = [])
     {
-        return self::data($_FILES, $name, $default, $filter, $merge);
+        $files = $files ?: (isset($_FILES) ? $_FILES : []);
+        if (!empty($files)) {
+            // 处理上传文件
+            $array = [];
+            $n     = 0;
+            foreach ($files as $key => $file) {
+                if (is_array($file['name'])) {
+                    $keys  = array_keys($file);
+                    $count = count($file['name']);
+                    for ($i = 0; $i < $count; $i++) {
+                        $array[$n]['key'] = $key;
+                        foreach ($keys as $_key) {
+                            $array[$n][$_key] = $file[$_key][$i];
+                        }
+                        $n++;
+                    }
+                } else {
+                    $array = $files;
+                    break;
+                }
+            }
+
+            if ('' === $name) {
+                // 获取全部文件
+                $item = [];
+                foreach ($array as $key => $val) {
+                    if (empty($val['tmp_name'])) {
+                        continue;
+                    }
+                    $item[$key] = new File($val['tmp_name'], $val);
+                }
+                return $item;
+            } elseif (isset($array[$name])) {
+                return new File($array[$name]['tmp_name'], $array[$name]);
+            }
+        }
+        return null;
     }
 
     /**
@@ -227,39 +267,37 @@ class Input
         if (0 === strpos($name, '?')) {
             return self::has(substr($name, 1), $input);
         }
-        if (!empty($input)) {
-            $data = $input;
-            $name = (string) $name;
-            if ('' != $name) {
-                // 解析name
-                list($name, $type) = static::parseName($name);
-                // 按.拆分成多维数组进行判断
-                foreach (explode('.', $name) as $val) {
-                    if (isset($data[$val])) {
-                        $data = $data[$val];
-                    } else {
-                        // 无输入数据，返回默认值
-                        return $default;
-                    }
+
+        $data = $input;
+        $name = (string) $name;
+        if ('' != $name) {
+            // 解析name
+            list($name, $type) = static::parseName($name);
+            // 按.拆分成多维数组进行判断
+            foreach (explode('.', $name) as $val) {
+                if (isset($data[$val])) {
+                    $data = $data[$val];
+                } else {
+                    // 无输入数据，返回默认值
+                    return $default;
                 }
             }
-
-            // 解析过滤器
-            $filters = static::parseFilter($filter, $merge);
-            // 为方便传参把默认值附加在过滤器后面
-            $filters[] = $default;
-            if (is_array($data)) {
-                array_walk_recursive($data, 'self::filter', $filters);
-            } else {
-                self::filter($data, $name ?: 0, $filters);
-            }
-            if (isset($type) && $data !== $default) {
-                // 强制类型转换
-                static::typeCast($data, $type);
-            }
-        } else {
-            $data = $default;
         }
+
+        // 解析过滤器
+        $filters = static::parseFilter($filter, $merge);
+        // 为方便传参把默认值附加在过滤器后面
+        $filters[] = $default;
+        if (is_array($data)) {
+            array_walk_recursive($data, 'self::filter', $filters);
+        } else {
+            self::filter($data, $name ?: 0, $filters);
+        }
+        if (isset($type) && $data !== $default) {
+            // 强制类型转换
+            static::typeCast($data, $type);
+        }
+
         return $data;
     }
 
@@ -304,7 +342,7 @@ class Input
         // TODO 其他安全过滤
 
         // 过滤查询特殊字符
-        if (preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)) {
+        if (is_string($value) && preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)) {
             $value .= ' ';
         }
     }
@@ -393,7 +431,7 @@ class Input
     {
         if (is_null(static::$filters)) {
             // 从配置项中读取
-            $filters         = \think\Config::get('default_filter');
+            $filters         = Config::get('default_filter');
             static::$filters = empty($filters) ? [] : (is_array($filters) ? $filters : explode(',', $filters));
         }
         return static::$filters;
@@ -427,7 +465,11 @@ class Input
             // 字符串
             case 's':
             default:
-                $data = (string) $data;
+                if (is_scalar($data)) {
+                    $data = (string) $data;
+                } else {
+                    throw new Exception('变量类型不允许：' . gettype($data));
+                }
         }
     }
 }

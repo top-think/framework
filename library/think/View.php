@@ -14,53 +14,38 @@ namespace think;
 class View
 {
     // 视图实例
-    protected static $instance = null;
+    protected static $instance;
     // 模板引擎实例
-    public $engine = null;
-    // 模板主题名称
-    protected $theme = '';
+    public $engine;
     // 模板变量
     protected $data = [];
-    // 视图参数
-    protected $config = [
-        // 模板主题
-        'theme_on'      => false,
-        // 默认主题 开启模板主题有效
-        'default_theme' => 'default',
-        // 视图文件路径
-        'view_path'     => '',
-        // 视图文件后缀
-        'view_suffix'   => '.html',
-        // 视图文件分隔符
-        'view_depr'     => DS,
-        // 视图层目录名
-        'view_layer'    => VIEW_LAYER,
-        // 视图输出字符串替换
-        'parse_str'     => [],
-        // 视图驱动命名空间
-        'namespace'     => '\\think\\view\\driver\\',
-        // 模板引擎配置参数
-        'template'      => [],
-    ];
+    // 视图输出替换
+    protected $replace = [];
 
-    public function __construct(array $config = [])
+    /**
+     * 架构函数
+     * @access public
+     * @param array $engine  模板引擎参数
+     * @param array $replace  字符串替换参数
+     */
+    public function __construct($engine = [], $replace = [])
     {
-        $this->config($config);
-        if (!isset($this->config['template']['type'])) {
-            $this->config['template']['type'] = 'think';
-        }
+        // 初始化模板引擎
+        $this->engine((array) $engine);
+        $this->replace = $replace;
     }
 
     /**
      * 初始化视图
      * @access public
-     * @param array $config  配置参数
+     * @param array $engine  模板引擎参数
+     * @param array $replace  字符串替换参数
      * @return object
      */
-    public static function instance(array $config = [])
+    public static function instance($engine = [], $replace = [])
     {
         if (is_null(self::$instance)) {
-            self::$instance = new self($config);
+            self::$instance = new self($engine, $replace);
         }
         return self::$instance;
     }
@@ -70,7 +55,7 @@ class View
      * @access public
      * @param mixed $name  变量名
      * @param mixed $value 变量值
-     * @return View
+     * @return $this
      */
     public function assign($name, $value = '')
     {
@@ -84,134 +69,78 @@ class View
     }
 
     /**
-     * 设置视图参数
-     * @access public
-     * @param mixed $config 视图参数或者数组
-     * @param string $value 值
-     * @return View
-     */
-    public function config($config = '', $value = null)
-    {
-        if (is_array($config)) {
-            foreach ($this->config as $key => $val) {
-                if (isset($config[$key])) {
-                    $this->config[$key] = $config[$key];
-                }
-            }
-        } elseif (is_null($value)) {
-            // 获取配置参数
-            return $this->config[$config];
-        } else {
-            $this->config[$config] = $value;
-        }
-        return $this;
-    }
-
-    /**
      * 设置当前模板解析的引擎
      * @access public
-     * @param string $engine 引擎名称
-     * @param array $config 引擎参数
-     * @return View
+     * @param array|string $options 引擎参数
+     * @return $this
      */
-    public function engine($engine, array $config = [])
+    public function engine($options = [])
     {
-        if ('php' == $engine) {
-            $this->engine = 'php';
+        if (is_string($options)) {
+            $type    = $options;
+            $options = [];
         } else {
-            $class = $this->config['namespace'] . ucfirst($engine);
-            if (empty($this->config['view_path']) && defined('VIEW_PATH')) {
-                $this->config['view_path'] = VIEW_PATH;
-            }
-
-            $config = array_merge($config, [
-                'view_path'   => $this->config['view_path'],
-                'view_suffix' => $this->config['view_suffix'],
-                'view_depr'   => $this->config['view_depr'],
-            ]);
-            $this->engine = new $class($config);
+            $type = !empty($options['type']) ? $options['type'] : 'Think';
         }
-        return $this;
-    }
 
-    /**
-     * 设置当前输出的模板主题
-     * @access public
-     * @param  mixed $theme 主题名称
-     * @return View
-     */
-    public function theme($theme)
-    {
-        if (true === $theme) {
-            // 启用主题
-            $this->config['theme_on'] = true;
-        } elseif (false === $theme) {
-            // 关闭主题
-            $this->config['theme_on'] = false;
-        } else {
-            // 指定主题
-            $this->config['theme_on'] = true;
-            $this->theme              = $theme;
+        $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\view\\driver\\') . ucfirst($type);
+        if (isset($options['type'])) {
+            unset($options['type']);
         }
+        $this->engine = new $class($options);
         return $this;
     }
 
     /**
      * 解析和获取模板内容 用于输出
-     * @access public
-     *
      * @param string $template 模板文件名或者内容
      * @param array  $vars     模板输出变量
+     * @param array  $replace 替换内容
      * @param array  $config     模板参数
-     * @param bool   $renderContent 是否渲染内容
-     *
+     * @param bool  $renderContent     是否渲染内容
      * @return string
      * @throws Exception
      */
-    public function fetch($template = '', $vars = [], $config = [], $renderContent = false)
+    public function fetch($template = '', $vars = [], $replace = [], $config = [], $renderContent = false)
     {
         // 模板变量
         $vars = array_merge($this->data, $vars);
-        if (!$renderContent) {
-            // 获取模板文件名
-            $template = $this->parseTemplate($template);
-            // 开启调试模式Win环境严格区分大小写
-            // 模板不存在 抛出异常
-            if (!is_file($template) || (APP_DEBUG && IS_WIN && realpath($template) != $template)) {
-                throw new Exception('template file not exists:' . $template, 10700);
-            }
-            // 记录视图信息
-            APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export($vars, true) . ' ]', 'info');
-        }
-        if (is_null($this->engine)) {
-            // 初始化模板引擎
-            $this->engine($this->config['template']['type'], $this->config['template']);
-        }
+
         // 页面缓存
         ob_start();
         ob_implicit_flush(0);
-        if ('php' == $this->engine || empty($this->engine)) {
-            // 原生PHP解析
-            extract($vars, EXTR_OVERWRITE);
-            is_file($template) ? include $template : eval('?>' . $template);
-        } else {
-            // 指定模板引擎
-            $this->engine->fetch($template, $vars, $config);
-        }
+
+        // 渲染输出
+        $method = $renderContent ? 'display' : 'fetch';
+        $this->engine->$method($template, $vars, $config);
+
         // 获取并清空缓存
         $content = ob_get_clean();
         // 内容过滤标签
-        APP_HOOK && Hook::listen('view_filter', $content);
+        Hook::listen('view_filter', $content);
         // 允许用户自定义模板的字符串替换
-        if (!empty($this->config['parse_str'])) {
-            $replace = $this->config['parse_str'];
-            $content = str_replace(array_keys($replace), array_values($replace), $content);
-        }
-        if (!Config::get('response_auto_output')) {
-            // 自动响应输出
-            return Response::send($content, Response::type());
+        $replace = array_merge($this->replace, $replace);
+        if (!empty($replace)) {
+            $content = strtr($content, $replace);
         }
         return $content;
+    }
+
+    /**
+     * 视图内容替换
+     * @access public
+     * @param string|array $content 被替换内容（支持批量替换）
+     * @param string  $replace    替换内容
+     * @return $this
+     */
+    public function replace($content, $replace = '')
+    {
+        if (is_array($content)) {
+            $this->replace = array_merge($this->replace, $content);
+        } else {
+            $this->replace[$content] = $replace;
+        }
+        return $this;
     }
 
     /**
@@ -219,68 +148,13 @@ class View
      * @access public
      * @param string $content 内容
      * @param array  $vars    模板输出变量
+     * @param array  $replace 替换内容
+     * @param array  $config     模板参数
      * @return mixed
      */
-    public function show($content, $vars = [])
+    public function display($content, $vars = [], $replace = [], $config = [])
     {
-        return $this->fetch($content, $vars, '', true);
-    }
-
-    /**
-     * 自动定位模板文件
-     * @access private
-     * @param string $template 模板文件规则
-     * @return string
-     */
-    private function parseTemplate($template)
-    {
-        if (is_file($template)) {
-            return realpath($template);
-        }
-        if (empty($this->config['view_path']) && defined('VIEW_PATH')) {
-            $this->config['view_path'] = VIEW_PATH;
-        }
-        // 获取当前主题
-        $theme = $this->getTemplateTheme();
-        $this->config['view_path'] .= $theme;
-
-        $depr     = $this->config['view_depr'];
-        $template = str_replace(['/', ':'], $depr, $template);
-        if (strpos($template, '@')) {
-            list($module, $template) = explode('@', $template);
-            $path                    = APP_PATH . (APP_MULTI_MODULE ? $module . DS : '') . $this->config['view_layer'] . DS;
-        } else {
-            $path = $this->config['view_path'];
-        }
-
-        // 分析模板文件规则
-        if (defined('CONTROLLER_NAME')) {
-            if ('' == $template) {
-                // 如果模板文件名为空 按照默认规则定位
-                $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . ACTION_NAME;
-            } elseif (false === strpos($template, $depr)) {
-                $template = str_replace('.', DS, CONTROLLER_NAME) . $depr . $template;
-            }
-        }
-        return realpath($path) . DS . $template . $this->config['view_suffix'];
-    }
-
-    /**
-     * 获取当前的模板主题
-     * @access private
-     * @return string
-     */
-    private function getTemplateTheme()
-    {
-        if ($this->config['theme_on']) {
-            if ($this->theme) {
-                // 指定模板主题
-                $theme = $this->theme;
-            } else {
-                $theme = $this->config['default_theme'];
-            }
-        }
-        return isset($theme) ? $theme . DS : '';
+        return $this->fetch($content, $vars, $replace, $config, true);
     }
 
     /**

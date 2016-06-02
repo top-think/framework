@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Input;
+use think\Request;
+
 class Validate
 {
     // 实例
@@ -40,6 +43,7 @@ class Validate
         'array'      => ':attribute必须是数组',
         'accepted'   => ':attribute必须是yes、on或者1',
         'date'       => ':attribute格式不符合',
+        'file'       => ':attribute不是有效的上传文件',
         'alpha'      => ':attribute只能是字母',
         'alphaNum'   => ':attribute只能是字母和数字',
         'alphaDash'  => ':attribute只能是字母、数字和下划线_及破折号-',
@@ -69,6 +73,9 @@ class Validate
         'regex'      => ':attribute不符合指定规则',
         'method'     => '无效的请求类型',
         'token'      => '令牌数据无效',
+        'fileSize'   => '上传文件大小不符',
+        'fileExt'    => '上传文件后缀不符',
+        'fileMime'   => '上传文件类型不符',
     ];
 
     // 当前验证场景
@@ -231,6 +238,19 @@ class Validate
 
         // 分析验证规则
         $scene = $this->getScene($scene);
+        if (is_array($scene)) {
+            // 处理场景验证字段
+            $change = [];
+            $array  = [];
+            foreach ($scene as $k => $val) {
+                if (is_numeric($k)) {
+                    $array[] = $val;
+                } else {
+                    $array[]    = $k;
+                    $change[$k] = $val;
+                }
+            }
+        }
 
         foreach ($rules as $key => $item) {
             // field => rule1|rule2... field=>['rule1','rule2',...]
@@ -258,8 +278,13 @@ class Validate
             if (!empty($scene)) {
                 if ($scene instanceof \Closure && !call_user_func_array($scene, [$key, &$data])) {
                     continue;
-                } elseif (is_array($scene) && !in_array($key, $scene)) {
-                    continue;
+                } elseif (is_array($scene)) {
+                    if (!in_array($key, $array)) {
+                        continue;
+                    } elseif (isset($change[$key])) {
+                        // 重载某个验证规则
+                        $rule = $change[$key];
+                    }
                 }
             }
 
@@ -329,7 +354,7 @@ class Validate
                     }
 
                     // 如果不是require 有数据才会行验证
-                    if (0 === strpos($info, 'require') || !empty($value)) {
+                    if (0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                         // 验证类型
                         $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                         // 验证数据
@@ -469,7 +494,7 @@ class Validate
         switch ($rule) {
             case 'require':
                 // 必须
-                $result = !empty($value) && '0' != $value;
+                $result = !empty($value) || '0' == $value;
                 break;
             case 'accepted':
                 // 接受
@@ -524,6 +549,10 @@ class Validate
                 // 是否为数组
                 $result = is_array($value);
                 break;
+            case 'file':
+                $file   = Input::file($value);
+                $result = !empty($file);
+                break;
             default:
                 if (isset(self::$type[$rule])) {
                     // 注册的验证规则
@@ -564,6 +593,90 @@ class Validate
     }
 
     /**
+     * 验证上传文件后缀
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function fileExt($value, $rule)
+    {
+        $file = Input::file($value);
+        if (empty($file)) {
+            return false;
+        }
+        if (is_string($rule)) {
+            $rule = explode(',', $rule);
+        }
+        if (is_array($file)) {
+            foreach ($file as $item) {
+                if (!in_array(strtolower($item->getExtension()), $rule)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return in_array(strtolower($file->getExtension()), $rule);
+        }
+    }
+
+    /**
+     * 验证上传文件类型
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function fileMime($value, $rule)
+    {
+        $file = Input::file($value);
+        if (empty($file)) {
+            return false;
+        }
+        if (is_string($rule)) {
+            $rule = explode(',', $rule);
+        }
+        if (is_array($file)) {
+            foreach ($file as $item) {
+                if (!in_array(strtolower($item->getMime()), $rule)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return in_array(strtolower($file->getMime()), $rule);
+        }
+    }
+
+    /**
+     * 验证上传文件大小
+     * @access protected
+     * @param mixed $value  字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    protected function fileSize($value, $rule)
+    {
+        $file = Input::file($value);
+        if (empty($file)) {
+            return false;
+        }
+        if (is_string($rule)) {
+            $rule = explode(',', $rule);
+        }
+        if (is_array($file)) {
+            foreach ($file as $item) {
+                if ($item->getSize() > $rule) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return $file->getSize() <= $rule;
+        }
+    }
+
+    /**
      * 验证请求类型
      * @access protected
      * @param mixed $value  字段值
@@ -572,7 +685,8 @@ class Validate
      */
     protected function method($value, $rule)
     {
-        return REQUEST_METHOD == strtoupper($rule);
+        $method = Request::instance()->method();
+        return $method == strtoupper($rule);
     }
 
     /**
@@ -602,29 +716,29 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        $model = Loader::table($rule[0]);
-        $field = isset($rule[1]) ? $rule[1] : $field;
+        $db  = Db::name($rule[0]);
+        $key = isset($rule[1]) ? $rule[1] : $field;
 
-        if (strpos($field, '^')) {
+        if (strpos($key, '^')) {
             // 支持多个字段验证
-            $fields = explode('^', $field);
-            foreach ($fields as $field) {
-                $map[$field] = $data[$field];
+            $fields = explode('^', $key);
+            foreach ($fields as $key) {
+                $map[$key] = $data[$key];
             }
-        } elseif (strpos($field, '=')) {
-            parse_str($field, $map);
+        } elseif (strpos($key, '=')) {
+            parse_str($key, $map);
         } else {
-            $map[$field] = $data[$field];
+            $map[$key] = $data[$field];
         }
 
-        $key = strval(isset($rule[3]) ? $rule[3] : $model->getPk());
+        $pk = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
         if (isset($rule[2])) {
-            $map[$key] = ['neq', $rule[2]];
-        } elseif (isset($data[$key])) {
-            $map[$key] = ['neq', $data[$key]];
+            $map[$pk] = ['neq', $rule[2]];
+        } elseif (isset($data[$pk])) {
+            $map[$pk] = ['neq', $data[$pk]];
         }
 
-        if ($model->where($map)->field($key)->find()) {
+        if ($db->where($map)->field($pk)->find()) {
             return false;
         }
         return true;
@@ -862,7 +976,7 @@ class Validate
         if (!is_numeric($end)) {
             $end = strtotime($end);
         }
-        return NOW_TIME >= $start && NOW_TIME <= $end;
+        return $_SERVER['REQUEST_TIME'] >= $start && $_SERVER['REQUEST_TIME'] <= $end;
     }
 
     /**

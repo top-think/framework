@@ -12,6 +12,7 @@
 namespace think\controller;
 
 use think\Response;
+use think\Request;
 
 abstract class Rest
 {
@@ -36,17 +37,19 @@ abstract class Rest
     public function __construct()
     {
         // 资源类型检测
-        if ('' == __EXT__) {
+        $request = Request::instance();
+        $ext = $request->ext();
+        if ('' == $ext) {
             // 自动检测资源类型
             $this->_type = $this->getAcceptType();
-        } elseif (!preg_match('/\(' . $this->restTypeList . '\)$/i', __EXT__)) {
+        } elseif (!preg_match('/\(' . $this->restTypeList . '\)$/i', $ext)) {
             // 资源类型非法 则用默认资源类型访问
             $this->_type = $this->restDefaultType;
         } else {
-            $this->_type = __EXT__;
+            $this->_type = $ext;
         }
         // 请求方式检测
-        $method = strtolower($_SERVER['REQUEST_METHOD']);
+        $method = strtolower($request->method());
         if (false === stripos($this->restMethodList, $method)) {
             // 请求方式非法 则用默认请求方法
             $method = $this->restDefaultMethod;
@@ -57,12 +60,10 @@ abstract class Rest
     /**
      * REST 调用
      * @access public
-     *
      * @param string $method 方法名
      * @param array  $args   参数
-     *
      * @return mixed
-     * @throws \think\Exception
+     * @throws \Exception
      */
     public function _empty($method, $args)
     {
@@ -78,7 +79,7 @@ abstract class Rest
             return $this->$fun();
         } else {
             // 抛出异常
-            throw new \Exception('error action :' . ACTION_NAME);
+            throw new \Exception('error action :' . $method);
         }
     }
 
@@ -88,15 +89,11 @@ abstract class Rest
      * @param mixed $data 要返回的数据
      * @param String $type 返回类型 JSON XML
      * @param integer $code HTTP状态
-     * @return void
+     * @return Response
      */
-    protected function response($data, $type = '', $code = 200)
+    protected function response($data, $type = 'json', $code = 200)
     {
-        http_response_code($code);
-        Response::data($data);
-        if ($type) {
-            Response::type($type);
-        }
+        return Response::create($data, $type)->code($code);
     }
 
     /**

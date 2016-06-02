@@ -9,13 +9,16 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\model;
+namespace think\config\driver;
 
-\think\Loader::import('model/Adv', TRAIT_PATH, EXT);
-\think\Loader::import('model/Transaction', TRAIT_PATH, EXT);
-
-class Adv extends \think\Model
+class Json
 {
-    use \traits\model\Adv;
-    use \traits\model\Transaction;
+    public function parse($config)
+    {
+        if (is_file($config)) {
+            $config = file_get_contents($config);
+        }
+        $result = json_decode($config, true);
+        return $result;
+    }
 }

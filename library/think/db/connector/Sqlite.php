@@ -9,19 +9,20 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\db\driver;
+namespace think\db\connector;
 
-use think\db\Driver;
+use PDO;
+use think\db\Connection;
 
 /**
  * Sqlite数据库驱动
  */
-class Sqlite extends Driver
+class Sqlite extends Connection
 {
 
     /**
      * 解析pdo连接的dsn信息
-     * @access public
+     * @access protected
      * @param array $config 连接信息
      * @return string
      */
@@ -34,15 +35,20 @@ class Sqlite extends Driver
     /**
      * 取得数据表的字段信息
      * @access public
+     * @param string $tableName
      * @return array
      */
     public function getFields($tableName)
     {
+        $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
-        $result          = $this->query('PRAGMA table_info( ' . $tableName . ' )');
+        $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
+        $pdo             = $this->linkID->query($sql);
+        $result          = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info            = [];
         if ($result) {
             foreach ($result as $key => $val) {
+                $val                = array_change_key_case($val);
                 $info[$val['name']] = [
                     'name'    => $val['name'],
                     'type'    => $val['type'],
@@ -53,53 +59,27 @@ class Sqlite extends Driver
                 ];
             }
         }
-        return $info;
+        return $this->fieldCase($info);
     }
 
     /**
      * 取得数据库的表信息
      * @access public
+     * @param string $dbName
      * @return array
      */
     public function getTables($dbName = '')
     {
-        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table' "
+        $sql = "SELECT name FROM sqlite_master WHERE type='table' "
             . "UNION ALL SELECT name FROM sqlite_temp_master "
-            . "WHERE type='table' ORDER BY name");
-        $info = [];
+            . "WHERE type='table' ORDER BY name";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }
         return $info;
-    }
-
-    /**
-     * limit
-     * @access public
-     * @return string
-     */
-    public function parseLimit($limit)
-    {
-        $limitStr = '';
-        if (!empty($limit)) {
-            $limit = explode(',', $limit);
-            if (count($limit) > 1) {
-                $limitStr .= ' LIMIT ' . $limit[1] . ' OFFSET ' . $limit[0] . ' ';
-            } else {
-                $limitStr .= ' LIMIT ' . $limit[0] . ' ';
-            }
-        }
-        return $limitStr;
-    }
-
-    /**
-     * 随机排序
-     * @access protected
-     * @return string
-     */
-    protected function parseRand()
-    {
-        return 'RANDOM()';
     }
 
     /**
@@ -110,6 +90,6 @@ class Sqlite extends Driver
      */
     protected function getExplain($sql)
     {
-
+        return [];
     }
 }

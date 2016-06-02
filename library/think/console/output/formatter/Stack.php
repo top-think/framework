@@ -11,7 +11,6 @@
 
 namespace think\console\output\formatter;
 
-
 class Stack
 {
 

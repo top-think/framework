@@ -9,19 +9,20 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\db\driver;
+namespace think\db\connector;
 
-use think\db\Driver;
+use PDO;
+use think\db\Connection;
 
 /**
  * Pgsql数据库驱动
  */
-class Pgsql extends Driver
+class Pgsql extends Connection
 {
 
     /**
      * 解析pdo连接的dsn信息
-     * @access public
+     * @access protected
      * @param array $config 连接信息
      * @return string
      */
@@ -37,15 +38,20 @@ class Pgsql extends Driver
     /**
      * 取得数据表的字段信息
      * @access public
+     * @param string $tableName
      * @return array
      */
     public function getFields($tableName)
     {
+        $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
-        $result          = $this->query('select fields_name as "field",fields_type as "type",fields_not_null as "null",fields_key_name as "key",fields_default as "default",fields_default as "extra" from table_msg(' . $tableName . ');');
+        $sql             = 'select fields_name as "field",fields_type as "type",fields_not_null as "null",fields_key_name as "key",fields_default as "default",fields_default as "extra" from table_msg(\'' . $tableName . '\');';
+        $pdo             = $this->linkID->query($sql);
+        $result          = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info            = [];
         if ($result) {
             foreach ($result as $key => $val) {
+                $val                 = array_change_key_case($val);
                 $info[$val['field']] = [
                     'name'    => $val['field'],
                     'type'    => $val['type'],
@@ -56,69 +62,25 @@ class Pgsql extends Driver
                 ];
             }
         }
-        return $info;
+        return $this->fieldCase($info);
     }
 
     /**
      * 取得数据库的表信息
      * @access public
+     * @param string $dbName
      * @return array
      */
     public function getTables($dbName = '')
     {
-        $result = $this->query("select tablename as Tables_in_test from pg_tables where  schemaname ='public'");
+        $sql    = "select tablename as Tables_in_test from pg_tables where  schemaname ='public'";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }
         return $info;
-    }
-
-    /**
-     * limit分析
-     * @access protected
-     * @param mixed $limit
-     * @return string
-     */
-    public function parseLimit($limit)
-    {
-        $limitStr = '';
-        if (!empty($limit)) {
-            $limit = explode(',', $limit);
-            if (count($limit) > 1) {
-                $limitStr .= ' LIMIT ' . $limit[1] . ' OFFSET ' . $limit[0] . ' ';
-            } else {
-                $limitStr .= ' LIMIT ' . $limit[0] . ' ';
-            }
-        }
-        return $limitStr;
-    }
-
-    /**
-     * 字段和表名处理
-     * @access protected
-     * @param string $key
-     * @return string
-     */
-    protected function parseKey($key)
-    {
-        $key = trim($key);
-        if (strpos($key, '$.') && false === strpos($key, '(')) {
-            // JSON字段支持
-            list($field, $name) = explode($key, '$.');
-            $key                = $field . '->>\'' . $name . '\'';
-        }
-        return $key;
-    }
-
-    /**
-     * 随机排序
-     * @access protected
-     * @return string
-     */
-    protected function parseRand()
-    {
-        return 'RANDOM()';
     }
 
     /**
@@ -129,6 +91,6 @@ class Pgsql extends Driver
      */
     protected function getExplain($sql)
     {
-
+        return [];
     }
 }

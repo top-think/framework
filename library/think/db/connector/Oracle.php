@@ -9,24 +9,21 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\db\driver;
+namespace think\db\connector;
 
-use think\Config;
+use PDO;
 use think\Db;
-use think\db\Driver;
+use think\db\Connection;
 
 /**
  * Oracle数据库驱动
  */
-class Oracle extends Driver
+class Oracle extends Connection
 {
-
-    private $table       = '';
-    protected $selectSql = 'SELECT * FROM (SELECT thinkphp.*, rownum AS numrow FROM (SELECT  %DISTINCT% %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%) thinkphp ) %LIMIT%%COMMENT%';
 
     /**
      * 解析pdo连接的dsn信息
-     * @access public
+     * @access protected
      * @param array $config 连接信息
      * @return string
      */
@@ -68,8 +65,8 @@ class Oracle extends Driver
         }
         $flag = false;
         if (preg_match("/^\s*(INSERT\s+INTO)\s+(\w+)\s+/i", $sql, $match)) {
-            $this->table = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
-            $flag        = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($this->table) . "'");
+            $table = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
+            $flag  = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($table) . "'");
         }
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
@@ -98,16 +95,16 @@ class Oracle extends Driver
     /**
      * 取得数据表的字段信息
      * @access public
-     *
-     * @param $tableName
-     *
+     * @param string $tableName
      * @return array
      */
     public function getFields($tableName)
     {
+        $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
-        $url             = "select a.column_name,data_type,DECODE (nullable, 'Y', 0, 1) notnull,data_default, DECODE (A .column_name,b.column_name,1,0) pk from all_tab_columns a,(select column_name from all_constraints c, all_cons_columns col where c.constraint_name = col.constraint_name and c.constraint_type = 'P' and c.table_name = '" . strtoupper($tableName) . "' ) b where table_name = '" . strtoupper($tableName) . "' and a.column_name = b.column_name (+)";
-        $result          = $this->query($url);
+        $sql             = "select a.column_name,data_type,DECODE (nullable, 'Y', 0, 1) notnull,data_default, DECODE (A .column_name,b.column_name,1,0) pk from all_tab_columns a,(select column_name from all_constraints c, all_cons_columns col where c.constraint_name = col.constraint_name and c.constraint_type = 'P' and c.table_name = '" . strtoupper($tableName) . "' ) b where table_name = '" . strtoupper($tableName) . "' and a.column_name = b.column_name (+)";
+        $pdo             = $this->linkID->query($sql);
+        $result          = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info            = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -122,7 +119,7 @@ class Oracle extends Driver
                 ];
             }
         }
-        return $info;
+        return $this->fieldCase($info);
     }
 
     /**
@@ -133,74 +130,13 @@ class Oracle extends Driver
      */
     public function getTables()
     {
-        $result = $this->query("select table_name from all_tables");
+        $pdo    = $this->linkID->query("select table_name from all_tables");
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }
         return $info;
-    }
-
-    /**
-     * limit
-     * @access public
-     * @return string
-     */
-    public function parseLimit($limit)
-    {
-        $limitStr = '';
-        if (!empty($limit)) {
-            $limit = explode(',', $limit);
-            if (count($limit) > 1) {
-                $limitStr = "(numrow>" . $limit[0] . ") AND (numrow<=" . ($limit[0] + $limit[1]) . ")";
-            } else {
-                $limitStr = "(numrow>0 AND numrow<=" . $limit[0] . ")";
-            }
-
-        }
-        return $limitStr ? ' WHERE ' . $limitStr : '';
-    }
-    /**
-     * 设置锁机制
-     * @access protected
-     * @param bool|false $lock
-     *
-     * @return string
-     */
-    protected function parseLock($lock = false)
-    {
-        if (!$lock) {
-            return '';
-        }
-
-        return ' FOR UPDATE NOWAIT ';
-    }
-
-    /**
-     * 字段和表名处理
-     * @access protected
-     * @param string $key
-     * @return string
-     */
-    protected function parseKey($key)
-    {
-        $key = trim($key);
-        if (strpos($key, '$.') && false === strpos($key, '(')) {
-            // JSON字段支持
-            list($field, $name) = explode($key, '$.');
-            $key                = $field . '."' . $name . '"';
-        }
-        return $key;
-    }
-
-    /**
-     * 随机排序
-     * @access protected
-     * @return string
-     */
-    protected function parseRand()
-    {
-        return 'DBMS_RANDOM.value';
     }
 
     /**
@@ -211,6 +147,6 @@ class Oracle extends Driver
      */
     protected function getExplain($sql)
     {
-
+        return [];
     }
 }

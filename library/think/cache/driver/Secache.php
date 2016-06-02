@@ -19,7 +19,6 @@ use think\Cache;
  */
 class Secache
 {
-
     protected $handler = null;
     protected $options = [
         'project' => '',
@@ -55,7 +54,6 @@ class Secache
      */
     public function get($name)
     {
-        Cache::$readTimes++;
         $name = $this->options['prefix'] . $name;
         $key  = md5($name);
         $this->handler->fetch($key, $return);
@@ -72,30 +70,9 @@ class Secache
      */
     public function set($name, $value)
     {
-        Cache::$writeTimes++;
         $name = $this->options['prefix'] . $name;
         $key  = md5($name);
-        if ($result = $this->handler->store($key, $value)) {
-            if ($this->options['length'] > 0) {
-                // 记录缓存队列
-                $queue = $this->handler->fetch(md5('__info__'));
-                if (!$queue) {
-                    $queue = [];
-                }
-                if (false === array_search($key, $queue)) {
-                    array_push($queue, $key);
-                }
-
-                if (count($queue) > $this->options['length']) {
-                    // 出列
-                    $key = array_shift($queue);
-                    // 删除缓存
-                    $this->handler->delete($key);
-                }
-                $this->handler->store(md5('__info__'), $queue);
-            }
-        }
-        return $result;
+        return $this->handler->store($key, $value);
     }
 
     /**

@@ -18,6 +18,7 @@ namespace tests\thinkphp\library\think;
 
 use ReflectionClass;
 use think\Controller;
+use think\Request;
 use think\View;
 
 require_once CORE_PATH . '../../helper.php';
@@ -93,16 +94,16 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 {
     public function testInitialize()
     {
-        $foo = new Foo;
+        $foo = new Foo(Request::instance());
         $this->assertEquals('abcd', $foo->test);
     }
 
     public function testBeforeAction()
     {
-        $obj = new Bar;
+        $obj = new Bar(Request::instance());
         $this->assertEquals(7, $obj->test);
 
-        $obj = new Baz;
+        $obj = new Baz(Request::instance());
         $this->assertEquals(19, $obj->test);
     }
 
@@ -118,29 +119,27 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 
     public function testFetch()
     {
-        $controller      = new Foo;
+        $controller      = new Foo(Request::instance());
         $view            = $this->getView($controller);
         $template        = dirname(__FILE__) . '/display.html';
         $viewFetch       = $view->fetch($template, ['name' => 'ThinkPHP']);
         $controllerFetch = $controller->fetch($template, ['name' => 'ThinkPHP']);
         $this->assertEquals($controllerFetch, $viewFetch);
-        $controllerFetch = $controller->display($template, ['name' => 'ThinkPHP']);
-        $this->assertEquals($controllerFetch, $viewFetch);
     }
 
-    public function testShow()
+    public function testDisplay()
     {
         $controller      = new Foo;
         $view            = $this->getView($controller);
         $template        = dirname(__FILE__) . '/display.html';
-        $viewFetch       = $view->show($template, ['name' => 'ThinkPHP']);
-        $controllerFetch = $controller->show($template, ['name' => 'ThinkPHP']);
+        $viewFetch       = $view->display($template, ['name' => 'ThinkPHP']);
+        $controllerFetch = $controller->display($template, ['name' => 'ThinkPHP']);
         $this->assertEquals($controllerFetch, $viewFetch);
     }
 
     public function testAssign()
     {
-        $controller = new Foo;
+        $controller = new Foo(Request::instance());
         $view       = $this->getView($controller);
         $controller->assign('abcd', 'dcba');
         $controller->assign(['key1' => 'value1', 'key2' => 'value2']);
@@ -148,19 +147,9 @@ class controllerTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals($expect, 'data', $view);
     }
 
-    public function testEngine()
-    {
-        $controller   = new Foo;
-        $view         = $this->getView($controller);
-        $view->engine = null;
-        $this->assertEquals(null, $view->engine);
-        $controller->engine('php');
-        $this->assertEquals('php', $view->engine);
-    }
-
     public function testValidate()
     {
-        $controller = new Foo;
+        $controller = new Foo(Request::instance());
         $data       = [
             'username'   => 'username',
             'nickname'   => 'nickname',

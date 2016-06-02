@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+
 namespace think;
 
 class Session
@@ -205,7 +206,6 @@ class Session
      * @param string $name session名称
      * @param string|null $prefix
      * @return bool
-     * @internal param mixed $value session值
      */
     public static function has($name, $prefix = null)
     {
@@ -218,16 +218,6 @@ class Session
         } else {
             return $prefix ? isset($_SESSION[$prefix][$name]) : isset($_SESSION[$name]);
         }
-    }
-
-    /**
-     * 暂停session
-     * @return void
-     */
-    public static function pause()
-    {
-        // 暂停session
-        session_write_close();
     }
 
     /**
@@ -246,7 +236,9 @@ class Session
      */
     public static function destroy()
     {
-        $_SESSION = [];
+        if (!empty($_SESSION)) {
+            $_SESSION = [];
+        }
         session_unset();
         session_destroy();
     }
@@ -258,5 +250,15 @@ class Session
     private static function regenerate()
     {
         session_regenerate_id();
+    }
+
+    /**
+     * 暂停session
+     * @return void
+     */
+    public static function pause()
+    {
+        // 暂停session
+        session_write_close();
     }
 }

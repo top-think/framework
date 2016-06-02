@@ -29,7 +29,10 @@ class Log
     // 通知发送驱动
     protected static $alarm = null;
 
-    // 日志初始化
+    /**
+     * 日志初始化
+     * @return void
+     */
     public static function init($config = [])
     {
         $type  = isset($config['type']) ? $config['type'] : 'File';
@@ -40,7 +43,10 @@ class Log
         APP_DEBUG && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
     }
 
-    // 通知初始化
+    /**
+     * 通知初始化
+     * @return void
+     */
     public static function alarm($config = [])
     {
         $type  = isset($config['type']) ? $config['type'] : 'Email';
@@ -62,7 +68,7 @@ class Log
 
     /**
      * 记录调试信息
-     * @param mixed $msg 调试信息
+     * @param mixed  $msg  调试信息
      * @param string $type 信息类型
      * @return void
      */
@@ -89,15 +95,25 @@ class Log
      */
     public static function save()
     {
-        if (is_null(self::$driver)) {
-            self::init(Config::get('log'));
+        if (!empty(self::$log)) {
+            if (is_null(self::$driver)) {
+                self::init(Config::get('log'));
+            }
+
+            $result = self::$driver->save(self::$log);
+
+            if ($result) {
+                self::$log = [];
+            }
+
+            return $result;
         }
-        return self::$driver->save(self::$log);
+        return true;
     }
 
     /**
      * 实时写入日志信息 并支持行为
-     * @param mixed $msg 调试信息
+     * @param mixed  $msg  调试信息
      * @param string $type 信息类型
      * @return bool
      */
@@ -110,7 +126,7 @@ class Log
         $log[] = ['type' => $type, 'msg' => $msg];
 
         // 监听log_write
-        APP_HOOK && Hook::listen('log_write', $log);
+        Hook::listen('log_write', $log);
         if (is_null(self::$driver)) {
             self::init(Config::get('log'));
         }
@@ -128,7 +144,10 @@ class Log
         self::$alarm && self::$alarm->send($msg);
     }
 
-    // 静态调用
+    /**
+     * 静态调用
+     * @return void
+     */
     public static function __callStatic($method, $args)
     {
         if (in_array($method, self::$type)) {

@@ -31,16 +31,17 @@ class Config
      * 解析配置文件或内容
      * @param string $config 配置文件路径或内容
      * @param string $type 配置解析类型
+     * @param string $name 配置名（如设置即表示二级配置）
      * @param string $range  作用域
      */
-    public static function parse($config, $type = '', $range = '')
+    public static function parse($config, $type = '', $name = '', $range = '')
     {
         $range = $range ?: self::$range;
         if (empty($type)) {
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
         $class = (false === strpos($type, '\\')) ? '\\think\\config\\driver\\' . ucwords($type) : $type;
-        self::set((new $class())->parse($config), '', $range);
+        self::set((new $class())->parse($config), $name, $range);
     }
 
     /**
@@ -56,9 +57,18 @@ class Config
         if (!isset(self::$config[$range])) {
             self::$config[$range] = [];
         }
-        // 记录加载信息
-        APP_DEBUG && Log::record('[ CONFIG ] ' . $file, 'info');
-        return is_file($file) ? self::set(include $file, $name, $range) : self::$config[$range];
+        if (is_file($file)) {
+            // 记录加载信息
+            APP_DEBUG && Log::record('[ CONFIG ] ' . $file, 'info');
+            $type = pathinfo($file, PATHINFO_EXTENSION);
+            if ('php' != $type) {
+                return self::parse($file, $type, $name, $range);
+            } else {
+                return self::set(include $file, $name, $range);
+            }
+        } else {
+            return self::$config[$range];
+        }
     }
 
     /**
@@ -126,7 +136,7 @@ class Config
 
     /**
      * 设置配置参数 name为数组则为批量设置
-     * @param string $name 配置参数名（支持二级配置 .号分割）
+     * @param string|array $name 配置参数名（支持二级配置 .号分割）
      * @param mixed $value 配置值
      * @param string $range  作用域
      * @return mixed
@@ -167,7 +177,11 @@ class Config
      */
     public static function reset($range = '')
     {
-        $range                          = $range ?: self::$range;
-        true === $range ? self::$config = [] : self::$config[$range] = [];
+        $range = $range ?: self::$range;
+        if (true === $range) {
+            self::$config = [];
+        } else {
+            self::$config[$range] = [];
+        }
     }
 }

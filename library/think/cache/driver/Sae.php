@@ -58,7 +58,6 @@ class Sae
      */
     public function get($name)
     {
-        Cache::$readTimes++;
         return $this->handler->get($_SERVER['HTTP_APPVERSION'] . '/' . $this->options['prefix'] . $name);
     }
 
@@ -72,16 +71,11 @@ class Sae
      */
     public function set($name, $value, $expire = null)
     {
-        Cache::$writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
         $name = $this->options['prefix'] . $name;
         if ($this->handler->set($_SERVER['HTTP_APPVERSION'] . '/' . $name, $value, 0, $expire)) {
-            if ($this->options['length'] > 0) {
-                // 记录缓存队列
-                $this->queue($name);
-            }
             return true;
         }
         return false;
@@ -126,32 +120,4 @@ class Sae
         return $kv;
     }
 
-    /**
-     * 队列缓存
-     * @access protected
-     * @param string $key 队列名
-     * @return mixed
-     */
-    //[sae] 下重写queque队列缓存方法
-    protected function queue($key)
-    {
-        $queue_name = isset($this->options['queue_name']) ? $this->options['queue_name'] : 'think_queue';
-        $kv         = $this->getKv();
-        $value      = $kv->get($queue_name);
-        if (!$value) {
-            $value = [];
-        }
-        // 进列
-        if (false === array_search($key, $value)) {
-            array_push($value, $key);
-        }
-
-        if (count($value) > $this->options['length']) {
-            // 出列
-            $key = array_shift($value);
-            // 删除缓存
-            $this->rm($key);
-        }
-        return $kv->set($queue_name, $value);
-    }
 }

@@ -9,20 +9,21 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\db\driver;
+namespace think\db\connector;
 
-use think\db\Driver;
+use PDO;
+use think\db\Connection;
 use think\Log;
 
 /**
  * mysql数据库驱动
  */
-class Mysql extends Driver
+class Mysql extends Connection
 {
 
     /**
      * 解析pdo连接的dsn信息
-     * @access public
+     * @access protected
      * @param array $config 连接信息
      * @return string
      */
@@ -43,7 +44,7 @@ class Mysql extends Driver
     /**
      * 取得数据表的字段信息
      * @access public
-     * @param $tableName
+     * @param string $tableName
      * @return array
      */
     public function getFields($tableName)
@@ -54,7 +55,8 @@ class Mysql extends Driver
             $tableName = str_replace('.', '`.`', $tableName);
         }
         $sql    = 'SHOW COLUMNS FROM `' . $tableName . '`';
-        $result = $this->query($sql);
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         if ($result) {
             foreach ($result as $key => $val) {
@@ -69,7 +71,7 @@ class Mysql extends Driver
                 ];
             }
         }
-        return $info;
+        return $this->fieldCase($info);
     }
 
     /**
@@ -81,42 +83,13 @@ class Mysql extends Driver
     public function getTables($dbName = '')
     {
         $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
-        $result = $this->query($sql);
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }
         return $info;
-    }
-
-    /**
-     * 字段和表名处理
-     * @access protected
-     * @param string $key
-     * @return string
-     */
-    protected function parseKey($key)
-    {
-        $key = trim($key);
-        if (strpos($key, '$.') && false === strpos($key, '(')) {
-            // JSON字段支持
-            list($field, $name) = explode($key, '$.');
-            $key                = 'jsn_extract(' . $field . ', \'$.\'.' . $name . ')';
-        }
-        if (!preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
-            $key = '`' . $key . '`';
-        }
-        return $key;
-    }
-
-    /**
-     * 随机排序
-     * @access protected
-     * @return string
-     */
-    protected function parseRand()
-    {
-        return 'rand()';
     }
 
     /**
@@ -128,7 +101,7 @@ class Mysql extends Driver
     protected function getExplain($sql)
     {
         $pdo    = $this->linkID->query("EXPLAIN " . $sql);
-        $result = $pdo->fetch(\PDO::FETCH_ASSOC);
+        $result = $pdo->fetch(PDO::FETCH_ASSOC);
         $result = array_change_key_case($result);
         if (isset($result['extra'])) {
             if (strpos($result['extra'], 'filesort') || strpos($result['extra'], 'temporary')) {

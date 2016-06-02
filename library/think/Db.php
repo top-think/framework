@@ -11,15 +11,37 @@
 
 namespace think;
 
+use think\Collection;
+use think\db\Query;
+
 /**
- * ThinkPHP 数据库中间层实现类
+ * Class Db
+ * @package think
+ * @method Query table(string $table) static 指定数据表（含前缀）
+ * @method Query name(string $name) static 指定数据表（不含前缀）
+ * @method Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
+ * @method Query join(mixed $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
+ * @method Query union(mixed $union, boolean $all = false) static UNION查询
+ * @method Query limit(mixed $offset, integer $length = null) static 查询LIMIT
+ * @method Query order(mixed $field, string $order = null) static 查询ORDER
+ * @method mixed value(string $field) static 获取某个字段的值
+ * @method array column(string $field, string $key = '') static 获取某个列的值
+ * @method mixed find(mixed $data = []) static 查询单个记录
+ * @method mixed select(mixed $data = []) static 查询多个记录
+ * @method mixed query(string $sql, array $bind = [], boolean $fetch = false, boolean $master = false, mixed $class = false) static SQL查询
+ * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
+ * @method PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) static 分页查询
  */
 class Db
 {
+    // 数组数据集
+    const RESULTSET_ARRAY = 1;
+    // 对象数据集
+    const RESULTSET_COLLECTION = 2;
+    // 自定义对象数据集
+    const RESULTSET_CLASS = 3;
     //  数据库连接实例
-    private static $instances = [];
-    //  当前数据库连接实例
-    private static $instance = null;
+    private static $instance = [];
     // 查询次数
     public static $queryTimes = 0;
     // 执行次数
@@ -30,24 +52,31 @@ class Db
      * @static
      * @access public
      * @param mixed $config 连接配置
-     * @return Object 返回数据库驱动类
+     * @param bool|string $name 连接标识 true 强制重新连接
+     * @return \think\db\Connection
+     * @throws Exception
      */
-    public static function connect($config = [])
+    public static function connect($config = [], $name = false)
     {
-        $md5 = md5(serialize($config));
-        if (!isset(self::$instances[$md5])) {
+        if (false === $name) {
+            $name = md5(serialize($config));
+        }
+        if (true === $name || !isset(self::$instance[$name])) {
             // 解析连接参数 支持数组和字符串
             $options = self::parseConfig($config);
             if (empty($options['type'])) {
                 throw new Exception('db type error');
             }
-            $class                 = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\db\\driver\\') . ucwords($options['type']);
-            self::$instances[$md5] = new $class($options);
+            $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\db\\connector\\') . ucwords($options['type']);
             // 记录初始化信息
             APP_DEBUG && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
+            if (true === $name) {
+                return new $class($options);
+            } else {
+                self::$instance[$name] = new $class($options);
+            }
         }
-        self::$instance = self::$instances[$md5];
-        return self::$instance;
+        return self::$instance[$name];
     }
 
     /**
@@ -107,10 +136,7 @@ class Db
     // 调用驱动类的方法
     public static function __callStatic($method, $params)
     {
-        if (is_null(self::$instance)) {
-            // 自动初始化数据库
-            self::connect();
-        }
-        return call_user_func_array([self::$instance, $method], $params);
+        // 自动初始化数据库
+        return call_user_func_array([self::connect(), $method], $params);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
 // | Copyright (c) 2006-2015 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
@@ -8,18 +8,28 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-namespace think;
 
-class Error
+namespace think\exception;
+
+
+use think\Response;
+
+class HttpResponseException extends \RuntimeException
 {
     /**
-     * 注册异常处理
-     * @return void
+     * @var Response
      */
-    public static function register()
+    protected $response;
+
+    public function __construct(Response $response)
     {
-        ini_set("display_errors","Off");
-        //TODO
+        $this->response = $response;
     }
+
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
 
 }

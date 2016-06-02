@@ -8,11 +8,17 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+
 namespace think;
 
 class Build
 {
-    // 根据传入的build资料创建目录和文件
+    /**
+     * 根据传入的build资料创建目录和文件
+     * @access protected
+     * @param  array $build build列表
+     * @return void
+     */
     public static function run(array $build = [])
     {
         // 锁定
@@ -38,7 +44,12 @@ class Build
         unlink($lockfile);
     }
 
-    // 创建目录
+    /**
+     * 创建目录
+     * @access protected
+     * @param  array $list 目录列表
+     * @return void
+     */
     protected static function buildDir($list)
     {
         foreach ($list as $dir) {
@@ -49,7 +60,12 @@ class Build
         }
     }
 
-    // 创建文件
+    /**
+     * 创建文件
+     * @access protected
+     * @param  array $list 文件列表
+     * @return void
+     */
     protected static function buildFile($list)
     {
         foreach ($list as $file) {
@@ -63,7 +79,13 @@ class Build
         }
     }
 
-    // 创建模块
+    /**
+     * 创建模块
+     * @access public
+     * @param  string $module 模块名
+     * @param  array $list build列表
+     * @return void
+     */
     public static function module($module = '', $list = [])
     {
         $module = APP_MULTI_MODULE ? $module : '';
@@ -105,17 +127,18 @@ class Build
             } else {
                 // 生成相关MVC文件
                 foreach ($file as $val) {
+                    $val       = trim($val);
                     $filename  = $modulePath . $path . DS . $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '') . EXT;
                     $namespace = APP_NAMESPACE . '\\' . ($module ? $module . '\\' : '') . $path;
                     $class     = $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '');
                     switch ($path) {
-                        case CONTROLLER_LAYER: // 控制器
+                        case 'controller': // 控制器
                             $content = "<?php\nnamespace {$namespace};\n\nclass {$class}\n{\n\n}";
                             break;
-                        case MODEL_LAYER: // 模型
+                        case 'model': // 模型
                             $content = "<?php\nnamespace {$namespace};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
                             break;
-                        case VIEW_LAYER: // 视图
+                        case 'view': // 视图
                             $filename = $modulePath . $path . DS . $val . '.html';
                             if (!is_dir(dirname($filename))) {
                                 // 创建目录
@@ -136,13 +159,18 @@ class Build
         }
     }
 
-    // 创建模块的欢迎页面
+    /**
+     * 创建模块的欢迎页面
+     * @access public
+     * @param  string $module 模块名
+     * @return void
+     */
     protected static function buildHello($module)
     {
-        $filename = APP_PATH . ($module ? $module . DS : '') . CONTROLLER_LAYER . DS . 'Index' . (CLASS_APPEND_SUFFIX ? ucfirst(CONTROLLER_LAYER) : '') . EXT;
+        $filename = APP_PATH . ($module ? $module . DS : '') . 'controller' . DS . 'Index' . (CLASS_APPEND_SUFFIX ? 'Controller' : '') . EXT;
         if (!is_file($filename)) {
             $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
-            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [APP_NAMESPACE, $module ? $module . '\\' : '', CONTROLLER_LAYER, CLASS_APPEND_SUFFIX ? ucfirst(CONTROLLER_LAYER) : ''], $content);
+            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [APP_NAMESPACE, $module ? $module . '\\' : '', 'controller', CLASS_APPEND_SUFFIX ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
                 mkdir(dirname($filename), 0777, true);
             }
@@ -150,12 +178,17 @@ class Build
         }
     }
 
-    // 创建模块的公共文件
+    /**
+     * 创建模块的公共文件
+     * @access public
+     * @param  string $module 模块名
+     * @return void
+     */
     protected static function buildCommon($module)
     {
-        $filename = APP_PATH . ($module ? $module . DS : '') . 'config.php';
+        $filename = CONF_PATH . ($module ? $module . DS : '') . 'config.php';
         if (!is_file($filename)) {
-            file_put_contents($filename, "<?php\nreturn [\n\n];");
+            file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
         }
         $filename = APP_PATH . ($module ? $module . DS : '') . 'common.php';
         if (!is_file($filename)) {

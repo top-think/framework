@@ -87,7 +87,7 @@
             box-sizing: border-box;
         font-size:14px;
             font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
-            padding-left: <?php echo isset($source) ? parse_padding($source) : 40; ?>px;
+            padding-left: <?php echo (isset($source) && !empty($source)) ? parse_padding($source) : 40;  ?>px;
         }
         .exception .source-code pre li{
             border-left: 1px solid #ddd;
@@ -146,6 +146,7 @@
         .exception-var table td{
             padding: 0 6px;
             vertical-align: top;
+            word-break: break-word;
         }
         .exception-var table td:first-child{
             width: 12px;
@@ -192,9 +193,11 @@
             </div>
         
     </div>
+	<?php if(!empty($source)){?>
         <div class="source-code">
             <pre class="prettyprint lang-php"><ol start="<?php echo $source['first']; ?>"><?php foreach ((array) $source['source'] as $key => $value) { ?><li class="line-<?php echo $key + $source['first']; ?>"><code><?php echo htmlentities($value); ?></code></li><?php } ?></ol></pre>
         </div>
+	<?php }?>
         <div class="trace">
             <h2>Call Stack</h2>
             <ol>
@@ -209,7 +212,7 @@
                             isset($value['class']) ? parse_class($value['class']) : '',
                             isset($value['type'])  ? $value['type'] : '', 
                             $value['function'], 
-                            parse_args($value['args'])
+                            isset($value['args'])?parse_args($value['args']):''
                         );
                     }
 

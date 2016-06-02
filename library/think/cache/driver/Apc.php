@@ -20,7 +20,6 @@ use think\Exception;
  */
 class Apc
 {
-
     protected $options = [
         'expire' => 0,
         'prefix' => '',
@@ -53,7 +52,6 @@ class Apc
      */
     public function get($name)
     {
-        Cache::$readTimes++;
         return apc_fetch($this->options['prefix'] . $name);
     }
 
@@ -67,32 +65,11 @@ class Apc
      */
     public function set($name, $value, $expire = null)
     {
-        Cache::$writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
         $name = $this->options['prefix'] . $name;
-        if ($result = apc_store($name, $value, $expire)) {
-            if ($this->options['length'] > 0) {
-                // 记录缓存队列
-                $queue = apc_fetch('__info__');
-                if (!$queue) {
-                    $queue = [];
-                }
-                if (false === array_search($name, $queue)) {
-                    array_push($queue, $name);
-                }
-
-                if (count($queue) > $this->options['length']) {
-                    // 出列
-                    $key = array_shift($queue);
-                    // 删除缓存
-                    apc_delete($key);
-                }
-                apc_store('__info__', $queue);
-            }
-        }
-        return $result;
+        return apc_store($name, $value, $expire);
     }
 
     /**
