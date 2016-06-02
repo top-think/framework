@@ -28,7 +28,6 @@ defined('LOG_PATH') or define('LOG_PATH', RUNTIME_PATH . 'log' . DS);
 defined('CACHE_PATH') or define('CACHE_PATH', RUNTIME_PATH . 'cache' . DS);
 defined('TEMP_PATH') or define('TEMP_PATH', RUNTIME_PATH . 'temp' . DS);
 defined('APP_NAMESPACE') or define('APP_NAMESPACE', 'app');
-defined('COMMON_MODULE') or define('COMMON_MODULE', 'common');
 defined('CONF_PATH') or define('CONF_PATH', APP_PATH); // 配置文件目录
 defined('CONF_EXT') or define('CONF_EXT', EXT); // 配置文件后缀
 defined('APP_MULTI_MODULE') or define('APP_MULTI_MODULE', true); // 是否多模块

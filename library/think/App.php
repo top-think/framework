@@ -48,8 +48,8 @@ class App
         define('IS_AJAX', $request->isAjax());
         define('__EXT__', $request->ext());
 
-        // 初始化应用（公共模块）
-        $config = self::initModule(COMMON_MODULE, Config::get());
+        // 初始化应用
+        $config = self::init('', Config::get());
 
         // 注册根命名空间
         if (!empty($config['root_namespace'])) {
@@ -305,16 +305,16 @@ class App
     }
 
     /**
-     * 初始化模块
+     * 初始化应用或模块
      * @access public
      * @param string $module 模块名
      * @param array $config 配置参数
      * @return void
      */
-    private static function initModule($module, $config)
+    private static function init($module, $config)
     {
         // 定位模块目录
-        $module = (COMMON_MODULE == $module || !APP_MULTI_MODULE) ? '' : $module . DS;
+        $module = ($module && APP_MULTI_MODULE) ? $module . DS : '';
 
         // 加载初始化文件
         if (is_file(APP_PATH . $module . 'init' . EXT)) {

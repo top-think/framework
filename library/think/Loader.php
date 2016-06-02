@@ -266,9 +266,10 @@ class Loader
      * @param string $name Model名称
      * @param string $layer 业务层名称
      * @param bool $appendSuffix 是否添加类名后缀
+     * @param string $common 公共模块名
      * @return Object
      */
-    public static function model($name = '', $layer = 'model', $appendSuffix = false)
+    public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
         static $_model = [];
         if (isset($_model[$name . $layer])) {
@@ -277,13 +278,13 @@ class Loader
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name, 2);
         } else {
-            $module = APP_MULTI_MODULE ? Request::instance()->module() : '';
+            $module = Request::instance()->module();
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
             $model = new $class();
         } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . COMMON_MODULE . '\\', $class);
+            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
                 $model = new $class();
             } else {
@@ -312,7 +313,7 @@ class Loader
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
-            $module = APP_MULTI_MODULE ? Request::instance()->module() : '';
+            $module = Request::instance()->module();
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
@@ -331,9 +332,10 @@ class Loader
      * @param string $name 资源地址
      * @param string $layer 验证层名称
      * @param bool $appendSuffix 是否添加类名后缀
+     * @param string $common 公共模块名
      * @return Object|false
      */
-    public static function validate($name = '', $layer = 'validate', $appendSuffix = false)
+    public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
         $name = $name ?: Config::get('default_validate');
         if (empty($name)) {
@@ -347,13 +349,13 @@ class Loader
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
-            $module = APP_MULTI_MODULE ? Request::instance()->module() : '';
+            $module = Request::instance()->module();
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
             $validate = new $class;
         } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . COMMON_MODULE . '\\', $class);
+            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
                 $validate = new $class;
             } else {
