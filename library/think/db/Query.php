@@ -586,7 +586,7 @@ class Query
     {
         if (false !== ($value = Cache::get($guid))) {
             // 存在缓存写入数据
-            if (NOW_TIME > Cache::get($guid . '_time') + $lazyTime) {
+            if ($_SERVER['REQUEST_TIME'] > Cache::get($guid . '_time') + $lazyTime) {
                 // 延时更新时间到了，删除缓存数据 并实际写入数据库
                 Cache::rm($guid);
                 Cache::rm($guid . '_time');
@@ -600,7 +600,7 @@ class Query
             // 没有缓存数据
             Cache::set($guid, $step, 0);
             // 计时开始
-            Cache::set($guid . '_time', NOW_TIME, 0);
+            Cache::set($guid . '_time', $_SERVER['REQUEST_TIME'], 0);
             return false;
         }
     }

@@ -40,8 +40,5 @@ defined('CLASS_APPEND_SUFFIX') or define('CLASS_APPEND_SUFFIX', false); // 是�
 defined('APP_MODE') or define('APP_MODE', 'common'); // 应用模式 默认为普通模式
 
 // 环境常量
-define('IS_CGI', strpos(PHP_SAPI, 'cgi') === 0 ? 1 : 0);
-define('IS_CLI', PHP_SAPI == 'cli' ? 1 : 0);
-define('IS_WIN', strstr(PHP_OS, 'WIN') ? 1 : 0);
-define('IS_MAC', strstr(PHP_OS, 'Darwin') ? 1 : 0);
-define('NOW_TIME', $_SERVER['REQUEST_TIME']);
+define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
+define('IS_WIN', strstr(PHP_OS, 'WIN') ? true : false);

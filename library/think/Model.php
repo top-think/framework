@@ -1017,16 +1017,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 switch ($type) {
                     case 'timestamp':
                         $format = !empty($param) ? $param : $this->dateFormat;
-                        $value  = date($format, NOW_TIME);
+                        $value  = date($format, $_SERVER['REQUEST_TIME']);
                         break;
                     case 'datetime':
-                        $value = NOW_TIME;
+                        $value = $_SERVER['REQUEST_TIME'];
                         break;
                 }
             } elseif (isset($this->fieldType[$name]) && preg_match('/(datetime|timestamp)/is', $this->fieldType[$name])) {
-                $value = date($this->dateFormat, NOW_TIME);
+                $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
             } else {
-                $value = NOW_TIME;
+                $value = $_SERVER['REQUEST_TIME'];
             }
         } else {
             // 检测修改器

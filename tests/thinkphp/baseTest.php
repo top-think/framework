@@ -38,7 +38,6 @@ class baseTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty(ENV_PREFIX);
         $this->assertTrue(is_bool(IS_API));
         $this->assertNotEmpty(APP_MODE);
-        $this->assertTrue(!is_null(IS_CGI));
         $this->assertTrue(!is_null(IS_WIN));
         $this->assertTrue(!is_null(IS_CLI));
     }

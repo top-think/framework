@@ -976,7 +976,7 @@ class Validate
         if (!is_numeric($end)) {
             $end = strtotime($end);
         }
-        return NOW_TIME >= $start && NOW_TIME <= $end;
+        return $_SERVER['REQUEST_TIME'] >= $start && $_SERVER['REQUEST_TIME'] <= $end;
     }
 
     /**
