@@ -1602,7 +1602,7 @@ class Query
         }
 
         $resultSet = false;
-        if (!empty($options['cache'])) {
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
             $cache     = $options['cache'];
             $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
@@ -1683,7 +1683,7 @@ class Query
 
         $options['limit'] = 1;
         $result           = false;
-        if (!empty($options['cache'])) {
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
             $cache  = $options['cache'];
             $key    = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
