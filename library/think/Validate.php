@@ -12,6 +12,7 @@
 namespace think;
 
 use think\Input;
+use think\Request;
 
 class Validate
 {
@@ -684,7 +685,8 @@ class Validate
      */
     protected function method($value, $rule)
     {
-        return REQUEST_METHOD == strtoupper($rule);
+        $method = Request::instance()->method();
+        return $method == strtoupper($rule);
     }
 
     /**

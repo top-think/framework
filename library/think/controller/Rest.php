@@ -12,6 +12,7 @@
 namespace think\controller;
 
 use think\Response;
+use think\Request;
 
 abstract class Rest
 {
@@ -36,17 +37,19 @@ abstract class Rest
     public function __construct()
     {
         // 资源类型检测
-        if ('' == __EXT__) {
+        $request = Request::instance();
+        $ext = $request->ext();
+        if ('' == $ext) {
             // 自动检测资源类型
             $this->_type = $this->getAcceptType();
-        } elseif (!preg_match('/\(' . $this->restTypeList . '\)$/i', __EXT__)) {
+        } elseif (!preg_match('/\(' . $this->restTypeList . '\)$/i', $ext)) {
             // 资源类型非法 则用默认资源类型访问
             $this->_type = $this->restDefaultType;
         } else {
-            $this->_type = __EXT__;
+            $this->_type = $ext;
         }
         // 请求方式检测
-        $method = strtolower(REQUEST_METHOD);
+        $method = strtolower($request->method());
         if (false === stripos($this->restMethodList, $method)) {
             // 请求方式非法 则用默认请求方法
             $method = $this->restDefaultMethod;

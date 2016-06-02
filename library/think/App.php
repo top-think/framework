@@ -32,21 +32,13 @@ class App
     /**
      * 执行应用程序
      * @access public
-     * @param null|\think\Request $request Request对象
+     * @param Request $request Request对象
      * @return mixed
      * @throws Exception
      */
-    public static function run($request = null)
+    public static function run(Request $request = null)
     {
         is_null($request) && $request = Request::instance();
-
-        define('REQUEST_METHOD', $request->method());
-        define('IS_GET', REQUEST_METHOD == 'GET' ? true : false);
-        define('IS_POST', REQUEST_METHOD == 'POST' ? true : false);
-        define('IS_PUT', REQUEST_METHOD == 'PUT' ? true : false);
-        define('IS_DELETE', REQUEST_METHOD == 'DELETE' ? true : false);
-        define('IS_AJAX', $request->isAjax());
-        define('__EXT__', $request->ext());
 
         // 初始化应用
         $config = self::init('', Config::get());
@@ -133,7 +125,9 @@ class App
         if ($data instanceof Response) {
             return $data->send();
         } elseif (!is_null($data)) {
-            $type = IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type');
+            // 默认自动识别响应输出类型
+            $isAjax = $request->isAjax();
+            $type   = $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
             return Response::create($data, $type)->send();
         }
     }

@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Hook;
+use think\Request;
+
 class Response
 {
     // 输出类型的实例化对象
@@ -48,16 +51,20 @@ class Response
     public function __construct($data = [], $type = '', $options = [])
     {
         $this->data = $data;
-        $this->type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
+        if (empty($type)) {
+            $isAjax = Request::instance()->isAjax();
+            $type   = $isAjax ? 'json' : 'html';
+        }
+        $this->type = strtolower($type);
 
         if (isset($this->contentTypes[$this->type])) {
             $this->contentType($this->contentTypes[$this->type]);
         }
-        if(!empty($options)){
+        if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
         // 方便获取某个类型的实例
-        self::$instance[$this->type] = $this;        
+        self::$instance[$this->type] = $this;
     }
 
     /**
@@ -70,7 +77,12 @@ class Response
      */
     public static function create($data = [], $type = '', $options = [])
     {
-        $type = strtolower($type ?: (IS_AJAX ? 'json' : 'html'));
+        if (empty($type)) {
+            $isAjax = Request::instance()->isAjax();
+            $type   = $isAjax ? 'json' : 'html';
+        }
+        $type = strtolower($type);
+
         if (!isset(self::$instance[$type])) {
             $class = (isset($options['namespace']) ? $options['namespace'] : '\\think\\response\\') . ucfirst($type);
             if (class_exists($class)) {
@@ -90,9 +102,9 @@ class Response
      * @return mixed
      * @throws Exception
      */
-    public function send($data = [])
+    public function send($data = null)
     {
-        $data = $data ?: $this->data;
+        $data = !is_null($data) ?: $this->data;
 
         if (isset($this->contentType)) {
             $this->contentType($this->contentType);
@@ -102,7 +114,7 @@ class Response
             $data = call_user_func_array($this->transform, [$data]);
         }
 
-        defined('RESPONSE_TYPE') or define('RESPONSE_TYPE',$this->type);
+        defined('RESPONSE_TYPE') or define('RESPONSE_TYPE', $this->type);
 
         // 处理输出数据
         $data = $this->output($data);
