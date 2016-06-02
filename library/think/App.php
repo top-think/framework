@@ -245,7 +245,7 @@ class App
             // 模块初始化
             if ($module && $available) {
                 // 初始化模块
-                $config = self::initModule($module, $config);
+                $config = self::init($module, $config);
             } else {
                 throw new HttpException(404, 'module [ ' . $module . ' ] not exists ');
             }
