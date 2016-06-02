@@ -1437,7 +1437,6 @@ class Query
             } else {
                 $where[$key] = strpos($data, ',') ? ['IN', $data] : $data;
             }
-            $options['where']['AND'] = $where;
         } elseif (is_array($pk) && is_array($data) && !empty($data)) {
             // 根据复合主键查询
             foreach ($pk as $key) {
@@ -1448,7 +1447,14 @@ class Query
                     throw new Exception('miss complex primary data');
                 }
             }
-            $options['where']['AND'] = $where;
+        }
+
+        if (!empty($where)) {
+            if (isset($options['where']['AND'])) {
+                $options['where']['AND'] = array_merge($options['where']['AND'], $where);
+            } else {
+                $options['where']['AND'] = $where;
+            }
         }
         return;
     }
@@ -1590,7 +1596,7 @@ class Query
         if (false === $data) {
             // 用于子查询 不查询只返回SQL
             $options['fetch_sql'] = true;
-        } elseif (empty($options['where']) && !empty($data)) {
+        } elseif (!empty($data)) {
             // 主键条件分析
             $this->parsePkWhere($data, $options);
         }
@@ -1670,7 +1676,7 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
 
-        if (empty($options['where']) && (!empty($data) || 0 == $data)) {
+        if (!empty($data) || 0 == $data) {
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
         }
@@ -1798,7 +1804,7 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
 
-        if (empty($options['where']) && !empty($data)) {
+        if (!empty($data)) {
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
         }
