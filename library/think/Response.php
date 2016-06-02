@@ -104,7 +104,7 @@ class Response
      */
     public function send($data = null)
     {
-        $data = !is_null($data) ?: $this->data;
+        $data = !is_null($data) ? $data : $this->data;
 
         if (isset($this->contentType)) {
             $this->contentType($this->contentType);
