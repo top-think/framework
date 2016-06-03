@@ -227,7 +227,7 @@ class Validate
      * @param string $scene 验证场景
      * @return bool
      */
-    public function check(&$data, $rules = [], $scene = '')
+    public function check($data, $rules = [], $scene = '')
     {
         $this->error = [];
 
@@ -276,7 +276,7 @@ class Validate
 
             // 场景检测
             if (!empty($scene)) {
-                if ($scene instanceof \Closure && !call_user_func_array($scene, [$key, &$data])) {
+                if ($scene instanceof \Closure && !call_user_func_array($scene, [$key, $data])) {
                     continue;
                 } elseif (is_array($scene)) {
                     if (!in_array($key, $array)) {
@@ -323,11 +323,11 @@ class Validate
      * @param array $msg  提示信息
      * @return mixed
      */
-    protected function checkItem($field, $value, $rules, &$data, $title = '', $msg = [])
+    protected function checkItem($field, $value, $rules, $data, $title = '', $msg = [])
     {
         if ($rules instanceof \Closure) {
             // 匿名函数验证 支持传入当前字段和所有字段两个数据
-            $result = call_user_func_array($rules, [$value, &$data]);
+            $result = call_user_func_array($rules, [$value, $data]);
         } else {
             // 支持多规则验证 require|in:a,b,c|... 或者 ['require','in'=>'a,b,c',...]
             if (is_string($rules)) {
@@ -336,7 +336,7 @@ class Validate
             $i = 0;
             foreach ($rules as $key => $rule) {
                 if ($rule instanceof \Closure) {
-                    $result = call_user_func_array($rule, [$value, &$data]);
+                    $result = call_user_func_array($rule, [$value, $data]);
                 } else {
                     // 判断验证类型
                     if (is_numeric($key) && strpos($rule, ':')) {
@@ -358,7 +358,7 @@ class Validate
                         // 验证类型
                         $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                         // 验证数据
-                        $result = call_user_func_array($callback, [$value, $rule, &$data, $field]);
+                        $result = call_user_func_array($callback, [$value, $rule, $data, $field]);
                     } else {
                         $result = true;
                     }
@@ -686,7 +686,7 @@ class Validate
     protected function method($value, $rule)
     {
         $method = Request::instance()->method();
-        return $method == strtoupper($rule);
+        return strtoupper($rule) == $method;
     }
 
     /**
