@@ -27,7 +27,6 @@ class Sae
         'expire'     => 0,
         'timeout'    => false,
         'persistent' => false,
-        'length'     => 0,
         'prefix'     => '',
     ];
 

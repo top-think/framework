@@ -23,7 +23,6 @@ class Wincache
     protected $options = [
         'prefix' => '',
         'expire' => 0,
-        'length' => 0,
     ];
 
     /**

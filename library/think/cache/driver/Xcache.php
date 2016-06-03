@@ -23,7 +23,6 @@ class Xcache
     protected $options = [
         'prefix' => '',
         'expire' => 0,
-        'length' => 0,
     ];
 
     /**

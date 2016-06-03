@@ -23,7 +23,6 @@ class Apc
     protected $options = [
         'expire' => 0,
         'prefix' => '',
-        'length' => 0,
     ];
     /*****************************
     需要支持apc_cli模式

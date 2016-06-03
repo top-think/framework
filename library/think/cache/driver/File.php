@@ -25,7 +25,6 @@ class File
         'cache_subdir'  => false,
         'path_level'    => 1,
         'prefix'        => '',
-        'length'        => 0,
         'path'          => CACHE_PATH,
         'data_compress' => false,
     ];

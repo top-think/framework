@@ -26,7 +26,6 @@ class Sqlite implements CacheInterface
         'table'      => 'sharedmemory',
         'prefix'     => '',
         'expire'     => 0,
-        'length'     => 0,
         'persistent' => false,
     ];
 

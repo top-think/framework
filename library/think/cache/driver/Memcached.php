@@ -22,7 +22,6 @@ class Memcached
         'port'    => 11211,
         'expire'  => 0,
         'timeout' => 0, // 超时时间（单位：毫秒）
-        'length'  => 0,
         'prefix'  => '',
     ];
 
