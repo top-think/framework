@@ -1821,10 +1821,10 @@ class Query
 
     /**
      * 分析表达式（可用于查询或者写入操作）
-     * @access public
+     * @access protected
      * @return array
      */
-    public function parseExpress()
+    protected function parseExpress()
     {
         $options = $this->options;
 
