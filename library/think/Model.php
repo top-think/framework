@@ -520,7 +520,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array $data 验证数据
      * @return bool
      */
-    protected function validateData($data)
+    protected function validateData(&$data)
     {
         if (!empty($this->validate)) {
             $info = $this->validate;
