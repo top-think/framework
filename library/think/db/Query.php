@@ -1836,23 +1836,20 @@ class Query
         if (!isset($options['where'])) {
             $options['where'] = [];
         } elseif (isset($options['view'])) {
-            if (isset($options['where']['AND'])) {
-                foreach ($options['where']['AND'] as $key => $val) {
-                    if (array_key_exists($key, $options['map'])) {
-                        $options['where']['AND'][$options['map'][$key]] = $val;
-                        unset($options['where']['AND'][$key]);
+            // 视图查询条件处理
+            foreach (['AND', 'OR'] as $logic) {
+                if (isset($options['where'][$logic])) {
+                    foreach ($options['where'][$logic] as $key => $val) {
+                        if (array_key_exists($key, $options['map'])) {
+                            $options['where'][$logic][$options['map'][$key]] = $val;
+                            unset($options['where'][$logic][$key]);
+                        }
                     }
                 }
             }
-            if (isset($options['where']['OR'])) {
-                foreach ($options['where']['OR'] as $key => $val) {
-                    if (array_key_exists($key, $options['map'])) {
-                        $options['where']['OR'][$options['map'][$key]] = $val;
-                        unset($options['where']['OR'][$key]);
-                    }
-                }
-            }
+
             if (isset($options['order'])) {
+                // 视图查询排序处理
                 if (is_string($options['order'])) {
                     $options['order'] = explode(',', $options['order']);
                 }
@@ -1864,17 +1861,13 @@ class Query
                                 $options['order'][$options['map'][$field]] = $sort;
                                 unset($options['order'][$key]);
                             }
-                        } else {
-                            if (array_key_exists($val, $options['map'])) {
-                                $options['order'][$options['map'][$val]] = 'asc';
-                                unset($options['order'][$key]);
-                            }
-                        }
-                    } else {
-                        if (array_key_exists($key, $options['map'])) {
-                            $options['order'][$options['map'][$key]] = $val;
+                        } elseif (array_key_exists($val, $options['map'])) {
+                            $options['order'][$options['map'][$val]] = 'asc';
                             unset($options['order'][$key]);
                         }
+                    } elseif (array_key_exists($key, $options['map'])) {
+                        $options['order'][$options['map'][$key]] = $val;
+                        unset($options['order'][$key]);
                     }
                 }
             }
