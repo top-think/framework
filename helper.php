@@ -152,6 +152,17 @@ function model($name = '', $layer = 'model')
 }
 
 /**
+ * 实例化验证器
+ * @param string $name 验证器名称
+ * @param string $layer 业务层名称
+ * @return \think\Validate
+ */
+function validate($name = '', $layer = 'validate')
+{
+    return Loader::validate($name, $layer);
+}
+
+/**
  * 实例化数据库类
  * @param string $name 操作的数据表名称（不含前缀）
  * @param array|string $config 数据库配置参数
