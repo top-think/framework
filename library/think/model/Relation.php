@@ -177,7 +177,7 @@ class Relation
                             if (!isset($data[$result->$localKey])) {
                                 $data[$result->$localKey] = [];
                             }
-                            $result->__set($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+                            $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
                         }
                     }
                     break;
@@ -206,7 +206,7 @@ class Relation
                                 $data[$result->$pk] = [];
                             }
 
-                            $result->__set($relation, $this->resultSetBuild($data[$result->$pk], $class));
+                            $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
                         }
                     }
                     break;
@@ -266,7 +266,7 @@ class Relation
                         if (!isset($data[$result->$localKey])) {
                             $data[$result->$localKey] = [];
                         }
-                        $result->__set($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+                        $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
                     }
                     break;
                 case self::BELONGS_TO_MANY:
@@ -280,7 +280,7 @@ class Relation
                         if (!isset($data[$pk])) {
                             $data[$pk] = [];
                         }
-                        $result->__set($relation, $this->resultSetBuild($data[$pk], $class));
+                        $result->setAttr($relation, $this->resultSetBuild($data[$pk], $class));
                     }
                     break;
 
@@ -315,7 +315,7 @@ class Relation
             // 设置关联模型属性
             $list[$modelName] = [];
         }
-        $result->__set($relation, new $model($list[$modelName]));
+        $result->setAttr($relation, new $model($list[$modelName]));
     }
 
     /**

@@ -150,24 +150,25 @@ class Merge extends Model
     public function save($data = [], $where = [], $getId = true)
     {
         if (!empty($data)) {
+            // 数据自动验证
+            if (!$this->validateData()) {
+                return false;
+            }
             // 数据对象赋值
             foreach ($data as $key => $value) {
-                $this->__set($key, $value);
+                $this->setAttr($key, $value);
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
             }
         }
-        // 数据自动验证
-        if (!$this->validateData()) {
-            return false;
-        }
+
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
         // 自动写入更新时间
         if ($this->autoWriteTimestamp && $this->updateTime) {
-            $this->__set($this->updateTime, null);
+            $this->setAttr($this->updateTime, null);
         }
 
         $db = $this->db();
@@ -203,7 +204,7 @@ class Merge extends Model
 
                 // 自动写入创建时间
                 if ($this->autoWriteTimestamp && $this->createTime) {
-                    $this->__set($this->createTime, null);
+                    $this->setAttr($this->createTime, null);
                 }
 
                 if (false === $this->trigger('before_insert', $this)) {

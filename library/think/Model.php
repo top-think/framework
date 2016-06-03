@@ -111,6 +111,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->name = basename(str_replace('\\', '/', $this->class));
         }
 
+        if (empty($this->fieldType)) {
+            // 获取字段类型信息并缓存
+            $this->fieldType = $this->db()->getTableInfo('', 'type');
+        }
+
         if (is_null($this->autoWriteTimestamp)) {
             $this->autoWriteTimestamp = $this->db()->getConfig('auto_timestamp');
         }
@@ -122,7 +127,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      *  获取关联模型实例
      * @access protected
-     * @return \think\model\Relation
+     * @return Relation
      */
     protected function relation()
     {
@@ -155,7 +160,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {}
 
     /**
-     * 设置数据对象值
+     * 批量设置数据对象值
      * @access public
      * @param mixed $data 数据
      * @return $this
@@ -169,6 +174,178 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         $this->data = $data;
         return $this;
+    }
+
+    /**
+     * 修改器 设置数据对象值
+     * @access public
+     * @param string $name 属性名
+     * @param mixed $value 属性值
+     * @param array $data 数据
+     * @return $this
+     */
+    public function setAttr($name, $value, $data = [])
+    {
+        if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime, $this->deleteTime])) {
+            // 自动写入的时间戳字段
+            if (isset($this->type[$name])) {
+                $type = $this->type[$name];
+                if (strpos($type, ':')) {
+                    list($type, $param) = explode(':', $type, 2);
+                }
+                switch ($type) {
+                    case 'timestamp':
+                        $format = !empty($param) ? $param : $this->dateFormat;
+                        $value  = date($format, $_SERVER['REQUEST_TIME']);
+                        break;
+                    case 'datetime':
+                        $value = $_SERVER['REQUEST_TIME'];
+                        break;
+                }
+            } elseif (isset($this->fieldType[$name]) && preg_match('/(datetime|timestamp)/is', $this->fieldType[$name])) {
+                $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
+            } else {
+                $value = $_SERVER['REQUEST_TIME'];
+            }
+        } else {
+            // 检测修改器
+            $method = 'set' . Loader::parseName($name, 1) . 'Attr';
+            if (method_exists($this, $method)) {
+                $value = $this->$method($value, array_merge($data, $this->data));
+            } elseif (isset($this->type[$name])) {
+                // 类型转换
+                $value = $this->writeTransform($value, $this->type[$name]);
+            }
+        }
+
+        // 标记字段更改
+        if (!isset($this->data[$name]) || ($this->data[$name] != $value && !in_array($name, $this->change))) {
+            $this->change[] = $name;
+        }
+        // 设置数据对象属性
+        $this->data[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * 数据写入 类型转换
+     * @access public
+     * @param mixed $value 值
+     * @param string $type 要转换的类型
+     * @return mixed
+     */
+    protected function writeTransform($value, $type)
+    {
+        if (strpos($type, ':')) {
+            list($type, $param) = explode(':', $type, 2);
+        }
+        switch ($type) {
+            case 'integer':
+                $value = (int) $value;
+                break;
+            case 'float':
+                if (empty($param)) {
+                    $value = (float) $value;
+                } else {
+                    $value = (float) number_format($value, $param);
+                }
+                break;
+            case 'boolean':
+                $value = (bool) $value;
+                break;
+            case 'datetime':
+                if (!is_numeric($value)) {
+                    $value = strtotime($value);
+                }
+                break;
+            case 'timestamp':
+                $format = !empty($param) ? $param : $this->dateFormat;
+                $value  = date($format, is_numeric($value) ? $value : strtotime($value));
+                break;
+            case 'object':
+                if (is_object($value)) {
+                    $value = json_encode($value, JSON_FORCE_OBJECT);
+                }
+                break;
+            case 'json':
+            case 'array':
+                if (is_array($value)) {
+                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                }
+                break;
+        }
+        return $value;
+    }
+
+    /**
+     * 获取器 获取数据对象的值
+     * @access public
+     * @param string $name 名称
+     * @return mixed
+     */
+    public function getAttr($name)
+    {
+        $value = isset($this->data[$name]) ? $this->data[$name] : null;
+
+        // 检测属性获取器
+        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
+        if (method_exists($this, $method)) {
+            return $this->$method($value, $this->data);
+        } elseif (!is_null($value) && isset($this->type[$name])) {
+            // 类型转换
+            $value = $this->readTransform($value, $this->type[$name]);
+        } elseif (is_null($value) && method_exists($this, $name)) {
+            // 获取关联数据
+            $value = $this->relation()->getRelation($name);
+            // 保存关联对象值
+            $this->data[$name] = $value;
+        }
+        return $value;
+    }
+
+    /**
+     * 数据读取 类型转换
+     * @access public
+     * @param mixed $value 值
+     * @param string $type 要转换的类型
+     * @return mixed
+     */
+    protected function readTransform($value, $type)
+    {
+        if (strpos($type, ':')) {
+            list($type, $param) = explode(':', $type, 2);
+        }
+        switch ($type) {
+            case 'integer':
+                $value = (int) $value;
+                break;
+            case 'float':
+                if (empty($param)) {
+                    $value = (float) $value;
+                } else {
+                    $value = (float) number_format($value, $param);
+                }
+                break;
+            case 'boolean':
+                $value = (bool) $value;
+                break;
+            case 'datetime':
+                $format = !empty($param) ? $param : $this->dateFormat;
+                $value  = date($format, $value);
+                break;
+            case 'timestamp':
+                $format = !empty($param) ? $param : $this->dateFormat;
+                $value  = date($format, strtotime($value));
+                break;
+            case 'json':
+            case 'array':
+                $value = json_decode($value, true);
+                break;
+            case 'object':
+                $value = json_decode($value);
+                break;
+        }
+        return $value;
     }
 
     /**
@@ -216,7 +393,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $item = [];
         if (!empty($this->append)) {
             foreach ($this->append as $name) {
-                $item[$name] = $this->__get($name);
+                $item[$name] = $this->getAttr($name);
             }
         }
         foreach ($this->data as $key => $val) {
@@ -237,7 +414,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $item[$key] = $data;
             } else {
                 // 模型属性
-                $item[$key] = $this->__get($key);
+                $item[$key] = $this->getAttr($key);
             }
         }
         return !empty($item) ? $item : [];
@@ -305,7 +482,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             // 数据对象赋值
             foreach ($data as $key => $value) {
-                $this->__set($key, $value);
+                $this->setAttr($key, $value);
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
@@ -326,7 +503,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 自动写入更新时间
         if ($this->autoWriteTimestamp && $this->updateTime) {
-            $this->__set($this->updateTime, null);
+            $this->setAttr($this->updateTime, null);
         }
 
         // 事件回调
@@ -372,7 +549,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 自动写入创建时间
             if ($this->autoWriteTimestamp && $this->createTime) {
-                $this->__set($this->createTime, null);
+                $this->setAttr($this->createTime, null);
             }
 
             if (false === $this->trigger('before_insert', $this)) {
@@ -460,7 +637,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = null;
             }
             if (!in_array($field, $this->change)) {
-                $this->__set($field, isset($this->data[$field]) ? $this->data[$field] : $value);
+                $this->setAttr($field, isset($this->data[$field]) ? $this->data[$field] : $value);
             }
         }
     }
@@ -1006,98 +1183,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __set($name, $value)
     {
-        if (empty($this->fieldType)) {
-            // 获取字段类型信息并缓存
-            $this->fieldType = $this->db()->getTableInfo('', 'type');
-        }
-        if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime, $this->deleteTime])) {
-            // 自动写入的时间戳字段
-            if (isset($this->type[$name])) {
-                $type = $this->type[$name];
-                if (strpos($type, ':')) {
-                    list($type, $param) = explode(':', $type, 2);
-                }
-                switch ($type) {
-                    case 'timestamp':
-                        $format = !empty($param) ? $param : $this->dateFormat;
-                        $value  = date($format, $_SERVER['REQUEST_TIME']);
-                        break;
-                    case 'datetime':
-                        $value = $_SERVER['REQUEST_TIME'];
-                        break;
-                }
-            } elseif (isset($this->fieldType[$name]) && preg_match('/(datetime|timestamp)/is', $this->fieldType[$name])) {
-                $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
-            } else {
-                $value = $_SERVER['REQUEST_TIME'];
-            }
-        } else {
-            // 检测修改器
-            $method = 'set' . Loader::parseName($name, 1) . 'Attr';
-            if (method_exists($this, $method)) {
-                $value = $this->$method($value, $this->data);
-            } elseif (isset($this->type[$name])) {
-                // 类型转换
-                $value = $this->writeTransform($value, $this->type[$name]);
-            }
-        }
-
-        // 标记字段更改
-        if (!isset($this->data[$name]) || ($this->data[$name] != $value && !in_array($name, $this->change))) {
-            $this->change[] = $name;
-        }
-        // 设置数据对象属性
-        $this->data[$name] = $value;
-    }
-
-    /**
-     * 数据写入 类型转换
-     * @access public
-     * @param mixed $value 值
-     * @param string $type 要转换的类型
-     * @return mixed
-     */
-    protected function writeTransform($value, $type)
-    {
-        if (strpos($type, ':')) {
-            list($type, $param) = explode(':', $type, 2);
-        }
-        switch ($type) {
-            case 'integer':
-                $value = (int) $value;
-                break;
-            case 'float':
-                if (empty($param)) {
-                    $value = (float) $value;
-                } else {
-                    $value = (float) number_format($value, $param);
-                }
-                break;
-            case 'boolean':
-                $value = (bool) $value;
-                break;
-            case 'datetime':
-                if (!is_numeric($value)) {
-                    $value = strtotime($value);
-                }
-                break;
-            case 'timestamp':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = date($format, is_numeric($value) ? $value : strtotime($value));
-                break;
-            case 'object':
-                if (is_object($value)) {
-                    $value = json_encode($value, JSON_FORCE_OBJECT);
-                }
-                break;
-            case 'json':
-            case 'array':
-                if (is_array($value)) {
-                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                }
-                break;
-        }
-        return $value;
+        $this->setAttr($name, $value);
     }
 
     /**
@@ -1108,67 +1194,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __get($name)
     {
-        $value = isset($this->data[$name]) ? $this->data[$name] : null;
-
-        // 检测属性获取器
-        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
-        if (method_exists($this, $method)) {
-            return $this->$method($value, $this->data);
-        } elseif (!is_null($value) && isset($this->type[$name])) {
-            // 类型转换
-            $value = $this->readTransform($value, $this->type[$name]);
-        } elseif (is_null($value) && method_exists($this, $name)) {
-            // 获取关联数据
-            $value = $this->relation()->getRelation($name);
-            // 保存关联对象值
-            $this->data[$name] = $value;
-        }
-        return $value;
-    }
-
-    /**
-     * 数据读取 类型转换
-     * @access public
-     * @param mixed $value 值
-     * @param string $type 要转换的类型
-     * @return mixed
-     */
-    protected function readTransform($value, $type)
-    {
-        if (strpos($type, ':')) {
-            list($type, $param) = explode(':', $type, 2);
-        }
-        switch ($type) {
-            case 'integer':
-                $value = (int) $value;
-                break;
-            case 'float':
-                if (empty($param)) {
-                    $value = (float) $value;
-                } else {
-                    $value = (float) number_format($value, $param);
-                }
-                break;
-            case 'boolean':
-                $value = (bool) $value;
-                break;
-            case 'datetime':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = date($format, $value);
-                break;
-            case 'timestamp':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = date($format, strtotime($value));
-                break;
-            case 'json':
-            case 'array':
-                $value = json_decode($value, true);
-                break;
-            case 'object':
-                $value = json_decode($value);
-                break;
-        }
-        return $value;
+        return $this->getAttr($name);
     }
 
     /**
@@ -1181,7 +1207,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (array_key_exists($name, $this->data)) {
             return true;
-        } elseif ($this->__get($name)) {
+        } elseif ($this->getAttr($name)) {
             return true;
         } else {
             return false;
@@ -1213,7 +1239,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // ArrayAccess
     public function offsetSet($name, $value)
     {
-        $this->__set($name, $value);
+        $this->setAttr($name, $value);
     }
 
     public function offsetExists($name)
@@ -1228,7 +1254,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function offsetGet($name)
     {
-        return $this->__get($name);
+        return $this->getAttr($name);
     }
 
     /**
