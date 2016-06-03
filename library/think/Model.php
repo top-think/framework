@@ -515,12 +515,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 自动验证当前数据对象值
-     * @access public
+     * 自动验证数据
+     * @access protected
      * @param array $data 验证数据
      * @return bool
      */
-    public function validateData($data)
+    protected function validateData($data)
     {
         if (!empty($this->validate)) {
             $info = $this->validate;
