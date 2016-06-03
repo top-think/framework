@@ -199,9 +199,9 @@ class Request
      * @param string $domain 域名
      * @return string
      */
-    public function domain($domain = '')
+    public function domain($domain = null)
     {
-        if (!empty($domain)) {
+        if (!is_null($domain)) {
             $this->domain = $domain;
             return $this;
         } elseif (!$this->domain) {
@@ -216,9 +216,9 @@ class Request
      * @param string|true $url URL地址 true 带域名获取
      * @return string
      */
-    public function url($url = '')
+    public function url($url = null)
     {
-        if (is_string($url) && !empty($url)) {
+        if (!is_null($url) && true !== $url) {
             $this->url = $url;
             return $this;
         } elseif (!$this->url) {
@@ -243,9 +243,9 @@ class Request
      * @param string $url URL地址
      * @return string
      */
-    public function baseUrl($url = '')
+    public function baseUrl($url = null)
     {
-        if (is_string($url) && !empty($url)) {
+        if (!is_null($url) && true !== $url) {
             $this->baseUrl = $url;
             return $this;
         } elseif (!$this->baseUrl) {
@@ -261,9 +261,9 @@ class Request
      * @param string $file 当前执行的文件
      * @return string
      */
-    public function baseFile($file = '')
+    public function baseFile($file = null)
     {
-        if (is_string($file) && !empty($file)) {
+        if (!is_null($file) && true !== $file) {
             $this->baseFile = $file;
             return $this;
         } elseif (!$this->baseFile) {
@@ -293,9 +293,9 @@ class Request
      * @param string $url URL地址
      * @return string
      */
-    public function root($url = '')
+    public function root($url = null)
     {
-        if (is_string($url) && !empty($url)) {
+        if (!is_null($url) && true !== $url) {
             $this->root = $url;
             return $this;
         } elseif (!$this->root) {

@@ -755,7 +755,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case Relation::HAS_MANY_THROUGH:
                 // TODO
         }
-
     }
 
     /**
