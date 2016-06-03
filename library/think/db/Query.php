@@ -1742,7 +1742,7 @@ class Query
      * @param integer $count 每次处理的数据数量
      * @param callable $callback 处理回调方法
      * @param string $column 分批处理的字段名
-     * @return array
+     * @return boolean
      */
     public function chunk($count, $callback, $column = null)
     {
