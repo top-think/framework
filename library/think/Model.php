@@ -160,19 +160,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {}
 
     /**
-     * 批量设置数据对象值
+     * 设置数据对象值（不进行修改器处理）
      * @access public
-     * @param mixed $data 数据
+     * @param mixed $data 数据或者属性名
+     * @param mixed $value 值
      * @return $this
      */
-    public function data($data = '')
+    public function data($data, $value = null)
     {
         if (is_object($data)) {
-            $data = get_object_vars($data);
-        } elseif (!is_array($data)) {
-            throw new Exception('data type invalid', 10300);
+            $this->data = get_object_vars($data);
+        } elseif (is_array($data)) {
+            $this->data = $data;
+        } else {
+            $this->data[$data] = $value;
         }
-        $this->data = $data;
         return $this;
     }
 
