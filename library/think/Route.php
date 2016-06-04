@@ -786,6 +786,8 @@ class Route
             $url  = str_replace($depr, '/', $url);
             $rule = str_replace($depr, '/', $rule);
         }
+
+        $rule = ltrim($rule, '/');
         $len1 = substr_count($url, '/');
         $len2 = substr_count($rule, '/');
         // 多余参数是否合并
