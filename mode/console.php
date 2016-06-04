@@ -23,9 +23,9 @@ return [
     ],
     // 别名定义
     'alias'     => [
-        'think\App'   => MODE_PATH . 'console/App' . EXT
+        'think\App' => MODE_PATH . 'console' . DS . 'App' . EXT,
     ],
     // 配置文件
-    'config'    => THINK_PATH . 'convention' . EXT
+    'config'    => THINK_PATH . 'convention' . EXT,
 
 ];
