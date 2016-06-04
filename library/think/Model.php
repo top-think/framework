@@ -63,6 +63,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $insert = [];
     // 更新自动完成列表
     protected $update = [];
+    // 是否自动获取字段类型信息
+    protected $autoFetchFieldType = true;
     // 是否需要自动写入时间戳
     protected $autoWriteTimestamp;
     // 创建时间字段
@@ -108,15 +110,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->class = get_class($this);
 
         if (empty($this->name)) {
+            // 当前模型名
             $this->name = basename(str_replace('\\', '/', $this->class));
         }
 
-        if (empty($this->fieldType)) {
-            // 获取字段类型信息并缓存
+        if ($this->autoFetchFieldType && empty($this->fieldType)) {
+            // 获取字段类型信息
             $this->fieldType = $this->db()->getTableInfo('', 'type');
         }
 
         if (is_null($this->autoWriteTimestamp)) {
+            // 自动写入时间戳
             $this->autoWriteTimestamp = $this->db()->getConfig('auto_timestamp');
         }
 
@@ -176,6 +180,23 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->data[$data] = $value;
         }
         return $this;
+    }
+
+    /**
+     * 获取对象原始数据 如果不存在指定字段返回false
+     * @access public
+     * @param string $name 字段名 留空获取全部
+     * @return mixed
+     */
+    public function getData($name = null)
+    {
+        if (is_null($name)) {
+            return $this->data;
+        } elseif (array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -287,17 +308,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getAttr($name)
     {
-        $value = isset($this->data[$name]) ? $this->data[$name] : null;
+        $value = $this->getData($name);
 
         // 检测属性获取器
         $method = 'get' . Loader::parseName($name, 1) . 'Attr';
         if (method_exists($this, $method)) {
             $value = $this->$method($value, $this->data);
-        } elseif (!is_null($value) && isset($this->type[$name])) {
+        } elseif (isset($this->type[$name])) {
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
-        } elseif (is_null($value) && !isset($this->fieldType[$name]) && method_exists($this, $name)) {
-            // 获取关联数据
+        } elseif (false === $value && method_exists($this, $name)) {
+            // 不存在该字段 获取关联数据
             $value = $this->relation()->getRelation($name);
             // 保存关联对象值
             $this->data[$name] = $value;
@@ -351,17 +372,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 获取对象原始数据
-     * @access public
-     * @param string $name 字段名 留空获取全部
-     * @return array
-     */
-    public function getData($name = '')
-    {
-        return array_key_exists($name, $this->data) ? $this->data[$name] : $this->data;
-    }
-
-    /**
      * 设置需要追加的输出属性
      * @access public
      * @param array $append 属性列表
@@ -374,7 +384,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 设置需要隐藏的属性
+     * 设置需要隐藏的输出属性
      * @access public
      * @param array $hidden 属性列表
      * @return $this
@@ -662,9 +672,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 设置自动完成的字段
+     * 设置自动完成的字段（ 规则通过修改器定义）
      * @access public
-     * @param array $fields 需要自动完成的字段（ 规则通过修改器定义）
+     * @param array $fields 需要自动完成的字段
      * @return $this
      */
     public function auto($fields)
