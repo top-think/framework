@@ -503,7 +503,7 @@ class Query
      * 支持使用数据库字段和方法
      * @access public
      * @param string|array $field 字段名
-     * @param string $value 字段值
+     * @param mixed $value 字段值
      * @return integer
      */
     public function setField($field, $value = '')

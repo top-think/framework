@@ -410,7 +410,7 @@ class Input
         } else {
             if (is_array($filter)) {
                 $result = $filter;
-            } elseif (is_string($filter) && strpos($filter, ',')) {
+            } elseif (is_string($filter) && false === strpos($filter, '/') && strpos($filter, ',')) {
                 $result = explode(',', $filter);
             } else {
                 $result = [$filter];
