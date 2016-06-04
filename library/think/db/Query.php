@@ -358,11 +358,12 @@ class Query
      * 得到某个字段的值
      * @access public
      * @param string $field 字段名
+     * @param mixed $default 默认值
      * @return mixed
      */
-    public function value($field)
+    public function value($field, $default = null)
     {
-        $result = false;
+        $result = null;
         if (!empty($this->options['cache'])) {
             // 判断查询缓存
             $cache  = $this->options['cache'];
@@ -383,7 +384,7 @@ class Query
             // 清空查询条件
             $this->options = [];
         }
-        return $result;
+        return !is_null($result) ? $result : $default;
     }
 
     /**
@@ -450,7 +451,7 @@ class Query
      */
     public function count($field = '*')
     {
-        return $this->value('COUNT(' . $field . ') AS tp_count');
+        return $this->value('COUNT(' . $field . ') AS tp_count', 0);
     }
 
     /**
@@ -461,8 +462,7 @@ class Query
      */
     public function sum($field = '*')
     {
-        $result = $this->value('SUM(' . $field . ') AS tp_sum');
-        return is_null($result) ? 0 : $result;
+        return $this->value('SUM(' . $field . ') AS tp_sum', 0);
     }
 
     /**
@@ -473,8 +473,7 @@ class Query
      */
     public function min($field = '*')
     {
-        $result = $this->value('MIN(' . $field . ') AS tp_min');
-        return is_null($result) ? 0 : $result;
+        return $this->value('MIN(' . $field . ') AS tp_min', 0);
     }
 
     /**
@@ -485,8 +484,7 @@ class Query
      */
     public function max($field = '*')
     {
-        $result = $this->value('MAX(' . $field . ') AS tp_max');
-        return is_null($result) ? 0 : $result;
+        return $this->value('MAX(' . $field . ') AS tp_max', 0);
     }
 
     /**
@@ -497,8 +495,7 @@ class Query
      */
     public function avg($field = '*')
     {
-        $result = $this->value('AVG(' . $field . ') AS tp_avg');
-        return is_null($result) ? 0 : $result;
+        return $this->value('AVG(' . $field . ') AS tp_avg', 0);
     }
 
     /**
