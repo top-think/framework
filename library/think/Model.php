@@ -14,6 +14,7 @@ namespace think;
 use think\Cache;
 use think\Db;
 use think\db\Query;
+use think\Exception;
 use think\Loader;
 use think\model\Relation;
 use think\paginator\Collection as PaginatorCollection;
@@ -85,6 +86,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $relation;
     // 属性类型
     protected $fieldType = [];
+    // 验证失败是否抛出异常
+    protected $failException = false;
 
     /**
      * 初始化过的模型.
@@ -704,6 +707,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置验证失败后是否抛出异常
+     * @access public
+     * @param bool $fail 是否抛出异常
+     * @return $this
+     */
+    public function failException($fail = true)
+    {
+        $this->failException = $fail;
+        return $this;
+    }
+
+    /**
      * 自动验证数据
      * @access protected
      * @param array $data 验证数据
@@ -729,7 +744,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             if (!$validate->check($data)) {
                 $this->error = $validate->getError();
-                return false;
+                if ($this->failException) {
+                    throw new Exception($this->error);
+                } else {
+                    return false;
+                }
             }
             $this->validate = null;
         }

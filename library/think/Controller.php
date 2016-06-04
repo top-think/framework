@@ -13,6 +13,7 @@ namespace think;
 
 \think\Loader::import('controller/Jump', TRAIT_PATH, EXT);
 
+use think\Exception;
 use think\Request;
 use think\View;
 
@@ -24,6 +25,8 @@ class Controller
     protected $view = null;
     // Request实例
     protected $request;
+    // 验证失败是否抛出异常
+    protected $failException = false;
 
     /**
      * 前置操作方法列表
@@ -137,6 +140,18 @@ class Controller
     }
 
     /**
+     * 设置验证失败后是否抛出异常
+     * @access public
+     * @param bool $fail 是否抛出异常
+     * @return $this
+     */
+    public function failException($fail = true)
+    {
+        $this->failException = $fail;
+        return $this;
+    }
+
+    /**
      * 验证数据
      * @access public
      * @param array $data 数据
@@ -170,7 +185,11 @@ class Controller
         }
 
         if (!$v->check($data)) {
-            return $v->getError();
+            if ($this->failException) {
+                throw new Exception($v->getError());
+            } else {
+                return $v->getError();
+            }
         } else {
             return true;
         }
