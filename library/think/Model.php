@@ -64,7 +64,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 更新自动完成列表
     protected $update = [];
     // 是否自动获取字段类型信息
-    protected $autoFetchFieldType = true;
+    protected $autoFetchFieldType = false;
     // 是否需要自动写入时间戳
     protected $autoWriteTimestamp;
     // 创建时间字段
