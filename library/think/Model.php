@@ -292,11 +292,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检测属性获取器
         $method = 'get' . Loader::parseName($name, 1) . 'Attr';
         if (method_exists($this, $method)) {
-            return $this->$method($value, $this->data);
+            $value = $this->$method($value, $this->data);
         } elseif (!is_null($value) && isset($this->type[$name])) {
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
-        } elseif (is_null($value) && method_exists($this, $name)) {
+        } elseif (is_null($value) && !isset($this->fieldType[$name]) && method_exists($this, $name)) {
             // 获取关联数据
             $value = $this->relation()->getRelation($name);
             // 保存关联对象值
