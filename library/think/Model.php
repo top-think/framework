@@ -497,7 +497,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             // 数据对象赋值
             foreach ($data as $key => $value) {
-                $this->setAttr($key, $value);
+                $this->setAttr($key, $value, $data);
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
