@@ -775,10 +775,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function event($event, $callback, $override = false)
     {
-        if ($override) {
-            static::$event[$event] = [];
+        $class = get_called_class();
+        if ($override || !array_key_exists($class, static::$event) || !array_key_exists($event, static::$event[$class])) {
+            static::$event[$class][$event] = [];
         }
-        static::$event[$event][] = $callback;
+        static::$event[$class][$event][] = $callback;
     }
 
     /**
@@ -790,8 +791,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function trigger($event, &$params)
     {
-        if (isset(static::$event[$event])) {
-            foreach (static::$event[$event] as $callback) {
+        $class = get_called_class();
+        if (!array_key_exists($class, static::$event) || !array_key_exists($event, static::$event[$class])) {
+            static::$event[$class][$event] = [];
+        } else {
+            foreach (static::$event[$class][$event] as $callback) {
                 if (is_callable($callback)) {
                     $result = call_user_func_array($callback, [ & $params]);
                     if (false === $result) {
