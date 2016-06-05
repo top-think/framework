@@ -38,7 +38,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 当前类名称
     protected $class;
     // 回调事件
-    protected static $event = [];
+    private static $event = [];
 
     // 数据表主键 复合主键使用数组定义
     protected $pk;
@@ -775,10 +775,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function event($event, $callback, $override = false)
     {
+        $class = get_called_class();
         if ($override) {
-            static::$event[$event] = [];
+            self::$event[$class][$event] = [];
         }
-        static::$event[$event][] = $callback;
+        self::$event[$class][$event][] = $callback;
     }
 
     /**
@@ -790,8 +791,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function trigger($event, &$params)
     {
-        if (isset(static::$event[$event])) {
-            foreach (static::$event[$event] as $callback) {
+        if (isset(self::$event[$this->class][$event])) {
+            foreach (self::$event[$this->class][$event] as $callback) {
                 if (is_callable($callback)) {
                     $result = call_user_func_array($callback, [ & $params]);
                     if (false === $result) {
