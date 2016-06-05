@@ -29,6 +29,14 @@ class Loader
     private static $prefixDirsPsr4    = [];
     // PSR-0
     private static $prefixesPsr0 = [];
+    // Composer自动加载
+    private static $composerLoader = true;
+
+    // 自动加载Composer
+    public static function composerAutoLoader($auto)
+    {
+        self::$composerLoader = $auto;
+    }
 
     // 自动加载
     public static function autoload($class)
@@ -43,19 +51,12 @@ class Loader
                 }
             }
         }
-        // 检查是否定义类库映射
-        if (isset(self::$map[$class])) {
-            if (is_file(self::$map[$class])) {
-                // 记录加载信息
-                APP_DEBUG && self::$load[] = self::$map[$class];
-                include self::$map[$class];
-            } else {
-                return false;
-            }
-        } elseif ($file = self::findFileInComposer($class)) {
+
+        if (!empty(self::$map[$class])) {
+            // 类库映射
+            include self::$map[$class];
+        } elseif (self::$composerLoader && $file = self::findFileInComposer($class)) {
             // Composer自动加载
-            // 记录加载信息
-            APP_DEBUG && self::$load[] = $file;
             include $file;
         } else {
             // 命名空间自动加载
@@ -79,8 +80,6 @@ class Loader
                 if (APP_DEBUG && IS_WIN && false === strpos(realpath($filename), $class . EXT)) {
                     return false;
                 }
-                // 记录加载信息
-                APP_DEBUG && self::$load[] = $filename;
                 include $filename;
             } else {
                 return false;
@@ -123,9 +122,11 @@ class Loader
     public static function register($autoload = '')
     {
         // 注册系统自动加载
-        spl_autoload_register($autoload ? $autoload : 'think\\Loader::autoload');
+        spl_autoload_register($autoload ?: 'think\\Loader::autoload');
         // 注册composer自动加载
-        self::registerComposerLoader();
+        if (self::$composerLoader) {
+            self::registerComposerLoader();
+        }
     }
 
     // 注册composer自动加载

@@ -32,8 +32,7 @@ class loaderTest extends \PHPUnit_Framework_TestCase
 
     public function testAddMap()
     {
-        Loader::addMap('my\hello\Test', 'Test.php');
-        $this->assertEquals(false, Loader::autoload('my\hello\Test'));
+        Loader::addMap('my\hello\Test', __DIR__ . DS . 'loader' . DS . 'Test.php');
     }
 
     public function testAddNamespace()
