@@ -132,6 +132,34 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 获取当前模型的数据库查询对象
+     * @access public
+     * @return Query
+     */
+    public function db()
+    {
+        $model = $this->class;
+        if (!isset(self::$links[$model])) {
+            // 设置当前模型 确保查询返回模型对象
+            $query = Db::connect($this->connection)->model($model);
+
+            // 设置当前数据表和模型名
+            if (!empty($this->table)) {
+                $query->setTable($this->table);
+            } else {
+                $query->name($this->name);
+            }
+            // 全局作用域
+            if (method_exists($this, 'base')) {
+                call_user_func_array([$this, 'base'], [ & $query]);
+            }
+            self::$links[$model] = $query;
+        }
+        // 返回当前模型的数据库查询对象
+        return self::$links[$model];
+    }
+
+    /**
      *  获取关联模型实例
      * @access protected
      * @return Relation
@@ -869,7 +897,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param mixed $data 主键列表或者查询条件（闭包）
      * @param string $with 关联预查询
      * @param bool $cache 是否缓存
-     * @return \think\db\Query
+     * @return Query
      */
     protected static function parseQuery(&$data, $with, $cache)
     {
@@ -920,7 +948,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string|array|Closure $name 命名范围名称 逗号分隔
      * @param mixed $params 参数调用
-     * @return \think\Model
+     * @return Model
      */
     public static function scope($name, $params = [])
     {
@@ -951,7 +979,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $operator 比较操作符
      * @param integer $count 个数
      * @param string $id 关联表的统计字段
-     * @return \think\Model
+     * @return Model
      */
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
@@ -974,7 +1002,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $relation 关联方法名
      * @param mixed $where 查询条件（数组或者闭包）
-     * @return \think\Model
+     * @return Model
      */
     public static function hasWhere($relation, $where = [])
     {
@@ -1052,7 +1080,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param Model $result 数据对象
      * @param string $relation 关联名
-     * @return \think\Model
+     * @return Model
      */
     public function eagerlyResult($result, $relation)
     {
@@ -1066,7 +1094,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
      * @param array  $alias 别名定义
-     * @return \think\db\Query|string
+     * @return Relation
      */
     public function hasOne($model, $foreignKey = '', $localKey = '', $alias = [])
     {
@@ -1084,7 +1112,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $otherKey 关联主键
      * @param array  $alias 别名定义
-     * @return \think\db\Query|string
+     * @return Relation
      */
     public function belongsTo($model, $foreignKey = '', $otherKey = '', $alias = [])
     {
@@ -1102,7 +1130,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
      * @param array  $alias 别名定义
-     * @return \think\db\Query|string
+     * @return Relation
      */
     public function hasMany($model, $foreignKey = '', $localKey = '', $alias = [])
     {
@@ -1122,7 +1150,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $throughKey 关联外键
      * @param string $localKey 关联主键
      * @param array  $alias 别名定义
-     * @return \think\db\Query|string
+     * @return Relation
      */
     public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '', $alias = [])
     {
@@ -1144,7 +1172,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $localKey 当前模型关联键
      * @param array  $alias 别名定义
-     * @return \think\db\Query|string
+     * @return Relation
      */
     public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '', $alias = [])
     {
@@ -1155,34 +1183,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
         return $this->relation()->belongsToMany($model, $table, $foreignKey, $localKey, $alias);
-    }
-
-    /**
-     * 获取当前模型的数据库查询对象
-     * @access public
-     * @return \think\db\Query
-     */
-    public function db()
-    {
-        $model = $this->class;
-        if (!isset(self::$links[$model])) {
-            // 设置当前模型 确保查询返回模型对象
-            $query = Db::connect($this->connection)->model($model);
-
-            // 设置当前数据表和模型名
-            if (!empty($this->table)) {
-                $query->setTable($this->table);
-            } else {
-                $query->name($this->name);
-            }
-            // 全局作用域
-            if (method_exists($this, 'base')) {
-                call_user_func_array([$this, 'base'], [ & $query]);
-            }
-            self::$links[$model] = $query;
-        }
-        // 返回当前模型的数据库查询对象
-        return self::$links[$model];
     }
 
     public function __call($method, $args)
