@@ -28,7 +28,7 @@ class Sqlsrv extends Builder
      */
     protected function parseOrder($order)
     {
-        return !empty($order) ? ' ORDER BY ' . $order[0] : ' ORDER BY rand()';
+        return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
     }
 
     /**
@@ -76,5 +76,37 @@ class Sqlsrv extends Builder
         }
         return 'WHERE ' . $limitStr;
     }
+ /**
+     * 生成update SQL
+     * @access public
+     * @param array $fields 数据
+     * @param array $options 表达式
+     * @return string
+     */
+    public function update($data, $options)
+    {
+        $table = $this->parseTable($options['table']);
+        $data  = $this->parseData($data, $options);
+        if (empty($data)) {
+            return '';
+        }
+        foreach ($data as $key => $val) {
+            $set[] = $key . '=' . $val;
+        }
 
+        $sql = str_replace(
+            ['%TABLE%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
+            [
+                $this->parseTable($options['table']),
+                implode(',', $set),
+                $this->parseJoin($options['join']),
+                $this->parseWhere($options['where'], $options['table']),
+                '',
+                $this->parseLimit($options['limit']),
+                $this->parseLimit($options['lock']),
+                $this->parseComment($options['comment']),
+            ], $this->updateSql);
+
+        return $sql;
+    }
 }
