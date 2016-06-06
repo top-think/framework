@@ -96,6 +96,18 @@ class Query
     }
 
     /**
+     * 切换当前的数据库连接
+     * @access public
+     * @param mixed $config
+     * @return $this
+     */
+    public function connect($config)
+    {
+        $this->connection = Db::connect($config);
+        return $this;
+    }
+
+    /**
      * 指定默认的数据表名（不含前缀）
      * @access public
      * @param string $name
