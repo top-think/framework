@@ -19,6 +19,7 @@ use think\db\Builder;
 class Sqlsrv extends Builder
 {
     protected $selectSql = 'SELECT T1.* FROM (SELECT thinkphp.*, ROW_NUMBER() OVER (%ORDER%) AS ROW_NUMBER FROM (SELECT %DISTINCT% %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%) AS thinkphp) AS T1 %LIMIT%%COMMENT%';
+    protected $updateSql = 'UPDATE %TABLE% SET %SET% %JOIN% %WHERE% %LIMIT% %LOCK%%COMMENT%';
 
     /**
      * order分析
@@ -76,37 +77,5 @@ class Sqlsrv extends Builder
         }
         return 'WHERE ' . $limitStr;
     }
- /**
-     * 生成update SQL
-     * @access public
-     * @param array $fields 数据
-     * @param array $options 表达式
-     * @return string
-     */
-    public function update($data, $options)
-    {
-        $table = $this->parseTable($options['table']);
-        $data  = $this->parseData($data, $options);
-        if (empty($data)) {
-            return '';
-        }
-        foreach ($data as $key => $val) {
-            $set[] = $key . '=' . $val;
-        }
 
-        $sql = str_replace(
-            ['%TABLE%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
-            [
-                $this->parseTable($options['table']),
-                implode(',', $set),
-                $this->parseJoin($options['join']),
-                $this->parseWhere($options['where'], $options['table']),
-                '',
-                $this->parseLimit($options['limit']),
-                $this->parseLimit($options['lock']),
-                $this->parseComment($options['comment']),
-            ], $this->updateSql);
-
-        return $sql;
-    }
 }
