@@ -42,13 +42,13 @@ class Handle
                     'message' => $exception->getMessage(),
                     'code'    => $this->getCode($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $exception->getCode(),
                     'message' => $exception->getMessage(),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}";
+                $log = "[{$data['code']}]{$data['message']}";
             }
 
             Log::record($log, 'error');
@@ -62,7 +62,6 @@ class Handle
                 return true;
             }
         }
-
         return false;
     }
 
@@ -82,7 +81,7 @@ class Handle
     }
 
     /**
-     * @param           $output
+     * @param Output    $output
      * @param Exception $e
      */
     public function renderForConsole(Output $output, Exception $e)
@@ -92,15 +91,17 @@ class Handle
 
     /**
      * @param HttpException $e
-     * @return \think\Response
+     * @return Response
      */
     protected function renderHttpException(HttpException $e)
     {
         $status = $e->getStatusCode();
-
-        //TODO 根据状态码自动输出错误页面
-
-        return $this->convertExceptionToResponse($e);
+        $error  = Config::get('http_exception_url');
+        if (!APP_DEBUG && !empty($error[$status])) {
+            return Response::create($error[$status], 'redirect')->send();
+        } else {
+            return $this->convertExceptionToResponse($e);
+        }
     }
 
     /**
