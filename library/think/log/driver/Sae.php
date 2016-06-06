@@ -41,14 +41,11 @@ class Sae
         $memory_str = " [内存消耗：{$memory_use}kb]";
         $file_load  = " [文件加载：" . count(get_included_files()) . "]";
 
-        array_unshift($log, [
-            'type' => 'log',
-            'msg'  => $current_uri . $time_str . $memory_str . $file_load,
-        ]);
-
-        $info = '';
-        foreach ($log as $line) {
-            $info .= '[' . $line['type'] . '] ' . $line['msg'] . "\r\n";
+        $info = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
+        foreach ($log as $type => $val) {
+            foreach ($val as $msg) {
+                $info .= '[ ' . $type . ' ] ' . $msg . "\r\n";
+            }
         }
 
         $logstr = "[{$now}] {$_SERVER['SERVER_ADDR']} {$_SERVER['REMOTE_ADDR']} {$_SERVER['REQUEST_URI']}\r\n{$info}\r\n";

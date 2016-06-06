@@ -70,8 +70,10 @@ class Trace
 
         // 获取调试日志
         $debug = [];
-        foreach ($log as $line) {
-            $debug[$line['type']][] = $line['msg'];
+        foreach ($log as $type => $val) {
+            foreach ($val as $msg) {
+                $debug[$type][] = $msg;
+            }
         }
 
         // 页面Trace信息

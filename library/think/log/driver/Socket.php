@@ -78,39 +78,57 @@ class Socket
         } else {
             $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
         }
-        array_unshift($logs, [
+        // 基本信息
+        $trace[] = [
             'type' => 'group',
             'msg'  => $current_uri . $time_str . $memory_str . $file_load,
             'css'  => $this->css['page'],
-        ]);
-
-        $logs[] = [
-            'type' => 'groupCollapsed',
-            'msg'  => 'included_files',
-            'css'  => '',
-        ];
-        $logs[] = [
-            'type' => 'log',
-            'msg'  => implode("\n", get_included_files()),
-            'css'  => '',
-        ];
-        $logs[] = [
-            'type' => 'groupEnd',
-            'msg'  => '',
-            'css'  => '',
         ];
 
-        $logs[] = [
-            'type' => 'groupEnd',
-            'msg'  => '',
-            'css'  => '',
-        ];
-
-        foreach ($logs as &$log) {
-            if (in_array($log['type'], ['sql', 'notice', 'debug', 'info'])) {
-                $log['type'] = 'log';
+        foreach ($logs as $type => $val) {
+            $trace[] = [
+                'type' => 'groupCollapsed',
+                'msg'  => '[ ' . $type . ' ]',
+                'css'  => isset($this->css[$type]) ? $this->css[$type] : '',
+            ];
+            foreach ($val as $msg) {
+                $trace[] = [
+                    'type' => 'log',
+                    'msg'  => $msg,
+                    'css'  => '',
+                ];
             }
+            $trace[] = [
+                'type' => 'groupEnd',
+                'msg'  => '',
+                'css'  => '',
+            ];
         }
+
+        if ($this->config['show_included_files']) {
+            $trace[] = [
+                'type' => 'groupCollapsed',
+                'msg'  => 'included_files',
+                'css'  => '',
+            ];
+            $trace[] = [
+                'type' => 'log',
+                'msg'  => implode("\n", get_included_files()),
+                'css'  => '',
+            ];
+            $trace[] = [
+                'type' => 'groupEnd',
+                'msg'  => '',
+                'css'  => '',
+            ];
+        }
+
+        $trace[] = [
+            'type' => 'groupEnd',
+            'msg'  => '',
+            'css'  => '',
+        ];
+
         $tabid = $this->getClientArg('tabid');
         if (!$client_id = $this->getClientArg('client_id')) {
             $client_id = '';
@@ -120,10 +138,10 @@ class Socket
             //强制推送到多个client_id
             foreach ($this->allowForceClientIds as $force_client_id) {
                 $client_id = $force_client_id;
-                $this->sendToClient($tabid, $client_id, $logs, $force_client_id);
+                $this->sendToClient($tabid, $client_id, $trace, $force_client_id);
             }
         } else {
-            $this->sendToClient($tabid, $client_id, $logs, '');
+            $this->sendToClient($tabid, $client_id, $trace, '');
         }
         return true;
     }

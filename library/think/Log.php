@@ -77,7 +77,7 @@ class Log
         if (!is_string($msg)) {
             $msg = var_export($msg, true);
         }
-        self::$log[] = ['type' => $type, 'msg' => $msg];
+        self::$log[$type][] = $msg;
     }
 
     /**
@@ -123,7 +123,7 @@ class Log
             $msg = var_export($msg, true);
         }
         // 封装日志信息
-        $log[] = ['type' => $type, 'msg' => $msg];
+        $log[$type][] = $msg;
 
         // 监听log_write
         Hook::listen('log_write', $log);
