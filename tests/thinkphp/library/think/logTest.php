@@ -23,12 +23,12 @@ class logTest extends \PHPUnit_Framework_TestCase
     public function testRecord(){
         Log::clear();
         Log::record('test');
-        $this->assertEquals([['type'=>'log','msg'=>'test']], Log::getLog());
+        $this->assertEquals(['log'=>['test'], Log::getLog());
         Log::record('hello','info');
-        $this->assertEquals([['type'=>'log','msg'=>'test'],['type'=>'info','msg'=>'hello']], Log::getLog());
+        $this->assertEquals(['log'=>['test'],'info'=>['hello']], Log::getLog());
         Log::clear();
         Log::info('test');
-        $this->assertEquals([['type'=>'info','msg'=>'test']], Log::getLog());
+        $this->assertEquals(['info'=>['test']], Log::getLog());
     }
 
     public function testSave(){
