@@ -486,9 +486,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array $data 数据
      * @param array $where 更新条件
      * @param bool $getId 新增的时候是否获取id
+     * @param bool $replace 是否replace
      * @return integer
      */
-    public function save($data = [], $where = [], $getId = true)
+    public function save($data = [], $where = [], $getId = true, $replace = false)
     {
         if (!empty($data)) {
             // 数据自动验证
@@ -571,7 +572,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
-            $result = $this->db()->insert($this->data);
+            $result = $this->db()->insert($this->data, $replace);
 
             // 获取自动增长主键
             if ($result && $getId) {
@@ -808,12 +809,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 写入数据
      * @access public
      * @param array $data 数据数组
+     * @param bool $replace 是否replace
      * @return $this
      */
-    public static function create($data = [])
+    public static function create($data = [], $replace = false)
     {
         $model = new static();
-        $model->isUpdate(false)->save($data);
+        $model->isUpdate(false)->save($data, [], true, $replace);
         return $model;
     }
 
