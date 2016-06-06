@@ -102,6 +102,8 @@ abstract class Connection
         'resultset_type' => Db::RESULTSET_ARRAY,
         // 自动写入时间戳字段
         'auto_timestamp' => false,
+        // 是否需要进行SQL性能分析
+        'sql_explain'    => false,
     ];
 
     // PDO连接参数
@@ -743,7 +745,7 @@ abstract class Connection
                 $log     = $this->queryStr . ' [ RunTime:' . $runtime . 's ]';
                 $result  = [];
                 // SQL性能分析
-                if (0 === stripos(trim($this->queryStr), 'select')) {
+                if ($this->config['sql_explain'] && 0 === stripos(trim($this->queryStr), 'select')) {
                     $result = $this->getExplain($this->queryStr);
                 }
                 // SQL监听
