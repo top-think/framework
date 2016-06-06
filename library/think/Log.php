@@ -63,12 +63,13 @@ class Log
     }
 
     /**
-     * 获取全部日志信息
+     * 获取日志信息
+     * @param string $type 信息类型
      * @return array
      */
-    public static function getLog()
+    public static function getLog($type = '')
     {
-        return self::$log;
+        return $type ? self::$log[$type] : self::$log;
     }
 
     /**
