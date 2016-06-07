@@ -272,13 +272,14 @@ class App
         Hook::listen('module_init', $request);
 
         try {
+            $instance = Loader::controller($controller, $config['url_controller_layer'], $config['use_controller_suffix'], $config['empty_controller']);
+            
             // 获取当前操作名
             $action = $actionName . $config['action_suffix'];
             if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
                 // 非法操作
                 throw new \ReflectionException('illegal action name :' . $actionName);
             }
-            $instance = Loader::controller($controller, $config['url_controller_layer'], $config['use_controller_suffix'], $config['empty_controller']);
 
             // 执行操作方法
             $call = [$instance, $action];
