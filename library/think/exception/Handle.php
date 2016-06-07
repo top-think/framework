@@ -145,6 +145,7 @@ class Handle
             // 不显示详细错误信息
             $data['message'] = Config::get('error_message');
         }
+
         //保留一层
         while (ob_get_level() > 1) {
             ob_end_clean();
@@ -154,8 +155,7 @@ class Handle
         extract($data);
         include Config::get('exception_tmpl');
         // 获取并清空缓存
-        $content = ob_get_clean();
-
+        $content  = ob_get_clean();
         $response = new Response($content, 'html');
 
         if ($exception instanceof HttpException) {
@@ -167,7 +167,6 @@ class Handle
             $statusCode = 500;
         }
         $response->code($statusCode);
-
         return $response;
     }
 
