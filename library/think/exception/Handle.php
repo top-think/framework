@@ -95,10 +95,10 @@ class Handle
      */
     protected function renderHttpException(HttpException $e)
     {
-        $status = $e->getStatusCode();
-        $error  = Config::get('http_exception_url');
-        if (!APP_DEBUG && !empty($error[$status])) {
-            return Response::create($error[$status], 'redirect')->send();
+        $status   = $e->getStatusCode();
+        $template = Config::get('http_exception_template');
+        if (!APP_DEBUG && !empty($template[$status])) {
+            return Response::create($template[$status], 'view')->vars(['e' => $e])->send();
         } else {
             return $this->convertExceptionToResponse($e);
         }

@@ -223,7 +223,7 @@ class Response
     public function header($name, $value = null)
     {
         if (is_array($name)) {
-            $this->header = $name;
+            $this->header = array_merge($this->header, $name);
         } else {
             $this->header[$name] = $value;
         }
