@@ -321,11 +321,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $value = json_encode($value, JSON_FORCE_OBJECT);
                 }
                 break;
-            case 'json':
+
             case 'array':
-                if (is_array($value)) {
-                    $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-                }
+                $value = (array) $value;
+            case 'json':
+                $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+
                 break;
         }
         return $value;
