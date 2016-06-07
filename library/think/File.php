@@ -106,6 +106,7 @@ class File extends SplFileObject
             return false;
         }
 
+        $path = rtrim($path, DS) . DS;
         // 文件保存命名规则
         $savename = $this->getSaveName($savename);
 

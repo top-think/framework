@@ -145,13 +145,14 @@ class Merge extends Model
      * @param mixed $data 数据
      * @param array $where 更新条件
      * @param bool $getId 新增的时候是否获取id
+     * @param bool $replace 是否replace
      * @return mixed
      */
-    public function save($data = [], $where = [], $getId = true)
+    public function save($data = [], $where = [], $getId = true, $replace = false)
     {
         if (!empty($data)) {
             // 数据自动验证
-            if (!$this->validateData()) {
+            if (!$this->validateData($data)) {
                 return false;
             }
             // 数据对象赋值
@@ -214,7 +215,7 @@ class Merge extends Model
                 // 处理模型数据
                 $data = $this->parseData($this->name, $this->data);
                 // 写入主表数据
-                $result = $db->name($this->name)->strict(false)->insert($data);
+                $result = $db->name($this->name)->strict(false)->insert($data, $replace);
                 if ($result) {
                     $insertId = $db->getLastInsID();
                     // 写入外键数据
