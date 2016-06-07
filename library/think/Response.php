@@ -216,13 +216,17 @@ class Response
     /**
      * 设置响应头
      * @access public
-     * @param string $name 参数名
+     * @param string|array $name 参数名
      * @param string $value 参数值
      * @return $this
      */
-    public function header($name, $value)
+    public function header($name, $value = null)
     {
-        $this->header[$name] = $value;
+        if (is_array($name)) {
+            $this->header = $name;
+        } else {
+            $this->header[$name] = $value;
+        }
         return $this;
     }
 

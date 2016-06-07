@@ -356,15 +356,15 @@ function request()
 }
 
 /**
- * 创建Response对象实例
+ * 创建普通 Response 对象实例
  * @param mixed $data 输出数据
- * @param string $type 输出类型
- * @param array $options 参数
+ * @param string $code 状态码
+ * @param array $header 头信息
  * @return Response
  */
-function response($data = [], $type = '', $options = [])
+function response($data = [], $code = 200, $header = [], $type = 'html')
 {
-    return Response::create($data, $type, $options);
+    return Response::create($data, $type)->code($code)->header($header);
 }
 
 /**
