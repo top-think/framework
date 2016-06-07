@@ -13,6 +13,7 @@ namespace think;
 
 use think\Config;
 use think\Input;
+use think\Session;
 
 class Request
 {
@@ -632,10 +633,7 @@ class Request
      */
     public function session($name = '')
     {
-        if (PHP_SESSION_DISABLED == session_status()) {
-            session_start();
-        }
-        return Input::data($this->session ?: $_SESSION, $name);
+        return Input::data($this->session ?: Session::get(), $name);
     }
 
     /**

@@ -23,8 +23,6 @@ class loaderTest extends \PHPUnit_Framework_TestCase
 
     public function testAutoload()
     {
-        $this->assertEquals(true, Loader::autoload('think\Session'));
-        //$this->assertEquals(false, Loader::autoload('think\COOKIE'));
         $this->assertEquals(false, Loader::autoload('\think\Url'));
         $this->assertEquals(false, Loader::autoload('think\Test'));
         $this->assertEquals(false, Loader::autoload('my\HelloTest'));

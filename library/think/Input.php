@@ -13,6 +13,7 @@ namespace think;
 
 use think\Config;
 use think\File;
+use think\Session;
 
 class Input
 {
@@ -129,10 +130,7 @@ class Input
      */
     public static function session($name = '', $default = null, $filter = null, $merge = false)
     {
-        if (PHP_SESSION_DISABLED == session_status()) {
-            session_start();
-        }
-        return self::data($_SESSION, $name, $default, $filter, $merge);
+        return self::data(Session::get(), $name, $default, $filter, $merge);
     }
 
     /**
