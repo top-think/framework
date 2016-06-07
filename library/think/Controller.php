@@ -22,7 +22,7 @@ class Controller
     use \traits\controller\Jump;
 
     // 视图类实例
-    protected $view = null;
+    protected $view;
     // Request实例
     protected $request;
     // 验证失败是否抛出异常

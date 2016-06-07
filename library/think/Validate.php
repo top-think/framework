@@ -18,7 +18,7 @@ use think\Request;
 class Validate
 {
     // 实例
-    protected static $instance = null;
+    protected static $instance;
 
     // 自定义的验证类型
     protected static $type = [];

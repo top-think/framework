@@ -19,7 +19,7 @@ use think\Template;
 class Think
 {
     // 模板引擎实例
-    private $template = null;
+    private $template;
     // 模板引擎参数
     protected $config = [
         // 模板起始路径
