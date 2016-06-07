@@ -254,7 +254,7 @@ class Merge extends Model
             return false;
         }
 
-        $db = $this->query;
+        $db = $this->db();
         $db->startTrans('merge_delete_' . $this->name);
         try {
             $result = $db->delete($this->data);
