@@ -1068,7 +1068,7 @@ class Route
      * @param array $var 变量
      * @return void
      */
-    private static function parseUrlParams($url, $var)
+    private static function parseUrlParams($url, $var = [])
     {
         if ($url) {
             if (Config::get('url_param_type')) {
