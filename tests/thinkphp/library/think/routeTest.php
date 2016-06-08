@@ -138,7 +138,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
     {
         $request = Request::instance();
         Route::get('user/:name', '\app\index\service\User::get', [], ['name' => '\w+']);
-        Route::get('info/:name', ['\app\index\model\Info', 'getInfo'], [], ['name' => '\w+']);
+        Route::get('info/:name', '\app\index\model\Info@getInfo', [], ['name' => '\w+']);
         $this->assertEquals(['type' => 'method', 'method' => '\app\index\service\User::get', 'params' => ['name' => 'thinkphp']], Route::check($request, 'user/thinkphp'));
         $this->assertEquals(['type' => 'method', 'method' => ['\app\index\model\Info', 'getInfo'], 'params' => ['name' => 'thinkphp']], Route::check($request, 'info/thinkphp'));
     }
