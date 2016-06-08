@@ -42,6 +42,9 @@ class Controller
      */
     public function __construct(Request $request = null)
     {
+        if (is_null($request)) {
+            $request = Request::instance();
+        }
         $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
         $this->request = $request;
 
