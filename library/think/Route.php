@@ -449,9 +449,11 @@ class Route
      * @param array $option 路由参数
      * @return void
      */
-    public static function alias($rule, $route = '', $option = [])
+    public static function alias($rule = null, $route = '', $option = [])
     {
-        if (is_array($rule)) {
+        if (is_null($rule)) {
+            return self::$alias;
+        } elseif (is_array($rule)) {
             self::$alias = array_merge(self::$alias, $rule);
         } else {
             self::$alias[$rule] = $option ? [$route, $option] : $route;
