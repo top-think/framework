@@ -1377,17 +1377,33 @@ class Query
                     $name  = Loader::parseName(basename(str_replace('\\', '/', $currentModel)));
                     $table = $this->getTable();
                     $alias = isset($info['alias'][$name]) ? $info['alias'][$name] : $name;
-                    $this->table($table)->alias($alias)->field(true, false, $table, $alias);
+                    $this->table($table)->alias($alias);
+                    if (isset($this->options['field'])) {
+                        $field = $this->options['field'];
+                        unset($this->options['field']);
+                    } else {
+                        $field = true;
+                    }
+                    $this->field($field, false, $table, $alias);
                 }
                 // 预载入封装
                 $joinTable = $model->getTable();
                 $joinName  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
                 $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $joinName;
                 $this->via($joinAlias);
-                $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey'])->field(true, false, $joinTable, $joinAlias, $joinName . '__');
+                $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey']);
                 if ($closure) {
                     // 执行闭包查询
                     call_user_func_array($closure, [ & $this]);
+
+                    //指定获取关联的字段
+                    //需要在 回调中 调方法 withField 方法，如
+                    // $query->where(['id'=>1])->withField('id,name');
+                    if (!empty($this->options['with_field'])) {
+                        $field = $this->options['with_field'];
+                        unset($this->options['with_field']);
+                    }
+                    $this->field($field, false, $joinTable, $joinAlias, $joinName . '__');
                 }
                 $i++;
             } elseif ($closure) {
@@ -1396,6 +1412,22 @@ class Query
         }
         $this->via();
         $this->options['with'] = $with;
+        return $this;
+    }
+
+    /**
+     * 关联预加载中 获取关联指定字段值
+     * example:
+     * Model::with(['relation' => function($query){
+     *     $query->withField("id,name");
+     * }])
+     *
+     * @param string | array $field 指定获取的字段
+     * @return $this
+     */
+    public function withField($field)
+    {
+        $this->options['with_field'] = $field;
         return $this;
     }
 
