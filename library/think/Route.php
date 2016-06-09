@@ -445,15 +445,16 @@ class Route
      * 注册别名路由
      * @access public
      * @param string|array $rule 路由别名
-     * @param string $route 别名对应的路由地址
+     * @param string $route 路由地址
+     * @param array $option 路由参数
      * @return void
      */
-    public static function alias($rule, $route = '')
+    public static function alias($rule, $route = '', $option = [])
     {
         if (is_array($rule)) {
-            self::$alias[$rule] = array_merge(self::$alias, $alias);
+            self::$alias = array_merge(self::$alias, $rule);
         } else {
-            self::$alias[$rule] = $route;
+            self::$alias[$rule] = $option ? [$route, $option] : $route;
         }
     }
 
@@ -632,8 +633,17 @@ class Route
         if (strpos($url, '/') && isset(self::$alias[strstr($url, '/', true)])) {
             // 路由别名
             $array = explode('/', $url, 2);
-            $rule  = self::$alias[$array[0]];
-            if (0 === strpos($rule, '\\')) {
+            $item  = self::$alias[$array[0]];
+
+            if (is_array($item)) {
+                list($rule, $option) = $item;
+            } else {
+                $rule = $item;
+            }
+            // 参数有效性检查
+            if (isset($option) && !self::checkOption($option, $url, $request)) {
+                // 路由不匹配
+            } elseif (0 === strpos($rule, '\\')) {
                 // 路由到类
                 return self::bindToClass($array[1], substr($rule, 1));
             } elseif (0 === strpos($url, '@')) {
