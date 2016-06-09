@@ -675,7 +675,7 @@ abstract class Builder
                 !empty($options['using']) ? ' USING ' . $this->parseTable($options['using']) . ' ' : '',
                 $this->parseJoin($options['join']),
                 $this->parseWhere($options['where'], $options['table']),
-                $this->parseOrder($options['order']),
+                !empty($options['order']) ? ' ORDER ' . $this->parseOrder($options['order']) . ' ' : '',
                 $this->parseLimit($options['limit']),
                 $this->parseLimit($options['lock']),
                 $this->parseComment($options['comment']),
