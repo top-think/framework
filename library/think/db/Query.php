@@ -1391,7 +1391,7 @@ class Query
                 $joinName  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
                 $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $joinName;
                 $this->via($joinAlias);
-                $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey']);
+                $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey'], $info['joinType']);
                 if ($closure) {
                     // 执行闭包查询
                     call_user_func_array($closure, [ & $this]);

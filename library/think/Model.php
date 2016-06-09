@@ -1093,15 +1093,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
      * @param array  $alias 别名定义
+     * @param string $joinType JOIN类型
      * @return Relation
      */
-    public function hasOne($model, $foreignKey = '', $localKey = '', $alias = [])
+    public function hasOne($model, $foreignKey = '', $localKey = '', $alias = [], $joinType = 'INNER')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation()->hasOne($model, $foreignKey, $localKey, $alias);
+        return $this->relation()->hasOne($model, $foreignKey, $localKey, $alias, $joinType);
     }
 
     /**
@@ -1111,15 +1112,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $otherKey 关联主键
      * @param array  $alias 别名定义
+     * @param string $joinType JOIN类型
      * @return Relation
      */
-    public function belongsTo($model, $foreignKey = '', $otherKey = '', $alias = [])
+    public function belongsTo($model, $foreignKey = '', $otherKey = '', $alias = [], $joinType = 'INNER')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $otherKey   = $otherKey ?: (new $model)->getPk();
-        return $this->relation()->belongsTo($model, $foreignKey, $otherKey, $alias);
+        return $this->relation()->belongsTo($model, $foreignKey, $otherKey, $alias, $joinType);
     }
 
     /**
