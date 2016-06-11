@@ -69,6 +69,7 @@ class Relation
             'foreignKey' => $this->foreignKey,
             'localKey'   => $this->localKey,
             'alias'      => $this->alias,
+            'joinType'   => $this->joinType,
         ];
         return $name ? $info[$name] : $info;
     }
