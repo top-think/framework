@@ -983,7 +983,7 @@ class Query
 
         if($config['list_rows'] > $config['max_rows']){//新增最大限制
             $config['list_rows'] = $config['max_rows'];
-        }elseif ($config['list_rows'] > $config['min_rows']) {//新增最小限制
+        }elseif ($config['list_rows'] < $config['min_rows']) {//新增最小限制
             $config['list_rows'] = $config['min_rows'];
         }
 
