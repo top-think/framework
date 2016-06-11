@@ -948,31 +948,58 @@ class Query
      * @return \think\paginator\Collection
      * @throws DbException
      */
-    public function paginate($listRows = null, $simple = false, $config = [])
+    public function paginate($listRows = null, $offset = null)
     {
-        $config   = array_merge(Config::get('paginate'), $config);
-        $listRows = $listRows ?: $config['list_rows'];
-        $class    = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\paginator\\driver\\') . ucwords($config['type']);
-        $page     = isset($config['page']) ? (int) $config['page'] : call_user_func([
-            $class,
-            'getCurrentPage',
-        ], $config['var_page']);
+        $config = array_merge([//防止配置不当引起不必要的异常
+            'type' => 'bootstrap',
+            'var_page' => 'page',
+            'list_rows' => 15,
+            'simple' => false,
+            'max_rows' => 100,//限制分页数量范围,防止接收不合理的参数
+            'min_rows' => 1,
+        ], (array) Config::get('paginate'));
 
-        $page = $page < 1 ? 1 : $page;
-
-        $config['path'] = isset($config['path']) ? $config['path'] : call_user_func([$class, 'getCurrentPath']);
-
-        /** @var Paginator $paginator */
-        if (!$simple) {
-            $options = $this->getOptions();
-            $total   = $this->count();
-            $results = $this->options($options)->page($page, $listRows)->select();
-        } else {
-            $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
-            $total   = null;
+        if (is_array($listRows)) {
+            $config = array_merge($config, $listRows);
+        } elseif (is_int($listRows) && $listRows > 0) {
+            $config['list_rows'] = $listRows;
+        } elseif (is_bool($listRows)) {
+            $config['simple'] = $listRows;
         }
 
-        $paginator = new $class($results, $listRows, $page, $simple, $total, $config);
+        if (is_array($offset)) {
+            $config = array_merge($config, $offset);
+        } elseif (is_int($offset)) {
+            $config['offset'] = $offset;
+        } elseif (is_bool($offset)) {
+            $config['simple'] = $offset;
+        }
+
+        $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\paginator\\driver\\') . ucwords($config['type']);
+
+        if (!isset($config['page']) || $config['page'] < 1) {
+            $config['page'] = call_user_func([$class, 'getCurrentPage',], $config['var_page']);
+        }
+
+        if($config['list_rows'] > $config['max_rows']){//新增最大限制
+            $config['list_rows'] = $config['max_rows'];
+        }elseif ($config['list_rows'] < $config['min_rows']) {//新增最小限制
+            $config['list_rows'] = $config['min_rows'];
+        }
+
+        if (!isset($config['offset']) || $config['offset'] < 0) {//新增起始位置配置
+            $config['offset'] = ($config['page'] - 1 ) * $config['list_rows'];
+        }
+
+        if ($config['simple']) {//simple转为配置项
+            $total = null;
+        } else {
+            $options = $this->getOptions();
+            $total = $this->count();
+            $this->options($options);
+        }
+        $results = $this->limit($config['offset'], $config['list_rows'])->select();
+        $paginator = new $class($results, $config['list_rows'], $config['page'], $config['simple'], $total, $config);
         return $paginator->items();
     }
 
