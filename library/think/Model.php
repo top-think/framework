@@ -327,6 +327,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'json':
                 $value = json_encode($value, JSON_UNESCAPED_UNICODE);
                 break;
+            case 'serialize':
+                $value = serialize($value);
+                break;                  
         }
         return $value;
     }
@@ -398,6 +401,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'object':
                 $value = json_decode($value);
                 break;
+            case 'serialize':
+                $value = unserialize($value);
+                break;                
         }
         return $value;
     }
