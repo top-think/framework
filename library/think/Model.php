@@ -740,7 +740,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param bool $fail 是否抛出异常
      * @return $this
      */
-    public function failException($fail = true)
+    public function validateFailException($fail = true)
     {
         $this->failException = $fail;
         return $this;

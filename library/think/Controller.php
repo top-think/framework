@@ -149,7 +149,7 @@ class Controller
      * @param bool $fail 是否抛出异常
      * @return $this
      */
-    protected function failException($fail = true)
+    protected function validateFailException($fail = true)
     {
         $this->failException = $fail;
         return $this;
