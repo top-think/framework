@@ -46,14 +46,13 @@ class Oracle extends Connection
      * @access public
      * @param string $sql  sql指令
      * @param array $bind 参数绑定
-     * @param boolean $fetch  不执行只是获取SQL
      * @param boolean $getLastInsID 是否获取自增ID
      * @param string $sequence 序列名     
      * @return integer
      * @throws \Exception
      * @throws \think\Exception
      */
-    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null)
+    public function execute($sql, $bind = [], $getLastInsID = false, $sequence = null)
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -62,9 +61,7 @@ class Oracle extends Connection
 
         // 根据参数绑定组装最终的SQL语句
         $this->queryStr = $this->getBindSql($sql, $bind);
-        if ($fetch) {
-            return $this->queryStr;
-        }
+
         $flag = false;
         if (preg_match("/^\s*(INSERT\s+INTO)\s+(\w+)\s+/i", $sql, $match)) {
             if(is_null($sequence)){
@@ -72,6 +69,7 @@ class Oracle extends Connection
             }
             $flag  = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($sequence) . "'");
         }
+        
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
             $this->free();

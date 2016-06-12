@@ -28,11 +28,6 @@ abstract class Connection
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
 
-    // 当前操作的数据表名
-    protected $table = '';
-    // 当前操作的数据对象名
-    protected $name = '';
-
     /** @var string 当前SQL指令 */
     protected $queryStr = '';
     // 最后插入ID
@@ -322,26 +317,21 @@ abstract class Connection
      * @access public
      * @param string $sql sql指令
      * @param array $bind 参数绑定
-     * @param boolean $fetch 不执行只是获取SQL
      * @param boolean $master 是否在主服务器读操作
      * @param bool|string $class 指定返回的数据集对象
      * @return mixed
      * @throws BindParamException
      * @throws PDOException
      */
-    public function query($sql, $bind = [], $fetch = false, $master = false, $class = false)
+    public function query($sql, $bind = [], $master = false, $class = false)
     {
         $this->initConnect($master);
         if (!$this->linkID) {
             return false;
         }
-
         // 根据参数绑定组装最终的SQL语句
-        $this->queryStr = $this->getBindSql($sql, $bind);
-
-        if ($fetch) {
-            return $this->queryStr;
-        }
+        $this->queryStr = $this->getRealSql($sql, $bind);
+        
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
             $this->free();
@@ -371,25 +361,21 @@ abstract class Connection
      * @access public
      * @param string $sql sql指令
      * @param array $bind 参数绑定
-     * @param boolean $fetch 不执行只是获取SQL
      * @param boolean $getLastInsID 是否获取自增ID
      * @param string $sequence 自增序列名
      * @return int
      * @throws BindParamException
      * @throws PDOException
      */
-    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null)
+    public function execute($sql, $bind = [], $getLastInsID = false, $sequence = null)
     {
         $this->initConnect(true);
         if (!$this->linkID) {
             return false;
         }
         // 根据参数绑定组装最终的SQL语句
-        $this->queryStr = $this->getBindSql($sql, $bind);
+        $this->queryStr = $this->getRealSql($sql, $bind);
 
-        if ($fetch) {
-            return $this->queryStr;
-        }
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
             $this->free();
@@ -428,7 +414,7 @@ abstract class Connection
      * @param array $bind 参数绑定列表
      * @return string
      */
-    protected function getBindSql($sql, array $bind = [])
+    public function getRealSql($sql, array $bind = [])
     {
         if ($bind) {
             foreach ($bind as $key => $val) {

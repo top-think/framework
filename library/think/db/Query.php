@@ -1521,7 +1521,7 @@ class Query
      * @param boolean $replace 是否replace
      * @param boolean $getLastInsID 是否获取自增ID
      * @param string $sequence 自增序列名
-     * @return integer
+     * @return integer|string
      */
     public function insert(array $data, $replace = false, $getLastInsID = false, $sequence = null)
     {
@@ -1529,9 +1529,13 @@ class Query
         $options = $this->parseExpress();
         // 生成SQL语句
         $sql      = $this->builder()->insert($data, $options, $replace);
+        if($options['fetch_sql']){
+            // 获取实际执行的SQL语句
+            return $this->connection->getRealSql($sql,$this->bind);
+        }
         $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
         // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql'], $getLastInsID, $sequence);
+        return $this->execute($sql, $this->getBind(), $getLastInsID, $sequence);
     }
 
     /**
@@ -1540,7 +1544,7 @@ class Query
      * @param mixed $data 数据
      * @param boolean $replace 是否replace
      * @param string $sequence 自增序列名
-     * @return integer
+     * @return integer|string
      */
     public function insertGetId(array $data, $replace = false, $sequence = null)
     {
@@ -1551,7 +1555,7 @@ class Query
      * 批量插入记录
      * @access public
      * @param mixed $dataSet 数据集
-     * @return integer
+     * @return integer|string
      */
     public function insertAll(array $dataSet)
     {
@@ -1562,8 +1566,13 @@ class Query
         }
         // 生成SQL语句
         $sql = $this->builder()->insertAll($dataSet, $options);
-        // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
+        if($options['fetch_sql']){
+            // 获取实际执行的SQL语句
+            return $this->connection->getRealSql($sql,$this->bind);
+        }else{
+            // 执行操作
+            return $this->execute($sql, $this->getBind());
+        }
     }
 
     /**
@@ -1571,7 +1580,7 @@ class Query
      * @access public
      * @param string $fields 要插入的数据表字段名
      * @param string $table 要插入的数据表名
-     * @return int
+     * @return integer|string
      * @throws PDOException
      */
     public function selectInsert($fields, $table)
@@ -1580,15 +1589,20 @@ class Query
         $options = $this->parseExpress();
         // 生成SQL语句
         $sql = $this->builder()->selectInsert($fields, $table, $options);
-        // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
+        if($options['fetch_sql']){
+            // 获取实际执行的SQL语句
+            return $this->connection->getRealSql($sql,$this->bind);
+        }else{
+            // 执行操作
+            return $this->execute($sql, $this->getBind());
+        }
     }
 
     /**
      * 更新记录
      * @access public
      * @param mixed $data 数据
-     * @return int
+     * @return integer|string
      * @throws Exception
      * @throws PDOException
      */
@@ -1622,11 +1636,13 @@ class Query
         }
         // 生成UPDATE SQL语句
         $sql = $this->builder()->update($data, $options);
-        if ('' == $sql) {
-            return 0;
+        if($options['fetch_sql']){
+            // 获取实际执行的SQL语句
+            return $this->connection->getRealSql($sql,$this->bind);
+        }else{
+            // 执行操作
+            return '' == $sql ? 0 : $this->execute($sql, $this->getBind());            
         }
-        // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
     }
 
     /**
@@ -1666,13 +1682,13 @@ class Query
         if (!$resultSet) {
             // 生成查询SQL
             $sql = $this->builder()->select($options);
+            if($options['fetch_sql']){
+                // 获取实际执行的SQL语句
+                return $this->connection->getRealSql($sql,$this->bind);
+            }            
             // 执行查询操作
-            $resultSet = $this->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
+            $resultSet = $this->query($sql, $this->getBind(), $options['master'], $options['fetch_class']);
 
-            if (is_string($resultSet)) {
-                // 返回SQL
-                return $resultSet;
-            }
             if ($resultSet instanceof \PDOStatement) {
                 // 返回PDOStatement对象
                 return $resultSet;
@@ -1747,13 +1763,12 @@ class Query
         if (!$result) {
             // 生成查询SQL
             $sql = $this->builder()->select($options);
+            if($options['fetch_sql']){
+                // 获取实际执行的SQL语句
+                return $this->connection->getRealSql($sql,$this->bind);
+            }            
             // 执行查询
-            $result = $this->query($sql, $this->getBind(), $options['fetch_sql'], $options['master'], $options['fetch_class']);
-
-            if (is_string($result)) {
-                // 返回SQL
-                return $result;
-            }
+            $result = $this->query($sql, $this->getBind(), $options['master'], $options['fetch_class']);
 
             if ($result instanceof \PDOStatement) {
                 // 返回PDOStatement对象
@@ -1902,8 +1917,12 @@ class Query
         }
         // 生成删除SQL语句
         $sql = $this->builder()->delete($options);
+        if($options['fetch_sql']){
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql,$this->bind);
+        }        
         // 执行操作
-        return $this->execute($sql, $this->getBind(), $options['fetch_sql']);
+        return $this->execute($sql, $this->getBind());
     }
 
     /**

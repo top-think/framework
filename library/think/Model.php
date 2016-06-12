@@ -292,8 +292,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function writeTransform($value, $type)
     {
         if(is_array($type)){
-            $param = $type[1];
-            $type  = $type[0];
+            list($type,$param)  = $type;
         }elseif (strpos($type, ':')) {
             list($type, $param) = explode(':', $type, 2);
         }
@@ -328,7 +327,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'array':
                 $value = (array) $value;
             case 'json':
-                $option = !empty($param) ? (intval)$param : JSON_UNESCAPED_UNICODE;
+                $option = !empty($param) ? (int)$param : JSON_UNESCAPED_UNICODE;
                 $value  = json_encode($value, $option);
                 break;
             case 'serialize':
@@ -374,8 +373,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function readTransform($value, $type)
     {
         if(is_array($type)){
-            $param = $type[1];
-            $type  = $type[0];
+            list($type,$param)  = $type;
         }elseif (strpos($type, ':')) {
             list($type, $param) = explode(':', $type, 2);
         }
