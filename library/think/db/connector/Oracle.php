@@ -51,7 +51,7 @@ class Oracle extends Connection
      * @throws \Exception
      * @throws \think\Exception
      */
-    public function execute($sql, $bind = [], $fetch = false)
+    public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null)
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -85,6 +85,9 @@ class Oracle extends Connection
             $this->numRows = $this->PDOStatement->rowCount();
             if ($flag || preg_match("/^\s*(INSERT\s+INTO|REPLACE\s+INTO)\s+/i", $sql)) {
                 $this->lastInsID = $this->linkID->lastInsertId();
+                if ($getLastInsID) {
+                    return $this->lastInsID;
+                }                
             }
             return $this->numRows;
         } catch (\PDOException $e) {
