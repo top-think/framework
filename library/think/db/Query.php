@@ -1391,11 +1391,16 @@ class Query
                 $joinName  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
                 $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $joinName;
                 $this->via($joinAlias);
-                $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey'], $info['joinType']);
+
+                if(Relation::HAS_ONE == $info['type']){
+                    $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey'], $info['joinType']);
+                }else{
+                    $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['foreignKey'] . '=' . $joinAlias . '.' . $info['localKey'], $info['joinType']);
+                }
+
                 if ($closure) {
                     // 执行闭包查询
                     call_user_func_array($closure, [ & $this]);
-
                     //指定获取关联的字段
                     //需要在 回调中 调方法 withField 方法，如
                     // $query->where(['id'=>1])->withField('id,name');
