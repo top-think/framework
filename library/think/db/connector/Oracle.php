@@ -47,6 +47,8 @@ class Oracle extends Connection
      * @param string $sql  sql指令
      * @param array $bind 参数绑定
      * @param boolean $fetch  不执行只是获取SQL
+     * @param boolean $getLastInsID 是否获取自增ID
+     * @param string $sequence 序列名     
      * @return integer
      * @throws \Exception
      * @throws \think\Exception
@@ -65,8 +67,10 @@ class Oracle extends Connection
         }
         $flag = false;
         if (preg_match("/^\s*(INSERT\s+INTO)\s+(\w+)\s+/i", $sql, $match)) {
-            $table = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
-            $flag  = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($table) . "'");
+            if(is_null($sequence)){
+                $sequence = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
+            }
+            $flag  = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($sequence) . "'");
         }
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
