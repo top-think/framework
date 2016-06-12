@@ -94,61 +94,61 @@ class Controller
 
     /**
      * 加载模板输出
-     * @access public
+     * @access protected
      * @param string $template 模板文件名
      * @param array  $vars     模板输出变量
      * @param array $replace     模板替换
      * @param array $config     模板参数
      * @return mixed
      */
-    public function fetch($template = '', $vars = [], $replace = [], $config = [])
+    protected function fetch($template = '', $vars = [], $replace = [], $config = [])
     {
         return $this->view->fetch($template, $vars, $replace, $config);
     }
 
     /**
      * 渲染内容输出
-     * @access public
+     * @access protected
      * @param string $content 模板内容
      * @param array  $vars     模板输出变量
      * @param array $config     模板参数
      * @return mixed
      */
-    public function display($content = '', $vars = [], $config = [])
+    protected function display($content = '', $vars = [], $config = [])
     {
         return $this->view->display($content, $vars, $config);
     }
 
     /**
      * 模板变量赋值
-     * @access public
+     * @access protected
      * @param mixed $name  要显示的模板变量
      * @param mixed $value 变量的值
      * @return void
      */
-    public function assign($name, $value = '')
+    protected function assign($name, $value = '')
     {
         $this->view->assign($name, $value);
     }
 
     /**
      * 初始化模板引擎
-     * @access public
+     * @access protected
      * @param array|string $engine 引擎参数
      * @return void
      */
-    public function engine($engine)
+    protected function engine($engine)
     {
         $this->view->engine($engine);
     }
 
     /**
      * 设置验证失败后是否抛出异常
-     * @access public
+     * @access protected
      * @param bool $fail 是否抛出异常
      * @return $this
      */
-    public function failException($fail = true)
+    protected function failException($fail = true)
     {
         $this->failException = $fail;
         return $this;
@@ -156,14 +156,14 @@ class Controller
 
     /**
      * 验证数据
-     * @access public
+     * @access protected
      * @param array $data 数据
      * @param string|array $validate 验证器名或者验证规则数组
      * @param array $message 提示信息
      * @param mixed $callback 回调方法（闭包）
      * @return true|string|array
      */
-    public function validate($data, $validate, $message = [], $callback = null)
+    protected function validate($data, $validate, $message = [], $callback = null)
     {
         if (is_array($validate)) {
             $v = Loader::validate();
