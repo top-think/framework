@@ -9,7 +9,7 @@
 // | Author: 麦当苗儿 <zuojiazi@vip.qq.com> <http://zjzit.cn>
 // +----------------------------------------------------------------------
 
-namespace think\db;
+namespace think\exception;
 
 use think\Exception;
 

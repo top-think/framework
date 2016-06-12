@@ -11,16 +11,16 @@
 
 namespace think\db\exception;
 
-use think\db\Exception;
+use think\exception\DbException;
 
 /**
  * PDO参数绑定异常
  */
-class BindParamException extends Exception 
+class BindParamException extends DbException 
 {
 
     /**
-     * DbBindParamException constructor.
+     * BindParamException constructor.
      * @param string $message
      * @param array  $config
      * @param string $sql

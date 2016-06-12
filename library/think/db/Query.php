@@ -18,9 +18,10 @@ use think\Config;
 use think\Db;
 use think\db\Builder;
 use think\db\Connection;
+use think\db\DbException;
 use think\Exception;
-use think\exception\DbException;
 use think\exception\PDOException;
+use think\db\exception\BindParamException;
 use think\db\exception\ModelNotFoundException;
 use think\db\exception\DataNotFoundException;
 use think\Loader;
@@ -179,7 +180,7 @@ class Query
      * @param boolean $master 是否在主服务器读操作
      * @param bool|string $class 指定返回的数据集对象
      * @return mixed
-     * @throws DbBindParamException
+     * @throws BindParamException
      * @throws PDOException
      */
     public function query($sql, $bind = [], $fetch = false, $master = false, $class = false)
@@ -196,7 +197,7 @@ class Query
      * @param boolean $getLastInsID 是否获取自增ID
      * @param boolean $sequence 自增序列名
      * @return int
-     * @throws DbBindParamException
+     * @throws BindParamException
      * @throws PDOException
      */
     public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null)

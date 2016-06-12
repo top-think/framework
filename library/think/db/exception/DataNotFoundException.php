@@ -11,7 +11,7 @@
 
 namespace think\db\exception;
 
-use think\db\DbException;
+use think\exception\DbException;
 
 class DataNotFoundException extends DbException 
 {
