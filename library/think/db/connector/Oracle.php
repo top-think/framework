@@ -125,10 +125,10 @@ class Oracle extends Connection
     /**
      * 取得数据库的表信息（暂时实现取得用户表信息）
      * @access   public
+     * @param string $dbName     
      * @return array
-     * @internal param string $dbName
      */
-    public function getTables()
+    public function getTables($dbName = '')
     {
         $pdo    = $this->linkID->query("select table_name from all_tables");
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
