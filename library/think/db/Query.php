@@ -21,6 +21,8 @@ use think\db\Connection;
 use think\Exception;
 use think\exception\DbException;
 use think\exception\PDOException;
+use think\db\exception\ModelNotFoundException;
+use think\db\exception\DataNotFoundException;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -379,6 +381,9 @@ class Query
         if (!empty($this->options['cache'])) {
             // 判断查询缓存
             $cache  = $this->options['cache'];
+            if (empty($this->options['table'])) {
+                $this->options['table'] = $this->getTable();
+            }            
             $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($key);
         }
@@ -412,6 +417,9 @@ class Query
         if (!empty($this->options['cache'])) {
             // 判断查询缓存
             $cache  = $this->options['cache'];
+            if (empty($this->options['table'])) {
+                $this->options['table'] = $this->getTable();
+            }            
             $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($guid);
         }
@@ -1775,7 +1783,11 @@ class Query
                 }
             }
         } elseif (!empty($options['fail'])) {
-            throw new DbException('Data not Found', $options, $sql);
+            if(!empty($this->model)){
+                throw new ModelNotFoundException('Data not Found', $this->model, $options);
+            }else{
+                throw new DataNotFoundException('Data not Found', $options['table'], $options);
+            }            
         } else {
             $data = false;
         }

@@ -33,7 +33,7 @@ class Memcached
     public function __construct($options = [])
     {
         if (!extension_loaded('memcached')) {
-            throw new Exception('_NOT_SUPPERT_:memcached');
+            throw new \BadFunctionCallException('not support memcached');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);

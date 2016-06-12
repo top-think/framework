@@ -11,7 +11,7 @@
 
 namespace think\view\driver;
 
-use think\Exception;
+use think\exception\TemplateNotFoundException;
 use think\Log;
 use think\Request;
 
@@ -62,7 +62,7 @@ class Php
         }
         // 模板不存在 抛出异常
         if (!is_file($template)) {
-            throw new Exception('template file not exists:' . $template, 10700);
+            throw new TemplateNotFoundException('template file not exists:' . $template);
         }
         // 记录视图信息
         APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');

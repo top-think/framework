@@ -112,7 +112,7 @@ class App
                     $data = $dispatch['response'];
                     break;
                 default:
-                    throw new Exception('dispatch type not support', 10008);
+                    throw new \InvalidArgumentException('dispatch type not support');
             }
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
@@ -200,7 +200,7 @@ class App
                 } elseif ($param->isDefaultValueAvailable()) {
                     $args[] = $param->getDefaultValue();
                 } else {
-                    throw new Exception('method param miss:' . $name, 10004);
+                    throw new \InvalidArgumentException('method param miss:' . $name);
                 }
             }
             // 全局过滤
@@ -261,7 +261,7 @@ class App
         // 执行操作
         if (!preg_match('/^[A-Za-z](\/|\.|\w)*$/', $controller)) {
             // 安全检测
-            throw new Exception('illegal controller name:' . $controller, 10000);
+            throw new \InvalidArgumentException('illegal controller name:' . $controller);
         }
 
         // 设置当前请求的模块、控制器、操作
@@ -361,7 +361,7 @@ class App
      * @param  \think\Request $request
      * @param  array $config
      * @return array
-     * @throws Exception
+     * @throws HttpException
      */
     public static function route($request, array $config)
     {
@@ -384,7 +384,7 @@ class App
             $result = Route::check($request, $path, $depr, !IS_CLI ? $config['url_domain_deploy'] : false);
             if (APP_ROUTE_MUST && false === $result && $config['url_route_must']) {
                 // 路由无效
-                throw new HttpException(404, 'Not Found');
+                throw new HttpException(404, 'Route Not Found');
             }
         }
         if (false === $result) {

@@ -38,7 +38,7 @@ class Sae
     public function __construct($options = [])
     {
         if (!function_exists('memcache_init')) {
-            throw new Exception('请在SAE平台上运行代码。');
+            throw new \BadFunctionCallException('请在SAE平台上运行代码。');
         }
         $this->handler = memcache_init();
         if (!$this->handler) {

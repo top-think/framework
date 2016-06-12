@@ -32,13 +32,13 @@ class Sqlite implements CacheInterface
     /**
      * 架构函数
      * @param array $options 缓存参数
-     * @throws Exception
+     * @throws \BadFunctionCallException
      * @access public
      */
     public function __construct($options = [])
     {
         if (!extension_loaded('sqlite')) {
-            throw new Exception('_NOT_SUPPERT_:sqlite');
+            throw new \BadFunctionCallException('not support sqlite');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);

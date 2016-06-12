@@ -14,6 +14,7 @@ namespace think;
 \think\Loader::import('controller/Jump', TRAIT_PATH, EXT);
 
 use think\Exception;
+use think\Exception\ValidateException;
 use think\Request;
 use think\View;
 
@@ -190,7 +191,7 @@ class Controller
 
         if (!$v->check($data)) {
             if ($this->failException) {
-                throw new Exception($v->getError());
+                throw new ValidateException($v->getError());
             } else {
                 return $v->getError();
             }

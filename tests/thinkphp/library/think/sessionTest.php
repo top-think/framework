@@ -163,7 +163,7 @@ class sessionTest extends \PHPUnit_Framework_TestCase
 
         // 测试session驱动是否存在
         // @expectedException 异常类名
-        $this->setExpectedException('\think\Exception', 'error session handler', 11700);
+        $this->setExpectedException('\think\exception\ClassNotFoundException', 'error session handler');
 
         Session::init($config);
     }

@@ -143,7 +143,7 @@ abstract class Paginator
     public function total()
     {
         if ($this->simple) {
-            throw new \Exception('简洁模式下不能获取数据总数');
+            throw new \DomainException('简洁模式下不能获取数据总数');
         }
         return $this->total;
     }
@@ -161,7 +161,7 @@ abstract class Paginator
     public function lastPage()
     {
         if ($this->simple) {
-            throw new \Exception('简洁模式下不能获取最后一页');
+            throw new \DomainException('简洁模式下不能获取最后一页');
         }
         return $this->lastPage;
     }

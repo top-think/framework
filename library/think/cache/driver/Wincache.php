@@ -34,7 +34,7 @@ class Wincache
     public function __construct($options = [])
     {
         if (!function_exists('wincache_ucache_info')) {
-            throw new Exception('_NOT_SUPPERT_:WinCache');
+            throw new \BadFunctionCallException('not support WinCache');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);

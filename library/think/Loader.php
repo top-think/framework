@@ -12,6 +12,7 @@
 namespace think;
 
 use think\exception\HttpException;
+use think\exception\ClassNotFoundException;
 use think\Request;
 
 class Loader
@@ -269,6 +270,7 @@ class Loader
      * @param bool $appendSuffix 是否添加类名后缀
      * @param string $common 公共模块名
      * @return Object
+     * @throws ClassNotFoundException
      */
     public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
@@ -289,7 +291,7 @@ class Loader
             if (class_exists($class)) {
                 $model = new $class();
             } else {
-                throw new Exception('class [ ' . $class . ' ] not exists', 10001);
+                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists');
             }
         }
         $_model[$name . $layer] = $model;
@@ -303,6 +305,7 @@ class Loader
      * @param bool $appendSuffix 是否添加类名后缀
      * @param string $empty 空控制器名称
      * @return Object|false
+     * @throws ClassNotFoundException
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
@@ -324,7 +327,7 @@ class Loader
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
         } else {
-            throw new HttpException(404, 'class [ ' . $class . ' ] not exists');
+            throw new ClassNotFoundException('class [ ' . $class . ' ] not exists');
         }
     }
 
@@ -335,6 +338,7 @@ class Loader
      * @param bool $appendSuffix 是否添加类名后缀
      * @param string $common 公共模块名
      * @return Object|false
+     * @throws ClassNotFoundException
      */
     public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
@@ -360,7 +364,7 @@ class Loader
             if (class_exists($class)) {
                 $validate = new $class;
             } else {
-                throw new Exception('class [ ' . $class . ' ] not exists', 10001);
+                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists');
             }
         }
         $_instance[$name . $layer] = $validate;
@@ -409,7 +413,7 @@ class Loader
      * @param string $method 类的静态方法名
      *
      * @return mixed
-     * @throws Exception
+     * @throws ClassNotFoundException
      */
     public static function instance($class, $method = '')
     {
@@ -424,7 +428,7 @@ class Loader
                     $_instance[$identify] = $o;
                 }
             } else {
-                throw new Exception('class not exist :' . $class, 10007);
+                throw new ClassNotFoundException('class not exist :' . $class);
             }
         }
         return $_instance[$identify];

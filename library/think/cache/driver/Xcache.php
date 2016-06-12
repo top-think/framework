@@ -29,12 +29,12 @@ class Xcache
      * 架构函数
      * @param array $options 缓存参数
      * @access public
-     * @throws Exception
+     * @throws \BadFunctionCallException
      */
     public function __construct($options = [])
     {
         if (!function_exists('xcache_info')) {
-            throw new Exception('_NOT_SUPPERT_:Xcache');
+            throw new \BadFunctionCallException('not support Xcache');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);

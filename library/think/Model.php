@@ -15,6 +15,7 @@ use think\Cache;
 use think\Db;
 use think\db\Query;
 use think\Exception;
+use think\Exception\ValidateException;
 use think\Loader;
 use think\model\Relation;
 use think\paginator\Collection as PaginatorCollection;
@@ -773,7 +774,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (!$validate->check($data)) {
                 $this->error = $validate->getError();
                 if ($this->failException) {
-                    throw new Exception($this->error);
+                    throw new ValidateException($this->error);
                 } else {
                     return false;
                 }

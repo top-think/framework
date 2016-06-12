@@ -83,7 +83,7 @@ class Redisd
     public function __construct($options = [])
     {
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new \BadFunctionCallException('not support redis');
         }
 
         $this->options         = $options         = array_merge($this->options, $options);

@@ -36,7 +36,7 @@ class Apc
     public function __construct($options = [])
     {
         if (!function_exists('apc_cache_info')) {
-            throw new Exception('_NOT_SUPPERT_:Apc');
+            throw new \BadFunctionCallException('not support Apc');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);

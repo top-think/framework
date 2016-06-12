@@ -100,7 +100,7 @@ class Response
      * @access public
      * @param mixed $data 数据
      * @return mixed
-     * @throws Exception
+     * @throws \InvalidArgumentException
      */
     public function send($data = null)
     {
@@ -137,7 +137,7 @@ class Response
         if (is_scalar($data)) {
             echo $data;
         } elseif (!is_null($data)) {
-            throw new Exception('不支持的数据类型输出：' . gettype($data));
+            throw new \InvalidArgumentException('不支持的数据类型输出：' . gettype($data));
         }
 
         if (function_exists('fastcgi_finish_request')) {

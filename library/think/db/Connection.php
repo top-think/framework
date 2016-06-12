@@ -18,8 +18,8 @@ use think\Db;
 use think\db\Query;
 use think\Debug;
 use think\Exception;
-use think\exception\DbBindParamException;
 use think\exception\PDOException;
+use think\db\exception\BindParamException;
 use think\Log;
 
 abstract class Connection
@@ -326,7 +326,7 @@ abstract class Connection
      * @param boolean $master 是否在主服务器读操作
      * @param bool|string $class 指定返回的数据集对象
      * @return mixed
-     * @throws DbBindParamException
+     * @throws BindParamException
      * @throws PDOException
      */
     public function query($sql, $bind = [], $fetch = false, $master = false, $class = false)
@@ -375,7 +375,7 @@ abstract class Connection
      * @param boolean $getLastInsID 是否获取自增ID
      * @param string $sequence 自增序列名
      * @return int
-     * @throws DbBindParamException
+     * @throws BindParamException
      * @throws PDOException
      */
     public function execute($sql, $bind = [], $fetch = false, $getLastInsID = false, $sequence = null)
@@ -465,7 +465,7 @@ abstract class Connection
                 $result = $this->PDOStatement->bindValue($param, $val);
             }
             if (!$result) {
-                throw new DbBindParamException(
+                throw new BindParamException(
                     "Error occurred  when binding parameters '{$param}'",
                     $this->config,
                     $this->queryStr,

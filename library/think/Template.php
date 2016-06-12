@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\exception\TemplateNotFoundException;
+
 /**
  * ThinkPHP分离出来的模板引擎
  * 支持XML标签和普通标签的模板解析
@@ -1066,7 +1068,7 @@ class Template
             $this->includeFile[$template] = filemtime($template);
             return $template;
         } else {
-            throw new Exception('template not exist:' . $template, 10700);
+            throw new TemplateNotFoundException('template not exist:' . $template);
         }
     }
 

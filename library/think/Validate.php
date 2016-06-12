@@ -1115,7 +1115,7 @@ class Validate
         if (method_exists($class, $method)) {
             return call_user_func_array([$class, $method], $params);
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            throw new \BadMethodCallException(__CLASS__ . ':' . $method . ' method not exist');
         }
     }
 }
