@@ -1416,8 +1416,8 @@ class Query
                         $field = $this->options['with_field'];
                         unset($this->options['with_field']);
                     }
-                    $this->field($field, false, $joinTable, $joinAlias, $joinName . '__');
                 }
+                $this->field($field, false, $joinTable, $joinAlias, $joinName . '__');
                 $i++;
             } elseif ($closure) {
                 $with[$key] = $closure;
