@@ -286,12 +286,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 数据写入 类型转换
      * @access public
      * @param mixed $value 值
-     * @param string $type 要转换的类型
+     * @param string|array $type 要转换的类型
      * @return mixed
      */
     protected function writeTransform($value, $type)
     {
-        if (strpos($type, ':')) {
+        if(is_array($type)){
+            $param = $type[1];
+            $type  = $type[0];
+        }elseif (strpos($type, ':')) {
             list($type, $param) = explode(':', $type, 2);
         }
         switch ($type) {
@@ -365,12 +368,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 数据读取 类型转换
      * @access public
      * @param mixed $value 值
-     * @param string $type 要转换的类型
+     * @param string|array $type 要转换的类型
      * @return mixed
      */
     protected function readTransform($value, $type)
     {
-        if (strpos($type, ':')) {
+        if(is_array($type)){
+            $param = $type[1];
+            $type  = $type[0];
+        }elseif (strpos($type, ':')) {
             list($type, $param) = explode(':', $type, 2);
         }
         switch ($type) {
