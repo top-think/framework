@@ -191,7 +191,8 @@ class Request
         $options['cookie']      = $cookie;
         $options['file']        = $files;
         $options['server']      = $server;
-        return new self($options);
+        self::$instance         = new self($options);
+        return self::$instance;
     }
 
     /**
