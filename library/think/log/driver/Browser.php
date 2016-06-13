@@ -1,14 +1,18 @@
 <?php
 
 namespace think\log\driver;
+use think\Cache;
+use think\Config;
+use think\Db;
+use think\Debug;
 use think\Request;
 /**
- * 模拟测试输出
+ * 浏览器调试输出
  */
 class Browser
 {
     protected $config = [
-        'notview_save' => 'File',
+        'trace_tabs' => ['base' => '基本', 'file' => '文件', 'info' => '流程', 'notice|error' => '错误', 'sql' => 'SQL', 'debug|log' => '调试'],
     ];
 
     // 实例化并传入参数
@@ -27,52 +31,116 @@ class Browser
      */
     public function save(array $log = [])
     {
-        $request = Request::instance();
-        $type = $request->type();
-        $type = config('default_return_type');
-        //输出到控制台
-        if(in_array($type, ['html', 'txt'])){
-            $lines = [];
-            foreach ($log as $key => $l) {
-                $lines[] = $this->output($l['type'], $l['msg']);
+        if (IS_CLI || IS_API || Request::instance()->isAjax() || (defined('RESPONSE_TYPE') && !in_array(RESPONSE_TYPE, ['html', 'view']))) {
+            // ajax cli api方式下不输出
+            return false;
+        }
+        // 获取基本信息
+        $runtime = microtime(true) - START_TIME;
+        $reqs    = number_format(1 / number_format($runtime, 8), 2);
+        $runtime = number_format($runtime, 6);
+        $mem     = number_format((memory_get_usage() - START_MEM) / 1024, 2);
+
+        // 页面Trace信息
+        $base = [
+            '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $_SERVER['SERVER_PROTOCOL'] . ' ' . $_SERVER['REQUEST_METHOD'] . ' : ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+            '运行时间' => "{$runtime}s [ 吞吐率：{$reqs}req/s ] 内存消耗：{$mem}kb 文件加载：" . count(get_included_files()),
+            '查询信息' => Db::$queryTimes . ' queries ' . Db::$executeTimes . ' writes ',
+            '缓存信息' => Cache::$readTimes . ' reads,' . Cache::$writeTimes . ' writes',
+            '配置加载' => count(Config::get()),
+        ];
+
+        if (session_id()) {
+            $base['会话信息'] = 'SESSION_ID=' . session_id();
+        }
+
+        $info = Debug::getFile(true);
+
+        // 获取调试日志
+        $debug = [];
+        foreach ($log as $type => $val) {
+            foreach ($val as $msg) {
+                $debug[$type][] = $msg;
             }
-            $lines = implode(PHP_EOL, $lines);
-            $js = <<<JS
+        }
+
+        // 页面Trace信息
+        $trace = [];
+        foreach ($this->config['trace_tabs'] as $name => $title) {
+            $name = strtolower($name);
+            switch ($name) {
+                case 'base': // 基本信息
+                    $trace[$title] = $base;
+                    break;
+                case 'file': // 文件信息
+                    $trace[$title] = $info;
+                    break;
+                default: // 调试信息
+                    if (strpos($name, '|')) {
+                        // 多组信息
+                        $names  = explode('|', $name);
+                        $result = [];
+                        foreach ($names as $name) {
+                            $result = array_merge($result, isset($debug[$name]) ? $debug[$name] : []);
+                        }
+                        $trace[$title] = $result;
+                    } else {
+                        $trace[$title] = isset($debug[$name]) ? $debug[$name] : '';
+                    }
+            }
+        }
+
+        //输出到控制台
+        $lines = '';
+        foreach ($trace as $type => $msg) {
+            $lines .= $this->output($type, $msg);
+        }
+        $js = <<<JS
 
 <script>
 {$lines}
 </script>
 JS;
-            echo $js;
-        }else{
-            $other_save = $this->config['notview_save'];
-            // $other_save = "\think\log\driver\"".$other_save;
-            $other_save = 'think\log\driver\\'.$other_save;
-            $other_save_class = new $other_save();
-            $other_save_class->save($log);
-        }
+        echo $js;
+
         return true;
     }
 
     public function output($type, $msg){
-        // dump($type);
-        // dump($msg);
-        $msg = str_replace(PHP_EOL, '\n', $msg);
-        if(in_array($type, ['info', 'log', 'error', 'warn', 'debug'])){
-            $style = '';
-            if('error' == $type){
-                $style = 'color:#F4006B;font-size:14px;';
-            }
-            $line = "console.{$type}(\"%c{$msg}\", \"{$style}\");";
-        }else{
-            if('sql' == $type){
-                $style = "color:#009bb4;";
-                $line = "console.log(\"%c{$msg}\", \"{$style}\");";
-            }else{
-                $line = "alert(\"{$msg}\");";
+        $type = strtolower($type);
+        $line[] = "console.group('{$type}');";
+        foreach ($msg as $key => $m) {
+            switch ($type) {
+                case '调试':
+                    //我多么希望进来的是原数据格式而不是字符串
+                    if(substr($m, 0, 5) == 'array'){
+                        eval("\$o = $m;");
+                        $line[]  = "console.log(".json_encode($o).");";
+                    }else{
+                        $msg = addslashes($m);
+                        $msg = str_replace(PHP_EOL, '\n', $msg);
+                        $line[] = "console.log('$msg');";
+                    }
+                    break;
+                case 'error':
+                    $msg = str_replace(PHP_EOL, '\n', $m);
+                    $style = 'color:#F4006B;font-size:14px;';
+                    $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
+                    break;
+                case 'sql':
+                    $msg = str_replace(PHP_EOL, '\n', $m);
+                    $style = "color:#009bb4;";
+                    $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
+                    break;
+                default:
+                    $m = is_string($key)? $key.' '.$m: $key+1 .' '.$m;
+                    $msg = str_replace(PHP_EOL, '\n', $m);
+                    $line[] = "console.log(\"{$msg}\");";
+                    break;
             }
         }
-        return $line;
+        $line[]= "console.groupEnd();";
+        return implode(PHP_EOL, $line);
     }
 
 }
