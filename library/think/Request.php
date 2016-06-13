@@ -192,6 +192,11 @@ class Request
         $options['cookie']      = $cookie;
         $options['file']        = $files;
         $options['server']      = $server;
+        $options['url']         = $server['REQUEST_URI'];
+        $options['baseUrl']     = $info['path'];
+        $options['pathinfo']    = $info['path'];
+        $options['method']      = $server['REQUEST_METHOD'];
+        $options['domain']      = $server['HTTP_HOST'];
         self::$instance         = new self($options);
         return self::$instance;
     }
