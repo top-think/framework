@@ -30,6 +30,11 @@ use think\Route;
 class App
 {
     /**
+     * @var bool 是否初始化过
+     */
+    protected static $init = false;
+
+    /**
      * 执行应用程序
      * @access public
      * @param Request $request Request对象
@@ -40,30 +45,9 @@ class App
     {
         is_null($request) && $request = Request::instance();
 
-        // 初始化应用
-        $config = self::init('', Config::get());
-
-        // 注册根命名空间
-        if (!empty($config['root_namespace'])) {
-            Loader::addNamespace($config['root_namespace']);
-        }
-
-        // 加载额外文件
-        if (!empty($config['extra_file_list'])) {
-            foreach ($config['extra_file_list'] as $file) {
-                $file = strpos($file, '.') ? $file : APP_PATH . $file . EXT;
-                if (is_file($file)) {
-                    include_once $file;
-                }
-            }
-        }
-
-        // 设置系统时区
-        date_default_timezone_set($config['default_timezone']);
+        $config = self::initCommon();
 
         try {
-            // 监听app_init
-            Hook::listen('app_init');
 
             // 开启多语言机制
             if ($config['lang_switch_on']) {
@@ -136,7 +120,7 @@ class App
      * 执行函数或者闭包方法 支持参数调用
      * @access public
      * @param string|array|\Closure $function 函数或者闭包
-     * @param array $vars 变量
+     * @param array                 $vars     变量
      * @return mixed
      */
     public static function invokeFunction($function, $vars = [])
@@ -152,7 +136,7 @@ class App
      * 调用反射执行类的方法 支持参数绑定
      * @access public
      * @param string|array $method 方法
-     * @param array $vars 变量
+     * @param array        $vars   变量
      * @return mixed
      */
     public static function invokeMethod($method, $vars = [])
@@ -178,7 +162,7 @@ class App
      * 绑定参数
      * @access public
      * @param \ReflectionMethod $reflect 反射类
-     * @param array $vars 变量
+     * @param array             $vars    变量
      * @return array
      */
     private static function bindParams($reflect, $vars)
@@ -239,7 +223,7 @@ class App
             // 模块初始化
             if ($module && $available) {
                 // 初始化模块
-                $config = self::init($module, $config);
+                $config = self::init($module);
             } else {
                 throw new HttpException(404, 'module [ ' . $module . ' ] not exists ');
             }
@@ -300,13 +284,46 @@ class App
     }
 
     /**
+     * 初始化公共配置
+     */
+    public static function initCommon()
+    {
+        if (empty(self::$init)) {
+            // 初始化应用
+            self::$init = $config = self::init();
+
+            // 注册根命名空间
+            if (!empty($config['root_namespace'])) {
+                Loader::addNamespace($config['root_namespace']);
+            }
+
+            // 加载额外文件
+            if (!empty($config['extra_file_list'])) {
+                foreach ($config['extra_file_list'] as $file) {
+                    $file = strpos($file, '.') ? $file : APP_PATH . $file . EXT;
+                    if (is_file($file)) {
+                        include_once $file;
+                    }
+                }
+            }
+
+            // 设置系统时区
+            date_default_timezone_set($config['default_timezone']);
+
+            // 监听app_init
+            Hook::listen('app_init');
+        }
+        return self::$init;
+    }
+
+
+    /**
      * 初始化应用或模块
      * @access public
      * @param string $module 模块名
-     * @param array $config 配置参数
-     * @return void
+     * @return array
      */
-    private static function init($module, $config)
+    private static function init($module = '')
     {
         // 定位模块目录
         $module = ($module && APP_MULTI_MODULE) ? $module . DS : '';
@@ -359,9 +376,9 @@ class App
      * URL路由检测（根据PATH_INFO)
      * @access public
      * @param  \think\Request $request
-     * @param  array $config
+     * @param  array          $config
      * @return array
-     * @throws HttpException
+     * @throws \think\Exception
      */
     public static function route($request, array $config)
     {
