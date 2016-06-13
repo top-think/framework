@@ -349,8 +349,18 @@ class Request
     public function path()
     {
         if (is_null($this->path)) {
-            // 去除正常的URL后缀
-            $this->path = preg_replace(Config::get('url_html_suffix') ? '/\.(' . trim(Config::get('url_html_suffix'), '.') . ')$/i' : '/\.' . $this->ext() . '$/i', '', $this->pathinfo());
+            $suffix     = Config::get('url_html_suffix');
+            $pathinfo   = $this->pathinfo();
+            if(false === $suffix){
+                // 禁止伪静态访问
+                $this->path = $pathinfo;
+            }elseif($suffix){
+                // 去除正常的URL后缀
+                $this->path = preg_replace('/\.(' . ltrim($suffix, '.') . ')$/i' , '', $pathinfo);
+            }else{
+                // 允许任何后缀访问
+                $this->path = preg_replace('/\.' . $this->ext() . '$/i', '', $pathinfo);
+            }
         }
         return $this->path;
     }
