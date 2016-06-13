@@ -22,8 +22,6 @@ class Response
     protected $transform;
     // 原始数据
     protected $data;
-    // 输出数据
-    protected $content;
     // 输出类型
     protected $type;
     // 当前的contentType
@@ -112,9 +110,7 @@ class Response
         defined('RESPONSE_TYPE') or define('RESPONSE_TYPE', $this->type);
 
         // 处理输出数据
-        $data = $this->getTransformData();
-        // 输出数据赋值
-        $this->content = $data;
+        $data = $this->getContent();
 
         // 监听response_data
         Hook::listen('response_data', $data, $this);
@@ -142,22 +138,6 @@ class Response
             fastcgi_finish_request();
         }
         return $data;
-    }
-
-    /**
-     * 处理数据
-     * @access protected
-     * @param mixed $data 要处理的数据
-     * @return mixed
-     */
-    protected function getTransformData()
-    {
-        if (is_callable($this->transform)) {
-            $data = call_user_func_array($this->transform, [$this->data]);
-        }else{
-            $data = $this->data;
-        }
-        return $this->output($data);
     }
 
     /**
@@ -346,7 +326,12 @@ class Response
      */
     public function getContent()
     {
-        return $this->content;
+        if (is_callable($this->transform)) {
+            $data = call_user_func_array($this->transform, [$this->data]);
+        }else{
+            $data = $this->data;
+        }
+        return $this->output($data);
     }
 
     /**
