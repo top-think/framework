@@ -28,7 +28,7 @@ abstract class Builder
     protected $options = [];
 
     // 数据库表达式
-    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL'];
+    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME'];
 
     // SQL表达式
     protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
@@ -272,12 +272,10 @@ abstract class Builder
     }
 
     // where子单元分析
-    protected function parseWhereItem($key, $val, $rule = '')
+    protected function parseWhereItem($field, $val, $rule = '')
     {
-        if ($key) {
-            // 字段分析
-            $key = $this->parseKey($key);
-        }
+        // 字段分析
+        $key = $field ? $this->parseKey($field) : '';
 
         // 查询规则和条件
         if (!is_array($val)) {
@@ -340,6 +338,13 @@ abstract class Builder
             } else {
                 $whereStr .= $exp . ' (' . $value . ')';
             }
+        } elseif (in_array($exp, ['< TIME', '> TIME'])){
+            $whereStr .= $key . ' ' . substr($exp,0,1) . ' ' . $this->parseDateTime($value, $field);
+        } elseif (in_array($exp, ['BETWEEN TIME', 'NOT BETWEEN TIME'])){
+            if(is_string($value)){
+                $value = explode(',',$value);
+            }
+            $whereStr .= $key . ' ' . substr($exp,0,-4) . $this->parseDateTime($value[0], $field) . ' AND ' . $this->parseDateTime($value[1], $field);
         }
         return $whereStr;
     }
@@ -350,6 +355,32 @@ abstract class Builder
         $query = new Query($this->connection);
         call_user_func_array($call, [ & $query]);
         return $query->buildSql($show);
+    }
+
+    /**
+     * 日期时间条件解析
+     * @access protected
+     * @param string $value
+     * @param string $key
+     * @return string
+     */
+    protected function parseDateTime($value, $key)
+    {
+        // 获取时间字段类型
+        $type = $this->query->getTableInfo('', 'type');
+        if(isset($type[$key])){
+            if(preg_match('/(datetime|timestamp)/is', $type[$key])){
+                // 日期及时间戳类型
+                $value = date('Y-m-d H:i:s', strtotime($value));
+            }elseif(preg_match('/(date)/is', $type[$key])){
+                // 日期及时间戳类型
+                $value = date('Y-m-d', strtotime($value));
+            }else{
+                // 整型
+                $value = strtotime($value);
+            }
+        }
+        return is_int($value)? $value : $this->connection->quote($value);
     }
 
     /**

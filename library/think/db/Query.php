@@ -1228,6 +1228,20 @@ class Query
     }
 
     /**
+     * 查询日期或者时间
+     * @access public
+     * @param string        $field 日期字段名
+     * @param string        $op 比较运算 > < between not between 
+     * @param string|array  $range 比较范围
+     * @return $this
+     */
+    public function datetime($field, $op, $range = [])
+    {
+        $this->where($field, strtolower($op) . ' time', $range);
+        return $this;
+    }
+
+    /**
      * 获取数据表信息
      * @access public
      * @param string $tableName 数据表名 留空自动获取
