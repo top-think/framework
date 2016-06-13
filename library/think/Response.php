@@ -20,8 +20,10 @@ class Response
     protected static $instance = [];
     // 输出数据的转换方法
     protected $transform;
-    // 输出数据
+    // 原始数据
     protected $data;
+    // 输出数据
+    protected $content;
     // 输出类型
     protected $type;
     // 当前的contentType
@@ -98,26 +100,21 @@ class Response
     /**
      * 发送数据到客户端
      * @access public
-     * @param mixed $data 数据
      * @return mixed
      * @throws \InvalidArgumentException
      */
-    public function send($data = null)
+    public function send()
     {
-        $data = !is_null($data) ? $data : $this->data;
-
         if (isset($this->contentType)) {
             $this->contentType($this->contentType);
-        }
-
-        if (is_callable($this->transform)) {
-            $data = call_user_func_array($this->transform, [$data]);
         }
 
         defined('RESPONSE_TYPE') or define('RESPONSE_TYPE', $this->type);
 
         // 处理输出数据
-        $data = $this->output($data);
+        $data = $this->getTransformData();
+        // 输出数据赋值
+        $this->content = $data;
 
         // 监听response_data
         Hook::listen('response_data', $data, $this);
@@ -145,6 +142,22 @@ class Response
             fastcgi_finish_request();
         }
         return $data;
+    }
+
+    /**
+     * 处理数据
+     * @access protected
+     * @param mixed $data 要处理的数据
+     * @return mixed
+     */
+    protected function getTransformData()
+    {
+        if (is_callable($this->transform)) {
+            $data = call_user_func_array($this->transform, [$this->data]);
+        }else{
+            $data = $this->data;
+        }
+        return $this->output($data);
     }
 
     /**
@@ -319,12 +332,21 @@ class Response
     }
 
     /**
-     * 获取数据
+     * 获取原始数据
      * @return mixed
      */
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * 获取输出数据
+     * @return mixed
+     */
+    public function getContent()
+    {
+        return $this->content;
     }
 
     /**
@@ -335,4 +357,13 @@ class Response
     {
         return $this->type;
     }
+
+    /**
+     * 获取状态码
+     * @return integer
+     */
+    public function getCode()
+    {
+        return $this->header['status'];
+    }    
 }

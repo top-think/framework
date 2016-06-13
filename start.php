@@ -64,5 +64,8 @@ if (isset($mode['tags'])) {
 
 // 是否自动运行
 if (APP_AUTO_RUN) {
-    App::run();
+    $response = App::run();
+    if($response instanceof Response){
+        $response->send();
+    }
 }
