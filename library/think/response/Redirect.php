@@ -39,6 +39,16 @@ class Redirect extends Response
         return;
     }
 
+    /**
+     * 获取跳转地址
+     * @return string
+     */
+    public function getTargetUrl()
+    {
+        $this->getContent();
+        return $this->header['Location'];
+    }
+
     public function params($params = [])
     {
         $this->params = $params;
