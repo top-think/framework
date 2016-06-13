@@ -81,7 +81,7 @@ class Controller extends \think\console\command\Make
         foreach ($allNamespace[0] as $key => $value) {
             if ($key >= 1) {
                 self::buildDir($path . $value);
-                $path .= $value . DS;
+                $path .= $value . "\\";
             }
         }
 
