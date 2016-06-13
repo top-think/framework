@@ -157,6 +157,7 @@ class Lang
             // 合法的语言
             self::$range = $langSet;
         }
+        return self::$range;
     }
 
     /**

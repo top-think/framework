@@ -68,11 +68,11 @@ class App
             // 开启多语言机制
             if ($config['lang_switch_on']) {
                 // 获取当前语言
-                defined('LANG_SET') or define('LANG_SET', Lang::range());
+                $request->langset(Lang::detect());
                 // 加载系统语言包
-                Lang::load(THINK_PATH . 'lang' . DS . LANG_SET . EXT);
+                Lang::load(THINK_PATH . 'lang' . DS . $request->langset() . EXT);
                 if (!APP_MULTI_MODULE) {
-                    Lang::load(APP_PATH . 'lang' . DS . LANG_SET . EXT);
+                    Lang::load(APP_PATH . 'lang' . DS . $request->langset() . EXT);
                 }
             }
 
@@ -349,7 +349,7 @@ class App
 
             // 加载当前模块语言包
             if ($config['lang_switch_on'] && $module) {
-                Lang::load($path . 'lang' . DS . LANG_SET . EXT);
+                Lang::load($path . 'lang' . DS . Request::instance()->langset() . EXT);
             }
         }
         return Config::get();

@@ -71,6 +71,7 @@ class Request
     protected $module;
     protected $controller;
     protected $action;
+    protected $langset;
 
     /**
      * @var array 请求参数
@@ -968,4 +969,20 @@ class Request
             return $this->action ?: '';
         }
     }
+
+    /**
+     * 设置或者获取当前的语言
+     * @access public
+     * @param string $lang 语言名
+     * @return string
+     */
+    public function langset($lang = null)
+    {
+        if (!is_null($lang)) {
+            $this->langset = $lang;
+            return $this;
+        } else {
+            return $this->langset ?: '';
+        }
+    }    
 }
