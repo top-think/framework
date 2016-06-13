@@ -144,22 +144,24 @@ function widget($name, $data = [])
  * 实例化Model
  * @param string $name Model名称
  * @param string $layer 业务层名称
+ * @param bool $appendSuffix 是否添加类名后缀
  * @return \think\Model
  */
-function model($name = '', $layer = 'model')
+function model($name = '', $layer = 'model', $appendSuffix = false)
 {
-    return Loader::model($name, $layer);
+    return Loader::model($name, $layer, $appendSuffix);
 }
 
 /**
  * 实例化验证器
  * @param string $name 验证器名称
  * @param string $layer 业务层名称
+ * @param bool $appendSuffix 是否添加类名后缀
  * @return \think\Validate
  */
-function validate($name = '', $layer = 'validate')
+function validate($name = '', $layer = 'validate', $appendSuffix = false)
 {
-    return Loader::validate($name, $layer);
+    return Loader::validate($name, $layer, $appendSuffix);
 }
 
 /**
@@ -177,11 +179,12 @@ function db($name = '', $config = [])
  * 实例化控制器 格式：[模块/]控制器
  * @param string $name 资源地址
  * @param string $layer 控制层名称
+ * @param bool $appendSuffix 是否添加类名后缀
  * @return \think\Controller
  */
-function controller($name, $layer = 'controller')
+function controller($name, $layer = 'controller', $appendSuffix = false)
 {
-    return Loader::controller($name, $layer);
+    return Loader::controller($name, $layer, $appendSuffix);
 }
 
 /**
@@ -189,11 +192,12 @@ function controller($name, $layer = 'controller')
  * @param string $url 调用地址
  * @param string|array $vars 调用参数 支持字符串和数组
  * @param string $layer 要调用的控制层名称
+ * @param bool $appendSuffix 是否添加类名后缀 
  * @return mixed
  */
-function action($url, $vars = [], $layer = 'controller')
+function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
 {
-    return Loader::action($url, $vars, $layer);
+    return Loader::action($url, $vars, $layer, $appendSuffix);
 }
 
 /**
