@@ -30,6 +30,11 @@ class ModelNotFoundException extends DbException
         $this->setData('Database Config', $config);
     }
 
+    /**
+     * 获取模型类名
+     * @access public
+     * @return string
+     */
     public function getModel()
     {
         return $this->model;

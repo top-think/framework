@@ -291,7 +291,7 @@ class Loader
             if (class_exists($class)) {
                 $model = new $class();
             } else {
-                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists');
+                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
             }
         }
         $_model[$name . $layer] = $model;
@@ -327,7 +327,7 @@ class Loader
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
         } else {
-            throw new ClassNotFoundException('class [ ' . $class . ' ] not exists');
+            throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
         }
     }
 
@@ -364,7 +364,7 @@ class Loader
             if (class_exists($class)) {
                 $validate = new $class;
             } else {
-                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists');
+                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
             }
         }
         $_instance[$name . $layer] = $validate;
@@ -428,7 +428,7 @@ class Loader
                     $_instance[$identify] = $o;
                 }
             } else {
-                throw new ClassNotFoundException('class not exist :' . $class);
+                throw new ClassNotFoundException('class not exist :' . $class, $class);
             }
         }
         return $_instance[$identify];

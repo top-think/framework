@@ -31,5 +31,13 @@ class DataNotFoundException extends DbException
         $this->setData('Database Config', $config);
     }
 
-
+    /**
+     * 获取数据表名
+     * @access public
+     * @return string
+     */
+    public function getTable()
+    {
+        return $this->table;
+    }
 }

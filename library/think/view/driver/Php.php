@@ -62,7 +62,7 @@ class Php
         }
         // 模板不存在 抛出异常
         if (!is_file($template)) {
-            throw new TemplateNotFoundException('template file not exists:' . $template);
+            throw new TemplateNotFoundException('template file not exists:' . $template, $template);
         }
         // 记录视图信息
         APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');

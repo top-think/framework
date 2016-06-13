@@ -1723,7 +1723,11 @@ class Query
                 }
             }
         } elseif (!empty($options['fail'])) {
-            throw new DbException('Data not Found', $options, $sql);
+            if(!empty($this->model)){
+                throw new ModelNotFoundException('Data not Found', $this->model, $options);
+            }else{
+                throw new DataNotFoundException('Data not Found', $options['table'], $options);
+            }            
         }
         return $resultSet;
     }

@@ -28,6 +28,8 @@ class Controller
     protected $request;
     // 验证失败是否抛出异常
     protected $failException = false;
+    // 是否批量验证
+    protected $batchValidate = false;
 
     /**
      * 前置操作方法列表
@@ -162,10 +164,11 @@ class Controller
      * @param array $data 数据
      * @param string|array $validate 验证器名或者验证规则数组
      * @param array $message 提示信息
+     * @param bool $batch 是否批量验证     
      * @param mixed $callback 回调方法（闭包）
      * @return true|string|array
      */
-    protected function validate($data, $validate, $message = [], $callback = null)
+    protected function validate($data, $validate, $message = [], $batch = false, $callback = null)
     {
         if (is_array($validate)) {
             $v = Loader::validate();
@@ -180,12 +183,16 @@ class Controller
                 $v->scene($scene);
             }
         }
+        // 是否批量验证
+        if($batch || $this->batchValidate){
+            $v->batch(true);
+        }
 
         if (is_array($message)) {
             $v->message($message);
         }
 
-        if (is_callable($callback)) {
+        if ($callback && is_callable($callback)) {
             call_user_func_array($callback, [$v, &$data]);
         }
 
