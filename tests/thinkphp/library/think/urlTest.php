@@ -29,6 +29,7 @@ class urlTest extends \PHPUnit_Framework_TestCase
         Route::get('blog/:name', 'index/blog');
         Route::get('blog/:id', 'index/blog');
         Config::set('pathinfo_depr', '/');
+        Config::set('url_html_suffix', '');
         $this->assertEquals('/blog/thinkphp', Url::build('index/blog?name=thinkphp'));
         $this->assertEquals('/blog/thinkphp.html', Url::build('index/blog', 'name=thinkphp', 'html'));
         $this->assertEquals('/blog/10', Url::build('index/blog?id=10'));
@@ -41,6 +42,7 @@ class urlTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildController()
     {
+        Config::set('url_html_suffix', '');
         Route::get('blog/:id', '@index/blog/read');
         $this->assertEquals('/blog/10.html', Url::build('@index/blog/read', 'id=10', 'html'));
 
