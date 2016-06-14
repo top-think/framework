@@ -403,7 +403,7 @@ class App
                 Route::import($config['route']);
             }
             // 路由检测（根据路由定义返回不同的URL调度）
-            $result = Route::check($request, $path, $depr, !IS_CLI ? $config['url_domain_deploy'] : false);
+            $result = Route::check($request, $path, $depr, $config['url_domain_deploy']);
             if (APP_ROUTE_MUST && false === $result && $config['url_route_must']) {
                 // 路由无效
                 throw new HttpException(404, 'Route Not Found');
