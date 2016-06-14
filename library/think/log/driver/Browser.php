@@ -105,17 +105,16 @@ class Browser
 </script>
 JS;
         echo $js;
-
         return true;
     }
 
-    public function output($type, $msg){
-        $type = strtolower($type);
+    public function output($type, $msg)
+    {
+        $type       = strtolower($type);
         $trace_tabs = array_values($this->config['trace_tabs']);
-        $line[] = ($type == $trace_tabs[0] || '调试' == $type || '错误'== $type)?
-            "console.group('{$type}');"
-            :
-            "console.groupCollapsed('{$type}');";//dump($msg);
+        $line[]     = ($type == $trace_tabs[0] || '调试' == $type || '错误'== $type)
+            ? "console.group('{$type}');"
+            : "console.groupCollapsed('{$type}');";
 
         foreach ((array)$msg as $key => $m) {
             switch ($type) {
@@ -138,7 +137,7 @@ JS;
                     $line[]     = "console.log(\"%c{$msg}\", \"{$style}\");";
                     break;
                 default:
-                    $m          = is_string($key)? $key.' '.$m: $key+1 .' '.$m;
+                    $m          = is_string($key)? $key . ' ' . $m : $key+1 . ' ' . $m;
                     $msg        = str_replace(PHP_EOL, '\n', $m);
                     $line[]     = "console.log(\"{$msg}\");";
                     break;
