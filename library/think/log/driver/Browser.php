@@ -8,12 +8,15 @@
 // +----------------------------------------------------------------------
 // | Author: yangweijie <yangweijiester@gmail.com>
 // +----------------------------------------------------------------------
+
 namespace think\log\driver;
+
 use think\Cache;
 use think\Config;
 use think\Db;
 use think\Debug;
 use think\Request;
+
 /**
  * 浏览器调试输出
  */
@@ -64,14 +67,6 @@ class Browser
 
         $info = Debug::getFile(true);
 
-        // 获取调试日志
-        $debug = [];
-        foreach ($log as $type => $val) {
-            foreach ($val as $msg) {
-                $debug[$type][] = $msg;
-            }
-        }
-
         // 页面Trace信息
         $trace = [];
         foreach ($this->config['trace_tabs'] as $name => $title) {
@@ -89,11 +84,11 @@ class Browser
                         $names  = explode('|', $name);
                         $result = [];
                         foreach ($names as $name) {
-                            $result = array_merge($result, isset($debug[$name]) ? $debug[$name] : []);
+                            $result = array_merge($result, isset($log[$name]) ? $log[$name] : []);
                         }
                         $trace[$title] = $result;
                     } else {
-                        $trace[$title] = isset($debug[$name]) ? $debug[$name] : '';
+                        $trace[$title] = isset($log[$name]) ? $log[$name] : '';
                     }
             }
         }
@@ -120,8 +115,9 @@ JS;
         $line[] = ($type == $trace_tabs[0] || '调试' == $type || '错误'== $type)?
             "console.group('{$type}');"
             :
-            "console.groupCollapsed('{$type}');";
-        foreach ($msg as $key => $m) {
+            "console.groupCollapsed('{$type}');";//dump($msg);
+
+        foreach ((array)$msg as $key => $m) {
             switch ($type) {
                 case '调试':
                     $var_type = gettype($m);
@@ -132,20 +128,19 @@ JS;
                     }
                     break;
                 case '错误':
-                    $msg = str_replace(PHP_EOL, '\n', $m);
-                    $style = 'color:#F4006B;font-size:14px;';
-                    $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
-                    // $line[] = "console.error(".json_encode(debug_backtrace()).");";
+                    $msg        = str_replace(PHP_EOL, '\n', $m);
+                    $style      = 'color:#F4006B;font-size:14px;';
+                    $line[]     = "console.error(\"%c{$msg}\", \"{$style}\");";
                     break;
                 case 'sql':
-                    $msg = str_replace(PHP_EOL, '\n', $m);
-                    $style = "color:#009bb4;";
-                    $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
+                    $msg        = str_replace(PHP_EOL, '\n', $m);
+                    $style      = "color:#009bb4;";
+                    $line[]     = "console.log(\"%c{$msg}\", \"{$style}\");";
                     break;
                 default:
-                    $m = is_string($key)? $key.' '.$m: $key+1 .' '.$m;
-                    $msg = str_replace(PHP_EOL, '\n', $m);
-                    $line[] = "console.log(\"{$msg}\");";
+                    $m          = is_string($key)? $key.' '.$m: $key+1 .' '.$m;
+                    $msg        = str_replace(PHP_EOL, '\n', $m);
+                    $line[]     = "console.log(\"{$msg}\");";
                     break;
             }
         }
