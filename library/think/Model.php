@@ -257,7 +257,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         $value = $_SERVER['REQUEST_TIME'];
                         break;
                 }
-            } elseif (isset($this->fieldType[$name]) && preg_match('/(datetime|timestamp)/is', $this->fieldType[$name])) {
+            } elseif (isset($this->fieldType[$name]) && preg_match('/(datetime|date|timestamp)/is', $this->fieldType[$name])) {
                 $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
             } else {
                 $value = $_SERVER['REQUEST_TIME'];
