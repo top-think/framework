@@ -1231,12 +1231,43 @@ class Query
      * 查询日期或者时间
      * @access public
      * @param string        $field 日期字段名
-     * @param string        $op 比较运算 > < between not between 
+     * @param string        $op 比较运算符或者表达式
      * @param string|array  $range 比较范围
      * @return $this
      */
-    public function datetime($field, $op, $range = [])
+    public function whereTime($field, $op, $range = null)
     {
+        if(is_null($range)){
+            // 使用日期表达式
+            $date = getdate();
+            switch(strtolower($op)){
+                case 'today':
+                    $range = 'today';
+                    break;
+                case 'week':
+                    $range = 'this week 00:00:00';
+                    break;
+                case 'month':
+                    $range = mktime(0, 0, 0, $date['mon'], 1, $date['year']);
+                    break;
+                case 'year':
+                    $range = mktime(0, 0, 0, 1, 1, $date['year']);
+                    break;
+                case 'yesterday':
+                    $range = ['yesterday','today'];
+                    break;
+                case 'last week':
+                    $range = ['last week 00:00:00','this week 00:00:00'];
+                    break;
+                case 'last month':
+                    $range = [date('y-m-01',strtotime('-1 month')),mktime(0, 0, 0, $date['mon'], 1, $date['year'])];
+                    break;
+                case 'last year':
+                    $range = [mktime(0, 0, 0, 1, 1, $date['year']-1),mktime(0, 0, 0, 1, 1, $date['year'])];
+                    break;                    
+            }
+            $op = is_array($range)? 'between' : '>';
+        }
         $this->where($field, strtolower($op) . ' time', $range);
         return $this;
     }
