@@ -369,15 +369,13 @@ abstract class Builder
         // 获取时间字段类型
         $type = $this->query->getTableInfo('', 'type');
         if(isset($type[$key])){
+            $value = strtotime($value) ?: $value;
             if(preg_match('/(datetime|timestamp)/is', $type[$key])){
                 // 日期及时间戳类型
-                $value = date('Y-m-d H:i:s', strtotime($value));
+                $value = date('Y-m-d H:i:s', $value);
             }elseif(preg_match('/(date)/is', $type[$key])){
                 // 日期及时间戳类型
-                $value = date('Y-m-d', strtotime($value));
-            }else{
-                // 整型
-                $value = strtotime($value);
+                $value = date('Y-m-d', $value);
             }
         }
         return is_int($value)? $value : $this->connection->quote($value);
