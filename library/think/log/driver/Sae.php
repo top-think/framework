@@ -44,6 +44,9 @@ class Sae
         $info = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
         foreach ($log as $type => $val) {
             foreach ($val as $msg) {
+                if (!is_string($msg)) {
+                    $msg = var_export($msg, true);
+                }      
                 $info .= '[ ' . $type . ' ] ' . $msg . "\r\n";
             }
         }

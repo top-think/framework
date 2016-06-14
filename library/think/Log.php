@@ -80,9 +80,6 @@ class Log
      */
     public static function record($msg, $type = 'log')
     {
-        if (!is_string($msg)) {
-            $msg = var_export($msg, true);
-        }
         self::$log[$type][] = $msg;
     }
 
@@ -153,9 +150,6 @@ class Log
      */
     public static function write($msg, $type = 'log')
     {
-        if (!is_string($msg)) {
-            $msg = var_export($msg, true);
-        }
         // 封装日志信息
         $log[$type][] = $msg;
 

@@ -72,6 +72,9 @@ class Trace
         $debug = [];
         foreach ($log as $type => $val) {
             foreach ($val as $msg) {
+                if (!is_string($msg)) {
+                    $msg = var_export($msg, true);
+                }
                 $debug[$type][] = $msg;
             }
         }

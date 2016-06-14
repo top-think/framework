@@ -92,6 +92,9 @@ class Socket
                 'css'  => isset($this->css[$type]) ? $this->css[$type] : '',
             ];
             foreach ($val as $msg) {
+                if (!is_string($msg)) {
+                    $msg = var_export($msg, true);
+                }
                 $trace[] = [
                     'type' => 'log',
                     'msg'  => $msg,
