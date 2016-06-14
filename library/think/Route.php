@@ -695,7 +695,7 @@ class Route
 
                 if (!empty($val['routes'])) {
                     // 分组路由
-                    if ($pos = strpos($rule, ':') || $pos = strpos($rule, '<')) {
+                    if (($pos = strpos($rule, ':')) || ($pos = strpos($rule, '<'))) {
                         $str = substr($rule, 0, $pos);
                     } else {
                         $str = $rule;
