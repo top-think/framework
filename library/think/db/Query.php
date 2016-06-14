@@ -1602,6 +1602,7 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
         // 生成SQL语句
+        $table   = $this->parseSqlTable($table);
         $sql = $this->builder()->selectInsert($fields, $table, $options);
         if($options['fetch_sql']){
             // 获取实际执行的SQL语句
