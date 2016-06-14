@@ -96,6 +96,19 @@ class Cookie
     }
 
     /**
+     * 判断Cookie数据
+     * @param string $name cookie名称
+     * @param string|null $prefix cookie前缀
+     * @return bool
+     */
+    public static function has($name, $prefix = null)
+    {
+        $prefix = !is_null($prefix) ? $prefix : self::$config['prefix'];
+        $name   = $prefix . $name;
+        return isset($_COOKIE[$name]) ? $value: null;
+    }
+
+    /**
      * Cookie获取
      * @param string $name cookie名称
      * @param string|null $prefix cookie前缀
