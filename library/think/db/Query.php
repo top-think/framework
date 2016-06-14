@@ -1973,7 +1973,7 @@ class Query
         $sql = $this->builder()->delete($options);
         if($options['fetch_sql']){
             // 获取实际执行的SQL语句
-            return $this->getRealSql($sql,$this->bind);
+            return $this->connection->getRealSql($sql,$this->bind);
         }        
         // 执行操作
         return $this->execute($sql, $this->getBind());
