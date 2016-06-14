@@ -253,8 +253,10 @@
                                 echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
                             } else if(is_bool($val)) { 
                                 echo $val ? 'true' : 'false';
-                            } else {
+                            } else if(is_scalar($val)) {
                                 echo htmlentities($val);
+                            } else {
+                                echo 'Resource';
                             }
                         ?>
                     </td>
