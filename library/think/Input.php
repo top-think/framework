@@ -241,11 +241,19 @@ class Input
                     if (empty($val['tmp_name'])) {
                         continue;
                     }
-                    $item[$key] = new File($val['tmp_name'], $val);
+                    if($val instanceof File){
+                        $item[$key] = $val;
+                    }else{
+                        $item[$key] =  new File($val['tmp_name'], $val);
+                    }                    
                 }
                 return $item;
             } elseif (isset($array[$name])) {
-                return new File($array[$name]['tmp_name'], $array[$name]);
+                if($array[$name] instanceof File){
+                    return $array[$name];
+                }else{
+                    return new File($array[$name]['tmp_name'], $array[$name]);
+                }                
             }
         }
         return null;

@@ -22,14 +22,17 @@ class File extends SplFileObject
     private $error = '';
     // 文件上传命名规则
     protected $rule = 'date';
+    // 单元测试
+    protected $isTest;
 
     // 上传文件信息
     protected $info;
 
-    public function __construct($filename, $info = [])
+    public function __construct($filename, $info = [],$isTest=false)
     {
         parent::__construct($filename);
-        $this->info = $info;
+        $this->info     = $info;
+        $this->isTest   = $isTest;
     }
 
     /**
@@ -88,6 +91,9 @@ class File extends SplFileObject
      */
     public function isValid()
     {
+        if($this->isTest){
+            return is_file($this->getRealPath());
+        }
         return is_uploaded_file($this->getRealPath());
     }
 
@@ -122,7 +128,9 @@ class File extends SplFileObject
         }
 
         /* 移动文件 */
-        if (!move_uploaded_file($this->getRealPath(), $path . $savename)) {
+        if($this->isTest){
+            rename($this->getRealPath(),$path.$savename);
+        } elseif (!move_uploaded_file($this->getRealPath(), $path . $savename)) {
             $this->error = '文件上传保存错误！';
             return false;
         }
