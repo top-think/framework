@@ -108,7 +108,11 @@ JS;
 
     public function output($type, $msg){
         $type = strtolower($type);
-        $line[] = "console.group('{$type}');";
+        $trace_tabs = array_values($this->config['trace_tabs']);
+        $line[] = ($type == $trace_tabs[0] || '调试' == $type || '错误'== $type)?
+            "console.group('{$type}');"
+            :
+            "console.groupCollapsed('{$type}');";
         foreach ($msg as $key => $m) {
             switch ($type) {
                 case '调试':
@@ -122,10 +126,11 @@ JS;
                         $line[] = "console.log('$msg');";
                     }
                     break;
-                case 'error':
+                case '错误':
                     $msg = str_replace(PHP_EOL, '\n', $m);
                     $style = 'color:#F4006B;font-size:14px;';
-                    $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
+                    $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
+                    // $line[] = "console.error(".json_encode(debug_backtrace()).");";
                     break;
                 case 'sql':
                     $msg = str_replace(PHP_EOL, '\n', $m);
