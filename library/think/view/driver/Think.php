@@ -11,6 +11,7 @@
 
 namespace think\view\driver;
 
+use think\App;
 use think\exception\TemplateNotFoundException;
 use think\Log;
 use think\Request;
@@ -35,8 +36,8 @@ class Think
     public function __construct($config = [])
     {
         $this->config = array_merge($this->config, $config);
-        if (empty($this->config['view_path']) && defined('MODULE_PATH')) {
-            $this->config['view_path'] = MODULE_PATH . 'view' . DS;
+        if (empty($this->config['view_path'])) {
+            $this->config['view_path'] = App::$modulePath . 'view' . DS;
         }
         $this->template = new Template($this->config);
     }

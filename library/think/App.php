@@ -35,6 +35,11 @@ class App
     protected static $init = false;
 
     /**
+     * @var string 当前模块路径
+     */
+    public static $modulePath;
+
+    /**
      * 执行应用程序
      * @access public
      * @param Request $request Request对象
@@ -232,7 +237,7 @@ class App
             $module = '';
         }
         // 当前模块路径
-        define('MODULE_PATH', APP_PATH . ($module ? $module . DS : ''));
+        App::$modulePath = APP_PATH . ($module ? $module . DS : '');
 
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $config['default_controller']);

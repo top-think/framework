@@ -11,6 +11,7 @@
 
 namespace think\view\driver;
 
+use think\App;
 use think\exception\TemplateNotFoundException;
 use think\Log;
 use think\Request;
@@ -91,8 +92,8 @@ class Php
      */
     private function parseTemplate($template)
     {
-        if (empty($this->config['view_path']) && defined('MODULE_PATH')) {
-            $this->config['view_path'] = MODULE_PATH . 'view' . DS;
+        if (empty($this->config['view_path'])) {
+            $this->config['view_path'] = App::$modulePath . 'view' . DS;
         }
 
         if (strpos($template, '@')) {

@@ -239,7 +239,7 @@ class Loader
                 $baseUrl = self::$namespace[$name];
             } elseif ('@' == $name) {
                 //加载当前模块应用类库
-                $baseUrl = MODULE_PATH;
+                $baseUrl = App::$modulePath;
             } elseif (is_dir(EXTEND_PATH . $name)) {
                 $baseUrl = EXTEND_PATH;
             } else {
