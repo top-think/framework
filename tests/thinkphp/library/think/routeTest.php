@@ -168,29 +168,28 @@ class routeTest extends \PHPUnit_Framework_TestCase
 
     public function testDomain()
     {
-        $_SERVER['HTTP_HOST']   = 'subdomain.thinkphp.cn';
-        $_SERVER['REQUEST_URI'] = '';
+        $request = Request::create('http://subdomain.thinkphp.cn');
         Route::domain('subdomain.thinkphp.cn', 'sub?abc=test&status=1');
-        Route::checkDomain();
+        Route::checkDomain($request);
         $this->assertEquals('sub?abc=test&status=1', Route::domain('subdomain.thinkphp.cn'));
         $this->assertEquals('sub', Route::bind('module'));
         $this->assertEquals('test', $_GET['abc']);
         $this->assertEquals(1, $_GET['status']);
 
         Route::domain('subdomain.thinkphp.cn', function () {return ['type' => 'module', 'module' => 'sub2'];});
-        Route::checkDomain();
+        Route::checkDomain($request);
         $this->assertEquals('sub2', Route::bind('module'));
 
         Route::domain('subdomain.thinkphp.cn', '\app\index\controller');
-        Route::checkDomain();
+        Route::checkDomain($request);
         $this->assertEquals('\app\index\controller', Route::bind('namespace'));
 
         Route::domain('subdomain.thinkphp.cn', '@\app\index\controller\blog');
-        Route::checkDomain();
+        Route::checkDomain($request);
         $this->assertEquals('\app\index\controller\blog', Route::bind('class'));
 
         Route::domain('subdomain.thinkphp.cn', '[sub3]');
-        Route::checkDomain();
+        Route::checkDomain($request);
         $this->assertEquals('sub3', Route::bind('group'));
     }
 }

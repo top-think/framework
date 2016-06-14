@@ -88,7 +88,7 @@ class Build
      */
     public static function module($module = '', $list = [])
     {
-        $module = APP_MULTI_MODULE ? $module : '';
+        $module = $module ? $module : '';
         if (!is_dir(APP_PATH . $module)) {
             // 创建模块目录
             mkdir(APP_PATH . $module);

@@ -55,7 +55,7 @@ class App
                 $request->langset(Lang::detect());
                 // 加载系统语言包
                 Lang::load(THINK_PATH . 'lang' . DS . $request->langset() . EXT);
-                if (!APP_MULTI_MODULE) {
+                if (!$config['app_multi_module']) {
                     Lang::load(APP_PATH . 'lang' . DS . $request->langset() . EXT);
                 }
             }
@@ -205,7 +205,7 @@ class App
         if (is_string($result)) {
             $result = explode('/', $result);
         }
-        if (APP_MULTI_MODULE) {
+        if ($config['app_multi_module']) {
             // 多模块部署
             $module    = strip_tags(strtolower($result[0] ?: $config['default_module']));
             $bind      = Route::bind('module');
@@ -326,7 +326,7 @@ class App
     private static function init($module = '')
     {
         // 定位模块目录
-        $module = ($module && APP_MULTI_MODULE) ? $module . DS : '';
+        $module = ($module) ? $module . DS : '';
 
         // 加载初始化文件
         if (is_file(APP_PATH . $module . 'init' . EXT)) {

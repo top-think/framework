@@ -1004,7 +1004,7 @@ class Route
         if (isset($path)) {
             if ($reverse) {
                 // 解析模块
-                $module = APP_MULTI_MODULE ? array_shift($path) : null;
+                $module = Config::get('app_multi_module') ? array_shift($path) : null;
                 if ($autoSearch) {
                     // 自动搜索控制器
                     $dir    = APP_PATH . ($module ? $module . DS : '') . 'controller';
@@ -1038,7 +1038,7 @@ class Route
             } else {
                 $action     = array_pop($path);
                 $controller = !empty($path) ? array_pop($path) : null;
-                $module     = APP_MULTI_MODULE && !empty($path) ? array_pop($path) : null;
+                $module     = Config::get('app_multi_module') && !empty($path) ? array_pop($path) : null;
                 $method     = Request::instance()->method();
                 // REST 操作方法支持
                 if ('[rest]' == $action) {
