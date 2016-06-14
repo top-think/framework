@@ -138,8 +138,8 @@ JS;
                     break;
                 default:
                     $m          = is_string($key)? $key . ' ' . $m : $key+1 . ' ' . $m;
-                    $msg        = str_replace(PHP_EOL, '\n', $m);
-                    $line[]     = "console.log(\"{$msg}\");";
+                    $msg        = json_encode($m);
+                    $line[]     = "console.log({$msg});";
                     break;
             }
         }
