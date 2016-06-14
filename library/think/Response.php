@@ -349,6 +349,6 @@ class Response
      */
     public function getCode()
     {
-        return $this->header['status'];
+        return isset($this->header['status']) ? $this->header['status'] : 200;
     }    
 }
