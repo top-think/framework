@@ -1242,15 +1242,19 @@ class Query
             $date = getdate();
             switch(strtolower($op)){
                 case 'today':
+                case 'd':
                     $range = 'today';
                     break;
                 case 'week':
+                case 'w':
                     $range = 'this week 00:00:00';
                     break;
                 case 'month':
+                case 'm':
                     $range = mktime(0, 0, 0, $date['mon'], 1, $date['year']);
                     break;
                 case 'year':
+                case 'y':
                     $range = mktime(0, 0, 0, 1, 1, $date['year']);
                     break;
                 case 'yesterday':
