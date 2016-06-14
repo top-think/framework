@@ -22,6 +22,11 @@ use think\Route;
 class routeTest extends \PHPUnit_Framework_TestCase
 {
 
+    protected function setUp()
+    {
+        Config::set('app_multi_module',true);
+    }
+    
     public function testRegister()
     {
         $request = Request::instance();
