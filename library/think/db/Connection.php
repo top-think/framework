@@ -50,7 +50,7 @@ abstract class Connection
     protected $linkWrite;
 
     // 查询结果类型
-    protected $resultSetType = Db::RESULTSET_ARRAY;
+    protected $resultSetType = 'array';
     // 查询结果类型
     protected $fetchType = PDO::FETCH_ASSOC;
     // 字段属性大小写
@@ -485,13 +485,11 @@ abstract class Connection
             return new $class($result);
         }
         switch ($this->resultSetType) {
-            case Db::RESULTSET_COLLECTION:
+            case 'collection':
                 // 返回数据集Collection对象
                 $result = new Collection($result);
                 break;
-            case Db::RESULTSET_CLASS:
-                break;
-            case Db::RESULTSET_ARRAY:
+            case 'array':
             default:
                 // 返回二维数组
         }
