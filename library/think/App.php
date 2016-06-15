@@ -304,7 +304,10 @@ class App
 
             // 是否调试模式
             self::$debug = Config::get('app_debug');
-
+            if (!self::$debug) {
+                ini_set('display_errors', 'Off');
+            }
+            
             // 注册根命名空间
             if (!empty($config['root_namespace'])) {
                 Loader::addNamespace($config['root_namespace']);

@@ -29,10 +29,6 @@ class Error
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);
         register_shutdown_function([__CLASS__, 'appShutdown']);
-
-        if (!App::$debug) {
-            ini_set('display_errors', 'Off');
-        }
     }
 
     /**
