@@ -141,7 +141,7 @@ abstract class Builder
         } elseif (is_array($value) && is_string($value[0]) && strtolower($value[0]) == 'exp') {
             $value = $value[1];
         } elseif (is_array($value)) {
-            $value = array_map([$this, 'parseValue'], $value, $field);
+            $value = array_map([$this, 'parseValue'], $value);
         } elseif (is_bool($value)) {
             $value = $value ? '1' : '0';
         } elseif (is_null($value)) {
