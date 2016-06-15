@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\Config;
 use think\Hook;
 use think\Log;
@@ -766,7 +767,7 @@ class Route
     {
         if (!empty(self::$bind['type'])) {
             // 记录绑定信息
-            APP_DEBUG && Log::record('[ BIND ] ' . var_export(self::$bind, true), 'info');
+            App::$debug && Log::record('[ BIND ] ' . var_export(self::$bind, true), 'info');
             // 如果有URL绑定 则进行绑定检测
             switch (self::$bind['type']) {
                 case 'class':

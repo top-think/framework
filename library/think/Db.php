@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\Collection;
 use think\db\Query;
 
@@ -68,7 +69,7 @@ class Db
             }
             $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\db\\connector\\') . ucwords($options['type']);
             // 记录初始化信息
-            APP_DEBUG && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
+            App::$debug && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
             if (true === $name) {
                 return new $class($options);
             } else {

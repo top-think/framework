@@ -11,6 +11,8 @@
 
 namespace think\controller;
 
+use think\App;
+
 /**
  * ThinkPHP Hprose控制器类
  */
@@ -45,7 +47,7 @@ abstract class Hprose
             $methods = array_diff($methods, array('__construct', '__call', '_initialize'));
         }
         $server->addMethods($methods, $this);
-        if (APP_DEBUG || $this->debug) {
+        if (App::$debug || $this->debug) {
             $server->setDebugEnabled(true);
         }
         // Hprose设置

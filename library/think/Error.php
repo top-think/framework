@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\console\Output as ConsoleOutput;
 use think\exception\ErrorException;
 use think\exception\Handle;
@@ -29,7 +30,7 @@ class Error
         set_exception_handler([__CLASS__, 'appException']);
         register_shutdown_function([__CLASS__, 'appShutdown']);
 
-        if (!APP_DEBUG) {
+        if (!App::$debug) {
             ini_set('display_errors', 'Off');
         }
     }

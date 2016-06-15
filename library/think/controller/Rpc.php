@@ -11,6 +11,7 @@
 
 namespace think\controller;
 
+use think\App;
 /**
  * ThinkPHP RPC控制器类
  */
@@ -43,7 +44,7 @@ abstract class Rpc
         }
         $server->add($methods, $this);
 
-        if (APP_DEBUG || $this->debug) {
+        if (App::$debug || $this->debug) {
             $server->setDebugMode(true);
         }
         $server->setEnableGZIP(true);

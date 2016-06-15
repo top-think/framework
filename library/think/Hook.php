@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\Debug;
 use think\Log;
 
@@ -100,7 +101,7 @@ class Hook
         if (isset(self::$tags[$tag])) {
             foreach (self::$tags[$tag] as $name) {
 
-                if (APP_DEBUG) {
+                if (App::$debug) {
                     Debug::remark('behavior_start', 'time');
                 }
 
@@ -110,7 +111,7 @@ class Hook
                     return $result;
                 }
 
-                if (APP_DEBUG) {
+                if (App::$debug) {
                     Debug::remark('behavior_end', 'time');
                     if ($name instanceof \Closure) {
                         $name = 'Closure';

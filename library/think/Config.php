@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\App;
+
 class Config
 {
     // 配置参数
@@ -59,7 +61,7 @@ class Config
         }
         if (is_file($file)) {
             // 记录加载信息
-            APP_DEBUG && Log::record('[ CONFIG ] ' . $file, 'info');
+            App::$debug && Log::record('[ CONFIG ] ' . $file, 'info');
             $type = pathinfo($file, PATHINFO_EXTENSION);
             if ('php' != $type) {
                 return self::parse($file, $type, $name, $range);

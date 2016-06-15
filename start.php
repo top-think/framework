@@ -27,11 +27,6 @@ if (is_file(ROOT_PATH . 'env' . EXT)) {
         putenv("$name=$val");
     }
 }
-// 自动识别调试模式
-if (!defined('APP_DEBUG')) {
-    $debug = getenv(ENV_PREFIX . 'APP_DEBUG');
-    define('APP_DEBUG', $debug);
-}
 
 // 加载模式定义文件
 $mode = require MODE_PATH . APP_MODE . EXT;

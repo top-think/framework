@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\Cache;
 use think\Config;
 use think\Request;
@@ -326,7 +327,7 @@ class Url
             $route          = is_array($route) ? $route[0] : $route;
             $item[$route][] = [$rule, [], []];
         }
-        !APP_DEBUG && Cache::set('think_route_map', $item);
+        !App::$debug && Cache::set('think_route_map', $item);
         return $item;
     }
 

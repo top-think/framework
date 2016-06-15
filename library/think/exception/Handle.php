@@ -12,6 +12,7 @@
 namespace think\exception;
 
 use Exception;
+use think\App;
 use think\Config;
 use think\Console;
 use think\console\Output;
@@ -35,7 +36,7 @@ class Handle
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
-            if (APP_DEBUG) {
+            if (App::$debug) {
                 $data = [
                     'file'    => $exception->getFile(),
                     'line'    => $exception->getLine(),
@@ -86,7 +87,7 @@ class Handle
      */
     public function renderForConsole(Output $output, Exception $e)
     {
-        if (APP_DEBUG) {
+        if (App::$debug) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
         }
         (new Console)->renderException($e, $output);
@@ -100,7 +101,7 @@ class Handle
     {
         $status   = $e->getStatusCode();
         $template = Config::get('http_exception_template');
-        if (!APP_DEBUG && !empty($template[$status])) {
+        if (!App::$debug && !empty($template[$status])) {
             return Response::create($template[$status], 'view')->vars(['e' => $e])->send();
         } else {
             return $this->convertExceptionToResponse($e);
@@ -114,7 +115,7 @@ class Handle
     protected function convertExceptionToResponse(Exception $exception)
     {
         // 收集异常数据
-        if (APP_DEBUG) {
+        if (App::$debug) {
             // 调试模式，获取详细的错误信息
             $data = [
                 'name'    => get_class($exception),
@@ -144,7 +145,7 @@ class Handle
             ];
         }
 
-        if (!APP_DEBUG && !Config::get('show_error_msg')) {
+        if (!App::$debug && !Config::get('show_error_msg')) {
             // 不显示详细错误信息
             $data['message'] = Config::get('error_message');
         }

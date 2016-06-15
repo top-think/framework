@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\App;
+
 class Log
 {
     const LOG    = 'log';
@@ -45,7 +47,7 @@ class Log
         unset($config['type']);
         self::$driver = new $class($config);
         // 记录初始化信息
-        APP_DEBUG && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
+        App::$debug && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
     }
 
     /**
@@ -59,7 +61,7 @@ class Log
         unset($config['type']);
         self::$alarm = new $class($config['alarm']);
         // 记录初始化信息
-        APP_DEBUG && Log::record('[ CACHE ] ALARM ' . $type . ': ' . var_export($config, true), 'info');
+        App::$debug && Log::record('[ CACHE ] ALARM ' . $type . ': ' . var_export($config, true), 'info');
     }
 
     /**

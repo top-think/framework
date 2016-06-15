@@ -76,7 +76,7 @@ class Think
             throw new TemplateNotFoundException('template file not exists:' . $template, $template);
         }
         // 记录视图信息
-        APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
+        App::$debug && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
         $this->template->fetch($template, $data, $config);
     }
 

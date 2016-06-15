@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\Cookie;
 use think\Log;
 
@@ -78,7 +79,7 @@ class Lang
         foreach ($file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
-                APP_DEBUG && Log::record('[ LANG ] ' . $_file, 'info');
+                App::$debug && Log::record('[ LANG ] ' . $_file, 'info');
                 $_lang = include $_file;
             } else {
                 $_lang = [];

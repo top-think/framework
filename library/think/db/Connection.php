@@ -13,6 +13,7 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
+use think\App;
 use think\Collection;
 use think\Db;
 use think\db\Query;
@@ -260,7 +261,7 @@ abstract class Connection
                 }
                 $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
                 // 记录数据库连接信息
-                APP_DEBUG && Log::record('[ DB ] CONNECT: ' . $config['dsn'], 'info');
+                App::$debug && Log::record('[ DB ] CONNECT: ' . $config['dsn'], 'info');
             } catch (\PDOException $e) {
                 if ($autoConnection) {
                     Log::record($e->getMessage(), 'error');

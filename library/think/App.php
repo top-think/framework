@@ -40,6 +40,11 @@ class App
     public static $modulePath;
 
     /**
+     * @var bool 应用调试模式
+     */    
+    public static $debug = true;
+
+    /**
      * 执行应用程序
      * @access public
      * @param Request $request Request对象
@@ -72,7 +77,7 @@ class App
                 $dispatch = self::route($request, $config);
             }
             // 记录路由信息
-            APP_DEBUG && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
+            self::$debug && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
             // 监听app_begin
             Hook::listen('app_begin', $dispatch);
 
@@ -133,7 +138,7 @@ class App
         $reflect = new \ReflectionFunction($function);
         $args    = self::bindParams($reflect, $vars);
         // 记录执行信息
-        APP_DEBUG && Log::record('[ RUN ] ' . $reflect->getFileName() . '[ ' . var_export($vars, true) . ' ]', 'info');
+        self::$debug && Log::record('[ RUN ] ' . $reflect->getFileName() . '[ ' . var_export($vars, true) . ' ]', 'info');
         return $reflect->invokeArgs($args);
     }
 
@@ -159,7 +164,7 @@ class App
         }
         $args = self::bindParams($reflect, $vars);
         // 记录执行信息
-        APP_DEBUG && Log::record('[ RUN ] ' . $reflect->getFileName() . '[ ' . var_export($args, true) . ' ]', 'info');
+        self::$debug && Log::record('[ RUN ] ' . $reflect->getFileName() . '[ ' . var_export($args, true) . ' ]', 'info');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
@@ -280,7 +285,7 @@ class App
             if (method_exists($instance, '_empty')) {
                 $method = new \ReflectionMethod($instance, '_empty');
                 $data   = $method->invokeArgs($instance, [$action, '']);
-                APP_DEBUG && Log::record('[ RUN ] ' . $method->getFileName(), 'info');
+                self::$debug && Log::record('[ RUN ] ' . $method->getFileName(), 'info');
             } else {
                 throw new HttpException(404, 'method [ ' . (new \ReflectionClass($instance))->getName() . '->' . $action . ' ] not exists ');
             }
@@ -296,6 +301,9 @@ class App
         if (empty(self::$init)) {
             // 初始化应用
             self::$init = $config = self::init();
+
+            // 是否调试模式
+            self::$debug = Config::get('app_debug');
 
             // 注册根命名空间
             if (!empty($config['root_namespace'])) {

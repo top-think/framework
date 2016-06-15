@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\exception\HttpException;
 use think\exception\ClassNotFoundException;
 use think\Request;
@@ -78,7 +79,7 @@ class Loader
             $filename = $path . str_replace('\\', DS, $class) . EXT;
             if (is_file($filename)) {
                 // 开启调试模式Win环境严格区分大小写
-                if (APP_DEBUG && IS_WIN && false === strpos(realpath($filename), $class . EXT)) {
+                if (App::$debug && IS_WIN && false === strpos(realpath($filename), $class . EXT)) {
                     return false;
                 }
                 include $filename;
@@ -253,7 +254,7 @@ class Loader
         $filename = $baseUrl . $class . $ext;
         if (is_file($filename)) {
             // 开启调试模式Win环境严格区分大小写
-            if (APP_DEBUG && IS_WIN && false === strpos(realpath($filename), $class . $ext)) {
+            if (App::$debug && IS_WIN && false === strpos(realpath($filename), $class . $ext)) {
                 return false;
             }
             include $filename;
