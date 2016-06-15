@@ -239,24 +239,22 @@ class Query
     /**
      * 启动事务
      * @access public
-     * @param string $label 事务标识
      * @return bool|null
      */
-    public function startTrans($label = '')
+    public function startTrans()
     {
-        return $this->connection->startTrans($label);
+        return $this->connection->startTrans();
     }
 
     /**
      * 用于非自动提交状态下面的查询提交
      * @access public
-     * @param string $label 事务标识
      * @return boolean
      * @throws PDOException
      */
-    public function commit($label = '')
+    public function commit()
     {
-        return $this->connection->commit($label);
+        return $this->connection->commit();
     }
 
     /**

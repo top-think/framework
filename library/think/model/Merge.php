@@ -173,7 +173,7 @@ class Merge extends Model
         }
 
         $db = $this->db();
-        $db->startTrans('merge_save_' . $this->name);
+        $db->startTrans();
         try {
             if ($this->isUpdate) {
                 // 自动写入
@@ -235,7 +235,7 @@ class Merge extends Model
                 // 新增回调
                 $this->trigger('after_insert', $this);
             }
-            $db->commit('merge_save_' . $this->name);
+            $db->commit();
             return $result;
         } catch (\PDOException $e) {
             $db->rollback();
@@ -255,7 +255,7 @@ class Merge extends Model
         }
 
         $db = $this->db();
-        $db->startTrans('merge_delete_' . $this->name);
+        $db->startTrans();
         try {
             $result = $db->delete($this->data);
             if ($result) {
@@ -270,7 +270,7 @@ class Merge extends Model
                 }
             }
             $this->trigger('after_delete', $this);
-            $db->commit('merge_delete_' . $this->name);
+            $db->commit();
             return $result;
         } catch (\PDOException $e) {
             $db->rollback();
