@@ -238,12 +238,12 @@ class Input
                 // 获取全部文件
                 $item = [];
                 foreach ($array as $key => $val) {
-                    if (empty($val['tmp_name'])) {
-                        continue;
-                    }
                     if($val instanceof File){
                         $item[$key] = $val;
                     }else{
+                        if (empty($val['tmp_name'])) {
+                            continue;
+                        }                        
                         $item[$key] =  new File($val['tmp_name'], $val);
                     }
                 }
@@ -251,7 +251,7 @@ class Input
             } elseif (isset($array[$name])) {
                 if($array[$name] instanceof File){
                     return $array[$name];
-                }else{
+                } elseif (!empty($array[$name]['tmp_name'])){
                     return new File($array[$name]['tmp_name'], $array[$name]);
                 }                
             }
