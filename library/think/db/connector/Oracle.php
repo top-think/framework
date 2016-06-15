@@ -154,4 +154,8 @@ class Oracle extends Connection
     {
         return [];
     }
+
+    protected function supportSavepoint(){
+        return true;
+    }
 }

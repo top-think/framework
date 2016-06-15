@@ -36,8 +36,6 @@ abstract class Connection
     protected $numRows = 0;
     // 事务指令数
     protected $transTimes = 0;
-    // 事务标识
-    protected $transLabel = '';
     // 错误信息
     protected $error = '';
 
@@ -520,19 +518,24 @@ abstract class Connection
      * @access public
      * @param callable $callback 数据操作方法回调
      * @return mixed
+     * @throws PDOException
+     * @throws \Exception
+     * @throws \Throwable
      */
     public function transaction($callback)
     {
-        $label = microtime(true);
-        $this->startTrans($label);
+        $this->startTrans();
         try {
             $result = null;
             if (is_callable($callback)) {
-                $result = call_user_func_array($callback, []);
+                $result = call_user_func_array($callback, [$this]);
             }
-            $this->commit($label);
+            $this->commit();
             return $result;
         } catch (\Exception $e) {
+            $this->rollback();
+            throw $e;
+        } catch (\Throwable $e) {
             $this->rollback();
             throw $e;
         }
@@ -541,44 +544,41 @@ abstract class Connection
     /**
      * 启动事务
      * @access public
-     * @param string $label 事务标识
      * @return bool|null
      */
-    public function startTrans($label = '')
+    public function startTrans()
     {
         $this->initConnect(true);
         if (!$this->linkID) {
             return false;
         }
 
-        //数据rollback 支持
-        if (0 == $this->transTimes) {
-            $this->transLabel = $label;
+        ++$this->transTimes;
+
+        if ($this->transTimes == 1) {
             $this->linkID->beginTransaction();
+        } elseif ($this->transTimes > 1 && $this->supportSavepoint()) {
+            $this->linkID->exec(
+                $this->parseSavepoint('trans' . $this->transTimes)
+            );
         }
-        $this->transTimes++;
-        return;
     }
 
     /**
      * 用于非自动提交状态下面的查询提交
      * @access public
-     * @param string $label 事务标识
      * @return boolean
      * @throws PDOException
      */
-    public function commit($label = '')
+    public function commit()
     {
         $this->initConnect(true);
-        if ($this->transTimes > 0 && $label == $this->transLabel) {
-            try {
-                $this->linkID->commit();
-                $this->transTimes = 0;
-            } catch (\PDOException $e) {
-                throw new PDOException($e, $this->config, $this->queryStr);
-            }
+
+        if ($this->transTimes == 1) {
+            $this->linkID->commit();
         }
-        return true;
+
+        --$this->transTimes;
     }
 
     /**
@@ -590,15 +590,45 @@ abstract class Connection
     public function rollback()
     {
         $this->initConnect(true);
-        if ($this->transTimes > 0) {
-            try {
-                $this->linkID->rollback();
-                $this->transTimes = 0;
-            } catch (\PDOException $e) {
-                throw new PDOException($e, $this->config, $this->queryStr);
-            }
+
+        if ($this->transTimes == 1) {
+            $this->linkID->rollBack();
+        } elseif ($this->transTimes > 1 && $this->supportSavepoint()) {
+            $this->linkID->exec(
+                $this->parseSavepointRollBack('trans' . $this->transTimes)
+            );
         }
-        return true;
+
+        $this->transTimes = max(0, $this->transTimes - 1);
+    }
+
+    /**
+     * 是否支持事务嵌套
+     * @return bool
+     */
+    protected function supportSavepoint()
+    {
+        return false;
+    }
+
+    /**
+     * 生成定义保存点的SQL
+     * @param $name
+     * @return string
+     */
+    protected function parseSavepoint($name)
+    {
+        return 'SAVEPOINT ' . $name;
+    }
+
+    /**
+     * 生成回滚到保存点的SQL
+     * @param $name
+     * @return string
+     */
+    protected function parseSavepointRollBack($name)
+    {
+        return 'ROLLBACK TO SAVEPOINT ' . $name;
     }
 
     /**
@@ -614,14 +644,13 @@ abstract class Connection
             return false;
         }
         // 自动启动事务支持
-        $label = microtime(true);
-        $this->startTrans($label);
+        $this->startTrans();
         try {
             foreach ($sqlArray as $sql) {
-                $result = $this->execute($sql);
+                $this->execute($sql);
             }
             // 提交事务
-            $this->commit($label);
+            $this->commit();
         } catch (\PDOException $e) {
             $this->rollback();
             return false;
