@@ -1710,6 +1710,7 @@ class Query
             return $data->select();
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $this]);
+            $data = [];
         }
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -1797,6 +1798,7 @@ class Query
             return $data->find();
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $this]);
+            $data = [];
         }
         // 分析查询表达式
         $options = $this->parseExpress();
