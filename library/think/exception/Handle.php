@@ -86,6 +86,9 @@ class Handle
      */
     public function renderForConsole(Output $output, Exception $e)
     {
+        if (APP_DEBUG) {
+            $output->setVerbosity(Output::VERBOSITY_DEBUG);
+        }
         (new Console)->renderException($e, $output);
     }
 

@@ -20,12 +20,12 @@
         "topthink/think-installer": "*"
     },
     "require-dev": {
+        "phpunit/phpunit": "4.8.*",
         "johnkary/phpunit-speedtrap": "^1.0",
         "mikey179/vfsStream": "~1.6",
-        "phploc/phploc": "*",
-        "phpunit/phpunit": "4.8.*",
-        "sebastian/phpcpd": "*",
-        "squizlabs/php_codesniffer": "2.*"
-    },
-    "minimum-stability": "dev"
+        "phploc/phploc": "2.*",
+        "sebastian/phpcpd": "2.*",
+        "squizlabs/php_codesniffer": "2.*",
+        "phpdocumentor/reflection-docblock": "^2.0"
+    }
 }
