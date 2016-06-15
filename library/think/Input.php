@@ -245,7 +245,7 @@ class Input
                         $item[$key] = $val;
                     }else{
                         $item[$key] =  new File($val['tmp_name'], $val);
-                    }                    
+                    }
                 }
                 return $item;
             } elseif (isset($array[$name])) {

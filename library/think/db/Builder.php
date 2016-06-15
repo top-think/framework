@@ -130,17 +130,18 @@ abstract class Builder
     /**
      * value分析
      * @access protected
-     * @param mixed $value
+     * @param mixed     $value
+     * @param string    $field
      * @return string|array
      */
-    protected function parseValue($value)
+    protected function parseValue($value, $field = '')
     {
         if (is_string($value)) {
             $value = strpos($value, ':') === 0 && $this->query->isBind(substr($value, 1)) ? $value : $this->connection->quote($value);
         } elseif (is_array($value) && is_string($value[0]) && strtolower($value[0]) == 'exp') {
             $value = $value[1];
         } elseif (is_array($value)) {
-            $value = array_map([$this, 'parseValue'], $value);
+            $value = array_map([$this, 'parseValue'], $value, $field);
         } elseif (is_bool($value)) {
             $value = $value ? '1' : '0';
         } elseif (is_null($value)) {
@@ -311,7 +312,7 @@ abstract class Builder
         $whereStr = '';
         if (in_array($exp, ['=', '<>', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE'])) {
             // 比较运算 及 模糊匹配
-            $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($value);
+            $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($value, $field);
         } elseif ('EXP' == $exp) {
             // 表达式查询
             $whereStr .= '( ' . $key . ' ' . $value . ' )';
@@ -324,13 +325,13 @@ abstract class Builder
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
             } else {
                 $value = is_array($value) ? $value : explode(',', $value);
-                $zone  = implode(',', $this->parseValue($value));
+                $zone  = implode(',', $this->parseValue($value, $field));
                 $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询
             $data = is_array($value) ? $value : explode(',', $value);
-            $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($data[0]) . ' AND ' . $this->parseValue($data[1]);
+            $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($data[0], $field) . ' AND ' . $this->parseValue($data[1], $field);
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询
             if ($value instanceof \Closure) {
@@ -614,7 +615,7 @@ abstract class Builder
                     }
                     unset($data[$key]);
                 } elseif (is_scalar($val)) {
-                    $data[$key] = $this->parseValue($val);
+                    $data[$key] = $this->parseValue($val, $key);
                 } else {
                     // 过滤掉非标量数据
                     unset($data[$key]);

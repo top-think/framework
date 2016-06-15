@@ -480,17 +480,12 @@ abstract class Connection
 
         if (!empty($class)) {
             // 返回指定数据集对象类
-            return new $class($result);
+            $result = new $class($result);
+        } elseif ('collection' == $this->resultSetType){
+            // 返回数据集Collection对象
+            $result = new Collection($result);
         }
-        switch ($this->resultSetType) {
-            case 'collection':
-                // 返回数据集Collection对象
-                $result = new Collection($result);
-                break;
-            case 'array':
-            default:
-                // 返回二维数组
-        }
+
         return $result;
     }
 

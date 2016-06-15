@@ -113,11 +113,11 @@ class App
         // 输出数据到客户端
         if ($data instanceof Response) {
             return $data;
-        } elseif (!is_null($data)) {
+        } else {
             // 默认自动识别响应输出类型
             $isAjax = $request->isAjax();
             $type   = $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
-            return Response::create($data, $type);
+            return Response::create( is_null($data) ? '' : $data, $type);
         }
     }
 
