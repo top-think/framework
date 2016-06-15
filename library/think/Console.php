@@ -21,6 +21,7 @@ use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
 use think\console\Output;
+use think\console\output\Nothing;
 use think\console\output\Stream;
 
 class Console
@@ -66,24 +67,42 @@ class Console
         }
     }
 
-    public static function init()
+    public static function init($run = true)
     {
-        // 实例化console
-        $console = new self('Think Console', '0.1');
-        // 读取指令集
-        if (is_file(CONF_PATH . 'command' . EXT)) {
-            $commands = include CONF_PATH . 'command' . EXT;
-            if (is_array($commands)) {
-                foreach ($commands as $command) {
-                    if (class_exists($command) && is_subclass_of($command, "\\think\\console\\command\\Command")) {
-                        // 注册指令
-                        $console->add(new $command());
+        static $console;
+        if (!$console) {
+            // 实例化console
+            $console = new self('Think Console', '0.1');
+            // 读取指令集
+            if (is_file(CONF_PATH . 'command' . EXT)) {
+                $commands = include CONF_PATH . 'command' . EXT;
+                if (is_array($commands)) {
+                    foreach ($commands as $command) {
+                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\command\\Command")) {
+                            // 注册指令
+                            $console->add(new $command());
+                        }
                     }
                 }
             }
         }
-        // 运行
-        $console->run();
+        if ($run) {
+            // 运行
+            $console->run();
+        } else {
+            return $console;
+        }
+    }
+
+    public static function call($command, array $parameters = [])
+    {
+        $console = self::init(false);
+
+        array_unshift($parameters, $command);
+
+        $input = new ConsoleInput($parameters);
+
+        $console->find($command)->run($input, new Nothing());
     }
 
     /**
