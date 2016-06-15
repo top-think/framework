@@ -744,9 +744,9 @@ class Route
             }
             if (isset($miss)) {
                 // 未匹配所有路由的路由规则处理
-                if ($miss instanceof \Closure) {
+                if ($miss['route'] instanceof \Closure) {
                     // 执行闭包
-                    return ['type' => 'function', 'function' => $miss, 'params' => []];
+                    return ['type' => 'function', 'function' => $miss['route'], 'params' => []];
                 }
                 if (self::checkOption($miss['option'], $url, $request)) {
                     return self::parseRule('', $miss['route'], $url, []);
