@@ -464,6 +464,6 @@ class Loader
         $array = explode('\\', $name);
         $class = self::parseName(array_pop($array), 1) . (CLASS_APPEND_SUFFIX || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-        return APP_NAMESPACE . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+        return App::$namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 }

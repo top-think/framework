@@ -45,6 +45,11 @@ class App
     public static $debug = true;
 
     /**
+     * @var string 应用类库命名空间
+     */    
+    public static $namespace = 'app';
+
+    /**
      * 执行应用程序
      * @access public
      * @param Request $request Request对象
@@ -300,15 +305,17 @@ class App
     {
         if (empty(self::$init)) {
             // 初始化应用
-            self::$init = $config = self::init();
+            $config             = self::init();
 
-            // 是否调试模式
-            self::$debug = Config::get('app_debug');
+            // 应用调试模式
+            self::$debug        = Config::get('app_debug');
             if (!self::$debug) {
                 ini_set('display_errors', 'Off');
             }
             
-            // 注册根命名空间
+            // 应用命名空间
+            self::$namespace    = $config['app_namespace'];            
+            Loader::addNamespace($config['app_namespace'], APP_PATH);
             if (!empty($config['root_namespace'])) {
                 Loader::addNamespace($config['root_namespace']);
             }
@@ -328,6 +335,8 @@ class App
 
             // 监听app_init
             Hook::listen('app_init');
+
+            self::$init = $config;
         }
         return self::$init;
     }

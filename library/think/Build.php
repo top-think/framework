@@ -17,9 +17,10 @@ class Build
      * 根据传入的build资料创建目录和文件
      * @access protected
      * @param  array $build build列表
+     * @param  string $namespace 应用类库命名空间
      * @return void
      */
-    public static function run(array $build = [])
+    public static function run(array $build = [], $namespace = 'app')
     {
         // 锁定
         $lockfile = APP_PATH . 'build.lock';
@@ -37,7 +38,7 @@ class Build
                 self::buildFile($list);
             } else {
                 // 创建模块
-                self::module($module, $list);
+                self::module($module, $list, $namespace);
             }
         }
         // 解除锁定
@@ -83,10 +84,11 @@ class Build
      * 创建模块
      * @access public
      * @param  string $module 模块名
-     * @param  array $list build列表
+     * @param  array  $list build列表
+     * @param  string $namespace 应用类库命名空间
      * @return void
      */
-    public static function module($module = '', $list = [])
+    public static function module($module = '', $list = [], $namespace = 'app')
     {
         $module = $module ? $module : '';
         if (!is_dir(APP_PATH . $module)) {
@@ -97,7 +99,7 @@ class Build
             // 创建配置文件和公共文件
             self::buildCommon($module);
             // 创建模块的默认页面
-            self::buildHello($module);
+            self::buildHello($module, $namespace);
         }
         if (empty($list)) {
             // 创建默认的模块目录和文件
@@ -129,7 +131,7 @@ class Build
                 foreach ($file as $val) {
                     $val       = trim($val);
                     $filename  = $modulePath . $path . DS . $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '') . EXT;
-                    $namespace = APP_NAMESPACE . '\\' . ($module ? $module . '\\' : '') . $path;
+                    $namespace = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
                     $class     = $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '');
                     switch ($path) {
                         case 'controller': // 控制器
@@ -163,14 +165,15 @@ class Build
      * 创建模块的欢迎页面
      * @access public
      * @param  string $module 模块名
+     * @param  string $namespace 应用类库命名空间
      * @return void
      */
-    protected static function buildHello($module)
+    protected static function buildHello($module, $namespace)
     {
         $filename = APP_PATH . ($module ? $module . DS : '') . 'controller' . DS . 'Index' . (CLASS_APPEND_SUFFIX ? 'Controller' : '') . EXT;
         if (!is_file($filename)) {
             $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
-            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [APP_NAMESPACE, $module ? $module . '\\' : '', 'controller', CLASS_APPEND_SUFFIX ? 'Controller' : ''], $content);
+            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', CLASS_APPEND_SUFFIX ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
                 mkdir(dirname($filename), 0777, true);
             }
