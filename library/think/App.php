@@ -331,7 +331,7 @@ class App
     private static function init($module = '')
     {
         // 定位模块目录
-        $module = ($module) ? $module . DS : '';
+        $module = $module ? $module . DS : '';
 
         // 加载初始化文件
         if (is_file(APP_PATH . $module . 'init' . EXT)) {

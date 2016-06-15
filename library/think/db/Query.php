@@ -447,6 +447,8 @@ class Query
                             $result[$val[$key]] = $val;
                         } elseif (2 == $count) {
                             $result[$val[$key]] = $val[$key2];
+                        } elseif (1 == $count) {
+                            $result[$val[$key]] = $val[$key1];
                         }
                     }
                 } else {
