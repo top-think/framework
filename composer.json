@@ -22,9 +22,9 @@
     "require-dev": {
         "johnkary/phpunit-speedtrap": "^1.0",
         "mikey179/vfsStream": "~1.6",
-        "phploc/phploc": "*",
+        "phploc/phploc": "2.*",
         "phpunit/phpunit": "4.8.*",
-        "sebastian/phpcpd": "*",
+        "sebastian/phpcpd": "2.*",
         "squizlabs/php_codesniffer": "2.*"
     },
     "minimum-stability": "dev"
