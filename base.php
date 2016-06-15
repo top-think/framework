@@ -14,7 +14,7 @@ define('START_TIME', microtime(true));
 define('START_MEM', memory_get_usage());
 define('EXT', '.php');
 define('DS', DIRECTORY_SEPARATOR);
-defined('THINK_PATH') or define('THINK_PATH', dirname(__FILE__) . DS);
+defined('THINK_PATH') or define('THINK_PATH', __DIR__ . DS);
 define('LIB_PATH', THINK_PATH . 'library' . DS);
 define('MODE_PATH', THINK_PATH . 'mode' . DS); // 系统应用模式目录
 define('CORE_PATH', LIB_PATH . 'think' . DS);
