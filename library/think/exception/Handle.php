@@ -143,11 +143,11 @@ class Handle
                 'code'    => $exception->getCode(),
                 'message' => $exception->getMessage(),
             ];
-        }
 
-        if (!App::$debug && !Config::get('show_error_msg')) {
-            // 不显示详细错误信息
-            $data['message'] = Config::get('error_message');
+            if (!Config::get('show_error_msg')) {
+                // 不显示详细错误信息
+                $data['message'] = Config::get('error_message');
+            }
         }
 
         //保留一层
