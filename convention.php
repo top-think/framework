@@ -35,8 +35,10 @@ return [
     'default_filter'         => '',
     // 默认语言
     'default_lang'           => 'zh-cn',
-    // 是否启用控制器类后缀
-    'use_controller_suffix'  => false,
+    // 应用类库后缀
+    'class_suffix'           => false,
+    // 控制器类后缀
+    'controller_suffix'      => false,
 
     // +----------------------------------------------------------------------
     // | 模块设置

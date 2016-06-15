@@ -1009,7 +1009,7 @@ class Route
                 if ($autoSearch) {
                     // 自动搜索控制器
                     $dir    = APP_PATH . ($module ? $module . DS : '') . 'controller';
-                    $suffix = CLASS_APPEND_SUFFIX || Config::get('use_controller_suffix') ? 'Controller' : '';
+                    $suffix = App::$suffix || Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '';
                     $item   = [];
                     foreach ($path as $val) {
                         $item[] = array_shift($path);

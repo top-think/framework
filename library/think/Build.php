@@ -16,11 +16,12 @@ class Build
     /**
      * 根据传入的build资料创建目录和文件
      * @access protected
-     * @param  array $build build列表
+     * @param  array  $build build列表
      * @param  string $namespace 应用类库命名空间
+     * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public static function run(array $build = [], $namespace = 'app')
+    public static function run(array $build = [], $namespace = 'app', $suffix = false )
     {
         // 锁定
         $lockfile = APP_PATH . 'build.lock';
@@ -38,7 +39,7 @@ class Build
                 self::buildFile($list);
             } else {
                 // 创建模块
-                self::module($module, $list, $namespace);
+                self::module($module, $list, $namespace, $suffix);
             }
         }
         // 解除锁定
@@ -86,9 +87,10 @@ class Build
      * @param  string $module 模块名
      * @param  array  $list build列表
      * @param  string $namespace 应用类库命名空间
+     * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public static function module($module = '', $list = [], $namespace = 'app')
+    public static function module($module = '', $list = [], $namespace = 'app', $suffix = false)
     {
         $module = $module ? $module : '';
         if (!is_dir(APP_PATH . $module)) {
@@ -99,7 +101,7 @@ class Build
             // 创建配置文件和公共文件
             self::buildCommon($module);
             // 创建模块的默认页面
-            self::buildHello($module, $namespace);
+            self::buildHello($module, $namespace, $suffix);
         }
         if (empty($list)) {
             // 创建默认的模块目录和文件
@@ -130,9 +132,9 @@ class Build
                 // 生成相关MVC文件
                 foreach ($file as $val) {
                     $val       = trim($val);
-                    $filename  = $modulePath . $path . DS . $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '') . EXT;
+                    $filename  = $modulePath . $path . DS . $val . ($suffix ? ucfirst($path) : '') . EXT;
                     $namespace = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
-                    $class     = $val . (CLASS_APPEND_SUFFIX ? ucfirst($path) : '');
+                    $class     = $val . ($suffix ? ucfirst($path) : '');
                     switch ($path) {
                         case 'controller': // 控制器
                             $content = "<?php\nnamespace {$namespace};\n\nclass {$class}\n{\n\n}";
@@ -166,14 +168,15 @@ class Build
      * @access public
      * @param  string $module 模块名
      * @param  string $namespace 应用类库命名空间
+     * @param  bool   $suffix 类库后缀
      * @return void
      */
-    protected static function buildHello($module, $namespace)
+    protected static function buildHello($module, $namespace, $suffix = false)
     {
-        $filename = APP_PATH . ($module ? $module . DS : '') . 'controller' . DS . 'Index' . (CLASS_APPEND_SUFFIX ? 'Controller' : '') . EXT;
+        $filename = APP_PATH . ($module ? $module . DS : '') . 'controller' . DS . 'Index' . ($suffix ? 'Controller' : '') . EXT;
         if (!is_file($filename)) {
             $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
-            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', CLASS_APPEND_SUFFIX ? 'Controller' : ''], $content);
+            $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', $suffix ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
                 mkdir(dirname($filename), 0777, true);
             }

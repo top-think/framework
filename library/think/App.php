@@ -50,6 +50,11 @@ class App
     public static $namespace = 'app';
 
     /**
+     * @var bool 应用类库后缀
+     */    
+    public static $suffix = false;
+
+    /**
      * 执行应用程序
      * @access public
      * @param Request $request Request对象
@@ -271,7 +276,7 @@ class App
         Hook::listen('module_init', $request);
 
         try {
-            $instance = Loader::controller($controller, $config['url_controller_layer'], $config['use_controller_suffix'], $config['empty_controller']);
+            $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
 
             // 获取当前操作名
             $action = $actionName . $config['action_suffix'];
@@ -306,7 +311,8 @@ class App
         if (empty(self::$init)) {
             // 初始化应用
             $config             = self::init();
-
+            self::$suffix       = $config['class_suffix'];
+            
             // 应用调试模式
             self::$debug        = Config::get('app_debug');
             if (!self::$debug) {
