@@ -747,8 +747,7 @@ class Route
                 if ($miss['route'] instanceof \Closure) {
                     // 执行闭包
                     return ['type' => 'function', 'function' => $miss['route'], 'params' => []];
-                }
-                if (self::checkOption($miss['option'], $url, $request)) {
+                } elseif (self::checkOption($miss['option'], $url, $request)) {
                     return self::parseRule('', $miss['route'], $url, []);
                 }
             }
