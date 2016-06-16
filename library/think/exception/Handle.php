@@ -203,7 +203,10 @@ class Handle
             return $message;
         }
         // 导入语言包
-        Lang::load(THINK_PATH . 'lang' . DS . Lang::detect() . EXT);
+        if (!Config::get('lang_switch_on')) {
+            Lang::load(THINK_PATH . 'lang' . DS . Lang::detect() . EXT);
+        }
+        
         if (strpos($message,':')) {
             $name   = strstr($message, ':', true);
             return Lang::has($name) ? Lang::get($name) . ' ' . strstr($message, ':') : $message;

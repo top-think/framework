@@ -926,8 +926,7 @@ class Route
                     if ($option['after_behavior'] instanceof \Closure) {
                         $result = call_user_func_array($option['after_behavior'], [$route]);
                     } else {
-                        $behaviors = (array)$option['after_behavior'];
-                        foreach($behaviors as $behavior){
+                        foreach((array)$option['after_behavior'] as $behavior){
                             $result = Hook::exec($behavior, '', $route);
                             if (!is_null($result)) {
                                 break;
