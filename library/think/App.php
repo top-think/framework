@@ -98,7 +98,7 @@ class App
                     break;
                 case 'module':
                     // 模块/控制器/操作
-                    $data = self::module($dispatch['module'], $config);
+                    $data = self::module($dispatch['module'], $config, isset($dispatch['convert']) ? $dispatch['convert'] : null );
                     break;
                 case 'controller':
                     // 执行控制器操作
@@ -222,9 +222,10 @@ class App
      * @access public
      * @param array $result 模块/控制器/操作
      * @param array $config 配置参数
+     * @param bool  $convert 是否自动转换控制器和操作名
      * @return mixed
      */
-    public static function module($result, $config)
+    public static function module($result, $config, $convert = null)
     {
         if (is_string($result)) {
             $result = explode('/', $result);
@@ -258,13 +259,15 @@ class App
         // 当前模块路径
         App::$modulePath = APP_PATH . ($module ? $module . DS : '');
 
+        // 是否自动转换控制器和操作名
+        $convert    = is_bool($convert) ? $convert : $config['url_convert'];
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $config['default_controller']);
-        $controller = $config['url_controller_convert'] ? strtolower($controller) : $controller;
+        $controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
         $actionName = strip_tags($result[2] ?: $config['default_action']);
-        $actionName = $config['url_action_convert'] ? strtolower($actionName) : $actionName;
+        $actionName = $convert ? strtolower($actionName) : $actionName;
 
         // 执行操作
         if (!preg_match('/^[A-Za-z](\/|\.|\w)*$/', $controller)) {

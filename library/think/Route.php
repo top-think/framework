@@ -606,7 +606,7 @@ class Route
                     self::$bind = ['type' => 'group', 'group' => substr($result, 1, -1)];
                 } else {
                     // 绑定到模块/控制器 例如 index/user
-                    self::$bind = ['type' => 'module', 'module' => $result];
+                    self::$bind = ['type' => 'module', 'module' => $result, 'convert' => true];
                 }
             }
         }
@@ -853,7 +853,7 @@ class Route
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'module', 'module' => $controller . '/' . $action, 'params' => []];
+        return ['type' => 'module', 'module' => $controller . '/' . $action, 'convert' => true];
     }
 
     /**
@@ -973,7 +973,7 @@ class Route
         if (!empty($result['var'])) {
             $_GET = array_merge($result['var'], $_GET);
         }
-        return ['type' => 'module', 'module' => $result['route']];
+        return ['type' => 'module', 'module' => $result['route'], 'convert' => null];
     }
 
     /**
@@ -1172,10 +1172,7 @@ class Route
             // 解析剩余的URL参数
             self::parseUrlParams(implode('/', $paths), $var);
             // 路由到模块/控制器/操作
-            $result = ['type' => 'module', 'module' => $result['route']];
-            // 路由地址中的控制器和操作关闭自动转换
-            Config::set('url_controller_convert', false);
-            Config::set('url_action_convert', false);
+            $result = ['type' => 'module', 'module' => $result['route'], 'convert' => true];
         }
         return $result;
     }
