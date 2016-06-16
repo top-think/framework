@@ -177,14 +177,14 @@ class Request
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
             if (!empty($params)) {
-                $params = array_replace($query, $params);
-                $queryString      = http_build_query($query, '', '&');
+                $params         = array_replace($query, $params);
+                $queryString    = http_build_query($query, '', '&');
             } else {
-                $params = $query;
-                $queryString      = $info['query'];
+                $params         = $query;
+                $queryString    = $info['query'];
             }
         } elseif (!empty($params)) {
-            $queryString = http_build_query($params, '', '&');
+            $queryString        = http_build_query($params, '', '&');
         }
         $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
         $server['QUERY_STRING'] = $queryString;
@@ -546,9 +546,9 @@ class Request
     }
 
     /**
-     * 当前请求的参数
+     * 设置获取获取当前请求的参数
      * @access public
-     * @param string $name 变量名
+     * @param string|array $name 变量名
      * @param mixed $default 默认值
      * @return mixed
      */

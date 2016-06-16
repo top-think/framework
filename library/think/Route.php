@@ -1197,7 +1197,7 @@ class Route
         }
 
         // 设置当前请求的参数
-        Request::instance()->param(array_merge($var, $_GET));        
+        Request::instance()->param(array_merge($var, $_GET));
     }
 
 }
