@@ -211,8 +211,6 @@ class Route
     public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [], $group = '')
     {
         $group  = $group ?: self::$group;
-        $option = $option ? array_merge(self::$option, $option) : self::$option;
-
         $type = strtoupper($type);
         if (strpos($type, '|')) {
             foreach (explode('|', $type) as $val) {
@@ -665,7 +663,7 @@ class Route
 
         if (!empty(self::$rules['*'])) {
             // 合并任意请求的路由规则
-            $rules = array_merge(self::$rules['*'], $rules);
+            $rules = array_merge_recursive(self::$rules['*'], $rules);
         }
 
         // 检测域名部署
@@ -721,7 +719,7 @@ class Route
                             $pattern = array_merge($pattern, isset($route[2]) ? $route[2] : []);
                             $route   = $route[0];
                             $option  = array_merge($option, $option1);
-                        }
+                        }dump($option);
                         $result = self::checkRule($key, $route, $url, $pattern, $option);
                         if (false !== $result) {
                             $request->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
