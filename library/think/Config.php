@@ -60,8 +60,6 @@ class Config
             self::$config[$range] = [];
         }
         if (is_file($file)) {
-            // 记录加载信息
-            App::$debug && Log::record('[ CONFIG ] ' . $file, 'info');
             $type = pathinfo($file, PATHINFO_EXTENSION);
             if ('php' != $type) {
                 return self::parse($file, $type, $name, $range);
