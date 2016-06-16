@@ -1068,7 +1068,7 @@ class Template
             $this->includeFile[$template] = filemtime($template);
             return $template;
         } else {
-            throw new TemplateNotFoundException('template not exist:' . $template, $template);
+            throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
     }
 

@@ -42,7 +42,7 @@ class Redis extends SessionHandler
     {
         // 检测php环境
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new Exception('not support:redis');
         }
         $this->handler = new \Redis;
 

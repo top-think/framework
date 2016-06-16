@@ -65,7 +65,7 @@ class Db
             // 解析连接参数 支持数组和字符串
             $options = self::parseConfig($config);
             if (empty($options['type'])) {
-                throw new \InvalidArgumentException('db type error');
+                throw new \InvalidArgumentException('Underfined db type');
             }
             $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\db\\connector\\') . ucwords($options['type']);
             // 记录初始化信息

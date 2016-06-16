@@ -249,7 +249,7 @@ class App
                 // 初始化模块
                 $config = self::init($module);
             } else {
-                throw new HttpException(404, 'module [ ' . $module . ' ] not exists ');
+                throw new HttpException(404, 'module not exists:' . $module);
             }
         } else {
             // 单一模块部署
@@ -286,7 +286,7 @@ class App
             $action = $actionName . $config['action_suffix'];
             if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
                 // 非法操作
-                throw new \ReflectionException('illegal action name :' . $actionName);
+                throw new \ReflectionException('illegal action name:' . $actionName);
             }
 
             // 执行操作方法
@@ -301,7 +301,7 @@ class App
                 $data   = $method->invokeArgs($instance, [$action, '']);
                 self::$debug && Log::record('[ RUN ] ' . $method->getFileName(), 'info');
             } else {
-                throw new HttpException(404, 'method [ ' . (new \ReflectionClass($instance))->getName() . '->' . $action . ' ] not exists ');
+                throw new HttpException(404, 'method not exists:' . (new \ReflectionClass($instance))->getName() . '->' . $action);
             }
         }
         return $data;
@@ -419,7 +419,7 @@ class App
     {
         // 检测URL禁用后缀
         if ($config['url_deny_suffix'] && preg_match('/\.(' . $config['url_deny_suffix'] . ')$/i', $request->pathinfo())) {
-            throw new Exception('url suffix deny');
+            throw new Exception('url suffix deny:'.$request->ext());
         }
 
         $path   = $request->path();

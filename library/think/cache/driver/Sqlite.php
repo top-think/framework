@@ -38,7 +38,7 @@ class Sqlite implements CacheInterface
     public function __construct($options = [])
     {
         if (!extension_loaded('sqlite')) {
-            throw new \BadFunctionCallException('not support sqlite');
+            throw new \BadFunctionCallException('not support: sqlite');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);

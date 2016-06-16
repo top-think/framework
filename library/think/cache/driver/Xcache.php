@@ -34,7 +34,7 @@ class Xcache
     public function __construct($options = [])
     {
         if (!function_exists('xcache_info')) {
-            throw new \BadFunctionCallException('not support Xcache');
+            throw new \BadFunctionCallException('not support: Xcache');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);

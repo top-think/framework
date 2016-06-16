@@ -147,7 +147,7 @@ class Loader
             foreach ($map as $namespace => $path) {
                 $length = strlen($namespace);
                 if ('\\' !== $namespace[$length - 1]) {
-                    throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
+                    throw new \InvalidArgumentException("PSR-4 error: A non-empty PSR-4 prefix must end with a namespace separator.");
                 }
                 self::$prefixLengthsPsr4[$namespace[0]][$namespace] = $length;
                 self::$prefixDirsPsr4[$namespace]                   = (array) $path;
@@ -292,7 +292,7 @@ class Loader
             if (class_exists($class)) {
                 $model = new $class();
             } else {
-                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
         self::$instance[$name . $layer] = $model;
@@ -321,7 +321,7 @@ class Loader
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
         } else {
-            throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
     }
 
@@ -357,7 +357,7 @@ class Loader
             if (class_exists($class)) {
                 $validate = new $class;
             } else {
-                throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
         self::$instance[$name . $layer] = $validate;

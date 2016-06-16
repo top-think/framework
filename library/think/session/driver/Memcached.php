@@ -42,7 +42,7 @@ class Memcached extends SessionHandler
     {
         // 检测php环境
         if (!extension_loaded('memcached')) {
-            throw new Exception('_NOT_SUPPERT_:memcached');
+            throw new Exception('not support:memcached');
         }
         $this->handler = new \Memcached;
         // 设置连接超时时间（单位：毫秒）

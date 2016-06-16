@@ -474,7 +474,7 @@ class Input
                 if (is_scalar($data)) {
                     $data = (string) $data;
                 } else {
-                    throw new \InvalidArgumentException('变量类型不允许：' . gettype($data));
+                    throw new \InvalidArgumentException('variable type error：' . gettype($data));
                 }
         }
     }

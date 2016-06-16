@@ -615,7 +615,7 @@ class Relation
             $query                    = clone $this->parent->db();
             return $query->table($this->middle)->insert($pivot);
         } else {
-            throw new Exception(' miss relation data');
+            throw new Exception('miss relation data');
         }
     }
 
@@ -680,7 +680,7 @@ class Relation
             }
             return call_user_func_array([$db, $method], $args);
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
         }
     }
 

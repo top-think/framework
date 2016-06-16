@@ -46,7 +46,7 @@ class Sae
         // 添加写入时间
         $content = time() . $content;
         if (!$this->mc->set($cacheFile, $content, MEMCACHE_COMPRESSED, 0)) {
-            throw new Exception('sae mc write error :' . $cacheFile);
+            throw new Exception('sae mc write error:' . $cacheFile);
         } else {
             $this->contents[$cacheFile] = $content;
             return true;

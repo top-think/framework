@@ -16,6 +16,7 @@ use think\App;
 use think\Config;
 use think\Console;
 use think\console\Output;
+use think\Lang;
 use think\Log;
 use think\Response;
 
@@ -40,14 +41,14 @@ class Handle
                 $data = [
                     'file'    => $exception->getFile(),
                     'line'    => $exception->getLine(),
-                    'message' => $exception->getMessage(),
+                    'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
                 $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
-                    'code'    => $exception->getCode(),
-                    'message' => $exception->getMessage(),
+                    'code'    => $this->getCode($exception),
+                    'message' => $this->getMessage($exception),
                 ];
                 $log = "[{$data['code']}]{$data['message']}";
             }
@@ -121,7 +122,7 @@ class Handle
                 'name'    => get_class($exception),
                 'file'    => $exception->getFile(),
                 'line'    => $exception->getLine(),
-                'message' => $exception->getMessage(),
+                'message' => $this->getMessage($exception),
                 'trace'   => $exception->getTrace(),
                 'code'    => $this->getCode($exception),
                 'source'  => $this->getSourceCode($exception),
@@ -140,8 +141,8 @@ class Handle
         } else {
             // 部署模式仅显示 Code 和 Message
             $data = [
-                'code'    => $exception->getCode(),
-                'message' => $exception->getMessage(),
+                'code'    => $this->getCode($exception),
+                'message' => $this->getMessage($exception),            
             ];
 
             if (!Config::get('show_error_msg')) {
@@ -187,6 +188,28 @@ class Handle
             $code = $exception->getSeverity();
         }
         return $code;
+    }
+
+    /**
+     * 获取错误信息
+     * ErrorException则使用错误级别作为错误编码
+     * @param  \Exception $exception
+     * @return string                错误信息
+     */
+    protected function getMessage(Exception $exception)
+    {
+        $message    = $exception->getMessage();
+        if (IS_CLI) {
+            return $message;
+        }
+        // 导入语言包
+        Lang::load(THINK_PATH . 'lang' . DS . Lang::detect() . EXT);
+        if (strpos($message,':')) {
+            $name   = strstr($message, ':', true);
+            return Lang::has($name) ? Lang::get($name) . ' ' . strstr($message, ':') : $message;
+        } else {
+            return Lang::has($message) ? Lang::get($message) : $message;
+        }
     }
 
     /**

@@ -123,7 +123,7 @@ class Response
         if (is_scalar($data)) {
             echo $data;
         } elseif (!is_null($data)) {
-            throw new \InvalidArgumentException('不支持的数据类型输出：' . gettype($data));
+            throw new \InvalidArgumentException('variable type error：' . gettype($data));
         }
 
         if (function_exists('fastcgi_finish_request')) {

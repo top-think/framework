@@ -30,7 +30,7 @@ class File
         }
         // 生成模板缓存文件
         if (false === file_put_contents($cacheFile, $content)) {
-            throw new Exception('cache write error :' . $cacheFile, 11602);
+            throw new Exception('cache write error:' . $cacheFile, 11602);
         }
     }
 

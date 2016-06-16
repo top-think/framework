@@ -84,7 +84,7 @@ class Query
             $where[$name] = $args[0];
             return $this->where($where)->value($args[1]);
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            throw new Exception('method not exist:' . __CLASS__ . '->' . $method);
         }
     }
 
@@ -1672,7 +1672,7 @@ class Query
                         $where[$field] = $data[$field];
                     } else {
                         // 如果缺少复合主键数据则不执行
-                        throw new Exception('miss pk data');
+                        throw new Exception('miss complex primary data');
                     }
                     unset($data[$field]);
                 }
@@ -1775,10 +1775,10 @@ class Query
             }
         } elseif (!empty($options['fail'])) {
             if(!empty($this->model)){
-                throw new ModelNotFoundException('Data not Found', $this->model, $options);
+                throw new ModelNotFoundException('model data Not Found:' . $this->model , $this->model, $options);
             }else{
-                throw new DataNotFoundException('Data not Found', $options['table'], $options);
-            }            
+                throw new DataNotFoundException('table data not Found:' . $options['table'], $options['table'], $options);
+            }
         }
         return $resultSet;
     }
@@ -1856,10 +1856,10 @@ class Query
             }
         } elseif (!empty($options['fail'])) {
             if(!empty($this->model)){
-                throw new ModelNotFoundException('Data not Found', $this->model, $options);
+                throw new ModelNotFoundException('model data Not Found:' . $this->model , $this->model, $options);
             }else{
-                throw new DataNotFoundException('Data not Found', $options['table'], $options);
-            }            
+                throw new DataNotFoundException('table data not Found:' . $options['table'], $options['table'], $options);
+            }
         } else {
             $data = false;
         }
@@ -1969,7 +1969,7 @@ class Query
 
         if (empty($options['where'])) {
             // 如果条件为空 不进行删除操作 除非设置 1=1
-            throw new Exception('no data to delete without where');
+            throw new Exception('delete without condition');
         }
         // 生成删除SQL语句
         $sql = $this->builder()->delete($options);
