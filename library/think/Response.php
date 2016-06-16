@@ -48,7 +48,7 @@ class Response
      * @param string $type 输出类型
      * @param array $options 输出参数
      */
-    public function __construct($data = [], $type = '', $options = [])
+    public function __construct($data = '', $type = '', $options = [])
     {
         $this->data = $data;
         $this->type = empty($type) ? 'null' : strtolower($type);
@@ -72,7 +72,7 @@ class Response
      * @param array $options 输出参数
      * @return Response
      */
-    public static function create($data = [], $type = '', $options = [])
+    public static function create($data = '', $type = '', $options = [])
     {
         $type = empty($type) ? 'null' : strtolower($type);
 
