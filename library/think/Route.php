@@ -719,7 +719,7 @@ class Route
                             $pattern = array_merge($pattern, isset($route[2]) ? $route[2] : []);
                             $route   = $route[0];
                             $option  = array_merge($option, $option1);
-                        }dump($option);
+                        }
                         $result = self::checkRule($key, $route, $url, $pattern, $option);
                         if (false !== $result) {
                             $request->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
