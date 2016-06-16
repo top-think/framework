@@ -926,7 +926,13 @@ class Route
                     if ($option['after_behavior'] instanceof \Closure) {
                         $result = call_user_func_array($option['after_behavior'], [$route]);
                     } else {
-                        $result = Hook::exec($option['after_behavior'], '', $route);
+                        $behaviors = (array)$option['after_behavior'];
+                        foreach($behaviors as $behavior){
+                            $result = Hook::exec($behavior, '', $route);
+                            if (!is_null($result)) {
+                                break;
+                            }
+                        }                        
                     }
                     // 路由规则重定向
                     if ($result instanceof Response) {
