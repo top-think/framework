@@ -225,7 +225,7 @@ class Route
                         $key = array_shift($val);
                     }
                     if (is_array($val)) {
-                        $result = ['route' => $val[0], 'option' => $val[1], 'pattern' => isset($val[2]) ? $val[2] : []];
+                        $result = ['route' => $val[0], 'option' => array_merge($option, $val[1]), 'pattern' => isset($val[2]) ? $val[2] : []];
                     } else {
                         $result = ['route' => $val, 'option' => $option, 'pattern' => $pattern];
                     }
