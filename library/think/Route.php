@@ -1178,7 +1178,7 @@ class Route
     }
 
     /**
-     * 解析URL地址中的参数到$_GET
+     * 解析URL地址中的参数Request对象
      * @access private
      * @param string $rule 路由规则
      * @param array $var 变量
@@ -1195,7 +1195,9 @@ class Route
                 }, $url);
             }
         }
-        $_GET = array_merge($var, $_GET);
+
+        // 设置当前请求的参数
+        Request::instance()->param(array_merge($var, $_GET));        
     }
 
 }

@@ -173,23 +173,23 @@ class Request
             $info['path'] = '/';
         }
         $options          = [];
-        $options['param'] = $params;
         $queryString      = '';
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
-            if (!empty($options['param'])) {
-                $options['param'] = array_replace($query, $options['param']);
+            if (!empty($params)) {
+                $params = array_replace($query, $params);
                 $queryString      = http_build_query($query, '', '&');
             } else {
-                $options['param'] = $query;
+                $params = $query;
                 $queryString      = $info['query'];
             }
-        } elseif (isset($options['param'])) {
-            $queryString = http_build_query($options['param'], '', '&');
+        } elseif (!empty($params)) {
+            $queryString = http_build_query($params, '', '&');
         }
         $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
         $server['QUERY_STRING'] = $queryString;
         $options['cookie']      = $cookie;
+        $options['param']       = $params;
         $options['file']        = $files;
         $options['server']      = $server;
         $options['url']         = $server['REQUEST_URI'];
@@ -554,6 +554,11 @@ class Request
      */
     public function param($name = '', $default = null)
     {
+        if(is_array($name)){
+            // 设置param
+            $this->param = array_merge($this->param, $name);
+            return;
+        }
         if (empty($this->param)) {
             $method = $this->method(true);
             // 自动获取请求变量
