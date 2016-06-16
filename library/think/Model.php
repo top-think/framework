@@ -65,9 +65,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $insert = [];
     // 更新自动完成列表
     protected $update = [];
-    // 是否自动获取字段类型信息
-    protected $autoFetchFieldType = false;
-    // 是否需要自动写入时间戳
+    // 是否需要自动写入时间戳 如果设置为字符串 则表示时间字段的类型
     protected $autoWriteTimestamp;
     // 创建时间字段
     protected $createTime = 'create_time';
@@ -85,8 +83,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $updateWhere;
     // 当前执行的关联对象
     protected $relation;
-    // 属性类型
-    protected $fieldType = [];
     // 验证失败是否抛出异常
     protected $failException = false;
 
@@ -116,11 +112,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (empty($this->name)) {
             // 当前模型名
             $this->name = basename(str_replace('\\', '/', $this->class));
-        }
-
-        if ($this->autoFetchFieldType && empty($this->fieldType)) {
-            // 获取字段类型信息
-            $this->fieldType = $this->db()->getTableInfo('', 'type');
         }
 
         if (is_null($this->autoWriteTimestamp)) {
@@ -257,7 +248,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         $value = $_SERVER['REQUEST_TIME'];
                         break;
                 }
-            } elseif (isset($this->fieldType[$name]) && preg_match('/(datetime|date|timestamp)/is', $this->fieldType[$name])) {
+            } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),['datetime','date','timestamp'])) {
                 $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
             } else {
                 $value = $_SERVER['REQUEST_TIME'];
