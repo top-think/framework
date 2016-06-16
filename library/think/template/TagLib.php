@@ -12,6 +12,7 @@
 namespace think\template;
 
 use think\Exception;
+use think\Lang;
 
 /**
  * ThinkPHP标签库TagLib解析基类
@@ -255,7 +256,7 @@ class TagLib
                 $must = explode(',', $tag['must']);
                 foreach ($must as $name) {
                     if (!isset($result[$name])) {
-                        throw new Exception('tag attr must:' . $name);
+                        throw new Exception(Lang::get('tag attr must').':' . $name);
                     }
                 }
             }
@@ -272,7 +273,7 @@ class TagLib
                 $result['expression'] = rtrim($result['expression'], '/');
                 $result['expression'] = trim($result['expression']);
             } elseif (empty($this->tags[$name]) || !empty($this->tags[$name]['attr'])) {
-                throw new Exception('tag error:' . $name);
+                throw new Exception(Lang::get('tag error').':' . $name);
             }
         }
         return $result;
