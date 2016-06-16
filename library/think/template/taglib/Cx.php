@@ -520,7 +520,7 @@ class Cx extends Taglib
                         $parseStr .= '<link rel="stylesheet" type="text/css" href="' . $val . '" />';
                         break;
                     case 'php':
-                        $parseStr .= '<?php require_cache("' . $val . '"); ?>';
+                        $parseStr .= '<?php include "' . $val . '"; ?>';
                         break;
                 }
             }
