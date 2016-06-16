@@ -124,7 +124,9 @@ class App
 
         // 监听app_end
         Hook::listen('app_end', $data);
-
+        // 清空类的实例化
+        Loader::clearInstance();
+        
         // 输出数据到客户端
         if ($data instanceof Response) {
             return $data;

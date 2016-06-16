@@ -18,6 +18,7 @@ use think\Request;
 
 class Loader
 {
+    protected static $instance = [];
     // 类名映射
     protected static $map = [];
     // 加载列表
@@ -275,9 +276,8 @@ class Loader
      */
     public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
-        static $_model = [];
-        if (isset($_model[$name . $layer])) {
-            return $_model[$name . $layer];
+        if (isset(self::$instance[$name . $layer])) {
+            return self::$instance[$name . $layer];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name, 2);
@@ -295,7 +295,7 @@ class Loader
                 throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
             }
         }
-        $_model[$name . $layer] = $model;
+        self::$instance[$name . $layer] = $model;
         return $model;
     }
 
@@ -310,11 +310,6 @@ class Loader
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
-        static $_instance = [];
-
-        if (isset($_instance[$name . $layer])) {
-            return $_instance[$name . $layer];
-        }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
@@ -322,9 +317,7 @@ class Loader
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
-            $action                    = new $class(Request::instance());
-            $_instance[$name . $layer] = $action;
-            return $action;
+            return new $class(Request::instance());
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
         } else {
@@ -347,10 +340,9 @@ class Loader
         if (empty($name)) {
             return new Validate;
         }
-        static $_instance = [];
 
-        if (isset($_instance[$name . $layer])) {
-            return $_instance[$name . $layer];
+        if (isset(self::$instance[$name . $layer])) {
+            return self::$instance[$name . $layer];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
@@ -368,7 +360,7 @@ class Loader
                 throw new ClassNotFoundException('class [ ' . $class . ' ] not exists', $class);
             }
         }
-        $_instance[$name . $layer] = $validate;
+        self::$instance[$name . $layer] = $validate;
         return $validate;
     }
 
@@ -407,33 +399,6 @@ class Loader
             return App::invokeMethod([$class, $action . Config::get('action_suffix')], $vars);
         }
     }
-    /**
-     * 取得对象实例 支持调用类的静态方法
-     *
-     * @param string $class  对象类名
-     * @param string $method 类的静态方法名
-     *
-     * @return mixed
-     * @throws ClassNotFoundException
-     */
-    public static function instance($class, $method = '')
-    {
-        static $_instance = [];
-        $identify         = $class . $method;
-        if (!isset($_instance[$identify])) {
-            if (class_exists($class)) {
-                $o = new $class();
-                if (!empty($method) && method_exists($o, $method)) {
-                    $_instance[$identify] = call_user_func_array([ & $o, $method], []);
-                } else {
-                    $_instance[$identify] = $o;
-                }
-            } else {
-                throw new ClassNotFoundException('class not exist :' . $class, $class);
-            }
-        }
-        return $_instance[$identify];
-    }
 
     /**
      * 字符串命名风格转换
@@ -465,5 +430,14 @@ class Loader
         $class = self::parseName(array_pop($array), 1) . (App::$suffix || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
         return App::$namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+    }
+
+    /**
+     * 初始化类的实例
+     * @return void
+     */
+    public static function clearInstance()
+    {
+        self::$instance = [];
     }
 }
