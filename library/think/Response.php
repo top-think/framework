@@ -51,15 +51,12 @@ class Response
     public function __construct($data = [], $type = '', $options = [])
     {
         $this->data = $data;
-        if (empty($type)) {
-            $isAjax = Request::instance()->isAjax();
-            $type   = $isAjax ? 'json' : 'html';
-        }
-        $this->type = strtolower($type);
+        $this->type = empty($type) ? 'null' : strtolower($type);
 
         if (isset($this->contentTypes[$this->type])) {
             $this->contentType($this->contentTypes[$this->type]);
         }
+
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
@@ -77,11 +74,7 @@ class Response
      */
     public static function create($data = [], $type = '', $options = [])
     {
-        if (empty($type)) {
-            $isAjax = Request::instance()->isAjax();
-            $type   = $isAjax ? 'json' : 'html';
-        }
-        $type = strtolower($type);
+        $type = empty($type) ? 'null' : strtolower($type);
 
         if (!isset(self::$instance[$type])) {
             $class = (isset($options['namespace']) ? $options['namespace'] : '\\think\\response\\') . ucfirst($type);
