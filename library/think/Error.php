@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\App;
 use think\console\Output as ConsoleOutput;
 use think\exception\ErrorException;
 use think\exception\Handle;
@@ -101,7 +100,7 @@ class Error
      *
      * @return \think\exception\Handle
      */
-    protected static function getExceptionHandler()
+    public static function getExceptionHandler()
     {
         static $handle;
 
