@@ -55,4 +55,6 @@ return [
     'tag error'					=>	'模板标签错误',
     'cache write error'			=>	'缓存写入失败',
     'sae mc write error'		=>	'SAE mc 写入错误',
+    'use in sae'		        =>	'请在SAE平台上运行代码',
+    'sae memcache error'		=>	'您未开通Memcache服务，请在SAE管理平台初始化Memcache服务',
 ];

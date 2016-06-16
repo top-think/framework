@@ -12,6 +12,7 @@
 namespace think\template\driver;
 
 use think\Exception;
+use think\Lang;
 
 class Sae
 {
@@ -27,11 +28,11 @@ class Sae
     public function __construct()
     {
         if (!function_exists('memcache_init')) {
-            throw new Exception('请在SAE平台上运行代码。');
+            throw new Exception(Lang::get('use in sae'));
         }
         $this->mc = @memcache_init();
         if (!$this->mc) {
-            throw new Exception('您未开通Memcache服务，请在SAE管理平台初始化Memcache服务');
+            throw new Exception(Lang::get('sae memcache error'));
         }
     }
 
@@ -46,7 +47,7 @@ class Sae
         // 添加写入时间
         $content = time() . $content;
         if (!$this->mc->set($cacheFile, $content, MEMCACHE_COMPRESSED, 0)) {
-            throw new Exception('sae mc write error:' . $cacheFile);
+            throw new Exception(Lang::get('sae mc write error').':' . $cacheFile);
         } else {
             $this->contents[$cacheFile] = $content;
             return true;
