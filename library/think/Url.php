@@ -141,7 +141,7 @@ class Url
             } else {
                 $path       = explode('/', $url);
                 $action     = array_pop($path);
-                $controller = empty($path) ? $controller : (Config::get('url_controller_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
+                $controller = empty($path) ? $controller : (Config::get('url_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
                 $module     = empty($path) ? $module : array_pop($path) . '/';
                 $url        = $module . $controller . '/' . $action;
             }
@@ -242,6 +242,7 @@ class Url
             }
             // 检查变量匹配
             $array = $vars;
+            $match = false;
             if ($pattern && self::pattern($pattern, $vars)) {
                 foreach ($pattern as $key => $val) {
                     if (isset($vars[$key])) {
@@ -256,7 +257,7 @@ class Url
             if (empty($pattern) && empty($param)) {
                 // 没有任何变量
                 return $url;
-            } elseif (!empty($match) || (!empty($param) && array_intersect_assoc($param, $array) == $param)) {
+            } elseif ($match && (empty($param) || array_intersect_assoc($param, $array) == $param)) {
                 // 存在变量定义
                 $vars = array_diff_key($array, $param);
                 return $url;
