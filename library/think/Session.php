@@ -16,9 +16,7 @@ use think\exception\ClassNotFoundException;
 
 class Session
 {
-
     protected static $prefix = '';
-    protected static $active = false;
 
     /**
      * 设置或者获取session作用域（前缀）
@@ -100,7 +98,6 @@ class Session
         }
         if ($isDoStart) {
             session_start();
-            self::$active = true;
         }
     }
 
@@ -113,7 +110,7 @@ class Session
      */
     public static function set($name, $value = '', $prefix = null)
     {
-        !self::$active && self::init();
+        !isset($_SESSION) && self::init();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             // 二维数组赋值
@@ -138,7 +135,7 @@ class Session
      */
     public static function get($name = '', $prefix = null)
     {
-        !self::$active && self::init();
+        !isset($_SESSION) && self::init();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if ('' == $name) {
             // 获取全部的session
@@ -170,7 +167,7 @@ class Session
      */
     public static function delete($name, $prefix = null)
     {
-        !self::$active && self::init();
+        !isset($_SESSION) && self::init();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             list($name1, $name2) = explode('.', $name);
@@ -195,7 +192,7 @@ class Session
      */
     public static function clear($prefix = null)
     {
-        !self::$active && self::init();
+        !isset($_SESSION) && self::init();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if ($prefix) {
             unset($_SESSION[$prefix]);
@@ -212,7 +209,7 @@ class Session
      */
     public static function has($name, $prefix = null)
     {
-        !self::$active && self::init();
+        !isset($_SESSION) && self::init();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
         if (strpos($name, '.')) {
             // 支持数组
@@ -230,7 +227,6 @@ class Session
     public static function start()
     {
         session_start();
-        self::$active = true;
     }
 
     /**
