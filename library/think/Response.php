@@ -181,25 +181,6 @@ class Response
     }
 
     /**
-     * 返回封装后的API数据到客户端
-     * @access public
-     * @param mixed $data 要返回的数据
-     * @param integer $code 返回的code
-     * @param string $msg 提示信息
-     * @return mixed
-     */
-    public function result($data, $code = 0, $msg = '')
-    {
-        $result = [
-            'code' => $code,
-            'msg'  => $msg,
-            'time' => $_SERVER['REQUEST_TIME'],
-            'data' => $data,
-        ];
-        return $this->data($result);
-    }
-
-    /**
      * 设置响应头
      * @access public
      * @param string|array $name 参数名

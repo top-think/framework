@@ -99,7 +99,14 @@ trait Jump
      */
     protected function result($data, $code = 0, $msg = '', $type = '')
     {
-        return Response::create([], $type)->result($data, $code, $msg);
+        $result = [
+            'code' => $code,
+            'msg'  => $msg,
+            'time' => $_SERVER['REQUEST_TIME'],
+            'data' => $data,
+        ]; 
+        $type = $type ?: $this->getResponseType();
+        return Response::create([], $type)->data($data);
     }
 
     /**
