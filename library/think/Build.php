@@ -133,14 +133,14 @@ class Build
                 foreach ($file as $val) {
                     $val       = trim($val);
                     $filename  = $modulePath . $path . DS . $val . ($suffix ? ucfirst($path) : '') . EXT;
-                    $namespace = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
+                    $space     = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
                     $class     = $val . ($suffix ? ucfirst($path) : '');
                     switch ($path) {
                         case 'controller': // 控制器
-                            $content = "<?php\nnamespace {$namespace};\n\nclass {$class}\n{\n\n}";
+                            $content = "<?php\nnamespace {$space};\n\nclass {$class}\n{\n\n}";
                             break;
                         case 'model': // 模型
-                            $content = "<?php\nnamespace {$namespace};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
+                            $content = "<?php\nnamespace {$space};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
                             break;
                         case 'view': // 视图
                             $filename = $modulePath . $path . DS . $val . '.html';
@@ -152,7 +152,7 @@ class Build
                             break;
                         default:
                             // 其他文件
-                            $content = "<?php\nnamespace {$namespace};\n\nclass {$class}\n{\n\n}";
+                            $content = "<?php\nnamespace {$space};\n\nclass {$class}\n{\n\n}";
                     }
 
                     if (!is_file($filename)) {
