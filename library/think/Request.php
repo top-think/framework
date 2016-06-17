@@ -12,7 +12,7 @@
 namespace think;
 
 use think\Config;
-use think\Input;
+use think\File;
 use think\Session;
 
 class Request
@@ -59,24 +59,29 @@ class Request
     protected $path;
 
     /**
-     * @var array 路由
+     * @var array 当前路由信息
      */
     protected $route = [];
 
     /**
-     * @var array 调度信息
+     * @var array 当前调度信息
      */
     protected $dispatch = [];
-
     protected $module;
     protected $controller;
     protected $action;
+    // 当前语言集
     protected $langset;
 
     /**
      * @var array 请求参数
      */
     protected $param   = [];
+    protected $get     = [];
+    protected $post    = [];
+    protected $request = [];
+    protected $put;
+    protected $delete;    
     protected $session = [];
     protected $file    = [];
     protected $cookie  = [];
@@ -101,6 +106,9 @@ class Request
         'gif'  => 'image/gif',
         'csv'  => 'text/csv',
     ];
+
+    // 全局过滤规则
+    protected $filter;
 
     /**
      * 架构函数
@@ -564,19 +572,19 @@ class Request
             // 自动获取请求变量
             switch ($method) {
                 case 'POST':
-                    $vars = Input::post();
+                    $vars = $this->post();
                     break;
                 case 'PUT':
-                    $vars = Input::put();
+                    $vars = $this->put();
                     break;
                 case 'DELETE':
-                    $vars = Input::delete();
+                    $vars = $this->delete();
                     break;
                 default:
                     $vars = [];
             }
             // 当前请求参数和URL地址中的参数合并
-            $this->param = array_merge(Input::get(), $vars);
+            $this->param = array_merge($this->get(), $vars);
         }
         if ($name) {
             return isset($this->param[$name]) ? $this->param[$name] : $default;
@@ -586,18 +594,408 @@ class Request
     }
 
     /**
+     * 设置获取获取GET参数
+     * @access public
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法     
+     * @return mixed
+     */
+    public function get($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->get = array_merge($this->get, $name);
+        } elseif (empty($this->get)) {
+            $this->get = $_GET;
+        }
+        return $this->input($this->get, $name, $default, $filter);
+    }
+     
+    /**
+     * 设置获取获取POST参数
+     * @access public
+     * @param string $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法     
+     * @return mixed
+     */
+    public function post($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->post = array_merge($this->post, $name);
+        } elseif (empty($this->post)) {
+            $this->post = $_POST;
+        }
+        return $this->input($this->post, $name, $default, $filter);
+    }
+
+    /**
+     * 设置获取获取PUT参数
+     * @access public
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法     
+     * @return mixed
+     */
+    public function put($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
+        }        
+        if (is_null($this->put)) {
+            parse_str(file_get_contents('php://input'), $this->put);
+        }
+        return $this->input($this->put, $name, $default, $filter);
+    }
+
+    /**
+     * 设置获取获取DELETE参数
+     * @access public
+     * @param string|array $name 变量名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法     
+     * @return mixed
+     */
+    public function delete($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->delete = is_null($this->delete) ? $name : array_merge($this->delete, $name);
+        }
+        if (is_null($this->delete)) {
+            parse_str(file_get_contents('php://input'), $this->delete);
+        }        
+        return $this->input($this->delete, $name, $default, $filter);
+    }
+
+    /**
+     * 获取request变量
+     * @param string $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
+     * @return mixed
+     */
+    public function request($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->request = array_merge($this->request, $name);
+        } elseif (empty($this->request)) {
+            $this->request = $_REQUEST;
+        }
+        return $this->input($this->request ?: $_REQUEST, $name, $default, $filter);
+    }
+
+    /**
+     * 获取session数据
+     * @access public
+     * @param string|array $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
+     * @return mixed
+     */
+    public function session($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->session = array_merge($this->session, $name);
+        } elseif (empty($this->session)) {
+            $this->session = Session::get();
+        }
+        return $this->input($this->session, $name, $default, $filter);
+    }
+
+    /**
+     * 获取cookie参数
+     * @access public
+     * @param string|array $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
+     * @return mixed
+     */
+    public function cookie($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->cookie = array_merge($this->cookie, $name);
+        } elseif (empty($this->cookie)) {
+            $this->cookie = $_COOKIE;
+        }
+        return $this->input($this->cookie, $name, $default, $filter);
+    }
+
+    /**
+     * 获取server参数
+     * @access public
+     * @param string|array $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
+     * @return mixed
+     */
+    public function server($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->server = array_merge($this->server, $name);
+        } elseif (empty($this->server)) {
+            $this->server = $_SERVER;
+        }
+        return $this->input($this->server, $name, $default, $filter);
+    }
+
+    /**
+     * 获取上传的文件信息
+     * @access public
+     * @param string|array $name 名称
+     * @return null|array|\think\File
+     */
+    public function file($name = '')
+    {
+        if (is_array($name)) {
+            return $this->file = array_merge($this->file, $name);
+        } elseif (empty($this->file)) {
+            $this->file = isset($_FILES) ? $_FILES : [];
+        }
+        $files = $this->file;
+        if (!empty($files)) {
+            // 处理上传文件
+            $array = [];
+            $n     = 0;
+            foreach ($files as $key => $file) {
+                if (is_array($file['name'])) {
+                    $keys  = array_keys($file);
+                    $count = count($file['name']);
+                    for ($i = 0; $i < $count; $i++) {
+                        $array[$n]['key'] = $key;
+                        foreach ($keys as $_key) {
+                            $array[$n][$_key] = $file[$_key][$i];
+                        }
+                        $n++;
+                    }
+                } else {
+                    $array = $files;
+                    break;
+                }
+            }
+
+            if ('' === $name) {
+                // 获取全部文件
+                $item = [];
+                foreach ($array as $key => $val) {
+                    if($val instanceof File){
+                        $item[$key] = $val;
+                    }else{
+                        if (empty($val['tmp_name'])) {
+                            continue;
+                        }                        
+                        $item[$key] =  new File($val['tmp_name'], $val);
+                    }
+                }
+                return $item;
+            } elseif (isset($array[$name])) {
+                if($array[$name] instanceof File){
+                    return $array[$name];
+                } elseif (!empty($array[$name]['tmp_name'])){
+                    return new File($array[$name]['tmp_name'], $array[$name]);
+                }                
+            }
+        }
+        return null;        
+    }
+
+    /**
+     * 获取环境变量
+     * @param string $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
+     * @return mixed
+     */
+    public function env($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->env = array_merge($this->env, $name);
+        } elseif (empty($this->env)) {
+            $this->env = $_ENV;
+        }       
+        return $this->input($this->env, strtoupper($name), $default, $filter);
+    }
+
+    /**
+     * 获取PATH_INFO
+     * @param string $name 数据名称
+     * @param string $default 默认值
+     * @param string|array $filter 过滤方法
+     * @return mixed
+     */
+    public function pathParam($name = '', $default = null, $filter = null)
+    {
+        $pathinfo = $this->pathinfo();
+        if (!empty($pathinfo)) {
+            $depr  = Config::get('pathinfo_depr');
+            $input = explode($depr, trim($pathinfo, $depr));
+            return $this->input($input, $name, $default, $filter);
+        } else {
+            return $default;
+        }
+    }
+
+    /**
+     * 获取变量 支持过滤和默认值
+     * @param array $data 数据源
+     * @param string $name 字段名
+     * @param mixed $default 默认值
+     * @param string|array $filter 过滤函数
+     * @return mixed
+     */
+    public function input($data = [], $name = '', $default = null, $filter = null)
+    {
+        $name = (string) $name;
+        if ('' != $name) {
+            // 解析name
+            if(strpos($name, '/')){
+                list($name, $type) = explode($name, '/');
+            }else{
+                $type = 's';
+            }
+            // 按.拆分成多维数组进行判断
+            foreach (explode('.', $name) as $val) {
+                if (isset($data[$val])) {
+                    $data = $data[$val];
+                } else {
+                    // 无输入数据，返回默认值
+                    return $default;
+                }
+            }
+        }
+
+        // 解析过滤器
+        $filter = $filter ?: $this->filter;
+        if (is_string($filter)) {
+            $filter = explode(',',$filter);
+        }
+        $filter[] = $default;
+        if (is_array($data)) {
+            array_walk_recursive($data, [$this,'filterValue'], $filter);
+        } else {
+            $this->filterValue($data, $name,$filter);
+        }
+        if (isset($type) && $data !== $default) {
+            // 强制类型转换
+            $this->typeCast($data, $type);
+        }
+        return $data;
+    }
+
+    /**
+     * 设置或获取当前的过滤规则
+     * @param mixed $filter 过滤规则
+     * @return mixed
+     */
+    public function filter($filter = null)
+    {
+        if (is_null($filter)) {
+            return $this->filter;
+        } else {
+            $this->filter = $filter;
+        }
+    }
+
+    /**
+     * 递归过滤给定的值
+     * @param mixed $value 键值
+     * @param mixed $key 键名
+     * @param array $filters 过滤方法+默认值
+     * @return mixed
+     */
+    private function filterValue(&$value, $key, $filters)
+    {
+        $default = array_pop($filters);
+        foreach ($filters as $filter) {
+            if (is_callable($filter)) {
+                // 调用函数过滤
+                $value = call_user_func($filter, $value);
+            } else {
+                $begin = substr($filter, 0, 1);
+                if (in_array($begin, ['/', '#', '~']) && $begin == $end = substr($filter, -1)) {
+                    // 正则过滤
+                    if (!preg_match($filter, $value)) {
+                        // 匹配不成功返回默认值
+                        $value = $default;
+                        break;
+                    }
+                } else {
+                    // filter函数不存在时, 则使用filter_var进行过滤
+                    // filter为非整形值时, 调用filter_id取得过滤id
+                    $value = filter_var($value, is_int($filter) ? $filter : filter_id($filter));
+                    if (false === $value) {
+                        $value = $default;
+                        break;
+                    }
+                }
+            }
+        }
+        return $this->filterExp($value);
+    }
+
+    /**
+     * 过滤表单中的表达式
+     * @param string $value
+     * @return void
+     */
+    private function filterExp(&$value)
+    {
+        // 过滤查询特殊字符
+        if (is_string($value) && preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)) {
+            $value .= ' ';
+        }
+        // TODO 其他安全过滤        
+    }
+
+    /**
+     * 强制类型转换
+     * @param string $data
+     * @param string $type
+     * @return mixed
+     */
+    private function typeCast(&$data, $type)
+    {
+        switch (strtolower($type)) {
+            // 数组
+            case 'a':
+                $data = (array) $data;
+                break;
+            // 数字
+            case 'd':
+                $data = (int) $data;
+                break;
+            // 浮点
+            case 'f':
+                $data = (float) $data;
+                break;
+            // 布尔
+            case 'b':
+                $data = (boolean) $data;
+                break;
+            // 字符串
+            case 's':
+            default:
+                if (is_scalar($data)) {
+                    $data = (string) $data;
+                } else {
+                    throw new \InvalidArgumentException('variable type error：' . gettype($data));
+                }
+        }
+    }
+
+    /**
      * 是否存在某个请求参数
      * @access public
      * @param string $name 变量名
-     * @param bool $checkEmpty 是否检测空值
+     * @param string $type 变量类型
+     * @param bool $checkEmpty 是否检测空值     
      * @return mixed
      */
-    public function has($name, $checkEmpty = false)
+    public function has($name, $type = 'param', $checkEmpty = false)
     {
-        if (empty($this->param)) {
-            $param = $this->param();
+        if (empty($this->$type)) {
+            $param = $this->$type();
         } else {
-            $param = $this->param;
+            $param = $this->$type;
         }
         if (isset($param[$name])) {
             return ($checkEmpty && '' === $param[$name]) ? false : true;
@@ -610,11 +1008,12 @@ class Request
      * 获取指定的参数
      * @access public
      * @param string|array $name 变量名
+     * @param string $type 变量类型
      * @return mixed
      */
-    public function only($name)
+    public function only($name, $type = 'param')
     {
-        $param = $this->param();
+        $param = $this->$type();
         if (is_string($name)) {
             $name = explode(',', $name);
         }
@@ -631,11 +1030,12 @@ class Request
      * 排除指定参数获取
      * @access public
      * @param string|array $name 变量名
+     * @param string $type 变量类型
      * @return mixed
      */
-    public function except($name)
+    public function except($name, $type = 'param')
     {
-        $param = $this->param();
+        $param = $this->$type();
         if (is_string($name)) {
             $name = explode(',', $name);
         }
@@ -645,50 +1045,6 @@ class Request
             }
         }
         return $param;
-    }
-
-    /**
-     * 获取session数据
-     * @access public
-     * @param string $name 变量名
-     * @return mixed
-     */
-    public function session($name = '')
-    {
-        return Input::data($this->session ?: Session::get(), $name);
-    }
-
-    /**
-     * 获取cookie参数
-     * @access public
-     * @param string $name 变量名
-     * @return mixed
-     */
-    public function cookie($name = '')
-    {
-        return Input::data($this->cookie ?: $_COOKIE, $name);
-    }
-
-    /**
-     * 获取server参数
-     * @access public
-     * @param string $name 变量名
-     * @return mixed
-     */
-    public function server($name = '')
-    {
-        return Input::data($this->server ?: $_SERVER, $name);
-    }
-
-    /**
-     * 获取上传的文件信息
-     * @access public
-     * @param string $name 名称
-     * @return null|array|\think\File
-     */
-    public function file($name = '')
-    {
-        return Input::file($name, $this->file ?: $_FILES);
     }
 
     /**
