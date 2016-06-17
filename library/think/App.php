@@ -55,6 +55,16 @@ class App
     public static $suffix = false;
 
     /**
+     * @var bool 应用路由检测
+     */    
+    protected static $routeCheck;
+
+    /**
+     * @var bool 严格路由检测
+     */      
+    protected static $routeMust;
+
+    /**
      * 执行应用程序
      * @access public
      * @param Request $request Request对象
@@ -84,7 +94,7 @@ class App
             $dispatch = $request->dispatch();
             if (empty($dispatch)) {
                 // 未指定调度类型 则进行URL路由检测
-                $dispatch = self::route($request, $config);
+                $dispatch = self::routeCheck($request, $config);
             }
             // 记录路由信息
             self::$debug && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
@@ -311,7 +321,7 @@ class App
     }
 
     /**
-     * 初始化公共配置
+     * 初始化应用
      */
     public static function initCommon()
     {
@@ -418,7 +428,7 @@ class App
      * @return array
      * @throws \think\Exception
      */
-    public static function route($request, array $config)
+    public static function routeCheck($request, array $config)
     {
         // 检测URL禁用后缀
         if ($config['url_deny_suffix'] && preg_match('/\.(' . $config['url_deny_suffix'] . ')$/i', $request->pathinfo())) {
@@ -429,7 +439,8 @@ class App
         $depr   = $config['pathinfo_depr'];
         $result = false;
         // 路由检测
-        if (APP_ROUTE_ON && !empty($config['url_route_on'])) {
+        $check  = !is_null(self::$routeCheck) ? self::$routeCheck : $config['url_route_on'];
+        if ($check) {
             // 开启路由
             if (!empty($config['route'])) {
                 // 导入路由配置
@@ -437,7 +448,8 @@ class App
             }
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = Route::check($request, $path, $depr, $config['url_domain_deploy']);
-            if (APP_ROUTE_MUST && false === $result && $config['url_route_must']) {
+            $must   = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
+            if ($must && false === $result) {
                 // 路由无效
                 throw new HttpException(404, 'Route Not Found');
             }
@@ -452,4 +464,16 @@ class App
         return $request->dispatch($result);
     }
 
+    /**
+     * 设置应用的路由检测机制
+     * @access public
+     * @param  bool $route 是否需要检测路由
+     * @param  bool $must  是否强制检测路由
+     * @return void
+     */
+    public static function route($route, $must = false)
+    {
+        self::$routeCheck = $route;
+        self::$routeMust  = $must;
+    }
 }
