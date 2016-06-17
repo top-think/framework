@@ -606,7 +606,7 @@ class Route
                     self::$bind = ['type' => 'group', 'group' => substr($result, 1, -1)];
                 } else {
                     // 绑定到模块/控制器 例如 index/user
-                    self::$bind = ['type' => 'module', 'module' => $result, 'convert' => true];
+                    self::$bind = ['type' => 'module', 'module' => $result];
                 }
             }
         }
@@ -853,7 +853,7 @@ class Route
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'module', 'module' => $controller . '/' . $action, 'convert' => true];
+        return ['type' => 'module', 'module' => $controller . '/' . $action];
     }
 
     /**
@@ -973,7 +973,7 @@ class Route
         if (!empty($result['var'])) {
             $_GET = array_merge($result['var'], $_GET);
         }
-        return ['type' => 'module', 'module' => $result['route'], 'convert' => null];
+        return ['type' => 'module', 'module' => $result['route']];
     }
 
     /**
@@ -1172,7 +1172,7 @@ class Route
             // 解析剩余的URL参数
             self::parseUrlParams(implode('/', $paths), $var);
             // 路由到模块/控制器/操作
-            $result = ['type' => 'module', 'module' => $result['route'], 'convert' => true];
+            $result = ['type' => 'module', 'module' => $result['route'], 'convert' => false];
         }
         return $result;
     }
