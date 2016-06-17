@@ -64,7 +64,7 @@ class Memcached extends SessionHandler
         if('' != $this->config['username']){
             $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
             $this->handler->setSaslAuthData($this->config['username'], $this->config['password']);	
-		}
+        }
         return true;
     }
 
@@ -75,7 +75,7 @@ class Memcached extends SessionHandler
     public function close()
     {
         $this->gc(ini_get('session.gc_maxlifetime'));
-        $this->handler->close();
+        $this->handler->quit();
         $this->handler = null;
         return true;
     }
