@@ -183,10 +183,21 @@ class Merge extends Model
                     return false;
                 }
 
+                if (empty($where) && !empty($this->updateWhere)) {
+                    $where = $this->updateWhere;
+                }
+
+                if (!empty($where)) {
+                    $pk = $this->getPk();
+                    if (is_string($pk) && isset($data[$pk])) {
+                        unset($data[$pk]);
+                    }
+                }
+                          
                 // 处理模型数据
                 $data = $this->parseData($this->name, $this->data);
                 // 写入主表数据
-                $result = $db->strict(false)->update($data);
+                $result = $db->strict(false)->where($where)->update($data);
 
                 // 写入附表数据
                 foreach (static::$relationModel as $key => $model) {
