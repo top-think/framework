@@ -86,6 +86,7 @@ class Request
     protected $file    = [];
     protected $cookie  = [];
     protected $server  = [];
+    protected $header  = [];
 
     /**
      * @var array 资源类型
@@ -800,7 +801,7 @@ class Request
 
     /**
      * 获取环境变量
-     * @param string $name 数据名称
+     * @param string|array $name 数据名称
      * @param string $default 默认值
      * @param string|array $filter 过滤方法
      * @return mixed
@@ -813,6 +814,41 @@ class Request
             $this->env = $_ENV;
         }       
         return $this->input($this->env, strtoupper($name), $default, $filter);
+    }
+
+    /**
+     * 设置或者获取当前的Header
+     * @access public
+     * @param string|array $name header名称
+     * @param string $default 默认值
+     * @return string
+     */
+    public function header($name = '', $default = null)
+    {
+        if (is_array($name)) {
+            return $this->header = array_merge($this->header, $name);
+        } elseif (empty($this->header)) {
+            $header     = [];
+            $server     = $this->server ?: $_SERVER;
+            foreach($server as $key => $val) {
+                if (0 === strpos($key,'HTTP_')) {
+                    $key            = str_replace('_','-',strtolower(substr($key,5)));
+                    $header[$key]   = $val;
+                }
+            }
+            if (isset($server['CONTENT_TYPE'])) {
+                $header['content-type'] = $server['CONTENT_TYPE'];
+            }
+            if (isset($server['CONTENT_LENGTH'])) {
+                $header['content-length'] = $server['CONTENT_LENGTH'];
+            }                
+            $this->header = array_change_key_case($header);
+        }
+        if ('' === $name) {
+            return $this->header;
+        }
+        $name = str_replace('_','-',strtolower($name));
+        return isset($this->header[$name]) ? $this->header[$name] : $default;        
     }
 
     /**
@@ -1350,5 +1386,6 @@ class Request
         } else {
             return $this->langset ?: '';
         }
-    }    
+    }
+
 }
