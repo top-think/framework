@@ -168,7 +168,7 @@ function validate($name = '', $layer = 'validate', $appendSuffix = false)
  * 实例化数据库类
  * @param string $name 操作的数据表名称（不含前缀）
  * @param array|string $config 数据库配置参数
- * @return \think\db\Connection
+ * @return \think\db\Query
  */
 function db($name = '', $config = [])
 {
