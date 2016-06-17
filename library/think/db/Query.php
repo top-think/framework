@@ -1610,7 +1610,7 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
-        if (!is_array($dataSet[0])) {
+        if (!is_array(reset($dataSet))) {
             return false;
         }
         // 生成SQL语句
