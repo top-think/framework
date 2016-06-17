@@ -106,7 +106,7 @@ trait Jump
             'data' => $data,
         ]; 
         $type = $type ?: $this->getResponseType();
-        return Response::create([], $type)->data($data);
+        return Response::create($result, $type);
     }
 
     /**
