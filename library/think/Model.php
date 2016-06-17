@@ -615,13 +615,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $result = $insertId;
             }
             // 标记为更新
-            $this->isUpdate = true;            
+            $this->isUpdate = true;
+            // 清空change
+            $this->change = [];
             // 新增回调
             $this->trigger('after_insert', $this);
         }
         // 写入回调
         $this->trigger('after_write', $this);
-        
+
         return $result;
     }
 
