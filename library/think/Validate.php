@@ -12,7 +12,6 @@
 namespace think;
 
 use think\Exception;
-use think\Input;
 use think\Request;
 
 class Validate

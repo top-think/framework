@@ -78,7 +78,6 @@ return [
         'think\exception\ThrowableError'        => CORE_PATH . 'exception' . DS . 'ThrowableError' . EXT,
         'think\File'                            => CORE_PATH . 'File' . EXT,
         'think\Hook'                            => CORE_PATH . 'Hook' . EXT,
-        'think\Input'                           => CORE_PATH . 'Input' . EXT,
         'think\Lang'                            => CORE_PATH . 'Lang' . EXT,
         'think\Log'                             => CORE_PATH . 'Log' . EXT,
         'think\log\driver\File'                 => CORE_PATH . 'log' . DS . 'driver' . DS . 'File' . EXT,

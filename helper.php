@@ -18,7 +18,6 @@ use think\Config;
 use think\Cookie;
 use think\Db;
 use think\Debug;
-use think\Input;
 use think\Lang;
 use think\Loader;
 use think\Log;
