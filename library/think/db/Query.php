@@ -1735,7 +1735,7 @@ class Query
             $sql = $this->builder()->select($options);
             if($options['fetch_sql']){
                 // 获取实际执行的SQL语句
-                return $this->connection->getRealSql($sql,$this->bind);
+                return $this->connection->getRealSql($sql, $this->bind);
             }            
             // 执行查询操作
             $resultSet = $this->query($sql, $this->getBind(), $options['master'], $options['fetch_class']);
@@ -1753,7 +1753,6 @@ class Query
 
         // 返回结果处理
         if ($resultSet) {
-
             // 数据列表读取后的处理
             if (!empty($this->model)) {
                 // 生成模型对象
@@ -1821,7 +1820,7 @@ class Query
             $sql = $this->builder()->select($options);
             if($options['fetch_sql']){
                 // 获取实际执行的SQL语句
-                return $this->connection->getRealSql($sql,$this->bind);
+                return $this->connection->getRealSql($sql, $this->bind);
             }            
             // 执行查询
             $result = $this->query($sql, $this->getBind(), $options['master'], $options['fetch_class']);
@@ -1861,7 +1860,7 @@ class Query
                 throw new DataNotFoundException('table data not Found:' . $options['table'], $options['table'], $options);
             }
         } else {
-            $data = false;
+            $data = null;
         }
         return $data;
     }
