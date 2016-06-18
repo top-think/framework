@@ -856,11 +856,10 @@ class Query
     /**
      * 分析查询表达式
      * @access public
-     * @param string $logic 查询逻辑
+     * @param string $logic 查询逻辑 and or xor
      * @param string|array|\Closure $field 查询字段
      * @param mixed $op 查询表达式
      * @param mixed $condition 查询条件
-     * @param string $logic and or xor
      * @param array $param 查询参数
      * @return void
      */

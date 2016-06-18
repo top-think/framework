@@ -105,7 +105,7 @@ class Cookie
     {
         $prefix = !is_null($prefix) ? $prefix : self::$config['prefix'];
         $name   = $prefix . $name;
-        return isset($_COOKIE[$name]) ? $value: null;
+        return isset($_COOKIE[$name]);
     }
 
     /**
