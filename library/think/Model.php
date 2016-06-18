@@ -630,14 +630,28 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 保存多个数据到当前数据对象
      * @access public
-     * @param array $data 数据
-     * @return integer
+     * @param array $dataSet 数据
+     * @param bool $replace 是否replace
+     * @return integer 返回受影响的行数
      */
-    public function saveAll($dataSet)
+    public function saveAll(array $dataSet, $replace = false)
     {
-        $result = 0;
-        foreach ($dataSet as $data) {
-            $result = $this->isUpdate(false)->save($data, [], false);
+        $query = $this->db();
+        $query->startTrans();
+        try {
+            if ($replace) {
+                $results = array_map(function($v) use ($query, $replace) {
+                    return $query->insert($v, $replace, false);
+                }, $dataSet);
+                $result = array_sum($results);
+            } else {
+                $result = $query->insertAll($dataSet);
+            }
+            $query->commit();
+        } catch (\think\exception\PDOException $e) {
+            $result = 0;
+            $this->error = $e->getMessage();
+            $query->rollback();
         }
         return $result;
     }
