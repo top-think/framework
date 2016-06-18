@@ -12,6 +12,7 @@
 namespace think;
 
 use think\paginator\Collection as PaginatorCollection;
+use think\Request;
 
 abstract class Paginator
 {
@@ -122,7 +123,7 @@ abstract class Paginator
      */
     public static function getCurrentPage($varPage = 'page', $default = 1)
     {
-        $page = Input::request($varPage);
+        $page = Request::instance()->request($varPage);
 
         if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int)$page >= 1) {
             return $page;

@@ -106,18 +106,16 @@ function config($name = '', $value = null, $range = '')
  * @param bool $merge 是否合并系统默认过滤方法
  * @return mixed
  */
-function input($key, $default = null, $filter = null, $merge = false)
+function input($key, $default = null, $filter = null)
 {
     if (0 === strpos($key, '?')) {
         $key = substr($key, 1);
-        $has = '?';
-    } else {
-        $has = '';
+        $has = true;
     }
     if ($pos = strpos($key, '.')) {
         // 指定参数来源
         $method = substr($key, 0, $pos);
-        if (in_array($method, ['get', 'post', 'put', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'globals', 'env', 'path', 'file'])) {
+        if (in_array($method, ['get', 'post', 'put', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
             $key = substr($key, $pos + 1);
         } else {
             $method = 'param';
@@ -126,7 +124,11 @@ function input($key, $default = null, $filter = null, $merge = false)
         // 默认为自动判断
         $method = 'param';
     }
-    return Input::$method($has . $key, $default, $filter, $merge);
+    if(isset($has)){
+        return request()->has($key, $method, $default);
+    }else{
+        return request()->$method($key, $default, $filter);
+    }
 }
 
 /**

@@ -883,9 +883,9 @@ class Request
         $name = (string) $name;
         if ('' != $name) {
             // 解析name
-            if(strpos($name, '/')){
-                list($name, $type) = explode($name, '/');
-            }else{
+            if (strpos($name, '/')) {
+                list($name, $type) = explode('/', $name);
+            } else {
                 $type = 's';
             }
             // 按.拆分成多维数组进行判断
@@ -901,15 +901,19 @@ class Request
 
         // 解析过滤器
         $filter = $filter ?: $this->filter;
+
         if (is_string($filter)) {
-            $filter = explode(',',$filter);
+            $filter = explode(',', $filter);
+        } else {
+            $filter = (array)$filter;
         }
         $filter[] = $default;
         if (is_array($data)) {
-            array_walk_recursive($data, [$this,'filterValue'], $filter);
+            array_walk_recursive($data, [$this, 'filterValue'], $filter);
         } else {
-            $this->filterValue($data, $name,$filter);
+            $this->filterValue($data, $name, $filter);
         }
+
         if (isset($type) && $data !== $default) {
             // 强制类型转换
             $this->typeCast($data, $type);
@@ -943,11 +947,10 @@ class Request
         $default = array_pop($filters);
         foreach ($filters as $filter) {
             if (is_callable($filter)) {
-                // 调用函数过滤
+                // 调用函数或者方法过滤
                 $value = call_user_func($filter, $value);
             } else {
-                $begin = substr($filter, 0, 1);
-                if (in_array($begin, ['/', '#', '~']) && $begin == $end = substr($filter, -1)) {
+                if (strpos($filter,'/')) {
                     // 正则过滤
                     if (!preg_match($filter, $value)) {
                         // 匹配不成功返回默认值
@@ -973,7 +976,7 @@ class Request
      * @param string $value
      * @return void
      */
-    private function filterExp(&$value)
+    public function filterExp(&$value)
     {
         // 过滤查询特殊字符
         if (is_string($value) && preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)) {
@@ -1033,11 +1036,15 @@ class Request
         } else {
             $param = $this->$type;
         }
-        if (isset($param[$name])) {
-            return ($checkEmpty && '' === $param[$name]) ? false : true;
-        } else {
-            return false;
-        }
+        // 按.拆分成多维数组进行判断
+        foreach (explode('.', $name) as $val) {
+            if (isset($param[$val])) {
+                $param = $param[$val];
+            } else {
+                return false;
+            }
+        }        
+        return ($checkEmpty && '' === $param) ? false : true;
     }
 
     /**

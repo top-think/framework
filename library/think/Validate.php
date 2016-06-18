@@ -551,7 +551,7 @@ class Validate
                 $result = is_array($value);
                 break;
             case 'file':
-                $file   = Input::file($value);
+                $file   = Request::instance()->file($value);
                 $result = !empty($file);
                 break;
             default:
@@ -602,7 +602,7 @@ class Validate
      */
     protected function fileExt($value, $rule)
     {
-        $file = Input::file($value);
+        $file = Request::instance()->file($value);
         if (empty($file)) {
             return false;
         }
@@ -630,7 +630,7 @@ class Validate
      */
     protected function fileMime($value, $rule)
     {
-        $file = Input::file($value);
+        $file = Request::instance()->file($value);
         if (empty($file)) {
             return false;
         }
@@ -658,7 +658,7 @@ class Validate
      */
     protected function fileSize($value, $rule)
     {
-        $file = Input::file($value);
+        $file = Request::instance()->file($value);
         if (empty($file)) {
             return false;
         }

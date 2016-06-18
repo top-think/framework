@@ -222,7 +222,7 @@ class App
                 }
             }
             // 全局过滤
-            array_walk_recursive($args, 'think\\Input::filterExp');
+            array_walk_recursive($args, [Request::instance(),'filterExp']);
         }
         return $args;
     }
@@ -458,8 +458,7 @@ class App
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
             $result = Route::parseUrl($path, $depr, $config['controller_auto_search'], $config['url_param_type']);
         }
-        //保证$_REQUEST正常取值
-        $_REQUEST = array_merge($_POST, $_GET, $_COOKIE);
+
         // 注册调度机制
         return $request->dispatch($result);
     }
