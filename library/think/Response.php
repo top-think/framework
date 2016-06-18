@@ -77,7 +77,7 @@ class Response
         $type = empty($type) ? 'null' : strtolower($type);
 
         if (!isset(self::$instance[$type])) {
-            $class = (isset($options['namespace']) ? $options['namespace'] : '\\think\\response\\') . ucfirst($type);
+            $class = strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst($type);
             if (class_exists($class)) {
                 $response = new $class($data, $type, $options);
             } else {

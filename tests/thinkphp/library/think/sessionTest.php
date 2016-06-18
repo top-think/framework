@@ -156,8 +156,7 @@ class sessionTest extends \PHPUnit_Framework_TestCase
             'use_cookies'    => '1',
             'cache_limiter'  => '60',
             'cache_expire'   => '60',
-            'type'           => 'memcache', //
-            'namespace'      => '\\think\\session\\driver\\', // ?
+            'type'           => '\\think\\session\\driver\\Memcache', //
             'auto_start'     => '1',
         ];
 

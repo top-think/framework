@@ -49,7 +49,6 @@ class Template
         'cache_id'           => '', // 模板缓存ID
         'tpl_replace_string' => [],
         'tpl_var_identify'   => 'array', // .语法变量识别，array|object|'', 为空时自动识别
-        'namespace'          => '\\think\\template\\driver\\',
     ];
 
     private $literal     = [];
@@ -71,7 +70,7 @@ class Template
 
         // 初始化模板编译存储器
         $type          = $this->config['compile_type'] ? $this->config['compile_type'] : 'File';
-        $class         = $this->config['namespace'] . ucwords($type);
+        $class         = strpos($type, '\\') ? $type : '\\think\\template\\driver\\' . ucwords($type);
         $this->storage = new $class();
     }
 
