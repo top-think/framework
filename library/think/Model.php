@@ -636,10 +636,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function saveAll($dataSet)
     {
         $result = 0;
-        foreach ($dataSet as $data) {
-            $result = $this->isUpdate(false)->save($data, [], false);
+        $db = $this->db();
+        $db->startTrans();
+        try {
+            foreach ($dataSet as $data) {
+                $result = $this->isUpdate(false)->save($data, [], false);
+            }
+            $db->commit();
+            return $result;
+        } catch (\Exception $e) {
+            $db->rollback();
+            return false;
         }
-        return $result;
     }
 
     /**

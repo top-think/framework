@@ -248,7 +248,7 @@ class Merge extends Model
             }
             $db->commit();
             return $result;
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             $db->rollback();
             return false;
         }
