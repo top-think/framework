@@ -301,12 +301,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'boolean':
                 $value = (bool) $value;
                 break;
-            case 'datetime':
+            case 'timestamp':
                 if (!is_numeric($value)) {
                     $value = strtotime($value);
                 }
                 break;
-            case 'timestamp':
+            case 'datetime':
                 $format = !empty($param) ? $param : $this->dateFormat;
                 $value  = date($format, is_numeric($value) ? $value : strtotime($value));
                 break;
@@ -382,11 +382,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'boolean':
                 $value = (bool) $value;
                 break;
-            case 'datetime':
+            case 'timestamp':
                 $format = !empty($param) ? $param : $this->dateFormat;
                 $value  = date($format, $value);
                 break;
-            case 'timestamp':
+            case 'datetime':
                 $format = !empty($param) ? $param : $this->dateFormat;
                 $value  = date($format, strtotime($value));
                 break;
