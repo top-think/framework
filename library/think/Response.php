@@ -12,7 +12,6 @@
 namespace think;
 
 use think\Hook;
-use think\Request;
 
 class Response
 {
@@ -77,7 +76,7 @@ class Response
         $type = empty($type) ? 'null' : strtolower($type);
 
         if (!isset(self::$instance[$type])) {
-            $class = strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst($type);
+            $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst($type);
             if (class_exists($class)) {
                 $response = new $class($data, $type, $options);
             } else {
@@ -302,7 +301,7 @@ class Response
     {
         if (is_callable($this->transform)) {
             $data = call_user_func_array($this->transform, [$this->data]);
-        }else{
+        } else {
             $data = $this->data;
         }
         return $this->output($data);
@@ -324,5 +323,5 @@ class Response
     public function getCode()
     {
         return isset($this->header['status']) ? $this->header['status'] : 200;
-    }    
+    }
 }

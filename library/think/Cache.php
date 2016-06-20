@@ -41,7 +41,7 @@ class Cache
         }
 
         if (true === $name || !isset(self::$instance[$name])) {
-            $class = strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
+            $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
 
             // 记录初始化信息
             App::$debug && Log::record('[ CACHE ] INIT ' . $type . ':' . var_export($options, true), 'info');

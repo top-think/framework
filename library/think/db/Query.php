@@ -18,12 +18,12 @@ use think\Config;
 use think\Db;
 use think\db\Builder;
 use think\db\Connection;
+use think\db\exception\BindParamException;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
 use think\exception\PDOException;
-use think\db\exception\BindParamException;
-use think\db\exception\ModelNotFoundException;
-use think\db\exception\DataNotFoundException;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -381,10 +381,10 @@ class Query
         $result = null;
         if (!empty($this->options['cache'])) {
             // 判断查询缓存
-            $cache  = $this->options['cache'];
+            $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
                 $this->options['table'] = $this->getTable();
-            }            
+            }
             $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($key);
         }
@@ -417,10 +417,10 @@ class Query
         $result = false;
         if (!empty($this->options['cache'])) {
             // 判断查询缓存
-            $cache  = $this->options['cache'];
+            $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
                 $this->options['table'] = $this->getTable();
-            }            
+            }
             $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($guid);
         }
@@ -962,7 +962,7 @@ class Query
     {
         $config   = array_merge(Config::get('paginate'), $config);
         $listRows = $listRows ?: $config['list_rows'];
-        $class    = strpos($config['type'], '\\') ? $config['type'] : '\\think\\paginator\\driver\\' . ucwords($config['type']);
+        $class    = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\paginator\\driver\\' . ucwords($config['type']);
         $page     = isset($config['page']) ? (int) $config['page'] : call_user_func([
             $class,
             'getCurrentPage',
@@ -1238,10 +1238,10 @@ class Query
      */
     public function whereTime($field, $op, $range = null)
     {
-        if(is_null($range)){
+        if (is_null($range)) {
             // 使用日期表达式
             $date = getdate();
-            switch(strtolower($op)){
+            switch (strtolower($op)) {
                 case 'today':
                 case 'd':
                     $range = 'today';
@@ -1259,19 +1259,19 @@ class Query
                     $range = mktime(0, 0, 0, 1, 1, $date['year']);
                     break;
                 case 'yesterday':
-                    $range = ['yesterday','today'];
+                    $range = ['yesterday', 'today'];
                     break;
                 case 'last week':
-                    $range = ['last week 00:00:00','this week 00:00:00'];
+                    $range = ['last week 00:00:00', 'this week 00:00:00'];
                     break;
                 case 'last month':
-                    $range = [date('y-m-01',strtotime('-1 month')),mktime(0, 0, 0, $date['mon'], 1, $date['year'])];
+                    $range = [date('y-m-01', strtotime('-1 month')), mktime(0, 0, 0, $date['mon'], 1, $date['year'])];
                     break;
                 case 'last year':
-                    $range = [mktime(0, 0, 0, 1, 1, $date['year']-1),mktime(0, 0, 0, 1, 1, $date['year'])];
-                    break;                    
+                    $range = [mktime(0, 0, 0, 1, 1, $date['year'] - 1), mktime(0, 0, 0, 1, 1, $date['year'])];
+                    break;
             }
-            $op = is_array($range)? 'between' : '>';
+            $op = is_array($range) ? 'between' : '>';
         }
         $this->where($field, strtolower($op) . ' time', $range);
         return $this;
@@ -1325,7 +1325,7 @@ class Query
             } else {
                 $pk = null;
             }
-            $this->info[$guid]  = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
+            $this->info[$guid] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
         }
         return $fetch ? $this->info[$guid][$fetch] : $this->info[$guid];
     }
@@ -1449,9 +1449,9 @@ class Query
                 $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $joinName;
                 $this->via($joinAlias);
 
-                if(Relation::HAS_ONE == $info['type']){
+                if (Relation::HAS_ONE == $info['type']) {
                     $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey'], $info['joinType']);
-                }else{
+                } else {
                     $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['foreignKey'] . '=' . $joinAlias . '.' . $info['localKey'], $info['joinType']);
                 }
 
@@ -1576,10 +1576,10 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
         // 生成SQL语句
-        $sql      = $this->builder()->insert($data, $options, $replace);
-        if($options['fetch_sql']){
+        $sql = $this->builder()->insert($data, $options, $replace);
+        if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
-            return $this->connection->getRealSql($sql,$this->bind);
+            return $this->connection->getRealSql($sql, $this->bind);
         }
         $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
         // 执行操作
@@ -1614,10 +1614,10 @@ class Query
         }
         // 生成SQL语句
         $sql = $this->builder()->insertAll($dataSet, $options);
-        if($options['fetch_sql']){
+        if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
-            return $this->connection->getRealSql($sql,$this->bind);
-        }else{
+            return $this->connection->getRealSql($sql, $this->bind);
+        } else {
             // 执行操作
             return $this->execute($sql, $this->getBind());
         }
@@ -1636,12 +1636,12 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
         // 生成SQL语句
-        $table   = $this->parseSqlTable($table);
-        $sql = $this->builder()->selectInsert($fields, $table, $options);
-        if($options['fetch_sql']){
+        $table = $this->parseSqlTable($table);
+        $sql   = $this->builder()->selectInsert($fields, $table, $options);
+        if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
-            return $this->connection->getRealSql($sql,$this->bind);
-        }else{
+            return $this->connection->getRealSql($sql, $this->bind);
+        } else {
             // 执行操作
             return $this->execute($sql, $this->getBind());
         }
@@ -1685,12 +1685,12 @@ class Query
         }
         // 生成UPDATE SQL语句
         $sql = $this->builder()->update($data, $options);
-        if($options['fetch_sql']){
+        if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
-            return $this->connection->getRealSql($sql,$this->bind);
-        }else{
+            return $this->connection->getRealSql($sql, $this->bind);
+        } else {
             // 执行操作
-            return '' == $sql ? 0 : $this->execute($sql, $this->getBind());            
+            return '' == $sql ? 0 : $this->execute($sql, $this->getBind());
         }
     }
 
@@ -1732,10 +1732,10 @@ class Query
         if (!$resultSet) {
             // 生成查询SQL
             $sql = $this->builder()->select($options);
-            if($options['fetch_sql']){
+            if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $this->bind);
-            }            
+            }
             // 执行查询操作
             $resultSet = $this->query($sql, $this->getBind(), $options['master'], $options['fetch_class']);
 
@@ -1772,9 +1772,9 @@ class Query
                 }
             }
         } elseif (!empty($options['fail'])) {
-            if(!empty($this->model)){
-                throw new ModelNotFoundException('model data Not Found:' . $this->model , $this->model, $options);
-            }else{
+            if (!empty($this->model)) {
+                throw new ModelNotFoundException('model data Not Found:' . $this->model, $this->model, $options);
+            } else {
                 throw new DataNotFoundException('table data not Found:' . $options['table'], $options['table'], $options);
             }
         }
@@ -1817,10 +1817,10 @@ class Query
         if (!$result) {
             // 生成查询SQL
             $sql = $this->builder()->select($options);
-            if($options['fetch_sql']){
+            if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $this->bind);
-            }            
+            }
             // 执行查询
             $result = $this->query($sql, $this->getBind(), $options['master'], $options['fetch_class']);
 
@@ -1853,9 +1853,9 @@ class Query
                 }
             }
         } elseif (!empty($options['fail'])) {
-            if(!empty($this->model)){
-                throw new ModelNotFoundException('model data Not Found:' . $this->model , $this->model, $options);
-            }else{
+            if (!empty($this->model)) {
+                throw new ModelNotFoundException('model data Not Found:' . $this->model, $this->model, $options);
+            } else {
                 throw new DataNotFoundException('table data not Found:' . $options['table'], $options['table'], $options);
             }
         } else {
@@ -1873,7 +1873,7 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function selectOrFail($data=[])
+    public function selectOrFail($data = [])
     {
         return $this->failException(true)->select($data);
     }
@@ -1887,7 +1887,7 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function findOrFail($data=[])
+    public function findOrFail($data = [])
     {
         return $this->failException(true)->find($data);
     }
@@ -1971,10 +1971,10 @@ class Query
         }
         // 生成删除SQL语句
         $sql = $this->builder()->delete($options);
-        if($options['fetch_sql']){
+        if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
-            return $this->connection->getRealSql($sql,$this->bind);
-        }        
+            return $this->connection->getRealSql($sql, $this->bind);
+        }
         // 执行操作
         return $this->execute($sql, $this->getBind());
     }
