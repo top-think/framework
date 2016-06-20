@@ -131,6 +131,7 @@ class Request
     public function __call($method, $args)
     {
         if (array_key_exists($method, self::$hook)) {
+            array_unshift($args, $this);
             call_user_func_array(self::$hook[$method], $args);
         } else {
             throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
