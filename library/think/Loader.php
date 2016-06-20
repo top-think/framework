@@ -33,13 +33,7 @@ class Loader
     // PSR-0
     private static $prefixesPsr0 = [];
     // Composer自动加载
-    private static $composerLoader = true;
-
-    // 自动加载Composer
-    public static function composerAutoLoader($auto)
-    {
-        self::$composerLoader = $auto;
-    }
+    private static $composerLoader = false;
 
     // 自动加载
     public static function autoload($class)
@@ -126,9 +120,17 @@ class Loader
     {
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload');
-        // 注册composer自动加载
-        if (self::$composerLoader) {
+        
+        if (is_dir(VENDOR_PATH . 'composer')) {
+            // 注册Composer自动加载
             self::registerComposerLoader();
+            self::$composerLoader  = true;
+        } elseif(is_file(VENDOR_PATH . 'think_autoload.php')) {
+            // 读取Composer自动加载文件
+            $autoload = include VENDOR_PATH . 'think_autoload.php';
+            if (is_array($autoload)) {
+                self::addMap($autoload);
+            }
         }
     }
 
