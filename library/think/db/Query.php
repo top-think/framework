@@ -47,6 +47,8 @@ class Query
     protected $options = [];
     // 参数绑定
     protected $bind = [];
+    // 数据表信息
+    protected $info = [];
 
     /**
      * 架构函数
@@ -1284,7 +1286,6 @@ class Query
      */
     public function getTableInfo($tableName = '', $fetch = '')
     {
-        static $_info = [];
         if (!$tableName) {
             $tableName = $this->getTable();
         }
@@ -1299,8 +1300,8 @@ class Query
             $tableName = $this->parseSqlTable($tableName);
         }
 
-        $guid = md5($tableName);
-        if (!isset($_info[$guid])) {
+        $guid = $tableName;
+        if (!isset($this->info[$guid])) {
             $info   = $this->connection->getFields($tableName);
             $fields = array_keys($info);
             $bind   = $type   = [];
@@ -1324,10 +1325,9 @@ class Query
             } else {
                 $pk = null;
             }
-            $result       = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
-            $_info[$guid] = $result;
+            $this->info[$guid]  = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
         }
-        return $fetch ? $_info[$guid][$fetch] : $_info[$guid];
+        return $fetch ? $this->info[$guid][$fetch] : $this->info[$guid];
     }
 
     /**
