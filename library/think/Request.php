@@ -559,9 +559,10 @@ class Request
      * @access public
      * @param string|array $name 变量名
      * @param mixed $default 默认值
+     * @param string|array $filter 过滤方法     
      * @return mixed
      */
-    public function param($name = '', $default = null)
+    public function param($name = '', $default = null, $filter = null)
     {
         if(is_array($name)){
             // 设置param
@@ -587,11 +588,7 @@ class Request
             // 当前请求参数和URL地址中的参数合并
             $this->param = array_merge($this->get(), $vars);
         }
-        if ($name) {
-            return isset($this->param[$name]) ? $this->param[$name] : $default;
-        } else {
-            return $this->param;
-        }
+        return $this->input($this->param, $name, $default, $filter);
     }
 
     /**

@@ -45,6 +45,7 @@ return [
     'fields not exists'			=>	'数据表字段不存在',
     'where express error'		=>	'查询表达式错误',
     'no data to update'			=>	'没有任何数据需要更新',
+    'miss data to insert'       =>  '缺少需要写入的数据',
     'miss complex primary data'	=>	'缺少复合主键数据',
     'miss update condition'		=>	'缺少更新条件',
     'model data Not Found'		=>	'模型数据不存在',
