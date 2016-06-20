@@ -51,8 +51,8 @@ class Db
      * 数据库初始化 并取得数据库类实例
      * @static
      * @access public
-     * @param mixed $config 连接配置
-     * @param bool|string $name 连接标识 true 强制重新连接
+     * @param mixed         $config 连接配置
+     * @param bool|string   $name 连接标识 true 强制重新连接
      * @return \think\db\Connection
      * @throws Exception
      */

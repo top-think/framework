@@ -21,13 +21,13 @@ class Url
 {
     /**
      * URL生成 支持路由反射
-     * @param string $url URL表达式，
+     * @param string            $url URL表达式，
      * 格式：'[模块/控制器/操作]?参数1=值1&参数2=值2...@域名'
      * @控制器/操作?参数1=值1&参数2=值2...
      * \\命名空间类\\方法?参数1=值1&参数2=值2...
-     * @param string|array $vars 传入的参数，支持数组和字符串
-     * @param string|bool $suffix 伪静态后缀，默认为true表示获取配置值
-     * @param boolean|string $domain 是否显示域名 或者直接传入域名
+     * @param string|array      $vars 传入的参数，支持数组和字符串
+     * @param string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
+     * @param boolean|string    $domain 是否显示域名 或者直接传入域名
      * @return string
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false)

@@ -44,9 +44,9 @@ class Response
     /**
      * 架构函数
      * @access public
-     * @param mixed $data 输出数据
-     * @param string $type 输出类型
-     * @param array $options 输出参数
+     * @param mixed     $data 输出数据
+     * @param string    $type 输出类型
+     * @param array     $options 输出参数
      */
     public function __construct($data = '', $type = '', $options = [])
     {
@@ -67,9 +67,9 @@ class Response
     /**
      * 创建Response对象
      * @access public
-     * @param mixed $data 输出数据
-     * @param string $type 输出类型
-     * @param array $options 输出参数
+     * @param mixed     $data 输出数据
+     * @param string    $type 输出类型
+     * @param array     $options 输出参数
      * @return Response
      */
     public static function create($data = '', $type = '', $options = [])
@@ -183,8 +183,8 @@ class Response
     /**
      * 设置响应头
      * @access public
-     * @param string|array $name 参数名
-     * @param string $value 参数值
+     * @param string|array  $name 参数名
+     * @param string        $value 参数值
      * @return $this
      */
     public function header($name, $value = null)
@@ -265,8 +265,8 @@ class Response
 
     /**
      * 页面输出类型
-     * @param string $contentType 输出类型
-     * @param string $charset 输出编码
+     * @param string    $contentType 输出类型
+     * @param string    $charset 输出编码
      * @return $this
      */
     public function contentType($contentType, $charset = 'utf-8')

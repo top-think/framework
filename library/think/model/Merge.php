@@ -39,9 +39,9 @@ class Merge extends Model
     /**
      * 查找单条记录
      * @access public
-     * @param mixed $data 主键值或者查询条件（闭包）
-     * @param string $with 关联预查询
-     * @param bool $cache 是否缓存
+     * @param mixed     $data 主键值或者查询条件（闭包）
+     * @param string    $with 关联预查询
+     * @param bool      $cache 是否缓存
      * @return \think\Model
      */
     public static function get($data = '', $with = [], $cache = false)
@@ -77,10 +77,10 @@ class Merge extends Model
     /**
      * 获取关联模型的字段 并解决混淆
      * @access protected
-     * @param \think\db\Query $query 查询对象
-     * @param string $name 模型名称
-     * @param string $table 关联表名称
-     * @param array $map 字段映射
+     * @param \think\db\Query   $query 查询对象
+     * @param string            $name 模型名称
+     * @param string            $table 关联表名称
+     * @param array             $map 字段映射
      * @return array
      */
     protected static function getModelField($query, $name, $table = '', $map = [])
@@ -102,8 +102,8 @@ class Merge extends Model
     /**
      * 查找所有记录
      * @access public
-     * @param mixed $data 主键列表或者查询条件（闭包）
-     * @param string $with 关联预查询
+     * @param mixed     $data 主键列表或者查询条件（闭包）
+     * @param string    $with 关联预查询
      * @return array|false|string
      */
     public static function all($data = [], $with = [], $cache = false)
@@ -116,9 +116,9 @@ class Merge extends Model
     /**
      * 处理写入的模型数据
      * @access public
-     * @param string $model 模型名称
-     * @param array $data 数据
-     * @param bool $insert 是否新增
+     * @param string    $model 模型名称
+     * @param array     $data 数据
+     * @param bool      $insert 是否新增
      * @return void
      */
     protected function parseData($model, $data, $insert = false)
@@ -142,10 +142,10 @@ class Merge extends Model
     /**
      * 保存模型数据 以及关联数据
      * @access public
-     * @param mixed $data 数据
-     * @param array $where 更新条件
-     * @param bool $getId 新增的时候是否获取id
-     * @param bool $replace 是否replace
+     * @param mixed     $data 数据
+     * @param array     $where 更新条件
+     * @param bool      $getId 新增的时候是否获取id
+     * @param bool      $replace 是否replace
      * @return mixed
      */
     public function save($data = [], $where = [], $getId = true, $replace = false)

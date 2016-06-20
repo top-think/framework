@@ -103,9 +103,9 @@ class Session
 
     /**
      * session设置
-     * @param string $name session名称
-     * @param mixed $value session值
-     * @param string|null $prefix 作用域（前缀）
+     * @param string        $name session名称
+     * @param mixed         $value session值
+     * @param string|null   $prefix 作用域（前缀）
      * @return void
      */
     public static function set($name, $value = '', $prefix = null)
@@ -129,8 +129,8 @@ class Session
 
     /**
      * session获取
-     * @param string $name session名称
-     * @param string|null $prefix 作用域（前缀）
+     * @param string        $name session名称
+     * @param string|null   $prefix 作用域（前缀）
      * @return mixed
      */
     public static function get($name = '', $prefix = null)
@@ -161,8 +161,8 @@ class Session
 
     /**
      * 删除session数据
-     * @param string $name session名称
-     * @param string|null $prefix 作用域（前缀）
+     * @param string        $name session名称
+     * @param string|null   $prefix 作用域（前缀）
      * @return void
      */
     public static function delete($name, $prefix = null)
@@ -187,7 +187,7 @@ class Session
 
     /**
      * 清空session数据
-     * @param string|null $prefix 作用域（前缀）
+     * @param string|null   $prefix 作用域（前缀）
      * @return void
      */
     public static function clear($prefix = null)
@@ -203,8 +203,8 @@ class Session
 
     /**
      * 判断session数据
-     * @param string $name session名称
-     * @param string|null $prefix
+     * @param string        $name session名称
+     * @param string|null   $prefix
      * @return bool
      */
     public static function has($name, $prefix = null)

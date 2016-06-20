@@ -141,8 +141,8 @@ class Request
     /**
      * Hook 方法注入
      * @access public
-     * @param string|array $method 方法名
-     * @param mixed $callback callable
+     * @param string|array  $method 方法名
+     * @param mixed         $callback callable
      * @return void
      */
     public static function hook($method, $callback = null)
@@ -171,12 +171,12 @@ class Request
     /**
      * 创建一个URL请求
      * @access public
-     * @param string $uri URL地址
-     * @param string $method 请求类型
-     * @param array $params 请求参数
-     * @param array $cookie
-     * @param array $files
-     * @param array $server
+     * @param string    $uri URL地址
+     * @param string    $method 请求类型
+     * @param array     $params 请求参数
+     * @param array     $cookie
+     * @param array     $files
+     * @param array     $server
      * @return \think\Request
      */
     public static function create($uri, $method = 'GET', $params = [], $cookie = [], $files = [], $server = [])
@@ -457,8 +457,8 @@ class Request
     /**
      * 设置资源类型
      * @access public
-     * @param string|array $type 资源类型名
-     * @param string $val 资源类型
+     * @param string|array  $type 资源类型名
+     * @param string        $val 资源类型
      * @return void
      */
     public function mimeType($type, $val = '')
@@ -586,9 +586,9 @@ class Request
     /**
      * 设置获取获取当前请求的参数
      * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法     
+     * @param string|array  $name 变量名
+     * @param mixed         $default 默认值
+     * @param string|array  $filter 过滤方法     
      * @return mixed
      */
     public function param($name = '', $default = null, $filter = null)
@@ -623,9 +623,9 @@ class Request
     /**
      * 设置获取获取GET参数
      * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法     
+     * @param string|array  $name 变量名
+     * @param mixed         $default 默认值
+     * @param string|array  $filter 过滤方法     
      * @return mixed
      */
     public function get($name = '', $default = null, $filter = null)
@@ -641,9 +641,9 @@ class Request
     /**
      * 设置获取获取POST参数
      * @access public
-     * @param string $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法     
+     * @param string        $name 变量名
+     * @param mixed         $default 默认值
+     * @param string|array  $filter 过滤方法     
      * @return mixed
      */
     public function post($name = '', $default = null, $filter = null)
@@ -659,9 +659,9 @@ class Request
     /**
      * 设置获取获取PUT参数
      * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法     
+     * @param string|array      $name 变量名
+     * @param mixed             $default 默认值
+     * @param string|array      $filter 过滤方法     
      * @return mixed
      */
     public function put($name = '', $default = null, $filter = null)
@@ -678,9 +678,9 @@ class Request
     /**
      * 设置获取获取DELETE参数
      * @access public
-     * @param string|array $name 变量名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤方法     
+     * @param string|array      $name 变量名
+     * @param mixed             $default 默认值
+     * @param string|array      $filter 过滤方法     
      * @return mixed
      */
     public function delete($name = '', $default = null, $filter = null)
@@ -696,9 +696,9 @@ class Request
 
     /**
      * 获取request变量
-     * @param string $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * @param string        $name 数据名称
+     * @param string        $default 默认值
+     * @param string|array  $filter 过滤方法
      * @return mixed
      */
     public function request($name = '', $default = null, $filter = null)
@@ -714,9 +714,9 @@ class Request
     /**
      * 获取session数据
      * @access public
-     * @param string|array $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * @param string|array  $name 数据名称
+     * @param string        $default 默认值
+     * @param string|array  $filter 过滤方法
      * @return mixed
      */
     public function session($name = '', $default = null, $filter = null)
@@ -732,9 +732,9 @@ class Request
     /**
      * 获取cookie参数
      * @access public
-     * @param string|array $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * @param string|array  $name 数据名称
+     * @param string        $default 默认值
+     * @param string|array  $filter 过滤方法
      * @return mixed
      */
     public function cookie($name = '', $default = null, $filter = null)
@@ -750,9 +750,9 @@ class Request
     /**
      * 获取server参数
      * @access public
-     * @param string|array $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * @param string|array  $name 数据名称
+     * @param string        $default 默认值
+     * @param string|array  $filter 过滤方法
      * @return mixed
      */
     public function server($name = '', $default = null, $filter = null)
@@ -827,9 +827,9 @@ class Request
 
     /**
      * 获取环境变量
-     * @param string|array $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * @param string|array  $name 数据名称
+     * @param string        $default 默认值
+     * @param string|array  $filter 过滤方法
      * @return mixed
      */
     public function env($name = '', $default = null, $filter = null)
@@ -845,8 +845,8 @@ class Request
     /**
      * 设置或者获取当前的Header
      * @access public
-     * @param string|array $name header名称
-     * @param string $default 默认值
+     * @param string|array  $name header名称
+     * @param string        $default 默认值
      * @return string
      */
     public function header($name = '', $default = null)
@@ -879,9 +879,9 @@ class Request
 
     /**
      * 获取PATH_INFO
-     * @param string $name 数据名称
-     * @param string $default 默认值
-     * @param string|array $filter 过滤方法
+     * @param string        $name 数据名称
+     * @param string        $default 默认值
+     * @param string|array  $filter 过滤方法
      * @return mixed
      */
     public function pathParam($name = '', $default = null, $filter = null)
@@ -898,10 +898,10 @@ class Request
 
     /**
      * 获取变量 支持过滤和默认值
-     * @param array $data 数据源
-     * @param string $name 字段名
-     * @param mixed $default 默认值
-     * @param string|array $filter 过滤函数
+     * @param array         $data 数据源
+     * @param string        $name 字段名
+     * @param mixed         $default 默认值
+     * @param string|array  $filter 过滤函数
      * @return mixed
      */
     public function input($data = [], $name = '', $default = null, $filter = null)
@@ -963,9 +963,9 @@ class Request
 
     /**
      * 递归过滤给定的值
-     * @param mixed $value 键值
-     * @param mixed $key 键名
-     * @param array $filters 过滤方法+默认值
+     * @param mixed     $value 键值
+     * @param mixed     $key 键名
+     * @param array     $filters 过滤方法+默认值
      * @return mixed
      */
     private function filterValue(&$value, $key, $filters)
@@ -1050,9 +1050,9 @@ class Request
     /**
      * 是否存在某个请求参数
      * @access public
-     * @param string $name 变量名
-     * @param string $type 变量类型
-     * @param bool $checkEmpty 是否检测空值     
+     * @param string    $name 变量名
+     * @param string    $type 变量类型
+     * @param bool      $checkEmpty 是否检测空值     
      * @return mixed
      */
     public function has($name, $type = 'param', $checkEmpty = false)
@@ -1076,8 +1076,8 @@ class Request
     /**
      * 获取指定的参数
      * @access public
-     * @param string|array $name 变量名
-     * @param string $type 变量类型
+     * @param string|array  $name 变量名
+     * @param string        $type 变量类型
      * @return mixed
      */
     public function only($name, $type = 'param')
@@ -1098,8 +1098,8 @@ class Request
     /**
      * 排除指定参数获取
      * @access public
-     * @param string|array $name 变量名
-     * @param string $type 变量类型
+     * @param string|array  $name 变量名
+     * @param string        $type 变量类型
      * @return mixed
      */
     public function except($name, $type = 'param')
@@ -1158,8 +1158,8 @@ class Request
 
     /**
      * 获取客户端IP地址
-     * @param integer $type 返回类型 0 返回IP地址 1 返回IPV4地址数字
-     * @param boolean $adv 是否进行高级模式获取（有可能被伪装）
+     * @param integer   $type 返回类型 0 返回IP地址 1 返回IPV4地址数字
+     * @param boolean   $adv 是否进行高级模式获取（有可能被伪装）
      * @return mixed
      */
     public function ip($type = 0, $adv = false)

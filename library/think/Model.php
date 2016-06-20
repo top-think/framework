@@ -225,9 +225,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 修改器 设置数据对象值
      * @access public
-     * @param string $name 属性名
-     * @param mixed $value 属性值
-     * @param array $data 数据
+     * @param string    $name 属性名
+     * @param mixed     $value 属性值
+     * @param array     $data 数据
      * @return $this
      */
     public function setAttr($name, $value, $data = [])
@@ -276,8 +276,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 数据写入 类型转换
      * @access public
-     * @param mixed $value 值
-     * @param string|array $type 要转换的类型
+     * @param mixed         $value 值
+     * @param string|array  $type 要转换的类型
      * @return mixed
      */
     protected function writeTransform($value, $type)
@@ -357,8 +357,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 数据读取 类型转换
      * @access public
-     * @param mixed $value 值
-     * @param string|array $type 要转换的类型
+     * @param mixed         $value 值
+     * @param string|array  $type 要转换的类型
      * @return mixed
      */
     protected function readTransform($value, $type)
@@ -513,10 +513,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 保存当前数据对象
      * @access public
-     * @param array $data 数据
-     * @param array $where 更新条件
-     * @param bool $getId 新增的时候是否获取id
-     * @param bool $replace 是否replace
+     * @param array     $data 数据
+     * @param array     $where 更新条件
+     * @param bool      $getId 新增的时候是否获取id
+     * @param bool      $replace 是否replace
      * @return integer
      */
     public function save($data = [], $where = [], $getId = true, $replace = false)
@@ -665,7 +665,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否为更新数据
      * @access public
-     * @param bool $update
+     * @param bool  $update
      * @param mixed $where
      * @return $this
      */
@@ -730,7 +730,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 设置字段验证
      * @access public
      * @param array|string|bool $rule 验证规则 true表示自动读取验证器类
-     * @param array $msg 提示信息
+     * @param array             $msg 提示信息
      * @return $this
      */
     public function validate($rule = true, $msg = [])
@@ -808,9 +808,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 注册回调方法
      * @access public
-     * @param string $event 事件名
-     * @param callable $callback 回调方法
-     * @param bool $override 是否覆盖
+     * @param string        $event 事件名
+     * @param callable      $callback 回调方法
+     * @param bool          $override 是否覆盖
      * @return void
      */
     public static function event($event, $callback, $override = false)
@@ -825,8 +825,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 触发事件
      * @access protected
-     * @param string $event 事件名
-     * @param mixed $params 传入参数（引用）
+     * @param string    $event 事件名
+     * @param mixed     $params 传入参数（引用）
      * @return bool
      */
     protected function trigger($event, &$params)
@@ -847,8 +847,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 写入数据
      * @access public
-     * @param array $data 数据数组
-     * @param bool $replace 是否replace
+     * @param array     $data 数据数组
+     * @param bool      $replace 是否replace
      * @return $this
      */
     public static function create($data = [], $replace = false)
@@ -861,8 +861,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 更新数据
      * @access public
-     * @param array $data 数据数组
-     * @param array $where 更新条件
+     * @param array     $data 数据数组
+     * @param array     $where 更新条件
      * @return $this
      */
     public static function update($data = [], $where = [])
@@ -905,9 +905,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 分析查询表达式
      * @access public
-     * @param mixed $data 主键列表或者查询条件（闭包）
-     * @param string $with 关联预查询
-     * @param bool $cache 是否缓存
+     * @param mixed         $data 主键列表或者查询条件（闭包）
+     * @param string        $with 关联预查询
+     * @param bool          $cache 是否缓存
      * @return Query
      */
     protected static function parseQuery(&$data, $with, $cache)
@@ -957,8 +957,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 命名范围
      * @access public
-     * @param string|array|Closure $name 命名范围名称 逗号分隔
-     * @param mixed $params 参数调用
+     * @param string|array|Closure  $name 命名范围名称 逗号分隔
+     * @param mixed                 $params 参数调用
      * @return Model
      */
     public static function scope($name, $params = [])
@@ -986,10 +986,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param string $relation 关联方法名
-     * @param string $operator 比较操作符
-     * @param integer $count 个数
-     * @param string $id 关联表的统计字段
+     * @param string    $relation 关联方法名
+     * @param string    $operator 比较操作符
+     * @param integer   $count 个数
+     * @param string    $id 关联表的统计字段
      * @return Model
      */
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
@@ -1011,8 +1011,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param string $relation 关联方法名
-     * @param mixed $where 查询条件（数组或者闭包）
+     * @param string    $relation 关联方法名
+     * @param mixed     $where 查询条件（数组或者闭包）
      * @return Model
      */
     public static function hasWhere($relation, $where = [])
@@ -1077,8 +1077,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 预载入关联查询 返回数据集
      * @access public
-     * @param array $resultSet 数据集
-     * @param string $relation 关联名
+     * @param array     $resultSet 数据集
+     * @param string    $relation 关联名
      * @return array
      */
     public function eagerlyResultSet($resultSet, $relation)
@@ -1089,8 +1089,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 预载入关联查询 返回模型对象
      * @access public
-     * @param Model $result 数据对象
-     * @param string $relation 关联名
+     * @param Model     $result 数据对象
+     * @param string    $relation 关联名
      * @return Model
      */
     public function eagerlyResult($result, $relation)
@@ -1224,8 +1224,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 修改器 设置数据对象的值
      * @access public
-     * @param string $name 名称
-     * @param mixed $value 值
+     * @param string    $name 名称
+     * @param mixed     $value 值
      * @return void
      */
     public function __set($name, $value)

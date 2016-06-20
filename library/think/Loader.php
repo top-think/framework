@@ -267,10 +267,10 @@ class Loader
 
     /**
      * 实例化（分层）模型
-     * @param string $name Model名称
-     * @param string $layer 业务层名称
-     * @param bool $appendSuffix 是否添加类名后缀
-     * @param string $common 公共模块名
+     * @param string    $name Model名称
+     * @param string    $layer 业务层名称
+     * @param bool      $appendSuffix 是否添加类名后缀
+     * @param string    $common 公共模块名
      * @return Object
      * @throws ClassNotFoundException
      */
@@ -301,10 +301,10 @@ class Loader
 
     /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
-     * @param string $name 资源地址
-     * @param string $layer 控制层名称
-     * @param bool $appendSuffix 是否添加类名后缀
-     * @param string $empty 空控制器名称
+     * @param string    $name 资源地址
+     * @param string    $layer 控制层名称
+     * @param bool      $appendSuffix 是否添加类名后缀
+     * @param string    $empty 空控制器名称
      * @return Object|false
      * @throws ClassNotFoundException
      */
@@ -327,10 +327,10 @@ class Loader
 
     /**
      * 实例化验证类 格式：[模块名/]验证器名
-     * @param string $name 资源地址
-     * @param string $layer 验证层名称
-     * @param bool $appendSuffix 是否添加类名后缀
-     * @param string $common 公共模块名
+     * @param string    $name 资源地址
+     * @param string    $layer 验证层名称
+     * @param bool      $appendSuffix 是否添加类名后缀
+     * @param string    $common 公共模块名
      * @return Object|false
      * @throws ClassNotFoundException
      */
@@ -376,10 +376,10 @@ class Loader
 
     /**
      * 远程调用模块的操作方法 参数格式 [模块/控制器/]操作
-     * @param string $url 调用地址
-     * @param string|array $vars 调用参数 支持字符串和数组
-     * @param string $layer 要调用的控制层名称
-     * @param bool $appendSuffix 是否添加类名后缀
+     * @param string        $url 调用地址
+     * @param string|array  $vars 调用参数 支持字符串和数组
+     * @param string        $layer 要调用的控制层名称
+     * @param bool          $appendSuffix 是否添加类名后缀
      * @return mixed
      */
     public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
@@ -403,8 +403,8 @@ class Loader
     /**
      * 字符串命名风格转换
      * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
-     * @param string $name 字符串
-     * @param integer $type 转换类型
+     * @param string    $name 字符串
+     * @param integer   $type 转换类型
      * @return string
      */
     public static function parseName($name, $type = 0)

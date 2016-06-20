@@ -72,8 +72,8 @@ abstract class Builder
     /**
      * 数据分析
      * @access protected
-     * @param array $data 数据
-     * @param array $options 查询参数
+     * @param array     $data 数据
+     * @param array     $options 查询参数
      * @return array
      */
     protected function parseData($data, $options)
@@ -213,7 +213,8 @@ abstract class Builder
     /**
      * 生成查询条件SQL
      * @access public
-     * @param mixed $where
+     * @param mixed     $where
+     * @param string    $table
      * @return string
      */
     public function buildWhere($where, $table)
@@ -361,8 +362,8 @@ abstract class Builder
     /**
      * 日期时间条件解析
      * @access protected
-     * @param string $value
-     * @param string $key
+     * @param string    $value
+     * @param string    $key
      * @return string
      */
     protected function parseDateTime($value, $key)
@@ -563,9 +564,9 @@ abstract class Builder
     /**
      * 生成insert SQL
      * @access public
-     * @param array $data 数据
-     * @param array $options 表达式
-     * @param bool $replace 是否replace
+     * @param array     $data 数据
+     * @param array     $options 表达式
+     * @param bool      $replace 是否replace
      * @return string
      */
     public function insert(array $data, $options = [], $replace = false)
@@ -594,8 +595,8 @@ abstract class Builder
     /**
      * 生成insertall SQL
      * @access public
-     * @param array $dataSet 数据集
-     * @param array $options 表达式
+     * @param array     $dataSet 数据集
+     * @param array     $options 表达式
      * @return string
      */
     public function insertAll($dataSet, $options)
@@ -640,9 +641,9 @@ abstract class Builder
     /**
      * 生成slectinsert SQL
      * @access public
-     * @param array $fields 数据
-     * @param string $table 数据表
-     * @param array $options 表达式
+     * @param array     $fields 数据
+     * @param string    $table 数据表
+     * @param array     $options 表达式
      * @return string
      */
     public function selectInsert($fields, $table, $options)
@@ -659,8 +660,8 @@ abstract class Builder
     /**
      * 生成update SQL
      * @access public
-     * @param array $fields 数据
-     * @param array $options 表达式
+     * @param array     $fields 数据
+     * @param array     $options 表达式
      * @return string
      */
     public function update($data, $options)

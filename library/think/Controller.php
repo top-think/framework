@@ -98,10 +98,10 @@ class Controller
     /**
      * 加载模板输出
      * @access protected
-     * @param string $template 模板文件名
-     * @param array  $vars     模板输出变量
-     * @param array $replace     模板替换
-     * @param array $config     模板参数
+     * @param string    $template 模板文件名
+     * @param array     $vars     模板输出变量
+     * @param array     $replace     模板替换
+     * @param array     $config     模板参数
      * @return mixed
      */
     protected function fetch($template = '', $vars = [], $replace = [], $config = [])
@@ -112,10 +112,10 @@ class Controller
     /**
      * 渲染内容输出
      * @access protected
-     * @param string $content 模板内容
-     * @param array  $vars     模板输出变量
-     * @param array  $replace 替换内容
-     * @param array $config     模板参数
+     * @param string    $content 模板内容
+     * @param array     $vars     模板输出变量
+     * @param array     $replace 替换内容
+     * @param array     $config     模板参数
      * @return mixed
      */
     protected function display($content = '', $vars = [], $replace = [], $config = [])
@@ -126,8 +126,8 @@ class Controller
     /**
      * 模板变量赋值
      * @access protected
-     * @param mixed $name  要显示的模板变量
-     * @param mixed $value 变量的值
+     * @param mixed     $name  要显示的模板变量
+     * @param mixed     $value 变量的值
      * @return void
      */
     protected function assign($name, $value = '')
@@ -161,11 +161,11 @@ class Controller
     /**
      * 验证数据
      * @access protected
-     * @param array $data 数据
-     * @param string|array $validate 验证器名或者验证规则数组
-     * @param array $message 提示信息
-     * @param bool $batch 是否批量验证     
-     * @param mixed $callback 回调方法（闭包）
+     * @param array         $data 数据
+     * @param string|array  $validate 验证器名或者验证规则数组
+     * @param array         $message 提示信息
+     * @param bool          $batch 是否批量验证     
+     * @param mixed         $callback 回调方法（闭包）
      * @return true|string|array
      */
     protected function validate($data, $validate, $message = [], $batch = false, $callback = null)

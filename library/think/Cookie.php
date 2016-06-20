@@ -97,8 +97,8 @@ class Cookie
 
     /**
      * 判断Cookie数据
-     * @param string $name cookie名称
-     * @param string|null $prefix cookie前缀
+     * @param string        $name cookie名称
+     * @param string|null   $prefix cookie前缀
      * @return bool
      */
     public static function has($name, $prefix = null)
@@ -110,8 +110,8 @@ class Cookie
 
     /**
      * Cookie获取
-     * @param string $name cookie名称
-     * @param string|null $prefix cookie前缀
+     * @param string        $name cookie名称
+     * @param string|null   $prefix cookie前缀
      * @return mixed
      */
     public static function get($name, $prefix = null)
@@ -133,8 +133,8 @@ class Cookie
 
     /**
      * Cookie删除
-     * @param string $name cookie名称
-     * @param string|null $prefix cookie前缀
+     * @param string        $name cookie名称
+     * @param string|null   $prefix cookie前缀
      * @return mixed
      */
     public static function delete($name, $prefix = null)

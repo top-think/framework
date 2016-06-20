@@ -102,9 +102,9 @@ class File extends SplFileObject
 
     /**
      * 移动文件
-     * @param  string   $path    保存路径
-     * @param  string|bool   $savename    保存的文件名 默认自动生成
-     * @param  boolean $replace 同名文件是否覆盖
+     * @param  string           $path    保存路径
+     * @param  string|bool      $savename    保存的文件名 默认自动生成
+     * @param  boolean          $replace 同名文件是否覆盖
      * @return false|SplFileInfo false-失败 否则返回SplFileInfo实例
      */
     public function move($path, $savename = true, $replace = true)
