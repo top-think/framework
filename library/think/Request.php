@@ -14,6 +14,7 @@ namespace think;
 use think\Config;
 use think\File;
 use think\Session;
+use think\Exception;
 
 class Request
 {
@@ -110,6 +111,8 @@ class Request
 
     // 全局过滤规则
     protected $filter;
+    // Hook扩展方法
+    protected static $hook = [];
 
     /**
      * 架构函数
@@ -123,6 +126,31 @@ class Request
                 $this->$name = $item;
             }
         }
+    }
+
+    public function __call($method, $args)
+    {
+        if (array_key_exists($method, self::$hook)) {
+            call_user_func_array(self::$hook[$method], $args);
+        } else {
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+        }
+    }
+
+    /**
+     * Hook 方法注入
+     * @access public
+     * @param string|array $method 方法名
+     * @param mixed $callback callable
+     * @return void
+     */
+    public static function hook($method, $callback = null)
+    {
+        if (is_array($method)) {
+            self::$hook = array_merge(self::$hook, $method);
+        } else {
+            self::$hook[$method] = $callback;
+        }        
     }
 
     /**
@@ -1182,61 +1210,6 @@ class Request
         } else {
             return false;
         }
-    }
-
-    /**
-     * 获取请求的user agent信息
-     * @access public
-     * @return string
-     */
-    public function agent()
-    {
-        return $this->server('HTTP_USER_AGENT');
-    }
-
-    /**
-     * 获取请求的accept encoding
-     * @access public
-     * @return string
-     */
-    public function encode()
-    {
-        return $this->server('HTTP_ACCEPT_ENCODING');
-    }
-
-    /**
-     * 获取请求的accept language
-     * @access public
-     * @return string
-     */
-    public function language()
-    {
-        return $this->server('HTTP_ACCEPT_LANGUAGE');
-    }
-
-    /**
-     * 获取请求的cache control
-     * @access public
-     * @return string
-     */
-    public function cache()
-    {
-        return $this->server('HTTP_CACHE_CONTROL');
-    }
-
-    /**
-     * 获取当前请求的content type
-     * @access public
-     * @return string
-     */
-    public function getContentType()
-    {
-        if (isset($_SERVER["CONTENT_TYPE"])) {
-            return $_SERVER["CONTENT_TYPE"];
-        } elseif (isset($_SERVER["HTTP_CONTENT_TYPE"])) {
-            return $_SERVER["HTTP_CONTENT_TYPE"];
-        }
-        return null;
     }
 
     /**
