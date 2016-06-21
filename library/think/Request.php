@@ -810,7 +810,7 @@ class Request
                         if (empty($val['tmp_name'])) {
                             continue;
                         }                        
-                        $item[$key] =  new File($val['tmp_name'], $val);
+                        $item[$key] =  new File($val['tmp_name'])->setUploadInfo($val);
                     }
                 }
                 return $item;
@@ -818,7 +818,7 @@ class Request
                 if($array[$name] instanceof File){
                     return $array[$name];
                 } elseif (!empty($array[$name]['tmp_name'])){
-                    return new File($array[$name]['tmp_name'], $array[$name]);
+                    return new File($array[$name]['tmp_name'])->setUploadInfo($array[$name]);
                 }                
             }
         }
