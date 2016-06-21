@@ -646,7 +646,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param bool      $replace 是否replace
      * @return array|false
      */
-    public function saveAll($dataSet, $repalce = false)
+    public function saveAll($dataSet, $replace = false)
     {
         $result = [];
         $db     = $this->db();
