@@ -23,16 +23,16 @@ use think\paginator\Collection as PaginatorCollection;
 /**
  * Class Model
  * @package think
- * @method PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) 分页查询
- * @method mixed value($field, $default = null) 得到某个字段的值
- * @method array column($field, $key = '') 得到某个列的数组
- * @method integer count($field = '*') COUNT查询
- * @method integer sum($field = '*') SUM查询
- * @method integer min($field = '*') MIN查询
- * @method integer max($field = '*') MAX查询
- * @method integer avg($field = '*') AVG查询
- * @method setField($field, $value = '')
- * @method Query where($field, $op = null, $condition = null) 指定AND查询条件
+ * @method static PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) 分页查询
+ * @method static mixed value($field, $default = null) 得到某个字段的值
+ * @method static array column($field, $key = '') 得到某个列的数组
+ * @method static integer count($field = '*') COUNT查询
+ * @method static integer sum($field = '*') SUM查询
+ * @method static integer min($field = '*') MIN查询
+ * @method static integer max($field = '*') MAX查询
+ * @method static integer avg($field = '*') AVG查询
+ * @method static setField($field, $value = '')
+ * @method static Query where($field, $op = null, $condition = null) 指定AND查询条件
  *
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
