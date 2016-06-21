@@ -150,22 +150,22 @@ class Loader
                         include $file;
                     }
                 }
-            } else {
-                self::scanComposerPackage();
+            } elseif (is_dir(VENDOR_PATH)) {
+                self::scanComposerPackage(VENDOR_PATH);
             }
         }
     }
 
     // 扫描composer package
-    private static function scanComposerPackage()
+    private static function scanComposerPackage($path)
     {
         // 自动扫描下载Composer安装类库
-        $dirs      = scandir(VENDOR_PATH, 1);
+        $dirs      = scandir($path, 1);
         $namespace = [];
         foreach ($dirs as $dir) {
-            if ('.' != $dir && '..' != $dir && is_file(VENDOR_PATH . $dir . DS . 'composer.json')) {
+            if ('.' != $dir && '..' != $dir && is_file($path . $dir . DS . 'composer.json')) {
                 // 解析 package的composer.json 文件
-                $namespace = array_merge($namespace, self::parseComposerPackage(VENDOR_PATH . $dir . DS));
+                $namespace = array_merge($namespace, self::parseComposerPackage($path . $dir . DS));
             }
         }
         if (!empty($namespace)) {
