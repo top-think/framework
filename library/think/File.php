@@ -48,7 +48,7 @@ class File extends SplFileObject
 
     /**
      * 设置上传信息
-     * @param  bool   $info 上传文件信息
+     * @param  array   $info 上传文件信息
      * @return $this
      */
     public function setUploadInfo($info)
