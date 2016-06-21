@@ -151,26 +151,31 @@ class Loader
                     }
                 }
             } else {
-                // 自动扫描下载Composer安装类库
-                $dirs      = scandir(VENDOR_PATH, 1);
-                $namespace = [];
-                foreach ($dirs as $dir) {
-                    if ('.' != $dir && '..' != $dir && is_file(VENDOR_PATH . $dir . DS . 'composer.json')) {
-                        // 解析 package的composer.json 文件
-                        $namespace = array_merge($namespace, self::parseComposerPackage(VENDOR_PATH . $dir . DS));
-                    }
-                }
-                if (!empty($namespace)) {
-                    self::addNamespace($namespace);
-                    // 生成缓存
-                    file_put_contents(RUNTIME_PATH . 'class_namespace.php', "<?php\nreturn " . var_export($namespace, true) . ';');
-                }
-                if (!empty(self::$load)) {
-                    // 生成缓存
-                    file_put_contents(RUNTIME_PATH . 'load_files.php', "<?php\nreturn " . var_export(self::$load, true) . ';');
-                }
+                self::scanComposerPackage();
             }
+        }
+    }
 
+    // 扫描composer package
+    private static function scanComposerPackage()
+    {
+        // 自动扫描下载Composer安装类库
+        $dirs      = scandir(VENDOR_PATH, 1);
+        $namespace = [];
+        foreach ($dirs as $dir) {
+            if ('.' != $dir && '..' != $dir && is_file(VENDOR_PATH . $dir . DS . 'composer.json')) {
+                // 解析 package的composer.json 文件
+                $namespace = array_merge($namespace, self::parseComposerPackage(VENDOR_PATH . $dir . DS));
+            }
+        }
+        if (!empty($namespace)) {
+            self::addNamespace($namespace);
+            // 生成缓存
+            file_put_contents(RUNTIME_PATH . 'class_namespace.php', "<?php\nreturn " . var_export($namespace, true) . ';');
+        }
+        if (!empty(self::$load)) {
+            // 生成缓存
+            file_put_contents(RUNTIME_PATH . 'load_files.php', "<?php\nreturn " . var_export(self::$load, true) . ';');
         }
     }
 
