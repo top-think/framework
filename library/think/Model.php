@@ -646,7 +646,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return $result;
         } catch (\Exception $e) {
             $db->rollback();
-            return false;
+            throw $e;
         }
     }
 
