@@ -1703,13 +1703,13 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function select($data = [])
+    public function select($data = null)
     {
         if ($data instanceof Query) {
             return $data->select();
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $this]);
-            $data = [];
+            $data = null;
         }
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -1717,7 +1717,7 @@ class Query
         if (false === $data) {
             // 用于子查询 不查询只返回SQL
             $options['fetch_sql'] = true;
-        } elseif (!empty($data)) {
+        } elseif (!is_null($data)) {
             // 主键条件分析
             $this->parsePkWhere($data, $options);
         }
@@ -1790,18 +1790,18 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function find($data = [])
+    public function find($data = null)
     {
         if ($data instanceof Query) {
             return $data->find();
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $this]);
-            $data = [];
+            $data = null;
         }
         // 分析查询表达式
         $options = $this->parseExpress();
 
-        if (!empty($data) || 0 === $data) {
+        if (!is_null($data)) {
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
         }

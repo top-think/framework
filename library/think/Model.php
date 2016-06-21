@@ -248,7 +248,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         $value = $_SERVER['REQUEST_TIME'];
                         break;
                 }
-            } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),['datetime','date','timestamp'])) {
+            } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
                 $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
             } else {
                 $value = $_SERVER['REQUEST_TIME'];
@@ -282,9 +282,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function writeTransform($value, $type)
     {
-        if(is_array($type)){
-            list($type,$param)  = $type;
-        }elseif (strpos($type, ':')) {
+        if (is_array($type)) {
+            list($type, $param) = $type;
+        } elseif (strpos($type, ':')) {
             list($type, $param) = explode(':', $type, 2);
         }
         switch ($type) {
@@ -318,12 +318,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'array':
                 $value = (array) $value;
             case 'json':
-                $option = !empty($param) ? (int)$param : JSON_UNESCAPED_UNICODE;
+                $option = !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE;
                 $value  = json_encode($value, $option);
                 break;
             case 'serialize':
                 $value = serialize($value);
-                break;                  
+                break;
         }
         return $value;
     }
@@ -363,9 +363,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function readTransform($value, $type)
     {
-        if(is_array($type)){
-            list($type,$param)  = $type;
-        }elseif (strpos($type, ':')) {
+        if (is_array($type)) {
+            list($type, $param) = $type;
+        } elseif (strpos($type, ':')) {
             list($type, $param) = explode(':', $type, 2);
         }
         switch ($type) {
@@ -399,7 +399,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 break;
             case 'serialize':
                 $value = unserialize($value);
-                break;                
+                break;
         }
         return $value;
     }
@@ -636,7 +636,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function saveAll($dataSet)
     {
         $result = 0;
-        $db = $this->db();
+        $db     = $this->db();
         $db->startTrans();
         try {
             foreach ($dataSet as $data) {
@@ -881,7 +881,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @return static
      * @throws exception\DbException
      */
-    public static function get($data = '', $with = [], $cache = false)
+    public static function get($data = null, $with = [], $cache = false)
     {
         $query = self::parseQuery($data, $with, $cache);
         return $query->find($data);
@@ -896,7 +896,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @return static[]|false
      * @throws exception\DbException
      */
-    public static function all($data = [], $with = [], $cache = false)
+    public static function all($data = null, $with = [], $cache = false)
     {
         $query = self::parseQuery($data, $with, $cache);
         return $query->select($data);
@@ -915,13 +915,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $result = self::with($with)->cache($cache);
         if (is_array($data) && key($data) !== 0) {
             $result = $result->where($data);
-            $data   = [];
+            $data   = null;
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $result]);
-            $data = [];
+            $data = null;
         } elseif ($data instanceof Query) {
             $result = $data->with($with)->cache($cache);
-            $data   = [];
+            $data   = null;
         }
         return $result;
     }
@@ -938,10 +938,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $query = $model->db();
         if (is_array($data) && key($data) !== 0) {
             $query->where($data);
-            $data = [];
+            $data = null;
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $query]);
-            $data = [];
+            $data = null;
         }
         $resultSet = $query->select($data);
         $count     = 0;
