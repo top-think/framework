@@ -1801,7 +1801,7 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
 
-        if (!empty($data) || 0 == $data) {
+        if (!empty($data) || 0 === $data) {
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
         }
