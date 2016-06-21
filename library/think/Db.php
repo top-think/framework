@@ -67,7 +67,7 @@ class Db
             if (empty($options['type'])) {
                 throw new \InvalidArgumentException('Underfined db type');
             }
-            $class = strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
+            $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
             App::$debug && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
             if (true === $name) {

@@ -98,7 +98,7 @@ class Url
             // 添加参数
             if (Config::get('url_common_param')) {
                 $vars = urldecode(http_build_query($vars));
-                $url .= $suffix . $anchor . '?' . $vars;
+                $url .= $suffix . '?' . $vars . $anchor;
             } else {
                 foreach ($vars as $var => $val) {
                     if ('' !== trim($val)) {

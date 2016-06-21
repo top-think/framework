@@ -83,7 +83,7 @@ class View
             $type = !empty($options['type']) ? $options['type'] : 'Think';
         }
 
-        $class = strpos($type, '\\') ? $type : '\\think\\view\\driver\\' . ucfirst($type);
+        $class = false !== strpos($type, '\\') ? $type : '\\think\\view\\driver\\' . ucfirst($type);
         if (isset($options['type'])) {
             unset($options['type']);
         }

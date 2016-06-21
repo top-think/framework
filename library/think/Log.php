@@ -42,7 +42,7 @@ class Log
     public static function init($config = [])
     {
         $type         = isset($config['type']) ? $config['type'] : 'File';
-        $class        = strpos($type, '\\') ? $type :  '\\think\\log\\driver\\' . ucwords($type);
+        $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
         self::$config = $config;
         unset($config['type']);
         self::$driver = new $class($config);
@@ -57,7 +57,7 @@ class Log
     public static function alarm($config = [])
     {
         $type  = isset($config['type']) ? $config['type'] : 'Email';
-        $class = strpos($type, '\\') ? $type : '\\think\\log\\alarm\\' . ucwords($type);
+        $class = false !== strpos($type, '\\') ? $type : '\\think\\log\\alarm\\' . ucwords($type);
         unset($config['type']);
         self::$alarm = new $class($config['alarm']);
         // 记录初始化信息
