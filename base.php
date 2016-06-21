@@ -32,6 +32,7 @@ defined('CONF_EXT') or define('CONF_EXT', EXT); // 配置文件后缀
 defined('ENV_PREFIX') or define('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
 defined('IS_API') or define('IS_API', false); // 是否API接口
 defined('APP_AUTO_RUN') or define('APP_AUTO_RUN', true); // 是否自动运行
+defined('AUTO_SCAN_PACKAGE') or define('AUTO_SCAN_PACKAGE', false); // 是否自动扫描非Composer安装类库
 
 // 环境常量
 define('IS_CLI', PHP_SAPI == 'cli' ? true : false);

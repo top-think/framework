@@ -12,7 +12,6 @@
 namespace think;
 
 use think\App;
-use think\exception\HttpException;
 use think\exception\ClassNotFoundException;
 use think\Request;
 
@@ -60,16 +59,27 @@ class Loader
             if (!strpos($class, '\\')) {
                 return false;
             }
+
             // 解析命名空间
             list($name, $class) = explode('\\', $class, 2);
             if (isset(self::$namespace[$name])) {
-                // 注册的命名空间
+                // 根命名空间
                 $path = self::$namespace[$name];
             } elseif (is_dir(EXTEND_PATH . $name)) {
                 // 扩展类库命名空间
                 $path = EXTEND_PATH . $name . DS;
             } else {
-                return false;
+                // 非根命名空间检测
+                foreach (self::$namespace as $ns => $val) {
+                    if (strpos($ns, '\\') && 0 === strpos($name . '\\' . $class, $ns)) {
+                        $path  = $val;
+                        $class = substr($name . $class, strlen($ns));
+                        break;
+                    }
+                }
+                if (!isset($path)) {
+                    return false;
+                }
             }
             $filename = $path . str_replace('\\', DS, $class) . EXT;
             if (is_file($filename)) {
@@ -120,18 +130,78 @@ class Loader
     {
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload');
-        
+
         if (is_dir(VENDOR_PATH . 'composer')) {
             // 注册Composer自动加载
             self::registerComposerLoader();
-            self::$composerLoader  = true;
-        } elseif(is_file(VENDOR_PATH . 'think_autoload.php')) {
+            self::$composerLoader = true;
+        } elseif (is_file(VENDOR_PATH . 'think_autoload.php')) {
             // 读取Composer自动加载文件
             $autoload = include VENDOR_PATH . 'think_autoload.php';
             if (is_array($autoload)) {
                 self::addMap($autoload);
             }
+        } elseif (AUTO_SCAN_PACKAGE) {
+            if (is_file(RUNTIME_PATH . 'class_namespace.php')) {
+                self::addNamespace(include RUNTIME_PATH . 'class_namespace.php');
+                if (is_file(RUNTIME_PATH . 'load_files.php')) {
+                    $files = include RUNTIME_PATH . 'load_files.php';
+                    foreach ($files as $file) {
+                        include $file;
+                    }
+                }
+            } else {
+                // 自动扫描下载Composer安装类库
+                $dirs      = scandir(VENDOR_PATH, 1);
+                $namespace = [];
+                foreach ($dirs as $dir) {
+                    if ('.' != $dir && '..' != $dir && is_file(VENDOR_PATH . $dir . DS . 'composer.json')) {
+                        // 解析 package的composer.json 文件
+                        $namespace = array_merge($namespace, self::parseComposerPackage(VENDOR_PATH . $dir . DS));
+                    }
+                }
+                if (!empty($namespace)) {
+                    self::addNamespace($namespace);
+                    // 生成缓存
+                    file_put_contents(RUNTIME_PATH . 'class_namespace.php', "<?php\nreturn " . var_export($namespace, true) . ';');
+                }
+                if (!empty(self::$load)) {
+                    // 生成缓存
+                    file_put_contents(RUNTIME_PATH . 'load_files.php', "<?php\nreturn " . var_export(self::$load, true) . ';');
+                }
+            }
+
         }
+    }
+
+    // 解析Composer Package
+    private static function parseComposerPackage($package)
+    {
+        $content   = file_get_contents($package . 'composer.json');
+        $result    = json_decode($content, true);
+        $namespace = [];
+        if (!empty($result['autoload'])) {
+            $autoload = $result['autoload'];
+            if (isset($autoload['psr-0'])) {
+                foreach ($autoload['psr-0'] as $ns => $path) {
+                    $namespace[rtrim($ns, '\\')] = realpath($package . $path . DS . str_replace('\\', DS, $ns)) . DS;
+                }
+            }
+
+            if (isset($autoload['psr-4'])) {
+                foreach ($autoload['psr-4'] as $ns => $path) {
+                    $namespace[rtrim($ns, '\\')] = realpath($package . $path) . DS;
+                }
+            }
+
+            if (isset($autoload['files'])) {
+                foreach ($autoload['files'] as $file) {
+                    self::$load[] = realpath($package . $file);
+                    require $package . $file;
+                }
+            }
+        }
+        return $namespace;
     }
 
     // 注册composer自动加载
