@@ -153,9 +153,10 @@ class Url
     protected static function parseDomain(&$url, $domain)
     {
         if ($domain) {
+            $request = Request::instance();
             if (true === $domain) {
                 // 自动判断域名
-                $domain = $_SERVER['HTTP_HOST'];
+                $domain = $request->host();
                 if (Config::get('url_domain_deploy')) {
                     // 根域名
                     $urlDomainRoot = Config::get('url_domain_root');
@@ -184,9 +185,9 @@ class Url
                     }
                 }
             } else {
-                $domain .= strpos($domain, '.') ? '' : strstr($_SERVER['HTTP_HOST'], '.');
+                $domain .= strpos($domain, '.') ? '' : strstr($request->host(), '.');
             }
-            $domain = (self::isSsl() ? 'https://' : 'http://') . $domain;
+            $domain = ($request->isSsl() ? 'https://' : 'http://') . $domain;
         } else {
             $domain = '';
         }
@@ -215,20 +216,6 @@ class Url
             }
         }
         return (empty($suffix) || 0 === strpos($suffix, '.')) ? $suffix : '.' . $suffix;
-    }
-
-    /**
-     * 判断是否SSL协议
-     * @return boolean
-     */
-    public static function isSsl()
-    {
-        if (isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))) {
-            return true;
-        } elseif (isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT'])) {
-            return true;
-        }
-        return false;
     }
 
     // 匹配路由地址
