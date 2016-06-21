@@ -1306,7 +1306,7 @@ class Request
      * 设置或者获取当前的模块名
      * @access public
      * @param string $module 模块名
-     * @return string
+     * @return string|$this
      */
     public function module($module = null)
     {
@@ -1322,7 +1322,7 @@ class Request
      * 设置或者获取当前的控制器名
      * @access public
      * @param string $controller 控制器名
-     * @return string
+     * @return string|$this
      */
     public function controller($controller = null)
     {

@@ -195,7 +195,7 @@ class App
     /**
      * 绑定参数
      * @access public
-     * @param \ReflectionMethod $reflect 反射类
+     * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
      * @param array             $vars    变量
      * @return array
      */

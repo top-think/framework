@@ -14,9 +14,7 @@ namespace think;
 \think\Loader::import('controller/Jump', TRAIT_PATH, EXT);
 
 use think\Exception;
-use think\Exception\ValidateException;
-use think\Request;
-use think\View;
+use think\exception\ValidateException;
 
 class Controller
 {
@@ -161,12 +159,13 @@ class Controller
     /**
      * 验证数据
      * @access protected
-     * @param array         $data 数据
-     * @param string|array  $validate 验证器名或者验证规则数组
-     * @param array         $message 提示信息
-     * @param bool          $batch 是否批量验证     
-     * @param mixed         $callback 回调方法（闭包）
-     * @return true|string|array
+     * @param array        $data     数据
+     * @param string|array $validate 验证器名或者验证规则数组
+     * @param array        $message  提示信息
+     * @param bool         $batch    是否批量验证
+     * @param mixed        $callback 回调方法（闭包）
+     * @return array|string|true
+     * @throws ValidateException
      */
     protected function validate($data, $validate, $message = [], $batch = false, $callback = null)
     {

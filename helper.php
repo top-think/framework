@@ -362,14 +362,15 @@ function request()
 
 /**
  * 创建普通 Response 对象实例
- * @param mixed $data 输出数据
- * @param string $code 状态码
- * @param array $header 头信息
+ * @param mixed      $data   输出数据
+ * @param int|string $code   状态码
+ * @param array      $header 头信息
+ * @param string     $type
  * @return Response
  */
 function response($data = [], $code = 200, $header = [], $type = 'html')
 {
-    return Response::create($data, $type)->code($code)->header($header);
+    return Response::create($data, $type, $code, $header);
 }
 
 /**
@@ -381,43 +382,46 @@ function response($data = [], $code = 200, $header = [], $type = 'html')
  */
 function view($template = '', $vars = [], $code = 200)
 {
-    return Response::create($template, 'view')->vars($vars)->code($code);
+    return Response::create($template, 'view', $code)->vars($vars);
 }
 
 /**
  * 获取\think\response\Json对象实例
- * @param mixed $data 返回的数据
+ * @param mixed   $data 返回的数据
  * @param integer $code 状态码
- * @param array $options 参数
+ * @param array   $header 头部
+ * @param array   $options 参数
  * @return \think\response\Json
  */
-function json($data = [], $code = 200, $options = [])
+function json($data = [], $code = 200, $header = [], $options = [])
 {
-    return Response::create($data, 'json', $options)->code($code);
+    return Response::create($data, 'json', $code, $header, $options);
 }
 
 /**
  * 获取\think\response\Jsonp对象实例
- * @param mixed $data 返回的数据
- * @param integer $code 状态码
- * @param array $options 参数
+ * @param mixed   $data    返回的数据
+ * @param integer $code    状态码
+ * @param array   $header 头部
+ * @param array   $options 参数
  * @return \think\response\Jsonp
  */
-function jsonp($data = [], $code = 200, $options = [])
+function jsonp($data = [], $code = 200, $header = [], $options = [])
 {
-    return Response::create($data, 'jsonp', $options)->code($code);
+    return Response::create($data, 'jsonp', $code, $header, $options);
 }
 
 /**
  * 获取\think\response\Xml对象实例
- * @param mixed $data 返回的数据
- * @param integer $code 状态码
- * @param array $options 参数
+ * @param mixed   $data    返回的数据
+ * @param integer $code    状态码
+ * @param array   $header  头部
+ * @param array   $options 参数
  * @return \think\response\Xml
  */
-function xml($data = [], $code = 200, $options = [])
+function xml($data = [], $code = 200, $header = [], $options = [])
 {
-    return Response::create($data, 'xml', $options)->code($code);
+    return Response::create($data, 'xml', $code, $header, $options);
 }
 
 /**
@@ -433,7 +437,7 @@ function redirect($url = [], $params = [], $code = 302)
         $code   = $params;
         $params = [];
     }
-    return Response::create($url, 'redirect')->code($code)->params($params);
+    return Response::create($url, 'redirect', $code)->params($params);
 }
 
 /**
