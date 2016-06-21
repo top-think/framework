@@ -11,11 +11,11 @@
 
 namespace think;
 
-use think\response\Json;
-use think\response\Jsonp;
-use think\response\Redirect;
-use think\response\View;
-use think\response\Xml;
+use think\response\Json as JsonResponse;
+use think\response\Jsonp as JsonpResponse;
+use think\response\Redirect as RedirectResponse;
+use think\response\View as ViewResponse;
+use think\response\Xml as XmlResponse;
 
 class Response
 {
@@ -66,7 +66,7 @@ class Response
      * @param int    $code
      * @param array  $header
      * @param array  $options 输出参数
-     * @return Response|Json|View|Xml|Redirect|Jsonp
+     * @return Response|JsonResponse|ViewResponse|XmlResponse|RedirectResponse|JsonpResponse
      */
     public static function create($data = '', $type = '', $code = 200, array $header = [], $options = [])
     {
