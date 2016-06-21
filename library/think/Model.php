@@ -631,16 +631,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 保存多个数据到当前数据对象
      * @access public
      * @param array $data 数据
-     * @return integer
+     * @return array|false
      */
     public function saveAll($dataSet)
     {
-        $result = 0;
+        $result = [];
         $db     = $this->db();
         $db->startTrans();
         try {
             foreach ($dataSet as $data) {
-                $result = $this->isUpdate(false)->save($data, [], false);
+                $result[] = $this->isUpdate(false)->save($data, [], true);
             }
             $db->commit();
             return $result;

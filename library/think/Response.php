@@ -90,23 +90,20 @@ class Response
      */
     public function send()
     {
-
         // 处理输出数据
         $data = $this->getContent();
 
         // 监听response_data
         Hook::listen('response_data', $data, $this);
 
-        // 发送头部信息
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
             http_response_code($this->code);
-
+            // 发送头部信息
             foreach ($this->header as $name => $val) {
                 header($name . ':' . $val);
             }
         }
-
         echo $data;
 
         if (function_exists('fastcgi_finish_request')) {
@@ -150,7 +147,6 @@ class Response
         $this->data = $data;
         return $this;
     }
-
 
     /**
      * 设置响应头
@@ -264,16 +260,15 @@ class Response
         $content = $this->output($this->data);
 
         if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-                $content,
-                '__toString'
-            ])
+            $content,
+            '__toString',
+        ])
         ) {
             throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
         }
 
-        return (string)$content;
+        return (string) $content;
     }
-
 
     /**
      * 获取状态码
