@@ -391,11 +391,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value  = date($format, strtotime($value));
                 break;
             case 'json':
-            case 'array':
                 $value = json_decode($value, true);
                 break;
+            case 'array':
+                $value = is_null($value) ? [] : json_decode($value, true);
+                break;
             case 'object':
-                $value = json_decode($value);
+                $value = empty($value) ? new \stdClass() : json_decode($value);
                 break;
             case 'serialize':
                 $value = unserialize($value);
