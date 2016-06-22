@@ -250,7 +250,7 @@ class Merge extends Model
             return $result;
         } catch (\Exception $e) {
             $db->rollback();
-            return false;
+            throw $e;
         }
     }
 
@@ -283,9 +283,9 @@ class Merge extends Model
             $this->trigger('after_delete', $this);
             $db->commit();
             return $result;
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             $db->rollback();
-            return false;
+            throw $e;
         }
     }
 
