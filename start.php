@@ -27,42 +27,27 @@ if (is_file(ROOT_PATH . 'env' . EXT)) {
         putenv("$name=$val");
     }
 }
-// 自动识别调试模式
-if (!defined('APP_DEBUG')) {
-    $debug = getenv(ENV_PREFIX . 'APP_DEBUG');
-    define('APP_DEBUG', $debug);
-}
 
-// 加载模式定义文件
-$mode = require MODE_PATH . APP_MODE . EXT;
-
-// 加载模式命名空间定义
-if (isset($mode['namespace'])) {
-    Loader::addNamespace($mode['namespace']);
-}
+// 注册命名空间定义
+Loader::addNamespace([
+    'think'         => LIB_PATH . 'think' . DS,
+    'behavior'      => LIB_PATH . 'behavior' . DS,
+    'traits'        => LIB_PATH . 'traits' . DS,
+]);
 
 // 注册自动加载
 Loader::register();
 
-// 加载模式别名定义
-if (isset($mode['alias'])) {
-    Loader::addMap($mode['alias']);
-}
+// 加载别名定义
+Loader::addMap(include THINK_PATH . 'alias' . EXT);
 
 // 注册错误和异常处理机制
 Error::register();
 
 // 加载模式配置文件
-if (isset($mode['config'])) {
-    is_array($mode['config']) ? Config::set($mode['config']) : Config::load($mode['config']);
-}
-
-// 加载模式行为定义
-if (isset($mode['tags'])) {
-    Hook::import($mode['tags']);
-}
+Config::set(include THINK_PATH . 'convention' . EXT);
 
 // 是否自动运行
 if (APP_AUTO_RUN) {
-    App::run();
+    App::run()->send();
 }

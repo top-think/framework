@@ -21,6 +21,7 @@ use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
 use think\console\Output;
+use think\console\output\Nothing;
 use think\console\output\Stream;
 
 class Console
@@ -66,6 +67,44 @@ class Console
         }
     }
 
+    public static function init($run = true)
+    {
+        static $console;
+        if (!$console) {
+            // 实例化console
+            $console = new self('Think Console', '0.1');
+            // 读取指令集
+            if (is_file(CONF_PATH . 'command' . EXT)) {
+                $commands = include CONF_PATH . 'command' . EXT;
+                if (is_array($commands)) {
+                    foreach ($commands as $command) {
+                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\command\\Command")) {
+                            // 注册指令
+                            $console->add(new $command());
+                        }
+                    }
+                }
+            }
+        }
+        if ($run) {
+            // 运行
+            $console->run();
+        } else {
+            return $console;
+        }
+    }
+
+    public static function call($command, array $parameters = [])
+    {
+        $console = self::init(false);
+
+        array_unshift($parameters, $command);
+
+        $input = new ConsoleInput($parameters);
+
+        $console->find($command)->run($input, new Nothing());
+    }
+
     /**
      * 执行当前的指令
      * @return int
@@ -90,7 +129,7 @@ class Console
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int) $exitCode;
+                $exitCode = (int)$exitCode;
                 if (0 === $exitCode) {
                     $exitCode = 1;
                 }
@@ -201,7 +240,7 @@ class Console
      */
     public function setCatchExceptions($boolean)
     {
-        $this->catchExceptions = (bool) $boolean;
+        $this->catchExceptions = (bool)$boolean;
     }
 
     /**
@@ -211,7 +250,7 @@ class Console
      */
     public function setAutoExit($boolean)
     {
-        $this->autoExit = (bool) $boolean;
+        $this->autoExit = (bool)$boolean;
     }
 
     /**
@@ -379,7 +418,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -417,7 +456,7 @@ class Console
         $expr        = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $name);
-        $commands = preg_grep('{^' . $expr . '}', $allCommands);
+        $commands    = preg_grep('{^' . $expr . '}', $allCommands);
 
         if (empty($commands) || count(preg_grep('{^' . $expr . '$}', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
@@ -606,19 +645,19 @@ class Console
 
         if ('\\' === DS) {
             if (preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim(getenv('ANSICON')), $matches)) {
-                return [(int) $matches[1], (int) $matches[2]];
+                return [(int)$matches[1], (int)$matches[2]];
             }
             if (preg_match('/^(\d+)x(\d+)$/', $this->getConsoleMode(), $matches)) {
-                return [(int) $matches[1], (int) $matches[2]];
+                return [(int)$matches[1], (int)$matches[2]];
             }
         }
 
         if ($sttyString = $this->getSttyColumns()) {
             if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
-                return [(int) $matches[2], (int) $matches[1]];
+                return [(int)$matches[2], (int)$matches[1]];
             }
             if (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
-                return [(int) $matches[2], (int) $matches[1]];
+                return [(int)$matches[2], (int)$matches[1]];
             }
         }
 

@@ -39,7 +39,7 @@ trait Instance
         if (0 === strpos($method, '_') && is_callable([self::$instance, $call])) {
             return call_user_func_array([self::$instance, $call], $params);
         } else {
-            throw new Exception("not exists method:" . $method);
+            throw new Exception("method not exists:" . $method);
         }
     }
 }

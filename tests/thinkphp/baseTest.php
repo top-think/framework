@@ -27,17 +27,14 @@ class baseTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty(CORE_PATH);
         $this->assertNotEmpty(TRAIT_PATH);
         $this->assertNotEmpty(APP_PATH);
-        $this->assertNotEmpty(APP_NAMESPACE);
         $this->assertNotEmpty(RUNTIME_PATH);
         $this->assertNotEmpty(LOG_PATH);
         $this->assertNotEmpty(CACHE_PATH);
         $this->assertNotEmpty(TEMP_PATH);
         $this->assertNotEmpty(VENDOR_PATH);
         $this->assertNotEmpty(EXT);
-        $this->assertTrue(is_bool(APP_DEBUG));
         $this->assertNotEmpty(ENV_PREFIX);
         $this->assertTrue(is_bool(IS_API));
-        $this->assertNotEmpty(APP_MODE);
         $this->assertTrue(!is_null(IS_WIN));
         $this->assertTrue(!is_null(IS_CLI));
     }

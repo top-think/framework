@@ -11,16 +11,16 @@
 
 namespace think\console\helper;
 
+use think\console\helper\question\Choice as ChoiceQuestion;
+use think\console\helper\question\Question as OutputQuestion;
 use think\console\Input;
 use think\console\Output;
-use think\console\helper\question\Question as OutputQuestion;
-use think\console\helper\question\Choice as ChoiceQuestion;
 use think\console\output\formatter\Style as OutputFormatterStyle;
 
 class Question extends Helper
 {
 
-    private        $inputStream;
+    private $inputStream;
     private static $shell;
     private static $stty;
 
@@ -138,7 +138,7 @@ class Question extends Helper
         if ($question instanceof ChoiceQuestion) {
             $width = max(array_map('strlen', array_keys($question->getChoices())));
 
-            $messages = (array)$question->getQuestion();
+            $messages = (array) $question->getQuestion();
             foreach ($question->getChoices() as $key => $value) {
                 $messages[] = sprintf("  [<info>%-${width}s</info>] %s", $key, $value);
             }
@@ -199,7 +199,7 @@ class Question extends Helper
                     $output->write("\033[1D");
                 }
 
-                if ($i === 0) {
+                if (0 === $i) {
                     $ofs        = -1;
                     $matches    = $autocomplete;
                     $numMatches = count($matches);
@@ -249,7 +249,7 @@ class Question extends Helper
                 $ofs        = 0;
 
                 foreach ($autocomplete as $value) {
-                    if (0 === strpos($value, $ret) && $i !== strlen($value)) {
+                    if (0 === strpos($value, $ret) && strlen($value) !== $i) {
                         $matches[$numMatches++] = $value;
                     }
                 }
@@ -314,7 +314,7 @@ class Question extends Helper
         }
 
         if (false !== $shell = $this->getShell()) {
-            $readCmd = $shell === 'csh' ? 'set mypassword = $<' : 'read -r mypassword';
+            $readCmd = 'csh' === $shell ? 'set mypassword = $<' : 'read -r mypassword';
             $command = sprintf("/usr/bin/env %s -c 'stty -echo; %s; stty echo; echo \$mypassword'", $shell, $readCmd);
             $value   = rtrim(shell_exec($command));
             $output->writeln('');
@@ -389,6 +389,6 @@ class Question extends Helper
 
         exec('stty 2>&1', $output, $exitcode);
 
-        return self::$stty = $exitcode === 0;
+        return self::$stty = 0 === $exitcode;
     }
 }

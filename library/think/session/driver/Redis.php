@@ -35,14 +35,14 @@ class Redis extends SessionHandler
     /**
      * 打开Session
      * @access public
-     * @param string $savePath
-     * @param mixed $sessName
+     * @param string    $savePath
+     * @param mixed     $sessName
      */
     public function open($savePath, $sessName)
     {
         // 检测php环境
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new Exception('not support:redis');
         }
         $this->handler = new \Redis;
 

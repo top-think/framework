@@ -92,4 +92,8 @@ class Sqlite extends Connection
     {
         return [];
     }
+
+    protected function supportSavepoint(){
+        return true;
+    }
 }

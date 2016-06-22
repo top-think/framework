@@ -46,12 +46,13 @@ class Oracle extends Connection
      * @access public
      * @param string $sql  sql指令
      * @param array $bind 参数绑定
-     * @param boolean $fetch  不执行只是获取SQL
+     * @param boolean $getLastInsID 是否获取自增ID
+     * @param string $sequence 序列名     
      * @return integer
      * @throws \Exception
      * @throws \think\Exception
      */
-    public function execute($sql, $bind = [], $fetch = false)
+    public function execute($sql, $bind = [], $getLastInsID = false, $sequence = null)
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -60,14 +61,15 @@ class Oracle extends Connection
 
         // 根据参数绑定组装最终的SQL语句
         $this->queryStr = $this->getBindSql($sql, $bind);
-        if ($fetch) {
-            return $this->queryStr;
-        }
+
         $flag = false;
         if (preg_match("/^\s*(INSERT\s+INTO)\s+(\w+)\s+/i", $sql, $match)) {
-            $table = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
-            $flag  = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($table) . "'");
+            if(is_null($sequence)){
+                $sequence = Config::get("db_sequence_prefix") . str_ireplace(Config::get("database.prefix"), "", $match[2]);
+            }
+            $flag  = (boolean) $this->query("SELECT * FROM all_sequences WHERE sequence_name='" . strtoupper($sequence) . "'");
         }
+        
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
             $this->free();
@@ -85,6 +87,9 @@ class Oracle extends Connection
             $this->numRows = $this->PDOStatement->rowCount();
             if ($flag || preg_match("/^\s*(INSERT\s+INTO|REPLACE\s+INTO)\s+/i", $sql)) {
                 $this->lastInsID = $this->linkID->lastInsertId();
+                if ($getLastInsID) {
+                    return $this->lastInsID;
+                }                
             }
             return $this->numRows;
         } catch (\PDOException $e) {
@@ -125,10 +130,10 @@ class Oracle extends Connection
     /**
      * 取得数据库的表信息（暂时实现取得用户表信息）
      * @access   public
+     * @param string $dbName     
      * @return array
-     * @internal param string $dbName
      */
-    public function getTables()
+    public function getTables($dbName = '')
     {
         $pdo    = $this->linkID->query("select table_name from all_tables");
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
@@ -148,5 +153,9 @@ class Oracle extends Connection
     protected function getExplain($sql)
     {
         return [];
+    }
+
+    protected function supportSavepoint(){
+        return true;
     }
 }

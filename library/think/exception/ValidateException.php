@@ -1,6 +1,6 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
 // | Copyright (c) 2006-2015 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
@@ -9,23 +9,24 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-/**
- * ThinkPHP CLI模式定义
- */
-return [
+namespace think\exception;
 
-    // 命名空间
-    'namespace' => [
-        'think'       => LIB_PATH . 'think' . DS,
-        'behavior'    => LIB_PATH . 'behavior' . DS,
-        'traits'      => LIB_PATH . 'traits' . DS,
-        APP_NAMESPACE => APP_PATH,
-    ],
-    // 别名定义
-    'alias'     => [
-        'think\App'   => MODE_PATH . 'console/App' . EXT
-    ],
-    // 配置文件
-    'config'    => THINK_PATH . 'convention' . EXT
+class ValidateException extends \RuntimeException
+{
+	protected $error;
 
-];
+	public function __construct($error)
+	{
+		$this->error = $error;
+	}
+
+    /**
+     * 获取验证错误信息
+     * @access public
+     * @return array|string
+     */
+	public function getError()
+	{
+		return $this->error;
+	}	
+}

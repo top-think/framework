@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\Collection;
 use think\db\Query;
 
@@ -28,18 +29,17 @@ use think\db\Query;
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method mixed find(mixed $data = []) static 查询单个记录
  * @method mixed select(mixed $data = []) static 查询多个记录
+ * @method integer insert(array $data, boolean $replace = false, boolean $getLastInsID = false, string $sequence = null) static 插入一条记录
+ * @method integer insertAll(array $dataSet) static 插入多条记录
+ * @method integer update(array $data) static 更新记录
+ * @method integer delete(mixed $data = []) static 删除记录
+ * @method boolean chunk(integer $count, callable $callback, string $column = null) static 分块获取数据
  * @method mixed query(string $sql, array $bind = [], boolean $fetch = false, boolean $master = false, mixed $class = false) static SQL查询
  * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
  * @method PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) static 分页查询
  */
 class Db
 {
-    // 数组数据集
-    const RESULTSET_ARRAY = 1;
-    // 对象数据集
-    const RESULTSET_COLLECTION = 2;
-    // 自定义对象数据集
-    const RESULTSET_CLASS = 3;
     //  数据库连接实例
     private static $instance = [];
     // 查询次数
@@ -51,8 +51,8 @@ class Db
      * 数据库初始化 并取得数据库类实例
      * @static
      * @access public
-     * @param mixed $config 连接配置
-     * @param bool|string $name 连接标识 true 强制重新连接
+     * @param mixed         $config 连接配置
+     * @param bool|string   $name 连接标识 true 强制重新连接
      * @return \think\db\Connection
      * @throws Exception
      */
@@ -65,11 +65,11 @@ class Db
             // 解析连接参数 支持数组和字符串
             $options = self::parseConfig($config);
             if (empty($options['type'])) {
-                throw new Exception('db type error');
+                throw new \InvalidArgumentException('Underfined db type');
             }
-            $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\db\\connector\\') . ucwords($options['type']);
+            $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
-            APP_DEBUG && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
+            App::$debug && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
             if (true === $name) {
                 return new $class($options);
             } else {

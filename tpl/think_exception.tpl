@@ -181,7 +181,7 @@
     </style>
 </head>
 <body>
-    <?php if(APP_DEBUG) { ?>
+    <?php if(\think\App::$debug) { ?>
     <div class="exception">
     <div class="message">
         
@@ -253,8 +253,10 @@
                                 echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
                             } else if(is_bool($val)) { 
                                 echo $val ? 'true' : 'false';
-                            } else {
+                            } else if(is_scalar($val)) {
                                 echo htmlentities($val);
+                            } else {
+                                echo 'Resource';
                             }
                         ?>
                     </td>
@@ -286,8 +288,10 @@
                                 echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
                             } else if(is_bool($val)) { 
                                 echo $val ? 'true' : 'false';
-                            } else {
+                            } else if(is_scalar($val)) {
                                 echo htmlentities($val);
+                            } else {
+                                echo 'Resource';
                             }
                         ?>
                     </td>
@@ -305,7 +309,7 @@
         <span>V<?php echo THINK_VERSION; ?></span> 
         <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
     </div>
-    <?php if(APP_DEBUG) { ?>
+    <?php if(\think\App::$debug) { ?>
     <script>
         var LINE = <?php echo $line; ?>;
 

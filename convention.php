@@ -5,8 +5,14 @@ return [
     // | 应用设置
     // +----------------------------------------------------------------------
 
+    // 应用命名空间
+    'app_namespace'          => 'app',
+    // 应用调试模式
+    'app_debug'              => true,
     // 应用模式状态
     'app_status'             => '',
+    // 是否支持多模块
+    'app_multi_module'       => true,
     // 注册的根命名空间
     'root_namespace'         => [],
     // 扩展配置文件
@@ -29,8 +35,10 @@ return [
     'default_filter'         => '',
     // 默认语言
     'default_lang'           => 'zh-cn',
-    // 是否启用控制器类后缀
-    'use_controller_suffix'  => false,
+    // 应用类库后缀
+    'class_suffix'           => false,
+    // 控制器类后缀
+    'controller_suffix'      => false,
 
     // +----------------------------------------------------------------------
     // | 模块设置
@@ -79,10 +87,8 @@ return [
     'url_domain_deploy'      => false,
     // 域名根，如.thinkphp.cn
     'url_domain_root'        => '',
-    // 是否自动转换URL中的控制器名
-    'url_controller_convert' => true,
-    // 是否自动转换URL中的操作名
-    'url_action_convert'     => true,
+    // 是否自动转换URL中的控制器和操作名
+    'url_convert'            => true,
     // 默认的访问控制器层
     'url_controller_layer'   => 'controller',
     // 表单请求类型伪装变量

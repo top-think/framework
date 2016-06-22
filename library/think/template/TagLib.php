@@ -186,8 +186,8 @@ class TagLib
     /**
      * 按标签生成正则
      * @access private
-     * @param  array|string $tags 标签名
-     * @param  boolean $close 是否为闭合标签
+     * @param  array|string     $tags 标签名
+     * @param  boolean          $close 是否为闭合标签
      * @return string
      */
     private function getRegex($tags, $close)
@@ -255,7 +255,7 @@ class TagLib
                 $must = explode(',', $tag['must']);
                 foreach ($must as $name) {
                     if (!isset($result[$name])) {
-                        throw new Exception('_PARAM_ERROR_:' . $name);
+                        throw new Exception('tag attr must:' . $name);
                     }
                 }
             }
@@ -272,7 +272,7 @@ class TagLib
                 $result['expression'] = rtrim($result['expression'], '/');
                 $result['expression'] = trim($result['expression']);
             } elseif (empty($this->tags[$name]) || !empty($this->tags[$name]['attr'])) {
-                throw new Exception('_XML_TAG_ERROR_:' . $name);
+                throw new Exception('tag error:' . $name);
             }
         }
         return $result;

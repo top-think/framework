@@ -76,7 +76,7 @@ class Collection extends \think\Collection
         if ($this->paginator && method_exists($this->paginator, $method)) {
             return call_user_func_array([$this->paginator, $method], $args);
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
         }
     }
 }

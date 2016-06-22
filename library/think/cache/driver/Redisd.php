@@ -11,6 +11,7 @@
 
 namespace think\cache\driver;
 
+use think\App;
 use think\Cache;
 use think\Exception;
 use think\Log;
@@ -18,21 +19,21 @@ use think\Log;
 /**
 配置参数:
 'cache' => [
-    'type'       => 'Redisd'
-    'host'       => 'A:6379,B:6379', //redis服务器ip，多台用逗号隔开；读写分离开启时，默认写A，当A主挂时，再尝试写B
-    'slave'      => 'B:6379,C:6379', //redis服务器ip，多台用逗号隔开；读写分离开启时，所有IP随机读，其中一台挂时，尝试读其它节点，可以配置权重
-    'port'       => 6379,    //默认的端口号
-    'password'   => '',      //AUTH认证密码，当redis服务直接暴露在外网时推荐
-    'timeout'    => 10,      //连接超时时间
-    'expire'     => false,   //默认过期时间，默认为永不过期
-    'prefix'     => '',      //缓存前缀，不宜过长
-    'persistent' => false,   //是否长连接 false=短连接，推荐长连接
+'type'       => 'Redisd'
+'host'       => 'A:6379,B:6379', //redis服务器ip，多台用逗号隔开；读写分离开启时，默认写A，当A主挂时，再尝试写B
+'slave'      => 'B:6379,C:6379', //redis服务器ip，多台用逗号隔开；读写分离开启时，所有IP随机读，其中一台挂时，尝试读其它节点，可以配置权重
+'port'       => 6379,    //默认的端口号
+'password'   => '',      //AUTH认证密码，当redis服务直接暴露在外网时推荐
+'timeout'    => 10,      //连接超时时间
+'expire'     => false,   //默认过期时间，默认为永不过期
+'prefix'     => '',      //缓存前缀，不宜过长
+'persistent' => false,   //是否长连接 false=短连接，推荐长连接
 ],
 
 单例获取:
-    $redis = \think\Cache::connect(Config::get('cache'));
-    $redis->master(true)->setnx('key');
-    $redis->master(false)->get('key');
+$redis = \think\Cache::connect(Config::get('cache'));
+$redis->master(true)->setnx('key');
+$redis->master(false)->get('key');
  */
 
 /**
@@ -70,7 +71,6 @@ class Redisd
         'timeout'    => 10,
         'expire'     => false,
         'persistent' => false,
-        'length'     => 0,
         'prefix'     => '',
         'serialize'  => \Redis::SERIALIZER_PHP,
     ];
@@ -84,7 +84,7 @@ class Redisd
     public function __construct($options = [])
     {
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new \BadFunctionCallException('not support: redis');
         }
 
         $this->options         = $options         = array_merge($this->options, $options);
@@ -136,7 +136,7 @@ class Redisd
         //发生错误则摘掉当前节点
         try {
             $result = $this->handler->$func($host, $port, $this->options['timeout']);
-            if($result === false) {
+            if (false === $result) {
                 $this->handler->getLastError();
             }
 
@@ -145,11 +145,11 @@ class Redisd
             }
 
             $this->handler->setOption(\Redis::OPT_SERIALIZER, $this->options['serialize']);
-            if(strlen($this->options['prefix'])) {
+            if (strlen($this->options['prefix'])) {
                 $this->handler->setOption(\Redis::OPT_PREFIX, $this->options['prefix']);
             }
 
-            APP_DEBUG && Log::record("[ CACHE ] INIT Redisd : {$host}:{$port} master->" . var_export($master, true), Log::ALERT);
+            App::$debug && Log::record("[ CACHE ] INIT Redisd : {$host}:{$port} master->" . var_export($master, true), Log::ALERT);
         } catch (\RedisException $e) {
             //phpredis throws a RedisException object if it can't reach the Redis server.
             //That can happen in case of connectivity issues, if the Redis service is down, or if the redis host is overloaded.
@@ -288,7 +288,7 @@ class Redisd
         $this->master(true);
         return $this->handler->flushDB();
     }
-    
+
     /**
      * 返回句柄对象，可执行其它高级方法
      * 需要先执行 $redis->master() 连接到 DB

@@ -17,8 +17,8 @@ class File
 {
     /**
      * 写入编译缓存
-     * @string $cacheFile 缓存的文件名
-     * @string $content 缓存的内容
+     * @param string $cacheFile 缓存的文件名
+     * @param string $content 缓存的内容
      * @return void|array
      */
     public function write($cacheFile, $content)
@@ -30,14 +30,14 @@ class File
         }
         // 生成模板缓存文件
         if (false === file_put_contents($cacheFile, $content)) {
-            throw new Exception('cache write error :' . $cacheFile, 11602);
+            throw new Exception('cache write error:' . $cacheFile, 11602);
         }
     }
 
     /**
      * 读取编译编译
-     * @string $cacheFile 缓存的文件名
-     * @array $vars 变量数组
+     * @param string  $cacheFile 缓存的文件名
+     * @param array   $vars 变量数组
      * @return void
      */
     public function read($cacheFile, $vars = [])
@@ -52,8 +52,8 @@ class File
 
     /**
      * 检查编译缓存是否有效
-     * @string $cacheFile 缓存的文件名
-     * @int $cacheTime 缓存时间
+     * @param string  $cacheFile 缓存的文件名
+     * @param int     $cacheTime 缓存时间
      * @return boolean
      */
     public function check($cacheFile, $cacheTime)

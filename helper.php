@@ -18,7 +18,6 @@ use think\Config;
 use think\Cookie;
 use think\Db;
 use think\Debug;
-use think\Input;
 use think\Lang;
 use think\Loader;
 use think\Log;
@@ -106,18 +105,16 @@ function config($name = '', $value = null, $range = '')
  * @param bool $merge 是否合并系统默认过滤方法
  * @return mixed
  */
-function input($key, $default = null, $filter = null, $merge = false)
+function input($key, $default = null, $filter = null)
 {
     if (0 === strpos($key, '?')) {
         $key = substr($key, 1);
-        $has = '?';
-    } else {
-        $has = '';
+        $has = true;
     }
     if ($pos = strpos($key, '.')) {
         // 指定参数来源
         $method = substr($key, 0, $pos);
-        if (in_array($method, ['get', 'post', 'put', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'globals', 'env', 'path', 'file'])) {
+        if (in_array($method, ['get', 'post', 'put', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
             $key = substr($key, $pos + 1);
         } else {
             $method = 'param';
@@ -126,7 +123,11 @@ function input($key, $default = null, $filter = null, $merge = false)
         // 默认为自动判断
         $method = 'param';
     }
-    return Input::$method($has . $key, $default, $filter, $merge);
+    if(isset($has)){
+        return request()->has($key, $method, $default);
+    }else{
+        return request()->$method($key, $default, $filter);
+    }
 }
 
 /**
@@ -144,18 +145,31 @@ function widget($name, $data = [])
  * 实例化Model
  * @param string $name Model名称
  * @param string $layer 业务层名称
+ * @param bool $appendSuffix 是否添加类名后缀
  * @return \think\Model
  */
-function model($name = '', $layer = 'model')
+function model($name = '', $layer = 'model', $appendSuffix = false)
 {
-    return Loader::model($name, $layer);
+    return Loader::model($name, $layer, $appendSuffix);
+}
+
+/**
+ * 实例化验证器
+ * @param string $name 验证器名称
+ * @param string $layer 业务层名称
+ * @param bool $appendSuffix 是否添加类名后缀
+ * @return \think\Validate
+ */
+function validate($name = '', $layer = 'validate', $appendSuffix = false)
+{
+    return Loader::validate($name, $layer, $appendSuffix);
 }
 
 /**
  * 实例化数据库类
  * @param string $name 操作的数据表名称（不含前缀）
  * @param array|string $config 数据库配置参数
- * @return \think\db\Connection
+ * @return \think\db\Query
  */
 function db($name = '', $config = [])
 {
@@ -166,11 +180,12 @@ function db($name = '', $config = [])
  * 实例化控制器 格式：[模块/]控制器
  * @param string $name 资源地址
  * @param string $layer 控制层名称
+ * @param bool $appendSuffix 是否添加类名后缀
  * @return \think\Controller
  */
-function controller($name, $layer = 'controller')
+function controller($name, $layer = 'controller', $appendSuffix = false)
 {
-    return Loader::controller($name, $layer);
+    return Loader::controller($name, $layer, $appendSuffix);
 }
 
 /**
@@ -178,11 +193,12 @@ function controller($name, $layer = 'controller')
  * @param string $url 调用地址
  * @param string|array $vars 调用参数 支持字符串和数组
  * @param string $layer 要调用的控制层名称
+ * @param bool $appendSuffix 是否添加类名后缀 
  * @return mixed
  */
-function action($url, $vars = [], $layer = 'controller')
+function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
 {
-    return Loader::action($url, $vars, $layer);
+    return Loader::action($url, $vars, $layer, $appendSuffix);
 }
 
 /**
@@ -345,15 +361,16 @@ function request()
 }
 
 /**
- * 创建Response对象实例
- * @param mixed $data 输出数据
- * @param string $type 输出类型
- * @param array $options 参数
+ * 创建普通 Response 对象实例
+ * @param mixed      $data   输出数据
+ * @param int|string $code   状态码
+ * @param array      $header 头信息
+ * @param string     $type
  * @return Response
  */
-function response($data = [], $type = '', $options = [])
+function response($data = [], $code = 200, $header = [], $type = 'html')
 {
-    return Response::create($data, $type, $options);
+    return Response::create($data, $type, $code, $header);
 }
 
 /**
@@ -365,43 +382,46 @@ function response($data = [], $type = '', $options = [])
  */
 function view($template = '', $vars = [], $code = 200)
 {
-    return Response::create($template, 'view')->vars($vars)->code($code);
+    return Response::create($template, 'view', $code)->vars($vars);
 }
 
 /**
  * 获取\think\response\Json对象实例
- * @param mixed $data 返回的数据
+ * @param mixed   $data 返回的数据
  * @param integer $code 状态码
- * @param array $options 参数
+ * @param array   $header 头部
+ * @param array   $options 参数
  * @return \think\response\Json
  */
-function json($data = [], $code = 200, $options = [])
+function json($data = [], $code = 200, $header = [], $options = [])
 {
-    return Response::create($data, 'json', $options)->code($code);
+    return Response::create($data, 'json', $code, $header, $options);
 }
 
 /**
  * 获取\think\response\Jsonp对象实例
- * @param mixed $data 返回的数据
- * @param integer $code 状态码
- * @param array $options 参数
+ * @param mixed   $data    返回的数据
+ * @param integer $code    状态码
+ * @param array   $header 头部
+ * @param array   $options 参数
  * @return \think\response\Jsonp
  */
-function jsonp($data = [], $code = 200, $options = [])
+function jsonp($data = [], $code = 200, $header = [], $options = [])
 {
-    return Response::create($data, 'jsonp', $options)->code($code);
+    return Response::create($data, 'jsonp', $code, $header, $options);
 }
 
 /**
  * 获取\think\response\Xml对象实例
- * @param mixed $data 返回的数据
- * @param integer $code 状态码
- * @param array $options 参数
+ * @param mixed   $data    返回的数据
+ * @param integer $code    状态码
+ * @param array   $header  头部
+ * @param array   $options 参数
  * @return \think\response\Xml
  */
-function xml($data = [], $code = 200, $options = [])
+function xml($data = [], $code = 200, $header = [], $options = [])
 {
-    return Response::create($data, 'xml', $options)->code($code);
+    return Response::create($data, 'xml', $code, $header, $options);
 }
 
 /**
@@ -417,7 +437,7 @@ function redirect($url = [], $params = [], $code = 302)
         $code   = $params;
         $params = [];
     }
-    return Response::create($url, 'redirect')->code($code)->params($params);
+    return Response::create($url, 'redirect', $code)->params($params);
 }
 
 /**

@@ -478,7 +478,7 @@ EOF;
 {load file="base.php" value="\$name.a" /}
 EOF;
         $data = <<<EOF
-<?php if(isset(\$name['a'])): ?><?php require_cache("base.php"); ?><?php endif; ?>
+<?php if(isset(\$name['a'])): ?><?php include "base.php"; ?><?php endif; ?>
 EOF;
         $cx->parseTag($content);
         $this->assertEquals($content, $data);

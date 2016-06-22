@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\App;
 use think\Debug;
 use think\Log;
 
@@ -21,9 +22,9 @@ class Hook
 
     /**
      * 动态添加行为扩展到某个标签
-     * @param string $tag 标签名称
-     * @param mixed $behavior 行为名称
-     * @param bool $first 是否放到开头执行
+     * @param string    $tag 标签名称
+     * @param mixed     $behavior 行为名称
+     * @param bool      $first 是否放到开头执行
      * @return void
      */
     public static function add($tag, $behavior, $first = false)
@@ -42,8 +43,8 @@ class Hook
 
     /**
      * 批量导入插件
-     * @param array $data 插件信息
-     * @param boolean $recursive 是否递归合并
+     * @param array     $data 插件信息
+     * @param boolean   $recursive 是否递归合并
      * @return void
      */
     public static function import($tags, $recursive = true)
@@ -100,7 +101,7 @@ class Hook
         if (isset(self::$tags[$tag])) {
             foreach (self::$tags[$tag] as $name) {
 
-                if (APP_DEBUG) {
+                if (App::$debug) {
                     Debug::remark('behavior_start', 'time');
                 }
 
@@ -110,7 +111,7 @@ class Hook
                     return $result;
                 }
 
-                if (APP_DEBUG) {
+                if (App::$debug) {
                     Debug::remark('behavior_end', 'time');
                     if ($name instanceof \Closure) {
                         $name = 'Closure';
@@ -131,10 +132,10 @@ class Hook
 
     /**
      * 执行某个行为
-     * @param mixed $class 要执行的行为
-     * @param string $tag 方法名（标签名）
-     * @param Mixed $params 传人的参数
-     * @param mixed $extra 额外参数
+     * @param mixed     $class 要执行的行为
+     * @param string    $tag 方法名（标签名）
+     * @param Mixed     $params 传人的参数
+     * @param mixed     $extra 额外参数
      * @return mixed
      */
     public static function exec($class, $tag = '', &$params = null,$extra=null)

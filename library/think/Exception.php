@@ -11,10 +11,6 @@
 
 namespace think;
 
-/**
- * ThinkPHP核心异常类
- * 所有系统异常必须继承该类
- */
 class Exception extends \Exception
 {
 

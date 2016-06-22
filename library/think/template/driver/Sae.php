@@ -37,8 +37,8 @@ class Sae
 
     /**
      * 写入编译缓存
-     * @string $cacheFile 缓存的文件名
-     * @string $content 缓存的内容
+     * @param string $cacheFile 缓存的文件名
+     * @param string $content 缓存的内容
      * @return void|array
      */
     public function write($cacheFile, $content)
@@ -46,7 +46,7 @@ class Sae
         // 添加写入时间
         $content = time() . $content;
         if (!$this->mc->set($cacheFile, $content, MEMCACHE_COMPRESSED, 0)) {
-            throw new Exception('sae mc write error :' . $cacheFile);
+            throw new Exception('sae mc write error:' . $cacheFile);
         } else {
             $this->contents[$cacheFile] = $content;
             return true;
@@ -55,8 +55,8 @@ class Sae
 
     /**
      * 读取编译编译
-     * @string $cacheFile 缓存的文件名
-     * @array $vars 变量数组
+     * @param string  $cacheFile 缓存的文件名
+     * @param array   $vars 变量数组
      * @return void
      */
     public function read($cacheFile, $vars = [])
@@ -69,8 +69,8 @@ class Sae
 
     /**
      * 检查编译缓存是否有效
-     * @string $cacheFile 缓存的文件名
-     * @int $cacheTime 缓存时间
+     * @param string  $cacheFile 缓存的文件名
+     * @param int     $cacheTime 缓存时间
      * @return boolean
      */
     public function check($cacheFile, $cacheTime)

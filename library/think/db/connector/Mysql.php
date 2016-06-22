@@ -110,4 +110,8 @@ class Mysql extends Connection
         }
         return $result;
     }
+    
+    protected function supportSavepoint(){
+        return true;
+    }
 }
