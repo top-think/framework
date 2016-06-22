@@ -160,64 +160,44 @@ class Loader
                     include $file;
                 }
             }
-        } elseif (AUTO_SCAN_PACKAGE && is_dir(VENDOR_PATH)) {
-            self::scanComposerPackage(VENDOR_PATH);
         }
     }
 
     // 扫描composer package
-    private static function scanComposerPackage($path)
+    public static function scanComposerPackage($path)
     {
         // 自动扫描下载Composer安装类库
-        $dirs = scandir($path, 1);
+        $dirs      = scandir($path, 1);
+        $namespace = $files = $classmap = [];
         foreach ($dirs as $dir) {
             if ('.' != $dir && '..' != $dir && is_dir($path . $dir) && is_file($path . $dir . DS . 'composer.json')) {
                 // 解析Composer 包
-                self::parseComposerPackage($path . $dir . DS);
-            }
-        }
+                $content = file_get_contents($path . $dir . DS . 'composer.json');
+                $result  = json_decode($content, true);
 
-        $content = "<?php " . PHP_EOL;
-        if (!empty(self::$load)) {
-            foreach (self::$load as $file) {
-                $content .= 'include \'' . $file . '\';' . PHP_EOL;
-            }
-        }
+                if (!empty($result['autoload'])) {
+                    $autoload = $result['autoload'];
+                    if (isset($autoload['psr-0'])) {
+                        foreach ($autoload['psr-0'] as $ns => $path) {
+                            $namespace[rtrim($ns, '\\')] = realpath($package . $path . DS . str_replace('\\', DS, $ns)) . DS;
+                        }
+                    }
 
-        if (!empty(self::$namespace)) {
-            $content .= "return " . var_export(self::$namespace, true) . ';' . PHP_EOL;
-        }
-        // 生成缓存
-        file_put_contents(RUNTIME_PATH . 'autoload_composer.php', $content);
-    }
+                    if (isset($autoload['psr-4'])) {
+                        foreach ($autoload['psr-4'] as $ns => $path) {
+                            $namespace[rtrim($ns, '\\')] = realpath($package . $path) . DS;
+                        }
+                    }
 
-    // 解析Composer Package
-    private static function parseComposerPackage($package)
-    {
-        $content = file_get_contents($package . 'composer.json');
-        $result  = json_decode($content, true);
-
-        if (!empty($result['autoload'])) {
-            $autoload = $result['autoload'];
-            if (isset($autoload['psr-0'])) {
-                foreach ($autoload['psr-0'] as $ns => $path) {
-                    self::$namespace[rtrim($ns, '\\')] = realpath($package . $path . DS . str_replace('\\', DS, $ns)) . DS;
-                }
-            }
-
-            if (isset($autoload['psr-4'])) {
-                foreach ($autoload['psr-4'] as $ns => $path) {
-                    self::$namespace[rtrim($ns, '\\')] = realpath($package . $path) . DS;
-                }
-            }
-
-            if (isset($autoload['files'])) {
-                foreach ($autoload['files'] as $file) {
-                    self::$load[] = realpath($package . $file);
-                    require $package . $file;
+                    if (isset($autoload['files'])) {
+                        foreach ($autoload['files'] as $file) {
+                            $files[] = realpath($package . $file);
+                        }
+                    }
                 }
             }
         }
+        return ['namespace' => $namespace, 'files' => $files, 'classmap' => $classmap];
     }
 
     // 注册composer自动加载
