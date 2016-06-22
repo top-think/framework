@@ -126,6 +126,7 @@ class Request
                 $this->$name = $item;
             }
         }
+        $this->filter = Config::get('default_filter');
     }
 
     public function __call($method, $args)
