@@ -225,17 +225,18 @@ class Loader
         return ['namespace' => $namespace, 'files' => $files, 'classmap' => $classmap];
     }
 
+    // 解析PHP文件 获取类的命名空间
     private static function parsePhpNamespace($file)
     {
         $content = php_strip_whitespace($file);
         $content = substr($content, 5);
         if (0 === strpos(ltrim($content), 'namespace')) {
-            preg_match('/\snamespace\s(.*?);/', $content, $matches);
+            preg_match('/\snamespace\s(.*?);/is', $content, $matches);
             $namespace = $matches[1] . '\\';
         } else {
             $namespace = '';
         }
-        preg_match_all('/\sclass\s(\w+)\s?\{/', $content, $matches);
+        preg_match_all('/[\s|\;\}]class\s(\w+)\s?\{/is', $content, $matches);
 
         $info = [];
         foreach ($matches[1] as $class) {
