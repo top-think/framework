@@ -91,7 +91,7 @@ class Loader
     }
 
     // 注册classmap
-    public static function addMap($class, $map = '')
+    public static function addClassMap($class, $map = '')
     {
         if (is_array($class)) {
             self::$map = array_merge(self::$map, $class);
@@ -125,7 +125,16 @@ class Loader
     {
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload');
+        // 注册命名空间定义
+        self::addNamespace([
+            'think'    => LIB_PATH . 'think' . DS,
+            'behavior' => LIB_PATH . 'behavior' . DS,
+            'traits'   => LIB_PATH . 'traits' . DS,
+        ]);
+        // 加载类库映射文件
+        self::addClassMap(include THINK_PATH . 'classmap' . EXT);
 
+        // Composer自动加载支持
         if (is_dir(VENDOR_PATH . 'composer')) {
             // 注册Composer自动加载
             self::registerComposerLoader();
@@ -134,7 +143,7 @@ class Loader
             // 读取Composer自动加载文件
             $autoload = include VENDOR_PATH . 'think_autoload.php';
             if (is_array($autoload)) {
-                self::addMap($autoload);
+                self::addClassMap($autoload);
             }
         } elseif (is_file(RUNTIME_PATH . 'autoload_composer.php')) {
             $autoload = include RUNTIME_PATH . 'autoload_composer.php';
@@ -161,7 +170,7 @@ class Loader
         $content = "<?php " . PHP_EOL;
         if (!empty(self::$load)) {
             foreach (self::$load as $file) {
-                $content .= 'include ' . $file . ';' . PHP_EOL;
+                $content .= 'include \'' . $file . '\';' . PHP_EOL;
             }
         }
 
@@ -170,7 +179,6 @@ class Loader
         }
         // 生成缓存
         file_put_contents(RUNTIME_PATH . 'autoload_composer.php', $content);
-
     }
 
     // 解析Composer Package
@@ -227,7 +235,7 @@ class Loader
         if (is_file(VENDOR_PATH . 'composer/autoload_classmap.php')) {
             $classMap = require VENDOR_PATH . 'composer/autoload_classmap.php';
             if ($classMap) {
-                self::addMap($classMap);
+                self::addClassMap($classMap);
             }
         }
 

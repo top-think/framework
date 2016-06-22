@@ -399,7 +399,7 @@ class App
 
             // 加载别名文件
             if (is_file(CONF_PATH . $module . 'alias' . EXT)) {
-                Loader::addMap(include CONF_PATH . $module . 'alias' . EXT);
+                Loader::addClassMap(include CONF_PATH . $module . 'alias' . EXT);
             }
 
             // 加载行为扩展文件

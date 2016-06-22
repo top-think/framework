@@ -37,3 +37,27 @@ defined('AUTO_SCAN_PACKAGE') or define('AUTO_SCAN_PACKAGE', false); // 是否自
 // 环境常量
 define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
 define('IS_WIN', strstr(PHP_OS, 'WIN') ? true : false);
+
+// 载入Loader类
+require CORE_PATH . 'Loader.php';
+
+// 加载环境变量配置文件
+if (is_file(ROOT_PATH . 'env' . EXT)) {
+    $env = include ROOT_PATH . 'env' . EXT;
+    foreach ($env as $key => $val) {
+        $name = ENV_PREFIX . $key;
+        if (is_bool($val)) {
+            $val = $val ? 1 : 0;
+        }
+        putenv("$name=$val");
+    }
+}
+
+// 注册自动加载
+\think\Loader::register();
+
+// 注册错误和异常处理机制
+\think\Error::register();
+
+// 加载模式配置文件
+\think\Config::set(include THINK_PATH . 'convention' . EXT);
