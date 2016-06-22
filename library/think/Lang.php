@@ -169,7 +169,7 @@ class Lang
         }
         if (empty(self::$allowLangList) || in_array($langSet, self::$allowLangList)) {
             // 合法的语言
-            self::$range = $langSet;
+            !$langSet?:self::$range = $langSet;
         }
         return self::$range;
     }
