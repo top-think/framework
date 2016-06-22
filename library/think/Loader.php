@@ -60,7 +60,7 @@ class Loader
                 return false;
             }
             $item = explode('\\', $class);
-            // 解析命名空间
+            // 解析命名空间所在的路径
             if (count($item) > 2 && isset(self::$namespace[$item[0] . '\\' . $item[1]])) {
                 // 子命名空间定义（仅支持二级）
                 list($ns1, $ns2, $class) = explode('\\', $class, 3);
@@ -81,16 +81,16 @@ class Loader
             foreach ((array) $path as $p) {
                 $filename = $p . str_replace('\\', DS, $class) . EXT;
                 if (is_file($filename)) {
+                    // Win环境严格区分大小写
+                    if (IS_WIN && false === strpos(realpath($filename), $class . EXT)) {
+                        continue;
+                    }
                     $match = true;
                     break;
                 }
             }
 
             if ($match) {
-                // 开启调试模式Win环境严格区分大小写
-                if (IS_WIN && false === strpos(realpath($filename), $class . EXT)) {
-                    return false;
-                }
                 include $filename;
             } else {
                 return false;
