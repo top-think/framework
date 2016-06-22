@@ -647,9 +647,9 @@ abstract class Connection
             }
             // 提交事务
             $this->commit();
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             $this->rollback();
-            return false;
+            throw $e;
         }
         return true;
     }
