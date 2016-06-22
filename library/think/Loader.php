@@ -114,7 +114,7 @@ class Loader
     public static function addNamespaceAlias($namespace, $original = '')
     {
         if (is_array($namespace)) {
-            self::$namespaceAlias = array_merge(self::$namespace, $namespace);
+            self::$namespaceAlias = array_merge(self::$namespaceAlias, $namespace);
         } else {
             self::$namespaceAlias[$namespace] = $original;
         }
