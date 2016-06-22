@@ -21,13 +21,13 @@ class Url
 {
     /**
      * URL生成 支持路由反射
-     * @param string $url URL表达式，
+     * @param string            $url URL表达式，
      * 格式：'[模块/控制器/操作]?参数1=值1&参数2=值2...@域名'
      * @控制器/操作?参数1=值1&参数2=值2...
      * \\命名空间类\\方法?参数1=值1&参数2=值2...
-     * @param string|array $vars 传入的参数，支持数组和字符串
-     * @param string|bool $suffix 伪静态后缀，默认为true表示获取配置值
-     * @param boolean|string $domain 是否显示域名 或者直接传入域名
+     * @param string|array      $vars 传入的参数，支持数组和字符串
+     * @param string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
+     * @param boolean|string    $domain 是否显示域名 或者直接传入域名
      * @return string
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false)
@@ -98,7 +98,7 @@ class Url
             // 添加参数
             if (Config::get('url_common_param')) {
                 $vars = urldecode(http_build_query($vars));
-                $url .= $suffix . $anchor . '?' . $vars;
+                $url .= $suffix . '?' . $vars . $anchor;
             } else {
                 foreach ($vars as $var => $val) {
                     if ('' !== trim($val)) {
@@ -153,9 +153,10 @@ class Url
     protected static function parseDomain(&$url, $domain)
     {
         if ($domain) {
+            $request = Request::instance();
             if (true === $domain) {
                 // 自动判断域名
-                $domain = $_SERVER['HTTP_HOST'];
+                $domain = $request->host();
                 if (Config::get('url_domain_deploy')) {
                     // 根域名
                     $urlDomainRoot = Config::get('url_domain_root');
@@ -184,9 +185,9 @@ class Url
                     }
                 }
             } else {
-                $domain .= strpos($domain, '.') ? '' : strstr($_SERVER['HTTP_HOST'], '.');
+                $domain .= strpos($domain, '.') ? '' : strstr($request->host(), '.');
             }
-            $domain = (self::isSsl() ? 'https://' : 'http://') . $domain;
+            $domain = ($request->isSsl() ? 'https://' : 'http://') . $domain;
         } else {
             $domain = '';
         }
@@ -215,20 +216,6 @@ class Url
             }
         }
         return (empty($suffix) || 0 === strpos($suffix, '.')) ? $suffix : '.' . $suffix;
-    }
-
-    /**
-     * 判断是否SSL协议
-     * @return boolean
-     */
-    public static function isSsl()
-    {
-        if (isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))) {
-            return true;
-        } elseif (isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT'])) {
-            return true;
-        }
-        return false;
     }
 
     // 匹配路由地址

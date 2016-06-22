@@ -186,8 +186,8 @@ class TagLib
     /**
      * 按标签生成正则
      * @access private
-     * @param  array|string $tags 标签名
-     * @param  boolean $close 是否为闭合标签
+     * @param  array|string     $tags 标签名
+     * @param  boolean          $close 是否为闭合标签
      * @return string
      */
     private function getRegex($tags, $close)

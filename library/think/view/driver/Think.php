@@ -60,9 +60,9 @@ class Think
     /**
      * 渲染模板文件
      * @access public
-     * @param string $template 模板文件
-     * @param array $data 模板变量
-     * @param array $config 模板参数
+     * @param string    $template 模板文件
+     * @param array     $data 模板变量
+     * @param array     $config 模板参数
      * @return void
      */
     public function fetch($template, $data = [], $config = [])
@@ -83,9 +83,9 @@ class Think
     /**
      * 渲染模板内容
      * @access public
-     * @param string $template 模板内容
-     * @param array $data 模板变量
-     * @param array $config 模板参数
+     * @param string    $template 模板内容
+     * @param array     $data 模板变量
+     * @param array     $config 模板参数
      * @return void
      */
     public function display($template, $data = [], $config = [])

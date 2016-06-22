@@ -35,8 +35,8 @@ class Redis extends SessionHandler
     /**
      * 打开Session
      * @access public
-     * @param string $savePath
-     * @param mixed $sessName
+     * @param string    $savePath
+     * @param mixed     $sessName
      */
     public function open($savePath, $sessName)
     {

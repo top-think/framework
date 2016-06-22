@@ -44,13 +44,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}";
+                $log  = "[{$data['code']}]{$data['message']}";
             }
 
             Log::record($log, 'error');
@@ -142,7 +142,7 @@ class Handle
             // 部署模式仅显示 Code 和 Message
             $data = [
                 'code'    => $this->getCode($exception),
-                'message' => $this->getMessage($exception),            
+                'message' => $this->getMessage($exception),
             ];
 
             if (!Config::get('show_error_msg')) {
@@ -165,7 +165,7 @@ class Handle
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();
-            //TODO 设置headers 等待response完善
+            $response->header($exception->getHeaders());
         }
 
         if (!isset($statusCode)) {
@@ -198,7 +198,7 @@ class Handle
      */
     protected function getMessage(Exception $exception)
     {
-        $message    = $exception->getMessage();
+        $message = $exception->getMessage();
         if (IS_CLI) {
             return $message;
         }
@@ -206,9 +206,9 @@ class Handle
         if (!Config::get('lang_switch_on')) {
             Lang::load(THINK_PATH . 'lang' . DS . Lang::detect() . EXT);
         }
-        
-        if (strpos($message,':')) {
-            $name   = strstr($message, ':', true);
+
+        if (strpos($message, ':')) {
+            $name = strstr($message, ':', true);
             return Lang::has($name) ? Lang::get($name) . ' ' . strstr($message, ':') : $message;
         } else {
             return Lang::has($message) ? Lang::get($message) : $message;

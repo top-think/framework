@@ -40,9 +40,9 @@ class Lang
 
     /**
      * 设置语言定义(不区分大小写)
-     * @param string|array $name 语言变量
-     * @param string $value 语言值
-     * @param string $range 语言作用域
+     * @param string|array  $name 语言变量
+     * @param string        $value 语言值
+     * @param string        $range 语言作用域
      * @return mixed
      */
     public static function set($name, $value = null, $range = '')
@@ -94,22 +94,22 @@ class Lang
 
     /**
      * 获取语言定义(不区分大小写)
-     * @param string|null $name 语言变量
-     * @param array $vars 变量替换
-     * @param string $range 语言作用域
+     * @param string|null   $name 语言变量
+     * @param array         $vars 变量替换
+     * @param string        $range 语言作用域
      * @return mixed
      */
     public static function has($name, $range = '')
     {
         $range = $range ?: self::$range;
-        return isset(self::$lang[$range][strtolower($name)]);        
+        return isset(self::$lang[$range][strtolower($name)]);
     }
 
     /**
      * 获取语言定义(不区分大小写)
-     * @param string|null $name 语言变量
-     * @param array $vars 变量替换
-     * @param string $range 语言作用域
+     * @param string|null   $name 语言变量
+     * @param array         $vars 变量替换
+     * @param string        $range 语言作用域
      * @return mixed
      */
     public static function get($name = null, $vars = [], $range = '')
@@ -169,7 +169,7 @@ class Lang
         }
         if (empty(self::$allowLangList) || in_array($langSet, self::$allowLangList)) {
             // 合法的语言
-            self::$range = $langSet;
+            self::$range = $langSet ?: self::$range;
         }
         return self::$range;
     }

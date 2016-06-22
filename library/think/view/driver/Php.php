@@ -51,8 +51,8 @@ class Php
     /**
      * 渲染模板文件
      * @access public
-     * @param string $template 模板文件
-     * @param array $data 模板变量
+     * @param string    $template 模板文件
+     * @param array     $data 模板变量
      * @return void
      */
     public function fetch($template, $data = [])
@@ -74,8 +74,8 @@ class Php
     /**
      * 渲染模板内容
      * @access public
-     * @param string $content 模板内容
-     * @param array $data 模板变量
+     * @param string    $content 模板内容
+     * @param array     $data 模板变量
      * @return void
      */
     public function display($content, $data = [])
@@ -117,7 +117,6 @@ class Php
             }
         }
         return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
-
     }
 
 }

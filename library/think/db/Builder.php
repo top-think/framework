@@ -72,8 +72,8 @@ abstract class Builder
     /**
      * 数据分析
      * @access protected
-     * @param array $data 数据
-     * @param array $options 查询参数
+     * @param array     $data 数据
+     * @param array     $options 查询参数
      * @return array
      */
     protected function parseData($data, $options)
@@ -213,7 +213,8 @@ abstract class Builder
     /**
      * 生成查询条件SQL
      * @access public
-     * @param mixed $where
+     * @param mixed     $where
+     * @param string    $table
      * @return string
      */
     public function buildWhere($where, $table)
@@ -339,13 +340,13 @@ abstract class Builder
             } else {
                 $whereStr .= $exp . ' (' . $value . ')';
             }
-        } elseif (in_array($exp, ['< TIME', '> TIME'])){
-            $whereStr .= $key . ' ' . substr($exp,0,1) . ' ' . $this->parseDateTime($value, $field);
-        } elseif (in_array($exp, ['BETWEEN TIME', 'NOT BETWEEN TIME'])){
-            if(is_string($value)){
-                $value = explode(',',$value);
+        } elseif (in_array($exp, ['< TIME', '> TIME'])) {
+            $whereStr .= $key . ' ' . substr($exp, 0, 1) . ' ' . $this->parseDateTime($value, $field);
+        } elseif (in_array($exp, ['BETWEEN TIME', 'NOT BETWEEN TIME'])) {
+            if (is_string($value)) {
+                $value = explode(',', $value);
             }
-            $whereStr .= $key . ' ' . substr($exp,0,-4) . $this->parseDateTime($value[0], $field) . ' AND ' . $this->parseDateTime($value[1], $field);
+            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field) . ' AND ' . $this->parseDateTime($value[1], $field);
         }
         return $whereStr;
     }
@@ -361,25 +362,25 @@ abstract class Builder
     /**
      * 日期时间条件解析
      * @access protected
-     * @param string $value
-     * @param string $key
+     * @param string    $value
+     * @param string    $key
      * @return string
      */
     protected function parseDateTime($value, $key)
     {
         // 获取时间字段类型
         $type = $this->query->getTableInfo('', 'type');
-        if(isset($type[$key])){
+        if (isset($type[$key])) {
             $value = strtotime($value) ?: $value;
-            if(preg_match('/(datetime|timestamp)/is', $type[$key])){
+            if (preg_match('/(datetime|timestamp)/is', $type[$key])) {
                 // 日期及时间戳类型
                 $value = date('Y-m-d H:i:s', $value);
-            }elseif(preg_match('/(date)/is', $type[$key])){
+            } elseif (preg_match('/(date)/is', $type[$key])) {
                 // 日期及时间戳类型
                 $value = date('Y-m-d', $value);
             }
         }
-        return is_int($value)? $value : $this->connection->quote($value);
+        return is_int($value) ? $value : $this->connection->quote($value);
     }
 
     /**
@@ -563,9 +564,9 @@ abstract class Builder
     /**
      * 生成insert SQL
      * @access public
-     * @param array $data 数据
-     * @param array $options 表达式
-     * @param bool $replace 是否replace
+     * @param array     $data 数据
+     * @param array     $options 表达式
+     * @param bool      $replace 是否replace
      * @return string
      */
     public function insert(array $data, $options = [], $replace = false)
@@ -594,8 +595,8 @@ abstract class Builder
     /**
      * 生成insertall SQL
      * @access public
-     * @param array $dataSet 数据集
-     * @param array $options 表达式
+     * @param array     $dataSet 数据集
+     * @param array     $options 表达式
      * @return string
      */
     public function insertAll($dataSet, $options)
@@ -624,7 +625,7 @@ abstract class Builder
             $value    = array_values($data);
             $values[] = 'SELECT ' . implode(',', $value);
         }
-        $fields = array_map([$this, 'parseKey'], array_keys($dataSet[0]));
+        $fields = array_map([$this, 'parseKey'], array_keys(reset($dataSet)));
         $sql    = str_replace(
             ['%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
@@ -640,9 +641,9 @@ abstract class Builder
     /**
      * 生成slectinsert SQL
      * @access public
-     * @param array $fields 数据
-     * @param string $table 数据表
-     * @param array $options 表达式
+     * @param array     $fields 数据
+     * @param string    $table 数据表
+     * @param array     $options 表达式
      * @return string
      */
     public function selectInsert($fields, $table, $options)
@@ -659,8 +660,8 @@ abstract class Builder
     /**
      * 生成update SQL
      * @access public
-     * @param array $fields 数据
-     * @param array $options 表达式
+     * @param array     $fields 数据
+     * @param array     $options 表达式
      * @return string
      */
     public function update($data, $options)

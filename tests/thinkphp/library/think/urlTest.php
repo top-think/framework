@@ -72,5 +72,8 @@ class urlTest extends \PHPUnit_Framework_TestCase
         Route::get('blog/:id', 'index/blog');
         Config::set('url_html_suffix', 'shtml');
         $this->assertEquals('/blog/10.shtml#detail', Url::build('/blog/10#detail'));
+
+        Config::set('url_common_param', true);
+        $this->assertEquals('/blog/10.shtml?foo=bar#detail', Url::build('/blog/10#detail', "foo=bar"));
     }
 }

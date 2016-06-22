@@ -34,8 +34,8 @@ class Memcache extends SessionHandler
     /**
      * 打开Session
      * @access public
-     * @param string $savePath
-     * @param mixed $sessName
+     * @param string    $savePath
+     * @param mixed     $sessName
      */
     public function open($savePath, $sessName)
     {
@@ -85,8 +85,8 @@ class Memcache extends SessionHandler
     /**
      * 写入Session
      * @access public
-     * @param string $sessID
-     * @param String $sessData
+     * @param string    $sessID
+     * @param String    $sessData
      */
     public function write($sessID, $sessData)
     {

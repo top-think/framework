@@ -51,8 +51,8 @@ class Db
      * 数据库初始化 并取得数据库类实例
      * @static
      * @access public
-     * @param mixed $config 连接配置
-     * @param bool|string $name 连接标识 true 强制重新连接
+     * @param mixed         $config 连接配置
+     * @param bool|string   $name 连接标识 true 强制重新连接
      * @return \think\db\Connection
      * @throws Exception
      */
@@ -67,7 +67,7 @@ class Db
             if (empty($options['type'])) {
                 throw new \InvalidArgumentException('Underfined db type');
             }
-            $class = strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
+            $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
             App::$debug && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
             if (true === $name) {
