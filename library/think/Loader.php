@@ -96,6 +96,7 @@ class Loader
                 return false;
             }
         }
+        return true;
     }
 
     // 注册classmap
