@@ -123,6 +123,9 @@ function input($key, $default = null, $filter = null)
         // 默认为自动判断
         $method = 'param';
     }
+    if(is_null($filter)){
+        $filter = Config::get('default_filter');
+    }
     if(isset($has)){
         return request()->has($key, $method, $default);
     }else{
