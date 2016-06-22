@@ -172,23 +172,48 @@ class Loader
         foreach ($dirs as $dir) {
             if ('.' != $dir && '..' != $dir && is_dir($path . $dir) && is_file($path . $dir . DS . 'composer.json')) {
                 // 解析Composer 包
-                $content = file_get_contents($path . $dir . DS . 'composer.json');
+                $package = $path . $dir . DS;
+                $content = file_get_contents($package . 'composer.json');
                 $result  = json_decode($content, true);
 
                 if (!empty($result['autoload'])) {
                     $autoload = $result['autoload'];
                     if (isset($autoload['psr-0'])) {
-                        foreach ($autoload['psr-0'] as $ns => $path) {
-                            $namespace[rtrim($ns, '\\')] = realpath($package . $path . DS . str_replace('\\', DS, $ns)) . DS;
+                        foreach ($autoload['psr-0'] as $ns => $val) {
+                            $namespace[rtrim($ns, '\\')] = realpath($package . $val . DS . str_replace('\\', DS, $ns)) . DS;
                         }
                     }
 
                     if (isset($autoload['psr-4'])) {
-                        foreach ($autoload['psr-4'] as $ns => $path) {
-                            $namespace[rtrim($ns, '\\')] = realpath($package . $path) . DS;
+                        foreach ($autoload['psr-4'] as $ns => $val) {
+                            $namespace[rtrim($ns, '\\')] = realpath($package . $val) . DS;
                         }
                     }
 
+                    if (isset($autoload['classmap'])) {
+                        foreach ($autoload['classmap'] as $val) {
+                            if (strpos($val, '/')) {
+                                // 扫描目录
+                                $files = scandir($package . $val);
+                                foreach ($files as $file) {
+                                    if ('php' == pathinfo($file, PATHINFO_EXTENSION)) {
+                                        $file = realpath($package . $val . DS . $file);
+                                        $info = self::parsePhpNamespace($file);
+                                        foreach ($info as $class) {
+                                            $classmap[$class] = $file;
+                                        }
+                                    }
+                                }
+                            } else {
+                                // 解析文件
+                                $file = realpath($package . $val);
+                                $info = self::parsePhpNamespace($file);
+                                foreach ($info as $class) {
+                                    $classmap[$class] = $file;
+                                }
+                            }
+                        }
+                    }
                     if (isset($autoload['files'])) {
                         foreach ($autoload['files'] as $file) {
                             $files[] = realpath($package . $file);
@@ -198,6 +223,25 @@ class Loader
             }
         }
         return ['namespace' => $namespace, 'files' => $files, 'classmap' => $classmap];
+    }
+
+    private static function parsePhpNamespace($file)
+    {
+        $content = php_strip_whitespace($file);
+        $content = substr($content, 5);
+        if (0 === strpos(ltrim($content), 'namespace')) {
+            preg_match('/\snamespace\s(.*?);/', $content, $matches);
+            $namespace = $matches[1] . '\\';
+        } else {
+            $namespace = '';
+        }
+        preg_match_all('/\sclass\s(\w+)\s?\{/', $content, $matches);
+
+        $info = [];
+        foreach ($matches[1] as $class) {
+            $info[] = $namespace . $class;
+        }
+        return $info;
     }
 
     // 注册composer自动加载
