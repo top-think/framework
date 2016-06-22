@@ -102,7 +102,7 @@ class Lang
     public static function has($name, $range = '')
     {
         $range = $range ?: self::$range;
-        return isset(self::$lang[$range][strtolower($name)]);        
+        return isset(self::$lang[$range][strtolower($name)]);
     }
 
     /**
@@ -169,7 +169,7 @@ class Lang
         }
         if (empty(self::$allowLangList) || in_array($langSet, self::$allowLangList)) {
             // 合法的语言
-            self::$range = $langSet;
+            self::$range = $langSet ?: self::$range;
         }
         return self::$range;
     }
