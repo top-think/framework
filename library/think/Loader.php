@@ -76,8 +76,17 @@ class Loader
             } else {
                 return false;
             }
-            $filename = $path . str_replace('\\', DS, $class) . EXT;
-            if (is_file($filename)) {
+            // 定位文件
+            $match = false;
+            foreach ((array) $path as $p) {
+                $filename = $p . str_replace('\\', DS, $class) . EXT;
+                if (is_file($filename)) {
+                    $match = true;
+                    break;
+                }
+            }
+
+            if ($match) {
                 // 开启调试模式Win环境严格区分大小写
                 if (IS_WIN && false === strpos(realpath($filename), $class . EXT)) {
                     return false;
@@ -87,7 +96,6 @@ class Loader
                 return false;
             }
         }
-        return true;
     }
 
     // 注册classmap
@@ -143,12 +151,13 @@ class Loader
             // 读取Composer自动加载文件
             $autoload = include VENDOR_PATH . 'think_autoload.php';
             if (is_array($autoload)) {
-                self::addClassMap($autoload);
-            }
-        } elseif (is_file(RUNTIME_PATH . 'autoload_composer.php')) {
-            $autoload = include RUNTIME_PATH . 'autoload_composer.php';
-            if (is_array($autoload)) {
-                self::addNamespace($autoload);
+                // 命名空间和类库映射注册
+                self::addNamespace($autoload['namespace']);
+                self::addClassMap($autoload['classmap']);
+                // 载入composer包的文件列表
+                foreach ($autoload['files'] as $file) {
+                    include $file;
+                }
             }
         } elseif (AUTO_SCAN_PACKAGE && is_dir(VENDOR_PATH)) {
             self::scanComposerPackage(VENDOR_PATH);
