@@ -194,8 +194,8 @@ class Loader
                         foreach ($autoload['classmap'] as $val) {
                             if (strpos($val, '/')) {
                                 // 扫描目录
-                                $files = scandir($package . $val);
-                                foreach ($files as $file) {
+                                $items = scandir($package . $val);
+                                foreach ($items as $file) {
                                     if ('php' == pathinfo($file, PATHINFO_EXTENSION)) {
                                         $file = realpath($package . $val . DS . $file);
                                         $info = self::parsePhpNamespace($file);
