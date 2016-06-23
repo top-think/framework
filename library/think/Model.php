@@ -257,11 +257,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     list($type, $param) = explode(':', $type, 2);
                 }
                 switch ($type) {
-                    case 'timestamp':
+                    case 'datetime':
                         $format = !empty($param) ? $param : $this->dateFormat;
                         $value  = date($format, $_SERVER['REQUEST_TIME']);
                         break;
-                    case 'datetime':
+                    case 'timestamp':
                         $value = $_SERVER['REQUEST_TIME'];
                         break;
                 }
