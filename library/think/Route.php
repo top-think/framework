@@ -497,11 +497,12 @@ class Route
      * @param string    $route 路由地址
      * @param string    $method 请求类型
      * @param array     $option 路由参数
+     * @param string    $group 路由分组
      * @return void
      */
-    public static function miss($route, $method = '*', $option = [])
+    public static function miss($route, $method = '*', $option = [], $group = '')
     {
-        self::rule('__miss__', $route, $method, $option, []);
+        self::rule('__miss__', $route, $method, $option, [], $group);
     }
 
     /**
@@ -678,11 +679,6 @@ class Route
 
         // 路由规则检测
         if (!empty($rules)) {
-            if (isset($rules['__miss__'])) {
-                // 指定未匹配路由的处理
-                $miss = $rules['__miss__'];
-                unset($rules['__miss__']);
-            }
             foreach ($rules as $rule => $val) {
                 $option  = isset($val['option']) ? $val['option'] : [];
                 $pattern = isset($val['pattern']) ? $val['pattern'] : [];
@@ -691,7 +687,11 @@ class Route
                 if (!self::checkOption($option, $url, $request)) {
                     continue;
                 }
-
+                if ('__miss__' == $rule) {
+                    // 指定分组MISS路由
+                    $miss = $val['route'];
+                    continue;
+                }
                 if (!empty($val['routes'])) {
                     // 分组路由
                     if (($pos = strpos($rule, ':')) || ($pos = strpos($rule, '<'))) {
@@ -702,13 +702,12 @@ class Route
                     if (0 !== strpos($url, $str)) {
                         continue;
                     }
+                    $missGroup = false;
                     // 匹配到路由分组
                     foreach ($val['routes'] as $key => $route) {
                         if (is_numeric($key)) {
                             $key = array_shift($route);
                         }
-
-                        $key = $rule . ($key ? '/' . ltrim($key, '/') : '');
                         // 检查规则路由
                         if (is_array($route)) {
                             $option1 = $route[1];
@@ -720,10 +719,25 @@ class Route
                             $route   = $route[0];
                             $option  = array_merge($option, $option1);
                         }
+                        if ('__miss__' == $key) {
+                            // 指定分组MISS路由
+                            $missGroup = $route;
+                            continue;
+                        }
+                        $key    = $rule . ($key ? '/' . ltrim($key, '/') : '');
                         $result = self::checkRule($key, $route, $url, $pattern, $option);
                         if (false !== $result) {
                             $request->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                             return $result;
+                        }
+                    }
+                    if ($missGroup) {
+                        // 未匹配所有路由的路由规则处理
+                        if ($missGroup instanceof \Closure) {
+                            // 执行闭包
+                            return ['type' => 'function', 'function' => $missGroup, 'params' => []];
+                        } else {
+                            return self::parseRule('', $missGroup, $url, []);
                         }
                     }
                 } else {
@@ -742,11 +756,11 @@ class Route
             }
             if (isset($miss)) {
                 // 未匹配所有路由的路由规则处理
-                if ($miss['route'] instanceof \Closure) {
+                if ($miss instanceof \Closure) {
                     // 执行闭包
-                    return ['type' => 'function', 'function' => $miss['route'], 'params' => []];
-                } elseif (self::checkOption($miss['option'], $url, $request)) {
-                    return self::parseRule('', $miss['route'], $url, []);
+                    return ['type' => 'function', 'function' => $miss, 'params' => []];
+                } else {
+                    return self::parseRule('', $miss, $url, []);
                 }
             }
         }
