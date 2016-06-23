@@ -138,7 +138,7 @@ class TagLib
                     $alias = $_lib . $name != $node['name'] ? ($_lib ? strstr($node['name'], $_lib) : $node['name']) : '';
                     // 解析标签属性
                     $attrs  = $this->parseAttr($node['begin'][0], $name, $alias);
-                    $method = '_' . $name;
+                    $method = 'tag' . $name;
                     // 读取标签库中对应的标签内容 replace[0]用来替换标签头，replace[1]用来替换标签尾
                     $replace = explode($break, $this->$method($attrs, $break));
                     if (count($replace) > 1) {
@@ -176,7 +176,7 @@ class TagLib
                 $alias = $_lib . $name != $matches[1] ? ($_lib ? strstr($matches[1], $_lib) : $matches[1]) : '';
                 // 解析标签属性
                 $attrs  = $this->parseAttr($matches[0], $name, $alias);
-                $method = '_' . $name;
+                $method = 'tag' . $name;
                 return $this->$method($attrs, '');
             }, $content);
         }

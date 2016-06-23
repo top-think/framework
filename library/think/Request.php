@@ -1378,7 +1378,7 @@ class Request
      */
     public function getContent()
     {
-        if (null === $this->content) {
+        if (is_null($this->content)) {
             $this->content = file_get_contents('php://input');
         }
         return $this->content;
