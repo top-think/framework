@@ -52,7 +52,8 @@ trait Jump
             $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_success_tmpl'), $result);
         }
-        return Response::create($result, $type);
+        $response = Response::create($result, $type);
+        throw new HttpResponseException($response);
     }
 
     /**
