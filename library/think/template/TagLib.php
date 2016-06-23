@@ -286,6 +286,9 @@ class TagLib
      */
     public function parseCondition($condition)
     {
+        if (strpos($condition, ':')) {
+            $condition = ' ' . substr(strstr($condition, ':'), 1);
+        }
         $condition = str_ireplace(array_keys($this->comparison), array_values($this->comparison), $condition);
         $this->tpl->parseVar($condition);
         // $this->tpl->parseVarFunction($condition); // XXX: 此句能解析表达式中用|分隔的函数，但表达式中如果有|、||这样的逻辑运算就产生了歧异
