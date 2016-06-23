@@ -109,6 +109,8 @@ class Request
         'csv'  => 'text/csv',
     ];
 
+    protected $content;
+
     // 全局过滤规则
     protected $filter;
     // Hook扩展方法
@@ -178,9 +180,10 @@ class Request
      * @param array     $cookie
      * @param array     $files
      * @param array     $server
+     * @param string    $content
      * @return \think\Request
      */
-    public static function create($uri, $method = 'GET', $params = [], $cookie = [], $files = [], $server = [])
+    public static function create($uri, $method = 'GET', $params = [], $cookie = [], $files = [], $server = [], $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -236,6 +239,7 @@ class Request
         $options['pathinfo']    = ltrim($info['path'], '/');
         $options['method']      = $server['REQUEST_METHOD'];
         $options['domain']      = $server['HTTP_HOST'];
+        $options['content']     = $content;
         self::$instance         = new self($options);
         return self::$instance;
     }
@@ -1367,4 +1371,16 @@ class Request
         }
     }
 
+    /**
+     * 设置或者获取当前请求的content
+     * @access public
+     * @return string
+     */
+    public function getContent()
+    {
+        if (null === $this->content) {
+            $this->content = file_get_contents('php://input');
+        }
+        return $this->content;
+    }
 }
