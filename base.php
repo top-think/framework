@@ -31,9 +31,32 @@ defined('CONF_PATH') or define('CONF_PATH', APP_PATH); // 配置文件目录
 defined('CONF_EXT') or define('CONF_EXT', EXT); // 配置文件后缀
 defined('ENV_PREFIX') or define('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
 defined('IS_API') or define('IS_API', false); // 是否API接口
-defined('APP_AUTO_RUN') or define('APP_AUTO_RUN', true); // 是否自动运行
 defined('AUTO_SCAN_PACKAGE') or define('AUTO_SCAN_PACKAGE', false); // 是否自动扫描非Composer安装类库
 
 // 环境常量
 define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
 define('IS_WIN', strstr(PHP_OS, 'WIN') ? true : false);
+
+// 载入Loader类
+require CORE_PATH . 'Loader.php';
+
+// 加载环境变量配置文件
+if (is_file(ROOT_PATH . 'env' . EXT)) {
+    $env = include ROOT_PATH . 'env' . EXT;
+    foreach ($env as $key => $val) {
+        $name = ENV_PREFIX . $key;
+        if (is_bool($val)) {
+            $val = $val ? 1 : 0;
+        }
+        putenv("$name=$val");
+    }
+}
+
+// 注册自动加载
+\think\Loader::register();
+
+// 注册错误和异常处理机制
+\think\Error::register();
+
+// 加载模式配置文件
+\think\Config::set(include THINK_PATH . 'convention' . EXT);

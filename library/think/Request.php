@@ -126,6 +126,7 @@ class Request
                 $this->$name = $item;
             }
         }
+        $this->filter = Config::get('default_filter');
     }
 
     public function __call($method, $args)
@@ -983,7 +984,7 @@ class Request
                         $value = $default;
                         break;
                     }
-                } else {
+                } elseif (!empty($filter)) {
                     // filter函数不存在时, 则使用filter_var进行过滤
                     // filter为非整形值时, 调用filter_id取得过滤id
                     $value = filter_var($value, is_int($filter) ? $filter : filter_id($filter));
