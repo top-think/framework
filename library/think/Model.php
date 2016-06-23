@@ -164,10 +164,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      *  获取关联模型实例
      * @access protected
-     * @return Relation
+     * @param string|array $relation 关联查询
+     * @return Relation|Query
      */
-    protected function relation()
+    protected function relation($relation = null)
     {
+        if (!is_null($relation)) {
+            // 执行关联查询
+            return $this->db->relation($relation);
+        }
+
+        // 获取关联对象实例
         if (is_null($this->relation)) {
             $this->relation = new Relation($this);
         }
