@@ -92,7 +92,7 @@ abstract class Builder
 
         $result = [];
         foreach ($data as $key => $val) {
-            if (!in_array(strtolower($key), $fields, true)) {
+            if (!in_array($key, $fields, true)) {
                 if ($options['strict']) {
                     throw new Exception('fields not exists:[' . $key . ']');
                 }
