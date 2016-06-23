@@ -210,8 +210,8 @@ class Route
      */
     public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [], $group = '')
     {
-        $group  = $group ?: self::$group;
-        $type = strtoupper($type);
+        $group = $group ?: self::$group;
+        $type  = strtoupper($type);
         if (strpos($type, '|')) {
             foreach (explode('|', $type) as $val) {
                 self::rule($rule, $route, $val, $option, $pattern, $group);
@@ -522,7 +522,7 @@ class Route
     /**
      * 检测子域名部署
      * @access public
-     * @param Request   $request Request请求对象     
+     * @param Request   $request Request请求对象
      * @return void
      */
     public static function checkDomain($request)
@@ -910,7 +910,7 @@ class Route
         if ($len1 >= $len2 || strpos($rule, '[')) {
             if ('$' == substr($rule, -1, 1)) {
                 // 完整匹配
-                if (!$merge && $len1 != $len2 && false === strpos($rule, '[')) {
+                if (!$merge && $len1 != $len2 && (false === strpos($rule, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($rule, '['))) {
                     return false;
                 } else {
                     $rule = substr($rule, 0, -1);
@@ -924,12 +924,12 @@ class Route
                     if ($option['after_behavior'] instanceof \Closure) {
                         $result = call_user_func_array($option['after_behavior'], [$route]);
                     } else {
-                        foreach((array)$option['after_behavior'] as $behavior){
+                        foreach ((array) $option['after_behavior'] as $behavior) {
                             $result = Hook::exec($behavior, '', $route);
                             if (!is_null($result)) {
                                 break;
                             }
-                        }                        
+                        }
                     }
                     // 路由规则重定向
                     if ($result instanceof Response) {
