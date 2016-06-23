@@ -87,7 +87,7 @@ class TagLib
     public function parseTag(&$content, $lib = '')
     {
         $tags = [];
-        $_lib = $lib ? $lib . ':' : '';
+        $_lib = $lib ? strtolower($lib) . ':' : '';
         foreach ($this->tags as $name => $val) {
             $close                       = !isset($val['close']) || $val['close'] ? 1 : 0;
             $tags[$close][$_lib . $name] = $name;
@@ -108,7 +108,7 @@ class TagLib
                 $right = [];
                 foreach ($matches as $match) {
                     if ('' == $match[1][0]) {
-                        $name = $match[2][0];
+                        $name = strtolower($match[2][0]);
                         // 如果有没闭合的标签头则取出最后一个
                         if (!empty($right[$name])) {
                             // $match[0][1]为标签结束符在模板中的位置
@@ -172,7 +172,7 @@ class TagLib
             $regex   = $this->getRegex(array_keys($tags[0]), 0);
             $content = preg_replace_callback($regex, function ($matches) use (&$tags, &$_lib) {
                 // 对应的标签名
-                $name  = $tags[0][$matches[1]];
+                $name  = $tags[0][strtolower($matches[1])];
                 $alias = $_lib . $name != $matches[1] ? ($_lib ? strstr($matches[1], $_lib) : $matches[1]) : '';
                 // 解析标签属性
                 $attrs  = $this->parseAttr($matches[0], $name, $alias);
