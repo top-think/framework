@@ -474,6 +474,7 @@ abstract class Connection
             return $this->PDOStatement;
         }
         if ($procedure) {
+            // 存储过程返回结果
             return $this->procedure($class);
         }
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
@@ -486,7 +487,6 @@ abstract class Connection
             // 返回数据集Collection对象
             $result = new Collection($result);
         }
-
         return $result;
     }
 
