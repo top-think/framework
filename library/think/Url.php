@@ -78,9 +78,9 @@ class Url
         }
 
         // 检测URL绑定
-        $type = Route::bind('type');
+        $type = Route::getBind('type');
         if ($type) {
-            $bind = Route::bind($type);
+            $bind = Route::getBind($type);
             if (0 === strpos($url, $bind)) {
                 $url = substr($url, strlen($bind) + 1);
             }

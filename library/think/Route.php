@@ -123,19 +123,26 @@ class Route
     }
 
     /**
-     * 设置和读取路由绑定
+     * 设置路由绑定
      * @access public
-     * @param string    $type 请求类型
      * @param mixed     $bind 绑定信息
+     * @param string    $type 绑定类型 默认为module
      * @return mixed
      */
-    public static function bind($type, $bind = '')
+    public static function bind($bind, $type = 'module')
     {
-        if ('' == $bind) {
-            return isset(self::$bind[$type]) ? self::$bind[$type] : null;
-        } else {
-            self::$bind = ['type' => $type, $type => $bind];
-        }
+        self::$bind = ['type' => $type, $type => $bind];
+    }
+
+    /**
+     * 读取路由绑定
+     * @access public
+     * @param string    $type 绑定类型
+     * @return mixed
+     */
+    public static function getBind($type)
+    {
+        return isset(self::$bind[$type]) ? self::$bind[$type] : null;
     }
 
     /**

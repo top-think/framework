@@ -506,7 +506,7 @@ class Cx extends Taglib
         // 文件方式导入
         $array = explode(',', $file);
         foreach ($array as $val) {
-            $type = $reset = strtolower(substr(strrchr($val, '.'), 1));
+            $type = strtolower(substr(strrchr($val, '.'), 1));
             switch ($type) {
                 case 'js':
                     $parseStr .= '<script type="text/javascript" src="' . $val . '"></script>';
