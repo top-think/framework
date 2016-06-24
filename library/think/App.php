@@ -64,6 +64,8 @@ class App
      */
     protected static $routeMust;
 
+    protected static $dispatch;
+
     /**
      * 执行应用程序
      * @access public
@@ -90,12 +92,14 @@ class App
                 }
             }
 
-            // 获取当前请求的调度信息
-            $dispatch = $request->dispatch();
+            // 获取应用调度信息
+            $dispatch = self::$dispatch;
             if (empty($dispatch)) {
                 // 未指定调度类型 则进行URL路由检测
                 $dispatch = self::routeCheck($request, $config);
             }
+            // 记录当前调度信息
+            $request->dispatch($dispatch);
             // 记录路由信息
             self::$debug && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
             // 监听app_begin
@@ -148,6 +152,19 @@ class App
         } else {
             return Response::create();
         }
+    }
+
+    /**
+     * 设置当前请求的调度信息
+     * @access public
+     * @param array|string  $dispatch 调度信息
+     * @param string        $type 调度类型
+     * @param array         $params 参数
+     * @return void
+     */
+    public static function dispatch($dispath, $type = 'module', $params = [])
+    {
+        self::$dispatch = ['type' => $type, $type => $dispatch, 'params' => $params];
     }
 
     /**
@@ -453,9 +470,7 @@ class App
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
             $result = Route::parseUrl($path, $depr, $config['controller_auto_search'], $config['url_param_type']);
         }
-
-        // 注册调度机制
-        return $request->dispatch($result);
+        return $result;
     }
 
     /**
