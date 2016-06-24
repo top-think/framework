@@ -87,15 +87,15 @@ class TagLib
     public function parseTag(&$content, $lib = '')
     {
         $tags = [];
-        $_lib = $lib ? strtolower($lib) . ':' : '';
+        $lib  = $lib ? strtolower($lib) . ':' : '';
         foreach ($this->tags as $name => $val) {
-            $close                       = !isset($val['close']) || $val['close'] ? 1 : 0;
-            $tags[$close][$_lib . $name] = $name;
+            $close                      = !isset($val['close']) || $val['close'] ? 1 : 0;
+            $tags[$close][$lib . $name] = $name;
             if (isset($val['alias'])) {
                 // 别名设置
                 $array = (array) $val['alias'];
                 foreach (explode(',', $array[0]) as $v) {
-                    $tags[$close][$_lib . $v] = $name;
+                    $tags[$close][$lib . $v] = $name;
                 }
             }
         }
@@ -120,7 +120,7 @@ class TagLib
                         }
                     } else {
                         // 标签头压入栈
-                        $right[$match[1][0]][] = $match[0];
+                        $right[strtolower($match[1][0])][] = $match[0];
                     }
                 }
                 unset($right, $matches);
@@ -135,7 +135,7 @@ class TagLib
                 foreach ($nodes as $pos => $node) {
                     // 对应的标签名
                     $name  = $tags[1][$node['name']];
-                    $alias = $_lib . $name != $node['name'] ? ($_lib ? strstr($node['name'], $_lib) : $node['name']) : '';
+                    $alias = $lib . $name != $node['name'] ? ($lib ? strstr($node['name'], $lib) : $node['name']) : '';
                     // 解析标签属性
                     $attrs  = $this->parseAttr($node['begin'][0], $name, $alias);
                     $method = 'tag' . $name;
@@ -170,10 +170,10 @@ class TagLib
         // 自闭合标签
         if (!empty($tags[0])) {
             $regex   = $this->getRegex(array_keys($tags[0]), 0);
-            $content = preg_replace_callback($regex, function ($matches) use (&$tags, &$_lib) {
+            $content = preg_replace_callback($regex, function ($matches) use (&$tags, &$lib) {
                 // 对应的标签名
                 $name  = $tags[0][strtolower($matches[1])];
-                $alias = $_lib . $name != $matches[1] ? ($_lib ? strstr($matches[1], $_lib) : $matches[1]) : '';
+                $alias = $lib . $name != $matches[1] ? ($lib ? strstr($matches[1], $lib) : $matches[1]) : '';
                 // 解析标签属性
                 $attrs  = $this->parseAttr($matches[0], $name, $alias);
                 $method = 'tag' . $name;
