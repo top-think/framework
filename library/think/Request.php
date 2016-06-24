@@ -1294,10 +1294,11 @@ class Request
     }
 
     /**
-     * 获取当前请求的调度信息
+     * 设置或者获取当前请求的调度信息
      * @access public
      * @param array|string  $dispatch 调度信息
      * @param string        $type 调度类型
+     * @param array         $params 参数
      * @return array
      */
     public function dispatch($dispatch = null, $type = null, $params = [])
