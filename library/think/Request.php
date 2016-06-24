@@ -1304,7 +1304,7 @@ class Request
     public function dispatch($dispatch = null, $type = 'module', $params = [])
     {
         if (!is_null($dispatch)) {
-            $this->dispatch = ['type' => $type, $type => $dispatch, 'params' => $param];
+            $this->dispatch = ['type' => $type, $type => $dispatch, 'params' => $params];
         }
         return $this->dispatch;
     }
