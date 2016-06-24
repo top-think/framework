@@ -282,12 +282,6 @@ class App
         $actionName = strip_tags($result[2] ?: $config['default_action']);
         $actionName = $convert ? strtolower($actionName) : $actionName;
 
-        // 执行操作
-        if (!preg_match('/^[A-Za-z](\/|\.|\w)*$/', $controller)) {
-            // 安全检测
-            throw new \InvalidArgumentException('illegal controller name:' . $controller);
-        }
-
         // 设置当前请求的控制器、操作
         $request->controller($controller)->action($actionName);
 
