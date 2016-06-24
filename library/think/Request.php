@@ -1296,13 +1296,16 @@ class Request
     /**
      * 获取当前请求的调度信息
      * @access public
-     * @param array $dispatch 调度信息
+     * @param array|string  $dispatch 调度信息
+     * @param string        $type 调度类型
      * @return array
      */
-    public function dispatch($dispatch = [])
+    public function dispatch($dispatch = null, $type = null, $params = [])
     {
-        if (!empty($dispatch)) {
-            $this->dispatch = $dispatch;
+        if (!is_null($dispatch)) {
+            $this->dispatch = is_array($dispatch) ?
+            $dispatch :
+            ['type' => $type, $type => $dispatch, 'params' => $param];
         }
         return $this->dispatch;
     }
