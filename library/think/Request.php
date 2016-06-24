@@ -1301,12 +1301,10 @@ class Request
      * @param array         $params 参数
      * @return array
      */
-    public function dispatch($dispatch = null, $type = null, $params = [])
+    public function dispatch($dispatch = null, $type = 'module', $params = [])
     {
         if (!is_null($dispatch)) {
-            $this->dispatch = is_array($dispatch) ?
-            $dispatch :
-            ['type' => $type, $type => $dispatch, 'params' => $param];
+            $this->dispatch = ['type' => $type, $type => $dispatch, 'params' => $param];
         }
         return $this->dispatch;
     }
