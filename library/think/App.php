@@ -240,6 +240,7 @@ class App
         if (is_string($result)) {
             $result = explode('/', $result);
         }
+        $request = Request::instance();
         if ($config['app_multi_module']) {
             // 多模块部署
             $module    = strip_tags(strtolower($result[0] ?: $config['default_module']));
@@ -258,6 +259,7 @@ class App
             // 模块初始化
             if ($module && $available) {
                 // 初始化模块
+                $request->module($module);
                 $config = self::init($module);
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
@@ -265,6 +267,7 @@ class App
         } else {
             // 单一模块部署
             $module = '';
+            $request->module($module);
         }
         // 当前模块路径
         App::$modulePath = APP_PATH . ($module ? $module . DS : '');
@@ -285,9 +288,8 @@ class App
             throw new \InvalidArgumentException('illegal controller name:' . $controller);
         }
 
-        // 设置当前请求的模块、控制器、操作
-        $request = Request::instance();
-        $request->module($module)->controller($controller)->action($actionName);
+        // 设置当前请求的控制器、操作
+        $request->controller($controller)->action($actionName);
 
         // 监听module_init
         Hook::listen('module_init', $request);
