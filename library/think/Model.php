@@ -978,25 +978,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 命名范围
      * @access public
      * @param string|array|Closure  $name 命名范围名称 逗号分隔
-     * @param mixed                 $params 参数调用
+     * @param mixed                 ...$params 参数调用
      * @return Model
      */
-    public static function scope($name, $params = [])
+    public static function scope($name)
     {
-        $model = new static();
-        $query = $model->db();
-        if ($name instanceof \Closure) {
-            call_user_func_array($name, [ & $query, $params]);
-        } elseif ($name instanceof Query) {
+        if ($name instanceof Query) {
             return $name;
-        } else {
-            if (is_string($name)) {
-                $names = explode(',', $name);
-            }
-            foreach ($names as $scope) {
+        }
+        $model = new static();
+        $params = func_get_args();
+        $params[0] = $model->db();
+        if ($name instanceof \Closure) {
+            call_user_func_array($name, $params);
+        } elseif (is_string($name)) {
+            $name = explode(',', $name);
+        }
+        if (is_array($name)) {
+            foreach ($name as $scope) {
                 $method = 'scope' . trim($scope);
                 if (method_exists($model, $method)) {
-                    $model->$method($query, $params);
+                    call_user_func_array([$model, $method], $params);
                 }
             }
         }
