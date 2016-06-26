@@ -556,6 +556,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 检测字段
         if (!empty($this->field)) {
+            if (true === $this->field) {
+                $this->field = $this->db->getTableInfo('', 'fields');
+            }
             foreach ($this->data as $key => $val) {
                 if (!in_array($key, $this->field)) {
                     unset($this->data[$key]);
@@ -673,7 +676,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 设置允许写入的字段
      * @access public
-     * @param bool $update
+     * @param bool|array $field 允许写入的字段 如果为true只允许写入数据表字段
      * @return $this
      */
     public function allowField($field)
