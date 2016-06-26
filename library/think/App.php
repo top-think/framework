@@ -95,8 +95,13 @@ class App
             // 获取应用调度信息
             $dispatch = self::$dispatch;
             if (empty($dispatch)) {
-                // 未指定调度类型 则进行URL路由检测
-                $dispatch = self::routeCheck($request, $config);
+                if (IS_API) {
+                    // 直接绑定到控制器类命名空间 URL区分大小写 v1/User/getInfo
+                    $dispatch = Route::bindToApi($request->path(), self::$namespace, $config['pathinfo_depr']);
+                } else {
+                    // 进行URL路由检测
+                    $dispatch = self::routeCheck($request, $config);
+                }
             }
             // 记录当前调度信息
             $request->dispatch($dispatch);
@@ -468,7 +473,7 @@ class App
         }
         if (false === $result) {
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
-            $result = Route::parseUrl($path, $depr, $config['controller_auto_search'], $config['url_param_type']);
+            $result = Route::parseUrl($path, $depr, $config['controller_auto_search'], $config['url_param_type'], $config['url_parse_type']);
         }
         return $result;
     }

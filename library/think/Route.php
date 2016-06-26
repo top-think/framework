@@ -656,13 +656,13 @@ class Route
                 // 路由不匹配
             } elseif (0 === strpos($rule, '\\')) {
                 // 路由到类
-                return self::bindToClass($array[1], substr($rule, 1));
+                return self::bindToClass($array[1], substr($rule, 1), $depr);
             } elseif (0 === strpos($url, '@')) {
                 // 路由到控制器类
-                return self::bindToController($array[1], substr($rule, 1));
+                return self::bindToController($array[1], substr($rule, 1), $depr);
             } else {
                 // 路由到模块/控制器
-                return self::bindToModule($array[1], $rule);
+                return self::bindToModule($array[1], $rule, $depr);
             }
         }
 
@@ -679,7 +679,7 @@ class Route
             self::checkDomain($request);
         }
         // 检测URL绑定
-        $return = self::checkUrlBind($url, $rules);
+        $return = self::checkUrlBind($url, $rules, $depr);
         if ($return) {
             return $return;
         }
@@ -779,9 +779,10 @@ class Route
      * @access private
      * @param string    $url URL地址
      * @param array     $rules 路由规则
+     * @param string    $depr URL分隔符
      * @return false
      */
-    private static function checkUrlBind(&$url, &$rules)
+    private static function checkUrlBind(&$url, &$rules, $depr = '/')
     {
         if (!empty(self::$bind['type'])) {
             // 记录绑定信息
@@ -790,10 +791,10 @@ class Route
             switch (self::$bind['type']) {
                 case 'class':
                     // 绑定到类
-                    return self::bindToClass($url, self::$bind['class']);
+                    return self::bindToClass($url, self::$bind['class'], $depr);
                 case 'namespace':
                     // 绑定到命名空间
-                    return self::bindToNamespace($url, self::$bind['namespace']);
+                    return self::bindToNamespace($url, self::$bind['namespace'], $depr);
                 case 'module':
                     // 如果有模块/控制器绑定 针对路由到 模块/控制器 有效
                     $url = self::$bind['module'] . '/' . $url;
@@ -814,11 +815,12 @@ class Route
      * @access public
      * @param string    $url URL地址
      * @param string    $class 类名（带命名空间）
+     * @param string    $depr URL分隔符
      * @return array
      */
-    public static function bindToClass($url, $class)
+    public static function bindToClass($url, $class, $depr = '/')
     {
-        $array = explode('/', $url, 2);
+        $array = explode($depr, $url, 2);
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
@@ -830,11 +832,12 @@ class Route
      * @access public
      * @param string    $url URL地址
      * @param string    $namespace 命名空间
+     * @param string    $depr URL分隔符
      * @return array
      */
-    public static function bindToNamespace($url, $namespace)
+    public static function bindToNamespace($url, $namespace, $depr = '/')
     {
-        $array  = explode('/', $url, 3);
+        $array  = explode($depr, $url, 3);
         $class  = !empty($array[0]) ? $array[0] : Config::get('default_controller');
         $method = !empty($array[1]) ? $array[1] : Config::get('default_action');
         if (!empty($array[2])) {
@@ -848,11 +851,12 @@ class Route
      * @access public
      * @param string    $url URL地址
      * @param string    $module 模块名
+     * @param string    $depr URL分隔符
      * @return array
      */
-    public static function bindToController($url, $controller)
+    public static function bindToController($url, $controller, $depr = '/')
     {
-        $array  = explode('/', $url, 2);
+        $array  = explode($depr, $url, 2);
         $action = !empty($array[0]) ? $array[0] : Config::get('default_action');
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
@@ -865,16 +869,38 @@ class Route
      * @access public
      * @param string    $url URL地址
      * @param string    $class 控制器类名（带命名空间）
+     * @param string    $depr URL分隔符
      * @return array
      */
-    public static function bindToModule($url, $controller)
+    public static function bindToModule($url, $controller, $depr = '/')
     {
-        $array  = explode('/', $url, 2);
+        $array  = explode($depr, $url, 2);
         $action = !empty($array[0]) ? $array[0] : Config::get('default_action');
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
         return ['type' => 'module', 'module' => $controller . '/' . $action];
+    }
+
+    /**
+     * 绑定到API
+     * @access public
+     * @param string    $url URL地址
+     * @param string    $namespace 命名空间
+     * @param string    $depr URL分隔符
+     * @return array
+     */
+    public static function bindToApi($url, $namespace, $depr = '/')
+    {
+        $array  = explode($depr, $url, 4);
+        $module = !empty($array[0]) ? $array[0] : Config::get('default_module');
+        $class  = !empty($array[1]) ? $array[1] : Config::get('default_controller');
+        $method = !empty($array[2]) ? $array[2] : Config::get('default_action');
+        $layer  = Config::get('url_controller_layer');
+        if (!empty($array[3])) {
+            self::parseUrlParams($array[3]);
+        }
+        return ['type' => 'method', 'method' => [$namespace . '\\' . $module . '\\' . $layer . '\\' . $class, $method], 'params' => []];
     }
 
     /**
@@ -976,9 +1002,10 @@ class Route
      * @param string    $depr URL分隔符
      * @param bool      $autoSearch 是否自动深度搜索控制器
      * @param integer   $paramType URL参数解析方式 0 名称解析 1 顺序解析
+     * @param string    $type 路由类型
      * @return array
      */
-    public static function parseUrl($url, $depr = '/', $autoSearch = false, $paramType = 0)
+    public static function parseUrl($url, $depr = '/', $autoSearch = false, $paramType = 0, $type = 'module')
     {
         if (isset(self::$bind['module'])) {
             // 如果有模块/控制器绑定
@@ -994,7 +1021,7 @@ class Route
         if (!empty($result['var'])) {
             $_GET = array_merge($result['var'], $_GET);
         }
-        return ['type' => 'module', 'module' => $result['route']];
+        return ['type' => $type, $type => $result['route']];
     }
 
     /**
