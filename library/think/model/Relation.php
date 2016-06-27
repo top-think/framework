@@ -302,23 +302,22 @@ class Relation
      */
     protected function match($model, $relation, &$result)
     {
-        $modelName = Loader::parseName(basename(str_replace('\\', '/', $model)));
         // 重新组装模型数据
         foreach ($result->toArray() as $key => $val) {
             if (strpos($key, '__')) {
                 list($name, $attr) = explode('__', $key, 2);
-                if ($name == $modelName) {
+                if ($name == $relation) {
                     $list[$name][$attr] = $val;
                     unset($result->$key);
                 }
             }
         }
 
-        if (!isset($list[$modelName])) {
+        if (!isset($list[$relation])) {
             // 设置关联模型属性
-            $list[$modelName] = [];
+            $list[$relation] = [];
         }
-        $result->setAttr($relation, new $model($list[$modelName]));
+        $result->setAttr($relation, new $model($list[$relation]));
     }
 
     /**

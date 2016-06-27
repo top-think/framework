@@ -1466,7 +1466,7 @@ class Query
                         unset($this->options['with_field']);
                     }
                 }
-                $this->field($field, false, $joinTable, $joinAlias, $joinName . '__');
+                $this->field($field, false, $joinTable, $joinAlias, $relation . '__');
                 $i++;
             } elseif ($closure) {
                 $with[$key] = $closure;
