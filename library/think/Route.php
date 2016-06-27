@@ -1017,20 +1017,46 @@ class Route
             $url = str_replace($depr, '/', $url);
         }
 
-        $route = self::parseRoute($url, $autoSearch, true, $paramType);
+        list($path, $var) = self::parseUrlPath($url);
+        $route            = [null, null, null];
+        if (isset($path)) {
+            // 解析模块
+            $module = Config::get('app_multi_module') ? array_shift($path) : null;
+            if ($autoSearch) {
+                // 自动搜索控制器
+                $dir    = APP_PATH . ($module ? $module . DS : '') . 'controller';
+                $suffix = App::$suffix || Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '';
+                $item   = [];
+                foreach ($path as $val) {
+                    $item[] = array_shift($path);
+                    if (is_file($dir . DS . $val . $suffix . EXT)) {
+                        break;
+                    } else {
+                        $dir .= DS . $val;
+                    }
+                }
+                $controller = implode('.', $item);
+            } else {
+                // 解析控制器
+                $controller = !empty($path) ? array_shift($path) : null;
+            }
+            // 解析操作
+            $action = !empty($path) ? array_shift($path) : null;
+            // 解析额外参数
+            self::parseUrlParams(empty($path) ? '' : implode('/', $path));
+            // 封装路由
+            $route = [$module, $controller, $action];
+        }
         return ['type' => $type, $type => $route];
     }
 
     /**
-     * 解析规范的路由地址 地址格式 [模块/控制器/操作?]参数1=值1&参数2=值2...
+     * 解析URL的pathinfo参数和变量
      * @access private
      * @param string    $url URL地址
-     * @param bool      $autoSearch 是否自动深度搜索控制器
-     * @param bool      $reverse 是否反转解析URL
-     * @param integer   $paramType URL参数解析方式 0 名称解析 1 顺序解析
      * @return array
      */
-    private static function parseRoute($url, $autoSearch = false, $reverse = false, $paramType = 0)
+    private static function parseUrlPath($url)
     {
         $url = trim($url, '/');
         $var = [];
@@ -1048,51 +1074,7 @@ class Route
         } else {
             $path = [$url];
         }
-        $route = [null, null, null];
-        if (isset($path)) {
-            if ($reverse) {
-                // 解析模块
-                $module = Config::get('app_multi_module') ? array_shift($path) : null;
-                if ($autoSearch) {
-                    // 自动搜索控制器
-                    $dir    = APP_PATH . ($module ? $module . DS : '') . 'controller';
-                    $suffix = App::$suffix || Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '';
-                    $item   = [];
-                    foreach ($path as $val) {
-                        $item[] = array_shift($path);
-                        if (is_file($dir . DS . $val . $suffix . EXT)) {
-                            break;
-                        } else {
-                            $dir .= DS . $val;
-                        }
-                    }
-                    $controller = implode('.', $item);
-                } else {
-                    // 解析控制器
-                    $controller = !empty($path) ? array_shift($path) : null;
-                }
-                // 解析操作
-                $action = !empty($path) ? array_shift($path) : null;
-                // 解析额外参数
-                self::parseUrlParams(empty($path) ? '' : implode('/', $path));
-            } else {
-                $action     = array_pop($path);
-                $controller = !empty($path) ? array_pop($path) : null;
-                $module     = Config::get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-                $method     = Request::instance()->method();
-                // REST 操作方法支持
-                if ('[rest]' == $action) {
-                    $action = $method;
-                } elseif (Config::get('use_action_prefix') && !empty(self::$methodPrefix[$method])) {
-                    // 操作方法前缀支持
-                    $action = 0 !== strpos($action, self::$methodPrefix[$method]) ? self::$methodPrefix[$method] . $action : $action;
-                }
-                $_GET = array_merge($_GET, $var);
-            }
-            // 封装路由
-            $route = [$module, $controller, $action];
-        }
-        return $route;
+        return [$path, $var];
     }
 
     /**
@@ -1204,10 +1186,19 @@ class Route
             // 路由到控制器
             $result = ['type' => 'controller', 'controller' => substr($url, 1), 'params' => $matches];
         } else {
-            // 解析路由地址
-            $route = self::parseRoute($url);
             // 路由到模块/控制器/操作
-            $result = ['type' => 'module', 'module' => $route, 'convert' => false];
+            list($path, $var) = self::parseUrlPath($url);
+            $action           = array_pop($path);
+            $controller       = !empty($path) ? array_pop($path) : null;
+            $module           = Config::get('app_multi_module') && !empty($path) ? array_pop($path) : null;
+            $method           = Request::instance()->method();
+            if (Config::get('use_action_prefix') && !empty(self::$methodPrefix[$method])) {
+                // 操作方法前缀支持
+                $action = 0 !== strpos($action, self::$methodPrefix[$method]) ? self::$methodPrefix[$method] . $action : $action;
+            }
+            $_GET = array_merge($_GET, $var);
+            // 路由到模块/控制器/操作
+            $result = ['type' => 'module', 'module' => [$module, $controller, $action], 'convert' => false];
         }
         // 解析额外参数
         self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
