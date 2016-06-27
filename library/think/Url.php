@@ -324,10 +324,6 @@ class Url
     // 分析路由规则中的变量
     private static function parseVar($rule)
     {
-        // 检测是否设置了参数分隔符
-        if ($depr = Config::get('url_params_depr')) {
-            $rule = str_replace($depr, '/', $rule);
-        }
         // 提取路由规则中的变量
         $var = [];
         foreach (explode('/', $rule) as $val) {
@@ -344,6 +340,9 @@ class Url
                 }
             }
 
+            if ('$' == substr($val, -1, 1)) {
+                $val = substr($val, 0, -1);
+            }
             if (0 === strpos($val, '[:')) {
                 // 可选参数
                 $optional = true;
