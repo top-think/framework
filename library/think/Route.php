@@ -931,8 +931,8 @@ class Route
      * 检测路由规则
      * @access private
      * @param string    $rule 路由规则
-     * @param string    $url URL地址
      * @param string    $route 路由地址
+     * @param string    $url URL地址
      * @param array     $pattern 变量规则
      * @param array     $option 路由参数
      * @return array|false
@@ -1002,11 +1002,9 @@ class Route
      * @param string    $url URL地址
      * @param string    $depr URL分隔符
      * @param bool      $autoSearch 是否自动深度搜索控制器
-     * @param integer   $paramType URL参数解析方式 0 名称解析 1 顺序解析
-     * @param string    $type 路由类型
      * @return array
      */
-    public static function parseUrl($url, $depr = '/', $autoSearch = false, $paramType = 0, $type = 'module')
+    public static function parseUrl($url, $depr = '/', $autoSearch = false)
     {
         if (isset(self::$bind['module'])) {
             // 如果有模块/控制器绑定
@@ -1047,7 +1045,7 @@ class Route
             // 封装路由
             $route = [$module, $controller, $action];
         }
-        return ['type' => $type, $type => $route];
+        return ['type' => 'module', 'module' => $route];
     }
 
     /**

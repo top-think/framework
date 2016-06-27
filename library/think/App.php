@@ -468,7 +468,7 @@ class App
         }
         if (false === $result) {
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
-            $result = Route::parseUrl($path, $depr, $config['controller_auto_search'], $config['url_param_type'], $config['url_parse_type']);
+            $result = Route::parseUrl($path, $depr, $config['controller_auto_search']);
         }
         return $result;
     }

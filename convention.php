@@ -93,8 +93,6 @@ return [
     'url_controller_layer'   => 'controller',
     // 表单请求类型伪装变量
     'var_method'             => '_method',
-    // URL解析方式 module controller class namespace
-    'url_parse_type'         => 'module',
 
     // +----------------------------------------------------------------------
     // | 模板引擎设置
