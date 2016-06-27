@@ -162,7 +162,7 @@ class App
      * @param array         $params 参数
      * @return void
      */
-    public static function dispatch($dispath, $type = 'module', $params = [])
+    public static function dispatch($dispatch, $type = 'module', $params = [])
     {
         self::$dispatch = ['type' => $type, $type => $dispatch, 'params' => $params];
     }
