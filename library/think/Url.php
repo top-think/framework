@@ -243,7 +243,7 @@ class Url
             } elseif (empty($pattern) && array_intersect_assoc($param, $array) == $param) {
                 $match = true;
             }
-            if (!empty($param) && array_intersect_assoc($param, $array) != $param) {
+            if ($match && !empty($param) && array_intersect_assoc($param, $array) != $param) {
                 $match = false;
             }
             if ($match) {
