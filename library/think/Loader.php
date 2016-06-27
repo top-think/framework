@@ -146,8 +146,8 @@ class Loader
         // Composer自动加载支持
         if (is_dir(VENDOR_PATH . 'composer')) {
             // 注册Composer自动加载
-            self::registerComposerLoader();
             self::$composerLoader = true;
+            self::registerComposerLoader();
         } elseif (is_file(VENDOR_PATH . 'think_autoload.php')) {
             // 读取Composer自动加载文件
             $autoload = include VENDOR_PATH . 'think_autoload.php';
@@ -161,88 +161,6 @@ class Loader
                 }
             }
         }
-    }
-
-    // 扫描composer package
-    public static function scanComposerPackage($path)
-    {
-        // 自动扫描下载Composer安装类库
-        $dirs      = scandir($path, 1);
-        $namespace = $files = $classmap = [];
-        foreach ($dirs as $dir) {
-            if ('.' != $dir && '..' != $dir && is_dir($path . $dir) && is_file($path . $dir . DS . 'composer.json')) {
-                // 解析Composer 包
-                $package = $path . $dir . DS;
-                $content = file_get_contents($package . 'composer.json');
-                $result  = json_decode($content, true);
-
-                if (!empty($result['autoload'])) {
-                    $autoload = $result['autoload'];
-                    if (isset($autoload['psr-0'])) {
-                        foreach ($autoload['psr-0'] as $ns => $val) {
-                            $namespace[rtrim($ns, '\\')] = realpath($package . $val . DS . str_replace('\\', DS, $ns)) . DS;
-                        }
-                    }
-
-                    if (isset($autoload['psr-4'])) {
-                        foreach ($autoload['psr-4'] as $ns => $val) {
-                            $namespace[rtrim($ns, '\\')] = realpath($package . $val) . DS;
-                        }
-                    }
-
-                    if (isset($autoload['classmap'])) {
-                        foreach ($autoload['classmap'] as $val) {
-                            if (strpos($val, '/')) {
-                                // 扫描目录
-                                $items = scandir($package . $val);
-                                foreach ($items as $file) {
-                                    if ('php' == pathinfo($file, PATHINFO_EXTENSION)) {
-                                        $file = realpath($package . $val . DS . $file);
-                                        $info = self::parsePhpNamespace($file);
-                                        foreach ($info as $class) {
-                                            $classmap[$class] = $file;
-                                        }
-                                    }
-                                }
-                            } else {
-                                // 解析文件
-                                $file = realpath($package . $val);
-                                $info = self::parsePhpNamespace($file);
-                                foreach ($info as $class) {
-                                    $classmap[$class] = $file;
-                                }
-                            }
-                        }
-                    }
-                    if (isset($autoload['files'])) {
-                        foreach ($autoload['files'] as $file) {
-                            $files[] = realpath($package . $file);
-                        }
-                    }
-                }
-            }
-        }
-        return ['namespace' => $namespace, 'files' => $files, 'classmap' => $classmap];
-    }
-
-    // 解析PHP文件 获取类的命名空间
-    private static function parsePhpNamespace($file)
-    {
-        $content = php_strip_whitespace($file);
-        $content = substr($content, 5);
-        if (0 === strpos(ltrim($content), 'namespace')) {
-            preg_match('/\snamespace\s(.*?);/is', $content, $matches);
-            $namespace = $matches[1] . '\\';
-        } else {
-            $namespace = '';
-        }
-        preg_match_all('/[\s|\;\}]class\s(\w+)\s?\{/is', $content, $matches);
-
-        $info = [];
-        foreach ($matches[1] as $class) {
-            $info[] = $namespace . $class;
-        }
-        return $info;
     }
 
     // 注册composer自动加载
