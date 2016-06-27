@@ -95,13 +95,8 @@ class App
             // 获取应用调度信息
             $dispatch = self::$dispatch;
             if (empty($dispatch)) {
-                if (IS_API) {
-                    // 直接绑定到控制器类命名空间 URL区分大小写 v1/User/getInfo
-                    $dispatch = Route::bindToApi($request->path(), self::$namespace, $config['pathinfo_depr']);
-                } else {
-                    // 进行URL路由检测
-                    $dispatch = self::routeCheck($request, $config);
-                }
+                // 进行URL路由检测
+                $dispatch = self::routeCheck($request, $config);
             }
             // 记录当前调度信息
             $request->dispatch($dispatch);

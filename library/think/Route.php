@@ -820,11 +820,12 @@ class Route
      */
     public static function bindToClass($url, $class, $depr = '/')
     {
-        $array = explode($depr, $url, 2);
+        $array  = explode($depr, $url, 2);
+        $action = !empty($array[0]) ? $array[0] : Config::get('default_action');
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'method', 'method' => [$class, $array[0] ?: Config::get('default_action')], 'params' => []];
+        return ['type' => 'method', 'method' => [$class, $action], 'params' => []];
     }
 
     /**
@@ -847,10 +848,31 @@ class Route
     }
 
     /**
+     * 绑定到应用 直接进行控制器类库访问
+     * @access public
+     * @param string    $url URL地址
+     * @param string    $depr URL分隔符
+     * @return array
+     */
+    public static function bindToApp($url, $depr = '/')
+    {
+        $array      = explode($depr, $url, 4);
+        $module     = !empty($array[0]) ? $array[0] : Config::get('default_module');
+        $controller = !empty($array[1]) ? $array[1] : Config::get('default_controller');
+        $method     = !empty($array[2]) ? $array[2] : Config::get('default_action');
+        $layer      = Config::get('url_controller_layer');
+        $class      = App::$namespace . '\\' . $module . '\\' . $layer . '\\' . $controller;
+        if (!empty($array[3])) {
+            self::parseUrlParams($array[3]);
+        }
+        return ['type' => 'method', 'method' => [$class, $method], 'params' => []];
+    }
+
+    /**
      * 绑定到控制器类
      * @access public
      * @param string    $url URL地址
-     * @param string    $module 模块名
+     * @param string    $controller 控制器名 （支持带模块名 index/user ）
      * @param string    $depr URL分隔符
      * @return array
      */
@@ -861,7 +883,7 @@ class Route
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'method', 'method' => [$controller, $action], 'params' => []];
+        return ['type' => 'controller', 'controller' => $controller . '/' . $action, 'params' => []];
     }
 
     /**
@@ -880,27 +902,6 @@ class Route
             self::parseUrlParams($array[1]);
         }
         return ['type' => 'module', 'module' => $controller . '/' . $action];
-    }
-
-    /**
-     * 绑定到API
-     * @access public
-     * @param string    $url URL地址
-     * @param string    $namespace 命名空间
-     * @param string    $depr URL分隔符
-     * @return array
-     */
-    public static function bindToApi($url, $namespace, $depr = '/')
-    {
-        $array  = explode($depr, $url, 4);
-        $module = !empty($array[0]) ? $array[0] : Config::get('default_module');
-        $class  = !empty($array[1]) ? $array[1] : Config::get('default_controller');
-        $method = !empty($array[2]) ? $array[2] : Config::get('default_action');
-        $layer  = Config::get('url_controller_layer');
-        if (!empty($array[3])) {
-            self::parseUrlParams($array[3]);
-        }
-        return ['type' => 'method', 'method' => [$namespace . '\\' . $module . '\\' . $layer . '\\' . $class, $method], 'params' => []];
     }
 
     /**
@@ -1016,12 +1017,8 @@ class Route
             $url = str_replace($depr, '/', $url);
         }
 
-        $result = self::parseRoute($url, $autoSearch, true, $paramType);
-
-        if (!empty($result['var'])) {
-            $_GET = array_merge($result['var'], $_GET);
-        }
-        return ['type' => $type, $type => $result['route']];
+        $route = self::parseRoute($url, $autoSearch, true, $paramType);
+        return ['type' => $type, $type => $route];
     }
 
     /**
@@ -1077,15 +1074,7 @@ class Route
                 // 解析操作
                 $action = !empty($path) ? array_shift($path) : null;
                 // 解析额外参数
-                if (!empty($path)) {
-                    if ($paramType) {
-                        $var += $path;
-                    } else {
-                        preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$var) {
-                            $var[strtolower($match[1])] = strip_tags($match[2]);
-                        }, implode('/', $path));
-                    }
-                }
+                self::parseUrlParams(empty($path) ? '' : implode('/', $path));
             } else {
                 $action     = array_pop($path);
                 $controller = !empty($path) ? array_pop($path) : null;
@@ -1098,11 +1087,12 @@ class Route
                     // 操作方法前缀支持
                     $action = 0 !== strpos($action, self::$methodPrefix[$method]) ? self::$methodPrefix[$method] . $action : $action;
                 }
+                $_GET = array_merge($_GET, $var);
             }
             // 封装路由
             $route = [$module, $controller, $action];
         }
-        return ['route' => $route, 'var' => $var];
+        return $route;
     }
 
     /**
@@ -1215,13 +1205,12 @@ class Route
             $result = ['type' => 'controller', 'controller' => substr($url, 1), 'params' => $matches];
         } else {
             // 解析路由地址
-            $result = self::parseRoute($url);
-            $var    = array_merge($matches, $result['var']);
-            // 解析剩余的URL参数
-            self::parseUrlParams(implode('/', $paths), $var);
+            $route = self::parseRoute($url);
             // 路由到模块/控制器/操作
-            $result = ['type' => 'module', 'module' => $result['route'], 'convert' => false];
+            $result = ['type' => 'module', 'module' => $route, 'convert' => false];
         }
+        // 解析额外参数
+        self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
         return $result;
     }
 
@@ -1243,7 +1232,6 @@ class Route
                 }, $url);
             }
         }
-
         // 设置当前请求的参数
         Request::instance()->param(array_merge($var, $_GET));
     }
