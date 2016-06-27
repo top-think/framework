@@ -241,13 +241,10 @@ class Url
                 }
                 $match = true;
             }
-            if (empty($pattern)) {
-                // 没有任何变量
-                if ($param) {
-                    $vars = array_diff_key($array, $param);
-                }
-                return $url;
-            } elseif ($match && (empty($param) || array_intersect_assoc($param, $array) == $param)) {
+            if (!empty($param) && array_intersect_assoc($param, $array) != $param) {
+                $match = false;
+            }
+            if ($match) {
                 // 存在变量定义
                 $vars = array_diff_key($array, $param);
                 return $url;
