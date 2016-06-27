@@ -240,6 +240,8 @@ class Url
                     }
                 }
                 $match = true;
+            } elseif (empty($pattern) && array_intersect_assoc($param, $array) == $param) {
+                $match = true;
             }
             if (!empty($param) && array_intersect_assoc($param, $array) != $param) {
                 $match = false;
