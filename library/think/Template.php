@@ -556,9 +556,15 @@ class Template
                             $children[$parent][]      = $name;
                             continue;
                         }
+                    } elseif (!empty($val['parent'])) {
+                        // 如果子标签没有被继承则用原值
+                        $children[$val['parent']][] = $name;
+                        $blocks[$name] = $val;
                     }
-                    // 替换模板中的block标签
-                    $extend = str_replace($val['begin'] . $val['content'] . $val['end'], $replace, $extend);
+                    if (!$val['parent']) {
+                        // 替换模板中的顶级block标签
+                        $extend = str_replace($val['begin'] . $val['content'] . $val['end'], $replace, $extend);
+                    }
                 }
             }
             $content = $extend;
@@ -735,20 +741,15 @@ class Template
                             $str = trim(substr($str, $pos + 1));
                             $this->parseVar($str);
                             $first = substr($str, 0, 1);
-                            if (isset($array[1])) {
-                                $this->parseVar($array[2]);
-                                $name .= $array[1] . $array[2];
-                                if ('=' == $first) {
-                                    // {$varname?='xxx'} $varname为真时才输出xxx
-                                    $str = '<?php if(' . $name . ') echo ' . substr($str, 1) . '; ?>';
-                                } else {
-                                    $str = '<?php echo (' . $name . ')?' . $str . '; ?>';
-                                }
-                            } elseif (')' == substr($name, -1, 1)) {
+                            if (strpos($name, ')')) {
                                 // $name为对象或是自动识别，或者含有函数
+                                if (isset($array[1])) {
+                                    $this->parseVar($array[2]);
+                                    $name .= $array[1] . $array[2];
+                                }
                                 switch ($first) {
                                     case '?':
-                                        $str = '<?php echo ' . $name . ' ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php echo (' . $name . ') ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
                                         break;
                                     case '=':
                                         $str = '<?php if(' . $name . ') echo ' . substr($str, 1) . '; ?>';
@@ -757,26 +758,32 @@ class Template
                                         $str = '<?php echo ' . $name . '?' . $str . '; ?>';
                                 }
                             } else {
+                                if (isset($array[1])) {
+                                    $this->parseVar($array[2]);
+                                    $_name = ' && ' . $name . $array[1] . $array[2];
+                                } else {
+                                    $_name = '';
+                                }
                                 // $name为数组
                                 switch ($first) {
                                     case '?':
                                         // {$varname??'xxx'} $varname有定义则输出$varname,否则输出xxx
-                                        $str = '<?php echo isset(' . $name . ') ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php echo isset(' . $name . ')' . $_name . ' ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
                                         break;
                                     case '=':
                                         // {$varname?='xxx'} $varname为真时才输出xxx
-                                        $str = '<?php if(!empty(' . $name . ')) echo ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php if(!empty(' . $name . ')' . $_name . ') echo ' . substr($str, 1) . '; ?>';
                                         break;
                                     case ':':
                                         // {$varname?:'xxx'} $varname为真时输出$varname,否则输出xxx
-                                        $str = '<?php echo !empty(' . $name . ')?' . $name . $str . '; ?>';
+                                        $str = '<?php echo !empty(' . $name . ')' . $_name . '?' . $name . $str . '; ?>';
                                         break;
                                     default:
                                         if (strpos($str, ':')) {
                                             // {$varname ? 'a' : 'b'} $varname为真时输出a,否则输出b
-                                            $str = '<?php echo !empty(' . $name . ')?' . $str . '; ?>';
+                                            $str = '<?php echo !empty(' . $name . ')' . $_name . '?' . $str . '; ?>';
                                         } else {
-                                            $str = '<?php echo ' . $name . '?' . $str . '; ?>';
+                                            $str = '<?php echo ' . $_name . '?' . $str . '; ?>';
                                         }
                                 }
                             }
