@@ -1871,7 +1871,7 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function selectOrFail($data = [])
+    public function selectOrFail($data = null)
     {
         return $this->failException(true)->select($data);
     }
@@ -1885,7 +1885,7 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function findOrFail($data = [])
+    public function findOrFail($data = null)
     {
         return $this->failException(true)->find($data);
     }
@@ -1948,22 +1948,22 @@ class Query
     /**
      * 删除记录
      * @access public
-     * @param array $data 表达式
+     * @param mixed $data 表达式 true 表示强制删除
      * @return int
      * @throws Exception
      * @throws PDOException
      */
-    public function delete($data = [])
+    public function delete($data = null)
     {
         // 分析查询表达式
         $options = $this->parseExpress();
 
-        if (!empty($data)) {
+        if (!is_null($data) && true !== $data) {
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
         }
 
-        if (empty($options['where'])) {
+        if (true !== $data && empty($options['where'])) {
             // 如果条件为空 不进行删除操作 除非设置 1=1
             throw new Exception('delete without condition');
         }
