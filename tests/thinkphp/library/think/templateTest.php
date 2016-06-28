@@ -326,7 +326,7 @@ EOF;
         ];
         $data = ['name' => 'value'];
         $template->layout('layout')->fetch('display', $data, $config);
-        $this->expectOutputString('<div>value</div>');
+        $this->expectOutputString('value');
     }
 
     public function testDisplay()
@@ -407,7 +407,7 @@ EOF;
     public function testIsCache()
     {
         $template = new Template(['cache_id' => '__CACHE_ID__', 'display_cache' => true]);
-        $this->assertTrue($template->isCache('__CACHE_ID__'));
+        $this->assertTrue(!$template->isCache('__CACHE_ID__'));
         $template->display_cache = false;
         $this->assertTrue(!$template->isCache('__CACHE_ID__'));
     }
