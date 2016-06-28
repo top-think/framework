@@ -138,8 +138,6 @@ abstract class Builder
     {
         if (is_string($value)) {
             $value = strpos($value, ':') === 0 && $this->query->isBind(substr($value, 1)) ? $value : $this->connection->quote($value);
-        } elseif (is_array($value) && is_string($value[0]) && strtolower($value[0]) == 'exp') {
-            $value = $value[1];
         } elseif (is_array($value)) {
             $value = array_map([$this, 'parseValue'], $value);
         } elseif (is_bool($value)) {

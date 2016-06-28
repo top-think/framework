@@ -29,9 +29,9 @@ class File extends SplFileObject
     // 上传文件信息
     protected $info;
 
-    public function __construct($filename, $mode = 'r', $useIncludePath = false, $context = null)
+    public function __construct($filename, $mode = 'r')
     {
-        parent::__construct($filename, $mode, $useIncludePath, $context);
+        parent::__construct($filename, $mode);
         $this->filename = $this->getRealPath();
     }
 
