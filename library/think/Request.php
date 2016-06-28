@@ -818,6 +818,9 @@ class Request
                         $item[$key] = (new File($val['tmp_name']))->setUploadInfo($val);
                     }
                 }
+                if('array' === gettype){
+                    $item = (object)$item[$key];
+                }
                 return $item;
             } elseif (isset($array[$name])) {
                 if ($array[$name] instanceof File) {
