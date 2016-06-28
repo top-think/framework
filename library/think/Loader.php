@@ -351,8 +351,6 @@ class Loader
             return new $class(Request::instance());
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
-        } else {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
     }
 
