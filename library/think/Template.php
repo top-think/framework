@@ -559,7 +559,7 @@ class Template
                     } elseif (!empty($val['parent'])) {
                         // 如果子标签没有被继承则用原值
                         $children[$val['parent']][] = $name;
-                        $blocks[$name] = $val;
+                        $blocks[$name]              = $val;
                     }
                     if (!$val['parent']) {
                         // 替换模板中的顶级block标签
@@ -854,6 +854,11 @@ class Template
                         if ('$Think' == $first) {
                             // 所有以Think.打头的以特殊变量对待 无需模板赋值就可以输出
                             $parseStr = $this->parseThinkVar($vars);
+                        } elseif ('$Request' == $first) {
+                            // 获取Request请求对象参数
+                            $method   = array_shift($vars);
+                            $params   = !empty($vars) ? '\'' . implode('.', $vars) . '\'' : '';
+                            $parseStr = '\think\Request::instance()->' . $method . '(' . $params . ')';
                         } else {
                             switch ($this->config['tpl_var_identify']) {
                                 case 'array': // 识别为数组
