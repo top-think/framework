@@ -856,8 +856,15 @@ class Template
                             $parseStr = $this->parseThinkVar($vars);
                         } elseif ('$Request' == $first) {
                             // 获取Request请求对象参数
-                            $method   = array_shift($vars);
-                            $params   = !empty($vars) ? '\'' . implode('.', $vars) . '\'' : '';
+                            $method = array_shift($vars);
+                            if (!empty($vars)) {
+                                $params = implode('.', $vars);
+                                if ('true' != $params) {
+                                    $params = '\'' . $params . '\'';
+                                }
+                            } else {
+                                $params = '';
+                            }
                             $parseStr = '\think\Request::instance()->' . $method . '(' . $params . ')';
                         } else {
                             switch ($this->config['tpl_var_identify']) {
