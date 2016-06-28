@@ -70,7 +70,7 @@ abstract class Rest
         if (method_exists($this, $method . '_' . $this->method . '_' . $this->type)) {
             // RESTFul方法支持
             $fun = $method . '_' . $this->method . '_' . $this->type;
-        } elseif ($this->_method == $this->restDefaultMethod && method_exists($this, $method . '_' . $this->type)) {
+        } elseif ($this->method == $this->restDefaultMethod && method_exists($this, $method . '_' . $this->type)) {
             $fun = $method . '_' . $this->type;
         } elseif ($this->type == $this->restDefaultType && method_exists($this, $method . '_' . $this->method)) {
             $fun = $method . '_' . $this->method;
