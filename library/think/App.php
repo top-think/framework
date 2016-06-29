@@ -151,12 +151,14 @@ class App
         } else {
             $response = Response::create();
         }
-        
-        self::$debug && Trace::inject($response);
+
 
         // 监听app_end
         Hook::listen('app_end', $response);
         
+        //注入Trace
+        self::$debug && Trace::inject($response);
+
         return $response;
     }
 
