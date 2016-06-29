@@ -84,7 +84,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::map('hello', 'index/hello');
         $this->assertEquals('index/hello', Route::map('hello'));
         $result = Route::check($request, 'hello');
-        $this->assertEquals(['index', 'hello', null], $result['module']);
+        $this->assertEquals([null, 'index', 'hello'], $result['module']);
     }
 
     public function testMixVar()

@@ -54,10 +54,10 @@ class appTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString($expectOutputString);
 
         $rc = new ReflectionClass('\think\Loader');
-        $ns = $rc->getProperty('namespace');
+        $ns = $rc->getProperty('prefixDirsPsr4');
         $ns->setAccessible(true);
         $namespace = $ns->getValue();
-        $this->assertEquals(TEST_PATH, $namespace['tests']);
+        $this->assertEquals([TEST_PATH], $namespace['tests\\']);
 
         $this->assertEquals(true, function_exists('lang'));
         $this->assertEquals(true, function_exists('config'));
