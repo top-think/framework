@@ -15,7 +15,6 @@ use think\Cache;
 use think\Config;
 use think\Db;
 use think\Debug;
-use think\Request;
 
 /**
  * 页面Trace调试
@@ -44,7 +43,7 @@ class Html
     {
 
         // 获取基本信息
-        $runtime = microtime_float() - START_TIME;
+        $runtime = number_format(microtime(true), 8, '.', '') - START_TIME;
         $reqs    = number_format(1 / $runtime, 2);
         $mem     = number_format((memory_get_usage() - START_MEM) / 1024, 2);
 

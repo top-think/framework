@@ -54,7 +54,7 @@ class File
         } else {
             $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
         }
-        $runtime    = microtime_float() - START_TIME;
+        $runtime    = number_format(microtime(true), 8, '.', '') - START_TIME;
         $reqs       = number_format(1 / $runtime, 2);
         $time_str   = " [运行时间：{$runtime}s] [吞吐率：{$reqs}req/s]";
         $memory_use = number_format((memory_get_usage() - START_MEM) / 1024, 2);
@@ -66,7 +66,7 @@ class File
             foreach ($val as $msg) {
                 if (!is_string($msg)) {
                     $msg = var_export($msg, true);
-                }                
+                }
                 $info .= '[ ' . $type . ' ] ' . $msg . "\r\n";
             }
         }

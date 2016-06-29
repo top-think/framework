@@ -15,7 +15,6 @@ use think\Cache;
 use think\Config;
 use think\Db;
 use think\Debug;
-use think\Request;
 
 /**
  * 浏览器调试输出
@@ -43,7 +42,7 @@ class Console
     public function output(array $log = [])
     {
         // 获取基本信息
-        $runtime = microtime_float() - START_TIME;
+        $runtime = number_format(microtime(true), 8, '.', '') - START_TIME;
         $reqs    = number_format(1 / $runtime, 2);
         $mem     = number_format((memory_get_usage() - START_MEM) / 1024, 2);
 
@@ -106,38 +105,38 @@ JS;
     {
         $type       = strtolower($type);
         $trace_tabs = array_values($this->config['trace_tabs']);
-        $line[]     = ($type == $trace_tabs[0] || '调试' == $type || '错误'== $type)
-            ? "console.group('{$type}');"
-            : "console.groupCollapsed('{$type}');";
+        $line[]     = ($type == $trace_tabs[0] || '调试' == $type || '错误' == $type)
+        ? "console.group('{$type}');"
+        : "console.groupCollapsed('{$type}');";
 
-        foreach ((array)$msg as $key => $m) {
+        foreach ((array) $msg as $key => $m) {
             switch ($type) {
                 case '调试':
                     $var_type = gettype($m);
-                    if(in_array($var_type, ['array', 'string'])){
-                        $line[]  = "console.log(".json_encode($m).");";
-                    }else{
-                        $line[]  = "console.log(".json_encode(var_export($m, 1)).");";
+                    if (in_array($var_type, ['array', 'string'])) {
+                        $line[] = "console.log(" . json_encode($m) . ");";
+                    } else {
+                        $line[] = "console.log(" . json_encode(var_export($m, 1)) . ");";
                     }
                     break;
                 case '错误':
-                    $msg        = str_replace(PHP_EOL, '\n', $m);
-                    $style      = 'color:#F4006B;font-size:14px;';
-                    $line[]     = "console.error(\"%c{$msg}\", \"{$style}\");";
+                    $msg    = str_replace(PHP_EOL, '\n', $m);
+                    $style  = 'color:#F4006B;font-size:14px;';
+                    $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
                     break;
                 case 'sql':
-                    $msg        = str_replace(PHP_EOL, '\n', $m);
-                    $style      = "color:#009bb4;";
-                    $line[]     = "console.log(\"%c{$msg}\", \"{$style}\");";
+                    $msg    = str_replace(PHP_EOL, '\n', $m);
+                    $style  = "color:#009bb4;";
+                    $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
                     break;
                 default:
-                    $m          = is_string($key)? $key . ' ' . $m : $key+1 . ' ' . $m;
-                    $msg        = json_encode($m);
-                    $line[]     = "console.log({$msg});";
+                    $m      = is_string($key) ? $key . ' ' . $m : $key + 1 . ' ' . $m;
+                    $msg    = json_encode($m);
+                    $line[] = "console.log({$msg});";
                     break;
             }
         }
-        $line[]= "console.groupEnd();";
+        $line[] = "console.groupEnd();";
         return implode(PHP_EOL, $line);
     }
 
