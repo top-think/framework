@@ -776,8 +776,13 @@ class Query
                         $fields[]                   = $alias . '.' . $val;
                         $this->options['map'][$val] = $alias . '.' . $val;
                     } else {
-                        $fields[]                   = $alias . '.' . $key . ' AS ' . $val;
-                        $this->options['map'][$val] = $alias . '.' . $key;
+                        if (preg_match('/[,=\.\'\"\(\s]/', $key)) {
+                            $name = $key;
+                        } else {
+                            $name = $alias . '.' . $key;
+                        }
+                        $fields[]                   = $name . ' AS ' . $val;
+                        $this->options['map'][$val] = $name;
                     }
                 }
             }
