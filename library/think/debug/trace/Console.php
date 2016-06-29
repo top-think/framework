@@ -20,7 +20,7 @@ use think\Request;
 /**
  * 浏览器调试输出
  */
-class Browser
+class Console
 {
     protected $config = [
         'trace_tabs' => ['base' => '基本', 'file' => '文件', 'info' => '流程', 'notice|error' => '错误', 'sql' => 'SQL', 'debug|log' => '调试'],
