@@ -352,9 +352,12 @@ class App
             } else {
                 //重新申请一块比较大的buffer
                 if (ob_get_level() > 0) {
-                    ob_end_clean();
+                    $output = ob_get_clean();
                 }
                 ob_start();
+                if (!empty($output)) {
+                    echo $output;
+                }
             }
 
             // 应用命名空间

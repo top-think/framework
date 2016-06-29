@@ -83,11 +83,11 @@
     <meta name="robots" content="noindex,nofollow" />
     <style>
         /* Base */
-        body{
+        body {
             color: #333;
             font: 16px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
             margin: 0px;
-            padding: 20px;
+            padding: 0 20px 20px;
         }
         h1{
             margin: 10px 0 0;
@@ -145,6 +145,9 @@
         }
     
         /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
         .exception .message{
             padding: 12px;
             border: 1px solid #ddd;

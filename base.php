@@ -44,9 +44,11 @@ require CORE_PATH . 'Loader.php';
 if (is_file(ROOT_PATH . 'env' . EXT)) {
     $env = include ROOT_PATH . 'env' . EXT;
     foreach ($env as $key => $val) {
-        $name = ENV_PREFIX . $key;
+        $name = ENV_PREFIX . strtoupper($key);
         if (is_bool($val)) {
             $val = $val ? 1 : 0;
+        } elseif (!is_scalar($val)) {
+            continue;
         }
         putenv("$name=$val");
     }
