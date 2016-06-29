@@ -14,6 +14,7 @@ use think\Config;
 use think\Log;
 use think\Request;
 use think\Response;
+use think\response\Redirect;
 
 class Trace
 {
@@ -23,25 +24,35 @@ class Trace
 
         $type = isset($config['type']) ? $config['type'] : 'Html';
 
-        if ($type !== false && !Request::instance()->isAjax() && $response->getContentType() == 'text/html') {
+        if ($type !== false) {
+            $request     = Request::instance();
+            $accept      = $request->header('accept');
+            $contentType = $response->getHeader('Content-Type');
 
             $class = false !== strpos($type, '\\') ? $type : '\\think\\debug\\trace\\' . ucwords($type);
-
             unset($config['type']);
             $trace = new $class($config);
 
-            $output = $trace->output(Log::getLog());
-
-            $content = $response->getContent();
-
-            $pos = strripos($content, '</body>');
-            if (false !== $pos) {
-                $content = substr($content, 0, $pos) . $output . substr($content, $pos);
+            if ($response instanceof Redirect) {
+                //TODO 记录
+            } elseif (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
+                //TODO 记录
+            } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
+                //TODO 记录
             } else {
-                $content = $content . $output;
-            }
+                $output = $trace->output(Log::getLog());
 
-            $response->content($content);
+                $content = $response->getContent();
+
+                $pos = strripos($content, '</body>');
+                if (false !== $pos) {
+                    $content = substr($content, 0, $pos) . $output . substr($content, $pos);
+                } else {
+                    $content = $content . $output;
+                }
+
+                $response->content($content);
+            }
         }
     }
 }

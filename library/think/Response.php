@@ -245,30 +245,10 @@ class Response
      */
     public function contentType($contentType, $charset = 'utf-8')
     {
-        $this->contentType = $contentType;
-        $this->charset     = $charset;
-
         $this->header['Content-Type'] = $contentType . '; charset=' . $charset;
         return $this;
     }
-
-    /**
-     * 获取页面输出类型
-     * @return string
-     */
-    public function getContentType()
-    {
-        return $this->contentType;
-    }
-
-    /**
-     * 获取页面输出字符集
-     */
-    public function getCharset()
-    {
-        return $this->charset;
-    }
-
+    
     /**
      * 获取头部信息
      * @param string $name 头部名称
