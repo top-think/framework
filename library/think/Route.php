@@ -638,7 +638,7 @@ class Route
 
         if (isset(self::$map[$url])) {
             // URL映射（完整静态URL匹配）
-            return self::parseUrl(self::$map[$url], $depr);
+            return self::parseModule(self::$map[$url], $depr);
         }
 
         if (strpos($url, '/') && isset(self::$alias[strstr($url, '/', true)])) {
@@ -1010,12 +1010,8 @@ class Route
             // 如果有模块/控制器绑定
             $url = self::$bind['module'] . '/' . $url;
         }
-        // 分隔符替换 确保路由定义使用统一的分隔符
-        if ('/' != $depr) {
-            $url = str_replace($depr, '/', $url);
-        }
 
-        list($path, $var) = self::parseUrlPath($url);
+        list($path, $var) = self::parseUrlPath($url, $depr);
         $route            = [null, null, null];
         if (isset($path)) {
             // 解析模块
@@ -1052,10 +1048,15 @@ class Route
      * 解析URL的pathinfo参数和变量
      * @access private
      * @param string    $url URL地址
+     * @param string    $depr URL分隔符
      * @return array
      */
-    private static function parseUrlPath($url)
+    private static function parseUrlPath($url, $depr = '/')
     {
+        // 分隔符替换 确保路由定义使用统一的分隔符
+        if ('/' != $depr) {
+            $url = str_replace($depr, '/', $url);
+        }
         $url = trim($url, '/');
         $var = [];
         if (false !== strpos($url, '?')) {
@@ -1185,22 +1186,34 @@ class Route
             $result = ['type' => 'controller', 'controller' => substr($url, 1), 'params' => $matches];
         } else {
             // 路由到模块/控制器/操作
-            list($path, $var) = self::parseUrlPath($url);
-            $action           = array_pop($path);
-            $controller       = !empty($path) ? array_pop($path) : null;
-            $module           = Config::get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-            $method           = Request::instance()->method();
-            if (Config::get('use_action_prefix') && !empty(self::$methodPrefix[$method])) {
-                // 操作方法前缀支持
-                $action = 0 !== strpos($action, self::$methodPrefix[$method]) ? self::$methodPrefix[$method] . $action : $action;
-            }
-            $_GET = array_merge($_GET, $var);
-            // 路由到模块/控制器/操作
-            $result = ['type' => 'module', 'module' => [$module, $controller, $action], 'convert' => false];
+            $result = self::parseModule($url);
         }
         // 解析额外参数
         self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
         return $result;
+    }
+
+    /**
+     * 解析URL地址为 模块/控制器/操作
+     * @access private
+     * @param string    $url URL地址
+     * @param string    $depr URL分隔符
+     * @return array
+     */
+    private static function parseModule($url, $depr = '/')
+    {
+        list($path, $var) = self::parseUrlPath($url, $depr);
+        $action           = array_pop($path);
+        $controller       = !empty($path) ? array_pop($path) : null;
+        $module           = Config::get('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $method           = Request::instance()->method();
+        if (Config::get('use_action_prefix') && !empty(self::$methodPrefix[$method])) {
+            // 操作方法前缀支持
+            $action = 0 !== strpos($action, self::$methodPrefix[$method]) ? self::$methodPrefix[$method] . $action : $action;
+        }
+        $_GET = array_merge($_GET, $var);
+        // 路由到模块/控制器/操作
+        return ['type' => 'module', 'module' => [$module, $controller, $action], 'convert' => false];
     }
 
     /**
