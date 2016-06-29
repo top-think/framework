@@ -349,6 +349,12 @@ class App
             self::$debug = Config::get('app_debug');
             if (!self::$debug) {
                 ini_set('display_errors', 'Off');
+            } else {
+                //重新申请一块比较大的buffer
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                ob_start();
             }
 
             // 应用命名空间

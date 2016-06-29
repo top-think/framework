@@ -155,8 +155,10 @@ class Handle
         while (ob_get_level() > 1) {
             ob_end_clean();
         }
+        
+        $data['echo'] = ob_get_clean();
+        
         ob_start();
-        ob_implicit_flush(0);
         extract($data);
         include Config::get('exception_tmpl');
         // 获取并清空缓存
