@@ -148,7 +148,7 @@ class Lang
 
     /**
      * 自动侦测设置获取语言选择
-     * @return void
+     * @return string
      */
     public static function detect()
     {
