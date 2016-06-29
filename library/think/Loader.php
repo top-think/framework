@@ -253,16 +253,18 @@ class Loader
     public static function import($class, $baseUrl = '', $ext = EXT)
     {
         static $_file = [];
+        $key   = $class . $baseUrl;
         $class = str_replace(['.', '#'], [DS, '.'], $class);
-        if (isset($_file[$class . $baseUrl])) {
+        if (isset($_file[$key])) {
             return true;
         }
 
         if (empty($baseUrl)) {
             list($name, $class) = explode(DS, $class, 2);
-            if (isset(self::$prefixDirsPsr4[$name])) {
+
+            if (isset(self::$prefixDirsPsr4[$name . '\\'])) {
                 // 注册的命名空间
-                $baseUrl = self::$prefixDirsPsr4[$name];
+                $baseUrl = self::$prefixDirsPsr4[$name . '\\'];
             } elseif ('@' == $name) {
                 //加载当前模块应用类库
                 $baseUrl = App::$modulePath;
@@ -293,7 +295,7 @@ class Loader
                 return false;
             }
             includeFile($filename);
-            $_file[$class . $baseUrl] = true;
+            $_file[$key] = true;
             return true;
         }
         return false;
