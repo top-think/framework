@@ -1666,6 +1666,7 @@ class Query
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
                 $where[$pk] = $data[$pk];
+                $key        = 'think:' . $options['table'] . '|' . $data[$pk];
                 unset($data[$pk]);
             } elseif (is_array($pk)) {
                 // 增加复合主键支持
@@ -1692,6 +1693,11 @@ class Query
             // 获取实际执行的SQL语句
             return $this->connection->getRealSql($sql, $this->bind);
         } else {
+            // 检测缓存
+            if (isset($key) && Cache::get($key)) {
+                // 删除缓存
+                Cache::rm($key);
+            }
             // 执行操作
             return '' == $sql ? 0 : $this->execute($sql, $this->getBind());
         }
@@ -1813,8 +1819,12 @@ class Query
         $result           = false;
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
-            $cache  = $options['cache'];
-            $key    = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+            $cache = $options['cache'];
+            if (true === $cache['key'] && !is_array($data)) {
+                $key = 'think:' . $options['table'] . '|' . $data;
+            } else {
+                $key = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+            }
             $result = Cache::get($key);
         }
         if (!$result) {
@@ -1964,6 +1974,10 @@ class Query
         $options = $this->parseExpress();
 
         if (!is_null($data) && true !== $data) {
+            if (!is_array($data)) {
+                // 缓存标识
+                $key = 'think:' . $options['table'] . '|' . $data;
+            }
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
         }
@@ -1974,9 +1988,16 @@ class Query
         }
         // 生成删除SQL语句
         $sql = $this->builder()->delete($options);
+
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
             return $this->connection->getRealSql($sql, $this->bind);
+        }
+
+        // 检测缓存
+        if (isset($key) && Cache::get($key)) {
+            // 删除缓存
+            Cache::rm($key);
         }
         // 执行操作
         return $this->execute($sql, $this->getBind());
