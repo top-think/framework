@@ -12,6 +12,7 @@
 namespace think;
 
 use think\Config;
+use think\debug\Trace;
 use think\Exception;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
@@ -70,7 +71,7 @@ class App
      * 执行应用程序
      * @access public
      * @param Request $request Request对象
-     * @return mixed
+     * @return Response
      * @throws Exception
      */
     public static function run(Request $request = null)
@@ -136,22 +137,27 @@ class App
             $data = $exception->getResponse();
         }
 
-        // 监听app_end
-        Hook::listen('app_end', $data);
         // 清空类的实例化
         Loader::clearInstance();
 
         // 输出数据到客户端
         if ($data instanceof Response) {
-            return $data;
+            $response = $data;
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
             $isAjax = $request->isAjax();
             $type   = $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
-            return Response::create($data, $type);
+            $response = Response::create($data, $type);
         } else {
-            return Response::create();
+            $response = Response::create();
         }
+        
+        self::$debug && Trace::inject($response);
+
+        // 监听app_end
+        Hook::listen('app_end', $response);
+        
+        return $response;
     }
 
     /**

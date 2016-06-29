@@ -8,9 +8,14 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+function microtime_float()
+{
+    list ($usec, $sec) = explode(" ", microtime());
+    return (( float )$usec + ( float )$sec);
+}
 
 define('THINK_VERSION', '5.0.0 RC3');
-define('START_TIME', microtime(true));
+define('START_TIME', microtime_float());
 define('START_MEM', memory_get_usage());
 define('EXT', '.php');
 define('DS', DIRECTORY_SEPARATOR);

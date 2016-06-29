@@ -93,9 +93,6 @@ class Response
         // 处理输出数据
         $data = $this->getContent();
 
-        // 监听response_data
-        Hook::listen('response_data', $data, $this);
-
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
             http_response_code($this->code);
@@ -166,6 +163,26 @@ class Response
     }
 
     /**
+     * 设置页面输出内容
+     * @param $content
+     * @return $this
+     */
+    public function content($content)
+    {
+        if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+                $content,
+                '__toString',
+            ])
+        ) {
+            throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
+        }
+
+        $this->content = (string)$content;
+
+        return $this;
+    }
+
+    /**
      * 发送HTTP状态
      * @param integer $code 状态码
      * @return $this
@@ -228,8 +245,28 @@ class Response
      */
     public function contentType($contentType, $charset = 'utf-8')
     {
+        $this->contentType = $contentType;
+        $this->charset     = $charset;
+
         $this->header['Content-Type'] = $contentType . '; charset=' . $charset;
         return $this;
+    }
+
+    /**
+     * 获取页面输出类型
+     * @return string
+     */
+    public function getContentType()
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * 获取页面输出字符集
+     */
+    public function getCharset()
+    {
+        return $this->charset;
     }
 
     /**
@@ -257,17 +294,20 @@ class Response
      */
     public function getContent()
     {
-        $content = $this->output($this->data);
+        if ($this->content == null) {
+            $content = $this->output($this->data);
 
-        if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-            $content,
-            '__toString',
-        ])
-        ) {
-            throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
+            if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+                    $content,
+                    '__toString',
+                ])
+            ) {
+                throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
+            }
+
+            $this->content = (string)$content;
         }
-
-        return (string) $content;
+        return $this->content;
     }
 
     /**
