@@ -11,6 +11,7 @@
 
 namespace think\response;
 
+use think\Request;
 use think\Response;
 
 class Jsonp extends Response
