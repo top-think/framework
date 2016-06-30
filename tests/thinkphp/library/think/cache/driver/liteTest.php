@@ -22,7 +22,7 @@ class liteTest extends \PHPUnit_Framework_TestCase
 {
     protected function getCacheInstance()
     {
-        return Cache::connect(['type' => 'Lite']);
+        return Cache::connect(['type' => 'Lite', 'path' => CACHE_PATH]);
     }
 
     /**
