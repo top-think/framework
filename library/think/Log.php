@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 
 namespace think;
+use think\exception\ClassNotFoundException;
 
 /**
  * Class Log
@@ -53,7 +54,11 @@ class Log
         $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
         self::$config = $config;
         unset($config['type']);
-        self::$driver = new $class($config);
+        if(class_exists($class)) {
+            self::$driver = new $class($config);
+        } else {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
+        }
         // 记录初始化信息
         App::$debug && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
     }
