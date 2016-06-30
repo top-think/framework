@@ -142,35 +142,88 @@ class Loader
     {
         if (is_array($namespace)) {
             foreach ($namespace as $prefix => $paths) {
-                self::setPsr4($prefix . '\\', rtrim($paths, DS));
+                self::addPsr4($prefix . '\\', rtrim($paths, DS), true);
             }
         } else {
-            self::setPsr4($namespace . '\\', rtrim($path, DS));
+            self::addPsr4($namespace . '\\', rtrim($path, DS), true);
         }
     }
 
-    // 注册Psr0空间
-    private static function setPsr0($prefix, $paths)
+    // 添加Ps0空间
+    private function addPsr0($prefix, $paths, $prepend = false)
     {
         if (!$prefix) {
-            self::$fallbackDirsPsr0 = (array)$paths;
+            if ($prepend) {
+                self::$fallbackDirsPsr0 = array_merge(
+                    (array)$paths,
+                    self::$fallbackDirsPsr0
+                );
+            } else {
+                self::$fallbackDirsPsr0 = array_merge(
+                    self::$fallbackDirsPsr0,
+                    (array)$paths
+                );
+            }
+
+            return;
+        }
+
+        $first = $prefix[0];
+        if (!isset(self::$prefixesPsr0[$first][$prefix])) {
+            self::$prefixesPsr0[$first][$prefix] = (array)$paths;
+
+            return;
+        }
+        if ($prepend) {
+            self::$prefixesPsr0[$first][$prefix] = array_merge(
+                (array)$paths,
+                self::$prefixesPsr0[$first][$prefix]
+            );
         } else {
-            self::$prefixesPsr0[$prefix[0]][$prefix] = (array)$paths;
+            self::$prefixesPsr0[$first][$prefix] = array_merge(
+                self::$prefixesPsr0[$first][$prefix],
+                (array)$paths
+            );
         }
     }
 
-    // 注册Psr4空间
-    private static function setPsr4($prefix, $paths)
+
+    // 添加Psr4空间
+    private static function addPsr4($prefix, $paths, $prepend = false)
     {
         if (!$prefix) {
-            self::$fallbackDirsPsr4 = (array)$paths;
-        } else {
+            // Register directories for the root namespace.
+            if ($prepend) {
+                self::$fallbackDirsPsr4 = array_merge(
+                    (array)$paths,
+                    self::$fallbackDirsPsr4
+                );
+            } else {
+                self::$fallbackDirsPsr4 = array_merge(
+                    self::$fallbackDirsPsr4,
+                    (array)$paths
+                );
+            }
+        } elseif (!isset(self::$prefixDirsPsr4[$prefix])) {
+            // Register directories for a new namespace.
             $length = strlen($prefix);
             if ('\\' !== $prefix[$length - 1]) {
                 throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
             }
             self::$prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
             self::$prefixDirsPsr4[$prefix]                = (array)$paths;
+        } elseif ($prepend) {
+            // Prepend directories for an already registered namespace.
+            self::$prefixDirsPsr4[$prefix] = array_merge(
+                (array)$paths,
+                self::$prefixDirsPsr4[$prefix]
+            );
+        } else {
+            // Append directories for an already registered namespace.
+            self::$prefixDirsPsr4[$prefix] = array_merge(
+                self::$prefixDirsPsr4[$prefix],
+                (array)$paths
+            );
         }
     }
 
@@ -216,14 +269,14 @@ class Loader
         if (is_file(VENDOR_PATH . 'composer/autoload_namespaces.php')) {
             $map = require VENDOR_PATH . 'composer/autoload_namespaces.php';
             foreach ($map as $namespace => $path) {
-                self::setPsr0($namespace, $path);
+                self::addPsr0($namespace, $path);
             }
         }
 
         if (is_file(VENDOR_PATH . 'composer/autoload_psr4.php')) {
             $map = require VENDOR_PATH . 'composer/autoload_psr4.php';
             foreach ($map as $namespace => $path) {
-                self::setPsr4($namespace, $path);
+                self::addPsr4($namespace, $path);
             }
         }
 

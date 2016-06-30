@@ -79,7 +79,7 @@ EOF;
         foreach ($this->createMap($dir, $namespace) as $class => $path) {
 
             $pathCode = $this->getPathCode($path) . ",\n";
-            // dump($pathCode);
+            
             if (!isset($classMap[$class])) {
                 $classMap[$class] = $pathCode;
             } elseif ($classMap[$class] !== $pathCode && !preg_match('{/(test|fixture|example|stub)s?/}i', strtr($classMap[$class] . ' ' . $path, '\\', '/'))) {
