@@ -56,6 +56,7 @@ return [
     'think\db\builder\Sqlsrv'                   => CORE_PATH . 'db' . DS . 'builder' . DS . 'Sqlsrv' . EXT,
     'think\db\Query'                            => CORE_PATH . 'db' . DS . 'Query' . EXT,
     'think\Debug'                               => CORE_PATH . 'Debug' . EXT,
+    'think\debug\Trace'                         => CORE_PATH . 'debug' . DS . 'Trace' . EXT,
     'think\Error'                               => CORE_PATH . 'Error' . EXT,
     'think\Exception'                           => CORE_PATH . 'Exception' . EXT,
     'think\exception\ClassNotFoundException'    => CORE_PATH . 'exception' . DS . 'ClassNotFoundException' . EXT,
