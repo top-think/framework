@@ -6,10 +6,10 @@
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: yangweijie <yangweijiester@gmail.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\debug\trace;
+namespace think\debug;
 
 use think\Cache;
 use think\Config;
@@ -17,42 +17,42 @@ use think\Db;
 use think\Debug;
 
 /**
- * 浏览器调试输出
+ * 页面Trace调试
  */
-class Console
+class Html
 {
     protected $config = [
+        'trace_file' => '',
         'trace_tabs' => ['base' => '基本', 'file' => '文件', 'info' => '流程', 'notice|error' => '错误', 'sql' => 'SQL', 'debug|log' => '调试'],
     ];
 
     // 实例化并传入参数
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
-        if (is_array($config)) {
-            $this->config = array_merge($this->config, $config);
-        }
+        $this->config['trace_file'] = THINK_PATH . 'tpl/page_trace.tpl';
+        $this->config               = array_merge($this->config, $config);
     }
 
     /**
-     * 日志写入接口
+     * 调试输出接口
      * @access public
      * @param array $log 日志信息
      * @return bool
      */
     public function output(array $log = [])
     {
+
         // 获取基本信息
         $runtime = number_format(microtime(true), 8, '.', '') - START_TIME;
         $reqs    = number_format(1 / $runtime, 2);
         $mem     = number_format((memory_get_usage() - START_MEM) / 1024, 2);
 
+        // 页面Trace信息
         if (isset($_SERVER['HTTP_HOST'])) {
             $uri = $_SERVER['SERVER_PROTOCOL'] . ' ' . $_SERVER['REQUEST_METHOD'] . ' : ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         } else {
             $uri = "cmd:" . implode(' ', $_SERVER['argv']);
         }
-
-        // 页面Trace信息
         $base = [
             '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
             '运行时间' => "{$runtime}s [ 吞吐率：{$reqs}req/s ] 内存消耗：{$mem}kb 文件加载：" . count(get_included_files()),
@@ -92,58 +92,10 @@ class Console
                     }
             }
         }
-
-        //输出到控制台
-        $lines = '';
-        foreach ($trace as $type => $msg) {
-            $lines .= $this->console($type, $msg);
-        }
-        $js = <<<JS
-
-<script type='text/javascript'>
-{$lines}
-</script>
-JS;
-        return $js;
-    }
-
-    protected function console($type, $msg)
-    {
-        $type       = strtolower($type);
-        $trace_tabs = array_values($this->config['trace_tabs']);
-        $line[]     = ($type == $trace_tabs[0] || '调试' == $type || '错误' == $type)
-        ? "console.group('{$type}');"
-        : "console.groupCollapsed('{$type}');";
-
-        foreach ((array) $msg as $key => $m) {
-            switch ($type) {
-                case '调试':
-                    $var_type = gettype($m);
-                    if (in_array($var_type, ['array', 'string'])) {
-                        $line[] = "console.log(" . json_encode($m) . ");";
-                    } else {
-                        $line[] = "console.log(" . json_encode(var_export($m, 1)) . ");";
-                    }
-                    break;
-                case '错误':
-                    $msg    = str_replace(PHP_EOL, '\n', $m);
-                    $style  = 'color:#F4006B;font-size:14px;';
-                    $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
-                    break;
-                case 'sql':
-                    $msg    = str_replace(PHP_EOL, '\n', $m);
-                    $style  = "color:#009bb4;";
-                    $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
-                    break;
-                default:
-                    $m      = is_string($key) ? $key . ' ' . $m : $key + 1 . ' ' . $m;
-                    $msg    = json_encode($m);
-                    $line[] = "console.log({$msg});";
-                    break;
-            }
-        }
-        $line[] = "console.groupEnd();";
-        return implode(PHP_EOL, $line);
+        // 调用Trace页面模板
+        ob_start();
+        include $this->config['trace_file'];
+        return ob_get_clean();
     }
 
 }

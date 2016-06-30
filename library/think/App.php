@@ -12,7 +12,6 @@
 namespace think;
 
 use think\Config;
-use think\debug\Trace;
 use think\Exception;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
@@ -145,19 +144,18 @@ class App
             $response = $data;
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
-            $isAjax = $request->isAjax();
-            $type   = $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
+            $isAjax   = $request->isAjax();
+            $type     = $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
             $response = Response::create($data, $type);
         } else {
             $response = Response::create();
         }
 
-
         // 监听app_end
         Hook::listen('app_end', $response);
-        
-        //注入Trace
-        self::$debug && Trace::inject($response);
+
+        // Trace调试注入
+        Debug::inject($response);
 
         return $response;
     }

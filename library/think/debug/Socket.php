@@ -9,7 +9,7 @@
 // | Author: luofei614 <weibo.com/luofei614>
 // +----------------------------------------------------------------------
 
-namespace think\log\driver;
+namespace think\debug;
 
 /**
  * github: https://github.com/luofei614/SocketLog
@@ -55,12 +55,12 @@ class Socket
     }
 
     /**
-     * 日志写入接口
+     * 调试输出接口
      * @access public
      * @param array $logs 日志信息
      * @return bool
      */
-    public function save(array $logs = [])
+    public function output(array $logs = [])
     {
         if (!$this->check()) {
             return false;
