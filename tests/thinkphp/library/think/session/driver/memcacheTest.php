@@ -22,11 +22,15 @@ use think\Session;
 
 class memcacheTest extends \PHPUnit_Framework_TestCase
 {
-    protected function setUp()
+
+    public function testInit()
     {
         Session::init(['type' => 'memcache',]);
     }
 
+    /**
+     *@depends testInit
+     **/
     public function testRead()
     {
         $test_read = 'session';
@@ -34,7 +38,9 @@ class memcacheTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(Session::has('test_session'));
         $this->assertEquals($test_read, Session::get('test_session'));
     }
-
+    /**       
+     *@depends testInit      
+     **/
     public function testWrite()
     {
         $test_read = 'session';
@@ -42,15 +48,6 @@ class memcacheTest extends \PHPUnit_Framework_TestCase
         Session::set('test_write_session', $test_read);
         $this->assertTrue(Session::has('test_write_session'));
         $this->assertEquals($test_read, Session::get('test_write_session'));
-    }
-    
-    public function destroy()
-    {
-        $test_read = 'session';
-        Session::set('test_destroy_session', $test_read);
-        $this->assertTrue(Session::has('test_destroy_session'));
-        Session::destroy();
-        $this->assertFalse(Session::has('test_destroy_session'));
     }
     
 }
