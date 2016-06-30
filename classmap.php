@@ -33,6 +33,7 @@ return [
     'think\config\Ini'                          => CORE_PATH . 'config' . DS . 'driver' . DS . 'Ini' . EXT,
     'think\config\Json'                         => CORE_PATH . 'config' . DS . 'driver' . DS . 'Json' . EXT,
     'think\config\Xml'                          => CORE_PATH . 'config' . DS . 'driver' . DS . 'Xml' . EXT,
+    'think\config\Yaml'                          => CORE_PATH . 'config' . DS . 'driver' . DS . 'Yaml' . EXT,
     'think\Console'                             => CORE_PATH . 'Console' . EXT,
     'think\Controller'                          => CORE_PATH . 'Controller' . EXT,
     'think\controller\Hprose'                   => CORE_PATH . 'controller' . DS . 'Hprose' . EXT,
