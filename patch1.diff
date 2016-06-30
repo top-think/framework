@@ -1,0 +1,44 @@
+From 168fe0d6cc2b9c1f2f4a6597aef9e2ac688336da Mon Sep 17 00:00:00 2001
+From: Bolo Lai <cantonbolo@gmail.com>
+Date: Tue, 28 Jun 2016 09:02:26 +0800
+Subject: [PATCH] =?UTF-8?q?=E5=9C=A8=E6=9B=B4=E6=96=B0=E6=95=B0=E6=8D=AE?=
+ =?UTF-8?q?=E7=9A=84=E6=97=B6=E5=80=99=E6=89=8D=E8=87=AA=E5=8A=A8=E5=AE=8C?=
+ =?UTF-8?q?=E6=88=90update=5Ftime?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ library/think/Model.php | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/library/think/Model.php b/library/think/Model.php
+index cbcb199..973dc33 100644
+--- a/library/think/Model.php
++++ b/library/think/Model.php
+@@ -569,17 +569,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
+         // 数据自动完成
+         $this->autoCompleteData($this->auto);
+ 
+-        // 自动写入更新时间
+-        if ($this->autoWriteTimestamp && $this->updateTime) {
+-            $this->setAttr($this->updateTime, null);
+-        }
+-
+         // 事件回调
+         if (false === $this->trigger('before_write', $this)) {
+             return false;
+         }
+ 
+         if ($this->isUpdate) {
++            // 自动写入更新时间
++            if ($this->autoWriteTimestamp && $this->updateTime) {
++                $this->setAttr($this->updateTime, null);
++            }
++
+             // 自动更新
+             $this->autoCompleteData($this->update);
+ 
+-- 
+2.7.0.windows.1
+
