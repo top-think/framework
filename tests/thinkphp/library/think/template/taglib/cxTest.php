@@ -535,7 +535,16 @@ EOF;
         $template->display($content);
         $this->expectOutputString('123456789');
     }
-
+    public function testUrl()
+    {
+        $template = new template();
+        $content = <<<EOF
+{url link="Index/index"  /}
+EOF;
+        $template->display($content);
+        $this->expectOutputString(\think\Url::build('Index/index'));
+    }
+    
     public function testFunction()
     {
         $template = new template();
