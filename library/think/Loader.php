@@ -150,7 +150,7 @@ class Loader
     }
 
     // 添加Ps0空间
-    private function addPsr0($prefix, $paths, $prepend = false)
+    private static function addPsr0($prefix, $paths, $prepend = false)
     {
         if (!$prefix) {
             if ($prepend) {
