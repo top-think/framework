@@ -11,6 +11,7 @@
 namespace think\debug;
 
 use think\Config;
+use think\exception\ClassNotFoundException;
 use think\Log;
 use think\Request;
 use think\Response;
@@ -31,7 +32,11 @@ class Trace
 
             $class = false !== strpos($type, '\\') ? $type : '\\think\\debug\\trace\\' . ucwords($type);
             unset($config['type']);
-            $trace = new $class($config);
+            if(class_exists($class)) {
+                $trace = new $class($config);
+            } else {
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
+            }
 
             if ($response instanceof Redirect) {
                 //TODO 记录
