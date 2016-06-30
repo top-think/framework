@@ -55,7 +55,7 @@ class Loader
                 return false;
             }
 
-            includeFile($file);
+            __include_file($file);
             return true;
         }
     }
@@ -197,7 +197,9 @@ class Loader
             'traits'   => LIB_PATH . 'traits' . DS,
         ]);
         // 加载类库映射文件
-        self::addClassMap(includeFile(THINK_PATH . 'classmap' . EXT));
+        if (is_file(RUNTIME_PATH . 'classmap' . EXT)) {
+            self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
+        }
 
         // Composer自动加载支持
         if (is_dir(VENDOR_PATH . 'composer')) {
@@ -236,7 +238,7 @@ class Loader
             $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
             foreach ($includeFiles as $fileIdentifier => $file) {
                 if (empty(self::$autoloadFiles[$fileIdentifier])) {
-                    requireFile($file);
+                    __require_file($file);
                     self::$autoloadFiles[$fileIdentifier] = true;
                 }
             }
@@ -294,7 +296,7 @@ class Loader
             if (IS_WIN && pathinfo($filename, PATHINFO_FILENAME) != pathinfo(realpath($filename), PATHINFO_FILENAME)) {
                 return false;
             }
-            includeFile($filename);
+            __include_file($filename);
             $_file[$key] = true;
             return true;
         }
@@ -485,12 +487,12 @@ class Loader
  * @param $file
  * @return mixed
  */
-function includeFile($file)
+function __include_file($file)
 {
     return include $file;
 }
 
-function requireFile($file)
+function __require_file($file)
 {
     return require $file;
 }
