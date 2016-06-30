@@ -57,6 +57,8 @@ return [
     'think\db\Query'                            => CORE_PATH . 'db' . DS . 'Query' . EXT,
     'think\Debug'                               => CORE_PATH . 'Debug' . EXT,
     'think\debug\Trace'                         => CORE_PATH . 'debug' . DS . 'Trace' . EXT,
+    'think\debug\trace\Html'                    => CORE_PATH . 'debug' . DS . 'trace' . DS . 'Html' . EXT,
+    'think\debug\trace\Console'                 => CORE_PATH . 'debug' . DS . 'trace' . DS . 'Console' . EXT,
     'think\Error'                               => CORE_PATH . 'Error' . EXT,
     'think\Exception'                           => CORE_PATH . 'Exception' . EXT,
     'think\exception\ClassNotFoundException'    => CORE_PATH . 'exception' . DS . 'ClassNotFoundException' . EXT,
