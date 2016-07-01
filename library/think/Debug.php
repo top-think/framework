@@ -104,7 +104,7 @@ class Debug
      */
     public static function getUseMem($dec = 2)
     {
-        $size = memory_get_usage() - START_MEM;
+        $size = memory_get_usage() - THINK_START_MEM;
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
         while ($size >= 1024) {
