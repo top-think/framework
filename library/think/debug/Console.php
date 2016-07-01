@@ -42,9 +42,9 @@ class Console
     public function output(array $log = [])
     {
         // 获取基本信息
-        $runtime = number_format(microtime(true), 8, '.', '') - START_TIME;
+        $runtime = number_format(microtime(true), 8, '.', '') - THINK_START_TIME;
         $reqs    = number_format(1 / $runtime, 2);
-        $mem     = number_format((memory_get_usage() - START_MEM) / 1024, 2);
+        $mem     = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
 
         if (isset($_SERVER['HTTP_HOST'])) {
             $uri = $_SERVER['SERVER_PROTOCOL'] . ' ' . $_SERVER['REQUEST_METHOD'] . ' : ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];

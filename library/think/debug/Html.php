@@ -43,9 +43,9 @@ class Html
     {
 
         // 获取基本信息
-        $runtime = number_format(microtime(true), 8, '.', '') - START_TIME;
+        $runtime = number_format(microtime(true), 8, '.', '') - THINK_START_TIME;
         $reqs    = number_format(1 / $runtime, 2);
-        $mem     = number_format((memory_get_usage() - START_MEM) / 1024, 2);
+        $mem     = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
 
         // 页面Trace信息
         if (isset($_SERVER['HTTP_HOST'])) {

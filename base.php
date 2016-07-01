@@ -9,9 +9,9 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-define('THINK_VERSION', '5.0.0 RC3');
-define('START_TIME', number_format(microtime(true), 8, '.', ''));
-define('START_MEM', memory_get_usage());
+define('THINK_VERSION', '5.0.0 RC4');
+define('THINK_START_TIME', number_format(microtime(true), 8, '.', ''));
+define('THINK_START_MEM', memory_get_usage());
 define('EXT', '.php');
 define('DS', DIRECTORY_SEPARATOR);
 defined('THINK_PATH') or define('THINK_PATH', __DIR__ . DS);

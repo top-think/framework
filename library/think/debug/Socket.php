@@ -65,10 +65,10 @@ class Socket
         if (!$this->check()) {
             return false;
         }
-        $runtime    = number_format(microtime(true), 8, '.', '') - START_TIME;
+        $runtime    = number_format(microtime(true), 8, '.', '') - THINK_START_TIME;
         $reqs       = number_format(1 / number_format($runtime, 8), 2);
         $time_str   = " [运行时间：{$runtime}s][吞吐率：{$reqs}req/s]";
-        $memory_use = number_format((memory_get_usage() - START_MEM) / 1024, 2);
+        $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
         $memory_str = " [内存消耗：{$memory_use}kb]";
         $file_load  = " [文件加载：" . count(get_included_files()) . "]";
 

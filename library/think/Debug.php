@@ -63,7 +63,7 @@ class Debug
      */
     public static function getUseTime($dec = 6)
     {
-        return number_format((microtime(true) - START_TIME), $dec);
+        return number_format((microtime(true) - THINK_START_TIME), $dec);
     }
 
     /**

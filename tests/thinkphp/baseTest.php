@@ -16,8 +16,8 @@ class baseTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstants()
     {
-        $this->assertNotEmpty(START_TIME);
-        $this->assertNotEmpty(START_MEM);
+        $this->assertNotEmpty(THINK_START_TIME);
+        $this->assertNotEmpty(THINK_START_MEM);
         $this->assertNotEmpty(THINK_VERSION);
         $this->assertNotEmpty(DS);
         $this->assertNotEmpty(THINK_PATH);
