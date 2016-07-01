@@ -18,6 +18,7 @@ use think\db\Builder;
  */
 class Mysql extends Builder
 {
+    protected $updateSql = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**
      * 字段和表名处理
