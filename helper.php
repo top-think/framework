@@ -33,9 +33,11 @@ use think\View;
  * @param string    $ext 类库后缀
  * @return boolean
  */
-function load_trait($class, $ext = EXT)
-{
-    return Loader::import($class, TRAIT_PATH, $ext);
+if (!function_exists('load_trait')) {
+    function load_trait($class, $ext = EXT)
+    {
+        return Loader::import($class, TRAIT_PATH, $ext);
+    }
 }
 
 /**
@@ -47,10 +49,12 @@ function load_trait($class, $ext = EXT)
  *
  * @throws Exception
  */
-function exception($msg, $code = 0, $exception = '')
-{
-    $e = $exception ?: '\think\Exception';
-    throw new $e($msg, $code);
+if (!function_exists('exception')) {
+    function exception($msg, $code = 0, $exception = '')
+    {
+        $e = $exception ?: '\think\Exception';
+        throw new $e($msg, $code);
+    }
 }
 
 /**
@@ -60,12 +64,14 @@ function exception($msg, $code = 0, $exception = '')
  * @param integer|string    $dec 小数位 如果是m 表示统计内存占用
  * @return mixed
  */
-function debug($start, $end = '', $dec = 6)
-{
-    if ('' == $end) {
-        Debug::remark($start);
-    } else {
-        return 'm' == $dec ? Debug::getRangeMem($start, $end) : Debug::getRangeTime($start, $end, $dec);
+if (!function_exists('debug')) {
+    function debug($start, $end = '', $dec = 6)
+    {
+        if ('' == $end) {
+            Debug::remark($start);
+        } else {
+            return 'm' == $dec ? Debug::getRangeMem($start, $end) : Debug::getRangeTime($start, $end, $dec);
+        }
     }
 }
 
@@ -76,9 +82,11 @@ function debug($start, $end = '', $dec = 6)
  * @param string    $lang 语言
  * @return mixed
  */
-function lang($name, $vars = [], $lang = '')
-{
-    return Lang::get($name, $vars, $lang);
+if (!function_exists('lang')) {
+    function lang($name, $vars = [], $lang = '')
+    {
+        return Lang::get($name, $vars, $lang);
+    }
 }
 
 /**
@@ -88,12 +96,14 @@ function lang($name, $vars = [], $lang = '')
  * @param string        $range 作用域
  * @return mixed
  */
-function config($name = '', $value = null, $range = '')
-{
-    if (is_null($value) && is_string($name)) {
-        return Config::get($name, $range);
-    } else {
-        return Config::set($name, $value, $range);
+if (!function_exists('config')) {
+    function config($name = '', $value = null, $range = '')
+    {
+        if (is_null($value) && is_string($name)) {
+            return Config::get($name, $range);
+        } else {
+            return Config::set($name, $value, $range);
+        }
     }
 }
 
@@ -104,28 +114,30 @@ function config($name = '', $value = null, $range = '')
  * @param string    $filter 过滤方法
  * @return mixed
  */
-function input($key, $default = null, $filter = null)
-{
-    if (0 === strpos($key, '?')) {
-        $key = substr($key, 1);
-        $has = true;
-    }
-    if ($pos = strpos($key, '.')) {
-        // 指定参数来源
-        $method = substr($key, 0, $pos);
-        if (in_array($method, ['get', 'post', 'put', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
-            $key = substr($key, $pos + 1);
+if (!function_exists('input')) {
+    function input($key, $default = null, $filter = null)
+    {
+        if (0 === strpos($key, '?')) {
+            $key = substr($key, 1);
+            $has = true;
+        }
+        if ($pos = strpos($key, '.')) {
+            // 指定参数来源
+            $method = substr($key, 0, $pos);
+            if (in_array($method, ['get', 'post', 'put', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
+                $key = substr($key, $pos + 1);
+            } else {
+                $method = 'param';
+            }
         } else {
+            // 默认为自动判断
             $method = 'param';
         }
-    } else {
-        // 默认为自动判断
-        $method = 'param';
-    }
-    if (isset($has)) {
-        return request()->has($key, $method, $default);
-    } else {
-        return request()->$method($key, $default, $filter);
+        if (isset($has)) {
+            return request()->has($key, $method, $default);
+        } else {
+            return request()->$method($key, $default, $filter);
+        }
     }
 }
 
@@ -135,9 +147,11 @@ function input($key, $default = null, $filter = null)
  * @param array     $data 传人的参数
  * @return mixed
  */
-function widget($name, $data = [])
-{
-    return Loader::action($name, $data, 'widget');
+if (!function_exists('widget')) {
+    function widget($name, $data = [])
+    {
+        return Loader::action($name, $data, 'widget');
+    }
 }
 
 /**
@@ -147,9 +161,11 @@ function widget($name, $data = [])
  * @param bool      $appendSuffix 是否添加类名后缀
  * @return \think\Model
  */
-function model($name = '', $layer = 'model', $appendSuffix = false)
-{
-    return Loader::model($name, $layer, $appendSuffix);
+if (!function_exists('model')) {
+    function model($name = '', $layer = 'model', $appendSuffix = false)
+    {
+        return Loader::model($name, $layer, $appendSuffix);
+    }
 }
 
 /**
@@ -159,9 +175,11 @@ function model($name = '', $layer = 'model', $appendSuffix = false)
  * @param bool      $appendSuffix 是否添加类名后缀
  * @return \think\Validate
  */
-function validate($name = '', $layer = 'validate', $appendSuffix = false)
-{
-    return Loader::validate($name, $layer, $appendSuffix);
+if (!function_exists('validate')) {
+    function validate($name = '', $layer = 'validate', $appendSuffix = false)
+    {
+        return Loader::validate($name, $layer, $appendSuffix);
+    }
 }
 
 /**
@@ -170,9 +188,11 @@ function validate($name = '', $layer = 'validate', $appendSuffix = false)
  * @param array|string  $config 数据库配置参数
  * @return \think\db\Query
  */
-function db($name = '', $config = [])
-{
-    return Db::connect($config)->name($name);
+if (!function_exists('db')) {
+    function db($name = '', $config = [])
+    {
+        return Db::connect($config)->name($name);
+    }
 }
 
 /**
@@ -182,9 +202,11 @@ function db($name = '', $config = [])
  * @param bool      $appendSuffix 是否添加类名后缀
  * @return \think\Controller
  */
-function controller($name, $layer = 'controller', $appendSuffix = false)
-{
-    return Loader::controller($name, $layer, $appendSuffix);
+if (!function_exists('controller')) {
+    function controller($name, $layer = 'controller', $appendSuffix = false)
+    {
+        return Loader::controller($name, $layer, $appendSuffix);
+    }
 }
 
 /**
@@ -195,9 +217,11 @@ function controller($name, $layer = 'controller', $appendSuffix = false)
  * @param bool          $appendSuffix 是否添加类名后缀
  * @return mixed
  */
-function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
-{
-    return Loader::action($url, $vars, $layer, $appendSuffix);
+if (!function_exists('action')) {
+    function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
+    {
+        return Loader::action($url, $vars, $layer, $appendSuffix);
+    }
 }
 
 /**
@@ -207,9 +231,11 @@ function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
  * @param string    $ext 导入的文件扩展名
  * @return boolean
  */
-function import($class, $baseUrl = '', $ext = EXT)
-{
-    return Loader::import($class, $baseUrl, $ext);
+if (!function_exists('import')) {
+    function import($class, $baseUrl = '', $ext = EXT)
+    {
+        return Loader::import($class, $baseUrl, $ext);
+    }
 }
 
 /**
@@ -218,9 +244,11 @@ function import($class, $baseUrl = '', $ext = EXT)
  * @param string    $ext 类库后缀
  * @return boolean
  */
-function vendor($class, $ext = EXT)
-{
-    return Loader::import($class, VENDOR_PATH, $ext);
+if (!function_exists('vendor')) {
+    function vendor($class, $ext = EXT)
+    {
+        return Loader::import($class, VENDOR_PATH, $ext);
+    }
 }
 
 /**
@@ -230,9 +258,11 @@ function vendor($class, $ext = EXT)
  * @param string    $label 标签 默认为空
  * @return void|string
  */
-function dump($var, $echo = true, $label = null)
-{
-    return Debug::dump($var, $echo, $label);
+if (!function_exists('dump')) {
+    function dump($var, $echo = true, $label = null)
+    {
+        return Debug::dump($var, $echo, $label);
+    }
 }
 
 /**
@@ -243,9 +273,11 @@ function dump($var, $echo = true, $label = null)
  * @param bool|string   $domain 域名
  * @return string
  */
-function url($url = '', $vars = '', $suffix = true, $domain = false)
-{
-    return Url::build($url, $vars, $suffix, $domain);
+if (!function_exists('url')) {
+    function url($url = '', $vars = '', $suffix = true, $domain = false)
+    {
+        return Url::build($url, $vars, $suffix, $domain);
+    }
 }
 
 /**
@@ -255,23 +287,25 @@ function url($url = '', $vars = '', $suffix = true, $domain = false)
  * @param string        $prefix 前缀
  * @return mixed
  */
-function session($name, $value = '', $prefix = null)
-{
-    if (is_array($name)) {
-        // 初始化
-        Session::init($name);
-    } elseif (is_null($name)) {
-        // 清除
-        Session::clear($value);
-    } elseif ('' === $value) {
-        // 判断或获取
-        return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
-    } elseif (is_null($value)) {
-        // 删除
-        return Session::delete($name, $prefix);
-    } else {
-        // 设置
-        return Session::set($name, $value, $prefix);
+if (!function_exists('session')) {
+    function session($name, $value = '', $prefix = null)
+    {
+        if (is_array($name)) {
+            // 初始化
+            Session::init($name);
+        } elseif (is_null($name)) {
+            // 清除
+            Session::clear($value);
+        } elseif ('' === $value) {
+            // 判断或获取
+            return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
+        } elseif (is_null($value)) {
+            // 删除
+            return Session::delete($name, $prefix);
+        } else {
+            // 设置
+            return Session::set($name, $value, $prefix);
+        }
     }
 }
 
@@ -282,23 +316,25 @@ function session($name, $value = '', $prefix = null)
  * @param mixed         $option 参数
  * @return mixed
  */
-function cookie($name, $value = '', $option = null)
-{
-    if (is_array($name)) {
-        // 初始化
-        Cookie::init($name);
-    } elseif (is_null($name)) {
-        // 清除
-        Cookie::clear($value);
-    } elseif ('' === $value) {
-        // 获取
-        return Cookie::get($name);
-    } elseif (is_null($value)) {
-        // 删除
-        return Cookie::delete($name);
-    } else {
-        // 设置
-        return Cookie::set($name, $value, $option);
+if (!function_exists('cookie')) {
+    function cookie($name, $value = '', $option = null)
+    {
+        if (is_array($name)) {
+            // 初始化
+            Cookie::init($name);
+        } elseif (is_null($name)) {
+            // 清除
+            Cookie::clear($value);
+        } elseif ('' === $value) {
+            // 获取
+            return Cookie::get($name);
+        } elseif (is_null($value)) {
+            // 删除
+            return Cookie::delete($name);
+        } else {
+            // 设置
+            return Cookie::set($name, $value, $option);
+        }
     }
 }
 
@@ -309,29 +345,31 @@ function cookie($name, $value = '', $option = null)
  * @param mixed     $options 缓存参数
  * @return mixed
  */
-function cache($name, $value = '', $options = null)
-{
-    if (is_array($options)) {
-        // 缓存操作的同时初始化
-        Cache::connect($options);
-    } elseif (is_array($name)) {
-        // 缓存初始化
-        return Cache::connect($name);
-    }
-    if ('' === $value) {
-        // 获取缓存
-        return Cache::get($name);
-    } elseif (is_null($value)) {
-        // 删除缓存
-        return Cache::rm($name);
-    } else {
-        // 缓存数据
+if (!function_exists('cache')) {
+    function cache($name, $value = '', $options = null)
+    {
         if (is_array($options)) {
-            $expire = isset($options['expire']) ? $options['expire'] : null; //修复查询缓存无法设置过期时间
-        } else {
-            $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
+            // 缓存操作的同时初始化
+            Cache::connect($options);
+        } elseif (is_array($name)) {
+            // 缓存初始化
+            return Cache::connect($name);
         }
-        return Cache::set($name, $value, $expire);
+        if ('' === $value) {
+            // 获取缓存
+            return Cache::get($name);
+        } elseif (is_null($value)) {
+            // 删除缓存
+            return Cache::rm($name);
+        } else {
+            // 缓存数据
+            if (is_array($options)) {
+                $expire = isset($options['expire']) ? $options['expire'] : null; //修复查询缓存无法设置过期时间
+            } else {
+                $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
+            }
+            return Cache::set($name, $value, $expire);
+        }
     }
 }
 
@@ -341,12 +379,14 @@ function cache($name, $value = '', $options = null)
  * @param string    $level 日志级别
  * @return void|array
  */
-function trace($log = '[think]', $level = 'log')
-{
-    if ('[think]' === $log) {
-        return Log::getLog();
-    } else {
-        Log::record($log, $level);
+if (!function_exists('trace')) {
+    function trace($log = '[think]', $level = 'log')
+    {
+        if ('[think]' === $log) {
+            return Log::getLog();
+        } else {
+            Log::record($log, $level);
+        }
     }
 }
 
@@ -354,9 +394,11 @@ function trace($log = '[think]', $level = 'log')
  * 获取当前Request对象实例
  * @return Request
  */
-function request()
-{
-    return Request::instance();
+if (!function_exists('request')) {
+    function request()
+    {
+        return Request::instance();
+    }
 }
 
 /**
@@ -367,9 +409,11 @@ function request()
  * @param string     $type
  * @return Response
  */
-function response($data = [], $code = 200, $header = [], $type = 'html')
-{
-    return Response::create($data, $type, $code, $header);
+if (!function_exists('response')) {
+    function response($data = [], $code = 200, $header = [], $type = 'html')
+    {
+        return Response::create($data, $type, $code, $header);
+    }
 }
 
 /**
@@ -379,9 +423,11 @@ function response($data = [], $code = 200, $header = [], $type = 'html')
  * @param integer   $code 状态码
  * @return \think\response\View
  */
-function view($template = '', $vars = [], $code = 200)
-{
-    return Response::create($template, 'view', $code)->vars($vars);
+if (!function_exists('view')) {
+    function view($template = '', $vars = [], $code = 200)
+    {
+        return Response::create($template, 'view', $code)->vars($vars);
+    }
 }
 
 /**
@@ -392,9 +438,11 @@ function view($template = '', $vars = [], $code = 200)
  * @param array   $options 参数
  * @return \think\response\Json
  */
-function json($data = [], $code = 200, $header = [], $options = [])
-{
-    return Response::create($data, 'json', $code, $header, $options);
+if (!function_exists('json')) {
+    function json($data = [], $code = 200, $header = [], $options = [])
+    {
+        return Response::create($data, 'json', $code, $header, $options);
+    }
 }
 
 /**
@@ -405,9 +453,11 @@ function json($data = [], $code = 200, $header = [], $options = [])
  * @param array   $options 参数
  * @return \think\response\Jsonp
  */
-function jsonp($data = [], $code = 200, $header = [], $options = [])
-{
-    return Response::create($data, 'jsonp', $code, $header, $options);
+if (!function_exists('jsonp')) {
+    function jsonp($data = [], $code = 200, $header = [], $options = [])
+    {
+        return Response::create($data, 'jsonp', $code, $header, $options);
+    }
 }
 
 /**
@@ -418,9 +468,11 @@ function jsonp($data = [], $code = 200, $header = [], $options = [])
  * @param array   $options 参数
  * @return \think\response\Xml
  */
-function xml($data = [], $code = 200, $header = [], $options = [])
-{
-    return Response::create($data, 'xml', $code, $header, $options);
+if (!function_exists('xml')) {
+    function xml($data = [], $code = 200, $header = [], $options = [])
+    {
+        return Response::create($data, 'xml', $code, $header, $options);
+    }
 }
 
 /**
@@ -430,13 +482,15 @@ function xml($data = [], $code = 200, $header = [], $options = [])
  * @param integer       $code 状态码
  * @return \think\response\Redirect
  */
-function redirect($url = [], $params = [], $code = 302)
-{
-    if (is_integer($params)) {
-        $code   = $params;
-        $params = [];
+if (!function_exists('redirect')) {
+    function redirect($url = [], $params = [], $code = 302)
+    {
+        if (is_integer($params)) {
+            $code   = $params;
+            $params = [];
+        }
+        return Response::create($url, 'redirect', $code)->params($params);
     }
-    return Response::create($url, 'redirect', $code)->params($params);
 }
 
 /**
@@ -445,7 +499,9 @@ function redirect($url = [], $params = [], $code = 302)
  * @param string    $message 错误信息
  * @param array     $header 参数
  */
-function abort($code, $message = null, $header = [])
-{
-    throw new \think\exception\HttpException($code, $message, null, $header);
+if (!function_exists('abort')) {
+    function abort($code, $message = null, $header = [])
+    {
+        throw new \think\exception\HttpException($code, $message, null, $header);
+    }
 }
