@@ -23,6 +23,8 @@ class Memcached
         'expire'  => 0,
         'timeout' => 0, // 超时时间（单位：毫秒）
         'prefix'  => '',
+        'username'     => '', //账号
+        'password'     => '', //密码
     ];
 
     /**
@@ -55,6 +57,10 @@ class Memcached
             $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
         }
         $this->handler->addServers($servers);
+        if('' != $this->options['username']){
+            $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
+            $this->handler->setSaslAuthData($this->options['username'], $this->options['password']);  
+        }
     }
 
     /**
