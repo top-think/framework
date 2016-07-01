@@ -1820,7 +1820,7 @@ class Query
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
             $cache = $options['cache'];
-            if (true === $cache['key'] && !is_array($data)) {
+            if (true === $cache['key'] && !is_null($data) && !is_array($data)) {
                 $key = 'think:' . $options['table'] . '|' . $data;
             } else {
                 $key = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
