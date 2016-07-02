@@ -197,7 +197,7 @@ class Relation
                     if (!empty($range)) {
                         // 查询关联数据
                         $data = $this->eagerlyManyToMany($model, [
-                            'pivot.' . $foreignKey => [
+                            'pivot.' . $localKey => [
                                 'in',
                                 $range,
                             ],
@@ -374,7 +374,7 @@ class Relation
                 }
             }
             $set->pivot                = new Pivot($pivot, $this->middle);
-            $data[$set->$foreignKey][] = $set;
+            $data[$pivot[$localKey]][] = $set;
         }
         return $data;
     }
