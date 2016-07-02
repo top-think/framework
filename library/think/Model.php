@@ -1225,11 +1225,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __call($method, $args)
     {
-        if (method_exists($this, 'scope' . $method)) {
-            // 动态调用命名范围
-            $method = 'scope' . $method;
+        $scope = 'scope' . ucfirst($method); //动态调用命名范围
+        if (method_exists($this, $scope)) {
             array_unshift($args, $this->db());
-            call_user_func_array([$this, $method], $args);
+            call_user_func_array([$this, $scope], $args);
             return $this;
         } else {
             return call_user_func_array([$this->db(), $method], $args);
