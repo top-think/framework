@@ -988,20 +988,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if ($name instanceof Query) {
             return $name;
+        } elseif (is_string($name)) {
+            $name = explode(',', $name);
         }
         $model = new static();
         $params = func_get_args();
         $params[0] = $model->db();
         if ($name instanceof \Closure) {
             call_user_func_array($name, $params);
-        } elseif (is_string($name)) {
-            $name = explode(',', $name);
-        }
-        if (is_array($name)) {
-            foreach ($name as $scope) {
-                $method = 'scope' . trim($scope);
-                if (method_exists($model, $method)) {
-                    call_user_func_array([$model, $method], $params);
+        }elseif (is_array($name)) {
+            foreach ($name as $key => $scope) {
+                if (is_int($key)) {
+                    $args = $params;
+                    $scope = trim($scope);
+                } else {
+                    $args = array_merge([$params[0]], (array) $scope);
+                    $scope = trim($key);
+                }
+                $method = 'scope' . ucfirst($scope);
+                if (!empty($scope) && method_exists($model, $method)) {
+                    call_user_func_array([$model, $method], $args);
                 }
             }
         }
