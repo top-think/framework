@@ -11,6 +11,8 @@
 
 namespace think\debug;
 
+use think\Response;
+
 /**
  * github: https://github.com/luofei614/SocketLog
  * @author luofei614<weibo.com/luofei614>
