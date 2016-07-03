@@ -186,40 +186,37 @@ class Debug
 
     public static function inject(Response $response)
     {
-        $config = Config::get('trace');
-        $type   = isset($config['type']) ? $config['type'] : 'Html';
+        $config      = Config::get('trace');
+        $type        = isset($config['type']) ? $config['type'] : 'Html';
+        $request     = Request::instance();
+        $accept      = $request->header('accept');
+        $contentType = $response->getHeader('Content-Type');
+        $class       = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
+        unset($config['type']);
+        if (class_exists($class)) {
+            $trace = new $class($config);
+        } else {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
+        }
 
-        if (false !== $type) {
-            $request     = Request::instance();
-            $accept      = $request->header('accept');
-            $contentType = $response->getHeader('Content-Type');
-            $class       = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
-            unset($config['type']);
-            if (class_exists($class)) {
-                $trace = new $class($config);
-            } else {
-                throw new ClassNotFoundException('class not exists:' . $class, $class);
-            }
-
-            if ($response instanceof Redirect) {
-                //TODO 记录
-            } elseif (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
-                //TODO 记录
-            } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
-                //TODO 记录
-            } else {
-                $output = $trace->output(Log::getLog());
-                if (is_string($output)) {
-                    // trace调试信息注入
-                    $content = $response->getContent();
-                    $pos     = strripos($content, '</body>');
-                    if (false !== $pos) {
-                        $content = substr($content, 0, $pos) . $output . substr($content, $pos);
-                    } else {
-                        $content = $content . $output;
-                    }
-                    $response->content($content);
+        if ($response instanceof Redirect) {
+            //TODO 记录
+        } elseif (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
+            //TODO 记录
+        } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
+            //TODO 记录
+        } else {
+            $output = $trace->output(Log::getLog());
+            if (is_string($output)) {
+                // trace调试信息注入
+                $content = $response->getContent();
+                $pos     = strripos($content, '</body>');
+                if (false !== $pos) {
+                    $content = substr($content, 0, $pos) . $output . substr($content, $pos);
+                } else {
+                    $content = $content . $output;
                 }
+                $response->content($content);
             }
         }
     }

@@ -10,12 +10,13 @@
 // +----------------------------------------------------------------------
 
 namespace think;
+
 use think\exception\ClassNotFoundException;
 
 /**
  * Class Log
  * @package think
- *          
+ *
  * @method void log($msg) static
  * @method void error($msg) static
  * @method void info($msg) static
@@ -48,13 +49,13 @@ class Log
      * 日志初始化
      * @param array $config
      */
-    public static function init($config  = [])
+    public static function init($config = [])
     {
         $type         = isset($config['type']) ? $config['type'] : 'File';
         $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
         self::$config = $config;
         unset($config['type']);
-        if(class_exists($class)) {
+        if (class_exists($class)) {
             self::$driver = new $class($config);
         } else {
             throw new ClassNotFoundException('class not exists:' . $class, $class);
@@ -62,7 +63,7 @@ class Log
         // 记录初始化信息
         App::$debug && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
     }
-    
+
     /**
      * 获取日志信息
      * @param string $type 信息类型
@@ -110,7 +111,6 @@ class Log
      */
     public static function check($config)
     {
-
         if (self::$key && !empty($config['allow_key']) && !in_array(self::$key, $config['allow_key'])) {
             return false;
         }

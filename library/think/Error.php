@@ -63,7 +63,7 @@ class Error
         if (error_reporting() & $errno) {
             // 将错误信息托管至 think\exception\ErrorException
             throw $exception;
-        }else{
+        } else {
             self::getExceptionHandler()->report($exception);
         }
     }
@@ -98,24 +98,20 @@ class Error
     /**
      * Get an instance of the exception handler.
      *
-     * @return \think\exception\Handle
+     * @return Handle
      */
     public static function getExceptionHandler()
     {
         static $handle;
-
         if (!$handle) {
-
-            if ($class = Config::get('exception_handle')) {
-                if (class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
-                    $handle = new $class;
-                }
-            }
-            if (!$handle) {
-                $handle = new Handle();
+            // 异常处理handle
+            $class = Config::get('exception_handle');
+            if ($class && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
+                $handle = new $class;
+            } else {
+                $handle = new Handle;
             }
         }
-
         return $handle;
     }
 }

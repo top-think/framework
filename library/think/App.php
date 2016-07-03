@@ -155,7 +155,9 @@ class App
         Hook::listen('app_end', $response);
 
         // Trace调试注入
-        Debug::inject($response);
+        if (Config::get('app_trace')) {
+            Debug::inject($response);
+        }
 
         return $response;
     }
