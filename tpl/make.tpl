@@ -13,5 +13,5 @@ namespace {%namespace%};
 
 class {%className%} {%extend%}
 {
-
+{%content%}
 }

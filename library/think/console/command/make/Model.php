@@ -26,7 +26,7 @@ class Model extends \think\console\command\Make
         $this
             ->setName('make:model')
             ->setDescription('Create a new model class')
-            ->addArgument('namespace', Argument::OPTIONAL, null)
+            ->addArgument('namespace', Argument::REQUIRED)
             ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', null)
             ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Model class', null);
     }

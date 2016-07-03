@@ -26,7 +26,7 @@ class Controller extends \think\console\command\Make
         $this
             ->setName('make:controller')
             ->setDescription('Create a new controller class')
-            ->addArgument('namespace', Argument::OPTIONAL, null)
+            ->addArgument('namespace', Argument::REQUIRED)
             ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', null)
             ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Controller class', null);
     }

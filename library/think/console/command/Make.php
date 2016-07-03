@@ -11,6 +11,7 @@
 
 namespace think\console\command;
 
+use think\App;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
@@ -27,7 +28,7 @@ class Make extends Command
         $this
             ->setName('make')
             ->setDescription('Create a new applcation class')
-            ->addArgument('namespace', Argument::OPTIONAL, null)
+            ->addArgument('namespace', Argument::REQUIRED)
             ->addOption('layer', 'l', Option::VALUE_OPTIONAL, 'Layer Name', null)
             ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Extend Base class', null);
     }
@@ -61,7 +62,7 @@ class Make extends Command
     }
 
     // 生成类库文件
-    protected function build($namespace, $extend)
+    protected function build($namespace, $extend, $content = '')
     {
         $tpl = file_get_contents(THINK_PATH . 'tpl' . DS . 'make.tpl');
 
@@ -73,8 +74,8 @@ class Make extends Command
             $extend = 'extends \\' . ltrim($extend, '\\');
         }
         // 处理内容
-        $content = str_replace(['{%extend%}', '{%className%}', '{%namespace%}'],
-            [$extend, $className, implode('\\', $namespace)],
+        $content = str_replace(['{%extend%}', '{%className%}', '{%namespace%}', '{%content%}'],
+            [$extend, $className, implode('\\', $namespace), $content],
             $tpl);
 
         // 处理文件名
@@ -86,7 +87,7 @@ class Make extends Command
         return realpath($file);
     }
 
-    protected function getResult($layer, $namespace, $module, $extend)
+    protected function getResult($layer, $namespace, $module, $extend, $content = '')
     {
 
         // 处理命名空间
@@ -116,6 +117,6 @@ class Make extends Command
             }
         }
 
-        return $this->build($namespace, $extend);
+        return $this->build($namespace, $extend, $content);
     }
 }
