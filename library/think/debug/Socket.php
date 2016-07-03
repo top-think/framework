@@ -22,24 +22,22 @@ class Socket
     public $port = 1116; //SocketLog 服务的http的端口号
 
     protected $config = [
-        'enable'              => true, //是否记录日志的开关
+        // socket服务器地址
         'host'                => 'localhost',
-        //是否显示利于优化的参数，如果允许时间，消耗内存等
-        'optimize'            => false,
+        // 是否显示加载的文件列表
         'show_included_files' => false,
-        'error_handler'       => false,
-        //日志强制记录到配置的client_id
+        // 日志强制记录到配置的client_id
         'force_client_ids'    => [],
-        //限制允许读取日志的client_id
+        // 限制允许读取日志的client_id
         'allow_client_ids'    => [],
     ];
 
     protected $css = [
-        'sql'           => 'color:#009bb4;',
-        'sql_warn'      => 'color:#009bb4;font-size:14px;',
-        'error_handler' => 'color:#f4006b;font-size:14px;',
-        'page'          => 'color:#40e2ff;background:#171717;',
-        'big'           => 'font-size:20px;color:red;',
+        'sql'      => 'color:#009bb4;',
+        'sql_warn' => 'color:#009bb4;font-size:14px;',
+        'error'    => 'color:#f4006b;font-size:14px;',
+        'page'     => 'color:#40e2ff;background:#171717;',
+        'big'      => 'font-size:20px;color:red;',
     ];
 
     protected $allowForceClientIds = []; //配置强制推送且被授权的client_id
@@ -174,9 +172,6 @@ class Socket
 
     protected function check()
     {
-        if (!$this->config['enable']) {
-            return false;
-        }
         $tabid = $this->getClientArg('tabid');
         //是否记录日志的检查
         if (!$tabid && !$this->config['force_client_ids']) {
