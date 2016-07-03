@@ -317,7 +317,7 @@ class Relation
             // 设置关联模型属性
             $list[$relation] = [];
         }
-        $result->setAttr($relation, new $model($list[$relation]));
+        $result->setAttr($relation, (new $model($list[$relation]))->isUpdate(true));
     }
 
     /**
