@@ -102,7 +102,7 @@ class Make extends Command
                     $extend = '\\think\\Model';
                     break;
                 case 'validate':
-                    $extend = '\\think\Validate';
+                    $extend = '\\think\\Validate';
                     break;
                 case 'controller':
                 default:

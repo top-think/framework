@@ -113,7 +113,7 @@ class Socket
         if ($this->config['show_included_files']) {
             $trace[] = [
                 'type' => 'groupCollapsed',
-                'msg'  => 'included_files',
+                'msg'  => '[ file ]',
                 'css'  => '',
             ];
             $trace[] = [
