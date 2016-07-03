@@ -31,6 +31,48 @@ class Foo extends Controller
     {
         $this->test = 'abcd';
     }
+
+    public function assignTest()
+    {
+        $this->assign('abcd', 'dcba');
+        $this->assign(['key1' => 'value1', 'key2' => 'value2']);
+    }
+
+    public function fetchTest()
+    {
+        $template = dirname(__FILE__) . '/display.html';        
+        return $this->fetch($template, ['name' => 'ThinkPHP']);        
+    }
+
+    public function displayTest()
+    {
+        $template = dirname(__FILE__) . '/display.html';        
+        return $this->display($template, ['name' => 'ThinkPHP']);
+    }
+    public function test()
+    {
+        $data       = [
+            'username'   => 'username',
+            'nickname'   => 'nickname',
+            'password'   => '123456',
+            'repassword' => '123456',
+            'email'      => 'abc@abc.com',
+            'sex'        => '0',
+            'age'        => '20',
+            'code'       => '1234',
+        ];
+
+        $validate = [
+            ['username', 'length:5,15', '用户名长度为5到15个字符'],
+            ['nickname', 'require', '请填昵称'],
+            ['password', '[\w-]{6,15}', '密码长度为6到15个字符'],
+            ['repassword', 'confirm:password', '两次密码不一到致'],
+            ['email', 'filter:validate_email', '邮箱格式错误'],
+            ['sex', 'in:0,1', '性别只能为为男或女'],
+            ['age', 'between:1,80', '年龄只能在10-80之间'],
+        ];
+        return $this->validate($data, $validate);        
+    }
 }
 
 class Bar extends Controller
@@ -88,8 +130,6 @@ class Baz extends Controller
     }
 }
 
-define('ACTION_NAME', 'index');
-
 class controllerTest extends \PHPUnit_Framework_TestCase
 {
     public function testInitialize()
@@ -123,8 +163,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
         $view            = $this->getView($controller);
         $template        = dirname(__FILE__) . '/display.html';
         $viewFetch       = $view->fetch($template, ['name' => 'ThinkPHP']);
-        $controllerFetch = $controller->fetch($template, ['name' => 'ThinkPHP']);
-        $this->assertEquals($controllerFetch, $viewFetch);
+        $this->assertEquals($controller->fetchTest(), $viewFetch);
     }
 
     public function testDisplay()
@@ -133,16 +172,15 @@ class controllerTest extends \PHPUnit_Framework_TestCase
         $view            = $this->getView($controller);
         $template        = dirname(__FILE__) . '/display.html';
         $viewFetch       = $view->display($template, ['name' => 'ThinkPHP']);
-        $controllerFetch = $controller->display($template, ['name' => 'ThinkPHP']);
-        $this->assertEquals($controllerFetch, $viewFetch);
+
+        $this->assertEquals($controller->displayTest(), $viewFetch);
     }
 
     public function testAssign()
     {
         $controller = new Foo(Request::instance());
         $view       = $this->getView($controller);
-        $controller->assign('abcd', 'dcba');
-        $controller->assign(['key1' => 'value1', 'key2' => 'value2']);
+        $controller->assignTest();
         $expect = ['abcd' => 'dcba', 'key1' => 'value1', 'key2' => 'value2'];
         $this->assertAttributeEquals($expect, 'data', $view);
     }
@@ -150,27 +188,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
     public function testValidate()
     {
         $controller = new Foo(Request::instance());
-        $data       = [
-            'username'   => 'username',
-            'nickname'   => 'nickname',
-            'password'   => '123456',
-            'repassword' => '123456',
-            'email'      => 'abc@abc.com',
-            'sex'        => '0',
-            'age'        => '20',
-            'code'       => '1234',
-        ];
-
-        $validate = [
-            ['username', 'length:5,15', '用户名长度为5到15个字符'],
-            ['nickname', 'require', '请填昵称'],
-            ['password', '[\w-]{6,15}', '密码长度为6到15个字符'],
-            ['repassword', 'confirm:password', '两次密码不一到致'],
-            ['email', 'filter:validate_email', '邮箱格式错误'],
-            ['sex', 'in:0,1', '性别只能为为男或女'],
-            ['age', 'between:1,80', '年龄只能在10-80之间'],
-        ];
-        $result = $controller->validate($data, $validate);
+        $result = $controller->test();
         $this->assertTrue($result);
     }
 }

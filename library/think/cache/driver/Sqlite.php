@@ -32,13 +32,13 @@ class Sqlite implements CacheInterface
     /**
      * 架构函数
      * @param array $options 缓存参数
-     * @throws Exception
+     * @throws \BadFunctionCallException
      * @access public
      */
     public function __construct($options = [])
     {
         if (!extension_loaded('sqlite')) {
-            throw new Exception('_NOT_SUPPERT_:sqlite');
+            throw new \BadFunctionCallException('not support: sqlite');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -72,9 +72,9 @@ class Sqlite implements CacheInterface
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return boolean
      */
     public function set($name, $value, $expire = null)

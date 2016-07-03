@@ -42,7 +42,7 @@ class Redis
     public function __construct($options = [])
     {
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new \BadFunctionCallException('not support: redis');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -73,9 +73,9 @@ class Redis
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return boolean
      */
     public function set($name, $value, $expire = null)

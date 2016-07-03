@@ -11,6 +11,7 @@
 
 namespace think\console\command\make;
 
+use think\App;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
@@ -39,7 +40,7 @@ class Controller extends \think\console\command\Make
 
         // 处理命名空间
         if (!empty($module)) {
-            $namespace = APP_NAMESPACE . "\\" . $module . "\\" . 'controller' . "\\" . $namespace;
+            $namespace = App::$namespace . "\\" . $module . "\\" . 'controller' . "\\" . $namespace;
         }
 
         // 处理继承
@@ -50,7 +51,7 @@ class Controller extends \think\console\command\Make
         } else {
             if (!preg_match("/\\\/", $extend)) {
                 if (!empty($module)) {
-                    $extend = "\\" . APP_NAMESPACE . "\\" . $module . "\\" . 'controller' . "\\" . $extend;
+                    $extend = "\\" . App::$namespace . "\\" . $module . "\\" . 'controller' . "\\" . $extend;
                 }
             }
         }

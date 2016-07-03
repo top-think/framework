@@ -24,6 +24,12 @@ class Redirect extends Response
     // URL参数
     protected $params = [];
 
+    public function __construct($data = '', $code = 302, array $header = [], array $options = [])
+    {
+        parent::__construct($data, $code, $header, $options);
+        $this->cacheControl('no-cache,must-revalidate');
+    }
+
     /**
      * 处理数据
      * @access protected
@@ -32,11 +38,17 @@ class Redirect extends Response
      */
     protected function output($data)
     {
-        $url                           = preg_match('/^(https?:|\/)/', $data) ? $data : Url::build($data, $this->params);
-        $this->header['Location']      = $url;
-        $this->header['status']        = isset($this->header['status']) ? $this->header['status'] : 302;
-        $this->header['Cache-control'] = 'no-cache,must-revalidate';
+        $this->header['Location'] = $this->getTargetUrl();
         return;
+    }
+
+    /**
+     * 获取跳转地址
+     * @return string
+     */
+    public function getTargetUrl()
+    {
+        return preg_match('/^(https?:|\/)/', $this->data) ? $this->data : Url::build($this->data, $this->params);
     }
 
     public function params($params = [])

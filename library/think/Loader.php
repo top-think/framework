@@ -11,32 +11,28 @@
 
 namespace think;
 
-use think\exception\HttpException;
-use think\Request;
+use think\exception\ClassNotFoundException;
 
 class Loader
 {
+    protected static $instance = [];
     // 类名映射
     protected static $map = [];
-    // 加载列表
-    protected static $load = [];
-    // 命名空间
-    protected static $namespace = [];
+
     // 命名空间别名
     protected static $namespaceAlias = [];
+
     // PSR-4
     private static $prefixLengthsPsr4 = [];
     private static $prefixDirsPsr4    = [];
-    // PSR-0
-    private static $prefixesPsr0 = [];
-    // Composer自动加载
-    private static $composerLoader = true;
+    private static $fallbackDirsPsr4  = [];
 
-    // 自动加载Composer
-    public static function composerAutoLoader($auto)
-    {
-        self::$composerLoader = $auto;
-    }
+    // PSR-0
+    private static $prefixesPsr0     = [];
+    private static $fallbackDirsPsr0 = [];
+
+    // 自动加载的文件
+    private static $autoloadFiles = [];
 
     // 自动加载
     public static function autoload($class)
@@ -52,44 +48,87 @@ class Loader
             }
         }
 
+        if ($file = self::findFile($class)) {
+
+            // Win环境严格区分大小写
+            if (IS_WIN && pathinfo($file, PATHINFO_FILENAME) != pathinfo(realpath($file), PATHINFO_FILENAME)) {
+                return false;
+            }
+
+            __include_file($file);
+            return true;
+        }
+    }
+
+    /**
+     * 查找文件
+     * @param $class
+     * @return bool
+     */
+    private static function findFile($class)
+    {
         if (!empty(self::$map[$class])) {
             // 类库映射
-            include self::$map[$class];
-        } elseif (self::$composerLoader && $file = self::findFileInComposer($class)) {
-            // Composer自动加载
-            include $file;
-        } else {
-            // 命名空间自动加载
-            if (!strpos($class, '\\')) {
-                return false;
-            }
-            // 解析命名空间
-            list($name, $class) = explode('\\', $class, 2);
-            if (isset(self::$namespace[$name])) {
-                // 注册的命名空间
-                $path = self::$namespace[$name];
-            } elseif (is_dir(EXTEND_PATH . $name)) {
-                // 扩展类库命名空间
-                $path = EXTEND_PATH . $name . DS;
-            } else {
-                return false;
-            }
-            $filename = $path . str_replace('\\', DS, $class) . EXT;
-            if (is_file($filename)) {
-                // 开启调试模式Win环境严格区分大小写
-                if (APP_DEBUG && IS_WIN && false === strpos(realpath($filename), $class . EXT)) {
-                    return false;
+            return self::$map[$class];
+        }
+
+        // 查找 PSR-4
+        $logicalPathPsr4 = strtr($class, '\\', DS) . EXT;
+
+        $first = $class[0];
+        if (isset(self::$prefixLengthsPsr4[$first])) {
+            foreach (self::$prefixLengthsPsr4[$first] as $prefix => $length) {
+                if (0 === strpos($class, $prefix)) {
+                    foreach (self::$prefixDirsPsr4[$prefix] as $dir) {
+                        if (is_file($file = $dir . DS . substr($logicalPathPsr4, $length))) {
+                            return $file;
+                        }
+                    }
                 }
-                include $filename;
-            } else {
-                return false;
             }
         }
-        return true;
+
+        // 查找 PSR-4 fallback dirs
+        foreach (self::$fallbackDirsPsr4 as $dir) {
+            if (is_file($file = $dir . DS . $logicalPathPsr4)) {
+                return $file;
+            }
+        }
+
+        // 查找 PSR-0
+        if (false !== $pos = strrpos($class, '\\')) {
+            // namespaced class name
+            $logicalPathPsr0 = substr($logicalPathPsr4, 0, $pos + 1)
+                . strtr(substr($logicalPathPsr4, $pos + 1), '_', DS);
+        } else {
+            // PEAR-like class name
+            $logicalPathPsr0 = strtr($class, '_', DS) . EXT;
+        }
+
+        if (isset(self::$prefixesPsr0[$first])) {
+            foreach (self::$prefixesPsr0[$first] as $prefix => $dirs) {
+                if (0 === strpos($class, $prefix)) {
+                    foreach ($dirs as $dir) {
+                        if (is_file($file = $dir . DS . $logicalPathPsr0)) {
+                            return $file;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 查找 PSR-0 fallback dirs
+        foreach (self::$fallbackDirsPsr0 as $dir) {
+            if (is_file($file = $dir . DS . $logicalPathPsr0)) {
+                return $file;
+            }
+        }
+
+        return self::$map[$class] = false;
     }
 
     // 注册classmap
-    public static function addMap($class, $map = '')
+    public static function addClassMap($class, $map = '')
     {
         if (is_array($class)) {
             self::$map = array_merge(self::$map, $class);
@@ -102,17 +141,98 @@ class Loader
     public static function addNamespace($namespace, $path = '')
     {
         if (is_array($namespace)) {
-            self::$namespace = array_merge(self::$namespace, $namespace);
+            foreach ($namespace as $prefix => $paths) {
+                self::addPsr4($prefix . '\\', rtrim($paths, DS), true);
+            }
         } else {
-            self::$namespace[$namespace] = $path;
+            self::addPsr4($namespace . '\\', rtrim($path, DS), true);
         }
     }
+
+    // 添加Ps0空间
+    private static function addPsr0($prefix, $paths, $prepend = false)
+    {
+        if (!$prefix) {
+            if ($prepend) {
+                self::$fallbackDirsPsr0 = array_merge(
+                    (array)$paths,
+                    self::$fallbackDirsPsr0
+                );
+            } else {
+                self::$fallbackDirsPsr0 = array_merge(
+                    self::$fallbackDirsPsr0,
+                    (array)$paths
+                );
+            }
+
+            return;
+        }
+
+        $first = $prefix[0];
+        if (!isset(self::$prefixesPsr0[$first][$prefix])) {
+            self::$prefixesPsr0[$first][$prefix] = (array)$paths;
+
+            return;
+        }
+        if ($prepend) {
+            self::$prefixesPsr0[$first][$prefix] = array_merge(
+                (array)$paths,
+                self::$prefixesPsr0[$first][$prefix]
+            );
+        } else {
+            self::$prefixesPsr0[$first][$prefix] = array_merge(
+                self::$prefixesPsr0[$first][$prefix],
+                (array)$paths
+            );
+        }
+    }
+
+
+    // 添加Psr4空间
+    private static function addPsr4($prefix, $paths, $prepend = false)
+    {
+        if (!$prefix) {
+            // Register directories for the root namespace.
+            if ($prepend) {
+                self::$fallbackDirsPsr4 = array_merge(
+                    (array)$paths,
+                    self::$fallbackDirsPsr4
+                );
+            } else {
+                self::$fallbackDirsPsr4 = array_merge(
+                    self::$fallbackDirsPsr4,
+                    (array)$paths
+                );
+            }
+        } elseif (!isset(self::$prefixDirsPsr4[$prefix])) {
+            // Register directories for a new namespace.
+            $length = strlen($prefix);
+            if ('\\' !== $prefix[$length - 1]) {
+                throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
+            }
+            self::$prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+            self::$prefixDirsPsr4[$prefix]                = (array)$paths;
+        } elseif ($prepend) {
+            // Prepend directories for an already registered namespace.
+            self::$prefixDirsPsr4[$prefix] = array_merge(
+                (array)$paths,
+                self::$prefixDirsPsr4[$prefix]
+            );
+        } else {
+            // Append directories for an already registered namespace.
+            self::$prefixDirsPsr4[$prefix] = array_merge(
+                self::$prefixDirsPsr4[$prefix],
+                (array)$paths
+            );
+        }
+    }
+
 
     // 注册命名空间别名
     public static function addNamespaceAlias($namespace, $original = '')
     {
         if (is_array($namespace)) {
-            self::$namespaceAlias = array_merge(self::$namespace, $namespace);
+            self::$namespaceAlias = array_merge(self::$namespaceAlias, $namespace);
         } else {
             self::$namespaceAlias[$namespace] = $original;
         }
@@ -122,11 +242,25 @@ class Loader
     public static function register($autoload = '')
     {
         // 注册系统自动加载
-        spl_autoload_register($autoload ?: 'think\\Loader::autoload');
-        // 注册composer自动加载
-        if (self::$composerLoader) {
+        spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
+        // 注册命名空间定义
+        self::addNamespace([
+            'think'    => LIB_PATH . 'think' . DS,
+            'behavior' => LIB_PATH . 'behavior' . DS,
+            'traits'   => LIB_PATH . 'traits' . DS,
+        ]);
+        // 加载类库映射文件
+        if (is_file(RUNTIME_PATH . 'classmap' . EXT)) {
+            self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
+        }
+
+        // Composer自动加载支持
+        if (is_dir(VENDOR_PATH . 'composer')) {
             self::registerComposerLoader();
         }
+
+        // 自动加载extend目录
+        self::$fallbackDirsPsr4[] = rtrim(EXTEND_PATH, DS);
     }
 
     // 注册composer自动加载
@@ -135,110 +269,60 @@ class Loader
         if (is_file(VENDOR_PATH . 'composer/autoload_namespaces.php')) {
             $map = require VENDOR_PATH . 'composer/autoload_namespaces.php';
             foreach ($map as $namespace => $path) {
-                self::$prefixesPsr0[$namespace[0]][$namespace] = (array) $path;
+                self::addPsr0($namespace, $path);
             }
         }
 
         if (is_file(VENDOR_PATH . 'composer/autoload_psr4.php')) {
             $map = require VENDOR_PATH . 'composer/autoload_psr4.php';
             foreach ($map as $namespace => $path) {
-                $length = strlen($namespace);
-                if ('\\' !== $namespace[$length - 1]) {
-                    throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
-                }
-                self::$prefixLengthsPsr4[$namespace[0]][$namespace] = $length;
-                self::$prefixDirsPsr4[$namespace]                   = (array) $path;
+                self::addPsr4($namespace, $path);
             }
         }
 
         if (is_file(VENDOR_PATH . 'composer/autoload_classmap.php')) {
             $classMap = require VENDOR_PATH . 'composer/autoload_classmap.php';
             if ($classMap) {
-                self::addMap($classMap);
+                self::addClassMap($classMap);
             }
         }
 
         if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
             $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
             foreach ($includeFiles as $fileIdentifier => $file) {
-                self::composerRequire($fileIdentifier, $file);
-            }
-        }
-    }
-
-    private static function composerRequire($fileIdentifier, $file)
-    {
-        if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
-            require $file;
-            $GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
-        }
-    }
-
-    private static function findFileInComposer($class, $ext = '.php')
-    {
-        // PSR-4 lookup
-        $logicalPathPsr4 = strtr($class, '\\', DS) . $ext;
-
-        $first = $class[0];
-        if (isset(self::$prefixLengthsPsr4[$first])) {
-            foreach (self::$prefixLengthsPsr4[$first] as $prefix => $length) {
-                if (0 === strpos($class, $prefix)) {
-                    foreach (self::$prefixDirsPsr4[$prefix] as $dir) {
-                        if (file_exists($file = $dir . DS . substr($logicalPathPsr4, $length))) {
-                            return $file;
-                        }
-                    }
+                if (empty(self::$autoloadFiles[$fileIdentifier])) {
+                    __require_file($file);
+                    self::$autoloadFiles[$fileIdentifier] = true;
                 }
             }
         }
-        // PSR-0 lookup
-        if (false !== $pos = strrpos($class, '\\')) {
-            // namespaced class name
-            $logicalPathPsr0 = substr($logicalPathPsr4, 0, $pos + 1)
-            . strtr(substr($logicalPathPsr4, $pos + 1), '_', DS);
-        } else {
-            // PEAR-like class name
-            $logicalPathPsr0 = strtr($class, '_', DS) . $ext;
-        }
-
-        if (isset(self::$prefixesPsr0[$first])) {
-            foreach (self::$prefixesPsr0[$first] as $prefix => $dirs) {
-                if (0 === strpos($class, $prefix)) {
-                    foreach ($dirs as $dir) {
-                        if (file_exists($file = $dir . DS . $logicalPathPsr0)) {
-                            return $file;
-                        }
-                    }
-                }
-            }
-        }
-        // Remember that this class does not exist.
-        return self::$map[$class] = false;
     }
 
     /**
      * 导入所需的类库 同java的Import 本函数有缓存功能
-     * @param string $class 类库命名空间字符串
+     * @param string $class   类库命名空间字符串
      * @param string $baseUrl 起始路径
-     * @param string $ext 导入的文件扩展名
+     * @param string $ext     导入的文件扩展名
      * @return boolean
      */
     public static function import($class, $baseUrl = '', $ext = EXT)
     {
         static $_file = [];
-        $class        = str_replace(['.', '#'], [DS, '.'], $class);
-        if (isset($_file[$class . $baseUrl])) {
+        $key   = $class . $baseUrl;
+        $class = str_replace(['.', '#'], [DS, '.'], $class);
+        if (isset($_file[$key])) {
             return true;
         }
 
         if (empty($baseUrl)) {
             list($name, $class) = explode(DS, $class, 2);
-            if (isset(self::$namespace[$name])) {
+
+            if (isset(self::$prefixDirsPsr4[$name . '\\'])) {
                 // 注册的命名空间
-                $baseUrl = self::$namespace[$name];
+                $baseUrl = self::$prefixDirsPsr4[$name . '\\'];
             } elseif ('@' == $name) {
                 //加载当前模块应用类库
-                $baseUrl = MODULE_PATH;
+                $baseUrl = App::$modulePath;
             } elseif (is_dir(EXTEND_PATH . $name)) {
                 $baseUrl = EXTEND_PATH;
             } else {
@@ -249,14 +333,24 @@ class Loader
             $baseUrl .= DS;
         }
         // 如果类存在 则导入类库文件
-        $filename = $baseUrl . $class . $ext;
-        if (is_file($filename)) {
+        if (is_array($baseUrl)) {
+            foreach ($baseUrl as $path) {
+                $filename = $path . DS . $class . $ext;
+                if (is_file($filename)) {
+                    break;
+                }
+            }
+        } else {
+            $filename = $baseUrl . $class . $ext;
+        }
+
+        if (!empty($filename) && is_file($filename)) {
             // 开启调试模式Win环境严格区分大小写
-            if (APP_DEBUG && IS_WIN && false === strpos(realpath($filename), $class . $ext)) {
+            if (IS_WIN && pathinfo($filename, PATHINFO_FILENAME) != pathinfo(realpath($filename), PATHINFO_FILENAME)) {
                 return false;
             }
-            include $filename;
-            $_file[$class . $baseUrl] = true;
+            __include_file($filename);
+            $_file[$key] = true;
             return true;
         }
         return false;
@@ -264,17 +358,17 @@ class Loader
 
     /**
      * 实例化（分层）模型
-     * @param string $name Model名称
-     * @param string $layer 业务层名称
-     * @param bool $appendSuffix 是否添加类名后缀
-     * @param string $common 公共模块名
+     * @param string $name         Model名称
+     * @param string $layer        业务层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param string $common       公共模块名
      * @return Object
+     * @throws ClassNotFoundException
      */
     public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
-        static $_model = [];
-        if (isset($_model[$name . $layer])) {
-            return $_model[$name . $layer];
+        if (isset(self::$instance[$name . $layer])) {
+            return self::$instance[$name . $layer];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name, 2);
@@ -289,28 +383,24 @@ class Loader
             if (class_exists($class)) {
                 $model = new $class();
             } else {
-                throw new Exception('class [ ' . $class . ' ] not exists', 10001);
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-        $_model[$name . $layer] = $model;
+        self::$instance[$name . $layer] = $model;
         return $model;
     }
 
     /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
-     * @param string $name 资源地址
-     * @param string $layer 控制层名称
-     * @param bool $appendSuffix 是否添加类名后缀
-     * @param string $empty 空控制器名称
+     * @param string $name         资源地址
+     * @param string $layer        控制层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param string $empty        空控制器名称
      * @return Object|false
+     * @throws ClassNotFoundException
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
-        static $_instance = [];
-
-        if (isset($_instance[$name . $layer])) {
-            return $_instance[$name . $layer];
-        }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
         } else {
@@ -318,23 +408,20 @@ class Loader
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
-            $action                    = new $class(Request::instance());
-            $_instance[$name . $layer] = $action;
-            return $action;
+            return new $class(Request::instance());
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
-        } else {
-            throw new HttpException(404, 'class [ ' . $class . ' ] not exists');
         }
     }
 
     /**
      * 实例化验证类 格式：[模块名/]验证器名
-     * @param string $name 资源地址
-     * @param string $layer 验证层名称
-     * @param bool $appendSuffix 是否添加类名后缀
-     * @param string $common 公共模块名
+     * @param string $name         资源地址
+     * @param string $layer        验证层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param string $common       公共模块名
      * @return Object|false
+     * @throws ClassNotFoundException
      */
     public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
@@ -342,10 +429,9 @@ class Loader
         if (empty($name)) {
             return new Validate;
         }
-        static $_instance = [];
 
-        if (isset($_instance[$name . $layer])) {
-            return $_instance[$name . $layer];
+        if (isset(self::$instance[$name . $layer])) {
+            return self::$instance[$name . $layer];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
@@ -360,10 +446,10 @@ class Loader
             if (class_exists($class)) {
                 $validate = new $class;
             } else {
-                throw new Exception('class [ ' . $class . ' ] not exists', 10001);
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-        $_instance[$name . $layer] = $validate;
+        self::$instance[$name . $layer] = $validate;
         return $validate;
     }
 
@@ -379,10 +465,10 @@ class Loader
 
     /**
      * 远程调用模块的操作方法 参数格式 [模块/控制器/]操作
-     * @param string $url 调用地址
-     * @param string|array $vars 调用参数 支持字符串和数组
-     * @param string $layer 要调用的控制层名称
-     * @param bool $appendSuffix 是否添加类名后缀
+     * @param string       $url          调用地址
+     * @param string|array $vars         调用参数 支持字符串和数组
+     * @param string       $layer        要调用的控制层名称
+     * @param bool         $appendSuffix 是否添加类名后缀
      * @return mixed
      */
     public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
@@ -402,45 +488,20 @@ class Loader
             return App::invokeMethod([$class, $action . Config::get('action_suffix')], $vars);
         }
     }
-    /**
-     * 取得对象实例 支持调用类的静态方法
-     *
-     * @param string $class  对象类名
-     * @param string $method 类的静态方法名
-     *
-     * @return mixed
-     * @throws Exception
-     */
-    public static function instance($class, $method = '')
-    {
-        static $_instance = [];
-        $identify         = $class . $method;
-        if (!isset($_instance[$identify])) {
-            if (class_exists($class)) {
-                $o = new $class();
-                if (!empty($method) && method_exists($o, $method)) {
-                    $_instance[$identify] = call_user_func_array([ & $o, $method], []);
-                } else {
-                    $_instance[$identify] = $o;
-                }
-            } else {
-                throw new Exception('class not exist :' . $class, 10007);
-            }
-        }
-        return $_instance[$identify];
-    }
 
     /**
      * 字符串命名风格转换
      * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
-     * @param string $name 字符串
+     * @param string  $name 字符串
      * @param integer $type 转换类型
      * @return string
      */
     public static function parseName($name, $type = 0)
     {
         if ($type) {
-            return ucfirst(preg_replace_callback('/_([a-zA-Z])/', function ($match) {return strtoupper($match[1]);}, $name));
+            return ucfirst(preg_replace_callback('/_([a-zA-Z])/', function ($match) {
+                return strtoupper($match[1]);
+            }, $name));
         } else {
             return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
         }
@@ -449,16 +510,42 @@ class Loader
     /**
      * 解析应用类的类名
      * @param string $module 模块名
-     * @param string $layer 层名 controller model ...
-     * @param string $name 类名
+     * @param string $layer  层名 controller model ...
+     * @param string $name   类名
+     * @param bool   $appendSuffix
      * @return string
      */
     public static function parseClass($module, $layer, $name, $appendSuffix = false)
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1) . (CLASS_APPEND_SUFFIX || $appendSuffix ? ucfirst($layer) : '');
+        $class = self::parseName(array_pop($array), 1) . (App::$suffix || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-        return APP_NAMESPACE . '\\' . (APP_MULTI_MODULE ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+        return App::$namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
+
+    /**
+     * 初始化类的实例
+     * @return void
+     */
+    public static function clearInstance()
+    {
+        self::$instance = [];
+    }
+}
+
+/**
+ * 作用范围隔离
+ *
+ * @param $file
+ * @return mixed
+ */
+function __include_file($file)
+{
+    return include $file;
+}
+
+function __require_file($file)
+{
+    return require $file;
 }

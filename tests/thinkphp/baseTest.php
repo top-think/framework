@@ -16,28 +16,23 @@ class baseTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstants()
     {
-        $this->assertNotEmpty(START_TIME);
-        $this->assertNotEmpty(START_MEM);
+        $this->assertNotEmpty(THINK_START_TIME);
+        $this->assertNotEmpty(THINK_START_MEM);
         $this->assertNotEmpty(THINK_VERSION);
         $this->assertNotEmpty(DS);
         $this->assertNotEmpty(THINK_PATH);
         $this->assertNotEmpty(LIB_PATH);
         $this->assertNotEmpty(EXTEND_PATH);
-        $this->assertNotEmpty(MODE_PATH);
         $this->assertNotEmpty(CORE_PATH);
         $this->assertNotEmpty(TRAIT_PATH);
         $this->assertNotEmpty(APP_PATH);
-        $this->assertNotEmpty(APP_NAMESPACE);
         $this->assertNotEmpty(RUNTIME_PATH);
         $this->assertNotEmpty(LOG_PATH);
         $this->assertNotEmpty(CACHE_PATH);
         $this->assertNotEmpty(TEMP_PATH);
         $this->assertNotEmpty(VENDOR_PATH);
         $this->assertNotEmpty(EXT);
-        $this->assertTrue(is_bool(APP_DEBUG));
         $this->assertNotEmpty(ENV_PREFIX);
-        $this->assertTrue(is_bool(IS_API));
-        $this->assertNotEmpty(APP_MODE);
         $this->assertTrue(!is_null(IS_WIN));
         $this->assertTrue(!is_null(IS_CLI));
     }

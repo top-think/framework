@@ -20,29 +20,32 @@ use think\Log;
 class logTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function testRecord(){
+    public function testRecord()
+    {
         Log::clear();
         Log::record('test');
-        $this->assertEquals([['type'=>'log','msg'=>'test']], Log::getLog());
-        Log::record('hello','info');
-        $this->assertEquals([['type'=>'log','msg'=>'test'],['type'=>'info','msg'=>'hello']], Log::getLog());
+        $this->assertEquals(['log' => ['test']], Log::getLog());
+        Log::record('hello', 'info');
+        $this->assertEquals(['log' => ['test'], 'info' => ['hello']], Log::getLog());
         Log::clear();
         Log::info('test');
-        $this->assertEquals([['type'=>'info','msg'=>'test']], Log::getLog());
+        $this->assertEquals(['info' => ['test']], Log::getLog());
     }
 
-    public function testSave(){
-        Log::init(['type'=>'test']);
+    public function testSave()
+    {
+        Log::init(['type' => 'test']);
         Log::clear();
         Log::record('test');
-        Log::record([1,2,3]);
+        Log::record([1, 2, 3]);
         $this->assertTrue(Log::save());
     }
 
-    public function testWrite(){
-        Log::init(['type'=>'test']);
+    public function testWrite()
+    {
+        Log::init(['type' => 'test']);
         Log::clear();
-        $this->assertTrue(Log::write('hello','info'));
-        $this->assertTrue(Log::write([1,2,3],'log'));
+        $this->assertTrue(Log::write('hello', 'info'));
+        $this->assertTrue(Log::write([1, 2, 3], 'log'));
     }
 }

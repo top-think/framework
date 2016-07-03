@@ -12,6 +12,7 @@
 namespace think;
 
 use think\paginator\Collection as PaginatorCollection;
+use think\Request;
 
 abstract class Paginator
 {
@@ -122,7 +123,7 @@ abstract class Paginator
      */
     public static function getCurrentPage($varPage = 'page', $default = 1)
     {
-        $page = Input::request($varPage);
+        $page = Request::instance()->request($varPage);
 
         if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int)$page >= 1) {
             return $page;
@@ -143,7 +144,7 @@ abstract class Paginator
     public function total()
     {
         if ($this->simple) {
-            throw new \Exception('简洁模式下不能获取数据总数');
+            throw new \DomainException('not support total');
         }
         return $this->total;
     }
@@ -161,7 +162,7 @@ abstract class Paginator
     public function lastPage()
     {
         if ($this->simple) {
-            throw new \Exception('简洁模式下不能获取最后一页');
+            throw new \DomainException('not support last');
         }
         return $this->lastPage;
     }

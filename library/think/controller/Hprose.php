@@ -11,6 +11,8 @@
 
 namespace think\controller;
 
+use think\App;
+use think\Loader;
 /**
  * ThinkPHP Hprose控制器类
  */
@@ -35,17 +37,17 @@ abstract class Hprose
         }
 
         //导入类库
-        \think\Loader::import('vendor.Hprose.HproseHttpServer');
+        Loader::import('vendor.Hprose.HproseHttpServer');
         //实例化HproseHttpServer
         $server = new \HproseHttpServer();
         if ($this->allowMethodList) {
             $methods = $this->allowMethodList;
         } else {
             $methods = get_class_methods($this);
-            $methods = array_diff($methods, array('__construct', '__call', '_initialize'));
+            $methods = array_diff($methods, ['__construct', '__call', '_initialize']);
         }
         $server->addMethods($methods, $this);
-        if (APP_DEBUG || $this->debug) {
+        if (App::$debug || $this->debug) {
             $server->setDebugEnabled(true);
         }
         // Hprose设置

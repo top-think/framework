@@ -38,11 +38,11 @@ class Sae
     public function __construct($options = [])
     {
         if (!function_exists('memcache_init')) {
-            throw new Exception('请在SAE平台上运行代码。');
+            throw new \BadFunctionCallException('must run at sae');
         }
         $this->handler = memcache_init();
         if (!$this->handler) {
-            throw new Exception('您未开通Memcache服务，请在SAE管理平台初始化Memcache服务');
+            throw new Exception('memcache init error');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -63,9 +63,9 @@ class Sae
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -113,7 +113,7 @@ class Sae
         if (!$kv) {
             $kv = new \SaeKV();
             if (!$kv->init()) {
-                throw new Exception('您没有初始化KVDB，请在SAE管理平台初始化KVDB服务');
+                throw new Exception('KVDB init error');
             }
         }
         return $kv;

@@ -30,7 +30,7 @@ abstract class Yar
 
         //判断扩展是否存在
         if (!extension_loaded('yar')) {
-            throw new Exception('not support yar');
+            throw new \Exception('not support yar');
         }
 
         //实例化Yar_Server

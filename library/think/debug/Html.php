@@ -9,18 +9,17 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\log\driver;
+namespace think\debug;
 
 use think\Cache;
 use think\Config;
 use think\Db;
 use think\Debug;
-use think\Request;
 
 /**
  * 页面Trace调试
  */
-class Trace
+class Html
 {
     protected $config = [
         'trace_file' => '',
@@ -35,27 +34,27 @@ class Trace
     }
 
     /**
-     * 日志写入接口
+     * 调试输出接口
      * @access public
      * @param array $log 日志信息
      * @return bool
      */
-    public function save(array $log = [])
+    public function output(array $log = [])
     {
-        if (IS_CLI || IS_API || Request::instance()->isAjax() || (defined('RESPONSE_TYPE') && !in_array(RESPONSE_TYPE, ['html', 'view']))) {
-            // ajax cli api方式下不输出
-            return false;
-        }
 
         // 获取基本信息
-        $runtime = microtime(true) - START_TIME;
-        $reqs    = number_format(1 / number_format($runtime, 8), 2);
-        $runtime = number_format($runtime, 6);
-        $mem     = number_format((memory_get_usage() - START_MEM) / 1024, 2);
+        $runtime = number_format(microtime(true), 8, '.', '') - THINK_START_TIME;
+        $reqs    = number_format(1 / $runtime, 2);
+        $mem     = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
 
         // 页面Trace信息
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $uri = $_SERVER['SERVER_PROTOCOL'] . ' ' . $_SERVER['REQUEST_METHOD'] . ' : ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        } else {
+            $uri = "cmd:" . implode(' ', $_SERVER['argv']);
+        }
         $base = [
-            '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $_SERVER['SERVER_PROTOCOL'] . ' ' . $_SERVER['REQUEST_METHOD'] . ' : ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+            '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
             '运行时间' => "{$runtime}s [ 吞吐率：{$reqs}req/s ] 内存消耗：{$mem}kb 文件加载：" . count(get_included_files()),
             '查询信息' => Db::$queryTimes . ' queries ' . Db::$executeTimes . ' writes ',
             '缓存信息' => Cache::$readTimes . ' reads,' . Cache::$writeTimes . ' writes',
@@ -67,12 +66,6 @@ class Trace
         }
 
         $info = Debug::getFile(true);
-
-        // 获取调试日志
-        $debug = [];
-        foreach ($log as $line) {
-            $debug[$line['type']][] = $line['msg'];
-        }
 
         // 页面Trace信息
         $trace = [];
@@ -91,19 +84,18 @@ class Trace
                         $names  = explode('|', $name);
                         $result = [];
                         foreach ($names as $name) {
-                            $result = array_merge($result, isset($debug[$name]) ? $debug[$name] : []);
+                            $result = array_merge($result, isset($log[$name]) ? $log[$name] : []);
                         }
                         $trace[$title] = $result;
                     } else {
-                        $trace[$title] = isset($debug[$name]) ? $debug[$name] : '';
+                        $trace[$title] = isset($log[$name]) ? $log[$name] : '';
                     }
             }
         }
         // 调用Trace页面模板
         ob_start();
         include $this->config['trace_file'];
-        echo ob_get_clean();
-        return true;
+        return ob_get_clean();
     }
 
 }

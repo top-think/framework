@@ -11,6 +11,8 @@
 
 namespace think\controller;
 
+use think\App;
+use think\Loader;
 /**
  * ThinkPHP RPC控制器类
  */
@@ -32,18 +34,18 @@ abstract class Rpc
         }
 
         //导入类库
-        \think\Loader::import('vendor.phprpc.phprpc_server');
+        Loader::import('vendor.phprpc.phprpc_server');
         //实例化phprpc
         $server = new \PHPRPC_Server();
         if ($this->allowMethodList) {
             $methods = $this->allowMethodList;
         } else {
             $methods = get_class_methods($this);
-            $methods = array_diff($methods, array('__construct', '__call', '_initialize'));
+            $methods = array_diff($methods, ['__construct', '__call', '_initialize']);
         }
         $server->add($methods, $this);
 
-        if (APP_DEBUG || $this->debug) {
+        if (App::$debug || $this->debug) {
             $server->setDebugMode(true);
         }
         $server->setEnableGZIP(true);

@@ -5,8 +5,16 @@ return [
     // | 应用设置
     // +----------------------------------------------------------------------
 
+    // 应用命名空间
+    'app_namespace'          => 'app',
+    // 应用调试模式
+    'app_debug'              => true,
+    // 应用Trace
+    'app_trace'              => false,
     // 应用模式状态
     'app_status'             => '',
+    // 是否支持多模块
+    'app_multi_module'       => true,
     // 注册的根命名空间
     'root_namespace'         => [],
     // 扩展配置文件
@@ -29,8 +37,10 @@ return [
     'default_filter'         => '',
     // 默认语言
     'default_lang'           => 'zh-cn',
-    // 是否启用控制器类后缀
-    'use_controller_suffix'  => false,
+    // 应用类库后缀
+    'class_suffix'           => false,
+    // 控制器类后缀
+    'controller_suffix'      => false,
 
     // +----------------------------------------------------------------------
     // | 模块设置
@@ -79,10 +89,8 @@ return [
     'url_domain_deploy'      => false,
     // 域名根，如.thinkphp.cn
     'url_domain_root'        => '',
-    // 是否自动转换URL中的控制器名
-    'url_controller_convert' => true,
-    // 是否自动转换URL中的操作名
-    'url_action_convert'     => true,
+    // 是否自动转换URL中的控制器和操作名
+    'url_convert'            => true,
     // 默认的访问控制器层
     'url_controller_layer'   => 'controller',
     // 表单请求类型伪装变量
@@ -128,16 +136,26 @@ return [
     'error_message'          => '页面错误！请稍后再试～',
     // 显示错误信息
     'show_error_msg'         => false,
+    // 异常处理handle类 留空使用 \think\exception\Handle
+    'exception_handle'       => '',
 
     // +----------------------------------------------------------------------
     // | 日志设置
     // +----------------------------------------------------------------------
 
     'log'                    => [
-        // 日志记录方式，支持 file socket trace sae
+        // 日志记录方式，内置 file sae 支持扩展
         'type' => 'File',
         // 日志保存目录
         'path' => LOG_PATH,
+    ],
+
+    // +----------------------------------------------------------------------
+    // | Trace设置 开启 app_trace 后 有效
+    // +----------------------------------------------------------------------
+    'trace'                  => [
+        // 内置Html Socket Console 支持扩展
+        'type' => 'Html',
     ],
 
     // +----------------------------------------------------------------------
@@ -231,6 +249,7 @@ return [
         // 自动写入时间戳字段
         'auto_timestamp' => false,
     ],
+
     //分页配置
     'paginate'               => [
         'type'      => 'bootstrap',

@@ -9,7 +9,7 @@
 // | Author: luofei614 <weibo.com/luofei614>
 // +----------------------------------------------------------------------
 
-namespace think\log\driver;
+namespace think\debug;
 
 /**
  * github: https://github.com/luofei614/SocketLog
@@ -55,21 +55,20 @@ class Socket
     }
 
     /**
-     * 日志写入接口
+     * 调试输出接口
      * @access public
      * @param array $logs 日志信息
      * @return bool
      */
-    public function save(array $logs = [])
+    public function output(array $logs = [])
     {
         if (!$this->check()) {
             return false;
         }
-        $runtime    = microtime(true) - START_TIME;
+        $runtime    = number_format(microtime(true), 8, '.', '') - THINK_START_TIME;
         $reqs       = number_format(1 / number_format($runtime, 8), 2);
-        $runtime    = number_format($runtime, 6);
         $time_str   = " [运行时间：{$runtime}s][吞吐率：{$reqs}req/s]";
-        $memory_use = number_format((memory_get_usage() - START_MEM) / 1024, 2);
+        $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
         $memory_str = " [内存消耗：{$memory_use}kb]";
         $file_load  = " [文件加载：" . count(get_included_files()) . "]";
 
@@ -78,39 +77,60 @@ class Socket
         } else {
             $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
         }
-        array_unshift($logs, [
+        // 基本信息
+        $trace[] = [
             'type' => 'group',
             'msg'  => $current_uri . $time_str . $memory_str . $file_load,
             'css'  => $this->css['page'],
-        ]);
-
-        $logs[] = [
-            'type' => 'groupCollapsed',
-            'msg'  => 'included_files',
-            'css'  => '',
-        ];
-        $logs[] = [
-            'type' => 'log',
-            'msg'  => implode("\n", get_included_files()),
-            'css'  => '',
-        ];
-        $logs[] = [
-            'type' => 'groupEnd',
-            'msg'  => '',
-            'css'  => '',
         ];
 
-        $logs[] = [
-            'type' => 'groupEnd',
-            'msg'  => '',
-            'css'  => '',
-        ];
-
-        foreach ($logs as &$log) {
-            if (in_array($log['type'], ['sql', 'notice', 'debug', 'info'])) {
-                $log['type'] = 'log';
+        foreach ($logs as $type => $val) {
+            $trace[] = [
+                'type' => 'groupCollapsed',
+                'msg'  => '[ ' . $type . ' ]',
+                'css'  => isset($this->css[$type]) ? $this->css[$type] : '',
+            ];
+            foreach ($val as $msg) {
+                if (!is_string($msg)) {
+                    $msg = var_export($msg, true);
+                }
+                $trace[] = [
+                    'type' => 'log',
+                    'msg'  => $msg,
+                    'css'  => '',
+                ];
             }
+            $trace[] = [
+                'type' => 'groupEnd',
+                'msg'  => '',
+                'css'  => '',
+            ];
         }
+
+        if ($this->config['show_included_files']) {
+            $trace[] = [
+                'type' => 'groupCollapsed',
+                'msg'  => 'included_files',
+                'css'  => '',
+            ];
+            $trace[] = [
+                'type' => 'log',
+                'msg'  => implode("\n", get_included_files()),
+                'css'  => '',
+            ];
+            $trace[] = [
+                'type' => 'groupEnd',
+                'msg'  => '',
+                'css'  => '',
+            ];
+        }
+
+        $trace[] = [
+            'type' => 'groupEnd',
+            'msg'  => '',
+            'css'  => '',
+        ];
+
         $tabid = $this->getClientArg('tabid');
         if (!$client_id = $this->getClientArg('client_id')) {
             $client_id = '';
@@ -120,10 +140,10 @@ class Socket
             //强制推送到多个client_id
             foreach ($this->allowForceClientIds as $force_client_id) {
                 $client_id = $force_client_id;
-                $this->sendToClient($tabid, $client_id, $logs, $force_client_id);
+                $this->sendToClient($tabid, $client_id, $trace, $force_client_id);
             }
         } else {
-            $this->sendToClient($tabid, $client_id, $logs, '');
+            $this->sendToClient($tabid, $client_id, $trace, '');
         }
         return true;
     }

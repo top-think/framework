@@ -36,7 +36,7 @@ class Apc
     public function __construct($options = [])
     {
         if (!function_exists('apc_cache_info')) {
-            throw new Exception('_NOT_SUPPERT_:Apc');
+            throw new \BadFunctionCallException('not support: Apc');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -57,9 +57,9 @@ class Apc
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
