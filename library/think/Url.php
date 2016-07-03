@@ -258,6 +258,10 @@ class Url
     // 生成路由映射并缓存
     private static function getRouteAlias()
     {
+        static $item = [];
+        if (!empty($item)) {
+            return $item;
+        }
         if ($item = Cache::get('think_route_map')) {
             return $item;
         }
