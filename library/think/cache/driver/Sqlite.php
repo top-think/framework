@@ -56,7 +56,7 @@ class Sqlite implements CacheInterface
     public function get($name)
     {
         $name   = $this->options['prefix'] . sqlite_escape_string($name);
-        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . time() . ') LIMIT 1';
+        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
         if (sqlite_num_rows($result)) {
             $content = sqlite_fetch_single($result);
@@ -84,7 +84,7 @@ class Sqlite implements CacheInterface
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
-        $expire = (0 == $expire) ? 0 : (time() + $expire); //缓存有效期为0表示永久缓存
+        $expire = (0 == $expire) ? 0 : ($_SERVER['REQUEST_TIME'] + $expire); //缓存有效期为0表示永久缓存
         if (function_exists('gzcompress')) {
             //数据压缩
             $value = gzcompress($value, 3);

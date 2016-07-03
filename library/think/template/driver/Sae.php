@@ -44,7 +44,7 @@ class Sae
     public function write($cacheFile, $content)
     {
         // 添加写入时间
-        $content = time() . $content;
+        $content = $_SERVER['REQUEST_TIME'] . $content;
         if (!$this->mc->set($cacheFile, $content, MEMCACHE_COMPRESSED, 0)) {
             throw new Exception('sae mc write error:' . $cacheFile);
         } else {
@@ -76,7 +76,7 @@ class Sae
     public function check($cacheFile, $cacheTime)
     {
         $mtime = $this->get($cacheFile, 'mtime');
-        if (0 != $cacheTime && time() > $mtime + $cacheTime) {
+        if (0 != $cacheTime && $_SERVER['REQUEST_TIME'] > $mtime + $cacheTime) {
             // 缓存是否在有效期
             return false;
         }

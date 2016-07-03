@@ -88,7 +88,7 @@ class Memcached
             $expire = $this->options['expire'];
         }
         $name   = $this->options['prefix'] . $name;
-        $expire = 0 == $expire ? 0 : time() + $expire;
+        $expire = 0 == $expire ? 0 : $_SERVER['REQUEST_TIME'] + $expire;
         if ($this->handler->set($name, $value, $expire)) {
             return true;
         }

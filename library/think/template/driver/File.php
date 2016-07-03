@@ -62,7 +62,7 @@ class File
         if (!file_exists($cacheFile)) {
             return false;
         }
-        if (0 != $cacheTime && time() > filemtime($cacheFile) + $cacheTime) {
+        if (0 != $cacheTime && $_SERVER['REQUEST_TIME'] > filemtime($cacheFile) + $cacheTime) {
             // 缓存是否在有效期
             return false;
         }

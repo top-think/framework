@@ -65,7 +65,7 @@ class Lite
         if (is_file($filename)) {
             // 判断是否过期
             $mtime = filemtime($filename);
-            if ($mtime < time()) {
+            if ($mtime < $_SERVER['REQUEST_TIME']) {
                 // 清除已经过期的文件
                 unlink($filename);
                 return false;
@@ -97,7 +97,7 @@ class Lite
         $ret      = file_put_contents($filename, ("<?php return " . var_export($value, true) . ";"));
         // 通过设置修改时间实现有效期
         if ($ret) {
-            touch($filename, time() + $expire);
+            touch($filename, $_SERVER['REQUEST_TIME'] + $expire);
         }
         return $ret;
     }
