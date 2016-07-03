@@ -85,7 +85,7 @@ class Memcached
     public function set($name, $value, $expire = null)
     {
         if (is_null($expire)) {
-            $expire = $this->options['expire'];
+            $expire = $this->options['expire'] / 1000;
         }
         $name   = $this->options['prefix'] . $name;
         $expire = 0 == $expire ? 0 : $_SERVER['REQUEST_TIME'] + $expire;
