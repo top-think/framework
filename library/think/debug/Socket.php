@@ -85,7 +85,7 @@ class Socket
             'css'  => $this->css['page'],
         ];
 
-        foreach ($logs as $type => $val) {
+        foreach ($log as $type => $val) {
             $trace[] = [
                 'type' => 'groupCollapsed',
                 'msg'  => '[ ' . $type . ' ]',
@@ -226,7 +226,7 @@ class Socket
     }
 
     /**
-     * @param null $host - $host of socket server
+     * @param string $host - $host of socket server
      * @param string $message - 发送的消息
      * @param string $address - 地址
      * @return bool
