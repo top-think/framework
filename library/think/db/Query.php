@@ -390,7 +390,11 @@ class Query
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
-            $pdo    = $this->field($field)->fetchPdo(true)->find();
+            $pdo = $this->field($field)->fetchPdo(true)->find();
+            if (is_string($pdo)) {
+                // 返回SQL语句
+                return $pdo;
+            }
             $result = $pdo->fetchColumn();
             if (isset($cache)) {
                 // 缓存数据
@@ -430,6 +434,10 @@ class Query
                 $field = $key . ',' . $field;
             }
             $pdo = $this->field($field)->fetchPdo(true)->select();
+            if (is_string($pdo)) {
+                // 返回SQL语句
+                return $pdo;
+            }
             if (1 == $pdo->columnCount()) {
                 $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
             } else {
