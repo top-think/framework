@@ -57,10 +57,11 @@ class Socket
     /**
      * 调试输出接口
      * @access public
-     * @param array $logs 日志信息
+     * @param Response  $response Response对象
+     * @param array     $log 日志信息
      * @return bool
      */
-    public function output(array $logs = [])
+    public function output(Response $response, array $log = [])
     {
         if (!$this->check()) {
             return false;

@@ -15,6 +15,8 @@ use think\Cache;
 use think\Config;
 use think\Db;
 use think\Debug;
+use think\Request;
+use think\Response;
 
 /**
  * 浏览器调试输出
@@ -36,11 +38,20 @@ class Console
     /**
      * 调试输出接口
      * @access public
-     * @param array $log 日志信息
+     * @param Response  $response Response对象
+     * @param array     $log 日志信息
      * @return bool
      */
-    public function output(array $log = [])
+    public function output(Response $response, array $log = [])
     {
+        $request     = Request::instance();
+        $contentType = $response->getHeader('Content-Type');
+        $accept      = $request->header('accept');
+        if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
+            return false;
+        } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
+            return false;
+        }
         // 获取基本信息
         $runtime = number_format(microtime(true), 8, '.', '') - THINK_START_TIME;
         $reqs    = number_format(1 / $runtime, 2);

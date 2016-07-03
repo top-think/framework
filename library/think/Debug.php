@@ -201,12 +201,8 @@ class Debug
 
         if ($response instanceof Redirect) {
             //TODO 记录
-        } elseif (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
-            //TODO 记录
-        } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
-            //TODO 记录
         } else {
-            $output = $trace->output(Log::getLog());
+            $output = $trace->output($response, Log::getLog());
             if (is_string($output)) {
                 // trace调试信息注入
                 $content = $response->getContent();
