@@ -11,7 +11,7 @@
 
 namespace {%namespace%};
 
-class {%className%} extends {%extend%}
+class {%className%} {%extend%}
 {
 
 }

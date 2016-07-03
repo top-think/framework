@@ -11,37 +11,111 @@
 
 namespace think\console\command;
 
+use think\console\Input;
+use think\console\input\Argument;
+use think\console\input\Option;
+use think\console\Output;
+
 class Make extends Command
 {
-    // 创建目录
-    protected static function buildDir($dir)
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function configure()
     {
-        if (!is_dir(APP_PATH . $dir)) {
-            mkdir(APP_PATH . strtolower($dir), 0777, true);
+        $this
+            ->setName('make')
+            ->setDescription('Create a new applcation class')
+            ->addArgument('namespace', Argument::OPTIONAL, null)
+            ->addOption('layer', 'l', Option::VALUE_OPTIONAL, 'Layer Name', null)
+            ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Extend Base class', null);
+    }
+
+    protected function execute(Input $input, Output $output)
+    {
+        $namespace = $input->getArgument('namespace');
+        $extend    = $input->getOption('extend');
+        if (!$layer = $input->getOption('layer')) {
+            // 自动识别layer
+            $item  = explode('\\', $namespace);
+            $layer = basename(dirname(implode(DS, $item)));
         }
+
+        $result = $this->getResult($layer, $namespace, '', $extend);
+        $output->writeln("output:" . $result);
     }
 
     // 创建文件
     protected static function buildFile($file, $content)
     {
-        if (is_file(APP_PATH . $file)) {
+        if (is_file($file)) {
             exception('file already exists');
         }
-        file_put_contents(APP_PATH . $file, $content);
+
+        if (!is_dir(dirname($file))) {
+            mkdir(strtolower(dirname($file)), 0777, true);
+        }
+
+        file_put_contents($file, $content);
     }
 
-    protected static function formatNameSpace($namespace)
+    // 生成类库文件
+    protected function build($namespace, $extend)
     {
-        $namespace = explode('\\', $namespace);
+        $tpl = file_get_contents(THINK_PATH . 'tpl' . DS . 'make.tpl');
 
-        foreach ($namespace as $key => $value) {
-            if ($key == count($namespace) - 1) {
-                $newNameSpace[1] = $value;
-            } else {
-                $newNameSpace[0][$key] = $value;
+        // comminute namespace
+        $namespace = explode('\\', $namespace);
+        $className = array_pop($namespace);
+
+        if ($extend) {
+            $extend = 'extends \\' . ltrim($extend, '\\');
+        }
+        // 处理内容
+        $content = str_replace(['{%extend%}', '{%className%}', '{%namespace%}'],
+            [$extend, $className, implode('\\', $namespace)],
+            $tpl);
+
+        // 处理文件名
+        array_shift($namespace);
+        $file = APP_PATH . implode(DS, $namespace) . DS . $className . '.php';
+        // 生成类库文件
+        self::buildFile($file, $content);
+
+        return realpath($file);
+    }
+
+    protected function getResult($layer, $namespace, $module, $extend)
+    {
+
+        // 处理命名空间
+        if (!empty($module)) {
+            $namespace = App::$namespace . "\\" . $module . "\\" . $layer . "\\" . $namespace;
+        }
+
+        // 处理继承
+        if (empty($extend)) {
+            switch ($layer) {
+                case 'model':
+                    $extend = '\\think\\Model';
+                    break;
+                case 'validate':
+                    $extend = '\\think\Validate';
+                    break;
+                case 'controller':
+                default:
+                    $extend = '';
+                    break;
+            }
+        } else {
+            if (!preg_match("/\\\/", $extend)) {
+                if (!empty($module)) {
+                    $extend = "\\" . App::$namespace . "\\" . $module . "\\" . $layer . "\\" . $extend;
+                }
             }
         }
 
-        return $newNameSpace;
+        return $this->build($namespace, $extend);
     }
 }

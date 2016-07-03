@@ -2,25 +2,42 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2015 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2016 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: yunwuxin <448901948@qq.com>
+// | Author: 刘志淳 <chun@engineer.com>
 // +----------------------------------------------------------------------
 
 namespace think\console\command\make;
 
+use think\console\Input;
+use think\console\input\Argument;
+use think\console\input\Option;
+use think\console\Output;
 
-use think\console\command\Command;
-
-
-class Model extends Command
+class Model extends \think\console\command\Make
 {
-
-    public function __construct()
+    /**
+     * {@inheritdoc}
+     */
+    protected function configure()
     {
-        parent::__construct("make:model");
+        $this
+            ->setName('make:model')
+            ->setDescription('Create a new model class')
+            ->addArgument('namespace', Argument::OPTIONAL, null)
+            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', null)
+            ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Model class', null);
+    }
+
+    protected function execute(Input $input, Output $output)
+    {
+        $namespace = $input->getArgument('namespace');
+        $module    = $input->getOption('module');
+        $extend    = $input->getOption('extend');
+        $result    = $this->getResult('model', $namespace, $module, $extend);
+        $output->writeln("output:" . $result);
     }
 
 }

@@ -11,7 +11,6 @@
 
 namespace think\console\command\make;
 
-use think\App;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
@@ -35,61 +34,10 @@ class Controller extends \think\console\command\Make
     protected function execute(Input $input, Output $output)
     {
         $namespace = $input->getArgument('namespace');
-        $module = $input->getOption('module');
-
-
-        // 处理命名空间
-        if (!empty($module)) {
-            $namespace = App::$namespace . "\\" . $module . "\\" . 'controller' . "\\" . $namespace;
-        }
-
-        // 处理继承
-        $extend = $input->getOption('extend');
-
-        if (empty($extend)) {
-            $extend = "\\think\\Controller";
-        } else {
-            if (!preg_match("/\\\/", $extend)) {
-                if (!empty($module)) {
-                    $extend = "\\" . App::$namespace . "\\" . $module . "\\" . 'controller' . "\\" . $extend;
-                }
-            }
-        }
-
-
-        $result = $this->build($namespace, $extend);
+        $module    = $input->getOption('module');
+        $extend    = $input->getOption('extend');
+        $result    = $this->getResult('controller', $namespace, $module, $extend);
         $output->writeln("output:" . $result);
     }
 
-    private function build($namespace, $extend)
-    {
-        $tpl = file_get_contents(THINK_PATH . 'tpl' . DS . 'make_controller.tpl');
-
-        // comminute namespace
-        $allNamespace = self::formatNameSpace($namespace);
-        $namespace = implode('\\', $allNamespace[0]);
-        $className = ucwords($allNamespace[1]);
-
-        // 处理内容
-        $content = str_replace("{%extend%}", $extend,
-            str_replace("{%className%}", $className,
-                str_replace("{%namespace%}", $namespace, $tpl)
-            )
-        );
-
-        // 处理文件夹
-        $path = '';
-        foreach ($allNamespace[0] as $key => $value) {
-            if ($key >= 1) {
-                self::buildDir($path . $value);
-                $path .= $value . "\\";
-            }
-        }
-
-        // 处理文件
-        $file = $path . $className . '.php';
-        self::buildFile($file, $content);
-
-        return APP_PATH . $file;
-    }
 }

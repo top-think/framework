@@ -49,9 +49,10 @@ class Console
         "think\\console\\command\\Help",
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
+        "think\\console\\command\\Make",
         "think\\console\\command\\make\\Controller",
         "think\\console\\command\\make\\Model",
-        "think\\console\\command\\optimize\\Autoload"
+        "think\\console\\command\\optimize\\Autoload",
     ];
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
@@ -130,7 +131,7 @@ class Console
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int)$exitCode;
+                $exitCode = (int) $exitCode;
                 if (0 === $exitCode) {
                     $exitCode = 1;
                 }
@@ -241,7 +242,7 @@ class Console
      */
     public function setCatchExceptions($boolean)
     {
-        $this->catchExceptions = (bool)$boolean;
+        $this->catchExceptions = (bool) $boolean;
     }
 
     /**
@@ -251,7 +252,7 @@ class Console
      */
     public function setAutoExit($boolean)
     {
-        $this->autoExit = (bool)$boolean;
+        $this->autoExit = (bool) $boolean;
     }
 
     /**
@@ -419,7 +420,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -457,7 +458,7 @@ class Console
         $expr        = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $name);
-        $commands    = preg_grep('{^' . $expr . '}', $allCommands);
+        $commands = preg_grep('{^' . $expr . '}', $allCommands);
 
         if (empty($commands) || count(preg_grep('{^' . $expr . '$}', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
@@ -646,19 +647,19 @@ class Console
 
         if ('\\' === DS) {
             if (preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim(getenv('ANSICON')), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
+                return [(int) $matches[1], (int) $matches[2]];
             }
             if (preg_match('/^(\d+)x(\d+)$/', $this->getConsoleMode(), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
+                return [(int) $matches[1], (int) $matches[2]];
             }
         }
 
         if ($sttyString = $this->getSttyColumns()) {
             if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
+                return [(int) $matches[2], (int) $matches[1]];
             }
             if (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
+                return [(int) $matches[2], (int) $matches[1]];
             }
         }
 
