@@ -19,6 +19,7 @@ use think\exception\HttpResponseException;
 use think\Request;
 use think\Response;
 use think\response\Redirect;
+use think\Url;
 use think\View as ViewTemplate;
 
 trait Jump
@@ -39,11 +40,16 @@ trait Jump
             $code = $msg;
             $msg  = '';
         }
+        if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
+            $url = $_SERVER["HTTP_REFERER"];
+        } else {
+            $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
+        }
         $result = [
             'code' => $code,
             'msg'  => $msg,
             'data' => $data,
-            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
+            'url'  => $url,
             'wait' => $wait,
         ];
 
@@ -71,11 +77,16 @@ trait Jump
             $code = $msg;
             $msg  = '';
         }
+        if (is_null($url)) {
+            $url = 'javascript:history.back(-1);';
+        } else {
+            $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
+        }
         $result = [
             'code' => $code,
             'msg'  => $msg,
             'data' => $data,
-            'url'  => is_null($url) ? 'javascript:history.back(-1);' : $url,
+            'url'  => $url,
             'wait' => $wait,
         ];
 
@@ -104,7 +115,7 @@ trait Jump
             'msg'  => $msg,
             'time' => $_SERVER['REQUEST_TIME'],
             'data' => $data,
-        ]; 
+        ];
         $type = $type ?: $this->getResponseType();
         return Response::create($result, $type);
     }
