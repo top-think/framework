@@ -9,9 +9,7 @@
 // | Author: luofei614 <weibo.com/luofei614>
 // +----------------------------------------------------------------------
 
-namespace think\debug;
-
-use think\Response;
+namespace think\log\driver;
 
 /**
  * github: https://github.com/luofei614/SocketLog
@@ -57,11 +55,10 @@ class Socket
     /**
      * 调试输出接口
      * @access public
-     * @param Response  $response Response对象
      * @param array     $log 日志信息
      * @return bool
      */
-    public function output(Response $response, array $log = [])
+    public function save(array $log = [])
     {
         if (!$this->check()) {
             return false;
