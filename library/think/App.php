@@ -187,7 +187,7 @@ class App
         $reflect = new \ReflectionFunction($function);
         $args    = self::bindParams($reflect, $vars);
         // 记录执行信息
-        self::$debug && Log::record('[ RUN ] ' . $reflect->getFileName() . '[ ' . var_export($vars, true) . ' ]', 'info');
+        self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
         return $reflect->invokeArgs($args);
     }
 
@@ -213,7 +213,7 @@ class App
         }
         $args = self::bindParams($reflect, $vars);
         // 记录执行信息
-        self::$debug && Log::record('[ RUN ] ' . $reflect->getFileName() . '[ ' . var_export($args, true) . ' ]', 'info');
+        self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
@@ -335,7 +335,7 @@ class App
             if (method_exists($instance, '_empty')) {
                 $method = new \ReflectionMethod($instance, '_empty');
                 $data   = $method->invokeArgs($instance, [$action, '']);
-                self::$debug && Log::record('[ RUN ] ' . $method->getFileName(), 'info');
+                self::$debug && Log::record('[ RUN ] ' . $method->__toString(), 'info');
             } else {
                 throw new HttpException(404, 'method not exists:' . (new \ReflectionClass($instance))->getName() . '->' . $action);
             }
