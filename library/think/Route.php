@@ -217,8 +217,9 @@ class Route
      */
     public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [], $group = '')
     {
-        $group = $group ?: self::$group;
-        $type  = strtoupper($type);
+        $group  = $group ?: self::$group;
+        $option = $option ?: self::$option;
+        $type   = strtoupper($type);
         if (strpos($type, '|')) {
             foreach (explode('|', $type) as $val) {
                 self::rule($rule, $route, $val, $option, $pattern, $group);
