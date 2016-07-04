@@ -204,7 +204,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {}
 
     /**
-     * 设置数据对象值（不进行修改器处理）
+     * 设置数据对象值
      * @access public
      * @param mixed $data 数据或者属性名
      * @param mixed $value 值
@@ -212,12 +212,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function data($data, $value = null)
     {
-        if (is_object($data)) {
-            $this->data = get_object_vars($data);
-        } elseif (is_array($data)) {
-            $this->data = $data;
-        } else {
+        if (is_string($data)) {
             $this->data[$data] = $value;
+        } else {
+            if (is_object($data)) {
+                $data = get_object_vars($data);
+            }
+            if (true === $value) {
+                // 数据对象赋值
+                foreach ($data as $key => $value) {
+                    $this->setAttr($key, $value, $data);
+                }
+            } else {
+                $this->data = $data;
+            }
         }
         return $this;
     }
@@ -989,8 +997,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($name instanceof Query) {
             return $name;
         }
-        $model = new static();
-        $params = func_get_args();
+        $model     = new static();
+        $params    = func_get_args();
         $params[0] = $model->db();
         if ($name instanceof \Closure) {
             call_user_func_array($name, $params);
