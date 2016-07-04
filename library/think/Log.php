@@ -132,8 +132,21 @@ class Log
                 // 检测日志写入权限
                 return false;
             }
-            $result = self::$driver->save(self::$log);
 
+            if (empty(self::$config['level'])) {
+                // 获取全部日志
+                $log = self::$log;
+            } else {
+                // 记录允许级别
+                $log = [];
+                foreach (self::$config['level'] as $level) {
+                    if (isset(self::$log[$level])) {
+                        $log[$level] = self::$log[$level];
+                    }
+                }
+            }
+
+            $result = self::$driver->save($log);
             if ($result) {
                 self::$log = [];
             }
@@ -147,12 +160,19 @@ class Log
      * 实时写入日志信息 并支持行为
      * @param mixed  $msg  调试信息
      * @param string $type 信息类型
+     * @param bool   $force 是否强制写入
      * @return bool
      */
-    public static function write($msg, $type = 'log')
+    public static function write($msg, $type = 'log', $force = false)
     {
         // 封装日志信息
-        $log[$type][] = $msg;
+        if (true === $force || empty(self::$config['level'])) {
+            $log[$type][] = $msg;
+        } elseif (in_array($type, self::$config['level'])) {
+            $log[$type][] = $msg;
+        } else {
+            return false;
+        }
 
         // 监听log_write
         Hook::listen('log_write', $log);
