@@ -964,8 +964,7 @@ class Query
      *                      fragment:url锚点,
      *                      var_page:分页变量,
      *                      list_rows:每页数量
-     *                      type:分页类名,
-     *                      namespace:分页类命名空间
+     *                      type:分页类名
      * @return \think\paginator\Collection
      * @throws DbException
      */
