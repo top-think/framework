@@ -19,6 +19,9 @@ use think\Route;
 
 class Url
 {
+    // 生成URL地址的root
+    protected static $root;
+
     /**
      * URL生成 支持路由反射
      * @param string            $url URL表达式，
@@ -113,7 +116,7 @@ class Url
         // 检测域名
         $domain = self::parseDomain($url, $domain);
         // URL组装
-        $url = $domain . Request::instance()->root() . '/' . ltrim($url, '/');
+        $url = $domain . (self::$root ?: Request::instance()->root()) . '/' . ltrim($url, '/');
         return $url;
     }
 
@@ -365,5 +368,12 @@ class Url
     public static function clearAliasCache()
     {
         Cache::rm('think_route_map');
+    }
+
+    // 指定当前生成URL地址的root
+    public static function root($root)
+    {
+        self::$root = $root;
+        Request::instance()->root($root);
     }
 }
