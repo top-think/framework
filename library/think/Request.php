@@ -609,21 +609,21 @@ class Request
             // 自动获取请求变量
             switch ($method) {
                 case 'POST':
-                    $vars = $this->post();
+                    $vars = $this->post(false);
                     break;
                 case 'PUT':
-                    $vars = $this->put();
+                    $vars = $this->put(false);
                     break;
                 case 'DELETE':
-                    $vars = $this->delete();
+                    $vars = $this->delete(false);
                     break;
                 default:
                     $vars = [];
             }
             // 当前请求参数和URL地址中的参数合并
-            $this->param = array_merge($this->route(), $this->get(), $vars);
+            $this->param = array_merge($this->route(false), $this->get(false), $vars);
         }
-        return $this->input($this->param, $name, $default, $filter);
+        return false === $name ? $this->param : $this->input($this->param, $name, $default, $filter);
     }
 
     /**
@@ -639,7 +639,7 @@ class Request
         if (is_array($name)) {
             return $this->route = array_merge($this->route, $name);
         }
-        return $this->input($this->route, $name, $default, $filter);
+        return false === $name ? $this->route : $this->input($this->route, $name, $default, $filter);
     }
 
     /**
@@ -657,7 +657,7 @@ class Request
         } elseif (empty($this->get)) {
             $this->get = $_GET;
         }
-        return $this->input($this->get, $name, $default, $filter);
+        return false === $name ? $this->get : $this->input($this->get, $name, $default, $filter);
     }
 
     /**
@@ -675,7 +675,7 @@ class Request
         } elseif (empty($this->post)) {
             $this->post = $_POST;
         }
-        return $this->input($this->post, $name, $default, $filter);
+        return false === $name ? $this->post : $this->input($this->post, $name, $default, $filter);
     }
 
     /**
@@ -694,7 +694,7 @@ class Request
         if (is_null($this->put)) {
             parse_str(file_get_contents('php://input'), $this->put);
         }
-        return $this->input($this->put, $name, $default, $filter);
+        return false === $name ? $this->put : $this->input($this->put, $name, $default, $filter);
     }
 
     /**
@@ -713,7 +713,7 @@ class Request
         if (is_null($this->delete)) {
             parse_str(file_get_contents('php://input'), $this->delete);
         }
-        return $this->input($this->delete, $name, $default, $filter);
+        return false === $name ? $this->delete : $this->input($this->delete, $name, $default, $filter);
     }
 
     /**
@@ -730,7 +730,7 @@ class Request
         } elseif (empty($this->request)) {
             $this->request = $_REQUEST;
         }
-        return $this->input($this->request ?: $_REQUEST, $name, $default, $filter);
+        return false === $name ? $this->request : $this->input($this->request ?: $_REQUEST, $name, $default, $filter);
     }
 
     /**
@@ -748,7 +748,7 @@ class Request
         } elseif (empty($this->session)) {
             $this->session = Session::get();
         }
-        return $this->input($this->session, $name, $default, $filter);
+        return false === $name ? $this->session : $this->input($this->session, $name, $default, $filter);
     }
 
     /**
@@ -766,7 +766,7 @@ class Request
         } elseif (empty($this->cookie)) {
             $this->cookie = $_COOKIE;
         }
-        return $this->input($this->cookie, $name, $default, $filter);
+        return false === $name ? $this->cookie : $this->input($this->cookie, $name, $default, $filter);
     }
 
     /**
@@ -784,7 +784,7 @@ class Request
         } elseif (empty($this->server)) {
             $this->server = $_SERVER;
         }
-        return $this->input($this->server, $name, $default, $filter);
+        return false === $name ? $this->server : $this->input($this->server, $name, $default, $filter);
     }
 
     /**
@@ -861,7 +861,7 @@ class Request
         } elseif (empty($this->env)) {
             $this->env = $_ENV;
         }
-        return $this->input($this->env, strtoupper($name), $default, $filter);
+        return false === $name ? $this->env : $this->input($this->env, strtoupper($name), $default, $filter);
     }
 
     /**
