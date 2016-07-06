@@ -197,9 +197,9 @@ class Route
                 self::group($key, $val);
 
             } elseif (is_array($val)) {
-                self::setRule($type, $key, $val[0], $val[1], isset($val[2]) ? $val[2] : []);
+                self::setRule($key, $val[0], $type, $val[1], isset($val[2]) ? $val[2] : []);
             } else {
-                self::setRule($type, $key, $val);
+                self::setRule($key, $val, $type);
             }
         }
     }
