@@ -66,22 +66,22 @@ class Bootstrap extends Paginator
             'last'   => null
         ];
 
-        $length = 3;
+        $side   = 3;
+        $window = $side * 2;
 
-        if ($this->lastPage < $length * 4) {
+        if ($this->lastPage < $window + 6) {
             $block['first'] = $this->getUrlRange(1, $this->lastPage);
-        } elseif ($this->currentPage <= $length * 2) {
-            $block['first'] = $this->getUrlRange(1, $length * 2 + 2);
+        } elseif ($this->currentPage <= $window) {
+            $block['first'] = $this->getUrlRange(1, $window + 2);
             $block['last']  = $this->getUrlRange($this->lastPage - 1, $this->lastPage);
-        } elseif ($this->currentPage > ($this->lastPage - $length * 2)) {
+        } elseif ($this->currentPage > ($this->lastPage - $window)) {
             $block['first'] = $this->getUrlRange(1, 2);
-            $block['last']  = $this->getUrlRange($this->lastPage - $length * 2 + 2, $this->lastPage);
+            $block['last']  = $this->getUrlRange($this->lastPage - ($window + 2), $this->lastPage);
         } else {
             $block['first']  = $this->getUrlRange(1, 2);
-            $block['slider'] = $this->getUrlRange($this->currentPage - $length, $this->currentPage + $length);
+            $block['slider'] = $this->getUrlRange($this->currentPage - $side, $this->currentPage + $side);
             $block['last']   = $this->getUrlRange($this->lastPage - 1, $this->lastPage);
         }
-
 
         $html = '';
 
@@ -132,7 +132,7 @@ class Bootstrap extends Paginator
      * 生成一个可点击的按钮
      *
      * @param  string $url
-     * @param  int $page
+     * @param  int    $page
      * @return string
      */
     protected function getAvailablePageWrapper($url, $page)
@@ -193,7 +193,7 @@ class Bootstrap extends Paginator
      * 生成普通页码按钮
      *
      * @param  string $url
-     * @param  int $page
+     * @param  int    $page
      * @return string
      */
     protected function getPageLinkWrapper($url, $page)
