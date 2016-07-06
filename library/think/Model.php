@@ -365,27 +365,30 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function getAttr($name)
     {
         try {
-            $value = $this->getData($name);
-            // 检测属性获取器
-            $method = 'get' . Loader::parseName($name, 1) . 'Attr';
-            if (method_exists($this, $method)) {
-                $value = $this->$method($value, $this->data);
-            } elseif (isset($this->type[$name])) {
-                // 类型转换
-                $value = $this->readTransform($value, $this->type[$name]);
-            }
-            return $value;
+            $notFound = false;
+            $value    = $this->getData($name);
         } catch (InvalidArgumentException $e) {
+            $notFound = true;
+        }
+
+        // 检测属性获取器
+        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
+        if (method_exists($this, $method)) {
+            $value = $this->$method($value, $this->data);
+        } elseif (isset($this->type[$name])) {
+            // 类型转换
+            $value = $this->readTransform($value, $this->type[$name]);
+        } elseif ($notFound) {
             if (method_exists($this, $name) && !method_exists('\think\Model', $name)) {
                 // 不存在该字段 获取关联数据
                 $value = $this->relation()->getRelation($name);
                 // 保存关联对象值
                 $this->data[$name] = $value;
-                return $value;
             } else {
                 throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
             }
         }
+        return $value;
     }
 
     /**
