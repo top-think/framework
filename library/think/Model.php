@@ -245,7 +245,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif (array_key_exists($name, $this->data)) {
             return $this->data[$name];
         } else {
-            throw new InvalidArgumentException('property not exists:' . __CLASS__ . '->' . $name);
+            throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
         }
     }
 
@@ -383,7 +383,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->data[$name] = $value;
                 return $value;
             } else {
-                throw new InvalidArgumentException('property not exists:' . __CLASS__ . '->' . $name);
+                throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
             }
         }
     }
