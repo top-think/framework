@@ -143,7 +143,7 @@ class Url
                 $url = $module . $controller . '/' . $request->action();
             } else {
                 $path       = explode('/', $url);
-                $action     = Config::get('url_convert') ? Loader::parseName(array_pop($path)) : array_pop($path);
+                $action     = Config::get('url_convert') ? strtolower(array_pop($path)) : array_pop($path);
                 $controller = empty($path) ? $controller : (Config::get('url_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
                 $module     = empty($path) ? $module : array_pop($path) . '/';
                 $url        = $module . $controller . '/' . $action;
