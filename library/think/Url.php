@@ -269,10 +269,9 @@ class Url
         foreach ($rules as $group => $val) {
             list($rule, $route, $vars, $option, $pattern) = $val;
             if (is_array($rule)) {
-                foreach ($rule as $key => $rule_item) {
-                    list($key, $route, $var, $option, $pattern) = $rule_item;
-
-                    $param = [];
+                foreach ($rule as $key => $val) {
+                    list($key, $route, $var, $option, $pattern) = $val;
+                    $param                                      = [];
                     if (is_array($route)) {
                         $route = implode('\\', $route);
                     } elseif ($route instanceof \Closure) {
