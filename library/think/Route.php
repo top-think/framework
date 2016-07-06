@@ -335,7 +335,7 @@ class Route
                         $route = $val;
                     }
                     $vars   = self::parseVar($key);
-                    $item[] = [$key, $route, $vars, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern];
+                    $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => isset($option1) ? $option1 : $option, 'pattern' => isset($pattern1) ? $pattern1 : $pattern];
                 }
                 self::$rules[$type][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
