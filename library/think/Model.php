@@ -369,6 +369,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $value    = $this->getData($name);
         } catch (InvalidArgumentException $e) {
             $notFound = true;
+            $value    = null;
         }
 
         // 检测属性获取器
