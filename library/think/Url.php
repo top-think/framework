@@ -267,11 +267,19 @@ class Url
         // 获取路由定义
         $rules = Route::getRules();
         foreach ($rules as $group => $val) {
-            list($rule, $route, $vars, $option, $pattern) = $val;
+            $rule    = $val['rule'];
+            $route   = $val['route'];
+            $vars    = $val['var'];
+            $option  = $val['option'];
+            $pattern = $val['pattern'];
             if (is_array($rule)) {
                 foreach ($rule as $key => $val) {
-                    list($key, $route, $var, $option, $pattern) = $val;
-                    $param                                      = [];
+                    $key     = $val['rule'];
+                    $route   = $val['route'];
+                    $var     = $val['var'];
+                    $option  = $val['option'];
+                    $pattern = $val['pattern'];
+                    $param   = [];
                     if (is_array($route)) {
                         $route = implode('\\', $route);
                     } elseif ($route instanceof \Closure) {

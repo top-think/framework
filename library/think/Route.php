@@ -267,9 +267,9 @@ class Route
         }
         $vars = self::parseVar($rule);
         if ($group) {
-            self::$rules[$type][$group][0][] = [$rule, $route, $vars, $option, $pattern];
+            self::$rules[$type][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         } else {
-            self::$rules[$type][$rule] = [$rule, $route, $vars, $option, $pattern];
+            self::$rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         }
     }
 
@@ -318,10 +318,10 @@ class Route
                 self::setGroup($name);
                 call_user_func_array($routes, []);
                 self::setGroup(null);
-                self::$rules[$type][$name][1] = '';
-                self::$rules[$type][$name][2] = self::parseVar($name);
-                self::$rules[$type][$name][3] = $option;
-                self::$rules[$type][$name][4] = $pattern;
+                self::$rules[$type][$name]['route']   = '';
+                self::$rules[$type][$name]['var']     = self::parseVar($name);
+                self::$rules[$type][$name]['option']  = $option;
+                self::$rules[$type][$name]['pattern'] = $pattern;
             } else {
                 foreach ($routes as $key => $val) {
                     if (is_numeric($key)) {
@@ -337,7 +337,7 @@ class Route
                     $vars   = self::parseVar($key);
                     $item[] = [$key, $route, $vars, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern];
                 }
-                self::$rules[$type][$name] = [$item, '', [], $option, $pattern];
+                self::$rules[$type][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
         } else {
             if ($routes instanceof \Closure) {
@@ -702,7 +702,6 @@ class Route
 
         // 获取当前请求类型的路由规则
         $rules = self::$rules[$request->method()];
-
         if (!empty(self::$rules['*'])) {
             // 合并任意请求的路由规则
             $rules = array_merge_recursive(self::$rules['*'], $rules);
@@ -721,7 +720,11 @@ class Route
         // 路由规则检测
         if (!empty($rules)) {
             foreach ($rules as $group => $val) {
-                list($rule, $route, $vars, $option, $pattern) = $val;
+                $rule    = $val['rule'];
+                $route   = $val['route'];
+                $vars    = $val['var'];
+                $option  = $val['option'];
+                $pattern = $val['pattern'];
 
                 // 参数有效性检查
                 if (!self::checkOption($option, $url, $request)) {
@@ -745,7 +748,12 @@ class Route
                     $missGroup = false;
                     // 匹配到路由分组
                     foreach ($rule as $key => $item) {
-                        list($key, $route, $vars, $option, $pattern) = $item;
+                        $key     = $item['rule'];
+                        $route   = $item['route'];
+                        $vars    = $item['var'];
+                        $option  = $item['option'];
+                        $pattern = $item['pattern'];
+
                         // 检查参数有效性
                         if (!self::checkOption($option, $url, $request)) {
                             continue;
