@@ -36,8 +36,8 @@ class Lite
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        if (substr($this->options['path'], -1) != '/') {
-            $this->options['path'] .= '/';
+        if (substr($this->options['path'], -1) != DS) {
+            $this->options['path'] .= DS;
         }
 
     }
