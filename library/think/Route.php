@@ -1004,6 +1004,8 @@ class Route
                     }
                 }
                 if ($route instanceof \Closure) {
+                    // 解析路由参数
+                    Request::instance()->param(array_merge($match, $_GET));
                     // 执行闭包
                     return ['type' => 'function', 'function' => $route, 'params' => $match];
                 }

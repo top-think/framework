@@ -25,6 +25,7 @@ return [
     'module not exists'         => '模块不存在',
     'controller not exists'     => '控制器不存在',
     'class not exists'          => '类不存在',
+    'property not exists'       => '类的属性不存在',
     'template not exists'       => '模板文件不存在',
     'illegal controller name'   => '非法的控制器名称',
     'illegal action name'       => '非法的操作名称',

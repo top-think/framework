@@ -11,6 +11,7 @@
 
 namespace think;
 
+use InvalidArgumentException;
 use think\Cache;
 use think\Db;
 use think\db\Query;
@@ -235,6 +236,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $name 字段名 留空获取全部
      * @return mixed
+     * @throws InvalidArgumentException
      */
     public function getData($name = null)
     {
@@ -243,7 +245,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif (array_key_exists($name, $this->data)) {
             return $this->data[$name];
         } else {
-            return false;
+            throw new InvalidArgumentException('property not exists:' . __CLASS__ . '->' . $name);
         }
     }
 
@@ -358,25 +360,31 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $name 名称
      * @return mixed
+     * @throws InvalidArgumentException
      */
     public function getAttr($name)
     {
-        $value = $this->getData($name);
-
-        // 检测属性获取器
-        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
-        if (method_exists($this, $method)) {
-            $value = $this->$method($value, $this->data);
-        } elseif (isset($this->type[$name])) {
-            // 类型转换
-            $value = $this->readTransform($value, $this->type[$name]);
-        } elseif (false === $value && method_exists($this, $name)) {
-            // 不存在该字段 获取关联数据
-            $value = $this->relation()->getRelation($name);
-            // 保存关联对象值
-            $this->data[$name] = $value;
+        try {
+            $value = $this->getData($name);
+            // 检测属性获取器
+            $method = 'get' . Loader::parseName($name, 1) . 'Attr';
+            if (method_exists($this, $method)) {
+                $value = $this->$method($value, $this->data);
+            } elseif (isset($this->type[$name])) {
+                // 类型转换
+                $value = $this->readTransform($value, $this->type[$name]);
+            }
+            return $value;
+        } catch (InvalidArgumentException $e) {
+            if (method_exists($this, $name) && !method_exists('\think\Model', $name)) {
+                // 不存在该字段 获取关联数据
+                $value = $this->relation()->getRelation($name);
+                // 保存关联对象值
+                $this->data[$name] = $value;
+            } else {
+                throw new InvalidArgumentException('property not exists:' . __CLASS__ . '->' . $name);
+            }
         }
-        return $value;
     }
 
     /**
