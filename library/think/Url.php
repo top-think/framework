@@ -269,8 +269,8 @@ class Url
         foreach ($rules as $group => $val) {
             list($rule, $route, $vars, $option, $pattern) = $val;
             if (is_array($rule)) {
-                foreach ($rule as $key => $item) {
-                    list($key, $route, $var, $option, $pattern) = $item;
+                foreach ($rule as $key => $ruleItem) {
+                    list($key, $route, $var, $option, $pattern) = $ruleItem;
 
                     $param = [];
                     if (is_array($route)) {
