@@ -172,7 +172,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (!is_null($relation)) {
             // 执行关联查询
-            return $this->db->relation($relation);
+            return $this->db()->relation($relation);
         }
 
         // 获取关联对象实例
@@ -578,7 +578,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检测字段
         if (!empty($this->field)) {
             if (true === $this->field) {
-                $this->field = $this->db->getTableInfo('', 'fields');
+                $this->field = $this->db()->getTableInfo('', 'fields');
             }
             foreach ($this->data as $key => $val) {
                 if (!in_array($key, $this->field)) {
