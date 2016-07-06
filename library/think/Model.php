@@ -381,6 +381,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = $this->relation()->getRelation($name);
                 // 保存关联对象值
                 $this->data[$name] = $value;
+                return $value;
             } else {
                 throw new InvalidArgumentException('property not exists:' . __CLASS__ . '->' . $name);
             }
