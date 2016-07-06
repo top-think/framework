@@ -767,36 +767,26 @@ class Route
                         $key    = $group . '/' . ltrim($key, '/');
                         $result = self::checkRule($key, $route, $url, $pattern, $option);
                         if (false !== $result) {
-                            $request->route(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
+                            $request->routeInfo(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                             return $result;
                         }
                     }
                     if ($missGroup) {
                         // 未匹配所有路由的路由规则处理
-                        if ($missGroup instanceof \Closure) {
-                            // 执行闭包
-                            return ['type' => 'function', 'function' => $missGroup, 'params' => []];
-                        } else {
-                            return self::parseRule('', $missGroup, $url, []);
-                        }
+                        return self::parseRule('', $missGroup, $url, []);
                     }
                 } else {
                     // 规则路由
                     $result = self::checkRule($rule, $route, $url, $pattern, $option);
                     if (false !== $result) {
-                        $request->route(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
+                        $request->routeInfo(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);
                         return $result;
                     }
                 }
             }
             if (isset($miss)) {
                 // 未匹配所有路由的路由规则处理
-                if ($miss instanceof \Closure) {
-                    // 执行闭包
-                    return ['type' => 'function', 'function' => $miss, 'params' => []];
-                } else {
-                    return self::parseRule('', $miss, $url, []);
-                }
+                return self::parseRule('', $miss, $url, []);
             }
         }
         return false;
@@ -1011,12 +1001,6 @@ class Route
                         return $result;
                     }
                 }
-                if ($route instanceof \Closure) {
-                    // 解析路由参数
-                    Request::instance()->param(array_merge($match, $_GET));
-                    // 执行闭包
-                    return ['type' => 'function', 'function' => $route, 'params' => $match];
-                }
                 return self::parseRule($rule, $route, $url, $match, $merge);
             }
         }
@@ -1175,33 +1159,41 @@ class Route
     private static function parseRule($rule, $route, $pathinfo, $matches, $merge = false)
     {
         // 解析路由规则
-        $rule = explode('/', $rule);
-        // 获取URL地址中的参数
-        $paths = $merge ? explode('/', $pathinfo, count($rule)) : explode('/', $pathinfo);
+        if ($rule) {
+            $rule = explode('/', $rule);
+            // 获取URL地址中的参数
+            $paths = $merge ? explode('/', $pathinfo, count($rule)) : explode('/', $pathinfo);
+            foreach ($rule as $item) {
+                $fun = '';
+                if (0 === strpos($item, '[:')) {
+                    $item = substr($item, 1, -1);
+                }
+                if (0 === strpos($item, ':')) {
+                    $var           = substr($item, 1);
+                    $matches[$var] = array_shift($paths);
+                } else {
+                    // 过滤URL中的静态变量
+                    array_shift($paths);
+                }
+            }
+        } else {
+            $paths = explode('/', $pathinfo);
+        }
         // 获取路由地址规则
         $url = is_array($route) ? $route[0] : $route;
-
-        foreach ($rule as $item) {
-            $fun = '';
-            if (0 === strpos($item, '[:')) {
-                $item = substr($item, 1, -1);
-            }
-            if (0 === strpos($item, ':')) {
-                $var           = substr($item, 1);
-                $matches[$var] = array_shift($paths);
-            } else {
-                // 过滤URL中的静态变量
-                array_shift($paths);
-            }
-        }
         // 替换路由地址中的变量
-        foreach ($matches as $key => $val) {
-            if (false !== strpos($url, ':' . $key)) {
-                $url = str_replace(':' . $key, $val, $url);
-                unset($matches[$key]);
+        if (is_string($url)) {
+            foreach ($matches as $key => $val) {
+                if (false !== strpos($url, ':' . $key)) {
+                    $url = str_replace(':' . $key, $val, $url);
+                    unset($matches[$key]);
+                }
             }
         }
-        if (0 === strpos($url, '/') || 0 === strpos($url, 'http')) {
+        if ($url instanceof \Closure) {
+            // 执行闭包
+            $result = ['type' => 'function', 'function' => $url, 'params' => $matches];
+        } elseif (0 === strpos($url, '/') || 0 === strpos($url, 'http')) {
             // 路由到重定向地址
             $result = ['type' => 'redirect', 'url' => $url, 'status' => (is_array($route) && isset($route[1])) ? $route[1] : 301];
         } elseif (0 === strpos($url, '\\')) {
@@ -1262,7 +1254,7 @@ class Route
             }
         }
         // 设置当前请求的参数
-        Request::instance()->param(array_merge($var, $_GET));
+        Request::instance()->route($var);
     }
 
     // 分析路由规则中的变量

@@ -62,7 +62,7 @@ class Request
     /**
      * @var array 当前路由信息
      */
-    protected $route = [];
+    protected $routeInfo = [];
 
     /**
      * @var array 当前调度信息
@@ -81,6 +81,7 @@ class Request
     protected $get     = [];
     protected $post    = [];
     protected $request = [];
+    protected $route   = [];
     protected $put;
     protected $delete;
     protected $session = [];
@@ -620,9 +621,25 @@ class Request
                     $vars = [];
             }
             // 当前请求参数和URL地址中的参数合并
-            $this->param = array_merge($this->get(), $vars);
+            $this->param = array_merge($this->route(), $this->get(), $vars);
         }
         return $this->input($this->param, $name, $default, $filter);
+    }
+
+    /**
+     * 设置获取获取路由参数
+     * @access public
+     * @param string|array  $name 变量名
+     * @param mixed         $default 默认值
+     * @param string|array  $filter 过滤方法
+     * @return mixed
+     */
+    public function route($name = '', $default = null, $filter = null)
+    {
+        if (is_array($name)) {
+            return $this->route = array_merge($this->route, $name);
+        }
+        return $this->input($this->route, $name, $default, $filter);
     }
 
     /**
@@ -880,25 +897,6 @@ class Request
         }
         $name = str_replace('_', '-', strtolower($name));
         return isset($this->header[$name]) ? $this->header[$name] : $default;
-    }
-
-    /**
-     * 获取PATH_INFO
-     * @param string        $name 数据名称
-     * @param string        $default 默认值
-     * @param string|array  $filter 过滤方法
-     * @return mixed
-     */
-    public function pathParam($name = '', $default = null, $filter = null)
-    {
-        $pathinfo = $this->pathinfo();
-        if (!empty($pathinfo)) {
-            $depr  = Config::get('pathinfo_depr');
-            $input = explode($depr, trim($pathinfo, $depr));
-            return $this->input($input, $name, $default, $filter);
-        } else {
-            return $default;
-        }
     }
 
     /**
@@ -1279,17 +1277,17 @@ class Request
     }
 
     /**
-     * 获取当前请求的路由
+     * 获取当前请求的路由信息
      * @access public
      * @param array $route 路由名称
      * @return array
      */
-    public function route($route = [])
+    public function routeInfo($route = [])
     {
         if (!empty($route)) {
-            $this->route = $route;
+            $this->routeInfo = $route;
         } else {
-            return $this->route;
+            return $this->routeInfo;
         }
     }
 
