@@ -269,6 +269,9 @@ class Route
         if ($group) {
             self::$rules[$type][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         } else {
+            if ('*' != $type && isset(self::$rules['*'][$rule])) {
+                unset(self::$rules['*'][$rule]);
+            }
             self::$rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         }
     }
