@@ -273,6 +273,12 @@ class Route
                 unset(self::$rules['*'][$rule]);
             }
             self::$rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
+            if ('*' == $type) {
+                // 注册路由快捷方式
+                foreach (['GET', 'POST', 'PUT', 'DELETE'] as $method) {
+                    self::$rules[$method][$rule] = true;
+                }
+            }
         }
     }
 
@@ -325,6 +331,7 @@ class Route
                 self::$rules[$type][$name]['var']     = self::parseVar($name);
                 self::$rules[$type][$name]['option']  = $option;
                 self::$rules[$type][$name]['pattern'] = $pattern;
+
             } else {
                 foreach ($routes as $key => $val) {
                     if (is_numeric($key)) {
@@ -341,6 +348,15 @@ class Route
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => isset($option1) ? $option1 : $option, 'pattern' => isset($pattern1) ? $pattern1 : $pattern];
                 }
                 self::$rules[$type][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
+            }
+            if ('*' == $type) {
+                foreach (['GET', 'POST', 'PUT', 'DELETE'] as $method) {
+                    if (!isset(self::$rules[$method][$name])) {
+                        self::$rules[$method][$name] = true;
+                    } else {
+                        self::$rules[$method][$name] = array_merge(self::$rules[$method][$name], self::$rules['*'][$name]);
+                    }
+                }
             }
         } else {
             if ($routes instanceof \Closure) {
@@ -701,10 +717,6 @@ class Route
 
         // 获取当前请求类型的路由规则
         $rules = self::$rules[$request->method()];
-        if (!empty(self::$rules['*'])) {
-            // 合并任意请求的路由规则
-            $rules = array_merge_recursive(self::$rules['*'], $rules);
-        }
 
         // 检测域名部署
         if ($checkDomain) {
@@ -719,6 +731,9 @@ class Route
         // 路由规则检测
         if (!empty($rules)) {
             foreach ($rules as $group => $val) {
+                if (true === $val) {
+                    $val = self::$rules['*'][$group];
+                }
                 $rule    = $val['rule'];
                 $route   = $val['route'];
                 $vars    = $val['var'];

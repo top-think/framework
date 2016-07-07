@@ -266,8 +266,12 @@ class Url
         }
         // 获取路由定义
         $array = Route::getRules();
+        unset($array['*']);
         foreach ($array as $type => $rules) {
             foreach ($rules as $group => $val) {
+                if (true === $val) {
+                    continue;
+                }
                 $rule    = $val['rule'];
                 $route   = $val['route'];
                 $vars    = $val['var'];
