@@ -265,21 +265,35 @@ class Url
             return $item;
         }
         // 获取路由定义
-        $rules = Route::getRules();
-        foreach ($rules as $group => $val) {
-            $rule    = $val['rule'];
-            $route   = $val['route'];
-            $vars    = $val['var'];
-            $option  = $val['option'];
-            $pattern = $val['pattern'];
-            if (is_array($rule)) {
-                foreach ($rule as $key => $val) {
-                    $key     = $val['rule'];
-                    $route   = $val['route'];
-                    $var     = $val['var'];
-                    $option  = $val['option'];
-                    $pattern = $val['pattern'];
-                    $param   = [];
+        $array = Route::getRules();
+        foreach ($array as $type => $rules) {
+            foreach ($rules as $group => $val) {
+                $rule    = $val['rule'];
+                $route   = $val['route'];
+                $vars    = $val['var'];
+                $option  = $val['option'];
+                $pattern = $val['pattern'];
+                if (is_array($rule)) {
+                    foreach ($rule as $key => $val) {
+                        $key     = $val['rule'];
+                        $route   = $val['route'];
+                        $var     = $val['var'];
+                        $option  = $val['option'];
+                        $pattern = $val['pattern'];
+                        $param   = [];
+                        if (is_array($route)) {
+                            $route = implode('\\', $route);
+                        } elseif ($route instanceof \Closure) {
+                            continue;
+                        } elseif (strpos($route, '?')) {
+                            list($route, $str) = explode('?', $route, 2);
+                            parse_str($str, $param);
+                        }
+                        $var            = array_merge($vars, $var);
+                        $item[$route][] = [$group . '/' . $key, $var, $param];
+                    }
+                } else {
+                    $param = [];
                     if (is_array($route)) {
                         $route = implode('\\', $route);
                     } elseif ($route instanceof \Closure) {
@@ -288,20 +302,8 @@ class Url
                         list($route, $str) = explode('?', $route, 2);
                         parse_str($str, $param);
                     }
-                    $var            = array_merge($vars, $var);
-                    $item[$route][] = [$group . '/' . $key, $var, $param];
+                    $item[$route][] = [$rule, $vars, $param];
                 }
-            } else {
-                $param = [];
-                if (is_array($route)) {
-                    $route = implode('\\', $route);
-                } elseif ($route instanceof \Closure) {
-                    continue;
-                } elseif (strpos($route, '?')) {
-                    list($route, $str) = explode('?', $route, 2);
-                    parse_str($str, $param);
-                }
-                $item[$route][] = [$rule, $vars, $param];
             }
         }
 

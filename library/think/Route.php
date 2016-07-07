@@ -554,11 +554,7 @@ class Route
      */
     public static function getRules($method = '')
     {
-        if ($method) {
-            return self::$rules[$method];
-        } else {
-            return array_merge_recursive(self::$rules['*'], self::$rules['GET'], self::$rules['POST'], self::$rules['PUT'], self::$rules['DELETE']);
-        }
+        return $method ? self::$rules[$method] : self::$rules;
     }
 
     /**
