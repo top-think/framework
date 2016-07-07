@@ -53,7 +53,6 @@ class loaderTest extends \PHPUnit_Framework_TestCase
 
     public function testImport()
     {
-        $this->assertEquals(true, Loader::import('think.log.driver.Sae'));
         $this->assertEquals(false, Loader::import('think.log.driver.MyTest'));
     }
 
