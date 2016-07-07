@@ -275,7 +275,7 @@ class Route
             self::$rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
             if ('*' == $type) {
                 // 注册路由快捷方式
-                foreach (['GET', 'POST', 'PUT', 'DELETE'] as $method) {
+                foreach (['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'] as $method) {
                     self::$rules[$method][$rule] = true;
                 }
             }
@@ -350,11 +350,11 @@ class Route
                 self::$rules[$type][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
             if ('*' == $type) {
-                foreach (['GET', 'POST', 'PUT', 'DELETE'] as $method) {
+                foreach (['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'] as $method) {
                     if (!isset(self::$rules[$method][$name])) {
                         self::$rules[$method][$name] = true;
                     } else {
-                        self::$rules[$method][$name] = array_merge(self::$rules[$method][$name], self::$rules['*'][$name]);
+                        self::$rules[$method][$name] = array_merge(self::$rules['*'][$name], self::$rules[$method][$name]);
                     }
                 }
             }
@@ -730,11 +730,10 @@ class Route
 
         // 路由规则检测
         if (!empty($rules)) {
-            foreach ($rules as $group => $val) {
+            foreach ($rules as $rule => $val) {
                 if (true === $val) {
-                    $val = self::$rules['*'][$group];
+                    $val = self::$rules['*'][$rule];
                 }
-                $rule    = $val['rule'];
                 $route   = $val['route'];
                 $vars    = $val['var'];
                 $option  = $val['option'];
@@ -749,19 +748,19 @@ class Route
                     $miss = $route;
                     continue;
                 }
-                if (is_array($rule)) {
+                if (is_array($val['rule'])) {
                     // 分组路由
-                    if (($pos = strpos($group, ':')) || ($pos = strpos($group, '<'))) {
-                        $str = substr($group, 0, $pos);
+                    if (($pos = strpos($rule, ':')) || ($pos = strpos($rule, '<'))) {
+                        $str = substr($rule, 0, $pos);
                     } else {
-                        $str = $group;
+                        $str = $rule;
                     }
                     if (0 !== strpos($url, $str)) {
                         continue;
                     }
                     $missGroup = false;
                     // 匹配到路由分组
-                    foreach ($rule as $key => $item) {
+                    foreach ($val['rule'] as $item) {
                         $key     = $item['rule'];
                         $route   = $item['route'];
                         $vars    = $item['var'];
@@ -778,7 +777,7 @@ class Route
                             $missGroup = $item;
                             continue;
                         }
-                        $key    = $group . '/' . ltrim($key, '/');
+                        $key    = $rule . '/' . ltrim($key, '/');
                         $result = self::checkRule($key, $route, $url, $pattern, $option);
                         if (false !== $result) {
                             $request->routeInfo(['rule' => $key, 'route' => $route, 'pattern' => $pattern, 'option' => $option]);

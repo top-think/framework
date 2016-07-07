@@ -266,25 +266,19 @@ class Url
         }
         // 获取路由定义
         $array = Route::getRules();
-        unset($array['*']);
         foreach ($array as $type => $rules) {
-            foreach ($rules as $group => $val) {
-                if (true === $val) {
+            foreach ($rules as $rule => $val) {
+                if (true === $val || empty($val['rule'])) {
                     continue;
                 }
-                $rule    = $val['rule'];
-                $route   = $val['route'];
-                $vars    = $val['var'];
-                $option  = $val['option'];
-                $pattern = $val['pattern'];
-                if (is_array($rule)) {
-                    foreach ($rule as $key => $val) {
-                        $key     = $val['rule'];
-                        $route   = $val['route'];
-                        $var     = $val['var'];
-                        $option  = $val['option'];
-                        $pattern = $val['pattern'];
-                        $param   = [];
+                $route = $val['route'];
+                $vars  = $val['var'];
+                if (is_array($val['rule'])) {
+                    foreach ($val['rule'] as $val) {
+                        $key   = $val['rule'];
+                        $route = $val['route'];
+                        $var   = $val['var'];
+                        $param = [];
                         if (is_array($route)) {
                             $route = implode('\\', $route);
                         } elseif ($route instanceof \Closure) {
@@ -294,7 +288,7 @@ class Url
                             parse_str($str, $param);
                         }
                         $var            = array_merge($vars, $var);
-                        $item[$route][] = [$group . '/' . $key, $var, $param];
+                        $item[$route][] = [$rule . '/' . $key, $var, $param];
                     }
                 } else {
                     $param = [];
