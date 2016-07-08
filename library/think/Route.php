@@ -727,11 +727,6 @@ class Route
                 continue;
             }
 
-            if ('__miss__' == $key) {
-                // 指定MISS路由
-                $miss = $item;
-                continue;
-            }
             if (is_array($rule)) {
                 // 分组路由
                 if (($pos = strpos($key, ':')) || ($pos = strpos($key, '<'))) {
@@ -748,6 +743,11 @@ class Route
                     return $result;
                 }
             } else {
+                if ('__miss__' == $rule) {
+                    // 指定MISS路由
+                    $miss = $item;
+                    continue;
+                }
                 if ($group) {
                     $rule = $group . '/' . ltrim($rule, '/');
                 }
