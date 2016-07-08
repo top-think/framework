@@ -11,6 +11,7 @@
 
 namespace think;
 
+use SplFileInfo;
 use SplFileObject;
 
 class File extends SplFileObject
@@ -157,7 +158,7 @@ class File extends SplFileObject
             return false;
         }
 
-        return new \SplFileInfo($path . $savename);
+        return new SplFileInfo($path . $savename);
     }
 
     /**
