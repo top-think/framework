@@ -748,7 +748,6 @@ class Route
                 }
                 $result = self::checkRule($rule, $route, $url, $pattern, $option);
                 if (false !== $result) {
-                    $request->routeInfo(['rule' => $rule, 'route' => $route, 'pattern' => $pattern, 'option' => $option, 'var' => $request->route()]);
                     return $result;
                 }
             }
@@ -1192,6 +1191,8 @@ class Route
         }
         // 解析额外参数
         self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
+        // 记录匹配的路由信息
+        Request::instance()->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option]);
         return $result;
     }
 
