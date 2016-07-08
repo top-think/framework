@@ -712,7 +712,6 @@ class Route
      */
     private static function checkRoute($request, $rules, $url, $group = '')
     {
-        // 匹配到路由分组
         foreach ($rules as $key => $item) {
             if (true === $item) {
                 $item = self::$rules['*'][$key];
@@ -728,8 +727,8 @@ class Route
                 continue;
             }
 
-            if ('__miss__' == $rule) {
-                // 指定分组MISS路由
+            if ('__miss__' == $key) {
+                // 指定MISS路由
                 $miss = $item;
                 continue;
             }
