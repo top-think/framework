@@ -39,7 +39,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::any('user/:id', 'index/user');
         $result = Route::check($request, 'hello/thinkphp');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
-        $this->assertEquals(['hello/:name' => ['hello/:name', 'index/hello', ['name' => 1], [], []]], Route::getRules('GET'));
+        $this->assertEquals(['hello' => true, 'user/:id' => true, 'hello/:name' => ['rule' => 'hello/:name', 'route' => 'index/hello', 'var' => ['name' => 1], 'option' => [], 'pattern' => []]], Route::rules('GET'));
         Route::rule('type/:name', 'index/type', 'PUT|POST');
     }
 
@@ -76,15 +76,6 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $result = Route::check($request, 'res/8');
         $this->assertEquals(['index', 'blog', 'look'], $result['module']);
 
-    }
-
-    public function testRouteMap()
-    {
-        $request = Request::instance();
-        Route::map('hello', 'index/hello');
-        $this->assertEquals('index/hello', Route::map('hello'));
-        $result = Route::check($request, 'hello');
-        $this->assertEquals([null, 'index', 'hello'], $result['module']);
     }
 
     public function testMixVar()
@@ -137,7 +128,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::group('group', [':id' => 'index/hello', ':name' => 'index/say']);
         $this->assertEquals(false, Route::check($request, 'empty/think'));
         $result = Route::check($request, 'group/think');
-        $this->assertEquals([null, 'index', 'say'], $result['module']);
+        $this->assertEquals(false, $result['module']);
         $result = Route::check($request, 'group/10');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
         $result = Route::check($request, 'group/thinkphp');
@@ -203,7 +194,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $request = Request::create('http://subdomain.thinkphp.cn');
         Route::domain('subdomain.thinkphp.cn', 'sub?abc=test&status=1');
         Route::checkDomain($request);
-        $this->assertEquals('sub?abc=test&status=1', Route::domain('subdomain.thinkphp.cn'));
+        $this->assertEquals('sub?abc=test&status=1', Route::rules('domain')['subdomain.thinkphp.cn']);
         $this->assertEquals('sub', Route::getbind('module'));
         $this->assertEquals('test', $_GET['abc']);
         $this->assertEquals(1, $_GET['status']);
