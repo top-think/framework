@@ -47,4 +47,8 @@ class memcachedTest extends cacheTestCase
     public function testExpire()
     {
     }
+
+    public function testStaticCall()
+    {
+    }
 }
