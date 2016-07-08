@@ -129,19 +129,19 @@ class Route
     {
         // 检查域名部署
         if (isset($rule['__domain__'])) {
-            self::$rules['domain'] = $rule['__domain__'];
+            self::domain($rule['__domain__']);
             unset($rule['__domain__']);
         }
 
         // 检查变量规则
         if (isset($rule['__pattern__'])) {
-            self::$rules['pattern'] = $rule['__pattern__'];
+            self::pattern($rule['__pattern__']);
             unset($rule['__pattern__']);
         }
 
         // 检查路由别名
         if (isset($rule['__alias__'])) {
-            self::$rules['alias'] = $rule['__alias__'];
+            self::alias($rule['__alias__']);
             unset($rule['__alias__']);
         }
 
