@@ -686,12 +686,7 @@ class Route
             if (true === $rule) {
                 $rule = self::$rules['*'][$url];
             }
-            if (!empty($rule['option']['complete_match'])) {
-                // 是否完整匹配
-                return self::parseRule($url, $rule['route'], $url);
-            } else {
-                return self::checkRule($url, $rule['route'], $url, [], $rule['option']);
-            }
+            return self::parseRule($url, $rule['route'], $url, $rule['option']);
         }
 
         // 路由规则检测
@@ -968,26 +963,7 @@ class Route
             $pattern = array_merge(self::$rules['pattern'], $pattern);
             if (false !== $match = self::match($url, $rule, $pattern, $merge)) {
                 // 匹配到路由规则
-                // 检测是否定义路由
-                if (!empty($option['after_behavior'])) {
-                    if ($option['after_behavior'] instanceof \Closure) {
-                        $result = call_user_func_array($option['after_behavior'], [$route]);
-                    } else {
-                        foreach ((array) $option['after_behavior'] as $behavior) {
-                            $result = Hook::exec($behavior, '', $route);
-                            if (!is_null($result)) {
-                                break;
-                            }
-                        }
-                    }
-                    // 路由规则重定向
-                    if ($result instanceof Response) {
-                        return ['type' => 'response', 'response' => $result, 'params' => $match];
-                    } elseif (is_array($result)) {
-                        return $result;
-                    }
-                }
-                return self::parseRule($rule, $route, $url, $match, $merge);
+                return self::parseRule($rule, $route, $url, $option, $match, $merge);
             }
         }
         return false;
@@ -1138,12 +1114,33 @@ class Route
      * @param string    $rule 路由规则
      * @param string    $route 路由地址
      * @param string    $pathinfo URL地址
+     * @param array     $option 路由参数
      * @param array     $matches 匹配的变量
      * @param bool      $merge 合并额外变量
      * @return array
      */
-    private static function parseRule($rule, $route, $pathinfo, $matches = [], $merge = false)
+    private static function parseRule($rule, $route, $pathinfo, $option = [], $matches = [], $merge = false)
     {
+        // 检测是否定义路由
+        if (!empty($option['after_behavior'])) {
+            if ($option['after_behavior'] instanceof \Closure) {
+                $result = call_user_func_array($option['after_behavior'], [$route]);
+            } else {
+                foreach ((array) $option['after_behavior'] as $behavior) {
+                    $result = Hook::exec($behavior, '', $route);
+                    if (!is_null($result)) {
+                        break;
+                    }
+                }
+            }
+            // 路由规则重定向
+            if ($result instanceof Response) {
+                return ['type' => 'response', 'response' => $result, 'params' => $matches];
+            } elseif (is_array($result)) {
+                return $result;
+            }
+        }
+
         // 解析路由规则
         if ($rule) {
             $rule = explode('/', $rule);
