@@ -478,11 +478,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function toArray($allow = [])
     {
         $item = [];
-        if (!empty($this->append)) {
-            foreach ($this->append as $name) {
-                $item[$name] = $this->getAttr($name);
-            }
-        }
         if (empty($allow)) {
             $allow = array_keys($this->data);
         }
@@ -506,6 +501,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             } else {
                 // 模型属性
                 $item[$key] = $this->getAttr($key);
+            }
+        }
+        // 追加属性（必须定义获取器）
+        if (!empty($this->append)) {
+            foreach ($this->append as $name) {
+                $item[$name] = $this->getAttr($name);
             }
         }
         return !empty($item) ? $item : [];
