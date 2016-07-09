@@ -472,9 +472,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 转换当前模型对象为数组
      * @access public
+     * @param array $allow 允许输出的属性列表
      * @return array
      */
-    public function toArray()
+    public function toArray($allow = [])
     {
         $item = [];
         if (!empty($this->append)) {
@@ -482,9 +483,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $item[$name] = $this->getAttr($name);
             }
         }
+        if (empty($allow)) {
+            $allow = array_keys($this->data);
+        }
+        $allow = array_diff($allow, $this->hidden);
         foreach ($this->data as $key => $val) {
-            // 如果是隐藏属性不输出
-            if (in_array($key, $this->hidden)) {
+            // 属性过滤输出
+            if (!in_array($key, $allow)) {
                 continue;
             }
 
@@ -509,12 +514,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 转换当前模型对象为JSON字符串
      * @access public
-     * @param integer $options json参数
+     * @param array     $allow 允许输出的属性列表
+     * @param integer   $options json参数
      * @return string
      */
-    public function toJson($options = JSON_UNESCAPED_UNICODE)
+    public function toJson($allow = [], $options = JSON_UNESCAPED_UNICODE)
     {
-        return json_encode($this->toArray(), $options);
+        return json_encode($this->toArray($allow), $options);
     }
 
     /**
