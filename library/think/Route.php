@@ -199,7 +199,7 @@ class Route
                 if (is_array($val)) {
                     $route    = $val[0];
                     $option1  = array_merge($option, $val[1]);
-                    $pattern1 = array_merege($pattern, isset($val[2]) ? $val[2] : []);
+                    $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
                 } else {
                     $route = $val;
                 }
