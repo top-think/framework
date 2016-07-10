@@ -51,7 +51,7 @@ class Collection extends \think\Collection
         return $this->paginator;
     }
 
-    public function toArray()
+    public function toArray($allow = [])
     {
         if ($this->paginator) {
             try {
@@ -64,10 +64,10 @@ class Collection extends \think\Collection
                 'total'        => $total,
                 'per_page'     => $this->listRows(),
                 'current_page' => $this->currentPage(),
-                'data'         => parent::toArray()
+                'data'         => parent::toArray($allow)
             ];
         } else {
-            return parent::toArray();
+            return parent::toArray($allow);
         }
     }
 
