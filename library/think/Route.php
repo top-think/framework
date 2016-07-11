@@ -754,7 +754,7 @@ class Route
         }
         if (isset($miss)) {
             // 未匹配所有路由的路由规则处理
-            return self::parseRule('', $miss['route'], $url);
+            return self::parseRule('', $miss['route'], $url, $miss['option']);
         }
         return false;
     }
