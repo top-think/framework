@@ -12,46 +12,16 @@
 namespace think\console\command;
 
 use think\App;
-use think\console\Input;
-use think\console\input\Argument;
-use think\console\input\Option;
-use think\console\Output;
+use think\Exception;
 
 class Make extends Command
 {
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
-    {
-        $this
-            ->setName('make')
-            ->setDescription('Create a new applcation class')
-            ->addArgument('namespace', Argument::REQUIRED)
-            ->addOption('layer', 'l', Option::VALUE_OPTIONAL, 'Layer Name', null)
-            ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Extend Base class', null);
-    }
-
-    protected function execute(Input $input, Output $output)
-    {
-        $namespace = $input->getArgument('namespace');
-        $extend    = $input->getOption('extend');
-        if (!$layer = $input->getOption('layer')) {
-            // 自动识别layer
-            $item  = explode('\\', $namespace);
-            $layer = basename(dirname(implode(DS, $item)));
-        }
-
-        $result = $this->getResult($layer, $namespace, '', $extend);
-        $output->writeln("output:" . $result);
-    }
 
     // 创建文件
     protected static function buildFile($file, $content)
     {
         if (is_file($file)) {
-            exception('file already exists');
+            throw new Exception('file already exists');
         }
 
         if (!is_dir(dirname($file))) {
