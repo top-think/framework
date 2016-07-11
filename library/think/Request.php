@@ -692,7 +692,12 @@ class Request
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
         }
         if (is_null($this->put)) {
-            parse_str(file_get_contents('php://input'), $this->put);
+            $content = file_get_contents('php://input');
+            if (strpos($content, '":')) {
+                $this->put = json_decode($content, true);
+            } else {
+                parse_str($content, $this->put);
+            }
         }
         return false === $name ? $this->put : $this->input($this->put, $name, $default, $filter);
     }
