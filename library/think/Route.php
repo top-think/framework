@@ -754,7 +754,7 @@ class Route
         }
         if (isset($miss)) {
             // 未匹配所有路由的路由规则处理
-            return self::parseRule('', $miss, $url);
+            return self::parseRule('', $miss['route'], $url);
         }
         return false;
     }
@@ -1162,7 +1162,7 @@ class Route
             $paths = explode('/', $pathinfo);
         }
         // 获取路由地址规则
-        $url = is_array($route) ? $route[0] : $route;
+        $url = $route;
         // 替换路由地址中的变量
         if (is_string($url) && !empty($matches)) {
             foreach ($matches as $key => $val) {
@@ -1177,7 +1177,7 @@ class Route
             $result = ['type' => 'function', 'function' => $url, 'params' => $matches];
         } elseif (0 === strpos($url, '/') || 0 === strpos($url, 'http')) {
             // 路由到重定向地址
-            $result = ['type' => 'redirect', 'url' => $url, 'status' => (is_array($route) && isset($route[1])) ? $route[1] : 301];
+            $result = ['type' => 'redirect', 'url' => $url, 'status' => isset($option['status']) ? $option['status'] : 301];
         } elseif (0 === strpos($url, '\\')) {
             // 路由到方法
             $method = strpos($url, '@') ? explode('@', $url) : $url;
