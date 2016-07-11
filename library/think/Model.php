@@ -62,6 +62,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     // 字段属性
     protected $field = [];
+    // 显示属性
+    protected $visible = [];
     // 隐藏属性
     protected $hidden = [];
     // 追加属性
@@ -470,34 +472,45 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置需要输出的属性
+     * @param array $visible
+     * @return $this
+     */
+    public function visible($visible = [])
+    {
+        $this->visible = $visible;
+        return $this;
+    }
+
+    /**
      * 转换当前模型对象为数组
      * @access public
-     * @param array $allow 允许输出的属性列表
      * @return array
      */
-    public function toArray($allow = [])
+    public function toArray()
     {
         $item = [];
-        if (empty($allow)) {
-            $allow = array_keys($this->data);
-        }
-        $allow = array_diff($allow, $this->hidden);
-        foreach ($this->data as $key => $val) {
-            // 属性过滤输出
-            if (!in_array($key, $allow)) {
-                continue;
-            }
 
+        //过滤属性
+        if (!empty($this->visible)) {
+            $data = array_intersect_key($this->data, array_flip($this->visible));
+        } elseif (!empty($this->hidden)) {
+            $data = array_diff_key($this->data, array_flip($this->hidden));
+        } else {
+            $data = $this->data;
+        }
+
+        foreach ($data as $key => $val) {
             if ($val instanceof Model || $val instanceof Collection) {
                 // 关联模型对象
                 $item[$key] = $val->toArray();
             } elseif (is_array($val) && reset($val) instanceof Model) {
                 // 关联模型数据集
-                $data = [];
+                $arr = [];
                 foreach ($val as $k => $value) {
-                    $data[$k] = $value->toArray();
+                    $arr[$k] = $value->toArray();
                 }
-                $item[$key] = $data;
+                $item[$key] = $arr;
             } else {
                 // 模型属性
                 $item[$key] = $this->getAttr($key);
@@ -515,13 +528,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 转换当前模型对象为JSON字符串
      * @access public
-     * @param array     $allow 允许输出的属性列表
      * @param integer   $options json参数
      * @return string
      */
-    public function toJson($allow = [], $options = JSON_UNESCAPED_UNICODE)
+    public function toJson($options = JSON_UNESCAPED_UNICODE)
     {
-        return json_encode($this->toArray($allow), $options);
+        return json_encode($this->toArray(), $options);
     }
 
     /**

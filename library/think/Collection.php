@@ -40,10 +40,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return empty($this->items);
     }
 
-    public function toArray($allow = [])
+    public function toArray()
     {
-        return array_map(function ($value) use ($allow) {
-            return ($value instanceof Model || $value instanceof self) ? $value->toArray($allow) : $value;
+        return array_map(function ($value) {
+            return ($value instanceof Model || $value instanceof self) ? $value->toArray() : $value;
         }, $this->items);
     }
 
@@ -344,13 +344,12 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 转换当前数据集为JSON字符串
      * @access public
-     * @param array   $allow   允许输出的属性列表
      * @param integer $options json参数
      * @return string
      */
-    public function toJson($allow = [], $options = JSON_UNESCAPED_UNICODE)
+    public function toJson($options = JSON_UNESCAPED_UNICODE)
     {
-        return json_encode($this->toArray($allow), $options);
+        return json_encode($this->toArray(), $options);
     }
 
     public function __toString()
