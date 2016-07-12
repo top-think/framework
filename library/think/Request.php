@@ -623,7 +623,7 @@ class Request
             // 当前请求参数和URL地址中的参数合并
             $this->param = array_merge($this->route(false), $this->get(false), $vars);
         }
-        return false === $name ? $this->param : $this->input($this->param, $name, $default, $filter);
+        return $this->input($this->param, $name, $default, $filter);
     }
 
     /**
@@ -639,7 +639,7 @@ class Request
         if (is_array($name)) {
             return $this->route = array_merge($this->route, $name);
         }
-        return false === $name ? $this->route : $this->input($this->route, $name, $default, $filter);
+        return $this->input($this->route, $name, $default, $filter);
     }
 
     /**
@@ -657,7 +657,7 @@ class Request
         } elseif (empty($this->get)) {
             $this->get = $_GET;
         }
-        return false === $name ? $this->get : $this->input($this->get, $name, $default, $filter);
+        return $this->input($this->get, $name, $default, $filter);
     }
 
     /**
@@ -675,7 +675,7 @@ class Request
         } elseif (empty($this->post)) {
             $this->post = $_POST;
         }
-        return false === $name ? $this->post : $this->input($this->post, $name, $default, $filter);
+        return $this->input($this->post, $name, $default, $filter);
     }
 
     /**
@@ -699,7 +699,7 @@ class Request
                 parse_str($content, $this->put);
             }
         }
-        return false === $name ? $this->put : $this->input($this->put, $name, $default, $filter);
+        return $this->input($this->put, $name, $default, $filter);
     }
 
     /**
@@ -718,7 +718,7 @@ class Request
         if (is_null($this->delete)) {
             parse_str(file_get_contents('php://input'), $this->delete);
         }
-        return false === $name ? $this->delete : $this->input($this->delete, $name, $default, $filter);
+        return $this->input($this->delete, $name, $default, $filter);
     }
 
     /**
@@ -735,7 +735,7 @@ class Request
         } elseif (empty($this->request)) {
             $this->request = $_REQUEST;
         }
-        return false === $name ? $this->request : $this->input($this->request ?: $_REQUEST, $name, $default, $filter);
+        return $this->input($this->request ?: $_REQUEST, $name, $default, $filter);
     }
 
     /**
@@ -753,7 +753,7 @@ class Request
         } elseif (empty($this->session)) {
             $this->session = Session::get();
         }
-        return false === $name ? $this->session : $this->input($this->session, $name, $default, $filter);
+        return $this->input($this->session, $name, $default, $filter);
     }
 
     /**
@@ -771,7 +771,7 @@ class Request
         } elseif (empty($this->cookie)) {
             $this->cookie = $_COOKIE;
         }
-        return false === $name ? $this->cookie : $this->input($this->cookie, $name, $default, $filter);
+        return $this->input($this->cookie, $name, $default, $filter);
     }
 
     /**
@@ -789,7 +789,7 @@ class Request
         } elseif (empty($this->server)) {
             $this->server = $_SERVER;
         }
-        return false === $name ? $this->server : $this->input($this->server, $name, $default, $filter);
+        return $this->input($this->server, false === $name ? false : strtoupper($name), $default, $filter);
     }
 
     /**
@@ -865,7 +865,7 @@ class Request
         } elseif (empty($this->env)) {
             $this->env = $_ENV;
         }
-        return false === $name ? $this->env : $this->input($this->env, strtoupper($name), $default, $filter);
+        return $this->input($this->env, false === $name ? false : strtoupper($name), $default, $filter);
     }
 
     /**
@@ -906,13 +906,17 @@ class Request
     /**
      * 获取变量 支持过滤和默认值
      * @param array         $data 数据源
-     * @param string        $name 字段名
+     * @param string|false  $name 字段名
      * @param mixed         $default 默认值
      * @param string|array  $filter 过滤函数
      * @return mixed
      */
     public function input($data = [], $name = '', $default = null, $filter = null)
     {
+        if (false === $name) {
+            // 获取原始数据
+            return $data;
+        }
         $name = (string) $name;
         if ('' != $name) {
             // 解析name
