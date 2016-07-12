@@ -57,7 +57,7 @@ class Build
         foreach ($list as $dir) {
             if (!is_dir(APP_PATH . $dir)) {
                 // 创建目录
-                mkdir(APP_PATH . $dir, 0777, true);
+                mkdir(APP_PATH . $dir, 0644, true);
             }
         }
     }
@@ -73,7 +73,7 @@ class Build
         foreach ($list as $file) {
             if (!is_dir(APP_PATH . dirname($file))) {
                 // 创建目录
-                mkdir(APP_PATH . dirname($file), 0777, true);
+                mkdir(APP_PATH . dirname($file), 0644, true);
             }
             if (!is_file(APP_PATH . $file)) {
                 file_put_contents(APP_PATH . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
@@ -118,7 +118,7 @@ class Build
                 foreach ($file as $dir) {
                     if (!is_dir($modulePath . $dir)) {
                         // 创建目录
-                        mkdir($modulePath . $dir, 0777, true);
+                        mkdir($modulePath . $dir, 0644, true);
                     }
                 }
             } elseif ('__file__' == $path) {
@@ -146,7 +146,7 @@ class Build
                             $filename = $modulePath . $path . DS . $val . '.html';
                             if (!is_dir(dirname($filename))) {
                                 // 创建目录
-                                mkdir(dirname($filename), 0777, true);
+                                mkdir(dirname($filename), 0644, true);
                             }
                             $content = '';
                             break;
@@ -178,7 +178,7 @@ class Build
             $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
             $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', $suffix ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
-                mkdir(dirname($filename), 0777, true);
+                mkdir(dirname($filename), 0644, true);
             }
             file_put_contents($filename, $content);
         }
