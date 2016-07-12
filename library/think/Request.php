@@ -809,44 +809,43 @@ class Request
         if (!empty($files)) {
             // 处理上传文件
             $array = [];
-            $n     = 0;
             foreach ($files as $key => $file) {
                 if (is_array($file['name'])) {
+                    $item  = [];
                     $keys  = array_keys($file);
                     $count = count($file['name']);
                     for ($i = 0; $i < $count; $i++) {
-                        $array[$n]['key'] = $key;
-                        foreach ($keys as $_key) {
-                            $array[$n][$_key] = $file[$_key][$i];
-                        }
-                        $n++;
-                    }
-                } else {
-                    $array = $files;
-                    break;
-                }
-            }
-
-            if ('' === $name) {
-                // 获取全部文件
-                $item = [];
-                foreach ($array as $key => $val) {
-                    if ($val instanceof File) {
-                        $item[$key] = $val;
-                    } else {
-                        if (empty($val['tmp_name'])) {
+                        if (empty($file['tmp_name'][$i])) {
                             continue;
                         }
-                        $item[$key] = (new File($val['tmp_name']))->setUploadInfo($val);
+                        $temp['key'] = $key;
+                        foreach ($keys as $_key) {
+                            $temp[$_key] = $file[$_key][$i];
+                        }
+                        $item[] = (new File($temp['tmp_name']))->setUploadInfo($temp);
+                    }
+                    $array[$key] = $item;
+                } else {
+                    if ($file instanceof File) {
+                        $array[$key] = $file;
+                    } else {
+                        if (empty($file['tmp_name'])) {
+                            continue;
+                        }
+                        $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
                     }
                 }
-                return $item;
+            }
+            if (strpos($name, '.')) {
+                list($name, $sub) = explode('.', $name);
+            }
+            if ('' === $name) {
+                // 获取全部文件
+                return $array;
+            } elseif (isset($sub) && isset($array[$name][$sub])) {
+                return $array[$name][$sub];
             } elseif (isset($array[$name])) {
-                if ($array[$name] instanceof File) {
-                    return $array[$name];
-                } elseif (!empty($array[$name]['tmp_name'])) {
-                    return (new File($array[$name]['tmp_name']))->setUploadInfo($array[$name]);
-                }
+                return $array[$name];
             }
         }
         return null;
