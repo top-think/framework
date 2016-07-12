@@ -11,12 +11,13 @@
 
 namespace think\console\command\make;
 
+use think\console\command\Make;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 
-class Controller extends \think\console\command\Make
+class Controller extends Make
 {
     /**
      * {@inheritdoc}
