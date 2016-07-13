@@ -21,7 +21,7 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public static function run(array $build = [], $namespace = 'app', $suffix = false )
+    public static function run(array $build = [], $namespace = 'app', $suffix = false)
     {
         // 锁定
         $lockfile = APP_PATH . 'build.lock';
@@ -57,7 +57,7 @@ class Build
         foreach ($list as $dir) {
             if (!is_dir(APP_PATH . $dir)) {
                 // 创建目录
-                mkdir(APP_PATH . $dir, 0644, true);
+                mkdir(APP_PATH . $dir, 0666, true);
             }
         }
     }
@@ -73,7 +73,7 @@ class Build
         foreach ($list as $file) {
             if (!is_dir(APP_PATH . dirname($file))) {
                 // 创建目录
-                mkdir(APP_PATH . dirname($file), 0644, true);
+                mkdir(APP_PATH . dirname($file), 0666, true);
             }
             if (!is_file(APP_PATH . $file)) {
                 file_put_contents(APP_PATH . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
@@ -131,10 +131,10 @@ class Build
             } else {
                 // 生成相关MVC文件
                 foreach ($file as $val) {
-                    $val       = trim($val);
-                    $filename  = $modulePath . $path . DS . $val . ($suffix ? ucfirst($path) : '') . EXT;
-                    $space     = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
-                    $class     = $val . ($suffix ? ucfirst($path) : '');
+                    $val      = trim($val);
+                    $filename = $modulePath . $path . DS . $val . ($suffix ? ucfirst($path) : '') . EXT;
+                    $space    = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
+                    $class    = $val . ($suffix ? ucfirst($path) : '');
                     switch ($path) {
                         case 'controller': // 控制器
                             $content = "<?php\nnamespace {$space};\n\nclass {$class}\n{\n\n}";
