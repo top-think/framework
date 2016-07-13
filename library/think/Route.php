@@ -443,7 +443,9 @@ class Route
                     || (isset($option['except']) && in_array($key, $option['except']))) {
                     continue;
                 }
-                if (strpos($val[1], ':id') && isset($option['var'][$rule])) {
+                if (isset($last) && strpos($val[1], ':id') && isset($option['var'][$last])) {
+                    $val[1] = str_replace(':id', ':' . $option['var'][$last], $val[1]);
+                } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
                 }
                 $item = ltrim($rule . $val[1], '/');
