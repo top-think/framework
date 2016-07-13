@@ -1288,6 +1288,18 @@ class Query
     }
 
     /**
+     * 设置字段类型
+     * @access public
+     * @param array $fieldType 字段类型信息
+     * @return $this
+     */
+    public function setFieldType($fieldType = [])
+    {
+        $this->options['field_type'] = $fieldType;
+        return $this;
+    }
+
+    /**
      * 获取数据表信息
      * @access public
      * @param string $tableName 数据表名 留空自动获取

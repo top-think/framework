@@ -28,7 +28,7 @@ abstract class Builder
     protected $options = [];
 
     // 数据库表达式
-    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
+    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', '>= time' => '>= TIME', '<= time' => '<= TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
 
     // SQL表达式
     protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
@@ -199,12 +199,13 @@ abstract class Builder
     /**
      * where分析
      * @access protected
-     * @param mixed $where
+     * @param mixed $where   查询条件
+     * @param array $options 查询参数
      * @return string
      */
-    protected function parseWhere($where, $table)
+    protected function parseWhere($where, $options)
     {
-        $whereStr = $this->buildWhere($where, $table);
+        $whereStr = $this->buildWhere($where, $options);
         return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
     }
 
@@ -212,23 +213,23 @@ abstract class Builder
      * 生成查询条件SQL
      * @access public
      * @param mixed     $where
-     * @param string    $table
+     * @param array     $options
      * @return string
      */
-    public function buildWhere($where, $table)
+    public function buildWhere($where, $options)
     {
         if (empty($where)) {
             $where = [];
         }
 
         if ($where instanceof Query) {
-            return $this->buildWhere($where->getOptions('where'), $table);
+            return $this->buildWhere($where->getOptions('where'), $options);
         }
 
         $whereStr = '';
         // 获取字段信息
-        $fields = $this->query->getTableInfo($table, 'fields');
-        $binds  = $this->query->getTableInfo($table, 'bind');
+        $fields = $this->query->getTableInfo($options['table'], 'fields');
+        $binds  = $this->query->getTableInfo($options['table'], 'bind');
         foreach ($where as $key => $val) {
             $str = [];
             foreach ($val as $field => $value) {
@@ -240,14 +241,14 @@ abstract class Builder
                     // 使用闭包查询
                     $query = new Query($this->connection);
                     call_user_func_array($value, [ & $query]);
-                    $str[] = ' ' . $key . ' ( ' . $this->buildWhere($query->getOptions('where'), $table) . ' )';
+                    $str[] = ' ' . $key . ' ( ' . $this->buildWhere($query->getOptions('where'), $options) . ' )';
                 } else {
                     if (strpos($field, '|')) {
                         // 不同字段使用相同查询条件（OR）
                         $array = explode('|', $field);
                         $item  = [];
                         foreach ($array as $k) {
-                            $item[] = $this->parseWhereItem($k, $value);
+                            $item[] = $this->parseWhereItem($k, $value, '', $options);
                         }
                         $str[] = ' ' . $key . ' ( ' . implode(' OR ', $item) . ' )';
                     } elseif (strpos($field, '&')) {
@@ -255,13 +256,13 @@ abstract class Builder
                         $array = explode('&', $field);
                         $item  = [];
                         foreach ($array as $k) {
-                            $item[] = $this->parseWhereItem($k, $value);
+                            $item[] = $this->parseWhereItem($k, $value, '', $options);
                         }
                         $str[] = ' ' . $key . ' ( ' . implode(' AND ', $item) . ' )';
                     } else {
                         // 对字段使用表达式查询
                         $field = is_string($field) ? $field : '';
-                        $str[] = ' ' . $key . ' ' . $this->parseWhereItem($field, $value, $key);
+                        $str[] = ' ' . $key . ' ' . $this->parseWhereItem($field, $value, $key, $options);
                     }
                 }
             }
@@ -272,7 +273,7 @@ abstract class Builder
     }
 
     // where子单元分析
-    protected function parseWhereItem($field, $val, $rule = '')
+    protected function parseWhereItem($field, $val, $rule = '', $options = [])
     {
         // 字段分析
         $key = $field ? $this->parseKey($field) : '';
@@ -293,7 +294,7 @@ abstract class Builder
                 array_push($val, $item);
             }
             foreach ($val as $item) {
-                $str[] = $this->parseWhereItem($key, $item, $rule);
+                $str[] = $this->parseWhereItem($key, $item, $rule, $options);
             }
             return '( ' . implode(' ' . $rule . ' ', $str) . ' )';
         }
@@ -338,13 +339,13 @@ abstract class Builder
             } else {
                 $whereStr .= $exp . ' (' . $value . ')';
             }
-        } elseif (in_array($exp, ['< TIME', '> TIME'])) {
-            $whereStr .= $key . ' ' . substr($exp, 0, 1) . ' ' . $this->parseDateTime($value, $field);
+        } elseif (in_array($exp, ['< TIME', '> TIME', '<= TIME', '>= TIME'])) {
+            $whereStr .= $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($value, $field, $options);
         } elseif (in_array($exp, ['BETWEEN TIME', 'NOT BETWEEN TIME'])) {
             if (is_string($value)) {
                 $value = explode(',', $value);
             }
-            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field) . ' AND ' . $this->parseDateTime($value[1], $field);
+            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options) . ' AND ' . $this->parseDateTime($value[1], $field, $options);
         }
         return $whereStr;
     }
@@ -362,18 +363,24 @@ abstract class Builder
      * @access protected
      * @param string    $value
      * @param string    $key
+     * @param array     $options
      * @return string
      */
-    protected function parseDateTime($value, $key)
+    protected function parseDateTime($value, $key, $options = [])
     {
         // 获取时间字段类型
         $type = $this->query->getTableInfo('', 'type');
-        if (isset($type[$key])) {
+        if (isset($options['field_type'][$key])) {
+            $info = $options['field_type'][$key];
+        } elseif (isset($type[$key])) {
+            $info = $type[$key];
+        }
+        if (isset($info)) {
             $value = strtotime($value) ?: $value;
-            if (preg_match('/(datetime|timestamp)/is', $type[$key])) {
+            if (preg_match('/(datetime|timestamp)/is', $info)) {
                 // 日期及时间戳类型
                 $value = date('Y-m-d H:i:s', $value);
-            } elseif (preg_match('/(date)/is', $type[$key])) {
+            } elseif (preg_match('/(date)/is', $info)) {
                 // 日期及时间戳类型
                 $value = date('Y-m-d', $value);
             }
@@ -546,7 +553,7 @@ abstract class Builder
                 $this->parseDistinct($options['distinct']),
                 $this->parseField($options['field']),
                 $this->parseJoin($options['join']),
-                $this->parseWhere($options['where'], $options['table']),
+                $this->parseWhere($options['where'], $options),
                 $this->parseGroup($options['group']),
                 $this->parseHaving($options['having']),
                 $this->parseOrder($options['order']),
@@ -679,7 +686,7 @@ abstract class Builder
                 $this->parseTable($options['table']),
                 implode(',', $set),
                 $this->parseJoin($options['join']),
-                $this->parseWhere($options['where'], $options['table']),
+                $this->parseWhere($options['where'], $options),
                 $this->parseOrder($options['order']),
                 $this->parseLimit($options['limit']),
                 $this->parseLimit($options['lock']),
@@ -703,7 +710,7 @@ abstract class Builder
                 $this->parseTable($options['table']),
                 !empty($options['using']) ? ' USING ' . $this->parseTable($options['using']) . ' ' : '',
                 $this->parseJoin($options['join']),
-                $this->parseWhere($options['where'], $options['table']),
+                $this->parseWhere($options['where'], $options),
                 $this->parseOrder($options['order']),
                 $this->parseLimit($options['limit']),
                 $this->parseLimit($options['lock']),
