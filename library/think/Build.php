@@ -178,7 +178,7 @@ class Build
             $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
             $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', $suffix ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
-                mkdir(dirname($filename), 0644, true);
+                mkdir(dirname($filename), 0755, true);
             }
             file_put_contents($filename, $content);
         }
