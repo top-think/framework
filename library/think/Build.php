@@ -73,7 +73,7 @@ class Build
         foreach ($list as $file) {
             if (!is_dir(APP_PATH . dirname($file))) {
                 // 创建目录
-                mkdir(APP_PATH . dirname($file), 0666, true);
+                mkdir(APP_PATH . dirname($file), 0755, true);
             }
             if (!is_file(APP_PATH . $file)) {
                 file_put_contents(APP_PATH . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
@@ -118,7 +118,7 @@ class Build
                 foreach ($file as $dir) {
                     if (!is_dir($modulePath . $dir)) {
                         // 创建目录
-                        mkdir($modulePath . $dir, 0644, true);
+                        mkdir($modulePath . $dir, 0755, true);
                     }
                 }
             } elseif ('__file__' == $path) {
@@ -146,7 +146,7 @@ class Build
                             $filename = $modulePath . $path . DS . $val . '.html';
                             if (!is_dir(dirname($filename))) {
                                 // 创建目录
-                                mkdir(dirname($filename), 0644, true);
+                                mkdir(dirname($filename), 0755, true);
                             }
                             $content = '';
                             break;
