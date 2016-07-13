@@ -57,7 +57,7 @@ class Build
         foreach ($list as $dir) {
             if (!is_dir(APP_PATH . $dir)) {
                 // 创建目录
-                mkdir(APP_PATH . $dir, 0666, true);
+                mkdir(APP_PATH . $dir, 0755, true);
             }
         }
     }
