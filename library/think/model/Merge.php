@@ -224,7 +224,7 @@ class Merge extends Model
                 }
 
                 // 处理模型数据
-                $data = $this->parseData($this->name, $this->data);
+                $data = $this->parseData($this->name, $this->data, true);
                 // 写入主表数据
                 $result = $db->name($this->name)->strict(false)->insert($data, $replace);
                 if ($result) {
