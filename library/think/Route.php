@@ -672,15 +672,14 @@ class Route
         if ($checkDomain) {
             self::checkDomain($request);
         }
+        // 获取当前请求类型的路由规则
+        $rules = self::$rules[$request->method()];
 
         // 检测URL绑定
         $return = self::checkUrlBind($url, $rules, $depr);
         if (false !== $return) {
             return $return;
         }
-
-        // 获取当前请求类型的路由规则
-        $rules = self::$rules[$request->method()];
 
         if (isset($rules[$url])) {
             // 静态路由规则检测
