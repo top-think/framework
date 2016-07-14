@@ -28,7 +28,7 @@ class Controller extends Make
             ->setName('make:controller')
             ->setDescription('Create a new controller class')
             ->addArgument('namespace', Argument::REQUIRED)
-            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', null)
+            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', 'index')
             ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Controller class', null);
     }
 

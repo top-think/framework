@@ -28,7 +28,7 @@ class Model extends Make
             ->setName('make:model')
             ->setDescription('Create a new model class')
             ->addArgument('namespace', Argument::REQUIRED)
-            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', null)
+            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', 'index')
             ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Model class', null);
     }
 
