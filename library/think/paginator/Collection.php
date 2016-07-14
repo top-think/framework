@@ -23,6 +23,8 @@ use think\Paginator;
  * @method string render()
  * @method Paginator fragment($fragment)
  * @method Paginator appends($key, $value)
+ * @method integer lastPage()
+ * @method boolean hasPages()
  */
 class Collection extends \think\Collection
 {
@@ -40,17 +42,7 @@ class Collection extends \think\Collection
     {
         return new static($items, $paginator);
     }
-
-    public function setPaginator(Paginator $paginator)
-    {
-        $this->paginator = $paginator;
-    }
-
-    public function getPaginator()
-    {
-        return $this->paginator;
-    }
-
+    
     public function toArray()
     {
         if ($this->paginator) {
