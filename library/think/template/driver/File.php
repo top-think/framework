@@ -26,7 +26,7 @@ class File
         // 检测模板目录
         $dir = dirname($cacheFile);
         if (!is_dir($dir)) {
-            mkdir($dir, 0644, true);
+            mkdir($dir, 0755, true);
         }
         // 生成模板缓存文件
         if (false === file_put_contents($cacheFile, $content)) {

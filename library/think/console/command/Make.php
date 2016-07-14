@@ -25,7 +25,7 @@ class Make extends Command
         }
 
         if (!is_dir(dirname($file))) {
-            mkdir(strtolower(dirname($file)), 0644, true);
+            mkdir(strtolower(dirname($file)), 0755, true);
         }
 
         file_put_contents($file, $content);
