@@ -11,34 +11,40 @@
 
 namespace think\console\command\make;
 
+use think\Config;
 use think\console\command\Make;
-use think\console\Input;
-use think\console\input\Argument;
 use think\console\input\Option;
-use think\console\Output;
 
 class Controller extends Make
 {
-    /**
-     * {@inheritdoc}
-     */
+
+    protected $type = "Controller";
+
     protected function configure()
     {
-        $this
-            ->setName('make:controller')
-            ->setDescription('Create a new controller class')
-            ->addArgument('namespace', Argument::REQUIRED)
-            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', 'index')
-            ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Controller class', null);
+        parent::configure();
+        $this->setName('make:controller')
+            ->addOption('plain', null, Option::VALUE_NONE, 'Generate an empty controller class.')
+            ->setDescription('Create a new resource controller class');
     }
 
-    protected function execute(Input $input, Output $output)
+    protected function getStub()
     {
-        $namespace = $input->getArgument('namespace');
-        $module    = $input->getOption('module');
-        $extend    = $input->getOption('extend');
-        $result    = $this->getResult('controller', $namespace, $module, $extend);
-        $output->writeln("output:" . $result);
+        if ($this->input->getOption('plain')) {
+            return __DIR__ . '/stubs/controller.plain.stub';
+        }
+
+        return __DIR__ . '/stubs/controller.stub';
+    }
+
+    protected function getClassName($name)
+    {
+        return parent::getClassName($name) . (Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '');
+    }
+
+    protected function getNamespace($appNamespace, $module)
+    {
+        return parent::getNamespace($appNamespace, $module) . '\controller';
     }
 
 }

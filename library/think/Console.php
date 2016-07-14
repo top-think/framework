@@ -50,7 +50,6 @@ class Console
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
         "think\\console\\command\\make\\Controller",
-        "think\\console\\command\\make\\File",
         "think\\console\\command\\make\\Model",
         "think\\console\\command\\optimize\\Autoload",
     ];

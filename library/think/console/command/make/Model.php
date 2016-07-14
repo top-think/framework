@@ -12,33 +12,25 @@
 namespace think\console\command\make;
 
 use think\console\command\Make;
-use think\console\Input;
-use think\console\input\Argument;
-use think\console\input\Option;
-use think\console\Output;
 
 class Model extends Make
 {
-    /**
-     * {@inheritdoc}
-     */
+    protected $type = "Model";
+
     protected function configure()
     {
-        $this
-            ->setName('make:model')
-            ->setDescription('Create a new model class')
-            ->addArgument('namespace', Argument::REQUIRED)
-            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', 'index')
-            ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Model class', null);
+        parent::configure();
+        $this->setName('make:model')
+            ->setDescription('Create a new model class');
     }
 
-    protected function execute(Input $input, Output $output)
+    protected function getStub()
     {
-        $namespace = $input->getArgument('namespace');
-        $module    = $input->getOption('module');
-        $extend    = $input->getOption('extend');
-        $result    = $this->getResult('model', $namespace, $module, $extend);
-        $output->writeln("output:" . $result);
+        return __DIR__ . '/stubs/model.stub';
     }
 
+    protected function getNamespace($appNamespace, $module)
+    {
+        return parent::getNamespace($appNamespace, $module) . '\model';
+    }
 }
