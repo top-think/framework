@@ -58,7 +58,7 @@ abstract class Make extends Command
             mkdir(strtolower(dirname($pathname)), 0755, true);
         }
 
-        file_put_contents($pathname, $this->buildClass($name));
+        file_put_contents($pathname, $this->buildClass($classname));
 
         $output->writeln('<info>' . $this->type . ' created successfully.</info>');
 
