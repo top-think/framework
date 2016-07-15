@@ -13,7 +13,6 @@ namespace think;
 
 class Cookie
 {
-
     protected static $config = [
         // cookie 名称前缀
         'prefix'    => '',
@@ -38,6 +37,9 @@ class Cookie
      */
     public static function init(array $config = [])
     {
+        if (empty($config)) {
+            $config = Config::get('cookie');
+        }
         self::$config = array_merge(self::$config, array_change_key_case($config));
         if (!empty(self::$config['httponly'])) {
             ini_set('session.cookie_httponly', 1);
@@ -86,7 +88,7 @@ class Cookie
             array_walk_recursive($value, 'self::jsonFormatProtect', 'encode');
             $value = 'think:' . json_encode($value);
         }
-        $expire = !empty($config['expire']) ? time() + intval($config['expire']) : 0;
+        $expire = !empty($config['expire']) ? $_SERVER['REQUEST_TIME'] + intval($config['expire']) : 0;
         if ($config['setcookie']) {
             setcookie($name, $value, $expire, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
         }
@@ -94,9 +96,22 @@ class Cookie
     }
 
     /**
+     * 判断Cookie数据
+     * @param string        $name cookie名称
+     * @param string|null   $prefix cookie前缀
+     * @return bool
+     */
+    public static function has($name, $prefix = null)
+    {
+        $prefix = !is_null($prefix) ? $prefix : self::$config['prefix'];
+        $name   = $prefix . $name;
+        return isset($_COOKIE[$name]);
+    }
+
+    /**
      * Cookie获取
-     * @param string $name cookie名称
-     * @param string|null $prefix cookie前缀
+     * @param string        $name cookie名称
+     * @param string|null   $prefix cookie前缀
      * @return mixed
      */
     public static function get($name, $prefix = null)
@@ -118,8 +133,8 @@ class Cookie
 
     /**
      * Cookie删除
-     * @param string $name cookie名称
-     * @param string|null $prefix cookie前缀
+     * @param string        $name cookie名称
+     * @param string|null   $prefix cookie前缀
      * @return mixed
      */
     public static function delete($name, $prefix = null)
@@ -128,7 +143,7 @@ class Cookie
         $prefix = !is_null($prefix) ? $prefix : $config['prefix'];
         $name   = $prefix . $name;
         if ($config['setcookie']) {
-            setcookie($name, '', time() - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+            setcookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
         }
         // 删除指定cookie
         unset($_COOKIE[$name]);
@@ -154,7 +169,7 @@ class Cookie
             foreach ($_COOKIE as $key => $val) {
                 if (0 === strpos($key, $prefix)) {
                     if ($config['setcookie']) {
-                        setcookie($key, '', time() - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+                        setcookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
                     }
                     unset($_COOKIE[$key]);
                 }

@@ -23,18 +23,18 @@ class Xcache
     protected $options = [
         'prefix' => '',
         'expire' => 0,
-        'length' => 0,
     ];
 
     /**
      * 架构函数
      * @param array $options 缓存参数
      * @access public
+     * @throws \BadFunctionCallException
      */
     public function __construct($options = [])
     {
         if (!function_exists('xcache_info')) {
-            throw new Exception('_NOT_SUPPERT_:Xcache');
+            throw new \BadFunctionCallException('not support: Xcache');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -59,9 +59,9 @@ class Xcache
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return boolean
      */
     public function set($name, $value, $expire = null)

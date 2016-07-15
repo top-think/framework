@@ -70,7 +70,6 @@ class responseTest extends \PHPUnit_Framework_TestCase
     {
         Config::set('default_ajax_return', $this->default_ajax_return);
         Config::set('default_return_type', $this->default_return_type);
-        Response::type(Config::get('default_return_type')); // 会影响其他测试
     }
 
     /**
@@ -79,130 +78,16 @@ class responseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSend()
     {
-        $dataArr        = array();
+        $dataArr        = [];
         $dataArr["key"] = "value";
-        //$dataArr->key   = "val";
 
-        $result = Response::send($dataArr, "", true);
-        $this->assertArrayHasKey("key", $result);
-
-        $result = Response::send($dataArr, "json", true);
+        $response = Response::create($dataArr, 'json');
+        $result   = $response->getContent();
         $this->assertEquals('{"key":"value"}', $result);
-
-        $handler                                = "callback";
-        $_GET[Config::get('var_jsonp_handler')] = $handler;
-        $result                                 = Response::send($dataArr, "jsonp", true);
+        $_GET['callback'] = 'callback';
+        $response         = Response::create($dataArr, 'jsonp');
+        $result           = $response->options(['var_jsonp_handler' => 'callback'])->getContent();
         $this->assertEquals('callback({"key":"value"});', $result);
-
-        Response::transform(function () {
-
-            return "callbackreturndata";
-        });
-
-        $result = Response::send($dataArr, "", true);
-        $this->assertEquals("callbackreturndata", $result);
-        $_GET[Config::get('var_jsonp_handler')] = "";
-    }
-
-    /**
-     * @covers think\Response::transform
-     * @todo Implement testtransform().
-     */
-    public function testtransform()
-    {
-        Response::transform(function () {
-
-            return "callbackreturndata";
-        });
-        $dataArr = [];
-        $result  = Response::send($dataArr, "", true);
-        $this->assertEquals("callbackreturndata", $result);
-
-        Response::transform(null);
-    }
-
-    /**
-     * @covers think\Response::type
-     * @todo Implement testType().
-     */
-    public function testType()
-    {
-        $type = "json";
-        Response::type($type);
-    }
-
-    /**
-     * @covers think\Response::data
-     * @todo Implement testData().
-     */
-    public function testData()
-    {
-        $data = "data";
-        Response::data($data);
-        Response::data(null);
-    }
-
-    /**
-     * @covers think\Response::isExit
-     * @todo Implement testIsExit().
-     */
-    public function testIsExit()
-    {
-        $isExit = true;
-        Response::isExit($isExit);
-
-        $result = Response::isExit();
-        $this->assertTrue($isExit, $result);
-        Response::isExit(false);
-    }
-
-    /**
-     * @covers think\Response::result
-     * @todo Implement testResult().
-     */
-    public function testResult()
-    {
-        $data   = "data";
-        $code   = "1001";
-        $msg    = "the msg";
-        $type   = "json";
-        $result = Response::result($data, $code, $msg, $type);
-
-        $this->assertEquals($code, $result["code"]);
-        $this->assertEquals($msg, $result["msg"]);
-        $this->assertEquals($data, $result["data"]);
-        $this->assertEquals($_SERVER['REQUEST_TIME'], $result["time"]);
-    }
-
-    /**
-     * @#runInSeparateProcess
-     * @covers think\Response::redirect
-     * @todo Implement testRedirect().
-     */
-    public function testRedirect()
-    {
-        // $url = "http://www.testredirect.com";
-        // $params = array();
-        // $params[] = 301;
-
-        // // FIXME 静态方法mock Url::build
-        // // echo "\r\n" . json_encode(xdebug_get_headers()) . "\r\n";
-        // Response::redirect($url, $params);
-
-        // $this->assertContains('Location: ' . $url, xdebug_get_headers());
-    }
-
-    /**
-     * @#runInSeparateProcess
-     * @covers think\Response::header
-     * @todo Implement testHeader().
-     */
-    public function testHeader()
-    {
-        // $name = "Location";
-        // $url = "http://www.testheader.com/";
-        // Response::header($name, $url);
-        // $this->assertContains($name . ': ' . $url, xdebug_get_headers());
     }
 
 }

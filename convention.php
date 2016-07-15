@@ -5,8 +5,16 @@ return [
     // | 应用设置
     // +----------------------------------------------------------------------
 
+    // 应用命名空间
+    'app_namespace'          => 'app',
+    // 应用调试模式
+    'app_debug'              => true,
+    // 应用Trace
+    'app_trace'              => false,
     // 应用模式状态
     'app_status'             => '',
+    // 是否支持多模块
+    'app_multi_module'       => true,
     // 注册的根命名空间
     'root_namespace'         => [],
     // 扩展配置文件
@@ -15,12 +23,8 @@ return [
     'extra_file_list'        => [THINK_PATH . 'helper' . EXT],
     // 默认输出类型
     'default_return_type'    => 'html',
-    // 默认语言
-    'default_lang'           => 'zh-cn',
-    // response是否返回方式
-    'response_return'        => false,
-    // 默认AJAX 数据返回格式,可选JSON XML ...
-    'default_ajax_return'    => 'JSON',
+    // 默认AJAX 数据返回格式,可选json xml ...
+    'default_ajax_return'    => 'json',
     // 默认JSONP格式返回的处理方法
     'default_jsonp_handler'  => 'jsonpReturn',
     // 默认JSONP处理方法
@@ -31,8 +35,12 @@ return [
     'lang_switch_on'         => false,
     // 默认全局过滤方法 用逗号分隔多个
     'default_filter'         => '',
-    // 是否启用控制器类后缀
-    'use_controller_suffix'  => false,
+    // 默认语言
+    'default_lang'           => 'zh-cn',
+    // 应用类库后缀
+    'class_suffix'           => false,
+    // 控制器类后缀
+    'controller_suffix'      => false,
 
     // +----------------------------------------------------------------------
     // | 模块设置
@@ -41,7 +49,7 @@ return [
     // 默认模块名
     'default_module'         => 'index',
     // 禁止访问模块
-    'deny_module_list'       => [COMMON_MODULE],
+    'deny_module_list'       => ['common'],
     // 默认控制器名
     'default_controller'     => 'Index',
     // 默认操作名
@@ -52,6 +60,8 @@ return [
     'empty_controller'       => 'Error',
     // 操作方法后缀
     'action_suffix'          => '',
+    // 自动搜索控制器
+    'controller_auto_search' => false,
 
     // +----------------------------------------------------------------------
     // | URL设置
@@ -63,33 +73,31 @@ return [
     'pathinfo_fetch'         => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
     // pathinfo分隔符
     'pathinfo_depr'          => '/',
-    // 获取当前页面地址的系统变量 默认为REQUEST_URI
-    'url_request_uri'        => 'REQUEST_URI',
-    // 基础URL路径
-    'base_url'               => $_SERVER["SCRIPT_NAME"],
     // URL伪静态后缀
-    'url_html_suffix'        => '.html',
+    'url_html_suffix'        => 'html',
     // URL普通方式参数 用于自动生成
     'url_common_param'       => false,
     //url禁止访问的后缀
     'url_deny_suffix'        => 'ico|png|gif|jpg',
+    // URL参数方式 0 按名称成对解析 1 按顺序解析
+    'url_param_type'         => 0,
     // 是否开启路由
     'url_route_on'           => true,
     // 是否强制使用路由
     'url_route_must'         => false,
-    // URL模块映射
-    'url_module_map'         => [],
     // 域名部署
     'url_domain_deploy'      => false,
     // 域名根，如.thinkphp.cn
     'url_domain_root'        => '',
-    // 是否自动转换URL中的控制器名
-    'url_controller_convert' => true,
-    // 是否自动转换URL中的操作名
-    'url_action_convert'     => true,
+    // 是否自动转换URL中的控制器和操作名
+    'url_convert'            => true,
+    // 默认的访问控制器层
+    'url_controller_layer'   => 'controller',
+    // 表单请求类型伪装变量
+    'var_method'             => '_method',
 
     // +----------------------------------------------------------------------
-    // | 模板引擎设置
+    // | 模板设置
     // +----------------------------------------------------------------------
 
     'template'               => [
@@ -98,7 +106,7 @@ return [
         // 模板路径
         'view_path'    => '',
         // 模板后缀
-        'view_suffix'  => '.html',
+        'view_suffix'  => 'html',
         // 模板文件名分隔符
         'view_depr'    => DS,
         // 模板引擎普通标签开始标记
@@ -123,25 +131,33 @@ return [
 
     // 异常页面的模板文件
     'exception_tmpl'         => THINK_PATH . 'tpl' . DS . 'think_exception.tpl',
-    // 异常处理忽略的错误类型，支持PHP所有的错误级别常量，多个级别可以用|运算法
-    // 参考：http://php.net/manual/en/errorfunc.constants.php
-    'exception_ignore_type'  => 0,
+
     // 错误显示信息,非调试模式有效
     'error_message'          => '页面错误！请稍后再试～',
-    // 错误定向页面
-    'error_page'             => '',
     // 显示错误信息
     'show_error_msg'         => false,
+    // 异常处理handle类 留空使用 \think\exception\Handle
+    'exception_handle'       => '',
 
     // +----------------------------------------------------------------------
     // | 日志设置
     // +----------------------------------------------------------------------
 
     'log'                    => [
-        // 日志记录方式，支持 file socket trace sae
-        'type' => 'File',
+        // 日志记录方式，内置 file socket 支持扩展
+        'type'  => 'File',
         // 日志保存目录
-        'path' => LOG_PATH,
+        'path'  => LOG_PATH,
+        // 日志记录级别
+        'level' => [],
+    ],
+
+    // +----------------------------------------------------------------------
+    // | Trace设置 开启 app_trace 后 有效
+    // +----------------------------------------------------------------------
+    'trace'                  => [
+        // 内置Html Console 支持扩展
+        'type' => 'Html',
     ],
 
     // +----------------------------------------------------------------------
@@ -176,45 +192,71 @@ return [
     ],
 
     // +----------------------------------------------------------------------
+    // | Cookie设置
+    // +----------------------------------------------------------------------
+    'cookie'                 => [
+        // cookie 名称前缀
+        'prefix'    => '',
+        // cookie 保存时间
+        'expire'    => 0,
+        // cookie 保存路径
+        'path'      => '/',
+        // cookie 有效域名
+        'domain'    => '',
+        //  cookie 启用安全传输
+        'secure'    => false,
+        // httponly设置
+        'httponly'  => '',
+        // 是否使用 setcookie
+        'setcookie' => true,
+    ],
+
+    // +----------------------------------------------------------------------
     // | 数据库设置
     // +----------------------------------------------------------------------
 
     'database'               => [
         // 数据库类型
-        'type'        => 'mysql',
+        'type'           => 'mysql',
         // 数据库连接DSN配置
-        'dsn'         => '',
+        'dsn'            => '',
         // 服务器地址
-        'hostname'    => 'localhost',
+        'hostname'       => 'localhost',
         // 数据库名
-        'database'    => '',
+        'database'       => '',
         // 数据库用户名
-        'username'    => 'root',
+        'username'       => 'root',
         // 数据库密码
-        'password'    => '',
+        'password'       => '',
         // 数据库连接端口
-        'hostport'    => '',
+        'hostport'       => '',
         // 数据库连接参数
-        'params'      => [],
+        'params'         => [],
         // 数据库编码默认采用utf8
-        'charset'     => 'utf8',
+        'charset'        => 'utf8',
         // 数据库表前缀
-        'prefix'      => '',
+        'prefix'         => '',
         // 数据库调试模式
-        'debug'       => false,
+        'debug'          => false,
         // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-        'deploy'      => 0,
+        'deploy'         => 0,
         // 数据库读写是否分离 主从式有效
-        'rw_separate' => false,
+        'rw_separate'    => false,
         // 读写分离后 主服务器数量
-        'master_num'  => 1,
+        'master_num'     => 1,
         // 指定从服务器序号
-        'slave_no'    => '',
+        'slave_no'       => '',
+        // 是否严格检查字段是否存在
+        'fields_strict'  => true,
+        // 自动写入时间戳字段
+        'auto_timestamp' => false,
     ],
+
     //分页配置
     'paginate'               => [
-        'type'     => 'bootstrap',
-        'var_page' => 'page',
+        'type'      => 'bootstrap',
+        'var_page'  => 'page',
+        'list_rows' => 15,
     ],
 
 ];

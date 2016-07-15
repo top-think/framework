@@ -25,22 +25,21 @@ class File
         'cache_subdir'  => false,
         'path_level'    => 1,
         'prefix'        => '',
-        'length'        => 0,
         'path'          => CACHE_PATH,
         'data_compress' => false,
     ];
 
     /**
      * 架构函数
-     * @access public
+     * @param array $options
      */
     public function __construct($options = [])
     {
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        if (substr($this->options['path'], -1) != '/') {
-            $this->options['path'] .= '/';
+        if (substr($this->options['path'], -1) != DS) {
+            $this->options['path'] .= DS;
         }
         $this->init();
     }
@@ -54,10 +53,11 @@ class File
     {
         // 创建项目缓存目录
         if (!is_dir($this->options['path'])) {
-            if (!mkdir($this->options['path'], 0755, true)) {
-                return false;
+            if (mkdir($this->options['path'], 0755, true)) {
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -74,7 +74,7 @@ class File
             $dir = '';
             $len = $this->options['path_level'];
             for ($i = 0; $i < $len; $i++) {
-                $dir .= $name{$i} . '/';
+                $dir .= $name{$i} . DS;
             }
             if (!is_dir($this->options['path'] . $dir)) {
                 mkdir($this->options['path'] . $dir, 0755, true);
@@ -101,7 +101,7 @@ class File
         $content = file_get_contents($filename);
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
-            if (0 != $expire && time() > filemtime($filename) + $expire) {
+            if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire) {
                 //缓存过期删除缓存文件
                 $this->unlink($filename);
                 return false;
@@ -121,9 +121,9 @@ class File
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param int $expire  有效时间 0为永久
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param int       $expire  有效时间 0为永久
      * @return boolean
      */
     public function set($name, $value, $expire = null)

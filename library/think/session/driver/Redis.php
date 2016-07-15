@@ -16,15 +16,16 @@ use think\Exception;
 
 class Redis extends SessionHandler
 {
+    /** @var \Redis */
     protected $handler = null;
     protected $config  = [
-        'host'         => '127.0.0.1',  // redis主机
-        'port'         => 6379,         // redis端口
-        'password'     => '',           // 密码
-        'expire'       => 3600,         // 有效期(秒)
-        'timeout'      => 0,            // 超时时间(秒)
-        'persistent'   => true,         // 是否长连接
-        'session_name' => '',           // sessionkey前缀
+        'host'         => '127.0.0.1', // redis主机
+        'port'         => 6379, // redis端口
+        'password'     => '', // 密码
+        'expire'       => 3600, // 有效期(秒)
+        'timeout'      => 0, // 超时时间(秒)
+        'persistent'   => true, // 是否长连接
+        'session_name' => '', // sessionkey前缀
     ];
 
     public function __construct($config = [])
@@ -36,20 +37,22 @@ class Redis extends SessionHandler
      * 打开Session
      * @access public
      * @param string $savePath
-     * @param mixed $sessName
+     * @param mixed  $sessName
+     * @return bool
+     * @throws Exception
      */
     public function open($savePath, $sessName)
     {
         // 检测php环境
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new Exception('not support:redis');
         }
         $this->handler = new \Redis;
-        
+
         // 建立连接
         $func = $this->config['persistent'] ? 'pconnect' : 'connect';
         $this->handler->$func($this->config['host'], $this->config['port'], $this->config['timeout']);
-        
+
         if ('' != $this->config['password']) {
             $this->handler->auth($this->config['password']);
         }
@@ -72,6 +75,7 @@ class Redis extends SessionHandler
      * 读取Session
      * @access public
      * @param string $sessID
+     * @return bool|string
      */
     public function read($sessID)
     {
@@ -83,6 +87,7 @@ class Redis extends SessionHandler
      * @access public
      * @param string $sessID
      * @param String $sessData
+     * @return bool
      */
     public function write($sessID, $sessData)
     {
@@ -97,16 +102,18 @@ class Redis extends SessionHandler
      * 删除Session
      * @access public
      * @param string $sessID
+     * @return bool|void
      */
     public function destroy($sessID)
     {
-        return $this->handler->delete($this->config['session_name'] . $sessID);
+        $this->handler->delete($this->config['session_name'] . $sessID);
     }
 
     /**
      * Session 垃圾回收
      * @access public
      * @param string $sessMaxLifeTime
+     * @return bool
      */
     public function gc($sessMaxLifeTime)
     {

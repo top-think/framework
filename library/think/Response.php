@@ -11,135 +11,126 @@
 
 namespace think;
 
-use think\Config;
-use think\Url;
+use think\response\Json as JsonResponse;
+use think\response\Jsonp as JsonpResponse;
+use think\response\Redirect as RedirectResponse;
+use think\response\View as ViewResponse;
+use think\response\Xml as XmlResponse;
 
 class Response
 {
-    // 输出数据的转换方法
-    protected static $transform = null;
 
-    // 输出数据
-    protected static $data = '';
-    // 是否exit
-    protected static $isExit = false;
-    // 输出类型
-    protected static $type = '';
-    // contentType
-    protected static $contentType = [
-        'json'   => 'application/json',
-        'xml'    => 'text/xml',
-        'html'   => 'text/html',
-        'jsonp'  => 'application/javascript',
-        'script' => 'application/javascript',
-        'text'   => 'text/plain',
-    ];
-    // HTTP status
-    protected static $code = [
-        // Informational 1xx
-        100 => 'Continue',
-        101 => 'Switching Protocols',
-        // Success 2xx
-        200 => 'OK',
-        201 => 'Created',
-        202 => 'Accepted',
-        203 => 'Non-Authoritative Information',
-        204 => 'No Content',
-        205 => 'Reset Content',
-        206 => 'Partial Content',
-        // Redirection 3xx
-        300 => 'Multiple Choices',
-        301 => 'Moved Permanently',
-        302 => 'Moved Temporarily ', // 1.1
-        303 => 'See Other',
-        304 => 'Not Modified',
-        305 => 'Use Proxy',
-        // 306 is deprecated but reserved
-        307 => 'Temporary Redirect',
-        // Client Error 4xx
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        402 => 'Payment Required',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        406 => 'Not Acceptable',
-        407 => 'Proxy Authentication Required',
-        408 => 'Request Timeout',
-        409 => 'Conflict',
-        410 => 'Gone',
-        411 => 'Length Required',
-        412 => 'Precondition Failed',
-        413 => 'Request Entity Too Large',
-        414 => 'Request-URI Too Long',
-        415 => 'Unsupported Media Type',
-        416 => 'Requested Range Not Satisfiable',
-        417 => 'Expectation Failed',
-        // Server Error 5xx
-        500 => 'Internal Server Error',
-        501 => 'Not Implemented',
-        502 => 'Bad Gateway',
-        503 => 'Service Unavailable',
-        504 => 'Gateway Timeout',
-        505 => 'HTTP Version Not Supported',
-        509 => 'Bandwidth Limit Exceeded',
-    ];
+    // 原始数据
+    protected $data;
+
+    // 当前的contentType
+    protected $contentType = 'text/html';
+
+    // 字符集
+    protected $charset = 'utf-8';
+
+    //状态
+    protected $code = 200;
+
+    // 输出参数
+    protected $options = [];
+    // header参数
+    protected $header = [];
+
+    protected $content = null;
+
+    /**
+     * 架构函数
+     * @access   public
+     * @param mixed $data    输出数据
+     * @param int   $code
+     * @param array $header
+     * @param array $options 输出参数
+     */
+    public function __construct($data = '', $code = 200, array $header = [], $options = [])
+    {
+        $this->data($data);
+        $this->header = $header;
+        $this->code   = $code;
+        if (!empty($options)) {
+            $this->options = array_merge($this->options, $options);
+        }
+        $this->contentType($this->contentType, $this->charset);
+    }
+
+    /**
+     * 创建Response对象
+     * @access public
+     * @param mixed  $data    输出数据
+     * @param string $type    输出类型
+     * @param int    $code
+     * @param array  $header
+     * @param array  $options 输出参数
+     * @return Response|JsonResponse|ViewResponse|XmlResponse|RedirectResponse|JsonpResponse
+     */
+    public static function create($data = '', $type = '', $code = 200, array $header = [], $options = [])
+    {
+        $type = empty($type) ? 'null' : strtolower($type);
+
+        $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst($type);
+        if (class_exists($class)) {
+            $response = new $class($data, $code, $header, $options);
+        } else {
+            $response = new static($data, $code, $header, $options);
+        }
+
+        return $response;
+    }
 
     /**
      * 发送数据到客户端
      * @access public
-     * @param mixed $data 数据
-     * @param string $type 返回类型
-     * @param bool $return 是否返回数据
      * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public static function send($data = [], $type = '', $return = false)
+    public function send()
     {
-        if ('' == $type) {
-            $type = self::$type ?: (IS_AJAX ? Config::get('default_ajax_return') : Config::get('default_return_type'));
-        }
-        $type = strtolower($type);
-        $data = $data ?: self::$data;
+        // 处理输出数据
+        $data = $this->getContent();
 
-        if (!headers_sent() && isset(self::$contentType[$type])) {
-            header('Content-Type:' . self::$contentType[$type] . '; charset=utf-8');
-        }
-
-        if (is_callable(self::$transform)) {
-            $data = call_user_func_array(self::$transform, [$data]);
-        } else {
-            switch ($type) {
-                case 'json':
-                    // 返回JSON数据格式到客户端 包含状态信息
-                    $data = json_encode($data, JSON_UNESCAPED_UNICODE);
-                    break;
-                case 'jsonp':
-                    // 返回JSON数据格式到客户端 包含状态信息
-                    $handler = !empty($_GET[Config::get('var_jsonp_handler')]) ? $_GET[Config::get('var_jsonp_handler')] : Config::get('default_jsonp_handler');
-                    $data    = $handler . '(' . json_encode($data, JSON_UNESCAPED_UNICODE) . ');';
-                    break;
+        if (!headers_sent() && !empty($this->header)) {
+            // 发送状态码
+            http_response_code($this->code);
+            // 发送头部信息
+            foreach ($this->header as $name => $val) {
+                header($name . ':' . $val);
             }
         }
+        echo $data;
 
-        APP_HOOK && Hook::listen('return_data', $data);
-
-        if ($return) {
-            return $data;
+        if (function_exists('fastcgi_finish_request')) {
+            // 提高页面响应
+            fastcgi_finish_request();
         }
 
-        echo $data;
-        self::isExit() && exit();
     }
 
     /**
-     * 转换控制器输出的数据
+     * 处理数据
+     * @access protected
+     * @param mixed $data 要处理的数据
+     * @return mixed
+     */
+    protected function output($data)
+    {
+        return $data;
+    }
+
+    /**
+     * 输出的参数
      * @access public
-     * @param mixed $callback 调用的转换方法
+     * @param mixed $options 输出参数
      * @return $this
      */
-    public static function transform($callback)
+    public function options($options = [])
     {
-        self::$transform = $callback;
+        $this->options = array_merge($this->options, $options);
+        return $this;
     }
 
     /**
@@ -148,97 +139,163 @@ class Response
      * @param mixed $data 输出数据
      * @return $this
      */
-    public static function data($data)
+    public function data($data)
     {
-        self::$data = $data;
-    }
-
-    /**
-     * 输出类型设置
-     * @access public
-     * @param string $type 输出内容的格式类型
-     * @return mixed
-     */
-    public static function type($type)
-    {
-        self::$type = $type;
-    }
-
-    /**
-     * 输出是否exit设置
-     * @access public
-     * @param bool $exit 是否退出
-     * @return mixed
-     */
-    public static function isExit($exit = null)
-    {
-        if (is_null($exit)) {
-            return self::$isExit;
-        }
-        self::$isExit = (boolean) $exit;
-    }
-
-    /**
-     * 返回封装后的API数据到客户端
-     * @access public
-     * @param mixed $data 要返回的数据
-     * @param integer $code 返回的code
-     * @param string $msg 提示信息
-     * @return mixed
-     */
-    public static function result($data, $code = 0, $msg = '', $type = '')
-    {
-        $result = [
-            'code' => $code,
-            'msg'  => $msg,
-            'time' => NOW_TIME,
-            'data' => $data,
-        ];
-        self::$type = $type;
-        return $result;
-    }
-
-    /**
-     * URL重定向
-     * @access public
-     * @param string $url 跳转的URL表达式
-     * @param array|int $params 其它URL参数或http code
-     * @return void
-     */
-    public static function redirect($url, $params = [])
-    {
-        $http_response_code = 301;
-        if (is_int($params) && in_array($params, [301, 302])) {
-            $http_response_code = $params;
-            $params             = [];
-        }
-        $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url, $params);
-        header('Location: ' . $url, true, $http_response_code);
+        $this->data = $data;
+        return $this;
     }
 
     /**
      * 设置响应头
      * @access public
-     * @param string $name 参数名
-     * @param string $value 参数值
-     * @return void
+     * @param string|array $name  参数名
+     * @param string       $value 参数值
+     * @return $this
      */
-    public static function header($name, $value)
+    public function header($name, $value = null)
     {
-        header($name . ':' . $value);
+        if (is_array($name)) {
+            $this->header = array_merge($this->header, $name);
+        } else {
+            $this->header[$name] = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * 设置页面输出内容
+     * @param $content
+     * @return $this
+     */
+    public function content($content)
+    {
+        if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+                $content,
+                '__toString',
+            ])
+        ) {
+            throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
+        }
+
+        $this->content = (string)$content;
+
+        return $this;
     }
 
     /**
      * 发送HTTP状态
      * @param integer $code 状态码
-     * @return void
+     * @return $this
      */
-    public static function code($code)
+    public function code($code)
     {
-        if (isset(self::$statusCode[$code])) {
-            header('HTTP/1.1 ' . $code . ' ' . self::$statusCode[$code]);
-            // 确保FastCGI模式下正常
-            header('Status:' . $code . ' ' . self::$statusCode[$code]);
+        $this->code = $code;
+        return $this;
+    }
+
+    /**
+     * LastModified
+     * @param string $time
+     * @return $this
+     */
+    public function lastModified($time)
+    {
+        $this->header['Last-Modified'] = $time;
+        return $this;
+    }
+
+    /**
+     * Expires
+     * @param string $time
+     * @return $this
+     */
+    public function expires($time)
+    {
+        $this->header['Expires'] = $time;
+        return $this;
+    }
+
+    /**
+     * ETag
+     * @param string $eTag
+     * @return $this
+     */
+    public function eTag($eTag)
+    {
+        $this->header['ETag'] = $eTag;
+        return $this;
+    }
+
+    /**
+     * 页面缓存控制
+     * @param string $cache 状态码
+     * @return $this
+     */
+    public function cacheControl($cache)
+    {
+        $this->header['Cache-control'] = $cache;
+        return $this;
+    }
+
+    /**
+     * 页面输出类型
+     * @param string $contentType 输出类型
+     * @param string $charset     输出编码
+     * @return $this
+     */
+    public function contentType($contentType, $charset = 'utf-8')
+    {
+        $this->header['Content-Type'] = $contentType . '; charset=' . $charset;
+        return $this;
+    }
+    
+    /**
+     * 获取头部信息
+     * @param string $name 头部名称
+     * @return mixed
+     */
+    public function getHeader($name = '')
+    {
+        return !empty($name) ? $this->header[$name] : $this->header;
+    }
+
+    /**
+     * 获取原始数据
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * 获取输出数据
+     * @return mixed
+     */
+    public function getContent()
+    {
+        if ($this->content == null) {
+            $content = $this->output($this->data);
+
+            if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+                    $content,
+                    '__toString',
+                ])
+            ) {
+                throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
+            }
+
+            $this->content = (string)$content;
         }
+        return $this->content;
+    }
+
+    /**
+     * 获取状态码
+     * @return integer
+     */
+    public function getCode()
+    {
+        return $this->code;
     }
 }

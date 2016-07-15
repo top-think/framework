@@ -23,6 +23,8 @@ class Memcached extends SessionHandler
         'expire'       => 3600, // session有效期
         'timeout'      => 0, // 连接超时时间（单位：毫秒）
         'session_name' => '', // memcache key前缀
+        'username'     => '', //账号
+        'password'     => '', //密码
     ];
 
     public function __construct($config = [])
@@ -33,14 +35,14 @@ class Memcached extends SessionHandler
     /**
      * 打开Session
      * @access public
-     * @param string $savePath
-     * @param mixed $sessName
+     * @param string    $savePath
+     * @param mixed     $sessName
      */
     public function open($savePath, $sessName)
     {
         // 检测php环境
         if (!extension_loaded('memcached')) {
-            throw new Exception('_NOT_SUPPERT_:memcached');
+            throw new Exception('not support:memcached');
         }
         $this->handler = new \Memcached;
         // 设置连接超时时间（单位：毫秒）
@@ -59,6 +61,10 @@ class Memcached extends SessionHandler
             $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
         }
         $this->handler->addServers($servers);
+        if('' != $this->config['username']){
+            $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
+            $this->handler->setSaslAuthData($this->config['username'], $this->config['password']);	
+        }
         return true;
     }
 
@@ -69,7 +75,7 @@ class Memcached extends SessionHandler
     public function close()
     {
         $this->gc(ini_get('session.gc_maxlifetime'));
-        $this->handler->close();
+        $this->handler->quit();
         $this->handler = null;
         return true;
     }

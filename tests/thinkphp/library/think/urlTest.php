@@ -26,21 +26,23 @@ class urlTest extends \PHPUnit_Framework_TestCase
     public function testBuildModule()
     {
 
-        Route::get('hello/:name', 'index/hello');
-        Route::get('hello/:id', 'index/hello');
+        Route::get('blog/:name', 'index/blog');
+        Route::get('blog/:id', 'index/blog');
         Config::set('pathinfo_depr', '/');
-        $this->assertEquals('/hello/thinkphp', Url::build('index/hello?name=thinkphp'));
-        $this->assertEquals('/hello/thinkphp.html', Url::build('index/hello', 'name=thinkphp', 'html'));
-        $this->assertEquals('/hello/10', Url::build('index/hello?id=10'));
-        $this->assertEquals('/hello/10.html', Url::build('index/hello', 'id=10', 'html'));
+        Config::set('url_html_suffix', '');
+        $this->assertEquals('/blog/thinkphp', Url::build('index/blog?name=thinkphp'));
+        $this->assertEquals('/blog/thinkphp.html', Url::build('index/blog', 'name=thinkphp', 'html'));
+        $this->assertEquals('/blog/10', Url::build('index/blog?id=10'));
+        $this->assertEquals('/blog/10.html', Url::build('index/blog', 'id=10', 'html'));
 
-        Route::get('item-<item><id?>', 'good/item', [], ['item' => '\w+', 'id' => '\d+']);
-        $this->assertEquals('/item-thinkphp', Url::build('good/item?item=thinkphp'));
-        $this->assertEquals('/item-thinkphp2016', Url::build('good/item?item=thinkphp&id=2016'));
+        Route::get('item-<name><id?>', 'blog/item', [], ['name' => '\w+', 'id' => '\d+']);
+        $this->assertEquals('/item-thinkphp', Url::build('blog/item?name=thinkphp'));
+        $this->assertEquals('/item-thinkphp2016', Url::build('blog/item?name=thinkphp&id=2016'));
     }
 
     public function testBuildController()
     {
+        Config::set('url_html_suffix', '');
         Route::get('blog/:id', '@index/blog/read');
         $this->assertEquals('/blog/10.html', Url::build('@index/blog/read', 'id=10', 'html'));
 
@@ -70,5 +72,8 @@ class urlTest extends \PHPUnit_Framework_TestCase
         Route::get('blog/:id', 'index/blog');
         Config::set('url_html_suffix', 'shtml');
         $this->assertEquals('/blog/10.shtml#detail', Url::build('/blog/10#detail'));
+
+        Config::set('url_common_param', true);
+        $this->assertEquals('/blog/10.shtml?foo=bar#detail', Url::build('/blog/10#detail', "foo=bar"));
     }
 }

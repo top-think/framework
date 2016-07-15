@@ -11,6 +11,19 @@
 
 namespace think;
 
+use think\exception\ClassNotFoundException;
+
+/**
+ * Class Log
+ * @package think
+ *
+ * @method void log($msg) static
+ * @method void error($msg) static
+ * @method void info($msg) static
+ * @method void sql($msg) static
+ * @method void notice($msg) static
+ * @method void alert($msg) static
+ */
 class Log
 {
     const LOG    = 'log';
@@ -22,62 +35,54 @@ class Log
 
     // 日志信息
     protected static $log = [];
+    // 配置参数
+    protected static $config = [];
     // 日志类型
     protected static $type = ['log', 'error', 'info', 'sql', 'notice', 'alert'];
     // 日志写入驱动
-    protected static $driver = null;
-    // 通知发送驱动
-    protected static $alarm = null;
+    protected static $driver;
+
+    // 当前日志授权key
+    protected static $key;
 
     /**
      * 日志初始化
-     * @return void
+     * @param array $config
      */
     public static function init($config = [])
     {
-        $type  = isset($config['type']) ? $config['type'] : 'File';
-        $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\log\\driver\\') . ucwords($type);
+        $type         = isset($config['type']) ? $config['type'] : 'File';
+        $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
+        self::$config = $config;
         unset($config['type']);
-        self::$driver = new $class($config);
+        if (class_exists($class)) {
+            self::$driver = new $class($config);
+        } else {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
+        }
         // 记录初始化信息
-        APP_DEBUG && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
+        App::$debug && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
     }
 
     /**
-     * 通知初始化
-     * @return void
-     */
-    public static function alarm($config = [])
-    {
-        $type  = isset($config['type']) ? $config['type'] : 'Email';
-        $class = (!empty($config['namespace']) ? $config['namespace'] : '\\think\\log\\alarm\\') . ucwords($type);
-        unset($config['type']);
-        self::$alarm = new $class($config['alarm']);
-        // 记录初始化信息
-        APP_DEBUG && Log::record('[ CACHE ] ALARM ' . $type . ': ' . var_export($config, true), 'info');
-    }
-
-    /**
-     * 获取全部日志信息
+     * 获取日志信息
+     * @param string $type 信息类型
      * @return array
      */
-    public static function getLog()
+    public static function getLog($type = '')
     {
-        return self::$log;
+        return $type ? self::$log[$type] : self::$log;
     }
 
     /**
      * 记录调试信息
-     * @param mixed $msg 调试信息
+     * @param mixed  $msg  调试信息
      * @param string $type 信息类型
      * @return void
      */
     public static function record($msg, $type = 'log')
     {
-        if (!is_string($msg)) {
-            $msg = var_export($msg, true);
-        }
-        self::$log[] = ['type' => $type, 'msg' => $msg];
+        self::$log[$type][] = $msg;
     }
 
     /**
@@ -90,33 +95,87 @@ class Log
     }
 
     /**
+     * 当前日志记录的授权key
+     * @param string  $key  授权key
+     * @return void
+     */
+    public static function key($key)
+    {
+        self::$key = $key;
+    }
+
+    /**
+     * 检查日志写入权限
+     * @param array  $config  当前日志配置参数
+     * @return bool
+     */
+    public static function check($config)
+    {
+        if (self::$key && !empty($config['allow_key']) && !in_array(self::$key, $config['allow_key'])) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 保存调试信息
      * @return bool
      */
     public static function save()
     {
-        if (is_null(self::$driver)) {
-            self::init(Config::get('log'));
+        if (!empty(self::$log)) {
+            if (is_null(self::$driver)) {
+                self::init(Config::get('log'));
+            }
+
+            if (!self::check(self::$config)) {
+                // 检测日志写入权限
+                return false;
+            }
+
+            if (empty(self::$config['level'])) {
+                // 获取全部日志
+                $log = self::$log;
+            } else {
+                // 记录允许级别
+                $log = [];
+                foreach (self::$config['level'] as $level) {
+                    if (isset(self::$log[$level])) {
+                        $log[$level] = self::$log[$level];
+                    }
+                }
+            }
+
+            $result = self::$driver->save($log);
+            if ($result) {
+                self::$log = [];
+            }
+
+            return $result;
         }
-        return self::$driver->save(self::$log);
+        return true;
     }
 
     /**
      * 实时写入日志信息 并支持行为
-     * @param mixed $msg 调试信息
+     * @param mixed  $msg  调试信息
      * @param string $type 信息类型
+     * @param bool   $force 是否强制写入
      * @return bool
      */
-    public static function write($msg, $type = 'log')
+    public static function write($msg, $type = 'log', $force = false)
     {
-        if (!is_string($msg)) {
-            $msg = var_export($msg, true);
-        }
         // 封装日志信息
-        $log[] = ['type' => $type, 'msg' => $msg];
+        if (true === $force || empty(self::$config['level'])) {
+            $log[$type][] = $msg;
+        } elseif (in_array($type, self::$config['level'])) {
+            $log[$type][] = $msg;
+        } else {
+            return false;
+        }
 
         // 监听log_write
-        APP_HOOK && Hook::listen('log_write', $log);
+        Hook::listen('log_write', $log);
         if (is_null(self::$driver)) {
             self::init(Config::get('log'));
         }
@@ -125,18 +184,10 @@ class Log
     }
 
     /**
-     * 发送预警通知
-     * @param mixed $msg 调试信息
-     * @return void
-     */
-    public static function send($msg)
-    {
-        self::$alarm && self::$alarm->send($msg);
-    }
-
-    /**
      * 静态调用
-     * @return void
+     * @param $method
+     * @param $args
+     * @return mixed
      */
     public static function __callStatic($method, $args)
     {

@@ -1,27 +1,35 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006-2015 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: 麦当苗儿 <zuojiazi@vip.qq.com> <http://zjzit.cn>
+// | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
 namespace think\exception;
 
-use think\Exception;
 
-/**
- * Database相关异常处理类
- */
-class NotFoundException extends Exception 
+use think\Response;
+
+class HttpResponseException extends \RuntimeException
 {
     /**
-     * 系统异常后发送给客户端的HTTP Status
-     * @var integer
+     * @var Response
      */
-    protected $httpStatus = 404;
-    
+    protected $response;
+
+    public function __construct(Response $response)
+    {
+        $this->response = $response;
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+
 }

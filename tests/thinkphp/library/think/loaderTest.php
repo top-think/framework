@@ -23,17 +23,14 @@ class loaderTest extends \PHPUnit_Framework_TestCase
 
     public function testAutoload()
     {
-        $this->assertEquals(true, Loader::autoload('think\Session'));
-        //$this->assertEquals(false, Loader::autoload('think\COOKIE'));
         $this->assertEquals(false, Loader::autoload('\think\Url'));
         $this->assertEquals(false, Loader::autoload('think\Test'));
         $this->assertEquals(false, Loader::autoload('my\HelloTest'));
     }
 
-    public function testAddMap()
+    public function testAddClassMap()
     {
-        Loader::addMap('my\hello\Test', 'Test.php');
-        $this->assertEquals(false, Loader::autoload('my\hello\Test'));
+        Loader::addClassMap('my\hello\Test', __DIR__ . DS . 'loader' . DS . 'Test.php');
     }
 
     public function testAddNamespace()
@@ -54,14 +51,8 @@ class loaderTest extends \PHPUnit_Framework_TestCase
         Loader::db('mysql://root@127.0.0.1/test#utf8');
     }
 
-    public function testInstance()
-    {
-        Loader::instance('\think\Validate');
-    }
-
     public function testImport()
     {
-        $this->assertEquals(true, Loader::import('think.log.driver.Sae'));
         $this->assertEquals(false, Loader::import('think.log.driver.MyTest'));
     }
 

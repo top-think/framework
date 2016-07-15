@@ -24,7 +24,6 @@ class Sqlsrv extends Connection
         PDO::ATTR_CASE              => PDO::CASE_LOWER,
         PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_STRINGIFY_FETCHES => false,
-        PDO::SQLSRV_ATTR_ENCODING   => PDO::SQLSRV_ENCODING_UTF8,
     ];
 
     /**
@@ -50,6 +49,7 @@ class Sqlsrv extends Connection
      */
     public function getFields($tableName)
     {
+        $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
         $sql             = "SELECT   column_name,   data_type,   column_default,   is_nullable
         FROM    information_schema.tables AS t

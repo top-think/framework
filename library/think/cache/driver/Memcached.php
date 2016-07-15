@@ -12,18 +12,18 @@
 namespace think\cache\driver;
 
 use think\Cache;
-use think\Exception;
 
 class Memcached
 {
-    protected $handler = null;
+    protected $handler;
     protected $options = [
-        'host'    => '127.0.0.1',
-        'port'    => 11211,
-        'expire'  => 0,
-        'timeout' => 0, // 超时时间（单位：毫秒）
-        'length'  => 0,
-        'prefix'  => '',
+        'host'     => '127.0.0.1',
+        'port'     => 11211,
+        'expire'   => 0,
+        'timeout'  => 0, // 超时时间（单位：毫秒）
+        'prefix'   => '',
+        'username' => '', //账号
+        'password' => '', //密码
     ];
 
     /**
@@ -34,7 +34,7 @@ class Memcached
     public function __construct($options = [])
     {
         if (!extension_loaded('memcached')) {
-            throw new Exception('_NOT_SUPPERT_:memcached');
+            throw new \BadFunctionCallException('not support: memcached');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -56,6 +56,10 @@ class Memcached
             $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
         }
         $this->handler->addServers($servers);
+        if ('' != $this->options['username']) {
+            $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
+            $this->handler->setSaslAuthData($this->options['username'], $this->options['password']);
+        }
     }
 
     /**
@@ -72,9 +76,9 @@ class Memcached
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -83,7 +87,7 @@ class Memcached
             $expire = $this->options['expire'];
         }
         $name   = $this->options['prefix'] . $name;
-        $expire = 0 == $expire ? 0 : time() + $expire;
+        $expire = 0 == $expire ? 0 : $_SERVER['REQUEST_TIME'] + $expire;
         if ($this->handler->set($name, $value, $expire)) {
             return true;
         }

@@ -12,6 +12,7 @@
 namespace think;
 
 use think\paginator\Collection as PaginatorCollection;
+use think\Request;
 
 abstract class Paginator
 {
@@ -44,7 +45,7 @@ abstract class Paginator
         'fragment' => ''
     ];
 
-    public function __construct($items, $listRows, $currentPage = null, $simple = false, $total = null, $options = [])
+    protected function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
@@ -53,12 +54,13 @@ abstract class Paginator
         $this->simple   = $simple;
         $this->listRows = $listRows;
 
-        $this->items = PaginatorCollection::make($items, $this);
-
         if ($simple) {
+            if (!$items instanceof Collection) {
+                $items = Collection::make($items);
+            }
             $this->currentPage = $this->setCurrentPage($currentPage);
-            $this->hasMore     = count($this->items) > ($this->listRows);
-            $this->items       = $this->items->slice(0, $this->listRows);
+            $this->hasMore     = count($items) > ($this->listRows);
+            $items             = $items->slice(0, $this->listRows);
         } else {
             $this->total       = $total;
             $this->lastPage    = (int)ceil($total / $listRows);
@@ -66,13 +68,23 @@ abstract class Paginator
             $this->hasMore     = $this->currentPage < $this->lastPage;
         }
 
+        $this->items = PaginatorCollection::make($items, $this);
     }
 
-    public function items()
+    /**
+     * @param       $items
+     * @param       $listRows
+     * @param null  $currentPage
+     * @param bool  $simple
+     * @param null  $total
+     * @param array $options
+     * @return PaginatorCollection
+     */
+    public static function make($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
-        return $this->items;
+        $paginator = new static($items, $listRows, $currentPage, $total, $simple, $options);
+        return $paginator->items;
     }
-
 
     protected function setCurrentPage($currentPage)
     {
@@ -120,7 +132,7 @@ abstract class Paginator
      */
     public static function getCurrentPage($varPage = 'page', $default = 1)
     {
-        $page = Input::request($varPage);
+        $page = Request::instance()->request($varPage);
 
         if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int)$page >= 1) {
             return $page;
@@ -135,14 +147,13 @@ abstract class Paginator
      */
     public static function getCurrentPath()
     {
-        //TODO 待Request类完善后这里再完善
-        return '/' . $_SERVER['PATH_INFO'];
+        return Request::instance()->baseUrl();
     }
 
     public function total()
     {
         if ($this->simple) {
-            throw new \Exception('简洁模式下不能获取数据总数');
+            throw new \DomainException('not support total');
         }
         return $this->total;
     }
@@ -160,7 +171,7 @@ abstract class Paginator
     public function lastPage()
     {
         if ($this->simple) {
-            throw new \Exception('简洁模式下不能获取最后一页');
+            throw new \DomainException('not support last');
         }
         return $this->lastPage;
     }

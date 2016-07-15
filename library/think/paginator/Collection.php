@@ -23,6 +23,8 @@ use think\Paginator;
  * @method string render()
  * @method Paginator fragment($fragment)
  * @method Paginator appends($key, $value)
+ * @method integer lastPage()
+ * @method boolean hasPages()
  */
 class Collection extends \think\Collection
 {
@@ -32,9 +34,6 @@ class Collection extends \think\Collection
 
     public function __construct($items = [], Paginator $paginator = null)
     {
-        if (!$paginator instanceof Paginator) {
-            throw new \RuntimeException('Paginator Required!');
-        }
         $this->paginator = $paginator;
         parent::__construct($items);
     }
@@ -43,30 +42,33 @@ class Collection extends \think\Collection
     {
         return new static($items, $paginator);
     }
-
-
+    
     public function toArray()
     {
-        try {
-            $total = $this->total();
-        } catch (Exception $e) {
-            $total = null;
-        }
+        if ($this->paginator) {
+            try {
+                $total = $this->total();
+            } catch (Exception $e) {
+                $total = null;
+            }
 
-        return [
-            'total'        => $total,
-            'per_page'     => $this->listRows(),
-            'current_page' => $this->currentPage(),
-            'data'         => parent::toArray()
-        ];
+            return [
+                'total'        => $total,
+                'per_page'     => $this->listRows(),
+                'current_page' => $this->currentPage(),
+                'data'         => parent::toArray()
+            ];
+        } else {
+            return parent::toArray();
+        }
     }
 
     public function __call($method, $args)
     {
-        if (method_exists($this->paginator, $method)) {
+        if ($this->paginator && method_exists($this->paginator, $method)) {
             return call_user_func_array([$this->paginator, $method], $args);
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
         }
     }
 }

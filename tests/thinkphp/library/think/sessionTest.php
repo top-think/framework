@@ -156,14 +156,13 @@ class sessionTest extends \PHPUnit_Framework_TestCase
             'use_cookies'    => '1',
             'cache_limiter'  => '60',
             'cache_expire'   => '60',
-            'type'           => 'memcache', //
-            'namespace'      => '\\think\\session\\driver\\', // ?
+            'type'           => '\\think\\session\\driver\\Memcache', //
             'auto_start'     => '1',
         ];
 
         // 测试session驱动是否存在
         // @expectedException 异常类名
-        $this->setExpectedException('\think\Exception', 'error session handler', 11700);
+        $this->setExpectedException('\think\exception\ClassNotFoundException', 'error session handler');
 
         Session::init($config);
     }

@@ -19,10 +19,11 @@ use think\model\Pivot;
 
 class Relation
 {
-    const HAS_ONE         = 1;
-    const HAS_MANY        = 2;
-    const BELONGS_TO      = 3;
-    const BELONGS_TO_MANY = 4;
+    const HAS_ONE          = 1;
+    const HAS_MANY         = 2;
+    const HAS_MANY_THROUGH = 5;
+    const BELONGS_TO       = 3;
+    const BELONGS_TO_MANY  = 4;
 
     // 父模型对象
     protected $parent;
@@ -32,17 +33,25 @@ class Relation
     protected $middle;
     // 当前关联类型
     protected $type;
-    // 关联外键
+    // 关联表外键
     protected $foreignKey;
-    // 关联键
+    // 中间关联表外键
+    protected $throughKey;
+    // 关联表主键
     protected $localKey;
+    // 数据表别名
+    protected $alias;
+    // 当前关联的JOIN类型
+    protected $joinType;
+    // 关联模型查询对象
+    protected $query;
 
     /**
      * 架构函数
      * @access public
-     * @param \think\Model $model 上级模型对象
+     * @param Model $model 上级模型对象
      */
-    public function __construct($model)
+    public function __construct(Model $model)
     {
         $this->parent = $model;
     }
@@ -61,6 +70,8 @@ class Relation
             'middle'     => $this->middle,
             'foreignKey' => $this->foreignKey,
             'localKey'   => $this->localKey,
+            'alias'      => $this->alias,
+            'joinType'   => $this->joinType,
         ];
         return $name ? $info[$name] : $info;
     }
@@ -72,6 +83,7 @@ class Relation
         $relation   = $this->parent->$name();
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
+
         // 判断关联类型执行查询
         switch ($this->type) {
             case self::HAS_ONE:
@@ -81,13 +93,16 @@ class Relation
                 $result = $relation->where($localKey, $this->parent->$foreignKey)->find();
                 break;
             case self::HAS_MANY:
-                $result = $relation->where($foreignKey, $this->parent->$localKey)->select();
+                $result = $relation->select();
+                break;
+            case self::HAS_MANY_THROUGH:
+                $result = $relation->select();
                 break;
             case self::BELONGS_TO_MANY:
                 // 关联查询
-                $pk                                = $this->parent->getPk();
-                $condition['pivot.' . $foreignKey] = $this->parent->$pk;
-                $result                            = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
+                $pk                              = $this->parent->getPk();
+                $condition['pivot.' . $localKey] = $this->parent->$pk;
+                $result                          = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
                 foreach ($result as $set) {
                     $pivot = [];
                     foreach ($set->toArray() as $key => $val) {
@@ -112,9 +127,9 @@ class Relation
     /**
      * 预载入关联查询 返回数据集
      * @access public
-     * @param array $resultSet 数据集
-     * @param string $relation 关联名
-     * @param string $class 数据集对象名 为空表示数组
+     * @param array     $resultSet 数据集
+     * @param string    $relation 关联名
+     * @param string    $class 数据集对象名 为空表示数组
      * @return array
      */
     public function eagerlyResultSet($resultSet, $relation, $class = '')
@@ -167,7 +182,7 @@ class Relation
                             if (!isset($data[$result->$localKey])) {
                                 $data[$result->$localKey] = [];
                             }
-                            $result->__set($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+                            $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
                         }
                     }
                     break;
@@ -184,7 +199,7 @@ class Relation
                     if (!empty($range)) {
                         // 查询关联数据
                         $data = $this->eagerlyManyToMany($model, [
-                            'pivot.' . $foreignKey => [
+                            'pivot.' . $localKey => [
                                 'in',
                                 $range,
                             ],
@@ -196,7 +211,7 @@ class Relation
                                 $data[$result->$pk] = [];
                             }
 
-                            $result->__set($relation, $this->resultSetBuild($data[$result->$pk], $class));
+                            $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
                         }
                     }
                     break;
@@ -208,8 +223,8 @@ class Relation
     /**
      * 封装关联数据集
      * @access public
-     * @param array $resultSet 数据集
-     * @param string $class 数据集类名
+     * @param array     $resultSet 数据集
+     * @param string    $class 数据集类名
      * @return mixed
      */
     protected function resultSetBuild($resultSet, $class = '')
@@ -220,10 +235,10 @@ class Relation
     /**
      * 预载入关联查询 返回模型对象
      * @access public
-     * @param Model $result 数据对象
-     * @param string $relation 关联名
-     * @param string $class 数据集对象名 为空表示数组
-     * @return \think\Model
+     * @param Model     $result 数据对象
+     * @param string    $relation 关联名
+     * @param string    $class 数据集对象名 为空表示数组
+     * @return Model
      */
     public function eagerlyResult($result, $relation, $class = '')
     {
@@ -256,7 +271,7 @@ class Relation
                         if (!isset($data[$result->$localKey])) {
                             $data[$result->$localKey] = [];
                         }
-                        $result->__set($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+                        $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
                     }
                     break;
                 case self::BELONGS_TO_MANY:
@@ -264,13 +279,13 @@ class Relation
                     if (isset($result->$pk)) {
                         $pk = $result->$pk;
                         // 查询管理数据
-                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $foreignKey => $pk], $relation, $subRelation);
+                        $data = $this->eagerlyManyToMany($model, ['pivot.' . $localKey => $pk], $relation, $subRelation);
 
                         // 关联数据封装
                         if (!isset($data[$pk])) {
                             $data[$pk] = [];
                         }
-                        $result->__set($relation, $this->resultSetBuild($data[$pk], $class));
+                        $result->setAttr($relation, $this->resultSetBuild($data[$pk], $class));
                     }
                     break;
 
@@ -282,40 +297,39 @@ class Relation
     /**
      * 一对一 关联模型预查询拼装
      * @access public
-     * @param string $model 模型名称
-     * @param string $relation 关联名
-     * @param Model $result 模型对象实例
+     * @param string    $model 模型名称
+     * @param string    $relation 关联名
+     * @param Model     $result 模型对象实例
      * @return void
      */
     protected function match($model, $relation, &$result)
     {
-        $modelName = Loader::parseName(basename(str_replace('\\', '/', $model)));
         // 重新组装模型数据
         foreach ($result->toArray() as $key => $val) {
             if (strpos($key, '__')) {
                 list($name, $attr) = explode('__', $key, 2);
-                if ($name == $modelName) {
+                if ($name == $relation) {
                     $list[$name][$attr] = $val;
                     unset($result->$key);
                 }
             }
         }
 
-        if (!isset($list[$modelName])) {
+        if (!isset($list[$relation])) {
             // 设置关联模型属性
-            $list[$modelName] = [];
+            $list[$relation] = [];
         }
-        $result->__set($relation, new $model($list[$modelName]));
+        $result->setAttr($relation, (new $model($list[$relation]))->isUpdate(true));
     }
 
     /**
      * 一对多 关联模型预查询
      * @access public
-     * @param object $model 关联模型对象
-     * @param array $where 关联预查询条件
-     * @param string $relation 关联名
-     * @param string $subRelation 子关联
-     * @param bool $closure
+     * @param object    $model 关联模型对象
+     * @param array     $where 关联预查询条件
+     * @param string    $relation 关联名
+     * @param string    $subRelation 子关联
+     * @param bool      $closure
      * @return array
      */
     protected function eagerlyOneToMany($model, $where, $relation, $subRelation = '', $closure = false)
@@ -335,10 +349,10 @@ class Relation
     /**
      * 多对多 关联模型预查询
      * @access public
-     * @param object $model 关联模型对象
-     * @param array $where 关联预查询条件
-     * @param string $relation 关联名
-     * @param string $subRelation 子关联
+     * @param object    $model 关联模型对象
+     * @param array     $where 关联预查询条件
+     * @param string    $relation 关联名
+     * @param string    $subRelation 子关联
      * @return array
      */
     protected function eagerlyManyToMany($model, $where, $relation, $subRelation = '')
@@ -362,9 +376,21 @@ class Relation
                 }
             }
             $set->pivot                = new Pivot($pivot, $this->middle);
-            $data[$set->$foreignKey][] = $set;
+            $data[$pivot[$localKey]][] = $set;
         }
         return $data;
+    }
+
+    /**
+     * 设置当前关联定义的数据表别名
+     * @access public
+     * @param array  $alias 别名定义
+     * @return $this
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+        return $this;
     }
 
     /**
@@ -373,15 +399,19 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
+     * @param string $joinType JOIN类型
      * @return $this
      */
-    public function hasOne($model, $foreignKey, $localKey)
+    public function hasOne($model, $foreignKey, $localKey, $alias = [], $joinType = 'INNER')
     {
         $this->type       = self::HAS_ONE;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-
+        $this->alias      = $alias;
+        $this->joinType   = $joinType;
+        $this->query      = (new $model)->db();
         // 返回关联的模型对象
         return $this;
     }
@@ -392,16 +422,20 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $otherKey 关联主键
+     * @param array  $alias 别名定义
+     * @param string $joinType JOIN类型
      * @return $this
      */
-    public function belongsTo($model, $foreignKey, $otherKey)
+    public function belongsTo($model, $foreignKey, $otherKey, $alias = [], $joinType = 'INNER')
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $otherKey;
-
+        $this->alias      = $alias;
+        $this->joinType   = $joinType;
+        $this->query      = (new $model)->db();
         // 返回关联的模型对象
         return $this;
     }
@@ -412,16 +446,44 @@ class Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
      * @return $this
      */
-    public function hasMany($model, $foreignKey, $localKey)
+    public function hasMany($model, $foreignKey, $localKey, $alias)
     {
         // 记录当前关联信息
         $this->type       = self::HAS_MANY;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
+        $this->alias      = $alias;
+        $this->query      = (new $model)->db();
+        // 返回关联的模型对象
+        return $this;
+    }
 
+    /**
+     * HAS MANY 远程关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $through 中间模型名
+     * @param string $firstkey 关联外键
+     * @param string $secondKey 关联外键
+     * @param string $localKey 关联主键
+     * @param array  $alias 别名定义
+     * @return $this
+     */
+    public function hasManyThrough($model, $through, $foreignKey, $throughKey, $localKey, $alias)
+    {
+        // 记录当前关联信息
+        $this->type       = self::HAS_MANY_THROUGH;
+        $this->model      = $model;
+        $this->middle     = $through;
+        $this->foreignKey = $foreignKey;
+        $this->throughKey = $throughKey;
+        $this->localKey   = $localKey;
+        $this->alias      = $alias;
+        $this->query      = (new $model)->db();
         // 返回关联的模型对象
         return $this;
     }
@@ -433,9 +495,10 @@ class Relation
      * @param string $table 中间表名
      * @param string $foreignKey 关联模型外键
      * @param string $localKey 当前模型关联键
+     * @param array  $alias 别名定义
      * @return $this
      */
-    public function belongsToMany($model, $table, $foreignKey, $localKey)
+    public function belongsToMany($model, $table, $foreignKey, $localKey, $alias)
     {
         // 记录当前关联信息
         $this->type       = self::BELONGS_TO_MANY;
@@ -443,7 +506,8 @@ class Relation
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
         $this->middle     = $table;
-
+        $this->alias      = $alias;
+        $this->query      = (new $model)->db();
         // 返回关联的模型对象
         return $this;
     }
@@ -451,11 +515,11 @@ class Relation
     /**
      * BELONGS TO MANY 关联查询
      * @access public
-     * @param object $model 关联模型对象
-     * @param string $table 中间表名
-     * @param string $foreignKey 关联模型关联键
-     * @param string $localKey 当前模型关联键
-     * @param array $condition 关联查询条件
+     * @param object    $model 关联模型对象
+     * @param string    $table 中间表名
+     * @param string    $foreignKey 关联模型关联键
+     * @param string    $localKey 当前模型关联键
+     * @param array     $condition 关联查询条件
      * @return \think\db\Query|string
      */
     protected function belongsToManyQuery($model, $table, $foreignKey, $localKey, $condition = [])
@@ -472,8 +536,8 @@ class Relation
     /**
      * 保存（新增）当前关联数据对象
      * @access public
-     * @param mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
-     * @param array $pivot 中间表额外数据
+     * @param mixed     $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
+     * @param array     $pivot 中间表额外数据
      * @return integer
      */
     public function save($data, array $pivot = [])
@@ -499,8 +563,8 @@ class Relation
     /**
      * 批量保存当前关联数据对象
      * @access public
-     * @param array $dataSet 数据集
-     * @param array $pivot 中间表额外数据
+     * @param array     $dataSet 数据集
+     * @param array     $pivot 中间表额外数据
      * @return integer
      */
     public function saveAll(array $dataSet, array $pivot = [])
@@ -525,8 +589,8 @@ class Relation
     /**
      * 附加关联的一个中间表数据
      * @access public
-     * @param mixed $data 数据 可以使用数组、关联模型对象 或者 关联对象的主键
-     * @param array $pivot 中间表额外数据
+     * @param mixed     $data 数据 可以使用数组、关联模型对象 或者 关联对象的主键
+     * @param array     $pivot 中间表额外数据
      * @return integer
      */
     public function attach($data, $pivot = [])
@@ -534,10 +598,8 @@ class Relation
         if (is_array($data)) {
             // 保存关联表数据
             $model = new $this->model;
-            $model->save($data);
-            $relationFk = $model->getPk();
-            $id         = $model->$relationFk;
-        } elseif (is_int($data)) {
+            $id    = $model->save($data);
+        } elseif (is_numeric($data)) {
             // 根据关联表主键直接写入中间表
             $id = $data;
         } elseif ($data instanceof Model) {
@@ -551,24 +613,25 @@ class Relation
             $pk                       = $this->parent->getPk();
             $pivot[$this->localKey]   = $this->parent->$pk;
             $pivot[$this->foreignKey] = $id;
-            return Db::table($this->middle)->insert($pivot);
+            $query                    = clone $this->parent->db();
+            return $query->table($this->middle)->insert($pivot);
         } else {
-            throw new Exception(' miss relation data');
+            throw new Exception('miss relation data');
         }
     }
 
     /**
      * 解除关联的一个中间表数据
      * @access public
-     * @param integer|array $data 数据 可以使用关联对象的主键
-     * @param bool $relationDel 是否同时删除关联表数据
+     * @param integer|array     $data 数据 可以使用关联对象的主键
+     * @param bool              $relationDel 是否同时删除关联表数据
      * @return integer
      */
     public function detach($data, $relationDel = false)
     {
         if (is_array($data)) {
             $id = $data;
-        } elseif (is_int($data)) {
+        } elseif (is_numeric($data)) {
             // 根据关联表主键直接写入中间表
             $id = $data;
         } elseif ($data instanceof Model) {
@@ -580,7 +643,8 @@ class Relation
         $pk                       = $this->parent->getPk();
         $pivot[$this->localKey]   = $this->parent->$pk;
         $pivot[$this->foreignKey] = is_array($id) ? ['in', $id] : $id;
-        Db::table($this->middle)->where($pivot)->delete();
+        $query                    = clone $this->parent->db();
+        $query->table($this->middle)->where($pivot)->delete();
 
         // 删除关联表数据
         if ($relationDel) {
@@ -591,16 +655,36 @@ class Relation
 
     public function __call($method, $args)
     {
-        if ($this->model) {
-            $model = new $this->model;
-            $db    = $model->db();
-            if (self::HAS_MANY == $this->type && isset($this->parent->{$this->localKey})) {
-                // 关联查询带入关联条件
-                $db->where($this->foreignKey, $this->parent->{$this->localKey});
+        if ($this->query) {
+            switch ($this->type) {
+                case self::HAS_MANY:
+                    if (isset($this->parent->{$this->localKey})) {
+                        // 关联查询带入关联条件
+                        $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
+                    }
+                    break;
+                case self::HAS_MANY_THROUGH:
+                    $through      = $this->middle;
+                    $model        = $this->model;
+                    $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
+                    $throughTable = $through::getTable();
+                    $pk           = (new $this->model)->getPk();
+                    $throughKey   = $this->throughKey;
+                    $modelTable   = $this->parent->getTable();
+                    $result       = $this->query->field($alias . '.*')->alias($alias)
+                        ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
+                        ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
+                        ->where($throughTable . '.' . $this->foreignKey, $this->parent->{$this->localKey});
+                    break;
             }
-            return call_user_func_array([$db, $method], $args);
+            $result = call_user_func_array([$this->query, $method], $args);
+            if ($result instanceof \think\db\Query) {
+                return $this;
+            } else {
+                return $result;
+            }
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
         }
     }
 

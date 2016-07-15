@@ -21,6 +21,7 @@ use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
 use think\console\Output;
+use think\console\output\Nothing;
 use think\console\output\Stream;
 
 class Console
@@ -49,7 +50,8 @@ class Console
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
         "think\\console\\command\\make\\Controller",
-        "think\\console\\command\\make\\Model"
+        "think\\console\\command\\make\\Model",
+        "think\\console\\command\\optimize\\Autoload",
     ];
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
@@ -64,6 +66,44 @@ class Console
         foreach ($this->getDefaultCommands() as $command) {
             $this->add($command);
         }
+    }
+
+    public static function init($run = true)
+    {
+        static $console;
+        if (!$console) {
+            // 实例化console
+            $console = new self('Think Console', '0.1');
+            // 读取指令集
+            if (is_file(CONF_PATH . 'command' . EXT)) {
+                $commands = include CONF_PATH . 'command' . EXT;
+                if (is_array($commands)) {
+                    foreach ($commands as $command) {
+                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\command\\Command")) {
+                            // 注册指令
+                            $console->add(new $command());
+                        }
+                    }
+                }
+            }
+        }
+        if ($run) {
+            // 运行
+            $console->run();
+        } else {
+            return $console;
+        }
+    }
+
+    public static function call($command, array $parameters = [])
+    {
+        $console = self::init(false);
+
+        array_unshift($parameters, $command);
+
+        $input = new Input($parameters);
+
+        $console->find($command)->run($input, new Nothing());
     }
 
     /**
@@ -112,8 +152,8 @@ class Console
 
     /**
      * 执行指令
-     * @param Input  $input
-     * @param Output $output
+     * @param Input $input
+     * @param Output       $output
      * @return int
      */
     public function doRun(Input $input, Output $output)
@@ -640,8 +680,8 @@ class Console
 
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
-     * @param Input  $input  输入实例
-     * @param Output $output 输出实例
+     * @param Input $input  输入实例
+     * @param Output       $output 输出实例
      */
     protected function configureIO(Input $input, Output $output)
     {
@@ -663,18 +703,11 @@ class Console
         if (true === $input->hasParameterOption(['--quiet', '-q'])) {
             $output->setVerbosity(Output::VERBOSITY_QUIET);
         } else {
-            if ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3')
-                || $input->getParameterOption('--verbose') === 3
-            ) {
+            if ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
                 $output->setVerbosity(Output::VERBOSITY_DEBUG);
-            } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2')
-                || $input->getParameterOption('--verbose') === 2
-            ) {
+            } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
                 $output->setVerbosity(Output::VERBOSITY_VERY_VERBOSE);
-            } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1')
-                || $input->hasParameterOption('--verbose')
-                || $input->getParameterOption('--verbose')
-            ) {
+            } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
                 $output->setVerbosity(Output::VERBOSITY_VERBOSE);
             }
         }
@@ -682,9 +715,9 @@ class Console
 
     /**
      * 执行指令
-     * @param Command $command 指令实例
-     * @param Input   $input   输入实例
-     * @param Output  $output  输出实例
+     * @param Command      $command 指令实例
+     * @param Input $input   输入实例
+     * @param Output       $output  输出实例
      * @return int
      * @throws \Exception
      */
