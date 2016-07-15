@@ -534,7 +534,7 @@ class Validate
                 break;
             case 'chsDash':
                 // 只允许汉字、字母、数字和下划线_及破折号-
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u/');
+                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u');
                 break;
             case 'activeUrl':
                 // 是否为有效的网址
