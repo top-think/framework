@@ -369,7 +369,7 @@ abstract class Builder
     protected function parseDateTime($value, $key, $options = [])
     {
         // 获取时间字段类型
-        $type = $this->query->getTableInfo('', 'type');
+        $type = $this->query->getTableInfo($options['table'], 'type');
         if (isset($options['field_type'][$key])) {
             $info = $options['field_type'][$key];
         } elseif (isset($type[$key])) {
