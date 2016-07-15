@@ -48,6 +48,10 @@ class Validate
         'alphaNum'   => ':attribute只能是字母和数字',
         'alphaDash'  => ':attribute只能是字母、数字和下划线_及破折号-',
         'activeUrl'  => ':attribute不是有效的域名或者IP',
+        'chs'        => ':attribute只能是汉字',
+        'chsAlpha'   => ':attribute只能是汉字、字母',
+        'chsAlphaNum'=> ':attribute只能是汉字、字母和数字',
+        'chsDash'    => ':attribute只能是汉字、字母、数字和下划线_及破折号-',
         'url'        => ':attribute不是有效的URL地址',
         'ip'         => ':attribute不是有效的IP地址',
         'dateFormat' => ':attribute必须使用日期格式 :rule',
@@ -515,6 +519,22 @@ class Validate
             case 'alphaDash':
                 // 只允许字母、数字和下划线 破折号
                 $result = $this->regex($value, '/^[A-Za-z0-9\-\_]+$/');
+                break;
+            case 'chs':
+                // 只允许汉字
+                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}]+$/u');
+                break;
+            case 'chsAlpha':
+                // 只允许汉字、字母
+                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u');
+                break;
+            case 'chsAlphaNum':
+                // 只允许汉字、字母和数字
+                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u');
+                break;
+            case 'chsDash':
+                // 只允许汉字、字母、数字和下划线_及破折号-
+                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u');
                 break;
             case 'activeUrl':
                 // 是否为有效的网址
