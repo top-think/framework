@@ -640,14 +640,16 @@ class Relation
             $id         = $data->$relationFk;
         }
         // 删除中间表数据
-        $pk                       = $this->parent->getPk();
-        $pivot[$this->localKey]   = $this->parent->$pk;
-        $pivot[$this->foreignKey] = is_array($id) ? ['in', $id] : $id;
-        $query                    = clone $this->parent->db();
+        $pk                     = $this->parent->getPk();
+        $pivot[$this->localKey] = $this->parent->$pk;
+        if (isset($id)) {
+            $pivot[$this->foreignKey] = is_array($id) ? ['in', $id] : $id;
+        }
+        $query = clone $this->parent->db();
         $query->table($this->middle)->where($pivot)->delete();
 
         // 删除关联表数据
-        if ($relationDel) {
+        if (isset($id) && $relationDel) {
             $model = $this->model;
             $model::destroy($id);
         }
