@@ -11,6 +11,7 @@
 
 namespace think\cache\driver;
 
+use think\App;
 use think\Cache;
 use think\Exception;
 use think\Log;
@@ -83,7 +84,7 @@ class Redisd
     public function __construct($options = [])
     {
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new \BadFunctionCallException('not support: redis');
         }
 
         $this->options         = $options         = array_merge($this->options, $options);
@@ -148,7 +149,7 @@ class Redisd
                 $this->handler->setOption(\Redis::OPT_PREFIX, $this->options['prefix']);
             }
 
-            APP_DEBUG && Log::record("[ CACHE ] INIT Redisd : {$host}:{$port} master->" . var_export($master, true), Log::ALERT);
+            App::$debug && Log::record("[ CACHE ] INIT Redisd : {$host}:{$port} master->" . var_export($master, true), Log::ALERT);
         } catch (\RedisException $e) {
             //phpredis throws a RedisException object if it can't reach the Redis server.
             //That can happen in case of connectivity issues, if the Redis service is down, or if the redis host is overloaded.

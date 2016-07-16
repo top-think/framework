@@ -10,7 +10,7 @@
 // +----------------------------------------------------------------------
 
 /**
- * Test缓存驱动测试
+ * Lite缓存驱动测试
  * @author    刘志淳 <chun@engineer.com>
  */
 
@@ -18,8 +18,13 @@ namespace tests\thinkphp\library\think\cache\driver;
 
 use think\Cache;
 
-class testTest extends \PHPUnit_Framework_TestCase
+class liteTest extends \PHPUnit_Framework_TestCase
 {
+    protected function getCacheInstance()
+    {
+        return Cache::connect(['type' => 'Lite', 'path' => CACHE_PATH]);
+    }
+
     /**
      * 测试缓存读取
      * @return  mixed
@@ -27,8 +32,7 @@ class testTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet()
     {
-        $cache = Cache::connect(['type' => 'Test']);
-
+        $cache = $this->getCacheInstance();
         $this->assertFalse($cache->get('test'));
     }
 
@@ -39,9 +43,8 @@ class testTest extends \PHPUnit_Framework_TestCase
      */
     public function testSet()
     {
-        $cache = Cache::connect(['type' => 'Test']);
-
-        $this->assertTrue($cache->set('test', 'test'));
+        $cache = $this->getCacheInstance();
+        $this->assertNotEmpty($cache->set('test', 'test'));
     }
 
     /**
@@ -51,8 +54,7 @@ class testTest extends \PHPUnit_Framework_TestCase
      */
     public function testRm()
     {
-        $cache = Cache::connect(['type' => 'Test']);
-
+        $cache = $this->getCacheInstance();
         $this->assertTrue($cache->rm('test'));
     }
 
@@ -63,8 +65,5 @@ class testTest extends \PHPUnit_Framework_TestCase
      */
     public function testClear()
     {
-        $cache = Cache::connect(['type' => 'Test']);
-
-        $this->assertTrue($cache->clear());
     }
 }

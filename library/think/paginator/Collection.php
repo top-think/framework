@@ -23,6 +23,8 @@ use think\Paginator;
  * @method string render()
  * @method Paginator fragment($fragment)
  * @method Paginator appends($key, $value)
+ * @method integer lastPage()
+ * @method boolean hasPages()
  */
 class Collection extends \think\Collection
 {
@@ -40,17 +42,7 @@ class Collection extends \think\Collection
     {
         return new static($items, $paginator);
     }
-
-    public function setPaginator(Paginator $paginator)
-    {
-        $this->paginator = $paginator;
-    }
-
-    public function getPaginator()
-    {
-        return $this->paginator;
-    }
-
+    
     public function toArray()
     {
         if ($this->paginator) {
@@ -76,7 +68,7 @@ class Collection extends \think\Collection
         if ($this->paginator && method_exists($this->paginator, $method)) {
             return call_user_func_array([$this->paginator, $method], $args);
         } else {
-            throw new Exception(__CLASS__ . ':' . $method . ' method not exist');
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
         }
     }
 }

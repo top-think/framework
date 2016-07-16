@@ -448,37 +448,10 @@ EOF;
         $cx       = new Cx($template);
 
         $content = <<<EOF
-{import file="base?ver=1.0" value="\$name.a" /}
-EOF;
-        $data = <<<EOF
-<?php if(isset(\$name['a'])): ?><script type="text/javascript" src="/public/base.js?ver=1.0"></script><?php endif; ?>
-EOF;
-        $cx->parseTag($content);
-        $this->assertEquals($content, $data);
-
-        $content = <<<EOF
-{import file="base" type="css" /}
-EOF;
-        $data = <<<EOF
-<link rel="stylesheet" type="text/css" href="/public/base.css" />
-EOF;
-        $cx->parseTag($content);
-        $this->assertEquals($content, $data);
-
-        $content = <<<EOF
-{import file="base,common" type="php" /}
-EOF;
-        $data = <<<EOF
-<?php \\think\\Loader::import("base"); ?><?php \\think\\Loader::import("common"); ?>
-EOF;
-        $cx->parseTag($content);
-        $this->assertEquals($content, $data);
-
-        $content = <<<EOF
 {load file="base.php" value="\$name.a" /}
 EOF;
         $data = <<<EOF
-<?php if(isset(\$name['a'])): ?><?php require_cache("base.php"); ?><?php endif; ?>
+<?php if(isset(\$name['a'])): ?><?php include "base.php"; ?><?php endif; ?>
 EOF;
         $cx->parseTag($content);
         $this->assertEquals($content, $data);
@@ -562,7 +535,16 @@ EOF;
         $template->display($content);
         $this->expectOutputString('123456789');
     }
-
+    public function testUrl()
+    {
+        $template = new template();
+        $content = <<<EOF
+{url link="Index/index"  /}
+EOF;
+        $template->display($content);
+        $this->expectOutputString(\think\Url::build('Index/index'));
+    }
+    
     public function testFunction()
     {
         $template = new template();

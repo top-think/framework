@@ -12,8 +12,8 @@
 namespace think\console\helper;
 
 use think\console\Output;
+use think\Process as ThinkProcess;
 use think\process\Builder as ProcessBuilder;
-use think\process as ThinkProcess;
 use think\process\exception\Failed as ProcessFailedException;
 
 class Process extends Helper

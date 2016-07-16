@@ -93,4 +93,8 @@ class Pgsql extends Connection
     {
         return [];
     }
+
+    protected function supportSavepoint(){
+        return true;
+    }
 }

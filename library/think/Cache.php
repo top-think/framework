@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\App;
+
 class Cache
 {
     protected static $instance = [];
@@ -27,8 +29,8 @@ class Cache
     /**
      * 连接缓存
      * @access public
-     * @param array $options  配置数组
-     * @param bool|string $name 缓存连接标识 true 强制重新连接
+     * @param array         $options  配置数组
+     * @param bool|string   $name 缓存连接标识 true 强制重新连接
      * @return object
      */
     public static function connect(array $options = [], $name = false)
@@ -39,10 +41,10 @@ class Cache
         }
 
         if (true === $name || !isset(self::$instance[$name])) {
-            $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\cache\\driver\\') . ucwords($type);
+            $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
 
             // 记录初始化信息
-            APP_DEBUG && Log::record('[ CACHE ] INIT ' . $type . ':' . var_export($options, true), 'info');
+            App::$debug && Log::record('[ CACHE ] INIT ' . $type . ':' . var_export($options, true), 'info');
             if (true === $name) {
                 return new $class($options);
             } else {
@@ -82,9 +84,9 @@ class Cache
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存标识
-     * @param mixed $value  存储数据
-     * @param int|null $expire  有效时间 0为永久
+     * @param string        $name 缓存标识
+     * @param mixed         $value  存储数据
+     * @param int|null      $expire  有效时间 0为永久
      * @return boolean
      */
     public static function set($name, $value, $expire = null)
@@ -97,7 +99,7 @@ class Cache
     /**
      * 删除缓存
      * @access public
-     * @param string $name 缓存标识
+     * @param string    $name 缓存标识
      * @return boolean
      */
     public static function rm($name)

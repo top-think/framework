@@ -34,7 +34,7 @@ class Wincache
     public function __construct($options = [])
     {
         if (!function_exists('wincache_ucache_info')) {
-            throw new Exception('_NOT_SUPPERT_:WinCache');
+            throw new \BadFunctionCallException('not support: WinCache');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
@@ -56,9 +56,9 @@ class Wincache
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return boolean
      */
     public function set($name, $value, $expire = null)

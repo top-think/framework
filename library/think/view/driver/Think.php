@@ -11,7 +11,8 @@
 
 namespace think\view\driver;
 
-use think\Exception;
+use think\App;
+use think\exception\TemplateNotFoundException;
 use think\Log;
 use think\Request;
 use think\Template;
@@ -35,8 +36,8 @@ class Think
     public function __construct($config = [])
     {
         $this->config = array_merge($this->config, $config);
-        if (empty($this->config['view_path']) && defined('MODULE_PATH')) {
-            $this->config['view_path'] = MODULE_PATH . 'view' . DS;
+        if (empty($this->config['view_path'])) {
+            $this->config['view_path'] = App::$modulePath . 'view' . DS;
         }
         $this->template = new Template($this->config);
     }
@@ -59,9 +60,9 @@ class Think
     /**
      * 渲染模板文件
      * @access public
-     * @param string $template 模板文件
-     * @param array $data 模板变量
-     * @param array $config 模板参数
+     * @param string    $template 模板文件
+     * @param array     $data 模板变量
+     * @param array     $config 模板参数
      * @return void
      */
     public function fetch($template, $data = [], $config = [])
@@ -72,19 +73,19 @@ class Think
         }
         // 模板不存在 抛出异常
         if (!is_file($template)) {
-            throw new Exception('template file not exists:' . $template, 10700);
+            throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        APP_DEBUG && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
+        App::$debug && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
         $this->template->fetch($template, $data, $config);
     }
 
     /**
      * 渲染模板内容
      * @access public
-     * @param string $template 模板内容
-     * @param array $data 模板变量
-     * @param array $config 模板参数
+     * @param string    $template 模板内容
+     * @param array     $data 模板变量
+     * @param array     $config 模板参数
      * @return void
      */
     public function display($template, $data = [], $config = [])

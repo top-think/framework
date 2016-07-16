@@ -9,18 +9,18 @@
 // | Author: 麦当苗儿 <zuojiazi@vip.qq.com> <http://zjzit.cn>
 // +----------------------------------------------------------------------
 
-namespace think\exception;
+namespace think\db\exception;
 
 use think\exception\DbException;
 
 /**
  * PDO参数绑定异常
  */
-class DbBindParamException extends DbException 
+class BindParamException extends DbException 
 {
 
     /**
-     * DbBindParamException constructor.
+     * BindParamException constructor.
      * @param string $message
      * @param array  $config
      * @param string $sql

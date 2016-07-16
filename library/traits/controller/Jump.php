@@ -19,31 +19,37 @@ use think\exception\HttpResponseException;
 use think\Request;
 use think\Response;
 use think\response\Redirect;
+use think\Url;
 use think\View as ViewTemplate;
 
 trait Jump
 {
     /**
      * 操作成功跳转的快捷方法
-     * @access public
+     * @access protected
      * @param mixed $msg 提示信息
      * @param string $url 跳转的URL地址
      * @param mixed $data 返回的数据
      * @param integer $wait 跳转等待时间
      * @return array
      */
-    public function success($msg = '', $url = null, $data = '', $wait = 3)
+    protected function success($msg = '', $url = null, $data = '', $wait = 3)
     {
         $code = 1;
         if (is_numeric($msg)) {
             $code = $msg;
             $msg  = '';
         }
+        if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
+            $url = $_SERVER["HTTP_REFERER"];
+        } else {
+            $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
+        }
         $result = [
             'code' => $code,
             'msg'  => $msg,
             'data' => $data,
-            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
+            'url'  => $url,
             'wait' => $wait,
         ];
 
@@ -57,25 +63,30 @@ trait Jump
 
     /**
      * 操作错误跳转的快捷方法
-     * @access public
+     * @access protected
      * @param mixed $msg 提示信息
      * @param string $url 跳转的URL地址
      * @param mixed $data 返回的数据
      * @param integer $wait 跳转等待时间
      * @return void
      */
-    public function error($msg = '', $url = null, $data = '', $wait = 3)
+    protected function error($msg = '', $url = null, $data = '', $wait = 3)
     {
         $code = 0;
         if (is_numeric($msg)) {
             $code = $msg;
             $msg  = '';
         }
+        if (is_null($url)) {
+            $url = 'javascript:history.back(-1);';
+        } else {
+            $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
+        }
         $result = [
             'code' => $code,
             'msg'  => $msg,
             'data' => $data,
-            'url'  => is_null($url) ? 'javascript:history.back(-1);' : $url,
+            'url'  => $url,
             'wait' => $wait,
         ];
 
@@ -90,16 +101,23 @@ trait Jump
 
     /**
      * 返回封装后的API数据到客户端
-     * @access public
+     * @access protected
      * @param mixed $data 要返回的数据
      * @param integer $code 返回的code
      * @param mixed $msg 提示信息
      * @param string $type 返回数据格式
      * @return mixed
      */
-    public function result($data, $code = 0, $msg = '', $type = '')
+    protected function result($data, $code = 0, $msg = '', $type = '')
     {
-        return Response::create([], $type)->result($data, $code, $msg);
+        $result = [
+            'code' => $code,
+            'msg'  => $msg,
+            'time' => $_SERVER['REQUEST_TIME'],
+            'data' => $data,
+        ];
+        $type = $type ?: $this->getResponseType();
+        return Response::create($result, $type);
     }
 
     /**
@@ -110,7 +128,7 @@ trait Jump
      * @param integer $code http code
      * @return void
      */
-    public function redirect($url, $params = [], $code = 302)
+    protected function redirect($url, $params = [], $code = 302)
     {
         $response = new Redirect($url);
         if (is_integer($params)) {
@@ -123,10 +141,10 @@ trait Jump
 
     /**
      * 获取当前的response 输出类型
-     * @access public
+     * @access protected
      * @return string
      */
-    public function getResponseType()
+    protected function getResponseType()
     {
         $isAjax = Request::instance()->isAjax();
         return $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
