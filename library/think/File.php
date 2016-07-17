@@ -25,6 +25,8 @@ class File extends SplFileObject
     protected $filename;
     // 文件上传命名规则
     protected $rule = 'date';
+    // 文件上传验证规则
+    protected $validate = [];
     // 单元测试
     protected $isTest;
     // 上传文件信息
@@ -109,6 +111,17 @@ class File extends SplFileObject
     }
 
     /**
+     * 设置上传文件的验证规则
+     * @param  array   $rule    验证规则
+     * @return $this
+     */
+    public function validate($rule = [])
+    {
+        $this->validate = $rule;
+        return $this;
+    }
+
+    /**
      * 检测是否合法的上传文件
      * @return bool
      */
@@ -118,6 +131,106 @@ class File extends SplFileObject
             return is_file($this->filename);
         }
         return is_uploaded_file($this->filename);
+    }
+
+    /**
+     * 检测上传文件
+     * @param  array   $rule    验证规则
+     * @return bool
+     */
+    public function check($rule = [])
+    {
+        $rule = $rule ?: $this->validate;
+
+        /* 检查文件大小 */
+        if (isset($rule['size']) && !$this->checkSize($rule['size'])) {
+            $this->error = '上传文件大小不符！';
+            return false;
+        }
+
+        /* 检查文件Mime类型 */
+        if (isset($rule['type']) && !$this->checkMime($rule['type'])) {
+            $this->error = '上传文件MIME类型不允许！';
+            return false;
+        }
+
+        /* 检查文件后缀 */
+        if (isset($rule['ext']) && !$this->checkExt($rule['ext'])) {
+            $this->error = '上传文件后缀不允许';
+            return false;
+        }
+
+        /* 检查图像文件 */
+        if (!$this->checkImg()) {
+            $this->error = '非法图像文件！';
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 检测上传文件后缀
+     * @param  array|string   $ext    允许后缀
+     * @return bool
+     */
+    public function checkExt($ext)
+    {
+        if (is_string($ext)) {
+            $ext = explode(',', $ext);
+        }
+        $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
+        if (!in_array($extension, $ext)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 检测图像文件
+     * @return bool
+     */
+    public function checkImg()
+    {
+        $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
+        /* 对图像文件进行严格检测 */
+        if (in_array($extension, array('gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf'))) {
+            $imginfo = getimagesize($this->filename);
+            if (empty($imginfo) || ('gif' == $extension && empty($imginfo['bits']))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 检测上传文件大小
+     * @param  integer   $size    最大大小
+     * @return bool
+     */
+    public function checkSize($size)
+    {
+        if ($this->getSize() > $size) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 检测上传文件类型
+     * @param  array|string   $mime    允许类型
+     * @return bool
+     */
+    public function checkMime($mime)
+    {
+        if (is_string($mime)) {
+            $mime = explode(',', $mime);
+        }
+        if (!in_array(strtolower($this->getMime()), $mime)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -135,6 +248,10 @@ class File extends SplFileObject
             return false;
         }
 
+        // 验证上传
+        if (!$this->check()) {
+            return false;
+        }
         $path = rtrim($path, DS) . DS;
         // 文件保存命名规则
         $savename = $this->getSaveName($savename);
@@ -189,11 +306,11 @@ class File extends SplFileObject
                         $savename = call_user_func($this->rule);
                 }
             }
-            if (!strpos($savename, '.')) {
-                $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
-            }
         } elseif ('' === $savename) {
             $savename = $this->getInfo('name');
+        }
+        if (!strpos($savename, '.')) {
+            $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
         }
         return $savename;
     }
