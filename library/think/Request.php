@@ -627,6 +627,22 @@ class Request
     }
 
     /**
+     * 获取获取当前请求的参数 包含file
+     * @access public
+     * @param string|array  $name 变量名
+     * @param mixed         $default 默认值
+     * @param string|array  $filter 过滤方法
+     * @return mixed
+     */
+    public function paramWithFile($name = '', $default = null, $filter = null)
+    {
+        $param = $this->param(false);
+        $file  = $this->file();
+        $data  = array_merge($param, $file);
+        return $this->input($data, $name, $default, $filter);
+    }
+
+    /**
      * 设置获取获取路由参数
      * @access public
      * @param string|array  $name 变量名
@@ -934,6 +950,9 @@ class Request
                     return $default;
                 }
             }
+            if (is_object($data)) {
+                return $data;
+            }
         }
 
         // 解析过滤器
@@ -986,7 +1005,7 @@ class Request
             if (is_callable($filter)) {
                 // 调用函数或者方法过滤
                 $value = call_user_func($filter, $value);
-            } else {
+            } elseif (is_scalar($value)) {
                 if (strpos($filter, '/')) {
                     // 正则过滤
                     if (!preg_match($filter, $value)) {

@@ -43,6 +43,7 @@ class Validate
         'accepted'    => ':attribute必须是yes、on或者1',
         'date'        => ':attribute格式不符合',
         'file'        => ':attribute不是有效的上传文件',
+        'image'       => ':attribute不是有效的图像文件',
         'alpha'       => ':attribute只能是字母',
         'alphaNum'    => ':attribute只能是字母和数字',
         'alphaDash'   => ':attribute只能是字母、数字和下划线_及破折号-',
@@ -79,6 +80,7 @@ class Validate
         'fileSize'    => '上传文件大小不符',
         'fileExt'     => '上传文件后缀不符',
         'fileMime'    => '上传文件类型不符',
+
     ];
 
     // 当前验证场景
@@ -386,33 +388,6 @@ class Validate
     }
 
     /**
-     * 验证表单令牌（需要配置令牌生成行为）
-     * @access protected
-     * @param mixed     $value  字段值
-     * @param mixed     $rule  验证规则
-     * @param array     $data  数据
-     * @return bool
-     */
-    protected function token($value, $rule, $data)
-    {
-        if (!isset($data[$rule]) || !isset($_SESSION[$rule])) {
-            // 令牌数据无效
-            return false;
-        }
-
-        // 令牌验证
-        list($key, $value) = explode('_', $data[$rule]);
-        if (isset($_SESSION[$rule][$key]) && $value && $_SESSION[$rule][$key] === $value) {
-            // 防止重复提交
-            unset($_SESSION[$rule][$key]); // 验证完成销毁session
-            return true;
-        }
-        // 开启TOKEN重置
-        unset($_SESSION[$rule][$key]);
-        return false;
-    }
-
-    /**
      * 验证是否和某个字段的值一致
      * @access protected
      * @param mixed     $value  字段值
@@ -569,8 +544,10 @@ class Validate
                 $result = is_array($value);
                 break;
             case 'file':
-                $file   = Request::instance()->file($value);
-                $result = !empty($file);
+                $result = $value instanceof \think\File;
+                break;
+            case 'image':
+                $result = $value instanceof \think\File && exif_imagetype($value->getRealPath());
                 break;
             default:
                 if (isset(self::$type[$rule])) {
@@ -614,14 +591,13 @@ class Validate
     /**
      * 验证上传文件后缀
      * @access protected
-     * @param mixed     $value  字段值
+     * @param mixed     $file  上传文件
      * @param mixed     $rule  验证规则
      * @return bool
      */
-    protected function fileExt($value, $rule)
+    protected function fileExt($file, $rule)
     {
-        $file = Request::instance()->file($value);
-        if (empty($file)) {
+        if (!($file instanceof \think\File)) {
             return false;
         }
         if (is_string($rule)) {
@@ -642,14 +618,13 @@ class Validate
     /**
      * 验证上传文件类型
      * @access protected
-     * @param mixed     $value  字段值
+     * @param mixed     $file  上传文件
      * @param mixed     $rule  验证规则
      * @return bool
      */
-    protected function fileMime($value, $rule)
+    protected function fileMime($file, $rule)
     {
-        $file = Request::instance()->file($value);
-        if (empty($file)) {
+        if (!($file instanceof \think\File)) {
             return false;
         }
         if (is_string($rule)) {
@@ -670,14 +645,13 @@ class Validate
     /**
      * 验证上传文件大小
      * @access protected
-     * @param mixed     $value  字段值
+     * @param mixed     $file  上传文件
      * @param mixed     $rule  验证规则
      * @return bool
      */
-    protected function fileSize($value, $rule)
+    protected function fileSize($file, $rule)
     {
-        $file = Request::instance()->file($value);
-        if (empty($file)) {
+        if (!($file instanceof \think\File)) {
             return false;
         }
         if (is_string($rule)) {
@@ -685,7 +659,7 @@ class Validate
         }
         if (is_array($file)) {
             foreach ($file as $item) {
-                if (!$item->checkExt($rule)) {
+                if (!$item->checkSize($rule)) {
                     return false;
                 }
             }
@@ -693,6 +667,33 @@ class Validate
         } else {
             return $file->checkSize($rule);
         }
+    }
+
+    /**
+     * 验证图片的宽高及类型
+     * @access protected
+     * @param mixed     $file  上传文件
+     * @param mixed     $rule  验证规则
+     * @return bool
+     */
+    protected function image($file, $rule)
+    {
+        if (!($file instanceof \think\File)) {
+            return false;
+        }
+        $rule                        = explode(',', $rule);
+        list($width, $height, $type) = getimagesize($file->getRealPath());
+        if (isset($rule[2])) {
+            $imageType = strtolower($rule[2]);
+            if ('jpeg' == $imageType) {
+                $imageType = 'jpg';
+            }
+            if (image_type_to_extension($type) != $imageType) {
+                return false;
+            }
+        }
+        list($w, $h) = $rule;
+        return $w == $width && $h == $height;
     }
 
     /**
@@ -914,7 +915,14 @@ class Validate
      */
     protected function length($value, $rule)
     {
-        $length = strlen((string) $value); // 当前数据长度
+        if (is_array($value)) {
+            $length = count($value);
+        } elseif ($value instanceof \think\File) {
+            $length = $value->getSize();
+        } else {
+            $length = mb_strlen((string) $value);
+        }
+
         if (strpos($rule, ',')) {
             // 长度区间
             list($min, $max) = explode(',', $rule);
@@ -934,7 +942,13 @@ class Validate
      */
     protected function max($value, $rule)
     {
-        $length = strlen((string) $value);
+        if (is_array($value)) {
+            $length = count($value);
+        } elseif ($value instanceof \think\File) {
+            $length = $value->getSize();
+        } else {
+            $length = mb_strlen((string) $value);
+        }
         return $length <= $rule;
     }
 
@@ -947,7 +961,13 @@ class Validate
      */
     protected function min($value, $rule)
     {
-        $length = strlen((string) $value);
+        if (is_array($value)) {
+            $length = count($value);
+        } elseif ($value instanceof \think\File) {
+            $length = $value->getSize();
+        } else {
+            $length = mb_strlen((string) $value);
+        }
         return $length >= $rule;
     }
 
