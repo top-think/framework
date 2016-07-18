@@ -654,9 +654,6 @@ class Validate
         if (!($file instanceof \think\File)) {
             return false;
         }
-        if (is_string($rule)) {
-            $rule = explode(',', $rule);
-        }
         if (is_array($file)) {
             foreach ($file as $item) {
                 if (!$item->checkSize($rule)) {
