@@ -461,11 +461,6 @@ class App
      */
     public static function routeCheck($request, array $config)
     {
-        // 检测URL禁用后缀
-        if ($config['url_deny_suffix'] && preg_match('/\.(' . $config['url_deny_suffix'] . ')$/i', $request->pathinfo())) {
-            throw new Exception('url suffix deny:' . $request->ext());
-        }
-
         $path   = $request->path();
         $depr   = $config['pathinfo_depr'];
         $result = false;
