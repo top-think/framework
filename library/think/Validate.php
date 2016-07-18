@@ -547,7 +547,7 @@ class Validate
                 $result = $value instanceof \think\File;
                 break;
             case 'image':
-                $result = $value instanceof \think\File && exif_imagetype($value->getRealPath());
+                $result = $value instanceof \think\File && in_array(exif_imagetype($value->getRealPath()), [1, 2, 3, 6]);
                 break;
             default:
                 if (isset(self::$type[$rule])) {
