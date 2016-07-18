@@ -745,7 +745,7 @@ class Route
                     continue;
                 }
                 if ($group) {
-                    $rule = $group . '/' . ltrim($rule, '/');
+                    $rule = $group . ($rule ? '/' . ltrim($rule, '/') : '');
                 }
                 $result = self::checkRule($rule, $route, $url, $pattern, $option);
                 if (false !== $result) {

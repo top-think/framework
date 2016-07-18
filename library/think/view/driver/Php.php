@@ -67,8 +67,14 @@ class Php
         }
         // 记录视图信息
         App::$debug && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
-        extract($data, EXTR_OVERWRITE);
-        include $template;
+        if (isset($data['template'])) {
+            $__template__ = $template;
+            extract($data, EXTR_OVERWRITE);
+            include $__template__;
+        } else {
+            extract($data, EXTR_OVERWRITE);
+            include $template;
+        }
     }
 
     /**
@@ -80,8 +86,14 @@ class Php
      */
     public function display($content, $data = [])
     {
-        extract($data, EXTR_OVERWRITE);
-        eval('?>' . $content);
+        if (isset($data['content'])) {
+            $__content__ = $content;
+            extract($data, EXTR_OVERWRITE);
+            eval('?>' . $__content__);
+        } else {
+            extract($data, EXTR_OVERWRITE);
+            eval('?>' . $content);
+        }
     }
 
     /**
