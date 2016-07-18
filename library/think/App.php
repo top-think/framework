@@ -77,6 +77,10 @@ class App
     {
         is_null($request) && $request = Request::instance();
 
+        if ('ico' == $request->ext()) {
+            throw new HttpException(404, 'ico file not exists');
+        }
+
         $config = self::initCommon();
 
         try {
