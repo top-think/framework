@@ -623,23 +623,13 @@ class Request
             // 当前请求参数和URL地址中的参数合并
             $this->param = array_merge($this->route(false), $this->get(false), $vars);
         }
+        if (true === $name) {
+            // 获取包含文件上传信息的数组
+            $file = $this->file();
+            $data = array_merge($this->param, $file);
+            return $this->input($data, '', $default, $filter);
+        }
         return $this->input($this->param, $name, $default, $filter);
-    }
-
-    /**
-     * 获取获取当前请求的参数 包含file
-     * @access public
-     * @param string|array  $name 变量名
-     * @param mixed         $default 默认值
-     * @param string|array  $filter 过滤方法
-     * @return mixed
-     */
-    public function paramWithFile($name = '', $default = null, $filter = null)
-    {
-        $param = $this->param(false);
-        $file  = $this->file();
-        $data  = array_merge($param, $file);
-        return $this->input($data, $name, $default, $filter);
     }
 
     /**
