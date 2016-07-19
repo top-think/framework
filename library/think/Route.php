@@ -59,7 +59,7 @@ class Route
     // 域名绑定
     private static $bind = [];
     // 当前分组
-    private static $group;
+    private static $group = '';
     // 当前参数
     private static $option = [];
 
@@ -257,7 +257,11 @@ class Route
      */
     public static function setGroup($name)
     {
-        self::$group = $name;
+        if (self::$group) {
+            self::$group = self::$group . '/' . ltrim($name, '/');
+        } else {
+            self::$group = $name;
+        }
     }
 
     /**
@@ -291,9 +295,10 @@ class Route
         if (!empty($name)) {
             // 分组
             if ($routes instanceof \Closure) {
+                $curentGroup = self::$group;
                 self::setGroup($name);
                 call_user_func_array($routes, []);
-                self::setGroup(null);
+                self::setGroup($curentGroup);
                 self::$rules[$type][$name]['route']   = '';
                 self::$rules[$type][$name]['var']     = self::parseVar($name);
                 self::$rules[$type][$name]['option']  = $option;
