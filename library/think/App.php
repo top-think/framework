@@ -338,8 +338,7 @@ class App
             // 操作不存在
             if (method_exists($instance, '_empty')) {
                 $reflect = new \ReflectionMethod($instance, '_empty');
-                $args    = self::bindParams($reflect, Request::instance()->param());
-                $data    = $reflect->invokeArgs($instance, [$action, $args]);
+                $data    = $reflect->invokeArgs($instance, [$action]);
                 self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
             } else {
                 throw new HttpException(404, 'method not exists:' . (new \ReflectionClass($instance))->getName() . '->' . $action);

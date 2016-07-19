@@ -11,6 +11,7 @@
 
 namespace think\controller;
 
+use think\App;
 use think\Request;
 use think\Response;
 
@@ -61,11 +62,10 @@ abstract class Rest
      * REST 调用
      * @access public
      * @param string $method 方法名
-     * @param array  $args   参数
      * @return mixed
      * @throws \Exception
      */
-    public function _empty($method, $args)
+    public function _empty($method)
     {
         if (method_exists($this, $method . '_' . $this->method . '_' . $this->type)) {
             // RESTFul方法支持
@@ -76,7 +76,7 @@ abstract class Rest
             $fun = $method . '_' . $this->method;
         }
         if (isset($fun)) {
-            return call_user_func_array([$this, $fun], $args);
+            return App::invokeMethod([$this, $fun]);
         } else {
             // 抛出异常
             throw new \Exception('error action :' . $method);
