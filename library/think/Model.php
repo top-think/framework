@@ -243,13 +243,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getData($name = null)
     {
-        if (is_null($name)) {
-            return $this->data;
-        } elseif (array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        } else {
-            throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
-        }
+        return func_num_args() ? $this->data[$name] : $this->data;
     }
 
     /**
