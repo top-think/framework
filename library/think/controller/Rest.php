@@ -11,8 +11,8 @@
 
 namespace think\controller;
 
-use think\Response;
 use think\Request;
+use think\Response;
 
 abstract class Rest
 {
@@ -38,7 +38,7 @@ abstract class Rest
     {
         // 资源类型检测
         $request = Request::instance();
-        $ext = $request->ext();
+        $ext     = $request->ext();
         if ('' == $ext) {
             // 自动检测资源类型
             $this->type = $request->type();
@@ -76,7 +76,7 @@ abstract class Rest
             $fun = $method . '_' . $this->method;
         }
         if (isset($fun)) {
-            return $this->$fun();
+            return call_user_func_array([$this, $fun], $args);
         } else {
             // 抛出异常
             throw new \Exception('error action :' . $method);
