@@ -756,7 +756,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = null;
             }
             if (!in_array($field, $this->change)) {
-                $this->setAttr($field, isset($this->data[$field]) ? $this->data[$field] : $value);
+                $this->setAttr($field, !is_null($value) ? $value : (isset($this->data[$field]) ? $this->data[$field] : $value));
             }
         }
     }
