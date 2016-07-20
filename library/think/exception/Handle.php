@@ -44,13 +44,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}";
+                $log = "[{$data['code']}]{$data['message']}";
             }
 
             Log::record($log, 'error');
@@ -103,7 +103,7 @@ class Handle
         $status   = $e->getStatusCode();
         $template = Config::get('http_exception_template');
         if (!App::$debug && !empty($template[$status])) {
-            return Response::create($template[$status], 'view')->vars(['e' => $e]);
+            return Response::create($template[$status], 'view')->assign(['e' => $e]);
         } else {
             return $this->convertExceptionToResponse($e);
         }
@@ -155,9 +155,9 @@ class Handle
         while (ob_get_level() > 1) {
             ob_end_clean();
         }
-        
+
         $data['echo'] = ob_get_clean();
-        
+
         ob_start();
         extract($data);
         include Config::get('exception_tmpl');
