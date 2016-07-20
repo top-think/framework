@@ -68,6 +68,7 @@ class Validate
         'allowIp'     => '不允许的IP访问',
         'denyIp'      => '禁止的IP访问',
         'confirm'     => ':attribute和字段 :rule 不一致',
+        'different'   => ':attribute和字段 :rule 不能相同',
         'egt'         => ':attribute必须大于等于 :rule',
         'gt'          => ':attribute必须大于 :rule',
         'elt'         => ':attribute必须小于等于 :rule',
@@ -398,6 +399,19 @@ class Validate
     protected function confirm($value, $rule, $data)
     {
         return $this->getDataValue($data, $rule) == $value;
+    }
+
+    /**
+     * 验证是否和某个字段的值是否不同
+     * @access protected
+     * @param mixed $value 字段值
+     * @param mixed $rule  验证规则
+     * @param array $data  数据
+     * @return bool
+     */
+    protected function different($value, $rule, $data)
+    {
+        return $this->getDataValue($data, $rule) != $value;
     }
 
     /**
