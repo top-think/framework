@@ -26,6 +26,7 @@ class Route
         'POST'    => [],
         'PUT'     => [],
         'DELETE'  => [],
+        'PATCH'   => [],
         'HEAD'    => [],
         'OPTIONS' => [],
         '*'       => [],
@@ -412,6 +413,20 @@ class Route
     public static function delete($rule, $route = '', $option = [], $pattern = [])
     {
         self::rule($rule, $route, 'DELETE', $option, $pattern);
+    }
+
+    /**
+     * 注册PATCH路由
+     * @access public
+     * @param string    $rule 路由规则
+     * @param string    $route 路由地址
+     * @param array     $option 路由参数
+     * @param array     $pattern 变量规则
+     * @return void
+     */
+    public static function patch($rule, $route = '', $option = [], $pattern = [])
+    {
+        self::rule($rule, $route, 'PATCH', $option, $pattern);
     }
 
     /**
