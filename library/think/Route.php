@@ -243,7 +243,7 @@ class Route
             self::$rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
             if ('*' == $type) {
                 // 注册路由快捷方式
-                foreach (['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'] as $method) {
+                foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
                     self::$rules[$method][$rule] = true;
                 }
             }
@@ -324,7 +324,7 @@ class Route
                 self::$rules[$type][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
             if ('*' == $type) {
-                foreach (['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'] as $method) {
+                foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
                     if (!isset(self::$rules[$method][$name])) {
                         self::$rules[$method][$name] = true;
                     } else {
