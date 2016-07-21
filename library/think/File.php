@@ -195,11 +195,8 @@ class File extends SplFileObject
     {
         $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
         /* 对图像文件进行严格检测 */
-        if (in_array($extension, array('gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf'))) {
-            $imginfo = getimagesize($this->filename);
-            if (empty($imginfo) || ('gif' == $extension && empty($imginfo['bits']))) {
-                return false;
-            }
+        if (in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf']) && !in_array(exif_imagetype($this->filename), [1, 2, 3, 4, 6])) {
+            return false;
         }
         return true;
     }
