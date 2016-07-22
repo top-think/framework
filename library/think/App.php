@@ -415,6 +415,8 @@ class App
         // 加载初始化文件
         if (is_file(APP_PATH . $module . 'init' . EXT)) {
             include APP_PATH . $module . 'init' . EXT;
+        } elseif (is_file(RUNTIME_TIME . $module . 'init' . EXT)) {
+            include RUNTIME_TIME . $module . 'init' . EXT;
         } else {
             $path = APP_PATH . $module;
             // 加载模块配置
