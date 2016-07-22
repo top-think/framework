@@ -49,9 +49,11 @@ class Console
         "think\\console\\command\\Help",
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
+        "think\\console\\command\\Clear",
         "think\\console\\command\\make\\Controller",
         "think\\console\\command\\make\\Model",
         "think\\console\\command\\optimize\\Autoload",
+        "think\\console\\command\\optimize\\Config",
     ];
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
