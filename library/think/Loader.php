@@ -99,7 +99,7 @@ class Loader
         if (false !== $pos = strrpos($class, '\\')) {
             // namespaced class name
             $logicalPathPsr0 = substr($logicalPathPsr4, 0, $pos + 1)
-                . strtr(substr($logicalPathPsr4, $pos + 1), '_', DS);
+            . strtr(substr($logicalPathPsr4, $pos + 1), '_', DS);
         } else {
             // PEAR-like class name
             $logicalPathPsr0 = strtr($class, '_', DS) . EXT;
@@ -155,13 +155,13 @@ class Loader
         if (!$prefix) {
             if ($prepend) {
                 self::$fallbackDirsPsr0 = array_merge(
-                    (array)$paths,
+                    (array) $paths,
                     self::$fallbackDirsPsr0
                 );
             } else {
                 self::$fallbackDirsPsr0 = array_merge(
                     self::$fallbackDirsPsr0,
-                    (array)$paths
+                    (array) $paths
                 );
             }
 
@@ -170,23 +170,22 @@ class Loader
 
         $first = $prefix[0];
         if (!isset(self::$prefixesPsr0[$first][$prefix])) {
-            self::$prefixesPsr0[$first][$prefix] = (array)$paths;
+            self::$prefixesPsr0[$first][$prefix] = (array) $paths;
 
             return;
         }
         if ($prepend) {
             self::$prefixesPsr0[$first][$prefix] = array_merge(
-                (array)$paths,
+                (array) $paths,
                 self::$prefixesPsr0[$first][$prefix]
             );
         } else {
             self::$prefixesPsr0[$first][$prefix] = array_merge(
                 self::$prefixesPsr0[$first][$prefix],
-                (array)$paths
+                (array) $paths
             );
         }
     }
-
 
     // 添加Psr4空间
     private static function addPsr4($prefix, $paths, $prepend = false)
@@ -195,13 +194,13 @@ class Loader
             // Register directories for the root namespace.
             if ($prepend) {
                 self::$fallbackDirsPsr4 = array_merge(
-                    (array)$paths,
+                    (array) $paths,
                     self::$fallbackDirsPsr4
                 );
             } else {
                 self::$fallbackDirsPsr4 = array_merge(
                     self::$fallbackDirsPsr4,
-                    (array)$paths
+                    (array) $paths
                 );
             }
         } elseif (!isset(self::$prefixDirsPsr4[$prefix])) {
@@ -211,22 +210,21 @@ class Loader
                 throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
             }
             self::$prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
-            self::$prefixDirsPsr4[$prefix]                = (array)$paths;
+            self::$prefixDirsPsr4[$prefix]                = (array) $paths;
         } elseif ($prepend) {
             // Prepend directories for an already registered namespace.
             self::$prefixDirsPsr4[$prefix] = array_merge(
-                (array)$paths,
+                (array) $paths,
                 self::$prefixDirsPsr4[$prefix]
             );
         } else {
             // Append directories for an already registered namespace.
             self::$prefixDirsPsr4[$prefix] = array_merge(
                 self::$prefixDirsPsr4[$prefix],
-                (array)$paths
+                (array) $paths
             );
         }
     }
-
 
     // 注册命名空间别名
     public static function addNamespaceAlias($namespace, $original = '')
@@ -308,8 +306,8 @@ class Loader
     public static function import($class, $baseUrl = '', $ext = EXT)
     {
         static $_file = [];
-        $key   = $class . $baseUrl;
-        $class = str_replace(['.', '#'], [DS, '.'], $class);
+        $key          = $class . $baseUrl;
+        $class        = str_replace(['.', '#'], [DS, '.'], $class);
         if (isset($_file[$key])) {
             return true;
         }
