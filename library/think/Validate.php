@@ -710,7 +710,7 @@ class Validate
             if ('jpeg' == $imageType) {
                 $imageType = 'jpg';
             }
-            if (image_type_to_extension($type) != $imageType) {
+            if (image_type_to_extension($type, false) != $imageType) {
                 return false;
             }
         }
