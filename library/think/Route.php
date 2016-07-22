@@ -300,7 +300,9 @@ class Route
                 self::setGroup($name);
                 call_user_func_array($routes, []);
                 self::$group = $curentGroup;
-
+                if ($curentGroup) {
+                    $name = $curentGroup . '/' . $name;
+                }
                 self::$rules[$type][$name]['route']   = '';
                 self::$rules[$type][$name]['var']     = self::parseVar($name);
                 self::$rules[$type][$name]['option']  = $option;
