@@ -359,7 +359,7 @@ class Query
         static $builder = [];
         $driver         = $this->driver;
         if (!isset($builder[$driver])) {
-            $class            = '\\think\\db\\builder\\' . ucfirst($driver);
+            $class            = false !== strpos($driver, '\\') ? $driver : '\\think\\db\\builder\\' . ucfirst($driver);
             $builder[$driver] = new $class($this->connection);
         }
         // 设置当前查询对象
