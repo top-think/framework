@@ -561,7 +561,7 @@ class Validate
                 $result = $value instanceof \think\File;
                 break;
             case 'image':
-                $result = $value instanceof \think\File && in_array(exif_imagetype($value->getRealPath()), [1, 2, 3, 6]);
+                $result = $value instanceof \think\File && in_array($this->getImageType($value->getRealPath()), [1, 2, 3, 6]);
                 break;
             default:
                 if (isset(self::$type[$rule])) {
@@ -573,6 +573,17 @@ class Validate
                 }
         }
         return $result;
+    }
+
+    // 判断图像类型
+    protected function getImageType($image)
+    {
+        if (function_exists('exif_imagetype')) {
+            return exif_imagetype($image);
+        } else {
+            $info = getimagesize($image);
+            return $info[2];
+        }
     }
 
     /**
