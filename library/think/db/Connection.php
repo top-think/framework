@@ -284,7 +284,7 @@ abstract class Connection
         if ($this->linkID) {
             return $this->linkID->getAttribute(PDO::ATTR_DRIVER_NAME);
         } else {
-            return basename(str_replace('\\', '/', $this->config['type']));
+            return $this->config['type'];
         }
     }
 
