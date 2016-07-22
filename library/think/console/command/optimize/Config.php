@@ -10,7 +10,6 @@
 // +----------------------------------------------------------------------
 namespace think\console\command\optimize;
 
-use think\Config as ThinkConfig;
 use think\console\command\Command;
 use think\console\Input;
 use think\console\input\Option;
@@ -52,18 +51,18 @@ class Config extends Command
         $content = '';
         $path    = realpath(APP_PATH . $module) . DS;
         // 加载模块配置
-        $config = ThinkConfig::load(CONF_PATH . $module . 'config' . CONF_EXT);
+        $config = \think\Config::load(CONF_PATH . $module . 'config' . CONF_EXT);
 
         // 加载应用状态配置
         if ($config['app_status']) {
-            $config = ThinkConfig::load(CONF_PATH . $module . $config['app_status'] . CONF_EXT);
+            $config = \think\Config::load(CONF_PATH . $module . $config['app_status'] . CONF_EXT);
         }
 
         // 读取扩展配置文件
         if ($config['extra_config_list']) {
             foreach ($config['extra_config_list'] as $name => $file) {
                 $filename = CONF_PATH . $module . $file . CONF_EXT;
-                ThinkConfig::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
+                \think\Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
             }
         }
 
@@ -82,7 +81,7 @@ class Config extends Command
             $content .= substr(file_get_contents($path . 'common' . EXT), 5) . PHP_EOL;
         }
 
-        $content .= '\think\Config::set(' . var_export(ThinkConfig::get(), true) . ');';
+        $content .= '\think\Config::set(' . var_export(\think\Config::get(), true) . ');';
         return $content;
     }
 }
