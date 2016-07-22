@@ -1114,11 +1114,13 @@ class Route
                 // 可选参数
                 $val      = substr($val, 1, -1);
                 $optional = true;
+            } else {
+                $optional = false;
             }
             if (0 === strpos($val, ':')) {
                 // URL变量
                 $name = substr($val, 1);
-                if (!isset($optional) && !isset($m1[$key])) {
+                if (!$optional && !isset($m1[$key])) {
                     return false;
                 }
                 if (isset($m1[$key]) && isset($pattern[$name]) && !preg_match('/^' . $pattern[$name] . '$/', $m1[$key])) {
