@@ -23,6 +23,8 @@ class File extends SplFileObject
     private $error = '';
     // 当前完整文件名
     protected $filename;
+    // 上传文件名
+    protected $saveName;
     // 文件上传命名规则
     protected $rule = 'date';
     // 文件上传验证规则
@@ -68,6 +70,15 @@ class File extends SplFileObject
     public function getInfo($name = '')
     {
         return isset($this->info[$name]) ? $this->info[$name] : $this->info;
+    }
+
+    /**
+     * 获取上传文件的文件名
+     * @return string
+     */
+    public function saveName()
+    {
+        return $this->saveName;
     }
 
     /**
@@ -262,28 +273,29 @@ class File extends SplFileObject
         }
         $path = rtrim($path, DS) . DS;
         // 文件保存命名规则
-        $savename = $this->getSaveName($savename);
+        $this->saveName = $this->getSaveName($savename);
+        $filename       = $path . $this->saveName;
 
         // 检测目录
-        if (false === $this->checkPath(dirname($path . $savename))) {
+        if (false === $this->checkPath(dirname($filename))) {
             return false;
         }
 
         /* 不覆盖同名文件 */
-        if (!$replace && is_file($path . $savename)) {
-            $this->error = '存在同名文件' . $path . $savename;
+        if (!$replace && is_file($filename)) {
+            $this->error = '存在同名文件' . $filename;
             return false;
         }
 
         /* 移动文件 */
         if ($this->isTest) {
-            rename($this->filename, $path . $savename);
-        } elseif (!move_uploaded_file($this->filename, $path . $savename)) {
+            rename($this->filename, $filename);
+        } elseif (!move_uploaded_file($this->filename, $filename)) {
             $this->error = '文件上传保存错误！';
             return false;
         }
 
-        return new SplFileInfo($path . $savename);
+        return new SplFileInfo($filename);
     }
 
     /**
