@@ -173,7 +173,7 @@ class Template
         if (!empty($this->config['cache_id']) && $this->config['display_cache']) {
             // 读取渲染缓存
             $cacheContent = Cache::get($this->config['cache_id']);
-            if (false !== $cacheContent) {
+            if (!is_null($cacheContent)) {
                 echo $cacheContent;
                 return;
             }
@@ -303,7 +303,7 @@ class Template
     {
         if ($cacheId && $this->config['display_cache']) {
             // 缓存页面输出
-            return Cache::get($cacheId) ? true : false;
+            return Cache::has($cacheId);
         }
         return false;
     }
