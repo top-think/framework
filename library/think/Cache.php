@@ -69,16 +69,35 @@ class Cache
     }
 
     /**
-     * 读取缓存
+     * 判断缓存是否存在
      * @access public
-     * @param string $name 缓存标识
-     * @return mixed
+     * @param string $name 缓存变量名
+     * @return bool
      */
-    public static function get($name)
+    public static function has($name)
     {
         self::init();
         self::$readTimes++;
-        return self::$handler->get($name);
+        return self::$handler->has($name);
+    }
+
+    /**
+     * 读取缓存
+     * @access public
+     * @param string $name 缓存标识
+     * @param string $default 默认值
+     * @return mixed
+     */
+    public static function get($name, $default = null)
+    {
+        self::init();
+        self::$readTimes++;
+        $result = self::$handler->get($name);
+        if (false !== $result) {
+            return $result;
+        } else {
+            return $default;
+        }
     }
 
     /**

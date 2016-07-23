@@ -11,7 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
 use think\Exception;
 
 /**
@@ -45,6 +44,20 @@ class Sqlite
         }
         $func          = $this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open';
         $this->handler = $func($this->options['db']);
+    }
+
+    /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name   = $this->options['prefix'] . sqlite_escape_string($name);
+        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
+        $result = sqlite_query($this->handler, $sql);
+        return sqlite_num_rows($result);
     }
 
     /**

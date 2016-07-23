@@ -11,7 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
 use think\Exception;
 
 class Memcache
@@ -54,6 +53,18 @@ class Memcache
             $this->handler->addServer($host, $port, $this->options['persistent'], 1, $this->options['timeout']) :
             $this->handler->addServer($host, $port, $this->options['persistent'], 1);
         }
+    }
+
+    /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name = $this->options['prefix'] . $name;
+        return $this->handler->get($name) ? true : false;
     }
 
     /**

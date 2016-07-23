@@ -75,7 +75,7 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
         $array = $cache->get('array_test');
         $this->assertArrayHasKey('array_test', $array);
         $this->assertEquals('array_test', $array['array_test']);
-        
+
         $result = $cache->set('no_expire', 1, 0);
         $this->assertTrue($result);
     }
@@ -88,9 +88,9 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     public function testExists()
     {
         $cache = $this->prepare();
-        $this->assertNotEmpty($cache->get('string_test'));
-        $this->assertNotEmpty($cache->get('number_test'));
-        $this->assertFalse($cache->get('not_exists'));
+        $this->assertNotEmpty($cache->has('string_test'));
+        $this->assertNotEmpty($cache->has('number_test'));
+        $this->assertFalse($cache->has('not_exists'));
     }
 
     /**
@@ -101,7 +101,7 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     public function testGetNonExistent()
     {
         $cache = $this->getCacheInstance();
-        $this->assertFalse($cache->get('non_existent_key'));
+        $this->assertFalse($cache->get('non_existent_key', false));
     }
 
     /**

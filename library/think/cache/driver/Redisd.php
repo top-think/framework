@@ -12,7 +12,6 @@
 namespace think\cache\driver;
 
 use think\App;
-use think\Cache;
 use think\Exception;
 use think\Log;
 
@@ -197,6 +196,17 @@ class Redisd
 
         self::$redis_rw_handler[$master] = $this->handler;
         return $this;
+    }
+
+    /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        return $this->get($name) ? true : false;
     }
 
     /**

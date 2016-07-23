@@ -11,7 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
 use think\Exception;
 
 /**
@@ -39,6 +38,18 @@ class Wincache
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
+    }
+
+    /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name = $this->options['prefix'] . $name;
+        return wincache_ucache_exists($name);
     }
 
     /**

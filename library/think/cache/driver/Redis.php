@@ -11,9 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
-use think\Exception;
-
 /**
  * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
  * 有需要在业务层实现读写分离、或者使用RedisCluster的需求，请使用Redisd驱动
@@ -54,6 +51,17 @@ class Redis
         if ('' != $this->options['password']) {
             $this->handler->auth($this->options['password']);
         }
+    }
+
+    /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        return $this->handler->get($this->options['prefix'] . $name) ? true : false;
     }
 
     /**

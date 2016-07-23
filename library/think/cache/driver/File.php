@@ -11,8 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
-
 /**
  * 文件类型缓存类
  * @author    liu21st <liu21st@gmail.com>
@@ -84,6 +82,18 @@ class File
             $filename = $this->options['prefix'] . $name . '.php';
         }
         return $this->options['path'] . $filename;
+    }
+
+    /**
+     * 判断缓存是否存在
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $filename = $this->filename($name);
+        return is_file($filename);
     }
 
     /**
