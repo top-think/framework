@@ -42,7 +42,7 @@ trait Jump
         }
         if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
             $url = $_SERVER["HTTP_REFERER"];
-        } else {
+        } elseif ('' !== $url) {
             $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
         }
         $result = [
@@ -80,7 +80,7 @@ trait Jump
         }
         if (is_null($url)) {
             $url = 'javascript:history.back(-1);';
-        } else {
+        } elseif ('' !== $url) {
             $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
         }
         $result = [
