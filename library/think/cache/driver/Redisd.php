@@ -213,11 +213,12 @@ class Redisd
      * 读取缓存
      *
      * @access public
-     * @param  string $name 缓存key
-     * @param  bool   $master 指定主从节点，可以从主节点获取结果
+     * @param  string   $name 缓存key
+     * @param string    $default 默认值
+     * @param  bool     $master 指定主从节点，可以从主节点获取结果
      * @return mixed
      */
-    public function get($name, $master = false)
+    public function get($name, $default = false, $master = false)
     {
         $this->master($master);
 
@@ -225,14 +226,12 @@ class Redisd
             $value = $this->handler->get($name);
         } catch (\RedisException $e) {
             unset(self::$redis_rw_handler[0]);
-
             $this->master();
-            return $this->get($name);
+            return $this->get($name, $default);
         } catch (\Exception $e) {
             Log::record($e->getMessage(), Log::ERROR);
         }
-
-        return isset($value) ? $value : null;
+        return isset($value) ? $value : $default;
     }
 
     /**

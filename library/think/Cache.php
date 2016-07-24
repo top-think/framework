@@ -85,19 +85,14 @@ class Cache
      * 读取缓存
      * @access public
      * @param string $name 缓存标识
-     * @param string $default 默认值
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public static function get($name, $default = null)
+    public static function get($name, $default = false)
     {
         self::init();
         self::$readTimes++;
-        $result = self::$handler->get($name);
-        if (false !== $result) {
-            return $result;
-        } else {
-            return $default;
-        }
+        return self::$handler->get($name, $default);
     }
 
     /**

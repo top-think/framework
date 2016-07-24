@@ -56,15 +56,13 @@ class Xcache
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $name = $this->options['prefix'] . $name;
-        if (xcache_isset($name)) {
-            return xcache_get($name);
-        }
-        return false;
+        return xcache_isset($name) ? xcache_get($name) : $default;
     }
 
     /**

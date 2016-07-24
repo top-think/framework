@@ -71,11 +71,13 @@ class Memcache
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
-        return $this->handler->get($this->options['prefix'] . $name);
+        $result = $this->handler->get($this->options['prefix'] . $name);
+        return false !== $result ? $result : $default;
     }
 
     /**

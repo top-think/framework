@@ -68,11 +68,15 @@ class Redis
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
-        $value    = $this->handler->get($this->options['prefix'] . $name);
+        $value = $this->handler->get($this->options['prefix'] . $name);
+        if (is_null($value)) {
+            return $default;
+        }
         $jsonData = json_decode($value, true);
         // 检测是否为JSON数据 true 返回JSON解析数组, false返回源数据 byron sampson<xiaobo.sun@qq.com>
         return (null === $jsonData) ? $value : $jsonData;

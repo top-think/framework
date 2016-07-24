@@ -64,9 +64,10 @@ class Sqlite
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $name   = $this->options['prefix'] . sqlite_escape_string($name);
         $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
@@ -79,7 +80,7 @@ class Sqlite
             }
             return unserialize($content);
         }
-        return false;
+        return $default;
     }
 
     /**

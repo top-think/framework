@@ -67,9 +67,10 @@ class Lite
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $filename = $this->filename($name);
         if (is_file($filename)) {
@@ -78,11 +79,11 @@ class Lite
             if ($mtime < $_SERVER['REQUEST_TIME']) {
                 // 清除已经过期的文件
                 unlink($filename);
-                return false;
+                return $default;
             }
             return include $filename;
         } else {
-            return false;
+            return $default;
         }
     }
 

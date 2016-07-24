@@ -100,13 +100,14 @@ class File
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $filename = $this->filename($name);
         if (!is_file($filename)) {
-            return false;
+            return $default;
         }
         $content = file_get_contents($filename);
         if (false !== $content) {
@@ -114,7 +115,7 @@ class File
             if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire) {
                 //缓存过期删除缓存文件
                 $this->unlink($filename);
-                return false;
+                return $default;
             }
             $content = substr($content, 20, -3);
             if ($this->options['data_compress'] && function_exists('gzcompress')) {
@@ -124,7 +125,7 @@ class File
             $content = unserialize($content);
             return $content;
         } else {
-            return false;
+            return $default;
         }
     }
 
