@@ -103,6 +103,10 @@ class Xcache
      */
     public function clear()
     {
-        return;
+        if (function_exists('xcache_unset_by_prefix')) {
+            return xcache_unset_by_prefix($this->options['prefix']);
+        } else {
+            return false;
+        }
     }
 }
