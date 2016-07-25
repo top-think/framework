@@ -33,6 +33,8 @@ class File extends SplFileObject
     protected $isTest;
     // 上传文件信息
     protected $info;
+    // 文件hash信息
+    protected $hash = [];
 
     public function __construct($filename, $mode = 'r')
     {
@@ -90,6 +92,30 @@ class File extends SplFileObject
     {
         $this->saveName = $saveName;
         return $this;
+    }
+
+    /**
+     * 获取文件的md5散列值
+     * @return $this
+     */
+    public function md5()
+    {
+        if (!isset($this->hash['md5'])) {
+            $this->hash['md5'] = md5_file($this->filename);
+        }
+        return $this->hash['md5'];
+    }
+
+    /**
+     * 获取文件的sha1散列值
+     * @return $this
+     */
+    public function sha1()
+    {
+        if (!isset($this->hash['sha1'])) {
+            $this->hash['sha1'] = sha1_file($this->filename);
+        }
+        return $this->hash['sha1'];
     }
 
     /**
@@ -307,6 +333,7 @@ class File extends SplFileObject
         // 返回 File对象实例
         $file = new self($filename);
         $file->setSaveName($saveName);
+        $file->setUploadInfo($this->info);
         return $file;
     }
 
