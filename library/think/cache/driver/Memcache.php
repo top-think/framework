@@ -110,7 +110,7 @@ class Memcache
      */
     public function inc($name, $step = 1, $expire = null)
     {
-        return $this->handler->increment($name, $step, $expire);
+        return $this->handler->increment($name, $step);
     }
 
     /**
@@ -123,7 +123,7 @@ class Memcache
      */
     public function dec($name, $step = 1, $expire = null)
     {
-        return $this->handler->decrement($name, $step, $expire);
+        return $this->handler->decrement($name, $step);
     }
 
     /**
