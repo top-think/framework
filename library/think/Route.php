@@ -735,6 +735,9 @@ class Route
             if (true === $item) {
                 $item = self::$rules['*'][$key];
             }
+            if (!isset($item['rule'])) {
+                continue;
+            }
             $rule    = $item['rule'];
             $route   = $item['route'];
             $vars    = $item['var'];
