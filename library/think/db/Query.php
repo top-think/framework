@@ -564,8 +564,8 @@ class Query
         if ($lazyTime > 0) {
             // 延迟写入
             $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
-            $step = $this->lazyWrite($guid, $step, $lazyTime);
-            if (empty($step)) {
+            $step = $this->lazyWrite('inc', $guid, $step, $lazyTime);
+            if (false === $step) {
                 return true; // 等待下次写入
             }
         }
@@ -591,8 +591,8 @@ class Query
         if ($lazyTime > 0) {
             // 延迟写入
             $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
-            $step = $this->lazyWrite($guid, -$step, $lazyTime);
-            if (empty($step)) {
+            $step = $this->lazyWrite('dec', $guid, $step, $lazyTime);
+            if (false === $step) {
                 return true; // 等待下次写入
             }
         }
@@ -602,33 +602,30 @@ class Query
     /**
      * 延时更新检查 返回false表示需要延时
      * 否则返回实际写入的数值
-     * @access public
+     * @access protected
+     * @param string  $type     自增或者自减
      * @param string  $guid     写入标识
      * @param integer $step     写入步进值
      * @param integer $lazyTime 延时时间(s)
      * @return false|integer
      */
-    protected function lazyWrite($guid, $step, $lazyTime)
+    protected function lazyWrite($type, $guid, $step, $lazyTime)
     {
-        if (false !== ($value = Cache::get($guid))) {
-            // 存在缓存写入数据
-            if ($_SERVER['REQUEST_TIME'] > Cache::get($guid . '_time') + $lazyTime) {
-                // 延时更新时间到了，删除缓存数据 并实际写入数据库
-                Cache::rm($guid);
-                Cache::rm($guid . '_time');
-                return $value + $step;
-            } else {
-                // 追加数据到缓存
-                Cache::set($guid, $value + $step, 0);
-                return false;
-            }
-        } else {
-            // 没有缓存数据
-            Cache::set($guid, $step, 0);
+        if (!Cache::has($guid . '_time')) {
             // 计时开始
             Cache::set($guid . '_time', $_SERVER['REQUEST_TIME'], 0);
-            return false;
+            Cache::$type($guid, $step, 0);
+        } elseif ($_SERVER['REQUEST_TIME'] > Cache::get($guid . '_time') + $lazyTime) {
+            // 删除缓存
+            $value = Cache::$type($guid, $step, 0);
+            Cache::rm($guid);
+            Cache::rm($guid . '_time');
+            return 0 === $value ? false : $value;
+        } else {
+            // 更新缓存
+            Cache::$type($guid, $step, 0);
         }
+        return false;
     }
 
     /**

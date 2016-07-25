@@ -63,6 +63,28 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * 测试缓存自增
+     * @return  mixed
+     * @access public
+     */
+    public function testInc()
+    {
+        $cache = $this->getCacheInstance();
+        $this->assertEquals(14, $cache->inc('number_test', 3));
+    }
+
+    /**
+     * 测试缓存自减
+     * @return  mixed
+     * @access public
+     */
+    public function testDec()
+    {
+        $cache = $this->getCacheInstance();
+        $this->assertEquals(8, $cache->dec('number_test', 6));
+    }
+
+    /**
      * 测试缓存读取，包括测试字符串、整数、数组和对象
      * @return  mixed
      * @access public
