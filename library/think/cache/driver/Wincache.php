@@ -86,6 +86,32 @@ class Wincache
     }
 
     /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @param int       $expire  有效时间 0为永久
+     * @return false|int
+     */
+    public function inc($name, $step = 1, $expire = null)
+    {
+        return wincache_ucache_inc($name, $step, $expire);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @param int       $expire  有效时间 0为永久
+     * @return false|int
+     */
+    public function dec($name, $step = 1, $expire = null)
+    {
+        return wincache_ucache_dec($name, $step, $expire);
+    }
+
+    /**
      * 删除缓存
      * @access public
      * @param string $name 缓存变量名
