@@ -195,7 +195,7 @@ class Question
     }
 
     /**
-     * 获取相应回调
+     * 获取响应回调
      * The normalizer can ba a callable (a string), a closure or a class implementing __invoke.
      * @return string|\Closure
      */
