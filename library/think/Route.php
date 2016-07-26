@@ -682,7 +682,7 @@ class Route
         if ('/' != $depr) {
             $url = str_replace($depr, '/', $url);
         }
-        $url = '/' != $url ? rtrim($url, '/') : $url;
+
         if (strpos($url, '/') && isset(self::$rules['alias'][strstr($url, '/', true)])) {
             // 检测路由别名
             $result = self::checkRouteAlias($request, $url, $depr);
@@ -703,7 +703,9 @@ class Route
         if (false !== $return) {
             return $return;
         }
-
+        if ('/' != $url) {
+            $url = rtrim($url, '/');
+        }
         if (isset($rules[$url])) {
             // 静态路由规则检测
             $rule = $rules[$url];
@@ -843,7 +845,7 @@ class Route
                     return self::bindToNamespace($url, self::$bind['namespace'], $depr);
                 case 'module':
                     // 如果有模块/控制器绑定 针对路由到 模块/控制器 有效
-                    $url = self::$bind['module'] . '/' . $url;
+                    $url = self::$bind['module'] . '/' . ltrim($url, '/');
                     break;
                 case 'group':
                     // 绑定到路由分组
