@@ -298,8 +298,10 @@ class Route
             if ($routes instanceof \Closure) {
                 $curentGroup = self::$group;
                 self::setGroup($name);
+                self::setOption($option);
                 call_user_func_array($routes, []);
                 self::$group = $curentGroup;
+                self::setOption([]);
                 if ($curentGroup) {
                     $name = $curentGroup . '/' . $name;
                 }
@@ -845,7 +847,7 @@ class Route
                     return self::bindToNamespace($url, self::$bind['namespace'], $depr);
                 case 'module':
                     // 如果有模块/控制器绑定 针对路由到 模块/控制器 有效
-                    $url = rtrim(self::$bind['module'] . '/' . ltrim($url, '/'), '/');
+                    $url = self::$bind['module'] . '/' . ltrim($url, '/');
                     break;
                 case 'group':
                     // 绑定到路由分组
@@ -1198,32 +1200,35 @@ class Route
             $paths = explode('/', $pathinfo);
         }
         // 获取路由地址规则
-        $url = $route;
+        if (is_string($route) && isset($option['prefix'])) {
+            // 路由地址前缀
+            $route = $option['prefix'] . $route;
+        }
         // 替换路由地址中的变量
-        if (is_string($url) && !empty($matches)) {
+        if (is_string($route) && !empty($matches)) {
             foreach ($matches as $key => $val) {
                 if (false !== strpos($url, ':' . $key)) {
-                    $url = str_replace(':' . $key, $val, $url);
+                    $route = str_replace(':' . $key, $val, $route);
                     unset($matches[$key]);
                 }
             }
         }
-        if ($url instanceof \Closure) {
+        if ($route instanceof \Closure) {
             // 执行闭包
-            $result = ['type' => 'function', 'function' => $url, 'params' => $matches];
-        } elseif (0 === strpos($url, '/') || 0 === strpos($url, 'http')) {
+            $result = ['type' => 'function', 'function' => $route, 'params' => $matches];
+        } elseif (0 === strpos($route, '/') || 0 === strpos($route, 'http')) {
             // 路由到重定向地址
-            $result = ['type' => 'redirect', 'url' => $url, 'status' => isset($option['status']) ? $option['status'] : 301];
-        } elseif (0 === strpos($url, '\\')) {
+            $result = ['type' => 'redirect', 'url' => $route, 'status' => isset($option['status']) ? $option['status'] : 301];
+        } elseif (0 === strpos($route, '\\')) {
             // 路由到方法
-            $method = strpos($url, '@') ? explode('@', $url) : $url;
+            $method = strpos($route, '@') ? explode('@', $route) : $route;
             $result = ['type' => 'method', 'method' => $method, 'params' => $matches];
-        } elseif (0 === strpos($url, '@')) {
+        } elseif (0 === strpos($route, '@')) {
             // 路由到控制器
-            $result = ['type' => 'controller', 'controller' => substr($url, 1), 'params' => $matches];
+            $result = ['type' => 'controller', 'controller' => substr($route, 1), 'params' => $matches];
         } else {
             // 路由到模块/控制器/操作
-            $result = self::parseModule($url);
+            $result = self::parseModule($route);
         }
         // 解析额外参数
         self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
