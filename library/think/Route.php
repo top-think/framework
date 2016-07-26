@@ -1139,7 +1139,7 @@ class Route
                     return false;
                 }
                 $var[$name] = isset($m1[$key]) ? $m1[$key] : '';
-            } elseif (0 !== strcasecmp($val, $m1[$key])) {
+            } elseif (!isset($m1[$key]) || 0 !== strcasecmp($val, $m1[$key])) {
                 return false;
             }
         }
