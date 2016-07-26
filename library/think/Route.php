@@ -845,7 +845,7 @@ class Route
                     return self::bindToNamespace($url, self::$bind['namespace'], $depr);
                 case 'module':
                     // 如果有模块/控制器绑定 针对路由到 模块/控制器 有效
-                    $url = self::$bind['module'] . '/' . ltrim($url, '/');
+                    $url = rtrim(self::$bind['module'] . '/' . ltrim($url, '/'), '/');
                     break;
                 case 'group':
                     // 绑定到路由分组
