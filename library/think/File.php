@@ -297,6 +297,12 @@ class File extends SplFileObject
      */
     public function move($path, $savename = true, $replace = true)
     {
+        // 文件上传失败，捕获错误代码
+        if (!empty($this->info['error'])) {
+            $this->error($this->info['error']);
+            return false;
+        }
+
         // 检测合法性
         if (!$this->isValid()) {
             $this->error = '非法上传文件';
@@ -372,6 +378,34 @@ class File extends SplFileObject
             $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
         }
         return $savename;
+    }
+
+    /**
+     * 获取错误代码信息
+     * @param int $errorNo  错误号
+     */
+    private function error($errorNo)
+    {
+        switch ($errorNo) {
+            case 1:
+            case 2:
+                $this->error = '上传文件大小超过了最大值！';
+                break;
+            case 3:
+                $this->error = '文件只有部分被上传！';
+                break;
+            case 4:
+                $this->error = '没有文件被上传！';
+                break;
+            case 6:
+                $this->error = '找不到临时文件夹！';
+                break;
+            case 7:
+                $this->error = '文件写入失败！';
+                break;
+            default:
+                $this->error = '未知上传错误！';
+        }
     }
 
     /**
