@@ -682,7 +682,7 @@ class Route
         if ('/' != $depr) {
             $url = str_replace($depr, '/', $url);
         }
-
+        $url = '/' != $url ? rtrim($url, '/') : $url;
         if (strpos($url, '/') && isset(self::$rules['alias'][strstr($url, '/', true)])) {
             // 检测路由别名
             $result = self::checkRouteAlias($request, $url, $depr);
