@@ -1207,7 +1207,7 @@ class Route
         // 替换路由地址中的变量
         if (is_string($route) && !empty($matches)) {
             foreach ($matches as $key => $val) {
-                if (false !== strpos($url, ':' . $key)) {
+                if (false !== strpos($route, ':' . $key)) {
                     $route = str_replace(':' . $key, $val, $route);
                     unset($matches[$key]);
                 }
