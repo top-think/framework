@@ -770,7 +770,7 @@ class Route
                 if (false !== $result) {
                     return $result;
                 }
-            } else {
+            } elseif ($route) {
                 if ('__miss__' == $rule) {
                     // 指定MISS路由
                     $miss = $item;
