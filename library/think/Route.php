@@ -714,7 +714,9 @@ class Route
             if (true === $rule) {
                 $rule = self::$rules['*'][$url];
             }
-            return self::parseRule($url, $rule['route'], $url, $rule['option']);
+            if (!empty($rule['route'])) {
+                return self::parseRule($url, $rule['route'], $url, $rule['option']);
+            }
         }
 
         // 路由规则检测
