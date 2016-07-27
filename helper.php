@@ -497,12 +497,16 @@ if (!function_exists('redirect')) {
 if (!function_exists('abort')) {
     /**
      * 抛出HTTP异常
-     * @param integer   $code 状态码
-     * @param string    $message 错误信息
-     * @param array     $header 参数
+     * @param integer|Response      $code 状态码 或者 Response对象实例
+     * @param string                $message 错误信息
+     * @param array                 $header 参数
      */
     function abort($code, $message = null, $header = [])
     {
-        throw new \think\exception\HttpException($code, $message, null, $header);
+        if ($code instanceof Response) {
+            throw new \think\exception\HttpResponseException($code);
+        } else {
+            throw new \think\exception\HttpException($code, $message, null, $header);
+        }
     }
 }
