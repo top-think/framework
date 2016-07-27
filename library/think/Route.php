@@ -340,9 +340,10 @@ class Route
         } else {
             if ($routes instanceof \Closure) {
                 // 闭包注册
+                $currentOption = self::$option;
                 self::setOption($option);
                 call_user_func_array($routes, []);
-                self::setOption([]);
+                self::setOption($currentOption);
             } else {
                 // 批量注册路由
                 self::rule($routes, '', $type, $option, $pattern);
@@ -1101,7 +1102,8 @@ class Route
         foreach ($m2 as $key => $val) {
             // val中定义了多个变量 <id><name>
             if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
-                $value = [];
+                $value   = [];
+                $replace = [];
                 foreach ($matches[1] as $name) {
                     if (strpos($name, '?')) {
                         $name      = substr($name, 0, -1);
