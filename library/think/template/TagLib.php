@@ -224,7 +224,7 @@ class TagLib
      */
     public function parseAttr($str, $name, $alias = '')
     {
-        $regex  = '/\s+(?>(?<name>[\w-]+)\s*)=(?>\s*)([\"\'])(?<value>(?:(?!\\2).)*)\\2/is';
+        $regex  = '/\s+(?>(?P<name>[\w-]+)\s*)=(?>\s*)([\"\'])(?P<value>(?:(?!\\2).)*)\\2/is';
         $result = [];
         if (preg_match_all($regex, $str, $matches)) {
             foreach ($matches['name'] as $key => $val) {
