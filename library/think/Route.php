@@ -59,10 +59,8 @@ class Route
     private static $subDomain = '';
     // 域名绑定
     private static $bind = [];
-    // 当前分组
-    private static $group = '';
-    // 当前参数
-    private static $option = [];
+    // 当前分组信息
+    private static $group = [];
 
     /**
      * 注册变量规则
@@ -184,9 +182,14 @@ class Route
      */
     public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [])
     {
-        $group  = self::$group;
-        $option = array_merge(self::$option, $option);
-        $type   = strtoupper($type);
+        $group = self::getGroup('name');
+        if (!is_null($group)) {
+            // 路由分组
+            $option  = array_merge(self::getGroup('option'), $option);
+            $pattern = array_merge(self::getGroup('pattern'), $pattern);
+        }
+
+        $type = strtoupper($type);
 
         if (strpos($type, '|')) {
             $option['method'] = $type;
@@ -251,29 +254,33 @@ class Route
     }
 
     /**
-     * 设置当前的路由分组
+     * 获取当前的分组信息
      * @access public
-     * @param array $option 路由参数
-     * @return void
+     * @param string    $type 分组信息名称 name option pattern
+     * @return mixed
      */
-    public static function setGroup($name)
+    public static function getGroup($type)
     {
-        if (self::$group) {
-            self::$group = self::$group . '/' . ltrim($name, '/');
+        if (isset(self::$group[$type])) {
+            return self::$group[$type];
         } else {
-            self::$group = $name;
+            return null;
         }
     }
 
     /**
-     * 设置当前的路由参数
+     * 设置当前的路由分组
      * @access public
-     * @param array $option 路由参数
+     * @param string    $name 分组名称
+     * @param array     $option 分组路由参数
+     * @param array     $pattern 分组变量规则
      * @return void
      */
-    public static function setOption($option)
+    public static function setGroup($name, $option = [], $pattern = [])
     {
-        self::$option = $option;
+        self::$group['name']    = $name;
+        self::$group['option']  = $option ?: [];
+        self::$group['pattern'] = $pattern ?: [];
     }
 
     /**
@@ -282,34 +289,31 @@ class Route
      * @param string|array      $name 分组名称或者参数
      * @param array|\Closure    $routes 路由地址
      * @param array             $option 路由参数
-     * @param string            $type 请求类型
      * @param array             $pattern 变量规则
      * @return void
      */
-    public static function group($name, $routes, $option = [], $type = '*', $pattern = [])
+    public static function group($name, $routes, $option = [], $pattern = [])
     {
         if (is_array($name)) {
             $option = $name;
             $name   = isset($option['name']) ? $option['name'] : '';
         }
-        $type = strtoupper($type);
         if (!empty($name)) {
             // 分组
             if ($routes instanceof \Closure) {
-                $curentGroup   = self::$group;
-                $currentOption = self::$option;
-                self::setGroup($name);
-                self::setOption($option);
-                call_user_func_array($routes, []);
-                self::$group = $curentGroup;
-                self::setOption($currentOption);
+                $curentGroup = self::getGroup('name');
                 if ($curentGroup) {
-                    $name = $curentGroup . '/' . $name;
+                    $name = $curentGroup . '/' . ltrim($name, '/');
                 }
-                self::$rules[$type][$name]['route']   = '';
-                self::$rules[$type][$name]['var']     = self::parseVar($name);
-                self::$rules[$type][$name]['option']  = $option;
-                self::$rules[$type][$name]['pattern'] = $pattern;
+                $currentOption  = self::getGroup('option');
+                $currentPattern = self::getGroup('pattern');
+                self::setGroup($name, $option, $pattern);
+                call_user_func_array($routes, []);
+                self::setGroup($currentGroup, $currentOption, $currentPattern);
+                self::$rules['*'][$name]['route']   = '';
+                self::$rules['*'][$name]['var']     = self::parseVar($name);
+                self::$rules['*'][$name]['option']  = $option;
+                self::$rules['*'][$name]['pattern'] = $pattern;
 
             } else {
                 foreach ($routes as $key => $val) {
@@ -326,27 +330,29 @@ class Route
                     $vars   = self::parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => isset($option1) ? $option1 : $option, 'pattern' => isset($pattern1) ? $pattern1 : $pattern];
                 }
-                self::$rules[$type][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
+                self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
-            if ('*' == $type) {
-                foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
-                    if (!isset(self::$rules[$method][$name])) {
-                        self::$rules[$method][$name] = true;
-                    } else {
-                        self::$rules[$method][$name] = array_merge(self::$rules['*'][$name], self::$rules[$method][$name]);
-                    }
+
+            foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
+                if (!isset(self::$rules[$method][$name])) {
+                    self::$rules[$method][$name] = true;
+                } else {
+                    self::$rules[$method][$name] = array_merge(self::$rules['*'][$name], self::$rules[$method][$name]);
                 }
             }
+
         } else {
             if ($routes instanceof \Closure) {
                 // 闭包注册
-                $currentOption = self::$option;
-                self::setOption($option);
+                $curentGroup    = self::getGroup('name');
+                $currentOption  = self::getGroup('option');
+                $currentPattern = self::getGroup('pattern');
+                self::setGroup($name, $option, $pattern);
                 call_user_func_array($routes, []);
-                self::setOption($currentOption);
+                self::setGroup($currentGroup, $currentOption, $currentPattern);
             } else {
                 // 批量注册路由
-                self::rule($routes, '', $type, $option, $pattern);
+                self::rule($routes, '', '*', $option, $pattern);
             }
         }
     }
