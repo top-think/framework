@@ -296,12 +296,13 @@ class Route
         if (!empty($name)) {
             // 分组
             if ($routes instanceof \Closure) {
-                $curentGroup = self::$group;
+                $curentGroup   = self::$group;
+                $currentOption = self::$option;
                 self::setGroup($name);
                 self::setOption($option);
                 call_user_func_array($routes, []);
                 self::$group = $curentGroup;
-                self::setOption([]);
+                self::setOption($currentOption);
                 if ($curentGroup) {
                     $name = $curentGroup . '/' . $name;
                 }
