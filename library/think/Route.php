@@ -686,14 +686,14 @@ class Route
                     // 绑定到命名空间 例如 \app\index\behavior
                     self::$bind = ['type' => 'namespace', 'namespace' => $result];
                 } elseif (0 === strpos($result, '@')) {
-                    // 绑定到类 例如 \app\index\controller\User
+                    // 绑定到类 例如 @app\index\controller\User
                     self::$bind = ['type' => 'class', 'class' => substr($result, 1)];
                 } elseif (0 === strpos($result, '[')) {
                     // 绑定到分组 例如 [user]
                     self::$bind = ['type' => 'group', 'group' => substr($result, 1, -1)];
                 } else {
                     // 绑定到模块/控制器 例如 index/user
-                    self::$bind = ['type' => 'module', 'module' => $result];
+                    self::$bind = ['type' => 'module', 'module' => $result, 'domain' => true];
                 }
             }
         }
@@ -879,7 +879,7 @@ class Route
                     return self::bindToNamespace($url, self::$bind['namespace'], $depr);
                 case 'module':
                     // 如果有模块/控制器绑定 针对路由到 模块/控制器 有效
-                    $url = self::$bind['module'] . '/' . ltrim($url, '/');
+                    $url = (empty(self::$bind['domain']) ? self::$bind['module'] . '/' : '') . ltrim($url, '/');
                     break;
                 case 'group':
                     // 绑定到路由分组
