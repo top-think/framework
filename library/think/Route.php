@@ -323,9 +323,9 @@ class Route
         if (!empty($name)) {
             // 分组
             if ($routes instanceof \Closure) {
-                $curentGroup = self::getGroup('name');
-                if ($curentGroup) {
-                    $name = $curentGroup . '/' . ltrim($name, '/');
+                $currentGroup = self::getGroup('name');
+                if ($currentGroup) {
+                    $name = $currentGroup . '/' . ltrim($name, '/');
                 }
                 $currentOption  = self::getGroup('option');
                 $currentPattern = self::getGroup('pattern');
@@ -366,7 +366,7 @@ class Route
         } else {
             if ($routes instanceof \Closure) {
                 // 闭包注册
-                $curentGroup    = self::getGroup('name');
+                $currentGroup   = self::getGroup('name');
                 $currentOption  = self::getGroup('option');
                 $currentPattern = self::getGroup('pattern');
                 self::setGroup($name, $option, $pattern);
