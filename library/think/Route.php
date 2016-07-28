@@ -61,6 +61,8 @@ class Route
     private static $bind = [];
     // 当前分组信息
     private static $group = [];
+    // 路由命名标识（用于快速URL生成）
+    private static $name = [];
 
     /**
      * 注册变量规则
@@ -104,6 +106,21 @@ class Route
     public static function bind($bind, $type = 'module')
     {
         self::$bind = ['type' => $type, $type => $bind];
+    }
+
+    /**
+     * 设置路由绑定
+     * @access public
+     * @param string     $name 路由命名标识
+     * @return string|array
+     */
+    public static function name($name = '')
+    {
+        if ('' === $name) {
+            return self::$name;
+        } else {
+            return isset(self::$name[$name]) ? self::$name[$name] : null;
+        }
     }
 
     /**
@@ -195,7 +212,7 @@ class Route
             $option['method'] = $type;
             $type             = '*';
         }
-        if (is_array($rule)) {
+        if (is_array($rule) && empty($route)) {
             foreach ($rule as $key => $val) {
                 if (is_numeric($key)) {
                     $key = array_shift($val);
@@ -228,6 +245,9 @@ class Route
      */
     protected static function setRule($rule, $route, $type = '*', $option = [], $pattern = [], $group = '')
     {
+        if (is_array($rule)) {
+            list($name, $rule) = $rule;
+        }
         if ('$' == substr($rule, -1, 1)) {
             // 是否完整匹配
             $option['complete_match'] = true;
@@ -237,6 +257,9 @@ class Route
             $rule = trim($rule, '/');
         }
         $vars = self::parseVar($rule);
+        if (isset($name)) {
+            self::$name[$name] = [$rule, $vars];
+        }
         if ($group) {
             self::$rules[$type][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         } else {

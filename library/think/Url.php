@@ -69,15 +69,21 @@ class Url
             $vars = array_merge($params, $vars);
         }
 
-        // 获取路由别名
-        $alias = self::getRouteAlias();
-        // 检测路由
-        if (0 !== strpos($url, '/') && isset($alias[$url]) && $match = self::getRouteUrl($alias[$url], $vars)) {
-            // 处理路由规则中的特殊字符
-            $url = str_replace('[--think--]', '', $match);
+        $rule = Route::name($url);
+        if ($rule && $match = self::getRuleUrl($rule, $vars)) {
+            // 匹配路由命名标识 快速生成
+            $url = $match;
         } else {
-            // 路由不存在 直接解析
-            $url = self::parseUrl($url);
+            // 获取路由别名
+            $alias = self::getRouteAlias();
+            // 检测路由
+            if (0 !== strpos($url, '/') && isset($alias[$url]) && $match = self::getRouteUrl($alias[$url], $vars)) {
+                // 处理路由规则中的特殊字符
+                $url = $match;
+            } else {
+                // 路由不存在 直接解析
+                $url = self::parseUrl($url);
+            }
         }
 
         // 检测URL绑定
@@ -225,10 +231,6 @@ class Url
     {
         foreach ($alias as $key => $val) {
             list($url, $pattern, $param) = $val;
-            // 解析安全替换
-            if (strpos($url, '$')) {
-                $url = str_replace('$', '[--think--]', $url);
-            }
             // 检查变量匹配
             $array = $vars;
             $match = false;
@@ -255,6 +257,23 @@ class Url
             }
         }
         return false;
+    }
+
+    // 匹配路由地址
+    public static function getRuleUrl($rule, &$vars = [])
+    {
+        list($url, $pattern) = $rule;
+        foreach ($pattern as $key => $val) {
+            if (isset($vars[$key])) {
+                $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
+                unset($vars[$key]);
+            } elseif (2 == $val) {
+                $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
+            } else {
+                return false;
+            }
+        }
+        return $url;
     }
 
     // 生成路由映射并缓存
