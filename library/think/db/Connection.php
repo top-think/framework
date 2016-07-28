@@ -23,6 +23,13 @@ use think\Exception;
 use think\exception\PDOException;
 use think\Log;
 
+/**
+ * Class Connection
+ * @package think
+ * @method Query table(string $table) 指定数据表（含前缀）
+ * @method Query name(string $name) 指定数据表（不含前缀）
+ *
+ */
 abstract class Connection
 {
 
