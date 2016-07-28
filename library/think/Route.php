@@ -175,10 +175,9 @@ class Route
             if (empty($val)) {
                 continue;
             }
-            if (0 === strpos($key, '[')) {
+            if (is_string($key) && 0 === strpos($key, '[')) {
                 $key = substr($key, 1, -1);
                 self::group($key, $val);
-
             } elseif (is_array($val)) {
                 self::setRule($key, $val[0], $type, $val[1], isset($val[2]) ? $val[2] : []);
             } else {
