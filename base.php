@@ -9,7 +9,6 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-ini_set("precision", 18);
 define('THINK_VERSION', '5.0.0 RC4');
 define('THINK_START_TIME', microtime(true));
 define('THINK_START_MEM', memory_get_usage());
