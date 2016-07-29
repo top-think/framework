@@ -280,7 +280,10 @@ class App
             if ($bind) {
                 // 绑定模块
                 list($bindModule) = explode('/', $bind);
-                if ($module == $bindModule) {
+                if (empty($result[0])) {
+                    $module    = $bindModule;
+                    $available = true;
+                } elseif ($module == $bindModule) {
                     $available = true;
                 }
             } elseif (!in_array($module, $config['deny_module_list']) && is_dir(APP_PATH . $module)) {
