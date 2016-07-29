@@ -684,13 +684,13 @@ class Route
 
                 if (0 === strpos($result, '\\')) {
                     // 绑定到命名空间 例如 \app\index\behavior
-                    self::$bind = ['type' => 'namespace', 'namespace' => $result];
+                    self::$bind = ['type' => 'namespace', 'namespace' => $result, 'domain' => true];
                 } elseif (0 === strpos($result, '@')) {
                     // 绑定到类 例如 @app\index\controller\User
-                    self::$bind = ['type' => 'class', 'class' => substr($result, 1)];
+                    self::$bind = ['type' => 'class', 'class' => substr($result, 1), 'domain' => true];
                 } elseif (0 === strpos($result, '[')) {
                     // 绑定到分组 例如 [user]
-                    self::$bind = ['type' => 'group', 'group' => substr($result, 1, -1)];
+                    self::$bind = ['type' => 'group', 'group' => substr($result, 1, -1), 'domain' => true];
                 } else {
                     // 绑定到模块/控制器 例如 index/user
                     self::$bind = ['type' => 'module', 'module' => $result, 'domain' => true];
@@ -792,7 +792,7 @@ class Route
                 } else {
                     $str = $key;
                 }
-                if (0 !== strpos($url, $str)) {
+                if (is_string($str) && 0 !== strpos($url, $str)) {
                     continue;
                 }
 
@@ -885,7 +885,12 @@ class Route
                     // 绑定到路由分组
                     $key = self::$bind['group'];
                     if (array_key_exists($key, $rules)) {
-                        $rules = [$key => $rules[self::$bind['group']]];
+                        $item = $rules[self::$bind['group']];
+                        if (!empty(self::$bind['domain']) && true === $item) {
+                            $rules = [self::$rules['*'][$key]];
+                        } else {
+                            $rules = [$key => $item];
+                        }
                     }
             }
         }
