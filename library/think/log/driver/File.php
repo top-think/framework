@@ -39,9 +39,10 @@ class File
     public function save(array $log = [])
     {
         $now         = date($this->config['time_format']);
-        $destination = $this->config['path'] . date('y_m_d') . '.log';
+        $destination = $this->config['path'] . date('Ym') . DS . date('d') . '.log';
 
-        !is_dir($this->config['path']) && mkdir($this->config['path'], 0755, true);
+        $path = dirname($destination);
+        !is_dir($path) && mkdir($path, 0755, true);
 
         //检测日志文件大小，超过配置大小则备份日志文件重新生成
         if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {

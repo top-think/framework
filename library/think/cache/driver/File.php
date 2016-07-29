@@ -69,19 +69,17 @@ class File
         $name = md5($name);
         if ($this->options['cache_subdir']) {
             // 使用子目录
-            $dir = '';
-            $len = $this->options['path_level'];
-            for ($i = 0; $i < $len; $i++) {
-                $dir .= $name{$i} . DS;
-            }
-            if (!is_dir($this->options['path'] . $dir)) {
-                mkdir($this->options['path'] . $dir, 0755, true);
-            }
-            $filename = $dir . $this->options['prefix'] . $name . '.php';
-        } else {
-            $filename = $this->options['prefix'] . $name . '.php';
+            $name = substr($md5, 0, 2) . DS . substr($md5, 2);
         }
-        return $this->options['path'] . $filename;
+        if ($this->options['prefix']) {
+            $name = $this->options['prefix'] . DS . $name;
+        }
+        $filename = $this->options['path'] . $name . '.php';
+        $dir      = dirname($filename);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        return $filename;
     }
 
     /**
