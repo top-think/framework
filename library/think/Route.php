@@ -624,7 +624,7 @@ class Route
      * @param string    $method 请求类型
      * @return void
      */
-    public static function checkDomain($request, $method)
+    public static function checkDomain($request, $method = 'GET')
     {
         // 域名规则
         $rules = self::$rules['domain'];
