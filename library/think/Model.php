@@ -239,17 +239,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $name 字段名 留空获取全部
      * @return mixed
-     * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function getData($name = null)
     {
-        if (is_null($name)) {
-            return $this->data;
-        } elseif (array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        } else {
-            throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
-        }
+        return func_num_args() ? $this->data[$name] : $this->data;
     }
 
     /**
@@ -367,23 +361,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getAttr($name)
     {
-        try {
-            $notFound = false;
-            $value    = $this->getData($name);
-        } catch (InvalidArgumentException $e) {
-            $notFound = true;
-            $value    = null;
-        }
-
         // 检测属性获取器
         $method = 'get' . Loader::parseName($name, 1) . 'Attr';
         if (method_exists($this, $method)) {
-            $value = $this->$method($value, $this->data);
+            $value = $this->$method($this->data[$name], $this->data);
         } elseif (isset($this->type[$name])) {
             // 类型转换
-            $value = $this->readTransform($value, $this->type[$name]);
-        } elseif ($notFound) {
-            if (method_exists($this, $name) && !method_exists('\think\Model', $name)) {
+            $value = $this->readTransform($this->data[$name], $this->type[$name]);
+        } elseif (array_key_exists($name, $this->data)) {
+            $value = $this->data[$name];
+        } else {
+            if (method_exists($this, $name) && !method_exists(__CLASS__, $name)) {
                 // 不存在该字段 获取关联数据
                 $value = $this->relation()->getRelation($name);
                 // 保存关联对象值
