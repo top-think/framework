@@ -33,6 +33,7 @@ class Config
      * @param string    $type 配置解析类型
      * @param string    $name 配置名（如设置即表示二级配置）
      * @param string    $range  作用域
+     * @return mixed
      */
     public static function parse($config, $type = '', $name = '', $range = '')
     {
@@ -41,7 +42,7 @@ class Config
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
         $class = false !== strpos($type, '\\') ? $type : '\\think\\config\\driver\\' . ucwords($type);
-        self::set((new $class())->parse($config), $name, $range);
+        return self::set((new $class())->parse($config), $name, $range);
     }
 
     /**
@@ -122,7 +123,7 @@ class Config
         } else {
             // 二维数组设置和获取支持
             $name   = explode('.', $name);
-            $result = getenv(ENV_PREFIX .  strtoupper($name[0] . '_' . $name[1]));
+            $result = getenv(ENV_PREFIX . strtoupper($name[0] . '_' . $name[1]));
             // 判断环境变量
             if (false !== $result) {
                 return $result;
