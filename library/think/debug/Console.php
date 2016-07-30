@@ -127,6 +127,7 @@ JS;
         : "console.groupCollapsed('{$type}');";
 
         foreach ((array) $msg as $key => $m) {
+            if(empty($m)) continue;
             switch ($type) {
                 case '调试':
                     $var_type = gettype($m);
@@ -138,10 +139,8 @@ JS;
                     break;
                 case '错误':
                     $msg    = str_replace("\n", '\n', $m);
-                    if(!empty($msg)) {
-                        $style  = 'color:#F4006B;font-size:14px;';
-                        $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
-                    }
+                    $style  = 'color:#F4006B;font-size:14px;';
+                    $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
                     break;
                 case 'sql':
                     $msg    = str_replace("\n", '\n', $m);
