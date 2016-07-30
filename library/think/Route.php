@@ -95,7 +95,7 @@ class Route
     {
         if (is_array($domain)) {
             foreach ($domain as $key => $item) {
-                self::$rules['domain'][$key][] = is_array($item) ? $item : [$item, $option, $pattern];
+                self::$rules['domain'][$key][] = [$item, $option, $pattern];
             }
         } else {
             self::$rules['domain'][$domain][] = [$rule, $option, $pattern];
