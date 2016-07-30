@@ -13,6 +13,7 @@ namespace think;
 
 use think\App;
 use think\Config;
+use think\exception\HttpException;
 use think\Hook;
 use think\Log;
 use think\Request;
@@ -680,9 +681,13 @@ class Route
                 }
             }
             if (!empty($item)) {
-                self::$domain                  = true;
+                self::$domain = true;
+                // 解析子域名部署规则
                 list($rule, $option, $pattern) = $item;
-                // 子域名部署规则
+                if (!empty($option['https']) && !$request->isSsl()) {
+                    // https检测
+                    throw new HttpException(404, 'must use https request:' . $host);
+                }
                 if ($rule instanceof \Closure) {
                     // 执行闭包
                     $reflect    = new \ReflectionFunction($rule);
