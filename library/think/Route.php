@@ -334,11 +334,12 @@ class Route
         }
         if (!empty($name)) {
             // 分组
+            $currentGroup = self::getGroup('name');
+            if ($currentGroup) {
+                $name = $currentGroup . '/' . ltrim($name, '/');
+            }
             if ($routes instanceof \Closure) {
-                $currentGroup = self::getGroup('name');
-                if ($currentGroup) {
-                    $name = $currentGroup . '/' . ltrim($name, '/');
-                }
+
                 $currentOption  = self::getGroup('option');
                 $currentPattern = self::getGroup('pattern');
                 self::setGroup($name, $option, $pattern);

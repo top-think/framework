@@ -36,11 +36,27 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::post('hello/:name', 'index/post');
         Route::put('hello/:name', 'index/put');
         Route::delete('hello/:name', 'index/delete');
+        Route::patch('hello/:name', 'index/patch');
         Route::any('user/:id', 'index/user');
         $result = Route::check($request, 'hello/thinkphp');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
         $this->assertEquals(['hello' => true, 'user/:id' => true, 'hello/:name' => ['rule' => 'hello/:name', 'route' => 'index/hello', 'var' => ['name' => 1], 'option' => [], 'pattern' => []]], Route::rules('GET'));
-        Route::rule('type/:name', 'index/type', 'PUT|POST');
+        Route::rule('type1/:name', 'index/type', 'PUT|POST');
+        Route::rule(['type2/:name' => 'index/type1']);
+        Route::rule([['type3/:name', 'index/type2', ['method' => 'POST']]]);
+        Route::rule(['name', 'type4/:name'], 'index/type4');
+    }
+
+    public function testImport()
+    {
+        $rule = [
+            '__domain__' => ['subdomain2.thinkphp.cn' => 'blog1'],
+            '__alias__'  => ['blog1' => 'blog1'],
+            '__rest__'   => ['res' => ['index/blog']],
+            'bbb'        => ['index/blog1', ['method' => 'POST']],
+            ['hello1/:ddd', 'index/hello1', ['method' => 'POST']],
+        ];
+        Route::import($rule);
     }
 
     public function testResource()
@@ -124,7 +140,8 @@ class routeTest extends \PHPUnit_Framework_TestCase
     public function testCheckRouteGroup()
     {
         $request = Request::instance();
-        Route::pattern(['id' => '\d+', 'name' => '\w{6,25}']);
+        Route::pattern(['id' => '\d+']);
+        Route::pattern('name', '\w{6,25}');
         Route::group('group', [':id' => 'index/hello', ':name' => 'index/say']);
         $this->assertEquals(false, Route::check($request, 'empty/think'));
         $result = Route::check($request, 'group/think');
@@ -133,6 +150,25 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
         $result = Route::check($request, 'group/thinkphp');
         $this->assertEquals([null, 'index', 'say'], $result['module']);
+        Route::group('group2', function () {
+            Route::group('group3', [':id' => 'index/hello', ':name' => 'index/say']);
+            Route::rule(':name', 'index/hello');
+            Route::miss('index/__miss__');
+            Route::auto('index');
+        });
+        $result = Route::check($request, 'group2/thinkphp');
+        $this->assertEquals([null, 'index', 'hello'], $result['module']);
+        $result = Route::check($request, 'group2/group3/thinkphp');
+        $this->assertEquals([null, 'index', 'say'], $result['module']);
+        Route::group(['prefix' => 'prefix/'], function () {
+            Route::rule('hello4/:name', 'hello');
+        });
+        $result = Route::check($request, 'hello4/thinkphp');
+        $this->assertEquals([null, 'prefix', 'hello'], $result['module']);
+        Route::group('group3', [
+            ':name' => 'hello',
+            ':id'   => 'hello',
+        ], ['prefix' => 'index/']);
     }
 
     public function testRouteToModule()
@@ -207,7 +243,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::checkDomain($request);
         $this->assertEquals('\app\index\controller', Route::getbind('namespace'));
 
-        Route::domain('subdomain.thinkphp.cn', '@\app\index\controller\blog');
+        Route::domain(['subdomain.thinkphp.cn' => '@\app\index\controller\blog']);
         Route::checkDomain($request);
         $this->assertEquals('\app\index\controller\blog', Route::getbind('class'));
 
