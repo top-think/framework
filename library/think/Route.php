@@ -257,7 +257,8 @@ class Route
     protected static function setRule($rule, $route, $type = '*', $option = [], $pattern = [], $group = '')
     {
         if (is_array($rule)) {
-            list($name, $rule) = $rule;
+            $name = $rule[0];
+            $rule = $rule[1];
         }
         if ('$' == substr($rule, -1, 1)) {
             // 是否完整匹配
