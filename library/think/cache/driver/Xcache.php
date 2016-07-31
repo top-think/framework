@@ -90,12 +90,11 @@ class Xcache
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
-     * @param int       $expire  有效时间 0为永久
      * @return false|int
      */
-    public function inc($name, $step = 1, $expire = null)
+    public function inc($name, $step = 1)
     {
-        return xcache_inc($name, $step, $expire);
+        return xcache_inc($name, $step);
     }
 
     /**
@@ -103,12 +102,11 @@ class Xcache
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
-     * @param int       $expire  有效时间 0为永久
      * @return false|int
      */
-    public function dec($name, $step = 1, $expire = null)
+    public function dec($name, $step = 1)
     {
-        return xcache_dec($name, $step, $expire);
+        return xcache_dec($name, $step);
     }
 
     /**

@@ -115,14 +115,13 @@ class Cache
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
-     * @param int       $expire  有效时间 0为永久
      * @return false|int
      */
-    public static function inc($name, $step = 1, $expire = null)
+    public static function inc($name, $step = 1)
     {
         self::init();
         self::$writeTimes++;
-        return self::$handler->inc($name, $step, $expire);
+        return self::$handler->inc($name, $step);
     }
 
     /**
@@ -130,14 +129,13 @@ class Cache
      * @access public
      * @param string    $name 缓存变量名
      * @param int       $step 步长
-     * @param int       $expire  有效时间 0为永久
      * @return false|int
      */
-    public static function dec($name, $step = 1, $expire = null)
+    public static function dec($name, $step = 1)
     {
         self::init();
         self::$writeTimes++;
-        return self::$handler->dec($name, $step, $expire);
+        return self::$handler->dec($name, $step);
     }
 
     /**
