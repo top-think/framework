@@ -69,6 +69,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'aliasname'  => 'chsAlphaNum',
             'file'       => 'file|fileSize:20480',
             'image'      => 'image|fileMime:image/png|image:80,80,png',
+            'test'       => 'test',
         ];
         $data = [
             'name'       => 'thinkphp',
@@ -94,8 +95,10 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'aliasname'  => '流年Think2016',
             'file'       => new File(THINK_PATH . 'base.php'),
             'image'      => new File(THINK_PATH . 'logo.png'),
+            'test'       => 'test',
         ];
         $validate = new Validate($rule);
+        $validate->extend('test', function ($value) {return 'test' == $value ? true : false;});
         $validate->rule('zip', '/^\d{6}$/');
         $validate->rule([
             'ok'   => 'require|accepted',
