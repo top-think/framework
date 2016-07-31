@@ -30,6 +30,7 @@ class urlTest extends \PHPUnit_Framework_TestCase
         Route::get('blog/:id', 'index/blog');
         Config::set('pathinfo_depr', '/');
         Config::set('url_html_suffix', '');
+        $this->assertEquals('/', Url::build(''));
         $this->assertEquals('/blog/thinkphp', Url::build('index/blog?name=thinkphp'));
         $this->assertEquals('/blog/thinkphp.html', Url::build('index/blog', 'name=thinkphp', 'html'));
         $this->assertEquals('/blog/10', Url::build('index/blog?id=10'));
@@ -67,6 +68,13 @@ class urlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/blog/10.shtml', Url::build('/blog/10'));
     }
 
+    public function testBuildNameRoute()
+    {
+        Route::get(['blog', 'blog/:id'], 'index/blog');
+        Config::set('url_html_suffix', 'shtml');
+        $this->assertEquals('/blog/10/name/thinkphp.shtml', Url::build('blog?id=10&name=thinkphp'));
+    }
+
     public function testBuildAnchor()
     {
         Route::get('blog/:id', 'index/blog');
@@ -75,5 +83,16 @@ class urlTest extends \PHPUnit_Framework_TestCase
 
         Config::set('url_common_param', true);
         $this->assertEquals('/blog/10.shtml?foo=bar#detail', Url::build('/blog/10#detail', "foo=bar"));
+    }
+
+    public function testBuildDomain()
+    {
+        Config::set('url_domain_deploy', true);
+        Route::domain('subdomain.thinkphp.cn', 'admin');
+        $this->assertEquals('http://subdomain.thinkphp.cn/blog/10.shtml', Url::build('/blog/10'));
+        Route::domain('subdomain.thinkphp.cn', [
+            'hello/:name' => 'index/hello',
+        ]);
+        $this->assertEquals('http://subdomain.thinkphp.cn/hello/thinkphp.shtml', Url::build('index/hello?name=thinkphp'));
     }
 }
