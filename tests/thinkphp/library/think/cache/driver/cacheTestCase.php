@@ -180,9 +180,16 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
 
     public function testStaticCall()
     {
-        $this->assertTrue(Cache::set('a', 'a'));
-        $this->assertEquals('a', Cache::get('a'));
+        $this->assertTrue(Cache::set('a', 1));
+        $this->assertEquals(1, Cache::get('a'));
+        $this->assertEquals(2, Cache::inc('a'));
+        $this->assertEquals(4, Cache::inc('a', 2));
+        $this->assertEquals(4, Cache::get('a'));
+        $this->assertEquals(3, Cache::dec('a'));
+        $this->assertEquals(1, Cache::dec('a', 2));
+        $this->assertEquals(1, Cache::get('a'));
         $this->assertNotNull(Cache::rm('a'));
+        $this->assertNotNull(Cache::clear());
     }
 
 }

@@ -118,7 +118,7 @@ class Cache
      * @param int       $expire  有效时间 0为永久
      * @return false|int
      */
-    public function inc($name, $step = 1, $expire = null)
+    public static function inc($name, $step = 1, $expire = null)
     {
         self::init();
         self::$writeTimes++;
@@ -133,7 +133,7 @@ class Cache
      * @param int       $expire  有效时间 0为永久
      * @return false|int
      */
-    public function dec($name, $step = 1, $expire = null)
+    public static function dec($name, $step = 1, $expire = null)
     {
         self::init();
         self::$writeTimes++;
