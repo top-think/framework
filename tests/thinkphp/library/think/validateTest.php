@@ -61,7 +61,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'end_time'   => 'before:2016-10-01',
             'info'       => 'require|array|length:4|max:5|min:2',
             'info.name'  => 'require|length:8|alpha|same:thinkphp',
-            'value'      => 'same:100',
+            'value'      => 'same:100|different:status',
             'bool'       => 'boolean',
             'title'      => 'chsAlpha',
             'city'       => 'chs',
