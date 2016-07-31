@@ -95,4 +95,15 @@ class urlTest extends \PHPUnit_Framework_TestCase
         ]);
         $this->assertEquals('http://subdomain.thinkphp.cn/hello/thinkphp.shtml', Url::build('index/hello?name=thinkphp'));
     }
+
+    public function testRoot()
+    {
+        Config::set('url_domain_deploy', false);
+        Config::set('url_common_param', false);
+        Url::root('/index.php');
+        Route::get(['blog', 'blog/:id'], 'index/blog');
+        Config::set('url_html_suffix', 'shtml');
+        $this->assertEquals('/index.php/blog/10/name/thinkphp.shtml', Url::build('blog?id=10&name=thinkphp'));
+
+    }
 }
