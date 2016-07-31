@@ -153,13 +153,24 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::group('group2', function () {
             Route::group('group3', [':id' => 'index/hello', ':name' => 'index/say']);
             Route::rule(':name', 'index/hello');
-            Route::miss('index/__miss__');
             Route::auto('index');
         });
         $result = Route::check($request, 'group2/thinkphp');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
+        $result = Route::check($request, 'group2/think');
+        $this->assertEquals(['index', 'group2', 'think'], $result['module']);
         $result = Route::check($request, 'group2/group3/thinkphp');
         $this->assertEquals([null, 'index', 'say'], $result['module']);
+        Route::group('group4', function () {
+            Route::group('group3', [':id' => 'index/hello', ':name' => 'index/say']);
+            Route::rule(':name', 'index/hello');
+            Route::miss('index/__miss__');
+        });
+        $result = Route::check($request, 'group4/thinkphp');
+        $this->assertEquals([null, 'index', 'hello'], $result['module']);
+        $result = Route::check($request, 'group4/think');
+        $this->assertEquals([null, 'index', '__miss__'], $result['module']);
+
         Route::group(['prefix' => 'prefix/'], function () {
             Route::rule('hello4/:name', 'hello');
         });
