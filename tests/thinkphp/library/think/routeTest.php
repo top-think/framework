@@ -54,6 +54,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
             '__alias__'  => ['blog1' => 'blog1'],
             '__rest__'   => ['res' => ['index/blog']],
             'bbb'        => ['index/blog1', ['method' => 'POST']],
+            'ddd'        => '',
             ['hello1/:ddd', 'index/hello1', ['method' => 'POST']],
         ];
         Route::import($rule);
@@ -78,6 +79,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['index', 'comment', 'read'], $result['module']);
         $result = Route::check($request, 'blog/8/comment/10/edit');
         $this->assertEquals(['index', 'comment', 'edit'], $result['module']);
+
     }
 
     public function testRest()
@@ -174,12 +176,38 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::group(['prefix' => 'prefix/'], function () {
             Route::rule('hello4/:name', 'hello');
         });
+        Route::group(['prefix' => 'prefix/'], [
+            'hello4/:name' => 'hello',
+        ]);
         $result = Route::check($request, 'hello4/thinkphp');
         $this->assertEquals([null, 'prefix', 'hello'], $result['module']);
-        Route::group('group3', [
-            ':name' => 'hello',
-            ':id'   => 'hello',
-        ], ['prefix' => 'index/']);
+        Route::group('group5', [
+            [':name', 'hello', ['method' => 'GET|POST']],
+            ':id' => 'hello',
+        ], ['prefix' => 'prefix/']);
+        $result = Route::check($request, 'group5/thinkphp');
+        $this->assertEquals([null, 'prefix', 'hello'], $result['module']);
+    }
+
+    public function testControllerRoute()
+    {
+        $request = Request::instance();
+        Route::controller('controller', 'index/Blog');
+        $result = Route::check($request, 'controller/info');
+        $this->assertEquals(['index', 'Blog', 'getinfo'], $result['module']);
+        Route::setMethodPrefix('GET', 'read');
+        Route::setMethodPrefix(['get' => 'read']);
+        Route::controller('controller', 'index/Blog');
+        $result = Route::check($request, 'controller/phone');
+        $this->assertEquals(['index', 'Blog', 'readphone'], $result['module']);
+    }
+
+    public function testAliasRoute()
+    {
+        $request = Request::instance();
+        Route::alias('alias', 'index/Alias');
+        $result = Route::check($request, 'alias/info');
+        $this->assertEquals('index/Alias/info', $result['module']);
     }
 
     public function testRouteToModule()
