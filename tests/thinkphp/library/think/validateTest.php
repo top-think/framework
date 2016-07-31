@@ -59,7 +59,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'status'     => 'integer|in:0,1,2',
             'begin_time' => 'after:2016-3-18',
             'end_time'   => 'before:2016-10-01',
-            'info'       => 'require|array|length:4',
+            'info'       => 'require|array|length:4|max:5|min:2',
             'info.name'  => 'require|length:8|alpha|same:thinkphp',
             'value'      => 'same:100',
             'bool'       => 'boolean',
@@ -67,7 +67,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'city'       => 'chs',
             'nickname'   => 'chsDash',
             'aliasname'  => 'chsAlphaNum',
-            'file'       => 'file|fileExt:php|fileSize:20480',
+            'file'       => 'file|fileSize:20480',
             'image'      => 'image|fileMime:image/png',
         ];
         $data = [
