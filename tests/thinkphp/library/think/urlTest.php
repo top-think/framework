@@ -70,9 +70,9 @@ class urlTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildNameRoute()
     {
-        Route::get(['blog', 'blog/:id'], 'index/blog');
+        Route::get(['name', 'blog/:id'], 'index/blog');
         Config::set('url_html_suffix', 'shtml');
-        $this->assertEquals('/blog/10/name/thinkphp.shtml', Url::build('blog?id=10&name=thinkphp'));
+        $this->assertEquals('/blog/10/name/thinkphp.shtml', Url::build('name?id=10&name=thinkphp'));
     }
 
     public function testBuildAnchor()
@@ -101,9 +101,9 @@ class urlTest extends \PHPUnit_Framework_TestCase
         Config::set('url_domain_deploy', false);
         Config::set('url_common_param', false);
         Url::root('/index.php');
-        Route::get(['blog', 'blog/:id'], 'index/blog');
+        Route::get('blog/:id', 'index/blog');
         Config::set('url_html_suffix', 'shtml');
-        $this->assertEquals('/index.php/blog/10/name/thinkphp.shtml', Url::build('blog?id=10&name=thinkphp'));
+        $this->assertEquals('/index.php/blog/10/name/thinkphp.shtml', Url::build('index/blog?id=10&name=thinkphp'));
 
     }
 }
