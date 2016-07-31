@@ -48,13 +48,13 @@ class validateTest extends \PHPUnit_Framework_TestCase
     public function testRule()
     {
         $rule = [
-            'name'       => 'require|alphaNum|max:25|expire:2016-1-1,2026-1-1',
+            'name'       => 'require|method:get|alphaNum|max:25|expire:2016-1-1,2026-1-1',
             'account'    => 'requireIf:name,thinkphp|alphaDash|min:4|length:4,30',
             'age'        => 'number|between:1,120',
             'email'      => 'requireWith:name|email',
-            'host'       => 'activeUrl',
+            'host'       => 'activeUrl|activeUrl:A',
             'url'        => 'url',
-            'ip'         => 'ip',
+            'ip'         => 'ip|ip:ipv4',
             'score'      => 'float|gt:60|notBetween:90,100|notIn:70,80|lt:100|elt:100|egt:60',
             'status'     => 'integer|in:0,1,2',
             'begin_time' => 'after:2016-3-18',
@@ -68,7 +68,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'nickname'   => 'chsDash',
             'aliasname'  => 'chsAlphaNum',
             'file'       => 'file|fileSize:20480',
-            'image'      => 'image|fileMime:image/png',
+            'image'      => 'image|fileMime:image/png|image:80,80,png',
         ];
         $data = [
             'name'       => 'thinkphp',
