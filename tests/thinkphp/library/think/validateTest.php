@@ -15,6 +15,7 @@
 
 namespace tests\thinkphp\library\think;
 
+use think\File;
 use think\Validate;
 
 class validateTest extends \PHPUnit_Framework_TestCase
@@ -58,10 +59,16 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'status'     => 'integer|in:0,1,2',
             'begin_time' => 'after:2016-3-18',
             'end_time'   => 'before:2016-10-01',
-            'info'       => 'require|array',
+            'info'       => 'require|array|length:4',
             'info.name'  => 'require|length:8|alpha|same:thinkphp',
             'value'      => 'same:100',
             'bool'       => 'boolean',
+            'title'      => 'chsAlpha',
+            'city'       => 'chs',
+            'nickname'   => 'chsDash',
+            'aliasname'  => 'chsAlphaNum',
+            'file'       => 'file|fileExt:php|fileSize:20480',
+            'image'      => 'image|fileMime:image/png',
         ];
         $data = [
             'name'       => 'thinkphp',
@@ -81,6 +88,12 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'ok'         => 'yes',
             'value'      => 100,
             'bool'       => 'true',
+            'title'      => '流年ThinkPHP',
+            'city'       => '上海',
+            'nickname'   => '流年ThinkPHP_2016',
+            'aliasname'  => '流年Think2016',
+            'file'       => new File(THINK_PATH . 'base.php'),
+            'image'      => new File(THINK_PATH . 'logo.png'),
         ];
         $validate = new Validate($rule);
         $validate->rule('zip', '/^\d{6}$/');
@@ -126,6 +139,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
     {
         $validate = new Validate(['name' => 'check:1']);
         $validate->extend('check', function ($value, $rule) {return $rule == $value ? true : false;});
+        $validate->extend(['check' => function ($value, $rule) {return $rule == $value ? true : false;}]);
         $data   = ['name' => 1];
         $result = $validate->check($data);
         $this->assertEquals(true, $result);
@@ -151,6 +165,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'email' => 'thinkphp@qq.com',
         ];
         $validate = new Validate($rule);
+        $validate->scene(['edit' => ['name', 'age']]);
         $validate->scene('edit', ['name', 'age']);
         $validate->scene('edit');
         $result = $validate->check($data);
@@ -173,6 +188,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
         ];
         $validate = new Validate($rule);
         $validate->setTypeMsg('require', ':attribute必须');
+        $validate->setTypeMsg(['require' => ':attribute必须']);
         $result = $validate->batch()->check($data);
         $this->assertFalse($result);
         $this->assertEquals(['name' => '名称必须', 'sex' => '性别错误'], $validate->getError());
