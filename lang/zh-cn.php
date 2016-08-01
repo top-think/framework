@@ -58,4 +58,5 @@ return [
     'tag error'                 => '模板标签错误',
     'cache write error'         => '缓存写入失败',
     'sae mc write error'        => 'SAE mc 写入错误',
+    'route name not exists'     => '路由命名标识不存在',
 ];
