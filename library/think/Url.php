@@ -39,6 +39,11 @@ class Url
             $domain = true;
         }
         // 解析URL
+        if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
+            // [name] 表示使用路由命名标识生成URL
+            $name = substr($url, 1, $pos - 1);
+            $url  = 'name' . substr($url, $pos + 1);
+        }
         $info = parse_url($url);
         $url  = !empty($info['path']) ? $info['path'] : '';
         if (isset($info['fragment'])) {
@@ -69,10 +74,12 @@ class Url
             $vars = array_merge($params, $vars);
         }
 
-        $rule = Route::name($url);
+        $rule = Route::name(isset($name) ? $name : $url);
         if ($rule && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识 快速生成
             $url = $match;
+        } elseif ($rule && isset($name)) {
+            throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 获取路由别名
             $alias = self::getRouteAlias();
