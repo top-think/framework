@@ -273,6 +273,9 @@ class Route
             self::$name[$name] = [$rule, $vars];
         }
         if ($group) {
+            if (isset(self::$rules[$type][$group]) && true === self::$rules[$type][$group]) {
+                self::$rules[$type][$group] = self::$rules['*'][$group];
+            }
             self::$rules[$type][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         } else {
             if ('*' != $type && isset(self::$rules['*'][$rule])) {
