@@ -274,7 +274,7 @@ class Route
         }
         if ($group) {
             if (isset(self::$rules[$type][$group]) && true === self::$rules[$type][$group]) {
-                self::$rules[$type][$group] = self::$rules['*'][$group];
+                self::$rules[$type][$group] = isset(self::$rules['*'][$group]) ? self::$rules['*'][$group] : [];
             }
             self::$rules[$type][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         } else {
@@ -348,10 +348,12 @@ class Route
                 self::setGroup($name, $option, $pattern);
                 call_user_func_array($routes, []);
                 self::setGroup($currentGroup, $currentOption, $currentPattern);
-                self::$rules['*'][$name]['route']   = '';
-                self::$rules['*'][$name]['var']     = self::parseVar($name);
-                self::$rules['*'][$name]['option']  = $option;
-                self::$rules['*'][$name]['pattern'] = $pattern;
+                if ($currentGroup != $name) {
+                    self::$rules['*'][$name]['route']   = '';
+                    self::$rules['*'][$name]['var']     = self::parseVar($name);
+                    self::$rules['*'][$name]['option']  = $option;
+                    self::$rules['*'][$name]['pattern'] = $pattern;
+                }
             } else {
                 foreach ($routes as $key => $val) {
                     if (is_numeric($key)) {
@@ -383,7 +385,7 @@ class Route
                 // 闭包注册
                 $currentOption  = self::getGroup('option');
                 $currentPattern = self::getGroup('pattern');
-                self::setGroup($name, $option, $pattern);
+                self::setGroup('', $option, $pattern);
                 call_user_func_array($routes, []);
                 self::setGroup($currentGroup, $currentOption, $currentPattern);
             } else {
@@ -823,7 +825,7 @@ class Route
             if (!self::checkOption($option, $url, $request)) {
                 continue;
             }
-
+            $key = str_replace('[think]', '/', $key);
             if (is_array($rule)) {
                 // 分组路由
                 if (($pos = strpos($key, ':')) || ($pos = strpos($key, '<'))) {
