@@ -333,12 +333,12 @@ class Route
             $option = $name;
             $name   = isset($option['name']) ? $option['name'] : '';
         }
+        // 分组
+        $currentGroup = self::getGroup('name');
+        if ($currentGroup) {
+            $name = $currentGroup . ($name ? '/' . ltrim($name, '/') : '');
+        }
         if (!empty($name)) {
-            // 分组
-            $currentGroup = self::getGroup('name');
-            if ($currentGroup) {
-                $name = $currentGroup . '/' . ltrim($name, '/');
-            }
             if ($routes instanceof \Closure) {
                 $currentOption  = self::getGroup('option');
                 $currentPattern = self::getGroup('pattern');
@@ -378,12 +378,8 @@ class Route
         } else {
             if ($routes instanceof \Closure) {
                 // 闭包注册
-                $currentGroup   = self::getGroup('name');
                 $currentOption  = self::getGroup('option');
                 $currentPattern = self::getGroup('pattern');
-                if ($currentGroup) {
-                    $name = $currentGroup . '/' . ltrim($name, '/');
-                }
                 self::setGroup($name, $option, $pattern);
                 call_user_func_array($routes, []);
                 self::setGroup($currentGroup, $currentOption, $currentPattern);
