@@ -273,10 +273,10 @@ class Route
             self::$name[$name] = [$rule, $vars];
         }
         if ($group) {
-            if (isset(self::$rules[$type][$group]) && true === self::$rules[$type][$group]) {
-                self::$rules[$type][$group] = isset(self::$rules['*'][$group]) ? self::$rules['*'][$group] : [];
+            if ('*' != $type) {
+                $option['method'] = $type;
             }
-            self::$rules[$type][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
+            self::$rules['*'][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
         } else {
             if ('*' != $type && isset(self::$rules['*'][$rule])) {
                 unset(self::$rules['*'][$rule]);
@@ -825,7 +825,7 @@ class Route
             if (!self::checkOption($option, $url, $request)) {
                 continue;
             }
-            $key = str_replace('[think]', '/', $key);
+
             if (is_array($rule)) {
                 // 分组路由
                 if (($pos = strpos($key, ':')) || ($pos = strpos($key, '<'))) {
