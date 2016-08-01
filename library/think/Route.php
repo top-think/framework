@@ -355,6 +355,7 @@ class Route
                     self::$rules['*'][$name]['pattern'] = $pattern;
                 }
             } else {
+                $item = [];
                 foreach ($routes as $key => $val) {
                     if (is_numeric($key)) {
                         $key = array_shift($val);
@@ -380,18 +381,16 @@ class Route
                 }
             }
 
+        } elseif ($routes instanceof \Closure) {
+            // 闭包注册
+            $currentOption  = self::getGroup('option');
+            $currentPattern = self::getGroup('pattern');
+            self::setGroup('', $option, $pattern);
+            call_user_func_array($routes, []);
+            self::setGroup($currentGroup, $currentOption, $currentPattern);
         } else {
-            if ($routes instanceof \Closure) {
-                // 闭包注册
-                $currentOption  = self::getGroup('option');
-                $currentPattern = self::getGroup('pattern');
-                self::setGroup('', $option, $pattern);
-                call_user_func_array($routes, []);
-                self::setGroup($currentGroup, $currentOption, $currentPattern);
-            } else {
-                // 批量注册路由
-                self::rule($routes, '', '*', $option, $pattern);
-            }
+            // 批量注册路由
+            self::rule($routes, '', '*', $option, $pattern);
         }
     }
 
