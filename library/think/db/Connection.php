@@ -226,13 +226,17 @@ abstract class Connection
     /**
      * 设置数据库的配置参数
      * @access public
-     * @param string    $config 配置名称
-     * @param mixed     $value 配置值
+     * @param string|array      $config 配置名称
+     * @param mixed             $value 配置值
      * @return void
      */
-    public function setConfig($config, $value)
+    public function setConfig($config, $value = '')
     {
-        $this->config[$config] = $value;
+        if (is_array($config)) {
+            $this->config = array_merge($this->config, $config);
+        } else {
+            $this->config[$config] = $value;
+        }
     }
 
     /**
@@ -247,9 +251,10 @@ abstract class Connection
     public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
     {
         if (!isset($this->links[$linkNum])) {
-            if (empty($config)) {
-                $config = $this->config;
+            if ($config) {
+                $this->setConfig($config);
             }
+            $config = $this->config;
             // 连接参数
             if (isset($config['params']) && is_array($config['params'])) {
                 $params = $config['params'] + $this->params;
@@ -279,20 +284,6 @@ abstract class Connection
             }
         }
         return $this->links[$linkNum];
-    }
-
-    /**
-     * 获取当前数据库的驱动类型
-     * @access public
-     * @return string
-     */
-    public function getDriverName()
-    {
-        if ($this->linkID) {
-            return $this->linkID->getAttribute(PDO::ATTR_DRIVER_NAME);
-        } else {
-            return $this->config['type'];
-        }
     }
 
     /**
