@@ -343,8 +343,8 @@ class Route
         }
         if (!empty($name)) {
             if ($routes instanceof \Closure) {
-                $currentOption  = self::getGroup('option');
-                $currentPattern = self::getGroup('pattern');
+                $currentOption  = self::getGroup('option') ?: [];
+                $currentPattern = self::getGroup('pattern') ?: [];
                 self::setGroup($name, array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
                 call_user_func_array($routes, []);
                 self::setGroup($currentGroup, $currentOption, $currentPattern);
@@ -383,8 +383,8 @@ class Route
 
         } elseif ($routes instanceof \Closure) {
             // 闭包注册
-            $currentOption  = self::getGroup('option');
-            $currentPattern = self::getGroup('pattern');
+            $currentOption  = self::getGroup('option') ?: [];
+            $currentPattern = self::getGroup('pattern') ?: [];
             self::setGroup('', array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
             call_user_func_array($routes, []);
             self::setGroup($currentGroup, $currentOption, $currentPattern);
