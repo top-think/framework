@@ -251,10 +251,9 @@ abstract class Connection
     public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
     {
         if (!isset($this->links[$linkNum])) {
-            if ($config) {
-                $this->setConfig($config);
+            if (!$config) {
+                $config = $this->config;
             }
-            $config = $this->config;
             // 连接参数
             if (isset($config['params']) && is_array($config['params'])) {
                 $params = $config['params'] + $this->params;

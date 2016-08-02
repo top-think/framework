@@ -268,22 +268,22 @@ class routeTest extends \PHPUnit_Framework_TestCase
     {
         $request = Request::create('http://subdomain.thinkphp.cn');
         Route::domain('subdomain.thinkphp.cn', 'sub?abc=test&status=1');
-        Route::checkDomain($request);
-        $this->assertEquals('sub?abc=test&status=1', Route::rules('domain')['subdomain.thinkphp.cn'][0]);
+        $rules = Route::rules('GET');
+        Route::checkDomain($request, $rules);
         $this->assertEquals('sub', Route::getbind('module'));
         $this->assertEquals('test', $_GET['abc']);
         $this->assertEquals(1, $_GET['status']);
 
         Route::domain('subdomain.thinkphp.cn', function () {return ['type' => 'module', 'module' => 'sub2'];});
-        Route::checkDomain($request);
+        Route::checkDomain($request, $rules);
         $this->assertEquals('sub2', Route::getbind('module'));
 
         Route::domain('subdomain.thinkphp.cn', '\app\index\controller');
-        Route::checkDomain($request);
+        Route::checkDomain($request, $rules);
         $this->assertEquals('\app\index\controller', Route::getbind('namespace'));
 
         Route::domain(['subdomain.thinkphp.cn' => '@\app\index\controller\blog']);
-        Route::checkDomain($request);
+        Route::checkDomain($request, $rules);
         $this->assertEquals('\app\index\controller\blog', Route::getbind('class'));
 
     }
