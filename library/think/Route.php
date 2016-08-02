@@ -211,7 +211,7 @@ class Route
     public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [])
     {
         $group = self::getGroup('name');
-        if (!is_null($group)) {
+        if (!empty($group)) {
             // 路由分组
             $option  = array_merge(self::getGroup('option'), $option);
             $pattern = array_merge(self::getGroup('pattern'), $pattern);
@@ -302,7 +302,7 @@ class Route
         if (isset(self::$group[$type])) {
             return self::$group[$type];
         } else {
-            return null;
+            return 'name' == $type ? null : [];
         }
     }
 
@@ -343,8 +343,8 @@ class Route
         }
         if (!empty($name)) {
             if ($routes instanceof \Closure) {
-                $currentOption  = self::getGroup('option') ?: [];
-                $currentPattern = self::getGroup('pattern') ?: [];
+                $currentOption  = self::getGroup('option');
+                $currentPattern = self::getGroup('pattern');
                 self::setGroup($name, array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
                 call_user_func_array($routes, []);
                 self::setGroup($currentGroup, $currentOption, $currentPattern);
@@ -383,8 +383,8 @@ class Route
 
         } elseif ($routes instanceof \Closure) {
             // 闭包注册
-            $currentOption  = self::getGroup('option') ?: [];
-            $currentPattern = self::getGroup('pattern') ?: [];
+            $currentOption  = self::getGroup('option');
+            $currentPattern = self::getGroup('pattern');
             self::setGroup('', array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
             call_user_func_array($routes, []);
             self::setGroup($currentGroup, $currentOption, $currentPattern);
