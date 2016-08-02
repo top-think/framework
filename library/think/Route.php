@@ -345,7 +345,7 @@ class Route
             if ($routes instanceof \Closure) {
                 $currentOption  = self::getGroup('option');
                 $currentPattern = self::getGroup('pattern');
-                self::setGroup($name, $option, $pattern);
+                self::setGroup($name, array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
                 call_user_func_array($routes, []);
                 self::setGroup($currentGroup, $currentOption, $currentPattern);
                 if ($currentGroup != $name) {
@@ -362,7 +362,7 @@ class Route
                     }
                     if (is_array($val)) {
                         $route    = $val[0];
-                        $option1  = array_merge($option, $val[1]);
+                        $option1  = array_merge($option, isset($val[1]) ? $val[1] : []);
                         $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
                     } else {
                         $route = $val;
@@ -385,7 +385,7 @@ class Route
             // 闭包注册
             $currentOption  = self::getGroup('option');
             $currentPattern = self::getGroup('pattern');
-            self::setGroup('', $option, $pattern);
+            self::setGroup('', array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
             call_user_func_array($routes, []);
             self::setGroup($currentGroup, $currentOption, $currentPattern);
         } else {
