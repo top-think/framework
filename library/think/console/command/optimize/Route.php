@@ -36,7 +36,9 @@ class Route extends Command
     protected function buildRouteCache()
     {
         $config = include CONF_PATH . 'route' . CONF_EXT;
-        \think\Route::import($config);
+        if ($config) {
+            \think\Route::import($config);
+        }
         $rules = \think\Route::rules(true);
         array_walk_recursive($rules, [$this, 'buildClosure']);
         $content = '<?php ' . PHP_EOL . 'return ';
