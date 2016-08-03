@@ -596,7 +596,7 @@ class Query
                 return true; // 等待下次写入
             }
         }
-        return $this->setField($field, ['exp', $field . '-' . $step]);
+        return $this->setField($field, ['exp', $field . '+' . $step]);
     }
 
     /**
