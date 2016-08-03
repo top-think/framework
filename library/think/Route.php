@@ -292,7 +292,7 @@ class Route
         }
         $vars = self::parseVar($rule);
         if (isset($name)) {
-            self::$name[$name] = [$rule, $vars];
+            self::$name[$name] = [$rule, $vars, self::$domain];
         }
         if ($group) {
             if ('*' != $type) {

@@ -78,6 +78,9 @@ class Url
         if ($rule && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识 快速生成
             $url = $match;
+            if (!empty($rule[2])) {
+                $domain = $rule[2];
+            }
         } elseif ($rule && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
@@ -184,7 +187,7 @@ class Url
                     if (0 === strpos($domain_prefix, '*.') && strpos($domain, ltrim($domain_prefix, '*.')) !== false) {
                         foreach ($domains as $key => $rule) {
                             $rule = is_array($rule) ? $rule[0] : $rule;
-                            if (false === strpos($key, '*') && 0 === strpos($url, $rule)) {
+                            if (is_string($rule) && false === strpos($key, '*') && 0 === strpos($url, $rule)) {
                                 $url    = ltrim($url, $rule);
                                 $domain = $key;
                                 // 生成对应子域名
