@@ -13,7 +13,6 @@ namespace think\console\command\optimize;
 use think\console\command\Command;
 use think\console\Input;
 use think\console\Output;
-use think\Route;
 
 class Route extends Command
 {
@@ -37,8 +36,8 @@ class Route extends Command
     protected function buildRouteCache()
     {
         $config = include CONF_PATH . 'route' . CONF_EXT;
-        Route::import($config);
-        $rules = Route::rules(true);
+        \think\Route::import($config);
+        $rules = \think\Route::rules(true);
         array_walk_recursive($rules, [$this, 'buildClosure']);
         $content = '<?php ' . PHP_EOL . 'return ';
         $content .= var_export($rules, true) . ';';
