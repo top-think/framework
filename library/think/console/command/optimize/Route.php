@@ -6,7 +6,7 @@
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: yunwuxin <448901948@qq.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 namespace think\console\command\optimize;
 
@@ -27,9 +27,7 @@ class Route extends Command
 
     protected function execute(Input $input, Output $output)
     {
-
         file_put_contents(RUNTIME_PATH . 'route.php', $this->buildRouteCache());
-
         $output->writeln('<info>Succeed!</info>');
     }
 

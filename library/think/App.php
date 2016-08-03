@@ -437,9 +437,6 @@ class App
             if ($config['extra_config_list']) {
                 foreach ($config['extra_config_list'] as $name => $file) {
                     $filename = CONF_PATH . $module . $file . CONF_EXT;
-                    if ('route' == $module . $file && is_file(RUNTIME_PATH . 'route.php')) {
-                        continue;
-                    }
                     Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
                 }
             }
@@ -485,10 +482,11 @@ class App
         if ($check) {
             // 开启路由
             if (is_file(RUNTIME_PATH . 'route.php')) {
-                Route::rules(include RUNTIME_PATH . 'route.php');
-            } elseif (!empty($config['route'])) {
+                // 读取路由缓存
+                Route::rules(include RUNTIME_PATH . 'route.php' ?: []);
+            } elseif (is_file(CONF_PATH . 'route' . CONF_EXT)) {
                 // 导入路由配置
-                Route::import($config['route']);
+                Route::import(include CONF_PATH . 'route' . CONF_EXT ?: []);
             }
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = Route::check($request, $path, $depr, $config['url_domain_deploy']);
