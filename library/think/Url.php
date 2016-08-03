@@ -92,7 +92,7 @@ class Url
                 $url = $match;
             } else {
                 // 路由不存在 直接解析
-                $url = self::parseUrl($url);
+                $url = self::parseUrl($url, $domain);
             }
         }
 
@@ -137,7 +137,7 @@ class Url
     }
 
     // 直接解析URL地址
-    protected static function parseUrl($url)
+    protected static function parseUrl($url, $domain)
     {
         $request = Request::instance();
         if (0 === strpos($url, '/')) {
@@ -151,8 +151,17 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 模块/控制器/操作
-            $module     = $request->module();
-            $module     = $module ? $module . '/' : '';
+            $module  = $request->module();
+            $domains = Route::rules('domain');
+            if (isset($domains[$domain]['[bind]'][0])) {
+                $bindModule = $domains[$domain]['[bind]'][0];
+                if ($bindModule && !in_array($bindModule[0], ['\\', '@'])) {
+                    $module = '';
+                }
+            } else {
+                $module = $module ? $module . '/' : '';
+            }
+
             $controller = $request->controller();
             if ('' == $url) {
                 // 空字符串输出当前的 模块/控制器/操作
