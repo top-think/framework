@@ -74,6 +74,12 @@ class Sqlsrv extends Connection
                 ];
             }
         }
+        $sql    = "SELECT column_name FROM information_schema.key_column_usage WHERE table_name='$tableName'";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $info[$result['column_name']]['primary'] = true;
+        }
         return $this->fieldCase($info);
     }
 
