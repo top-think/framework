@@ -658,7 +658,7 @@ class Route
         if (is_array($rules)) {
             self::$rules = $rules;
         } elseif ($rules) {
-            return self::$rules[$rules];
+            return true === $rules ? self::$rules : self::$rules[$rules];
         } else {
             $rules = self::$rules;
             unset($rules['pattern'], $rules['alias'], $rules['domain']);

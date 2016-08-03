@@ -65,6 +65,7 @@ class App
     protected static $routeMust;
 
     protected static $dispatch;
+    protected static $file = [];
 
     /**
      * 执行应用程序
@@ -388,8 +389,9 @@ class App
             if (!empty($config['extra_file_list'])) {
                 foreach ($config['extra_file_list'] as $file) {
                     $file = strpos($file, '.') ? $file : APP_PATH . $file . EXT;
-                    if (is_file($file)) {
-                        include_once $file;
+                    if (is_file($file) && !isset(self::$file[$file])) {
+                        include $file;
+                        self::$file[$file] = true;
                     }
                 }
             }
@@ -435,6 +437,9 @@ class App
             if ($config['extra_config_list']) {
                 foreach ($config['extra_config_list'] as $name => $file) {
                     $filename = CONF_PATH . $module . $file . CONF_EXT;
+                    if ('route' == $module . $file && is_file(RUNTIME_PATH . 'route.php')) {
+                        continue;
+                    }
                     Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
                 }
             }
@@ -479,7 +484,9 @@ class App
         $check = !is_null(self::$routeCheck) ? self::$routeCheck : $config['url_route_on'];
         if ($check) {
             // 开启路由
-            if (!empty($config['route'])) {
+            if (is_file(RUNTIME_PATH . 'route.php')) {
+                Route::rules(include RUNTIME_PATH . 'route.php');
+            } elseif (!empty($config['route'])) {
                 // 导入路由配置
                 Route::import($config['route']);
             }
