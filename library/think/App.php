@@ -483,10 +483,16 @@ class App
             // 开启路由
             if (is_file(RUNTIME_PATH . 'route.php')) {
                 // 读取路由缓存
-                Route::rules(include RUNTIME_PATH . 'route.php' ?: []);
+                $rules = include RUNTIME_PATH . 'route.php';
+                if (is_array($rules)) {
+                    Route::rules($rules);
+                }
             } elseif (is_file(CONF_PATH . 'route' . CONF_EXT)) {
                 // 导入路由配置
-                Route::import(include CONF_PATH . 'route' . CONF_EXT ?: []);
+                $rules = include CONF_PATH . 'route' . CONF_EXT;
+                if (is_array($rules)) {
+                    Route::import($rules);
+                }
             }
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = Route::check($request, $path, $depr, $config['url_domain_deploy']);
