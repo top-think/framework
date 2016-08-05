@@ -320,7 +320,7 @@ EOF;
         $template->assign('name', 'name');
         $config = [
             'strip_space'   => true,
-            'view_path'     => dirname(__FILE__) . '/',
+            'view_path'     => dirname(__FILE__) . DS,
             'cache_id'      => '__CACHE_ID__',
             'display_cache' => true,
         ];
@@ -331,7 +331,7 @@ EOF;
 
     public function testDisplay()
     {
-        $config['view_path']   = dirname(__FILE__) . '/';
+        $config['view_path']   = dirname(__FILE__) . DS;
         $config['view_suffix'] = '.html';
         $config['layout_on']   = true;
         $config['layout_name'] = 'layout';
