@@ -11,8 +11,9 @@
 
 namespace think\controller;
 
-use think\Response;
+use think\App;
 use think\Request;
+use think\Response;
 
 abstract class Rest
 {
@@ -38,7 +39,7 @@ abstract class Rest
     {
         // 资源类型检测
         $request = Request::instance();
-        $ext = $request->ext();
+        $ext     = $request->ext();
         if ('' == $ext) {
             // 自动检测资源类型
             $this->type = $request->type();
@@ -61,22 +62,21 @@ abstract class Rest
      * REST 调用
      * @access public
      * @param string $method 方法名
-     * @param array  $args   参数
      * @return mixed
      * @throws \Exception
      */
-    public function _empty($method, $args)
+    public function _empty($method)
     {
         if (method_exists($this, $method . '_' . $this->method . '_' . $this->type)) {
             // RESTFul方法支持
             $fun = $method . '_' . $this->method . '_' . $this->type;
-        } elseif ($this->_method == $this->restDefaultMethod && method_exists($this, $method . '_' . $this->type)) {
+        } elseif ($this->method == $this->restDefaultMethod && method_exists($this, $method . '_' . $this->type)) {
             $fun = $method . '_' . $this->type;
         } elseif ($this->type == $this->restDefaultType && method_exists($this, $method . '_' . $this->method)) {
             $fun = $method . '_' . $this->method;
         }
         if (isset($fun)) {
-            return $this->$fun();
+            return App::invokeMethod([$this, $fun]);
         } else {
             // 抛出异常
             throw new \Exception('error action :' . $method);

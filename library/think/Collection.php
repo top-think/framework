@@ -74,7 +74,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return new static(array_diff($this->items, $this->convertToArray($items)));
     }
 
-
     /**
      * 交换数组中的键和值
      *
@@ -115,7 +114,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     {
         return array_pop($this->items);
     }
-
 
     /**
      * 通过使用用户自定义函数，以字符串返回数组
@@ -199,7 +197,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return $this;
     }
 
-
     /**
      * 用回调函数过滤数组中的元素
      * @param callable|null $callback
@@ -230,11 +227,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         foreach ($this->items as $row) {
             $key    = $value = null;
             $keySet = $valueSet = false;
-            if ($index_key !== null && array_key_exists($index_key, $row)) {
+            if (null !== $index_key && array_key_exists($index_key, $row)) {
                 $keySet = true;
                 $key    = (string)$row[$index_key];
             }
-            if ($column_key === null) {
+            if (null === $column_key) {
                 $valueSet = true;
                 $value    = $row;
             } elseif (is_array($row) && array_key_exists($column_key, $row)) {
@@ -251,7 +248,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         }
         return $result;
     }
-
 
     /**
      * 对数组排序
@@ -274,7 +270,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
         return new static($items);
     }
-
 
     /**
      * 将数组打乱

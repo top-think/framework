@@ -11,7 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
 use think\Exception;
 
 class Memcache
@@ -57,14 +56,28 @@ class Memcache
     }
 
     /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name = $this->options['prefix'] . $name;
+        return $this->handler->get($name) ? true : false;
+    }
+
+    /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
-        return $this->handler->get($this->options['prefix'] . $name);
+        $result = $this->handler->get($this->options['prefix'] . $name);
+        return false !== $result ? $result : $default;
     }
 
     /**
@@ -85,6 +98,30 @@ class Memcache
             return true;
         }
         return false;
+    }
+
+    /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        return $this->handler->increment($name, $step);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        return $this->handler->decrement($name, $step);
     }
 
     /**

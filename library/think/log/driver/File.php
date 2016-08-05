@@ -39,13 +39,14 @@ class File
     public function save(array $log = [])
     {
         $now         = date($this->config['time_format']);
-        $destination = $this->config['path'] . date('y_m_d') . '.log';
+        $destination = $this->config['path'] . date('Ym') . DS . date('d') . '.log';
 
-        !is_dir($this->config['path']) && mkdir($this->config['path'], 0755, true);
+        $path = dirname($destination);
+        !is_dir($path) && mkdir($path, 0755, true);
 
         //检测日志文件大小，超过配置大小则备份日志文件重新生成
         if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
-            rename($destination, dirname($destination) . DS . time() . '-' . basename($destination));
+            rename($destination, dirname($destination) . DS . $_SERVER['REQUEST_TIME'] . '-' . basename($destination));
         }
 
         // 获取基本信息
@@ -54,20 +55,20 @@ class File
         } else {
             $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
         }
-        $runtime    = microtime(true) - START_TIME;
-        $reqs       = number_format(1 / number_format($runtime, 8), 2);
-        $runtime    = number_format($runtime, 6);
-        $time_str   = " [运行时间：{$runtime}s] [吞吐率：{$reqs}req/s]";
-        $memory_use = number_format((memory_get_usage() - START_MEM) / 1024, 2);
-        $memory_str = " [内存消耗：{$memory_use}kb]";
-        $file_load  = " [文件加载：" . count(get_included_files()) . "]";
+
+        $runtime    = number_format(microtime(true) - THINK_START_TIME, 10);
+        $reqs       = number_format(1 / $runtime, 2);
+        $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
+        $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
+        $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
+        $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
 
         $info = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
         foreach ($log as $type => $val) {
             foreach ($val as $msg) {
                 if (!is_string($msg)) {
                     $msg = var_export($msg, true);
-                }                
+                }
                 $info .= '[ ' . $type . ' ] ' . $msg . "\r\n";
             }
         }

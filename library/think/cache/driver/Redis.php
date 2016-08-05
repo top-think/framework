@@ -11,9 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
-use think\Exception;
-
 /**
  * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
  * 有需要在业务层实现读写分离、或者使用RedisCluster的需求，请使用Redisd驱动
@@ -57,14 +54,29 @@ class Redis
     }
 
     /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        return $this->handler->get($this->options['prefix'] . $name) ? true : false;
+    }
+
+    /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
-        $value    = $this->handler->get($this->options['prefix'] . $name);
+        $value = $this->handler->get($this->options['prefix'] . $name);
+        if (is_null($value)) {
+            return $default;
+        }
         $jsonData = json_decode($value, true);
         // 检测是否为JSON数据 true 返回JSON解析数组, false返回源数据 byron sampson<xiaobo.sun@qq.com>
         return (null === $jsonData) ? $value : $jsonData;
@@ -92,6 +104,30 @@ class Redis
             $result = $this->handler->set($name, $value);
         }
         return $result;
+    }
+
+    /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        return $this->handler->incrby($name, $step);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        return $this->handler->decrby($name, $step);
     }
 
     /**

@@ -43,9 +43,8 @@ class Hook
 
     /**
      * 批量导入插件
-     * @param array     $data 插件信息
-     * @param boolean   $recursive 是否递归合并
-     * @return void
+     * @param array    $tags 插件信息
+     * @param boolean $recursive 是否递归合并
      */
     public static function import($tags, $recursive = true)
     {

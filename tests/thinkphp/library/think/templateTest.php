@@ -78,7 +78,7 @@ EOF;
 {\$name.a==\$name.b?='test'}
 EOF;
         $data = <<<EOF
-<?php if(\$name['a']==\$name['b']) echo 'test'; ?>
+<?php if(!empty(\$name['a']) && \$name['a']==\$name['b']) echo 'test'; ?>
 EOF;
 
         $template->parse($content);
@@ -88,7 +88,7 @@ EOF;
 {\$name.a==\$name.b?'a':'b'}
 EOF;
         $data = <<<EOF
-<?php echo (\$name['a']==\$name['b'])?'a':'b'; ?>
+<?php echo !empty(\$name['a']) && \$name['a']==\$name['b']?'a':'b'; ?>
 EOF;
 
         $template->parse($content);
@@ -98,7 +98,7 @@ EOF;
 {\$name.a|default='test'==\$name.b?'a':'b'}
 EOF;
         $data = <<<EOF
-<?php echo ((isset(\$name['a']) && (\$name['a'] !== '')?\$name['a']:'test')==\$name['b'])?'a':'b'; ?>
+<?php echo (isset(\$name['a']) && (\$name['a'] !== '')?\$name['a']:'test')==\$name['b']?'a':'b'; ?>
 EOF;
 
         $template->parse($content);
@@ -210,7 +210,7 @@ EOF;
 <#\$info.a??'test'#>
 EOF;
         $data = <<<EOF
-<?php echo (is_array(\$info)?\$info['a']:\$info->a) ? (is_array(\$info)?\$info['a']:\$info->a) : 'test'; ?>
+<?php echo ((is_array(\$info)?\$info['a']:\$info->a)) ? (is_array(\$info)?\$info['a']:\$info->a) : 'test'; ?>
 EOF;
 
         $template->parse($content);
@@ -407,7 +407,7 @@ EOF;
     public function testIsCache()
     {
         $template = new Template(['cache_id' => '__CACHE_ID__', 'display_cache' => true]);
-        $this->assertTrue(!$template->isCache('__CACHE_ID__'));
+        $this->assertTrue($template->isCache('__CACHE_ID__'));
         $template->display_cache = false;
         $this->assertTrue(!$template->isCache('__CACHE_ID__'));
     }

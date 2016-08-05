@@ -19,6 +19,7 @@ use think\exception\HttpResponseException;
 use think\Request;
 use think\Response;
 use think\response\Redirect;
+use think\Url;
 use think\View as ViewTemplate;
 
 trait Jump
@@ -26,11 +27,11 @@ trait Jump
     /**
      * 操作成功跳转的快捷方法
      * @access protected
-     * @param mixed $msg 提示信息
-     * @param string $url 跳转的URL地址
-     * @param mixed $data 返回的数据
-     * @param integer $wait 跳转等待时间
-     * @return array
+     * @param mixed     $msg 提示信息
+     * @param string    $url 跳转的URL地址
+     * @param mixed     $data 返回的数据
+     * @param integer   $wait 跳转等待时间
+     * @return void
      */
     protected function success($msg = '', $url = null, $data = '', $wait = 3)
     {
@@ -39,11 +40,16 @@ trait Jump
             $code = $msg;
             $msg  = '';
         }
+        if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
+            $url = $_SERVER["HTTP_REFERER"];
+        } elseif ('' !== $url) {
+            $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
+        }
         $result = [
             'code' => $code,
             'msg'  => $msg,
             'data' => $data,
-            'url'  => is_null($url) && isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : $url,
+            'url'  => $url,
             'wait' => $wait,
         ];
 
@@ -52,16 +58,17 @@ trait Jump
             $result = ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_success_tmpl'), $result);
         }
-        return Response::create($result, $type);
+        $response = Response::create($result, $type);
+        throw new HttpResponseException($response);
     }
 
     /**
      * 操作错误跳转的快捷方法
      * @access protected
-     * @param mixed $msg 提示信息
-     * @param string $url 跳转的URL地址
-     * @param mixed $data 返回的数据
-     * @param integer $wait 跳转等待时间
+     * @param mixed     $msg 提示信息
+     * @param string    $url 跳转的URL地址
+     * @param mixed     $data 返回的数据
+     * @param integer   $wait 跳转等待时间
      * @return void
      */
     protected function error($msg = '', $url = null, $data = '', $wait = 3)
@@ -71,11 +78,16 @@ trait Jump
             $code = $msg;
             $msg  = '';
         }
+        if (is_null($url)) {
+            $url = 'javascript:history.back(-1);';
+        } elseif ('' !== $url) {
+            $url = preg_match('/^(https?:|\/)/', $url) ? $url : Url::build($url);
+        }
         $result = [
             'code' => $code,
             'msg'  => $msg,
             'data' => $data,
-            'url'  => is_null($url) ? 'javascript:history.back(-1);' : $url,
+            'url'  => $url,
             'wait' => $wait,
         ];
 
@@ -91,11 +103,11 @@ trait Jump
     /**
      * 返回封装后的API数据到客户端
      * @access protected
-     * @param mixed $data 要返回的数据
-     * @param integer $code 返回的code
-     * @param mixed $msg 提示信息
-     * @param string $type 返回数据格式
-     * @return mixed
+     * @param mixed     $data 要返回的数据
+     * @param integer   $code 返回的code
+     * @param mixed     $msg 提示信息
+     * @param string    $type 返回数据格式
+     * @return void
      */
     protected function result($data, $code = 0, $msg = '', $type = '')
     {
@@ -104,17 +116,18 @@ trait Jump
             'msg'  => $msg,
             'time' => $_SERVER['REQUEST_TIME'],
             'data' => $data,
-        ]; 
-        $type = $type ?: $this->getResponseType();
-        return Response::create($result, $type);
+        ];
+        $type     = $type ?: $this->getResponseType();
+        $response = Response::create($result, $type);
+        throw new HttpResponseException($response);
     }
 
     /**
      * URL重定向
      * @access protected
-     * @param string $url 跳转的URL表达式
-     * @param array|integer $params 其它URL参数
-     * @param integer $code http code
+     * @param string         $url 跳转的URL表达式
+     * @param array|integer  $params 其它URL参数
+     * @param integer        $code http code
      * @return void
      */
     protected function redirect($url, $params = [], $code = 302)

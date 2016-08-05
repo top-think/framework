@@ -83,11 +83,11 @@
     <meta name="robots" content="noindex,nofollow" />
     <style>
         /* Base */
-        body{
+        body {
             color: #333;
             font: 16px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
             margin: 0px;
-            padding: 20px;
+            padding: 0 20px 20px;
         }
         h1{
             margin: 10px 0 0;
@@ -123,14 +123,37 @@
         .line-error{
             background: #f8cbcb;
         }
+
+        .echo table {
+            width: 100%;
+        }
+
+        .echo pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f7f7f7;
+            border: 0;
+            border-radius: 3px;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .echo pre > pre {
+            padding: 0;
+            margin: 0;
+        }
     
         /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
         .exception .message{
             padding: 12px;
             border: 1px solid #ddd;
             border-bottom: 0 none;
             line-height: 18px;
-        font-size:16px;
+            font-size:16px;
             border-top-left-radius: 4px;
             border-top-right-radius: 4px;
             font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
@@ -258,6 +281,9 @@
     </style>
 </head>
 <body>
+    <div class="echo">
+        <?php echo $echo;?>
+    </div>
     <?php if(\think\App::$debug) { ?>
     <div class="exception">
     <div class="message">

@@ -69,16 +69,30 @@ class Cache
     }
 
     /**
-     * 读取缓存
+     * 判断缓存是否存在
      * @access public
-     * @param string $name 缓存标识
-     * @return mixed
+     * @param string $name 缓存变量名
+     * @return bool
      */
-    public static function get($name)
+    public static function has($name)
     {
         self::init();
         self::$readTimes++;
-        return self::$handler->get($name);
+        return self::$handler->has($name);
+    }
+
+    /**
+     * 读取缓存
+     * @access public
+     * @param string $name 缓存标识
+     * @param mixed  $default 默认值
+     * @return mixed
+     */
+    public static function get($name, $default = false)
+    {
+        self::init();
+        self::$readTimes++;
+        return self::$handler->get($name, $default);
     }
 
     /**
@@ -97,6 +111,34 @@ class Cache
     }
 
     /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public static function inc($name, $step = 1)
+    {
+        self::init();
+        self::$writeTimes++;
+        return self::$handler->inc($name, $step);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public static function dec($name, $step = 1)
+    {
+        self::init();
+        self::$writeTimes++;
+        return self::$handler->dec($name, $step);
+    }
+
+    /**
      * 删除缓存
      * @access public
      * @param string    $name 缓存标识
@@ -105,6 +147,7 @@ class Cache
     public static function rm($name)
     {
         self::init();
+        self::$writeTimes++;
         return self::$handler->rm($name);
     }
 
@@ -116,6 +159,7 @@ class Cache
     public static function clear()
     {
         self::init();
+        self::$writeTimes++;
         return self::$handler->clear();
     }
 

@@ -11,18 +11,17 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
-use think\Exception;
-
 class Memcached
 {
-    protected $handler = null;
+    protected $handler;
     protected $options = [
-        'host'    => '127.0.0.1',
-        'port'    => 11211,
-        'expire'  => 0,
-        'timeout' => 0, // 超时时间（单位：毫秒）
-        'prefix'  => '',
+        'host'     => '127.0.0.1',
+        'port'     => 11211,
+        'expire'   => 0,
+        'timeout'  => 0, // 超时时间（单位：毫秒）
+        'prefix'   => '',
+        'username' => '', //账号
+        'password' => '', //密码
     ];
 
     /**
@@ -55,17 +54,35 @@ class Memcached
             $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
         }
         $this->handler->addServers($servers);
+        if ('' != $this->options['username']) {
+            $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
+            $this->handler->setSaslAuthData($this->options['username'], $this->options['password']);
+        }
+    }
+
+    /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name = $this->options['prefix'] . $name;
+        return $this->handler->get($name) ? true : false;
     }
 
     /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
-        return $this->handler->get($this->options['prefix'] . $name);
+        $result = $this->handler->get($this->options['prefix'] . $name);
+        return false !== $result ? $result : $default;
     }
 
     /**
@@ -82,11 +99,35 @@ class Memcached
             $expire = $this->options['expire'];
         }
         $name   = $this->options['prefix'] . $name;
-        $expire = 0 == $expire ? 0 : time() + $expire;
+        $expire = 0 == $expire ? 0 : $_SERVER['REQUEST_TIME'] + $expire;
         if ($this->handler->set($name, $value, $expire)) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        return $this->handler->increment($name, $step);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        return $this->handler->decrement($name, $step);
     }
 
     /**

@@ -11,7 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
 use think\Exception;
 
 /**
@@ -42,15 +41,28 @@ class Wincache
     }
 
     /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name = $this->options['prefix'] . $name;
+        return wincache_ucache_exists($name);
+    }
+
+    /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $name = $this->options['prefix'] . $name;
-        return wincache_ucache_exists($name) ? wincache_ucache_get($name) : false;
+        return wincache_ucache_exists($name) ? wincache_ucache_get($name) : $default;
     }
 
     /**
@@ -71,6 +83,30 @@ class Wincache
             return true;
         }
         return false;
+    }
+
+    /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        return wincache_ucache_inc($name, $step);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        return wincache_ucache_dec($name, $step);
     }
 
     /**

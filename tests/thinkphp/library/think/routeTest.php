@@ -16,18 +16,18 @@
 
 namespace tests\thinkphp\library\think;
 
+use think\Config;
 use think\Request;
 use think\Route;
-use think\Config;
 
 class routeTest extends \PHPUnit_Framework_TestCase
 {
 
     protected function setUp()
     {
-        Config::set('app_multi_module',true);
+        Config::set('app_multi_module', true);
     }
-    
+
     public function testRegister()
     {
         $request = Request::instance();
@@ -36,11 +36,28 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::post('hello/:name', 'index/post');
         Route::put('hello/:name', 'index/put');
         Route::delete('hello/:name', 'index/delete');
+        Route::patch('hello/:name', 'index/patch');
         Route::any('user/:id', 'index/user');
         $result = Route::check($request, 'hello/thinkphp');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
-        $this->assertEquals(['hello/:name' => ['route' => 'index/hello', 'option' => [], 'pattern' => []]], Route::getRules('GET'));
-        Route::rule('type/:name', 'index/type', 'PUT|POST');
+        $this->assertEquals(['hello' => true, 'user/:id' => true, 'hello/:name' => ['rule' => 'hello/:name', 'route' => 'index/hello', 'var' => ['name' => 1], 'option' => [], 'pattern' => []]], Route::rules('GET'));
+        Route::rule('type1/:name', 'index/type', 'PUT|POST');
+        Route::rule(['type2/:name' => 'index/type1']);
+        Route::rule([['type3/:name', 'index/type2', ['method' => 'POST']]]);
+        Route::rule(['name', 'type4/:name'], 'index/type4');
+    }
+
+    public function testImport()
+    {
+        $rule = [
+            '__domain__' => ['subdomain2.thinkphp.cn' => 'blog1'],
+            '__alias__'  => ['blog1' => 'blog1'],
+            '__rest__'   => ['res' => ['index/blog']],
+            'bbb'        => ['index/blog1', ['method' => 'POST']],
+            'ddd'        => '',
+            ['hello1/:ddd', 'index/hello1', ['method' => 'POST']],
+        ];
+        Route::import($rule);
     }
 
     public function testResource()
@@ -48,20 +65,21 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $request = Request::instance();
         Route::resource('res', 'index/blog');
         Route::resource(['res' => ['index/blog']]);
-        $result  = Route::check($request, 'res');
+        $result = Route::check($request, 'res');
         $this->assertEquals(['index', 'blog', 'index'], $result['module']);
-        $result  = Route::check($request, 'res/create');
+        $result = Route::check($request, 'res/create');
         $this->assertEquals(['index', 'blog', 'create'], $result['module']);
-        $result  = Route::check($request, 'res/8');
+        $result = Route::check($request, 'res/8');
         $this->assertEquals(['index', 'blog', 'read'], $result['module']);
-        $result  = Route::check($request, 'res/8/edit');
+        $result = Route::check($request, 'res/8/edit');
         $this->assertEquals(['index', 'blog', 'edit'], $result['module']);
 
         Route::resource('blog.comment', 'index/comment');
-        $result  = Route::check($request, 'blog/8/comment/10');
+        $result = Route::check($request, 'blog/8/comment/10');
         $this->assertEquals(['index', 'comment', 'read'], $result['module']);
-        $result  = Route::check($request, 'blog/8/comment/10/edit');
+        $result = Route::check($request, 'blog/8/comment/10/edit');
         $this->assertEquals(['index', 'comment', 'edit'], $result['module']);
+
     }
 
     public function testRest()
@@ -78,26 +96,17 @@ class routeTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function testRouteMap()
-    {
-        $request = Request::instance();
-        Route::map('hello', 'index/hello');
-        $this->assertEquals('index/hello', Route::map('hello'));
-        $result  = Route::check($request, 'hello');
-        $this->assertEquals(['index', 'hello', null], $result['module']);
-    }
-
     public function testMixVar()
     {
         $request = Request::instance();
         Route::get('hello-<name>', 'index/hello', [], ['name' => '\w+']);
-        $result  = Route::check($request, 'hello-thinkphp');
+        $result = Route::check($request, 'hello-thinkphp');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
         Route::get('hello-<name><id?>', 'index/hello', [], ['name' => '\w+', 'id' => '\d+']);
-        $result  = Route::check($request, 'hello-thinkphp2016');
+        $result = Route::check($request, 'hello-thinkphp2016');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
         Route::get('hello-<name>/[:id]', 'index/hello', [], ['name' => '\w+', 'id' => '\d+']);
-        $result  = Route::check($request, 'hello-thinkphp/2016');
+        $result = Route::check($request, 'hello-thinkphp/2016');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
     }
 
@@ -124,24 +133,81 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $request = Request::instance();
         $this->assertEquals(false, Route::check($request, 'test/thinkphp'));
         $this->assertEquals(false, Route::check($request, 'blog/thinkphp'));
-        $result  = Route::check($request, 'blog/5');
+        $result = Route::check($request, 'blog/5');
         $this->assertEquals([null, 'blog', 'read'], $result['module']);
-        $result  = Route::check($request, 'hello/thinkphp/abc/test');
+        $result = Route::check($request, 'hello/thinkphp/abc/test');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
     }
 
     public function testCheckRouteGroup()
     {
         $request = Request::instance();
-        Route::pattern(['id' => '\d+', 'name' => '\w{6,25}']);
+        Route::pattern(['id' => '\d+']);
+        Route::pattern('name', '\w{6,25}');
         Route::group('group', [':id' => 'index/hello', ':name' => 'index/say']);
         $this->assertEquals(false, Route::check($request, 'empty/think'));
-        $result  = Route::check($request, 'group/think');
-        $this->assertEquals([null, 'index', 'say'], $result['module']);
-        $result  = Route::check($request, 'group/10');
+        $result = Route::check($request, 'group/think');
+        $this->assertEquals(false, $result['module']);
+        $result = Route::check($request, 'group/10');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
-        $result  = Route::check($request, 'group/thinkphp');
+        $result = Route::check($request, 'group/thinkphp');
         $this->assertEquals([null, 'index', 'say'], $result['module']);
+        Route::group('group2', function () {
+            Route::group('group3', [':id' => 'index/hello', ':name' => 'index/say']);
+            Route::rule(':name', 'index/hello');
+            Route::auto('index');
+        });
+        $result = Route::check($request, 'group2/thinkphp');
+        $this->assertEquals([null, 'index', 'hello'], $result['module']);
+        $result = Route::check($request, 'group2/think');
+        $this->assertEquals(['index', 'group2', 'think'], $result['module']);
+        $result = Route::check($request, 'group2/group3/thinkphp');
+        $this->assertEquals([null, 'index', 'say'], $result['module']);
+        Route::group('group4', function () {
+            Route::group('group3', [':id' => 'index/hello', ':name' => 'index/say']);
+            Route::rule(':name', 'index/hello');
+            Route::miss('index/__miss__');
+        });
+        $result = Route::check($request, 'group4/thinkphp');
+        $this->assertEquals([null, 'index', 'hello'], $result['module']);
+        $result = Route::check($request, 'group4/think');
+        $this->assertEquals([null, 'index', '__miss__'], $result['module']);
+
+        Route::group(['prefix' => 'prefix/'], function () {
+            Route::rule('hello4/:name', 'hello');
+        });
+        Route::group(['prefix' => 'prefix/'], [
+            'hello4/:name' => 'hello',
+        ]);
+        $result = Route::check($request, 'hello4/thinkphp');
+        $this->assertEquals([null, 'prefix', 'hello'], $result['module']);
+        Route::group('group5', [
+            [':name', 'hello', ['method' => 'GET|POST']],
+            ':id' => 'hello',
+        ], ['prefix' => 'prefix/']);
+        $result = Route::check($request, 'group5/thinkphp');
+        $this->assertEquals([null, 'prefix', 'hello'], $result['module']);
+    }
+
+    public function testControllerRoute()
+    {
+        $request = Request::instance();
+        Route::controller('controller', 'index/Blog');
+        $result = Route::check($request, 'controller/info');
+        $this->assertEquals(['index', 'Blog', 'getinfo'], $result['module']);
+        Route::setMethodPrefix('GET', 'read');
+        Route::setMethodPrefix(['get' => 'read']);
+        Route::controller('controller', 'index/Blog');
+        $result = Route::check($request, 'controller/phone');
+        $this->assertEquals(['index', 'Blog', 'readphone'], $result['module']);
+    }
+
+    public function testAliasRoute()
+    {
+        $request = Request::instance();
+        Route::alias('alias', 'index/Alias');
+        $result = Route::check($request, 'alias/info');
+        $this->assertEquals('index/Alias/info', $result['module']);
     }
 
     public function testRouteToModule()
@@ -151,9 +217,9 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::get('blog/:id', 'blog/read', [], ['id' => '\d+']);
         $this->assertEquals(false, Route::check($request, 'test/thinkphp'));
         $this->assertEquals(false, Route::check($request, 'blog/thinkphp'));
-        $result  = Route::check($request, 'hello/thinkphp');
+        $result = Route::check($request, 'hello/thinkphp');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
-        $result  = Route::check($request, 'blog/5');
+        $result = Route::check($request, 'blog/5');
         $this->assertEquals([null, 'blog', 'read'], $result['module']);
     }
 
@@ -183,18 +249,18 @@ class routeTest extends \PHPUnit_Framework_TestCase
     public function testBind()
     {
         $request = Request::instance();
-        Route::bind('module', 'index/blog');
-        $result  = Route::parseUrl('read/10');
+        Route::bind('index/blog');
+        $result = Route::parseUrl('read/10');
         $this->assertEquals(['index', 'blog', 'read'], $result['module']);
 
         Route::get('index/blog/:id', 'index/blog/read');
-        $result  = Route::check($request, '10');
+        $result = Route::check($request, '10');
         $this->assertEquals(['index', 'blog', 'read'], $result['module']);
 
-        Route::bind('namespace', '\app\index\controller');
+        Route::bind('\app\index\controller', 'namespace');
         $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read'], 'params' => []], Route::check($request, 'blog/read'));
 
-        Route::bind('class', '\app\index\controller\blog');
+        Route::bind('\app\index\controller\blog', 'class');
         $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read'], 'params' => []], Route::check($request, 'read'));
     }
 
@@ -202,26 +268,21 @@ class routeTest extends \PHPUnit_Framework_TestCase
     {
         $request = Request::create('http://subdomain.thinkphp.cn');
         Route::domain('subdomain.thinkphp.cn', 'sub?abc=test&status=1');
-        Route::checkDomain($request);
-        $this->assertEquals('sub?abc=test&status=1', Route::domain('subdomain.thinkphp.cn'));
-        $this->assertEquals('sub', Route::bind('module'));
+        $rules = Route::rules('GET');
+        Route::checkDomain($request, $rules);
+        $this->assertEquals('sub', Route::getbind('module'));
         $this->assertEquals('test', $_GET['abc']);
         $this->assertEquals(1, $_GET['status']);
 
-        Route::domain('subdomain.thinkphp.cn', function () {return ['type' => 'module', 'module' => 'sub2'];});
-        Route::checkDomain($request);
-        $this->assertEquals('sub2', Route::bind('module'));
-
         Route::domain('subdomain.thinkphp.cn', '\app\index\controller');
-        Route::checkDomain($request);
-        $this->assertEquals('\app\index\controller', Route::bind('namespace'));
+        $rules = Route::rules('GET');
+        Route::checkDomain($request, $rules);
+        $this->assertEquals('\app\index\controller', Route::getbind('namespace'));
 
-        Route::domain('subdomain.thinkphp.cn', '@\app\index\controller\blog');
-        Route::checkDomain($request);
-        $this->assertEquals('\app\index\controller\blog', Route::bind('class'));
+        Route::domain(['subdomain.thinkphp.cn' => '@\app\index\controller\blog']);
+        $rules = Route::rules('GET');
+        Route::checkDomain($request, $rules);
+        $this->assertEquals('\app\index\controller\blog', Route::getbind('class'));
 
-        Route::domain('subdomain.thinkphp.cn', '[sub3]');
-        Route::checkDomain($request);
-        $this->assertEquals('sub3', Route::bind('group'));
     }
 }

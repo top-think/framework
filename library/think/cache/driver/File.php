@@ -11,8 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
-
 /**
  * 文件类型缓存类
  * @author    liu21st <liu21st@gmail.com>
@@ -38,8 +36,8 @@ class File
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        if (substr($this->options['path'], -1) != '/') {
-            $this->options['path'] .= '/';
+        if (substr($this->options['path'], -1) != DS) {
+            $this->options['path'] .= DS;
         }
         $this->init();
     }
@@ -71,40 +69,51 @@ class File
         $name = md5($name);
         if ($this->options['cache_subdir']) {
             // 使用子目录
-            $dir = '';
-            $len = $this->options['path_level'];
-            for ($i = 0; $i < $len; $i++) {
-                $dir .= $name{$i} . '/';
-            }
-            if (!is_dir($this->options['path'] . $dir)) {
-                mkdir($this->options['path'] . $dir, 0755, true);
-            }
-            $filename = $dir . $this->options['prefix'] . $name . '.php';
-        } else {
-            $filename = $this->options['prefix'] . $name . '.php';
+            $name = substr($md5, 0, 2) . DS . substr($md5, 2);
         }
-        return $this->options['path'] . $filename;
+        if ($this->options['prefix']) {
+            $name = $this->options['prefix'] . DS . $name;
+        }
+        $filename = $this->options['path'] . $name . '.php';
+        $dir      = dirname($filename);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        return $filename;
+    }
+
+    /**
+     * 判断缓存是否存在
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $filename = $this->filename($name);
+        return is_file($filename);
     }
 
     /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $filename = $this->filename($name);
         if (!is_file($filename)) {
-            return false;
+            return $default;
         }
         $content = file_get_contents($filename);
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
-            if (0 != $expire && time() > filemtime($filename) + $expire) {
+            if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire) {
                 //缓存过期删除缓存文件
                 $this->unlink($filename);
-                return false;
+                return $default;
             }
             $content = substr($content, 20, -3);
             if ($this->options['data_compress'] && function_exists('gzcompress')) {
@@ -114,7 +123,7 @@ class File
             $content = unserialize($content);
             return $content;
         } else {
-            return false;
+            return $default;
         }
     }
 
@@ -145,6 +154,40 @@ class File
         } else {
             return false;
         }
+    }
+
+    /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        if ($this->has($name)) {
+            $value = $this->get($name) + $step;
+        } else {
+            $value = $step;
+        }
+        return $this->set($name, $value, 0) ? $value : false;
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        if ($this->has($name)) {
+            $value = $this->get($name) - $step;
+        } else {
+            $value = $step;
+        }
+        return $this->set($name, $value, 0) ? $value : false;
     }
 
     /**

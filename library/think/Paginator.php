@@ -45,7 +45,7 @@ abstract class Paginator
         'fragment' => ''
     ];
 
-    public function __construct($items, $listRows, $currentPage = null, $simple = false, $total = null, $options = [])
+    protected function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
@@ -71,11 +71,20 @@ abstract class Paginator
         $this->items = PaginatorCollection::make($items, $this);
     }
 
-    public function items()
+    /**
+     * @param       $items
+     * @param       $listRows
+     * @param null  $currentPage
+     * @param bool  $simple
+     * @param null  $total
+     * @param array $options
+     * @return PaginatorCollection
+     */
+    public static function make($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
-        return $this->items;
+        $paginator = new static($items, $listRows, $currentPage, $total, $simple, $options);
+        return $paginator->items;
     }
-
 
     protected function setCurrentPage($currentPage)
     {

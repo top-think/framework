@@ -11,14 +11,13 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
 use think\Exception;
 
 /**
  * Sqlite缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Sqlite implements CacheInterface
+class Sqlite
 {
 
     protected $options = [
@@ -48,15 +47,30 @@ class Sqlite implements CacheInterface
     }
 
     /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name   = $this->options['prefix'] . sqlite_escape_string($name);
+        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
+        $result = sqlite_query($this->handler, $sql);
+        return sqlite_num_rows($result);
+    }
+
+    /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $name   = $this->options['prefix'] . sqlite_escape_string($name);
-        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . time() . ') LIMIT 1';
+        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
         if (sqlite_num_rows($result)) {
             $content = sqlite_fetch_single($result);
@@ -66,7 +80,7 @@ class Sqlite implements CacheInterface
             }
             return unserialize($content);
         }
-        return false;
+        return $default;
     }
 
     /**
@@ -84,7 +98,7 @@ class Sqlite implements CacheInterface
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
-        $expire = (0 == $expire) ? 0 : (time() + $expire); //缓存有效期为0表示永久缓存
+        $expire = (0 == $expire) ? 0 : ($_SERVER['REQUEST_TIME'] + $expire); //缓存有效期为0表示永久缓存
         if (function_exists('gzcompress')) {
             //数据压缩
             $value = gzcompress($value, 3);
@@ -94,6 +108,40 @@ class Sqlite implements CacheInterface
             return true;
         }
         return false;
+    }
+
+    /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        if ($this->has($name)) {
+            $value = $this->get($name) + $step;
+        } else {
+            $value = $step;
+        }
+        return $this->set($name, $value, 0) ? $value : false;
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        if ($this->has($name)) {
+            $value = $this->get($name) - $step;
+        } else {
+            $value = $step;
+        }
+        return $this->set($name, $value, 0) ? $value : false;
     }
 
     /**

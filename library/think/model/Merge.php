@@ -189,8 +189,12 @@ class Merge extends Model
 
                 if (!empty($where)) {
                     $pk = $this->getPk();
-                    if (is_string($pk) && isset($data[$pk])) {
-                        unset($data[$pk]);
+
+                    if (isset($this->mapFields[$pk])) {
+                        $pk = $this->mapFields[$pk];
+                    }
+                    if (isset($where[$pk])) {
+                        unset($where[$pk]);
                     }
                 }
 
@@ -224,7 +228,7 @@ class Merge extends Model
                 }
 
                 // 处理模型数据
-                $data = $this->parseData($this->name, $this->data);
+                $data = $this->parseData($this->name, $this->data, true);
                 // 写入主表数据
                 $result = $db->name($this->name)->strict(false)->insert($data, $replace);
                 if ($result) {

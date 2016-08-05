@@ -16,7 +16,7 @@ use think\console\helper\Formatter as FormatterHelper;
 use think\console\helper\Process as ProcessHelper;
 use think\console\helper\Question as QuestionHelper;
 use think\console\helper\Set as HelperSet;
-use think\console\Input as ConsoleInput;
+use think\console\Input;
 use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
@@ -49,8 +49,12 @@ class Console
         "think\\console\\command\\Help",
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
+        "think\\console\\command\\Clear",
         "think\\console\\command\\make\\Controller",
         "think\\console\\command\\make\\Model",
+        "think\\console\\command\\optimize\\Autoload",
+        "think\\console\\command\\optimize\\Config",
+        "think\\console\\command\\optimize\\Route",
     ];
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
@@ -100,7 +104,7 @@ class Console
 
         array_unshift($parameters, $command);
 
-        $input = new ConsoleInput($parameters);
+        $input = new Input($parameters);
 
         $console->find($command)->run($input, new Nothing());
     }
@@ -113,7 +117,7 @@ class Console
      */
     public function run()
     {
-        $input  = new ConsoleInput();
+        $input  = new Input();
         $output = new Output();
 
         $this->configureIO($input, $output);
@@ -129,7 +133,7 @@ class Console
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int)$exitCode;
+                $exitCode = (int) $exitCode;
                 if (0 === $exitCode) {
                     $exitCode = 1;
                 }
@@ -151,11 +155,11 @@ class Console
 
     /**
      * 执行指令
-     * @param ConsoleInput $input
+     * @param Input $input
      * @param Output       $output
      * @return int
      */
-    public function doRun(ConsoleInput $input, Output $output)
+    public function doRun(Input $input, Output $output)
     {
         if (true === $input->hasParameterOption(['--version', '-V'])) {
             $output->writeln($this->getLongVersion());
@@ -168,7 +172,7 @@ class Console
         if (true === $input->hasParameterOption(['--help', '-h'])) {
             if (!$name) {
                 $name  = 'help';
-                $input = new ConsoleInput(['help']);
+                $input = new Input(['help']);
             } else {
                 $this->wantHelps = true;
             }
@@ -176,7 +180,7 @@ class Console
 
         if (!$name) {
             $name  = $this->defaultCommand;
-            $input = new ConsoleInput([$this->defaultCommand]);
+            $input = new Input([$this->defaultCommand]);
         }
 
         $command = $this->find($name);
@@ -240,7 +244,7 @@ class Console
      */
     public function setCatchExceptions($boolean)
     {
-        $this->catchExceptions = (bool)$boolean;
+        $this->catchExceptions = (bool) $boolean;
     }
 
     /**
@@ -250,7 +254,7 @@ class Console
      */
     public function setAutoExit($boolean)
     {
-        $this->autoExit = (bool)$boolean;
+        $this->autoExit = (bool) $boolean;
     }
 
     /**
@@ -418,7 +422,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -456,7 +460,7 @@ class Console
         $expr        = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $name);
-        $commands    = preg_grep('{^' . $expr . '}', $allCommands);
+        $commands = preg_grep('{^' . $expr . '}', $allCommands);
 
         if (empty($commands) || count(preg_grep('{^' . $expr . '$}', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
@@ -645,19 +649,19 @@ class Console
 
         if ('\\' === DS) {
             if (preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim(getenv('ANSICON')), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
+                return [(int) $matches[1], (int) $matches[2]];
             }
             if (preg_match('/^(\d+)x(\d+)$/', $this->getConsoleMode(), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
+                return [(int) $matches[1], (int) $matches[2]];
             }
         }
 
         if ($sttyString = $this->getSttyColumns()) {
             if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
+                return [(int) $matches[2], (int) $matches[1]];
             }
             if (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
+                return [(int) $matches[2], (int) $matches[1]];
             }
         }
 
@@ -679,10 +683,10 @@ class Console
 
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
-     * @param ConsoleInput $input  输入实例
+     * @param Input $input  输入实例
      * @param Output       $output 输出实例
      */
-    protected function configureIO(ConsoleInput $input, Output $output)
+    protected function configureIO(Input $input, Output $output)
     {
         if (true === $input->hasParameterOption(['--ansi'])) {
             $output->setDecorated(true);
@@ -715,22 +719,22 @@ class Console
     /**
      * 执行指令
      * @param Command      $command 指令实例
-     * @param ConsoleInput $input   输入实例
+     * @param Input $input   输入实例
      * @param Output       $output  输出实例
      * @return int
      * @throws \Exception
      */
-    protected function doRunCommand(Command $command, ConsoleInput $input, Output $output)
+    protected function doRunCommand(Command $command, Input $input, Output $output)
     {
         return $command->run($input, $output);
     }
 
     /**
      * 获取指令的基础名称
-     * @param ConsoleInput $input
+     * @param Input $input
      * @return string
      */
-    protected function getCommandName(ConsoleInput $input)
+    protected function getCommandName(Input $input)
     {
         return $input->getFirstArgument();
     }

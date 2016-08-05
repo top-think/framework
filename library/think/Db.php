@@ -14,6 +14,7 @@ namespace think;
 use think\App;
 use think\Collection;
 use think\db\Query;
+use think\paginator\Collection as PaginatorCollection;
 
 /**
  * Class Db

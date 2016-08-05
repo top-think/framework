@@ -11,7 +11,6 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
 use think\Exception;
 
 /**
@@ -42,18 +41,28 @@ class Xcache
     }
 
     /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $name = $this->options['prefix'] . $name;
+        return xcache_isset($name);
+    }
+
+    /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
         $name = $this->options['prefix'] . $name;
-        if (xcache_isset($name)) {
-            return xcache_get($name);
-        }
-        return false;
+        return xcache_isset($name) ? xcache_get($name) : $default;
     }
 
     /**
@@ -77,6 +86,30 @@ class Xcache
     }
 
     /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        return xcache_inc($name, $step);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        return xcache_dec($name, $step);
+    }
+
+    /**
      * 删除缓存
      * @access public
      * @param string $name 缓存变量名
@@ -94,6 +127,10 @@ class Xcache
      */
     public function clear()
     {
-        return;
+        if (function_exists('xcache_unset_by_prefix')) {
+            return xcache_unset_by_prefix($this->options['prefix']);
+        } else {
+            return false;
+        }
     }
 }

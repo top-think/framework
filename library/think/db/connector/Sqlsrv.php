@@ -24,7 +24,6 @@ class Sqlsrv extends Connection
         PDO::ATTR_CASE              => PDO::CASE_LOWER,
         PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_STRINGIFY_FETCHES => false,
-        PDO::SQLSRV_ATTR_ENCODING   => PDO::SQLSRV_ENCODING_UTF8,
     ];
 
     /**
@@ -74,6 +73,12 @@ class Sqlsrv extends Connection
                     'autoinc' => false,
                 ];
             }
+        }
+        $sql    = "SELECT column_name FROM information_schema.key_column_usage WHERE table_name='$tableName'";
+        $pdo    = $this->linkID->query($sql);
+        $result = $pdo->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $info[$result['column_name']]['primary'] = true;
         }
         return $this->fieldCase($info);
     }

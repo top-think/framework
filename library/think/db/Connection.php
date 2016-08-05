@@ -16,13 +16,20 @@ use PDOStatement;
 use think\App;
 use think\Collection;
 use think\Db;
+use think\db\exception\BindParamException;
 use think\db\Query;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
-use think\db\exception\BindParamException;
 use think\Log;
 
+/**
+ * Class Connection
+ * @package think
+ * @method Query table(string $table) 指定数据表（含前缀）
+ * @method Query name(string $name) 指定数据表（不含前缀）
+ *
+ */
 abstract class Connection
 {
 
@@ -102,7 +109,7 @@ abstract class Connection
 
     // PDO连接参数
     protected $params = [
-        PDO::ATTR_CASE              => PDO::CASE_LOWER,
+        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
         PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_ORACLE_NULLS      => PDO::NULL_NATURAL,
         PDO::ATTR_STRINGIFY_FETCHES => false,
@@ -188,7 +195,7 @@ abstract class Connection
      * @param array $info 字段信息
      * @return array
      */
-    protected function fieldCase($info)
+    public function fieldCase($info)
     {
         // 字段大小写转换
         switch ($this->attrCase) {
@@ -219,13 +226,17 @@ abstract class Connection
     /**
      * 设置数据库的配置参数
      * @access public
-     * @param string    $config 配置名称
-     * @param mixed     $value 配置值
+     * @param string|array      $config 配置名称
+     * @param mixed             $value 配置值
      * @return void
      */
-    public function setConfig($config, $value)
+    public function setConfig($config, $value = '')
     {
-        $this->config[$config] = $value;
+        if (is_array($config)) {
+            $this->config = array_merge($this->config, $config);
+        } else {
+            $this->config[$config] = $value;
+        }
     }
 
     /**
@@ -240,7 +251,7 @@ abstract class Connection
     public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
     {
         if (!isset($this->links[$linkNum])) {
-            if (empty($config)) {
+            if (!$config) {
                 $config = $this->config;
             }
             // 连接参数
@@ -272,20 +283,6 @@ abstract class Connection
             }
         }
         return $this->links[$linkNum];
-    }
-
-    /**
-     * 获取当前数据库的驱动类型
-     * @access public
-     * @return string
-     */
-    public function getDriverName()
-    {
-        if ($this->linkID) {
-            return $this->linkID->getAttribute(PDO::ATTR_DRIVER_NAME);
-        } else {
-            return basename(str_replace('\\', '/', $this->config['type']));
-        }
     }
 
     /**
@@ -330,7 +327,7 @@ abstract class Connection
         }
         // 根据参数绑定组装最终的SQL语句
         $this->queryStr = $this->getRealSql($sql, $bind);
-        
+
         //释放前次的查询结果
         if (!empty($this->PDOStatement)) {
             $this->free();
@@ -474,6 +471,7 @@ abstract class Connection
             return $this->PDOStatement;
         }
         if ($procedure) {
+            // 存储过程返回结果
             return $this->procedure($class);
         }
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
@@ -482,11 +480,10 @@ abstract class Connection
         if (!empty($class)) {
             // 返回指定数据集对象类
             $result = new $class($result);
-        } elseif ('collection' == $this->resultSetType){
+        } elseif ('collection' == $this->resultSetType) {
             // 返回数据集Collection对象
             $result = new Collection($result);
         }
-
         return $result;
     }
 
@@ -551,7 +548,7 @@ abstract class Connection
 
         ++$this->transTimes;
 
-        if ($this->transTimes == 1) {
+        if (1 == $this->transTimes) {
             $this->linkID->beginTransaction();
         } elseif ($this->transTimes > 1 && $this->supportSavepoint()) {
             $this->linkID->exec(
@@ -570,7 +567,7 @@ abstract class Connection
     {
         $this->initConnect(true);
 
-        if ($this->transTimes == 1) {
+        if (1 == $this->transTimes) {
             $this->linkID->commit();
         }
 
@@ -587,7 +584,7 @@ abstract class Connection
     {
         $this->initConnect(true);
 
-        if ($this->transTimes == 1) {
+        if (1 == $this->transTimes) {
             $this->linkID->rollBack();
         } elseif ($this->transTimes > 1 && $this->supportSavepoint()) {
             $this->linkID->exec(

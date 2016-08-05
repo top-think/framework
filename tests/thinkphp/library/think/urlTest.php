@@ -30,6 +30,7 @@ class urlTest extends \PHPUnit_Framework_TestCase
         Route::get('blog/:id', 'index/blog');
         Config::set('pathinfo_depr', '/');
         Config::set('url_html_suffix', '');
+
         $this->assertEquals('/blog/thinkphp', Url::build('index/blog?name=thinkphp'));
         $this->assertEquals('/blog/thinkphp.html', Url::build('index/blog', 'name=thinkphp', 'html'));
         $this->assertEquals('/blog/10', Url::build('index/blog?id=10'));
@@ -67,6 +68,14 @@ class urlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/blog/10.shtml', Url::build('/blog/10'));
     }
 
+    public function testBuildNameRoute()
+    {
+        Route::get(['name', 'blog/:id'], 'index/blog');
+        $this->assertEquals(['blog/:id', ['id' => 1], null], Route::name('name'));
+        Config::set('url_html_suffix', 'shtml');
+        $this->assertEquals('/blog/10.shtml', Url::build('name?id=10'));
+    }
+
     public function testBuildAnchor()
     {
         Route::get('blog/:id', 'index/blog');
@@ -75,5 +84,27 @@ class urlTest extends \PHPUnit_Framework_TestCase
 
         Config::set('url_common_param', true);
         $this->assertEquals('/blog/10.shtml?foo=bar#detail', Url::build('/blog/10#detail', "foo=bar"));
+    }
+
+    public function testBuildDomain()
+    {
+        Config::set('url_domain_deploy', true);
+        Route::domain('subdomain.thinkphp.cn', 'admin');
+        $this->assertEquals('http://subdomain.thinkphp.cn/blog/10.shtml', Url::build('/blog/10'));
+        Route::domain('subdomain.thinkphp.cn', [
+            'hello/:name' => 'index/hello',
+        ]);
+        $this->assertEquals('http://subdomain.thinkphp.cn/hello/thinkphp.shtml', Url::build('index/hello?name=thinkphp'));
+    }
+
+    public function testRoot()
+    {
+        Config::set('url_domain_deploy', false);
+        Config::set('url_common_param', false);
+        Url::root('/index.php');
+        Route::get('blog/:id', 'index/blog');
+        Config::set('url_html_suffix', 'shtml');
+        $this->assertEquals('/index.php/blog/10/name/thinkphp.shtml', Url::build('index/blog?id=10&name=thinkphp'));
+
     }
 }

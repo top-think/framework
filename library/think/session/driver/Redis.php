@@ -16,6 +16,7 @@ use think\Exception;
 
 class Redis extends SessionHandler
 {
+    /** @var \Redis */
     protected $handler = null;
     protected $config  = [
         'host'         => '127.0.0.1', // redis主机
@@ -35,8 +36,10 @@ class Redis extends SessionHandler
     /**
      * 打开Session
      * @access public
-     * @param string    $savePath
-     * @param mixed     $sessName
+     * @param string $savePath
+     * @param mixed  $sessName
+     * @return bool
+     * @throws Exception
      */
     public function open($savePath, $sessName)
     {
@@ -72,6 +75,7 @@ class Redis extends SessionHandler
      * 读取Session
      * @access public
      * @param string $sessID
+     * @return bool|string
      */
     public function read($sessID)
     {
@@ -83,6 +87,7 @@ class Redis extends SessionHandler
      * @access public
      * @param string $sessID
      * @param String $sessData
+     * @return bool
      */
     public function write($sessID, $sessData)
     {
@@ -97,16 +102,18 @@ class Redis extends SessionHandler
      * 删除Session
      * @access public
      * @param string $sessID
+     * @return bool|void
      */
     public function destroy($sessID)
     {
-        return $this->handler->delete($this->config['session_name'] . $sessID) ? true : false;
+        $this->handler->delete($this->config['session_name'] . $sessID);
     }
 
     /**
      * Session 垃圾回收
      * @access public
      * @param string $sessMaxLifeTime
+     * @return bool
      */
     public function gc($sessMaxLifeTime)
     {
