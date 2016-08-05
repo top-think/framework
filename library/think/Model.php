@@ -52,16 +52,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $class;
     // 回调事件
     private static $event = [];
-
-    // 数据表主键 复合主键使用数组定义
-    protected $pk;
     // 错误信息
     protected $error;
     // 字段验证规则
     protected $validate;
-
+    // 数据表主键 复合主键使用数组定义
+    protected $pk;
     // 字段属性
     protected $field = [];
+    // 字段类型
+    protected $fieldType = [];
     // 显示属性
     protected $visible = [];
     // 隐藏属性
@@ -155,6 +155,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             } else {
                 $query->name($this->name);
             }
+
+            if (!empty($this->field)) {
+                $query->allowField($this->field);
+            }
+
+            if (!empty($this->fieldType)) {
+                $query->setFieldType($this->fieldType);
+            }
+
+            if (!empty($this->pk)) {
+                $query->pk($this->pk);
+            }
+
             // 全局作用域
             if (method_exists($this, 'base')) {
                 call_user_func_array([$this, 'base'], [ & $query]);
