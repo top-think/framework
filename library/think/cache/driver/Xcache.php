@@ -94,6 +94,7 @@ class Xcache
      */
     public function inc($name, $step = 1)
     {
+        $name = $this->options['prefix'] . $name;
         return xcache_inc($name, $step);
     }
 
@@ -106,6 +107,7 @@ class Xcache
      */
     public function dec($name, $step = 1)
     {
+        $name = $this->options['prefix'] . $name;
         return xcache_dec($name, $step);
     }
 

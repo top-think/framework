@@ -94,6 +94,7 @@ class Wincache
      */
     public function inc($name, $step = 1)
     {
+        $name = $this->options['prefix'] . $name;
         return wincache_ucache_inc($name, $step);
     }
 
@@ -106,6 +107,7 @@ class Wincache
      */
     public function dec($name, $step = 1)
     {
+        $name = $this->options['prefix'] . $name;
         return wincache_ucache_dec($name, $step);
     }
 

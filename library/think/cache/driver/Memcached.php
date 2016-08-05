@@ -115,14 +115,8 @@ class Memcached
      */
     public function inc($name, $step = 1)
     {
-        $oldValue = $this->handler->get($this->options['prefix'] . $name);
-        $value    = $oldValue + $step;
-        $res      = $this->handler->set($this->options['prefix'] . $name, $value);
-        if (!$res) {
-            return false;
-        } else {
-            return $value;
-        }
+        $name = $this->options['prefix'] . $name;
+        return $this->handler->increment($name, $step);
     }
 
     /**
@@ -134,9 +128,9 @@ class Memcached
      */
     public function dec($name, $step = 1)
     {
-        $oldValue = $this->handler->get($this->options['prefix'] . $name);
-        $value    = $oldValue - $step;
-        $res      = $this->handler->set($this->options['prefix'] . $name, $value);
+        $name  = $this->options['prefix'] . $name;
+        $value = $this->handler->get($name) - $step;
+        $res   = $this->handler->set($name, $value);
         if (!$res) {
             return false;
         } else {
