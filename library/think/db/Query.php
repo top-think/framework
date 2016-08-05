@@ -595,6 +595,7 @@ class Query
             if (false === $step) {
                 return true; // 等待下次写入
             }
+            $step = -$step;
         }
         return $this->setField($field, ['exp', $field . '-' . $step]);
     }
