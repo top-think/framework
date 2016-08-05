@@ -1204,9 +1204,9 @@ class Route
                 foreach ($matches[1] as $name) {
                     if (strpos($name, '?')) {
                         $name      = substr($name, 0, -1);
-                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '') . '?)';
+                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '?)';
                     } else {
-                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '') . ')';
+                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')';
                     }
                     $value[] = $name;
                 }
