@@ -34,7 +34,7 @@ class Query
     // 数据库Connection对象实例
     protected $connection;
     // 数据库驱动类型
-    protected $driver;
+    protected $builder;
     // 当前模型类名称
     protected $model;
     // 当前数据表名称（含前缀）
@@ -59,7 +59,7 @@ class Query
     public function __construct(Connection $connection = null, $model = '')
     {
         $this->connection = $connection ?: Db::connect([], true);
-        $this->driver     = $this->connection->getConfig('type');
+        $this->builder    = $this->connection->getConfig('builder') ?: $this->connection->getConfig('type');
         $this->prefix     = $this->connection->getConfig('prefix');
         $this->model      = $model;
     }
@@ -357,7 +357,7 @@ class Query
     protected function builder()
     {
         static $builder = [];
-        $driver         = $this->driver;
+        $driver         = $this->builder;
         if (!isset($builder[$driver])) {
             $class            = false !== strpos($driver, '\\') ? $driver : '\\think\\db\\builder\\' . ucfirst($driver);
             $builder[$driver] = new $class($this->connection);

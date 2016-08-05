@@ -105,6 +105,8 @@ abstract class Connection
         'auto_timestamp' => false,
         // 是否需要进行SQL性能分析
         'sql_explain'    => false,
+        // Builder类
+        'builder'        => '',
     ];
 
     // PDO连接参数
