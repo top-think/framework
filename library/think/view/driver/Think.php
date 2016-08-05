@@ -39,6 +39,9 @@ class Think
         if (empty($this->config['view_path'])) {
             $this->config['view_path'] = App::$modulePath . 'view' . DS;
         }
+        if (App::$debug) {
+            $this->config['tpl_cache'] = false;
+        }
         $this->template = new Template($this->config);
     }
 
