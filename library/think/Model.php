@@ -41,7 +41,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 {
 
     // 数据库对象池
-    private static $links = [];
+    protected static $links = [];
     // 数据库配置
     protected $connection = [];
     // 当前模型名称
@@ -85,8 +85,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $createTime = 'create_time';
     // 更新时间字段
     protected $updateTime = 'update_time';
-    // 删除时间字段
-    protected static $deleteTime;
     // 时间字段取出后的默认时间格式
     protected $dateFormat = 'Y-m-d H:i:s';
     // 字段类型或者格式转换
@@ -131,10 +129,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
             $this->autoWriteTimestamp = $this->db()->getConfig('auto_timestamp');
-        }
-
-        if (is_null(static::$deleteTime)) {
-            static::$deleteTime = $this->db()->getConfig('soft_delete_field');
         }
 
         // 执行初始化操作
@@ -279,27 +273,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function setAttr($name, $value, $data = [])
     {
-        if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime, static::$deleteTime])) {
+        if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
-            if (isset($this->type[$name])) {
-                $type = $this->type[$name];
-                if (strpos($type, ':')) {
-                    list($type, $param) = explode(':', $type, 2);
-                }
-                switch ($type) {
-                    case 'datetime':
-                        $format = !empty($param) ? $param : $this->dateFormat;
-                        $value  = date($format, $_SERVER['REQUEST_TIME']);
-                        break;
-                    case 'timestamp':
-                        $value = $_SERVER['REQUEST_TIME'];
-                        break;
-                }
-            } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
-                $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
-            } else {
-                $value = $_SERVER['REQUEST_TIME'];
-            }
+            $value = $this->autoWriteTimestamp($name);
         } else {
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
@@ -318,6 +294,36 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 设置数据对象属性
         $this->data[$name] = $value;
         return $this;
+    }
+
+    /**
+     * 自动写入时间戳
+     * @access public
+     * @param string         $name 时间戳字段
+     * @return mixed
+     */
+    protected function autoWriteTimestamp($name)
+    {
+        if (isset($this->type[$name])) {
+            $type = $this->type[$name];
+            if (strpos($type, ':')) {
+                list($type, $param) = explode(':', $type, 2);
+            }
+            switch ($type) {
+                case 'datetime':
+                    $format = !empty($param) ? $param : $this->dateFormat;
+                    $value  = date($format, $_SERVER['REQUEST_TIME']);
+                    break;
+                case 'timestamp':
+                    $value = $_SERVER['REQUEST_TIME'];
+                    break;
+            }
+        } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
+            $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
+        } else {
+            $value = $_SERVER['REQUEST_TIME'];
+        }
+        return $value;
     }
 
     /**
@@ -790,31 +796,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
-        if (static::$deleteTime && !$force) {
-            // 软删除
-            $this->setAttr(static::$deleteTime, null);
-            $result = $this->isUpdate()->save();
-        } else {
-            $result = $this->db()->delete($this->data);
-        }
+        $result = $this->db()->delete($this->data);
 
         $this->trigger('after_delete', $this);
         return $result;
-    }
-
-    /**
-     * 恢复被软删除的记录
-     * @access public
-     * @return integer
-     */
-    public function restore()
-    {
-        if (static::$deleteTime) {
-            // 恢复删除
-            $this->setAttr(static::$deleteTime, 0);
-            return $this->isUpdate()->save();
-        }
-        return false;
     }
 
     /**
@@ -986,7 +971,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function get($data = null, $with = [], $cache = false)
     {
-        $query = self::parseQuery($data, $with, $cache);
+        $query = static::parseQuery($data, $with, $cache);
         return $query->find($data);
     }
 
@@ -1001,7 +986,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function all($data = null, $with = [], $cache = false)
     {
-        $query = self::parseQuery($data, $with, $cache);
+        $query = static::parseQuery($data, $with, $cache);
         return $query->select($data);
     }
 
@@ -1026,10 +1011,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $result = $data->with($with)->cache($cache);
             $data   = null;
         }
-        if (static::$deleteTime) {
-            // 默认不查询软删除数据
-            $result->where(static::$deleteTime, 0);
-        }
         return $result;
     }
 
@@ -1037,10 +1018,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 删除记录
      * @access public
      * @param mixed $data 主键列表 支持闭包查询条件
-     * @param bool  $force 是否强制删除
      * @return integer 成功删除的记录数
      */
-    public static function destroy($data, $force = false)
+    public static function destroy($data)
     {
         $model = new static();
         $query = $model->db();
@@ -1055,7 +1035,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $count     = 0;
         if ($resultSet) {
             foreach ($resultSet as $data) {
-                $result = $data->delete($force);
+                $result = $data->delete();
                 $count += $result;
             }
         }
