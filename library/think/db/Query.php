@@ -565,7 +565,13 @@ class Query
             // 延迟写入
             $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
             $step = $this->lazyWrite('inc', $guid, $step, $lazyTime);
-            return false === $step ? true : $this->setField($field, $step);
+            if (false === $step) {
+                // 清空查询条件
+                $this->options = [];
+                return true;
+            } else {
+                return $this->setField($field, $step);
+            }
         }
         return $this->setField($field, ['exp', $field . '+' . $step]);
     }
@@ -590,7 +596,13 @@ class Query
             // 延迟写入
             $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
             $step = $this->lazyWrite('dec', $guid, $step, $lazyTime);
-            return false === $step ? true : $this->setField($field, $step);
+            if (false === $step) {
+                // 清空查询条件
+                $this->options = [];
+                return true;
+            } else {
+                return $this->setField($field, $step);
+            }
         }
         return $this->setField($field, ['exp', $field . '-' . $step]);
     }
