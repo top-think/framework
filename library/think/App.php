@@ -483,13 +483,19 @@ class App
                 if (is_array($rules)) {
                     Route::rules($rules);
                 }
-            } elseif (is_file(CONF_PATH . 'route' . CONF_EXT)) {
-                // 导入路由配置
-                $rules = include CONF_PATH . 'route' . CONF_EXT;
-                if (is_array($rules)) {
-                    Route::import($rules);
+            } else {
+                $files = $config['route_config_file'];
+                foreach ($files as $file) {
+                    if (is_file(CONF_PATH . $file . CONF_EXT)) {
+                        // 导入路由配置
+                        $rules = include CONF_PATH . $file . CONF_EXT;
+                        if (is_array($rules)) {
+                            Route::import($rules);
+                        }
+                    }
                 }
             }
+
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = Route::check($request, $path, $depr, $config['url_domain_deploy']);
             $must   = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
