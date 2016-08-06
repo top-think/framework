@@ -166,10 +166,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $query->pk($this->pk);
             }
 
-            // 全局作用域
-            if (method_exists($this, 'base')) {
-                call_user_func_array([$this, 'base'], [ & $query]);
-            }
             self::$links[$model] = $query;
         }
         // 返回当前模型的数据库查询对象
@@ -1290,14 +1286,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __call($method, $args)
     {
+        $query = $this->db();
+        // 全局作用域
+        if (method_exists($this, 'base')) {
+            call_user_func_array('static::base', [ & $query]);
+        }
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
-            array_unshift($args, $this->db());
+            array_unshift($args, $query);
             call_user_func_array([$this, $method], $args);
             return $this;
         } else {
-            return call_user_func_array([$this->db(), $method], $args);
+            return call_user_func_array([$query, $method], $args);
         }
     }
 
@@ -1308,6 +1309,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             self::$links[$model] = (new static())->db();
         }
         $query = self::$links[$model];
+        // 全局作用域
+        if (method_exists($model, 'base')) {
+            call_user_func_array('static::base', [ & $query]);
+        }
         return call_user_func_array([$query, $method], $params);
     }
 
