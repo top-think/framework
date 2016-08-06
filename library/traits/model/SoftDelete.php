@@ -45,6 +45,17 @@ trait SoftDelete
     }
 
     /**
+     * 只查询软删除数据
+     * @access public
+     * @return \think\db\Query
+     */
+    public static function onlyTrashed()
+    {
+        $model = new static();
+        return $model->db()->where(static::$deleteTime, '>', 0);
+    }
+
+    /**
      * 删除当前的记录
      * @access public
      * @param bool  $force 是否强制删除
