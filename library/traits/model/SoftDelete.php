@@ -53,6 +53,35 @@ trait SoftDelete
     }
 
     /**
+     * 删除记录
+     * @access public
+     * @param mixed $data 主键列表 支持闭包查询条件
+     * @param bool  $force 是否强制删除
+     * @return integer 成功删除的记录数
+     */
+    public static function destroy($data, $force = false)
+    {
+        $model = new static();
+        $query = $model->db();
+        if (is_array($data) && key($data) !== 0) {
+            $query->where($data);
+            $data = null;
+        } elseif ($data instanceof \Closure) {
+            call_user_func_array($data, [ & $query]);
+            $data = null;
+        }
+        $resultSet = $query->select($data);
+        $count     = 0;
+        if ($resultSet) {
+            foreach ($resultSet as $data) {
+                $result = $data->delete($force);
+                $count += $result;
+            }
+        }
+        return $count;
+    }
+
+    /**
      * 恢复被软删除的记录
      * @access public
      * @return integer
