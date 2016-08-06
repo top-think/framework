@@ -783,10 +783,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 删除当前的记录
      * @access public
-     * @param bool  $force 是否强制删除
      * @return integer
      */
-    public function delete($force = false)
+    public function delete()
     {
         if (false === $this->trigger('before_delete', $this)) {
             return false;
