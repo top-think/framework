@@ -606,7 +606,7 @@ abstract class Builder
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $fields = $this->query->getFieldsType($options);
+            $fields = array_keys($this->query->getFieldsType($options));
         } else {
             $fields = $options['field'];
         }
