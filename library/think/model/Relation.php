@@ -45,6 +45,8 @@ class Relation
     protected $joinType;
     // 关联模型查询对象
     protected $query;
+    // 关联查询条件
+    protected $where;
 
     /**
      * 架构函数
@@ -93,7 +95,7 @@ class Relation
                 $result = $relation->where($localKey, $this->parent->$foreignKey)->find();
                 break;
             case self::HAS_MANY:
-                $result = $relation->where($foreignKey, $this->parent->$localKey)->select();
+                $result = $relation->select();
                 break;
             case self::HAS_MANY_THROUGH:
                 $result = $relation->select();
@@ -170,7 +172,8 @@ class Relation
                     }
 
                     if (!empty($range)) {
-                        $data = $this->eagerlyOneToMany($model, [
+                        $this->where[$foreignKey] = ['in', $range];
+                        $data                     = $this->eagerlyOneToMany($model, [
                             $foreignKey => [
                                 'in',
                                 $range,
@@ -659,6 +662,14 @@ class Relation
     {
         if ($this->query) {
             switch ($this->type) {
+                case self::HAS_MANY:
+                    if (isset($this->where)) {
+                        $this->query->where($this->where);
+                    } elseif (isset($this->parent->{$this->localKey})) {
+                        // 关联查询带入关联条件
+                        $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
+                    }
+                    break;
                 case self::HAS_MANY_THROUGH:
                     $through      = $this->middle;
                     $model        = $this->model;
