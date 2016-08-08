@@ -70,7 +70,7 @@ class Console
                 $commands = include CONF_PATH . 'command' . EXT;
                 if (is_array($commands)) {
                     foreach ($commands as $command) {
-                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\command\\Command")) {
+                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
                             // 注册指令
                             $console->add(new $command());
                         }
@@ -613,7 +613,7 @@ class Console
         $defaultCommands = [];
 
         foreach (self::$defaultCommands as $classname) {
-            if (class_exists($classname) && is_subclass_of($classname, "think\\console\\command\\Command")) {
+            if (class_exists($classname) && is_subclass_of($classname, "think\\console\\Command")) {
                 $defaultCommands[] = new $classname();
             }
         }
