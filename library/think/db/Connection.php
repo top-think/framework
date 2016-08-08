@@ -793,7 +793,7 @@ abstract class Connection
             }
         } else {
             // 未注册监听则记录到日志中
-            Log::record('[ SQL ] ' . $this->queryStr . ' [ RunTime:' . $runtime . 's ]', 'sql');
+            Log::record('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]', 'sql');
             if (!empty($explain)) {
                 Log::record('[ EXPLAIN : ' . var_export($explain, true) . ' ]', 'sql');
             }
