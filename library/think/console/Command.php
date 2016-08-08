@@ -9,15 +9,12 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-namespace think\console\command;
+namespace think\console;
 
 use think\Console;
-use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Definition;
-use think\console\helper\Set as HelperSet;
 use think\console\input\Option;
-use think\console\Output;
 
 class Command
 {
@@ -36,8 +33,11 @@ class Command
     private $synopsis                        = [];
     private $usages                          = [];
 
-    /** @var  HelperSet */
-    private $helperSet;
+    /** @var  Input */
+    protected $input;
+
+    /** @var  Output */
+    protected $output;
 
     /**
      * 构造方法
@@ -75,29 +75,6 @@ class Command
     public function setConsole(Console $console = null)
     {
         $this->console = $console;
-        if ($console) {
-            $this->setHelperSet($console->getHelperSet());
-        } else {
-            $this->helperSet = null;
-        }
-    }
-
-    /**
-     * 设置帮助集
-     * @param HelperSet $helperSet
-     */
-    public function setHelperSet(HelperSet $helperSet)
-    {
-        $this->helperSet = $helperSet;
-    }
-
-    /**
-     * 获取帮助集
-     * @return HelperSet
-     */
-    public function getHelperSet()
-    {
-        return $this->helperSet;
     }
 
     /**
@@ -455,6 +432,7 @@ class Command
     /**
      * 添加用法介绍
      * @param string $usage
+     * @return $this
      */
     public function addUsage($usage)
     {
@@ -474,17 +452,6 @@ class Command
     public function getUsages()
     {
         return $this->usages;
-    }
-
-    /**
-     * 获取助手
-     * @param string $name
-     * @return mixed
-     * @throws \InvalidArgumentException
-     */
-    public function getHelper($name)
-    {
-        return $this->helperSet->get($name);
     }
 
     /**

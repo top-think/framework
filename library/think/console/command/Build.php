@@ -11,6 +11,7 @@
 
 namespace think\console\command;
 
+use think\console\Command;
 use think\console\Input;
 use think\console\input\Option;
 use think\console\Output;

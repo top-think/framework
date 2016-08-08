@@ -10,7 +10,7 @@
 // +----------------------------------------------------------------------
 namespace think\console\command\optimize;
 
-use think\console\command\Command;
+use think\console\Command;
 use think\console\Input;
 use think\console\Output;
 

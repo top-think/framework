@@ -11,43 +11,52 @@
 
 namespace think\console;
 
-use think\console\output\Formatter;
-use think\console\output\Stream;
+use Exception;
+use think\console\output\Descriptor;
+use think\console\output\driver\Buffer;
+use think\console\output\driver\Console;
+use think\console\output\driver\Nothing;
 
-class Output extends Stream
+class Output
 {
+    const VERBOSITY_QUIET        = 0;
+    const VERBOSITY_NORMAL       = 1;
+    const VERBOSITY_VERBOSE      = 2;
+    const VERBOSITY_VERY_VERBOSE = 3;
+    const VERBOSITY_DEBUG        = 4;
 
-    /** @var Stream */
-    private $stderr;
+    const OUTPUT_NORMAL = 0;
+    const OUTPUT_RAW    = 1;
+    const OUTPUT_PLAIN  = 2;
 
-    public function __construct()
+    private $verbosity = self::VERBOSITY_NORMAL;
+
+    /** @var Buffer|Console|Nothing */
+    private $handle = null;
+
+    public function __construct($driver = 'console')
     {
-        $outputStream = 'php://stdout';
-        if (!$this->hasStdoutSupport()) {
-            $outputStream = 'php://output';
-        }
+        $class = '\\think\\console\\output\\driver\\' . ucwords($driver);
 
-        parent::__construct(fopen($outputStream, 'w'));
+        $this->handle = new $class($this);
+    }
 
-        $this->stderr = new Stream(fopen('php://stderr', 'w'), $this->getFormatter());
+    public function writeln($messages, $type = self::OUTPUT_NORMAL)
+    {
+        $this->write($messages, true, $type);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setDecorated($decorated)
+    public function write($messages, $newline = false, $type = self::OUTPUT_NORMAL)
     {
-        parent::setDecorated($decorated);
-        $this->stderr->setDecorated($decorated);
+        $this->handle->write($messages, $newline, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFormatter(Formatter $formatter)
+    public function renderException(\Exception $e)
     {
-        parent::setFormatter($formatter);
-        $this->stderr->setFormatter($formatter);
+        $this->handle->renderException($e);
     }
 
     /**
@@ -55,32 +64,54 @@ class Output extends Stream
      */
     public function setVerbosity($level)
     {
-        parent::setVerbosity($level);
-        $this->stderr->setVerbosity($level);
+        $this->verbosity = (int)$level;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getErrorOutput()
+    public function getVerbosity()
     {
-        return $this->stderr;
+        return $this->verbosity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setErrorOutput(Output $error)
+    public function isQuiet()
     {
-        $this->stderr = $error;
+        return self::VERBOSITY_QUIET === $this->verbosity;
     }
 
-    /**
-     * 检查当前环境是否支持控制台输出写入标准输出。
-     * @return bool
-     */
-    protected function hasStdoutSupport()
+    public function isVerbose()
     {
-        return ('OS400' != php_uname('s'));
+        return self::VERBOSITY_VERBOSE <= $this->verbosity;
     }
+
+    public function isVeryVerbose()
+    {
+        return self::VERBOSITY_VERY_VERBOSE <= $this->verbosity;
+    }
+
+    public function isDebug()
+    {
+        return self::VERBOSITY_DEBUG <= $this->verbosity;
+    }
+
+    public function describe($object, array $options = [])
+    {
+        $descriptor = new Descriptor();
+        $options    = array_merge([
+            'raw_text' => false
+        ], $options);
+
+        $descriptor->describe($this, $object, $options);
+    }
+
+    public function __call($method, $args)
+    {
+        if ($this->handle && method_exists($this->handle, $method)) {
+            return call_user_func_array([$this->handle, $method], $args);
+        } else {
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+        }
+    }
+
 }

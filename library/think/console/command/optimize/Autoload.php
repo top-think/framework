@@ -11,14 +11,12 @@
 namespace think\console\command\optimize;
 
 use think\App;
-use think\console\command\Command;
+use think\console\Command;
 use think\console\Input;
 use think\console\Output;
 
 class Autoload extends Command
 {
-    /** @var  Output */
-    protected $output;
 
     protected function configure()
     {
@@ -28,7 +26,6 @@ class Autoload extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $this->output = $output;
 
         $classmapFile = <<<EOF
 <?php

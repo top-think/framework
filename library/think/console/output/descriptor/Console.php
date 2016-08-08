@@ -9,10 +9,10 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-namespace think\console\helper\descriptor;
+namespace think\console\output\descriptor;
 
 
-use think\console\command\Command;
+use think\console\Command;
 use think\Console as ThinkConsole;
 
 class Console
@@ -132,7 +132,7 @@ class Console
         foreach ($commands as $name => $command) {
             $key = $this->console->extractNamespace($name, 1);
             if (!$key) {
-                $key = '_global';
+                $key = self::GLOBAL_NAMESPACE;
             }
 
             $namespacedCommands[$key][$name] = $command;
