@@ -58,13 +58,14 @@ class Cache
     /**
      * 自动初始化缓存
      * @access public
+     * @param array         $options  配置数组
      * @return void
      */
-    public static function init()
+    public static function init(array $options = [])
     {
         if (is_null(self::$handler)) {
             // 自动初始化缓存
-            self::connect(Config::get('cache'));
+            self::connect($options ?: Config::get('cache'));
         }
     }
 
