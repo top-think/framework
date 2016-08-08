@@ -54,8 +54,12 @@ class Mysql extends Connection
         if (strpos($tableName, '.')) {
             $tableName = str_replace('.', '`.`', $tableName);
         }
-        $sql    = 'SHOW COLUMNS FROM `' . $tableName . '`';
-        $pdo    = $this->linkID->query($sql);
+        $sql = 'SHOW COLUMNS FROM `' . $tableName . '`';
+        // 调试开始
+        $this->debug(true);
+        $pdo = $this->linkID->query($sql);
+        // 调试结束
+        $this->debug(false, $sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         if ($result) {
@@ -82,8 +86,12 @@ class Mysql extends Connection
      */
     public function getTables($dbName = '')
     {
-        $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
-        $pdo    = $this->linkID->query($sql);
+        $sql = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
+        // 调试开始
+        $this->debug(true);
+        $pdo = $this->linkID->query($sql);
+        // 调试结束
+        $this->debug(false, $sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
@@ -110,8 +118,9 @@ class Mysql extends Connection
         }
         return $result;
     }
-    
-    protected function supportSavepoint(){
+
+    protected function supportSavepoint()
+    {
         return true;
     }
 }
