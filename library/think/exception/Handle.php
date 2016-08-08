@@ -44,13 +44,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}";
+                $log  = "[{$data['code']}]{$data['message']}";
             }
 
             Log::record($log, 'error');
@@ -91,7 +91,7 @@ class Handle
         if (App::$debug) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
         }
-        (new Console)->renderException($e, $output);
+        $output->renderException($e);
     }
 
     /**
