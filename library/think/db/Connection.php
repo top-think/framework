@@ -13,7 +13,6 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
-use think\App;
 use think\Collection;
 use think\Db;
 use think\db\exception\BindParamException;
@@ -274,9 +273,14 @@ abstract class Connection
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
                 }
+                if ($config['debug']) {
+                    $startTime = microtime(true);
+                }
                 $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
-                // 记录数据库连接信息
-                App::$debug && Log::record('[ DB ] CONNECT: ' . $config['dsn'], 'info');
+                if ($config['debug']) {
+                    // 记录数据库连接信息
+                    Log::record('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn'], 'sql');
+                }
             } catch (\PDOException $e) {
                 if ($autoConnection) {
                     Log::record($e->getMessage(), 'error');
