@@ -80,7 +80,7 @@ class Console
         }
         if ($run) {
             // 运行
-            $console->run();
+            return $console->run();
         } else {
             return $console;
         }
@@ -516,7 +516,6 @@ class Console
 
         return $abbrevs;
     }
-
 
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
