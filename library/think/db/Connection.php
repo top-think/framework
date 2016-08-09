@@ -255,6 +255,8 @@ abstract class Connection
         if (!isset($this->links[$linkNum])) {
             if (!$config) {
                 $config = $this->config;
+            } else {
+                $config = array_merge($this->config, $config);
             }
             // 连接参数
             if (isset($config['params']) && is_array($config['params'])) {

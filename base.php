@@ -57,5 +57,5 @@ if (is_file(ROOT_PATH . 'env' . EXT)) {
 // 注册错误和异常处理机制
 \think\Error::register();
 
-// 加载模式配置文件
+// 加载惯例配置文件
 \think\Config::set(include THINK_PATH . 'convention' . EXT);
