@@ -11,9 +11,8 @@
 
 namespace think\console\output\descriptor;
 
-
-use think\console\Command;
 use think\Console as ThinkConsole;
+use think\console\Command;
 
 class Console
 {

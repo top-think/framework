@@ -28,7 +28,6 @@ class Console
     /** @var  Output */
     private $output;
 
-
     public function __construct(Output $output)
     {
         $this->output    = $output;
@@ -44,7 +43,7 @@ class Console
             return;
         }
 
-        $messages = (array)$messages;
+        $messages = (array) $messages;
 
         foreach ($messages as $message) {
             switch ($type) {
@@ -132,7 +131,6 @@ class Console
 
     }
 
-
     /**
      * 获取终端宽度
      * @return int|null
@@ -167,19 +165,19 @@ class Console
 
         if ('\\' === DS) {
             if (preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim(getenv('ANSICON')), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
+                return [(int) $matches[1], (int) $matches[2]];
             }
             if (preg_match('/^(\d+)x(\d+)$/', $this->getMode(), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
+                return [(int) $matches[1], (int) $matches[2]];
             }
         }
 
         if ($sttyString = $this->getSttyColumns()) {
             if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
+                return [(int) $matches[2], (int) $matches[1]];
             }
             if (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
+                return [(int) $matches[2], (int) $matches[1]];
             }
         }
 
@@ -307,7 +305,6 @@ class Console
         return false === $this->isRunningOS400();
     }
 
-
     /**
      * @return resource
      */
@@ -354,10 +351,10 @@ class Console
     {
         if (DIRECTORY_SEPARATOR === '\\') {
             return
-                0 >= version_compare('10.0.10586', PHP_WINDOWS_VERSION_MAJOR . '.' . PHP_WINDOWS_VERSION_MINOR . '.' . PHP_WINDOWS_VERSION_BUILD)
-                || false !== getenv('ANSICON')
-                || 'ON' === getenv('ConEmuANSI')
-                || 'xterm' === getenv('TERM');
+            0 >= version_compare('10.0.10586', PHP_WINDOWS_VERSION_MAJOR . '.' . PHP_WINDOWS_VERSION_MINOR . '.' . PHP_WINDOWS_VERSION_BUILD)
+            || false !== getenv('ANSICON')
+            || 'ON' === getenv('ConEmuANSI')
+            || 'xterm' === getenv('TERM');
         }
 
         return function_exists('posix_isatty') && @posix_isatty($stream);

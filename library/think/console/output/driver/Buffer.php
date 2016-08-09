@@ -11,7 +11,6 @@
 
 namespace think\console\output\driver;
 
-
 use think\console\Output;
 
 class Buffer
@@ -35,7 +34,7 @@ class Buffer
 
     public function write($messages, $newline = false, $options = Output::OUTPUT_NORMAL)
     {
-        $messages = (array)$messages;
+        $messages = (array) $messages;
 
         foreach ($messages as $message) {
             $this->buffer .= $message;

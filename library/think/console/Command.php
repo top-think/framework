@@ -22,7 +22,7 @@ class Command
     /** @var  Console */
     private $console;
     private $name;
-    private $aliases                         = [];
+    private $aliases = [];
     private $definition;
     private $help;
     private $description;
@@ -30,8 +30,8 @@ class Command
     private $consoleDefinitionMerged         = false;
     private $consoleDefinitionMergedWithArgs = false;
     private $code;
-    private $synopsis                        = [];
-    private $usages                          = [];
+    private $synopsis = [];
+    private $usages   = [];
 
     /** @var  Input */
     protected $input;
@@ -172,7 +172,7 @@ class Command
             $statusCode = $this->execute($input, $output);
         }
 
-        return is_numeric($statusCode) ? (int)$statusCode : 0;
+        return is_numeric($statusCode) ? (int) $statusCode : 0;
     }
 
     /**
@@ -361,7 +361,6 @@ class Command
     {
         return $this->help;
     }
-
 
     /**
      * 描述信息

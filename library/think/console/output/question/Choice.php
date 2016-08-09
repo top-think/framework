@@ -11,7 +11,6 @@
 
 namespace think\console\helper\question;
 
-
 class Choice extends Question
 {
 

@@ -11,7 +11,6 @@
 
 namespace think\console\helper\question;
 
-
 class Confirmation extends Question
 {
 
@@ -25,7 +24,7 @@ class Confirmation extends Question
      */
     public function __construct($question, $default = true, $trueAnswerRegex = '/^y/i')
     {
-        parent::__construct($question, (bool)$default);
+        parent::__construct($question, (bool) $default);
 
         $this->trueAnswerRegex = $trueAnswerRegex;
         $this->setNormalizer($this->getDefaultNormalizer());
@@ -45,7 +44,7 @@ class Confirmation extends Question
                 return $answer;
             }
 
-            $answerIsTrue = (bool)preg_match($regex, $answer);
+            $answerIsTrue = (bool) preg_match($regex, $answer);
             if (false === $default) {
                 return $answer && $answerIsTrue;
             }

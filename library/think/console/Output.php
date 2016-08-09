@@ -64,7 +64,7 @@ class Output
      */
     public function setVerbosity($level)
     {
-        $this->verbosity = (int)$level;
+        $this->verbosity = (int) $level;
     }
 
     /**
@@ -99,7 +99,7 @@ class Output
     {
         $descriptor = new Descriptor();
         $options    = array_merge([
-            'raw_text' => false
+            'raw_text' => false,
         ], $options);
 
         $descriptor->describe($this, $object, $options);
