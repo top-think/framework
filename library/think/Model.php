@@ -1105,6 +1105,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = new static();
         $info  = $model->$relation()->getRelationInfo();
         switch ($info['type']) {
+            case Relation::HAS_ONE:
             case Relation::HAS_MANY:
                 $table = $info['model']::getTable();
                 if (is_array($where)) {
