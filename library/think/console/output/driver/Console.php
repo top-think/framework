@@ -37,6 +37,11 @@ class Console
         $this->formatter->setDecorated($decorated);
     }
 
+    public function setDecorated($decorated)
+    {
+        $this->formatter->setDecorated($decorated);
+    }
+
     public function write($messages, $newline = false, $type = Output::OUTPUT_NORMAL, $stream = null)
     {
         if (Output::VERBOSITY_QUIET === $this->output->getVerbosity()) {

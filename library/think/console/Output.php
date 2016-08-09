@@ -17,6 +17,16 @@ use think\console\output\driver\Buffer;
 use think\console\output\driver\Console;
 use think\console\output\driver\Nothing;
 
+/**
+ * Class Output
+ * @package think\console
+ *
+ * @see     think\console\output\driver\Console::setDecorated
+ * @method void setDecorated($decorated)
+ *
+ * @see     think\console\output\driver\Buffer::fetch
+ * @method string fetch()
+ */
 class Output
 {
     const VERBOSITY_QUIET        = 0;

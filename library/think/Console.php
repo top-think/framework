@@ -361,7 +361,7 @@ class Console
 
     /**
      * 某个指令是否存在
-     * @param string $name 指令民初
+     * @param string $name 指令名称
      * @return bool
      */
     public function has($name)
@@ -517,16 +517,6 @@ class Console
         return $abbrevs;
     }
 
-    /**
-     * 呈现捕获的异常
-     * @param \Exception $e
-     * @param Stream     $output
-     */
-    public function renderException(\Exception $e, Stream $output)
-    {
-
-    }
-
 
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
@@ -543,11 +533,6 @@ class Console
 
         if (true === $input->hasParameterOption(['--no-interaction', '-n'])) {
             $input->setInteractive(false);
-        } elseif (function_exists('posix_isatty') && $this->getHelperSet()->has('question')) {
-            $inputStream = $this->getHelperSet()->get('question')->getInputStream();
-            if (!@posix_isatty($inputStream) && false === getenv('SHELL_INTERACTIVE')) {
-                $input->setInteractive(false);
-            }
         }
 
         if (true === $input->hasParameterOption(['--quiet', '-q'])) {

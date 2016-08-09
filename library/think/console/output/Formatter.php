@@ -47,7 +47,7 @@ class Formatter
 
     /**
      * 设置外观标识
-     * @param bool $decorated 是否美化文职
+     * @param bool $decorated 是否美化文字
      */
     public function setDecorated($decorated)
     {
