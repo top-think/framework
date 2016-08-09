@@ -2031,7 +2031,7 @@ class Query
     public function chunk($count, $callback, $column = null)
     {
         $options   = $this->getOptions();
-        $column    = $column ?: ($options['pk'] ?: $this->getPk());
+        $column    = $column ?: $this->getPk();
         $bind      = $this->bind;
         $resultSet = $this->limit($count)->order($column, 'asc')->select();
 
