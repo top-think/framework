@@ -56,12 +56,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $error;
     // 字段验证规则
     protected $validate;
-    // 数据表主键 复合主键使用数组定义
+    // 数据表主键 复合主键使用数组定义 不设置则自动获取
     protected $pk;
-    // 字段属性
+    // 数据表字段信息 留空则自动获取
     protected $field = [];
-    // 字段类型
-    protected $fieldType = [];
     // 显示属性
     protected $visible = [];
     // 隐藏属性
@@ -155,11 +153,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             if (!empty($this->field)) {
+                if (true === $this->field) {
+                    $this->field = $this->db()->getTableInfo('', 'type');
+                }
+                if (is_array($this->field) && key($this->field) !== 0) {
+                    $query->setFieldType($this->field);
+                    $this->field = array_keys($this->field);
+                }
                 $query->allowField($this->field);
-            }
-
-            if (!empty($this->fieldType)) {
-                $query->setFieldType($this->fieldType);
             }
 
             if (!empty($this->pk)) {
@@ -616,9 +617,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 检测字段
         if (!empty($this->field)) {
-            if (true === $this->field) {
-                $this->field = $this->db()->getTableInfo('', 'fields');
-            }
             foreach ($this->data as $key => $val) {
                 if (!in_array($key, $this->field)) {
                     unset($this->data[$key]);
@@ -741,6 +739,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function allowField($field)
     {
+        if (true === $field) {
+            $field = $this->db()->getTableInfo('', 'type');
+            $this->db()->setFieldType($field);
+            $field = array_keys($field);
+        }
         $this->field = $field;
         return $this;
     }
