@@ -154,12 +154,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (!empty($this->field)) {
                 if (true === $this->field) {
-                    $this->field = $this->db()->getTableInfo('', 'type');
+                    $type = $this->db()->getTableInfo('', 'type');
+                } else {
+                    $type = [];
+                    foreach ((array) $this->field as $key => $val) {
+                        if (is_int($key)) {
+                            $key = $val;
+                            $val = 'varchar';
+                        }
+                        $type[$key] = $val;
+                    }
                 }
-                if (is_array($this->field) && key($this->field) !== 0) {
-                    $query->setFieldType($this->field);
-                    $this->field = array_keys($this->field);
-                }
+                $query->setFieldType($type);
+                $this->field = array_keys($type);
                 $query->allowField($this->field);
             }
 
