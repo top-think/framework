@@ -684,7 +684,7 @@ abstract class Builder
                 $this->parseWhere($options['where'], $options),
                 $this->parseOrder($options['order']),
                 $this->parseLimit($options['limit']),
-                $this->parseLimit($options['lock']),
+                $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
             ], $this->updateSql);
 
@@ -708,7 +708,7 @@ abstract class Builder
                 $this->parseWhere($options['where'], $options),
                 $this->parseOrder($options['order']),
                 $this->parseLimit($options['limit']),
-                $this->parseLimit($options['lock']),
+                $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
             ], $this->deleteSql);
 
