@@ -145,6 +145,9 @@ class Command
      */
     public function run(Input $input, Output $output)
     {
+        $this->input  = $input;
+        $this->output = $output;
+
         $this->getSynopsis(true);
         $this->getSynopsis(false);
 
