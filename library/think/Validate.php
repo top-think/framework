@@ -541,6 +541,8 @@ class Validate
                 $result = $this->filter($value, FILTER_VALIDATE_FLOAT);
                 break;
             case 'number':
+                $result = is_numeric($value);
+                break;
             case 'integer':
                 // 是否为整形
                 $result = $this->filter($value, FILTER_VALIDATE_INT);
