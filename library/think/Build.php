@@ -198,7 +198,7 @@ class Build
         }
         $filename = APP_PATH . ($module ? $module . DS : '') . 'common.php';
         if (!is_file($filename)) {
-            file_put_contents($filename, "<?php\n;");
+            file_put_contents($filename, "<?php\n");
         }
     }
 }
