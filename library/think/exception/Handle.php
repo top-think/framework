@@ -14,7 +14,6 @@ namespace think\exception;
 use Exception;
 use think\App;
 use think\Config;
-use think\Console;
 use think\console\Output;
 use think\Lang;
 use think\Log;
@@ -44,13 +43,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}";
+                $log = "[{$data['code']}]{$data['message']}";
             }
 
             Log::record($log, 'error');
@@ -210,11 +209,15 @@ class Handle
         }
 
         if (strpos($message, ':')) {
-            $name = strstr($message, ':', true);
-            return Lang::has($name) ? Lang::get($name) . ' ' . strstr($message, ':') : $message;
-        } else {
-            return Lang::has($message) ? Lang::get($message) : $message;
+            $name    = strstr($message, ':', true);
+            $message = Lang::has($name) ? Lang::get($name) . strstr($message, ':') : $message;
+        } elseif (strpos($message, ',')) {
+            $name    = strstr($message, ',', true);
+            $message = Lang::has($name) ? Lang::get($name) . ':' . substr(strstr($message, ','), 1) : $message;
+        } elseif (Lang::has($message)) {
+            $message = Lang::get($message);
         }
+        return $message;
     }
 
     /**
