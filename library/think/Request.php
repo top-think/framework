@@ -599,11 +599,6 @@ class Request
      */
     public function param($name = '', $default = null, $filter = null)
     {
-        if (is_array($name)) {
-            // 设置param
-            $this->param = array_merge($this->param, $name);
-            return;
-        }
         if (empty($this->param)) {
             $method = $this->method(true);
             // 自动获取请求变量
@@ -642,6 +637,7 @@ class Request
     public function route($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param        = [];
             return $this->route = array_merge($this->route, $name);
         }
         return $this->input($this->route, $name, $default, $filter);
@@ -658,6 +654,7 @@ class Request
     public function get($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param      = [];
             return $this->get = array_merge($this->get, $name);
         } elseif (empty($this->get)) {
             $this->get = $_GET;
@@ -676,6 +673,7 @@ class Request
     public function post($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param       = [];
             return $this->post = array_merge($this->post, $name);
         } elseif (empty($this->post)) {
             $this->post = $_POST;
@@ -694,6 +692,7 @@ class Request
     public function put($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param      = [];
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
         }
         if (is_null($this->put)) {
@@ -743,6 +742,7 @@ class Request
     public function request($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param          = [];
             return $this->request = array_merge($this->request, $name);
         } elseif (empty($this->request)) {
             $this->request = $_REQUEST;
