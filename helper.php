@@ -511,3 +511,15 @@ if (!function_exists('abort')) {
         }
     }
 }
+
+if (!function_exists('halt')) {
+    /**
+     * 调试变量并且中断输出
+     * @param mixed      $var 调试变量或者信息
+     */
+    function halt($var)
+    {
+        dump($var);
+        throw new \think\exception\HttpResponseException(new Response);
+    }
+}
