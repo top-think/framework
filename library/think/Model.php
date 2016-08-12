@@ -728,7 +728,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $db->startTrans();
         try {
             foreach ($dataSet as $key => $data) {
-                $result[$key] = self::create($data, $replace);
+                $result[$key] = self::create($data, $replace, false);
             }
             $db->commit();
             return $result;
@@ -942,12 +942,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $data 数据数组
      * @param bool      $replace 是否replace
+     * @param bool      $getId 是否返回自增主键
      * @return $this
      */
-    public static function create($data = [], $replace = false)
+    public static function create($data = [], $replace = false, $getId = true)
     {
         $model = new static();
-        $model->isUpdate(false)->save($data, [], true, $replace);
+        $model->isUpdate(false)->save($data, [], $getId, $replace);
         return $model;
     }
 
