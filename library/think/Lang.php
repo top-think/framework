@@ -171,6 +171,9 @@ class Lang
             // 合法的语言
             self::$range = $langSet ?: self::$range;
         }
+        if ('zh-hans-cn' == self::$range) {
+            self::$range = 'zh-cn';
+        }
         return self::$range;
     }
 
