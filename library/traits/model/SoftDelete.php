@@ -4,6 +4,20 @@ namespace traits\model;
 
 trait SoftDelete
 {
+
+    /**
+     * 判断当前实例是否被软删除
+     * @access public
+     * @return boolean
+     */
+    public function trashed()
+    {
+        if (!empty($this->data[static::$deleteTime])) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 查询软删除数据
      * @access public
