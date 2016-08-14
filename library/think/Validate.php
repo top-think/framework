@@ -12,6 +12,7 @@
 namespace think;
 
 use think\Request;
+use think\Session;
 
 class Validate
 {
@@ -481,7 +482,7 @@ class Validate
      * @param string    $rule  验证规则
      * @return bool
      */
-    protected function is($value, $rule)
+    protected function is($value, $rule, $data)
     {
         switch ($rule) {
             case 'require':
@@ -564,6 +565,9 @@ class Validate
                 break;
             case 'image':
                 $result = $value instanceof \think\File && in_array($this->getImageType($value->getRealPath()), [1, 2, 3, 6]);
+                break;
+            case 'token':
+                $result = $this->token($value, '__token__', $data);
                 break;
             default:
                 if (isset(self::$type[$rule])) {
@@ -1083,6 +1087,33 @@ class Validate
             $rule = '/^' . $rule . '$/';
         }
         return 1 === preg_match($rule, (string) $value);
+    }
+
+    /**
+     * 验证表单令牌
+     * @access protected
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @param array     $data  数据
+     * @return bool
+     */
+    protected function token($value, $rule, $data)
+    {
+        $rule = !empty($rule) ? $rule : '__token__';
+        if (!isset($data[$rule]) || !Session::has($rule)) {
+            // 令牌数据无效
+            return false;
+        }
+
+        // 令牌验证
+        if (isset($data[$rule]) && Session::get($rule) === $data[$rule]) {
+            // 防止重复提交
+            Session::delete($rule); // 验证完成销毁session
+            return true;
+        }
+        // 开启TOKEN重置
+        Session::delete($rule);
+        return false;
     }
 
     // 获取错误信息
