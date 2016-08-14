@@ -60,6 +60,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $pk;
     // 数据表字段信息 留空则自动获取
     protected $field = [];
+    // 只读字段
+    protected $readonly = [];
     // 显示属性
     protected $visible = [];
     // 隐藏属性
@@ -660,6 +662,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             foreach ($this->data as $key => $val) {
                 if (in_array($key, $this->change) || $this->isPk($key)) {
                     $data[$key] = $val;
+                }
+            }
+
+            if (!empty($this->readonly)) {
+                // 只读字段不允许更新
+                foreach ($this->readonly as $key => $field) {
+                    if (isset($data[$field])) {
+                        unset($data[$field]);
+                    }
                 }
             }
 
