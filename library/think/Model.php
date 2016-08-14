@@ -95,6 +95,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $relation;
     // 验证失败是否抛出异常
     protected $failException = false;
+    // 全局查询范围
+    protected static $useGlobalScope = true;
 
     /**
      * 初始化过的模型.
@@ -1080,6 +1082,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置是否使用全局查询范围
+     * @param bool  $use 是否启用全局查询范围
+     * @access public
+     * @return Model
+     */
+    public static function useGlobalScope($use)
+    {
+        $model                  = new static();
+        static::$useGlobalScope = $use;
+        return $model;
+    }
+
+    /**
      * 根据关联条件查询当前模型
      * @access public
      * @param string    $relation 关联方法名
@@ -1299,7 +1314,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $query = $this->db();
         // 全局作用域
-        if (method_exists($this, 'base')) {
+        if (static::$useGlobalScope && method_exists($this, 'base')) {
             call_user_func_array('static::base', [ & $query]);
         }
         if (method_exists($this, 'scope' . $method)) {
@@ -1321,7 +1336,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         $query = self::$links[$model];
         // 全局作用域
-        if (method_exists($model, 'base')) {
+        if (static::$useGlobalScope && method_exists($model, 'base')) {
             call_user_func_array('static::base', [ & $query]);
         }
         return call_user_func_array([$query, $method], $params);
