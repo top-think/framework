@@ -523,3 +523,16 @@ if (!function_exists('halt')) {
         throw new \think\exception\HttpResponseException(new Response);
     }
 }
+
+if (!function_exists('token')) {
+    /**
+     * 生成表单令牌
+     * @param string $name 令牌名称
+     * @param mixed  $type 令牌生成方法
+     */
+    function token($name = '__token__', $type = 'md5')
+    {
+        $token = Request::instance()->token($name, $type);
+        return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
+    }
+}

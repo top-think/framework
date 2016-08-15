@@ -1416,7 +1416,9 @@ class Request
     {
         $type  = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $_SERVER['REQUEST_TIME_FLOAT']);
-
+        if ($this->isAjax()) {
+            header($name . ': ' . $token);
+        }
         Session::set($name, $token);
         return $token;
     }
