@@ -480,9 +480,10 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param string    $rule  验证规则
+     * @param array     $data  验证数据
      * @return bool
      */
-    protected function is($value, $rule, $data)
+    protected function is($value, $rule, $data = [])
     {
         switch ($rule) {
             case 'require':

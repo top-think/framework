@@ -1409,7 +1409,7 @@ class Request
      * 生成请求令牌
      * @access public
      * @param string $name 令牌名称
-     * @param string|array $type 令牌生成方法
+     * @param mixed  $type 令牌生成方法
      * @return string
      */
     public function token($name = '__token__', $type = 'md5')
