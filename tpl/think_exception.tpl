@@ -86,7 +86,7 @@
         body {
             color: #333;
             font: 16px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
-            margin: 0px;
+            margin: 0;
             padding: 0 20px 20px;
         }
         h1{
@@ -246,7 +246,7 @@
         .exception-var table td{
             padding: 0 6px;
             vertical-align: top;
-            word-break: break-word;
+            word-break: break-all;
         }
         .exception-var table td:first-child{
             width: 12px;
