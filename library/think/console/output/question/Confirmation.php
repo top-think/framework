@@ -9,7 +9,9 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-namespace think\console\helper\question;
+namespace think\console\output\question;
+
+use think\console\output\Question;
 
 class Confirmation extends Question
 {
