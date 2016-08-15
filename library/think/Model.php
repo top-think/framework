@@ -606,11 +606,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $data 数据
      * @param array     $where 更新条件
-     * @param bool      $getId 新增的时候是否获取id
-     * @param bool      $replace 是否replace
+     * @param string    $sequence     自增序列名
      * @return integer
      */
-    public function save($data = [], $where = [], $getId = true, $replace = false)
+    public function save($data = [], $where = [], $sequence = null)
     {
         if (!empty($data)) {
             // 数据自动验证
@@ -703,16 +702,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
-            $result = $this->db()->insert($this->data, $replace);
+            $result = $this->db()->insert($this->data);
 
             // 获取自动增长主键
-            if ($result && $getId) {
-                $insertId = $this->db()->getLastInsID();
+            if ($result) {
+                $insertId = $this->db()->getLastInsID($sequence);
                 $pk       = $this->getPk();
                 if (is_string($pk) && $insertId) {
                     $this->data[$pk] = $insertId;
                 }
-                $result = $insertId;
             }
             // 标记为更新
             $this->isUpdate = true;
@@ -954,14 +952,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 写入数据
      * @access public
      * @param array     $data 数据数组
-     * @param bool      $replace 是否replace
-     * @param bool      $getId 是否返回自增主键
      * @return $this
      */
-    public static function create($data = [], $replace = false, $getId = true)
+    public static function create($data = [])
     {
         $model = new static();
-        $model->isUpdate(false)->save($data, [], $getId, $replace);
+        $model->isUpdate(false)->save($data, []);
         return $model;
     }
 

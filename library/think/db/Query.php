@@ -194,25 +194,24 @@ class Query
      * @access public
      * @param string  $sql          sql指令
      * @param array   $bind         参数绑定
-     * @param boolean $getLastInsID 是否获取自增ID
-     * @param boolean $sequence     自增序列名
      * @return int
      * @throws BindParamException
      * @throws PDOException
      */
-    public function execute($sql, $bind = [], $getLastInsID = false, $sequence = null)
+    public function execute($sql, $bind = [])
     {
-        return $this->connection->execute($sql, $bind, $getLastInsID, $sequence);
+        return $this->connection->execute($sql, $bind);
     }
 
     /**
      * 获取最近插入的ID
      * @access public
+     * @param string  $sequence     自增序列名
      * @return string
      */
-    public function getLastInsID()
+    public function getLastInsID($sequence = null)
     {
-        return $this->connection->getLastInsID();
+        return $this->connection->getLastInsID($sequence);
     }
 
     /**
@@ -1667,7 +1666,7 @@ class Query
      * @access public
      * @param mixed   $data         数据
      * @param boolean $replace      是否replace
-     * @param boolean $getLastInsID 是否获取自增ID
+     * @param boolean $getLastInsID 返回自增主键
      * @param string  $sequence     自增序列名
      * @return integer|string
      */
@@ -1683,9 +1682,14 @@ class Query
             // 获取实际执行的SQL语句
             return $this->connection->getRealSql($sql, $bind);
         }
-        $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
+
         // 执行操作
-        return $this->execute($sql, $bind, $getLastInsID, $sequence);
+        $result = $this->execute($sql, $bind);
+        if ($getLastInsID) {
+            $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
+            return $this->getLastInsID($sequence);
+        }
+        return $result;
     }
 
     /**
