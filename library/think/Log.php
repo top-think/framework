@@ -52,16 +52,31 @@ class Log
     public static function init($config = [])
     {
         $type         = isset($config['type']) ? $config['type'] : 'File';
-        $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
-        self::$config = $config;
-        unset($config['type']);
-        if (class_exists($class)) {
-            self::$driver = new $class($config);
-        } else {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
+        if(is_string($type)){
+            //类型为字符串,表示所有的日志采用一种配置
+            $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
+            if (class_exists($class)) {
+                $cfg = $config[$type]??[];
+                self::$driver[$type]['instance'] = new $class($cfg);
+                self::$driver[$type]['level'] = '*';
+            } else {
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
+            }
+        }else{
+            foreach($type as $key=>$value){
+                $class        = false !== strpos($key, '\\') ? $key : '\\think\\log\\driver\\' . ucwords($key);
+                if (class_exists($class)) {
+                    $cfg = $config[$key]??[];
+                    self::$driver[$key]['instance'] = new $class($cfg);
+                    self::$driver[$key]['level'] = $value;
+                } else {
+                    throw new ClassNotFoundException('class not exists:' . $class, $class);
+                }
+            }
         }
+        self::$config = $config;
         // 记录初始化信息
-        App::$debug && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
+        App::$debug && Log::record('[ LOG ] INIT ' . ': ' . var_export($config, true), 'info');
     }
 
     /**
@@ -132,21 +147,24 @@ class Log
                 // 检测日志写入权限
                 return false;
             }
-
-            if (empty(self::$config['level'])) {
+            if(count(self::$driver)==1){
                 // 获取全部日志
-                $log = self::$log;
-            } else {
-                // 记录允许级别
-                $log = [];
-                foreach (self::$config['level'] as $level) {
-                    if (isset(self::$log[$level])) {
-                        $log[$level] = self::$log[$level];
+                $driver = reset(self::$driver);
+                $result = $driver['instance']->save(self::$log);
+            }else{
+                foreach(self::$driver as $item){
+                    // 记录允许级别
+                    $log = [];
+                    foreach ($item['level'] as $level) {
+                        if (isset(self::$log[$level])) {
+                            $log[$level] = self::$log[$level];
+                        }
+                    }
+                    if($log){
+                        $result = $item['instance']->save($log,self::$log);
                     }
                 }
             }
-
-            $result = self::$driver->save($log);
             if ($result) {
                 self::$log = [];
             }
@@ -196,5 +214,4 @@ class Log
             return call_user_func_array('\\think\\Log::record', $args);
         }
     }
-
 }
