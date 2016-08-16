@@ -20,6 +20,7 @@ class File
         'time_format' => ' c ',
         'file_size'   => 2097152,
         'path'        => LOG_PATH,
+        'apart_level' => [],
     ];
 
     // 实例化并传入参数
@@ -63,20 +64,27 @@ class File
         $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
         $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
 
-        $info = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
-        foreach ($log as $type => $val) {
-            foreach ($val as $msg) {
-                if (!is_string($msg)) {
-                    $msg = var_export($msg, true);
-                }
-                $info .= '[ ' . $type . ' ] ' . $msg . "\r\n";
-            }
-        }
-
+        $info   = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
         $server = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '0.0.0.0';
         $remote = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
         $uri    = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        foreach ($log as $type => $val) {
+            $level = '';
+            foreach ($val as $msg) {
+                if (!is_string($msg)) {
+                    $msg = var_export($msg, true);
+                }
+                $level .= '[ ' . $type . ' ] ' . $msg . "\r\n";
+            }
+            if (in_array($type, $this->config['apart_level'])) {
+                // 独立记录的日志级别
+                $filename = $path . DS . $type . '.log';
+                error_log("[{$now}] {$server} {$remote} {$method} {$uri}\r\n{$level}\r\n", 3, $filename);
+            } else {
+                $info .= $level;
+            }
+        }
         return error_log("[{$now}] {$server} {$remote} {$method} {$uri}\r\n{$info}\r\n", 3, $destination);
     }
 
