@@ -985,6 +985,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function get($data = null, $with = [], $cache = false)
     {
+        if (!$cache && $data && is_scalar($data)) {
+            $cache = true;
+        }
         $query = static::parseQuery($data, $with, $cache);
         return $query->find($data);
     }

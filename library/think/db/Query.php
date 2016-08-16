@@ -1768,8 +1768,8 @@ class Query
     public function update(array $data)
     {
         $options = $this->parseExpress();
+        $pk      = $this->getPk($options);
         if (empty($options['where'])) {
-            $pk = $this->getPk($options);
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
                 $where[$pk] = $data[$pk];
@@ -1793,6 +1793,8 @@ class Query
             } else {
                 $options['where']['AND'] = $where;
             }
+        } elseif (is_string($pk) && isset($options['where']['AND'][$pk]) && is_scalar($options['where']['AND'][$pk])) {
+            $key = 'think:' . $options['table'] . '|' . $options['where']['AND'][$pk];
         }
         // 生成UPDATE SQL语句
         $sql = $this->builder()->update($data, $options);
