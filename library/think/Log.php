@@ -56,7 +56,7 @@ class Log
             //类型为字符串,表示所有的日志采用一种配置
             $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
             if (class_exists($class)) {
-                $cfg = $config[$type]??[];
+                $cfg = isset($config[$type])? $config[$type] : [];
                 self::$driver[$type]['instance'] = new $class($cfg);
                 self::$driver[$type]['level'] = '*';
             } else {
