@@ -115,6 +115,7 @@ class Redis
      */
     public function inc($name, $step = 1)
     {
+        $name = $this->options['prefix'] . $name;
         return $this->handler->incrby($name, $step);
     }
 
@@ -127,6 +128,7 @@ class Redis
      */
     public function dec($name, $step = 1)
     {
+        $name = $this->options['prefix'] . $name;
         return $this->handler->decrby($name, $step);
     }
 

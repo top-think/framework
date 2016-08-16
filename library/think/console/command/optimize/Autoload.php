@@ -11,14 +11,12 @@
 namespace think\console\command\optimize;
 
 use think\App;
-use think\console\command\Command;
+use think\console\Command;
 use think\console\Input;
 use think\console\Output;
 
 class Autoload extends Command
 {
-    /** @var  Output */
-    protected $output;
 
     protected function configure()
     {
@@ -28,12 +26,11 @@ class Autoload extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $this->output = $output;
 
         $classmapFile = <<<EOF
 <?php
 /**
- * ThinkPHP 类库映射定义
+ * 类库映射
  */
  
 return [
@@ -45,6 +42,7 @@ EOF;
             'think\\'              => LIB_PATH . 'think',
             'behavior\\'           => LIB_PATH . 'behavior',
             'traits\\'             => LIB_PATH . 'traits',
+            ''                     => realpath(rtrim(EXTEND_PATH))
         ];
 
         krsort($namespacesToScan);
@@ -79,7 +77,7 @@ EOF;
         foreach ($this->createMap($dir, $namespace) as $class => $path) {
 
             $pathCode = $this->getPathCode($path) . ",\n";
-            
+
             if (!isset($classMap[$class])) {
                 $classMap[$class] = $pathCode;
             } elseif ($classMap[$class] !== $pathCode && !preg_match('{/(test|fixture|example|stub)s?/}i', strtr($classMap[$class] . ' ' . $path, '\\', '/'))) {
@@ -97,10 +95,11 @@ EOF;
     protected function getPathCode($path)
     {
 
-        $baseDir = '';
-        $appPath = $this->normalizePath(realpath(APP_PATH));
-        $libPath = $this->normalizePath(realpath(LIB_PATH));
-        $path    = $this->normalizePath($path);
+        $baseDir    = '';
+        $appPath    = $this->normalizePath(realpath(APP_PATH));
+        $libPath    = $this->normalizePath(realpath(LIB_PATH));
+        $extendPath = $this->normalizePath(realpath(EXTEND_PATH));
+        $path       = $this->normalizePath($path);
 
         if (strpos($path, $libPath . '/') === 0) {
             $path    = substr($path, strlen(LIB_PATH));
@@ -108,6 +107,9 @@ EOF;
         } elseif (strpos($path, $appPath . '/') === 0) {
             $path    = substr($path, strlen($appPath) + 1);
             $baseDir = 'APP_PATH';
+        } elseif (strpos($path, $extendPath . '/') === 0) {
+            $path    = substr($path, strlen($extendPath) + 1);
+            $baseDir = 'EXTEND_PATH';
         }
 
         if ($path !== false) {
@@ -116,7 +118,6 @@ EOF;
 
         return $baseDir . (($path !== false) ? var_export($path, true) : "");
     }
-
 
     protected function normalizePath($path)
     {
@@ -204,7 +205,6 @@ EOF;
 
         return $map;
     }
-
 
     protected function findClasses($path)
     {

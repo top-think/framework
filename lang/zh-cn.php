@@ -17,6 +17,7 @@ return [
     'Parse error'               => '语法解析错误',
     'Type error'                => '类型错误',
     'Fatal error'               => '致命错误',
+    'syntax error'              => '语法错误',
 
     // 框架核心错误提示
     'dispatch type not support' => '不支持的调度类型',

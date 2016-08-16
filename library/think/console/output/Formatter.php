@@ -10,8 +10,8 @@
 // +----------------------------------------------------------------------
 namespace think\console\output;
 
-use think\console\output\formatter\Style;
 use think\console\output\formatter\Stack as StyleStack;
+use think\console\output\formatter\Style;
 
 class Formatter
 {
@@ -47,11 +47,11 @@ class Formatter
 
     /**
      * 设置外观标识
-     * @param bool $decorated 是否美化文职
+     * @param bool $decorated 是否美化文字
      */
     public function setDecorated($decorated)
     {
-        $this->decorated = (bool)$decorated;
+        $this->decorated = (bool) $decorated;
     }
 
     /**

@@ -11,6 +11,7 @@
 
 namespace think\console\command;
 
+use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument as InputArgument;
 use think\console\input\Option as InputOption;
@@ -60,9 +61,7 @@ EOF
             $this->command = $this->getConsole()->find($input->getArgument('command_name'));
         }
 
-
-        $helper = new DescriptorHelper();
-        $helper->describe($output, $this->command, [
+        $output->describe($this->command, [
             'raw_text' => $input->getOption('raw'),
         ]);
 

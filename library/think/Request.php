@@ -599,11 +599,6 @@ class Request
      */
     public function param($name = '', $default = null, $filter = null)
     {
-        if (is_array($name)) {
-            // 设置param
-            $this->param = array_merge($this->param, $name);
-            return;
-        }
         if (empty($this->param)) {
             $method = $this->method(true);
             // 自动获取请求变量
@@ -642,6 +637,7 @@ class Request
     public function route($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param        = [];
             return $this->route = array_merge($this->route, $name);
         }
         return $this->input($this->route, $name, $default, $filter);
@@ -658,6 +654,7 @@ class Request
     public function get($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param      = [];
             return $this->get = array_merge($this->get, $name);
         } elseif (empty($this->get)) {
             $this->get = $_GET;
@@ -676,6 +673,7 @@ class Request
     public function post($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param       = [];
             return $this->post = array_merge($this->post, $name);
         } elseif (empty($this->post)) {
             $this->post = $_POST;
@@ -694,6 +692,7 @@ class Request
     public function put($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param      = [];
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
         }
         if (is_null($this->put)) {
@@ -743,6 +742,7 @@ class Request
     public function request($name = '', $default = null, $filter = null)
     {
         if (is_array($name)) {
+            $this->param          = [];
             return $this->request = array_merge($this->request, $name);
         } elseif (empty($this->request)) {
             $this->request = $_REQUEST;
@@ -1228,7 +1228,7 @@ class Request
     {
         if (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], "wap")) {
             return true;
-        } elseif (strpos(strtoupper($_SERVER['HTTP_ACCEPT']), "VND.WAP.WML")) {
+        } elseif (isset($_SERVER['HTTP_ACCEPT']) && strpos(strtoupper($_SERVER['HTTP_ACCEPT']), "VND.WAP.WML")) {
             return true;
         } elseif (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])) {
             return true;
@@ -1403,5 +1403,23 @@ class Request
             $this->content = file_get_contents('php://input');
         }
         return $this->content;
+    }
+
+    /**
+     * 生成请求令牌
+     * @access public
+     * @param string $name 令牌名称
+     * @param mixed  $type 令牌生成方法
+     * @return string
+     */
+    public function token($name = '__token__', $type = 'md5')
+    {
+        $type  = is_callable($type) ? $type : 'md5';
+        $token = call_user_func($type, $_SERVER['REQUEST_TIME_FLOAT']);
+        if ($this->isAjax()) {
+            header($name . ': ' . $token);
+        }
+        Session::set($name, $token);
+        return $token;
     }
 }

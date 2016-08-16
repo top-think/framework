@@ -9,15 +9,15 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-namespace think\console\helper\descriptor;
+namespace think\console\output;
 
-use think\console\Output;
-use think\console\input\Argument as InputArgument;
-use think\console\input\Option as InputOption;
-use think\console\input\Definition as InputDefinition;
-use think\console\command\Command;
 use think\Console;
-use think\console\helper\descriptor\Console as ConsoleDescription;
+use think\console\Command;
+use think\console\input\Argument as InputArgument;
+use think\console\input\Definition as InputDefinition;
+use think\console\input\Option as InputOption;
+use think\console\Output;
+use think\console\output\descriptor\Console as ConsoleDescription;
 
 class Descriptor
 {
@@ -254,7 +254,7 @@ class Descriptor
                     $this->writeText("\n");
                     $spacingWidth = $width - strlen($name);
                     $this->writeText(sprintf("  <info>%s</info>%s%s", $name, str_repeat(' ', $spacingWidth), $description->getCommand($name)
-                                                                                                                         ->getDescription()), $options);
+                            ->getDescription()), $options);
                 }
             }
 
@@ -268,7 +268,7 @@ class Descriptor
     private function writeText($content, array $options = [])
     {
         $this->write(isset($options['raw_text'])
-                     && $options['raw_text'] ? strip_tags($content) : $content, isset($options['raw_output']) ? !$options['raw_output'] : true);
+            && $options['raw_text'] ? strip_tags($content) : $content, isset($options['raw_output']) ? !$options['raw_output'] : true);
     }
 
     /**

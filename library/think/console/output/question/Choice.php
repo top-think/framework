@@ -9,8 +9,9 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-namespace think\console\helper\question;
+namespace think\console\output\question;
 
+use think\console\output\Question;
 
 class Choice extends Question
 {
@@ -55,6 +56,11 @@ class Choice extends Question
         $this->setValidator($this->getDefaultValidator());
 
         return $this;
+    }
+
+    public function isMultiselect()
+    {
+        return $this->multiselect;
     }
 
     /**

@@ -11,8 +11,8 @@
 
 namespace think\console;
 
-use think\console\input\Definition;
 use think\console\input\Argument;
+use think\console\input\Definition;
 use think\console\input\Option;
 
 class Input
@@ -38,7 +38,6 @@ class Input
     private $tokens;
     private $parsed;
 
-
     public function __construct($argv = null)
     {
         if (null === $argv) {
@@ -51,7 +50,6 @@ class Input
 
         $this->definition = new Definition();
     }
-
 
     protected function setTokens(array $tokens)
     {
@@ -70,7 +68,6 @@ class Input
 
         $this->parse();
     }
-
 
     /**
      * 解析参数
@@ -93,7 +90,6 @@ class Input
             }
         }
     }
-
 
     /**
      * 解析短选项
@@ -178,7 +174,6 @@ class Input
         }
     }
 
-
     /**
      * 添加一个短选项的值
      * @param string $shortcut 短名称
@@ -260,7 +255,6 @@ class Input
         return null;
     }
 
-
     /**
      * 检查原始参数是否包含某个值
      * @param string|array $values 需要检查的值
@@ -268,7 +262,7 @@ class Input
      */
     public function hasParameterOption($values)
     {
-        $values = (array)$values;
+        $values = (array) $values;
 
         foreach ($this->tokens as $token) {
             foreach ($values as $value) {
@@ -289,7 +283,7 @@ class Input
      */
     public function getParameterOption($values, $default = false)
     {
-        $values = (array)$values;
+        $values = (array) $values;
         $tokens = $this->tokens;
 
         while (0 < count($tokens)) {
@@ -308,7 +302,6 @@ class Input
 
         return $default;
     }
-
 
     /**
      * 验证输入
@@ -336,7 +329,7 @@ class Input
      */
     public function setInteractive($interactive)
     {
-        $this->interactive = (bool)$interactive;
+        $this->interactive = (bool) $interactive;
     }
 
     /**
@@ -459,7 +452,7 @@ class Input
                 return $match[1] . $this->escapeToken($match[2]);
             }
 
-            if ($token && $token[0] !== '-') {
+            if ($token && '-' !== $token[0]) {
                 return $this->escapeToken($token);
             }
 

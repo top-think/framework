@@ -187,11 +187,12 @@ if (!function_exists('db')) {
      * 实例化数据库类
      * @param string        $name 操作的数据表名称（不含前缀）
      * @param array|string  $config 数据库配置参数
+     * @param bool          $force 是否强制重新连接
      * @return \think\db\Query
      */
-    function db($name = '', $config = [])
+    function db($name = '', $config = [], $force = true)
     {
-        return Db::connect($config, true)->name($name);
+        return Db::connect($config, $force)->name($name);
     }
 }
 
@@ -508,5 +509,30 @@ if (!function_exists('abort')) {
         } else {
             throw new \think\exception\HttpException($code, $message, null, $header);
         }
+    }
+}
+
+if (!function_exists('halt')) {
+    /**
+     * 调试变量并且中断输出
+     * @param mixed      $var 调试变量或者信息
+     */
+    function halt($var)
+    {
+        dump($var);
+        throw new \think\exception\HttpResponseException(new Response);
+    }
+}
+
+if (!function_exists('token')) {
+    /**
+     * 生成表单令牌
+     * @param string $name 令牌名称
+     * @param mixed  $type 令牌生成方法
+     */
+    function token($name = '__token__', $type = 'md5')
+    {
+        $token = Request::instance()->token($name, $type);
+        return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
     }
 }

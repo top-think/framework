@@ -13,7 +13,6 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
-use think\App;
 use think\Collection;
 use think\Db;
 use think\db\exception\BindParamException;
@@ -105,6 +104,8 @@ abstract class Connection
         'auto_timestamp' => false,
         // 是否需要进行SQL性能分析
         'sql_explain'    => false,
+        // Builder类
+        'builder'        => '',
     ];
 
     // PDO连接参数
@@ -253,6 +254,8 @@ abstract class Connection
         if (!isset($this->links[$linkNum])) {
             if (!$config) {
                 $config = $this->config;
+            } else {
+                $config = array_merge($this->config, $config);
             }
             // 连接参数
             if (isset($config['params']) && is_array($config['params'])) {
@@ -270,15 +273,20 @@ abstract class Connection
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
                 }
+                if ($config['debug']) {
+                    $startTime = microtime(true);
+                }
                 $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
-                // 记录数据库连接信息
-                App::$debug && Log::record('[ DB ] CONNECT: ' . $config['dsn'], 'info');
+                if ($config['debug']) {
+                    // 记录数据库连接信息
+                    Log::record('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn'], 'sql');
+                }
             } catch (\PDOException $e) {
                 if ($autoConnection) {
                     Log::record($e->getMessage(), 'error');
                     return $this->connect($autoConnection, $linkNum);
                 } else {
-                    throw new Exception($e->getMessage());
+                    throw $e;
                 }
             }
         }
@@ -357,13 +365,11 @@ abstract class Connection
      * @access public
      * @param string        $sql sql指令
      * @param array         $bind 参数绑定
-     * @param boolean       $getLastInsID 是否获取自增ID
-     * @param string        $sequence 自增序列名
      * @return int
      * @throws BindParamException
      * @throws PDOException
      */
-    public function execute($sql, $bind = [], $getLastInsID = false, $sequence = null)
+    public function execute($sql, $bind = [])
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -391,12 +397,6 @@ abstract class Connection
             $this->debug(false);
 
             $this->numRows = $this->PDOStatement->rowCount();
-            if (preg_match("/^\s*(INSERT\s+INTO|REPLACE\s+INTO)\s+/i", $sql)) {
-                $this->lastInsID = $this->linkID->lastInsertId($sequence);
-                if ($getLastInsID) {
-                    return $this->lastInsID;
-                }
-            }
             return $this->numRows;
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->queryStr);
@@ -694,10 +694,14 @@ abstract class Connection
     /**
      * 获取最近插入的ID
      * @access public
+     * @param string  $sequence     自增序列名
      * @return string
      */
-    public function getLastInsID()
+    public function getLastInsID($sequence = null)
     {
+        if (is_null($this->lastInsID)) {
+            $this->lastInsID = $this->linkID->lastInsertId($sequence);
+        }
         return $this->lastInsID;
     }
 
@@ -736,9 +740,10 @@ abstract class Connection
      * 数据库调试 记录当前SQL及分析性能
      * @access protected
      * @param boolean $start 调试开始标记 true 开始 false 结束
+     * @param string  $sql 执行的SQL语句 留空自动获取
      * @return void
      */
-    protected function debug($start)
+    protected function debug($start, $sql = '')
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
@@ -748,14 +753,15 @@ abstract class Connection
                 // 记录操作结束时间
                 Debug::remark('queryEndTime', 'time');
                 $runtime = Debug::getRangeTime('queryStartTime', 'queryEndTime');
-                $log     = $this->queryStr . ' [ RunTime:' . $runtime . 's ]';
+                $sql     = $sql ?: $this->queryStr;
+                $log     = $sql . ' [ RunTime:' . $runtime . 's ]';
                 $result  = [];
                 // SQL性能分析
-                if ($this->config['sql_explain'] && 0 === stripos(trim($this->queryStr), 'select')) {
-                    $result = $this->getExplain($this->queryStr);
+                if ($this->config['sql_explain'] && 0 === stripos(trim($sql), 'select')) {
+                    $result = $this->getExplain($sql);
                 }
                 // SQL监听
-                $this->trigger($this->queryStr, $runtime, $result);
+                $this->trigger($sql, $runtime, $result);
             }
         }
     }
@@ -789,7 +795,7 @@ abstract class Connection
             }
         } else {
             // 未注册监听则记录到日志中
-            Log::record('[ SQL ] ' . $this->queryStr . ' [ RunTime:' . $runtime . 's ]', 'sql');
+            Log::record('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]', 'sql');
             if (!empty($explain)) {
                 Log::record('[ EXPLAIN : ' . var_export($explain, true) . ' ]', 'sql');
             }

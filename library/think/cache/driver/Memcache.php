@@ -109,6 +109,7 @@ class Memcache
      */
     public function inc($name, $step = 1)
     {
+        $name = $this->options['prefix'] . $name;
         return $this->handler->increment($name, $step);
     }
 
@@ -121,7 +122,14 @@ class Memcache
      */
     public function dec($name, $step = 1)
     {
-        return $this->handler->decrement($name, $step);
+        $name  = $this->options['prefix'] . $name;
+        $value = $this->handler->get($name) - $step;
+        $res   = $this->handler->set($name, $value);
+        if (!$res) {
+            return false;
+        } else {
+            return $value;
+        }
     }
 
     /**

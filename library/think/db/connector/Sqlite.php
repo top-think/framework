@@ -43,9 +43,13 @@ class Sqlite extends Connection
         $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
         $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
-        $pdo             = $this->linkID->query($sql);
-        $result          = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info            = [];
+        // 调试开始
+        $this->debug(true);
+        $pdo = $this->linkID->query($sql);
+        // 调试结束
+        $this->debug(false, $sql);
+        $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        $info   = [];
         if ($result) {
             foreach ($result as $key => $val) {
                 $val                = array_change_key_case($val);
@@ -73,7 +77,11 @@ class Sqlite extends Connection
         $sql = "SELECT name FROM sqlite_master WHERE type='table' "
             . "UNION ALL SELECT name FROM sqlite_temp_master "
             . "WHERE type='table' ORDER BY name";
-        $pdo    = $this->linkID->query($sql);
+        // 调试开始
+        $this->debug(true);
+        $pdo = $this->linkID->query($sql);
+        // 调试结束
+        $this->debug(false, $sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {
@@ -93,7 +101,8 @@ class Sqlite extends Connection
         return [];
     }
 
-    protected function supportSavepoint(){
+    protected function supportSavepoint()
+    {
         return true;
     }
 }

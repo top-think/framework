@@ -17,11 +17,9 @@ namespace think\cache\driver;
  */
 class File
 {
-
     protected $options = [
         'expire'        => 0,
         'cache_subdir'  => false,
-        'path_level'    => 1,
         'prefix'        => '',
         'path'          => CACHE_PATH,
         'data_compress' => false,

@@ -24,9 +24,6 @@ abstract class Builder
     // 查询对象实例
     protected $query;
 
-    // 查询参数
-    protected $options = [];
-
     // 数据库表达式
     protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', '>= time' => '>= TIME', '<= time' => '<= TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
 
@@ -83,7 +80,7 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $this->query->getTableInfo($options['table'], 'bind');
+        $bind = $this->query->getFieldsBind($options);
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
         } else {
@@ -228,8 +225,8 @@ abstract class Builder
 
         $whereStr = '';
         // 获取字段信息
-        $fields = $this->query->getTableInfo($options['table'], 'fields');
-        $binds  = $this->query->getTableInfo($options['table'], 'bind');
+        $fields = $this->query->getTableFields($options);
+        $binds  = $this->query->getFieldsBind($options);
         foreach ($where as $key => $val) {
             $str = [];
             foreach ($val as $field => $value) {
@@ -369,10 +366,8 @@ abstract class Builder
     protected function parseDateTime($value, $key, $options = [])
     {
         // 获取时间字段类型
-        $type = $this->query->getTableInfo($options['table'], 'type');
-        if (isset($options['field_type'][$key])) {
-            $info = $options['field_type'][$key];
-        } elseif (isset($type[$key])) {
+        $type = $this->query->getFieldsType($options);
+        if (isset($type[$key])) {
             $info = $type[$key];
         }
         if (isset($info)) {
@@ -608,7 +603,7 @@ abstract class Builder
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $fields = $this->query->getTableInfo($options['table'], 'fields');
+            $fields = array_keys($this->query->getFieldsType($options));
         } else {
             $fields = $options['field'];
         }
@@ -689,7 +684,7 @@ abstract class Builder
                 $this->parseWhere($options['where'], $options),
                 $this->parseOrder($options['order']),
                 $this->parseLimit($options['limit']),
-                $this->parseLimit($options['lock']),
+                $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
             ], $this->updateSql);
 
@@ -713,7 +708,7 @@ abstract class Builder
                 $this->parseWhere($options['where'], $options),
                 $this->parseOrder($options['order']),
                 $this->parseLimit($options['limit']),
-                $this->parseLimit($options['lock']),
+                $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
             ], $this->deleteSql);
 

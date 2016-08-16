@@ -12,17 +12,13 @@
 namespace think\console\command;
 
 use think\Config;
+use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
 
 abstract class Make extends Command
 {
-    /** @var  Input */
-    protected $input;
-
-    /** @var  Output */
-    protected $output;
 
     protected $type;
 
@@ -31,13 +27,6 @@ abstract class Make extends Command
     protected function configure()
     {
         $this->addArgument('name', Argument::REQUIRED, "The name of the class");
-    }
-
-    public function run(Input $input, Output $output)
-    {
-        $this->input  = $input;
-        $this->output = $output;
-        return parent::run($input, $output);
     }
 
     protected function execute(Input $input, Output $output)
