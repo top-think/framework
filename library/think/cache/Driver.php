@@ -91,7 +91,6 @@ abstract class Driver
     {
         if (is_null($keys)) {
             $this->tag = $name;
-            return $this;
         } else {
             $key = 'tag_' . md5($name);
             if (is_string($keys)) {
@@ -100,6 +99,7 @@ abstract class Driver
             $value = array_unique(array_merge($this->getTagItem($name), $keys));
             $this->set($key, implode(',', $value));
         }
+        return $this;
     }
 
     /**
