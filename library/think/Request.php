@@ -1172,7 +1172,7 @@ class Request
     public function isAjax()
     {
         $value = $this->server('HTTP_X_REQUESTED_WITH');
-        return (!is_null($value) && strtolower($vlaue) == 'xmlhttprequest') ? true : false;
+        return (!is_null($value) && strtolower($value) == 'xmlhttprequest') ? true : false;
     }
 
     /**
