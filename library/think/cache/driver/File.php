@@ -152,7 +152,7 @@ class File extends Driver
         $data   = "<?php\n//" . sprintf('%012d', $expire) . $data . "\n?>";
         $result = file_put_contents($filename, $data);
         if ($result) {
-            isset($first) && setTagItem($filename);
+            isset($first) && $this->setTagItem($filename);
             clearstatcache();
             return true;
         } else {
