@@ -169,12 +169,13 @@ class Cache
      * 缓存标签
      * @access public
      * @param string $name 标签名
+     * @param string|array $keys 缓存标识
      * @return \think\cache\Driver
      */
-    public static function tag($name)
+    public static function tag($name, $keys = null)
     {
         self::init();
-        return self::$handler->tag($name);
+        return self::$handler->tag($name, $keys);
     }
 
 }

@@ -84,12 +84,19 @@ abstract class Driver
      * 缓存标签
      * @access public
      * @param string $name 标签名
+     * @param string|array $keys 缓存标识
      * @return $this
      */
-    public function tag($name)
+    public function tag($name, $keys = null)
     {
-        $this->tag = $name;
-        return $this;
+        if (is_null($keys)) {
+            $this->tag = $name;
+            return $this;
+        } else {
+            $key   = 'tag_' . md5($name);
+            $value = is_array($keys) ? implode(',', $keys) : $keys;
+            $this->set($key, $value);
+        }
     }
 
     /**
