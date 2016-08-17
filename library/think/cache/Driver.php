@@ -94,11 +94,12 @@ abstract class Driver
     /**
      * 缓存标签
      * @access public
-     * @param string $name 标签名
-     * @param string|array $keys 缓存标识
+     * @param string        $name 标签名
+     * @param string|array  $keys 缓存标识
+     * @param bool          $overlay 是否覆盖
      * @return $this
      */
-    public function tag($name, $keys = null)
+    public function tag($name, $keys = null, $overlay = false)
     {
         if (is_null($keys)) {
             $this->tag = $name;
@@ -107,8 +108,12 @@ abstract class Driver
             if (is_string($keys)) {
                 $keys = explode(',', $keys);
             }
-            $keys  = array_map([$this, 'getCacheKey'], $keys);
-            $value = array_unique(array_merge($this->getTagItem($name), $keys));
+            $keys = array_map([$this, 'getCacheKey'], $keys);
+            if ($overlay) {
+                $value = $keys;
+            } else {
+                $value = array_unique(array_merge($this->getTagItem($name), $keys));
+            }
             $this->set($key, implode(',', $value));
         }
         return $this;

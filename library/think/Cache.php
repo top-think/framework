@@ -168,14 +168,15 @@ class Cache
     /**
      * 缓存标签
      * @access public
-     * @param string $name 标签名
-     * @param string|array $keys 缓存标识
+     * @param string        $name 标签名
+     * @param string|array  $keys 缓存标识
+     * @param bool          $overlay 是否覆盖
      * @return \think\cache\Driver
      */
-    public static function tag($name, $keys = null)
+    public static function tag($name, $keys = null, $overlay = false)
     {
         self::init();
-        return self::$handler->tag($name, $keys);
+        return self::$handler->tag($name, $keys, $overlay);
     }
 
 }
