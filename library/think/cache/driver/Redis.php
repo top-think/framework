@@ -11,6 +11,8 @@
 
 namespace think\cache\driver;
 
+use think\cache\Driver;
+
 /**
  * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
  * 有需要在业务层实现读写分离、或者使用RedisCluster的需求，请使用Redisd驱动
@@ -18,7 +20,7 @@ namespace think\cache\driver;
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
-class Redis
+class Redis extends Driver
 {
     protected $handler = null;
     protected $options = [
@@ -146,10 +148,19 @@ class Redis
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return boolean
      */
-    public function clear()
+    public function clear($tag = null)
     {
+        if ($tag) {
+            // 指定标签清除
+            $keys = $this->getTagItem($tag);
+            foreach ($keys as $key) {
+                $this->handler->delete($key);
+            }
+            return true;
+        }
         return $this->handler->flushDB();
     }
 

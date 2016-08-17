@@ -11,11 +11,13 @@
 
 namespace think\cache\driver;
 
+use think\cache\Driver;
+
 /**
  * 文件类型缓存类
  * @author    liu21st <liu21st@gmail.com>
  */
-class Lite
+class Lite extends Driver
 {
     protected $options = [
         'prefix' => '',
@@ -105,9 +107,13 @@ class Lite
             $expire = 10 * 365 * 24 * 3600;
         }
         $filename = $this->filename($name);
-        $ret      = file_put_contents($filename, ("<?php return " . var_export($value, true) . ";"));
+        if ($this->tag && !is_file($filename)) {
+            $first = true;
+        }
+        $ret = file_put_contents($filename, ("<?php return " . var_export($value, true) . ";"));
         // 通过设置修改时间实现有效期
         if ($ret) {
+            isset($first) && $this->setTagItem($filename);
             touch($filename, $_SERVER['REQUEST_TIME'] + $expire);
         }
         return $ret;
@@ -161,12 +167,19 @@ class Lite
     /**
      * 清除缓存
      * @access   public
+     * @param string $tag 标签名
      * @return bool
-     * @internal param string $name 缓存变量名
      */
-    public function clear()
+    public function clear($tag = null)
     {
-        $filename = $this->filename('*');
-        array_map("unlink", glob($filename));
+        if ($tag) {
+            // 指定标签清除
+            $keys = $this->getTagItem($tag);
+            foreach ($keys as $key) {
+                unlink($key);
+            }
+            return true;
+        }
+        array_map("unlink", glob($this->options['path'] . $this->options['prefix'] . '*.php'));
     }
 }

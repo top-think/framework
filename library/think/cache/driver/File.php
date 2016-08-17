@@ -11,11 +11,13 @@
 
 namespace think\cache\driver;
 
+use think\cache\Driver;
+
 /**
  * 文件类型缓存类
  * @author    liu21st <liu21st@gmail.com>
  */
-class File
+class File extends Driver
 {
     protected $options = [
         'expire'        => 0,
@@ -139,7 +141,10 @@ class File
             $expire = $this->options['expire'];
         }
         $filename = $this->filename($name);
-        $data     = serialize($value);
+        if ($this->tag && !is_file($filename)) {
+            $first = true;
+        }
+        $data = serialize($value);
         if ($this->options['data_compress'] && function_exists('gzcompress')) {
             //数据压缩
             $data = gzcompress($data, 3);
@@ -147,6 +152,7 @@ class File
         $data   = "<?php\n//" . sprintf('%012d', $expire) . $data . "\n?>";
         $result = file_put_contents($filename, $data);
         if ($result) {
+            isset($first) && setTagItem($filename);
             clearstatcache();
             return true;
         } else {
@@ -202,10 +208,19 @@ class File
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return boolean
      */
-    public function clear()
+    public function clear($tag = null)
     {
+        if ($tag) {
+            // 指定标签清除
+            $keys = $this->getTagItem($tag);
+            foreach ($keys as $key) {
+                $this->unlink($key);
+            }
+            return true;
+        }
         $fileLsit = (array) glob($this->options['path'] . '*');
         foreach ($fileLsit as $path) {
             is_file($path) && unlink($path);
@@ -224,4 +239,5 @@ class File
     {
         return is_file($path) && unlink($path);
     }
+
 }

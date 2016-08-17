@@ -155,13 +155,26 @@ class Cache
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return boolean
      */
-    public static function clear()
+    public static function clear($tag = null)
     {
         self::init();
         self::$writeTimes++;
-        return self::$handler->clear();
+        return self::$handler->clear($tag);
+    }
+
+    /**
+     * 缓存标签
+     * @access public
+     * @param string $name 标签名
+     * @return \think\cache\Driver
+     */
+    public static function tag($name)
+    {
+        self::init();
+        return self::$handler->tag($name);
     }
 
 }

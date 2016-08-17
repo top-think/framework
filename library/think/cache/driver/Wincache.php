@@ -11,18 +11,21 @@
 
 namespace think\cache\driver;
 
+use think\cache\Driver;
 use think\Exception;
 
 /**
  * Wincache缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Wincache
+class Wincache extends Driver
 {
     protected $options = [
         'prefix' => '',
         'expire' => 0,
     ];
+
+    protected $tag;
 
     /**
      * 架构函数
@@ -79,7 +82,11 @@ class Wincache
             $expire = $this->options['expire'];
         }
         $name = $this->options['prefix'] . $name;
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
         if (wincache_ucache_set($name, $value, $expire)) {
+            isset($first) && $this->setTagItem($name);
             return true;
         }
         return false;
@@ -125,10 +132,20 @@ class Wincache
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return boolean
      */
-    public function clear()
+    public function clear($tag = null)
     {
-        return;
+        if ($tag) {
+            $keys = $this->getTagItem($tag);
+            foreach ($keys as $key) {
+                wincache_ucache_delete($key);
+            }
+            return true;
+        } else {
+            return wincache_ucache_clear();
+        }
     }
+
 }

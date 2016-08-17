@@ -11,13 +11,14 @@
 
 namespace think\cache\driver;
 
+use think\cache\Driver;
 use think\Exception;
 
 /**
  * Sqlite缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Sqlite
+class Sqlite extends Driver
 {
 
     protected $options = [
@@ -103,7 +104,13 @@ class Sqlite
             //数据压缩
             $value = gzcompress($value, 3);
         }
-        $sql = 'REPLACE INTO ' . $this->options['table'] . ' (var, value,expire) VALUES (\'' . $name . '\', \'' . $value . '\', \'' . $expire . '\')';
+        if ($this->tag) {
+            $tag       = $this->tag;
+            $this->tag = null;
+        } else {
+            $tag = '';
+        }
+        $sql = 'REPLACE INTO ' . $this->options['table'] . ' (var, value, expire, tag) VALUES (\'' . $name . '\', \'' . $value . '\', \'' . $expire . '\', \'' . $tag . '\')';
         if (sqlite_query($this->handler, $sql)) {
             return true;
         }
@@ -161,12 +168,19 @@ class Sqlite
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return boolean
      */
-    public function clear()
+    public function clear($tag = null)
     {
+        if ($tag) {
+            $name = sqlite_escape_string($tag);
+            $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
+            sqlite_query($this->handler, $sql);
+            return true;
+        }
         $sql = 'DELETE FROM ' . $this->options['table'];
         sqlite_query($this->handler, $sql);
-        return;
+        return true;
     }
 }

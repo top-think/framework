@@ -11,13 +11,14 @@
 
 namespace think\cache\driver;
 
+use think\cache\Driver;
 use think\Exception;
 
 /**
  * Xcache缓存驱动
  * @author    liu21st <liu21st@gmail.com>
  */
-class Xcache
+class Xcache extends Driver
 {
     protected $options = [
         'prefix' => '',
@@ -78,8 +79,12 @@ class Xcache
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
         $name = $this->options['prefix'] . $name;
         if (xcache_set($name, $value, $expire)) {
+            isset($first) && $this->setTagItem($name);
             return true;
         }
         return false;
@@ -125,10 +130,19 @@ class Xcache
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return boolean
      */
-    public function clear()
+    public function clear($tag = null)
     {
+        if ($tag) {
+            // 指定标签清除
+            $keys = $this->getTagItem($tag);
+            foreach ($keys as $key) {
+                xcache_unset($key);
+            }
+            return true;
+        }
         if (function_exists('xcache_unset_by_prefix')) {
             return xcache_unset_by_prefix($this->options['prefix']);
         } else {

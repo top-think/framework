@@ -11,9 +11,10 @@
 
 namespace think\cache\driver;
 
+use think\cache\Driver;
 use think\Exception;
 
-class Memcache
+class Memcache extends Driver
 {
     protected $handler = null;
     protected $options = [
@@ -93,8 +94,12 @@ class Memcache
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
         $name = $this->options['prefix'] . $name;
         if ($this->handler->set($name, $value, 0, $expire)) {
+            isset($first) && $this->setTagItem($name);
             return true;
         }
         return false;
@@ -149,10 +154,19 @@ class Memcache
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return bool
      */
-    public function clear()
+    public function clear($tag = null)
     {
+        if ($tag) {
+            // 指定标签清除
+            $keys = $this->getTagItem($tag);
+            foreach ($keys as $key) {
+                $this->handler->delete($key);
+            }
+            return true;
+        }
         return $this->handler->flush();
     }
 }
