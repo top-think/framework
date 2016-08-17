@@ -281,6 +281,8 @@ class Route
         if (is_array($rule)) {
             $name = $rule[0];
             $rule = $rule[1];
+        } elseif (is_string($route)) {
+            $name = $route;
         }
         if ('$' == substr($rule, -1, 1)) {
             // 是否完整匹配
