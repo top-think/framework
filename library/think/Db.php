@@ -33,6 +33,7 @@ use think\paginator\Collection as PaginatorCollection;
  * @method mixed find(mixed $data = []) static 查询单个记录
  * @method mixed select(mixed $data = []) static 查询多个记录
  * @method integer insert(array $data, boolean $replace = false, boolean $getLastInsID = false, string $sequence = null) static 插入一条记录
+ * @method integer insertGetId(array $data, boolean $replace = false, string $sequence = null) static 插入一条记录并返回自增ID
  * @method integer insertAll(array $dataSet) static 插入多条记录
  * @method integer update(array $data) static 更新记录
  * @method integer delete(mixed $data = []) static 删除记录
