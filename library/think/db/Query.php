@@ -1777,7 +1777,9 @@ class Query
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
                 $where[$pk] = $data[$pk];
-                $key        = 'think:' . $options['table'] . '|' . $data[$pk];
+                if (!isset($key)) {
+                    $key = 'think:' . $options['table'] . '|' . $data[$pk];
+                }
                 unset($data[$pk]);
             } elseif (is_array($pk)) {
                 // 增加复合主键支持
@@ -2104,7 +2106,7 @@ class Query
         }
 
         if (!is_null($data) && true !== $data) {
-            if (!is_array($data)) {
+            if (!isset($key) && !is_array($data)) {
                 // 缓存标识
                 $key = 'think:' . $options['table'] . '|' . $data;
             }
