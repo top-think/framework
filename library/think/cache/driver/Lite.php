@@ -44,11 +44,11 @@ class Lite extends Driver
 
     /**
      * 取得变量的存储文件名
-     * @access private
+     * @access protected
      * @param string $name 缓存变量名
      * @return string
      */
-    private function filename($name)
+    protected function getCacheKey($name)
     {
         return $this->options['path'] . $this->options['prefix'] . md5($name) . '.php';
     }
@@ -61,7 +61,7 @@ class Lite extends Driver
      */
     public function has($name)
     {
-        $filename = $this->filename($name);
+        $filename = $this->getCacheKey($name);
         return is_file($filename);
     }
 
@@ -74,7 +74,7 @@ class Lite extends Driver
      */
     public function get($name, $default = false)
     {
-        $filename = $this->filename($name);
+        $filename = $this->getCacheKey($name);
         if (is_file($filename)) {
             // 判断是否过期
             $mtime = filemtime($filename);
@@ -106,7 +106,7 @@ class Lite extends Driver
         if (0 === $expire) {
             $expire = 10 * 365 * 24 * 3600;
         }
-        $filename = $this->filename($name);
+        $filename = $this->getCacheKey($name);
         if ($this->tag && !is_file($filename)) {
             $first = true;
         }
@@ -161,7 +161,7 @@ class Lite extends Driver
      */
     public function rm($name)
     {
-        return unlink($this->filename($name));
+        return unlink($this->getCacheKey($name));
     }
 
     /**
@@ -178,6 +178,7 @@ class Lite extends Driver
             foreach ($keys as $key) {
                 unlink($key);
             }
+            $this->rm('tag_' . md5($tag));
             return true;
         }
         array_map("unlink", glob($this->options['path'] . $this->options['prefix'] . '*.php'));

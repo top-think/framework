@@ -63,7 +63,7 @@ class Redis extends Driver
      */
     public function has($name)
     {
-        return $this->handler->get($this->options['prefix'] . $name) ? true : false;
+        return $this->handler->get($this->getCacheKey($name)) ? true : false;
     }
 
     /**
@@ -75,7 +75,7 @@ class Redis extends Driver
      */
     public function get($name, $default = false)
     {
-        $value = $this->handler->get($this->options['prefix'] . $name);
+        $value = $this->handler->get($this->getCacheKey($name));
         if (is_null($value)) {
             return $default;
         }
@@ -97,14 +97,18 @@ class Redis extends Driver
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
-        $name = $this->options['prefix'] . $name;
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
+        $key = $this->getCacheKey($name);
         //对数组/对象数据进行缓存处理，保证数据完整性  byron sampson<xiaobo.sun@qq.com>
         $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
         if (is_int($expire) && $expire) {
-            $result = $this->handler->setex($name, $expire, $value);
+            $result = $this->handler->setex($key, $expire, $value);
         } else {
-            $result = $this->handler->set($name, $value);
+            $result = $this->handler->set($key, $value);
         }
+        isset($first) && $this->setTagItem($key);
         return $result;
     }
 
@@ -117,8 +121,8 @@ class Redis extends Driver
      */
     public function inc($name, $step = 1)
     {
-        $name = $this->options['prefix'] . $name;
-        return $this->handler->incrby($name, $step);
+        $key = $this->getCacheKey($name);
+        return $this->handler->incrby($key, $step);
     }
 
     /**
@@ -130,8 +134,8 @@ class Redis extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $name = $this->options['prefix'] . $name;
-        return $this->handler->decrby($name, $step);
+        $key = $this->getCacheKey($name);
+        return $this->handler->decrby($key, $step);
     }
 
     /**
@@ -142,7 +146,7 @@ class Redis extends Driver
      */
     public function rm($name)
     {
-        return $this->handler->delete($this->options['prefix'] . $name);
+        return $this->handler->delete($this->getCacheKey($name));
     }
 
     /**
@@ -159,6 +163,7 @@ class Redis extends Driver
             foreach ($keys as $key) {
                 $this->handler->delete($key);
             }
+            $this->rm('tag_' . md5($tag));
             return true;
         }
         return $this->handler->flushDB();

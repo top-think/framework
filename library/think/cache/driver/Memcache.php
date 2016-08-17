@@ -64,8 +64,8 @@ class Memcache extends Driver
      */
     public function has($name)
     {
-        $name = $this->options['prefix'] . $name;
-        return $this->handler->get($name) ? true : false;
+        $key = $this->getCacheKey($name);
+        return $this->handler->get($key) ? true : false;
     }
 
     /**
@@ -77,7 +77,7 @@ class Memcache extends Driver
      */
     public function get($name, $default = false)
     {
-        $result = $this->handler->get($this->options['prefix'] . $name);
+        $result = $this->handler->get($this->getCacheKey($name));
         return false !== $result ? $result : $default;
     }
 
@@ -97,9 +97,9 @@ class Memcache extends Driver
         if ($this->tag && !$this->has($name)) {
             $first = true;
         }
-        $name = $this->options['prefix'] . $name;
-        if ($this->handler->set($name, $value, 0, $expire)) {
-            isset($first) && $this->setTagItem($name);
+        $key = $this->getCacheKey($name);
+        if ($this->handler->set($key, $value, 0, $expire)) {
+            isset($first) && $this->setTagItem($key);
             return true;
         }
         return false;
@@ -114,8 +114,8 @@ class Memcache extends Driver
      */
     public function inc($name, $step = 1)
     {
-        $name = $this->options['prefix'] . $name;
-        return $this->handler->increment($name, $step);
+        $key = $this->getCacheKey($name);
+        return $this->handler->increment($key, $step);
     }
 
     /**
@@ -127,9 +127,9 @@ class Memcache extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $name  = $this->options['prefix'] . $name;
-        $value = $this->handler->get($name) - $step;
-        $res   = $this->handler->set($name, $value);
+        $key   = $this->getCacheKey($name);
+        $value = $this->handler->get($key) - $step;
+        $res   = $this->handler->set($key, $value);
         if (!$res) {
             return false;
         } else {
@@ -145,10 +145,10 @@ class Memcache extends Driver
      */
     public function rm($name, $ttl = false)
     {
-        $name = $this->options['prefix'] . $name;
+        $key = $this->getCacheKey($name);
         return false === $ttl ?
-        $this->handler->delete($name) :
-        $this->handler->delete($name, $ttl);
+        $this->handler->delete($key) :
+        $this->handler->delete($key, $ttl);
     }
 
     /**
@@ -165,6 +165,7 @@ class Memcache extends Driver
             foreach ($keys as $key) {
                 $this->handler->delete($key);
             }
+            $this->rm('tag_' . md5($tag));
             return true;
         }
         return $this->handler->flush();

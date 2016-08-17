@@ -48,6 +48,17 @@ class Sqlite extends Driver
     }
 
     /**
+     * 获取实际的缓存标识
+     * @access public
+     * @param string $name 缓存名
+     * @return string
+     */
+    protected function getCacheKey($name)
+    {
+        return $this->options['prefix'] . sqlite_escape_string($name);
+    }
+
+    /**
      * 判断缓存
      * @access public
      * @param string $name 缓存变量名
@@ -55,7 +66,7 @@ class Sqlite extends Driver
      */
     public function has($name)
     {
-        $name   = $this->options['prefix'] . sqlite_escape_string($name);
+        $name   = $this->getCacheKey($name);
         $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
         return sqlite_num_rows($result);
@@ -70,7 +81,7 @@ class Sqlite extends Driver
      */
     public function get($name, $default = false)
     {
-        $name   = $this->options['prefix'] . sqlite_escape_string($name);
+        $name   = $this->getCacheKey($name);
         $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
         if (sqlite_num_rows($result)) {
@@ -94,7 +105,7 @@ class Sqlite extends Driver
      */
     public function set($name, $value, $expire = null)
     {
-        $name  = $this->options['prefix'] . sqlite_escape_string($name);
+        $name  = $this->getCacheKey($name);
         $value = sqlite_escape_string(serialize($value));
         if (is_null($expire)) {
             $expire = $this->options['expire'];
@@ -159,7 +170,7 @@ class Sqlite extends Driver
      */
     public function rm($name)
     {
-        $name = $this->options['prefix'] . sqlite_escape_string($name);
+        $name = $this->getCacheKey($name);
         $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\'';
         sqlite_query($this->handler, $sql);
         return true;

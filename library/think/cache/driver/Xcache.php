@@ -49,8 +49,8 @@ class Xcache extends Driver
      */
     public function has($name)
     {
-        $name = $this->options['prefix'] . $name;
-        return xcache_isset($name);
+        $key = $this->getCacheKey($name);
+        return xcache_isset($key);
     }
 
     /**
@@ -62,8 +62,8 @@ class Xcache extends Driver
      */
     public function get($name, $default = false)
     {
-        $name = $this->options['prefix'] . $name;
-        return xcache_isset($name) ? xcache_get($name) : $default;
+        $key = $this->getCacheKey($name);
+        return xcache_isset($key) ? xcache_get($key) : $default;
     }
 
     /**
@@ -82,9 +82,9 @@ class Xcache extends Driver
         if ($this->tag && !$this->has($name)) {
             $first = true;
         }
-        $name = $this->options['prefix'] . $name;
-        if (xcache_set($name, $value, $expire)) {
-            isset($first) && $this->setTagItem($name);
+        $key = $this->getCacheKey($name);
+        if (xcache_set($key, $value, $expire)) {
+            isset($first) && $this->setTagItem($key);
             return true;
         }
         return false;
@@ -99,8 +99,8 @@ class Xcache extends Driver
      */
     public function inc($name, $step = 1)
     {
-        $name = $this->options['prefix'] . $name;
-        return xcache_inc($name, $step);
+        $key = $this->getCacheKey($name);
+        return xcache_inc($key, $step);
     }
 
     /**
@@ -112,8 +112,8 @@ class Xcache extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $name = $this->options['prefix'] . $name;
-        return xcache_dec($name, $step);
+        $key = $this->getCacheKey($name);
+        return xcache_dec($key, $step);
     }
 
     /**
@@ -124,7 +124,7 @@ class Xcache extends Driver
      */
     public function rm($name)
     {
-        return xcache_unset($this->options['prefix'] . $name);
+        return xcache_unset($this->getCacheKey($name));
     }
 
     /**
@@ -141,6 +141,7 @@ class Xcache extends Driver
             foreach ($keys as $key) {
                 xcache_unset($key);
             }
+            $this->rm('tag_' . md5($tag));
             return true;
         }
         if (function_exists('xcache_unset_by_prefix')) {

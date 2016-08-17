@@ -60,11 +60,11 @@ class File extends Driver
 
     /**
      * 取得变量的存储文件名
-     * @access private
+     * @access protected
      * @param string $name 缓存变量名
      * @return string
      */
-    private function filename($name)
+    protected function getCacheKey($name)
     {
         $name = md5($name);
         if ($this->options['cache_subdir']) {
@@ -90,7 +90,7 @@ class File extends Driver
      */
     public function has($name)
     {
-        $filename = $this->filename($name);
+        $filename = $this->getCacheKey($name);
         return is_file($filename);
     }
 
@@ -103,7 +103,7 @@ class File extends Driver
      */
     public function get($name, $default = false)
     {
-        $filename = $this->filename($name);
+        $filename = $this->getCacheKey($name);
         if (!is_file($filename)) {
             return $default;
         }
@@ -140,7 +140,7 @@ class File extends Driver
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
-        $filename = $this->filename($name);
+        $filename = $this->getCacheKey($name);
         if ($this->tag && !is_file($filename)) {
             $first = true;
         }
@@ -202,7 +202,7 @@ class File extends Driver
      */
     public function rm($name)
     {
-        return $this->unlink($this->filename($name));
+        return $this->unlink($this->getCacheKey($name));
     }
 
     /**
@@ -219,6 +219,7 @@ class File extends Driver
             foreach ($keys as $key) {
                 $this->unlink($key);
             }
+            $this->rm('tag_' . md5($tag));
             return true;
         }
         $fileLsit = (array) glob($this->options['path'] . '*');

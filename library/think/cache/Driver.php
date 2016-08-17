@@ -81,6 +81,17 @@ abstract class Driver
     abstract public function clear($tag = null);
 
     /**
+     * 获取实际的缓存标识
+     * @access public
+     * @param string $name 缓存名
+     * @return string
+     */
+    protected function getCacheKey($name)
+    {
+        return $this->options['prefix'] . $name;
+    }
+
+    /**
      * 缓存标签
      * @access public
      * @param string $name 标签名
@@ -96,6 +107,7 @@ abstract class Driver
             if (is_string($keys)) {
                 $keys = explode(',', $keys);
             }
+            $keys  = array_map([$this, 'getCacheKey'], $keys);
             $value = array_unique(array_merge($this->getTagItem($name), $keys));
             $this->set($key, implode(',', $value));
         }
