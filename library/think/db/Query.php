@@ -1769,6 +1769,10 @@ class Query
     {
         $options = $this->parseExpress();
         $pk      = $this->getPk($options);
+        if (isset($options['cache']) && is_string($options['cache'])) {
+            $key = $options['cache'];
+        }
+
         if (empty($options['where'])) {
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
@@ -2095,6 +2099,9 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
+        if (isset($options['cache']) && is_string($options['cache'])) {
+            $key = $options['cache'];
+        }
 
         if (!is_null($data) && true !== $data) {
             if (!is_array($data)) {
