@@ -93,9 +93,12 @@ abstract class Driver
             $this->tag = $name;
             return $this;
         } else {
-            $key   = 'tag_' . md5($name);
-            $value = is_array($keys) ? implode(',', $keys) : $keys;
-            $this->set($key, $value);
+            $key = 'tag_' . md5($name);
+            if (is_string($keys)) {
+                $keys = explode(',', $keys);
+            }
+            $value = array_unique(array_merge($this->getTagItem($name), $keys));
+            $this->set($key, implode(',', $value));
         }
     }
 
