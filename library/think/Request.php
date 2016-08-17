@@ -1169,7 +1169,8 @@ class Request
      */
     public function isAjax()
     {
-        return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ? true : false;
+        $value = $this->server('HTTP_X_REQUESTED_WITH');
+        return (!is_null($value) && strtolower($vlaue) == 'xmlhttprequest') ? true : false;
     }
 
     /**
@@ -1179,7 +1180,7 @@ class Request
      */
     public function isPjax()
     {
-        return (isset($_SERVER['HTTP_X_PJAX']) && $_SERVER['HTTP_X_PJAX']) ? true : false;
+        return !is_null($this->server('HTTP_X_PJAX')) ? true : false;
     }
 
     /**
