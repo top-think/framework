@@ -37,8 +37,6 @@ abstract class Connection
 
     /** @var string 当前SQL指令 */
     protected $queryStr = '';
-    // 最后插入ID
-    protected $lastInsID;
     // 返回或者影响记录数
     protected $numRows = 0;
     // 事务指令数
@@ -699,10 +697,7 @@ abstract class Connection
      */
     public function getLastInsID($sequence = null)
     {
-        if (is_null($this->lastInsID)) {
-            $this->lastInsID = $this->linkID->lastInsertId($sequence);
-        }
-        return $this->lastInsID;
+        return $this->linkID->lastInsertId($sequence);
     }
 
     /**
