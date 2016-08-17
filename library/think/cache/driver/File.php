@@ -69,7 +69,7 @@ class File extends Driver
         $name = md5($name);
         if ($this->options['cache_subdir']) {
             // 使用子目录
-            $name = substr($md5, 0, 2) . DS . substr($md5, 2);
+            $name = substr($name, 0, 2) . DS . substr($name, 2);
         }
         if ($this->options['prefix']) {
             $name = $this->options['prefix'] . DS . $name;
