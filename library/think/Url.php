@@ -73,9 +73,10 @@ class Url
             parse_str($info['query'], $params);
             $vars = array_merge($params, $vars);
         }
-
-        $rule = Route::name(isset($name) ? $name : $url);
-        if ($rule && $match = self::getRuleUrl($rule, $vars)) {
+        if ($url) {
+            $rule = Route::name(isset($name) ? $name : $url);
+        }
+        if (!empty($rule) && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识 快速生成
             $url = $match;
             if (!empty($rule[2])) {
