@@ -82,7 +82,7 @@ class Url
             if (!empty($rule[2])) {
                 $domain = $rule[2];
             }
-        } elseif ($rule && isset($name)) {
+        } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 获取路由别名
