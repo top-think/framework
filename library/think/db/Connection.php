@@ -535,7 +535,7 @@ abstract class Connection
     /**
      * 启动事务
      * @access public
-     * @return bool|null
+     * @return void
      */
     public function startTrans()
     {
@@ -558,7 +558,7 @@ abstract class Connection
     /**
      * 用于非自动提交状态下面的查询提交
      * @access public
-     * @return boolean
+     * @return void
      * @throws PDOException
      */
     public function commit()
@@ -575,7 +575,7 @@ abstract class Connection
     /**
      * 事务回滚
      * @access public
-     * @return boolean
+     * @return void
      * @throws PDOException
      */
     public function rollback()
