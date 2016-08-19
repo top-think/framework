@@ -260,7 +260,7 @@ class Url
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                         unset($array[$key]);
                     } else {
-                        $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                        $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
                 $match = true;
@@ -288,7 +288,7 @@ class Url
                 $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                 unset($vars[$key]);
             } elseif (2 == $val) {
-                $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
             } else {
                 return false;
             }
