@@ -744,9 +744,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             foreach ($dataSet as $key => $data) {
                 if (!empty($auto) && isset($data[$pk])) {
-                    $result[$key] = self::update($data);
+                    $result[$key] = self::update($data, [], $this->validate);
                 } else {
-                    $result[$key] = self::create($data);
+                    $result[$key] = self::create($data, $this->validate);
                 }
             }
             $db->commit();
@@ -960,12 +960,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 写入数据
      * @access public
      * @param array     $data 数据数组
+     * @param mixed     $validate 数据验证规则
      * @return $this
      */
-    public static function create($data = [])
+    public static function create($data = [], $validate = null)
     {
         $model = new static();
-        $model->isUpdate(false)->save($data, []);
+        $model->validate($validate)->isUpdate(false)->save($data, []);
         return $model;
     }
 
@@ -974,12 +975,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $data 数据数组
      * @param array     $where 更新条件
+     * @param mixed     $validate 数据验证规则
      * @return $this
      */
-    public static function update($data = [], $where = [])
+    public static function update($data = [], $where = [], $validate = null)
     {
         $model = new static();
-        $model->isUpdate(true)->save($data, $where);
+        $model->validate($validate)->isUpdate(true)->save($data, $where);
         return $model;
     }
 
