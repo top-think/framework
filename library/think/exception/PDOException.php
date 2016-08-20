@@ -17,23 +17,23 @@ use think\exception\DbException;
  * PDO异常处理类
  * 重新封装了系统的\PDOException类
  */
-class PDOException extends DbException 
+class PDOException extends DbException
 {
     /**
      * PDOException constructor.
      * @param \PDOException $exception
-     * @param array $config
-     * @param string $sql
-     * @param int $code
+     * @param array         $config
+     * @param string        $sql
+     * @param int           $code
      */
-    public function __construct(\PDOException $exception, Array $config, $sql, $code = 10501)
+    public function __construct(\PDOException $exception, array $config, $sql, $code = 10501)
     {
         $error = $exception->errorInfo;
 
         $this->setData('PDO Error Info', [
             'SQLSTATE'             => $error[0],
             'Driver Error Code'    => $error[1],
-            'Driver Error Message' => isset($error[2]) ? $error[2] : ''
+            'Driver Error Message' => isset($error[2]) ? $error[2] : '',
         ]);
 
         parent::__construct($exception->getMessage(), $config, $sql, $code);

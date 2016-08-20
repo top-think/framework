@@ -11,7 +11,6 @@
 
 namespace think\exception;
 
-
 class ThrowableError extends \ErrorException
 {
     public function __construct(\Throwable $e)
@@ -35,7 +34,6 @@ class ThrowableError extends \ErrorException
             $e->getFile(),
             $e->getLine()
         );
-
 
         $this->setTrace($e->getTrace());
     }

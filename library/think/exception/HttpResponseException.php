@@ -11,7 +11,6 @@
 
 namespace think\exception;
 
-
 use think\Response;
 
 class HttpResponseException extends \RuntimeException
@@ -30,6 +29,5 @@ class HttpResponseException extends \RuntimeException
     {
         return $this->response;
     }
-
 
 }

@@ -11,7 +11,6 @@
 
 namespace think\exception;
 
-
 class HttpException extends \RuntimeException
 {
     private $statusCode;

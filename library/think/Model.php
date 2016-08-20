@@ -734,6 +734,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function saveAll($dataSet, $replace = true)
     {
+        if ($this->validate) {
+            // 数据批量验证
+            foreach ($dataSet as $data) {
+                if (!$this->validateData($data)) {
+                    return false;
+                }
+            }
+        }
+
         $result = [];
         $db     = $this->db();
         $db->startTrans();
@@ -744,9 +753,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             foreach ($dataSet as $key => $data) {
                 if (!empty($auto) && isset($data[$pk])) {
-                    $result[$key] = self::update($data, [], $this->validate, true);
+                    $result[$key] = self::update($data);
                 } else {
-                    $result[$key] = self::create($data, $this->validate, true);
+                    $result[$key] = self::create($data);
                 }
             }
             $db->commit();
@@ -960,19 +969,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 写入数据
      * @access public
      * @param array     $data 数据数组
-     * @param mixed     $validate 数据验证规则
-     * @param boolean   $exception 验证失败是否抛出异常
-     * @return $this|false
+     * @return $this
      */
-    public static function create($data = [], $validate = null, $exception = false)
+    public static function create($data = [])
     {
-        $model  = new static();
-        $result = $model
-            ->validate($validate)
-            ->validateFailException($exception)
-            ->isUpdate(false)
-            ->save($data, []);
-        return false === $result ? false : $model;
+        $model = new static();
+        $model->isUpdate(false)->save($data, []);
+        return $model;
     }
 
     /**
@@ -980,19 +983,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $data 数据数组
      * @param array     $where 更新条件
-     * @param mixed     $validate 数据验证规则
-     * @param boolean   $exception 验证失败是否抛出异常
-     * @return $this|false
+     * @return $this
      */
-    public static function update($data = [], $where = [], $validate = null, $exception = false)
+    public static function update($data = [], $where = [])
     {
         $model  = new static();
-        $result = $model
-            ->validate($validate)
-            ->validateFailException($exception)
-            ->isUpdate(true)
-            ->save($data, $where);
-        return false === $result ? false : $model;
+        $result = $model->isUpdate(true)->save($data, $where);
+        return $model;
     }
 
     /**
