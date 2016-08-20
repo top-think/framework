@@ -736,8 +736,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if ($this->validate) {
             // 数据批量验证
+            $validate = $this->validate;
             foreach ($dataSet as $data) {
-                if (!$this->validate($this->validate)->validateData($data)) {
+                if (!$this->validate($validate)->validateData($data)) {
                     return false;
                 }
             }
