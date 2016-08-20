@@ -607,7 +607,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array     $data 数据
      * @param array     $where 更新条件
      * @param string    $sequence     自增序列名
-     * @return integer
+     * @return integer|false
      */
     public function save($data = [], $where = [], $sequence = null)
     {
@@ -730,7 +730,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $dataSet 数据
      * @param boolean   $replace 是否自动识别更新和写入
-     * @return array
+     * @return array|false
      */
     public function saveAll($dataSet, $replace = true)
     {
