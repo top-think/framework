@@ -729,16 +729,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 保存多个数据到当前数据对象
      * @access public
      * @param array     $dataSet 数据
+     * @param boolean   $replace 是否自动识别更新和写入
      * @return array|false
      */
-    public function saveAll($dataSet)
+    public function saveAll($dataSet, $replace = true)
     {
         $result = [];
         $db     = $this->db();
         $db->startTrans();
         try {
             foreach ($dataSet as $key => $data) {
-                $result[$key] = self::create($data);
+                if ($replace && isset($data[$this->getPk()])) {
+                    $result[$key] = self::update($data);
+                } else {
+                    $result[$key] = self::create($data);
+                }
             }
             $db->commit();
             return $result;
