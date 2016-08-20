@@ -159,9 +159,10 @@ class Debug
      * @param mixed         $var 变量
      * @param boolean       $echo 是否输出 默认为true 如果为false 则返回输出字符串
      * @param string        $label 标签 默认为空
+     * @param integer       $flags htmlspecialchars flags
      * @return void|string
      */
-    public static function dump($var, $echo = true, $label = null)
+    public static function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
         ob_start();
@@ -172,7 +173,7 @@ class Debug
             $output = PHP_EOL . $label . $output . PHP_EOL;
         } else {
             if (!extension_loaded('xdebug')) {
-                $output = htmlspecialchars($output, ENT_QUOTES);
+                $output = htmlspecialchars($output, $flags);
             }
             $output = '<pre>' . $label . $output . '</pre>';
         }
