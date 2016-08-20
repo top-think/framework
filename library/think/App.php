@@ -102,8 +102,13 @@ class App
             // 记录当前调度信息
             $request->dispatch($dispatch);
 
-            // 记录路由信息
-            self::$debug && Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
+            // 记录路由和请求信息
+            if (self::$debug) {
+                Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
+                Log::record('[ HEADER ] ' . var_export($request->header(), true), 'info');
+                Log::record('[ PARAM ] ' . var_export($request->param(), true), 'info');
+            }
+
             // 监听app_begin
             Hook::listen('app_begin', $dispatch);
 

@@ -238,33 +238,33 @@ class Query
     /**
      * 启动事务
      * @access public
-     * @return bool|null
+     * @return void
      */
     public function startTrans()
     {
-        return $this->connection->startTrans();
+        $this->connection->startTrans();
     }
 
     /**
      * 用于非自动提交状态下面的查询提交
      * @access public
-     * @return boolean
+     * @return void
      * @throws PDOException
      */
     public function commit()
     {
-        return $this->connection->commit();
+        $this->connection->commit();
     }
 
     /**
      * 事务回滚
      * @access public
-     * @return boolean
+     * @return void
      * @throws PDOException
      */
     public function rollback()
     {
-        return $this->connection->rollback();
+        $this->connection->rollback();
     }
 
     /**

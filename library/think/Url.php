@@ -73,15 +73,16 @@ class Url
             parse_str($info['query'], $params);
             $vars = array_merge($params, $vars);
         }
-
-        $rule = Route::name(isset($name) ? $name : $url);
-        if ($rule && $match = self::getRuleUrl($rule, $vars)) {
+        if ($url) {
+            $rule = Route::name(isset($name) ? $name : $url);
+        }
+        if (!empty($rule) && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识 快速生成
             $url = $match;
             if (!empty($rule[2])) {
                 $domain = $rule[2];
             }
-        } elseif ($rule && isset($name)) {
+        } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 获取路由别名
@@ -259,7 +260,7 @@ class Url
                         $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                         unset($array[$key]);
                     } else {
-                        $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                        $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     }
                 }
                 $match = true;
@@ -287,7 +288,7 @@ class Url
                 $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                 unset($vars[$key]);
             } elseif (2 == $val) {
-                $url = str_replace(['[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
             } else {
                 return false;
             }
