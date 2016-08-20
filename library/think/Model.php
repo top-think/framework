@@ -744,9 +744,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             foreach ($dataSet as $key => $data) {
                 if (!empty($auto) && isset($data[$pk])) {
-                    $result[$key] = self::update($data, [], $this->validate);
+                    $result[$key] = self::update($data, [], $this->validate, true);
                 } else {
-                    $result[$key] = self::create($data, $this->validate);
+                    $result[$key] = self::create($data, $this->validate, true);
                 }
             }
             $db->commit();
@@ -961,13 +961,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $data 数据数组
      * @param mixed     $validate 数据验证规则
-     * @return $this
+     * @param boolean   $exception 验证失败是否抛出异常
+     * @return $this|false
      */
-    public static function create($data = [], $validate = null)
+    public static function create($data = [], $validate = null, $exception = false)
     {
-        $model = new static();
-        $model->validate($validate)->isUpdate(false)->save($data, []);
-        return $model;
+        $model  = new static();
+        $result = $model
+            ->validate($validate)
+            ->validateFailException($exception)
+            ->isUpdate(false)
+            ->save($data, []);
+        return false === $result ? false : $model;
     }
 
     /**
@@ -976,13 +981,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array     $data 数据数组
      * @param array     $where 更新条件
      * @param mixed     $validate 数据验证规则
-     * @return $this
+     * @param boolean   $exception 验证失败是否抛出异常
+     * @return $this|false
      */
-    public static function update($data = [], $where = [], $validate = null)
+    public static function update($data = [], $where = [], $validate = null, $exception = false)
     {
-        $model = new static();
-        $model->validate($validate)->isUpdate(true)->save($data, $where);
-        return $model;
+        $model  = new static();
+        $result = $model
+            ->validate($validate)
+            ->validateFailException($exception)
+            ->isUpdate(true)
+            ->save($data, $where);
+        return false === $result ? false : $model;
     }
 
     /**
