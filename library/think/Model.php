@@ -730,7 +730,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $dataSet 数据
      * @param boolean   $replace 是否自动识别更新和写入
-     * @return array|false
+     * @return array
      */
     public function saveAll($dataSet, $replace = true)
     {
@@ -738,8 +738,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $db     = $this->db();
         $db->startTrans();
         try {
+            $pk = $this->getPk();
+            if (is_string($pk) && $replace) {
+                $auto = true;
+            }
             foreach ($dataSet as $key => $data) {
-                if ($replace && isset($data[$this->getPk()])) {
+                if (!empty($auto) && isset($data[$pk])) {
                     $result[$key] = self::update($data);
                 } else {
                     $result[$key] = self::create($data);
