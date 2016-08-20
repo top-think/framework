@@ -120,7 +120,7 @@ trait SoftDelete
     protected static function base($query)
     {
         if (static::$deleteTime) {
-            $query->where(static::$deleteTime, 'exp', 'null');
+            $query->where(static::$deleteTime, 'exp', 'is null');
         }
     }
 
