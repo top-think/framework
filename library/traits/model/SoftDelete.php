@@ -106,7 +106,7 @@ trait SoftDelete
             // 恢复删除
             $name              = static::$deleteTime;
             $this->change[]    = $name;
-            $this->data[$name] = ['exp', 'null'];
+            $this->data[$name] = null;
             return $this->isUpdate()->save();
         }
         return false;
@@ -120,7 +120,7 @@ trait SoftDelete
     protected static function base($query)
     {
         if (static::$deleteTime) {
-            $query->where(static::$deleteTime, 'exp', 'is null');
+            $query->where(static::$deleteTime, 'null');
         }
     }
 
