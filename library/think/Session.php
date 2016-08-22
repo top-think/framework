@@ -115,6 +115,7 @@ class Session
             self::init();
         } elseif (false === self::$init) {
             session_start();
+            self::$init = true;
         }
     }
 
