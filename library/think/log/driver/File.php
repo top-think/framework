@@ -80,12 +80,12 @@ class File
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 $filename = $path . DS . $type . '.log';
-                error_log("[{$now}] {$server} {$remote} {$method} {$uri}\r\n{$level}\r\n", 3, $filename);
+                error_log("[{$now}] {$server} {$remote} {$method} {$uri}\r\n{$level}\r\n---------------------------------------------------------------\r\n", 3, $filename);
             } else {
                 $info .= $level;
             }
         }
-        return error_log("[{$now}] {$server} {$remote} {$method} {$uri}\r\n{$info}\r\n", 3, $destination);
+        return error_log("[{$now}] {$server} {$remote} {$method} {$uri}\r\n{$info}\r\n---------------------------------------------------------------\r\n", 3, $destination);
     }
 
 }
