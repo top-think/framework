@@ -864,6 +864,11 @@ class Route
                 continue;
             }
 
+            if (isset($option['ext'])) {
+                // 路由ext参数 优先于系统配置的URL伪静态后缀参数
+                $url = preg_replace('/\.' . $request->ext() . '$/i', '', $url);
+            }
+
             if (is_array($rule)) {
                 // 分组路由
                 if (($pos = strpos($key, ':')) || ($pos = strpos($key, '<'))) {
@@ -1310,7 +1315,7 @@ class Route
         // 解析额外参数
         self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
         // 记录匹配的路由信息
-        Request::instance()->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option]);
+        Request::instance()->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
 
         // 检测路由after行为
         if (!empty($option['after_behavior'])) {
@@ -1382,7 +1387,7 @@ class Route
      * @param array     $var 变量
      * @return void
      */
-    private static function parseUrlParams($url, $var = [])
+    private static function parseUrlParams($url, &$var = [])
     {
         if ($url) {
             if (Config::get('url_param_type')) {
