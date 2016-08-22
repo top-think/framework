@@ -284,10 +284,14 @@ class Route
         } elseif (is_string($route)) {
             $name = $route;
         }
-        if ('$' == substr($rule, -1, 1)) {
-            // 是否完整匹配
-            $option['complete_match'] = true;
-            $rule                     = substr($rule, 0, -1);
+        if (!isset($option['complete_match'])) {
+            if (Config::get('route_complete_match')) {
+                $option['complete_match'] = true;
+            } elseif ('$' == substr($rule, -1, 1)) {
+                // 是否完整匹配
+                $option['complete_match'] = true;
+                $rule                     = substr($rule, 0, -1);
+            }
         }
         if ('/' != $rule) {
             $rule = trim($rule, '/');
