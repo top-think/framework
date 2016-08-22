@@ -1270,26 +1270,6 @@ class Route
      */
     private static function parseRule($rule, $route, $pathinfo, $option = [], $matches = [], $merge = false)
     {
-        // 检测是否定义路由
-        if (!empty($option['after_behavior'])) {
-            if ($option['after_behavior'] instanceof \Closure) {
-                $result = call_user_func_array($option['after_behavior'], [$route]);
-            } else {
-                foreach ((array) $option['after_behavior'] as $behavior) {
-                    $result = Hook::exec($behavior, '', $route);
-                    if (!is_null($result)) {
-                        break;
-                    }
-                }
-            }
-            // 路由规则重定向
-            if ($result instanceof Response) {
-                return ['type' => 'response', 'response' => $result, 'params' => $matches];
-            } elseif (is_array($result)) {
-                return $result;
-            }
-        }
-
         // 解析路由规则
         if ($rule) {
             $rule = explode('/', $rule);
@@ -1311,6 +1291,7 @@ class Route
         } else {
             $paths = explode('/', $pathinfo);
         }
+
         // 获取路由地址规则
         if (is_string($route) && isset($option['prefix'])) {
             // 路由地址前缀
@@ -1325,6 +1306,32 @@ class Route
                 }
             }
         }
+
+        // 解析额外参数
+        self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
+        // 记录匹配的路由信息
+        Request::instance()->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option]);
+
+        // 检测路由after行为
+        if (!empty($option['after_behavior'])) {
+            if ($option['after_behavior'] instanceof \Closure) {
+                $result = call_user_func_array($option['after_behavior'], []);
+            } else {
+                foreach ((array) $option['after_behavior'] as $behavior) {
+                    $result = Hook::exec($behavior, '');
+                    if (!is_null($result)) {
+                        break;
+                    }
+                }
+            }
+            // 路由规则重定向
+            if ($result instanceof Response) {
+                return ['type' => 'response', 'response' => $result, 'params' => $matches];
+            } elseif (is_array($result)) {
+                return $result;
+            }
+        }
+
         if ($route instanceof \Closure) {
             // 执行闭包
             $result = ['type' => 'function', 'function' => $route, 'params' => $matches];
@@ -1342,10 +1349,6 @@ class Route
             // 路由到模块/控制器/操作
             $result = self::parseModule($route);
         }
-        // 解析额外参数
-        self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
-        // 记录匹配的路由信息
-        Request::instance()->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option]);
         return $result;
     }
 
