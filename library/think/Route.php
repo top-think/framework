@@ -871,12 +871,13 @@ class Route
 
             if (is_array($rule)) {
                 // 分组路由
-                if (($pos = strpos($key, ':')) || ($pos = strpos($key, '<'))) {
+                $pos = strpos(str_replace('<', ':', $key), ':');
+                if (false !== $pos) {
                     $str = substr($key, 0, $pos);
                 } else {
                     $str = $key;
                 }
-                if (is_string($str) && 0 !== strpos($url, $str)) {
+                if (is_string($str) && $str && 0 !== strpos($url, $str)) {
                     continue;
                 }
 
