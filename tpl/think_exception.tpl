@@ -226,6 +226,8 @@
             width: 100%;
             margin: 12px 0;
             box-sizing: border-box;
+            table-layout:fixed;
+            word-wrap:break-word;            
         }
         .exception-var table caption{
             text-align: left;
@@ -249,7 +251,7 @@
             word-break: break-all;
         }
         .exception-var table td:first-child{
-            width: 12px;
+            width: 28%;
             font-weight: bold;
             white-space: nowrap;
         }
