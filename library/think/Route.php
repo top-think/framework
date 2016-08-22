@@ -1385,7 +1385,8 @@ class Route
             // 操作方法前缀支持
             $action = 0 !== strpos($action, self::$methodPrefix[$method]) ? self::$methodPrefix[$method] . $action : $action;
         }
-        $_GET = array_merge($_GET, $var);
+        // 设置当前请求的路由变量
+        Request::instance()->route($var);
         // 路由到模块/控制器/操作
         return ['type' => 'module', 'module' => [$module, $controller, $action], 'convert' => false];
     }
