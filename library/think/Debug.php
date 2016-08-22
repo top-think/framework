@@ -185,14 +185,12 @@ class Debug
         }
     }
 
-    public static function inject(Response $response)
+    public static function inject(Response $response, &$content)
     {
-        $config      = Config::get('trace');
-        $type        = isset($config['type']) ? $config['type'] : 'Html';
-        $request     = Request::instance();
-        $accept      = $request->header('accept');
-        $contentType = $response->getHeader('Content-Type');
-        $class       = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
+        $config  = Config::get('trace');
+        $type    = isset($config['type']) ? $config['type'] : 'Html';
+        $request = Request::instance();
+        $class   = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);
         if (class_exists($class)) {
             $trace = new $class($config);
@@ -206,14 +204,12 @@ class Debug
             $output = $trace->output($response, Log::getLog());
             if (is_string($output)) {
                 // trace调试信息注入
-                $content = $response->getContent();
-                $pos     = strripos($content, '</body>');
+                $pos = strripos($content, '</body>');
                 if (false !== $pos) {
                     $content = substr($content, 0, $pos) . $output . substr($content, $pos);
                 } else {
                     $content = $content . $output;
                 }
-                $response->content($content);
             }
         }
     }
