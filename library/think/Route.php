@@ -139,7 +139,7 @@ class Route
      * 设置路由绑定
      * @access public
      * @param string     $name 路由命名标识
-     * @return string|array
+     * @return array
      */
     public static function name($name = '')
     {
