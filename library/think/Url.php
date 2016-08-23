@@ -236,6 +236,9 @@ class Url
     {
         foreach ($rule as $item) {
             list($url, $pattern, $domain) = $item;
+            if (empty($pattern)) {
+                return [$url, $domain];
+            }
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
                     $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
