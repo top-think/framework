@@ -81,7 +81,7 @@ class App
         $config = self::initCommon();
         if (defined('BIND_MODULE')) {
             // 模块/控制器绑定
-            Route::bind(BIND_MODULE);
+            BIND_MODULE && Route::bind(BIND_MODULE);
         } elseif ($config['auto_bind_module']) {
             // 入口自动绑定
             $name = pathinfo($request->baseFile(), PATHINFO_FILENAME);
