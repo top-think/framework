@@ -78,9 +78,9 @@ class Url
         }
         if (!empty($rule) && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识 快速生成
-            $url = $match;
-            if (!empty($rule[2])) {
-                $domain = $rule[2];
+            $url = $match[0];
+            if (!empty($match[1])) {
+                $domain = $match[1];
             }
         } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
@@ -235,14 +235,15 @@ class Url
     public static function getRuleUrl($rule, &$vars = [])
     {
         foreach ($rule as $item) {
-            list($url, $pattern) = $item;
+            list($url, $pattern, $domain) = $item;
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
                     $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                     unset($vars[$key]);
-                    return $url;
+                    return [$url, $domain];
                 } elseif (2 == $val) {
-                    return str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                    $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                    return [$url, $domain];
                 }
             }
         }
