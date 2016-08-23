@@ -101,23 +101,22 @@ class Route
             foreach ($domain as $key => $item) {
                 self::domain($key, $item, $option, $pattern);
             }
+        } elseif ($rule instanceof \Closure) {
+            // 执行闭包
+            self::setDomain($domain);
+            call_user_func_array($rule, []);
+            self::setDomain(null);
+        } elseif (is_array($rule)) {
+            self::setDomain($domain);
+            self::group('', function () use ($rule) {
+                // 动态注册域名的路由规则
+                self::registerRules($rule);
+            }, $option, $pattern);
+            self::setDomain(null);
         } else {
-            if ($rule instanceof \Closure) {
-                // 执行闭包
-                self::setDomain($domain);
-                call_user_func_array($rule, []);
-                self::setDomain(null);
-            } elseif (is_array($rule)) {
-                self::setDomain($domain);
-                self::group('', function () use ($rule) {
-                    // 动态注册域名的路由规则
-                    self::registerRules($rule);
-                }, $option, $pattern);
-                self::setDomain(null);
-            } else {
-                self::$rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
-            }
+            self::$rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
         }
+
     }
 
     private static function setDomain($domain)
