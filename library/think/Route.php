@@ -138,12 +138,14 @@ class Route
     /**
      * 设置路由绑定
      * @access public
-     * @param string     $name 路由命名标识
+     * @param string|array     $name 路由命名标识 数组表示批量设置
      * @return array
      */
     public static function name($name = '')
     {
-        if ('' === $name) {
+        if (is_array($name)) {
+            return self::$name = $name;
+        } elseif ('' === $name) {
             return self::$name;
         } else {
             return isset(self::$name[$name]) ? self::$name[$name] : null;

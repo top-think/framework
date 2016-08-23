@@ -22,11 +22,8 @@ class Url
 
     /**
      * URL生成 支持路由反射
-     * @param string            $url URL表达式，
-     * 格式：'[模块/控制器/操作]?参数1=值1&参数2=值2...@域名'
-     * @控制器/操作?参数1=值1&参数2=值2...
-     * \\命名空间类\\方法?参数1=值1&参数2=值2...
-     * @param string|array      $vars 传入的参数，支持数组和字符串
+     * @param string            $url 路由地址
+     * @param string|array      $vars 参数（支持数组和字符串）a=val&b=val2... ['a'=>'val1', 'b'=>'val2']
      * @param string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
      * @param boolean|string    $domain 是否显示域名 或者直接传入域名
      * @return string
@@ -77,7 +74,7 @@ class Url
             }
         }
         if (!empty($rule) && $match = self::getRuleUrl($rule, $vars)) {
-            // 匹配路由命名标识 快速生成
+            // 匹配路由命名标识
             $url = $match[0];
             if (!empty($match[1])) {
                 $domain = $match[1];
@@ -90,7 +87,7 @@ class Url
                 parse_str($info['query'], $params);
                 $vars = array_merge($params, $vars);
             }
-            // 路由不存在 直接解析
+            // 路由标识不存在 直接解析
             $url = self::parseUrl($url, $domain);
         }
 
@@ -215,8 +212,7 @@ class Url
         } else {
             $domain .= strpos($domain, '.') ? '' : strstr($request->host(), '.');
         }
-        $domain = ($request->isSsl() ? 'https://' : 'http://') . $domain;
-        return $domain;
+        return ($request->isSsl() ? 'https://' : 'http://') . $domain;
     }
 
     // 解析URL后缀
