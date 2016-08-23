@@ -11,8 +11,6 @@
 
 namespace think;
 
-use think\App;
-use think\Cache;
 use think\Config;
 use think\Request;
 use think\Route;
@@ -68,13 +66,8 @@ class Url
             parse_str($vars, $vars);
         }
 
-        if (isset($info['query'])) {
-            // 解析地址里面参数 合并到vars
-            parse_str($info['query'], $params);
-            $vars = array_merge($params, $vars);
-        }
         if ($url) {
-            $rule = Route::name(isset($name) ? $name : $url);
+            $rule = Route::name(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
         }
         if (!empty($rule) && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识 快速生成
@@ -85,16 +78,13 @@ class Url
         } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
-            // 获取路由别名
-            $alias = self::getRouteAlias();
-            // 检测路由
-            if (0 !== strpos($url, '/') && isset($alias[$url]) && $match = self::getRouteUrl($alias[$url], $vars)) {
-                // 处理路由规则中的特殊字符
-                $url = $match;
-            } else {
-                // 路由不存在 直接解析
-                $url = self::parseUrl($url, $domain);
+            if (isset($info['query'])) {
+                // 解析地址里面参数 合并到vars
+                parse_str($info['query'], $params);
+                $vars = array_merge($params, $vars);
             }
+            // 路由不存在 直接解析
+            $url = self::parseUrl($url, $domain);
         }
 
         // 检测URL绑定
@@ -222,18 +212,6 @@ class Url
         return $domain;
     }
 
-    // 检测路由规则中的变量是否有传入
-    protected static function pattern($pattern, $vars)
-    {
-        foreach ($pattern as $key => $type) {
-            if (1 == $type && !isset($vars[$key])) {
-                // 变量未设置
-                return false;
-            }
-        }
-        return true;
-    }
-
     // 解析URL后缀
     protected static function parseSuffix($suffix)
     {
@@ -244,39 +222,6 @@ class Url
             }
         }
         return (empty($suffix) || 0 === strpos($suffix, '.')) ? $suffix : '.' . $suffix;
-    }
-
-    // 匹配路由地址
-    public static function getRouteUrl($alias, &$vars = [])
-    {
-        foreach ($alias as $key => $val) {
-            list($url, $pattern, $param) = $val;
-            // 检查变量匹配
-            $array = $vars;
-            $match = false;
-            if ($pattern && self::pattern($pattern, $vars)) {
-                foreach ($pattern as $key => $val) {
-                    if (isset($vars[$key])) {
-                        $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
-                        unset($array[$key]);
-                    } else {
-                        $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
-                    }
-                }
-                $match = true;
-            } elseif (empty($pattern) && array_intersect_assoc($param, $array) == $param) {
-                $match = true;
-            }
-            if ($match && !empty($param) && array_intersect_assoc($param, $array) != $param) {
-                $match = false;
-            }
-            if ($match) {
-                // 存在变量定义
-                $vars = array_diff_key($array, $param);
-                return $url;
-            }
-        }
-        return false;
     }
 
     // 匹配路由地址
@@ -294,69 +239,6 @@ class Url
             }
         }
         return $url;
-    }
-
-    // 生成路由映射并缓存
-    private static function getRouteAlias()
-    {
-        if ($item = Cache::get('think_route_map')) {
-            return $item;
-        }
-        // 获取路由定义
-        $array = Route::rules();
-        foreach ($array as $type => $rules) {
-            foreach ($rules as $rule => $val) {
-                if (true === $val || empty($val['rule'])) {
-                    continue;
-                }
-                $route = $val['route'];
-                $vars  = $val['var'];
-                if (is_array($val['rule'])) {
-                    foreach ($val['rule'] as $val) {
-                        $key   = $val['rule'];
-                        $route = $val['route'];
-                        $var   = $val['var'];
-                        $param = [];
-                        if (is_array($route)) {
-                            $route = implode('\\', $route);
-                        } elseif ($route instanceof \Closure) {
-                            continue;
-                        } elseif (strpos($route, '?')) {
-                            list($route, $str) = explode('?', $route, 2);
-                            parse_str($str, $param);
-                        }
-                        $var            = array_merge($vars, $var);
-                        $item[$route][] = [$rule . '/' . $key, $var, $param];
-                    }
-                } else {
-                    $param = [];
-                    if (is_array($route)) {
-                        $route = implode('\\', $route);
-                    } elseif ($route instanceof \Closure) {
-                        continue;
-                    } elseif (strpos($route, '?')) {
-                        list($route, $str) = explode('?', $route, 2);
-                        parse_str($str, $param);
-                    }
-                    $item[$route][] = [$rule, $vars, $param];
-                }
-            }
-        }
-
-        // 检测路由别名
-        $alias = Route::rules('alias');
-        foreach ($alias as $rule => $route) {
-            $route          = is_array($route) ? $route[0] : $route;
-            $item[$route][] = [$rule, [], []];
-        }
-        !App::$debug && Cache::set('think_route_map', $item);
-        return $item;
-    }
-
-    // 清空路由别名缓存
-    public static function clearAliasCache()
-    {
-        Cache::rm('think_route_map');
     }
 
     // 指定当前生成URL地址的root

@@ -116,7 +116,6 @@ class Route
         } else {
             self::$rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
         }
-
     }
 
     private static function setDomain($domain)
