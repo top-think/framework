@@ -240,11 +240,16 @@ class Url
                 if (isset($vars[$key])) {
                     $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                     unset($vars[$key]);
-                    return [$url, $domain];
+                    $result = [$url, $domain];
                 } elseif (2 == $val) {
-                    $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
-                    return [$url, $domain];
+                    $url    = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                    $result = [$url, $domain];
+                } else {
+                    break;
                 }
+            }
+            if (isset($result)) {
+                return $result;
             }
         }
         return false;
