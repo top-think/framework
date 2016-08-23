@@ -79,6 +79,17 @@ class App
         is_null($request) && $request = Request::instance();
 
         $config = self::initCommon();
+        if (defined('BIND_MODULE')) {
+            // 模块/控制器绑定
+            Route::bind(BIND_MODULE);
+        } elseif ($config['auto_bind_module']) {
+            // 入口自动绑定
+            $name = pathinfo($request->baseFile(), PATHINFO_FILENAME);
+            if ($name && 'index' != $name && is_dir(APP_PATH . $name)) {
+                Route::bind($name);
+            }
+        }
+
         $request->filter($config['default_filter']);
         try {
 
@@ -374,7 +385,7 @@ class App
                 }
             }
 
-            // 应用命名空间
+            // 注册应用命名空间
             self::$namespace = $config['app_namespace'];
             Loader::addNamespace($config['app_namespace'], APP_PATH);
             if (!empty($config['root_namespace'])) {
