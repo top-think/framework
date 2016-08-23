@@ -333,7 +333,7 @@ class App
         try {
             $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
             if (is_null($instance)) {
-                throw new HttpException(404, 'controller not exists:' . $controller);
+                throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
             }
             // 获取当前操作名
             $action = $actionName . $config['action_suffix'];
