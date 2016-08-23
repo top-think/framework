@@ -234,18 +234,19 @@ class Url
     // 匹配路由地址
     public static function getRuleUrl($rule, &$vars = [])
     {
-        list($url, $pattern) = $rule;
-        foreach ($pattern as $key => $val) {
-            if (isset($vars[$key])) {
-                $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
-                unset($vars[$key]);
-            } elseif (2 == $val) {
-                $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
-            } else {
-                return false;
+        foreach ($rule as $item) {
+            list($url, $pattern) = $item;
+            foreach ($pattern as $key => $val) {
+                if (isset($vars[$key])) {
+                    $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
+                    unset($vars[$key]);
+                    return $url;
+                } elseif (2 == $val) {
+                    return str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                }
             }
         }
-        return $url;
+        return false;
     }
 
     // 指定当前生成URL地址的root
