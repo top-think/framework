@@ -68,6 +68,13 @@ class Url
 
         if ($url) {
             $rule = Route::name(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
+            if (is_null($rule) && isset($info['query'])) {
+                $rule = Route::name($url);
+                // 解析地址里面参数 合并到vars
+                parse_str($info['query'], $params);
+                $vars = array_merge($params, $vars);
+                unset($info['query']);
+            }
         }
         if (!empty($rule) && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识 快速生成
