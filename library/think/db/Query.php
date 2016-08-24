@@ -41,6 +41,12 @@ class Query
     protected $table = '';
     // 当前数据表名称（不含前缀）
     protected $name = '';
+    // 当前数据表主键
+    protected $pk;
+    // 当前表字段类型信息
+    protected $fieldType;
+    // 当前允许的字段列表
+    protected $allowField;
     // 当前数据表前缀
     protected $prefix = '';
     // 查询参数
@@ -727,11 +733,11 @@ class Query
         }
         if (true === $field) {
             // 获取全部字段
-            $fields = isset($this->options['allow_field']) ? $this->options['allow_field'] : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = isset($this->allowField) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
-            $fields = isset($this->options['allow_field']) ? $this->options['allow_field'] : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = isset($this->allowField) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
         if ($tableName) {
@@ -1255,7 +1261,7 @@ class Query
         } elseif (is_string($field)) {
             $field = explode(',', $field);
         }
-        $this->options['allow_field'] = $field;
+        $this->allowField = $field;
         return $this;
     }
 
@@ -1267,7 +1273,7 @@ class Query
      */
     public function setFieldType($fieldType = [])
     {
-        $this->options['field_type'] = $fieldType;
+        $this->fieldType = $fieldType;
         return $this;
     }
 
@@ -1279,7 +1285,7 @@ class Query
      */
     public function pk($pk)
     {
-        $this->options['pk'] = $pk;
+        $this->pk = $pk;
         return $this;
     }
 
@@ -1387,10 +1393,8 @@ class Query
      */
     public function getPk($options = '')
     {
-        if (!empty($options['pk'])) {
-            $pk = $options['pk'];
-        } elseif (isset($this->options['pk'])) {
-            $pk = $this->options['pk'];
+        if (!empty($this->pk)) {
+            $pk = $this->pk;
         } else {
             $pk = $this->getTableInfo(is_array($options) ? $options['table'] : $options, 'pk');
         }
@@ -1400,13 +1404,13 @@ class Query
     // 获取当前数据表字段信息
     public function getTableFields($options)
     {
-        return !empty($options['allow_field']) ? $options['allow_field'] : $this->getTableInfo($options['table'], 'fields');
+        return !empty($this->allowField) ? $this->allowField : $this->getTableInfo($options['table'], 'fields');
     }
 
     // 获取当前数据表字段类型
     public function getFieldsType($options)
     {
-        return !empty($options['field_type']) ? $options['field_type'] : $this->getTableInfo($options['table'], 'type');
+        return !empty($this->fieldType) ? $this->fieldType : $this->getTableInfo($options['table'], 'type');
     }
 
     // 获取当前数据表绑定信息
