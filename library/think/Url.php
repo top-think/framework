@@ -209,8 +209,13 @@ class Url
                     }
                 }
             }
-        } else {
-            $domain .= strpos($domain, '.') ? '' : strstr($request->host(), '.');
+        } elseif (!strpos($domain, '.')) {
+            $rootDomain = Config::get('url_domain_root');
+            if (empty($rootDomain)) {
+                $host       = $request->host();
+                $rootDomain = substr_count($host, '.') > 1 ? substr(strstr($host, '.'), 1) : $host;
+            }
+            $domain .= '.' . $rootDomain;
         }
         return ($request->isSsl() ? 'https://' : 'http://') . $domain;
     }
