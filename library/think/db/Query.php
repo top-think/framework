@@ -44,9 +44,9 @@ class Query
     // 当前数据表主键
     protected $pk;
     // 当前表字段类型信息
-    protected $fieldType;
+    protected $fieldType = [];
     // 当前允许的字段列表
-    protected $allowField;
+    protected $allowField = [];
     // 当前数据表前缀
     protected $prefix = '';
     // 查询参数
@@ -733,11 +733,11 @@ class Query
         }
         if (true === $field) {
             // 获取全部字段
-            $fields = isset($this->allowField) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = !empty($this->allowField) && $this->getTable() == $tableName ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
-            $fields = isset($this->allowField) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = !empty($this->allowField) && $this->getTable() == $tableName ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
         if ($tableName) {
