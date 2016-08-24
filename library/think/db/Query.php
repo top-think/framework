@@ -733,11 +733,11 @@ class Query
         }
         if (true === $field) {
             // 获取全部字段
-            $fields = !empty($this->allowField) && $this->getTable() == $tableName ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = !empty($this->allowField) && ('' == $tableName || $this->getTable() == $tableName) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
-            $fields = !empty($this->allowField) && $this->getTable() == $tableName ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = !empty($this->allowField) && ('' == $tableName || $this->getTable() == $tableName) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
         if ($tableName) {
