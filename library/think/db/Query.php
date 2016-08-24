@@ -48,7 +48,7 @@ class Query
     // 参数绑定
     protected $bind = [];
     // 数据表信息
-    protected $info = [];
+    protected static $info = [];
 
     /**
      * 架构函数
@@ -1356,7 +1356,7 @@ class Query
         }
 
         $guid = $tableName;
-        if (!isset($this->info[$guid])) {
+        if (!isset(self::$info[$guid])) {
             $info   = $this->connection->getFields($tableName);
             $fields = array_keys($info);
             $bind   = $type   = [];
@@ -1374,9 +1374,9 @@ class Query
             } else {
                 $pk = null;
             }
-            $this->info[$guid] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
+            self::$info[$guid] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
         }
-        return $fetch ? $this->info[$guid][$fetch] : $this->info[$guid];
+        return $fetch ? self::$info[$guid][$fetch] : self::$info[$guid];
     }
 
     /**
