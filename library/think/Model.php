@@ -460,7 +460,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 break;
             case 'datetime':
                 $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = date($format, strtotime($value));
+                $value  = date($format, $value);
                 break;
             case 'json':
                 $value = json_decode($value, true);
