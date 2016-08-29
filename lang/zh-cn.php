@@ -13,7 +13,8 @@
 return [
     // 系统错误提示
     'Undefined variable'        => '未定义变量',
-    'Undefined index'           => '未定义索引',
+    'Undefined index'           => '未定义数组索引',
+    'Undefined offset'          => '未定义数组下标',
     'Parse error'               => '语法解析错误',
     'Type error'                => '类型错误',
     'Fatal error'               => '致命错误',
