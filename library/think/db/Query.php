@@ -1883,7 +1883,7 @@ class Query
         }
 
         // 返回结果处理
-        if ($resultSet) {
+        if ($this->connection->getNumRows()) {
             // 数据列表读取后的处理
             if (!empty($this->model)) {
                 // 生成模型对象
@@ -1898,7 +1898,7 @@ class Query
                     }
                     $resultSet[$key] = $result;
                 }
-                if (!empty($options['with'])) {
+                if (!empty($options['with']) && $result instanceof Model) {
                     // 预载入
                     $resultSet = $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
                 }

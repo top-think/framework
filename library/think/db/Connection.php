@@ -701,6 +701,16 @@ abstract class Connection
     }
 
     /**
+     * 获取返回或者影响的记录数
+     * @access public
+     * @return integer
+     */
+    public function getNumRows()
+    {
+        return $this->numRows;
+    }
+
+    /**
      * 获取最近的错误信息
      * @access public
      * @return string
