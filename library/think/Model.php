@@ -1136,7 +1136,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         switch ($info['type']) {
             case Relation::HAS_MANY:
                 return $model->db()->alias('a')
-                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
+                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
                     ->group('b.' . $info['foreignKey'])
                     ->having('count(' . $id . ')' . $operator . $count);
             case Relation::HAS_MANY_THROUGH:
@@ -1169,7 +1169,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
                 return $model->db()->alias('a')
                     ->field('a.*')
-                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'])
+                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
                     ->where($where);
             case Relation::HAS_MANY_THROUGH:
                 // TODO
