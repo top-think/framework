@@ -37,7 +37,7 @@ class Cache
     {
         $type = !empty($options['type']) ? $options['type'] : 'File';
         if (false === $name) {
-            $name = $type;
+            $name = md5(serialize($options));
         }
 
         if (true === $name || !isset(self::$instance[$name])) {
