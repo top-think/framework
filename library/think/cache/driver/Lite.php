@@ -61,8 +61,7 @@ class Lite extends Driver
      */
     public function has($name)
     {
-        $filename = $this->getCacheKey($name);
-        return is_file($filename);
+        return $this->get($name) ? true : false;
     }
 
     /**
