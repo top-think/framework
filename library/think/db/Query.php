@@ -1227,7 +1227,7 @@ class Query
     /**
      * 设置查询数据不存在是否抛出异常
      * @access public
-     * @param bool $fail 是否严格检查字段
+     * @param bool $fail 数据不存在是否抛出异常
      * @return $this
      */
     public function failException($fail = true)
