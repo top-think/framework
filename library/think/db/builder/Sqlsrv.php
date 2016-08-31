@@ -24,17 +24,6 @@ class Sqlsrv extends Builder
     protected $deleteSql       = 'DELETE FROM %TABLE% %USING% %JOIN% %WHERE% %LIMIT% %LOCK%%COMMENT%';
 
     /**
-     * order分析
-     * @access protected
-     * @param mixed $order
-     * @return string
-     */
-    protected function parseOrder($order)
-    {
-        return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
-    }
-
-    /**
      * 随机排序
      * @access protected
      * @return string
