@@ -24,6 +24,33 @@ class Sqlsrv extends Builder
     protected $deleteSql       = 'DELETE FROM %TABLE% %USING% %JOIN% %WHERE% %LIMIT% %LOCK%%COMMENT%';
 
     /**
+     * order分析
+     * @access protected
+     * @param mixed $order
+     * @return string
+     */
+    protected function parseOrder($order)
+    {
+        if (is_array($order)) {
+            $array = [];
+            foreach ($order as $key => $val) {
+                if (is_numeric($key)) {
+                    if (false === strpos($val, '(')) {
+                        $array[] = $this->parseKey($val);
+                    } elseif ('[rand]' == $val) {
+                        $array[] = $this->parseRand();
+                    }
+                } else {
+                    $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
+                    $array[] = $this->parseKey($key) . ' ' . $sort;
+                }
+            }
+            $order = implode(',', $array);
+        }
+        return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
+    }
+
+    /**
      * 随机排序
      * @access protected
      * @return string
