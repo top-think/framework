@@ -81,20 +81,10 @@ class Config
         $range = $range ?: self::$range;
 
         if (!strpos($name, '.')) {
-            // 判断环境变量
-            $result = getenv(ENV_PREFIX . strtoupper($name));
-            if (false !== $result) {
-                return $result;
-            }
             return isset(self::$config[$range][strtolower($name)]);
         } else {
             // 二维数组设置和获取支持
-            $name   = explode('.', $name);
-            $result = getenv(ENV_PREFIX . strtoupper($name[0] . '_' . $name[1]));
-            // 判断环境变量
-            if (false !== $result) {
-                return $result;
-            }
+            $name = explode('.', $name);
             return isset(self::$config[$range][strtolower($name[0])][$name[1]]);
         }
     }
@@ -114,20 +104,11 @@ class Config
         }
 
         if (!strpos($name, '.')) {
-            $result = getenv(ENV_PREFIX . strtoupper($name));
-            if (false !== $result) {
-                return $result;
-            }
             $name = strtolower($name);
             return isset(self::$config[$range][$name]) ? self::$config[$range][$name] : null;
         } else {
             // 二维数组设置和获取支持
-            $name   = explode('.', $name);
-            $result = getenv(ENV_PREFIX . strtoupper($name[0] . '_' . $name[1]));
-            // 判断环境变量
-            if (false !== $result) {
-                return $result;
-            }
+            $name    = explode('.', $name);
             $name[0] = strtolower($name[0]);
             return isset(self::$config[$range][$name[0]][$name[1]]) ? self::$config[$range][$name[0]][$name[1]] : null;
         }
