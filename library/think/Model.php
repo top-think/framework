@@ -238,6 +238,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_string($data)) {
             $this->data[$data] = $value;
         } else {
+            // 清空数据
+            $this->data = [];
             if (is_object($data)) {
                 $data = get_object_vars($data);
             }
