@@ -449,11 +449,6 @@ class App
                 $config = Config::load(CONF_PATH . $module . $config['app_status'] . CONF_EXT);
             }
 
-            // 加载别名文件
-            if (is_file(CONF_PATH . $module . 'alias' . EXT)) {
-                Loader::addClassMap(include CONF_PATH . $module . 'alias' . EXT);
-            }
-
             // 加载行为扩展文件
             if (is_file(CONF_PATH . $module . 'tags' . EXT)) {
                 Hook::import(include CONF_PATH . $module . 'tags' . EXT);
