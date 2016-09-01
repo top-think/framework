@@ -93,18 +93,12 @@ class configTest extends \PHPUnit_Framework_TestCase
         $reflectedPropertyConfig->setValue([$range => []]);
         $this->assertEquals([], Config::get(null, $range));
         $this->assertEquals(null, Config::get(null, 'does_not_exist'));
-        // test $_ENV configuration
-        $name  = 'test_name';
         $value = 'value';
-        putenv(ENV_PREFIX . strtoupper($name) . '=' . $value);
-        $this->assertEquals($value, Config::get($name, $range));
         // test getting configuration
         $reflectedPropertyConfig->setValue([$range => ['abcd' => 'efg']]);
         $this->assertEquals('efg', Config::get('abcd', $range));
         $this->assertEquals(null, Config::get('does_not_exist', $range));
         $this->assertEquals(null, Config::get('abcd', 'does_not_exist'));
-        // test $_ENV configuration with dot syntax
-        $this->assertEquals($value, Config::get('test.name', $range));
         // test getting configuration with dot syntax
         $reflectedPropertyConfig->setValue([$range => [
             'one' => ['two' => $value],
