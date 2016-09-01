@@ -908,7 +908,11 @@ class Query
                 $where = $field;
             } elseif ($field) {
                 // 字符串查询
-                $where[$field] = ['null', ''];
+                if (is_numeric($field)) {
+                    $where[] = ['exp', $field];
+                } else {
+                    $where[$field] = ['null', ''];
+                }
             }
         } elseif (is_array($op)) {
             $where[$field] = $param;
