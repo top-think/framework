@@ -100,7 +100,7 @@ if (!function_exists('config')) {
     function config($name = '', $value = null, $range = '')
     {
         if (is_null($value) && is_string($name)) {
-            return Config::get($name, $range);
+            return 0 === strpos($name, '?') ? Config::has(substr($name, 1), $range) : Config::get($name, $range);
         } else {
             return Config::set($name, $value, $range);
         }
