@@ -24,6 +24,7 @@ class Memcached extends Driver
         'prefix'   => '',
         'username' => '', //账号
         'password' => '', //密码
+        'option'   => [],
     ];
 
     /**
@@ -40,6 +41,9 @@ class Memcached extends Driver
             $this->options = array_merge($this->options, $options);
         }
         $this->handler = new \Memcached;
+        if (!empty($this->options['option'])) {
+            $this->handler->setOptions($this->options['option']);
+        }
         // 设置连接超时时间（单位：毫秒）
         if ($this->options['timeout'] > 0) {
             $this->handler->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $this->options['timeout']);
