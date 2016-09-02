@@ -242,6 +242,7 @@ class App
     {
         $args = [];
         // 判断数组类型 数字数组时按顺序绑定参数
+        reset($vars);
         $type = key($vars) === 0 ? 1 : 0;
         if ($reflect->getNumberOfParameters() > 0) {
             $params = $reflect->getParameters();
