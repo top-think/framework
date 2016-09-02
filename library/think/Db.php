@@ -75,7 +75,11 @@ class Db
             }
             $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
-            App::$debug && Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($options, true), 'info');
+            if (App::$debug) {
+                $info             = $options;
+                $info['password'] = '*****';
+                Log::record('[ DB ] INIT ' . $options['type'] . ':' . var_export($info, true), 'info');
+            }
             if (true === $name) {
                 return new $class($options);
             } else {
