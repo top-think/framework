@@ -27,7 +27,7 @@ ThinkPHP5在保持快速开发和大道至简的核心理念不变的同时，PH
  + 方便的自动生成定义
  + 真正惰性加载
  + 分布式环境支持
- + 更多的社交类库
+ + 支持Composer
 
 > ThinkPHP5的运行环境要求PHP5.4以上。
 
@@ -53,6 +53,7 @@ www  WEB部署目录（或者子目录）
 │  ├─common.php         公共函数文件
 │  ├─config.php         公共配置文件
 │  ├─route.php          路由配置文件
+│  ├─tags.php           应用行为扩展定义文件
 │  └─database.php       数据库配置文件
 │
 ├─public                WEB目录（对外访问目录）
