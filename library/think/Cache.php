@@ -44,7 +44,7 @@ class Cache
             $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
 
             // 记录初始化信息
-            App::$debug && Log::record('[ CACHE ] INIT ' . $type . ':' . var_export($options, true), 'info');
+            App::$debug && Log::record('[ CACHE ] INIT ' . $type, 'info');
             if (true === $name) {
                 return new $class($options);
             } else {

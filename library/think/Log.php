@@ -61,7 +61,7 @@ class Log
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
         // 记录初始化信息
-        App::$debug && Log::record('[ LOG ] INIT ' . $type . ': ' . var_export($config, true), 'info');
+        App::$debug && Log::record('[ LOG ] INIT ' . $type, 'info');
     }
 
     /**
