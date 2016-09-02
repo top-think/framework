@@ -1980,6 +1980,9 @@ class Query
                 $model = $this->model;
                 $data  = new $model($data);
                 $data->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
+                if ($this->allowField) {
+                    $data->allowField($this->allowField);
+                }
                 // 关联查询
                 if (!empty($options['relation'])) {
                     $data->relationQuery($options['relation']);
