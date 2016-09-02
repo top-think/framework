@@ -27,6 +27,7 @@ class Redis extends Driver
         'host'       => '127.0.0.1',
         'port'       => 6379,
         'password'   => '',
+        'select'     => 0,
         'timeout'    => 0,
         'expire'     => 0,
         'persistent' => false,
@@ -52,6 +53,10 @@ class Redis extends Driver
 
         if ('' != $this->options['password']) {
             $this->handler->auth($this->options['password']);
+        }
+
+        if (0 != $this->options['select']) {
+            $this->handler->select($this->options['select']);
         }
     }
 
