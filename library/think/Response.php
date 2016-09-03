@@ -13,6 +13,7 @@ namespace think;
 
 use think\Config;
 use think\Debug;
+use think\Env;
 use think\response\Json as JsonResponse;
 use think\response\Jsonp as JsonpResponse;
 use think\response\Redirect as RedirectResponse;
@@ -96,7 +97,7 @@ class Response
         $data = $this->getContent();
 
         // Trace调试注入
-        if (Config::get('app_trace')) {
+        if (Env::get('app_trace', Config::get('app_trace'))) {
             Debug::inject($this, $data);
         }
 
