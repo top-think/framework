@@ -345,9 +345,10 @@ if (!function_exists('cache')) {
      * @param mixed     $name 缓存名称，如果为数组表示进行缓存设置
      * @param mixed     $value 缓存值
      * @param mixed     $options 缓存参数
+     * @param string    $tag 缓存标签
      * @return mixed
      */
-    function cache($name, $value = '', $options = null)
+    function cache($name, $value = '', $options = null, $tag = null)
     {
         if (is_array($options)) {
             // 缓存操作的同时初始化
@@ -369,7 +370,11 @@ if (!function_exists('cache')) {
             } else {
                 $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
             }
-            return Cache::set($name, $value, $expire);
+            if (is_null($tag)) {
+                return Cache::set($name, $value, $expire);
+            } else {
+                return Cache::tag($tag)->set($name, $value, $expire);
+            }
         }
     }
 }
