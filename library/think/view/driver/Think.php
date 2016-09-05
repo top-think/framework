@@ -13,6 +13,7 @@ namespace think\view\driver;
 
 use think\App;
 use think\exception\TemplateNotFoundException;
+use think\Loader;
 use think\Log;
 use think\Request;
 use think\Template;
@@ -114,7 +115,7 @@ class Think
 
         // 分析模板文件规则
         $request    = Request::instance();
-        $controller = $request->controller();
+        $controller = Loader::parseName($request->controller());
         if ($controller && 0 !== strpos($template, '/')) {
             $depr     = $this->config['view_depr'];
             $template = str_replace(['/', ':'], $depr, $template);
