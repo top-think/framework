@@ -488,7 +488,7 @@ if (!function_exists('redirect')) {
      * @param mixed         $url 重定向地址 支持Url::build方法的地址
      * @param array|integer $params 额外参数
      * @param integer       $code 状态码
-     * @return \think\response\Redirect
+     * @return void
      */
     function redirect($url = [], $params = [], $code = 302)
     {
@@ -496,7 +496,8 @@ if (!function_exists('redirect')) {
             $code   = $params;
             $params = [];
         }
-        return Response::create($url, 'redirect', $code)->params($params);
+        $response = Response::create($url, 'redirect', $code)->params($params);
+        throw new HttpResponseException($response);
     }
 }
 
@@ -534,6 +535,7 @@ if (!function_exists('token')) {
      * 生成表单令牌
      * @param string $name 令牌名称
      * @param mixed  $type 令牌生成方法
+     * @return string
      */
     function token($name = '__token__', $type = 'md5')
     {
