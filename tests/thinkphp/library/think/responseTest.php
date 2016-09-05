@@ -17,6 +17,7 @@
 namespace tests\thinkphp\library\think;
 
 use think\Config;
+use think\Request;
 use think\Response;
 
 class responseTest extends \PHPUnit_Framework_TestCase
@@ -84,9 +85,10 @@ class responseTest extends \PHPUnit_Framework_TestCase
         $response = Response::create($dataArr, 'json');
         $result   = $response->getContent();
         $this->assertEquals('{"key":"value"}', $result);
-        $_GET['callback'] = 'callback';
-        $response         = Response::create($dataArr, 'jsonp');
-        $result           = $response->options(['var_jsonp_handler' => 'callback'])->getContent();
+        $request = Request::instance();
+        $request->get(['callback' => 'callback']);
+        $response = Response::create($dataArr, 'jsonp');
+        $result   = $response->getContent();
         $this->assertEquals('callback({"key":"value"});', $result);
     }
 
