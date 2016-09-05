@@ -150,7 +150,7 @@ class requestTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($request->has('user_id'));
         $this->assertTrue($request->has('test', 'request'));
         $this->assertEquals(['id' => 6], $request->only('id'));
-        $this->assertEquals(['name' => 'thinkphp'], $request->except('id'));
+        $this->assertEquals(['name' => 'thinkphp', 'lang' => 'zh-cn'], $request->except('id'));
         $this->assertEquals('THINKPHP', $request->param('name', '', 'strtoupper'));
     }
 
@@ -175,15 +175,4 @@ class requestTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($request->isMobile());
     }
 
-    public function testRouteInfo()
-    {
-        Config::set('app_multi_module', true);
-        $request = new Request();
-        $request->url('/hello/thinkphp');
-        Route::rule('hello/:name', 'index/hello');
-        Route::check($request, $request->url());
-        $this->assertEquals('', $request->module());
-        $this->assertEquals('index', $request->controller());
-        $this->assertEquals('hello', $request->action());
-    }
 }

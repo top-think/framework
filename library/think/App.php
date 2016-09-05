@@ -327,7 +327,7 @@ class App
         $actionName = $convert ? strtolower($actionName) : $actionName;
 
         // 设置当前请求的控制器、操作
-        $request->controller($controller)->action($actionName);
+        $request->controller(Loader::parseName($controller, 1))->action($actionName);
 
         // 监听module_init
         Hook::listen('module_init', $request);
