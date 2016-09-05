@@ -497,7 +497,7 @@ if (!function_exists('redirect')) {
             $params = [];
         }
         $response = Response::create($url, 'redirect', $code)->params($params);
-        throw new HttpResponseException($response);
+        throw new \think\exception\HttpResponseException($response);
     }
 }
 
