@@ -240,7 +240,7 @@ class Request
         $options['baseUrl']     = $info['path'];
         $options['pathinfo']    = '/' == $info['path'] ? '/' : ltrim($info['path'], '/');
         $options['method']      = $server['REQUEST_METHOD'];
-        $options['domain']      = $server['HTTP_HOST'];
+        $options['domain']      = $info['scheme'] . '://' . $server['HTTP_HOST'];
         $options['content']     = $content;
         self::$instance         = new self($options);
         return self::$instance;
