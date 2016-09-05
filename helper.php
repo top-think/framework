@@ -18,6 +18,8 @@ use think\Config;
 use think\Cookie;
 use think\Db;
 use think\Debug;
+use think\exception\HttpException;
+use think\exception\HttpResponseException;
 use think\Lang;
 use think\Loader;
 use think\Log;
@@ -497,7 +499,7 @@ if (!function_exists('redirect')) {
             $params = [];
         }
         $response = Response::create($url, 'redirect', $code)->params($params);
-        throw new \think\exception\HttpResponseException($response);
+        throw new HttpResponseException($response);
     }
 }
 
@@ -511,9 +513,9 @@ if (!function_exists('abort')) {
     function abort($code, $message = null, $header = [])
     {
         if ($code instanceof Response) {
-            throw new \think\exception\HttpResponseException($code);
+            throw new HttpResponseException($code);
         } else {
-            throw new \think\exception\HttpException($code, $message, null, $header);
+            throw new HttpException($code, $message, null, $header);
         }
     }
 }
@@ -526,7 +528,7 @@ if (!function_exists('halt')) {
     function halt($var)
     {
         dump($var);
-        throw new \think\exception\HttpResponseException(new Response);
+        throw new HttpResponseException(new Response);
     }
 }
 
