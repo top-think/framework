@@ -12,6 +12,7 @@
 namespace think;
 
 use think\Config;
+use think\Loader;
 use think\Request;
 use think\Route;
 
@@ -157,7 +158,7 @@ class Url
                 $module = $module ? $module . '/' : '';
             }
 
-            $controller = $request->controller();
+            $controller = Loader::parseName($request->controller());
             if ('' == $url) {
                 // 空字符串输出当前的 模块/控制器/操作
                 $url = $module . $controller . '/' . $request->action();
