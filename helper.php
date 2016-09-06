@@ -490,7 +490,7 @@ if (!function_exists('redirect')) {
      * @param mixed         $url 重定向地址 支持Url::build方法的地址
      * @param array|integer $params 额外参数
      * @param integer       $code 状态码
-     * @return void
+     * @return \think\response\Redirect
      */
     function redirect($url = [], $params = [], $code = 302)
     {
@@ -498,8 +498,7 @@ if (!function_exists('redirect')) {
             $code   = $params;
             $params = [];
         }
-        $response = Response::create($url, 'redirect', $code)->params($params);
-        throw new HttpResponseException($response);
+        return Response::create($url, 'redirect', $code)->params($params);
     }
 }
 
