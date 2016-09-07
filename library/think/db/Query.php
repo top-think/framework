@@ -1007,7 +1007,8 @@ class Query
         if (!$simple) {
             $options = $this->getOptions();
             $total   = $this->count();
-            $results = $this->options($options)->page($page, $listRows)->select();
+            $bind    = $this->bind;
+            $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
         } else {
             $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
             $total   = null;
