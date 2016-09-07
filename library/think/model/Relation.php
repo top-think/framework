@@ -107,7 +107,7 @@ class Relation
                 $result                          = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
                 foreach ($result as $set) {
                     $pivot = [];
-                    foreach ($set->toArray() as $key => $val) {
+                    foreach ($set->getData() as $key => $val) {
                         if (strpos($key, '__')) {
                             list($name, $attr) = explode('__', $key, 2);
                             if ('pivot' == $name) {
@@ -308,7 +308,7 @@ class Relation
     protected function match($model, $relation, &$result)
     {
         // 重新组装模型数据
-        foreach ($result->toArray() as $key => $val) {
+        foreach ($result->getData() as $key => $val) {
             if (strpos($key, '__')) {
                 list($name, $attr) = explode('__', $key, 2);
                 if ($name == $relation) {
@@ -369,7 +369,7 @@ class Relation
         $data = [];
         foreach ($list as $set) {
             $pivot = [];
-            foreach ($set->toArray() as $key => $val) {
+            foreach ($set->getData() as $key => $val) {
                 if (strpos($key, '__')) {
                     list($name, $attr) = explode('__', $key, 2);
                     if ('pivot' == $name) {
