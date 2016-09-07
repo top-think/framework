@@ -546,7 +546,7 @@ class Validate
                 $result = is_numeric($value);
                 break;
             case 'integer':
-                // 是否为整形
+                // 是否为整型
                 $result = $this->filter($value, FILTER_VALIDATE_INT);
                 break;
             case 'email':
