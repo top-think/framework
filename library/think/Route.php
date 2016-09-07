@@ -422,6 +422,8 @@ class Route
                     }
                     $vars   = self::parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
+                    // 设置路由标识
+                    self::$name[$route][] = [$key, $vars, self::$domain];
                 }
                 self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
@@ -1170,6 +1172,9 @@ class Route
             self::parseUrlParams(empty($path) ? '' : implode('/', $path));
             // 封装路由
             $route = [$module, $controller, $action];
+            if (isset(self::$name[implode($depr, $route)])) {
+                throw new HttpException(404, 'invalid request:' . $url);
+            }
         }
         return ['type' => 'module', 'module' => $route];
     }

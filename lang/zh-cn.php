@@ -61,4 +61,5 @@ return [
     'cache write error'         => '缓存写入失败',
     'sae mc write error'        => 'SAE mc 写入错误',
     'route name not exists'     => '路由标识不存在（或参数不够）',
+    'invalid request'           => '非法请求',
 ];
