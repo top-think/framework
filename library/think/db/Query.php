@@ -1372,7 +1372,7 @@ class Query
             $tableName = $this->parseSqlTable($tableName);
         }
 
-        $guid = $tableName;
+        list($guid) = explode(' ', $tableName);
         if (!isset(self::$info[$guid])) {
             $info   = $this->connection->getFields($tableName);
             $fields = array_keys($info);
