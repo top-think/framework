@@ -129,6 +129,22 @@ class Think
         return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
     }
 
+    /**
+     * 配置模板引擎
+     * @access private
+     * @param string|array  $name 参数名
+     * @param mixed         $value 参数值
+     * @return void
+     */
+    public function config($name, $value = null)
+    {
+        if (is_array($name)) {
+            $this->template->config($name);
+        } else {
+            $this->template->$name = $value;
+        }
+    }
+
     public function __call($method, $params)
     {
         return call_user_func_array([$this->template, $method], $params);

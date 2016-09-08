@@ -132,4 +132,16 @@ class Php
         return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
     }
 
+    /**
+     * 配置模板引擎
+     * @access private
+     * @param string|array  $name 参数名
+     * @param mixed         $value 参数值
+     * @return void
+     */
+    public function config($name, $value = null)
+    {
+
+    }
+
 }

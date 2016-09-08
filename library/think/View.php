@@ -92,6 +92,18 @@ class View
     }
 
     /**
+     * 配置模板引擎
+     * @access private
+     * @param string|array  $name 参数名
+     * @param mixed         $value 参数值
+     * @return void
+     */
+    public function config($name, $value = null)
+    {
+        $this->engine->config($name, $value);
+    }
+
+    /**
      * 解析和获取模板内容 用于输出
      * @param string    $template 模板文件名或者内容
      * @param array     $vars     模板输出变量
