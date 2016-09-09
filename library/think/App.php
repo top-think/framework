@@ -213,10 +213,6 @@ class App
      */
     public static function invokeMethod($method, $vars = [])
     {
-        if (empty($vars)) {
-            // 自动获取请求变量
-            $vars = Request::instance()->param();
-        }
         if (is_array($method)) {
             $class   = is_object($method[0]) ? $method[0] : new $method[0];
             $reflect = new \ReflectionMethod($class, $method[1]);
@@ -237,8 +233,12 @@ class App
      * @param array             $vars    变量
      * @return array
      */
-    private static function bindParams($reflect, $vars)
+    private static function bindParams($reflect, $vars = [])
     {
+        if (empty($vars)) {
+            // 自动获取请求变量
+            $vars = Request::instance()->param();
+        }
         $args = [];
         // 判断数组类型 数字数组时按顺序绑定参数
         reset($vars);
