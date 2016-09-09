@@ -19,7 +19,7 @@ class Memcached extends SessionHandler
     protected $handler = null;
     protected $config  = [
         'host'         => '127.0.0.1', // memcache主机
-        'port'         => 1121, // memcache端口
+        'port'         => 11211, // memcache端口
         'expire'       => 3600, // session有效期
         'timeout'      => 0, // 连接超时时间（单位：毫秒）
         'session_name' => '', // memcache key前缀
@@ -61,9 +61,9 @@ class Memcached extends SessionHandler
             $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
         }
         $this->handler->addServers($servers);
-        if('' != $this->config['username']){
+        if ('' != $this->config['username']) {
             $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
-            $this->handler->setSaslAuthData($this->config['username'], $this->config['password']);	
+            $this->handler->setSaslAuthData($this->config['username'], $this->config['password']);
         }
         return true;
     }

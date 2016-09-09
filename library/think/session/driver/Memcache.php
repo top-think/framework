@@ -19,7 +19,7 @@ class Memcache extends SessionHandler
     protected $handler = null;
     protected $config  = [
         'host'         => '127.0.0.1', // memcache主机
-        'port'         => 1121, // memcache端口
+        'port'         => 11211, // memcache端口
         'expire'       => 3600, // session有效期
         'timeout'      => 0, // 连接超时时间（单位：毫秒）
         'persistent'   => true, // 长连接
@@ -54,7 +54,7 @@ class Memcache extends SessionHandler
         foreach ((array) $hosts as $i => $host) {
             $port = isset($ports[$i]) ? $ports[$i] : $ports[0];
             $this->config['timeout'] > 0 ?
-            $this->handler->addServer($host, $port, $this->config['persistent'], 1, $this->config['timeout']) : 
+            $this->handler->addServer($host, $port, $this->config['persistent'], 1, $this->config['timeout']) :
             $this->handler->addServer($host, $port, $this->config['persistent'], 1);
         }
         return true;
