@@ -1346,7 +1346,7 @@ class Route
             }
             // 路由规则重定向
             if ($result instanceof Response) {
-                return ['type' => 'response', 'response' => $result, 'params' => $matches];
+                return ['type' => 'response', 'response' => $result];
             } elseif (is_array($result)) {
                 return $result;
             }
@@ -1354,17 +1354,17 @@ class Route
 
         if ($route instanceof \Closure) {
             // 执行闭包
-            $result = ['type' => 'function', 'function' => $route, 'params' => $matches];
+            $result = ['type' => 'function', 'function' => $route];
         } elseif (0 === strpos($route, '/') || 0 === strpos($route, 'http')) {
             // 路由到重定向地址
             $result = ['type' => 'redirect', 'url' => $route, 'status' => isset($option['status']) ? $option['status'] : 301];
         } elseif (0 === strpos($route, '\\')) {
             // 路由到方法
             $method = strpos($route, '@') ? explode('@', $route) : $route;
-            $result = ['type' => 'method', 'method' => $method, 'params' => $matches];
+            $result = ['type' => 'method', 'method' => $method];
         } elseif (0 === strpos($route, '@')) {
             // 路由到控制器
-            $result = ['type' => 'controller', 'controller' => substr($route, 1), 'params' => $matches];
+            $result = ['type' => 'controller', 'controller' => substr($route, 1)];
         } else {
             // 路由到模块/控制器/操作
             $result = self::parseModule($route);

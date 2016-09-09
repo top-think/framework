@@ -135,15 +135,15 @@ class App
                     break;
                 case 'controller':
                     // 执行控制器操作
-                    $data = Loader::action($dispatch['controller'], $dispatch['params']);
+                    $data = Loader::action($dispatch['controller']);
                     break;
                 case 'method':
                     // 执行回调方法
-                    $data = self::invokeMethod($dispatch['method'], $dispatch['params']);
+                    $data = self::invokeMethod($dispatch['method']);
                     break;
                 case 'function':
                     // 执行闭包
-                    $data = self::invokeFunction($dispatch['function'], $dispatch['params']);
+                    $data = self::invokeFunction($dispatch['function']);
                     break;
                 case 'response':
                     $data = $dispatch['response'];
@@ -181,12 +181,11 @@ class App
      * @access public
      * @param array|string  $dispatch 调度信息
      * @param string        $type 调度类型
-     * @param array         $params 参数
      * @return void
      */
-    public static function dispatch($dispatch, $type = 'module', $params = [])
+    public static function dispatch($dispatch, $type = 'module')
     {
-        self::$dispatch = ['type' => $type, $type => $dispatch, 'params' => $params];
+        self::$dispatch = ['type' => $type, $type => $dispatch];
     }
 
     /**
