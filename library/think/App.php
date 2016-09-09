@@ -253,6 +253,7 @@ class App
                     $className = $class->getName();
                     if (isset($vars[$name]) && $vars[$name] instanceof $className) {
                         $args[] = $vars[$name];
+                        unset($vars[$name]);
                     } else {
                         $args[] = method_exists($className, 'instance') ? $className::instance() : new $className();
                     }
