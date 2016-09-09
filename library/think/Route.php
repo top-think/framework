@@ -1003,7 +1003,7 @@ class Route
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'method', 'method' => [$class, $action], 'params' => []];
+        return ['type' => 'method', 'method' => [$class, $action]];
     }
 
     /**
@@ -1022,7 +1022,7 @@ class Route
         if (!empty($array[2])) {
             self::parseUrlParams($array[2]);
         }
-        return ['type' => 'method', 'method' => [$namespace . '\\' . $class, $method], 'params' => []];
+        return ['type' => 'method', 'method' => [$namespace . '\\' . $class, $method]];
     }
 
     /**
@@ -1040,7 +1040,7 @@ class Route
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'controller', 'controller' => $controller . '/' . $action, 'params' => []];
+        return ['type' => 'controller', 'controller' => $controller . '/' . $action];
     }
 
     /**
