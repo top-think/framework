@@ -1336,22 +1336,31 @@ class Route
             $bind = [];
             foreach ($option['bind_model'] as $key => $val) {
                 if ($val instanceof \Closure) {
-                    $bind[$key] = call_user_func_array($val, [$matches]);
+                    $result = call_user_func_array($val, [$matches]);
                 } else {
                     if (is_array($val)) {
-                        parse_str($val[1], $fields);
-                        $model = $val[0];
+                        $fields = explode('&', $val[1]);
+                        $model  = $val[0];
                     } else {
                         $fields = ['id'];
                         $model  = $val;
                     }
                     $where = [];
+                    $match = true;
                     foreach ($fields as $field) {
-                        if (isset($matches[$field])) {
+                        if (!isset($matches[$field])) {
+                            $match = false;
+                            break;
+                        } else {
                             $where[$field] = $matches[$field];
                         }
                     }
-                    $bind[$key] = $model::where($where)->find();
+                    if ($match) {
+                        $result = $model::where($where)->findOrFail();
+                    }
+                }
+                if (!empty($result)) {
+                    $bind[$key] = $result;
                 }
             }
             $matches = array_merge($matches, $bind);
