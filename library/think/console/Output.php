@@ -25,10 +25,10 @@ use think\console\output\question\Confirmation;
  * Class Output
  * @package think\console
  *
- * @see     think\console\output\driver\Console::setDecorated
+ * @see     \think\console\output\driver\Console::setDecorated
  * @method void setDecorated($decorated)
  *
- * @see     think\console\output\driver\Buffer::fetch
+ * @see     \think\console\output\driver\Buffer::fetch
  * @method string fetch()
  *
  * @method void info($message)
