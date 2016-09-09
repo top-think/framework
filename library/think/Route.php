@@ -1339,11 +1339,13 @@ class Route
                     $result = call_user_func_array($val, [$matches]);
                 } else {
                     if (is_array($val)) {
-                        $fields = explode('&', $val[1]);
-                        $model  = $val[0];
+                        $fields    = explode('&', $val[1]);
+                        $model     = $val[0];
+                        $exception = isset($val[2]) ? $val[2] : true;
                     } else {
-                        $fields = ['id'];
-                        $model  = $val;
+                        $fields    = ['id'];
+                        $model     = $val;
+                        $exception = true;
                     }
                     $where = [];
                     $match = true;
@@ -1356,7 +1358,7 @@ class Route
                         }
                     }
                     if ($match) {
-                        $result = $model::where($where)->findOrFail();
+                        $result = $model::where($where)->failException($exception)->find();
                     }
                 }
                 if (!empty($result)) {
