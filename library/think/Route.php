@@ -15,6 +15,7 @@ use think\App;
 use think\Config;
 use think\exception\HttpException;
 use think\Hook;
+use think\Loader;
 use think\Log;
 use think\Request;
 use think\Response;
@@ -1347,6 +1348,7 @@ class Route
                         $model     = $val;
                         $exception = true;
                     }
+                    $model = strpos($model, '\\') ? $model : Loader::model($model);
                     $where = [];
                     $match = true;
                     foreach ($fields as $field) {
