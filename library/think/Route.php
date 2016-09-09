@@ -853,9 +853,10 @@ class Route
      * @param string    $url URL地址
      * @param string    $depr URL分割符
      * @param string    $group 路由分组名
+     * @param array     $options 路由参数（分组）
      * @return mixed
      */
-    private static function checkRoute($request, $rules, $url, $depr = '/', $group = '')
+    private static function checkRoute($request, $rules, $url, $depr = '/', $group = '', $options = [])
     {
         foreach ($rules as $key => $item) {
             if (true === $item) {
@@ -892,7 +893,7 @@ class Route
                     continue;
                 }
 
-                $result = self::checkRoute($request, $rule, $url, $depr, $key);
+                $result = self::checkRoute($request, $rule, $url, $depr, $key, $option);
                 if (false !== $result) {
                     return $result;
                 }
@@ -905,6 +906,9 @@ class Route
                 }
                 if ($group) {
                     $rule = $group . ($rule ? '/' . ltrim($rule, '/') : '');
+                }
+                if (isset($options['bind_model']) && isset($option['bind_model'])) {
+                    $option['bind_model'] = array_merge($options['bind_model'], $option['bind_model']);
                 }
                 $result = self::checkRule($rule, $route, $url, $pattern, $option);
                 if (false !== $result) {
@@ -1325,6 +1329,32 @@ class Route
                     unset($matches[$key]);
                 }
             }
+        }
+
+        // 绑定模型数据
+        if (isset($option['bind_model'])) {
+            $bind = [];
+            foreach ($option['bind_model'] as $key => $val) {
+                if ($val instanceof \Closure) {
+                    $bind[$key] = call_user_func_array($val, [$matches]);
+                } else {
+                    if (is_array($val)) {
+                        parse_str($val[1], $fields);
+                        $model = $val[0];
+                    } else {
+                        $fields = ['id'];
+                        $model  = $val;
+                    }
+                    $where = [];
+                    foreach ($fields as $field) {
+                        if (isset($matches[$field])) {
+                            $where[$field] = $matches[$field];
+                        }
+                    }
+                    $bind[$key] = $model::where($where)->find();
+                }
+            }
+            $matches = array_merge($matches, $bind);
         }
 
         // 解析额外参数
