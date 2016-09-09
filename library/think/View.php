@@ -101,6 +101,7 @@ class View
     public function config($name, $value = null)
     {
         $this->engine->config($name, $value);
+        return $this;
     }
 
     /**
