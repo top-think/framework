@@ -251,7 +251,11 @@ class App
                 $class = $param->getClass();
                 if ($class) {
                     $className = $class->getName();
-                    $args[]    = method_exists($className, 'instance') ? $className::instance() : new $className();
+                    if (isset($vars[$name]) && $vars[$name] instanceof $className) {
+                        $args[] = $vars[$name];
+                    } else {
+                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className();
+                    }
                 } elseif (1 == $type && !empty($vars)) {
                     $args[] = array_shift($vars);
                 } elseif (0 == $type && isset($vars[$name])) {
