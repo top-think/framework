@@ -1348,7 +1348,6 @@ class Route
                         $model     = $val;
                         $exception = true;
                     }
-                    $model = strpos($model, '\\') ? $model : Loader::model($model);
                     $where = [];
                     $match = true;
                     foreach ($fields as $field) {
@@ -1360,7 +1359,8 @@ class Route
                         }
                     }
                     if ($match) {
-                        $result = $model::where($where)->failException($exception)->find();
+                        $query  = strpos($model, '\\') ? $model::where($where) : Loader::model($model)->where($where);
+                        $result = $query->failException($exception)->find();
                     }
                 }
                 if (!empty($result)) {
