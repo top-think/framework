@@ -89,24 +89,22 @@ abstract class Builder
 
         $result = [];
         foreach ($data as $key => $val) {
+            $item = $this->parseKey($key);
             if (!in_array($key, $fields, true)) {
                 if ($options['strict']) {
                     throw new Exception('fields not exists:[' . $key . ']');
                 }
-            } else {
-                $item = $this->parseKey($key);
-                if (isset($val[0]) && 'exp' == $val[0]) {
-                    $result[$item] = $val[1];
-                } elseif (is_null($val)) {
-                    $result[$item] = 'NULL';
-                } elseif (is_scalar($val)) {
-                    // 过滤非标量数据
-                    if ($this->query->isBind(substr($val, 1))) {
-                        $result[$item] = $val;
-                    } else {
-                        $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
-                        $result[$item] = ':' . $key;
-                    }
+            } else if (isset($val[0]) && 'exp' == $val[0]) {
+                $result[$item] = $val[1];
+            } elseif (is_null($val)) {
+                $result[$item] = 'NULL';
+            } elseif (is_scalar($val)) {
+                // 过滤非标量数据
+                if ($this->query->isBind(substr($val, 1))) {
+                    $result[$item] = $val;
+                } else {
+                    $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
+                    $result[$item] = ':' . $key;
                 }
             }
         }
