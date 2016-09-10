@@ -21,6 +21,7 @@ class Sqlsrv extends Connection
 {
     // PDO连接参数
     protected $params = [
+        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
         PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_STRINGIFY_FETCHES => false,
     ];
