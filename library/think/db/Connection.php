@@ -733,11 +733,12 @@ abstract class Connection
      * SQL指令安全过滤
      * @access public
      * @param string $str SQL字符串
+     * @param bool   $master 是否主库查询
      * @return string
      */
-    public function quote($str)
+    public function quote($str, $master = false)
     {
-        $this->initConnect();
+        $this->initConnect($master);
         return $this->linkID ? $this->linkID->quote($str) : $str;
     }
 
