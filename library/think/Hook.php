@@ -29,10 +29,8 @@ class Hook
      */
     public static function add($tag, $behavior, $first = false)
     {
-        if (!isset(self::$tags[$tag])) {
-            self::$tags[$tag] = [];
-        }
-        if (is_array($behavior)) {
+        isset(self::$tags[$tag]) || self::$tags[$tag] = [];
+        if (is_array($behavior) && !is_callable($behavior)) {
             self::$tags[$tag] = array_merge(self::$tags[$tag], $behavior);
         } elseif ($first) {
             array_unshift(self::$tags[$tag], $behavior);
@@ -82,7 +80,7 @@ class Hook
             // 获取全部的插件信息
             return self::$tags;
         } else {
-            return self::$tags[$tag];
+            return array_key_exists($tag, self::$tags) ? self::$tags[$tag] : [];
         }
     }
 
@@ -97,36 +95,16 @@ class Hook
     public static function listen($tag, &$params = null, $extra = null, $once = false)
     {
         $results = [];
-        if (isset(self::$tags[$tag])) {
-            foreach (self::$tags[$tag] as $name) {
-
-                if (App::$debug) {
-                    Debug::remark('behavior_start', 'time');
-                }
-
-                $result = self::exec($name, $tag, $params, $extra);
-
-                if (!is_null($result) && $once) {
-                    return $result;
-                }
-
-                if (App::$debug) {
-                    Debug::remark('behavior_end', 'time');
-                    if ($name instanceof \Closure) {
-                        $name = 'Closure';
-                    } elseif (is_object($name)) {
-                        $name = get_class($name);
-                    }
-                    Log::record('[ BEHAVIOR ] Run ' . $name . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]', 'info');
-                }
-                if (false === $result) {
-                    // 如果返回false 则中断行为执行
-                    break;
-                }
-                $results[] = $result;
+        $tags = static::get($tag);
+        foreach ($tags as $key => $name) {
+            $results[$key] = self::exec($name, $tag, $params, $extra);
+            if (false === $results[$key]) {// 如果返回false 则中断行为执行
+                break;
+            }elseif (!is_null($results[$key]) && $once) {
+                break;
             }
         }
-        return $once ? null : $results;
+        return $once ? end($results): $results;
     }
 
     /**
@@ -139,13 +117,23 @@ class Hook
      */
     public static function exec($class, $tag = '', &$params = null,$extra=null)
     {
-        if ($class instanceof \Closure) {
+        App::$debug && Debug::remark('behavior_start', 'time');
+        if (is_callable($class)) {
             $result = call_user_func_array($class, [ & $params,$extra]);
         } elseif (is_object($class)) {
             $result = call_user_func_array([$class, $tag], [ & $params,$extra]);
         } else {
             $obj    = new $class();
             $result = ($tag && is_callable([$obj, $tag])) ? $obj->$tag($params,$extra) : $obj->run($params,$extra);
+        }
+        if (App::$debug) {
+            Debug::remark('behavior_end', 'time');
+            if ($class instanceof \Closure) {
+                $class = 'Closure';
+            } elseif (is_object($class)) {
+                $class = get_class($class);
+            }
+            Log::record('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]', 'info');
         }
         return $result;
     }
