@@ -128,7 +128,7 @@ class Hook
         }
         if (App::$debug) {
             Debug::remark('behavior_end', 'time');
-            if ($class instanceof \Closure) {
+            if (is_callable($class)) {
                 $class = 'Closure';
             } elseif (is_object($class)) {
                 $class = get_class($class);
