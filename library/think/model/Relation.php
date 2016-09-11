@@ -339,7 +339,10 @@ class Relation
     {
         $foreignKey = $this->foreignKey;
         // 预载入关联查询 支持嵌套预载入
-        $list = $model->where($where)->where($closure)->with($subRelation)->select();
+        if ($closure) {
+            call_user_func_array($closure, [ & $model]);
+        }
+        $list = $model->where($where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];

@@ -94,7 +94,7 @@ abstract class Builder
                 if ($options['strict']) {
                     throw new Exception('fields not exists:[' . $key . ']');
                 }
-            } else if (isset($val[0]) && 'exp' == $val[0]) {
+            } elseif (isset($val[0]) && 'exp' == $val[0]) {
                 $result[$item] = $val[1];
             } elseif (is_null($val)) {
                 $result[$item] = 'NULL';
