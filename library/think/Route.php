@@ -1367,7 +1367,7 @@ class Route
                     $bind[$key] = $result;
                 }
             }
-            $matches = array_merge($matches, $bind);
+            Request::instance()->bind($bind);
         }
 
         // 解析额外参数

@@ -115,6 +115,8 @@ class Request
     protected $filter;
     // Hook扩展方法
     protected static $hook = [];
+    // 绑定的属性
+    protected $bind = [];
 
     /**
      * 架构函数
@@ -1435,5 +1437,31 @@ class Request
         }
         Session::set($name, $token);
         return $token;
+    }
+
+    /**
+     * 设置当前请求绑定的对象实例
+     * @access public
+     * @param string $name 绑定的对象标识
+     * @param mixed  $obj 绑定的对象实例
+     * @return mixed
+     */
+    public function bind($name, $obj = null)
+    {
+        if (is_array($name)) {
+            $this->bind = array_merge($this->bind, $name);
+        } else {
+            $this->bind[$name] = $obj;
+        }
+    }
+
+    public function __set($name, $value)
+    {
+        $this->bind[$name] = $value;
+    }
+
+    public function __get($name)
+    {
+        return isset($this->bind[$name]) ? $this->bind[$name] : null;
     }
 }
