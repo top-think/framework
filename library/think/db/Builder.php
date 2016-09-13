@@ -296,7 +296,7 @@ abstract class Builder
             }
         }
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
-        if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === 0 && strpos($value, ':') !== 0 && !$this->query->isBind($field)) {
+        if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false && strpos($value, ':') !== 0 && !$this->query->isBind($field)) {
             $this->query->bind($field, $value, $bindType);
             $value = ':' . $field;
         }
