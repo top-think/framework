@@ -222,6 +222,7 @@ abstract class Builder
         }
 
         $whereStr = '';
+        $binds    = $this->query->getFieldsBind($options);
         foreach ($where as $key => $val) {
             $str = [];
             foreach ($val as $field => $value) {
@@ -235,7 +236,7 @@ abstract class Builder
                     $array = explode('|', $field);
                     $item  = [];
                     foreach ($array as $k) {
-                        $item[] = $this->parseWhereItem($k, $value, '', $options);
+                        $item[] = $this->parseWhereItem($k, $value, '', $options, $binds);
                     }
                     $str[] = ' ' . $key . ' ( ' . implode(' OR ', $item) . ' )';
                 } elseif (strpos($field, '&')) {
@@ -243,13 +244,13 @@ abstract class Builder
                     $array = explode('&', $field);
                     $item  = [];
                     foreach ($array as $k) {
-                        $item[] = $this->parseWhereItem($k, $value, '', $options);
+                        $item[] = $this->parseWhereItem($k, $value, '', $options, $binds);
                     }
                     $str[] = ' ' . $key . ' ( ' . implode(' AND ', $item) . ' )';
                 } else {
                     // 对字段使用表达式查询
                     $field = is_string($field) ? $field : '';
-                    $str[] = ' ' . $key . ' ' . $this->parseWhereItem($field, $value, $key, $options);
+                    $str[] = ' ' . $key . ' ' . $this->parseWhereItem($field, $value, $key, $options, $binds);
                 }
             }
 
@@ -259,7 +260,7 @@ abstract class Builder
     }
 
     // where子单元分析
-    protected function parseWhereItem($field, $val, $rule = '', $options = [])
+    protected function parseWhereItem($field, $val, $rule = '', $options = [], $binds = [])
     {
         // 字段分析
         $key = $field ? $this->parseKey($field) : '';
@@ -280,7 +281,7 @@ abstract class Builder
                 array_push($val, $item);
             }
             foreach ($val as $item) {
-                $str[] = $this->parseWhereItem($key, $item, $rule, $options);
+                $str[] = $this->parseWhereItem($field, $item, $rule, $options, $binds);
             }
             return '( ' . implode(' ' . $rule . ' ', $str) . ' )';
         }
@@ -294,7 +295,11 @@ abstract class Builder
                 throw new Exception('where express error:' . $exp);
             }
         }
-
+        $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
+        if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === 0 && strpos($value, ':') !== 0 && !$this->query->isBind($field)) {
+            $this->query->bind($field, $value, $bindType);
+            $value = ':' . $field;
+        }
         $whereStr = '';
         if (in_array($exp, ['=', '<>', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE'])) {
             // 比较运算 及 模糊匹配
@@ -311,13 +316,21 @@ abstract class Builder
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
             } else {
                 $value = is_array($value) ? $value : explode(',', $value);
-                $zone  = implode(',', $this->parseValue($value, $field));
-                $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
+                $bind  = [];
+                $array = [];
+                foreach ($value as $k => $v) {
+                    $bind[$field . '_in_' . $k] = [$v, $bindType];
+                    $array[]                    = ':' . $field . '_in_' . $k;
+                }
+                $this->query->bind($bind);
+                $whereStr .= $key . ' ' . $exp . ' (' . implode(',', $array) . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询
             $data = is_array($value) ? $value : explode(',', $value);
-            $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($data[0], $field) . ' AND ' . $this->parseValue($data[1], $field);
+            $bind = [$field . '_between_1' => [$data[0], $bindType], $field . '_between_2' => [$data[1], $bindType]];
+            $this->query->bind($bind);
+            $whereStr .= $key . ' ' . $exp . ' :' . $field . '_between_1' . ' AND :' . $field . '_between_2';
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询
             if ($value instanceof \Closure) {
@@ -326,12 +339,12 @@ abstract class Builder
                 $whereStr .= $exp . ' (' . $value . ')';
             }
         } elseif (in_array($exp, ['< TIME', '> TIME', '<= TIME', '>= TIME'])) {
-            $whereStr .= $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($value, $field, $options);
+            $whereStr .= $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($value, $field, $options, $field, $bindType);
         } elseif (in_array($exp, ['BETWEEN TIME', 'NOT BETWEEN TIME'])) {
             if (is_string($value)) {
                 $value = explode(',', $value);
             }
-            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options) . ' AND ' . $this->parseDateTime($value[1], $field, $options);
+            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options, $field . '_between_1', $bindType) . ' AND ' . $this->parseDateTime($value[1], $field, $options, $field . '_between_2', $bindType);
         }
         return $whereStr;
     }
@@ -350,9 +363,11 @@ abstract class Builder
      * @param string    $value
      * @param string    $key
      * @param array     $options
+     * @param string    $bindName
+     * @param integer   $bindType
      * @return string
      */
-    protected function parseDateTime($value, $key, $options = [])
+    protected function parseDateTime($value, $key, $options = [], $bindName = null, $bindType = null)
     {
         // 获取时间字段类型
         $type = $this->query->getFieldsType($options);
@@ -369,7 +384,9 @@ abstract class Builder
                 $value = date('Y-m-d', $value);
             }
         }
-        return is_int($value) ? $value : $this->connection->quote($value);
+        $bindName = $bindName ?: $key;
+        $this->query->bind($bindName, $value, $bindType);
+        return ':' . $bindName;
     }
 
     /**
