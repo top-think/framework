@@ -32,10 +32,10 @@ class Route
         'HEAD'    => [],
         'OPTIONS' => [],
         '*'       => [],
-        'map'     => [],
         'alias'   => [],
         'domain'  => [],
         'pattern' => [],
+        'name'    => [],
     ];
 
     // REST路由操作方法定义
@@ -63,8 +63,6 @@ class Route
     private static $bind = [];
     // 当前分组信息
     private static $group = [];
-    // 路由命名标识（用于快速URL生成）
-    private static $name = [];
     // 当前子域名绑定
     private static $domainBind;
     private static $domainRule;
@@ -137,19 +135,22 @@ class Route
     }
 
     /**
-     * 设置路由绑定
+     * 设置或者获取路由标识
      * @access public
      * @param string|array     $name 路由命名标识 数组表示批量设置
+     * @param array            $value 路由地址及变量信息
      * @return array
      */
-    public static function name($name = '')
+    public static function name($name = '', $value = null)
     {
         if (is_array($name)) {
-            return self::$name = $name;
+            return self::$rules['name'] = $name;
         } elseif ('' === $name) {
-            return self::$name;
+            return self::$rules['name'];
+        } elseif (!is_null($value)) {
+            self::$rules['name'][$name][] = $value;
         } else {
-            return isset(self::$name[$name]) ? self::$name[$name] : null;
+            return isset(self::$rules['name'][$name]) ? self::$rules['name'][$name] : null;
         }
     }
 
@@ -304,7 +305,7 @@ class Route
         }
         $vars = self::parseVar($rule);
         if (isset($name)) {
-            self::$name[$name][] = [$rule, $vars, self::$domain];
+            self::name($name, [$rule, $vars, self::$domain]);
         }
         if ($group) {
             if ('*' != $type) {
@@ -424,7 +425,7 @@ class Route
                     $vars   = self::parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
                     // 设置路由标识
-                    self::$name[$route][] = [$key, $vars, self::$domain];
+                    self::name($route, [$key, $vars, self::$domain]);
                 }
                 self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
@@ -683,7 +684,7 @@ class Route
             return true === $rules ? self::$rules : self::$rules[$rules];
         } else {
             $rules = self::$rules;
-            unset($rules['pattern'], $rules['alias'], $rules['domain']);
+            unset($rules['pattern'], $rules['alias'], $rules['domain'], $rules['name']);
             return $rules;
         }
     }
@@ -1177,7 +1178,7 @@ class Route
             self::parseUrlParams(empty($path) ? '' : implode('/', $path));
             // 封装路由
             $route = [$module, $controller, $action];
-            if (isset(self::$name[implode($depr, $route)])) {
+            if (isset(self::$rules['name'][implode($depr, $route)])) {
                 throw new HttpException(404, 'invalid request:' . $url);
             }
         }
