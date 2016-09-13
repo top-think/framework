@@ -101,16 +101,15 @@ trait SoftDelete
     /**
      * 恢复被软删除的记录
      * @access public
+     * @param array $where 更新条件
      * @return integer
      */
-    public function restore()
+    public function restore($where = [])
     {
         if (static::$deleteTime) {
             // 恢复删除
-            $name              = static::$deleteTime;
-            $this->change[]    = $name;
-            $this->data[$name] = null;
-            return $this->isUpdate()->save();
+            $name = static::$deleteTime;
+            return $this->isUpdate()->save([$name => null], $where);
         }
         return false;
     }
@@ -118,6 +117,7 @@ trait SoftDelete
     /**
      * 查询默认不包含软删除数据
      * @access protected
+     * @param \think\db\Query $query 查询对象
      * @return void
      */
     protected static function base($query)
