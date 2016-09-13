@@ -326,6 +326,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $value  = date($format, $_SERVER['REQUEST_TIME']);
                     break;
                 case 'timestamp':
+                case 'int':
                     $value = $_SERVER['REQUEST_TIME'];
                     break;
             }
