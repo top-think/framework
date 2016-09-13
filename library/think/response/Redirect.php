@@ -43,6 +43,24 @@ class Redirect extends Response
     }
 
     /**
+     * 重定向传值（通过Session）
+     * @access protected
+     * @param string|array  $name 变量名或者数组
+     * @param mixed         $value 值
+     * @return $this
+     */
+    public function with($name, $value = null)
+    {
+        if (is_array($name)) {
+            foreach ($name as $key => $val) {
+                Session::set($key, $val);
+            }
+        } else {
+            Session::set($name, $value);
+        }
+    }
+
+    /**
      * 获取跳转地址
      * @return string
      */
