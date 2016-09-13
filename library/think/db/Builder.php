@@ -296,9 +296,9 @@ abstract class Builder
             }
         }
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
-        if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false && strpos($value, ':') !== 0 && !$this->query->isBind($field)) {
-            $this->query->bind($field, $value, $bindType);
-            $value = ':' . $field;
+        if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false && strpos($value, ':') !== 0) {
+            $this->query->bind('where_' . $field, $value, $bindType);
+            $value = ':where_' . $field;
         }
         $whereStr = '';
         if (in_array($exp, ['=', '<>', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE'])) {
@@ -339,7 +339,7 @@ abstract class Builder
                 $whereStr .= $exp . ' (' . $value . ')';
             }
         } elseif (in_array($exp, ['< TIME', '> TIME', '<= TIME', '>= TIME'])) {
-            $whereStr .= $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($value, $field, $options, $field, $bindType);
+            $whereStr .= $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($value, $field, $options, 'where_' . $field, $bindType);
         } elseif (in_array($exp, ['BETWEEN TIME', 'NOT BETWEEN TIME'])) {
             if (is_string($value)) {
                 $value = explode(',', $value);
