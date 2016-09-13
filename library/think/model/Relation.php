@@ -127,6 +127,26 @@ class Relation
     }
 
     /**
+     * 获取父模型对象
+     * @access public
+     * @return Model
+     */
+    public function getParentModel()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * 获取当前的模型对象
+     * @access public
+     * @return Model
+     */
+    public function getModel()
+    {
+        return (new $this->model);
+    }
+
+    /**
      * 预载入关联查询 返回数据集
      * @access public
      * @param array     $resultSet 数据集
