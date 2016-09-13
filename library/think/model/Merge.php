@@ -144,11 +144,10 @@ class Merge extends Model
      * @access public
      * @param mixed     $data 数据
      * @param array     $where 更新条件
-     * @param bool      $getId 新增的时候是否获取id
-     * @param bool      $replace 是否replace
-     * @return mixed
+     * @param string    $sequence     自增序列名
+     * @return integer|false
      */
-    public function save($data = [], $where = [], $getId = true, $replace = false)
+    public function save($data = [], $where = [], $sequence = null)
     {
         if (!empty($data)) {
             // 数据自动验证
@@ -230,11 +229,13 @@ class Merge extends Model
                 // 处理模型数据
                 $data = $this->parseData($this->name, $this->data, true);
                 // 写入主表数据
-                $result = $db->name($this->name)->strict(false)->insert($data, $replace);
+                $result = $db->name($this->name)->strict(false)->insert($data);
                 if ($result) {
-                    $insertId = $db->getLastInsID();
+                    $insertId = $db->getLastInsID($sequence);
                     // 写入外键数据
-                    $this->data[$this->fk] = $insertId;
+                    if ($insertId) {
+                        $this->data[$this->fk] = $insertId;
+                    }
 
                     // 写入附表数据
                     foreach (static::$relationModel as $key => $model) {
@@ -245,7 +246,6 @@ class Merge extends Model
                         $query = clone $db;
                         $query->table($table)->strict(false)->insert($data);
                     }
-                    $result = $insertId;
                 }
                 // 新增回调
                 $this->trigger('after_insert', $this);
