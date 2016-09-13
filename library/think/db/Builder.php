@@ -260,7 +260,7 @@ abstract class Builder
     }
 
     // where子单元分析
-    protected function parseWhereItem($field, $val, $rule = '', $options = [], $binds = [])
+    protected function parseWhereItem($field, $val, $rule = '', $options = [], $binds = [], $bindName = null)
     {
         // 字段分析
         $key = $field ? $this->parseKey($field) : '';
@@ -280,8 +280,9 @@ abstract class Builder
             } else {
                 array_push($val, $item);
             }
-            foreach ($val as $item) {
-                $str[] = $this->parseWhereItem($field, $item, $rule, $options, $binds);
+            foreach ($val as $k => $item) {
+                $bindName = 'where_' . $field . '_' . $k;
+                $str[]    = $this->parseWhereItem($field, $item, $rule, $options, $binds, $bindName);
             }
             return '( ' . implode(' ' . $rule . ' ', $str) . ' )';
         }
@@ -298,8 +299,9 @@ abstract class Builder
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
         if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (strpos($value, ':') !== 0 || !$this->query->isBind(substr($value, 1))) {
-                $this->query->bind('where_' . $field, $value, $bindType);
-                $value = ':where_' . $field;
+                $bindName = $bindName ?: 'where_' . $field;
+                $this->query->bind($bindName, $value, $bindType);
+                $value = ':' . $bindName;
             }
         }
 
