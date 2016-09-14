@@ -167,6 +167,18 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * 获取并删除缓存测试
+     * @return  mixed
+     * @access public
+     */
+    public function testPull()
+    {
+        $cache = $this->prepare();
+        $this->assertEquals(11, $cache->pull('number_test'));
+        $this->assertFalse($cache->get('number_test'));
+    }
+
+    /**
      * 清空缓存测试
      * @return  mixed
      * @access public
