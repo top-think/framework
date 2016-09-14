@@ -321,21 +321,33 @@ abstract class Builder
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
             } else {
                 $value = is_array($value) ? $value : explode(',', $value);
-                $bind  = [];
-                $array = [];
-                foreach ($value as $k => $v) {
-                    $bind[$field . '_in_' . $k] = [$v, $bindType];
-                    $array[]                    = ':' . $field . '_in_' . $k;
+                if (array_key_exists($field, $binds)) {
+                    $bind  = [];
+                    $array = [];
+                    foreach ($value as $k => $v) {
+                        $bindName        = str_replace('.', '_', $field) . '_in_' . $k;
+                        $bind[$bindName] = [$v, $bindType];
+                        $array[]         = ':' . $bindName;
+                    }
+                    $this->query->bind($bind);
+                    $zone = implode(',', $array);
+                } else {
+                    $zone = implode(',', $this->parseValue($value, $field));
                 }
-                $this->query->bind($bind);
-                $whereStr .= $key . ' ' . $exp . ' (' . implode(',', $array) . ')';
+                $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询
             $data = is_array($value) ? $value : explode(',', $value);
-            $bind = [$field . '_between_1' => [$data[0], $bindType], $field . '_between_2' => [$data[1], $bindType]];
-            $this->query->bind($bind);
-            $whereStr .= $key . ' ' . $exp . ' :' . $field . '_between_1' . ' AND :' . $field . '_between_2';
+            if (array_key_exists($field, $binds)) {
+                $field = str_replace('.', '_', $field);
+                $bind  = [$field . '_between_1' => [$data[0], $bindType], $field . '_between_2' => [$data[1], $bindType]];
+                $this->query->bind($bind);
+                $between = ' :' . $field . '_between_1' . ' AND :' . $field . '_between_2';
+            } else {
+                $between = $this->parseValue($data[0], $field) . ' AND ' . $this->parseValue($data[1], $field);
+            }
+            $whereStr .= $key . ' ' . $exp . ' ' . $between;
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询
             if ($value instanceof \Closure) {
@@ -349,7 +361,8 @@ abstract class Builder
             if (is_string($value)) {
                 $value = explode(',', $value);
             }
-            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options, $field . '_between_1', $bindType) . ' AND ' . $this->parseDateTime($value[1], $field, $options, $field . '_between_2', $bindType);
+
+            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options, str_replace('.', '_', $field) . '_between_1', $bindType) . ' AND ' . $this->parseDateTime($value[1], $field, $options, str_replace('.', '_', $field) . '_between_2', $bindType);
         }
         return $whereStr;
     }
