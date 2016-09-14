@@ -61,7 +61,6 @@ class View
     {
         if (is_array($name)) {
             $this->data = array_merge($this->data, $name);
-            return $this;
         } else {
             $this->data[$name] = $value;
         }
