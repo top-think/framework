@@ -237,7 +237,11 @@ class App
     {
         if (empty($vars)) {
             // 自动获取请求变量
-            $vars = Request::instance()->param();
+            if (Config::get('url_param_type')) {
+                $vars = Request::instance()->route();
+            } else {
+                $vars = Request::instance()->param();
+            }
         }
         $args = [];
         // 判断数组类型 数字数组时按顺序绑定参数
