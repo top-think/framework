@@ -92,6 +92,23 @@ abstract class Driver
     }
 
     /**
+     * 读取缓存并删除
+     * @access public
+     * @param string $name 缓存变量名
+     * @return mixed
+     */
+    public function pull($name)
+    {
+        $result = $this->get($name, false);
+        if ($result) {
+            $this->rm($name);
+            return $result;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 缓存标签
      * @access public
      * @param string        $name 标签名
