@@ -281,7 +281,7 @@ abstract class Builder
                 array_push($val, $item);
             }
             foreach ($val as $k => $item) {
-                $bindName = 'where_' . $field . '_' . $k;
+                $bindName = 'where_' . str_replace('.', '_', $field) . '_' . $k;
                 $str[]    = $this->parseWhereItem($field, $item, $rule, $options, $binds, $bindName);
             }
             return '( ' . implode(' ' . $rule . ' ', $str) . ' )';
@@ -296,10 +296,10 @@ abstract class Builder
                 throw new Exception('where express error:' . $exp);
             }
         }
+        $bindName = $bindName ?: 'where_' . str_replace('.', '_', $field);
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
         if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (strpos($value, ':') !== 0 || !$this->query->isBind(substr($value, 1))) {
-                $bindName = $bindName ?: 'where_' . $field;
                 $this->query->bind($bindName, $value, $bindType);
                 $value = ':' . $bindName;
             }
@@ -325,9 +325,8 @@ abstract class Builder
                     $bind  = [];
                     $array = [];
                     foreach ($value as $k => $v) {
-                        $bindName        = str_replace('.', '_', $field) . '_in_' . $k;
-                        $bind[$bindName] = [$v, $bindType];
-                        $array[]         = ':' . $bindName;
+                        $bind[$bindName . '_in_' . $k] = [$v, $bindType];
+                        $array[]                       = ':' . $bindName . '_in_' . $k;
                     }
                     $this->query->bind($bind);
                     $zone = implode(',', $array);
@@ -340,10 +339,12 @@ abstract class Builder
             // BETWEEN 查询
             $data = is_array($value) ? $value : explode(',', $value);
             if (array_key_exists($field, $binds)) {
-                $field = str_replace('.', '_', $field);
-                $bind  = [$field . '_between_1' => [$data[0], $bindType], $field . '_between_2' => [$data[1], $bindType]];
+                $bind = [
+                    $bindName . '_between_1' => [$data[0], $bindType],
+                    $bindName . '_between_2' => [$data[1], $bindType],
+                ];
                 $this->query->bind($bind);
-                $between = ' :' . $field . '_between_1' . ' AND :' . $field . '_between_2';
+                $between = ':' . $bindName . '_between_1' . ' AND :' . $bindName . '_between_2';
             } else {
                 $between = $this->parseValue($data[0], $field) . ' AND ' . $this->parseValue($data[1], $field);
             }
@@ -356,13 +357,13 @@ abstract class Builder
                 $whereStr .= $exp . ' (' . $value . ')';
             }
         } elseif (in_array($exp, ['< TIME', '> TIME', '<= TIME', '>= TIME'])) {
-            $whereStr .= $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($value, $field, $options, 'where_' . $field, $bindType);
+            $whereStr .= $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($value, $field, $options, $bindName, $bindType);
         } elseif (in_array($exp, ['BETWEEN TIME', 'NOT BETWEEN TIME'])) {
             if (is_string($value)) {
                 $value = explode(',', $value);
             }
 
-            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options, str_replace('.', '_', $field) . '_between_1', $bindType) . ' AND ' . $this->parseDateTime($value[1], $field, $options, str_replace('.', '_', $field) . '_between_2', $bindType);
+            $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options, $bindName . '_between_1', $bindType) . ' AND ' . $this->parseDateTime($value[1], $field, $options, $bindName . '_between_2', $bindType);
         }
         return $whereStr;
     }
