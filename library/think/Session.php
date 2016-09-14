@@ -179,6 +179,23 @@ class Session
     }
 
     /**
+     * session获取并删除
+     * @param string        $name session名称
+     * @param string|null   $prefix 作用域（前缀）
+     * @return mixed
+     */
+    public static function pull($name, $prefix = null)
+    {
+        $result = self::get($name, $prefix);
+        if ($result) {
+            self::delete($name, $prefix);
+            return $result;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 删除session数据
      * @param string        $name session名称
      * @param string|null   $prefix 作用域（前缀）
