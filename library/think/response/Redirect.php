@@ -58,6 +58,7 @@ class Redirect extends Response
         } else {
             Session::set($name, $value);
         }
+        return $this;
     }
 
     /**
