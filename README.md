@@ -3,9 +3,7 @@ ThinkPHP 5.0
 
 [![Travis](https://img.shields.io/travis/top-think/framework.svg?maxAge=2592000)](https://travis-ci.org/top-think/framework)
 [![Codecov](https://img.shields.io/codecov/c/github/top-think/framework.svg?maxAge=2592000)](https://codecov.io/github/top-think/framework)
-[![Github All Releases](https://img.shields.io/github/downloads/top-think/framework/total.svg?maxAge=2592000)](https://github.com/top-think/framework/releases)
 [![GitHub release](https://img.shields.io/github/release/top-think/framework.svg?maxAge=2592000)](https://github.com/top-think/framework/releases/latest)
-[![Github Releases](https://img.shields.io/github/downloads/top-think/framework/latest/total.svg?maxAge=2592000)](https://github.com/top-think/framework/releases/latest)
 [![Packagist](https://img.shields.io/packagist/v/topthink/framework.svg?maxAge=2592000)](https://packagist.org/packages/topthink/framework)
 [![Packagist](https://img.shields.io/packagist/dt/topthink/framework.svg?maxAge=2592000)](https://packagist.org/packages/topthink/framework)
 
