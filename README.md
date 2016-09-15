@@ -1,4 +1,4 @@
-ThinkPHP 5.0 RC4
+ThinkPHP 5.0 
 ===============
 
 [![Build Status](https://img.shields.io/travis/top-think/framework.svg)](https://travis-ci.org/top-think/framework)
