@@ -86,6 +86,7 @@ class Mysql extends Connection
      */
     public function getTables($dbName = '')
     {
+        $this->initConnect(true);
         $sql = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
         // 调试开始
         $this->debug(true);
