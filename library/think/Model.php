@@ -158,7 +158,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (!empty($this->field)) {
                 if (true === $this->field) {
-                    $type = $this->db()->getTableInfo('', 'type');
+                    $type = $query->getTableInfo('', 'type');
                 } else {
                     $type = [];
                     foreach ((array) $this->field as $key => $val) {
