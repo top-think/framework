@@ -43,10 +43,6 @@ class Query
     protected $name = '';
     // 当前数据表主键
     protected $pk;
-    // 当前表字段类型信息
-    protected $fieldType = [];
-    // 当前允许的字段列表
-    protected $allowField = [];
     // 当前数据表前缀
     protected $prefix = '';
     // 查询参数
@@ -741,11 +737,11 @@ class Query
         }
         if (true === $field) {
             // 获取全部字段
-            $fields = !empty($this->allowField) && ('' == $tableName || $this->getTable() == $tableName) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
-            $fields = !empty($this->allowField) && ('' == $tableName || $this->getTable() == $tableName) ? $this->allowField : $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
         if ($tableName) {
@@ -1261,35 +1257,6 @@ class Query
     }
 
     /**
-     * 设置数据表字段
-     * @access public
-     * @param string|array $field 字段信息
-     * @return $this
-     */
-    public function allowField($field)
-    {
-        if (true === $field) {
-            $field = $this->getTableInfo('', 'fields');
-        } elseif (is_string($field)) {
-            $field = explode(',', $field);
-        }
-        $this->allowField = $field;
-        return $this;
-    }
-
-    /**
-     * 设置字段类型
-     * @access public
-     * @param array $fieldType 字段类型信息
-     * @return $this
-     */
-    public function setFieldType($fieldType = [])
-    {
-        $this->fieldType = $fieldType;
-        return $this;
-    }
-
-    /**
      * 指定数据表主键
      * @access public
      * @param string $pk 主键
@@ -1421,13 +1388,13 @@ class Query
     // 获取当前数据表字段信息
     public function getTableFields($options)
     {
-        return !empty($this->allowField) ? $this->allowField : $this->getTableInfo($options['table'], 'fields');
+        return $this->getTableInfo($options['table'], 'fields');
     }
 
     // 获取当前数据表字段类型
     public function getFieldsType($options)
     {
-        return !empty($this->fieldType) ? $this->fieldType : $this->getTableInfo($options['table'], 'type');
+        return $this->getTableInfo($options['table'], 'type');
     }
 
     // 获取当前数据表绑定信息
@@ -2003,9 +1970,6 @@ class Query
                 $model = $this->model;
                 $data  = new $model($data);
                 $data->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
-                if ($this->allowField) {
-                    $data->allowField($this->allowField);
-                }
                 // 关联查询
                 if (!empty($options['relation'])) {
                     $data->relationQuery($options['relation']);
