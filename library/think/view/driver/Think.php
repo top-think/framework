@@ -140,8 +140,10 @@ class Think
     {
         if (is_array($name)) {
             $this->template->config($name);
+            $this->config = array_merge($this->config, $name);
         } else {
             $this->template->$name = $value;
+            $this->config[$name]   = $value;
         }
     }
 

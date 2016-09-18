@@ -141,7 +141,11 @@ class Php
      */
     public function config($name, $value = null)
     {
-
+        if (is_array($name)) {
+            $this->config = array_merge($this->config, $name);
+        } else {
+            $this->config[$name] = $value;
+        }
     }
 
 }
