@@ -361,7 +361,7 @@ if (!function_exists('cache')) {
         }
         if ('' === $value) {
             // 获取缓存
-            return Cache::get($name);
+            return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::rm($name);
