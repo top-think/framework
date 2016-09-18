@@ -99,6 +99,7 @@ class Sqlsrv extends Connection
      */
     public function getTables($dbName = '')
     {
+        $this->initConnect(true);
         $sql = "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_TYPE = 'BASE TABLE'

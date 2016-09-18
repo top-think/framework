@@ -77,6 +77,7 @@ class Pgsql extends Connection
      */
     public function getTables($dbName = '')
     {
+        $this->initConnect(true);
         $sql = "select tablename as Tables_in_test from pg_tables where  schemaname ='public'";
         // 调试开始
         $this->debug(true);
