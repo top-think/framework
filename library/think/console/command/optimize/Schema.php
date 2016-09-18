@@ -24,7 +24,8 @@ class Schema extends Command
     protected function configure()
     {
         $this->setName('optimize:schema')
-            ->addOption('table', null, Option::VALUE_REQUIRED, 'Build table schema cache .')
+            ->addOption('db', null, Option::VALUE_REQUIRED, 'db name .')
+            ->addOption('table', null, Option::VALUE_REQUIRED, 'table name .')
             ->setDescription('Build database schema cache.');
     }
 
@@ -33,18 +34,24 @@ class Schema extends Command
         if ($input->hasOption('table')) {
             $tables[] = $input->getOption('table');
         } else {
-            $tables = Db::getTables();
+            if ($input->hasOption('db')) {
+                $dbName = $input->getOption('db');
+                $tables = Db::getTables($dbName);
+            } else {
+                $tables = Db::getTables();
+            }
         }
 
         if (!is_dir(RUNTIME_PATH . 'schema')) {
             @mkdir(RUNTIME_PATH . 'schema', 0755, true);
         }
 
+        $db = isset($dbName) ? $dbName . '.' : '';
         foreach ($tables as $table) {
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = Db::getFields($table);
+            $info    = Db::getFields($db . $table);
             $content .= var_export($info, true) . ';';
-            file_put_contents(RUNTIME_PATH . 'schema' . DS . $table . EXT, $content);
+            file_put_contents(RUNTIME_PATH . 'schema' . DS . $db . $table . EXT, $content);
         }
 
         $output->writeln('<info>Succeed!</info>');
