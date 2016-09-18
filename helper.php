@@ -147,7 +147,7 @@ if (!function_exists('widget')) {
     /**
      * 渲染输出Widget
      * @param string    $name Widget名称
-     * @param array     $data 传人的参数
+     * @param array     $data 传入的参数
      * @return mixed
      */
     function widget($name, $data = [])

@@ -1375,7 +1375,12 @@ class Query
 
         list($guid) = explode(' ', $tableName);
         if (!isset(self::$info[$guid])) {
-            $info   = $this->connection->getFields($tableName);
+            // 读取缓存
+            if (is_file(RUNTIME_PATH . 'schema/' . $guid . '.php')) {
+                $info = include RUNTIME_PATH . 'schema/' . $guid . '.php';
+            } else {
+                $info = $this->connection->getFields($guid);
+            }
             $fields = array_keys($info);
             $bind   = $type   = [];
             foreach ($info as $key => $val) {
