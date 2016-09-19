@@ -233,16 +233,24 @@ class Merge extends Model
                 if ($result) {
                     $insertId = $db->getLastInsID($sequence);
                     // 写入外键数据
+                    $pk = $this->getPk();
                     if ($insertId) {
+                        if (is_string($pk)) {
+                            $this->data[$pk] = $insertId;
+                        }
                         $this->data[$this->fk] = $insertId;
                     }
 
                     // 写入附表数据
+                    $source = $this->data;
+                    if ($insertId && is_string($pk) && isset($source[$pk])) {
+                        unset($source[$pk]);
+                    }
                     foreach (static::$relationModel as $key => $model) {
                         $name  = is_int($key) ? $model : $key;
                         $table = is_int($key) ? $db->getTable($model) : $model;
                         // 处理关联模型数据
-                        $data  = $this->parseData($name, $this->data, true);
+                        $data  = $this->parseData($name, $source, true);
                         $query = clone $db;
                         $query->table($table)->strict(false)->insert($data);
                     }
