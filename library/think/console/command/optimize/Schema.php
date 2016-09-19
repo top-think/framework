@@ -84,12 +84,14 @@ class Schema extends Command
 
     protected function buildModelSchema($class)
     {
-        $table   = $class::getTable();
-        $dbName  = $class::getConfig('database');
-        $content = '<?php ' . PHP_EOL . 'return ';
-        $info    = $class::getConnection()->getFields($table);
-        $content .= var_export($info, true) . ';';
-        file_put_contents(RUNTIME_PATH . 'schema' . DS . $dbName . '.' . $table . EXT, $content);
+        if ($class instanceof \think\Model) {
+            $table   = $class::getTable();
+            $dbName  = $class::getConfig('database');
+            $content = '<?php ' . PHP_EOL . 'return ';
+            $info    = $class::getConnection()->getFields($table);
+            $content .= var_export($info, true) . ';';
+            file_put_contents(RUNTIME_PATH . 'schema' . DS . $dbName . '.' . $table . EXT, $content);
+        }
     }
 
     protected function buildDataBaseSchema($tables, $db)
