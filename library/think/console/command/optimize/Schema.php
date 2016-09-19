@@ -84,7 +84,8 @@ class Schema extends Command
 
     protected function buildModelSchema($class)
     {
-        if ($class instanceof \think\Model) {
+        $reflect = new \ReflectionClass($class);
+        if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
             $table   = $class::getTable();
             $dbName  = $class::getConfig('database');
             $content = '<?php ' . PHP_EOL . 'return ';
