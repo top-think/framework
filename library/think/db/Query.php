@@ -1341,6 +1341,9 @@ class Query
         }
 
         list($guid) = explode(' ', $tableName);
+        if (!strpos($guid, '.')) {
+            $guid = $this->getConfig('database') . '.' . $guid;
+        }
         if (!isset(self::$info[$guid])) {
             // 读取缓存
             if (is_file(RUNTIME_PATH . 'schema/' . $guid . '.php')) {
