@@ -675,6 +675,11 @@ class Relation
                         $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
                     }
                     break;
+                case self::BELONGS_TO_MANY:
+                    $modelTable   = $this->query->getTable();
+                    $pk           = $this->parent->getPk();
+                    $this->query->join($this->middle , $this->middle . '.' . $this->foreignKey . '=' . $modelTable . '.' . $pk)->where($this->middle . '.' . $this->localKey . ' = ' . $this->parent->{$pk});
+                    break;
                 case self::HAS_MANY_THROUGH:
                     $through      = $this->middle;
                     $model        = $this->model;
