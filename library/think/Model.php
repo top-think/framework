@@ -39,11 +39,12 @@ use think\paginator\Collection as PaginatorCollection;
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
-
     // 数据库对象池
     protected static $links = [];
     // 数据库配置
     protected $connection = [];
+    // 数据库查询对象
+    protected $query;
     // 当前模型名称
     protected $name;
     // 数据表名称
@@ -147,7 +148,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = $this->class;
         if (!isset(self::$links[$model])) {
             // 设置当前模型 确保查询返回模型对象
-            $query = Db::connect($this->connection)->model($model);
+            $query = Db::connect($this->connection)->model($model, $this->query);
 
             // 设置当前数据表和模型名
             if (!empty($this->table)) {
