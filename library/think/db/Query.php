@@ -1341,13 +1341,15 @@ class Query
         }
 
         list($guid) = explode(' ', $tableName);
-        if (!strpos($guid, '.')) {
-            $guid = $this->getConfig('database') . '.' . $guid;
-        }
         if (!isset(self::$info[$guid])) {
+            if (!strpos($guid, '.')) {
+                $schema = $this->getConfig('database') . '.' . $guid;
+            } else {
+                $schema = $guid;
+            }
             // 读取缓存
-            if (is_file(RUNTIME_PATH . 'schema/' . $guid . '.php')) {
-                $info = include RUNTIME_PATH . 'schema/' . $guid . '.php';
+            if (is_file(RUNTIME_PATH . 'schema/' . $schema . '.php')) {
+                $info = include RUNTIME_PATH . 'schema/' . $schema . '.php';
             } else {
                 $info = $this->connection->getFields($guid);
             }

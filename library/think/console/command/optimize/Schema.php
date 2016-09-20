@@ -72,7 +72,6 @@ class Schema extends Command
             $output->writeln('<info>Succeed!</info>');
             return;
         } else {
-            $dbName = Db::getConfig('database');
             $tables = Db::getTables();
         }
 
@@ -97,11 +96,16 @@ class Schema extends Command
 
     protected function buildDataBaseSchema($tables, $db)
     {
+        if ('' == $db) {
+            $dbName = Db::getConfig('database') . '.';
+        } else {
+            $dbName = $db;
+        }
         foreach ($tables as $table) {
             $content = '<?php ' . PHP_EOL . 'return ';
             $info    = Db::getFields($db . $table);
             $content .= var_export($info, true) . ';';
-            file_put_contents(RUNTIME_PATH . 'schema' . DS . $db . $table . EXT, $content);
+            file_put_contents(RUNTIME_PATH . 'schema' . DS . $dbName . $table . EXT, $content);
         }
     }
 }
