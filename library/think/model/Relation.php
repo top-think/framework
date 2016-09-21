@@ -554,7 +554,7 @@ class Relation
             case self::BELONGS_TO:
             case self::HAS_MANY:
                 if ($data instanceof Model) {
-                    $data = $data->toArray();
+                    $data = $data->getData();
                 }
                 // 保存关联表数据
                 $data[$this->foreignKey] = $this->parent->{$this->localKey};
