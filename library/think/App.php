@@ -444,12 +444,18 @@ class App
             $path = APP_PATH . $module;
             // 加载模块配置
             $config = Config::load(CONF_PATH . $module . 'config' . CONF_EXT);
-
+            // 读取数据库配置文件
+            $filename = CONF_PATH . $module . 'database' . CONF_EXT;
+            Config::load($filename, 'database');
             // 读取扩展配置文件
-            if ($config['extra_config_list']) {
-                foreach ($config['extra_config_list'] as $name => $file) {
-                    $filename = CONF_PATH . $module . $file . CONF_EXT;
-                    Config::load($filename, is_string($name) ? $name : pathinfo($filename, PATHINFO_FILENAME));
+            if (is_dir(CONF_PATH . $module . 'extra')) {
+                $path  = CONF_PATH . $module . 'extra';
+                $files = scandir($path);
+                foreach ($files as $file) {
+                    if (strpos($file, CONF_EXT)) {
+                        $filename = $path . DS . $file;
+                        Config::load($filename, pathinfo($file, PATHINFO_FILENAME));
+                    }
                 }
             }
 
