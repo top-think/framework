@@ -209,7 +209,9 @@ class Merge extends Model
                     // 处理关联模型数据
                     $data  = $this->parseData($name, $this->data);
                     $query = clone $db;
-                    $query->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data);
+                    if ($query->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data)) {
+                        $result = 1;
+                    }
                 }
                 // 新增回调
                 $this->trigger('after_update', $this);
