@@ -226,8 +226,8 @@ class routeTest extends \PHPUnit_Framework_TestCase
     public function testRouteToController()
     {
         $request = Request::instance();
-        Route::get('say/:name', '@app\index\controller\index\hello');
-        $this->assertEquals(['type' => 'controller', 'controller' => 'app\index\controller\index\hello'], Route::check($request, 'say/thinkphp'));
+        Route::get('say/:name', '@index/hello');
+        $this->assertEquals(['type' => 'controller', 'controller' => 'index/hello'], Route::check($request, 'say/thinkphp'));
     }
 
     public function testRouteToMethod()
