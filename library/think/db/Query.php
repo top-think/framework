@@ -771,7 +771,7 @@ class Query
      * @param string       $type  JOIN类型
      * @return $this
      */
-    public function view($join, $field = null, $on = null, $type = 'INNER')
+    public function view($join, $field = true, $on = null, $type = 'INNER')
     {
         $this->options['view'] = true;
         if (is_array($join) && is_null($field)) {
