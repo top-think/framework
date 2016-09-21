@@ -1402,8 +1402,9 @@ class Route
         } elseif (0 === strpos($route, '/') || 0 === strpos($route, 'http')) {
             // 路由到重定向地址
             $result = ['type' => 'redirect', 'url' => $route, 'status' => isset($option['status']) ? $option['status'] : 301];
-        } elseif (0 === strpos($route, '\\')) {
+        } elseif (strpos($route, '\\')) {
             // 路由到方法
+            $route  = str_replace('/', '@', $route);
             $method = strpos($route, '@') ? explode('@', $route) : $route;
             $result = ['type' => 'method', 'method' => $method];
         } elseif (0 === strpos($route, '@')) {
