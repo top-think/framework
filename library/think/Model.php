@@ -1347,8 +1347,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $params)
     {
         $query = self::getDb();
+        $model = get_called_class();
         // 全局作用域
-        if (static::$useGlobalScope && method_exists(__CLASS__, 'base')) {
+        if (static::$useGlobalScope && method_exists($model, 'base')) {
             call_user_func_array('static::base', [ & $query]);
         }
         return call_user_func_array([$query, $method], $params);
