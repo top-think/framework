@@ -254,9 +254,9 @@ class App
                 $class = $param->getClass();
                 if ($class) {
                     $className = $class->getName();
-                    if (isset($vars[$name]) && $vars[$name] instanceof $className) {
-                        $args[] = $vars[$name];
-                        unset($vars[$name]);
+                    $bind      = Request::instance()->$name;
+                    if ($bind instanceof $className) {
+                        $args[] = $bind;
                     } else {
                         $args[] = method_exists($className, 'instance') ? $className::instance() : new $className();
                     }

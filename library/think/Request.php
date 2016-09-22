@@ -117,6 +117,8 @@ class Request
     protected static $hook = [];
     // 绑定的属性
     protected $bind = [];
+    // php://input
+    protected $input;
 
     /**
      * 架构函数
@@ -133,6 +135,8 @@ class Request
         if (is_null($this->filter)) {
             $this->filter = Config::get('default_filter');
         }
+        // 保存 php://input
+        $this->input = file_get_contents('php://input');
     }
 
     public function __call($method, $args)
@@ -698,7 +702,7 @@ class Request
     public function put($name = '', $default = null, $filter = null)
     {
         if (is_null($this->put)) {
-            $content = file_get_contents('php://input');
+            $content = $this->input;
             if (strpos($content, '":')) {
                 $this->put = json_decode($content, true);
             } else {
@@ -1416,9 +1420,19 @@ class Request
     public function getContent()
     {
         if (is_null($this->content)) {
-            $this->content = file_get_contents('php://input');
+            $this->content = $this->input;
         }
         return $this->content;
+    }
+
+    /**
+     * 获取当前请求的php://input
+     * @access public
+     * @return string
+     */
+    public function getInput()
+    {
+        return $this->input;
     }
 
     /**
@@ -1463,5 +1477,10 @@ class Request
     public function __get($name)
     {
         return isset($this->bind[$name]) ? $this->bind[$name] : null;
+    }
+
+    public function __isset($name)
+    {
+        return isset($this->bind[$name]);
     }
 }
