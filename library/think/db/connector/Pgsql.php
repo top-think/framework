@@ -61,7 +61,7 @@ class Pgsql extends Connection
                     'type'    => $val['type'],
                     'notnull' => (bool) ('' === $val['null']), // not null is empty, null is yes
                     'default' => $val['default'],
-                    'primary' => (strtolower($val['key']) == 'pri'),
+                    'primary' => (strtolower($val['key']) == $tableName.'_pkey'),
                     'autoinc' => (strtolower($val['extra']) == 'auto_increment'),
                 ];
             }
