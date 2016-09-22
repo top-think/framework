@@ -449,11 +449,11 @@ class App
             Config::load($filename, 'database');
             // 读取扩展配置文件
             if (is_dir(CONF_PATH . $module . 'extra')) {
-                $path  = CONF_PATH . $module . 'extra';
-                $files = scandir($path);
+                $dir   = CONF_PATH . $module . 'extra';
+                $files = scandir($dir);
                 foreach ($files as $file) {
                     if (strpos($file, CONF_EXT)) {
-                        $filename = $path . DS . $file;
+                        $filename = $dir . DS . $file;
                         Config::load($filename, pathinfo($file, PATHINFO_FILENAME));
                     }
                 }
