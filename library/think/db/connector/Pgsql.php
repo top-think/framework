@@ -59,10 +59,10 @@ class Pgsql extends Connection
                 $info[$val['field']] = [
                     'name'    => $val['field'],
                     'type'    => $val['type'],
-                    'notnull' => (bool) ('' === $val['null']), // not null is empty, null is yes
+                    'notnull' => (bool) ('' !== $val['null']),
                     'default' => $val['default'],
-                    'primary' => (strtolower($val['key']) == 'pri'),
-                    'autoinc' => (strtolower($val['extra']) == 'auto_increment'),
+                    'primary' => !empty($val['key']),
+                    'autoinc' => (0 === strpos($val['extra'], 'nextval(')),
                 ];
             }
         }
