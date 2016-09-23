@@ -250,9 +250,11 @@ class routeTest extends \PHPUnit_Framework_TestCase
     {
         $request = Request::instance();
         Route::bind('index/blog');
-        Route::get('index/blog/:id', 'index/blog/read');
-        $result = Route::check($request, '10');
+        Route::get('blog/:id', 'index/blog/read');
+        $result = Route::check($request, 'blog/10');
         $this->assertEquals(['index', 'blog', 'read'], $result['module']);
+        $result = Route::parseUrl('test');
+        $this->assertEquals(['index', 'blog', 'test'], $result['module']);
 
         Route::bind('\app\index\controller', 'namespace');
         $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\blog', 'read']], Route::check($request, 'blog/read'));
