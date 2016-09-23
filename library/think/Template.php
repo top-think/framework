@@ -127,6 +127,8 @@ class Template
             $this->config = array_merge($this->config, $config);
         } elseif (isset($this->config[$config])) {
             return $this->config[$config];
+        } else {
+            return null;
         }
     }
 

@@ -143,6 +143,8 @@ class Php
     {
         if (is_array($name)) {
             $this->config = array_merge($this->config, $name);
+        } elseif (is_null($value)) {
+            return isset($this->config[$name]) ? $this->config[$name] : null;
         } else {
             $this->config[$name] = $value;
         }

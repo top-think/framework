@@ -130,17 +130,19 @@ class Think
     }
 
     /**
-     * 配置模板引擎
+     * 配置或者获取模板引擎参数
      * @access private
      * @param string|array  $name 参数名
      * @param mixed         $value 参数值
-     * @return void
+     * @return mixed
      */
     public function config($name, $value = null)
     {
         if (is_array($name)) {
             $this->template->config($name);
             $this->config = array_merge($this->config, $name);
+        } elseif (is_null($value)) {
+            return $this->template->config($name);
         } else {
             $this->template->$name = $value;
             $this->config[$name]   = $value;
