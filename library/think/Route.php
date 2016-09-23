@@ -985,10 +985,6 @@ class Route
                 case 'namespace':
                     // 绑定到命名空间
                     return self::bindToNamespace($url, $bind, $depr);
-                case 'module':
-                    // 如果有模块/控制器绑定 针对路由到 模块/控制器 有效
-                    $url = (empty(self::$domainBind) ? $bind . '/' : '') . ltrim($url, '/');
-                    break;
             }
         }
         return false;
