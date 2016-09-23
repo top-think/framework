@@ -95,27 +95,15 @@ class File extends SplFileObject
     }
 
     /**
-     * 获取文件的md5散列值
-     * @return $this
+     * 获取文件的哈希散列值
+     * @return $string
      */
-    public function md5()
+    public function hash($type = 'sha1')
     {
-        if (!isset($this->hash['md5'])) {
-            $this->hash['md5'] = md5_file($this->filename);
+        if (!isset($this->hash[$type])) {
+            $this->hash[$type] = hash_file($type, $this->filename);
         }
-        return $this->hash['md5'];
-    }
-
-    /**
-     * 获取文件的sha1散列值
-     * @return $this
-     */
-    public function sha1()
-    {
-        if (!isset($this->hash['sha1'])) {
-            $this->hash['sha1'] = sha1_file($this->filename);
-        }
-        return $this->hash['sha1'];
+        return $this->hash[$type];
     }
 
     /**
