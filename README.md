@@ -1,11 +1,12 @@
-ThinkPHP 5.0 
+ThinkPHP 5.0
 ===============
 
-[![Travis](https://img.shields.io/travis/top-think/framework.svg?maxAge=2592000)](https://travis-ci.org/top-think/framework)
-[![Codecov](https://img.shields.io/codecov/c/github/top-think/framework.svg?maxAge=2592000)](https://codecov.io/github/top-think/framework)
-[![GitHub release](https://img.shields.io/github/release/top-think/framework.svg?maxAge=2592000)](https://github.com/top-think/framework/releases/latest)
-[![Packagist](https://img.shields.io/packagist/v/topthink/framework.svg?maxAge=2592000)](https://packagist.org/packages/topthink/framework)
-[![Packagist](https://img.shields.io/packagist/dt/topthink/framework.svg?maxAge=2592000)](https://packagist.org/packages/topthink/framework)
+[![Build Status](https://travis-ci.org/top-think/framework.svg?branch=master)](https://travis-ci.org/top-think/framework)
+[![codecov.io](http://codecov.io/github/top-think/framework/coverage.svg?branch=master)](http://codecov.io/github/github/top-think/framework?branch=master)
+[![Total Downloads](https://poser.pugx.org/topthink/framework/downloads)](https://packagist.org/packages/topthink/framework)
+[![Latest Stable Version](https://poser.pugx.org/topthink/framework/v/stable)](https://packagist.org/packages/topthink/framework)
+[![Latest Unstable Version](https://poser.pugx.org/topthink/framework/v/unstable)](https://packagist.org/packages/topthink/framework)
+[![License](https://poser.pugx.org/topthink/framework/license)](https://packagist.org/packages/topthink/framework)
 
 ThinkPHP5在保持快速开发和大道至简的核心理念不变的同时，PHP版本要求提升到5.4，对已有的CBD模式做了更深的强化，优化核心，减少依赖，基于全新的架构思想和命名空间实现，是ThinkPHP突破原有框架思路的颠覆之作，其主要特性包括：
 
