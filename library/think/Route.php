@@ -1292,6 +1292,7 @@ class Route
      */
     private static function parseRule($rule, $route, $pathinfo, $option = [], $matches = [], $merge = false)
     {
+        $request = Request::instance();
         // 解析路由规则
         if ($rule) {
             $rule = explode('/', $rule);
@@ -1364,13 +1365,13 @@ class Route
                     $bind[$key] = $result;
                 }
             }
-            Request::instance()->bind($bind);
+            $request->bind($bind);
         }
 
         // 解析额外参数
         self::parseUrlParams(empty($paths) ? '' : implode('/', $paths), $matches);
         // 记录匹配的路由信息
-        Request::instance()->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
+        $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
 
         // 检测路由after行为
         if (!empty($option['after_behavior'])) {
@@ -1409,6 +1410,10 @@ class Route
         } else {
             // 路由到模块/控制器/操作
             $result = self::parseModule($route);
+        }
+        // 开启请求缓存
+        if ($request->isGet() && !empty($option['cache'])) {
+            $request->cache($pathinfo, $option['cache']);
         }
         return $result;
     }

@@ -119,6 +119,8 @@ class Request
     protected $bind = [];
     // php://input
     protected $input;
+    // 请求缓存
+    protected $cache;
 
     /**
      * 架构函数
@@ -1451,6 +1453,30 @@ class Request
         }
         Session::set($name, $token);
         return $token;
+    }
+
+    /**
+     * 读取缓存
+     * @access public
+     * @param string $key 缓存标识
+     * @param mixed  $expire 静态有效期
+     * @return mixed
+     */
+    public function cache($key, $expire = null)
+    {
+        if (Cache::has($key)) {
+            // 读取缓存
+            $content  = Cache::get($key);
+            $response = Response::create($content)->header('Content-Type', Cache::get($key . '_header'));
+            throw new \think\exception\HttpResponseException($response);
+        } else {
+            $this->cache = [$key, $expire];
+        }
+    }
+
+    public function getCache()
+    {
+        return $this->cache;
     }
 
     /**
