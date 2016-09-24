@@ -1413,7 +1413,14 @@ class Route
         }
         // 开启请求缓存
         if ($request->isGet() && !empty($option['cache'])) {
-            $request->cache($pathinfo, $option['cache']);
+            $cache = $option['cache'];
+            if (is_array($cache)) {
+                list($key, $expire) = $cache;
+            } else {
+                $key    = $pathinfo;
+                $expire = $cache;
+            }
+            $request->cache($key, $expire);
         }
         return $result;
     }
