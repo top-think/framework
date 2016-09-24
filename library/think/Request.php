@@ -1464,15 +1464,15 @@ class Request
      */
     public function cache($key, $expire = null)
     {
-        if (Cache::has($key)) {
-            if (false !== strpos($key, ':')) {
-                $param = $this->param();
-                foreach ($param as $item => $val) {
-                    if (is_string($val) && false !== strpos($key, ':' . $item)) {
-                        $key = str_replace(':' . $item, $val, $key);
-                    }
+        if (false !== strpos($key, ':')) {
+            $param = $this->param();
+            foreach ($param as $item => $val) {
+                if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                    $key = str_replace(':' . $item, $val, $key);
                 }
             }
+        }
+        if (Cache::has($key)) {
             // 读取缓存
             $content  = Cache::get($key);
             $response = Response::create($content)->header('Content-Type', Cache::get($key . '_header'));
