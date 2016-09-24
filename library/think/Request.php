@@ -1456,15 +1456,23 @@ class Request
     }
 
     /**
-     * 读取缓存
+     * 读取或者设置缓存
      * @access public
-     * @param string $key 缓存标识
-     * @param mixed  $expire 静态有效期
+     * @param string $key 缓存标识，支持变量规则 ，例如 item/:name/:id
+     * @param mixed  $expire 缓存有效期
      * @return mixed
      */
     public function cache($key, $expire = null)
     {
         if (Cache::has($key)) {
+            if (false !== strpos($key, ':')) {
+                $param = $this->param();
+                foreach ($param as $item => $val) {
+                    if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                        $key = str_replace(':' . $item, $val, $key);
+                    }
+                }
+            }
             // 读取缓存
             $content  = Cache::get($key);
             $response = Response::create($content)->header('Content-Type', Cache::get($key . '_header'));
@@ -1474,6 +1482,11 @@ class Request
         }
     }
 
+    /**
+     * 读取缓存设置
+     * @access public
+     * @return array
+     */
     public function getCache()
     {
         return $this->cache;
