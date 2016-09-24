@@ -126,6 +126,8 @@ class Response
             fastcgi_finish_request();
         }
 
+        // 监听response_end
+        Hook::listen('response_end', $this);
     }
 
     /**
