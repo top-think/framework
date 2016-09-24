@@ -442,12 +442,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = (bool) $value;
                 break;
             case 'timestamp':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = date($format, $value);
+                if (!is_null($value)) {
+                    $format = !empty($param) ? $param : $this->dateFormat;
+                    $value  = date($format, $value);
+                }
                 break;
             case 'datetime':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = date($format, strtotime($value));
+                if (!is_null($value)) {
+                    $format = !empty($param) ? $param : $this->dateFormat;
+                    $value  = date($format, strtotime($value));
+                }
                 break;
             case 'json':
                 $value = json_decode($value, true);
