@@ -240,7 +240,7 @@ class App
         if ($constructor) {
             $args = self::bindParams($constructor, $vars);
         } else {
-            $args[] = Request::instance();
+            $args = [];
         }
 
         self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
