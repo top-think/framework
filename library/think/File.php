@@ -344,19 +344,18 @@ class File extends SplFileObject
                 $savename = call_user_func_array($this->rule, [$this]);
             } else {
                 switch ($this->rule) {
-                    case 'md5':
-                        $md5      = md5_file($this->filename);
-                        $savename = substr($md5, 0, 2) . DS . substr($md5, 2);
-                        break;
-                    case 'sha1':
-                        $sha1     = sha1_file($this->filename);
-                        $savename = substr($sha1, 0, 2) . DS . substr($sha1, 2);
-                        break;
                     case 'date':
                         $savename = date('Ymd') . DS . md5(microtime(true));
                         break;
                     default:
-                        $savename = call_user_func($this->rule);
+                        if (in_array($this->rule, hash_algos())) {
+                            $hash     = $this->hash($this->rule);
+                            $savename = substr($hash, 0, 2) . DS . substr($hash, 2);
+                        } elseif (is_callable($this->rule)) {
+                            $savename = call_user_func($this->rule);
+                        } else {
+                            $savename = date('Ymd') . DS . md5(microtime(true));
+                        }
                 }
             }
         } elseif ('' === $savename) {
