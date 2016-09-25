@@ -95,6 +95,10 @@ return [
     'url_controller_layer'   => 'controller',
     // 表单请求类型伪装变量
     'var_method'             => '_method',
+    // 表单ajax伪装变量
+    'var_ajax'               => '_ajax',
+    // 表单pjax伪装变量
+    'var_pjax'               => '_pjax',
 
     // +----------------------------------------------------------------------
     // | 模板设置

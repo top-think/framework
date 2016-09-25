@@ -1186,22 +1186,34 @@ class Request
     /**
      * 当前是否Ajax请求
      * @access public
+     * @param bool $ajax  true 获取原始ajax请求
      * @return bool
      */
-    public function isAjax()
+    public function isAjax($ajax = false)
     {
-        $value = $this->server('HTTP_X_REQUESTED_WITH');
-        return (!is_null($value) && strtolower($value) == 'xmlhttprequest') ? true : false;
+        $value  = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
+        $result = ('xmlhttprequest' == $value) ? true : false;
+        if (true === $ajax) {
+            return $result;
+        } else {
+            return $this->param(Config::get('var_ajax')) ? true : $result;
+        }
     }
 
     /**
      * 当前是否Pjax请求
      * @access public
+     * @param bool $pjax  true 获取原始pjax请求
      * @return bool
      */
-    public function isPjax()
+    public function isPjax($pjax = false)
     {
-        return !is_null($this->server('HTTP_X_PJAX')) ? true : false;
+        $result = !is_null($this->server('HTTP_X_PJAX')) ? true : false;
+        if (true === $pjax) {
+            return $result;
+        } else {
+            return $this->param(Config::get('var_pjax')) ? true : $result;
+        }
     }
 
     /**
