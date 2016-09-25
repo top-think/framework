@@ -1236,17 +1236,20 @@ class Route
                 foreach ($matches[1] as $name) {
                     if (strpos($name, '?')) {
                         $name      = substr($name, 0, -1);
-                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '?)';
+                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')?';
                     } else {
                         $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')';
                     }
                     $value[] = $name;
                 }
                 $val = str_replace($matches[0], $replace, $val);
-                if (preg_match('/^' . $val . '$/', $m1[$key], $match)) {
+                if (preg_match('/^' . $val . '$/', isset($m1[$key]) ? $m1[$key] : '', $match)) {
                     array_shift($match);
-                    $match = array_slice($match, 0, count($value));
-                    $var   = array_merge($var, array_combine($value, $match));
+                    foreach ($value as $k => $name) {
+                        if (isset($match[$k])) {
+                            $var[$name] = $match[$k];
+                        }
+                    }
                     continue;
                 } else {
                     return false;
