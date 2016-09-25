@@ -406,7 +406,7 @@ class Loader
         }
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
-            return new $class(Request::instance());
+            return App::invokeClass($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
         }

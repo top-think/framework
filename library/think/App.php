@@ -221,9 +221,30 @@ class App
             $reflect = new \ReflectionMethod($method);
         }
         $args = self::bindParams($reflect, $vars);
-        // 记录执行信息
+
         self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
+    }
+
+    /**
+     * 调用反射执行类的实例化 支持依赖注入
+     * @access public
+     * @param string    $class 类名
+     * @param array     $vars  变量
+     * @return mixed
+     */
+    public static function invokeClass($class, $vars = [])
+    {
+        $reflect     = new \ReflectionClass($class);
+        $constructor = $reflect->getConstructor();
+        if ($constructor) {
+            $args = self::bindParams($constructor, $vars);
+        } else {
+            $args[] = Request::instance();
+        }
+
+        self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
+        return $reflect->newInstanceArgs($args);
     }
 
     /**
