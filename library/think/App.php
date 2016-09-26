@@ -79,20 +79,20 @@ class App
     {
         is_null($request) && $request = Request::instance();
 
-        $config = self::initCommon();
-        if (defined('BIND_MODULE')) {
-            // 模块/控制器绑定
-            BIND_MODULE && Route::bind(BIND_MODULE);
-        } elseif ($config['auto_bind_module']) {
-            // 入口自动绑定
-            $name = pathinfo($request->baseFile(), PATHINFO_FILENAME);
-            if ($name && 'index' != $name && is_dir(APP_PATH . $name)) {
-                Route::bind($name);
-            }
-        }
-
-        $request->filter($config['default_filter']);
         try {
+            $config = self::initCommon();
+            if (defined('BIND_MODULE')) {
+                // 模块/控制器绑定
+                BIND_MODULE && Route::bind(BIND_MODULE);
+            } elseif ($config['auto_bind_module']) {
+                // 入口自动绑定
+                $name = pathinfo($request->baseFile(), PATHINFO_FILENAME);
+                if ($name && 'index' != $name && is_dir(APP_PATH . $name)) {
+                    Route::bind($name);
+                }
+            }
+
+            $request->filter($config['default_filter']);
 
             // 开启多语言机制
             if ($config['lang_switch_on']) {
