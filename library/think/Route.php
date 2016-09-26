@@ -830,7 +830,7 @@ class Route
             if (true === $rule) {
                 $rule = self::getRouteExpress($url);
             }
-            if (!empty($rule['route'])) {
+            if (!empty($rule['route']) && self::checkOption($rule['option'], $url, $request)) {
                 return self::parseRule($url, $rule['route'], $url, $rule['option']);
             }
         }
