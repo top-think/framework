@@ -40,7 +40,7 @@ use think\paginator\Collection as PaginatorCollection;
  * @method boolean chunk(integer $count, callable $callback, string $column = null) static 分块获取数据
  * @method mixed query(string $sql, array $bind = [], boolean $fetch = false, boolean $master = false, mixed $class = false) static SQL查询
  * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
- * @method PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) static 分页查询
+ * @method PaginatorCollection paginate(integer $listRows = 15, mixed $simple = false, array $config = []) static 分页查询
  * @method mixed transaction(callable $callback) static 执行数据库事务
  * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
  */
