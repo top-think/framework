@@ -1487,7 +1487,9 @@ class Request
         if (Cache::has($key)) {
             // 读取缓存
             $content  = Cache::get($key);
-            $response = Response::create($content)->header('Content-Type', Cache::get($key . '_header'));
+            $response = Response::create($content)
+                ->code(304)
+                ->header('Content-Type', Cache::get($key . '_header'));
             throw new \think\exception\HttpResponseException($response);
         } else {
             $this->cache = [$key, $expire];
