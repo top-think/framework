@@ -32,7 +32,7 @@ class Mysql extends Builder
         if (strpos($key, '$.') && false === strpos($key, '(')) {
             // JSON字段支持
             list($field, $name) = explode('$.', $key);
-            $key                = 'jsn_extract(' . $field . ', \'$.\'.' . $name . ')';
+            $key                = 'json_extract(' . $field . ', \'$.' . $name . '\')';
         }
         if (!preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
             $key = '`' . $key . '`';
