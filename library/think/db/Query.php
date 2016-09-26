@@ -972,7 +972,7 @@ class Query
     /**
      * 分页查询
      * @param int|null $listRows 每页数量
-     * @param bool     $simple   简洁模式
+     * @param int|bool $simple   简洁模式或者总记录数
      * @param array    $config   配置参数
      *                           page:当前页,
      *                           path:url路径,
@@ -986,6 +986,10 @@ class Query
      */
     public function paginate($listRows = null, $simple = false, $config = [])
     {
+        if (is_int($simple)) {
+            $total  = $simple;
+            $simple = false;
+        }
         $config   = array_merge(Config::get('paginate'), $config);
         $listRows = $listRows ?: $config['list_rows'];
 
@@ -1000,16 +1004,15 @@ class Query
 
         $config['path'] = isset($config['path']) ? $config['path'] : call_user_func([$class, 'getCurrentPath']);
 
-        if (!$simple) {
+        if (!isset($total) && !$simple) {
             $options = $this->getOptions();
             $total   = $this->count();
             $bind    = $this->bind;
             $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
         } else {
             $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
-            $total   = null;
+            $total   = isset($total) ? $total : null;
         }
-
         return $class::make($results, $listRows, $page, $total, $simple, $config);
     }
 
