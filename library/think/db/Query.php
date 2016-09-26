@@ -1009,9 +1009,11 @@ class Query
             $total   = $this->count();
             $bind    = $this->bind;
             $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
-        } else {
+        } elseif ($simple) {
             $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
-            $total   = isset($total) ? $total : null;
+            $total   = null;
+        } else {
+            $results = $this->page($page, $listRows)->select();
         }
         return $class::make($results, $listRows, $page, $total, $simple, $config);
     }
