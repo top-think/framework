@@ -1486,7 +1486,14 @@ class Request
                 }
             } elseif ('__URL__' == $key) {
                 // 当前URL地址作为缓存标识
-                $key = $this->url();
+                $key = md5($this->url());
+            } elseif (strpos($key, ']')) {
+                if ('[' . $this->ext() . ']' == $key) {
+                    // 缓存某个后缀的请求
+                    $key = md5($this->url());
+                } else {
+                    return;
+                }
             }
             if (Cache::has($key)) {
                 // 读取缓存
