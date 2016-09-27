@@ -1487,7 +1487,11 @@ class Query
      */
     public function getOptions($name = '')
     {
-        return isset($this->options[$name]) ? $this->options[$name] : $this->options;
+        if ('' === $name) {
+            return $this->options;
+        } else {
+            return isset($this->options[$name]) ? $this->options[$name] : null;
+        }
     }
 
     /**
