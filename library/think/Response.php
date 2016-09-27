@@ -115,7 +115,7 @@ class Response
 
         if (200 == $this->code) {
             $cache = Request::instance()->getCache();
-            if ($cache && Request::instance()->isGet()) {
+            if ($cache) {
                 Cache::set($cache[0], $data, $cache[1]);
                 Cache::set($cache[0] . '_header', $this->header['Content-Type']);
             }

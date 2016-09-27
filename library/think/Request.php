@@ -1476,26 +1476,28 @@ class Request
      */
     public function cache($key, $expire = null)
     {
-        if (false !== strpos($key, ':')) {
-            $param = $this->param();
-            foreach ($param as $item => $val) {
-                if (is_string($val) && false !== strpos($key, ':' . $item)) {
-                    $key = str_replace(':' . $item, $val, $key);
+        if ($this->isGet()) {
+            if (false !== strpos($key, ':')) {
+                $param = $this->param();
+                foreach ($param as $item => $val) {
+                    if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                        $key = str_replace(':' . $item, $val, $key);
+                    }
                 }
+            } elseif ('__URL__' == $key) {
+                // 当前URL地址作为缓存标识
+                $key = $this->url();
             }
-        } elseif ('__URL__' == $key) {
-            // 当前URL地址作为缓存标识
-            $key = $this->url();
-        }
-        if (Cache::has($key)) {
-            // 读取缓存
-            $content  = Cache::get($key);
-            $response = Response::create($content)
-                ->code(304)
-                ->header('Content-Type', Cache::get($key . '_header'));
-            throw new \think\exception\HttpResponseException($response);
-        } else {
-            $this->cache = [$key, $expire];
+            if (Cache::has($key)) {
+                // 读取缓存
+                $content  = Cache::get($key);
+                $response = Response::create($content)
+                    ->code(304)
+                    ->header('Content-Type', Cache::get($key . '_header'));
+                throw new \think\exception\HttpResponseException($response);
+            } else {
+                $this->cache = [$key, $expire];
+            }
         }
     }
 
