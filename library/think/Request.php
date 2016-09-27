@@ -1483,6 +1483,9 @@ class Request
                     $key = str_replace(':' . $item, $val, $key);
                 }
             }
+        } elseif ('__URL__' == $key) {
+            // 当前URL地址作为缓存标识
+            $key = $this->url();
         }
         if (Cache::has($key)) {
             // 读取缓存
