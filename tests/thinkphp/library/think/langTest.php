@@ -32,7 +32,6 @@ class langTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('欢迎', Lang::get('hello'));
         $this->assertEquals('欢迎', Lang::get('HELLO'));
         $this->assertEquals('使用', Lang::get('use'));
-        $this->assertEquals(['hello' => '欢迎', 'hello,%s' => '欢迎,%s', 'use' => '使用'], Lang::get());
 
         Lang::set('hello,{:name}', '欢迎,{:name}');
         $this->assertEquals('欢迎,liu21st', Lang::get('hello,{:name}', ['name' => 'liu21st']));
