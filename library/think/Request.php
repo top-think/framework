@@ -1495,12 +1495,14 @@ class Request
                     return;
                 }
             }
-            if (Cache::has($key)) {
+
+            if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
                 // 读取缓存
-                $content  = Cache::get($key);
-                $response = Response::create($content)
-                    ->code(304)
-                    ->header('Content-Type', Cache::get($key . '_header'));
+                $response = Response::create()->code(304);
+                throw new \think\exception\HttpResponseException($response);
+            } elseif (Cache::has($key)) {
+                list($content, $header) = Cache::get($key);
+                $response               = Response::create($content)->header($header);
                 throw new \think\exception\HttpResponseException($response);
             } else {
                 $this->cache = [$key, $expire];
