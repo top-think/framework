@@ -94,15 +94,18 @@ class App
 
             $request->filter($config['default_filter']);
 
-            // 开启多语言机制
             if ($config['lang_switch_on']) {
-                // 获取当前语言
-                $request->langset(Lang::detect());
-                // 加载系统语言包
-                Lang::load(THINK_PATH . 'lang' . DS . $request->langset() . EXT);
-                if (!$config['app_multi_module']) {
-                    Lang::load(APP_PATH . 'lang' . DS . $request->langset() . EXT);
-                }
+                // 开启多语言机制 检测当前语言
+                Lang::detect();
+            } else {
+                // 读取默认语言
+                Lang::range($config['default_lang']);
+            }
+            $request->langset(Lang::range());
+            // 加载系统语言包
+            Lang::load(THINK_PATH . 'lang' . DS . $request->langset() . EXT);
+            if (!$config['app_multi_module']) {
+                Lang::load(APP_PATH . 'lang' . DS . $request->langset() . EXT);
             }
 
             // 获取应用调度信息
@@ -496,7 +499,7 @@ class App
             }
 
             // 加载当前模块语言包
-            if ($config['lang_switch_on'] && $module) {
+            if ($module) {
                 Lang::load($path . 'lang' . DS . Request::instance()->langset() . EXT);
             }
         }

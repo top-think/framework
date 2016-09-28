@@ -81,10 +81,8 @@ class Lang
                 // 记录加载信息
                 App::$debug && Log::record('[ LANG ] ' . $_file, 'info');
                 $_lang = include $_file;
-            } else {
-                $_lang = [];
+                $lang  = array_change_key_case($_lang) + $lang;
             }
-            $lang = array_change_key_case($_lang) + $lang;
         }
         if (!empty($lang)) {
             self::$lang[$range] = $lang + self::$lang[$range];
