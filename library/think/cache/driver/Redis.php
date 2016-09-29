@@ -22,7 +22,6 @@ use think\cache\Driver;
  */
 class Redis extends Driver
 {
-    protected $handler = null;
     protected $options = [
         'host'       => '127.0.0.1',
         'port'       => 6379,
@@ -174,14 +173,4 @@ class Redis extends Driver
         return $this->handler->flushDB();
     }
 
-    /**
-     * 返回句柄对象，可执行其它高级方法
-     *
-     * @access public
-     * @return object
-     */
-    public function handler()
-    {
-        return $this->handler;
-    }
 }

@@ -15,7 +15,6 @@ use think\cache\Driver;
 
 class Memcached extends Driver
 {
-    protected $handler;
     protected $options = [
         'host'     => '127.0.0.1',
         'port'     => 11211,
