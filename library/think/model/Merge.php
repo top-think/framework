@@ -245,7 +245,7 @@ class Merge extends Model
 
                     // 写入附表数据
                     $source = $this->data;
-                    if ($insertId && is_string($pk) && isset($source[$pk])) {
+                    if ($insertId && is_string($pk) && isset($source[$pk]) && $this->fk != $pk) {
                         unset($source[$pk]);
                     }
                     foreach (static::$relationModel as $key => $model) {
