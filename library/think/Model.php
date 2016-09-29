@@ -13,6 +13,7 @@ namespace think;
 
 use InvalidArgumentException;
 use think\Cache;
+use think\Config;
 use think\Db;
 use think\db\Query;
 use think\Exception;
@@ -126,7 +127,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (empty($this->name)) {
             // 当前模型名
-            $this->name = basename(str_replace('\\', '/', $this->class));
+            $name       = str_replace('\\', '/', $this->class);
+            $this->name = basename($name);
+            if (Config::get('class_suffix')) {
+                $suffix     = basename(dirname($name));
+                $this->name = substr($this->name, 0, -strlen($suffix));
+            }
         }
 
         if (is_null($this->autoWriteTimestamp)) {
