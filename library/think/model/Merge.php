@@ -213,6 +213,8 @@ class Merge extends Model
                         $result = 1;
                     }
                 }
+                // 清空change
+                $this->change = [];
                 // 新增回调
                 $this->trigger('after_update', $this);
             } else {
@@ -239,6 +241,9 @@ class Merge extends Model
                     if ($insertId) {
                         if (is_string($pk)) {
                             $this->data[$pk] = $insertId;
+                            if ($this->fk == $pk) {
+                                $this->change[] = $pk;
+                            }
                         }
                         $this->data[$this->fk] = $insertId;
                     }
@@ -257,6 +262,10 @@ class Merge extends Model
                         $query->table($table)->strict(false)->insert($data);
                     }
                 }
+                // 标记为更新
+                $this->isUpdate = true;
+                // 清空change
+                $this->change = [];
                 // 新增回调
                 $this->trigger('after_insert', $this);
             }
