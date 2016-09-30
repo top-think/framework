@@ -322,7 +322,7 @@ class Loader
                 //加载当前模块应用类库
                 $baseUrl = App::$modulePath;
             } elseif (is_dir(EXTEND_PATH . $name)) {
-                $baseUrl = EXTEND_PATH;
+                $baseUrl = EXTEND_PATH . $name . DS;
             } else {
                 // 加载其它模块的类库
                 $baseUrl = APP_PATH . $name . DS;
