@@ -129,7 +129,7 @@ trait SoftDelete
      * 获取软删除字段
      * @access public
      * @param bool  $read 是否查询操作 写操作的时候会自动去掉表别名
-     * @return integer
+     * @return string
      */
     protected function getDeleteTimeField($read = false)
     {
