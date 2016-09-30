@@ -489,51 +489,51 @@ class Query
      */
     public function count($field = '*')
     {
-        return $this->value('COUNT(' . $field . ') AS tp_count', 0);
+        return (int) $this->value('COUNT(' . $field . ') AS tp_count', 0);
     }
 
     /**
      * SUM查询
      * @access public
      * @param string $field 字段名
-     * @return integer
+     * @return float|int
      */
     public function sum($field = '*')
     {
-        return $this->value('SUM(' . $field . ') AS tp_sum', 0);
+        return $this->value('SUM(' . $field . ') AS tp_sum', 0) + 0;
     }
 
     /**
      * MIN查询
      * @access public
      * @param string $field 字段名
-     * @return integer
+     * @return float|int
      */
     public function min($field = '*')
     {
-        return $this->value('MIN(' . $field . ') AS tp_min', 0);
+        return $this->value('MIN(' . $field . ') AS tp_min', 0) + 0;
     }
 
     /**
      * MAX查询
      * @access public
      * @param string $field 字段名
-     * @return integer
+     * @return float|int
      */
     public function max($field = '*')
     {
-        return $this->value('MAX(' . $field . ') AS tp_max', 0);
+        return $this->value('MAX(' . $field . ') AS tp_max', 0) + 0;
     }
 
     /**
      * AVG查询
      * @access public
      * @param string $field 字段名
-     * @return integer
+     * @return float|int
      */
     public function avg($field = '*')
     {
-        return $this->value('AVG(' . $field . ') AS tp_avg', 0);
+        return $this->value('AVG(' . $field . ') AS tp_avg', 0) + 0;
     }
 
     /**
