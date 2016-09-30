@@ -126,7 +126,7 @@ class Merge extends Model
         $item = [];
         foreach ($data as $key => $val) {
             if ($insert || in_array($key, $this->change) || $this->isPk($key)) {
-                if (array_key_exists($key, $this->mapFields)) {
+                if ($this->fk != $key && array_key_exists($key, $this->mapFields)) {
                     list($name, $key) = explode('.', $this->mapFields[$key]);
                     if ($model == $name) {
                         $item[$key] = $val;
