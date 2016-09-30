@@ -977,14 +977,14 @@ class Template
                     break;
                 case 'COOKIE':
                     if (isset($vars[2])) {
-                        $parseStr = '\\think\\Cookie::get(\'' . $vars[1] . '.' . $vars[2] . '\']';
+                        $parseStr = '\\think\\Cookie::get(\'' . $vars[1] . '.' . $vars[2] . '\')';
                     } else {
                         $parseStr = '\\think\\Cookie::get(\'' . $vars[1] . '\')';
                     }
                     break;
                 case 'SESSION':
                     if (isset($vars[2])) {
-                        $parseStr = '\\think\\Session::get(\'' . $vars[1] . '.' . $vars[2] . '\']';
+                        $parseStr = '\\think\\Session::get(\'' . $vars[1] . '.' . $vars[2] . '\')';
                     } else {
                         $parseStr = '\\think\\Session::get(\'' . $vars[1] . '\')';
                     }

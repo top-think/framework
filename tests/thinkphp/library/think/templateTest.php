@@ -295,9 +295,9 @@ EOF;
 <?php echo \$_GET['action']; ?><br/>
 <?php echo \$_POST['action']; ?><br/>
 <?php echo \\think\\Cookie::get('action'); ?><br/>
-<?php echo \$_COOKIE['action']['name']; ?><br/>
+<?php echo \\think\\Cookie::get('action.name'); ?><br/>
 <?php echo \\think\\Session::get('action'); ?><br/>
-<?php echo \$_SESSION['action']['name']; ?><br/>
+<?php echo \\think\\Session::get('action.name'); ?><br/>
 <?php echo \$_ENV['OS']; ?><br/>
 <?php echo \$_REQUEST['action']; ?><br/>
 <?php echo SITE_NAME; ?><br/>
