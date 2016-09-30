@@ -17,9 +17,9 @@ use think\Model;
 class Merge extends Model
 {
 
-    protected static $relationModel = []; // HAS ONE 关联的模型列表
-    protected $fk                   = ''; //  外键名 默认为主表名_id
-    protected $mapFields            = []; //  需要处理的模型映射字段，避免混淆 array( id => 'user.id'  )
+    protected $relationModel = []; // HAS ONE 关联的模型列表
+    protected $fk            = ''; //  外键名 默认为主表名_id
+    protected $mapFields     = []; //  需要处理的模型映射字段，避免混淆 array( id => 'user.id'  )
 
     /**
      * 架构函数
@@ -64,7 +64,7 @@ class Merge extends Model
         $fields = self::getModelField($query, $master, '', $class->mapFields);
         $query->alias($master)->field($fields);
 
-        foreach (static::$relationModel as $key => $model) {
+        foreach ($class->relationModel as $key => $model) {
             $name  = is_int($key) ? $model : $key;
             $table = is_int($key) ? $query->getTable($name) : $model;
             $query->join($table . ' ' . $name, $name . '.' . $class->fk . '=' . $master . '.' . $class->getPk());
@@ -203,7 +203,7 @@ class Merge extends Model
                 $result = $db->strict(false)->where($where)->update($data);
 
                 // 写入附表数据
-                foreach (static::$relationModel as $key => $model) {
+                foreach ($this->relationModel as $key => $model) {
                     $name  = is_int($key) ? $model : $key;
                     $table = is_int($key) ? $db->getTable($model) : $model;
                     // 处理关联模型数据
@@ -253,7 +253,7 @@ class Merge extends Model
                     if ($insertId && is_string($pk) && isset($source[$pk]) && $this->fk != $pk) {
                         unset($source[$pk]);
                     }
-                    foreach (static::$relationModel as $key => $model) {
+                    foreach ($this->relationModel as $key => $model) {
                         $name  = is_int($key) ? $model : $key;
                         $table = is_int($key) ? $db->getTable($model) : $model;
                         // 处理关联模型数据
@@ -297,7 +297,7 @@ class Merge extends Model
                 $pk = $this->data[$this->getPk()];
 
                 // 删除关联数据
-                foreach (static::$relationModel as $key => $model) {
+                foreach ($this->relationModel as $key => $model) {
                     $table = is_int($key) ? $db->getTable($model) : $model;
                     $query = clone $db;
                     $query->table($table)->where($this->fk, $pk)->delete();
