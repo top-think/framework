@@ -100,7 +100,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 验证失败是否抛出异常
     protected $failException = false;
     // 全局查询范围
-    protected static $useGlobalScope = true;
+    protected $useGlobalScope = true;
 
     /**
      * 初始化过的模型.
@@ -1116,8 +1116,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function useGlobalScope($use)
     {
-        $model                  = new static();
-        static::$useGlobalScope = $use;
+        $model                 = new static();
+        $model->useGlobalScope = $use;
         return $model;
     }
 
@@ -1341,8 +1341,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $query = $this->db();
         // 全局作用域
-        if (static::$useGlobalScope && method_exists($this, 'base')) {
-            call_user_func_array('static::base', [ & $query]);
+        if ($this->useGlobalScope && method_exists($this, 'base')) {
+            call_user_func_array([$this, 'base'], [ & $query]);
         }
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
@@ -1358,10 +1358,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $params)
     {
         $query = self::getDb();
-        $model = get_called_class();
+        $model = new static();
         // 全局作用域
-        if (static::$useGlobalScope && method_exists($model, 'base')) {
-            call_user_func_array('static::base', [ & $query]);
+        if ($model->useGlobalScope && method_exists($model, 'base')) {
+            call_user_func_array([$model, 'base'], [ & $query]);
         }
         return call_user_func_array([$query, $method], $params);
     }
