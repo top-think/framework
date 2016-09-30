@@ -407,9 +407,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
         } elseif ($notFound) {
-            if (method_exists($this, $name) && !method_exists('\think\Model', $name)) {
+            $method = Loader::parseName($name, 1);
+            if (method_exists($this, $method) && !method_exists('\think\Model', $method)) {
                 // 不存在该字段 获取关联数据
-                $value = $this->relation()->getRelation($name);
+                $value = $this->relation()->getRelation($method);
                 // 保存关联对象值
                 $this->data[$name] = $value;
             } else {
