@@ -661,6 +661,9 @@ class Relation
     public function __call($method, $args)
     {
         if ($this->query) {
+            $class = new $this->model;
+            // 全局作用域
+            $class->baseQuery($this->query);
             switch ($this->type) {
                 case self::HAS_MANY:
                     if (isset($this->where)) {

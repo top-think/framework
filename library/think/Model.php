@@ -1341,9 +1341,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $query = $this->db();
         // 全局作用域
-        if ($this->useGlobalScope && method_exists($this, 'base')) {
-            call_user_func_array([$this, 'base'], [ & $query]);
-        }
+        $this->baseQuery($query);
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
@@ -1360,10 +1358,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $query = self::getDb();
         $model = new static();
         // 全局作用域
-        if ($model->useGlobalScope && method_exists($model, 'base')) {
-            call_user_func_array([$model, 'base'], [ & $query]);
-        }
+        $model->baseQuery($query);
         return call_user_func_array([$query, $method], $params);
+    }
+
+    public function baseQuery(&$query)
+    {
+        // 全局作用域
+        if ($this->useGlobalScope && method_exists($this, 'base')) {
+            call_user_func_array([$this, 'base'], [ & $query]);
+        }
     }
 
     protected static function getDb()
