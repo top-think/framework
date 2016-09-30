@@ -123,7 +123,7 @@ trait SoftDelete
     protected static function base($query)
     {
         if (static::$deleteTime) {
-            $query->where(static::$tableAlias ?
+            $query->where(!empty(static::$tableAlias) ?
                 static::$tableAlias . '.' . static::$deleteTime :
                 static::$deleteTime,
                 'null');
