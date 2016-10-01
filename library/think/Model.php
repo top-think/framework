@@ -147,9 +147,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
+     * @param bool $baseQuery 是否调用全局查询范围
      * @return Query
      */
-    public function db()
+    public function db($baseQuery = true)
     {
         $model = $this->class;
         if (!isset(self::$links[$model])) {
@@ -168,6 +169,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             self::$links[$model] = $query;
+        }
+        // 全局作用域
+        if ($baseQuery && method_exists($this, 'base')) {
+            call_user_func_array([$this, 'base'], [ & self::$links[$model]]);
         }
         // 返回当前模型的数据库查询对象
         return self::$links[$model];
@@ -1340,8 +1345,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __call($method, $args)
     {
         $query = $this->db();
-        // 全局作用域
-        $this->baseQuery($query);
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
@@ -1356,18 +1359,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $params)
     {
         $query = self::getDb();
-        $model = new static();
-        // 全局作用域
-        $model->baseQuery($query);
         return call_user_func_array([$query, $method], $params);
-    }
-
-    public function baseQuery(&$query)
-    {
-        // 全局作用域
-        if ($this->useGlobalScope && method_exists($this, 'base')) {
-            call_user_func_array([$this, 'base'], [ & $query]);
-        }
     }
 
     protected static function getDb()
