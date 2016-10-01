@@ -103,10 +103,10 @@ class App
             }
             $request->langset(Lang::range());
             // 加载系统语言包
-            Lang::load(THINK_PATH . 'lang' . DS . $request->langset() . EXT);
-            if (!$config['app_multi_module']) {
-                Lang::load(APP_PATH . 'lang' . DS . $request->langset() . EXT);
-            }
+            Lang::load([
+                THINK_PATH . 'lang' . DS . $request->langset() . EXT,
+                APP_PATH . 'lang' . DS . $request->langset() . EXT,
+            ]);
 
             // 获取应用调度信息
             $dispatch = self::$dispatch;
