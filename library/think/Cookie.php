@@ -76,7 +76,7 @@ class Cookie
     {
         !isset(self::$init) && self::init();
         $tconfig = self::$config;
-        // 参数设置(会覆盖黙认设置)
+        // 参数设置(不会覆盖黙认设置)
         if (!is_null($option)) {
             if (is_numeric($option)) {
                 $option = ['expire' => $option];
