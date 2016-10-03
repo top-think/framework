@@ -1152,7 +1152,7 @@ class Route
             $module = Config::get('app_multi_module') ? array_shift($path) : null;
             if ($autoSearch) {
                 // 自动搜索控制器
-                $dir    = APP_PATH . ($module ? $module . DS : '') . 'controller';
+                $dir    = APP_PATH . ($module ? $module . DS : '') . Config::get('url_controller_layer');
                 $suffix = App::$suffix || Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '';
                 $item   = [];
                 foreach ($path as $val) {
