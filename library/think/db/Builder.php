@@ -173,29 +173,25 @@ abstract class Builder
     /**
      * table分析
      * @access protected
-     * @param mixed $table
+     * @param mixed $tables
      * @param array $options
      * @return string
      */
     protected function parseTable($tables, $options = [])
     {
-        if (is_array($tables)) {
-            // 支持别名定义
-            foreach ($tables as $table => $alias) {
-                $array[] = !is_numeric($table) ?
-                $this->parseKey($table) . ' ' . $this->parseKey($alias) :
-                $this->parseKey($alias);
-            }
-            $tables = implode(',', $array);
-        } elseif (is_string($tables)) {
-            $tables = $this->parseSqlTable($tables);
-            if (isset($options['alias'][$tables])) {
-                $tables = $this->parseKey($tables) . ' ' . $this->parseKey($options['alias'][$tables]);
+        if (is_string($tables)) {
+            $tables = (array) $tables;
+        }
+        $item = [];
+        foreach ($tables as $table) {
+            $table = $this->parseSqlTable($table);
+            if (isset($options['alias'][$table])) {
+                $item[] = $this->parseKey($table) . ' ' . $this->parseKey($options['alias'][$table]);
             } else {
-                $tables = $this->parseKey($tables);
+                $item[] = $this->parseKey($table);
             }
         }
-        return $tables;
+        return implode(',', $item);
     }
 
     /**

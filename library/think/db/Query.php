@@ -1049,6 +1049,17 @@ class Query
                 list($table, $alias) = explode(' ', $table);
                 $this->alias([$table => $alias]);
             }
+        } else {
+            $tables = $table;
+            $table  = [];
+            foreach ($tables as $key => $val) {
+                if (is_numeric($key)) {
+                    $table[] = $val;
+                } else {
+                    $this->alias([$key => $val]);
+                    $table[] = $key;
+                }
+            }
         }
         $this->options['table'] = $table;
         return $this;
