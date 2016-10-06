@@ -668,7 +668,9 @@ class Query
             if (is_array($join)) {
                 if (0 !== $key = key($join)) {
                     // 设置了键名则键名为表名，键值作为表的别名
-                    $table = $key . ' ' . array_shift($join);
+                    $table = $key;
+                    $alias = array_shift($join);
+                    $this->alias([$table => $alias]);
                 } else {
                     $table = array_shift($join);
                 }
@@ -689,11 +691,15 @@ class Query
                 } else {
                     $table = $join;
                 }
+                if (strpos($table, ' ')) {
+                    list($table, $alias) = explode(' ', $table);
+                    $this->alias([$table => $alias]);
+                }
             }
             if (is_array($condition)) {
                 $condition = implode(' AND ', $condition);
             }
-            $this->options['join'][] = strtoupper($type) . ' JOIN ' . $table . ' ON ' . $condition;
+            $this->options['join'][] = [$table, strtoupper($type), $condition];
         }
         return $this;
     }
@@ -1021,11 +1027,29 @@ class Query
     /**
      * 指定当前操作的数据表
      * @access public
-     * @param string $table 表名
+     * @param mixed $table 表名
      * @return $this
      */
     public function table($table)
     {
+        if (is_string($table)) {
+            if (strpos($table, ',')) {
+                $tables = explode(',', $table);
+                $table  = [];
+                foreach ($tables as $item) {
+                    list($item, $alias) = explode(' ', trim($item));
+                    if ($alias) {
+                        $this->alias([$item => $alias]);
+                        $table[$item] = $alias;
+                    } else {
+                        $table[] = $item;
+                    }
+                }
+            } elseif (strpos($table, ' ')) {
+                list($table, $alias) = explode(' ', $table);
+                $this->alias([$table => $alias]);
+            }
+        }
         $this->options['table'] = $table;
         return $this;
     }
@@ -1145,12 +1169,20 @@ class Query
     /**
      * 指定数据表别名
      * @access public
-     * @param string $alias 数据表别名
+     * @param mixed $alias 数据表别名
      * @return $this
      */
     public function alias($alias)
     {
-        $this->options['alias'] = $alias;
+        if (is_array($alias)) {
+            foreach ($alias as $key => $val) {
+                $this->options['alias'][$key] = $val;
+            }
+        } else {
+            $table = isset($this->options['table']) ? $this->options['table'] : $this->getTable();
+
+            $this->options['alias'][$table] = $alias;
+        }
         return $this;
     }
 
@@ -1630,8 +1662,8 @@ class Query
     {
         $pk = $this->getPk($options);
         // 获取当前数据表
-        if (!empty($options['alias'])) {
-            $alias = $options['alias'];
+        if (!empty($options['alias'][$options['table']])) {
+            $alias = $options['alias'][$options['table']];
         }
         if (is_string($pk)) {
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
@@ -2199,11 +2231,6 @@ class Query
                     }
                 }
             }
-        }
-
-        // 表别名
-        if (!empty($options['alias'])) {
-            $options['table'] .= ' ' . $options['alias'];
         }
 
         if (!isset($options['field'])) {

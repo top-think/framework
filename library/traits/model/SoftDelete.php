@@ -133,10 +133,9 @@ trait SoftDelete
      */
     protected function getDeleteTimeField($read = false)
     {
-        if (isset($this->deleteTime)) {
-            $field = $this->deleteTime;
-        } else {
-            $field = 'delete_time';
+        $field = isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
+        if (!strpos($field, '.')) {
+            $field = $this->db(false)->getTable() . '.' . $field;
         }
         if (!$read && strpos($field, '.')) {
             list($alias, $field) = explode('.', $field);
