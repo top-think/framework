@@ -179,11 +179,8 @@ abstract class Builder
      */
     protected function parseTable($tables, $options = [])
     {
-        if (is_string($tables)) {
-            $tables = (array) $tables;
-        }
         $item = [];
-        foreach ($tables as $table) {
+        foreach ((array) $tables as $table) {
             $table = $this->parseSqlTable($table);
             if (isset($options['alias'][$table])) {
                 $item[] = $this->parseKey($table) . ' ' . $this->parseKey($options['alias'][$table]);
@@ -438,13 +435,14 @@ abstract class Builder
         if (!empty($join)) {
             foreach ($join as $item) {
                 list($table, $type, $on) = $item;
-                if (!empty($options['alias'])) {
-                    foreach ($options['alias'] as $key => $val) {
-                        $on = str_replace($key . '.', $this->parseKey($val, $options) . '.', $on);
-                    }
+                $condition               = [];
+                foreach ((array) $on as $val) {
+                    list($val1, $val2) = explode('=', $val, 2);
+                    $condition[]       = $this->parseKey($val1, $options) . '=' . $this->parseKey($val2, $options);
                 }
+
                 $table = $this->parseTable($table, $options);
-                $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . $on;
+                $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
             }
         }
         return $joinStr;

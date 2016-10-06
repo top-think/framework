@@ -696,9 +696,6 @@ class Query
                     $this->alias([$table => $alias]);
                 }
             }
-            if (is_array($condition)) {
-                $condition = implode(' AND ', $condition);
-            }
             $this->options['join'][] = [$table, strtoupper($type), $condition];
         }
         return $this;
