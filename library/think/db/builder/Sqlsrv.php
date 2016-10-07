@@ -70,7 +70,7 @@ class Sqlsrv extends Builder
     protected function parseKey($key, $options = [])
     {
         $key = trim($key);
-        if (strpos($key, '.')) {
+        if (strpos($key, '.') && !preg_match('/[,\'\"\(\)\[\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
             if (isset($options['alias'][$table])) {
                 $table = $options['alias'][$table];
