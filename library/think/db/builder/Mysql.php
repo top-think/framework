@@ -34,7 +34,7 @@ class Mysql extends Builder
             // JSON字段支持
             list($field, $name) = explode('$.', $key);
             $key                = 'json_extract(' . $field . ', \'$.' . $name . '\')';
-        } elseif (strpos($key, '.')) {
+        } elseif (strpos($key, '.') && !preg_match('/[,\'\"\(\)`\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
             if (isset($options['alias'][$table])) {
                 $table = $options['alias'][$table];
