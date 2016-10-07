@@ -452,9 +452,10 @@ abstract class Builder
      * order分析
      * @access protected
      * @param mixed $order
+     * @param array $options 查询条件
      * @return string
      */
-    protected function parseOrder($order)
+    protected function parseOrder($order, $options = [])
     {
         if (is_array($order)) {
             $array = [];
@@ -590,7 +591,7 @@ abstract class Builder
                 $this->parseWhere($options['where'], $options),
                 $this->parseGroup($options['group']),
                 $this->parseHaving($options['having']),
-                $this->parseOrder($options['order']),
+                $this->parseOrder($options['order'], $options),
                 $this->parseLimit($options['limit']),
                 $this->parseUnion($options['union']),
                 $this->parseLock($options['lock']),
@@ -721,7 +722,7 @@ abstract class Builder
                 implode(',', $set),
                 $this->parseJoin($options['join'], $options),
                 $this->parseWhere($options['where'], $options),
-                $this->parseOrder($options['order']),
+                $this->parseOrder($options['order'], $options),
                 $this->parseLimit($options['limit']),
                 $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
@@ -745,7 +746,7 @@ abstract class Builder
                 !empty($options['using']) ? ' USING ' . $this->parseTable($options['using'], $options) . ' ' : '',
                 $this->parseJoin($options['join'], $options),
                 $this->parseWhere($options['where'], $options),
-                $this->parseOrder($options['order']),
+                $this->parseOrder($options['order'], $options),
                 $this->parseLimit($options['limit']),
                 $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
