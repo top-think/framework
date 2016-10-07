@@ -1103,13 +1103,12 @@ class Route
     private static function checkRule($rule, $route, $url, $pattern, $option, $depr)
     {
         // 检查完整规则定义
-        if (isset($pattern['__url__']) && !preg_match('/^' . $pattern['__url__'] . '/', $url)) {
+        if (isset($pattern['__url__']) && !preg_match('/^' . $pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
             return false;
         }
         // 检查路由的参数分隔符
         if (isset($option['param_depr'])) {
-            $url = str_replace('|', $depr, $url);
-            $url = str_replace($option['param_depr'], '|', $url);
+            $url = str_replace(['|', $option['param_depr']], [$depr, '|'], $url);
         }
 
         $len1 = substr_count($url, '|');
