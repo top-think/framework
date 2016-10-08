@@ -27,22 +27,23 @@ class Sqlsrv extends Builder
      * order分析
      * @access protected
      * @param mixed $order
+     * @param array $options
      * @return string
      */
-    protected function parseOrder($order)
+    protected function parseOrder($order, $options = [])
     {
         if (is_array($order)) {
             $array = [];
             foreach ($order as $key => $val) {
                 if (is_numeric($key)) {
                     if (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($val);
+                        $array[] = $this->parseKey($val, $options);
                     } elseif ('[rand]' == $val) {
                         $array[] = $this->parseRand();
                     }
                 } else {
                     $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($key) . ' ' . $sort;
+                    $array[] = $this->parseKey($key, $options) . ' ' . $sort;
                 }
             }
             $order = implode(',', $array);
