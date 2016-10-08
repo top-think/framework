@@ -999,7 +999,7 @@ class Template
                     $parseStr = strtoupper($vars[1]);
                     break;
                 case 'LANG':
-                    $parseStr = '\\think\\Lang::get(\'' . $vars[1] . '\')';
+                    $parseStr = '\\think\\Lang::get(\'' . implode('.', array_slice($vars, 1)) . '\')';
                     break;
                 case 'CONFIG':
                     if (isset($vars[2])) {
