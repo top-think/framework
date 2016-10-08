@@ -671,6 +671,7 @@ class Query
                     $table = $key;
                     $alias = array_shift($join);
                     $this->alias([$table => $alias]);
+                    $table = [$table => $alias];
                 } else {
                     $table = array_shift($join);
                 }
@@ -694,6 +695,7 @@ class Query
                 if (strpos($table, ' ')) {
                     list($table, $alias) = explode(' ', $table);
                     $this->alias([$table => $alias]);
+                    $table = [$table => $alias];
                 }
             }
             $this->options['join'][] = [$table, strtoupper($type), $condition];
@@ -1054,7 +1056,7 @@ class Query
                     $table[] = $val;
                 } else {
                     $this->alias([$key => $val]);
-                    $table[] = $key;
+                    $table[$key] = $val;
                 }
             }
         }
@@ -1365,7 +1367,7 @@ class Query
     /**
      * 获取数据表信息
      * @access public
-     * @param string $tableName 数据表名 留空自动获取
+     * @param mixed  $tableName 数据表名 留空自动获取
      * @param string $fetch     获取信息类型 包括 fields type bind pk
      * @return mixed
      */
@@ -1575,7 +1577,7 @@ class Query
                     $name  = Loader::parseName(basename(str_replace('\\', '/', $currentModel)));
                     $table = $this->getTable();
                     $alias = isset($info['alias'][$name]) ? $info['alias'][$name] : $name;
-                    $this->table($table)->alias($alias);
+                    $this->table([$table => $alias]);
                     if (isset($this->options['field'])) {
                         $field = $this->options['field'];
                         unset($this->options['field']);
@@ -1587,7 +1589,7 @@ class Query
                 // 预载入封装
                 $joinTable = $model->getTable();
                 $joinName  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
-                $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $joinName;
+                $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $relation;
                 $this->via($joinAlias);
 
                 if (Relation::HAS_ONE == $info['type']) {
@@ -1670,8 +1672,9 @@ class Query
     {
         $pk = $this->getPk($options);
         // 获取当前数据表
-        if (!empty($options['alias'][$options['table']])) {
-            $alias = $options['alias'][$options['table']];
+        $table = is_array($options['table']) ? key($options['table']) : $options['table'];
+        if (!empty($options['alias'][$table])) {
+            $alias = $options['alias'][$table];
         }
         if (is_string($pk)) {
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
@@ -1983,7 +1986,7 @@ class Query
             // 判断查询缓存
             $cache = $options['cache'];
             if (true === $cache['key'] && !is_null($data) && !is_array($data)) {
-                $key = 'think:' . $options['table'] . '|' . $data;
+                $key = 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
             } else {
                 $key = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
             }
@@ -2053,7 +2056,8 @@ class Query
         if (!empty($this->model)) {
             throw new ModelNotFoundException('model data Not Found:' . $this->model, $this->model, $options);
         } else {
-            throw new DataNotFoundException('table data not Found:' . $options['table'], $options['table'], $options);
+            $table = is_array($options['table']) ? key($options['table']) : $options['table'];
+            throw new DataNotFoundException('table data not Found:' . $table, $table, $options);
         }
     }
 
@@ -2095,8 +2099,13 @@ class Query
      */
     public function chunk($count, $callback, $column = null)
     {
-        $options   = $this->getOptions();
-        $column    = $column ?: $this->getPk(isset($options['table']) ? $options['table'] : '');
+        $options = $this->getOptions();
+        if (isset($options['table'])) {
+            $table = is_array($options['table']) ? key($options['table']) : $options['table'];
+        } else {
+            $table = '';
+        }
+        $column    = $column ?: $this->getPk($table);
         $bind      = $this->bind;
         $resultSet = $this->limit($count)->order($column, 'asc')->select();
 
