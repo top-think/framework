@@ -680,15 +680,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $where = $this->updateWhere;
             }
 
-            if (!empty($where)) {
-                $pk = $this->getPk();
-                if (is_string($pk) && isset($data[$pk])) {
-                    if (!isset($where[$pk])) {
-                        unset($where);
-                        $where[$pk] = $data[$pk];
-                    }
-                    unset($data[$pk]);
+            $pk = $this->getPk();
+            if (is_string($pk) && isset($data[$pk])) {
+                if (!isset($where[$pk])) {
+                    unset($where);
+                    $where[$pk] = $data[$pk];
                 }
+                unset($data[$pk]);
             }
 
             $result = $this->db()->where($where)->update($data);
