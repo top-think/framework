@@ -134,8 +134,8 @@ class Lang
             // 如果 key 不存在，就跳出循环
             else break;
         }
-        // 如果中途结束循环，把 $value 设置为 null 
-        if(!empty($key)) $value = null;
+        // 如果中途结束循环，把 $value 设置为 $name 
+        if(!empty($key)) $value = $name;
 
         // 变量解析
         if (!empty($vars) && is_array($vars)) {
