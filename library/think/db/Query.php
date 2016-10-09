@@ -1046,7 +1046,8 @@ class Query
                 }
             } elseif (strpos($table, ' ')) {
                 list($table, $alias) = explode(' ', $table);
-                $this->alias([$table => $alias]);
+                $table               = [$table => $alias];
+                $this->alias($table);
             }
         } else {
             $tables = $table;
@@ -1189,7 +1190,11 @@ class Query
                 $this->options['alias'][$key] = $val;
             }
         } else {
-            $table = isset($this->options['table']) ? $this->options['table'] : $this->getTable();
+            if (isset($this->options['table'])) {
+                $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
+            } else {
+                $table = $this->getTable();
+            }
 
             $this->options['alias'][$table] = $alias;
         }
