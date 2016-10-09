@@ -442,8 +442,12 @@ abstract class Builder
                 list($table, $type, $on) = $item;
                 $condition               = [];
                 foreach ((array) $on as $val) {
-                    list($val1, $val2) = explode('=', $val, 2);
-                    $condition[]       = $this->parseKey($val1, $options) . '=' . $this->parseKey($val2, $options);
+                    if (strpos($val, '=')) {
+                        list($val1, $val2) = explode('=', $val, 2);
+                        $condition[]       = $this->parseKey($val1, $options) . '=' . $this->parseKey($val2, $options);
+                    } else {
+                        $condition[] = $val;
+                    }
                 }
 
                 $table = $this->parseTable($table, $options);
