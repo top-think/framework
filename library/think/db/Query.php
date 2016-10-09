@@ -663,38 +663,19 @@ class Query
                 }
             }
         } else {
-            $prefix = $this->prefix;
             // 传入的表名为数组
             if (is_array($join)) {
-                if (count($join) > 1) {
-                    $prefix = array_pop($join);
-                }
                 if (0 !== $key = key($join)) {
                     // 设置了键名则键名为表名，键值作为表的别名
                     $table = $key;
-                    if (false === strpos($table, '.')) {
-                        $table = $prefix . $table;
-                    }
                     $alias = array_shift($join);
                     $this->alias([$table => $alias]);
                     $table = [$table => $alias];
                 } else {
                     $table = array_shift($join);
-                    if (false === strpos($table, '.')) {
-                        $table = $prefix . $table;
-                    }
                 }
-
             } else {
-                $join = trim($join);
-                if (0 === strpos($join, '__')) {
-                    $table = $this->parseSqlTable($join);
-                } elseif (false === strpos($join, '(') && false === strpos($join, '.') && !empty($prefix) && 0 !== strpos($join, $prefix)) {
-                    // 传入的表名中不带有'('并且不以默认的表前缀开头时加上默认的表前缀
-                    $table = $prefix . $join;
-                } else {
-                    $table = $join;
-                }
+                $table = trim($join);
                 if (strpos($table, ' ')) {
                     list($table, $alias) = explode(' ', $table);
                     $this->alias([$table => $alias]);
