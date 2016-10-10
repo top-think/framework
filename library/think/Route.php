@@ -305,7 +305,8 @@ class Route
         }
         $vars = self::parseVar($rule);
         if (isset($name)) {
-            self::name($name, [$rule, $vars, self::$domain]);
+            $key = $group ? $group . '/' . $rule : $rule;
+            self::name($name, [$key, $vars, self::$domain]);
         }
         if ($group) {
             if ('*' != $type) {
@@ -425,7 +426,7 @@ class Route
                     $vars   = self::parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
                     // 设置路由标识
-                    self::name($route, [$key, $vars, self::$domain]);
+                    self::name($route, [$name . '/' . $key, $vars, self::$domain]);
                 }
                 self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
