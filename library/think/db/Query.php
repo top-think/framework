@@ -667,10 +667,8 @@ class Query
             if (is_array($join)) {
                 if (0 !== $key = key($join)) {
                     // 设置了键名则键名为表名，键值作为表的别名
-                    $table = $key;
-                    $alias = array_shift($join);
-                    $this->alias([$table => $alias]);
-                    $table = [$table => $alias];
+                    $table = [$key => array_shift($join)];
+                    $this->alias($table);
                 } else {
                     $table = array_shift($join);
                 }
@@ -678,8 +676,8 @@ class Query
                 $table = trim($join);
                 if (strpos($table, ' ')) {
                     list($table, $alias) = explode(' ', $table);
-                    $this->alias([$table => $alias]);
-                    $table = [$table => $alias];
+                    $table               = [$table => $alias];
+                    $this->alias($table);
                 }
             }
             $this->options['join'][] = [$table, strtoupper($type), $condition];
