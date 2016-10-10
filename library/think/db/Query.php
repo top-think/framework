@@ -674,7 +674,7 @@ class Query
                 }
             } else {
                 $table = trim($join);
-                if (strpos($table, ' ')) {
+                if (strpos($table, ' ') && !strpos($table, ')')) {
                     list($table, $alias) = explode(' ', $table);
                     $table               = [$table => $alias];
                     $this->alias($table);
