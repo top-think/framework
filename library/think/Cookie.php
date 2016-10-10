@@ -75,26 +75,27 @@ class Cookie
     public static function set($name, $value = '', $option = null)
     {
         !isset(self::$init) && self::init();
-        // 参数设置(会覆盖黙认设置)
+        $tconfig = self::$config;
+        // 参数设置(不会覆盖黙认设置)
         if (!is_null($option)) {
             if (is_numeric($option)) {
                 $option = ['expire' => $option];
             } elseif (is_string($option)) {
                 parse_str($option, $option);
             }
-            $config = array_merge(self::$config, array_change_key_case($option));
+            $tconfig = array_merge(self::$config, array_change_key_case($option));
         } else {
-            $config = self::$config;
+            $tconfig = self::$config;
         }
-        $name = $config['prefix'] . $name;
+        $name = $tconfig['prefix'] . $name;
         // 设置cookie
         if (is_array($value)) {
             array_walk_recursive($value, 'self::jsonFormatProtect', 'encode');
             $value = 'think:' . json_encode($value);
         }
-        $expire = !empty($config['expire']) ? $_SERVER['REQUEST_TIME'] + intval($config['expire']) : 0;
-        if ($config['setcookie']) {
-            setcookie($name, $value, $expire, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+        $expire = !empty($tconfig['expire']) ? $_SERVER['REQUEST_TIME'] + intval($tconfig['expire']) : 0;
+        if ($tconfig['setcookie']) {
+            setcookie($name, $value, $expire, $tconfig['path'], $tconfig['domain'], $tconfig['secure'], $tconfig['httponly']);
         }
         $_COOKIE[$name] = $value;
     }

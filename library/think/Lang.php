@@ -121,8 +121,23 @@ class Lang
         if (empty($name)) {
             return self::$lang[$range];
         }
-        $key   = strtolower($name);
-        $value = isset(self::$lang[$range][$key]) ? self::$lang[$range][$key] : $name;
+        // 将 $key 进行分割，用于处理多级语言配置
+        $key = explode('.', strtolower($name));
+        // 先获取到所有的语言
+        $value = self::$lang[$range];
+        // 如果 $key 不是一个数组，就把 $key 变成一个数组
+        if(!is_array($key)) $key = [$key];
+        // 循环处理 key
+        while(!empty($key)){
+            // 取出并删除 $key 中的第一个元素
+            $k = array_shift($key);
+            // 如果此 key 存在，就把值取出来并赋给 $value
+            if(array_key_exists($k, $value)) $value = $value[$k];
+            // 如果 key 不存在，就跳出循环
+            else break;
+        }
+        // 如果中途结束循环，把 $value 设置为 $name 
+        if(!empty($key)) $value = $name;
 
         // 变量解析
         if (!empty($vars) && is_array($vars)) {
