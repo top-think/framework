@@ -377,7 +377,7 @@ class Query
      */
     public function value($field, $default = null)
     {
-        $result = null;
+        $result = false;
         if (!empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
@@ -387,7 +387,7 @@ class Query
             $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($key);
         }
-        if (!$result) {
+        if (false === $result) {
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
@@ -409,7 +409,7 @@ class Query
             // 清空查询条件
             $this->options = [];
         }
-        return !is_null($result) ? $result : $default;
+        return false !== $result ? $result : $default;
     }
 
     /**
@@ -431,7 +431,7 @@ class Query
             $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($guid);
         }
-        if (!$result) {
+        if (false === $result) {
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
