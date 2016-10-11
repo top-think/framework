@@ -828,7 +828,7 @@ class Route
             if (true === $rule) {
                 $rule = self::getRouteExpress($url);
             }
-            if (!empty($rule['route']) && self::checkOption($rule['option'], $url, $request)) {
+            if (!empty($rule['route']) && self::checkOption($rule['option'], $request)) {
                 return self::parseRule($url, $rule['route'], $url, $rule['option']);
             }
         }
@@ -872,7 +872,7 @@ class Route
             $pattern = $item['pattern'];
 
             // 检查参数有效性
-            if (!self::checkOption($option, $url, $request)) {
+            if (!self::checkOption($option, $request)) {
                 continue;
             }
 
@@ -936,27 +936,32 @@ class Route
      */
     private static function checkRouteAlias($request, $url, $depr)
     {
-        $array = explode('|', $url, 2);
-        $item  = self::$rules['alias'][$array[0]];
+        $array = explode('|', $url);
+        $alias = array_shift($array);
+        $item  = self::$rules['alias'][$alias];
 
         if (is_array($item)) {
             list($rule, $option) = $item;
+            if (isset($option['method'][$array[0]])) {
+                $option['method'] = $option['method'][$array[0]];
+            }
         } else {
             $rule = $item;
         }
+        $bind = implode('|', $array);
         // 参数有效性检查
-        if (isset($option) && !self::checkOption($option, $url, $request)) {
+        if (isset($option) && !self::checkOption($option, $request)) {
             // 路由不匹配
             return false;
         } elseif (0 === strpos($rule, '\\')) {
             // 路由到类
-            return self::bindToClass($array[1], substr($rule, 1), $depr);
+            return self::bindToClass($bind, substr($rule, 1), $depr);
         } elseif (0 === strpos($url, '@')) {
             // 路由到控制器类
-            return self::bindToController($array[1], substr($rule, 1), $depr);
+            return self::bindToController($bind, substr($rule, 1), $depr);
         } else {
             // 路由到模块/控制器
-            return self::bindToModule($array[1], $rule, $depr);
+            return self::bindToModule($bind, $rule, $depr);
         }
     }
 
@@ -1069,19 +1074,18 @@ class Route
      * 路由参数有效性检查
      * @access private
      * @param array     $option 路由参数
-     * @param string    $url URL地址
      * @param Request   $request Request对象
      * @return bool
      */
-    private static function checkOption($option, $url, $request)
+    private static function checkOption($option, $request)
     {
         // 请求类型检测
-        if ((isset($option['method']) && false === stripos($option['method'], $request->method()))
+        if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
             || (isset($option['ext']) && false === stripos($option['ext'], $request->ext())) // 伪静态后缀检测
              || (isset($option['deny_ext']) && false !== stripos($option['deny_ext'], $request->ext()))
             || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], self::$subDomain])) // 域名检测
              || (!empty($option['https']) && !$request->isSsl()) // https检测
-             || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'], '', $url)) // 行为检测
+             || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测
              || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
         ) {
             return false;
