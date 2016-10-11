@@ -1144,8 +1144,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
                     ->group('b.' . $info['foreignKey'])
                     ->having('count(' . $id . ')' . $operator . $count);
-            case Relation::HAS_MANY_THROUGH:
-                // TODO
+            case Relation::HAS_MANY_THROUGH: // TODO
+            default:
+                return $model;
         }
     }
 
@@ -1176,8 +1177,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     ->field('a.*')
                     ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
                     ->where($where);
-            case Relation::HAS_MANY_THROUGH:
-                // TODO
+            case Relation::HAS_MANY_THROUGH: // TODO
+            default:
+                return $model;
         }
     }
 
