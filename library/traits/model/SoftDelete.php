@@ -76,7 +76,7 @@ trait SoftDelete
      */
     public static function destroy($data, $force = false)
     {
-        $model = new static();
+        $model = (new static())->useGlobalScope(false);
         $query = $model->db();
         if (is_array($data) && key($data) !== 0) {
             $query->where($data);
