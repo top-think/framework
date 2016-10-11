@@ -377,7 +377,7 @@ class Query
      */
     public function value($field, $default = null)
     {
-        $result = null;
+        $result = false;
         if (!empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
@@ -387,7 +387,7 @@ class Query
             $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($key);
         }
-        if (!$result) {
+        if (false === $result) {
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
@@ -409,7 +409,7 @@ class Query
             // 清空查询条件
             $this->options = [];
         }
-        return !is_null($result) ? $result : $default;
+        return false !== $result ? $result : $default;
     }
 
     /**
@@ -431,7 +431,7 @@ class Query
             $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
             $result = Cache::get($guid);
         }
-        if (!$result) {
+        if (false === $result) {
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
@@ -667,19 +667,17 @@ class Query
             if (is_array($join)) {
                 if (0 !== $key = key($join)) {
                     // 设置了键名则键名为表名，键值作为表的别名
-                    $table = $key;
-                    $alias = array_shift($join);
-                    $this->alias([$table => $alias]);
-                    $table = [$table => $alias];
+                    $table = [$key => array_shift($join)];
+                    $this->alias($table);
                 } else {
                     $table = array_shift($join);
                 }
             } else {
                 $table = trim($join);
-                if (strpos($table, ' ')) {
+                if (strpos($table, ' ') && !strpos($table, ')')) {
                     list($table, $alias) = explode(' ', $table);
-                    $this->alias([$table => $alias]);
-                    $table = [$table => $alias];
+                    $table               = [$table => $alias];
+                    $this->alias($table);
                 }
             }
             $this->options['join'][] = [$table, strtoupper($type), $condition];
