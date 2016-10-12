@@ -943,8 +943,16 @@ class Route
 
         if (is_array($item)) {
             list($rule, $option) = $item;
-            if (isset($option['method'][$array[0]])) {
-                $option['method'] = $option['method'][$array[0]];
+            $action              = $array[0];
+            if (isset($option['except'])) {
+                // 排除操作
+                $except = is_string($option['except']) ? explode(',', $option['except']) : $option['except'];
+                if (in_array($action, $except)) {
+                    return false;
+                }
+            }
+            if (isset($option['method'][$action])) {
+                $option['method'] = $option['method'][$action];
             }
         } else {
             $rule = $item;
