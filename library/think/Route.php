@@ -944,7 +944,13 @@ class Route
         if (is_array($item)) {
             list($rule, $option) = $item;
             $action              = $array[0];
-            if (isset($option['except'])) {
+            if (isset($option['allow'])) {
+                // 允许操作
+                $allow = is_string($option['allow']) ? explode(',', $option['allow']) : $option['allow'];
+                if (!in_array($action, $allow)) {
+                    return false;
+                }
+            } elseif (isset($option['except'])) {
                 // 排除操作
                 $except = is_string($option['except']) ? explode(',', $option['except']) : $option['except'];
                 if (in_array($action, $except)) {
