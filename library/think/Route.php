@@ -1414,7 +1414,7 @@ class Route
         if ($route instanceof \Closure) {
             // 执行闭包
             $result = ['type' => 'function', 'function' => $route];
-        } elseif (0 === strpos($route, '/') || 0 === strpos($route, 'http')) {
+        } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
             $result = ['type' => 'redirect', 'url' => $route, 'status' => isset($option['status']) ? $option['status'] : 301];
         } elseif (false !== strpos($route, '\\')) {
