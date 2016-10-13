@@ -944,18 +944,12 @@ class Route
         if (is_array($item)) {
             list($rule, $option) = $item;
             $action              = $array[0];
-            if (isset($option['allow'])) {
+            if (isset($option['allow']) && !in_array($action, explode(',', $option['allow']))) {
                 // 允许操作
-                $allow = is_string($option['allow']) ? explode(',', $option['allow']) : $option['allow'];
-                if (!in_array($action, $allow)) {
-                    return false;
-                }
-            } elseif (isset($option['except'])) {
+                return false;
+            } elseif (isset($option['except']) && in_array($action, explode(',', $option['except']))) {
                 // 排除操作
-                $except = is_string($option['except']) ? explode(',', $option['except']) : $option['except'];
-                if (in_array($action, $except)) {
-                    return false;
-                }
+                return false;
             }
             if (isset($option['method'][$action])) {
                 $option['method'] = $option['method'][$action];
@@ -971,7 +965,7 @@ class Route
         } elseif (0 === strpos($rule, '\\')) {
             // 路由到类
             return self::bindToClass($bind, substr($rule, 1), $depr);
-        } elseif (0 === strpos($url, '@')) {
+        } elseif (0 === strpos($rule, '@')) {
             // 路由到控制器类
             return self::bindToController($bind, substr($rule, 1), $depr);
         } else {
