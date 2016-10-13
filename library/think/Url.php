@@ -35,11 +35,6 @@ class Url
             $domain = true;
         }
         // 解析URL
-        if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
-            // [name] 表示使用路由命名标识生成URL
-            $name = substr($url, 1, $pos - 1);
-            $url  = 'name' . substr($url, $pos + 1);
-        }
         $info = parse_url($url);
         $url  = !empty($info['path']) ? $info['path'] : '';
         if (isset($info['fragment'])) {
@@ -65,7 +60,7 @@ class Url
         }
 
         if ($url) {
-            $rule = Route::name(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
+            $rule = Route::name($url . (isset($info['query']) ? '?' . $info['query'] : ''));
             if (is_null($rule) && isset($info['query'])) {
                 $rule = Route::name($url);
                 // 解析地址里面参数 合并到vars
@@ -82,8 +77,6 @@ class Url
             if (!empty($match[1])) {
                 $domain = $match[1];
             }
-        } elseif (!empty($rule) && isset($name)) {
-            throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 检查别名路由
             $alias = Route::rules('alias');
@@ -107,7 +100,6 @@ class Url
                 parse_str($info['query'], $params);
                 $vars = array_merge($params, $vars);
             }
-
         }
 
         // 检测URL绑定
