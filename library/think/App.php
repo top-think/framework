@@ -225,7 +225,7 @@ class App
         }
         $args = self::bindParams($reflect, $vars);
 
-        self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
+        self::$debug && Log::record('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]', 'info');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
@@ -245,8 +245,6 @@ class App
         } else {
             $args = [];
         }
-
-        self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
         return $reflect->newInstanceArgs($args);
     }
 
