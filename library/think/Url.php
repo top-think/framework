@@ -132,9 +132,10 @@ class Url
                 $vars = urldecode(http_build_query($vars));
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
+                $paramType = Config::get('url_param_type');
                 foreach ($vars as $var => $val) {
                     if ('' !== trim($val)) {
-                        if (Config::get('url_param_type')) {
+                        if ($paramType) {
                             $url .= $depr . urlencode($val);
                         } else {
                             $url .= $depr . $var . $depr . urlencode($val);
