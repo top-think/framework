@@ -53,7 +53,7 @@ class Url
                 // 解析域名
                 list($anchor, $domain) = explode('@', $anchor, 2);
             }
-        } elseif (strpos($url, '@')) {
+        } elseif (strpos($url, '@') && false === strpos($url, '\\')) {
             // 解析域名
             list($url, $domain) = explode('@', $url, 2);
         }
