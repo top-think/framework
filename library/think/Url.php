@@ -40,22 +40,24 @@ class Url
             $name = substr($url, 1, $pos - 1);
             $url  = 'name' . substr($url, $pos + 1);
         }
-        $info = parse_url($url);
-        $url  = !empty($info['path']) ? $info['path'] : '';
-        if (isset($info['fragment'])) {
-            // 解析锚点
-            $anchor = $info['fragment'];
-            if (false !== strpos($anchor, '?')) {
-                // 解析参数
-                list($anchor, $info['query']) = explode('?', $anchor, 2);
-            }
-            if (false !== strpos($anchor, '@')) {
+        if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
+            $info = parse_url($url);
+            $url  = !empty($info['path']) ? $info['path'] : '';
+            if (isset($info['fragment'])) {
+                // 解析锚点
+                $anchor = $info['fragment'];
+                if (false !== strpos($anchor, '?')) {
+                    // 解析参数
+                    list($anchor, $info['query']) = explode('?', $anchor, 2);
+                }
+                if (false !== strpos($anchor, '@')) {
+                    // 解析域名
+                    list($anchor, $domain) = explode('@', $anchor, 2);
+                }
+            } elseif (strpos($url, '@') && false === strpos($url, '\\')) {
                 // 解析域名
-                list($anchor, $domain) = explode('@', $anchor, 2);
+                list($url, $domain) = explode('@', $url, 2);
             }
-        } elseif (strpos($url, '@') && false === strpos($url, '\\')) {
-            // 解析域名
-            list($url, $domain) = explode('@', $url, 2);
         }
 
         // 解析参数
