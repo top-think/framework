@@ -130,7 +130,7 @@ class requestTest extends \PHPUnit_Framework_TestCase
     public function testVar()
     {
         Config::set('app_multi_module', true);
-        $request = new Request();
+        $request = Request::create('');
         $request->route(['name' => 'thinkphp', 'id' => 6]);
         $request->get(['id' => 10]);
         $request->post(['id' => 8]);

@@ -210,6 +210,8 @@ class Request
                 unset($server['HTTPS']);
                 $server['SERVER_PORT'] = 80;
             }
+        } else {
+            $info['scheme'] = 'http';
         }
         if (isset($info['port'])) {
             $server['SERVER_PORT'] = $info['port'];
