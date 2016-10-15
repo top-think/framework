@@ -210,8 +210,6 @@ class Request
                 unset($server['HTTPS']);
                 $server['SERVER_PORT'] = 80;
             }
-        } else {
-            $info['scheme'] = 'http';
         }
         if (isset($info['port'])) {
             $server['SERVER_PORT'] = $info['port'];
@@ -250,7 +248,7 @@ class Request
         $options['baseUrl']     = $info['path'];
         $options['pathinfo']    = '/' == $info['path'] ? '/' : ltrim($info['path'], '/');
         $options['method']      = $server['REQUEST_METHOD'];
-        $options['domain']      = $info['scheme'] . '://' . $server['HTTP_HOST'];
+        $options['domain']      = isset($info['scheme']) ? $info['scheme'] . '://' . $server['HTTP_HOST'] : '';
         $options['content']     = $content;
         self::$instance         = new self($options);
         return self::$instance;
