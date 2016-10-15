@@ -103,13 +103,13 @@ class requestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
 
-        $request = Request::create('');
+        $request = Request::create('', '');
         $this->assertEquals('DELETE', $request->method());
         $this->assertEquals('GET', $request->method(true));
 
         Config::set('var_method', '_method');
         $_POST['_method'] = 'POST';
-        $request          = Request::create('');
+        $request          = Request::create('', '');
         $this->assertEquals('POST', $request->method());
         $this->assertEquals('GET', $request->method(true));
         $this->assertTrue($request->isPost());
