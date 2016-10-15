@@ -1177,7 +1177,8 @@ class Route
                 $item   = [];
                 foreach ($path as $val) {
                     $item[] = array_shift($path);
-                    if (is_file($dir . DS . $val . $suffix . EXT)) {
+                    $name = Loader::parseName($val, 1);
+                    if (is_file($dir . DS . $name . $suffix . EXT)) {
                         break;
                     } else {
                         $dir .= DS . $val;
