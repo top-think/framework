@@ -53,9 +53,9 @@ class Hook
      * @param type $bool 设置值
      * @return type
      */
-    public static function setStatic($tag = '', $bool = true)
+    public static function setStatic($tag = false, $bool = true)
     {
-        if (empty($tag)) {
+        if ($tag === false) {
             foreach (self::$static as $k => $v) {
                 self::$static[$k] = $bool;
             }
@@ -147,10 +147,7 @@ class Hook
     public static function exec($class, $tag = '', &$params = null, $extra = null)
     {
         App::$debug && Debug::remark('behavior_start', 'time');
-        if (self::isStatic($tag)) {
-            $result = ($tag && method_exists($class, $tag)) ? $class::$tag($params, $extra) : $class::run($params, $extra);
-            return $result;
-        }
+
         if (is_callable($class)) {
             $result = call_user_func_array($class, [ & $params, $extra]);
             $class  = 'Closure';
@@ -158,6 +155,10 @@ class Hook
             $result = call_user_func_array([$class, $tag], [ & $params, $extra]);
             $class  = get_class($class);
         } else {
+            if (self::isStatic($tag)) {
+                $result = ($tag && method_exists($class, $tag)) ? $class::$tag($params, $extra) : $class::run($params, $extra);
+                return $result;
+            }
             $obj    = new $class();
             $result = ($tag && is_callable([$obj, $tag])) ? $obj->$tag($params, $extra) : $obj->run($params, $extra);
         }
