@@ -578,8 +578,6 @@ class Query
                 // 清空查询条件
                 $this->options = [];
                 return true;
-            } else {
-                return $this->setField($field, $step);
             }
         }
         return $this->setField($field, ['exp', $field . '+' . $step]);
@@ -609,8 +607,6 @@ class Query
                 // 清空查询条件
                 $this->options = [];
                 return true;
-            } else {
-                return $this->setField($field, $step);
             }
         }
         return $this->setField($field, ['exp', $field . '-' . $step]);
