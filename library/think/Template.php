@@ -12,6 +12,7 @@
 namespace think;
 
 use think\exception\TemplateNotFoundException;
+use think\Loader;
 
 /**
  * ThinkPHP分离出来的模板引擎
@@ -1041,6 +1042,10 @@ class Template
             if (0 === strpos($templateName, '$')) {
                 //支持加载变量文件名
                 $templateName = $this->get(substr($templateName, 1));
+            }
+            //解决模板include标签不支持自动定位当前控制器的问题
+            if (!preg_match("/(\/|\:)/",$templateName)){
+                $templateName = str_replace(".", DS, Loader::parseName(request()->controller())) . DS . $templateName;
             }
             $template = $this->parseTemplateFile($templateName);
             if ($template) {
