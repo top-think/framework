@@ -498,7 +498,7 @@ class Loader
     public static function parseName($name, $type = 0)
     {
         if ($type) {
-            return preg_replace_callback(['/\_([a-zA-Z])/','/([^.][a-zA-Z]*$)/'], function ($match){
+            return preg_replace_callback(['/\_([a-zA-Z])/', '/([^.][a-zA-Z]*$)/'], function ($match) {
                 return ucfirst($match[1]);
             }, $name);
         } else {

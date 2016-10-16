@@ -1044,7 +1044,7 @@ class Template
                 $templateName = $this->get(substr($templateName, 1));
             }
             //解决模板include标签不支持自动定位当前控制器的问题
-            if (!preg_match("/(\/|\:)/",$templateName)){
+            if (!preg_match('/(\/|\:)/', $templateName)) {
                 $templateName = str_replace(".", DS, Loader::parseName(request()->controller())) . DS . $templateName;
             }
             $template = $this->parseTemplateFile($templateName);
