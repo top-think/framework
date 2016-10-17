@@ -58,6 +58,8 @@ return [
     'default_validate'       => '',
     // 默认的空控制器名
     'empty_controller'       => 'Error',
+    // 操作方法前缀
+    'use_action_prefix'      => false,
     // 操作方法后缀
     'action_suffix'          => '',
     // 自动搜索控制器
