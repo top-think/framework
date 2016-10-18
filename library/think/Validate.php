@@ -377,7 +377,7 @@ class Validate
                     // 验证失败 返回错误信息
                     if (isset($msg[$i])) {
                         $message = $msg[$i];
-                        if (is_string($message) && strpos($message, '{%')) {
+                        if (is_string($message) && strpos($message, '{%') !== false) {
                             $message = Lang::get(substr($message, 2, -1));
                         }
                     } else {
