@@ -40,22 +40,24 @@ class Url
             $name = substr($url, 1, $pos - 1);
             $url  = 'name' . substr($url, $pos + 1);
         }
-        $info = parse_url($url);
-        $url  = !empty($info['path']) ? $info['path'] : '';
-        if (isset($info['fragment'])) {
-            // 解析锚点
-            $anchor = $info['fragment'];
-            if (false !== strpos($anchor, '?')) {
-                // 解析参数
-                list($anchor, $info['query']) = explode('?', $anchor, 2);
-            }
-            if (false !== strpos($anchor, '@')) {
+        if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
+            $info = parse_url($url);
+            $url  = !empty($info['path']) ? $info['path'] : '';
+            if (isset($info['fragment'])) {
+                // 解析锚点
+                $anchor = $info['fragment'];
+                if (false !== strpos($anchor, '?')) {
+                    // 解析参数
+                    list($anchor, $info['query']) = explode('?', $anchor, 2);
+                }
+                if (false !== strpos($anchor, '@')) {
+                    // 解析域名
+                    list($anchor, $domain) = explode('@', $anchor, 2);
+                }
+            } elseif (strpos($url, '@') && false === strpos($url, '\\')) {
                 // 解析域名
-                list($anchor, $domain) = explode('@', $anchor, 2);
+                list($url, $domain) = explode('@', $url, 2);
             }
-        } elseif (strpos($url, '@')) {
-            // 解析域名
-            list($url, $domain) = explode('@', $url, 2);
         }
 
         // 解析参数
@@ -77,19 +79,36 @@ class Url
         if (!empty($rule) && $match = self::getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识
             $url = $match[0];
+            // 替换可选分隔符
+            $url = preg_replace(['/\((\W)\?\)$/', '/\((\W)\?\)/'], ['', '\1'], $url);
             if (!empty($match[1])) {
                 $domain = $match[1];
             }
         } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
+            // 检查别名路由
+            $alias = Route::rules('alias');
+            if ($alias) {
+                // 别名路由解析
+                foreach ($alias as $key => $val) {
+                    if (is_array($val)) {
+                        $val = $val[0];
+                    }
+                    if (0 === strpos($url, $val)) {
+                        $url = $key . substr($url, strlen($val));
+                        break;
+                    }
+                }
+            } else {
+                // 路由标识不存在 直接解析
+                $url = self::parseUrl($url, $domain);
+            }
             if (isset($info['query'])) {
                 // 解析地址里面参数 合并到vars
                 parse_str($info['query'], $params);
                 $vars = array_merge($params, $vars);
             }
-            // 路由标识不存在 直接解析
-            $url = self::parseUrl($url, $domain);
         }
 
         // 检测URL绑定
@@ -115,9 +134,14 @@ class Url
                 $vars = urldecode(http_build_query($vars));
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
+                $paramType = Config::get('url_param_type');
                 foreach ($vars as $var => $val) {
                     if ('' !== trim($val)) {
-                        $url .= $depr . $var . $depr . urlencode($val);
+                        if ($paramType) {
+                            $url .= $depr . urlencode($val);
+                        } else {
+                            $url .= $depr . $var . $depr . urlencode($val);
+                        }
                     }
                 }
                 $url .= $suffix . $anchor;

@@ -25,7 +25,18 @@ class urlTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        Route::rules([]);
+        Route::rules(['GET' => [],
+            'POST'              => [],
+            'PUT'               => [],
+            'DELETE'            => [],
+            'PATCH'             => [],
+            'HEAD'              => [],
+            'OPTIONS'           => [],
+            '*'                 => [],
+            'alias'             => [],
+            'domain'            => [],
+            'pattern'           => [],
+            'name'              => []]);
         Route::name([]);
     }
 
@@ -63,7 +74,7 @@ class urlTest extends \PHPUnit_Framework_TestCase
     public function testBuildMethod()
     {
         Route::get('blog/:id', '\app\index\controller\blog@read');
-        $this->assertEquals('/blog/10.html', Url::build('[\app\index\controller\blog@read]', 'id=10', 'html'));
+        $this->assertEquals('/blog/10.html', Url::build('\app\index\controller\blog@read', 'id=10', 'html'));
     }
 
     public function testBuildRoute()
@@ -86,10 +97,10 @@ class urlTest extends \PHPUnit_Framework_TestCase
     {
         Route::get('blog/:id', 'index/blog');
         Config::set('url_html_suffix', 'shtml');
-        $this->assertEquals('/blog/10.shtml#detail', Url::build('/blog/10#detail'));
+        $this->assertEquals('/blog/10.shtml#detail', Url::build('index/blog#detail', 'id=10'));
 
         Config::set('url_common_param', true);
-        $this->assertEquals('/blog/10.shtml?foo=bar#detail', Url::build('/blog/10#detail', "foo=bar"));
+        $this->assertEquals('/blog/10.shtml?foo=bar#detail', Url::build('index/blog#detail', "id=10&foo=bar"));
     }
 
     public function testBuildDomain()

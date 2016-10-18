@@ -79,31 +79,34 @@ class App
     {
         is_null($request) && $request = Request::instance();
 
-        $config = self::initCommon();
-        if (defined('BIND_MODULE')) {
-            // 模块/控制器绑定
-            BIND_MODULE && Route::bind(BIND_MODULE);
-        } elseif ($config['auto_bind_module']) {
-            // 入口自动绑定
-            $name = pathinfo($request->baseFile(), PATHINFO_FILENAME);
-            if ($name && 'index' != $name && is_dir(APP_PATH . $name)) {
-                Route::bind($name);
-            }
-        }
-
-        $request->filter($config['default_filter']);
         try {
-
-            // 开启多语言机制
-            if ($config['lang_switch_on']) {
-                // 获取当前语言
-                $request->langset(Lang::detect());
-                // 加载系统语言包
-                Lang::load(THINK_PATH . 'lang' . DS . $request->langset() . EXT);
-                if (!$config['app_multi_module']) {
-                    Lang::load(APP_PATH . 'lang' . DS . $request->langset() . EXT);
+            $config = self::initCommon();
+            if (defined('BIND_MODULE')) {
+                // 模块/控制器绑定
+                BIND_MODULE && Route::bind(BIND_MODULE);
+            } elseif ($config['auto_bind_module']) {
+                // 入口自动绑定
+                $name = pathinfo($request->baseFile(), PATHINFO_FILENAME);
+                if ($name && 'index' != $name && is_dir(APP_PATH . $name)) {
+                    Route::bind($name);
                 }
             }
+
+            $request->filter($config['default_filter']);
+
+            if ($config['lang_switch_on']) {
+                // 开启多语言机制 检测当前语言
+                Lang::detect();
+            } else {
+                // 读取默认语言
+                Lang::range($config['default_lang']);
+            }
+            $request->langset(Lang::range());
+            // 加载系统语言包
+            Lang::load([
+                THINK_PATH . 'lang' . DS . $request->langset() . EXT,
+                APP_PATH . 'lang' . DS . $request->langset() . EXT,
+            ]);
 
             // 获取应用调度信息
             $dispatch = self::$dispatch;
@@ -222,7 +225,7 @@ class App
         }
         $args = self::bindParams($reflect, $vars);
 
-        self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
+        self::$debug && Log::record('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]', 'info');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
@@ -242,8 +245,6 @@ class App
         } else {
             $args = [];
         }
-
-        self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
         return $reflect->newInstanceArgs($args);
     }
 
@@ -496,7 +497,7 @@ class App
             }
 
             // 加载当前模块语言包
-            if ($config['lang_switch_on'] && $module) {
+            if ($module) {
                 Lang::load($path . 'lang' . DS . Request::instance()->langset() . EXT);
             }
         }

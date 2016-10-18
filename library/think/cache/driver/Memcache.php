@@ -16,7 +16,6 @@ use think\Exception;
 
 class Memcache extends Driver
 {
-    protected $handler = null;
     protected $options = [
         'host'       => '127.0.0.1',
         'port'       => 11211,

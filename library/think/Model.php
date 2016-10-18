@@ -13,6 +13,7 @@ namespace think;
 
 use InvalidArgumentException;
 use think\Cache;
+use think\Config;
 use think\Db;
 use think\db\Query;
 use think\Exception;
@@ -99,7 +100,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 验证失败是否抛出异常
     protected $failException = false;
     // 全局查询范围
-    protected static $useGlobalScope = true;
+    protected $useGlobalScope = true;
 
     /**
      * 初始化过的模型.
@@ -126,7 +127,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (empty($this->name)) {
             // 当前模型名
-            $this->name = basename(str_replace('\\', '/', $this->class));
+            $name       = str_replace('\\', '/', $this->class);
+            $this->name = basename($name);
+            if (Config::get('class_suffix')) {
+                $suffix     = basename(dirname($name));
+                $this->name = substr($this->name, 0, -strlen($suffix));
+            }
         }
 
         if (is_null($this->autoWriteTimestamp)) {
@@ -141,9 +147,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
+     * @param bool $baseQuery 是否调用全局查询范围
      * @return Query
      */
-    public function db()
+    public function db($baseQuery = true)
     {
         $model = $this->class;
         if (!isset(self::$links[$model])) {
@@ -162,6 +169,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             self::$links[$model] = $query;
+        }
+        // 全局作用域
+        if ($baseQuery && method_exists($this, 'base')) {
+            call_user_func_array([$this, 'base'], [ & self::$links[$model]]);
         }
         // 返回当前模型的数据库查询对象
         return self::$links[$model];
@@ -401,9 +412,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
         } elseif ($notFound) {
-            if (method_exists($this, $name) && !method_exists('\think\Model', $name)) {
+            $method = Loader::parseName($name, 1);
+            if (method_exists($this, $method) && !method_exists('\think\Model', $method)) {
                 // 不存在该字段 获取关联数据
-                $value = $this->relation()->getRelation($name);
+                $value = $this->relation()->getRelation($method);
                 // 保存关联对象值
                 $this->data[$name] = $value;
             } else {
@@ -668,15 +680,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $where = $this->updateWhere;
             }
 
-            if (!empty($where)) {
-                $pk = $this->getPk();
-                if (is_string($pk) && isset($data[$pk])) {
-                    if (!isset($where[$pk])) {
-                        unset($where);
-                        $where[$pk] = $data[$pk];
-                    }
-                    unset($data[$pk]);
+            $pk = $this->getPk();
+            if (is_string($pk) && isset($data[$pk])) {
+                if (!isset($where[$pk])) {
+                    unset($where);
+                    $where[$pk] = $data[$pk];
                 }
+                unset($data[$pk]);
             }
 
             $result = $this->db()->where($where)->update($data);
@@ -1109,8 +1119,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function useGlobalScope($use)
     {
-        $model                  = new static();
-        static::$useGlobalScope = $use;
+        $model                 = new static();
+        $model->useGlobalScope = $use;
         return $model;
     }
 
@@ -1134,8 +1144,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
                     ->group('b.' . $info['foreignKey'])
                     ->having('count(' . $id . ')' . $operator . $count);
-            case Relation::HAS_MANY_THROUGH:
-                // TODO
+            case Relation::HAS_MANY_THROUGH: // TODO
+            default:
+                return $model;
         }
     }
 
@@ -1166,8 +1177,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     ->field('a.*')
                     ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
                     ->where($where);
-            case Relation::HAS_MANY_THROUGH:
-                // TODO
+            case Relation::HAS_MANY_THROUGH: // TODO
+            default:
+                return $model;
         }
     }
 
@@ -1333,10 +1345,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __call($method, $args)
     {
         $query = $this->db();
-        // 全局作用域
-        if (static::$useGlobalScope && method_exists($this, 'base')) {
-            call_user_func_array('static::base', [ & $query]);
-        }
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
@@ -1351,11 +1359,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $params)
     {
         $query = self::getDb();
-        $model = get_called_class();
-        // 全局作用域
-        if (static::$useGlobalScope && method_exists($model, 'base')) {
-            call_user_func_array('static::base', [ & $query]);
-        }
         return call_user_func_array([$query, $method], $params);
     }
 

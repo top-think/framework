@@ -322,7 +322,7 @@ class Loader
                 //加载当前模块应用类库
                 $baseUrl = App::$modulePath;
             } elseif (is_dir(EXTEND_PATH . $name)) {
-                $baseUrl = EXTEND_PATH;
+                $baseUrl = EXTEND_PATH . $name . DS;
             } else {
                 // 加载其它模块的类库
                 $baseUrl = APP_PATH . $name . DS;
@@ -365,8 +365,9 @@ class Loader
      */
     public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
-        if (isset(self::$instance[$name . $layer])) {
-            return self::$instance[$name . $layer];
+        $guid = $name . $layer;
+        if (isset(self::$instance[$guid])) {
+            return self::$instance[$guid];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name, 2);
@@ -384,7 +385,7 @@ class Loader
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-        self::$instance[$name . $layer] = $model;
+        self::$instance[$guid] = $model;
         return $model;
     }
 
@@ -427,9 +428,9 @@ class Loader
         if (empty($name)) {
             return new Validate;
         }
-
-        if (isset(self::$instance[$name . $layer])) {
-            return self::$instance[$name . $layer];
+        $guid = $name . $layer;
+        if (isset(self::$instance[$guid])) {
+            return self::$instance[$guid];
         }
         if (strpos($name, '/')) {
             list($module, $name) = explode('/', $name);
@@ -447,7 +448,7 @@ class Loader
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-        self::$instance[$name . $layer] = $validate;
+        self::$instance[$guid] = $validate;
         return $validate;
     }
 

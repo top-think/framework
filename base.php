@@ -9,7 +9,7 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-define('THINK_VERSION', '5.0.0');
+define('THINK_VERSION', '5.0.2dev');
 define('THINK_START_TIME', microtime(true));
 define('THINK_START_MEM', memory_get_usage());
 define('EXT', '.php');
@@ -19,7 +19,7 @@ define('LIB_PATH', THINK_PATH . 'library' . DS);
 define('CORE_PATH', LIB_PATH . 'think' . DS);
 define('TRAIT_PATH', LIB_PATH . 'traits' . DS);
 defined('APP_PATH') or define('APP_PATH', dirname($_SERVER['SCRIPT_FILENAME']) . DS);
-defined('ROOT_PATH') or define('ROOT_PATH', dirname(APP_PATH) . DS);
+defined('ROOT_PATH') or define('ROOT_PATH', dirname(realpath(APP_PATH)) . DS);
 defined('EXTEND_PATH') or define('EXTEND_PATH', ROOT_PATH . 'extend' . DS);
 defined('VENDOR_PATH') or define('VENDOR_PATH', ROOT_PATH . 'vendor' . DS);
 defined('RUNTIME_PATH') or define('RUNTIME_PATH', ROOT_PATH . 'runtime' . DS);

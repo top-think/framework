@@ -12,6 +12,7 @@
 namespace think;
 
 use think\File;
+use think\Lang;
 use think\Request;
 use think\Session;
 
@@ -376,6 +377,9 @@ class Validate
                     // 验证失败 返回错误信息
                     if (isset($msg[$i])) {
                         $message = $msg[$i];
+                        if (is_string($message) && strpos($message, '{%')) {
+                            $message = Lang::get(substr($message, 2, -1));
+                        }
                     } else {
                         $message = $this->getRuleMsg($field, $title, $info, $rule);
                     }
@@ -1163,7 +1167,11 @@ class Validate
         } else {
             $msg = $title . '规则错误';
         }
-        // TODO 多语言支持
+
+        if (is_string($msg) && strpos($msg, '{%')) {
+            $msg = Lang::get(substr($msg, 2, -1));
+        }
+
         if (is_string($msg) && false !== strpos($msg, ':')) {
             // 变量替换
             if (strpos($rule, ',')) {

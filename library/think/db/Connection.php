@@ -421,6 +421,8 @@ abstract class Connection
                 $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
                 if (PDO::PARAM_STR == $type) {
                     $value = $this->quote($value);
+                } elseif (PDO::PARAM_INT == $type && '' === $value) {
+                    $value = 0;
                 }
                 // 判断占位符
                 $sql = is_numeric($key) ?
@@ -449,6 +451,9 @@ abstract class Connection
             // 占位符
             $param = is_numeric($key) ? $key + 1 : ':' . $key;
             if (is_array($val)) {
+                if (PDO::PARAM_INT == $val[1] && '' === $val[0]) {
+                    $val[0] = 0;
+                }
                 $result = $this->PDOStatement->bindValue($param, $val[0], $val[1]);
             } else {
                 $result = $this->PDOStatement->bindValue($param, $val);

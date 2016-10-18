@@ -111,15 +111,17 @@ class Response
                 header($name . ':' . $val);
             }
         }
-        echo $data;
-
         if (200 == $this->code) {
             $cache = Request::instance()->getCache();
             if ($cache) {
-                Cache::set($cache[0], $data, $cache[1]);
-                Cache::set($cache[0] . '_header', $this->header['Content-Type']);
+                header('Cache-Control: max-age=' . $cache[1] . ',must-revalidate');
+                header('Last-Modified:' . gmdate('D, d M Y H:i:s') . ' GMT');
+                header('Expires:' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT');
+                $header['Content-Type'] = $this->header['Content-Type'];
+                Cache::set($cache[0], [$data, $header], $cache[1]);
             }
         }
+        echo $data;
 
         if (function_exists('fastcgi_finish_request')) {
             // 提高页面响应

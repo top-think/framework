@@ -60,10 +60,12 @@ class Config
         }
         if (is_file($file)) {
             $type = pathinfo($file, PATHINFO_EXTENSION);
-            if ('php' != $type) {
-                return self::parse($file, $type, $name, $range);
-            } else {
+            if ('php' == $type) {
                 return self::set(include $file, $name, $range);
+            } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
+                return self::set(yaml_parse_file($file), $name, $range);
+            } else {
+                return self::parse($file, $type, $name, $range);
             }
         } else {
             return self::$config[$range];

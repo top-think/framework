@@ -180,6 +180,6 @@ class Lite extends Driver
             $this->rm('tag_' . md5($tag));
             return true;
         }
-        array_map("unlink", glob($this->options['path'] . $this->options['prefix'] . '*.php'));
+        array_map("unlink", glob($this->options['path'] . ($this->options['prefix'] ? $this->options['prefix'] . DS : '') . '*.php'));
     }
 }

@@ -43,15 +43,24 @@ class Pgsql extends Builder
      * 字段和表名处理
      * @access protected
      * @param string $key
+     * @param array  $options
      * @return string
      */
-    protected function parseKey($key)
+    protected function parseKey($key, $options = [])
     {
         $key = trim($key);
         if (strpos($key, '$.') && false === strpos($key, '(')) {
             // JSON字段支持
             list($field, $name) = explode('$.', $key);
             $key                = $field . '->>\'' . $name . '\'';
+        } elseif (strpos($key, '.')) {
+            list($table, $key) = explode('.', $key, 2);
+            if (isset($options['alias'][$table])) {
+                $table = $options['alias'][$table];
+            }
+        }
+        if (isset($table)) {
+            $key = $table . '.' . $key;
         }
         return $key;
     }

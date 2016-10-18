@@ -16,6 +16,7 @@ namespace think\cache;
  */
 abstract class Driver
 {
+    protected $handler = null;
     protected $options = [];
     protected $tag;
 
@@ -172,5 +173,16 @@ abstract class Driver
         } else {
             return [];
         }
+    }
+
+    /**
+     * 返回句柄对象，可执行其它高级方法
+     *
+     * @access public
+     * @return object
+     */
+    public function handler()
+    {
+        return $this->handler;
     }
 }
