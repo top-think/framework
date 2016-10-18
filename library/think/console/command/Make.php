@@ -80,22 +80,22 @@ abstract class Make extends Command
     {
         $appNamespace = Config::get('app_namespace');
 
+        if (strpos($name, '/') !== false) {
+            $name = str_replace('/', '\\', $name);
+        }
+
         if (strpos($name, $appNamespace . '\\') === 0) {
             return $name;
         }
 
         if (Config::get('app_multi_module')) {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name, 2);
+            if (strpos($name, '\\')) {
+                list($module, $name) = explode('\\', $name, 2);
             } else {
                 $module = 'common';
             }
         } else {
             $module = null;
-        }
-
-        if (strpos($name, '/') !== false) {
-            $name = str_replace('/', '\\', $name);
         }
 
         return $this->getNamespace($appNamespace, $module) . '\\' . $name;

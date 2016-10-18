@@ -181,11 +181,18 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         Session::set('sessionnamearr.subname', 'sessionvalue');
         $this->assertEquals('sessionvalue', $_SESSION['sessionnamearr']['subname']);
 
+        Session::set('sessionnamearr3.subname.thirdname', 'sessionvalue');
+        $this->assertEquals('sessionvalue', $_SESSION['sessionnamearr3']['subname']['thirdname']);
+
         Session::set('sessionnameper', 'sessionvalue', 'think_');
         $this->assertEquals('sessionvalue', $_SESSION['think_']['sessionnameper']);
 
         Session::set('sessionnamearrper.subname', 'sessionvalue', 'think_');
         $this->assertEquals('sessionvalue', $_SESSION['think_']['sessionnamearrper']['subname']);
+
+        Session::set('sessionnamearr3per.subname', 'sessionvalue', 'think_');
+        $this->assertEquals('sessionvalue', $_SESSION['think_']['sessionnamearr3per']['subname']);
+
     }
 
     /**
@@ -203,6 +210,9 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         Session::set('sessionnamegetarr.subname', 'sessionvalue');
         $this->assertEquals(Session::get('sessionnamegetarr.subname'), $_SESSION['sessionnamegetarr']['subname']);
 
+        Session::set('sessionnamegetarr3.subname.third', 'sessionvalue');
+        $this->assertEquals(Session::get('sessionnamegetarr3.subname.third'), $_SESSION['sessionnamegetarr3']['subname']['third']);
+
         Session::set('sessionnamegetarrperall', 'sessionvalue', 'think_');
         $this->assertEquals(Session::get('', 'think_')['sessionnamegetarrperall'], $_SESSION['think_']['sessionnamegetarrperall']);
 
@@ -211,6 +221,10 @@ class sessionTest extends \PHPUnit_Framework_TestCase
 
         Session::set('sessionnamegetarrper.subname', 'sessionvalue', 'think_');
         $this->assertEquals(Session::get('sessionnamegetarrper.subname', 'think_'), $_SESSION['think_']['sessionnamegetarrper']['subname']);
+
+        Session::set('sessionnamegetarr3per.subname.thirdname', 'sessionvalue', 'think_');
+        $this->assertEquals(Session::get('sessionnamegetarr3per.subname.thirdname', 'think_'), $_SESSION['think_']['sessionnamegetarr3per']['subname']['thirdname']);
+
     }
 
     public function testPull()
@@ -237,6 +251,10 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         Session::delete('sessionnamedelarr.subname');
         $this->assertEmpty($_SESSION['sessionnamedelarr']['subname']);
 
+        Session::set('sessionnamedelarr.subname.thirdname', 'sessionvalue');
+        Session::delete('sessionnamedelarr.subname.thirdname');
+        $this->assertEmpty($_SESSION['sessionnamedelarr']['subname']['thirdname']);
+
         Session::set('sessionnamedelper', 'sessionvalue', 'think_');
         Session::delete('sessionnamedelper', 'think_');
         $this->assertEmpty($_SESSION['think_']['sessionnamedelper']);
@@ -244,6 +262,10 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         Session::set('sessionnamedelperarr.subname', 'sessionvalue', 'think_');
         Session::delete('sessionnamedelperarr.subname', 'think_');
         $this->assertEmpty($_SESSION['think_']['sessionnamedelperarr']['subname']);
+
+        Session::set('sessionnamedelperarr.subname.thirdname', 'sessionvalue', 'think_');
+        Session::delete('sessionnamedelperarr.subname.thirdname', 'think_');
+        $this->assertEmpty($_SESSION['think_']['sessionnamedelperarr']['subname']['thirdname']);
     }
 
     /**
@@ -278,11 +300,17 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         Session::set('sessionnamehasarr.subname', 'sessionvalue');
         $this->assertTrue(Session::has('sessionnamehasarr.subname'));
 
+        Session::set('sessionnamehasarr.subname.thirdname', 'sessionvalue');
+        $this->assertTrue(Session::has('sessionnamehasarr.subname.thirdname'));
+
         Session::set('sessionnamehasper', 'sessionvalue', 'think_');
         $this->assertTrue(Session::has('sessionnamehasper', 'think_'));
 
         Session::set('sessionnamehasarrper.subname', 'sessionvalue', 'think_');
         $this->assertTrue(Session::has('sessionnamehasarrper.subname', 'think_'));
+
+        Session::set('sessionnamehasarrper.subname.thirdname', 'sessionvalue', 'think_');
+        $this->assertTrue(Session::has('sessionnamehasarrper.subname.thirdname', 'think_'));
     }
 
     /**

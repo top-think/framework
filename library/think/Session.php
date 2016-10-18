@@ -129,21 +129,32 @@ class Session
     public static function set($name, $value = '', $prefix = null)
     {
         empty(self::$init) && self::boot();
-
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
-        if (strpos($name, '.')) {
-            // 二维数组赋值
-            list($name1, $name2) = explode('.', $name);
-            if ($prefix) {
-                $_SESSION[$prefix][$name1][$name2] = $value;
-            } else {
-                $_SESSION[$name1][$name2] = $value;
-            }
-        } elseif ($prefix) {
-            $_SESSION[$prefix][$name] = $value;
-        } else {
-            $_SESSION[$name] = $value;
+
+        $keys = explode('.', $name);
+        if ($prefix) {
+            array_unshift($keys, $prefix);
         }
+
+        self::_set($_SESSION, $keys, $value);
+    }
+
+    /**
+     * session数组设置
+     * @param array &$array $_SESSION
+     * @param array $keys   session名称
+     * @param mixed $value  session值
+     */
+    private static function _set(&$array, $keys, $value)
+    {
+        foreach ($keys as $key) {
+            if (!isset($array[$key]) || !is_array($array[$key])) {
+                $array[$key] = [];
+            }
+            $array = &$array[$key];
+        }
+
+        $array = $value;
     }
 
     /**
@@ -156,26 +167,31 @@ class Session
     {
         empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
-        if ('' == $name) {
-            // 获取全部的session
-            $value = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
-        } elseif ($prefix) {
-            // 获取session
-            if (strpos($name, '.')) {
-                list($name1, $name2) = explode('.', $name);
-                $value               = isset($_SESSION[$prefix][$name1][$name2]) ? $_SESSION[$prefix][$name1][$name2] : null;
-            } else {
-                $value = isset($_SESSION[$prefix][$name]) ? $_SESSION[$prefix][$name] : null;
-            }
-        } else {
-            if (strpos($name, '.')) {
-                list($name1, $name2) = explode('.', $name);
-                $value               = isset($_SESSION[$name1][$name2]) ? $_SESSION[$name1][$name2] : null;
-            } else {
-                $value = isset($_SESSION[$name]) ? $_SESSION[$name] : null;
-            }
+
+        $keys = explode('.', $name);
+        if ($prefix) {
+            array_unshift($keys, $prefix);
         }
-        return $value;
+
+        return self::_get($_SESSION, $keys);
+    }
+
+    /**
+     * 获取session数组
+     * @param  array $array session数组
+     * @param  array $keys  session名称
+     * @return mixed
+     */
+    private static function _get($array, $keys)
+    {
+        foreach (array_filter($keys) as $key) {
+            if (!isset($array[$key])) {
+                return null;
+            }
+            $array = $array[$key];
+        }
+
+        return $array;
     }
 
     /**
@@ -205,20 +221,33 @@ class Session
     {
         empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
-        if (strpos($name, '.')) {
-            list($name1, $name2) = explode('.', $name);
-            if ($prefix) {
-                unset($_SESSION[$prefix][$name1][$name2]);
-            } else {
-                unset($_SESSION[$name1][$name2]);
-            }
-        } else {
-            if ($prefix) {
-                unset($_SESSION[$prefix][$name]);
-            } else {
-                unset($_SESSION[$name]);
-            }
+
+        $keys = explode('.', $name);
+        if ($prefix) {
+            array_unshift($keys, $prefix);
         }
+
+        self::_delete($_SESSION, $keys);
+    }
+
+    /**
+     * 删除session数组元素
+     * @param  array &$array session数组
+     * @param  array $keys   session名称
+     * @return void
+     */
+    private static function _delete(&$array, $keys)
+    {
+        $target = array_pop($keys);
+
+        foreach ($keys as $key) {
+            if (!isset($array[$key])) {
+                return;
+            }
+            $array = &$array[$key];
+        }
+
+        unset($array[$target]);
     }
 
     /**
@@ -247,13 +276,33 @@ class Session
     {
         empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
-        if (strpos($name, '.')) {
-            // 支持数组
-            list($name1, $name2) = explode('.', $name);
-            return $prefix ? isset($_SESSION[$prefix][$name1][$name2]) : isset($_SESSION[$name1][$name2]);
-        } else {
-            return $prefix ? isset($_SESSION[$prefix][$name]) : isset($_SESSION[$name]);
+
+        $keys = strpos($name, '.') ? explode('.', $name) : [$name];
+        if ($prefix) {
+            array_unshift($keys, $prefix);
         }
+
+        return self::_has($_SESSION, $keys);
+    }
+
+    /**
+     * 判断session数组元素是否存在
+     * @param  array  $array session数组
+     * @param  array  $keys  session名称
+     * @return boolean
+     */
+    private static function _has($array, $keys)
+    {
+        $target = array_pop($keys);
+
+        foreach ($keys as $key) {
+            if (!isset($array[$key])) {
+                return false;
+            }
+            $array = &$array[$key];
+        }
+
+        return isset($array[$target]);
     }
 
     /**
