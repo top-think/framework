@@ -282,7 +282,7 @@ class App
                     } else {
                         if (method_exists($className, 'invoke')) {
                             $method = new \ReflectionMethod($className, 'invoke');
-                            if ($method->isStatic()) {
+                            if ($method->isPublic() && $method->isStatic()) {
                                 $args[] = $className::invoke();
                                 continue;
                             }
