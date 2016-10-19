@@ -130,6 +130,9 @@ class Response
 
         // 监听response_end
         Hook::listen('response_end', $this);
+
+        // 清空当次请求有效的数据
+        Session::flush();
     }
 
     /**

@@ -53,10 +53,10 @@ class Redirect extends Response
     {
         if (is_array($name)) {
             foreach ($name as $key => $val) {
-                Session::set($key, $val);
+                Session::flash($key, $val);
             }
         } else {
-            Session::set($name, $value);
+            Session::flash($name, $value);
         }
         return $this;
     }
