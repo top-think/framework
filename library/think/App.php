@@ -280,7 +280,14 @@ class App
                     if ($bind instanceof $className) {
                         $args[] = $bind;
                     } else {
-                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className();
+                        if (method_exists($className, 'invoke')) {
+                            $method = new \ReflectionMethod($className, 'invoke');
+                            if ($method->isStatic()) {
+                                $args[] = $className::invoke();
+                                continue;
+                            }
+                        }
+                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className;
                     }
                 } elseif (1 == $type && !empty($vars)) {
                     $args[] = array_shift($vars);
