@@ -1285,9 +1285,16 @@ class Route
                 if (!$optional && !isset($m1[$key])) {
                     return false;
                 }
-                if (isset($m1[$key]) && isset($pattern[$name]) && !preg_match('/^' . $pattern[$name] . '$/', $m1[$key])) {
+                if (isset($m1[$key]) && isset($pattern[$name])) {
                     // 检查变量规则
-                    return false;
+                    if ($pattern[$name] instanceof \Closure) {
+                        $result = call_user_func_array($pattern[$name], [$m1[$key]]);
+                        if (false === $result) {
+                            return false;
+                        }
+                    } elseif (!preg_match('/^' . $pattern[$name] . '$/', $m1[$key])) {
+                        return false;
+                    }
                 }
                 $var[$name] = isset($m1[$key]) ? $m1[$key] : '';
             } elseif (!isset($m1[$key]) || 0 !== strcasecmp($val, $m1[$key])) {
