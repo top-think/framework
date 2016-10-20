@@ -823,14 +823,15 @@ class Route
         if ('|' != $url) {
             $url = rtrim($url, '|');
         }
-        if (isset($rules[$url])) {
+        $item = str_replace('|', '/', $url);
+        if (isset($rules[$item])) {
             // 静态路由规则检测
-            $rule = $rules[$url];
+            $rule = $rules[$item];
             if (true === $rule) {
-                $rule = self::getRouteExpress($url);
+                $rule = self::getRouteExpress($item);
             }
             if (!empty($rule['route']) && self::checkOption($rule['option'], $request)) {
-                return self::parseRule($url, $rule['route'], $url, $rule['option']);
+                return self::parseRule($item, $rule['route'], $url, $rule['option']);
             }
         }
 
