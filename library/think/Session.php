@@ -217,14 +217,16 @@ class Session
      */
     public static function flush()
     {
-        $item = self::get('__flash__');
+        if (self::$init) {
+            $item = self::get('__flash__');
 
-        if (!empty($item)) {
-            $time = $item['__time__'];
-            if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
-                unset($item['__time__']);
-                self::delete($item);
-                self::set('__flash__', []);
+            if (!empty($item)) {
+                $time = $item['__time__'];
+                if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
+                    unset($item['__time__']);
+                    self::delete($item);
+                    self::set('__flash__', []);
+                }
             }
         }
     }
