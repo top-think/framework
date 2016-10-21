@@ -670,14 +670,17 @@ class Query
                 }
             } else {
                 $prefix = $this->prefix;
-                $table  = trim($join);
-                if ($prefix && false === strpos($table, '(') && false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($table, '__')) {
-                    $table = $this->getTable($table);
-                }
-                if (strpos($table, ' ') && !strpos($table, ')')) {
-                    list($table, $alias) = explode(' ', $table);
+                $join   = trim($join);
+                if ($prefix && false === strpos($join, '(') && false === strpos($join, '.') && 0 !== strpos($join, $prefix) && 0 !== strpos($join, '__')) {
+                    $table = $this->getTable($join);
+                    $table = [$table => $join];
+                    $this->alias($table);
+                } elseif (strpos($join, ' ') && !strpos($join, ')')) {
+                    list($table, $alias) = explode(' ', $join);
                     $table               = [$table => $alias];
                     $this->alias($table);
+                } else {
+                    $table = $join;
                 }
             }
             $this->options['join'][] = [$table, strtoupper($type), $condition];
