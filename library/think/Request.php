@@ -1370,7 +1370,7 @@ class Request
      * 设置或者获取当前的模块名
      * @access public
      * @param string $module 模块名
-     * @return string|$this
+     * @return string|Request
      */
     public function module($module = null)
     {
@@ -1386,7 +1386,7 @@ class Request
      * 设置或者获取当前的控制器名
      * @access public
      * @param string $controller 控制器名
-     * @return string|$this
+     * @return string|Request
      */
     public function controller($controller = null)
     {
@@ -1402,7 +1402,7 @@ class Request
      * 设置或者获取当前的操作名
      * @access public
      * @param string $action 操作名
-     * @return string
+     * @return string|Request
      */
     public function action($action = null)
     {
@@ -1418,7 +1418,7 @@ class Request
      * 设置或者获取当前的语言
      * @access public
      * @param string $lang 语言名
-     * @return string
+     * @return string|Request
      */
     public function langset($lang = null)
     {
