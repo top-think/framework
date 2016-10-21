@@ -989,8 +989,8 @@ class Query
 
         if (!isset($total) && !$simple) {
             $options = $this->getOptions();
-            $total   = $this->count();
             $bind    = $this->bind;
+            $total   = $this->count();
             $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
         } elseif ($simple) {
             $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
