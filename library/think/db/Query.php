@@ -669,7 +669,11 @@ class Query
                     $table = array_shift($join);
                 }
             } else {
-                $table = trim($join);
+                $prefix = $this->prefix;
+                $table  = trim($join);
+                if ($prefix && false === strpos($table, '(') && false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($table, '__')) {
+                    $table = $this->getTable($table);
+                }
                 if (strpos($table, ' ') && !strpos($table, ')')) {
                     list($table, $alias) = explode(' ', $table);
                     $table               = [$table => $alias];
@@ -763,13 +767,17 @@ class Query
             }
         } else {
             $fields = [];
+            $prefix = $this->prefix;
             if (is_array($join)) {
                 // 支持数据表别名
-                list($join, $alias, $table) = array_pad($join, 3, '');
+                list($table, $alias) = ecch($join);
+            } elseif ($prefix && 0 !== strpos($join, $prefix) && 0 !== strpos($join, '__')) {
+                $table = $this->getTable($join);
+                $alias = $join;
             } else {
                 $alias = $join;
             }
-            $table = !empty($table) ? $table : $this->getTable($join);
+            $table = isset($table) ? [$table => $alias] : $alias;
             if (true === $field) {
                 $fields = $alias . '.*';
             } else {
@@ -793,9 +801,9 @@ class Query
             }
             $this->field($fields);
             if ($on) {
-                $this->join($table . ' ' . $alias, $on, $type);
+                $this->join($table, $on, $type);
             } else {
-                $this->table($table . ' ' . $alias);
+                $this->table($table);
             }
         }
         return $this;
