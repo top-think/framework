@@ -348,16 +348,21 @@ class Validate
                     $result = call_user_func_array($rule, [$value, $data]);
                 } else {
                     // 判断验证类型
-                    if (is_numeric($key) && strpos($rule, ':')) {
-                        list($type, $rule) = explode(':', $rule, 2);
-                        if (isset($this->alias[$type])) {
-                            // 判断别名
-                            $type = $this->alias[$type];
+                    if (is_numeric($key)) {
+                        if (strpos($rule, ':')) {
+                            list($type, $rule) = explode(':', $rule, 2);
+                            if (isset($this->alias[$type])) {
+                                // 判断别名
+                                $type = $this->alias[$type];
+                            }
+                            $info = $type;
+                        } elseif (method_exists($this, $rule)) {
+                            $type = $rule;
+                            $info = $rule;
+                        } else {
+                            $type = 'is';
+                            $info = $rule;
                         }
-                        $info = $type;
-                    } elseif (is_numeric($key)) {
-                        $type = 'is';
-                        $info = $rule;
                     } else {
                         $info = $type = $key;
                     }
