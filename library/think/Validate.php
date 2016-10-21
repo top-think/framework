@@ -723,19 +723,24 @@ class Validate
         if (!($file instanceof File)) {
             return false;
         }
-        $rule                        = explode(',', $rule);
-        list($width, $height, $type) = getimagesize($file->getRealPath());
-        if (isset($rule[2])) {
-            $imageType = strtolower($rule[2]);
-            if ('jpeg' == $imageType) {
-                $imageType = 'jpg';
+        if ($rule) {
+            $rule                        = explode(',', $rule);
+            list($width, $height, $type) = getimagesize($file->getRealPath());
+            if (isset($rule[2])) {
+                $imageType = strtolower($rule[2]);
+                if ('jpeg' == $imageType) {
+                    $imageType = 'jpg';
+                }
+                if (image_type_to_extension($type, false) != $imageType) {
+                    return false;
+                }
             }
-            if (image_type_to_extension($type, false) != $imageType) {
-                return false;
-            }
+
+            list($w, $h) = $rule;
+            return $w == $width && $h == $height;
+        } else {
+            return in_array($this->getImageType($file->getRealPath()), [1, 2, 3, 6]);
         }
-        list($w, $h) = $rule;
-        return $w == $width && $h == $height;
     }
 
     /**
