@@ -1176,15 +1176,22 @@ class Route
                 $dir    = APP_PATH . ($module ? $module . DS : '') . Config::get('url_controller_layer');
                 $suffix = App::$suffix || Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '';
                 $item   = [];
+                $find   = false;
                 foreach ($path as $val) {
-                    $item[] = array_shift($path);
-                    if (is_file($dir . DS . $val . $suffix . EXT)) {
+                    $item[] = $val;
+                    if (is_file($dir . DS . str_replace('.', DS, $val) . $suffix . EXT)) {
+                        $find = true;
                         break;
                     } else {
                         $dir .= DS . $val;
                     }
                 }
-                $controller = implode('.', $item);
+                if ($find) {
+                    $controller = implode('.', $item);
+                    $path       = array_slice($path, count($item));
+                } else {
+                    $controller = array_shift($path);
+                }
             } else {
                 // 解析控制器
                 $controller = !empty($path) ? array_shift($path) : null;
