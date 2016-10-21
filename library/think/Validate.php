@@ -359,6 +359,7 @@ class Validate
                         } elseif (method_exists($this, $rule)) {
                             $type = $rule;
                             $info = $rule;
+                            $rule = '';
                         } else {
                             $type = 'is';
                             $info = $rule;
