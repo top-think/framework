@@ -1203,7 +1203,14 @@ class Route
             self::parseUrlParams(empty($path) ? '' : implode('|', $path));
             // 封装路由
             $route = [$module, $controller, $action];
-            if (isset(self::$rules['name'][strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action)])) {
+            // 检查地址是否被定义过路由
+            $name  = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
+            $name2 = '';
+            if (isset(self::$bind['module']) && $module == self::$bind['module']) {
+                $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
+            }
+
+            if (isset(self::$rules['name'][$name]) || isset(self::$rules['name'][$name2])) {
                 throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
             }
         }
