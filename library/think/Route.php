@@ -1203,7 +1203,7 @@ class Route
             self::parseUrlParams(empty($path) ? '' : implode('|', $path));
             // 封装路由
             $route = [$module, $controller, $action];
-            if (isset(self::$rules['name'][strtolower(implode($depr, $route))])) {
+            if (isset(self::$rules['name'][strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action)])) {
                 throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
             }
         }
