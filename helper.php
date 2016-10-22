@@ -298,7 +298,7 @@ if (!function_exists('session')) {
             Session::init($name);
         } elseif (is_null($name)) {
             // 清除
-            Session::clear($value);
+            Session::clear('' === $value ? null : $value);
         } elseif ('' === $value) {
             // 判断或获取
             return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
