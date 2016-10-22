@@ -773,7 +773,7 @@ class Query
             $prefix = $this->prefix;
             if (is_array($join)) {
                 // 支持数据表别名
-                list($table, $alias) = ecch($join);
+                list($table, $alias) = each($join);
             } elseif ($prefix && 0 !== strpos($join, $prefix) && 0 !== strpos($join, '__')) {
                 $table = $this->getTable($join);
                 $alias = $join;
