@@ -157,7 +157,7 @@ class Url
     }
 
     // 直接解析URL地址
-    protected static function parseUrl($url, $domain)
+    protected static function parseUrl($url, &$domain)
     {
         $request = Request::instance();
         if (0 === strpos($url, '/')) {
@@ -171,16 +171,25 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 模块/控制器/操作
-            $module  = $request->module();
-            $domains = Route::rules('domain');
-            if (isset($domains[$domain]['[bind]'][0])) {
-                $bindModule = $domains[$domain]['[bind]'][0];
-                if ($bindModule && !in_array($bindModule[0], ['\\', '@'])) {
-                    $module = '';
+            $module = $request->module();
+            if (true === $domain) {
+                $domains = Route::rules('domain');
+                foreach ($domains as $key => $item) {
+                    if (isset($item['[bind]']) && 0 === strpos($url, $item['[bind]'][0])) {
+                        $url    = substr($url, strlen($item['[bind]'][0]) + 1);
+                        $domain = $key;
+                        $module = '';
+                    }
                 }
-            } else {
-                $module = $module ? $module . '/' : '';
+            } elseif ($domain) {
+                if (isset($domains[$domain]['[bind]'][0])) {
+                    $bindModule = $domains[$domain]['[bind]'][0];
+                    if ($bindModule && !in_array($bindModule[0], ['\\', '@'])) {
+                        $module = '';
+                    }
+                }
             }
+            $module = $module ? $module . '/' : '';
 
             $controller = Loader::parseName($request->controller());
             if ('' == $url) {

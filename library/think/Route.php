@@ -1203,7 +1203,7 @@ class Route
             // 封装路由
             $route = [$module, $controller, $action];
             if (isset(self::$rules['name'][implode($depr, $route)])) {
-                throw new HttpException(404, 'invalid request:' . $url);
+                throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
             }
         }
         return ['type' => 'module', 'module' => $route];
