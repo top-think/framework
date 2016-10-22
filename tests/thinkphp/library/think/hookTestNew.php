@@ -19,9 +19,7 @@ namespace tests\thinkphp\library\think;
 
 use \think\Hook;
 
-require_once '../../../mock.php';
-
-class hookTest extends \PHPUnit_Framework_TestCase
+class hookTestNew extends \PHPUnit_Framework_TestCase
 {
 
     public function testRun()
