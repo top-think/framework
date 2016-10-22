@@ -306,7 +306,7 @@ class Route
         $vars = self::parseVar($rule);
         if (isset($name)) {
             $key = $group ? $group . '/' . $rule : $rule;
-            self::name($name, [$key, $vars, self::$domain]);
+            self::name(strtolower($name), [$key, $vars, self::$domain]);
         }
         if ($group) {
             if ('*' != $type) {
@@ -1202,7 +1202,7 @@ class Route
             self::parseUrlParams(empty($path) ? '' : implode('|', $path));
             // 封装路由
             $route = [$module, $controller, $action];
-            if (isset(self::$rules['name'][implode($depr, $route)])) {
+            if (isset(self::$rules['name'][strtolower(implode($depr, $route))])) {
                 throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
             }
         }
