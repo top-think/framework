@@ -150,6 +150,7 @@ class Route
         } elseif (!is_null($value)) {
             self::$rules['name'][$name][] = $value;
         } else {
+            $name = strtolower($name);
             return isset(self::$rules['name'][$name]) ? self::$rules['name'][$name] : null;
         }
     }
