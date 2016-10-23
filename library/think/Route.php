@@ -1163,8 +1163,9 @@ class Route
     {
 
         if (isset(self::$bind['module'])) {
+            $bind = str_replace('/', $depr, self::$bind['module']);
             // 如果有模块/控制器绑定
-            $url = self::$bind['module'] . '/' . ltrim($url, '/');
+            $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
         }
         $url              = str_replace($depr, '|', $url);
         list($path, $var) = self::parseUrlPath($url);
