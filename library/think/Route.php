@@ -1207,7 +1207,7 @@ class Route
             // 检查地址是否被定义过路由
             $name  = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
             $name2 = '';
-            if (empty($module) || isset(self::$bind['module']) && $module == self::$bind['module']) {
+            if (empty($module) || isset($bind) && $module == $bind) {
                 $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
             }
 
