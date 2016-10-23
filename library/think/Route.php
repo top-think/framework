@@ -24,13 +24,13 @@ class Route
 {
     // 路由规则
     private static $rules = [
-        'GET'     => [],
-        'POST'    => [],
-        'PUT'     => [],
-        'DELETE'  => [],
-        'PATCH'   => [],
-        'HEAD'    => [],
-        'OPTIONS' => [],
+        'get'     => [],
+        'post'    => [],
+        'put'     => [],
+        'delete'  => [],
+        'patch'   => [],
+        'head'    => [],
+        'options' => [],
         '*'       => [],
         'alias'   => [],
         'domain'  => [],
@@ -40,21 +40,22 @@ class Route
 
     // REST路由操作方法定义
     private static $rest = [
-        'index'  => ['GET', '', 'index'],
-        'create' => ['GET', '/create', 'create'],
-        'edit'   => ['GET', '/:id/edit', 'edit'],
-        'read'   => ['GET', '/:id', 'read'],
-        'save'   => ['POST', '', 'save'],
-        'update' => ['PUT', '/:id', 'update'],
-        'delete' => ['DELETE', '/:id', 'delete'],
+        'index'  => ['get', '', 'index'],
+        'create' => ['get', '/create', 'create'],
+        'edit'   => ['get', '/:id/edit', 'edit'],
+        'read'   => ['get', '/:id', 'read'],
+        'save'   => ['post', '', 'save'],
+        'update' => ['put', '/:id', 'update'],
+        'delete' => ['delete', '/:id', 'delete'],
     ];
 
     // 不同请求类型的方法前缀
     private static $methodPrefix = [
-        'GET'    => 'get',
-        'POST'   => 'post',
-        'PUT'    => 'put',
-        'DELETE' => 'delete',
+        'get'    => 'get',
+        'post'   => 'post',
+        'put'    => 'put',
+        'delete' => 'delete',
+        'patch'  => 'patch',
     ];
 
     // 子域名
@@ -199,7 +200,7 @@ class Route
             unset($rule['__rest__']);
         }
 
-        self::registerRules($rule, strtoupper($type));
+        self::registerRules($rule, strtolower($type));
     }
 
     // 批量注册路由
@@ -242,7 +243,7 @@ class Route
             $pattern = array_merge(self::getGroup('pattern'), $pattern);
         }
 
-        $type = strtoupper($type);
+        $type = strtolower($type);
 
         if (strpos($type, '|')) {
             $option['method'] = $type;
@@ -329,7 +330,7 @@ class Route
             }
             if ('*' == $type) {
                 // 注册路由快捷方式
-                foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
+                foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
                     if (self::$domain) {
                         self::$rules['domain'][self::$domain][$method][$rule] = true;
                     } else {
@@ -432,7 +433,7 @@ class Route
                 self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
 
-            foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
+            foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
                 if (!isset(self::$rules[$method][$name])) {
                     self::$rules[$method][$name] = true;
                 } elseif (is_array(self::$rules[$method][$name])) {
@@ -626,9 +627,9 @@ class Route
     public static function setMethodPrefix($method, $prefix = '')
     {
         if (is_array($method)) {
-            self::$methodPrefix = array_merge(self::$methodPrefix, array_change_key_case($method, CASE_UPPER));
+            self::$methodPrefix = array_merge(self::$methodPrefix, array_change_key_case($method));
         } else {
-            self::$methodPrefix[strtoupper($method)] = $prefix;
+            self::$methodPrefix[strtolower($method)] = $prefix;
         }
     }
 
@@ -699,7 +700,7 @@ class Route
      * @param string    $method 请求类型
      * @return void
      */
-    public static function checkDomain($request, &$currentRules, $method = 'GET')
+    public static function checkDomain($request, &$currentRules, $method = 'get')
     {
         // 域名规则
         $rules = self::$rules['domain'];
@@ -809,7 +810,7 @@ class Route
                 return $result;
             }
         }
-        $method = $request->method();
+        $method = strtolower($request->method());
         // 获取当前请求类型的路由规则
         $rules = self::$rules[$method];
         // 检测域名部署
