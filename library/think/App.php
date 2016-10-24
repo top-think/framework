@@ -16,6 +16,7 @@ use think\Env;
 use think\Exception;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
+use think\exception\RouteNotFoundException;
 use think\Hook;
 use think\Lang;
 use think\Loader;
@@ -547,7 +548,7 @@ class App
             $must   = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
             if ($must && false === $result) {
                 // 路由无效
-                throw new HttpException(404, 'Route Not Found');
+                throw new RouteNotFoundException();
             }
         }
         if (false === $result) {
