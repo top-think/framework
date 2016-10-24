@@ -578,7 +578,8 @@ class Route
                 } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
                 }
-                $item = ltrim($rule . $val[1], '/');
+                $item           = ltrim($rule . $val[1], '/');
+                $option['rest'] = $key;
                 self::rule($item . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
             }
         }
@@ -637,7 +638,7 @@ class Route
      * rest方法定义和修改
      * @access public
      * @param string    $name 方法名称
-     * @param array     $resourece 资源
+     * @param array     $resource 资源
      * @return void
      */
     public static function rest($name, $resource = [])
