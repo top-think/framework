@@ -433,7 +433,7 @@ abstract class Connection
                     $sql . ' ');
             }
         }
-        return $sql;
+        return rtrim($sql);
     }
 
     /**

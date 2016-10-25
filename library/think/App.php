@@ -390,9 +390,7 @@ class App
 
         Hook::listen('action_begin', $call);
 
-        $data = self::invokeMethod($call);
-
-        return $data;
+        return self::invokeMethod($call);
     }
 
     /**
