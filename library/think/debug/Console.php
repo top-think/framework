@@ -138,6 +138,7 @@ JS;
                     break;
                 case '错误':
                     $msg    = str_replace("\n", '\n', $m);
+                    if(empty($msg)) break;
                     $style  = 'color:#F4006B;font-size:14px;';
                     $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
                     break;
