@@ -1002,6 +1002,9 @@ class Query
 
         if (!isset($total) && !$simple) {
             $options = $this->getOptions();
+            if (isset($options['order'])) {
+                unset($this->options['order']);
+            }
             $bind    = $this->bind;
             $total   = $this->count();
             $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
