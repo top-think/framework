@@ -365,6 +365,9 @@ if (!function_exists('cache')) {
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::rm($name);
+        } elseif (0 === strpos($name, '?') && '' !== $value) {
+            $expire = is_numeric($options) ? $options : null;
+            return Cache::remember(substr($name, 1), $value, $expire);
         } else {
             // 缓存数据
             if (is_array($options)) {
