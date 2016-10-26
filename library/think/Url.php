@@ -29,7 +29,7 @@ class Url
      * @param boolean|string    $domain 是否显示域名 或者直接传入域名
      * @return string
      */
-    public static function build($url = '', $vars = '', $suffix = true, $domain = false)
+    public static function build($url = '', $vars = '', $suffix = true, $domain = null)
     {
         if (false === $domain && Config::get('url_domain_deploy')) {
             $domain = true;
@@ -172,13 +172,14 @@ class Url
         } else {
             // 解析到 模块/控制器/操作
             $module = $request->module();
-            if (true === $domain) {
+            if (true === $domain && 2 == substr_count($url, '/')) {
                 $domains = Route::rules('domain');
                 foreach ($domains as $key => $item) {
                     if (isset($item['[bind]']) && 0 === strpos($url, $item['[bind]'][0])) {
                         $url    = substr($url, strlen($item['[bind]'][0]) + 1);
                         $domain = $key;
                         $module = '';
+                        break;
                     }
                 }
             } elseif ($domain) {
