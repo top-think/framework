@@ -30,8 +30,11 @@ class Url
      * @param boolean|string    $domain 是否显示域名 或者直接传入域名
      * @return string
      */
-    public static function build($url = '', $vars = '', $suffix = true, $domain = true)
+    public static function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
+        if (false === $domain && Route::rules('domain')) {
+            $domain = true;
+        }
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
             // [name] 表示使用路由命名标识生成URL
@@ -194,7 +197,6 @@ class Url
                     self::$bindCheck = true;
                     $url             = substr($url, $pos[$domain]);
                 }
-
             } elseif ($domain) {
                 if (isset($domains[$domain]['[bind]'][0])) {
                     $bindModule = $domains[$domain]['[bind]'][0];
