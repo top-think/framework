@@ -377,12 +377,14 @@ class App
         // 获取当前操作名
         $action = $actionName . $config['action_suffix'];
 
+        $vars = [];
         if (is_callable([$instance, $action])) {
             // 执行操作方法
             $call = [$instance, $action];
         } elseif (is_callable([$instance, '_empty'])) {
             // 空操作
             $call = [$instance, '_empty'];
+            $vars = [$action];
         } else {
             // 操作不存在
             throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
@@ -390,7 +392,7 @@ class App
 
         Hook::listen('action_begin', $call);
 
-        return self::invokeMethod($call);
+        return self::invokeMethod($call, $vars);
     }
 
     /**
