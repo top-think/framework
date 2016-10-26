@@ -302,13 +302,12 @@ class Route
             $rule                     = substr($rule, 0, -1);
         }
 
-        if ('/' != $rule) {
+        if ('/' != $rule || $group) {
             $rule = trim($rule, '/');
         }
         $vars = self::parseVar($rule);
         if (isset($name)) {
-            $rule = ltrim($rule, '/');
-            $key  = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
+            $key = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
             self::name(strtolower($name), [$key, $vars, self::$domain]);
         }
         if ($group) {
@@ -426,10 +425,10 @@ class Route
                         $options['complete_match'] = true;
                         $key                       = substr($key, 0, -1);
                     }
+                    $key    = trim($key, '/');
                     $vars   = self::parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
                     // 设置路由标识
-                    $key = ltrim($key, '/');
                     self::name($route, [$name . ($key ? '/' . $key : ''), $vars, self::$domain]);
                 }
                 self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
