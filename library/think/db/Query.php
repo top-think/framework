@@ -906,13 +906,9 @@ class Query
             if (is_array($field)) {
                 // 数组批量查询
                 $where = $field;
-            } elseif ($field) {
+            } elseif ($field && is_string($field)) {
                 // 字符串查询
-                if (is_numeric($field)) {
-                    $where[] = ['exp', $field];
-                } else {
-                    $where[$field] = ['null', ''];
-                }
+                $where[$field] = ['null', ''];
             }
         } elseif (is_array($op)) {
             $where[$field] = $param;
