@@ -359,7 +359,9 @@ if (!function_exists('cache')) {
             // 缓存初始化
             return Cache::connect($name);
         }
-        if ('' === $value) {
+        if (is_null($name)) {
+            return Cache::clear($value);
+        } elseif ('' === $value) {
             // 获取缓存
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
