@@ -69,6 +69,8 @@ class Route
     private static $domainRule;
     // 当前域名
     private static $domain;
+    // 当前路由执行过程中的参数
+    private static $option = [];
 
     /**
      * 注册变量规则
@@ -339,6 +341,27 @@ class Route
                 }
             }
         }
+    }
+
+    /**
+     * 设置当前执行的参数信息
+     * @access public
+     * @param array    $options 参数信息
+     * @return mixed
+     */
+    protected static function setOption($options = [])
+    {
+        self::$option[] = $options;
+    }
+
+    /**
+     * 获取当前执行的所有参数信息
+     * @access public
+     * @return array
+     */
+    public static function getOption()
+    {
+        return self::$option;
     }
 
     /**
@@ -898,7 +921,7 @@ class Route
                 if (is_string($str) && $str && 0 !== strpos(str_replace('|', '/', $url), $str)) {
                     continue;
                 }
-
+                self::setOption($option);
                 $result = self::checkRoute($request, $rule, $url, $depr, $key, $option);
                 if (false !== $result) {
                     return $result;
@@ -913,6 +936,8 @@ class Route
                 if ($group) {
                     $rule = $group . ($rule ? '/' . ltrim($rule, '/') : '');
                 }
+
+                self::setOption($option);
                 if (isset($options['bind_model']) && isset($option['bind_model'])) {
                     $option['bind_model'] = array_merge($options['bind_model'], $option['bind_model']);
                 }
