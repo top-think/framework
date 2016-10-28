@@ -234,9 +234,10 @@ class Route
      * @param string    $type 请求类型
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
+     * @param mixed     $role 角色信息
      * @return void
      */
-    public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [])
+    public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [], $role = null)
     {
         $group = self::getGroup('name');
         if (!is_null($group)) {
@@ -260,12 +261,16 @@ class Route
                     $route    = $val[0];
                     $option1  = array_merge($option, $val[1]);
                     $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
+                    if (isset($val[3])) {
+                        self::setRole($key, $val[3]);
+                    }
                 } else {
                     $route = $val;
                 }
                 self::setRule($key, $route, $type, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern, $group);
             }
         } else {
+            self::setRole($rule, $role);
             self::setRule($rule, $route, $type, $option, $pattern, $group);
         }
 
@@ -346,12 +351,15 @@ class Route
     /**
      * 设置当前执行的参数信息
      * @access public
-     * @param array    $options 参数信息
+     * @param string   $name 分组名或者路由规则
+     * @param mixed    $role 角色信息
      * @return mixed
      */
-    protected static function setOption($options = [])
+    protected static function setRole($name, $role)
     {
-        self::$option[] = $options;
+        if ($role) {
+            self::$role[$name] = $role;
+        }
     }
 
     /**
@@ -359,9 +367,9 @@ class Route
      * @access public
      * @return array
      */
-    public static function getOption()
+    public static function getRole()
     {
-        return self::$option;
+        return self::$role;
     }
 
     /**
@@ -401,9 +409,10 @@ class Route
      * @param array|\Closure    $routes 路由地址
      * @param array             $option 路由参数
      * @param array             $pattern 变量规则
+     * @param mixed             $role 角色信息
      * @return void
      */
-    public static function group($name, $routes, $option = [], $pattern = [])
+    public static function group($name, $routes, $option = [], $pattern = [], $role = null)
     {
         if (is_array($name)) {
             $option = $name;
@@ -427,6 +436,7 @@ class Route
                     self::$rules['*'][$name]['option']  = $option;
                     self::$rules['*'][$name]['pattern'] = $pattern;
                 }
+                self::setRole($name, $role);
             } else {
                 $item = [];
                 foreach ($routes as $key => $val) {
@@ -437,6 +447,9 @@ class Route
                         $route    = $val[0];
                         $option1  = array_merge($option, isset($val[1]) ? $val[1] : []);
                         $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
+                        if (isset($val[3])) {
+                            self::setRole($name, $val[3]);
+                        }
                     } else {
                         $route = $val;
                     }
@@ -474,7 +487,7 @@ class Route
             self::setGroup($currentGroup, $currentOption, $currentPattern);
         } else {
             // 批量注册路由
-            self::rule($routes, '', '*', $option, $pattern);
+            self::rule($routes, '', '*', $option, $pattern, $role);
         }
     }
 
@@ -858,7 +871,6 @@ class Route
                 $rule = self::getRouteExpress($item);
             }
             if (!empty($rule['route']) && self::checkOption($rule['option'], $request)) {
-                self::setOption($rule['option']);
                 return self::parseRule($item, $rule['route'], $url, $rule['option']);
             }
         }
@@ -922,7 +934,7 @@ class Route
                 if (is_string($str) && $str && 0 !== strpos(str_replace('|', '/', $url), $str)) {
                     continue;
                 }
-                self::setOption($option);
+
                 $result = self::checkRoute($request, $rule, $url, $depr, $key, $option);
                 if (false !== $result) {
                     return $result;
@@ -938,7 +950,6 @@ class Route
                     $rule = $group . ($rule ? '/' . ltrim($rule, '/') : '');
                 }
 
-                self::setOption($option);
                 if (isset($options['bind_model']) && isset($option['bind_model'])) {
                     $option['bind_model'] = array_merge($options['bind_model'], $option['bind_model']);
                 }
