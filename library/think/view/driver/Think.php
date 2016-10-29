@@ -24,6 +24,8 @@ class Think
     private $template;
     // 模板引擎参数
     protected $config = [
+        // 视图基础目录（集中式）
+        'view_base'   => '',
         // 模板起始路径
         'view_path'   => '',
         // 模板文件后缀
@@ -103,18 +105,21 @@ class Think
      */
     private function parseTemplate($template)
     {
+        // 分析模板文件规则
+        $request = Request::instance();
         // 获取视图根目录
         if (strpos($template, '@')) {
             // 跨模块调用
             list($module, $template) = explode('@', $template);
-            $path                    = APP_PATH . $module . DS . 'view' . DS;
+        }
+        if ($this->config['view_base']) {
+            // 基础视图目录
+            $module = isset($module) ? $module : $request->module();
+            $path   = $this->config['view_base'] . ($module ? $module . DS : '');
         } else {
-            // 当前视图目录
-            $path = $this->config['view_path'];
+            $path = isset($module) ? APP_PATH . $module . DS . 'view' . DS : $this->config['view_path'];
         }
 
-        // 分析模板文件规则
-        $request    = Request::instance();
         $controller = Loader::parseName($request->controller());
         if ($controller && 0 !== strpos($template, '/')) {
             $depr     = $this->config['view_depr'];

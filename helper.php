@@ -298,7 +298,7 @@ if (!function_exists('session')) {
             Session::init($name);
         } elseif (is_null($name)) {
             // 清除
-            Session::clear($value);
+            Session::clear('' === $value ? null : $value);
         } elseif ('' === $value) {
             // 判断或获取
             return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
@@ -359,12 +359,17 @@ if (!function_exists('cache')) {
             // 缓存初始化
             return Cache::connect($name);
         }
-        if ('' === $value) {
+        if (is_null($name)) {
+            return Cache::clear($value);
+        } elseif ('' === $value) {
             // 获取缓存
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::rm($name);
+        } elseif (0 === strpos($name, '?') && '' !== $value) {
+            $expire = is_numeric($options) ? $options : null;
+            return Cache::remember(substr($name, 1), $value, $expire);
         } else {
             // 缓存数据
             if (is_array($options)) {

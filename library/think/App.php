@@ -16,6 +16,7 @@ use think\Env;
 use think\Exception;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
+use think\exception\RouteNotFoundException;
 use think\Hook;
 use think\Lang;
 use think\Loader;
@@ -369,34 +370,29 @@ class App
         // 监听module_init
         Hook::listen('module_init', $request);
 
-        try {
-            $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
-            if (is_null($instance)) {
-                throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
-            }
-            // 获取当前操作名
-            $action = $actionName . $config['action_suffix'];
-            if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
-                // 非法操作
-                throw new \ReflectionException('illegal action name:' . $actionName);
-            }
+        $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
+        if (is_null($instance)) {
+            throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
+        }
+        // 获取当前操作名
+        $action = $actionName . $config['action_suffix'];
 
+        $vars = [];
+        if (is_callable([$instance, $action])) {
             // 执行操作方法
             $call = [$instance, $action];
-            Hook::listen('action_begin', $call);
-
-            $data = self::invokeMethod($call);
-        } catch (\ReflectionException $e) {
+        } elseif (is_callable([$instance, '_empty'])) {
+            // 空操作
+            $call = [$instance, '_empty'];
+            $vars = [$action];
+        } else {
             // 操作不存在
-            if (method_exists($instance, '_empty')) {
-                $reflect = new \ReflectionMethod($instance, '_empty');
-                $data    = $reflect->invokeArgs($instance, [$action]);
-                self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
-            } else {
-                throw new HttpException(404, 'method not exists:' . (new \ReflectionClass($instance))->getName() . '->' . $action);
-            }
+            throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
         }
-        return $data;
+
+        Hook::listen('action_begin', $call);
+
+        return self::invokeMethod($call, $vars);
     }
 
     /**
@@ -552,7 +548,7 @@ class App
             $must   = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
             if ($must && false === $result) {
                 // 路由无效
-                throw new HttpException(404, 'Route Not Found');
+                throw new RouteNotFoundException();
             }
         }
         if (false === $result) {

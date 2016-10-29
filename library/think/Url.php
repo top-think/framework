@@ -20,6 +20,7 @@ class Url
 {
     // 生成URL地址的root
     protected static $root;
+    protected static $bindCheck;
 
     /**
      * URL生成 支持路由反射
@@ -31,7 +32,7 @@ class Url
      */
     public static function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
-        if (false === $domain && Config::get('url_domain_deploy')) {
+        if (false === $domain && Route::rules('domain')) {
             $domain = true;
         }
         // 解析URL
@@ -112,11 +113,13 @@ class Url
         }
 
         // 检测URL绑定
-        $type = Route::getBind('type');
-        if ($type) {
-            $bind = Route::getBind($type);
-            if (0 === strpos($url, $bind)) {
-                $url = substr($url, strlen($bind) + 1);
+        if (!self::$bindCheck) {
+            $type = Route::getBind('type');
+            if ($type) {
+                $bind = Route::getBind($type);
+                if (0 === strpos($url, $bind)) {
+                    $url = substr($url, strlen($bind) + 1);
+                }
             }
         }
         // 还原URL分隔符
@@ -152,12 +155,13 @@ class Url
         // 检测域名
         $domain = self::parseDomain($url, $domain);
         // URL组装
-        $url = $domain . (self::$root ?: Request::instance()->root()) . '/' . ltrim($url, '/');
+        $url             = $domain . (self::$root ?: Request::instance()->root()) . '/' . ltrim($url, '/');
+        self::$bindCheck = false;
         return $url;
     }
 
     // 直接解析URL地址
-    protected static function parseUrl($url, $domain)
+    protected static function parseUrl($url, &$domain)
     {
         $request = Request::instance();
         if (0 === strpos($url, '/')) {
@@ -173,14 +177,36 @@ class Url
             // 解析到 模块/控制器/操作
             $module  = $request->module();
             $domains = Route::rules('domain');
-            if (isset($domains[$domain]['[bind]'][0])) {
-                $bindModule = $domains[$domain]['[bind]'][0];
-                if ($bindModule && !in_array($bindModule[0], ['\\', '@'])) {
-                    $module = '';
+            if (true === $domain && 2 == substr_count($url, '/')) {
+                $current = $request->host();
+                $match   = [];
+                $pos     = [];
+                foreach ($domains as $key => $item) {
+                    if (isset($item['[bind]']) && 0 === strpos($url, $item['[bind]'][0])) {
+                        $pos[$key] = strlen($item['[bind]'][0]) + 1;
+                        $match[]   = $key;
+                        $module    = '';
+                    }
                 }
-            } else {
-                $module = $module ? $module . '/' : '';
+                if ($match) {
+                    $domain = current($match);
+                    foreach ($match as $item) {
+                        if (0 === strpos($current, $item)) {
+                            $domain = $item;
+                        }
+                    }
+                    self::$bindCheck = true;
+                    $url             = substr($url, $pos[$domain]);
+                }
+            } elseif ($domain) {
+                if (isset($domains[$domain]['[bind]'][0])) {
+                    $bindModule = $domains[$domain]['[bind]'][0];
+                    if ($bindModule && !in_array($bindModule[0], ['\\', '@'])) {
+                        $module = '';
+                    }
+                }
             }
+            $module = $module ? $module . '/' : '';
 
             $controller = Loader::parseName($request->controller());
             if ('' == $url) {
@@ -203,15 +229,15 @@ class Url
         if (!$domain) {
             return '';
         }
-        $request = Request::instance();
+        $request    = Request::instance();
+        $rootDomain = Config::get('url_domain_root');
         if (true === $domain) {
             // 自动判断域名
             $domain = $request->host();
-            if (Config::get('url_domain_deploy')) {
-                // 根域名
-                $urlDomainRoot = Config::get('url_domain_root');
-                $domains       = Route::rules('domain');
-                $route_domain  = array_keys($domains);
+
+            $domains = Route::rules('domain');
+            if ($domains) {
+                $route_domain = array_keys($domains);
                 foreach ($route_domain as $domain_prefix) {
                     if (0 === strpos($domain_prefix, '*.') && strpos($domain, ltrim($domain_prefix, '*.')) !== false) {
                         foreach ($domains as $key => $rule) {
@@ -220,13 +246,13 @@ class Url
                                 $url    = ltrim($url, $rule);
                                 $domain = $key;
                                 // 生成对应子域名
-                                if (!empty($urlDomainRoot)) {
-                                    $domain .= $urlDomainRoot;
+                                if (!empty($rootDomain)) {
+                                    $domain .= $rootDomain;
                                 }
                                 break;
                             } else if (false !== strpos($key, '*')) {
-                                if (!empty($urlDomainRoot)) {
-                                    $domain .= $urlDomainRoot;
+                                if (!empty($rootDomain)) {
+                                    $domain .= $rootDomain;
                                 }
                                 break;
                             }
@@ -234,13 +260,15 @@ class Url
                     }
                 }
             }
-        } elseif (!strpos($domain, '.')) {
-            $rootDomain = Config::get('url_domain_root');
+
+        } else {
             if (empty($rootDomain)) {
                 $host       = $request->host();
                 $rootDomain = substr_count($host, '.') > 1 ? substr(strstr($host, '.'), 1) : $host;
             }
-            $domain .= '.' . $rootDomain;
+            if (!strpos($domain, $rootDomain)) {
+                $domain .= '.' . $rootDomain;
+            }
         }
         return ($request->isSsl() ? 'https://' : 'http://') . $domain;
     }

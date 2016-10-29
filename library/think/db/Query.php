@@ -669,11 +669,18 @@ class Query
                     $table = array_shift($join);
                 }
             } else {
-                $table = trim($join);
-                if (strpos($table, ' ') && !strpos($table, ')')) {
-                    list($table, $alias) = explode(' ', $table);
+                $prefix = $this->prefix;
+                $join   = trim($join);
+                if ($prefix && false === strpos($join, ' ') && false === strpos($join, '(') && false === strpos($join, '.') && 0 !== strpos($join, $prefix) && 0 !== strpos($join, '__')) {
+                    $table = $this->getTable($join);
+                    $table = [$table => $join];
+                    $this->alias($table);
+                } elseif (strpos($join, ' ') && !strpos($join, ')')) {
+                    list($table, $alias) = explode(' ', $join);
                     $table               = [$table => $alias];
                     $this->alias($table);
+                } else {
+                    $table = $join;
                 }
             }
             $this->options['join'][] = [$table, strtoupper($type), $condition];
@@ -763,13 +770,19 @@ class Query
             }
         } else {
             $fields = [];
+            $prefix = $this->prefix;
             if (is_array($join)) {
                 // 支持数据表别名
-                list($join, $alias, $table) = array_pad($join, 3, '');
+                list($table, $alias) = each($join);
+            } elseif ($prefix && false === strpos($join, ' ') && 0 !== strpos($join, $prefix) && 0 !== strpos($join, '__')) {
+                $table = $this->getTable($join);
+                $alias = $join;
+            } elseif (strpos($join, ' ')) {
+                list($table, $alias) = explode(' ', $join);
             } else {
                 $alias = $join;
             }
-            $table = !empty($table) ? $table : $this->getTable($join);
+            $table = isset($table) ? [$table => $alias] : $alias;
             if (true === $field) {
                 $fields = $alias . '.*';
             } else {
@@ -793,9 +806,9 @@ class Query
             }
             $this->field($fields);
             if ($on) {
-                $this->join($table . ' ' . $alias, $on, $type);
+                $this->join($table, $on, $type);
             } else {
-                $this->table($table . ' ' . $alias);
+                $this->table($table);
             }
         }
         return $this;
@@ -893,13 +906,9 @@ class Query
             if (is_array($field)) {
                 // 数组批量查询
                 $where = $field;
-            } elseif ($field) {
+            } elseif ($field && is_string($field)) {
                 // 字符串查询
-                if (is_numeric($field)) {
-                    $where[] = ['exp', $field];
-                } else {
-                    $where[$field] = ['null', ''];
-                }
+                $where[$field] = ['null', ''];
             }
         } elseif (is_array($op)) {
             $where[$field] = $param;
@@ -989,8 +998,11 @@ class Query
 
         if (!isset($total) && !$simple) {
             $options = $this->getOptions();
-            $total   = $this->count();
+            if (isset($options['order'])) {
+                unset($this->options['order']);
+            }
             $bind    = $this->bind;
+            $total   = $this->count();
             $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
         } elseif ($simple) {
             $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();

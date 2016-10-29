@@ -24,13 +24,13 @@ class Route
 {
     // 路由规则
     private static $rules = [
-        'GET'     => [],
-        'POST'    => [],
-        'PUT'     => [],
-        'DELETE'  => [],
-        'PATCH'   => [],
-        'HEAD'    => [],
-        'OPTIONS' => [],
+        'get'     => [],
+        'post'    => [],
+        'put'     => [],
+        'delete'  => [],
+        'patch'   => [],
+        'head'    => [],
+        'options' => [],
         '*'       => [],
         'alias'   => [],
         'domain'  => [],
@@ -40,21 +40,22 @@ class Route
 
     // REST路由操作方法定义
     private static $rest = [
-        'index'  => ['GET', '', 'index'],
-        'create' => ['GET', '/create', 'create'],
-        'edit'   => ['GET', '/:id/edit', 'edit'],
-        'read'   => ['GET', '/:id', 'read'],
-        'save'   => ['POST', '', 'save'],
-        'update' => ['PUT', '/:id', 'update'],
-        'delete' => ['DELETE', '/:id', 'delete'],
+        'index'  => ['get', '', 'index'],
+        'create' => ['get', '/create', 'create'],
+        'edit'   => ['get', '/:id/edit', 'edit'],
+        'read'   => ['get', '/:id', 'read'],
+        'save'   => ['post', '', 'save'],
+        'update' => ['put', '/:id', 'update'],
+        'delete' => ['delete', '/:id', 'delete'],
     ];
 
     // 不同请求类型的方法前缀
     private static $methodPrefix = [
-        'GET'    => 'get',
-        'POST'   => 'post',
-        'PUT'    => 'put',
-        'DELETE' => 'delete',
+        'get'    => 'get',
+        'post'   => 'post',
+        'put'    => 'put',
+        'delete' => 'delete',
+        'patch'  => 'patch',
     ];
 
     // 子域名
@@ -68,6 +69,8 @@ class Route
     private static $domainRule;
     // 当前域名
     private static $domain;
+    // 当前路由执行过程中的参数
+    private static $option = [];
 
     /**
      * 注册变量规则
@@ -150,6 +153,7 @@ class Route
         } elseif (!is_null($value)) {
             self::$rules['name'][$name][] = $value;
         } else {
+            $name = strtolower($name);
             return isset(self::$rules['name'][$name]) ? self::$rules['name'][$name] : null;
         }
     }
@@ -198,7 +202,7 @@ class Route
             unset($rule['__rest__']);
         }
 
-        self::registerRules($rule, strtoupper($type));
+        self::registerRules($rule, strtolower($type));
     }
 
     // 批量注册路由
@@ -241,7 +245,7 @@ class Route
             $pattern = array_merge(self::getGroup('pattern'), $pattern);
         }
 
-        $type = strtoupper($type);
+        $type = strtolower($type);
 
         if (strpos($type, '|')) {
             $option['method'] = $type;
@@ -300,13 +304,13 @@ class Route
             $rule                     = substr($rule, 0, -1);
         }
 
-        if ('/' != $rule) {
+        if ('/' != $rule || $group) {
             $rule = trim($rule, '/');
         }
         $vars = self::parseVar($rule);
         if (isset($name)) {
-            $key = $group ? $group . '/' . $rule : $rule;
-            self::name($name, [$key, $vars, self::$domain]);
+            $key = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
+            self::name(strtolower($name), [$key, $vars, self::$domain]);
         }
         if ($group) {
             if ('*' != $type) {
@@ -328,7 +332,7 @@ class Route
             }
             if ('*' == $type) {
                 // 注册路由快捷方式
-                foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
+                foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
                     if (self::$domain) {
                         self::$rules['domain'][self::$domain][$method][$rule] = true;
                     } else {
@@ -337,6 +341,27 @@ class Route
                 }
             }
         }
+    }
+
+    /**
+     * 设置当前执行的参数信息
+     * @access public
+     * @param array    $options 参数信息
+     * @return mixed
+     */
+    protected static function setOption($options = [])
+    {
+        self::$option[] = $options;
+    }
+
+    /**
+     * 获取当前执行的所有参数信息
+     * @access public
+     * @return array
+     */
+    public static function getOption()
+    {
+        return self::$option;
     }
 
     /**
@@ -423,15 +448,16 @@ class Route
                         $options['complete_match'] = true;
                         $key                       = substr($key, 0, -1);
                     }
+                    $key    = trim($key, '/');
                     $vars   = self::parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
                     // 设置路由标识
-                    self::name($route, [$name . '/' . $key, $vars, self::$domain]);
+                    self::name($route, [$name . ($key ? '/' . $key : ''), $vars, self::$domain]);
                 }
                 self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
 
-            foreach (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'] as $method) {
+            foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
                 if (!isset(self::$rules[$method][$name])) {
                     self::$rules[$method][$name] = true;
                 } elseif (is_array(self::$rules[$method][$name])) {
@@ -576,7 +602,8 @@ class Route
                 } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
                 }
-                $item = ltrim($rule . $val[1], '/');
+                $item           = ltrim($rule . $val[1], '/');
+                $option['rest'] = $key;
                 self::rule($item . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
             }
         }
@@ -625,9 +652,9 @@ class Route
     public static function setMethodPrefix($method, $prefix = '')
     {
         if (is_array($method)) {
-            self::$methodPrefix = array_merge(self::$methodPrefix, array_change_key_case($method, CASE_UPPER));
+            self::$methodPrefix = array_merge(self::$methodPrefix, array_change_key_case($method));
         } else {
-            self::$methodPrefix[strtoupper($method)] = $prefix;
+            self::$methodPrefix[strtolower($method)] = $prefix;
         }
     }
 
@@ -635,7 +662,7 @@ class Route
      * rest方法定义和修改
      * @access public
      * @param string    $name 方法名称
-     * @param array     $resourece 资源
+     * @param array     $resource 资源
      * @return void
      */
     public static function rest($name, $resource = [])
@@ -682,7 +709,7 @@ class Route
         if (is_array($rules)) {
             self::$rules = $rules;
         } elseif ($rules) {
-            return true === $rules ? self::$rules : self::$rules[$rules];
+            return true === $rules ? self::$rules : self::$rules[strtolower($rules)];
         } else {
             $rules = self::$rules;
             unset($rules['pattern'], $rules['alias'], $rules['domain'], $rules['name']);
@@ -698,7 +725,7 @@ class Route
      * @param string    $method 请求类型
      * @return void
      */
-    public static function checkDomain($request, &$currentRules, $method = 'GET')
+    public static function checkDomain($request, &$currentRules, $method = 'get')
     {
         // 域名规则
         $rules = self::$rules['domain'];
@@ -808,7 +835,7 @@ class Route
                 return $result;
             }
         }
-        $method = $request->method();
+        $method = strtolower($request->method());
         // 获取当前请求类型的路由规则
         $rules = self::$rules[$method];
         // 检测域名部署
@@ -831,6 +858,7 @@ class Route
                 $rule = self::getRouteExpress($item);
             }
             if (!empty($rule['route']) && self::checkOption($rule['option'], $request)) {
+                self::setOption($rule['option']);
                 return self::parseRule($item, $rule['route'], $url, $rule['option']);
             }
         }
@@ -894,7 +922,7 @@ class Route
                 if (is_string($str) && $str && 0 !== strpos(str_replace('|', '/', $url), $str)) {
                     continue;
                 }
-
+                self::setOption($option);
                 $result = self::checkRoute($request, $rule, $url, $depr, $key, $option);
                 if (false !== $result) {
                     return $result;
@@ -909,6 +937,8 @@ class Route
                 if ($group) {
                     $rule = $group . ($rule ? '/' . ltrim($rule, '/') : '');
                 }
+
+                self::setOption($option);
                 if (isset($options['bind_model']) && isset($option['bind_model'])) {
                     $option['bind_model'] = array_merge($options['bind_model'], $option['bind_model']);
                 }
@@ -1091,7 +1121,9 @@ class Route
     {
         // 请求类型检测
         if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
-            || (isset($option['ext']) && false === stripos($option['ext'], $request->ext())) // 伪静态后缀检测
+            || (!empty($option['ajax']) && !$request->isAjax()) // Ajax检测
+             || (!empty($option['pjax']) && !$request->isPjax()) // Pjax检测
+             || (isset($option['ext']) && false === stripos($option['ext'], $request->ext())) // 伪静态后缀检测
              || (isset($option['deny_ext']) && false !== stripos($option['deny_ext'], $request->ext()))
             || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], self::$subDomain])) // 域名检测
              || (!empty($option['https']) && !$request->isSsl()) // https检测
@@ -1162,8 +1194,9 @@ class Route
     {
 
         if (isset(self::$bind['module'])) {
+            $bind = str_replace('/', $depr, self::$bind['module']);
             // 如果有模块/控制器绑定
-            $url = self::$bind['module'] . '/' . ltrim($url, '/');
+            $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
         }
         $url              = str_replace($depr, '|', $url);
         list($path, $var) = self::parseUrlPath($url);
@@ -1176,15 +1209,22 @@ class Route
                 $dir    = APP_PATH . ($module ? $module . DS : '') . Config::get('url_controller_layer');
                 $suffix = App::$suffix || Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '';
                 $item   = [];
+                $find   = false;
                 foreach ($path as $val) {
-                    $item[] = array_shift($path);
-                    if (is_file($dir . DS . $val . $suffix . EXT)) {
+                    $item[] = $val;
+                    if (is_file($dir . DS . str_replace('.', DS, $val) . $suffix . EXT)) {
+                        $find = true;
                         break;
                     } else {
                         $dir .= DS . $val;
                     }
                 }
-                $controller = implode('.', $item);
+                if ($find) {
+                    $controller = implode('.', $item);
+                    $path       = array_slice($path, count($item));
+                } else {
+                    $controller = array_shift($path);
+                }
             } else {
                 // 解析控制器
                 $controller = !empty($path) ? array_shift($path) : null;
@@ -1195,8 +1235,15 @@ class Route
             self::parseUrlParams(empty($path) ? '' : implode('|', $path));
             // 封装路由
             $route = [$module, $controller, $action];
-            if (isset(self::$rules['name'][implode($depr, $route)])) {
-                throw new HttpException(404, 'invalid request:' . $url);
+            // 检查地址是否被定义过路由
+            $name  = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
+            $name2 = '';
+            if (empty($module) || isset($bind) && $module == $bind) {
+                $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
+            }
+
+            if (isset(self::$rules['name'][$name]) || isset(self::$rules['name'][$name2])) {
+                throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
             }
         }
         return ['type' => 'module', 'module' => $route];

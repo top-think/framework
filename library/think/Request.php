@@ -1241,8 +1241,7 @@ class Request
                 if (false !== $pos) {
                     unset($arr[$pos]);
                 }
-
-                $ip = trim($arr[0]);
+                $ip = trim(current($arr));
             } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
                 $ip = $_SERVER['HTTP_CLIENT_IP'];
             } elseif (isset($_SERVER['REMOTE_ADDR'])) {

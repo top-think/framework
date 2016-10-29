@@ -59,6 +59,7 @@ class Config
             self::$config[$range] = [];
         }
         if (is_file($file)) {
+            $name = strtolower($name);
             $type = pathinfo($file, PATHINFO_EXTENSION);
             if ('php' == $type) {
                 return self::set(include $file, $name, $range);
