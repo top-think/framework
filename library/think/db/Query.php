@@ -677,7 +677,10 @@ class Query
                     $this->alias($table);
                 } elseif (strpos($join, ' ') && !strpos($join, ')')) {
                     list($table, $alias) = explode(' ', $join);
-                    $table               = [$table => $alias];
+                    if (false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($join, '__')) {
+                        $table = $this->getTable($table);
+                    }
+                    $table = [$table => $alias];
                     $this->alias($table);
                 } else {
                     $table = $join;
