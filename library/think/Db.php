@@ -42,6 +42,9 @@ use think\paginator\Collection as PaginatorCollection;
  * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
  * @method PaginatorCollection paginate(integer $listRows = 15, mixed $simple = false, array $config = []) static 分页查询
  * @method mixed transaction(callable $callback) static 执行数据库事务
+ * @method void startTrans() static 启动事务
+ * @method void commit() static 用于非自动提交状态下面的查询提交
+ * @method void rollback() static 事务回滚
  * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
  */
 class Db
