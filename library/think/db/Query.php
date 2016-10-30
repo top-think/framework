@@ -659,36 +659,51 @@ class Query
                 }
             }
         } else {
-            // 传入的表名为数组
-            if (is_array($join)) {
-                if (0 !== $key = key($join)) {
-                    // 设置了键名则键名为表名，键值作为表的别名
-                    $table = [$key => array_shift($join)];
-                    $this->alias($table);
-                } else {
-                    $table = array_shift($join);
-                }
-            } else {
-                $prefix = $this->prefix;
-                $join   = trim($join);
-                if ($prefix && false === strpos($join, ' ') && false === strpos($join, '(') && false === strpos($join, '.') && 0 !== strpos($join, $prefix) && 0 !== strpos($join, '__')) {
-                    $table = $this->getTable($join);
-                    $table = [$table => $join];
-                    $this->alias($table);
-                } elseif (strpos($join, ' ') && !strpos($join, ')')) {
-                    list($table, $alias) = explode(' ', $join);
-                    if (false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($join, '__')) {
-                        $table = $this->getTable($table);
-                    }
-                    $table = [$table => $alias];
-                    $this->alias($table);
-                } else {
-                    $table = $join;
-                }
-            }
+            $table = $this->getJoinTable($join);
+
             $this->options['join'][] = [$table, strtoupper($type), $condition];
         }
         return $this;
+    }
+
+    /**
+     * 获取Join表名及别名 支持
+     * ['prefix_table或者子查询'=>'alias'] 'prefix_table alias' 'table alias'
+     * @access public
+     * @param array|string   $join
+     * @return array|string
+     */
+    protected function getJoinTable($join, &$alias = null)
+    {
+        // 传入的表名为数组
+        if (is_array($join)) {
+            list($table, $alias) = each($join);
+        } else {
+            $join = trim($join);
+            if (false !== strpos($join, '(')) {
+                // 使用子查询
+                $table = $join;
+            } else {
+                $prefix = $this->prefix;
+                if (strpos($join, ' ')) {
+                    // 使用别名
+                    list($table, $alias) = explode(' ', $join);
+                } else {
+                    $table = $join;
+                    if (false === strpos($join, '.') && 0 !== strpos($join, '__')) {
+                        $alias = $join;
+                    }
+                }
+                if (false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($table, '__')) {
+                    $table = $this->getTable($table);
+                }
+            }
+        }
+        if (isset($alias)) {
+            $table = [$table => $alias];
+            $this->alias($table);
+        }
+        return $table;
     }
 
     /**
@@ -773,19 +788,8 @@ class Query
             }
         } else {
             $fields = [];
-            $prefix = $this->prefix;
-            if (is_array($join)) {
-                // 支持数据表别名
-                list($table, $alias) = each($join);
-            } elseif ($prefix && false === strpos($join, ' ') && 0 !== strpos($join, $prefix) && 0 !== strpos($join, '__')) {
-                $table = $this->getTable($join);
-                $alias = $join;
-            } elseif (strpos($join, ' ')) {
-                list($table, $alias) = explode(' ', $join);
-            } else {
-                $alias = $join;
-            }
-            $table = isset($table) ? [$table => $alias] : $alias;
+            $table  = $this->getJoinTable($join, $alias);
+
             if (true === $field) {
                 $fields = $alias . '.*';
             } else {
