@@ -125,10 +125,9 @@ if (!function_exists('input')) {
         }
         if ($pos = strpos($key, '.')) {
             // 指定参数来源
-            $method = substr($key, 0, $pos);
-            if (in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
-                $key = substr($key, $pos + 1);
-            } else {
+            list($method, $key) = explode('.', $key);
+            if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
+                $key    = $method . '.' . $key;
                 $method = 'param';
             }
         } else {
