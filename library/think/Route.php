@@ -1212,7 +1212,9 @@ class Route
                 $find   = false;
                 foreach ($path as $val) {
                     $item[] = $val;
-                    if (is_file($dir . DS . str_replace('.', DS, $val) . $suffix . EXT)) {
+                    $file   = $dir . DS . str_replace('.', DS, $val) . $suffix . EXT;
+                    $file   = pathinfo($file, PATHINFO_DIRNAME) . DS . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . EXT;
+                    if (is_file($file)) {
                         $find = true;
                         break;
                     } else {
