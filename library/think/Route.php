@@ -1400,7 +1400,6 @@ class Route
             foreach ($matches as $key => $val) {
                 if (false !== strpos($route, ':' . $key)) {
                     $route = str_replace(':' . $key, $val, $route);
-                    unset($matches[$key]);
                 }
             }
         }
