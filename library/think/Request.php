@@ -1471,11 +1471,11 @@ class Request
     }
 
     /**
-     * 读取或者设置缓存
+     * 设置当前地址的请求缓存
      * @access public
      * @param string $key 缓存标识，支持变量规则 ，例如 item/:name/:id
      * @param mixed  $expire 缓存有效期
-     * @return mixed
+     * @return void
      */
     public function cache($key, $expire = null)
     {
@@ -1514,7 +1514,7 @@ class Request
     }
 
     /**
-     * 读取缓存设置
+     * 读取请求缓存设置
      * @access public
      * @return array
      */
