@@ -1064,7 +1064,7 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : Config::get('default_controller');
+        $class  = Loader::parseName(!empty($array[0]) ? $array[0] : Config::get('default_controller'), 1);
         $method = !empty($array[1]) ? $array[1] : Config::get('default_action');
         if (!empty($array[2])) {
             self::parseUrlParams($array[2]);
