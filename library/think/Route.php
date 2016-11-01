@@ -129,7 +129,7 @@ class Route
      * 设置路由绑定
      * @access public
      * @param mixed     $bind 绑定信息
-     * @param string    $type 绑定类型 默认为module 支持 namespace class
+     * @param string    $type 绑定类型 默认为module 支持 namespace class controller
      * @return mixed
      */
     public static function bind($bind, $type = 'module')
@@ -1025,6 +1025,9 @@ class Route
                 case 'class':
                     // 绑定到类
                     return self::bindToClass($url, $bind, $depr);
+                case 'controller':
+                    // 绑定到控制器类
+                    return self::bindToController($url, $bind, $depr);
                 case 'namespace':
                     // 绑定到命名空间
                     return self::bindToNamespace($url, $bind, $depr);
