@@ -1189,6 +1189,9 @@ class Query
         } else {
             if (isset($this->options['table'])) {
                 $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
+                if (false !== strpos($table, '__')) {
+                    $table = $this->parseSqlTable($table);
+                }
             } else {
                 $table = $this->getTable();
             }
