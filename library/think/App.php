@@ -128,7 +128,7 @@ class App
             // 监听app_begin
             Hook::listen('app_begin', $dispatch);
             // 请求缓存检查
-            $request->cache($config['request_cache']);
+            $request->cache($config['request_cache'], $config['request_cache_expire']);
 
             switch ($dispatch['type']) {
                 case 'redirect':
