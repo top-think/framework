@@ -121,6 +121,8 @@ class Request
     protected $input;
     // 请求缓存
     protected $cache;
+    // 缓存是否检查
+    protected $isCheckCache;
 
     /**
      * 架构函数
@@ -1479,7 +1481,20 @@ class Request
      */
     public function cache($key, $expire = null)
     {
-        if ($this->isGet()) {
+        if (false !== $key && $this->isGet() && !$this->isCheckCache) {
+            if ($key instanceof \Closure) {
+                $key = call_user_func_array($key, [$this]);
+            } elseif (true === $key) {
+                // 自动缓存功能
+                $key = '__URL__';
+            } elseif (strpos($key, '|')) {
+                list($key, $fun) = explode('|', $key);
+            }
+            // 特殊规则替换
+            if (false !== strpos($key, '__')) {
+                $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$this->module, $this->controller, $this->action, md5($this->url())], $key);
+            }
+
             if (false !== strpos($key, ':')) {
                 $param = $this->param();
                 foreach ($param as $item => $val) {
@@ -1487,9 +1502,6 @@ class Request
                         $key = str_replace(':' . $item, $val, $key);
                     }
                 }
-            } elseif ('__URL__' == $key) {
-                // 当前URL地址作为缓存标识
-                $key = md5($this->url());
             } elseif (strpos($key, ']')) {
                 if ('[' . $this->ext() . ']' == $key) {
                     // 缓存某个后缀的请求
@@ -1498,6 +1510,12 @@ class Request
                     return;
                 }
             }
+            if (isset($fun)) {
+                $key = $fun($key);
+            }
+
+            // 标记请求缓存检查
+            $this->isCheckCache = true;
 
             if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
                 // 读取缓存

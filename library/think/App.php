@@ -115,6 +115,8 @@ class App
                 // 进行URL路由检测
                 $dispatch = self::routeCheck($request, $config);
             }
+            // 请求缓存检查
+            $request->cache($config['request_cache']);
             // 记录当前调度信息
             $request->dispatch($dispatch);
 
