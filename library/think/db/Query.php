@@ -694,7 +694,7 @@ class Query
                         $alias = $join;
                     }
                 }
-                if (false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($table, '__')) {
+                if ($prefix && false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($table, '__')) {
                     $table = $this->getTable($table);
                 }
             }
