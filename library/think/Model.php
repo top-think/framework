@@ -741,7 +741,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 数据批量验证
             $validate = $this->validate;
             foreach ($dataSet as $data) {
-                if (!$this->validate($validate)->validateData($data)) {
+                if (!$this->validateData($data, $validate)) {
                     return false;
                 }
             }
@@ -885,12 +885,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 自动验证数据
      * @access protected
      * @param array $data 验证数据
+     * @param mixed $rule 验证规则
      * @return bool
      */
-    protected function validateData($data)
+    protected function validateData($data, $rule = null)
     {
-        if (!empty($this->validate)) {
-            $info = $this->validate;
+        $info = is_null($rule) ? $this->validate : $rule;
+        if (!empty($info)) {
             if (is_array($info)) {
                 $validate = Loader::validate();
                 $validate->rule($info['rule']);
