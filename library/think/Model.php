@@ -101,6 +101,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $failException = false;
     // 全局查询范围
     protected $useGlobalScope = true;
+    protected $batchValidate  = false;
 
     /**
      * 初始化过的模型.
@@ -854,9 +855,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array|string|bool $rule 验证规则 true表示自动读取验证器类
      * @param array             $msg 提示信息
+     * @param bool              $batch 批量验证
      * @return $this
      */
-    public function validate($rule = true, $msg = [])
+    public function validate($rule = true, $msg = [], $batch = false)
     {
         if (is_array($rule)) {
             $this->validate = [
@@ -866,6 +868,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $this->validate = true === $rule ? $this->name : $rule;
         }
+        $this->batchValidate = $batch;
         return $this;
     }
 
@@ -891,6 +894,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function validateData($data, $rule = null)
     {
         $info = is_null($rule) ? $this->validate : $rule;
+
         if (!empty($info)) {
             if (is_array($info)) {
                 $validate = Loader::validate();
@@ -906,7 +910,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $validate->scene($scene);
                 }
             }
-            if (!$validate->check($data)) {
+            $batch = $this->batchValidate;
+
+            if (!$validate->batch($batch)->check($data)) {
                 $this->error = $validate->getError();
                 if ($this->failException) {
                     throw new ValidateException($this->error);
