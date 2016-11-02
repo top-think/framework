@@ -101,7 +101,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $failException = false;
     // 全局查询范围
     protected $useGlobalScope = true;
-    protected $batchValidate  = false;
+    // 是否采用批量验证
+    protected $batchValidate = false;
 
     /**
      * 初始化过的模型.
