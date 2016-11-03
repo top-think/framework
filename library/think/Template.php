@@ -662,10 +662,14 @@ class Template
     private function getIncludeTagLib(&$content)
     {
         // 搜索是否有TagLib标签
-        if (preg_match($this->getRegex('taglib'), $content, $matches)) {
+        if (preg_match_all($this->getRegex('taglib'), $content, $matches)) {
             // 替换TagLib标签
             $content = str_replace($matches[0], '', $content);
-            return explode(',', $matches['name']);
+            $res = [];
+            foreach ($matches['name'] as $name) {
+                $res = array_merge($res,explode(',', $name));
+            }
+            return array_unique($res);
         }
         return null;
     }
