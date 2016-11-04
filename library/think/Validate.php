@@ -1075,7 +1075,7 @@ class Validate
      */
     protected function allowIp($value, $rule)
     {
-        return in_array($_SERVER['REMOTE_ADDR'], is_array($rule) ? $rule : explode(',', $rule));
+        return in_array(request()->ip(0, true), is_array($rule) ? $rule : explode(',', $rule));
     }
 
     /**
@@ -1087,7 +1087,7 @@ class Validate
      */
     protected function denyIp($value, $rule)
     {
-        return !in_array($_SERVER['REMOTE_ADDR'], is_array($rule) ? $rule : explode(',', $rule));
+        return !in_array(request()->ip(0, true), is_array($rule) ? $rule : explode(',', $rule));
     }
 
     /**
