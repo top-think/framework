@@ -81,7 +81,7 @@ class Url
             // 匹配路由命名标识
             $url = $match[0];
             // 替换可选分隔符
-            $url = preg_replace(['/\((\W)\?\)$/', '/\((\W)\?\)/'], ['', '\1'], $url);
+            $url = preg_replace(['/(\W)\?$/', '/(\W)\?/'], ['', '\1'], $url);
             if (!empty($match[1])) {
                 $domain = $match[1];
             }
