@@ -507,22 +507,24 @@ class Query
      * MIN查询
      * @access public
      * @param string $field 字段名
-     * @return float|int
+     * @return mixed
      */
     public function min($field = '*')
     {
-        return $this->value('MIN(' . $field . ') AS tp_min', 0) + 0;
+        $value = $this->value('MIN(' . $field . ') AS tp_min', 0);
+        return is_numeric($value) ? $value + 0 : $value;
     }
 
     /**
      * MAX查询
      * @access public
      * @param string $field 字段名
-     * @return float|int
+     * @return mixed
      */
     public function max($field = '*')
     {
-        return $this->value('MAX(' . $field . ') AS tp_max', 0) + 0;
+        $value = $this->value('MAX(' . $field . ') AS tp_max', 0);
+        return is_numeric($value) ? $value + 0 : $value;
     }
 
     /**
