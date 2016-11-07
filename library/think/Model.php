@@ -890,9 +890,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access protected
      * @param array $data 验证数据
      * @param mixed $rule 验证规则
+     * @param bool  $batch 批量验证
      * @return bool
      */
-    protected function validateData($data, $rule = null)
+    protected function validateData($data, $rule = null, $batch = null)
     {
         $info = is_null($rule) ? $this->validate : $rule;
 
@@ -911,7 +912,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $validate->scene($scene);
                 }
             }
-            $batch = $this->batchValidate;
+            $batch = is_null($batch) ? $this->batchValidate : $batch;
 
             if (!$validate->batch($batch)->check($data)) {
                 $this->error = $validate->getError();
