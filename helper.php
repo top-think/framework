@@ -117,7 +117,7 @@ if (!function_exists('input')) {
      * @param string    $filter 过滤方法
      * @return mixed
      */
-    function input($key = '', $default = null, $filter = null)
+    function input($key = '', $default = null, $filter = '')
     {
         if (0 === strpos($key, '?')) {
             $key = substr($key, 1);

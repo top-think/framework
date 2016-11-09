@@ -609,7 +609,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function param($name = '', $default = null, $filter = null)
+    public function param($name = '', $default = null, $filter = '')
     {
         if (empty($this->param)) {
             $method = $this->method(true);
@@ -646,7 +646,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function route($name = '', $default = null, $filter = null)
+    public function route($name = '', $default = null, $filter = '')
     {
         if (is_array($name)) {
             $this->param        = [];
@@ -663,7 +663,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function get($name = '', $default = null, $filter = null)
+    public function get($name = '', $default = null, $filter = '')
     {
         if (empty($this->get)) {
             $this->get = $_GET;
@@ -683,7 +683,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function post($name = '', $default = null, $filter = null)
+    public function post($name = '', $default = null, $filter = '')
     {
         if (empty($this->post)) {
             $this->post = $_POST;
@@ -703,7 +703,7 @@ class Request
      * @param string|array      $filter 过滤方法
      * @return mixed
      */
-    public function put($name = '', $default = null, $filter = null)
+    public function put($name = '', $default = null, $filter = '')
     {
         if (is_null($this->put)) {
             $content = $this->input;
@@ -729,7 +729,7 @@ class Request
      * @param string|array      $filter 过滤方法
      * @return mixed
      */
-    public function delete($name = '', $default = null, $filter = null)
+    public function delete($name = '', $default = null, $filter = '')
     {
         return $this->put($name, $default, $filter);
     }
@@ -742,7 +742,7 @@ class Request
      * @param string|array      $filter 过滤方法
      * @return mixed
      */
-    public function patch($name = '', $default = null, $filter = null)
+    public function patch($name = '', $default = null, $filter = '')
     {
         return $this->put($name, $default, $filter);
     }
@@ -754,7 +754,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function request($name = '', $default = null, $filter = null)
+    public function request($name = '', $default = null, $filter = '')
     {
         if (empty($this->request)) {
             $this->request = $_REQUEST;
@@ -774,7 +774,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function session($name = '', $default = null, $filter = null)
+    public function session($name = '', $default = null, $filter = '')
     {
         if (empty($this->session)) {
             $this->session = Session::get();
@@ -793,7 +793,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function cookie($name = '', $default = null, $filter = null)
+    public function cookie($name = '', $default = null, $filter = '')
     {
         if (empty($this->cookie)) {
             $this->cookie = $_COOKIE;
@@ -812,7 +812,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function server($name = '', $default = null, $filter = null)
+    public function server($name = '', $default = null, $filter = '')
     {
         if (empty($this->server)) {
             $this->server = $_SERVER;
@@ -890,7 +890,7 @@ class Request
      * @param string|array  $filter 过滤方法
      * @return mixed
      */
-    public function env($name = '', $default = null, $filter = null)
+    public function env($name = '', $default = null, $filter = '')
     {
         if (empty($this->env)) {
             $this->env = $_ENV;
@@ -949,7 +949,7 @@ class Request
      * @param string|array  $filter 过滤函数
      * @return mixed
      */
-    public function input($data = [], $name = '', $default = null, $filter = null)
+    public function input($data = [], $name = '', $default = null, $filter = '')
     {
         if (false === $name) {
             // 获取原始数据
@@ -978,13 +978,17 @@ class Request
         }
 
         // 解析过滤器
-        $filter = $filter ?: $this->filter;
-
-        if (is_string($filter)) {
-            $filter = explode(',', $filter);
+        if (is_null($filter)) {
+            $filter = [];
         } else {
-            $filter = (array) $filter;
+            $filter = $filter ?: $this->filter;
+            if (is_string($filter)) {
+                $filter = explode(',', $filter);
+            } else {
+                $filter = (array) $filter;
+            }
         }
+
         $filter[] = $default;
         if (is_array($data)) {
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
