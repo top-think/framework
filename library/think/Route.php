@@ -1491,7 +1491,7 @@ class Route
             $result = self::parseModule($route);
         }
         // 开启请求缓存
-        if ($request->isGet() && !empty($option['cache'])) {
+        if ($request->isGet() && isset($option['cache'])) {
             $cache = $option['cache'];
             if (is_array($cache)) {
                 list($key, $expire) = $cache;

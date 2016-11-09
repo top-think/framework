@@ -1486,6 +1486,12 @@ class Request
     public function cache($key, $expire = null)
     {
         if (false !== $key && $this->isGet() && !$this->isCheckCache) {
+            // 标记请求缓存检查
+            $this->isCheckCache = true;
+            if (false === $expire) {
+                // 关闭当前缓存
+                return;
+            }
             if ($key instanceof \Closure) {
                 $key = call_user_func_array($key, [$this]);
             } elseif (true === $key) {
@@ -1517,9 +1523,6 @@ class Request
             if (isset($fun)) {
                 $key = $fun($key);
             }
-
-            // 标记请求缓存检查
-            $this->isCheckCache = true;
 
             if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
                 // 读取缓存
