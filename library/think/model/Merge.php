@@ -61,14 +61,14 @@ class Merge extends Model
     {
         $class  = new static();
         $master = $class->name;
-        $fields = self::getModelField($query, $master, '', $class->mapFields);
+        $fields = self::getModelField($query, $master, '', $class->mapFields, $class->field);
         $query->alias($master)->field($fields);
 
         foreach ($class->relationModel as $key => $model) {
             $name  = is_int($key) ? $model : $key;
             $table = is_int($key) ? $query->getTable($name) : $model;
             $query->join($table . ' ' . $name, $name . '.' . $class->fk . '=' . $master . '.' . $class->getPk());
-            $fields = self::getModelField($query, $name, $table, $class->mapFields);
+            $fields = self::getModelField($query, $name, $table, $class->mapFields, $class->field);
             $query->field($fields);
         }
         return $query;
@@ -81,12 +81,13 @@ class Merge extends Model
      * @param string            $name 模型名称
      * @param string            $table 关联表名称
      * @param array             $map 字段映射
+     * @param array             $fields 查询字段
      * @return array
      */
-    protected static function getModelField($query, $name, $table = '', $map = [])
+    protected static function getModelField($query, $name, $table = '', $map = [], $fields = [])
     {
         // 获取模型的字段信息
-        $fields = $query->getTableInfo($table, 'fields');
+        $fields = $fields ?: $query->getTableInfo($table, 'fields');
         $array  = [];
         foreach ($fields as $field) {
             if ($key = array_search($name . '.' . $field, $map)) {
