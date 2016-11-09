@@ -47,7 +47,8 @@ class Relation
     protected $query;
     // 关联查询条件
     protected $where;
-
+    // 关联查询参数
+    protected $option;
     /**
      * 架构函数
      * @access public
@@ -74,6 +75,7 @@ class Relation
             'localKey'   => $this->localKey,
             'alias'      => $this->alias,
             'joinType'   => $this->joinType,
+            'option'     => $this->option,
         ];
         return $name ? $info[$name] : $info;
     }
@@ -689,8 +691,10 @@ class Relation
             }
             $result = call_user_func_array([$this->query, $method], $args);
             if ($result instanceof \think\db\Query) {
+                $this->option = $result->getOptions();
                 return $this;
             } else {
+                $this->option = [];
                 return $result;
             }
         } else {

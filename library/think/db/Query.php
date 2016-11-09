@@ -1615,6 +1615,8 @@ class Query
                         $field = $this->options['with_field'];
                         unset($this->options['with_field']);
                     }
+                } elseif (isset($info['option']['field'])) {
+                    $field = $info['option']['field'];
                 }
                 $this->field($field, false, $joinTable, $joinAlias, $relation . '__');
                 $i++;
