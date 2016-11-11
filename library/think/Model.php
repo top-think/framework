@@ -1365,17 +1365,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public static function __callStatic($method, $params)
     {
-        $query = self::getDb();
+        $query = (new static())->db();
         return call_user_func_array([$query, $method], $params);
-    }
-
-    protected static function getDb()
-    {
-        $model = get_called_class();
-        if (!isset(self::$links[$model])) {
-            self::$links[$model] = (new static())->db();
-        }
-        return self::$links[$model];
     }
 
     /**
