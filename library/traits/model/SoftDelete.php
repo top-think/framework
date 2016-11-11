@@ -139,7 +139,8 @@ trait SoftDelete
             $field = $this->db(false)->getTable() . '.' . $field;
         }
         if (!$read && strpos($field, '.')) {
-            list($alias, $field) = explode('.', $field);
+            $array = explode('.', $field);
+            $field = array_pop($array);
         }
         return $field;
     }
