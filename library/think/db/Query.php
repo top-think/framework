@@ -378,7 +378,7 @@ class Query
     public function value($field, $default = null)
     {
         $result = false;
-        if (!empty($this->options['cache'])) {
+        if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
@@ -422,7 +422,7 @@ class Query
     public function column($field, $key = '')
     {
         $result = false;
-        if (!empty($this->options['cache'])) {
+        if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
@@ -489,7 +489,8 @@ class Query
      */
     public function count($field = '*')
     {
-        return (int) $this->value('COUNT(' . $field . ') AS tp_count', 0);
+        $value = $this->value('COUNT(' . $field . ') AS tp_count', 0);
+        return is_numeric($value) ? (int) $value : $value;
     }
 
     /**
@@ -500,7 +501,8 @@ class Query
      */
     public function sum($field = '*')
     {
-        return $this->value('SUM(' . $field . ') AS tp_sum', 0) + 0;
+        $value = $this->value('SUM(' . $field . ') AS tp_sum', 0);
+        return is_numeric($value) ? $value + 0 : $value;
     }
 
     /**
@@ -535,7 +537,8 @@ class Query
      */
     public function avg($field = '*')
     {
-        return $this->value('AVG(' . $field . ') AS tp_avg', 0) + 0;
+        $value = $this->value('AVG(' . $field . ') AS tp_avg', 0);
+        return is_numeric($value) ? $value + 0 : $value;
     }
 
     /**
