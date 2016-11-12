@@ -373,9 +373,10 @@ class Query
      * @access public
      * @param string $field   字段名
      * @param mixed  $default 默认值
+     * @param bool   $force 强制转为数字类型
      * @return mixed
      */
-    public function value($field, $default = null)
+    public function value($field, $default = null, $force = false)
     {
         $result = false;
         if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
@@ -397,6 +398,9 @@ class Query
                 return $pdo;
             }
             $result = $pdo->fetchColumn();
+            if ($force) {
+                $result = is_numeric($result) ? $result + 0 : $result;
+            }
             if (isset($cache)) {
                 // 缓存数据
                 if (isset($cache['tag'])) {
@@ -489,8 +493,7 @@ class Query
      */
     public function count($field = '*')
     {
-        $value = $this->value('COUNT(' . $field . ') AS tp_count', 0);
-        return is_numeric($value) ? (int) $value : $value;
+        return $this->value('COUNT(' . $field . ') AS tp_count', 0, true);
     }
 
     /**
@@ -501,8 +504,7 @@ class Query
      */
     public function sum($field = '*')
     {
-        $value = $this->value('SUM(' . $field . ') AS tp_sum', 0);
-        return is_numeric($value) ? $value + 0 : $value;
+        return $this->value('SUM(' . $field . ') AS tp_sum', 0, true);
     }
 
     /**
@@ -513,8 +515,7 @@ class Query
      */
     public function min($field = '*')
     {
-        $value = $this->value('MIN(' . $field . ') AS tp_min', 0);
-        return is_numeric($value) ? $value + 0 : $value;
+        return $this->value('MIN(' . $field . ') AS tp_min', 0, true);
     }
 
     /**
@@ -525,8 +526,7 @@ class Query
      */
     public function max($field = '*')
     {
-        $value = $this->value('MAX(' . $field . ') AS tp_max', 0);
-        return is_numeric($value) ? $value + 0 : $value;
+        return $this->value('MAX(' . $field . ') AS tp_max', 0, true);
     }
 
     /**
@@ -537,8 +537,7 @@ class Query
      */
     public function avg($field = '*')
     {
-        $value = $this->value('AVG(' . $field . ') AS tp_avg', 0);
-        return is_numeric($value) ? $value + 0 : $value;
+        return $this->value('AVG(' . $field . ') AS tp_avg', 0, true);
     }
 
     /**
