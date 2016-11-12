@@ -1050,7 +1050,10 @@ class Query
     public function table($table)
     {
         if (is_string($table)) {
-            if (strpos($table, ',')) {
+            if (strpos($table, ')')) {
+                // 子查询
+                $table = $table;
+            } elseif (strpos($table, ',')) {
                 $tables = explode(',', $table);
                 $table  = [];
                 foreach ($tables as $item) {
