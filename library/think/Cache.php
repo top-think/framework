@@ -186,6 +186,35 @@ class Cache
     }
 
     /**
+     * 读取缓存并删除
+     * @access public
+     * @param string $name 缓存变量名
+     * @return mixed
+     */
+    public static function pull($name)
+    {
+        self::init();
+        self::$readTimes++;
+        self::$writeTimes++;
+        return self::$handler->pull($name);
+    }
+
+    /**
+     * 如果不存在则写入缓存
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param int       $expire  有效时间 0为永久
+     * @return mixed
+     */
+    public static function remember($name, $value, $expire = null)
+    {
+        self::init();
+        self::$readTimes++;
+        return self::$handler->remember($name, $value, $expire);
+    }
+
+    /**
      * 缓存标签
      * @access public
      * @param string        $name 标签名
