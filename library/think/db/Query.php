@@ -373,12 +373,13 @@ class Query
      * @access public
      * @param string $field   字段名
      * @param mixed  $default 默认值
+     * @param bool   $force 强制转为数字类型
      * @return mixed
      */
-    public function value($field, $default = null)
+    public function value($field, $default = null, $force = false)
     {
         $result = false;
-        if (!empty($this->options['cache'])) {
+        if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
@@ -397,6 +398,9 @@ class Query
                 return $pdo;
             }
             $result = $pdo->fetchColumn();
+            if ($force) {
+                $result = is_numeric($result) ? $result + 0 : $result;
+            }
             if (isset($cache)) {
                 // 缓存数据
                 if (isset($cache['tag'])) {
@@ -422,7 +426,7 @@ class Query
     public function column($field, $key = '')
     {
         $result = false;
-        if (!empty($this->options['cache'])) {
+        if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
@@ -489,7 +493,7 @@ class Query
      */
     public function count($field = '*')
     {
-        return (int) $this->value('COUNT(' . $field . ') AS tp_count', 0);
+        return $this->value('COUNT(' . $field . ') AS tp_count', 0, true);
     }
 
     /**
@@ -500,7 +504,7 @@ class Query
      */
     public function sum($field = '*')
     {
-        return $this->value('SUM(' . $field . ') AS tp_sum', 0) + 0;
+        return $this->value('SUM(' . $field . ') AS tp_sum', 0, true);
     }
 
     /**
@@ -511,8 +515,7 @@ class Query
      */
     public function min($field = '*')
     {
-        $value = $this->value('MIN(' . $field . ') AS tp_min', 0);
-        return is_numeric($value) ? $value + 0 : $value;
+        return $this->value('MIN(' . $field . ') AS tp_min', 0, true);
     }
 
     /**
@@ -523,8 +526,7 @@ class Query
      */
     public function max($field = '*')
     {
-        $value = $this->value('MAX(' . $field . ') AS tp_max', 0);
-        return is_numeric($value) ? $value + 0 : $value;
+        return $this->value('MAX(' . $field . ') AS tp_max', 0, true);
     }
 
     /**
@@ -535,7 +537,7 @@ class Query
      */
     public function avg($field = '*')
     {
-        return $this->value('AVG(' . $field . ') AS tp_avg', 0) + 0;
+        return $this->value('AVG(' . $field . ') AS tp_avg', 0, true);
     }
 
     /**
@@ -1047,7 +1049,10 @@ class Query
     public function table($table)
     {
         if (is_string($table)) {
-            if (strpos($table, ',')) {
+            if (strpos($table, ')')) {
+                // 子查询
+                $table = $table;
+            } elseif (strpos($table, ',')) {
                 $tables = explode(',', $table);
                 $table  = [];
                 foreach ($tables as $item) {
