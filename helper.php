@@ -125,7 +125,7 @@ if (!function_exists('input')) {
         }
         if ($pos = strpos($key, '.')) {
             // 指定参数来源
-            list($method, $key) = explode('.', $key);
+            list($method, $key) = explode('.', $key, 2);
             if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
                 $key    = $method . '.' . $key;
                 $method = 'param';
