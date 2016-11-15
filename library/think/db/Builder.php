@@ -397,7 +397,15 @@ abstract class Builder
     protected function parseDateTime($value, $key, $options = [], $bindName = null, $bindType = null)
     {
         // 获取时间字段类型
-        $type = $this->query->getFieldsType($options);
+        if (strpos($key, '.')) {
+            list($table, $key) = explode('.', $key);
+            if (isset($options['alias']) && $pos = array_search($table, $options['alias'])) {
+                $table = $pos;
+            }
+        } else {
+            $table = $options['table'];
+        }
+        $type = $this->query->getTableInfo($table, 'type');
         if (isset($type[$key])) {
             $info = $type[$key];
         }
