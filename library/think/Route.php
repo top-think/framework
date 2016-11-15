@@ -151,7 +151,7 @@ class Route
         } elseif ('' === $name) {
             return self::$rules['name'];
         } elseif (!is_null($value)) {
-            self::$rules['name'][$name][] = $value;
+            self::$rules['name'][strtolower($name)][] = $value;
         } else {
             $name = strtolower($name);
             return isset(self::$rules['name'][$name]) ? self::$rules['name'][$name] : null;
@@ -310,7 +310,7 @@ class Route
         $vars = self::parseVar($rule);
         if (isset($name)) {
             $key = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
-            self::name(strtolower($name), [$key, $vars, self::$domain]);
+            self::name($name, [$key, $vars, self::$domain]);
         }
         if ($group) {
             if ('*' != $type) {
