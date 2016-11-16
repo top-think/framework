@@ -20,9 +20,13 @@ class Controller
 {
     use \traits\controller\Jump;
 
-    // 视图类实例
+    /**
+     * @var \think\View 视图类实例
+     */
     protected $view;
-    // Request实例
+    /**
+     * @var \think\Request Request实例
+     */
     protected $request;
     // 验证失败是否抛出异常
     protected $failException = false;
