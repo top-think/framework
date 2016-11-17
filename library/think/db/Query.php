@@ -1416,9 +1416,10 @@ class Query
         }
 
         list($guid) = explode(' ', $tableName);
-        if (!isset(self::$info[$guid])) {
+        $db         = $this->getConfig('database');
+        if (!isset(self::$info[$db . '.' . $guid])) {
             if (!strpos($guid, '.')) {
-                $schema = $this->getConfig('database') . '.' . $guid;
+                $schema = $db . '.' . $guid;
             } else {
                 $schema = $guid;
             }
@@ -1444,9 +1445,9 @@ class Query
             } else {
                 $pk = null;
             }
-            self::$info[$guid] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
+            self::$info[$db . '.' . $guid] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
         }
-        return $fetch ? self::$info[$guid][$fetch] : self::$info[$guid];
+        return $fetch ? self::$info[$db . '.' . $guid][$fetch] : self::$info[$db . '.' . $guid];
     }
 
     /**
