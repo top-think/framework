@@ -1472,4 +1472,47 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->initialize();
     }
 
+    /**
+     * 模型事件快捷方法
+     */
+    protected static function beforeInsert($callback, $override = false)
+    {
+        self::event('before_insert', $callback, $override);
+    }
+
+    protected static function afterInsert($callback, $override = false)
+    {
+        self::event('after_insert', $callback, $override);
+    }
+
+    protected static function beforeUpdate($callback, $override = false)
+    {
+        self::event('before_update', $callback, $override);
+    }
+
+    protected static function afterUpdate($callback, $override = false)
+    {
+        self::event('after_update', $callback, $override);
+    }
+
+    protected static function beforeWrite($callback, $override = false)
+    {
+        self::event('before_write', $callback, $override);
+    }
+
+    protected static function afterWrite($callback, $override = false)
+    {
+        self::event('after_write', $callback, $override);
+    }
+
+    protected static function beforeDelete($callback, $override = false)
+    {
+        self::event('before_delete', $callback, $override);
+    }
+
+    protected static function afterDelete($callback, $override = false)
+    {
+        self::event('after_delete', $callback, $override);
+    }
+
 }
