@@ -1496,7 +1496,7 @@ class Route
             if (is_array($cache)) {
                 list($key, $expire) = $cache;
             } else {
-                $key    = $pathinfo;
+                $key    = str_replace('|', '/', $pathinfo);
                 $expire = $cache;
             }
             $request->cache($key, $expire);
