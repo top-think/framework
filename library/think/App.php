@@ -386,7 +386,7 @@ class App
         } elseif (is_callable([$instance, '_empty'])) {
             // 空操作
             $call = [$instance, '_empty'];
-            $vars = [$action];
+            $vars = [$$actionName];
         } else {
             // 操作不存在
             throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
