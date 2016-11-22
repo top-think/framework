@@ -306,7 +306,7 @@ abstract class Builder
         if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (strpos($value, ':') !== 0 || !$this->query->isBind(substr($value, 1))) {
                 if ($this->query->isBind($bindName)) {
-                    $bindName .= '_' . uniqid();
+                    $bindName .= '_' . str_replace('.', '_', uniqid('', true));
                 }
                 $this->query->bind($bindName, $value, $bindType);
                 $value = ':' . $bindName;
