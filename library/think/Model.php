@@ -156,8 +156,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = $this->class;
         if (!isset(self::$links[$model])) {
+            // 合并数据库配置
+            if (is_array($this->connection)) {
+                $connection = array_merge(Config::get('database'), $this->connection);
+            } else {
+                $connection = $this->connection;
+            }
             // 设置当前模型 确保查询返回模型对象
-            $query = Db::connect($this->connection)->model($model, $this->query);
+            $query = Db::connect($connection)->model($model, $this->query);
 
             // 设置当前数据表和模型名
             if (!empty($this->table)) {
