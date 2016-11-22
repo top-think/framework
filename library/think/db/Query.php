@@ -1966,9 +1966,9 @@ class Query
                 // 生成模型对象
                 $model = $this->model;
                 foreach ($resultSet as $key => $result) {
-                    /** @var Model $result */
-                    $result = new $model($result);
-                    $result->isUpdate(true);
+                    $result = new $model;
+                    // 支持获取器
+                    $result->data($result, true)->isUpdate(true);
                     // 关联查询
                     if (!empty($options['relation'])) {
                         $result->relationQuery($options['relation']);
