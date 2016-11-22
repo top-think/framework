@@ -2139,19 +2139,30 @@ class Query
         $column    = $column ?: $this->getPk($table);
         $bind      = $this->bind;
         $resultSet = $this->limit($count)->order($column, 'asc')->select();
+        if (strpos($column, '.')) {
+            list($alias, $key) = explode('.', $column);
+        } else {
+            $key = $column;
+        }
+        if ($resultSet instanceof Collection) {
+            $resultSet = $resultSet->all();
+        }
 
         while (!empty($resultSet)) {
             if (false === call_user_func($callback, $resultSet)) {
                 return false;
             }
             $end       = end($resultSet);
-            $lastId    = is_array($end) ? $end[$column] : $end->$column;
+            $lastId    = is_array($end) ? $end[$key] : $end->$key;
             $resultSet = $this->options($options)
                 ->limit($count)
                 ->bind($bind)
                 ->where($column, '>', $lastId)
                 ->order($column, 'asc')
                 ->select();
+            if ($resultSet instanceof Collection) {
+                $resultSet = $resultSet->all();
+            }
         }
         return true;
     }
