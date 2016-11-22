@@ -120,6 +120,15 @@ class Response
                 $header['Content-Type'] = $this->header['Content-Type'];
                 Cache::set($cache[0], [$data, $header], $cache[1]);
             }
+            //Config::set('http_cache_control', ['max-age' => 21600, 'enable' => true]);
+            $http_cache_control = Config::get('http_cache_control');
+            if($http_cache_control['enable'] === true)
+            {
+                header('Cache-Control: max-age=' . $http_cache_control['max-age'] . ',must-revalidate');
+                header('Last-Modified:' . gmdate('D, d M Y H:i:s') . ' GMT');
+                header('Expires:' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $http_cache_control['max-age']) . ' GMT');
+                $header['Content-Type'] = $this->header['Content-Type'];
+            }
         }
         echo $data;
 
