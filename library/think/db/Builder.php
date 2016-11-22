@@ -333,8 +333,13 @@ abstract class Builder
                     $bind  = [];
                     $array = [];
                     foreach ($value as $k => $v) {
-                        $bind[$bindName . '_in_' . $k] = [$v, $bindType];
-                        $array[]                       = ':' . $bindName . '_in_' . $k;
+                        if ($this->query->isBind($bindName . '_in_' . $k)) {
+                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $k;
+                        } else {
+                            $bindKey = $bindName . '_in_' . $k;
+                        }
+                        $bind[$bindKey] = [$v, $bindType];
+                        $array[]        = ':' . $bindKey;
                     }
                     $this->query->bind($bind);
                     $zone = implode(',', $array);
@@ -347,12 +352,19 @@ abstract class Builder
             // BETWEEN 查询
             $data = is_array($value) ? $value : explode(',', $value);
             if (array_key_exists($field, $binds)) {
+                if ($this->query->isBind($bindName . '_between_1')) {
+                    $bindKey1 = $bindName . '_between_1' . uniqid();
+                    $bindKey2 = $bindName . '_between_2' . uniqid();
+                } else {
+                    $bindKey1 = $bindName . '_between_1';
+                    $bindKey2 = $bindName . '_between_2';
+                }
                 $bind = [
-                    $bindName . '_between_1' => [$data[0], $bindType],
-                    $bindName . '_between_2' => [$data[1], $bindType],
+                    $bindKey1 => [$data[0], $bindType],
+                    $bindKey2 => [$data[1], $bindType],
                 ];
                 $this->query->bind($bind);
-                $between = ':' . $bindName . '_between_1' . ' AND :' . $bindName . '_between_2';
+                $between = ':' . $bindKey1 . ' AND :' . $bindKey2;
             } else {
                 $between = $this->parseValue($data[0], $field) . ' AND ' . $this->parseValue($data[1], $field);
             }
@@ -410,7 +422,10 @@ abstract class Builder
             $info = $type[$key];
         }
         if (isset($info)) {
-            $value = strtotime($value) ?: $value;
+            if (is_numeric($value) && strtotime($value)) {
+                $value = strtotime($value) ?: $value;
+            }
+
             if (preg_match('/(datetime|timestamp)/is', $info)) {
                 // 日期及时间戳类型
                 $value = date('Y-m-d H:i:s', $value);
