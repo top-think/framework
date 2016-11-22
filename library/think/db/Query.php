@@ -1966,14 +1966,14 @@ class Query
                 // 生成模型对象
                 $model = $this->model;
                 foreach ($resultSet as $key => $result) {
-                    $result = new $model;
+                    $obj = new $model;
                     // 支持获取器
-                    $result->data($result, true)->isUpdate(true);
+                    $obj->data($result, true)->isUpdate(true);
                     // 关联查询
                     if (!empty($options['relation'])) {
                         $result->relationQuery($options['relation']);
                     }
-                    $resultSet[$key] = $result;
+                    $resultSet[$key] = $obj;
                 }
                 if (!empty($options['with']) && $result instanceof Model) {
                     // 预载入
