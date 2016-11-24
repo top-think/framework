@@ -108,11 +108,11 @@ class Redis extends SessionHandler
      * 删除Session
      * @access public
      * @param string $sessID
-     * @return bool|void
+     * @return bool
      */
     public function destroy($sessID)
     {
-        $this->handler->delete($this->config['session_name'] . $sessID);
+        return $this->handler->delete($this->config['session_name'] . $sessID);
     }
 
     /**
