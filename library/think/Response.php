@@ -103,6 +103,16 @@ class Response
             Debug::inject($this, $data);
         }
 
+        if (200 == $this->code) {
+            $cache = Request::instance()->getCache();
+            if ($cache) {
+                $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
+                $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
+                $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
+                Cache::set($cache[0], [$data, $this->header], $cache[1]);
+            }
+        }
+
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
             http_response_code($this->code);
@@ -111,16 +121,7 @@ class Response
                 header($name . ':' . $val);
             }
         }
-        if (200 == $this->code) {
-            $cache = Request::instance()->getCache();
-            if ($cache) {
-                header('Cache-Control: max-age=' . $cache[1] . ',must-revalidate');
-                header('Last-Modified:' . gmdate('D, d M Y H:i:s') . ' GMT');
-                header('Expires:' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT');
-                $header['Content-Type'] = $this->header['Content-Type'];
-                Cache::set($cache[0], [$data, $header], $cache[1]);
-            }
-        }
+
         echo $data;
 
         if (function_exists('fastcgi_finish_request')) {
