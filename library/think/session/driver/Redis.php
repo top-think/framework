@@ -112,7 +112,7 @@ class Redis extends SessionHandler
      */
     public function destroy($sessID)
     {
-        return $this->handler->delete($this->config['session_name'] . $sessID);
+        return $this->handler->delete($this->config['session_name'] . $sessID) > 0;
     }
 
     /**
