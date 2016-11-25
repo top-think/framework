@@ -224,6 +224,9 @@ class Url
     // 解析URL后缀
     protected static function parseSuffix($suffix)
     {
+        if ($suffix == '/') {
+            return '/';
+        }
         if ($suffix) {
             $suffix = true === $suffix ? Config::get('url_html_suffix') : $suffix;
             if ($pos = strpos($suffix, '|')) {
