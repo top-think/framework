@@ -215,6 +215,17 @@ class Validate
         }
         return $this;
     }
+    
+    /**
+     * 判断是否设置过验证场景
+     * @access public
+     * @param string $name 场景名
+     * @return bool
+     */
+    public function has_scene($name)
+    {
+        return isset($this->scene[$name]);
+    }
 
     /**
      * 设置批量验证
