@@ -19,6 +19,8 @@ class View
     public $engine;
     // 模板变量
     protected $data = [];
+    // 用于静态赋值的模板变量
+    protected static $var = [];
     // 视图输出替换
     protected $replace = [];
 
@@ -48,6 +50,22 @@ class View
             self::$instance = new self($engine, $replace);
         }
         return self::$instance;
+    }
+
+    /**
+     * 模板变量静态赋值
+     * @access public
+     * @param mixed $name  变量名
+     * @param mixed $value 变量值
+     * @return void
+     */
+    public static function share($name, $value = '')
+    {
+        if (is_array($name)) {
+            self::$var = array_merge(self::$var, $name);
+        } else {
+            self::$var[$name] = $value;
+        }
     }
 
     /**
@@ -116,7 +134,7 @@ class View
     public function fetch($template = '', $vars = [], $replace = [], $config = [], $renderContent = false)
     {
         // 模板变量
-        $vars = array_merge($this->data, $vars);
+        $vars = array_merge(self::$var, $this->data, $vars);
 
         // 页面缓存
         ob_start();
