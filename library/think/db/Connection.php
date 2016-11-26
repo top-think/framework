@@ -421,8 +421,8 @@ abstract class Connection
                 $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
                 if (PDO::PARAM_STR == $type) {
                     $value = $this->quote($value);
-                } elseif (PDO::PARAM_INT == $type && '' === $value) {
-                    $value = 0;
+                } elseif (PDO::PARAM_INT == $type) {
+                    $value = (float) $value;
                 }
                 // 判断占位符
                 $sql = is_numeric($key) ?
