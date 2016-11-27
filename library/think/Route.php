@@ -1223,7 +1223,7 @@ class Route
                         $find = true;
                         break;
                     } else {
-                        $dir .= DS . $val;
+                        $dir .= DS . Loader::parseName($val);
                     }
                 }
                 if ($find) {
