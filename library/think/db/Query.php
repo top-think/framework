@@ -931,10 +931,15 @@ class Query
             $where[$field] = ['eq', $op];
         } else {
             $where[$field] = [$op, $condition];
+            // 记录一个字段多次查询条件
+            $this->options['multi'][$field][] = $where[$field];
         }
         if (!empty($where)) {
             if (!isset($this->options['where'][$logic])) {
                 $this->options['where'][$logic] = [];
+            }
+            if (isset($this->options['multi'][$field]) && count($this->options['multi'][$field]) > 1) {
+                $where[$field] = $this->options['multi'][$field];
             }
             $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
         }
