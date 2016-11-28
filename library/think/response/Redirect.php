@@ -78,14 +78,17 @@ class Redirect extends Response
 
     /**
      * 记住当前url后跳转
+     * @return $this
      */
-    public function remember()
+    public function restore()
     {
         Session::set('redirect_url', Request::instance()->url());
+        return $this;
     }
 
     /**
      * 跳转到上次记住的url
+     * @return $this
      */
     public function restore()
     {
@@ -93,5 +96,6 @@ class Redirect extends Response
             $this->data = Session::get('redirect_url');
             Session::delete('redirect_url');
         }
+        return $this;
     }
 }
