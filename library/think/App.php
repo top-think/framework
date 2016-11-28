@@ -141,11 +141,11 @@ class App
                     break;
                 case 'controller':
                     // 执行控制器操作
-                    $data = Loader::action($dispatch['controller']);
+                    $data = Loader::action($dispatch['controller'], $dispatch['var']);
                     break;
                 case 'method':
                     // 执行回调方法
-                    $data = self::invokeMethod($dispatch['method']);
+                    $data = self::invokeMethod($dispatch['method'], $dispatch['var']);
                     break;
                 case 'function':
                     // 执行闭包
