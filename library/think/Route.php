@@ -1480,15 +1480,15 @@ class Route
             $result = ['type' => 'redirect', 'url' => $route, 'status' => isset($option['status']) ? $option['status'] : 301];
         } elseif (false !== strpos($route, '\\')) {
             // 路由到方法
-            list($route, $var) = self::parseUrlPath($route);
-            $route             = str_replace('/', '@', $route);
-            $method            = strpos($route, '@') ? explode('@', $route) : $route;
-            $result            = ['type' => 'method', 'method' => $method, 'var' => $var];
+            list($path, $var) = self::parseUrlPath($route);
+            $route            = str_replace('/', '@', implode('/', $path));
+            $method           = strpos($route, '@') ? explode('@', $route) : $route;
+            $result           = ['type' => 'method', 'method' => $method, 'var' => $var];
         } elseif (0 === strpos($route, '@')) {
             // 路由到控制器
             $route             = substr($route, 1);
             list($route, $var) = self::parseUrlPath($route);
-            $result            = ['type' => 'controller', 'controller' => $route, 'var' => $var];
+            $result            = ['type' => 'controller', 'controller' => implode('/', $route), 'var' => $var];
         } else {
             // 路由到模块/控制器/操作
             $result = self::parseModule($route);

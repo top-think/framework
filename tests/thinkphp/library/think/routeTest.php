@@ -227,7 +227,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
     {
         $request = Request::instance();
         Route::get('say/:name', '@index/hello');
-        $this->assertEquals(['type' => 'controller', 'controller' => 'index/hello'], Route::check($request, 'say/thinkphp'));
+        $this->assertEquals(['type' => 'controller', 'controller' => 'index/hello', 'var' => []], Route::check($request, 'say/thinkphp'));
     }
 
     public function testRouteToMethod()
@@ -235,8 +235,8 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $request = Request::instance();
         Route::get('user/:name', '\app\index\service\User::get', [], ['name' => '\w+']);
         Route::get('info/:name', '\app\index\model\Info@getInfo', [], ['name' => '\w+']);
-        $this->assertEquals(['type' => 'method', 'method' => '\app\index\service\User::get'], Route::check($request, 'user/thinkphp'));
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\model\Info', 'getInfo']], Route::check($request, 'info/thinkphp'));
+        $this->assertEquals(['type' => 'method', 'method' => '\app\index\service\User::get', 'var' => []], Route::check($request, 'user/thinkphp'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\model\Info', 'getInfo'], 'var' => []], Route::check($request, 'info/thinkphp'));
     }
 
     public function testRouteToRedirect()
