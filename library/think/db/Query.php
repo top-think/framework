@@ -917,6 +917,9 @@ class Query
             if (is_array($field)) {
                 // 数组批量查询
                 $where = $field;
+                foreach ($where as $k => $val) {
+                    $this->options['multi'][$k][] = $val;
+                }
             } elseif ($field && is_string($field)) {
                 // 字符串查询
                 $where[$field] = ['null', ''];
@@ -938,11 +941,23 @@ class Query
             if (!isset($this->options['where'][$logic])) {
                 $this->options['where'][$logic] = [];
             }
-            if (isset($this->options['multi'][$field]) && count($this->options['multi'][$field]) > 1) {
+            if (is_string($field) && $this->checkMultiField($field)) {
                 $where[$field] = $this->options['multi'][$field];
+            } elseif (is_array($field)) {
+                foreach ($field as $key => $val) {
+                    if ($this->checkMultiField($key)) {
+                        $where[$key] = $this->options['multi'][$key];
+                    }
+                }
             }
             $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
         }
+    }
+
+    // 检查是否存在一个字段多次查询条件
+    private function checkMultiField($field)
+    {
+        return isset($this->options['multi'][$field]) && count($this->options['multi'][$field]) > 1;
     }
 
     /**
