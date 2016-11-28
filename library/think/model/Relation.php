@@ -664,6 +664,8 @@ class Relation
     {
         if ($this->query) {
             switch ($this->type) {
+                case self::HAS_ONE:
+                case self::BELONGS_TO:
                 case self::HAS_MANY:
                     if (isset($this->where)) {
                         $this->query->where($this->where);
@@ -671,6 +673,11 @@ class Relation
                         // 关联查询带入关联条件
                         $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
                     }
+                    break;
+                case self::BELONGS_TO_MANY:
+                    $modelTable   = $this->query->getTable();
+                    $pk           = $this->parent->getPk();
+                    $this->query->join($this->middle , $this->middle . '.' . $this->foreignKey . '=' . $modelTable . '.' . $pk)->where($this->middle . '.' . $this->localKey . ' = ' . $this->parent->{$pk});
                     break;
                 case self::HAS_MANY_THROUGH:
                     $through      = $this->middle;
