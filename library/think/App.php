@@ -141,11 +141,13 @@ class App
                     break;
                 case 'controller':
                     // 执行控制器操作
-                    $data = Loader::action($dispatch['controller'], $dispatch['var']);
+                    $vars = Request::instance()->param();
+                    $data = Loader::action($dispatch['controller'], array_merge($vars, $dispatch['var']));
                     break;
                 case 'method':
                     // 执行回调方法
-                    $data = self::invokeMethod($dispatch['method'], $dispatch['var']);
+                    $vars = Request::instance()->param();
+                    $data = self::invokeMethod($dispatch['method'], array_merge($vars, $dispatch['var']));
                     break;
                 case 'function':
                     // 执行闭包
