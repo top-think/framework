@@ -80,7 +80,7 @@ class Redirect extends Response
      * 记住当前url后跳转
      * @return $this
      */
-    public function restore()
+    public function remember()
     {
         Session::set('redirect_url', Request::instance()->url());
         return $this;
