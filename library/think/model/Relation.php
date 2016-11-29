@@ -664,7 +664,9 @@ class Relation
     {
         if ($this->query) {
             switch ($this->type) {
+                case self::HAS_ONE:
                 case self::HAS_MANY:
+                case self::BELONGS_TO:
                     if (isset($this->where)) {
                         $this->query->where($this->where);
                     } elseif (isset($this->parent->{$this->localKey})) {
