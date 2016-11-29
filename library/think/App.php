@@ -347,6 +347,8 @@ class App
                 // 初始化模块
                 $request->module($module);
                 $config = self::init($module);
+                // 模块请求缓存检查
+                $request->cache($config['request_cache'], $config['request_cache_expire']);
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
             }
