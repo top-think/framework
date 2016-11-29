@@ -374,6 +374,7 @@ class Loader
         } else {
             $module = Request::instance()->module();
         }
+        $module = $module ?: $common;
         $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
             $model = new $class();
