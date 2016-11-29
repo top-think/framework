@@ -686,7 +686,12 @@ class Request
     public function post($name = '', $default = null, $filter = '')
     {
         if (empty($this->post)) {
-            $this->post = $_POST;
+            $content = $this->input;
+            if (empty($_POST) && strpos($content, '":')) {
+                $this->post = json_decode($content, true);
+            } else {
+                $this->post = $_POST;
+            }
         }
         if (is_array($name)) {
             $this->param       = [];
