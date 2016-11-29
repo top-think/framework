@@ -34,6 +34,8 @@ class Validate
 
     // 验证提示信息
     protected $message = [];
+    // 验证字段描述
+    protected $field = [];
 
     // 验证规则默认提示信息
     protected static $typeMsg = [
@@ -107,11 +109,13 @@ class Validate
      * @access public
      * @param array $rules 验证规则
      * @param array $message 验证提示信息
+     * @param array $field 验证字段描述信息
      */
-    public function __construct(array $rules = [], $message = [])
+    public function __construct(array $rules = [], $message = [], $field = [])
     {
         $this->rule    = array_merge($this->rule, $rules);
         $this->message = array_merge($this->message, $message);
+        $this->field   = $field;
     }
 
     /**
@@ -119,12 +123,13 @@ class Validate
      * @access public
      * @param array     $rules 验证规则
      * @param array     $message 验证提示信息
+     * @param array     $field 验证字段描述信息
      * @return Validate
      */
-    public static function make($rules = [], $message = [])
+    public static function make($rules = [], $message = [], $field = [])
     {
         if (is_null(self::$instance)) {
-            self::$instance = new self($rules, $message);
+            self::$instance = new self($rules, $message, $field);
         }
         return self::$instance;
     }
@@ -291,7 +296,7 @@ class Validate
                 // 字段|描述 用于指定属性名称
                 list($key, $title) = explode('|', $key);
             } else {
-                $title = $key;
+                $title = isset($this->field[$key]) ? $this->field[$key] : $key;
             }
 
             // 场景检测
