@@ -662,32 +662,36 @@ class Relation
 
     public function __call($method, $args)
     {
+        static $baseQuery = [];
         if ($this->query) {
-            switch ($this->type) {
-                case self::HAS_MANY:
-                    if (isset($this->where)) {
-                        $this->query->where($this->where);
-                    } elseif (isset($this->parent->{$this->localKey})) {
-                        // 关联查询带入关联条件
-                        $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
-                    }
-                    break;
-                case self::HAS_MANY_THROUGH:
-                    $through      = $this->middle;
-                    $model        = $this->model;
-                    $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
-                    $throughTable = $through::getTable();
-                    $pk           = (new $this->model)->getPk();
-                    $throughKey   = $this->throughKey;
-                    $modelTable   = $this->parent->getTable();
-                    $this->query->field($alias . '.*')->alias($alias)
-                        ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
-                        ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
-                        ->where($throughTable . '.' . $this->foreignKey, $this->parent->{$this->localKey});
-                    break;
-                case self::BELONGS_TO_MANY:
-                    // TODO
-
+            if (empty($baseQuery[$this->type])) {
+                $baseQuery[$this->type] = true;
+                switch ($this->type) {
+                    case self::HAS_MANY:
+                        if (isset($this->where)) {
+                            $this->query->where($this->where);
+                        } elseif (isset($this->parent->{$this->localKey})) {
+                            // 关联查询带入关联条件
+                            $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
+                        }
+                        break;
+                    case self::HAS_MANY_THROUGH:
+                        $through      = $this->middle;
+                        $model        = $this->model;
+                        $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
+                        $throughTable = $through::getTable();
+                        $pk           = (new $this->model)->getPk();
+                        $throughKey   = $this->throughKey;
+                        $modelTable   = $this->parent->getTable();
+                        $this->query->field($alias . '.*')->alias($alias)
+                            ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
+                            ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
+                            ->where($throughTable . '.' . $this->foreignKey, $this->parent->{$this->localKey});
+                        break;
+                    case self::BELONGS_TO_MANY:
+                        $pk = $this->parent->getPk();
+                        $this->query->join($this->middle . ' pivot', 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())->where('pivot.' . $this->localKey, $this->parent->$pk);
+                }
             }
             $result = call_user_func_array([$this->query, $method], $args);
             if ($result instanceof \think\db\Query) {
