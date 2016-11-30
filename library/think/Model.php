@@ -1363,6 +1363,38 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $this->relation()->belongsToMany($model, $table, $foreignKey, $localKey, $alias);
     }
 
+    /**
+     * MORPH  MANY 关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $id 关联外键
+     * @param string $morphType 多态字段名
+     * @param string $type 多态类型
+     * @return Relation
+     */
+    public function morphMany($model, $id, $morphType = '', $type = '')
+    {
+        // 记录当前关联信息
+        $model     = $this->parseModel($model);
+        $type      = $type ?: Loader::parseName($this->name);
+        $name      = Loader::parseName(basename(str_replace('\\', '/', $model)));
+        $morphType = $morphType ?: Loader::parseName($name) . '_type';
+        return $this->relation()->morphMany($model, $id, $morphType, $type);
+    }
+
+    /**
+     * MORPH TO 关联定义
+     * @access public
+     * @param string $morphType 多态字段名
+     * @param string $foreignKey 外键名
+     * @return Relation
+     */
+    public function morphTo($morphType, $foreignKey)
+    {
+        // 记录当前关联信息
+        return $this->relation()->morphTo($morphType, $foreignKey);
+    }
+
     public function __call($method, $args)
     {
         $query = $this->db();

@@ -24,6 +24,8 @@ class Relation
     const HAS_MANY_THROUGH = 5;
     const BELONGS_TO       = 3;
     const BELONGS_TO_MANY  = 4;
+    const MORPH_MANY       = 7;
+    const MORPH_TO         = 6;
 
     // 父模型对象
     protected $parent;
@@ -120,6 +122,20 @@ class Relation
                     }
                     $set->pivot = new Pivot($pivot, $this->middle);
                 }
+                break;
+            case self::MORPH_MANY:
+                $result = $relation->select();
+                break;
+            case self::MORPH_TO:
+                // 多态模型
+                $model = $this->parent->{$this->middle};
+                $path  = explode('\\', get_class($this->parent));
+                array_pop($path);
+                array_push($path, Loader::parseName($model, 1));
+                $model = implode('\\', $path);
+                // 主键数据
+                $pk     = $this->parent->{$this->foreignKey};
+                $result = (new $model)->find($pk);
                 break;
             default:
                 // 直接返回
@@ -517,6 +533,45 @@ class Relation
     }
 
     /**
+     * MORPH_MANY 关联定义
+     * @access public
+     * @param string $model 模型名
+     * @param string $id 关联外键
+     * @param string $morphType 多态字段名
+     * @param string $type 多态类型
+     * @return $this
+     */
+    public function morphMany($model, $foreignKey, $morphType, $type)
+    {
+        // 记录当前关联信息
+        $this->type       = self::MORPH_MANY;
+        $this->model      = $model;
+        $this->middle     = $type;
+        $this->foreignKey = $foreignKey;
+        $this->localKey   = $morphType;
+        $this->query      = (new $model)->db();
+        // 返回关联的模型对象
+        return $this;
+    }
+
+    /**
+     * MORPH_TO 关联定义
+     * @access public
+     * @param string $morphType 多态字段名
+     * @param string $foreignKey 外键名
+     * @return $this
+     */
+    public function morphTo($morphType, $foreignKey)
+    {
+        // 记录当前关联信息
+        $this->type       = self::MORPH_TO;
+        $this->middle     = $morphType;
+        $this->foreignKey = $foreignKey;
+        // 返回关联的模型对象
+        return $this;
+    }
+
+    /**
      * BELONGS TO MANY 关联查询
      * @access public
      * @param object    $model 关联模型对象
@@ -691,6 +746,13 @@ class Relation
                     case self::BELONGS_TO_MANY:
                         $pk = $this->parent->getPk();
                         $this->query->join($this->middle . ' pivot', 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())->where('pivot.' . $this->localKey, $this->parent->$pk);
+                        break;
+                    case self::MORPH_MANY:
+                        $pk                     = $this->parent->getPk();
+                        $map[$this->foreignKey] = $this->parent->$pk;
+                        $map[$this->localKey]   = $this->middle;
+                        $this->query->where($map);
+                        break;
                 }
             }
             $result = call_user_func_array([$this->query, $method], $args);
