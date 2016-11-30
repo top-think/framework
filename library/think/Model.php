@@ -1388,10 +1388,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * MORPH TO 关联定义
      * @access public
-     * @param string|array $morph 多态字段信息
+     * @param string|array  $morph 多态字段信息
+     * @param array         $alias 多态别名定义
      * @return Relation
      */
-    public function morphTo($morph)
+    public function morphTo($morph, $alias = [])
     {
         // 记录当前关联信息
         if (is_array($morph)) {
@@ -1400,7 +1401,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $morphType  = $morph . '_type';
             $foreignKey = $morph . '_id';
         }
-        return $this->relation()->morphTo($morphType, $foreignKey);
+        return $this->relation()->morphTo($morphType, $foreignKey, $alias);
     }
 
     public function __call($method, $args)

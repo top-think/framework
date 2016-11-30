@@ -129,10 +129,16 @@ class Relation
             case self::MORPH_TO:
                 // 多态模型
                 $model = $this->parent->{$this->middle};
-                $path  = explode('\\', get_class($this->parent));
-                array_pop($path);
-                array_push($path, Loader::parseName($model, 1));
-                $model = implode('\\', $path);
+                // 多态类型映射
+                if (isset($this->alias[$model])) {
+                    $model = $this->alias[$model];
+                }
+                if (false === strpos($model, '\\')) {
+                    $path = explode('\\', get_class($this->parent));
+                    array_pop($path);
+                    array_push($path, Loader::parseName($model, 1));
+                    $model = implode('\\', $path);
+                }
                 // 主键数据
                 $pk     = $this->parent->{$this->foreignKey};
                 $result = (new $model)->find($pk);
@@ -559,14 +565,16 @@ class Relation
      * @access public
      * @param string $morphType 多态字段名
      * @param string $foreignKey 外键名
+     * @param array  $alias 多态别名定义
      * @return $this
      */
-    public function morphTo($morphType, $foreignKey)
+    public function morphTo($morphType, $foreignKey, $alias)
     {
         // 记录当前关联信息
         $this->type       = self::MORPH_TO;
         $this->middle     = $morphType;
         $this->foreignKey = $foreignKey;
+        $this->alias      = $alias;
         // 返回关联的模型对象
         return $this;
     }
