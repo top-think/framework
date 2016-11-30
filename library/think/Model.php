@@ -1367,31 +1367,39 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * MORPH  MANY 关联定义
      * @access public
      * @param string $model 模型名
-     * @param string $id 关联外键
-     * @param string $morphType 多态字段名
+     * @param string|array $morph 多态字段信息
      * @param string $type 多态类型
      * @return Relation
      */
-    public function morphMany($model, $id, $morphType = '', $type = '')
+    public function morphMany($model, $morph, $type = '')
     {
         // 记录当前关联信息
-        $model     = $this->parseModel($model);
-        $type      = $type ?: Loader::parseName($this->name);
-        $name      = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $morphType = $morphType ?: Loader::parseName($name) . '_type';
-        return $this->relation()->morphMany($model, $id, $morphType, $type);
+        $model = $this->parseModel($model);
+        $type  = $type ?: Loader::parseName($this->name);
+        if (is_array($morph)) {
+            list($foreignKey, $morphType) = $morph;
+        } else {
+            $morphType  = $morph . '_type';
+            $foreignKey = $morph . '_id';
+        }
+        return $this->relation()->morphMany($model, $foreignKey, $morphType, $type);
     }
 
     /**
      * MORPH TO 关联定义
      * @access public
-     * @param string $morphType 多态字段名
-     * @param string $foreignKey 外键名
+     * @param string|array $morph 多态字段信息
      * @return Relation
      */
-    public function morphTo($morphType, $foreignKey)
+    public function morphTo($morph)
     {
         // 记录当前关联信息
+        if (is_array($morph)) {
+            list($foreignKey, $morphType) = $morph;
+        } else {
+            $morphType  = $morph . '_type';
+            $foreignKey = $morph . '_id';
+        }
         return $this->relation()->morphTo($morphType, $foreignKey);
     }
 
