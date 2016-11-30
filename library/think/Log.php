@@ -32,13 +32,14 @@ class Log
     const SQL    = 'sql';
     const NOTICE = 'notice';
     const ALERT  = 'alert';
+    const DEBUG  = 'debug';
 
     // 日志信息
     protected static $log = [];
     // 配置参数
     protected static $config = [];
     // 日志类型
-    protected static $type = ['log', 'error', 'info', 'sql', 'notice', 'alert'];
+    protected static $type = ['log', 'error', 'info', 'sql', 'notice', 'alert', 'debug'];
     // 日志写入驱动
     protected static $driver;
 
@@ -136,6 +137,9 @@ class Log
             if (empty(self::$config['level'])) {
                 // 获取全部日志
                 $log = self::$log;
+                if (!App::$debug && isset($log['debug'])) {
+                    unset($log['debug']);
+                }
             } else {
                 // 记录允许级别
                 $log = [];
