@@ -1392,8 +1392,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array         $alias 多态别名定义
      * @return Relation
      */
-    public function morphTo($morph, $alias = [])
+    public function morphTo($morph = null, $alias = [])
     {
+        if (is_null($morph)) {
+            $trace = debug_backtrace(false, 2);
+            $morph = Loader::parseName($trace[1]['function']);
+        }
         // 记录当前关联信息
         if (is_array($morph)) {
             list($foreignKey, $morphType) = $morph;
