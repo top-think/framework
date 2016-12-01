@@ -1377,7 +1377,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = $this->parseModel($model);
         $type  = $type ?: Loader::parseName($this->name);
         if (is_array($morph)) {
-            list($foreignKey, $morphType) = $morph;
+            list($morphType, $foreignKey) = $morph;
         } else {
             $morphType  = $morph . '_type';
             $foreignKey = $morph . '_id';
@@ -1400,7 +1400,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         // 记录当前关联信息
         if (is_array($morph)) {
-            list($foreignKey, $morphType) = $morph;
+            list($morphType, $foreignKey) = $morph;
         } else {
             $morphType  = $morph . '_type';
             $foreignKey = $morph . '_id';
