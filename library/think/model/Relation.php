@@ -72,6 +72,15 @@ class Relation
     }
 
     /**
+     * 获取关联的查询对象
+     * @access public
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
      * 获取当前关联信息
      * @access public
      * @param string $name 关联信息
@@ -118,7 +127,7 @@ class Relation
                 // 关联查询
                 $pk                              = $this->parent->getPk();
                 $condition['pivot.' . $localKey] = $this->parent->$pk;
-                $result                          = $this->belongsToManyQuery($relation->getModel(), $this->middle, $foreignKey, $localKey, $condition)->select();
+                $result                          = $this->belongsToManyQuery($relation->getQuery(), $this->middle, $foreignKey, $localKey, $condition)->select();
                 foreach ($result as $set) {
                     $pivot = [];
                     foreach ($set->getData() as $key => $val) {
@@ -604,7 +613,7 @@ class Relation
         // 关联查询封装
         $tableName  = $model->getTable();
         $relationFk = $model->getPk();
-        return $model::field($tableName . '.*')
+        return $model->field($tableName . '.*')
             ->field(true, false, $table, 'pivot', 'pivot__')
             ->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
             ->where($condition);
