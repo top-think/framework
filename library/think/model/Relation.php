@@ -405,7 +405,7 @@ class Relation
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
         // 预载入关联查询 支持嵌套预载入
-        $list = $this->belongsToManyQuery($model, $this->middle, $foreignKey, $localKey, $where)->with($subRelation)->select();
+        $list = $this->belongsToManyQuery($model->getQuery(), $this->middle, $foreignKey, $localKey, $where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
