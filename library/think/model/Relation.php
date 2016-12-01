@@ -21,11 +21,11 @@ class Relation
 {
     const HAS_ONE          = 1;
     const HAS_MANY         = 2;
-    const HAS_MANY_THROUGH = 5;
     const BELONGS_TO       = 3;
     const BELONGS_TO_MANY  = 4;
-    const MORPH_MANY       = 7;
+    const HAS_MANY_THROUGH = 5;
     const MORPH_TO         = 6;
+    const MORPH_MANY       = 7;
 
     // 父模型对象
     protected $parent;
@@ -51,6 +51,7 @@ class Relation
     protected $where;
     // 关联查询参数
     protected $option;
+
     /**
      * 架构函数
      * @access public
@@ -59,6 +60,15 @@ class Relation
     public function __construct(Model $model)
     {
         $this->parent = $model;
+    }
+
+    /**
+     * 获取关联的所属模型
+     * @access public
+     */
+    public function getModel()
+    {
+        return $this->parent;
     }
 
     /**
@@ -108,7 +118,7 @@ class Relation
                 // 关联查询
                 $pk                              = $this->parent->getPk();
                 $condition['pivot.' . $localKey] = $this->parent->$pk;
-                $result                          = $this->belongsToManyQuery($relation, $this->middle, $foreignKey, $localKey, $condition)->select();
+                $result                          = $this->belongsToManyQuery($relation->getModel(), $this->middle, $foreignKey, $localKey, $condition)->select();
                 foreach ($result as $set) {
                     $pivot = [];
                     foreach ($set->getData() as $key => $val) {
