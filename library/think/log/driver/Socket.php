@@ -63,24 +63,27 @@ class Socket
         if (!$this->check()) {
             return false;
         }
-        $runtime    = number_format(microtime(true) - THINK_START_TIME, 10);
-        $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
-        $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
-        $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-        $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
+        $trace = [];
+        if (App::$debug) {
+            $runtime    = number_format(microtime(true) - THINK_START_TIME, 10);
+            $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+            $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
+            $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
+            $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
+            $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
 
-        if (isset($_SERVER['HTTP_HOST'])) {
-            $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        } else {
-            $current_uri = 'cmd:' . implode(' ', $_SERVER['argv']);
+            if (isset($_SERVER['HTTP_HOST'])) {
+                $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            } else {
+                $current_uri = 'cmd:' . implode(' ', $_SERVER['argv']);
+            }
+            // 基本信息
+            $trace[] = [
+                'type' => 'group',
+                'msg'  => $current_uri . $time_str . $memory_str . $file_load,
+                'css'  => $this->css['page'],
+            ];
         }
-        // 基本信息
-        $trace[] = [
-            'type' => 'group',
-            'msg'  => $current_uri . $time_str . $memory_str . $file_load,
-            'css'  => $this->css['page'],
-        ];
 
         foreach ($log as $type => $val) {
             $trace[] = [

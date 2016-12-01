@@ -184,7 +184,7 @@ class Log
             self::init(Config::get('log'));
         }
         // 写入日志
-        return self::$driver->save($log);
+        return self::$driver->save($log, false);
     }
 
     /**
