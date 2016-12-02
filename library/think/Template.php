@@ -26,6 +26,7 @@ class Template
     // 引擎配置
     protected $config = [
         'view_path'          => '', // 模板路径
+        'view_base'          => '',
         'view_suffix'        => 'html', // 默认模板文件后缀
         'view_depr'          => DS,
         'cache_suffix'       => 'php', // 默认模板缓存后缀
