@@ -115,7 +115,7 @@ class Validate
     {
         $this->rule    = array_merge($this->rule, $rules);
         $this->message = array_merge($this->message, $message);
-        $this->field   = $field;
+        $this->field   = array_merge($this->field, $field);
     }
 
     /**
