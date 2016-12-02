@@ -80,9 +80,8 @@ trait Jump
             $code = $msg;
             $msg  = '';
         }
-        $isAjax = Request::instance()->isAjax();
         if (is_null($url)) {
-            $url = $isAjax ? '':'javascript:history.back(-1);';
+            $url = Request::instance()->isAjax() ? '' : 'javascript:history.back(-1);';
         } elseif ('' !== $url) {
             $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Url::build($url);
         }
