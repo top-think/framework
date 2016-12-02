@@ -27,13 +27,15 @@ class Think
         // 视图基础目录（集中式）
         'view_base'   => '',
         // 模板起始路径
-        'view_path'   => '',
+        'view_path'     => '',
         // 模板文件后缀
-        'view_suffix' => 'html',
+        'view_suffix'   => 'html',
         // 模板文件名分隔符
-        'view_depr'   => DS,
+        'view_depr'     => DS,
         // 是否开启模板编译缓存,设为false则每次都会重新编译
-        'tpl_cache'   => true,
+        'tpl_cache'     => true,
+        // 模板主题
+        'default_theme' => '',
     ];
 
     public function __construct($config = [])
@@ -132,6 +134,11 @@ class Think
             } elseif (false === strpos($template, $depr)) {
                 $template = str_replace('.', DS, $controller) . $depr . $template;
             }
+        }
+
+        //模板主题
+        if ($this->config['default_theme']) {
+            $template = $this->config['default_theme'] . DS . $template;
         }
         return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
     }

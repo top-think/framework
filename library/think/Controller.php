@@ -210,4 +210,16 @@ class Controller
             return true;
         }
     }
+
+    /**
+     * 设置模板主题
+     * @access protected
+     * @param string $theme
+     * @return $this
+     */
+    protected function theme($theme = '')
+    {
+        $this->view->theme($theme);
+        return $this;
+    }
 }

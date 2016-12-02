@@ -188,6 +188,18 @@ class View
     }
 
     /**
+     * 设置模板主题
+     * @access public
+     * @param string $theme 主题名称
+     * @return $this
+     */
+    public function theme($theme = '')
+    {
+        $this->config('default_theme', $theme);
+        return $this;
+    }
+
+    /**
      * 模板变量赋值
      * @access public
      * @param string    $name  变量名
