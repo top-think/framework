@@ -20,6 +20,13 @@ use think\Exception;
 use think\Exception\ValidateException;
 use think\Loader;
 use think\model\Relation;
+use think\model\relation\BelongsTo;
+use think\model\relation\BelongsToMany;
+use think\model\relation\HasMany;
+use think\model\relation\HasManyThrough;
+use think\model\relation\HasOne;
+use think\model\relation\MorphMany;
+use think\model\relation\MorphTo;
 use think\paginator\Collection as PaginatorCollection;
 
 /**
@@ -184,26 +191,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         // 返回当前模型的数据库查询对象
         return self::$links[$model];
-    }
-
-    /**
-     *  获取关联模型实例
-     * @access protected
-     * @param string|array $relation 关联查询
-     * @return Relation|Query
-     */
-    protected function relation($relation = null)
-    {
-        if (!is_null($relation)) {
-            // 执行关联查询
-            return $this->db()->relation($relation);
-        }
-
-        // 获取关联对象实例
-        if (is_null($this->relation)) {
-            $this->relation = new Relation($this);
-        }
-        return $this->relation;
     }
 
     /**
@@ -421,9 +408,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $value = $this->readTransform($value, $this->type[$name]);
         } elseif ($notFound) {
             $method = Loader::parseName($name, 1);
-            if (method_exists($this, $method) && !method_exists('\think\Model', $method)) {
+            if (method_exists($this, $method) && $this->$method() instanceof Relation) {
                 // 不存在该字段 获取关联数据
-                $value = $this->relation()->getRelation($method);
+                $value = $this->$method()->getRelation();
                 // 保存关联对象值
                 $this->data[$name] = $value;
             } else {
@@ -1157,18 +1144,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
         $model = new static();
-        $info  = $model->$relation()->getRelationInfo();
-        $table = $info['model']::getTable();
-        switch ($info['type']) {
-            case Relation::HAS_MANY:
-                return $model->db()->alias('a')
-                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
-                    ->group('b.' . $info['foreignKey'])
-                    ->having('count(' . $id . ')' . $operator . $count);
-            case Relation::HAS_MANY_THROUGH: // TODO
-            default:
-                return $model;
-        }
+        return $model->$relation()->has($model, $operator, $count, $id);
     }
 
     /**
@@ -1181,27 +1157,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function hasWhere($relation, $where = [])
     {
         $model = new static();
-        $info  = $model->$relation()->getRelationInfo();
-        switch ($info['type']) {
-            case Relation::HAS_ONE:
-            case Relation::HAS_MANY:
-                $table = $info['model']::getTable();
-                if (is_array($where)) {
-                    foreach ($where as $key => $val) {
-                        if (false === strpos($key, '.')) {
-                            $where['b.' . $key] = $val;
-                            unset($where[$key]);
-                        }
-                    }
-                }
-                return $model->db()->alias('a')
-                    ->field('a.*')
-                    ->join($table . ' b', 'a.' . $info['localKey'] . '=b.' . $info['foreignKey'], $info['joinType'])
-                    ->where($where);
-            case Relation::HAS_MANY_THROUGH: // TODO
-            default:
-                return $model;
-        }
+        return $model->$relation()->hasWhere($model, $where);
     }
 
     /**
@@ -1232,9 +1188,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_string($relations)) {
             $relations = explode(',', $relations);
         }
-        $this->relation();
+
         foreach ($relations as $relation) {
-            $this->data[$relation] = $this->relation->getRelation($relation);
+            $this->data[$relation] = $this->$relation()->getRelation();
         }
         return $this;
     }
@@ -1246,9 +1202,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string    $relation 关联名
      * @return array
      */
-    public function eagerlyResultSet($resultSet, $relation)
+    public function eagerlyResultSet(&$resultSet, $relation, $class = '')
     {
-        return $this->relation()->eagerlyResultSet($resultSet, $relation);
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+        foreach ($relations as $key => $relation) {
+            $subRelation = '';
+            $closure     = false;
+            if ($relation instanceof \Closure) {
+                $closure  = $relation;
+                $relation = $key;
+            }
+            if (strpos($relation, '.')) {
+                list($relation, $subRelation) = explode('.', $relation);
+            }
+            $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class);
+        }
     }
 
     /**
@@ -1258,9 +1226,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string    $relation 关联名
      * @return Model
      */
-    public function eagerlyResult($result, $relation)
+    public function eagerlyResult(&$result, $relation, $class = '')
     {
-        return $this->relation()->eagerlyResult($result, $relation);
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+
+        foreach ($relations as $key => $relation) {
+            $subRelation = '';
+            $closure     = false;
+            if ($relation instanceof \Closure) {
+                $closure  = $relation;
+                $relation = $key;
+            }
+            if (strpos($relation, '.')) {
+                list($relation, $subRelation) = explode('.', $relation);
+            }
+            $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class);
+        }
     }
 
     /**
@@ -1279,7 +1260,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation()->hasOne($model, $foreignKey, $localKey, $alias, $joinType);
+        return new HasOne($this, $model, $foreignKey, $localKey, $alias, $joinType);
     }
 
     /**
@@ -1298,7 +1279,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $otherKey   = $otherKey ?: (new $model)->getPk();
-        return $this->relation()->belongsTo($model, $foreignKey, $otherKey, $alias, $joinType);
+        return new BelongsTo($this, $model, $foreignKey, $otherKey, $alias, $joinType);
     }
 
     /**
@@ -1316,7 +1297,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation()->hasMany($model, $foreignKey, $localKey, $alias);
+        return new HasMany($this, $model, $foreignKey, $localKey, $alias);
     }
 
     /**
@@ -1339,7 +1320,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $name       = Loader::parseName(basename(str_replace('\\', '/', $through)));
         $throughKey = $throughKey ?: $name . '_id';
-        return $this->relation()->hasManyThrough($model, $through, $foreignKey, $throughKey, $localKey, $alias);
+        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey, $alias);
     }
 
     /**
@@ -1360,7 +1341,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $table      = $table ?: $this->db()->getTable(Loader::parseName($this->name) . '_' . $name);
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
-        return $this->relation()->belongsToMany($model, $table, $foreignKey, $localKey, $alias);
+        return new BelongsToMany($this, $model, $table, $foreignKey, $localKey, $alias);
     }
 
     /**
@@ -1371,18 +1352,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $type 多态类型
      * @return Relation
      */
-    public function morphMany($model, $morph, $type = '')
+    public function morphMany($model, $morph = null, $type = '')
     {
         // 记录当前关联信息
         $model = $this->parseModel($model);
-        $type  = $type ?: Loader::parseName($this->name);
+        if (is_null($morph)) {
+            $trace = debug_backtrace(false, 2);
+            $morph = Loader::parseName($trace[1]['function']);
+        }
+        $type = $type ?: Loader::parseName($this->name);
         if (is_array($morph)) {
             list($morphType, $foreignKey) = $morph;
         } else {
             $morphType  = $morph . '_type';
             $foreignKey = $morph . '_id';
         }
-        return $this->relation()->morphMany($model, $foreignKey, $morphType, $type);
+        return new MorphMany($this, $model, $foreignKey, $morphType, $type);
     }
 
     /**
@@ -1405,7 +1390,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $morphType  = $morph . '_type';
             $foreignKey = $morph . '_id';
         }
-        return $this->relation()->morphTo($morphType, $foreignKey, $alias);
+        return new MorphTo($this, $morphType, $foreignKey, $alias);
     }
 
     public function __call($method, $args)
