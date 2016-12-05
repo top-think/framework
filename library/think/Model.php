@@ -13,6 +13,7 @@ namespace think;
 
 use InvalidArgumentException;
 use think\Cache;
+use think\Collection;
 use think\Config;
 use think\Db;
 use think\db\Query;
@@ -563,6 +564,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function toJson($options = JSON_UNESCAPED_UNICODE)
     {
         return json_encode($this->toArray(), $options);
+    }
+
+    /**
+     * 转换当前模型数据集为数据集对象
+     * @access public
+     * @param array|Collection   $collection 数据集
+     * @return Collection
+     */
+    public function toCollection($collection)
+    {
+        return new Collection($collection);
     }
 
     /**
@@ -1200,6 +1212,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $resultSet 数据集
      * @param string    $relation 关联名
+     * @param string    $class 数据集对象名 为空表示数组
      * @return array
      */
     public function eagerlyResultSet(&$resultSet, $relation, $class = '')
@@ -1224,6 +1237,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param Model     $result 数据对象
      * @param string    $relation 关联名
+     * @param string    $class 数据集对象名 为空表示数组
      * @return Model
      */
     public function eagerlyResult(&$result, $relation, $class = '')
@@ -1252,7 +1266,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $localKey 关联主键
      * @param array  $alias 别名定义
      * @param string $joinType JOIN类型
-     * @return Relation
+     * @return HasOne
      */
     public function hasOne($model, $foreignKey = '', $localKey = '', $alias = [], $joinType = 'INNER')
     {
@@ -1271,7 +1285,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $otherKey 关联主键
      * @param array  $alias 别名定义
      * @param string $joinType JOIN类型
-     * @return Relation
+     * @return BelongsTo
      */
     public function belongsTo($model, $foreignKey = '', $otherKey = '', $alias = [], $joinType = 'INNER')
     {
@@ -1289,7 +1303,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
      * @param array  $alias 别名定义
-     * @return Relation
+     * @return HasMany
      */
     public function hasMany($model, $foreignKey = '', $localKey = '', $alias = [])
     {
@@ -1309,7 +1323,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $throughKey 关联外键
      * @param string $localKey 关联主键
      * @param array  $alias 别名定义
-     * @return Relation
+     * @return HasManyThrough
      */
     public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '', $alias = [])
     {
@@ -1331,7 +1345,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $localKey 当前模型关联键
      * @param array  $alias 别名定义
-     * @return Relation
+     * @return BelongsToMany
      */
     public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '', $alias = [])
     {
@@ -1347,10 +1361,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * MORPH  MANY 关联定义
      * @access public
-     * @param string $model 模型名
-     * @param string|array $morph 多态字段信息
-     * @param string $type 多态类型
-     * @return Relation
+     * @param string        $model 模型名
+     * @param string|array  $morph 多态字段信息
+     * @param string        $type 多态类型
+     * @return MorphMany
      */
     public function morphMany($model, $morph = null, $type = '')
     {
@@ -1375,7 +1389,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string|array  $morph 多态字段信息
      * @param array         $alias 多态别名定义
-     * @return Relation
+     * @return MorphTo
      */
     public function morphTo($morph = null, $alias = [])
     {
