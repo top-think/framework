@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\db\Query;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -38,7 +37,10 @@ class MorphTo extends Relation
         $this->alias     = $alias;
     }
 
-    // 动态获取关联数据
+    /**
+     * 延迟获取关联数据
+     * @access public
+     */
     public function getRelation()
     {
         $morphKey  = $this->morphKey;
@@ -68,19 +70,6 @@ class MorphTo extends Relation
             $model = implode('\\', $path);
         }
         return $model;
-    }
-
-    /**
-     * 预载入关联查询
-     * @access public
-     * @param Query     $query 查询对象
-     * @param string    $relation 关联名
-     * @param bool      $first 是否需要使用基础表
-     * @return void
-     */
-    public function eagerly(Query $query, $relation, $subRelation, $closure, $first)
-    {
-
     }
 
     /**
@@ -163,4 +152,12 @@ class MorphTo extends Relation
         $result->setAttr($relation, $data ?: null);
     }
 
+    /**
+     * 执行基础查询（进执行一次）
+     * @access protected
+     * @return void
+     */
+    protected function baseQuery()
+    {
+    }
 }

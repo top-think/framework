@@ -37,7 +37,10 @@ class HasMany extends Relation
         $this->query      = (new $model)->db();
     }
 
-    // 动态获取关联数据
+    /**
+     * 延迟获取关联数据
+     * @access public
+     */
     public function getRelation()
     {
         return $this->select();
@@ -46,23 +49,12 @@ class HasMany extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param Query     $query 查询对象
-     * @param string    $relation 关联名
-     * @param bool      $first 是否需要使用基础表
-     * @return void
-     */
-    public function eagerly(Query $query, $relation, $subRelation, $closure, $first)
-    {
-
-    }
-
-    /**
-     * 预载入关联查询 返回数据集
-     * @access public
      * @param array     $resultSet 数据集
-     * @param string    $relation 关联名
+     * @param string    $relation 当前关联名
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @return array
+     * @return void
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
@@ -97,12 +89,14 @@ class HasMany extends Relation
     }
 
     /**
-     * 预载入关联查询 返回模型对象
+     * 预载入关联查询
      * @access public
      * @param Model     $result 数据对象
-     * @param string    $relation 关联名
+     * @param string    $relation 当前关联名
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @return Model
+     * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
@@ -221,31 +215,22 @@ class HasMany extends Relation
             ->where($where);
     }
 
-    public function __call($method, $args)
+    /**
+     * 执行基础查询（进执行一次）
+     * @access protected
+     * @return void
+     */
+    protected function baseQuery()
     {
-        static $baseQuery = false;
-        if ($this->query) {
-            if (empty($baseQuery)) {
-                $baseQuery = true;
-                if (isset($this->where)) {
-                    $this->query->where($this->where);
-                } elseif (isset($this->parent->{$this->localKey})) {
-                    // 关联查询带入关联条件
-                    $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
-                }
+        if (empty($this->baseQuery)) {
+            if (isset($this->where)) {
+                $this->query->where($this->where);
+            } elseif (isset($this->parent->{$this->localKey})) {
+                // 关联查询带入关联条件
+                $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
             }
-
-            $result = call_user_func_array([$this->query, $method], $args);
-            if ($result instanceof \think\db\Query) {
-                $this->option = $result->getOptions();
-                return $this;
-            } else {
-                $this->option = [];
-                $baseQuery    = false;
-                return $result;
-            }
-        } else {
-            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+            $this->baseQuery = true;
         }
     }
+
 }

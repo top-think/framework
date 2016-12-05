@@ -11,6 +11,8 @@
 
 namespace think\model;
 
+use think\db\Query;
+
 abstract class Relation
 {
     // 父模型对象
@@ -31,6 +33,8 @@ abstract class Relation
     protected $where;
     // 关联查询参数
     protected $option;
+    // 基础查询
+    protected $baseQuery;
 
     /**
      * 获取关联的所属模型
@@ -77,12 +81,16 @@ abstract class Relation
     public function __call($method, $args)
     {
         if ($this->query) {
+            // 执行基础查询
+            $this->baseQuery();
+
             $result = call_user_func_array([$this->query, $method], $args);
-            if ($result instanceof \think\db\Query) {
+            if ($result instanceof Query) {
                 $this->option = $result->getOptions();
                 return $this;
             } else {
-                $this->option = [];
+                $this->option    = [];
+                $this->baseQuery = false;
                 return $result;
             }
         } else {

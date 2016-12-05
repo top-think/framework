@@ -45,7 +45,10 @@ class HasManyThrough extends Relation
         $this->query      = (new $model)->db();
     }
 
-    // 动态获取关联数据
+    /**
+     * 延迟获取关联数据
+     * @access public
+     */
     public function getRelation()
     {
         return $this->select();
@@ -65,12 +68,14 @@ class HasManyThrough extends Relation
     }
 
     /**
-     * 预载入关联查询 返回数据集
+     * 预载入关联查询
      * @access public
      * @param array     $resultSet 数据集
-     * @param string    $relation 关联名
+     * @param string    $relation 当前关联名
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @return array
+     * @return void
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
@@ -81,45 +86,38 @@ class HasManyThrough extends Relation
      * 预载入关联查询 返回模型对象
      * @access public
      * @param Model     $result 数据对象
-     * @param string    $relation 关联名
+     * @param string    $relation 当前关联名
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @return Model
+     * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
 
     }
 
-    public function __call($method, $args)
+    /**
+     * 执行基础查询（进执行一次）
+     * @access protected
+     * @return void
+     */
+    protected function baseQuery()
     {
-        static $baseQuery = false;
-        if ($this->query) {
-            if (empty($baseQuery)) {
-                $baseQuery    = true;
-                $through      = $this->middle;
-                $model        = $this->model;
-                $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
-                $throughTable = $through::getTable();
-                $pk           = (new $this->model)->getPk();
-                $throughKey   = $this->throughKey;
-                $modelTable   = $this->parent->getTable();
-                $this->query->field($alias . '.*')->alias($alias)
-                    ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
-                    ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
-                    ->where($throughTable . '.' . $this->foreignKey, $this->parent->{$this->localKey});
-            }
-
-            $result = call_user_func_array([$this->query, $method], $args);
-            if ($result instanceof \think\db\Query) {
-                $this->option = $result->getOptions();
-                return $this;
-            } else {
-                $this->option = [];
-                $baseQuery    = false;
-                return $result;
-            }
-        } else {
-            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+        if (empty($this->baseQuery)) {
+            $through      = $this->middle;
+            $model        = $this->model;
+            $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
+            $throughTable = $through::getTable();
+            $pk           = (new $this->model)->getPk();
+            $throughKey   = $this->throughKey;
+            $modelTable   = $this->parent->getTable();
+            $this->query->field($alias . '.*')->alias($alias)
+                ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
+                ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
+                ->where($throughTable . '.' . $this->foreignKey, $this->parent->{$this->localKey});
+            $this->baseQuery = true;
         }
     }
+
 }
