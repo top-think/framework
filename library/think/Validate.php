@@ -1198,7 +1198,7 @@ class Validate
             $msg = $title . '规则错误';
         }
 
-        if (is_string($msg) && strpos($msg, '{%')) {
+        if (is_string($msg) && 0 === strpos($msg, '{%')) {
             $msg = Lang::get(substr($msg, 2, -1));
         }
 
