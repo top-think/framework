@@ -113,6 +113,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $batchValidate = false;
     // 查询数据集对象
     protected $resultSetType;
+    //
+    protected static $db;
 
     /**
      * 初始化过的模型.
@@ -1149,8 +1151,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function useGlobalScope($use)
     {
-        $model                 = new static();
-        $model->useGlobalScope = $use;
+        $model    = new static();
+        self::$db = $model->db($use);
         return $model;
     }
 
@@ -1433,7 +1435,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public static function __callStatic($method, $params)
     {
-        $query = (new static())->db();
+        if (isset(static::$db)) {
+            $query = static::$db;
+        } else {
+            $query = (new static())->db();
+        }
+
         return call_user_func_array([$query, $method], $params);
     }
 
