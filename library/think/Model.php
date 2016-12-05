@@ -111,6 +111,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $useGlobalScope = true;
     // 是否采用批量验证
     protected $batchValidate = false;
+    // 查询数据集对象
+    protected $resultSetType;
 
     /**
      * 初始化过的模型.
@@ -574,7 +576,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function toCollection($collection)
     {
-        return new Collection($collection);
+        if ($this->resultSetType) {
+            if ('collection' == $this->resultSetType) {
+                $collection = new Collection($collection);
+            } else {
+                $class      = $this->resultSetType;
+                $collection = new $class($collection);
+            }
+        }
+        return $collection;
     }
 
     /**

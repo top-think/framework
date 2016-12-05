@@ -1319,18 +1319,6 @@ class Query
     }
 
     /**
-     * 指定数据集返回对象
-     * @access public
-     * @param string $class 指定返回的数据集对象类名
-     * @return $this
-     */
-    public function fetchClass($class)
-    {
-        $this->options['fetch_class'] = $class;
-        return $this;
-    }
-
-    /**
      * 设置从主服务器读取数据
      * @access public
      * @return $this
@@ -1967,12 +1955,11 @@ class Query
             }
         }
 
-        // 返回结果处理
-        if (count($resultSet) > 0) {
-            // 数据列表读取后的处理
-            if (!empty($this->model)) {
-                // 生成模型对象
-                $model = $this->model;
+        // 数据列表读取后的处理
+        if (!empty($this->model)) {
+            // 生成模型对象
+            $model = $this->model;
+            if (count($resultSet) > 0) {
                 foreach ($resultSet as $key => $result) {
                     /** @var Model $result */
                     $result = new $model($result);
@@ -1983,12 +1970,16 @@ class Query
                     }
                     $resultSet[$key] = $result;
                 }
-                if (!empty($options['with']) && $result instanceof Model) {
+                if (!empty($options['with'])) {
                     // 预载入
                     $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
                 }
             }
-        } elseif (!empty($options['fail'])) {
+            // 模型数据集转换
+            $resultSet = (new $model)->toCollection($resultSet);
+        }
+        // 返回结果处理
+        if (!empty($options['fail']) && count($resultSet) == 0) {
             $this->throwNotFound($options);
         }
         return $resultSet;

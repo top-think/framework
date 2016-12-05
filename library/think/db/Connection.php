@@ -489,10 +489,7 @@ abstract class Connection
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
 
-        if (!empty($class)) {
-            // 返回指定数据集对象类
-            $result = new $class($result);
-        } elseif ('collection' == $this->resultSetType) {
+        if ('collection' == $this->resultSetType) {
             // 返回数据集Collection对象
             $result = new Collection($result);
         }
