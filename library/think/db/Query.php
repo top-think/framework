@@ -1449,6 +1449,11 @@ class Query
             $tableName = $this->parseSqlTable($tableName);
         }
 
+        // 修正子查询作为表名的问题
+        if (strpos($tableName, ')')) {
+            return [];
+        }
+
         list($guid) = explode(' ', $tableName);
         $db         = $this->getConfig('database');
         if (!isset(self::$info[$db . '.' . $guid])) {
