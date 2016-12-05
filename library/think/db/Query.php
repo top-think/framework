@@ -1985,7 +1985,7 @@ class Query
                 }
                 if (!empty($options['with']) && $result instanceof Model) {
                     // 预载入
-                    $resultSet = $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
+                    $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
                 }
             }
         } elseif (!empty($options['fail'])) {

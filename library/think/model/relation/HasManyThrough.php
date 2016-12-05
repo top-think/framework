@@ -13,6 +13,7 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
+use think\Loader;
 use think\Model;
 use think\model\Relation;
 
