@@ -57,19 +57,6 @@ class HasManyThrough extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param Query     $query 查询对象
-     * @param string    $relation 关联名
-     * @param bool      $first 是否需要使用基础表
-     * @return void
-     */
-    public function eagerly(Query $query, $relation, $subRelation, $closure, $first)
-    {
-
-    }
-
-    /**
-     * 预载入关联查询
-     * @access public
      * @param array     $resultSet 数据集
      * @param string    $relation 当前关联名
      * @param string    $subRelation 子关联名
@@ -79,7 +66,6 @@ class HasManyThrough extends Relation
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
-
     }
 
     /**
@@ -94,7 +80,6 @@ class HasManyThrough extends Relation
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
-
     }
 
     /**

@@ -73,12 +73,14 @@ class MorphTo extends Relation
     }
 
     /**
-     * 预载入关联查询 返回数据集
+     * 预载入关联查询
      * @access public
      * @param array     $resultSet 数据集
-     * @param string    $relation 关联名
+     * @param string    $relation 当前关联名
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @return array
+     * @return void
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
@@ -116,12 +118,14 @@ class MorphTo extends Relation
     }
 
     /**
-     * 预载入关联查询 返回模型对象
+     * 预载入关联查询
      * @access public
      * @param Model     $result 数据对象
-     * @param string    $relation 关联名
+     * @param string    $relation 当前关联名
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @return Model
+     * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
@@ -139,7 +143,7 @@ class MorphTo extends Relation
      * @param array     $where 关联预查询条件
      * @param string    $relation 关联名
      * @param string    $subRelation 子关联
-     * @return array
+     * @return void
      */
     protected function eagerlyMorphToOne($model, $relation, &$result, $subRelation = '')
     {

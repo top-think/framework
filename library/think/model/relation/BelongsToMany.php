@@ -186,7 +186,7 @@ class BelongsToMany extends Relation
      * @param string    $foreignKey 关联模型关联键
      * @param string    $localKey 当前模型关联键
      * @param array     $condition 关联查询条件
-     * @return \think\db\Query|string
+     * @return Query
      */
     protected function belongsToManyQuery($table, $foreignKey, $localKey, $condition = [])
     {
