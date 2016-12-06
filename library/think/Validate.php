@@ -408,6 +408,9 @@ class Validate
                     return $message;
                 } elseif (true !== $result) {
                     // 返回自定义错误信息
+                    if (is_string($result) && false !== strpos($result, ':')) {
+                        $result = str_replace([':attribute', ':rule'], [$title, (string) $rule], $result);
+                    }
                     return $result;
                 }
                 $i++;
@@ -419,13 +422,21 @@ class Validate
     /**
      * 验证是否和某个字段的值一致
      * @access protected
-     * @param mixed     $value  字段值
+     * @param mixed     $value 字段值
      * @param mixed     $rule  验证规则
      * @param array     $data  数据
+     * @param string    $field 字段名
      * @return bool
      */
-    protected function confirm($value, $rule, $data)
+    protected function confirm($value, $rule, $data, $field)
     {
+        if ('' == $rule) {
+            if (strpos($field, '_confirm')) {
+                $rule = strstr($field, '_confirm', true);
+            } else {
+                $rule = $field . '_confirm';
+            }
+        }
         return $this->getDataValue($data, $rule) == $value;
     }
 
@@ -1198,7 +1209,7 @@ class Validate
             $msg = $title . '规则错误';
         }
 
-        if (is_string($msg) && strpos($msg, '{%')) {
+        if (is_string($msg) && 0 === strpos($msg, '{%')) {
             $msg = Lang::get(substr($msg, 2, -1));
         }
 

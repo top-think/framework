@@ -133,7 +133,9 @@ class Response
         Hook::listen('response_end', $this);
 
         // 清空当次请求有效的数据
-        Session::flush();
+        if (!($this instanceof RedirectResponse)) {
+            Session::flush();
+        }
     }
 
     /**

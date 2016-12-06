@@ -27,6 +27,8 @@ use think\exception\PDOException;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
+use think\model\relation\BelongsTo;
+use think\model\relation\HasOne;
 use think\Paginator;
 
 class Query
@@ -112,6 +114,16 @@ class Query
     {
         $this->connection = Db::connect($config);
         return $this;
+    }
+
+    /**
+     * 获取当前的模型对象名
+     * @access public
+     * @return Connection
+     */
+    public function getModel()
+    {
+        return $this->model;
     }
 
     /**
@@ -977,6 +989,20 @@ class Query
     }
 
     /**
+     * 去除某个查询参数
+     * @access public
+     * @param string $option     参数名
+     * @return $this
+     */
+    public function removeOption($option)
+    {
+        if (isset($this->options[$option])) {
+            unset($this->options[$option]);
+        }
+        return $this;
+    }
+
+    /**
      * 指定查询数量
      * @access public
      * @param mixed $offset 起始位置
@@ -1293,18 +1319,6 @@ class Query
     }
 
     /**
-     * 指定数据集返回对象
-     * @access public
-     * @param string $class 指定返回的数据集对象类名
-     * @return $this
-     */
-    public function fetchClass($class)
-    {
-        $this->options['fetch_class'] = $class;
-        return $this;
-    }
-
-    /**
      * 设置从主服务器读取数据
      * @access public
      * @return $this
@@ -1433,6 +1447,11 @@ class Query
             return false;
         } else {
             $tableName = $this->parseSqlTable($tableName);
+        }
+
+        // 修正子查询作为表名的问题
+        if (strpos($tableName, ')')) {
+            return [];
         }
 
         list($guid) = explode(' ', $tableName);
@@ -1601,13 +1620,14 @@ class Query
             $with = explode(',', $with);
         }
 
-        $i            = 0;
+        $first        = true;
         $currentModel = $this->model;
 
         /** @var Model $class */
         $class = new $currentModel;
         foreach ($with as $key => $relation) {
-            $closure = false;
+            $subRelation = '';
+            $closure     = false;
             if ($relation instanceof \Closure) {
                 // 支持闭包查询过滤关联条件
                 $closure    = $relation;
@@ -1620,48 +1640,9 @@ class Query
 
             /** @var Relation $model */
             $model = $class->$relation();
-            $info  = $model->getRelationInfo();
-            if (in_array($info['type'], [Relation::HAS_ONE, Relation::BELONGS_TO])) {
-                if (0 == $i) {
-                    $name  = Loader::parseName(basename(str_replace('\\', '/', $currentModel)));
-                    $table = $this->getTable();
-                    $alias = isset($info['alias'][$name]) ? $info['alias'][$name] : $name;
-                    $this->table([$table => $alias]);
-                    if (isset($this->options['field'])) {
-                        $field = $this->options['field'];
-                        unset($this->options['field']);
-                    } else {
-                        $field = true;
-                    }
-                    $this->field($field, false, $table, $alias);
-                }
-                // 预载入封装
-                $joinTable = $model->getTable();
-                $joinName  = Loader::parseName(basename(str_replace('\\', '/', $info['model'])));
-                $joinAlias = isset($info['alias'][$joinName]) ? $info['alias'][$joinName] : $relation;
-                $this->via($joinAlias);
-
-                if (Relation::HAS_ONE == $info['type']) {
-                    $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['localKey'] . '=' . $joinAlias . '.' . $info['foreignKey'], $info['joinType']);
-                } else {
-                    $this->join($joinTable . ' ' . $joinAlias, $alias . '.' . $info['foreignKey'] . '=' . $joinAlias . '.' . $info['localKey'], $info['joinType']);
-                }
-
-                if ($closure) {
-                    // 执行闭包查询
-                    call_user_func_array($closure, [ & $this]);
-                    //指定获取关联的字段
-                    //需要在 回调中 调方法 withField 方法，如
-                    // $query->where(['id'=>1])->withField('id,name');
-                    if (!empty($this->options['with_field'])) {
-                        $field = $this->options['with_field'];
-                        unset($this->options['with_field']);
-                    }
-                } elseif (isset($info['option']['field'])) {
-                    $field = $info['option']['field'];
-                }
-                $this->field($field, false, $joinTable, $joinAlias, $relation . '__');
-                $i++;
+            if ($model instanceof HasOne || $model instanceof BelongsTo) {
+                $model->eagerly($this, $relation, $subRelation, $closure, $first);
+                $first = false;
             } elseif ($closure) {
                 $with[$key] = $closure;
             }
@@ -1979,12 +1960,11 @@ class Query
             }
         }
 
-        // 返回结果处理
-        if (count($resultSet) > 0) {
-            // 数据列表读取后的处理
-            if (!empty($this->model)) {
-                // 生成模型对象
-                $model = $this->model;
+        // 数据列表读取后的处理
+        if (!empty($this->model)) {
+            // 生成模型对象
+            $model = $this->model;
+            if (count($resultSet) > 0) {
                 foreach ($resultSet as $key => $result) {
                     /** @var Model $result */
                     $result = new $model($result);
@@ -1995,12 +1975,16 @@ class Query
                     }
                     $resultSet[$key] = $result;
                 }
-                if (!empty($options['with']) && $result instanceof Model) {
+                if (!empty($options['with'])) {
                     // 预载入
-                    $resultSet = $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
+                    $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
                 }
             }
-        } elseif (!empty($options['fail'])) {
+            // 模型数据集转换
+            $resultSet = (new $model)->toCollection($resultSet);
+        }
+        // 返回结果处理
+        if (!empty($options['fail']) && count($resultSet) == 0) {
             $this->throwNotFound($options);
         }
         return $resultSet;

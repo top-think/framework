@@ -90,7 +90,7 @@ abstract class Builder
         $result = [];
         foreach ($data as $key => $val) {
             $item = $this->parseKey($key, $options);
-            if (!in_array($key, $fields, true)) {
+            if (false === strpos($key, '.') && !in_array($key, $fields, true)) {
                 if ($options['strict']) {
                     throw new Exception('fields not exists:[' . $key . ']');
                 }
@@ -100,9 +100,10 @@ abstract class Builder
                 $result[$item] = 'NULL';
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
-                if ($this->query->isBind(substr($val, 1))) {
+                if (0 === strpos($val, ':') && $this->query->isBind(substr($val, 1))) {
                     $result[$item] = $val;
                 } else {
+                    $key = str_replace('.', '_', $key);
                     $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
                     $result[$item] = ':' . $key;
                 }

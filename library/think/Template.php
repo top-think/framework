@@ -1072,7 +1072,7 @@ class Template
                 $module = isset($module) ? $module : Request::instance()->module();
                 $path   = $this->config['view_base'] . ($module ? $module . DS : '');
             } else {
-                $path = $this->config['view_path'];
+                $path = isset($module) ? APP_PATH . $module . DS . basename($this->config['view_path']) . DS : $this->config['view_path'];
             }
             $template = $path . $template . '.' . ltrim($this->config['view_suffix'], '.');
         }

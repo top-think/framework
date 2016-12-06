@@ -84,6 +84,10 @@ class Log
     public static function record($msg, $type = 'log')
     {
         self::$log[$type][] = $msg;
+        if (IS_CLI && count(self::$log[$type]) > 100) {
+            // 命令行下面日志写入改进
+            self::save();
+        }
     }
 
     /**
