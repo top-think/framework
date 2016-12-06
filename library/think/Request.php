@@ -852,7 +852,7 @@ class Request
                     $keys  = array_keys($file);
                     $count = count($file['name']);
                     for ($i = 0; $i < $count; $i++) {
-                        if (empty($file['tmp_name'][$i])) {
+                        if (empty($file['tmp_name'][$i]) || !is_file($file['tmp_name'][$i])) {
                             continue;
                         }
                         $temp['key'] = $key;
@@ -866,7 +866,7 @@ class Request
                     if ($file instanceof File) {
                         $array[$key] = $file;
                     } else {
-                        if (empty($file['tmp_name'])) {
+                        if (empty($file['tmp_name']) || !is_file($file['tmp_name'])) {
                             continue;
                         }
                         $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
