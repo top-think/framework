@@ -330,7 +330,9 @@ abstract class Builder
         } elseif (in_array($exp, ['NOT IN', 'IN'])) {
             // IN 查询
             if ($value instanceof \Closure) {
+                $query = $this->query;
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
+                $this->query = $query;
             } else {
                 $value = is_array($value) ? $value : explode(',', $value);
                 if (array_key_exists($field, $binds)) {
@@ -376,7 +378,9 @@ abstract class Builder
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询
             if ($value instanceof \Closure) {
+                $query = $this->query;
                 $whereStr .= $exp . ' ' . $this->parseClosure($value);
+                $this->query = $query;
             } else {
                 $whereStr .= $exp . ' (' . $value . ')';
             }
