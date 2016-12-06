@@ -422,13 +422,21 @@ class Validate
     /**
      * 验证是否和某个字段的值一致
      * @access protected
-     * @param mixed     $value  字段值
+     * @param mixed     $value 字段值
      * @param mixed     $rule  验证规则
      * @param array     $data  数据
+     * @param string    $field 字段名
      * @return bool
      */
-    protected function confirm($value, $rule, $data)
+    protected function confirm($value, $rule, $data, $field)
     {
+        if ('' == $rule) {
+            if (strpos($field, '_confirm')) {
+                $rule = strstr($field, '_confirm', true);
+            } else {
+                $rule = $field . '_confirm';
+            }
+        }
         return $this->getDataValue($data, $rule) == $value;
     }
 
