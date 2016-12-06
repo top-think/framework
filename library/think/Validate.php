@@ -408,7 +408,9 @@ class Validate
                     return $message;
                 } elseif (true !== $result) {
                     // 返回自定义错误信息
-                    $result = str_replace([':attribute', ':rule'], [$title, (string) $rule], $result);
+                    if (is_string($result) && false !== strpos($result, ':')) {
+                        $result = str_replace([':attribute', ':rule'], [$title, (string) $rule], $result);
+                    }
                     return $result;
                 }
                 $i++;
