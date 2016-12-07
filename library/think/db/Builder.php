@@ -37,22 +37,33 @@ abstract class Builder
     /**
      * 架构函数
      * @access public
-     * @param Connection $connection 数据库连接对象实例
+     * @param Connection    $connection 数据库连接对象实例
+     * @param Query         $query      数据库查询对象实例
      */
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, Query $query)
     {
         $this->connection = $connection;
+        $this->query      = $query;
     }
 
     /**
-     * 设置当前的Query对象实例
-     * @access protected
-     * @param Query $query 当前查询对象实例
+     * 获取当前的连接对象实例
+     * @access public
      * @return void
      */
-    public function setQuery(Query $query)
+    public function getConnection()
     {
-        $this->query = $query;
+        return $this->connection;
+    }
+
+    /**
+     * 获取当前的Query对象实例
+     * @access public
+     * @return void
+     */
+    public function getQuery()
+    {
+        return $this->query;
     }
 
     /**
@@ -330,9 +341,7 @@ abstract class Builder
         } elseif (in_array($exp, ['NOT IN', 'IN'])) {
             // IN 查询
             if ($value instanceof \Closure) {
-                $query = $this->query;
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
-                $this->query = $query;
             } else {
                 $value = is_array($value) ? $value : explode(',', $value);
                 if (array_key_exists($field, $binds)) {
@@ -378,9 +387,7 @@ abstract class Builder
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
             // EXISTS 查询
             if ($value instanceof \Closure) {
-                $query = $this->query;
                 $whereStr .= $exp . ' ' . $this->parseClosure($value);
-                $this->query = $query;
             } else {
                 $whereStr .= $exp . ' (' . $value . ')';
             }
