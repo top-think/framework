@@ -469,6 +469,9 @@ class Query
                     $key1   = array_shift($fields);
                     $key2   = $fields ? array_shift($fields) : '';
                     $key    = $key ?: $key1;
+                    if (strpos($key, '.')) {
+                        list($alias, $key) = explode('.', $key);
+                    }
                     foreach ($resultSet as $val) {
                         if ($count > 2) {
                             $result[$val[$key]] = $val;
