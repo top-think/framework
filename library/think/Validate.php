@@ -1255,7 +1255,7 @@ class Validate
 
     public static function __callStatic($method, $params)
     {
-        $class = new static;
+        $class = self::make();
         if (method_exists($class, $method)) {
             return call_user_func_array([$class, $method], $params);
         } else {
