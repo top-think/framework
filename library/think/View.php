@@ -51,7 +51,7 @@ class View
             '__CSS__'    => $root . '/static/css',
             '__JS__'     => $root . '/static/js',
         ];
-        $this->replace = array_merge($baseReplace, $replace);
+        $this->replace = array_merge($baseReplace, (array) $replace);
     }
 
     /**
