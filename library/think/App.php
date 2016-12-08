@@ -450,9 +450,9 @@ class App
             // 监听app_init
             Hook::listen('app_init');
 
-            self::$init = $config;
+            self::$init = true;
         }
-        return self::$init;
+        return Config::get();
     }
 
     /**
