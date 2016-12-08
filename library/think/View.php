@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\Loader;
+use think\Request;
+
 class View
 {
     // 视图实例
@@ -30,11 +33,25 @@ class View
      * @param array $engine  模板引擎参数
      * @param array $replace  字符串替换参数
      */
-    public function __construct($engine = [], $replace = [])
+    public function __construct($engine = [], array $replace = [])
     {
         // 初始化模板引擎
         $this->engine((array) $engine);
-        $this->replace = $replace;
+        // 基础替换字符串
+        $request = Request::instance();
+        $base    = $request->root();
+        $root    = strpos($base, '.') ? dirname($base) : $base;
+        if ('' != $root) {
+            $root = '/' . $root;
+        }
+        $baseReplace = [
+            '__ROOT__'   => $root,
+            '__URL__'    => $base . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
+            '__STATIC__' => $root . '/static',
+            '__CSS__'    => $root . '/static/css',
+            '__JS__'     => $root . '/static/js',
+        ];
+        $this->replace = array_merge($baseReplace, $replace);
     }
 
     /**
