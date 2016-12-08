@@ -428,7 +428,7 @@ class Validate
      * @param string    $field 字段名
      * @return bool
      */
-    protected function confirm($value, $rule, $data, $field)
+    protected function confirm($value, $rule, $data, $field = '')
     {
         if ('' == $rule) {
             if (strpos($field, '_confirm')) {
