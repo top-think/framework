@@ -114,7 +114,9 @@ class Session
         if (is_null(self::$init)) {
             self::init();
         } elseif (false === self::$init) {
-            session_start();
+            if (PHP_SESSION_ACTIVE != session_status()) {
+                session_start();
+            }
             self::$init = true;
         }
     }
