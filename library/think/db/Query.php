@@ -1777,7 +1777,7 @@ class Query
         // 执行操作
         $result = $this->execute($sql, $bind);
         if ($result) {
-            $this->trigger('after_insert', $this);
+            $this->trigger('after_insert', $options);
         }
         if ($getLastInsID) {
             $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
@@ -1912,7 +1912,7 @@ class Query
             // 执行操作
             $result = '' == $sql ? 0 : $this->execute($sql, $bind);
             if ($result) {
-                $this->trigger('after_update', $this);
+                $this->trigger('after_update', $options);
             }
             return $result;
         }
@@ -1963,7 +1963,7 @@ class Query
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
-            if ($resultSet = $this->trigger('before_select', $this)) {
+            if ($resultSet = $this->trigger('before_select', $options)) {
             } else {
                 // 执行查询操作
                 $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
@@ -2062,7 +2062,7 @@ class Query
             }
 
             // 事件回调
-            if ($result = $this->trigger('before_find', $this)) {
+            if ($result = $this->trigger('before_find', $options)) {
             } else {
                 // 执行查询
                 $result = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
@@ -2270,7 +2270,7 @@ class Query
         // 执行操作
         $result = $this->execute($sql, $bind);
         if ($result) {
-            $this->trigger('after_delete', $this);
+            $this->trigger('after_delete', $options);
         }
         return $result;
     }
@@ -2378,15 +2378,15 @@ class Query
      * 触发事件
      * @access protected
      * @param string    $event 事件名
-     * @param mixed     $params 传入参数（引用）
+     * @param mixed     $options 当前查询参数
      * @return bool
      */
-    protected function trigger($event, &$params)
+    protected function trigger($event, $options = [])
     {
         $result = false;
         if (isset(self::$event[$event])) {
             $callback = self::$event[$event];
-            $result   = call_user_func_array($callback, [ & $params]);
+            $result   = call_user_func_array($callback, [$options, $this]);
         }
         return $result;
     }
