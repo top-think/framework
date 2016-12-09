@@ -40,9 +40,9 @@ class View
         // 基础替换字符串
         $request = Request::instance();
         $base    = $request->root();
-        $root    = strpos($base, '.') ? ltrim(dirname($base), '\\') : $base;
+        $root    = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
         if ('' != $root) {
-            $root = '/' . $root;
+            $root = '/' . ltrim($root, '/');
         }
         $baseReplace = [
             '__ROOT__'   => $root,
