@@ -12,6 +12,8 @@
 namespace think\model;
 
 use think\db\Query;
+use think\Exception;
+use think\Model;
 
 abstract class Relation
 {
@@ -39,15 +41,27 @@ abstract class Relation
     /**
      * 获取关联的所属模型
      * @access public
+     * @return Model
      */
-    public function getModel()
+    public function getParent()
     {
         return $this->parent;
     }
 
     /**
+     * 获取当前的关联模型类
+     * @access public
+     * @return string
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
      * 获取关联的查询对象
      * @access public
+     * @return Query
      */
     public function getQuery()
     {

@@ -35,7 +35,7 @@ class Query
 {
     // 数据库Connection对象实例
     protected $connection;
-    // 数据库驱动类型
+    // 数据库Builder对象实例
     protected $builder;
     // 当前模型类名称
     protected $model;
@@ -53,6 +53,8 @@ class Query
     protected $bind = [];
     // 数据表信息
     protected static $info = [];
+    // 回调事件
+    private static $event = [];
 
     /**
      * 架构函数
@@ -63,9 +65,10 @@ class Query
     public function __construct(Connection $connection = null, $model = '')
     {
         $this->connection = $connection ?: Db::connect([], true);
-        $this->builder    = $this->connection->getConfig('builder') ?: $this->connection->getConfig('type');
         $this->prefix     = $this->connection->getConfig('prefix');
         $this->model      = $model;
+        // 设置当前连接的Builder对象
+        $this->setBuilder();
     }
 
     /**
@@ -113,17 +116,40 @@ class Query
     public function connect($config)
     {
         $this->connection = Db::connect($config);
+        $this->setBuilder();
         return $this;
+    }
+
+    /**
+     * 设置当前的数据库Builder对象
+     * @access protected
+     * @return void
+     */
+    protected function setBuilder()
+    {
+        $builder       = $this->connection->getConfig('builder') ?: $this->connection->getConfig('type');
+        $class         = false !== strpos($builder, '\\') ? $builder : '\\think\\db\\builder\\' . ucfirst($builder);
+        $this->builder = new $class($this->connection, $this);
     }
 
     /**
      * 获取当前的模型对象名
      * @access public
-     * @return Connection
+     * @return string
      */
     public function getModel()
     {
         return $this->model;
+    }
+
+    /**
+     * 获取当前的builder实例对象
+     * @access public
+     * @return Builder
+     */
+    public function getBuilder()
+    {
+        return $this->builder;
     }
 
     /**
@@ -363,24 +389,6 @@ class Query
     }
 
     /**
-     * 获取当前的builder实例对象
-     * @access protected
-     * @return Builder
-     */
-    protected function builder()
-    {
-        static $builder = [];
-        $driver         = $this->builder;
-        if (!isset($builder[$driver])) {
-            $class            = false !== strpos($driver, '\\') ? $driver : '\\think\\db\\builder\\' . ucfirst($driver);
-            $builder[$driver] = new $class($this->connection);
-        }
-        // 设置当前查询对象
-        $builder[$driver]->setQuery($this);
-        return $builder[$driver];
-    }
-
-    /**
      * 得到某个字段的值
      * @access public
      * @param string $field   字段名
@@ -469,6 +477,9 @@ class Query
                     $key1   = array_shift($fields);
                     $key2   = $fields ? array_shift($fields) : '';
                     $key    = $key ?: $key1;
+                    if (strpos($key, '.')) {
+                        list($alias, $key) = explode('.', $key);
+                    }
                     foreach ($resultSet as $val) {
                         if ($count > 2) {
                             $result[$val[$key]] = $val;
@@ -716,6 +727,9 @@ class Query
             }
         }
         if (isset($alias)) {
+            if (isset($this->options['alias'][$table])) {
+                $table = $table . '@think' . uniqid();
+            }
             $table = [$table => $alias];
             $this->alias($table);
         }
@@ -1097,7 +1111,6 @@ class Query
         if (is_string($table)) {
             if (strpos($table, ')')) {
                 // 子查询
-                $table = $table;
             } elseif (strpos($table, ',')) {
                 $tables = explode(',', $table);
                 $table  = [];
@@ -1112,7 +1125,8 @@ class Query
                 }
             } elseif (strpos($table, ' ')) {
                 list($table, $alias) = explode(' ', $table);
-                $table               = [$table => $alias];
+
+                $table = [$table => $alias];
                 $this->alias($table);
             }
         } else {
@@ -1752,7 +1766,7 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
         // 生成SQL语句
-        $sql = $this->builder()->insert($data, $options, $replace);
+        $sql = $this->builder->insert($data, $options, $replace);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1762,6 +1776,9 @@ class Query
 
         // 执行操作
         $result = $this->execute($sql, $bind);
+        if ($result) {
+            $this->trigger('after_insert', $options);
+        }
         if ($getLastInsID) {
             $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             return $this->getLastInsID($sequence);
@@ -1796,7 +1813,7 @@ class Query
             return false;
         }
         // 生成SQL语句
-        $sql = $this->builder()->insertAll($dataSet, $options);
+        $sql = $this->builder->insertAll($dataSet, $options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1822,7 +1839,7 @@ class Query
         $options = $this->parseExpress();
         // 生成SQL语句
         $table = $this->parseSqlTable($table);
-        $sql   = $this->builder()->selectInsert($fields, $table, $options);
+        $sql   = $this->builder->selectInsert($fields, $table, $options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1880,7 +1897,7 @@ class Query
             $key = 'think:' . $options['table'] . '|' . $options['where']['AND'][$pk];
         }
         // 生成UPDATE SQL语句
-        $sql = $this->builder()->update($data, $options);
+        $sql = $this->builder->update($data, $options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1893,7 +1910,11 @@ class Query
                 Cache::rm($key);
             }
             // 执行操作
-            return '' == $sql ? 0 : $this->execute($sql, $bind);
+            $result = '' == $sql ? 0 : $this->execute($sql, $bind);
+            if ($result) {
+                $this->trigger('after_update', $options);
+            }
+            return $result;
         }
     }
 
@@ -1935,19 +1956,22 @@ class Query
         }
         if (!$resultSet) {
             // 生成查询SQL
-            $sql = $this->builder()->select($options);
+            $sql = $this->builder->select($options);
             // 获取参数绑定
             $bind = $this->getBind();
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
-            // 执行查询操作
-            $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+            if ($resultSet = $this->trigger('before_select', $options)) {
+            } else {
+                // 执行查询操作
+                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
 
-            if ($resultSet instanceof \PDOStatement) {
-                // 返回PDOStatement对象
-                return $resultSet;
+                if ($resultSet instanceof \PDOStatement) {
+                    // 返回PDOStatement对象
+                    return $resultSet;
+                }
             }
 
             if (isset($cache)) {
@@ -2029,19 +2053,24 @@ class Query
         }
         if (!$result) {
             // 生成查询SQL
-            $sql = $this->builder()->select($options);
+            $sql = $this->builder->select($options);
             // 获取参数绑定
             $bind = $this->getBind();
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
-            // 执行查询
-            $result = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
 
-            if ($result instanceof \PDOStatement) {
-                // 返回PDOStatement对象
-                return $result;
+            // 事件回调
+            if ($result = $this->trigger('before_find', $options)) {
+            } else {
+                // 执行查询
+                $result = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+
+                if ($result instanceof \PDOStatement) {
+                    // 返回PDOStatement对象
+                    return $result;
+                }
             }
 
             if (isset($cache)) {
@@ -2225,7 +2254,7 @@ class Query
             throw new Exception('delete without condition');
         }
         // 生成删除SQL语句
-        $sql = $this->builder()->delete($options);
+        $sql = $this->builder->delete($options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -2239,7 +2268,11 @@ class Query
             Cache::rm($key);
         }
         // 执行操作
-        return $this->execute($sql, $bind);
+        $result = $this->execute($sql, $bind);
+        if ($result) {
+            $this->trigger('after_delete', $options);
+        }
+        return $result;
     }
 
     /**
@@ -2329,4 +2362,32 @@ class Query
         return $options;
     }
 
+    /**
+     * 注册回调方法
+     * @access public
+     * @param string        $event 事件名
+     * @param callable      $callback 回调方法
+     * @return void
+     */
+    public static function event($event, $callback)
+    {
+        self::$event[$event] = $callback;
+    }
+
+    /**
+     * 触发事件
+     * @access protected
+     * @param string    $event 事件名
+     * @param mixed     $options 当前查询参数
+     * @return bool
+     */
+    protected function trigger($event, $options = [])
+    {
+        $result = false;
+        if (isset(self::$event[$event])) {
+            $callback = self::$event[$event];
+            $result   = call_user_func_array($callback, [$options, $this]);
+        }
+        return $result;
+    }
 }

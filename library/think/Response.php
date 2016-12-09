@@ -284,7 +284,11 @@ class Response
      */
     public function getHeader($name = '')
     {
-        return !empty($name) ? $this->header[$name] : $this->header;
+        if (!empty($name)) {
+            return isset($this->header[$name]) ? $this->header[$name] : null;
+        } else {
+            return $this->header;
+        }
     }
 
     /**

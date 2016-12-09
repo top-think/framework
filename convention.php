@@ -115,7 +115,9 @@ return [
     'template'               => [
         // 模板引擎类型 支持 php think 支持扩展
         'type'         => 'Think',
-        // 模板路径
+        // 视图基础目录，配置目录为所有模块的视图起始目录
+        'view_base'    => '',
+        // 当前模板的视图目录 留空为自动获取
         'view_path'    => '',
         // 模板后缀
         'view_suffix'  => 'html',

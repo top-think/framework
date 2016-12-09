@@ -142,6 +142,41 @@ class MorphMany extends Relation
     }
 
     /**
+     * 保存（新增）当前关联数据对象
+     * @access public
+     * @param mixed     $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
+     * @return integer
+     */
+    public function save($data)
+    {
+        if ($data instanceof Model) {
+            $data = $data->getData();
+        }
+        // 保存关联表数据
+        $pk = $this->parent->getPk();
+
+        $data[$this->morphKey]  = $this->parent->$pk;
+        $data[$this->morphType] = $this->type;
+        $model                  = new $this->model;
+        return $model->save($data);
+    }
+
+    /**
+     * 批量保存当前关联数据对象
+     * @access public
+     * @param array     $dataSet 数据集
+     * @return integer
+     */
+    public function saveAll(array $dataSet)
+    {
+        $result = false;
+        foreach ($dataSet as $key => $data) {
+            $result = $this->save($data);
+        }
+        return $result;
+    }
+
+    /**
      * 执行基础查询（进执行一次）
      * @access protected
      * @return void

@@ -21,6 +21,8 @@ class Php
 {
     // 模板引擎参数
     protected $config = [
+        // 视图基础目录（集中式）
+        'view_base'   => '',
         // 模板起始路径
         'view_path'   => '',
         // 模板文件后缀
@@ -109,20 +111,26 @@ class Php
             $this->config['view_path'] = App::$modulePath . 'view' . DS;
         }
 
+        $request = Request::instance();
+        // 获取视图根目录
         if (strpos($template, '@')) {
+            // 跨模块调用
             list($module, $template) = explode('@', $template);
-            $path                    = APP_PATH . $module . DS . 'view' . DS;
+        }
+        if ($this->config['view_base']) {
+            // 基础视图目录
+            $module = isset($module) ? $module : $request->module();
+            $path   = $this->config['view_base'] . ($module ? $module . DS : '');
         } else {
-            $path = $this->config['view_path'];
+            $path = isset($module) ? APP_PATH . $module . DS . 'view' . DS : $this->config['view_path'];
         }
 
-        // 分析模板文件规则
-        $request    = Request::instance();
-        $controller = Loader::parseName($request->controller());
-        $depr       = $this->config['view_depr'];
+        $depr = $this->config['view_depr'];
         if (0 !== strpos($template, '/')) {
             $template = str_replace(['/', ':'], $depr, $template);
         }
+
+        $controller = Loader::parseName($request->controller());
         if ($controller) {
             if ('' == $template) {
                 // 如果模板文件名为空 按照默认规则定位
