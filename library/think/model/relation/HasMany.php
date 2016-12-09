@@ -182,7 +182,7 @@ class HasMany extends Relation
      * @param string    $id 关联表的统计字段
      * @return Query
      */
-    public static function has($model, $operator = '>=', $count = 1, $id = '*')
+    public function has($model, $operator = '>=', $count = 1, $id = '*')
     {
         $table = $this->query->getTable();
         return $model->db()->alias('a')
@@ -198,7 +198,7 @@ class HasMany extends Relation
      * @param mixed     $where 查询条件（数组或者闭包）
      * @return Query
      */
-    public static function hasWhere($model, $where = [])
+    public function hasWhere($model, $where = [])
     {
         $table = $this->query->getTable();
         if (is_array($where)) {
