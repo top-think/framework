@@ -167,8 +167,7 @@ class HasMany extends Relation
     {
         $result = false;
         foreach ($dataSet as $key => $data) {
-            $data[$this->foreignKey] = $this->parent->{$this->localKey};
-            $result                  = $this->save($data);
+            $result = $this->save($data);
         }
         return $result;
     }
