@@ -292,7 +292,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 标记字段更改
-        if (!isset($this->data[$name]) || (0 !== strcmp($this->data[$name], $value) && !in_array($name, $this->change))) {
+        if (isset($this->data[$name]) && is_scalar($this->data[$name]) && is_scalar($value) && 0 !== strcmp($this->data[$name], $value)) {
+            $this->change[] = $name;
+        } elseif (!isset($this->data[$name]) || $value != $this->data[$name]) {
             $this->change[] = $name;
         }
         // 设置数据对象属性
@@ -485,11 +487,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 设置需要追加的输出属性
      * @access public
      * @param array $append 属性列表
+     * @param bool  $override  是否覆盖
      * @return $this
      */
-    public function append($append = [])
+    public function append($append = [], $override = false)
     {
-        $this->append = $append;
+        $this->append = $override ? $append : array_merge($this->append, $append);
         return $this;
     }
 
@@ -497,22 +500,24 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 设置需要隐藏的输出属性
      * @access public
      * @param array $hidden 属性列表
+     * @param bool  $override  是否覆盖
      * @return $this
      */
-    public function hidden($hidden = [])
+    public function hidden($hidden = [], $override = false)
     {
-        $this->hidden = $hidden;
+        $this->hidden = $override ? $hidden : array_merge($this->hidden, $hidden);
         return $this;
     }
 
     /**
      * 设置需要输出的属性
      * @param array $visible
+     * @param bool  $override  是否覆盖
      * @return $this
      */
-    public function visible($visible = [])
+    public function visible($visible = [], $override = false)
     {
-        $this->visible = $visible;
+        $this->visible = $override ? $visible : array_merge($this->visible, $visible);
         return $this;
     }
 
@@ -728,7 +733,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $result = $this->db()->insert($this->data);
 
             // 获取自动增长主键
-            if ($result && is_string($pk) && !isset($this->data[$pk])) {
+            if ($result && is_string($pk) && (!isset($this->data[$pk]) || '' == $this->data[$pk])) {
                 $insertId = $this->db()->getLastInsID($sequence);
                 if ($insertId) {
                     $this->data[$pk] = $insertId;

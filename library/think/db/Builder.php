@@ -37,22 +37,33 @@ abstract class Builder
     /**
      * 架构函数
      * @access public
-     * @param Connection $connection 数据库连接对象实例
+     * @param Connection    $connection 数据库连接对象实例
+     * @param Query         $query      数据库查询对象实例
      */
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, Query $query)
     {
         $this->connection = $connection;
+        $this->query      = $query;
     }
 
     /**
-     * 设置当前的Query对象实例
-     * @access protected
-     * @param Query $query 当前查询对象实例
+     * 获取当前的连接对象实例
+     * @access public
      * @return void
      */
-    public function setQuery(Query $query)
+    public function getConnection()
     {
-        $this->query = $query;
+        return $this->connection;
+    }
+
+    /**
+     * 获取当前的Query对象实例
+     * @access public
+     * @return void
+     */
+    public function getQuery()
+    {
+        return $this->query;
     }
 
     /**
@@ -183,6 +194,9 @@ abstract class Builder
         $item = [];
         foreach ((array) $tables as $key => $table) {
             if (!is_numeric($key)) {
+                if (strpos($key, '@think')) {
+                    $key = strstr($key, '@think', true);
+                }
                 $key    = $this->parseSqlTable($key);
                 $item[] = $this->parseKey($key) . ' ' . $this->parseKey($table);
             } else {

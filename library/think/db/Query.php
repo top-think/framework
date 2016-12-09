@@ -35,7 +35,7 @@ class Query
 {
     // 数据库Connection对象实例
     protected $connection;
-    // 数据库驱动类型
+    // 数据库Builder对象实例
     protected $builder;
     // 当前模型类名称
     protected $model;
@@ -63,9 +63,10 @@ class Query
     public function __construct(Connection $connection = null, $model = '')
     {
         $this->connection = $connection ?: Db::connect([], true);
-        $this->builder    = $this->connection->getConfig('builder') ?: $this->connection->getConfig('type');
         $this->prefix     = $this->connection->getConfig('prefix');
         $this->model      = $model;
+        // 设置当前连接的Builder对象
+        $this->setBuilder();
     }
 
     /**
@@ -113,17 +114,40 @@ class Query
     public function connect($config)
     {
         $this->connection = Db::connect($config);
+        $this->setBuilder();
         return $this;
+    }
+
+    /**
+     * 设置当前的数据库Builder对象
+     * @access protected
+     * @return void
+     */
+    protected function setBuilder()
+    {
+        $builder       = $this->connection->getConfig('builder') ?: $this->connection->getConfig('type');
+        $class         = false !== strpos($builder, '\\') ? $builder : '\\think\\db\\builder\\' . ucfirst($builder);
+        $this->builder = new $class($this->connection, $this);
     }
 
     /**
      * 获取当前的模型对象名
      * @access public
-     * @return Connection
+     * @return string
      */
     public function getModel()
     {
         return $this->model;
+    }
+
+    /**
+     * 获取当前的builder实例对象
+     * @access public
+     * @return Builder
+     */
+    public function getBuilder()
+    {
+        return $this->builder;
     }
 
     /**
@@ -363,24 +387,6 @@ class Query
     }
 
     /**
-     * 获取当前的builder实例对象
-     * @access protected
-     * @return Builder
-     */
-    protected function builder()
-    {
-        static $builder = [];
-        $driver         = $this->builder;
-        if (!isset($builder[$driver])) {
-            $class            = false !== strpos($driver, '\\') ? $driver : '\\think\\db\\builder\\' . ucfirst($driver);
-            $builder[$driver] = new $class($this->connection);
-        }
-        // 设置当前查询对象
-        $builder[$driver]->setQuery($this);
-        return $builder[$driver];
-    }
-
-    /**
      * 得到某个字段的值
      * @access public
      * @param string $field   字段名
@@ -469,6 +475,9 @@ class Query
                     $key1   = array_shift($fields);
                     $key2   = $fields ? array_shift($fields) : '';
                     $key    = $key ?: $key1;
+                    if (strpos($key, '.')) {
+                        list($alias, $key) = explode('.', $key);
+                    }
                     foreach ($resultSet as $val) {
                         if ($count > 2) {
                             $result[$val[$key]] = $val;
@@ -716,6 +725,9 @@ class Query
             }
         }
         if (isset($alias)) {
+            if (isset($this->options['alias'][$table])) {
+                $table = $table . '@think' . uniqid();
+            }
             $table = [$table => $alias];
             $this->alias($table);
         }
@@ -1752,7 +1764,7 @@ class Query
         // 分析查询表达式
         $options = $this->parseExpress();
         // 生成SQL语句
-        $sql = $this->builder()->insert($data, $options, $replace);
+        $sql = $this->builder->insert($data, $options, $replace);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1796,7 +1808,7 @@ class Query
             return false;
         }
         // 生成SQL语句
-        $sql = $this->builder()->insertAll($dataSet, $options);
+        $sql = $this->builder->insertAll($dataSet, $options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1822,7 +1834,7 @@ class Query
         $options = $this->parseExpress();
         // 生成SQL语句
         $table = $this->parseSqlTable($table);
-        $sql   = $this->builder()->selectInsert($fields, $table, $options);
+        $sql   = $this->builder->selectInsert($fields, $table, $options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1880,7 +1892,7 @@ class Query
             $key = 'think:' . $options['table'] . '|' . $options['where']['AND'][$pk];
         }
         // 生成UPDATE SQL语句
-        $sql = $this->builder()->update($data, $options);
+        $sql = $this->builder->update($data, $options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -1935,7 +1947,7 @@ class Query
         }
         if (!$resultSet) {
             // 生成查询SQL
-            $sql = $this->builder()->select($options);
+            $sql = $this->builder->select($options);
             // 获取参数绑定
             $bind = $this->getBind();
             if ($options['fetch_sql']) {
@@ -2029,7 +2041,7 @@ class Query
         }
         if (!$result) {
             // 生成查询SQL
-            $sql = $this->builder()->select($options);
+            $sql = $this->builder->select($options);
             // 获取参数绑定
             $bind = $this->getBind();
             if ($options['fetch_sql']) {
@@ -2225,7 +2237,7 @@ class Query
             throw new Exception('delete without condition');
         }
         // 生成删除SQL语句
-        $sql = $this->builder()->delete($options);
+        $sql = $this->builder->delete($options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {

@@ -12,6 +12,7 @@
 namespace think\model;
 
 use think\db\Query;
+use think\Exception;
 
 abstract class Relation
 {

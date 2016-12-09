@@ -770,6 +770,10 @@ class Route
                 }
             }
             if (!empty($item)) {
+                if (isset($panDomain)) {
+                    // 保存当前泛域名
+                    $request->route(['__domain__' => $panDomain]);
+                }
                 if (isset($item['[bind]'])) {
                     // 解析子域名部署规则
                     list($rule, $option, $pattern) = $item['[bind]'];

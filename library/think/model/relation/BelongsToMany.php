@@ -256,8 +256,7 @@ class BelongsToMany extends Relation
             $pk                       = $this->parent->getPk();
             $pivot[$this->localKey]   = $this->parent->$pk;
             $pivot[$this->foreignKey] = $id;
-            $query                    = clone $this->parent->db();
-            return $query->table($this->middle)->insert($pivot);
+            return $this->query->table($this->middle)->insert($pivot);
         } else {
             throw new Exception('miss relation data');
         }
@@ -288,8 +287,7 @@ class BelongsToMany extends Relation
         if (isset($id)) {
             $pivot[$this->foreignKey] = is_array($id) ? ['in', $id] : $id;
         }
-        $query = clone $this->parent->db();
-        $query->table($this->middle)->where($pivot)->delete();
+        $this->query->table($this->middle)->where($pivot)->delete();
 
         // 删除关联表数据
         if (isset($id) && $relationDel) {

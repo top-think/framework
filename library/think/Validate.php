@@ -428,7 +428,7 @@ class Validate
      * @param string    $field 字段名
      * @return bool
      */
-    protected function confirm($value, $rule, $data, $field)
+    protected function confirm($value, $rule, $data, $field = '')
     {
         if ('' == $rule) {
             if (strpos($field, '_confirm')) {
@@ -1255,7 +1255,7 @@ class Validate
 
     public static function __callStatic($method, $params)
     {
-        $class = new static;
+        $class = self::make();
         if (method_exists($class, $method)) {
             return call_user_func_array([$class, $method], $params);
         } else {
