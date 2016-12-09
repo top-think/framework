@@ -54,7 +54,7 @@ class File
         }
 
         $depr = $depr ? "---------------------------------------------------------------\r\n" : '';
-
+        $info = '';
         if (App::$debug) {
             // 获取基本信息
             if (isset($_SERVER['HTTP_HOST'])) {
