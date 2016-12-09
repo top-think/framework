@@ -437,7 +437,7 @@ abstract class Builder
             $info = $type[$key];
         }
         if (isset($info)) {
-            if (is_numeric($value) && strtotime($value)) {
+            if (is_string($value)) {
                 $value = strtotime($value) ?: $value;
             }
 
