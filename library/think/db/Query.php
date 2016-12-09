@@ -1111,7 +1111,6 @@ class Query
         if (is_string($table)) {
             if (strpos($table, ')')) {
                 // 子查询
-                $table = $table;
             } elseif (strpos($table, ',')) {
                 $tables = explode(',', $table);
                 $table  = [];
@@ -1126,7 +1125,8 @@ class Query
                 }
             } elseif (strpos($table, ' ')) {
                 list($table, $alias) = explode(' ', $table);
-                $table               = [$table => $alias];
+
+                $table = [$table => $alias];
                 $this->alias($table);
             }
         } else {
