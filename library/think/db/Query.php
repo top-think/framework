@@ -53,6 +53,8 @@ class Query
     protected $bind = [];
     // 数据表信息
     protected static $info = [];
+    // 回调事件
+    private static $event = [];
 
     /**
      * 架构函数
@@ -1774,6 +1776,9 @@ class Query
 
         // 执行操作
         $result = $this->execute($sql, $bind);
+        if ($result) {
+            $this->trigger('after_insert', $this);
+        }
         if ($getLastInsID) {
             $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             return $this->getLastInsID($sequence);
@@ -1905,7 +1910,11 @@ class Query
                 Cache::rm($key);
             }
             // 执行操作
-            return '' == $sql ? 0 : $this->execute($sql, $bind);
+            $result = '' == $sql ? 0 : $this->execute($sql, $bind);
+            if ($result) {
+                $this->trigger('after_update', $this);
+            }
+            return $result;
         }
     }
 
@@ -1954,12 +1963,15 @@ class Query
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
-            // 执行查询操作
-            $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+            if ($resultSet = $this->trigger('before_select', $this)) {
+            } else {
+                // 执行查询操作
+                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
 
-            if ($resultSet instanceof \PDOStatement) {
-                // 返回PDOStatement对象
-                return $resultSet;
+                if ($resultSet instanceof \PDOStatement) {
+                    // 返回PDOStatement对象
+                    return $resultSet;
+                }
             }
 
             if (isset($cache)) {
@@ -2048,12 +2060,17 @@ class Query
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
-            // 执行查询
-            $result = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
 
-            if ($result instanceof \PDOStatement) {
-                // 返回PDOStatement对象
-                return $result;
+            // 事件回调
+            if ($result = $this->trigger('before_find', $this)) {
+            } else {
+                // 执行查询
+                $result = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+
+                if ($result instanceof \PDOStatement) {
+                    // 返回PDOStatement对象
+                    return $result;
+                }
             }
 
             if (isset($cache)) {
@@ -2251,7 +2268,11 @@ class Query
             Cache::rm($key);
         }
         // 执行操作
-        return $this->execute($sql, $bind);
+        $result = $this->execute($sql, $bind);
+        if ($result) {
+            $this->trigger('after_delete', $this);
+        }
+        return $result;
     }
 
     /**
@@ -2341,4 +2362,32 @@ class Query
         return $options;
     }
 
+    /**
+     * 注册回调方法
+     * @access public
+     * @param string        $event 事件名
+     * @param callable      $callback 回调方法
+     * @return void
+     */
+    public static function event($event, $callback)
+    {
+        self::$event[$event] = $callback;
+    }
+
+    /**
+     * 触发事件
+     * @access protected
+     * @param string    $event 事件名
+     * @param mixed     $params 传入参数（引用）
+     * @return bool
+     */
+    protected function trigger($event, &$params)
+    {
+        $result = false;
+        if (isset(self::$event[$event])) {
+            $callback = self::$event[$event];
+            $result   = call_user_func_array($callback, [ & $params]);
+        }
+        return $result;
+    }
 }
