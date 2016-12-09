@@ -19,7 +19,7 @@ namespace tests\thinkphp\library\think;
 
 use \think\Hook;
 
-class hookTest extends \PHPUnit_Framework_TestCase
+class hookTestNew extends \PHPUnit_Framework_TestCase
 {
 
     public function testRun()
@@ -29,32 +29,17 @@ class hookTest extends \PHPUnit_Framework_TestCase
         Hook::add('my_pos', '\tests\thinkphp\library\think\behavior\Three', true);
         $data['id']   = 0;
         $data['name'] = 'thinkphp';
-        Hook::listen('my_pos', $data);
+        for ($i = 0; $i < 1000; $i++) {
+
+            Hook::listen('my_pos', $data);
+        }
+
         $this->assertEquals(2, $data['id']);
         $this->assertEquals('thinkphp', $data['name']);
         $this->assertEquals([
             '\tests\thinkphp\library\think\behavior\Three',
             '\tests\thinkphp\library\think\behavior\One',
             '\tests\thinkphp\library\think\behavior\Two'], Hook::get('my_pos'));
-    }
-
-    public function testStatic()
-    {
-
-        Hook::add('my_pos2', '\tests\thinkphp\library\think\behavior\StaticDemo');
-        $data2 = [];
-        Hook::setStatic('my_pos2');
-        $this->assertEquals(true, Hook::isStatic('my_pos2'));
-        Hook::listen('my_pos2', $data2);
-        $this->assertEquals('run', $data2['function']);
-
-        //第二组测试
-        Hook::add('my_pos3', '\tests\thinkphp\library\think\behavior\StaticDemo');
-        $data3 = [];
-        Hook::setStatic('my_pos3');
-        $this->assertEquals(true, Hook::isStatic('my_pos3'));
-        Hook::listen('my_pos3', $data3);
-        $this->assertEquals('my_pos3', $data3['function']);
     }
 
     public function testImport()
