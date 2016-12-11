@@ -1653,7 +1653,8 @@ class Query
             }
 
             /** @var Relation $model */
-            $model = $class->$relation();
+            $relation = Loader::parseName($relation, 1);
+            $model    = $class->$relation();
             if ($model instanceof HasOne || $model instanceof BelongsTo) {
                 $model->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;

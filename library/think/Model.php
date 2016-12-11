@@ -1245,6 +1245,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
+            $relation = Loader::parseName($relation, 1);
             $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class);
         }
     }
@@ -1271,6 +1272,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
+            $relation = Loader::parseName($relation, 1);
             $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class);
         }
     }
