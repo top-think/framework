@@ -362,6 +362,7 @@ class Validate
             foreach ($rules as $key => $rule) {
                 if ($rule instanceof \Closure) {
                     $result = call_user_func_array($rule, [$value, $data]);
+                    $info   = is_numeric($key) ? '' : $key;
                 } else {
                     // 判断验证类型
                     if (is_numeric($key)) {
