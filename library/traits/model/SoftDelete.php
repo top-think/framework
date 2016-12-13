@@ -77,8 +77,8 @@ trait SoftDelete
      */
     public static function destroy($data, $force = false)
     {
-        $model = new static();
-        $query = $model->db();
+        // 包含软删除数据
+        $query = self::withTrashed();
         if (is_array($data) && key($data) !== 0) {
             $query->where($data);
             $data = null;
@@ -109,9 +109,13 @@ trait SoftDelete
     public function restore($where = [])
     {
         $name = $this->getDeleteTimeField();
+        if (empty($where)) {
+            $pk           = $this->getPk();
+            $where[$pk]   = $this->getData($pk);
+            $where[$name] = ['not null', ''];
+        }
         // 恢复删除
-        return $this->isUpdate()->save([$name => null], $where);
-
+        return $this->removeWhereField($this->getDeleteTimeField(true))->where($where)->update([$name => null]);
     }
 
     /**
