@@ -19,8 +19,11 @@ use think\model\relation\BelongsTo;
 
 abstract class OneToOne extends Relation
 {
+    // 预载入方式
+    protected $eagerlyType = 0;
+
     /**
-     * 预载入关联查询
+     * 预载入关联查询（JOIN方式）
      * @access public
      * @param Query     $query 查询对象
      * @param string    $relation 关联名
@@ -76,7 +79,7 @@ abstract class OneToOne extends Relation
     }
 
     /**
-     * 预载入关联查询
+     * 预载入关联查询（数据集）
      * @access public
      * @param array     $resultSet 数据集
      * @param string    $relation 当前关联名
@@ -85,16 +88,21 @@ abstract class OneToOne extends Relation
      * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
-        foreach ($resultSet as $result) {
+        if (1 == $this->eagerlyType) {
+            // IN查询
+            $this->eagerlySet($resultSet, $relation, $subRelation, $closure, $class);
+        } else {
             // 模型关联组装
-            $this->match($this->model, $relation, $result);
+            foreach ($resultSet as $result) {
+                $this->match($this->model, $relation, $result);
+            }
         }
     }
 
     /**
-     * 预载入关联查询 返回模型对象
+     * 预载入关联查询（数据）
      * @access public
      * @param Model     $result 数据对象
      * @param string    $relation 当前关联名
@@ -103,10 +111,54 @@ abstract class OneToOne extends Relation
      * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResult(&$result, $relation)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
-        // 模型关联组装
-        $this->match($this->model, $relation, $result);
+        if (1 == $this->eagerlyType) {
+            // IN查询
+            $this->eagerlyOne($result, $relation, $subRelation, $closure, $class);
+        } else {
+            // 模型关联组装
+            $this->match($this->model, $relation, $result);
+        }
+    }
+
+    /**
+     * 保存（新增）当前关联数据对象
+     * @access public
+     * @param mixed     $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
+     * @return integer
+     */
+    public function save($data)
+    {
+        if ($data instanceof Model) {
+            $data = $data->getData();
+        }
+        // 保存关联表数据
+        $data[$this->foreignKey] = $this->parent->{$this->localKey};
+        $model                   = new $this->model;
+        return $model->save($data);
+    }
+
+    /**
+     * 设置预载入方式
+     * @access public
+     * @param integer     $type 预载入方式 0 JOIN查询 1 IN查询
+     * @return this
+     */
+    public function setEagerlyType($type)
+    {
+        $this->eagerlyType = $type;
+        return $this;
+    }
+
+    /**
+     * 获取预载入方式
+     * @access public
+     * @return integer
+     */
+    public function getEagerlyType()
+    {
+        return $this->eagerlyType;
     }
 
     /**
@@ -134,20 +186,30 @@ abstract class OneToOne extends Relation
     }
 
     /**
-     * 保存（新增）当前关联数据对象
+     * 一对一 关联模型预查询（IN方式）
      * @access public
-     * @param mixed     $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
-     * @return integer
+     * @param object    $model 关联模型对象
+     * @param array     $where 关联预查询条件
+     * @param string    $key 关联键名
+     * @param string    $relation 关联名
+     * @param string    $subRelation 子关联
+     * @param bool      $closure
+     * @return array
      */
-    public function save($data)
+    protected function eagerlyWhere($model, $where, $key, $relation, $subRelation = '', $closure = false)
     {
-        if ($data instanceof Model) {
-            $data = $data->getData();
+        // 预载入关联查询 支持嵌套预载入
+        if ($closure) {
+            call_user_func_array($closure, [ & $model]);
         }
-        // 保存关联表数据
-        $data[$this->foreignKey] = $this->parent->{$this->localKey};
-        $model                   = new $this->model;
-        return $model->save($data);
+        $list = $model->where($where)->with($subRelation)->select();
+
+        // 组装模型数据
+        $data = [];
+        foreach ($list as $set) {
+            $data[$set->$key][] = $set;
+        }
+        return $data;
     }
 
     /**

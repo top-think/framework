@@ -414,7 +414,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
         } elseif ($notFound) {
-            $method = Loader::parseName($name, 1);
+            $method = Loader::parseName($name, 1, false);
             if (method_exists($this, $method) && $this->$method() instanceof Relation) {
                 // 不存在该字段 获取关联数据
                 $value = $this->$method()->getRelation();
@@ -1245,7 +1245,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
-            $relation = Loader::parseName($relation, 1);
+            $relation = Loader::parseName($relation, 1, false);
             $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class);
         }
     }
@@ -1272,7 +1272,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
-            $relation = Loader::parseName($relation, 1);
+            $relation = Loader::parseName($relation, 1, false);
             $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class);
         }
     }
