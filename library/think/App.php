@@ -175,7 +175,7 @@ class App
             $type     = $isAjax ? Config::get('default_ajax_return') : Config::get('default_return_type');
             $response = Response::create($data, $type);
         } else {
-            $response = Response::create();
+            $response = Response::create('', 204);
         }
 
         // 监听app_end
