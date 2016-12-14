@@ -501,6 +501,28 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置附加关联对象的属性
+     * @access public
+     * @param string        $relation 关联方法
+     * @param string|array  $append  追加属性名
+     * @return $this
+     */
+    public function appendRelationAttr($relation, $append)
+    {
+        if (is_string($append)) {
+            $append = explode(',', $append);
+        }
+        $model = $this->getAttr($relation);
+        if ($model instanceof Model) {
+            foreach ($append as $key => $attr) {
+                $key = is_numeric($key) ? $attr : $key;
+                $this->setAttr($key, $model->$attr);
+            }
+        }
+        return $this;
+    }
+
+    /**
      * 设置需要隐藏的输出属性
      * @access public
      * @param array $hidden 属性列表
