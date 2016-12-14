@@ -85,7 +85,13 @@ class BelongsTo extends OneToOne
                 if (!isset($data[$result->$foreignKey])) {
                     $data[$result->$foreignKey] = [];
                 }
-                $result->setAttr($relation, $this->resultSetBuild($data[$result->$foreignKey], $class));
+                $relationModel = $this->resultSetBuild($data[$result->$foreignKey], $class);
+                if (!empty($this->bindAttr)) {
+                    // 绑定关联属性
+                    $this->bindAttr($relationModel, $result, $this->bindAttr);
+                }
+                // 设置关联属性
+                $result->setAttr($relation, $relationModel);
             }
         }
     }
@@ -109,7 +115,13 @@ class BelongsTo extends OneToOne
         if (!isset($data[$result->$foreignKey])) {
             $data[$result->$foreignKey] = [];
         }
-        $result->setAttr($relation, $this->resultSetBuild($data[$result->$foreignKey], $class));
+        $relationModel = $this->resultSetBuild($data[$result->$foreignKey], $class);
+        if (!empty($this->bindAttr)) {
+            // 绑定关联属性
+            $this->bindAttr($relationModel, $result, $this->bindAttr);
+        }
+        // 设置关联属性
+        $result->setAttr($relation, $relationModel);
     }
 
 }

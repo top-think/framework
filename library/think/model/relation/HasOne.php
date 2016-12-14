@@ -111,7 +111,13 @@ class HasOne extends OneToOne
                 if (!isset($data[$result->$localKey])) {
                     $data[$result->$localKey] = [];
                 }
-                $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+                $relationModel = $this->resultSetBuild($data[$result->$localKey], $class);
+                if (!empty($this->bindAttr)) {
+                    // 绑定关联属性
+                    $this->bindAttr($relationModel, $result, $this->bindAttr);
+                }
+                // 设置关联属性
+                $result->setAttr($relation, $relationModel);
             }
         }
     }
@@ -135,7 +141,12 @@ class HasOne extends OneToOne
         if (!isset($data[$result->$localKey])) {
             $data[$result->$localKey] = [];
         }
-        $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+        $relationModel = $this->resultSetBuild($data[$result->$localKey], $class);
+        if (!empty($this->bindAttr)) {
+            // 绑定关联属性
+            $this->bindAttr($relationModel, $result, $this->bindAttr);
+        }
+        $result->setAttr($relation, $relationModel);
     }
 
 }

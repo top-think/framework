@@ -12,6 +12,7 @@
 namespace think\model\relation;
 
 use think\db\Query;
+use think\Exception;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -21,6 +22,8 @@ abstract class OneToOne extends Relation
 {
     // 预载入方式
     protected $eagerlyType = 0;
+    // 要绑定的属性
+    protected $bindAttr = [];
 
     /**
      * 预载入关联查询（JOIN方式）
@@ -162,6 +165,21 @@ abstract class OneToOne extends Relation
     }
 
     /**
+     * 绑定关联表的属性到父模型属性
+     * @access public
+     * @param mixed    $attr 要绑定的属性列表
+     * @return this
+     */
+    public function bind($attr)
+    {
+        if (is_string($attr)) {
+            $attr = explode(',', $attr);
+        }
+        $this->bindAttr = $attr;
+        return $this;
+    }
+
+    /**
      * 一对一 关联模型预查询拼装
      * @access public
      * @param string    $model 模型名称
@@ -181,8 +199,32 @@ abstract class OneToOne extends Relation
                 }
             }
         }
+        if (isset($list[$relation])) {
+            $relationModel = new $model($list[$relation]);
+            if (!empty($this->bindAttr)) {
+                $this->bindAttr($relationModel, $result, $this->bindAttr);
+            }
+        }
+        $result->setAttr($relation, !isset($relationModel) ? null : $relationModel->isUpdate(true));
+    }
 
-        $result->setAttr($relation, !isset($list[$relation]) ? null : (new $model($list[$relation]))->isUpdate(true));
+    /**
+     * 绑定关联属性到父模型
+     * @access protected
+     * @param Model    $model 关联模型对象
+     * @param Model    $result 父模型对象
+     * @param array    $bindAttr 绑定属性
+     * @return void
+     */
+    protected function bindAttr($model, &$result, $bindAttr)
+    {
+        foreach ($bindAttr as $key => $attr) {
+            if (!isset($result->$attr)) {
+                $result->setAttr(is_numeric($key) ? $attr : $key, $model->$attr);
+            } else {
+                throw new Exception('bind attr has exists:' . $attr);
+            }
+        }
     }
 
     /**
