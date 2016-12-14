@@ -219,10 +219,11 @@ abstract class OneToOne extends Relation
     protected function bindAttr($model, &$result, $bindAttr)
     {
         foreach ($bindAttr as $key => $attr) {
-            if (!isset($result->$attr)) {
-                $result->setAttr(is_numeric($key) ? $attr : $key, $model->$attr);
+            $key = is_numeric($key) ? $attr : $key;
+            if (isset($result->$key)) {
+                throw new Exception('bind attr has exists:' . $key);
             } else {
-                throw new Exception('bind attr has exists:' . $attr);
+                $result->setAttr($key, $model->$attr);
             }
         }
     }
