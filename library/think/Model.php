@@ -516,7 +516,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($model instanceof Model) {
             foreach ($append as $key => $attr) {
                 $key = is_numeric($key) ? $attr : $key;
-                $this->setAttr($key, $model->$attr);
+                if ($this->__isset($key)) {
+                    throw new Exception('bind attr has exists:' . $key);
+                } else {
+                    $this->setAttr($key, $model->$attr);
+                }
             }
         }
         return $this;
