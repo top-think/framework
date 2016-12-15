@@ -455,7 +455,7 @@ class Request
      */
     public function type()
     {
-        $accept = isset($this->server['HTTP_ACCEPT']) ? $this->server['HTTP_ACCEPT'] : $_SERVER['HTTP_ACCEPT'];
+        $accept = $this->server('HTTP_ACCEPT');
         if (empty($accept)) {
             return false;
         }
