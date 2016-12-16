@@ -81,11 +81,11 @@ class Redis extends SessionHandler
      * 读取Session
      * @access public
      * @param string $sessID
-     * @return bool|string
+     * @return string
      */
     public function read($sessID)
     {
-        return $this->handler->get($this->config['session_name'] . $sessID);
+        return (string) $this->handler->get($this->config['session_name'] . $sessID);
     }
 
     /**

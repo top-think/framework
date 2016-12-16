@@ -21,6 +21,8 @@ class HasManyThrough extends Relation
 {
     // 中间关联表外键
     protected $throughKey;
+    // 中间表模型
+    protected $through;
 
     /**
      * 架构函数
@@ -37,7 +39,7 @@ class HasManyThrough extends Relation
     {
         $this->parent     = $parent;
         $this->model      = $model;
-        $this->middle     = $through;
+        $this->through    = $through;
         $this->foreignKey = $foreignKey;
         $this->throughKey = $throughKey;
         $this->localKey   = $localKey;
@@ -90,7 +92,7 @@ class HasManyThrough extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery)) {
-            $through      = $this->middle;
+            $through      = $this->through;
             $model        = $this->model;
             $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
             $throughTable = $through::getTable();

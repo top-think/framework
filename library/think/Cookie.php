@@ -100,6 +100,22 @@ class Cookie
     }
 
     /**
+     * 永久保存Cookie数据
+     * @param string $name  cookie名称
+     * @param mixed  $value cookie值
+     * @param mixed  $option 可选参数 可能会是 null|integer|string
+     * @return void
+     */
+    public static function forever($name, $value = '', $option = null)
+    {
+        if (is_null($option) || is_numeric($option)) {
+            $option = [];
+        }
+        $option['expire'] = 315360000;
+        self::set($name, $value, $option);
+    }
+
+    /**
      * 判断Cookie数据
      * @param string        $name cookie名称
      * @param string|null   $prefix cookie前缀

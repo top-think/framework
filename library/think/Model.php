@@ -169,10 +169,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = $this->class;
         if (!isset(self::$links[$model])) {
             // 合并数据库配置
-            if (is_array($this->connection)) {
-                $connection = array_merge(Config::get('database'), $this->connection);
+            if (!empty($this->connection)) {
+                if (is_array($this->connection)) {
+                    $connection = array_merge(Config::get('database'), $this->connection);
+                } else {
+                    $connection = $this->connection;
+                }
             } else {
-                $connection = $this->connection;
+                $connection = [];
             }
             // 设置当前模型 确保查询返回模型对象
             $query = Db::connect($connection)->model($model, $this->query);
@@ -414,7 +418,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
         } elseif ($notFound) {
-            $method = Loader::parseName($name, 1);
+            $method = Loader::parseName($name, 1, false);
             if (method_exists($this, $method) && $this->$method() instanceof Relation) {
                 // 不存在该字段 获取关联数据
                 $value = $this->$method()->getRelation();
@@ -493,6 +497,32 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function append($append = [], $override = false)
     {
         $this->append = $override ? $append : array_merge($this->append, $append);
+        return $this;
+    }
+
+    /**
+     * 设置附加关联对象的属性
+     * @access public
+     * @param string        $relation 关联方法
+     * @param string|array  $append  追加属性名
+     * @return $this
+     */
+    public function appendRelationAttr($relation, $append)
+    {
+        if (is_string($append)) {
+            $append = explode(',', $append);
+        }
+        $model = $this->getAttr($relation);
+        if ($model instanceof Model) {
+            foreach ($append as $key => $attr) {
+                $key = is_numeric($key) ? $attr : $key;
+                if ($this->__isset($key)) {
+                    throw new Exception('bind attr has exists:' . $key);
+                } else {
+                    $this->setAttr($key, $model->$attr);
+                }
+            }
+        }
         return $this;
     }
 
@@ -1245,6 +1275,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
+            $relation = Loader::parseName($relation, 1, false);
             $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class);
         }
     }
@@ -1271,6 +1302,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation);
             }
+            $relation = Loader::parseName($relation, 1, false);
             $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class);
         }
     }

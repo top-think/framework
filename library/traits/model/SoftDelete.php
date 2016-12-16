@@ -2,6 +2,8 @@
 
 namespace traits\model;
 
+use think\db\Query;
+
 trait SoftDelete
 {
 
@@ -22,7 +24,7 @@ trait SoftDelete
     /**
      * 查询软删除数据
      * @access public
-     * @return \think\db\Query
+     * @return Query
      */
     public static function withTrashed()
     {
@@ -34,7 +36,7 @@ trait SoftDelete
     /**
      * 只查询软删除数据
      * @access public
-     * @return \think\db\Query
+     * @return Query
      */
     public static function onlyTrashed()
     {
@@ -77,8 +79,8 @@ trait SoftDelete
      */
     public static function destroy($data, $force = false)
     {
-        $model = new static();
-        $query = $model->db();
+        // 包含软删除数据
+        $query = self::withTrashed();
         if (is_array($data) && key($data) !== 0) {
             $query->where($data);
             $data = null;
@@ -109,15 +111,19 @@ trait SoftDelete
     public function restore($where = [])
     {
         $name = $this->getDeleteTimeField();
+        if (empty($where)) {
+            $pk           = $this->getPk();
+            $where[$pk]   = $this->getData($pk);
+            $where[$name] = ['not null', ''];
+        }
         // 恢复删除
-        return $this->isUpdate()->save([$name => null], $where);
-
+        return $this->db(false)->removeWhereField($this->getDeleteTimeField(true))->where($where)->update([$name => null]);
     }
 
     /**
      * 查询默认不包含软删除数据
      * @access protected
-     * @param \think\db\Query $query 查询对象
+     * @param Query $query 查询对象
      * @return void
      */
     protected function base($query)

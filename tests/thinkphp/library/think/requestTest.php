@@ -90,12 +90,14 @@ class requestTest extends \PHPUnit_Framework_TestCase
 
     public function testType()
     {
-        $request                = Request::instance();
-        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+        $request = Request::instance();
+        $request->server(['HTTP_ACCEPT' => 'application/json']);
+
         $this->assertEquals('json', $request->type());
         $request->mimeType('test', 'application/test');
         $request->mimeType(['test' => 'application/test']);
-        $_SERVER['HTTP_ACCEPT'] = 'application/test';
+        $request->server(['HTTP_ACCEPT' => 'application/test']);
+
         $this->assertEquals('test', $request->type());
     }
 

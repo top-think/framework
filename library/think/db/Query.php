@@ -27,8 +27,7 @@ use think\exception\PDOException;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
-use think\model\relation\BelongsTo;
-use think\model\relation\HasOne;
+use think\model\relation\OneToOne;
 use think\Paginator;
 
 class Query
@@ -1653,8 +1652,9 @@ class Query
             }
 
             /** @var Relation $model */
-            $model = $class->$relation();
-            if ($model instanceof HasOne || $model instanceof BelongsTo) {
+            $relation = Loader::parseName($relation, 1, false);
+            $model    = $class->$relation();
+            if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
                 $model->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
             } elseif ($closure) {

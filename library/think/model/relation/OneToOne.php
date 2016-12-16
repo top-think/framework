@@ -12,6 +12,7 @@
 namespace think\model\relation;
 
 use think\db\Query;
+use think\Exception;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -19,8 +20,13 @@ use think\model\relation\BelongsTo;
 
 abstract class OneToOne extends Relation
 {
+    // 预载入方式
+    protected $eagerlyType = 0;
+    // 要绑定的属性
+    protected $bindAttr = [];
+
     /**
-     * 预载入关联查询
+     * 预载入关联查询（JOIN方式）
      * @access public
      * @param Query     $query 查询对象
      * @param string    $relation 关联名
@@ -76,7 +82,7 @@ abstract class OneToOne extends Relation
     }
 
     /**
-     * 预载入关联查询
+     * 预载入关联查询（数据集）
      * @access public
      * @param array     $resultSet 数据集
      * @param string    $relation 当前关联名
@@ -85,16 +91,21 @@ abstract class OneToOne extends Relation
      * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
-        foreach ($resultSet as $result) {
+        if (1 == $this->eagerlyType) {
+            // IN查询
+            $this->eagerlySet($resultSet, $relation, $subRelation, $closure, $class);
+        } else {
             // 模型关联组装
-            $this->match($this->model, $relation, $result);
+            foreach ($resultSet as $result) {
+                $this->match($this->model, $relation, $result);
+            }
         }
     }
 
     /**
-     * 预载入关联查询 返回模型对象
+     * 预载入关联查询（数据）
      * @access public
      * @param Model     $result 数据对象
      * @param string    $relation 当前关联名
@@ -103,10 +114,69 @@ abstract class OneToOne extends Relation
      * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResult(&$result, $relation)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
-        // 模型关联组装
-        $this->match($this->model, $relation, $result);
+        if (1 == $this->eagerlyType) {
+            // IN查询
+            $this->eagerlyOne($result, $relation, $subRelation, $closure, $class);
+        } else {
+            // 模型关联组装
+            $this->match($this->model, $relation, $result);
+        }
+    }
+
+    /**
+     * 保存（新增）当前关联数据对象
+     * @access public
+     * @param mixed     $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
+     * @return integer
+     */
+    public function save($data)
+    {
+        if ($data instanceof Model) {
+            $data = $data->getData();
+        }
+        // 保存关联表数据
+        $data[$this->foreignKey] = $this->parent->{$this->localKey};
+        $model                   = new $this->model;
+        return $model->save($data);
+    }
+
+    /**
+     * 设置预载入方式
+     * @access public
+     * @param integer     $type 预载入方式 0 JOIN查询 1 IN查询
+     * @return this
+     */
+    public function setEagerlyType($type)
+    {
+        $this->eagerlyType = $type;
+        return $this;
+    }
+
+    /**
+     * 获取预载入方式
+     * @access public
+     * @return integer
+     */
+    public function getEagerlyType()
+    {
+        return $this->eagerlyType;
+    }
+
+    /**
+     * 绑定关联表的属性到父模型属性
+     * @access public
+     * @param mixed    $attr 要绑定的属性列表
+     * @return this
+     */
+    public function bind($attr)
+    {
+        if (is_string($attr)) {
+            $attr = explode(',', $attr);
+        }
+        $this->bindAttr = $attr;
+        return $this;
     }
 
     /**
@@ -129,25 +199,60 @@ abstract class OneToOne extends Relation
                 }
             }
         }
-
-        $result->setAttr($relation, !isset($list[$relation]) ? null : (new $model($list[$relation]))->isUpdate(true));
+        if (isset($list[$relation])) {
+            $relationModel = new $model($list[$relation]);
+            if (!empty($this->bindAttr)) {
+                $this->bindAttr($relationModel, $result, $this->bindAttr);
+            }
+        }
+        $result->setAttr($relation, !isset($relationModel) ? null : $relationModel->isUpdate(true));
     }
 
     /**
-     * 保存（新增）当前关联数据对象
-     * @access public
-     * @param mixed     $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
-     * @return integer
+     * 绑定关联属性到父模型
+     * @access protected
+     * @param Model    $model 关联模型对象
+     * @param Model    $result 父模型对象
+     * @param array    $bindAttr 绑定属性
+     * @return void
      */
-    public function save($data)
+    protected function bindAttr($model, &$result, $bindAttr)
     {
-        if ($data instanceof Model) {
-            $data = $data->getData();
+        foreach ($bindAttr as $key => $attr) {
+            $key = is_numeric($key) ? $attr : $key;
+            if (isset($result->$key)) {
+                throw new Exception('bind attr has exists:' . $key);
+            } else {
+                $result->setAttr($key, $model->$attr);
+            }
         }
-        // 保存关联表数据
-        $data[$this->foreignKey] = $this->parent->{$this->localKey};
-        $model                   = new $this->model;
-        return $model->save($data);
+    }
+
+    /**
+     * 一对一 关联模型预查询（IN方式）
+     * @access public
+     * @param object    $model 关联模型对象
+     * @param array     $where 关联预查询条件
+     * @param string    $key 关联键名
+     * @param string    $relation 关联名
+     * @param string    $subRelation 子关联
+     * @param bool      $closure
+     * @return array
+     */
+    protected function eagerlyWhere($model, $where, $key, $relation, $subRelation = '', $closure = false)
+    {
+        // 预载入关联查询 支持嵌套预载入
+        if ($closure) {
+            call_user_func_array($closure, [ & $model]);
+        }
+        $list = $model->where($where)->with($subRelation)->select();
+
+        // 组装模型数据
+        $data = [];
+        foreach ($list as $set) {
+            $data[$set->$key][] = $set;
+        }
+        return $data;
     }
 
     /**

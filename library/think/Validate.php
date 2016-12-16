@@ -72,8 +72,8 @@ class Validate
         'expire'      => '不在有效期内 :rule',
         'allowIp'     => '不允许的IP访问',
         'denyIp'      => '禁止的IP访问',
-        'confirm'     => ':attribute和字段 :rule 不一致',
-        'different'   => ':attribute和字段 :rule 不能相同',
+        'confirm'     => ':attribute和确认字段:2不一致',
+        'different'   => ':attribute和比较字段:2不能相同',
         'egt'         => ':attribute必须大于等于 :rule',
         'gt'          => ':attribute必须大于 :rule',
         'elt'         => ':attribute必须小于等于 :rule',
@@ -362,6 +362,7 @@ class Validate
             foreach ($rules as $key => $rule) {
                 if ($rule instanceof \Closure) {
                     $result = call_user_func_array($rule, [$value, $data]);
+                    $info   = is_numeric($key) ? '' : $key;
                 } else {
                     // 判断验证类型
                     if (is_numeric($key)) {
@@ -389,7 +390,7 @@ class Validate
                         // 验证类型
                         $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                         // 验证数据
-                        $result = call_user_func_array($callback, [$value, $rule, $data, $field]);
+                        $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
                     } else {
                         $result = true;
                     }
@@ -1201,6 +1202,8 @@ class Validate
     {
         if (isset($this->message[$attribute . '.' . $type])) {
             $msg = $this->message[$attribute . '.' . $type];
+        } elseif (isset($this->message[$attribute][$type])) {
+            $msg = $this->message[$attribute][$type];
         } elseif (isset($this->message[$attribute])) {
             $msg = $this->message[$attribute];
         } elseif (isset(self::$typeMsg[$type])) {
@@ -1213,7 +1216,7 @@ class Validate
             $msg = Lang::get(substr($msg, 2, -1));
         }
 
-        if (is_string($msg) && false !== strpos($msg, ':')) {
+        if (is_string($msg) && is_string($rule) && false !== strpos($msg, ':')) {
             // 变量替换
             if (strpos($rule, ',')) {
                 $array = array_pad(explode(',', $rule), 3, '');
