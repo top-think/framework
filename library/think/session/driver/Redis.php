@@ -85,7 +85,7 @@ class Redis extends SessionHandler
      */
     public function read($sessID)
     {
-        return $this->handler->get($this->config['session_name'] . $sessID);
+        return $this->handler->get($this->config['session_name'] . $sessID) ?: '';
     }
 
     /**
