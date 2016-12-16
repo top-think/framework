@@ -87,7 +87,7 @@ class Memcached extends SessionHandler
      */
     public function read($sessID)
     {
-        return $this->handler->get($this->config['session_name'] . $sessID);
+        return (string) $this->handler->get($this->config['session_name'] . $sessID);
     }
 
     /**
