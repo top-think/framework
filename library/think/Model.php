@@ -376,12 +376,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value  = date($format, is_numeric($value) ? $value : strtotime($value));
                 break;
             case 'object':
-                if (is_object($value)) {
-                    $value = json_encode($value, JSON_FORCE_OBJECT);
-                }
+                is_scalar($value) || $value = json_encode($value, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE);
                 break;
             case 'array':
-                $value = (array) $value;
+                $value = is_array($value) ? implode(',', $value) : strval($value);
             case 'json':
                 $option = !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE;
                 $value  = json_encode($value, $option);
@@ -475,7 +473,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = json_decode($value, true);
                 break;
             case 'array':
-                $value = is_null($value) ? [] : json_decode($value, true);
+                $value = empty($value) ? [] : explode(',', $value);
                 break;
             case 'object':
                 $value = empty($value) ? new \stdClass() : json_decode($value);
