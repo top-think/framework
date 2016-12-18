@@ -63,7 +63,7 @@ class File
                 $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
             }
 
-            $runtime    = number_format(microtime(true) - THINK_START_TIME, 10);
+            $runtime    = round(microtime(true) - THINK_START_TIME, 10);
             $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
             $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
             $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);

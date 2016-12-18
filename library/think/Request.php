@@ -257,7 +257,7 @@ class Request
     }
 
     /**
-     * 获取当前包含协议的域名
+     * 设置或获取当前包含协议的域名
      * @access public
      * @param string $domain 域名
      * @return string
@@ -274,7 +274,7 @@ class Request
     }
 
     /**
-     * 获取当前完整URL 包括QUERY_STRING
+     * 设置或获取当前完整URL 包括QUERY_STRING
      * @access public
      * @param string|true $url URL地址 true 带域名获取
      * @return string
@@ -301,7 +301,7 @@ class Request
     }
 
     /**
-     * 获取当前URL 不含QUERY_STRING
+     * 设置或获取当前URL 不含QUERY_STRING
      * @access public
      * @param string $url URL地址
      * @return string
@@ -319,7 +319,7 @@ class Request
     }
 
     /**
-     * 获取当前执行的文件 SCRIPT_NAME
+     * 设置或获取当前执行的文件 SCRIPT_NAME
      * @access public
      * @param string $file 当前执行的文件
      * @return string
@@ -351,7 +351,7 @@ class Request
     }
 
     /**
-     * 获取URL访问根地址
+     * 设置或获取URL访问根地址
      * @access public
      * @param string $url URL地址
      * @return string
@@ -455,7 +455,7 @@ class Request
      */
     public function type()
     {
-        $accept = isset($this->server['HTTP_ACCEPT']) ? $this->server['HTTP_ACCEPT'] : $_SERVER['HTTP_ACCEPT'];
+        $accept = $this->server('HTTP_ACCEPT');
         if (empty($accept)) {
             return false;
         }
@@ -602,7 +602,7 @@ class Request
     }
 
     /**
-     * 设置获取获取当前请求的参数
+     * 获取获取当前请求的参数
      * @access public
      * @param string|array  $name 变量名
      * @param mixed         $default 默认值
