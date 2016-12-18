@@ -13,6 +13,7 @@ namespace think;
 
 use think\App;
 use think\Debug;
+use think\Loader;
 use think\Log;
 
 class Hook
@@ -111,15 +112,23 @@ class Hook
     public static function exec($class, $tag = '', &$params = null, $extra = null)
     {
         App::$debug && Debug::remark('behavior_start', 'time');
-        if (is_callable($class)) {
+        $method = Loader::parseName($tag, 1, false);
+        if ($class instanceof \Closure) {
             $result = call_user_func_array($class, [ & $params, $extra]);
             $class  = 'Closure';
+        } elseif (is_array($class)) {
+            list($class, $method) = $class;
+
+            $result = (new $class())->$method($params, $extra);
+            $class  = $class . '->' . $method;
         } elseif (is_object($class)) {
-            $result = $class->$tag($params, $extra);
+            $result = $class->$method($params, $extra);
             $class  = get_class($class);
+        } elseif (strpos($class, '::')) {
+            $result = call_user_func_array($class, [ & $params, $extra]);
         } else {
             $obj    = new $class();
-            $method = ($tag && is_callable([$obj, $tag])) ? $tag : 'run';
+            $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
             $result = $obj->$method($params, $extra);
         }
         if (App::$debug) {
