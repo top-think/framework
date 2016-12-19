@@ -695,17 +695,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
-        // 自动写入更新时间
-        if ($this->autoWriteTimestamp && $this->updateTime) {
-            $this->setAttr($this->updateTime, null);
-        }
-
         // 事件回调
         if (false === $this->trigger('before_write', $this)) {
             return false;
         }
         $pk = $this->getPk();
         if ($this->isUpdate) {
+            // 自动写入更新时间
+            if ($this->autoWriteTimestamp && $this->updateTime) {
+                $this->setAttr($this->updateTime, null);
+            }
+
             // 自动更新
             $this->autoCompleteData($this->update);
 
