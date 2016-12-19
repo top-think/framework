@@ -417,7 +417,7 @@ class Validate
                 $i++;
             }
         }
-        return true !== $result ? $result : true;
+        return $result;
     }
 
     /**
