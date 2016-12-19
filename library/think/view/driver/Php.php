@@ -127,17 +127,18 @@ class Php
 
         $depr = $this->config['view_depr'];
         if (0 !== strpos($template, '/')) {
-            $template = str_replace(['/', ':'], $depr, $template);
-        }
-
-        $controller = Loader::parseName($request->controller());
-        if ($controller) {
-            if ('' == $template) {
-                // 如果模板文件名为空 按照默认规则定位
-                $template = str_replace('.', DS, $controller) . $depr . $request->action();
-            } elseif (false === strpos($template, $depr)) {
-                $template = str_replace('.', DS, $controller) . $depr . $template;
+            $template   = str_replace(['/', ':'], $depr, $template);
+            $controller = Loader::parseName($request->controller());
+            if ($controller) {
+                if ('' == $template) {
+                    // 如果模板文件名为空 按照默认规则定位
+                    $template = str_replace('.', DS, $controller) . $depr . $request->action();
+                } elseif (false === strpos($template, $depr)) {
+                    $template = str_replace('.', DS, $controller) . $depr . $template;
+                }
             }
+        } else {
+            $template = str_replace(['/', ':'], $depr, substr($template, 1));
         }
         return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
     }
