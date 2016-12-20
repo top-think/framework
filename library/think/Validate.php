@@ -317,7 +317,12 @@ class Validate
             $value = $this->getDataValue($data, $key);
 
             // 字段验证
-            $result = $this->checkItem($key, $value, $rule, $data, $title, $msg);
+            if ($rule instanceof \Closure) {
+                // 匿名函数验证 支持传入当前字段和所有字段两个数据
+                $result = call_user_func_array($rule, [$value, $data]);
+            } else {
+                $result = $this->checkItem($key, $value, $rule, $data, $title, $msg);
+            }
 
             if (true !== $result) {
                 // 没有返回true 则表示验证失败
@@ -350,74 +355,69 @@ class Validate
      */
     protected function checkItem($field, $value, $rules, $data, $title = '', $msg = [])
     {
-        if ($rules instanceof \Closure) {
-            // 匿名函数验证 支持传入当前字段和所有字段两个数据
-            $result = call_user_func_array($rules, [$value, $data]);
-        } else {
-            // 支持多规则验证 require|in:a,b,c|... 或者 ['require','in'=>'a,b,c',...]
-            if (is_string($rules)) {
-                $rules = explode('|', $rules);
-            }
-            $i = 0;
-            foreach ($rules as $key => $rule) {
-                if ($rule instanceof \Closure) {
-                    $result = call_user_func_array($rule, [$value, $data]);
-                    $info   = is_numeric($key) ? '' : $key;
-                } else {
-                    // 判断验证类型
-                    if (is_numeric($key)) {
-                        if (strpos($rule, ':')) {
-                            list($type, $rule) = explode(':', $rule, 2);
-                            if (isset($this->alias[$type])) {
-                                // 判断别名
-                                $type = $this->alias[$type];
-                            }
-                            $info = $type;
-                        } elseif (method_exists($this, $rule)) {
-                            $type = $rule;
-                            $info = $rule;
-                            $rule = '';
-                        } else {
-                            $type = 'is';
-                            $info = $rule;
-                        }
-                    } else {
-                        $info = $type = $key;
-                    }
-
-                    // 如果不是require 有数据才会行验证
-                    if (0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
-                        // 验证类型
-                        $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
-                        // 验证数据
-                        $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
-                    } else {
-                        $result = true;
-                    }
-                }
-
-                if (false === $result) {
-                    // 验证失败 返回错误信息
-                    if (isset($msg[$i])) {
-                        $message = $msg[$i];
-                        if (is_string($message) && strpos($message, '{%') === 0) {
-                            $message = Lang::get(substr($message, 2, -1));
-                        }
-                    } else {
-                        $message = $this->getRuleMsg($field, $title, $info, $rule);
-                    }
-                    return $message;
-                } elseif (true !== $result) {
-                    // 返回自定义错误信息
-                    if (is_string($result) && false !== strpos($result, ':')) {
-                        $result = str_replace([':attribute', ':rule'], [$title, (string) $rule], $result);
-                    }
-                    return $result;
-                }
-                $i++;
-            }
+        // 支持多规则验证 require|in:a,b,c|... 或者 ['require','in'=>'a,b,c',...]
+        if (is_string($rules)) {
+            $rules = explode('|', $rules);
         }
-        return true !== $result ? $result : true;
+        $i = 0;
+        foreach ($rules as $key => $rule) {
+            if ($rule instanceof \Closure) {
+                $result = call_user_func_array($rule, [$value, $data]);
+                $info   = is_numeric($key) ? '' : $key;
+            } else {
+                // 判断验证类型
+                if (is_numeric($key)) {
+                    if (strpos($rule, ':')) {
+                        list($type, $rule) = explode(':', $rule, 2);
+                        if (isset($this->alias[$type])) {
+                            // 判断别名
+                            $type = $this->alias[$type];
+                        }
+                        $info = $type;
+                    } elseif (method_exists($this, $rule)) {
+                        $type = $rule;
+                        $info = $rule;
+                        $rule = '';
+                    } else {
+                        $type = 'is';
+                        $info = $rule;
+                    }
+                } else {
+                    $info = $type = $key;
+                }
+
+                // 如果不是require 有数据才会行验证
+                if (0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
+                    // 验证类型
+                    $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
+                    // 验证数据
+                    $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
+                } else {
+                    $result = true;
+                }
+            }
+
+            if (false === $result) {
+                // 验证失败 返回错误信息
+                if (isset($msg[$i])) {
+                    $message = $msg[$i];
+                    if (is_string($message) && strpos($message, '{%') === 0) {
+                        $message = Lang::get(substr($message, 2, -1));
+                    }
+                } else {
+                    $message = $this->getRuleMsg($field, $title, $info, $rule);
+                }
+                return $message;
+            } elseif (true !== $result) {
+                // 返回自定义错误信息
+                if (is_string($result) && false !== strpos($result, ':')) {
+                    $result = str_replace([':attribute', ':rule'], [$title, (string) $rule], $result);
+                }
+                return $result;
+            }
+            $i++;
+        }
+        return $result;
     }
 
     /**

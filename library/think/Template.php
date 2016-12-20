@@ -1067,6 +1067,8 @@ class Template
             }
             if (0 !== strpos($template, '/')) {
                 $template = str_replace(['/', ':'], $this->config['view_depr'], $template);
+            } else {
+                $template = str_replace(['/', ':'], $this->config['view_depr'], substr($template, 1));
             }
             if ($this->config['view_base']) {
                 $module = isset($module) ? $module : Request::instance()->module();
