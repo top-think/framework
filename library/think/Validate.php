@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\exception\ClassNotFoundException;
 use think\File;
 use think\Lang;
 use think\Loader;
@@ -817,10 +818,9 @@ class Validate
             // 指定模型类
             $db = new $rule[0];
         } else {
-            $model = Loader::parseClass(Request::instance()->module, 'model', $rule[0]);
-            if (class_exists($model)) {
-                $db = new $model;
-            } else {
+            try {
+                $db = Loader::model($rule[0]);
+            } catch (ClassNotFoundException $e) {
                 $db = Db::name($rule[0]);
             }
         }
