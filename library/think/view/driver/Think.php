@@ -112,12 +112,12 @@ class Think
             // 跨模块调用
             list($module, $template) = explode('@', $template);
         }
+        $module = isset($module) ? $module : $request->module();
         if ($this->config['view_base']) {
             // 基础视图目录
-            $module = isset($module) ? $module : $request->module();
             $path   = $this->config['view_base'] . ($module ? $module . DS : '');
         } else {
-            $path = isset($module) ? APP_PATH . $module . DS . 'view' . DS : $this->config['view_path'];
+            $path = isset($this->config['view_path']) ? $this->config['view_path'] : APP_PATH . $module . DS . 'view' . DS;
         }
 
         $depr = $this->config['view_depr'];
