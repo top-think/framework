@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\Db;
 use think\exception\ClassNotFoundException;
 use think\File;
 use think\Lang;
