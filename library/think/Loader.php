@@ -369,12 +369,16 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        if (strpos($name, '/')) {
-            list($module, $name) = explode('/', $name, 2);
+        if (strpos($name, '\\')) {
+            $class = $name;
         } else {
-            $module = Request::instance()->module();
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name, 2);
+            } else {
+                $module = Request::instance()->module();
+            }
+            $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
-        $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
             $model = new $class();
         } else {
@@ -400,12 +404,16 @@ class Loader
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
-        if (strpos($name, '/')) {
-            list($module, $name) = explode('/', $name);
+        if (strpos($name, '\\')) {
+            $class = $name;
         } else {
-            $module = Request::instance()->module();
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name);
+            } else {
+                $module = Request::instance()->module();
+            }
+            $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
-        $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
             return App::invokeClass($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
@@ -432,12 +440,16 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        if (strpos($name, '/')) {
-            list($module, $name) = explode('/', $name);
+        if (strpos($name, '\\')) {
+            $class = $name;
         } else {
-            $module = Request::instance()->module();
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name);
+            } else {
+                $module = Request::instance()->module();
+            }
+            $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
-        $class = self::parseClass($module, $layer, $name, $appendSuffix);
         if (class_exists($class)) {
             $validate = new $class;
         } else {
