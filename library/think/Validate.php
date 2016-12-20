@@ -13,6 +13,7 @@ namespace think;
 
 use think\File;
 use think\Lang;
+use think\Loader;
 use think\Request;
 use think\Session;
 
@@ -812,7 +813,17 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        $db  = Db::name($rule[0]);
+        if (false !== strpos($rule[0], '\\')) {
+            // 指定模型类
+            $db = new $rule[0];
+        } else {
+            $model = Loader::parseClass(Request::instance()->module, 'model', $rule[0]);
+            if (class_exists($model)) {
+                $db = new $model;
+            } else {
+                $db = Db::name($rule[0]);
+            }
+        }
         $key = isset($rule[1]) ? $rule[1] : $field;
 
         if (strpos($key, '^')) {
