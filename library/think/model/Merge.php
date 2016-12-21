@@ -297,7 +297,7 @@ class Merge extends Model
                 // 删除关联数据
                 foreach ($this->relationModel as $key => $model) {
                     $table = is_int($key) ? $db->getTable($model) : $model;
-                    $query = clone $db;
+                    $query = new Query;
                     $query->table($table)->where($this->fk, $pk)->delete();
                 }
             }
