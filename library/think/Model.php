@@ -1187,8 +1187,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function useGlobalScope($use)
     {
-        $model    = new static();
-        self::$db = $model->db($use);
+        $model      = new static();
+        static::$db = $model->db($use);
         return $model;
     }
 
@@ -1460,10 +1460,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __call($method, $args)
     {
         if (isset(static::$db)) {
-            $query = static::$db;
+            $query      = static::$db;
+            static::$db = null;
         } else {
             $query = $this->db();
         }
+
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
@@ -1478,7 +1480,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $params)
     {
         if (isset(static::$db)) {
-            $query = static::$db;
+            $query      = static::$db;
+            static::$db = null;
         } else {
             $query = (new static())->db();
         }
