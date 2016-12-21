@@ -25,7 +25,7 @@ class Request
 
     protected $method;
     /**
-     * @var string 域名
+     * @var string 域名（含协议和端口）
      */
     protected $domain;
 
@@ -269,6 +269,9 @@ class Request
             return $this;
         } elseif (!$this->domain) {
             $this->domain = $this->scheme() . '://' . $this->host();
+        }
+        if (80 != $this->port()) {
+            $this->domain .= ':' . $this->port();
         }
         return $this->domain;
     }
