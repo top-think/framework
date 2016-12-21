@@ -151,7 +151,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
-            $this->autoWriteTimestamp = $this->db()->getConfig('auto_timestamp');
+            $this->autoWriteTimestamp = $this->db(false)->getConfig('auto_timestamp');
         }
 
         // 执行初始化操作
@@ -634,10 +634,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function getPk($name = '')
     {
         if (!empty($name)) {
-            $table = $this->db()->getTable($name);
-            return $this->db()->getPk($table);
+            $table = $this->db(false)->getTable($name);
+            return $this->db(false)->getPk($table);
         } elseif (empty($this->pk)) {
-            $this->pk = $this->db()->getPk();
+            $this->pk = $this->db(false)->getPk();
         }
         return $this->pk;
     }
@@ -834,7 +834,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function allowField($field)
     {
         if (true === $field) {
-            $field = $this->db()->getTableInfo('', 'fields');
+            $field = $this->db(false)->getTableInfo('', 'fields');
         }
         $this->field = $field;
         return $this;
@@ -1402,7 +1402,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: $this->db()->getTable(Loader::parseName($this->name) . '_' . $name);
+        $table      = $table ?: $this->db(false)->getTable(Loader::parseName($this->name) . '_' . $name);
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
         return new BelongsToMany($this, $model, $table, $foreignKey, $localKey, $alias);
@@ -1459,7 +1459,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __call($method, $args)
     {
-        $query = $this->db();
+        if (isset(static::$db)) {
+            $query = static::$db;
+        } else {
+            $query = $this->db();
+        }
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
