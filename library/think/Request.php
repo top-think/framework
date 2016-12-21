@@ -269,9 +269,9 @@ class Request
             return $this;
         } elseif (!$this->domain) {
             $this->domain = $this->scheme() . '://' . $this->host();
-        }
-        if (80 != $this->port()) {
-            $this->domain .= ':' . $this->port();
+            if (!in_array($this->port(), ['80', '443'])) {
+                $this->domain .= ':' . $this->port();
+            }
         }
         return $this->domain;
     }
