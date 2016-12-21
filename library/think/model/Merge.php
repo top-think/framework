@@ -12,6 +12,7 @@
 namespace think\model;
 
 use think\Db;
+use think\db\Query;
 use think\Model;
 
 class Merge extends Model
@@ -174,6 +175,7 @@ class Merge extends Model
 
         $db = $this->db();
         $db->startTrans();
+        $pk = $this->getPk();
         try {
             if ($this->isUpdate) {
                 // 自动写入
@@ -187,19 +189,15 @@ class Merge extends Model
                     $where = $this->updateWhere;
                 }
 
-                if (!empty($where)) {
-                    $pk = $this->getPk();
-
-                    if (isset($this->mapFields[$pk])) {
-                        $pk = $this->mapFields[$pk];
-                    }
-                    if (isset($where[$pk])) {
-                        unset($where[$pk]);
-                    }
-                }
-
                 // 处理模型数据
                 $data = $this->parseData($this->name, $this->data);
+                if (is_string($pk) && isset($data[$pk])) {
+                    if (!isset($where[$pk])) {
+                        unset($where);
+                        $where[$pk] = $data[$pk];
+                    }
+                    unset($data[$pk]);
+                }
                 // 写入主表数据
                 $result = $db->strict(false)->where($where)->update($data);
 
@@ -209,7 +207,7 @@ class Merge extends Model
                     $table = is_int($key) ? $db->getTable($model) : $model;
                     // 处理关联模型数据
                     $data  = $this->parseData($name, $this->data);
-                    $query = clone $db;
+                    $query = new Query;
                     if ($query->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data)) {
                         $result = 1;
                     }
@@ -238,7 +236,6 @@ class Merge extends Model
                 if ($result) {
                     $insertId = $db->getLastInsID($sequence);
                     // 写入外键数据
-                    $pk = $this->getPk();
                     if ($insertId) {
                         if (is_string($pk)) {
                             $this->data[$pk] = $insertId;
@@ -259,7 +256,7 @@ class Merge extends Model
                         $table = is_int($key) ? $db->getTable($model) : $model;
                         // 处理关联模型数据
                         $data  = $this->parseData($name, $source, true);
-                        $query = clone $db;
+                        $query = new Query;
                         $query->table($table)->strict(false)->insert($data);
                     }
                 }
