@@ -13,7 +13,6 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
-use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -55,10 +54,9 @@ class HasMany extends Relation
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @param bool      $count 是否统计
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class, $count)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -85,10 +83,6 @@ class HasMany extends Relation
                 if (!isset($data[$result->$localKey])) {
                     $data[$result->$localKey] = [];
                 }
-                if ($count) {
-                    // 关联统计
-                    $result->setAttr(Loader::parseName($relation) . '_count', count($data[$result->$localKey]));
-                }
                 $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
             }
         }
@@ -102,10 +96,9 @@ class HasMany extends Relation
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
-     * @param bool      $count 是否统计
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class, $count)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -115,10 +108,6 @@ class HasMany extends Relation
             // 关联数据封装
             if (!isset($data[$result->$localKey])) {
                 $data[$result->$localKey] = [];
-            }
-            if ($count) {
-                // 关联统计
-                $result->setAttr(Loader::parseName($relation) . '_count', count($data[$result->$localKey]));
             }
             $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
         }

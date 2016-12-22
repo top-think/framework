@@ -1620,11 +1620,10 @@ class Query
     /**
      * 设置关联查询JOIN预查询
      * @access public
-     * @param string|array  $with 关联方法名称
-     * @param bool          $count 是否统计
+     * @param string|array $with 关联方法名称
      * @return $this
      */
-    public function with($with, $count = false)
+    public function with($with)
     {
         if (empty($with)) {
             return $this;
@@ -1663,8 +1662,7 @@ class Query
             }
         }
         $this->via();
-        $this->options['with']  = $with;
-        $this->options['count'] = $count;
+        $this->options['with'] = $with;
         return $this;
     }
 
@@ -2019,7 +2017,7 @@ class Query
                 }
                 if (!empty($options['with'])) {
                     // 预载入
-                    $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '', !empty($options['count']) ? true : false);
+                    $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
                 }
             }
             // 模型数据集转换
@@ -2115,7 +2113,7 @@ class Query
                 }
                 // 预载入查询
                 if (!empty($options['with'])) {
-                    $data->eagerlyResult($data, $options['with'], is_object($result) ? get_class($result) : '', !empty($options['count']) ? true : false);
+                    $data->eagerlyResult($data, $options['with'], is_object($result) ? get_class($result) : '');
                 }
                 // 关联统计
                 if (!empty($options['with_count'])) {
