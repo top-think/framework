@@ -302,7 +302,7 @@ class Route
             $option['complete_match'] = true;
         }
 
-        if (true == $option['complete_match'] && '$' == substr($rule, -1, 1)) {
+        if ('$' == substr($rule, -1, 1)) {
             $rule = substr($rule, 0, -1);
         }
 
