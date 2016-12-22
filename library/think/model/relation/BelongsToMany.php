@@ -231,13 +231,17 @@ class BelongsToMany extends Relation
      * @access public
      * @param array     $dataSet 数据集
      * @param array     $pivot 中间表额外数据
+     * @param bool      $samePivot 额外数据是否相同
      * @return integer
      */
-    public function saveAll(array $dataSet, array $pivot = [])
+    public function saveAll(array $dataSet, array $pivot = [], $samePivot = false)
     {
         $result = false;
         foreach ($dataSet as $key => $data) {
-            $result = $this->attach($data, !empty($pivot) ? $pivot[$key] : []);
+            if (!$samePivot) {
+                $pivot = !empty($pivot) ? $pivot[$key] : [];
+            }
+            $result = $this->attach($data, $pivot);
         }
         return $result;
     }
