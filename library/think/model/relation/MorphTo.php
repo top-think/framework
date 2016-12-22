@@ -137,6 +137,16 @@ class MorphTo extends Relation
     }
 
     /**
+     * 关联统计
+     * @access public
+     * @param Model     $result 数据对象
+     * @param \Closure  $closure 闭包
+     * @return integer
+     */
+    public function relationCount($result, $closure)
+    {}
+
+    /**
      * 多态MorphTo 关联模型预查询
      * @access public
      * @param object    $model 关联模型对象

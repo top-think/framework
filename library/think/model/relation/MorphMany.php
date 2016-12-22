@@ -106,12 +106,9 @@ class MorphMany extends Relation
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
-        $morphType = $this->morphType;
-        $morphKey  = $this->morphKey;
-        $type      = $this->type;
-        $pk        = $result->getPk();
+        $pk = $result->getPk();
         if (isset($result->$pk)) {
-            $data = $this->eagerlyMorphToMany([$morphKey => $result->$pk, $morphType => $type], $relation, $subRelation, $closure);
+            $data = $this->eagerlyMorphToMany([$this->morphKey => $result->$pk, $this->morphType => $this->type], $relation, $subRelation, $closure);
             $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
         }
     }
@@ -125,16 +122,13 @@ class MorphMany extends Relation
      */
     public function relationCount($result, $closure)
     {
-        $morphType = $this->morphType;
-        $morphKey  = $this->morphKey;
-        $type      = $this->type;
-        $pk        = $result->getPk();
-        $count     = 0;
+        $pk    = $result->getPk();
+        $count = 0;
         if (isset($result->$pk)) {
             if ($closure) {
                 call_user_func_array($closure, [ & $this->query]);
             }
-            $count = $this->query->where([$morphKey => $result->$pk, $morphType => $type])->count();
+            $count = $this->query->where([$this->morphKey => $result->$pk, $this->morphType => $this->type])->count();
         }
         return $count;
     }

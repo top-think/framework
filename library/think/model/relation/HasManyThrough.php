@@ -67,8 +67,7 @@ class HasManyThrough extends Relation
      * @return void
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
-    {
-    }
+    {}
 
     /**
      * 预载入关联查询 返回模型对象
@@ -81,8 +80,17 @@ class HasManyThrough extends Relation
      * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
-    {
-    }
+    {}
+
+    /**
+     * 关联统计
+     * @access public
+     * @param Model     $result 数据对象
+     * @param \Closure  $closure 闭包
+     * @return integer
+     */
+    public function relationCount($result, $closure)
+    {}
 
     /**
      * 执行基础查询（进执行一次）

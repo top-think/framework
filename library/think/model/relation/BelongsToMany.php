@@ -128,14 +128,11 @@ class BelongsToMany extends Relation
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
-        $localKey   = $this->localKey;
-        $foreignKey = $this->foreignKey;
-
         $pk = $result->getPk();
         if (isset($result->$pk)) {
             $pk = $result->$pk;
             // 查询管理数据
-            $data = $this->eagerlyManyToMany(['pivot.' . $localKey => $pk], $relation, $subRelation);
+            $data = $this->eagerlyManyToMany(['pivot.' . $this->localKey => $pk], $relation, $subRelation);
 
             // 关联数据封装
             if (!isset($data[$pk])) {
@@ -154,13 +151,11 @@ class BelongsToMany extends Relation
      */
     public function relationCount($result, $closure)
     {
-        $localKey   = $this->localKey;
-        $foreignKey = $this->foreignKey;
-        $pk         = $result->getPk();
-        $count      = 0;
+        $pk    = $result->getPk();
+        $count = 0;
         if (isset($result->$pk)) {
             $pk    = $result->$pk;
-            $count = $this->belongsToManyQuery($this->middle, $foreignKey, $localKey, ['pivot.' . $localKey => $pk])->count();
+            $count = $this->belongsToManyQuery($this->middle, $this->foreignKey, $this->localKey, ['pivot.' . $this->localKey => $pk])->count();
         }
         return $count;
     }
@@ -175,10 +170,8 @@ class BelongsToMany extends Relation
      */
     protected function eagerlyManyToMany($where, $relation, $subRelation = '')
     {
-        $foreignKey = $this->foreignKey;
-        $localKey   = $this->localKey;
         // 预载入关联查询 支持嵌套预载入
-        $list = $this->belongsToManyQuery($this->middle, $foreignKey, $localKey, $where)->with($subRelation)->select();
+        $list = $this->belongsToManyQuery($this->middle, $this->foreignKey, $this->localKey, $where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
@@ -193,8 +186,8 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $set->pivot                = new Pivot($pivot, $this->middle);
-            $data[$pivot[$localKey]][] = $set;
+            $set->pivot                      = new Pivot($pivot, $this->middle);
+            $data[$pivot[$this->localKey]][] = $set;
         }
         return $data;
     }
