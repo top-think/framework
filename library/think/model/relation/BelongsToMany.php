@@ -252,10 +252,14 @@ class BelongsToMany extends Relation
     public function attach($data, $pivot = [])
     {
         if (is_array($data)) {
-            // 保存关联表数据
-            $model = new $this->model;
-            $model->save($data);
-            $id = $model->getLastInsID();
+            if (key($data) === 0) {
+                $id = $data;
+            } else {
+                // 保存关联表数据
+                $model = new $this->model;
+                $model->save($data);
+                $id = $model->getLastInsID();
+            }
         } elseif (is_numeric($data) || is_string($data)) {
             // 根据关联表主键直接写入中间表
             $id = $data;
@@ -267,10 +271,14 @@ class BelongsToMany extends Relation
 
         if ($id) {
             // 保存中间表数据
-            $pk                       = $this->parent->getPk();
-            $pivot[$this->localKey]   = $this->parent->$pk;
-            $pivot[$this->foreignKey] = $id;
-            return $this->query->table($this->middle)->insert($pivot, true);
+            $pk                     = $this->parent->getPk();
+            $pivot[$this->localKey] = $this->parent->$pk;
+            $ids                    = (array) $id;
+            foreach ($ids as $id) {
+                $pivot[$this->foreignKey] = $id;
+                $result                   = $this->query->table($this->middle)->insert($pivot, true);
+            }
+            return $result;
         } else {
             throw new Exception('miss relation data');
         }
