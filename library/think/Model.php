@@ -1261,9 +1261,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array     $resultSet 数据集
      * @param string    $relation 关联名
      * @param string    $class 数据集对象名 为空表示数组
+     * @param bool      $count 是否统计
      * @return array
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $class = '')
+    public function eagerlyResultSet(&$resultSet, $relation, $class = '', $count = false)
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
         foreach ($relations as $key => $relation) {
@@ -1277,7 +1278,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 list($relation, $subRelation) = explode('.', $relation);
             }
             $relation = Loader::parseName($relation, 1, false);
-            $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class);
+            $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class, $count);
         }
     }
 
@@ -1287,9 +1288,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param Model     $result 数据对象
      * @param string    $relation 关联名
      * @param string    $class 数据集对象名 为空表示数组
+     * @param bool      $count 是否统计
      * @return Model
      */
-    public function eagerlyResult(&$result, $relation, $class = '')
+    public function eagerlyResult(&$result, $relation, $class = '', $count = false)
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
@@ -1304,7 +1306,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 list($relation, $subRelation) = explode('.', $relation);
             }
             $relation = Loader::parseName($relation, 1, false);
-            $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class);
+            $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class, $count);
         }
     }
 

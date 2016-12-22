@@ -13,6 +13,7 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
+use think\Loader;
 use think\Model;
 use think\model\Pivot;
 use think\model\Relation;
@@ -80,9 +81,10 @@ class BelongsToMany extends Relation
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
+     * @param bool      $count 是否统计
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class, $count)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -110,7 +112,10 @@ class BelongsToMany extends Relation
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
-
+                if ($count) {
+                    // 关联统计
+                    $result->setAttr(Loader::parseName($relation) . '_count', count($data[$result->$pk]));
+                }
                 $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
             }
         }
@@ -124,9 +129,10 @@ class BelongsToMany extends Relation
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
+     * @param bool      $count 是否统计
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class, $count)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -140,6 +146,10 @@ class BelongsToMany extends Relation
             // 关联数据封装
             if (!isset($data[$pk])) {
                 $data[$pk] = [];
+            }
+            if ($count) {
+                // 关联统计
+                $result->setAttr(Loader::parseName($relation) . '_count', count($data[$pk]));
             }
             $result->setAttr($relation, $this->resultSetBuild($data[$pk], $class));
         }

@@ -13,6 +13,7 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
+use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -60,9 +61,10 @@ class MorphMany extends Relation
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
+     * @param bool      $count 是否统计
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class, $count)
     {
         $morphType = $this->morphType;
         $morphKey  = $this->morphKey;
@@ -89,6 +91,10 @@ class MorphMany extends Relation
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
+                if ($count) {
+                    // 关联统计
+                    $result->setAttr(Loader::parseName($relation) . '_count', count($data[$result->$pk]));
+                }
                 $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
             }
         }
@@ -102,9 +108,10 @@ class MorphMany extends Relation
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
      * @param string    $class 数据集对象名 为空表示数组
+     * @param bool      $count 是否统计
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class, $count)
     {
         $morphType = $this->morphType;
         $morphKey  = $this->morphKey;
@@ -112,6 +119,10 @@ class MorphMany extends Relation
         $pk        = $result->getPk();
         if (isset($result->$pk)) {
             $data = $this->eagerlyMorphToMany([$morphKey => $result->$pk, $morphType => $type], $relation, $subRelation, $closure);
+            if ($count) {
+                // 关联统计
+                $result->setAttr(Loader::parseName($relation) . '_count', count($data[$result->$pk]));
+            }
             $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
         }
     }
