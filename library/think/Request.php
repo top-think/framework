@@ -226,8 +226,9 @@ class Request
         if (!isset($info['path'])) {
             $info['path'] = '/';
         }
-        $options     = [];
-        $queryString = '';
+        $options                      = [];
+        $options[strtolower($method)] = $params;
+        $queryString                  = '';
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
             if (!empty($params)) {
@@ -240,6 +241,11 @@ class Request
         } elseif (!empty($params)) {
             $queryString = http_build_query($params, '', '&');
         }
+        if ($queryString) {
+            parse_str($queryString, $get);
+            $options['get'] = isset($options['get']) ? array_merge($get, $options['get']) : $get;
+        }
+
         $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
         $server['QUERY_STRING'] = $queryString;
         $options['cookie']      = $cookie;
