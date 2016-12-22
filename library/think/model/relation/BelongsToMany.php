@@ -239,9 +239,11 @@ class BelongsToMany extends Relation
         $result = false;
         foreach ($dataSet as $key => $data) {
             if (!$samePivot) {
-                $pivot = isset($pivot[$key]) ? $pivot[$key] : [];
+                $pivotData = isset($pivot[$key]) ? $pivot[$key] : [];
+            } else {
+                $pivotData = $pivot;
             }
-            $result = $this->attach($data, $pivot);
+            $result = $this->attach($data, $pivotData);
         }
         return $result;
     }
