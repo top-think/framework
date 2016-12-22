@@ -96,7 +96,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     // 更新时间字段
     protected $updateTime = 'update_time';
     // 时间字段取出后的默认时间格式
-    protected $dateFormat = 'Y-m-d H:i:s';
+    protected $dateFormat;
     // 字段类型或者格式转换
     protected $type = [];
     // 是否为更新数据
@@ -152,6 +152,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
             $this->autoWriteTimestamp = $this->db(false)->getConfig('auto_timestamp');
+        }
+
+        if (is_null($this->dateFormat)) {
+            // 设置时间戳格式
+            $this->dateFormat = $this->db(false)->getConfig('datetime_format');
         }
 
         // 执行初始化操作
@@ -329,12 +334,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'integer':
                 default:
                     $value = $_SERVER['REQUEST_TIME'];
+                    if (strpos($type, '\\')) {
+                        // 传入类名
+                        $value = new $type($value);
+                    }
                     break;
             }
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
             $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
         } else {
             $value = $_SERVER['REQUEST_TIME'];
+            if (is_string($this->autoWriteTimestamp) && strpos($this->autoWriteTimestamp, '\\')) {
+                // 传入类名
+                $class = $this->autoWriteTimestamp;
+                $value = new $class($value);
+            }
         }
         return $value;
     }
@@ -484,6 +498,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'serialize':
                 $value = unserialize($value);
                 break;
+            default:
+                if (strpos($type, '\\')) {
+                    $value = new $type($value);
+                }
         }
         return $value;
     }
