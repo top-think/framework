@@ -1309,6 +1309,29 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 关联统计
+     * @access public
+     * @param Model             $result 数据对象
+     * @param string|array      $relation 关联名
+     * @return void
+     */
+    public function relationCount(&$result, $relation)
+    {
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+
+        foreach ($relations as $key => $relation) {
+            $closure = false;
+            if ($relation instanceof \Closure) {
+                $closure  = $relation;
+                $relation = $key;
+            }
+            $relation = Loader::parseName($relation, 1, false);
+            $count    = $this->$relation()->relationCount($result, $closure);
+            $result->setAttr(Loader::parseName($relation) . '_count', $count);
+        }
+    }
+
+    /**
      * HAS ONE 关联定义
      * @access public
      * @param string $model 模型名
