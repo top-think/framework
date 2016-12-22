@@ -13,6 +13,7 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
+use think\Exception;
 use think\Model;
 use think\model\Pivot;
 use think\model\Relation;
@@ -269,7 +270,7 @@ class BelongsToMany extends Relation
             $pk                       = $this->parent->getPk();
             $pivot[$this->localKey]   = $this->parent->$pk;
             $pivot[$this->foreignKey] = $id;
-            return $this->query->table($this->middle)->insert($pivot);
+            return $this->query->table($this->middle)->insert($pivot, true);
         } else {
             throw new Exception('miss relation data');
         }

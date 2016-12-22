@@ -296,12 +296,14 @@ class Route
             } elseif ('$' == substr($rule, -1, 1)) {
                 // 是否完整匹配
                 $option['complete_match'] = true;
-                $rule                     = substr($rule, 0, -1);
             }
         } elseif (empty($option['complete_match']) && '$' == substr($rule, -1, 1)) {
             // 是否完整匹配
             $option['complete_match'] = true;
-            $rule                     = substr($rule, 0, -1);
+        }
+
+        if (true == $option['complete_match'] && '$' == substr($rule, -1, 1)) {
+            $rule = substr($rule, 0, -1);
         }
 
         if ('/' != $rule || $group) {
