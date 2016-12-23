@@ -334,10 +334,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'integer':
                 default:
                     $value = $_SERVER['REQUEST_TIME'];
-                    if (false !== strpos($type, '\\')) {
-                        // 传入类名
-                        $value = new $type($value);
-                    }
                     break;
             }
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
