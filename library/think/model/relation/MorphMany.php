@@ -106,14 +106,31 @@ class MorphMany extends Relation
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
-        $morphType = $this->morphType;
-        $morphKey  = $this->morphKey;
-        $type      = $this->type;
-        $pk        = $result->getPk();
+        $pk = $result->getPk();
         if (isset($result->$pk)) {
-            $data = $this->eagerlyMorphToMany([$morphKey => $result->$pk, $morphType => $type], $relation, $subRelation, $closure);
+            $data = $this->eagerlyMorphToMany([$this->morphKey => $result->$pk, $this->morphType => $this->type], $relation, $subRelation, $closure);
             $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
         }
+    }
+
+    /**
+     * 关联统计
+     * @access public
+     * @param Model     $result 数据对象
+     * @param \Closure  $closure 闭包
+     * @return integer
+     */
+    public function relationCount($result, $closure)
+    {
+        $pk    = $result->getPk();
+        $count = 0;
+        if (isset($result->$pk)) {
+            if ($closure) {
+                call_user_func_array($closure, [ & $this->query]);
+            }
+            $count = $this->query->where([$this->morphKey => $result->$pk, $this->morphType => $this->type])->count();
+        }
+        return $count;
     }
 
     /**

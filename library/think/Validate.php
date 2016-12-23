@@ -11,8 +11,11 @@
 
 namespace think;
 
+use think\Db;
+use think\exception\ClassNotFoundException;
 use think\File;
 use think\Lang;
+use think\Loader;
 use think\Request;
 use think\Session;
 
@@ -812,7 +815,16 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        $db  = Db::name($rule[0]);
+        if (false !== strpos($rule[0], '\\')) {
+            // 指定模型类
+            $db = new $rule[0];
+        } else {
+            try {
+                $db = Loader::model($rule[0]);
+            } catch (ClassNotFoundException $e) {
+                $db = Db::name($rule[0]);
+            }
+        }
         $key = isset($rule[1]) ? $rule[1] : $field;
 
         if (strpos($key, '^')) {

@@ -58,10 +58,8 @@ class HasMany extends Relation
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
     {
-        $localKey   = $this->localKey;
-        $foreignKey = $this->foreignKey;
-
-        $range = [];
+        $localKey = $this->localKey;
+        $range    = [];
         foreach ($resultSet as $result) {
             // 获取关联外键列表
             if (isset($result->$localKey)) {
@@ -70,9 +68,9 @@ class HasMany extends Relation
         }
 
         if (!empty($range)) {
-            $this->where[$foreignKey] = ['in', $range];
-            $data                     = $this->eagerlyOneToMany($this, [
-                $foreignKey => [
+            $this->where[$this->foreignKey] = ['in', $range];
+            $data                           = $this->eagerlyOneToMany($this, [
+                $this->foreignKey => [
                     'in',
                     $range,
                 ],
@@ -100,17 +98,36 @@ class HasMany extends Relation
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
     {
-        $localKey   = $this->localKey;
-        $foreignKey = $this->foreignKey;
+        $localKey = $this->localKey;
 
         if (isset($result->$localKey)) {
-            $data = $this->eagerlyOneToMany($this, [$foreignKey => $result->$localKey], $relation, $subRelation, $closure);
+            $data = $this->eagerlyOneToMany($this, [$this->foreignKey => $result->$localKey], $relation, $subRelation, $closure);
             // 关联数据封装
             if (!isset($data[$result->$localKey])) {
                 $data[$result->$localKey] = [];
             }
             $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
         }
+    }
+
+    /**
+     * 关联统计
+     * @access public
+     * @param Model     $result 数据对象
+     * @param \Closure  $closure 闭包
+     * @return integer
+     */
+    public function relationCount($result, $closure)
+    {
+        $localKey = $this->localKey;
+        $count    = 0;
+        if (isset($result->$localKey)) {
+            if ($closure) {
+                call_user_func_array($closure, [ & $this->query]);
+            }
+            $count = $this->query->where([$this->foreignKey => $result->$localKey])->count();
+        }
+        return $count;
     }
 
     /**

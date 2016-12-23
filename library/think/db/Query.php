@@ -1181,7 +1181,14 @@ class Query
                     }
                 }
             }
-            $this->options['order'] = $field;
+            if (!isset($this->options['order'])) {
+                $this->options['order'] = [];
+            }
+            if (is_array($field)) {
+                $this->options['order'] = array_merge($this->options['order'], $field);
+            } else {
+                $this->options['order'][] = $field;
+            }
         }
         return $this;
     }
@@ -1667,6 +1674,18 @@ class Query
     }
 
     /**
+     * 关联统计
+     * @access public
+     * @param string|array    $relation 关联方法名
+     * @return $this
+     */
+    public function withCount($relation)
+    {
+        $this->options['with_count'] = $relation;
+        return $this;
+    }
+
+    /**
      * 关联预加载中 获取关联指定字段值
      * example:
      * Model::with(['relation' => function($query){
@@ -1997,6 +2016,10 @@ class Query
                     if (!empty($options['relation'])) {
                         $result->relationQuery($options['relation']);
                     }
+                    // 关联统计
+                    if (!empty($options['with_count'])) {
+                        $result->relationCount($result, $options['with_count']);
+                    }
                     $resultSet[$key] = $result;
                 }
                 if (!empty($options['with'])) {
@@ -2095,9 +2118,13 @@ class Query
                 if (!empty($options['relation'])) {
                     $data->relationQuery($options['relation']);
                 }
+                // 预载入查询
                 if (!empty($options['with'])) {
-                    // 预载入
                     $data->eagerlyResult($data, $options['with'], is_object($result) ? get_class($result) : '');
+                }
+                // 关联统计
+                if (!empty($options['with_count'])) {
+                    $data->relationCount($data, $options['with_count']);
                 }
             }
         } elseif (!empty($options['fail'])) {

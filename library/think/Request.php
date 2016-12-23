@@ -25,7 +25,7 @@ class Request
 
     protected $method;
     /**
-     * @var string 域名
+     * @var string 域名（含协议和端口）
      */
     protected $domain;
 
@@ -226,8 +226,9 @@ class Request
         if (!isset($info['path'])) {
             $info['path'] = '/';
         }
-        $options     = [];
-        $queryString = '';
+        $options                      = [];
+        $options[strtolower($method)] = $params;
+        $queryString                  = '';
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
             if (!empty($params)) {
@@ -240,6 +241,11 @@ class Request
         } elseif (!empty($params)) {
             $queryString = http_build_query($params, '', '&');
         }
+        if ($queryString) {
+            parse_str($queryString, $get);
+            $options['get'] = isset($options['get']) ? array_merge($get, $options['get']) : $get;
+        }
+
         $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
         $server['QUERY_STRING'] = $queryString;
         $options['cookie']      = $cookie;
@@ -688,7 +694,7 @@ class Request
         if (empty($this->post)) {
             $content = $this->input;
             if (empty($_POST) && strpos($content, '":')) {
-                $this->post = json_decode($content, true);
+                $this->post = (array) json_decode($content, true);
             } else {
                 $this->post = $_POST;
             }
@@ -713,7 +719,7 @@ class Request
         if (is_null($this->put)) {
             $content = $this->input;
             if (strpos($content, '":')) {
-                $this->put = json_decode($content, true);
+                $this->put = (array) json_decode($content, true);
             } else {
                 parse_str($content, $this->put);
             }
