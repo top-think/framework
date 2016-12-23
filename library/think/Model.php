@@ -397,9 +397,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 break;
             case 'datetime':
                 $format = !empty($param) ? $param : $this->dateFormat;
-                if (false === strpos($format, '\\')) {
-                    $value = date($format, is_numeric($value) ? $value : strtotime($value));
-                }
+                $value  = is_numeric($value) ? $value : strtotime($value);
+                $value  = $this->formatDateTime($value, $format);
                 break;
             case 'object':
                 if (is_object($value)) {
