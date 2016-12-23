@@ -118,6 +118,9 @@ abstract class Builder
                     $this->query->bind($key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
                     $result[$item] = ':' . $key;
                 }
+            } elseif (is_object($val) && method_exists($val, '__toString')) {
+                // 对象数据写入
+                $result[$item] = $val->__toString();
             }
         }
         return $result;
