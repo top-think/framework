@@ -1181,7 +1181,14 @@ class Query
                     }
                 }
             }
-            $this->options['order'] = $field;
+            if (!isset($this->options['order'])) {
+                $this->options['order'] = [];
+            }
+            if (is_array($field)) {
+                $this->options['order'] = array_merge($this->options['order'], $field);
+            } else {
+                $this->options['order'][] = $field;
+            }
         }
         return $this;
     }
