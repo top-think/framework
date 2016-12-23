@@ -169,7 +169,7 @@ class Merge extends Model
         $this->autoCompleteData($this->auto);
 
         // 自动写入更新时间
-        if ($this->autoWriteTimestamp && $this->updateTime) {
+        if ($this->autoWriteTimestamp && $this->updateTime && !isset($this->data[$this->updateTime])) {
             $this->setAttr($this->updateTime, null);
         }
 
@@ -221,7 +221,7 @@ class Merge extends Model
                 $this->autoCompleteData($this->insert);
 
                 // 自动写入创建时间
-                if ($this->autoWriteTimestamp && $this->createTime) {
+                if ($this->autoWriteTimestamp && $this->createTime && !isset($this->data[$this->createTime])) {
                     $this->setAttr($this->createTime, null);
                 }
 
