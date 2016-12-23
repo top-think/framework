@@ -328,29 +328,42 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'datetime':
                 case 'date':
                     $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = date($format, $_SERVER['REQUEST_TIME']);
+                    $value  = $this->formatDateTime($_SERVER['REQUEST_TIME'], $format);
                     break;
                 case 'timestamp':
                 case 'integer':
                 default:
                     $value = $_SERVER['REQUEST_TIME'];
-                    if (strpos($type, '\\')) {
+                    if (false !== strpos($type, '\\')) {
                         // 传入类名
                         $value = new $type($value);
                     }
                     break;
             }
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
-            $value = date($this->dateFormat, $_SERVER['REQUEST_TIME']);
+            $value = $this->formatDateTime($_SERVER['REQUEST_TIME'], $this->dateFormat);
         } else {
-            $value = $_SERVER['REQUEST_TIME'];
-            if (is_string($this->autoWriteTimestamp) && strpos($this->autoWriteTimestamp, '\\')) {
-                // 传入类名
-                $class = $this->autoWriteTimestamp;
-                $value = new $class($value);
-            }
+            $value = $this->formatDateTime($value, $this->dateFormat, true);
         }
         return $value;
+    }
+
+    /**
+     * 时间日期字段格式化处理
+     * @access public
+     * @param mixed  $time 时间日期表达式
+     * @param mixed  $format 日期格式
+     * @param bool   $timestamp 是否进行时间戳转换
+     * @return mixed
+     */
+    protected function formatDateTime($time, $format, $timestamp = false)
+    {
+        if (false !== strpos($format, '\\')) {
+            $time = new $format($time);
+        } elseif (!$timestamp) {
+            $time = date($format, $time);
+        }
+        return $time;
     }
 
     /**
@@ -388,7 +401,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 break;
             case 'datetime':
                 $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = date($format, is_numeric($value) ? $value : strtotime($value));
+                if (false === strpos($format, '\\')) {
+                    $value = date($format, is_numeric($value) ? $value : strtotime($value));
+                }
                 break;
             case 'object':
                 if (is_object($value)) {
@@ -404,6 +419,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'serialize':
                 $value = serialize($value);
                 break;
+
         }
         return $value;
     }
@@ -477,13 +493,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             case 'timestamp':
                 if (!is_null($value)) {
                     $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = date($format, $value);
+                    $value  = $this->formatDateTime($value, $format);
                 }
                 break;
             case 'datetime':
                 if (!is_null($value)) {
                     $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = date($format, strtotime($value));
+                    $value  = $this->formatDateTime(strtotime($value), $format);
                 }
                 break;
             case 'json':
@@ -499,7 +515,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = unserialize($value);
                 break;
             default:
-                if (strpos($type, '\\')) {
+                if (false !== strpos($type, '\\')) {
+                    // 对象类型
                     $value = new $type($value);
                 }
         }
