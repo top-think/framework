@@ -36,8 +36,6 @@ install:
 script:
   ## LINT
   - find . -path ./vendor -prune -o -type f -name \*.php -exec php -l {} \;
-  ## PHP_CodeSniffer
-  - vendor/bin/phpcs --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 --standard=PSR2 --ignore="vendor/*" ./
   ## PHP Copy/Paste Detector
   - vendor/bin/phpcpd --verbose --exclude vendor ./ || true
   ## PHPLOC
