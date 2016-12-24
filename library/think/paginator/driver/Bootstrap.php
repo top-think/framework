@@ -102,7 +102,6 @@ class Bootstrap extends Paginator
         return $html;
     }
 
-
     /**
      * 渲染分页html
      * @return mixed
@@ -126,7 +125,6 @@ class Bootstrap extends Paginator
             }
         }
     }
-
 
     /**
      * 生成一个可点击的按钮

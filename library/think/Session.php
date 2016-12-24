@@ -192,7 +192,7 @@ class Session
             self::delete($name, $prefix);
             return $result;
         } else {
-            return null;
+            return;
         }
     }
 
