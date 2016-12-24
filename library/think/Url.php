@@ -248,7 +248,7 @@ class Url
                                     $domain .= $rootDomain;
                                 }
                                 break;
-                            } else if (false !== strpos($key, '*')) {
+                            } elseif (false !== strpos($key, '*')) {
                                 if (!empty($rootDomain)) {
                                     $domain .= $rootDomain;
                                 }
