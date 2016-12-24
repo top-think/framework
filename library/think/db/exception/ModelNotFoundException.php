@@ -13,7 +13,7 @@ namespace think\db\exception;
 
 use think\exception\DbException;
 
-class ModelNotFoundException extends DbException 
+class ModelNotFoundException extends DbException
 {
     protected $model;
 
@@ -22,10 +22,10 @@ class ModelNotFoundException extends DbException
      * @param string $message
      * @param string $model
      */
-    public function __construct($message, $model = '', Array $config = [])
+    public function __construct($message, $model = '', array $config = [])
     {
-        $this->message  = $message;
-        $this->model    = $model;
+        $this->message = $message;
+        $this->model   = $model;
 
         $this->setData('Database Config', $config);
     }

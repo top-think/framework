@@ -219,7 +219,7 @@ class Console
     private function getMode()
     {
         if (!function_exists('proc_open')) {
-            return null;
+            return;
         }
 
         $descriptorspec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
