@@ -481,9 +481,10 @@ class Loader
      * @param string|array $vars         调用参数 支持字符串和数组
      * @param string       $layer        要调用的控制层名称
      * @param bool         $appendSuffix 是否添加类名后缀
+     * @param bool         $filter       是否全局过滤
      * @return mixed
      */
-    public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
+    public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false, $filter = false)
     {
         $info   = pathinfo($url);
         $action = $info['basename'];
@@ -497,7 +498,7 @@ class Loader
                     $vars = [$vars];
                 }
             }
-            return App::invokeMethod([$class, $action . Config::get('action_suffix')], $vars);
+            return App::invokeMethod([$class, $action . Config::get('action_suffix')], $vars, $filter);
         }
     }
 
