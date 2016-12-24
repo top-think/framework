@@ -663,14 +663,14 @@ class Route
     /**
      * rest方法定义和修改
      * @access public
-     * @param string    $name 方法名称
-     * @param array     $resource 资源
+     * @param string        $name 方法名称
+     * @param array|bool    $resource 资源
      * @return void
      */
     public static function rest($name, $resource = [])
     {
         if (is_array($name)) {
-            self::$rest = array_merge(self::$rest, $name);
+            self::$rest = $resource ? $name : array_merge(self::$rest, $name);
         } else {
             self::$rest[$name] = $resource;
         }
