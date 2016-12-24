@@ -89,7 +89,8 @@ class Url
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 检查别名路由
-            $alias = Route::rules('alias');
+            $alias      = Route::rules('alias');
+            $matchAlias = false;
             if ($alias) {
                 // 别名路由解析
                 foreach ($alias as $key => $val) {
@@ -97,11 +98,13 @@ class Url
                         $val = $val[0];
                     }
                     if (0 === strpos($url, $val)) {
-                        $url = $key . substr($url, strlen($val));
+                        $url        = $key . substr($url, strlen($val));
+                        $matchAlias = true;
                         break;
                     }
                 }
-            } else {
+            }
+            if (!$matchAlias) {
                 // 路由标识不存在 直接解析
                 $url = self::parseUrl($url, $domain);
             }
