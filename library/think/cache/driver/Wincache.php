@@ -12,7 +12,6 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
-use think\Exception;
 
 /**
  * Wincache缓存驱动
@@ -28,7 +27,7 @@ class Wincache extends Driver
     /**
      * 架构函数
      * @param array $options 缓存参数
-     * @throws Exception
+     * @throws \BadFunctionCallException
      * @access public
      */
     public function __construct($options = [])

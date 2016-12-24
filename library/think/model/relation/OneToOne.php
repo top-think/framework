@@ -16,7 +16,6 @@ use think\Exception;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
-use think\model\relation\BelongsTo;
 
 abstract class OneToOne extends Relation
 {

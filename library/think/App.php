@@ -11,19 +11,9 @@
 
 namespace think;
 
-use think\Config;
-use think\Env;
-use think\Exception;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\exception\RouteNotFoundException;
-use think\Hook;
-use think\Lang;
-use think\Loader;
-use think\Log;
-use think\Request;
-use think\Response;
-use think\Route;
 
 /**
  * App 应用管理

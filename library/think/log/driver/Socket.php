@@ -209,19 +209,19 @@ class Socket
         }
 
         if (!isset($_SERVER[$key])) {
-            return null;
+            return;
         }
         if (empty($args)) {
             if (!preg_match('/SocketLog\((.*?)\)/', $_SERVER[$key], $match)) {
                 $args = ['tabid' => null];
-                return null;
+                return;
             }
             parse_str($match[1], $args);
         }
         if (isset($args[$name])) {
             return $args[$name];
         }
-        return null;
+        return;
     }
 
     /**

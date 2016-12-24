@@ -11,11 +11,6 @@
 
 namespace think;
 
-use think\Cache;
-use think\Config;
-use think\Debug;
-use think\Env;
-use think\Request;
 use think\response\Json as JsonResponse;
 use think\response\Jsonp as JsonpResponse;
 use think\response\Redirect as RedirectResponse;

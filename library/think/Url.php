@@ -11,11 +11,6 @@
 
 namespace think;
 
-use think\Config;
-use think\Loader;
-use think\Request;
-use think\Route;
-
 class Url
 {
     // 生成URL地址的root

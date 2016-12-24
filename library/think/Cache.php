@@ -11,8 +11,6 @@
 
 namespace think;
 
-use think\App;
-
 class Cache
 {
     protected static $instance = [];

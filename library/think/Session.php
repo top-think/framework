@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\App;
 use think\exception\ClassNotFoundException;
 
 class Session

@@ -11,11 +11,7 @@
 
 namespace think;
 
-use think\Config;
 use think\exception\ClassNotFoundException;
-use think\Log;
-use think\Request;
-use think\Response;
 use think\response\Redirect;
 
 class Debug
@@ -179,7 +175,7 @@ class Debug
         }
         if ($echo) {
             echo ($output);
-            return null;
+            return;
         } else {
             return $output;
         }

@@ -16,7 +16,6 @@ use PDOStatement;
 use think\Collection;
 use think\Db;
 use think\db\exception\BindParamException;
-use think\db\Query;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;

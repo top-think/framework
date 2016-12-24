@@ -149,7 +149,7 @@ class Cookie
             }
             return $value;
         } else {
-            return null;
+            return;
         }
     }
 

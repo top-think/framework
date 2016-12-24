@@ -13,7 +13,6 @@ namespace think;
 
 \think\Loader::import('controller/Jump', TRAIT_PATH, EXT);
 
-use think\Exception;
 use think\exception\ValidateException;
 
 class Controller

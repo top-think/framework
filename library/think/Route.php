@@ -11,14 +11,7 @@
 
 namespace think;
 
-use think\App;
-use think\Config;
 use think\exception\HttpException;
-use think\Hook;
-use think\Loader;
-use think\Log;
-use think\Request;
-use think\Response;
 
 class Route
 {

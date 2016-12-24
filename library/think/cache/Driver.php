@@ -105,7 +105,7 @@ abstract class Driver
             $this->rm($name);
             return $result;
         } else {
-            return null;
+            return;
         }
     }
 

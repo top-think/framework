@@ -11,9 +11,6 @@
 
 namespace think;
 
-use think\Loader;
-use think\Request;
-
 class View
 {
     // 视图实例

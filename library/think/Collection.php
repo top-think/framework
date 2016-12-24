@@ -225,11 +225,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
         $result = [];
         foreach ($this->items as $row) {
-            $key    = $value = null;
+            $key    = $value    = null;
             $keySet = $valueSet = false;
             if (null !== $index_key && array_key_exists($index_key, $row)) {
                 $keySet = true;
-                $key    = (string)$row[$index_key];
+                $key    = (string) $row[$index_key];
             }
             if (null === $column_key) {
                 $valueSet = true;
@@ -368,6 +368,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         if ($items instanceof self) {
             return $items->all();
         }
-        return (array)$items;
+        return (array) $items;
     }
 }
