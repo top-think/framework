@@ -141,13 +141,13 @@ class App
                     break;
                 case 'controller':
                     // 执行控制器操作
-                    $vars = Request::instance()->param();
-                    $data = Loader::action($dispatch['controller'], array_merge($vars, $dispatch['var']), $config['url_controller_layer'], $config['controller_suffix'], true);
+                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                    $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
                     break;
                 case 'method':
                     // 执行回调方法
-                    $vars = Request::instance()->param();
-                    $data = self::invokeMethod($dispatch['method'], array_merge($vars, $dispatch['var']));
+                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                    $data = self::invokeMethod($dispatch['method'], $vars);
                     break;
                 case 'function':
                     // 执行闭包
@@ -217,10 +217,9 @@ class App
      * @access public
      * @param string|array $method 方法
      * @param array        $vars   变量
-     * @param bool         $filter 是否全局过滤
      * @return mixed
      */
-    public static function invokeMethod($method, $vars = [], $filter = true)
+    public static function invokeMethod($method, $vars = [])
     {
         if (is_array($method)) {
             $class   = is_object($method[0]) ? $method[0] : self::invokeClass($method[0]);
@@ -229,7 +228,7 @@ class App
             // 静态方法
             $reflect = new \ReflectionMethod($method);
         }
-        $args = self::bindParams($reflect, $vars, $filter);
+        $args = self::bindParams($reflect, $vars);
 
         self::$debug && Log::record('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]', 'info');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
@@ -240,15 +239,14 @@ class App
      * @access public
      * @param string    $class 类名
      * @param array     $vars  变量
-     * @param bool      $filter 是否全局过滤
      * @return mixed
      */
-    public static function invokeClass($class, $vars = [], $filter = true)
+    public static function invokeClass($class, $vars = [])
     {
         $reflect     = new \ReflectionClass($class);
         $constructor = $reflect->getConstructor();
         if ($constructor) {
-            $args = self::bindParams($constructor, $vars, $filter);
+            $args = self::bindParams($constructor, $vars);
         } else {
             $args = [];
         }
@@ -260,10 +258,9 @@ class App
      * @access public
      * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
      * @param array                                 $vars    变量
-     * @param bool                                  $filter  是否全局过滤
      * @return array
      */
-    private static function bindParams($reflect, $vars = [], $filter = true)
+    private static function bindParams($reflect, $vars = [])
     {
         if (empty($vars)) {
             // 自动获取请求变量
@@ -306,10 +303,6 @@ class App
                 } else {
                     throw new \InvalidArgumentException('method param miss:' . $name);
                 }
-            }
-            // 全局过滤
-            if ($filter) {
-                array_walk_recursive($args, [Request::instance(), 'filterExp']);
             }
         }
         return $args;
