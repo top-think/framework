@@ -19,7 +19,7 @@ namespace tests\thinkphp\library\think\tempplate\taglib;
 use think\Template;
 use think\template\taglib\Cx;
 
-class templateTest extends \PHPUnit_Framework_TestCase
+class cxTest extends \PHPUnit_Framework_TestCase
 {
     public function testPhp()
     {

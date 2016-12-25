@@ -11,13 +11,7 @@
 
 namespace think;
 
-use think\Db;
 use think\exception\ClassNotFoundException;
-use think\File;
-use think\Lang;
-use think\Loader;
-use think\Request;
-use think\Session;
 
 class Validate
 {

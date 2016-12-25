@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\App;
 use think\exception\ClassNotFoundException;
 
 class Session
@@ -193,7 +192,7 @@ class Session
             self::delete($name, $prefix);
             return $result;
         } else {
-            return null;
+            return;
         }
     }
 

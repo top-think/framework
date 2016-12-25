@@ -11,7 +11,7 @@
 
 namespace think;
 
-use think\App;
+use think\cache\Driver;
 
 class Cache
 {
@@ -31,7 +31,7 @@ class Cache
      * @access public
      * @param array         $options  配置数组
      * @param bool|string   $name 缓存连接标识 true 强制重新连接
-     * @return \think\cache\Driver
+     * @return Driver
      */
     public static function connect(array $options = [], $name = false)
     {
@@ -79,7 +79,7 @@ class Cache
      * 切换缓存类型 需要配置 cache.type 为 complex
      * @access public
      * @param string $name 缓存标识
-     * @return \think\cache\Driver
+     * @return Driver
      */
     public static function store($name)
     {
@@ -220,7 +220,7 @@ class Cache
      * @param string        $name 标签名
      * @param string|array  $keys 缓存标识
      * @param bool          $overlay 是否覆盖
-     * @return \think\cache\Driver
+     * @return Driver
      */
     public static function tag($name, $keys = null, $overlay = false)
     {

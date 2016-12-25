@@ -11,19 +11,9 @@
 
 namespace think;
 
-use think\Config;
-use think\Env;
-use think\Exception;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\exception\RouteNotFoundException;
-use think\Hook;
-use think\Lang;
-use think\Loader;
-use think\Log;
-use think\Request;
-use think\Response;
-use think\Route;
 
 /**
  * App 应用管理
@@ -141,13 +131,13 @@ class App
                     break;
                 case 'controller':
                     // 执行控制器操作
-                    $vars = Request::instance()->param();
-                    $data = Loader::action($dispatch['controller'], array_merge($vars, $dispatch['var']));
+                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                    $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
                     break;
                 case 'method':
                     // 执行回调方法
-                    $vars = Request::instance()->param();
-                    $data = self::invokeMethod($dispatch['method'], array_merge($vars, $dispatch['var']));
+                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                    $data = self::invokeMethod($dispatch['method'], $vars);
                     break;
                 case 'function':
                     // 执行闭包
@@ -257,7 +247,7 @@ class App
      * 绑定参数
      * @access public
      * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
-     * @param array             $vars    变量
+     * @param array                                 $vars    变量
      * @return array
      */
     private static function bindParams($reflect, $vars = [])
@@ -304,8 +294,6 @@ class App
                     throw new \InvalidArgumentException('method param miss:' . $name);
                 }
             }
-            // 全局过滤
-            array_walk_recursive($args, [Request::instance(), 'filterExp']);
         }
         return $args;
     }

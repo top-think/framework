@@ -12,7 +12,6 @@
 namespace think\model\relation;
 
 use think\Model;
-use think\model\relation\OneToOne;
 
 class HasOne extends OneToOne
 {

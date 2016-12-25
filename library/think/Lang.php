@@ -11,10 +11,6 @@
 
 namespace think;
 
-use think\App;
-use think\Cookie;
-use think\Log;
-
 class Lang
 {
     // 语言数据

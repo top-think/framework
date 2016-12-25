@@ -16,7 +16,7 @@ use think\exception\DbException;
 /**
  * PDO参数绑定异常
  */
-class BindParamException extends DbException 
+class BindParamException extends DbException
 {
 
     /**

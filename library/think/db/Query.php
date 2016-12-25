@@ -16,8 +16,6 @@ use think\Cache;
 use think\Collection;
 use think\Config;
 use think\Db;
-use think\db\Builder;
-use think\db\Connection;
 use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;

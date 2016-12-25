@@ -11,7 +11,7 @@
 
 namespace traits\think;
 
-use \think\Exception;
+use think\Exception;
 
 trait Instance
 {

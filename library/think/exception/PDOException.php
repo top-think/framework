@@ -11,8 +11,6 @@
 
 namespace think\exception;
 
-use think\exception\DbException;
-
 /**
  * PDO异常处理类
  * 重新封装了系统的\PDOException类

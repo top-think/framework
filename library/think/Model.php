@@ -12,14 +12,8 @@
 namespace think;
 
 use InvalidArgumentException;
-use think\Cache;
-use think\Collection;
-use think\Config;
-use think\Db;
 use think\db\Query;
-use think\Exception;
 use think\Exception\ValidateException;
-use think\Loader;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
 use think\model\relation\BelongsToMany;

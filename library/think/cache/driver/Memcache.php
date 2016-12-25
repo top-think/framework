@@ -12,7 +12,6 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
-use think\Exception;
 
 class Memcache extends Driver
 {

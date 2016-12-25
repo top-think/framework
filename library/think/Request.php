@@ -11,11 +11,6 @@
 
 namespace think;
 
-use think\Config;
-use think\Exception;
-use think\File;
-use think\Session;
-
 class Request
 {
     /**
@@ -891,7 +886,7 @@ class Request
                 return $array[$name];
             }
         }
-        return null;
+        return;
     }
 
     /**
