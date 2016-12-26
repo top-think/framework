@@ -137,11 +137,11 @@ abstract class Connection
      * @param string $queryClass 查询对象类名
      * @return Query
      */
-    public function model($model, $queryClass = '')
+    public function model($model = 'db', $queryClass = '')
     {
         if (!isset($this->query[$model])) {
             $class               = $queryClass ?: $this->config['query'];
-            $this->query[$model] = new $class($this, $model);
+            $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
         }
         return $this->query[$model];
     }
@@ -155,8 +155,7 @@ abstract class Connection
      */
     public function __call($method, $args)
     {
-        $query = $this->model('datebase');
-        return call_user_func_array([$query, $method], $args);
+        return call_user_func_array([$this->model(), $method], $args);
     }
 
     /**
