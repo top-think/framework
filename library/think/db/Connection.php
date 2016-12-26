@@ -155,11 +155,8 @@ abstract class Connection
      */
     public function __call($method, $args)
     {
-        if (!isset($this->query['database'])) {
-            $class                   = $this->config['query'];
-            $this->query['database'] = new $class($this);
-        }
-        return call_user_func_array([$this->query['database'], $method], $args);
+        $query = $this->model('datebase');
+        return call_user_func_array([$query, $method], $args);
     }
 
     /**
