@@ -1678,7 +1678,7 @@ class Query
      * @param bool            $subQuery 是否使用子查询
      * @return $this
      */
-    public function withCount($relation, $subQuery = false)
+    public function withCount($relation, $subQuery = true)
     {
         if (!$subQuery) {
             $this->options['with_count'] = $relation;
