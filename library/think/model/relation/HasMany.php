@@ -131,6 +131,21 @@ class HasMany extends Relation
     }
 
     /**
+     * 创建关联统计子查询
+     * @access public
+     * @param \Closure  $closure 闭包
+     * @return string
+     */
+    public function getRelationCountQuery($closure)
+    {
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
+
+        return $this->query->where([$this->foreignKey => ['exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk()]])->fetchSql()->count();
+    }
+
+    /**
      * 一对多 关联模型预查询
      * @access public
      * @param object    $model 关联模型对象

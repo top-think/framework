@@ -162,6 +162,17 @@ class BelongsToMany extends Relation
     }
 
     /**
+     * 获取关联统计子查询
+     * @access public
+     * @param \Closure  $closure 闭包
+     * @return string
+     */
+    public function getRelationCountQuery($closure)
+    {
+        return $this->belongsToManyQuery($this->middle, $this->foreignKey, $this->localKey, ['pivot.' . $this->localKey => ['exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk()]])->fetchSql()->count();
+    }
+
+    /**
      * 多对多 关联模型预查询
      * @access public
      * @param array     $where 关联预查询条件
