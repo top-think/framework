@@ -317,6 +317,11 @@ abstract class Builder
             }
         }
         $bindName = $bindName ?: 'where_' . str_replace('.', '_', $field);
+        if (preg_match('/\W/', $bindName)) {
+            // 处理带非单词字符的字段名
+            $bindName = md5($bindName);
+        }
+
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
         if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (strpos($value, ':') !== 0 || !$this->query->isBind(substr($value, 1))) {
