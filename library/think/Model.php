@@ -333,7 +333,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
             $value = $this->formatDateTime($_SERVER['REQUEST_TIME'], $this->dateFormat);
         } else {
-            $value = $this->formatDateTime($value, $this->dateFormat, true);
+            $value = $this->formatDateTime($_SERVER['REQUEST_TIME'], $this->dateFormat, true);
         }
         return $value;
     }

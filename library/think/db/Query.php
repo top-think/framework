@@ -1675,11 +1675,29 @@ class Query
      * 关联统计
      * @access public
      * @param string|array    $relation 关联方法名
+     * @param bool            $subQuery 是否使用子查询
      * @return $this
      */
-    public function withCount($relation)
+    public function withCount($relation, $subQuery = false)
     {
-        $this->options['with_count'] = $relation;
+        if (!$subQuery) {
+            $this->options['with_count'] = $relation;
+        } else {
+            $relations = is_string($relation) ? explode(',', $relation) : $relation;
+            if (!isset($this->options['field'])) {
+                $this->field('*');
+            }
+            foreach ($relations as $key => $relation) {
+                $closure = false;
+                if ($relation instanceof \Closure) {
+                    $closure  = $relation;
+                    $relation = $key;
+                }
+                $relation = Loader::parseName($relation, 1, false);
+                $count    = '(' . (new $this->model)->$relation()->getRelationCountQuery($closure) . ')';
+                $this->field([$count => Loader::parseName($relation) . '_count']);
+            }
+        }
         return $this;
     }
 

@@ -134,6 +134,21 @@ class MorphMany extends Relation
     }
 
     /**
+     * 获取关联统计子查询
+     * @access public
+     * @param \Closure  $closure 闭包
+     * @return string
+     */
+    public function getRelationCountQuery($closure)
+    {
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
+
+        return $this->query->where([$this->morphKey => ['exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk()], $this->morphType => $this->type])->fetchSql()->count();
+    }
+
+    /**
      * 多态一对多 关联模型预查询
      * @access public
      * @param object    $model 关联模型对象
