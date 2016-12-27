@@ -702,8 +702,13 @@ abstract class Builder
                         throw new Exception('fields not exists:[' . $key . ']');
                     }
                     unset($data[$key]);
+                } elseif (is_null($val)) {
+                    $data[$key] = 'NULL';
                 } elseif (is_scalar($val)) {
                     $data[$key] = $this->parseValue($val, $key);
+                } elseif (is_object($val) && method_exists($val, '__toString')) {
+                    // 对象数据写入
+                    $data[$key] = $val->__toString();
                 } else {
                     // 过滤掉非标量数据
                     unset($data[$key]);
