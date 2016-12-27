@@ -137,7 +137,7 @@ abstract class Connection
      * @param string $queryClass 查询对象类名
      * @return Query
      */
-    public function model($model = 'db', $queryClass = '')
+    public function getQuery($model = 'db', $queryClass = '')
     {
         if (!isset($this->query[$model])) {
             $class               = $queryClass ?: $this->config['query'];
@@ -155,7 +155,7 @@ abstract class Connection
      */
     public function __call($method, $args)
     {
-        return call_user_func_array([$this->model(), $method], $args);
+        return call_user_func_array([$this->getQuery(), $method], $args);
     }
 
     /**
