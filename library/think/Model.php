@@ -439,7 +439,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $value = $this->readTransform($value, $this->type[$name]);
         } elseif ($notFound) {
             $method = Loader::parseName($name, 1, false);
-            if (method_exists($this, $method) && $this->$method() instanceof Relation) {
+            if (method_exists($this, $method) && $this->$method()->removeOption() instanceof Relation) {
                 // 不存在该字段 获取关联数据
                 $value = $this->$method()->getRelation();
                 // 保存关联对象值
