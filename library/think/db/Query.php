@@ -957,6 +957,10 @@ class Query
             $where[$field] = ['eq', $op];
         } else {
             $where[$field] = [$op, $condition];
+            if ('exp' == strtolower($op) && isset($param[2]) && is_array($param[2])) {
+                // 参数绑定
+                $this->bind($param[2]);
+            }
             // 记录一个字段多次查询条件
             $this->options['multi'][$field][] = $where[$field];
         }
@@ -1000,14 +1004,16 @@ class Query
     }
 
     /**
-     * 去除某个查询参数
+     * 去除查询参数
      * @access public
-     * @param string $option     参数名
+     * @param string|bool $option     参数名 true 表示去除所有参数
      * @return $this
      */
-    public function removeOption($option)
+    public function removeOption($option = true)
     {
-        if (isset($this->options[$option])) {
+        if (true === $option) {
+            $this->options = [];
+        } elseif (is_string($option) && isset($this->options[$option])) {
             unset($this->options[$option]);
         }
         return $this;
@@ -1556,7 +1562,7 @@ class Query
      */
     protected function getFieldBindType($type)
     {
-        if (preg_match('/(int|double|float|decimal|real|numeric|serial)/is', $type)) {
+        if (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
             $bind = PDO::PARAM_INT;
         } elseif (preg_match('/bool/is', $type)) {
             $bind = PDO::PARAM_BOOL;
@@ -1678,7 +1684,7 @@ class Query
      * @param bool            $subQuery 是否使用子查询
      * @return $this
      */
-    public function withCount($relation, $subQuery = false)
+    public function withCount($relation, $subQuery = true)
     {
         if (!$subQuery) {
             $this->options['with_count'] = $relation;
