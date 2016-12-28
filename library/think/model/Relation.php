@@ -92,6 +92,17 @@ abstract class Relation
         return $this;
     }
 
+    /**
+     * 移除关联查询参数
+     * @access public
+     * @return $this
+     */
+    public function removeOption()
+    {
+        $this->query->removeOption();
+        return $this;
+    }
+
     public function __call($method, $args)
     {
         if ($this->query) {

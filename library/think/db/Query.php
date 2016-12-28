@@ -1005,9 +1005,11 @@ class Query
      * @param string $option     参数名
      * @return $this
      */
-    public function removeOption($option)
+    public function removeOption($option = '')
     {
-        if (isset($this->options[$option])) {
+        if ('' === $option) {
+            $this->options = [];
+        } elseif (isset($this->options[$option])) {
             unset($this->options[$option]);
         }
         return $this;
@@ -1658,7 +1660,7 @@ class Query
 
             /** @var Relation $model */
             $relation = Loader::parseName($relation, 1, false);
-            $model    = $class->$relation();
+            $model    = $class->$relation()->removeOption();
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
                 $model->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
