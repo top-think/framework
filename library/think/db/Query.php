@@ -957,6 +957,10 @@ class Query
             $where[$field] = ['eq', $op];
         } else {
             $where[$field] = [$op, $condition];
+            if ('exp' == strtolower($op) && isset($param[2]) && is_array($param[2])) {
+                // 参数绑定
+                $this->bind($param[2]);
+            }
             // 记录一个字段多次查询条件
             $this->options['multi'][$field][] = $where[$field];
         }
