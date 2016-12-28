@@ -1000,16 +1000,16 @@ class Query
     }
 
     /**
-     * 去除某个查询参数
+     * 去除查询参数
      * @access public
-     * @param string $option     参数名
+     * @param string|bool $option     参数名 true 表示去除所有参数
      * @return $this
      */
-    public function removeOption($option = '')
+    public function removeOption($option = true)
     {
-        if ('' === $option) {
+        if (true === $option) {
             $this->options = [];
-        } elseif (isset($this->options[$option])) {
+        } elseif (is_string($option) && isset($this->options[$option])) {
             unset($this->options[$option]);
         }
         return $this;
@@ -1660,7 +1660,7 @@ class Query
 
             /** @var Relation $model */
             $relation = Loader::parseName($relation, 1, false);
-            $model    = $class->$relation()->removeOption();
+            $model    = $class->$relation();
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
                 $model->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
