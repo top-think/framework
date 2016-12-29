@@ -688,7 +688,7 @@ class Request
     {
         if (empty($this->post)) {
             $content = $this->input;
-            if (empty($_POST) && strpos($content, '":')) {
+            if (empty($_POST) && 'json' == $this->type()) {
                 $this->post = (array) json_decode($content, true);
             } else {
                 $this->post = $_POST;
@@ -713,7 +713,7 @@ class Request
     {
         if (is_null($this->put)) {
             $content = $this->input;
-            if (strpos($content, '":')) {
+            if ('json' == $this->type()) {
                 $this->put = (array) json_decode($content, true);
             } else {
                 parse_str($content, $this->put);
