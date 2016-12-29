@@ -688,7 +688,7 @@ class Request
     {
         if (empty($this->post)) {
             $content = $this->input;
-            if (empty($_POST) && strpos($content, '":')) {
+            if (empty($_POST) && 'application/json' == $this->contentType()) {
                 $this->post = (array) json_decode($content, true);
             } else {
                 $this->post = $_POST;
@@ -713,7 +713,7 @@ class Request
     {
         if (is_null($this->put)) {
             $content = $this->input;
-            if (strpos($content, '":')) {
+            if ('application/json' == $this->contentType()) {
                 $this->put = (array) json_decode($content, true);
             } else {
                 parse_str($content, $this->put);
@@ -1346,6 +1346,21 @@ class Request
     public function remotePort()
     {
         return $this->server('REMOTE_PORT');
+    }
+
+    /**
+     * 当前请求 HTTP_CONTENT_TYPE
+     * @access public
+     * @return string
+     */
+    public function contentType()
+    {
+        $contentType = $this->server('CONTENT_TYPE');
+        if ($contentType) {
+            list($type) = explode(';', $contentType);
+            return trim($type);
+        }
+        return '';
     }
 
     /**
