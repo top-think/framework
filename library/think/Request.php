@@ -1355,7 +1355,7 @@ class Request
      */
     public function contentType()
     {
-        $contentType = $this->server('HTTP_CONTENT_TYPE');
+        $contentType = $this->server('CONTENT_TYPE');
         if ($contentType) {
             list($type) = explode(';', $contentType);
             return trim($type);
