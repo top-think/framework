@@ -96,8 +96,8 @@ class Think
     {
         $this->template->display($template, $data, $config);
     }
-	
-	/**
+
+    /**
      * 设置布局
      * @access public
      * @param mixed     $name 布局模板名称 false 则关闭布局
