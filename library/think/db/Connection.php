@@ -337,7 +337,7 @@ abstract class Connection
         $this->queryStr = $this->getRealSql($sql, $bind);
 
         //释放前次的查询结果
-        if (!empty($this->PDOStatement)) {
+        if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
             $this->free();
         }
 
@@ -346,11 +346,13 @@ abstract class Connection
             // 调试开始
             $this->debug(true);
             // 预处理
-            $this->PDOStatement = $this->linkID->prepare($sql);
+            if (empty($this->PDOStatement)) {
+                $this->PDOStatement = $this->linkID->prepare($sql);
+            }
             // 参数绑定
             $this->bindValue($bind);
             // 执行查询
-            $result = $this->PDOStatement->execute();
+            $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
             $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
@@ -379,7 +381,7 @@ abstract class Connection
         $this->queryStr = $this->getRealSql($sql, $bind);
 
         //释放前次的查询结果
-        if (!empty($this->PDOStatement)) {
+        if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
             $this->free();
         }
 
@@ -388,11 +390,13 @@ abstract class Connection
             // 调试开始
             $this->debug(true);
             // 预处理
-            $this->PDOStatement = $this->linkID->prepare($sql);
+            if (empty($this->PDOStatement)) {
+                $this->PDOStatement = $this->linkID->prepare($sql);
+            }
             // 参数绑定操作
             $this->bindValue($bind);
             // 执行语句
-            $result = $this->PDOStatement->execute();
+            $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
 
