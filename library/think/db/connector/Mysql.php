@@ -51,10 +51,13 @@ class Mysql extends Connection
     {
         $this->initConnect(true);
         list($tableName) = explode(' ', $tableName);
-        if (strpos($tableName, '.')) {
-            $tableName = str_replace('.', '`.`', $tableName);
+        if (false === strpos($tableName, '`')) {
+            if (strpos($tableName, '.')) {
+                $tableName = str_replace('.', '`.`', $tableName);
+            }
+            $tableName = '`' . $tableName . '`';
         }
-        $sql = 'SHOW COLUMNS FROM `' . $tableName . '`';
+        $sql = 'SHOW COLUMNS FROM ' . $tableName;
         // 调试开始
         $this->debug(true);
         $pdo = $this->linkID->query($sql);
