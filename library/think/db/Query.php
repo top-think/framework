@@ -807,7 +807,7 @@ class Query
     public function data($field, $value = null)
     {
         if (is_array($field)) {
-            $this->options['data'] = $field;
+            $this->options['data'] = isset($this->options['data']) ? array_merge($this->options['data'], $field) : $field;
         } else {
             $this->options['data'][$field] = $value;
         }
@@ -817,26 +817,32 @@ class Query
     /**
      * 字段值增长
      * @access public
-     * @param string  $field    字段名
-     * @param integer $step     增长值
+     * @param string|array  $field    字段名
+     * @param integer       $step     增长值
      * @return $this
      */
     public function inc($field, $step = 1)
     {
-        $this->data($field, ['exp', $field . '+' . $step]);
+        $fields = is_string($field) ? explode(',', $field) : $field;
+        foreach ($fields as $field) {
+            $this->data($field, ['exp', $field . '+' . $step]);
+        }
         return $this;
     }
 
     /**
      * 字段值减少
      * @access public
-     * @param string  $field    字段名
-     * @param integer $step     增长值
+     * @param string|array  $field    字段名
+     * @param integer       $step     增长值
      * @return $this
      */
     public function dec($field, $step = 1)
     {
-        $this->data($field, ['exp', $field . '-' . $step]);
+        $fields = is_string($field) ? explode(',', $field) : $field;
+        foreach ($fields as $field) {
+            $this->data($field, ['exp', $field . '-' . $step]);
+        }
         return $this;
     }
 
