@@ -798,6 +798,62 @@ class Query
     }
 
     /**
+     * 设置数据
+     * @access public
+     * @param mixed $field 字段名或者数据
+     * @param mixed $value 字段值
+     * @return $this
+     */
+    public function data($field, $value = null)
+    {
+        if (is_array($field)) {
+            $this->options['data'] = $field;
+        } else {
+            $this->options['data'][$field] = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * 字段值增长
+     * @access public
+     * @param string  $field    字段名
+     * @param integer $step     增长值
+     * @return $this
+     */
+    public function inc($field, $step = 1)
+    {
+        $this->data($field, ['exp', $field . '+' . $step]);
+        return $this;
+    }
+
+    /**
+     * 字段值减少
+     * @access public
+     * @param string  $field    字段名
+     * @param integer $step     增长值
+     * @return $this
+     */
+    public function dec($field, $step = 1)
+    {
+        $this->data($field, ['exp', $field . '-' . $step]);
+        return $this;
+    }
+
+    /**
+     * 使用表达式设置数据
+     * @access public
+     * @param string  $field    字段名
+     * @param string  $value    字段值
+     * @return $this
+     */
+    public function exp($field, $value)
+    {
+        $this->data($field, ['exp', $value]);
+        return $this;
+    }
+
+    /**
      * 指定JOIN查询字段
      * @access public
      * @param string|array $table 数据表
@@ -1802,10 +1858,11 @@ class Query
      * @param string  $sequence     自增序列名
      * @return integer|string
      */
-    public function insert(array $data, $replace = false, $getLastInsID = false, $sequence = null)
+    public function insert(array $data = [], $replace = false, $getLastInsID = false, $sequence = null)
     {
         // 分析查询表达式
         $options = $this->parseExpress();
+        $data    = array_merge($options['data'], $data);
         // 生成SQL语句
         $sql = $this->builder->insert($data, $options, $replace);
         // 获取参数绑定
@@ -1900,9 +1957,10 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function update(array $data)
+    public function update(array $data = [])
     {
         $options = $this->parseExpress();
+        $data    = array_merge($options['data'], $data);
         $pk      = $this->getPk($options);
         if (isset($options['cache']) && is_string($options['cache'])) {
             $key = $options['cache'];
@@ -2380,6 +2438,10 @@ class Query
 
         if (!isset($options['field'])) {
             $options['field'] = '*';
+        }
+
+        if (!isset($options['data'])) {
+            $options['data'] = [];
         }
 
         if (!isset($options['strict'])) {
