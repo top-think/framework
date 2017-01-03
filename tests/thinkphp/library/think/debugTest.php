@@ -118,7 +118,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     {
         $useMem = Debug::getUseMem();
 
-        $this->assertLessThan(30, explode(" ", $useMem)[0]);
+        $this->assertLessThan(35, explode(" ", $useMem)[0]);
     }
 
     /**
@@ -161,7 +161,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     public function testDump()
     {
         if (strstr(PHP_VERSION, 'hhvm')) {
-            return ;
+            return;
         }
 
         $var        = [];
