@@ -334,9 +334,19 @@ abstract class Builder
         }
 
         $whereStr = '';
-        if (in_array($exp, ['=', '<>', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE'])) {
+        if (in_array($exp, ['=', '<>', '>', '>=', '<', '<='])) {
             // 比较运算 及 模糊匹配
             $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($value, $field);
+        } elseif ('LIKE' == $exp || 'NOT LIKE' == $exp) {
+            if (is_array($value)) {
+                foreach ($value as $item) {
+                    $array[] = $key . ' ' . $exp . ' ' . $this->parseValue($item, $field);
+                }
+                $logic = isset($val[2]) ? $val[2] : 'AND';
+                $whereStr .= '(' . implode($array, ' ' . strtoupper($logic) . ' ') . ')';
+            } else {
+                $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($value, $field);
+            }
         } elseif ('EXP' == $exp) {
             // 表达式查询
             $whereStr .= '( ' . $key . ' ' . $value . ' )';
