@@ -435,7 +435,7 @@ class Validate
                 $rule = $field . '_confirm';
             }
         }
-        return $this->getDataValue($data, $rule) == $value;
+        return $this->getDataValue($data, $rule) === $value;
     }
 
     /**
