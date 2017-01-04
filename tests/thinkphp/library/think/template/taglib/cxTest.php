@@ -389,7 +389,7 @@ default
 {/empty}
 EOF;
         $data = <<<EOF
-<?php $_var = \$var;if(empty($_var) || ($_var instanceof \\think\\Collection && $_var->isEmpty())): ?>
+<?php \$_var = \$var;if(empty(\$_var) || (\$_var instanceof \\think\\Collection && \$_var->isEmpty())): ?>
 default
 <?php endif; ?>
 EOF;
@@ -402,7 +402,7 @@ default
 {/notempty}
 EOF;
         $data = <<<EOF
-<?php $_var = \$var;if(!(empty($_var) || ($_var instanceof \\think\\Collection && $_var->isEmpty()))): ?>
+<?php \$_var = \$var;if(!(empty(\$_var) || (\$_var instanceof \\think\\Collection && \$_var->isEmpty()))): ?>
 default
 <?php endif; ?>
 EOF;
