@@ -437,6 +437,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif (isset($this->type[$name])) {
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
+        } elseif (in_array($name, [$this->createTime, $this->updateTime])) {
+            $value = $this->formatDateTime($value, $this->dateFormat);
         } elseif ($notFound) {
             $method = Loader::parseName($name, 1, false);
             if (method_exists($this, $method) && $this->$method() instanceof Relation) {
