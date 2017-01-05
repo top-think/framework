@@ -438,7 +438,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
         } elseif (in_array($name, [$this->createTime, $this->updateTime])) {
-            $value = $this->formatDateTime($value, $this->dateFormat);
+            if (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
+                $value = $this->formatDateTime(strtotime($value), $this->dateFormat);
+            } else {
+                $value = $this->formatDateTime($value, $this->dateFormat);
+            }
         } elseif ($notFound) {
             $method = Loader::parseName($name, 1, false);
             if (method_exists($this, $method) && $this->$method() instanceof Relation) {
@@ -724,7 +728,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->autoCompleteData($this->auto);
 
         // 自动写入更新时间
-        if ($this->autoWriteTimestamp && $this->updateTime && !isset($this->data[$this->updateTime])) {
+        if ($this->autoWriteTimestamp && $this->updateTime && (empty($this->change) || !in_array($this->updateTime, $this->change))) {
             $this->setAttr($this->updateTime, null);
         }
 
@@ -781,7 +785,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->autoCompleteData($this->insert);
 
             // 自动写入创建时间
-            if ($this->autoWriteTimestamp && $this->createTime && !isset($this->data[$this->createTime])) {
+            if ($this->autoWriteTimestamp && $this->createTime && (empty($this->change) || !in_array($this->createTime, $this->change))) {
                 $this->setAttr($this->createTime, null);
             }
 
