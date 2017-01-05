@@ -110,9 +110,10 @@ trait Jump
      * @param mixed     $msg 提示信息
      * @param string    $type 返回数据格式
      * @param array     $header 发送的Header信息
+     * @param array     $http_code 发送http_code 信息
      * @return void
      */
-    protected function result($data, $code = 0, $msg = '', $type = '', array $header = [])
+    protected function result($data, $code = 0, $msg = '', $type = '', array $header = [], $http_code)
     {
         $result = [
             'code' => $code,
@@ -121,7 +122,7 @@ trait Jump
             'data' => $data,
         ];
         $type     = $type ?: $this->getResponseType();
-        $response = Response::create($result, $type)->header($header);
+        $response = Response::create($result, $type, $http_code)->header($header);
         throw new HttpResponseException($response);
     }
 
