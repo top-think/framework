@@ -77,7 +77,12 @@ class Session
             ini_set('session.gc_maxlifetime', $config['expire']);
             ini_set('session.cookie_lifetime', $config['expire']);
         }
-
+        if (isset($config['secure'])) {
+            ini_set('session.cookie_secure', $config['secure']);
+        }
+        if (isset($config['httponly'])) {
+            ini_set('session.cookie_httponly', $config['httponly']);
+        }
         if (isset($config['use_cookies'])) {
             ini_set('session.use_cookies', $config['use_cookies'] ? 1 : 0);
         }
