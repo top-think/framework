@@ -389,7 +389,7 @@ default
 {/empty}
 EOF;
         $data = <<<EOF
-<?php \$_var = \$var;if(empty(\$_var) || (\$_var instanceof \\think\\Collection && \$_var->isEmpty())): ?>
+<?php if(empty(\$var) || (\$var instanceof \\think\\Collection && \$var->isEmpty())): ?>
 default
 <?php endif; ?>
 EOF;
@@ -402,7 +402,7 @@ default
 {/notempty}
 EOF;
         $data = <<<EOF
-<?php \$_var = \$var;if(!(empty(\$_var) || (\$_var instanceof \\think\\Collection && \$_var->isEmpty()))): ?>
+<?php if(!(empty(\$var) || (\$var instanceof \\think\\Collection && \$var->isEmpty()))): ?>
 default
 <?php endif; ?>
 EOF;
@@ -538,13 +538,13 @@ EOF;
     public function testUrl()
     {
         $template = new template();
-        $content  = <<<EOF
+        $content = <<<EOF
 {url link="Index/index"  /}
 EOF;
         $template->display($content);
         $this->expectOutputString(\think\Url::build('Index/index'));
     }
-
+    
     public function testFunction()
     {
         $template = new template();
