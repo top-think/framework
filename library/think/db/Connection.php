@@ -485,7 +485,7 @@ abstract class Connection
      */
     protected function getResult($pdo = false, $procedure = false)
     {
-        if (true === $class) {
+        if ($pdo) {
             // 返回PDOStatement对象处理
             return $this->PDOStatement;
         }
