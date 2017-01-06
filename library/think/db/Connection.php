@@ -95,6 +95,8 @@ abstract class Connection
         'slave_no'        => '',
         // 是否严格检查字段是否存在
         'fields_strict'   => true,
+        // 数据返回类型
+        'result_type'     => PDO::FETCH_ASSOC,
         // 数据集返回类型
         'resultset_type'  => 'array',
         // 自动写入时间戳字段
@@ -269,6 +271,10 @@ abstract class Connection
             if (isset($config['resultset_type'])) {
                 $this->resultSetType = $config['resultset_type'];
             }
+            // 数据返回类型
+            if (isset($config['result_type'])) {
+                $this->fetchType = $config['result_type'];
+            }
             try {
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
@@ -322,12 +328,12 @@ abstract class Connection
      * @param string        $sql sql指令
      * @param array         $bind 参数绑定
      * @param boolean       $master 是否在主服务器读操作
-     * @param bool|string   $class 指定返回的数据集对象
+     * @param bool          $pdo 是否返回PDO对象
      * @return mixed
      * @throws BindParamException
      * @throws PDOException
      */
-    public function query($sql, $bind = [], $master = false, $class = false)
+    public function query($sql, $bind = [], $master = false, $pdo = false)
     {
         $this->initConnect($master);
         if (!$this->linkID) {
@@ -356,7 +362,7 @@ abstract class Connection
             // 调试结束
             $this->debug(false);
             $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
-            return $this->getResult($class, $procedure);
+            return $this->getResult($pdo, $procedure);
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->queryStr);
         }
@@ -473,11 +479,11 @@ abstract class Connection
     /**
      * 获得数据集
      * @access protected
-     * @param bool|string   $class true 返回PDOStatement 字符串用于指定返回的类名
-     * @param bool          $procedure 是否存储过程
+     * @param bool   $pdo 是否返回PDOStatement
+     * @param bool   $procedure 是否存储过程
      * @return mixed
      */
-    protected function getResult($class = '', $procedure = false)
+    protected function getResult($pdo = false, $procedure = false)
     {
         if (true === $class) {
             // 返回PDOStatement对象处理
@@ -485,7 +491,7 @@ abstract class Connection
         }
         if ($procedure) {
             // 存储过程返回结果
-            return $this->procedure($class);
+            return $this->procedure();
         }
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
@@ -500,14 +506,13 @@ abstract class Connection
     /**
      * 获得存储过程数据集
      * @access protected
-     * @param bool|string $class true 返回PDOStatement 字符串用于指定返回的类名
      * @return array
      */
-    protected function procedure($class)
+    protected function procedure()
     {
         $item = [];
         do {
-            $result = $this->getResult($class);
+            $result = $this->getResult();
             if ($result) {
                 $item[] = $result;
             }
