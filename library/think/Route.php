@@ -1097,7 +1097,7 @@ class Route
      * 绑定到模块/控制器
      * @access public
      * @param string    $url URL地址
-     * @param string    $class 控制器类名（带命名空间）
+     * @param string    $controller 控制器类名（带命名空间）
      * @param string    $depr URL分隔符
      * @return array
      */
