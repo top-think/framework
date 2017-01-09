@@ -165,9 +165,9 @@ class Lang
             $langSet = strtolower($matches[1]);
             Cookie::set(self::$langCookieVar, $langSet, self::$langCookieExpire);
         }
-        if (empty(self::$allowLangList) || in_array($langSet, self::$allowLangList)) {
+        if (!empty(self::$allowLangList) && in_array($langSet, self::$allowLangList)) {
             // 合法的语言
-            self::$range = $langSet ?: self::$range;
+            self::$range = $langSet;
         }
         if ('zh-hans-cn' == self::$range) {
             self::$range = 'zh-cn';
