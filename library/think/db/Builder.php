@@ -316,7 +316,7 @@ abstract class Builder
                 throw new Exception('where express error:' . $exp);
             }
         }
-        $bindName = $bindName ?: 'where_' . str_replace('.', '_', $field);
+        $bindName = $bindName ?: 'where_' . str_replace(['.', '-'], '_', $field);
         if (preg_match('/\W/', $bindName)) {
             // 处理带非单词字符的字段名
             $bindName = md5($bindName);
