@@ -118,7 +118,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static $initialized = [];
 
     /**
-     * 架构函数
+     * 构造方法
      * @access public
      * @param array|object $data 数据
      */

@@ -120,7 +120,7 @@ class Request
     protected $isCheckCache;
 
     /**
-     * 架构函数
+     * 构造函数
      * @access protected
      * @param array $options 参数
      */

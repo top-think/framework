@@ -40,7 +40,7 @@ class Response
     protected $content = null;
 
     /**
-     * 架构函数
+     * 构造函数
      * @access   public
      * @param mixed $data    输出数据
      * @param int   $code

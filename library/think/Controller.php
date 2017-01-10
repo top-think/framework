@@ -40,7 +40,7 @@ class Controller
     protected $beforeActionList = [];
 
     /**
-     * 架构函数
+     * 构造方法
      * @param Request $request Request对象
      * @access public
      */
