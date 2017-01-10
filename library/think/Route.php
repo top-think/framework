@@ -1164,7 +1164,7 @@ class Route
         $len1 = substr_count($url, '|');
         $len2 = substr_count($rule, '/');
         // 多余参数是否合并
-        $merge = !empty($option['merge_extra_vars']) ? true : false;
+        $merge = !empty($option['merge_extra_vars']);
         if ($merge && $len1 > $len2) {
             $url = str_replace('|', $depr, $url);
             $url = implode('|', explode($depr, $url, $len2 + 1));
