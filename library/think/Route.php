@@ -232,6 +232,7 @@ class Route
     public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [])
     {
         $group = self::getGroup('name');
+
         if (!is_null($group)) {
             // 路由分组
             $option  = array_merge(self::getGroup('option'), $option);
@@ -306,6 +307,9 @@ class Route
         if (isset($name)) {
             $key = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
             self::name($name, [$key, $vars, self::$domain]);
+        }
+        if (isset($option['modular'])) {
+            $route = $option['modular'] . '/' . $route;
         }
         if ($group) {
             if ('*' != $type) {
