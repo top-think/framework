@@ -21,7 +21,7 @@ class File extends Driver
 {
     protected $options = [
         'expire'        => 0,
-        'cache_subdir'  => false,
+        'cache_subdir'  => true,
         'prefix'        => '',
         'path'          => CACHE_PATH,
         'data_compress' => false,

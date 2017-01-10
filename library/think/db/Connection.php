@@ -95,6 +95,8 @@ abstract class Connection
         'slave_no'        => '',
         // 是否严格检查字段是否存在
         'fields_strict'   => true,
+        // 数据返回类型
+        'result_type'     => PDO::FETCH_ASSOC,
         // 数据集返回类型
         'resultset_type'  => 'array',
         // 自动写入时间戳字段
@@ -272,6 +274,10 @@ abstract class Connection
             if (isset($config['resultset_type'])) {
                 $this->resultSetType = $config['resultset_type'];
             }
+            // 数据返回类型
+            if (isset($config['result_type'])) {
+                $this->fetchType = $config['result_type'];
+            }
             try {
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
@@ -326,6 +332,10 @@ abstract class Connection
      * @param array     $bind 参数绑定
      * @param bool      $master 是否在主服务器读操作
      * @param bool      $class 是否返回PDO对象
+     * @param string        $sql sql指令
+     * @param array         $bind 参数绑定
+     * @param boolean       $master 是否在主服务器读操作
+     * @param bool          $pdo 是否返回PDO对象
      * @return mixed
      * @throws BindParamException
      * @throws PDOException
@@ -369,7 +379,7 @@ abstract class Connection
             // 调试结束
             $this->debug(false);
             // 返回结果集
-            return $this->getResult($class, $procedure);
+            return $this->getResult($pdo, $procedure);
         } catch (\PDOException $e) {
             throw new PDOException($e, $this->config, $this->getLastsql());
         }

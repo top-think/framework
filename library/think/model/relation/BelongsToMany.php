@@ -308,7 +308,7 @@ class BelongsToMany extends Relation
      * @param bool              $relationDel 是否同时删除关联表数据
      * @return integer
      */
-    public function detach($data, $relationDel = false)
+    public function detach($data = null, $relationDel = false)
     {
         if (is_array($data)) {
             $id = $data;
