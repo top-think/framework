@@ -973,6 +973,156 @@ class Query
     }
 
     /**
+     * 指定Null查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereNull($field, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'null', null);
+        return $this;
+    }
+
+    /**
+     * 指定NotNull查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereNotNull($field, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'notnull', null);
+        return $this;
+    }
+
+    /**
+     * 指定Exists查询条件
+     * @access public
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereExists($condition, $logic = 'AND')
+    {
+        $this->options['where'][strtoupper($logic)][] = ['exists', $condition];
+        return $this;
+    }
+
+    /**
+     * 指定NotExists查询条件
+     * @access public
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereNotExists($condition, $logic = 'AND')
+    {
+        $this->options['where'][strtoupper($logic)][] = ['not exists', $condition];
+        return $this;
+    }
+
+    /**
+     * 指定In查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereIn($field, $condition, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'in', $condition);
+        return $this;
+    }
+
+    /**
+     * 指定NotIn查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereNotIn($field, $condition, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'not in', $condition);
+        return $this;
+    }
+
+    /**
+     * 指定Like查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereLike($field, $condition, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'like', $condition);
+        return $this;
+    }
+
+    /**
+     * 指定NotLike查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereNotLike($field, $condition, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'not like', $condition);
+        return $this;
+    }
+
+    /**
+     * 指定Between查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereBetween($field, $condition, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'between', $condition);
+        return $this;
+    }
+
+    /**
+     * 指定NotBetween查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereNotBetween($field, $condition, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'not between', $condition);
+        return $this;
+    }
+
+    /**
+     * 指定Exp查询条件
+     * @access public
+     * @param mixed     $field     查询字段
+     * @param mixed     $condition 查询条件
+     * @param string    $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereExp($field, $condition, $logic = 'AND')
+    {
+        $this->parseWhereExp($logic, $field, 'exp', $condition);
+        return $this;
+    }
+
+    /**
      * 分析查询表达式
      * @access public
      * @param string                $logic     查询逻辑 and or xor
@@ -984,6 +1134,7 @@ class Query
      */
     protected function parseWhereExp($logic, $field, $op, $condition, $param = [])
     {
+        $logic = strtoupper($logic);
         if ($field instanceof \Closure) {
             $this->options['where'][$logic][] = is_string($op) ? [$op, $field] : $field;
             return;
@@ -1405,7 +1556,7 @@ class Query
      */
     public function fetchPdo($pdo = true)
     {
-        $this->options['fetch_class'] = $pdo;
+        $this->options['fetch_pdo'] = $pdo;
         return $this;
     }
 
@@ -2076,7 +2227,7 @@ class Query
             if ($resultSet = $this->trigger('before_select', $options)) {
             } else {
                 // 执行查询操作
-                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
 
                 if ($resultSet instanceof \PDOStatement) {
                     // 返回PDOStatement对象
@@ -2179,7 +2330,7 @@ class Query
             if ($result = $this->trigger('before_find', $options)) {
             } else {
                 // 执行查询
-                $result = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+                $result = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
 
                 if ($result instanceof \PDOStatement) {
                     // 返回PDOStatement对象
@@ -2459,7 +2610,7 @@ class Query
             $options['strict'] = $this->getConfig('fields_strict');
         }
 
-        foreach (['master', 'lock', 'fetch_class', 'fetch_sql', 'distinct'] as $name) {
+        foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
