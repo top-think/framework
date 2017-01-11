@@ -37,7 +37,7 @@ use think\paginator\Collection as PaginatorCollection;
  * @method static integer avg($field = '*') AVG查询
  * @method static setField($field, $value = '')
  * @method static Query where($field, $op = null, $condition = null) 指定AND查询条件
- * @method static static findOrFail($data = null) 查找单条记录 如果不存在则抛出异常
+ * @method static findOrFail($data = null) 查找单条记录 如果不存在则抛出异常
  *
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
@@ -401,6 +401,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 break;
             case 'array':
                 $value = (array) $value;
+                break;
             case 'json':
                 $option = !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE;
                 $value  = json_encode($value, $option);
