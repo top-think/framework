@@ -1400,7 +1400,7 @@ class Query
      */
     public function fetchPdo($pdo = true)
     {
-        $this->options['fetch_class'] = $pdo;
+        $this->options['fetch_pdo'] = $pdo;
         return $this;
     }
 
@@ -2071,7 +2071,7 @@ class Query
             if ($resultSet = $this->trigger('before_select', $options)) {
             } else {
                 // 执行查询操作
-                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
 
                 if ($resultSet instanceof \PDOStatement) {
                     // 返回PDOStatement对象
@@ -2174,7 +2174,7 @@ class Query
             if ($result = $this->trigger('before_find', $options)) {
             } else {
                 // 执行查询
-                $result = $this->query($sql, $bind, $options['master'], $options['fetch_class']);
+                $result = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
 
                 if ($result instanceof \PDOStatement) {
                     // 返回PDOStatement对象
@@ -2454,7 +2454,7 @@ class Query
             $options['strict'] = $this->getConfig('fields_strict');
         }
 
-        foreach (['master', 'lock', 'fetch_class', 'fetch_sql', 'distinct'] as $name) {
+        foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
