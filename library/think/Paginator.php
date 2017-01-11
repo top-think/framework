@@ -120,7 +120,17 @@ abstract class Paginator
         if (!empty($parameters)) {
             $url .= '?' . urldecode(http_build_query($parameters, null, '&'));
         }
-        return $url . $this->buildFragment();
+        //获取url GET数据 拼接分页url 
+        $search_data=Request::instance()->request();
+        $last_url=$url . $this->buildFragment();
+        if(!empty($search_data)){
+            foreach ($search_data as $k=>$v){
+                if($k != $this->options['var_page']){
+                    $last_url.='&'.urldecode($k).'='.urldecode($v);
+                }
+            }
+        }
+        return $last_url;
     }
 
     /**
