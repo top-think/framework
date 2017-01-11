@@ -1115,9 +1115,9 @@ class Query
 
     /**
      * 分页查询
-     * @param int|null $listRows 每页数量
-     * @param int|bool $simple   简洁模式或者总记录数
-     * @param array    $config   配置参数
+     * @param int|array $listRows 每页数量 数组表示配置参数
+     * @param int|bool  $simple   是否简洁模式或者总记录数
+     * @param array     $config   配置参数
      *                           page:当前页,
      *                           path:url路径,
      *                           query:url额外参数,
@@ -1134,8 +1134,13 @@ class Query
             $total  = $simple;
             $simple = false;
         }
-        $config   = array_merge(Config::get('paginate'), $config);
-        $listRows = $listRows ?: $config['list_rows'];
+        if (is_array($listRows)) {
+            $config   = array_merge(Config::get('paginate'), $listRows);
+            $listRows = $config['list_rows'];
+        } else {
+            $config   = array_merge(Config::get('paginate'), $config);
+            $listRows = $listRows ?: $config['list_rows'];
+        }
 
         /** @var Paginator $class */
         $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\paginator\\driver\\' . ucwords($config['type']);
