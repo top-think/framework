@@ -1154,7 +1154,7 @@ class Query
                 // 数组批量查询
                 $where = $field;
                 foreach ($where as $k => $val) {
-                    $this->options['multi'][$k][] = $val;
+                    $this->options['multi'][$logic][$k][] = $val;
                 }
             } elseif ($field && is_string($field)) {
                 // 字符串查询
