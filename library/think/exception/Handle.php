@@ -150,7 +150,7 @@ class Handle
                 $data['message'] = Config::get('error_message');
             }
         }
-        if (Request::instance()->isAjax() == false) {
+        if (Request::instance()->isAjax()) {
             $type = Config::get('default_ajax_return');
             $content = $data;
         } else {
