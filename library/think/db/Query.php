@@ -1644,7 +1644,7 @@ class Query
             switch (strtolower($op)) {
                 case 'today':
                 case 'd':
-                    $range = 'today';
+                    $range = ['today', 'tomorrow'];
                     break;
                 case 'week':
                 case 'w':
