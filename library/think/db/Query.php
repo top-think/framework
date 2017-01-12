@@ -1169,7 +1169,8 @@ class Query
             $this->options['multi'][$logic][$field][] = $where[$field];
         } elseif (is_null($condition)) {
             // 字段相等查询
-            $where[$field] = ['eq', $op];
+            $where[$field]                            = ['eq', $op];
+            $this->options['multi'][$logic][$field][] = $where[$field];
         } else {
             $where[$field] = [$op, $condition, isset($param[2]) ? $param[2] : null];
             if ('exp' == strtolower($op) && isset($param[2]) && is_array($param[2])) {
