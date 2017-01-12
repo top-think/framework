@@ -1670,6 +1670,8 @@ class Query
                 case 'last year':
                     $range = [mktime(0, 0, 0, 1, 1, $date['year'] - 1), mktime(0, 0, 0, 1, 1, $date['year'])];
                     break;
+                default:
+                    $range = $op;
             }
             $op = is_array($range) ? 'between' : '>';
         }
