@@ -522,7 +522,7 @@ class Query
      * @param string $field 字段名
      * @return float|int
      */
-    public function sum($field = '*')
+    public function sum($field)
     {
         return $this->value('SUM(' . $field . ') AS tp_sum', 0, true);
     }
@@ -533,7 +533,7 @@ class Query
      * @param string $field 字段名
      * @return mixed
      */
-    public function min($field = '*')
+    public function min($field)
     {
         return $this->value('MIN(' . $field . ') AS tp_min', 0, true);
     }
@@ -544,7 +544,7 @@ class Query
      * @param string $field 字段名
      * @return mixed
      */
-    public function max($field = '*')
+    public function max($field)
     {
         return $this->value('MAX(' . $field . ') AS tp_max', 0, true);
     }
@@ -555,7 +555,7 @@ class Query
      * @param string $field 字段名
      * @return float|int
      */
-    public function avg($field = '*')
+    public function avg($field)
     {
         return $this->value('AVG(' . $field . ') AS tp_avg', 0, true);
     }
