@@ -1222,9 +1222,9 @@ class Validate
             $msg = Lang::get(substr($msg, 2, -1));
         }
 
-        if (is_string($msg) && is_string($rule) && false !== strpos($msg, ':')) {
+        if (is_string($msg) && is_scalar($rule) && false !== strpos($msg, ':')) {
             // 变量替换
-            if (strpos($rule, ',')) {
+            if (is_string($rule) && strpos($rule, ',')) {
                 $array = array_pad(explode(',', $rule), 3, '');
             } else {
                 $array = array_pad([], 3, '');
