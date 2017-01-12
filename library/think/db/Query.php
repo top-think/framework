@@ -1158,13 +1158,15 @@ class Query
                 }
             } elseif ($field && is_string($field)) {
                 // 字符串查询
-                $where[$field] = ['null', ''];
+                $where[$field]                            = ['null', ''];
+                $this->options['multi'][$logic][$field][] = $where[$field];
             }
         } elseif (is_array($op)) {
             $where[$field] = $param;
         } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
             // null查询
-            $where[$field] = [$op, ''];
+            $where[$field]                            = [$op, ''];
+            $this->options['multi'][$logic][$field][] = $where[$field];
         } elseif (is_null($condition)) {
             // 字段相等查询
             $where[$field] = ['eq', $op];
