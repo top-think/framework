@@ -409,7 +409,7 @@ class Query
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
-            $pdo = $this->field($field)->fetchPdo(true)->find();
+            $pdo = $this->field($field)->limit(1)->getPdo();
             if (is_string($pdo)) {
                 // 返回SQL语句
                 return $pdo;
@@ -459,7 +459,7 @@ class Query
             if ($key && '*' != $field) {
                 $field = $key . ',' . $field;
             }
-            $pdo = $this->field($field)->fetchPdo(true)->select();
+            $pdo = $this->field($field)->getPdo();
             if (is_string($pdo)) {
                 // 返回SQL语句
                 return $pdo;
@@ -2186,6 +2186,27 @@ class Query
             }
             return $result;
         }
+    }
+
+    /**
+     * 执行查询但只返回PDOStatement对象
+     * @access public
+     * @return \PDOStatement|string
+     */
+    public function getPdo()
+    {
+        // 分析查询表达式
+        $options = $this->parseExpress();
+        // 生成查询SQL
+        $sql = $this->builder->select($options);
+        // 获取参数绑定
+        $bind = $this->getBind();
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->connection->getRealSql($sql, $bind);
+        }
+        // 执行查询操作
+        return $this->query($sql, $bind, $options['master'], true);
     }
 
     /**
