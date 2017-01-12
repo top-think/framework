@@ -1175,18 +1175,18 @@ class Query
                 $this->bind($param[2]);
             }
             // 记录一个字段多次查询条件
-            $this->options['multi'][$field][] = $where[$field];
+            $this->options['multi'][$logic][$field][] = $where[$field];
         }
         if (!empty($where)) {
             if (!isset($this->options['where'][$logic])) {
                 $this->options['where'][$logic] = [];
             }
-            if (is_string($field) && $this->checkMultiField($field)) {
-                $where[$field] = $this->options['multi'][$field];
+            if (is_string($field) && $this->checkMultiField($field, $logic)) {
+                $where[$field] = $this->options['multi'][$logic][$field];
             } elseif (is_array($field)) {
                 foreach ($field as $key => $val) {
-                    if ($this->checkMultiField($key)) {
-                        $where[$key] = $this->options['multi'][$key];
+                    if ($this->checkMultiField($key, $logic)) {
+                        $where[$key] = $this->options['multi'][$logic][$key];
                     }
                 }
             }
@@ -1194,10 +1194,16 @@ class Query
         }
     }
 
-    // 检查是否存在一个字段多次查询条件
-    private function checkMultiField($field)
+    /**
+     * 检查是否存在一个字段多次查询条件
+     * @access public
+     * @param string $field     查询字段
+     * @param string $logic     查询逻辑 and or xor
+     * @return bool
+     */
+    private function checkMultiField($field, $logic)
     {
-        return isset($this->options['multi'][$field]) && count($this->options['multi'][$field]) > 1;
+        return isset($this->options['multi'][$logic][$field]) && count($this->options['multi'][$logic][$field]) > 1;
     }
 
     /**
