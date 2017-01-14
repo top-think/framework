@@ -39,7 +39,7 @@ class View
         $base    = $request->root();
         $root    = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
         if ('' != $root) {
-            $root = '/' . ltrim($root, '/');
+            $root = '/' . ltrim($root, DS);
         }
         $baseReplace = [
             '__ROOT__'   => $root,
