@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -12,7 +12,6 @@
 namespace think;
 
 use think\paginator\Collection as PaginatorCollection;
-use think\Request;
 
 abstract class Paginator
 {
@@ -42,14 +41,14 @@ abstract class Paginator
         'var_page' => 'page',
         'path'     => '/',
         'query'    => [],
-        'fragment' => ''
+        'fragment' => '',
     ];
 
     protected function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
-        $this->options['path'] = $this->options['path'] != '/' ? rtrim($this->options['path'], '/') : $this->options['path'];
+        $this->options['path'] = '/' != $this->options['path'] ? rtrim($this->options['path'], '/') : $this->options['path'];
 
         $this->simple   = $simple;
         $this->listRows = $listRows;
@@ -63,7 +62,7 @@ abstract class Paginator
             $items             = $items->slice(0, $this->listRows);
         } else {
             $this->total       = $total;
-            $this->lastPage    = (int)ceil($total / $listRows);
+            $this->lastPage    = (int) ceil($total / $listRows);
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = $this->currentPage < $this->lastPage;
         }
@@ -134,7 +133,7 @@ abstract class Paginator
     {
         $page = Request::instance()->request($varPage);
 
-        if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int)$page >= 1) {
+        if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int) $page >= 1) {
             return $page;
         }
 
@@ -182,7 +181,7 @@ abstract class Paginator
      */
     public function hasPages()
     {
-        return !($this->currentPage == 1 && !$this->hasMore);
+        return !(1 == $this->currentPage && !$this->hasMore);
     }
 
     /**
@@ -238,7 +237,6 @@ abstract class Paginator
 
         return $this;
     }
-
 
     /**
      * 构造锚点字符串

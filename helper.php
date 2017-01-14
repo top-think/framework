@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -117,7 +117,7 @@ if (!function_exists('input')) {
      * @param string    $filter 过滤方法
      * @return mixed
      */
-    function input($key = '', $default = null, $filter = null)
+    function input($key = '', $default = null, $filter = '')
     {
         if (0 === strpos($key, '?')) {
             $key = substr($key, 1);
@@ -125,10 +125,9 @@ if (!function_exists('input')) {
         }
         if ($pos = strpos($key, '.')) {
             // 指定参数来源
-            $method = substr($key, 0, $pos);
-            if (in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
-                $key = substr($key, $pos + 1);
-            } else {
+            list($method, $key) = explode('.', $key, 2);
+            if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
+                $key    = $method . '.' . $key;
                 $method = 'param';
             }
         } else {
@@ -298,7 +297,7 @@ if (!function_exists('session')) {
             Session::init($name);
         } elseif (is_null($name)) {
             // 清除
-            Session::clear($value);
+            Session::clear('' === $value ? null : $value);
         } elseif ('' === $value) {
             // 判断或获取
             return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
@@ -359,12 +358,17 @@ if (!function_exists('cache')) {
             // 缓存初始化
             return Cache::connect($name);
         }
-        if ('' === $value) {
+        if (is_null($name)) {
+            return Cache::clear($value);
+        } elseif ('' === $value) {
             // 获取缓存
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::rm($name);
+        } elseif (0 === strpos($name, '?') && '' !== $value) {
+            $expire = is_numeric($options) ? $options : null;
+            return Cache::remember(substr($name, 1), $value, $expire);
         } else {
             // 缓存数据
             if (is_array($options)) {

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -105,8 +105,29 @@ abstract class Driver
             $this->rm($name);
             return $result;
         } else {
-            return null;
+            return;
         }
+    }
+
+    /**
+     * 如果不存在则写入缓存
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param int       $expire  有效时间 0为永久
+     * @return mixed
+     */
+    public function remember($name, $value, $expire = null)
+    {
+        if (!$this->has($name)) {
+            if ($value instanceof \Closure) {
+                $value = call_user_func($value);
+            }
+            $this->set($name, $value, $expire);
+        } else {
+            $value = $this->get($name);
+        }
+        return $value;
     }
 
     /**

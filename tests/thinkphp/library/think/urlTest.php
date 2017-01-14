@@ -25,13 +25,13 @@ class urlTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        Route::rules(['GET' => [],
-            'POST'              => [],
-            'PUT'               => [],
-            'DELETE'            => [],
-            'PATCH'             => [],
-            'HEAD'              => [],
-            'OPTIONS'           => [],
+        Route::rules(['get' => [],
+            'post'              => [],
+            'put'               => [],
+            'delete'            => [],
+            'patch'             => [],
+            'head'              => [],
+            'options'           => [],
             '*'                 => [],
             'alias'             => [],
             'domain'            => [],

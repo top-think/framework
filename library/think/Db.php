@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -11,8 +11,7 @@
 
 namespace think;
 
-use think\App;
-use think\Collection;
+use think\db\Connection;
 use think\db\Query;
 use think\paginator\Collection as PaginatorCollection;
 
@@ -42,6 +41,9 @@ use think\paginator\Collection as PaginatorCollection;
  * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
  * @method PaginatorCollection paginate(integer $listRows = 15, mixed $simple = false, array $config = []) static 分页查询
  * @method mixed transaction(callable $callback) static 执行数据库事务
+ * @method void startTrans() static 启动事务
+ * @method void commit() static 用于非自动提交状态下面的查询提交
+ * @method void rollback() static 事务回滚
  * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
  */
 class Db
@@ -59,7 +61,7 @@ class Db
      * @access public
      * @param mixed         $config 连接配置
      * @param bool|string   $name 连接标识 true 强制重新连接
-     * @return \think\db\Connection
+     * @return Connection
      * @throws Exception
      */
     public static function connect($config = [], $name = false)
