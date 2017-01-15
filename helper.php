@@ -548,3 +548,20 @@ if (!function_exists('token')) {
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
     }
 }
+
+if (!function_exists('loadRelation')) {
+    /**
+     * 延迟预载入关联查询
+     * @param mixed $resultSet 数据集
+     * @param mixed $relation 关联
+     * @return array
+     */
+    function loadRelation($resultSet, $relation)
+    {
+        $item = current($resultSet);
+        if ($item instanceof Model) {
+            $item->eagerlyResultSet($resultSet, $relation);
+        }
+        return $resultSet;
+    }
+}
