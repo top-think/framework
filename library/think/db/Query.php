@@ -409,7 +409,7 @@ class Query
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
-            $pdo = $this->field($field)->fetchPdo(true)->find();
+            $pdo = $this->field($field)->limit(1)->getPdo();
             if (is_string($pdo)) {
                 // 返回SQL语句
                 return $pdo;
@@ -459,7 +459,7 @@ class Query
             if ($key && '*' != $field) {
                 $field = $key . ',' . $field;
             }
-            $pdo = $this->field($field)->fetchPdo(true)->select();
+            $pdo = $this->field($field)->getPdo();
             if (is_string($pdo)) {
                 // 返回SQL语句
                 return $pdo;
@@ -522,7 +522,7 @@ class Query
      * @param string $field 字段名
      * @return float|int
      */
-    public function sum($field = '*')
+    public function sum($field)
     {
         return $this->value('SUM(' . $field . ') AS tp_sum', 0, true);
     }
@@ -533,7 +533,7 @@ class Query
      * @param string $field 字段名
      * @return mixed
      */
-    public function min($field = '*')
+    public function min($field)
     {
         return $this->value('MIN(' . $field . ') AS tp_min', 0, true);
     }
@@ -544,7 +544,7 @@ class Query
      * @param string $field 字段名
      * @return mixed
      */
-    public function max($field = '*')
+    public function max($field)
     {
         return $this->value('MAX(' . $field . ') AS tp_max', 0, true);
     }
@@ -555,7 +555,7 @@ class Query
      * @param string $field 字段名
      * @return float|int
      */
-    public function avg($field = '*')
+    public function avg($field)
     {
         return $this->value('AVG(' . $field . ') AS tp_avg', 0, true);
     }
@@ -1154,20 +1154,25 @@ class Query
                 // 数组批量查询
                 $where = $field;
                 foreach ($where as $k => $val) {
-                    $this->options['multi'][$k][] = $val;
+                    $this->options['multi'][$logic][$k][] = $val;
                 }
             } elseif ($field && is_string($field)) {
                 // 字符串查询
-                $where[$field] = ['null', ''];
+                $where[$field]                            = ['null', ''];
+                $this->options['multi'][$logic][$field][] = $where[$field];
             }
         } elseif (is_array($op)) {
             $where[$field] = $param;
         } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
             // null查询
-            $where[$field] = [$op, ''];
+            $where[$field]                            = [$op, ''];
+            $this->options['multi'][$logic][$field][] = $where[$field];
         } elseif (is_null($condition)) {
             // 字段相等查询
             $where[$field] = ['eq', $op];
+            if ('AND' != $logic) {
+                $this->options['multi'][$logic][$field][] = $where[$field];
+            }
         } else {
             $where[$field] = [$op, $condition, isset($param[2]) ? $param[2] : null];
             if ('exp' == strtolower($op) && isset($param[2]) && is_array($param[2])) {
@@ -1175,18 +1180,18 @@ class Query
                 $this->bind($param[2]);
             }
             // 记录一个字段多次查询条件
-            $this->options['multi'][$field][] = $where[$field];
+            $this->options['multi'][$logic][$field][] = $where[$field];
         }
         if (!empty($where)) {
             if (!isset($this->options['where'][$logic])) {
                 $this->options['where'][$logic] = [];
             }
-            if (is_string($field) && $this->checkMultiField($field)) {
-                $where[$field] = $this->options['multi'][$field];
+            if (is_string($field) && $this->checkMultiField($field, $logic)) {
+                $where[$field] = $this->options['multi'][$logic][$field];
             } elseif (is_array($field)) {
                 foreach ($field as $key => $val) {
-                    if ($this->checkMultiField($key)) {
-                        $where[$key] = $this->options['multi'][$key];
+                    if ($this->checkMultiField($key, $logic)) {
+                        $where[$key] = $this->options['multi'][$logic][$key];
                     }
                 }
             }
@@ -1194,10 +1199,16 @@ class Query
         }
     }
 
-    // 检查是否存在一个字段多次查询条件
-    private function checkMultiField($field)
+    /**
+     * 检查是否存在一个字段多次查询条件
+     * @access public
+     * @param string $field     查询字段
+     * @param string $logic     查询逻辑 and or xor
+     * @return bool
+     */
+    private function checkMultiField($field, $logic)
     {
-        return isset($this->options['multi'][$field]) && count($this->options['multi'][$field]) > 1;
+        return isset($this->options['multi'][$logic][$field]) && count($this->options['multi'][$logic][$field]) > 1;
     }
 
     /**
@@ -1635,7 +1646,7 @@ class Query
             switch (strtolower($op)) {
                 case 'today':
                 case 'd':
-                    $range = 'today';
+                    $range = ['today', 'tomorrow'];
                     break;
                 case 'week':
                 case 'w':
@@ -1661,6 +1672,8 @@ class Query
                 case 'last year':
                     $range = [mktime(0, 0, 0, 1, 1, $date['year'] - 1), mktime(0, 0, 0, 1, 1, $date['year'])];
                     break;
+                default:
+                    $range = $op;
             }
             $op = is_array($range) ? 'between' : '>';
         }
@@ -2177,6 +2190,27 @@ class Query
             }
             return $result;
         }
+    }
+
+    /**
+     * 执行查询但只返回PDOStatement对象
+     * @access public
+     * @return \PDOStatement|string
+     */
+    public function getPdo()
+    {
+        // 分析查询表达式
+        $options = $this->parseExpress();
+        // 生成查询SQL
+        $sql = $this->builder->select($options);
+        // 获取参数绑定
+        $bind = $this->getBind();
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->connection->getRealSql($sql, $bind);
+        }
+        // 执行查询操作
+        return $this->query($sql, $bind, $options['master'], true);
     }
 
     /**
