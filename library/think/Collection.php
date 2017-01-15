@@ -16,7 +16,6 @@ use ArrayIterator;
 use Countable;
 use IteratorAggregate;
 use JsonSerializable;
-use think\Model;
 
 class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
