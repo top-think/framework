@@ -38,12 +38,16 @@ class BelongsTo extends OneToOne
 
     /**
      * 延迟获取关联数据
+     * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation()
+    public function getRelation($closure = null)
     {
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
         return $this->query->where($localKey, $this->parent->$foreignKey)->find();
     }
 

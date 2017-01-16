@@ -46,13 +46,17 @@ class BelongsToMany extends Relation
 
     /**
      * 延迟获取关联数据
+     * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation()
+    public function getRelation($closure = null)
     {
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
         $middle     = $this->middle;
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
         // 关联查询
         $pk                              = $this->parent->getPk();
         $condition['pivot.' . $localKey] = $this->parent->$pk;

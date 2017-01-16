@@ -39,9 +39,10 @@ class MorphTo extends Relation
 
     /**
      * 延迟获取关联数据
+     * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation()
+    public function getRelation($closure = null)
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;

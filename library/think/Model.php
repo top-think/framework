@@ -1281,8 +1281,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $relations = explode(',', $relations);
         }
 
-        foreach ($relations as $relation) {
-            $this->data[$relation] = $this->$relation()->getRelation();
+        foreach ($relations as $key => $relation) {
+            $closure = null;
+            if ($relation instanceof \Closure) {
+                // 支持闭包查询过滤关联条件
+                $closure  = $relation;
+                $relation = $key;
+            }
+            $method                = Loader::parseName($relation, 1, false);
+            $this->data[$relation] = $this->$method()->getRelation($closure);
         }
         return $this;
     }
