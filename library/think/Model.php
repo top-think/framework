@@ -1228,7 +1228,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 根据关联条件查询当前模型
      * @access public
      * @param string    $relation 关联方法名
-     * @param string    $operator 比较操作符
+     * @param mixed     $operator 比较操作符
      * @param integer   $count 个数
      * @param string    $id 关联表的统计字段
      * @return Model
@@ -1236,6 +1236,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
         $model = new static();
+        if (is_array($operator) || $operator instanceof \Closure) {
+            return $model->$relation()->hasWhere($model, $operator);
+        }
         return $model->$relation()->has($model, $operator, $count, $id);
     }
 
