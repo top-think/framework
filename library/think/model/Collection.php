@@ -24,9 +24,7 @@ class Collection extends BaseCollection
     public function load($relation)
     {
         $item = current($this->items);
-        if ($item instanceof Model) {
-            $item->eagerlyResultSet($this->items, $relation);
-        }
+        $item->eagerlyResultSet($this->items, $relation);
         return $this;
     }
 }
