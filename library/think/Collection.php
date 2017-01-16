@@ -225,7 +225,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
         $result = [];
         foreach ($this->items as $row) {
-            $key    = $value    = null;
+            $key    = $value = null;
             $keySet = $valueSet = false;
             if (null !== $index_key && array_key_exists($index_key, $row)) {
                 $keySet = true;
