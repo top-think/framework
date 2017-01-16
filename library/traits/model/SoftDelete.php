@@ -64,6 +64,8 @@ trait SoftDelete
             $result            = $this->isUpdate()->save();
         } else {
             $result = $this->db()->delete($this->data);
+        } elseif (is_null($data)) {
+            return 0;
         }
 
         $this->trigger('after_delete', $this);
