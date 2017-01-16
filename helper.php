@@ -23,6 +23,7 @@ use think\exception\HttpResponseException;
 use think\Lang;
 use think\Loader;
 use think\Log;
+use think\model\Collection;
 use think\Request;
 use think\Response;
 use think\Session;
@@ -563,5 +564,17 @@ if (!function_exists('load_relation')) {
             $item->eagerlyResultSet($resultSet, $relation);
         }
         return $resultSet;
+    }
+}
+
+if (!function_exists('collection')) {
+    /**
+     * 数组转换为数据集对象
+     * @param array $resultSet 数据集数组
+     * @return Collection
+     */
+    function collection($resultSet)
+    {
+        return new Collection($resultSet);
     }
 }
