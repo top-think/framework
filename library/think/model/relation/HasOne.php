@@ -38,10 +38,11 @@ class HasOne extends OneToOne
 
     /**
      * 延迟获取关联数据
+     * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation($colsure = null)
+    public function getRelation($subRelation = '', $colsure = null)
     {
         // 执行关联定义方法
         $localKey = $this->localKey;
@@ -49,7 +50,7 @@ class HasOne extends OneToOne
             call_user_func_array($closure, [ & $this->query]);
         }
         // 判断关联类型执行查询
-        return $this->query->where($this->foreignKey, $this->parent->$localKey)->find();
+        return $this->query->where($this->foreignKey, $this->parent->$localKey)->relation($subRelation)->find();
     }
 
     /**
