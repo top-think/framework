@@ -23,12 +23,11 @@ use think\model\relation\HasManyThrough;
 use think\model\relation\HasOne;
 use think\model\relation\MorphMany;
 use think\model\relation\MorphTo;
-use think\paginator\Collection as PaginatorCollection;
 
 /**
  * Class Model
  * @package think
- * @method static PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) 分页查询
+ * @method static Paginator paginate(integer $listRows = 15, boolean $simple = false, array $config = []) 分页查询
  * @method static mixed value($field, $default = null) 得到某个字段的值
  * @method static array column($field, $key = '') 得到某个列的数组
  * @method static integer count($field = '*') COUNT查询
