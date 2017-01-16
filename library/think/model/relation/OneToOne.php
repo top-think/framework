@@ -37,7 +37,7 @@ abstract class OneToOne extends Relation
     public function eagerly(Query $query, $relation, $subRelation, $closure, $first)
     {
         $name  = Loader::parseName(basename(str_replace('\\', '/', $query->getModel())));
-        $alias = isset($this->alias[$name]) ? $this->alias[$name] : $name;
+        $alias = $name;
         if ($first) {
             $table = $query->getTable();
             $query->table([$table => $alias]);
@@ -53,7 +53,7 @@ abstract class OneToOne extends Relation
         // 预载入封装
         $joinTable = $this->query->getTable();
         $joinName  = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
-        $joinAlias = isset($this->alias[$joinName]) ? $this->alias[$joinName] : $relation;
+        $joinAlias = $relation;
         $query->via($joinAlias);
 
         if ($this instanceof BelongsTo) {

@@ -1383,7 +1383,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
+     * @param array  $alias 别名定义（已经废弃）
      * @param string $joinType JOIN类型
      * @return HasOne
      */
@@ -1393,7 +1393,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return new HasOne($this, $model, $foreignKey, $localKey, $alias, $joinType);
+        return new HasOne($this, $model, $foreignKey, $localKey, $joinType);
     }
 
     /**
@@ -1402,7 +1402,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $otherKey 关联主键
-     * @param array  $alias 别名定义
+     * @param array  $alias 别名定义（已经废弃）
      * @param string $joinType JOIN类型
      * @return BelongsTo
      */
@@ -1412,7 +1412,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
         $otherKey   = $otherKey ?: (new $model)->getPk();
-        return new BelongsTo($this, $model, $foreignKey, $otherKey, $alias, $joinType);
+        return new BelongsTo($this, $model, $foreignKey, $otherKey, $joinType);
     }
 
     /**
@@ -1421,16 +1421,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      * @return HasMany
      */
-    public function hasMany($model, $foreignKey = '', $localKey = '', $alias = [])
+    public function hasMany($model, $foreignKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return new HasMany($this, $model, $foreignKey, $localKey, $alias);
+        return new HasMany($this, $model, $foreignKey, $localKey);
     }
 
     /**
@@ -1441,10 +1440,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $throughKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      * @return HasManyThrough
      */
-    public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '', $alias = [])
+    public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -1453,7 +1451,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
         $name       = Loader::parseName(basename(str_replace('\\', '/', $through)));
         $throughKey = $throughKey ?: $name . '_id';
-        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey, $alias);
+        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey);
     }
 
     /**
@@ -1463,10 +1461,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $table 中间表名
      * @param string $foreignKey 关联外键
      * @param string $localKey 当前模型关联键
-     * @param array  $alias 别名定义
      * @return BelongsToMany
      */
-    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '', $alias = [])
+    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -1474,7 +1471,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $table      = $table ?: $this->db(false)->getTable(Loader::parseName($this->name) . '_' . $name);
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
-        return new BelongsToMany($this, $model, $table, $foreignKey, $localKey, $alias);
+        return new BelongsToMany($this, $model, $table, $foreignKey, $localKey);
     }
 
     /**

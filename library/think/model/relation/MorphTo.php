@@ -20,6 +20,8 @@ class MorphTo extends Relation
     // 多态字段
     protected $morphKey;
     protected $morphType;
+    // 多态别名
+    protected $alias;
 
     /**
      * 架构函数
@@ -72,6 +74,18 @@ class MorphTo extends Relation
             $model = implode('\\', $path);
         }
         return $model;
+    }
+
+    /**
+     * 设置多态别名
+     * @access public
+     * @param array  $alias 别名定义
+     * @return $this
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+        return $this;
     }
 
     /**

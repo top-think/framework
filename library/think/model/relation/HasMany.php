@@ -25,15 +25,13 @@ class HasMany extends Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey, $alias = [])
+    public function __construct(Model $parent, $model, $foreignKey, $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        $this->alias      = $alias;
         $this->query      = (new $model)->db();
     }
 

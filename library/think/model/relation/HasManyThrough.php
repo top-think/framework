@@ -33,9 +33,8 @@ class HasManyThrough extends Relation
      * @param string $firstkey 关联外键
      * @param string $secondKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      */
-    public function __construct(Model $parent, $model, $through, $foreignKey, $throughKey, $localKey, $alias = [])
+    public function __construct(Model $parent, $model, $through, $foreignKey, $throughKey, $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
@@ -43,7 +42,6 @@ class HasManyThrough extends Relation
         $this->foreignKey = $foreignKey;
         $this->throughKey = $throughKey;
         $this->localKey   = $localKey;
-        $this->alias      = $alias;
         $this->query      = (new $model)->db();
     }
 

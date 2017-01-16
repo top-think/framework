@@ -31,16 +31,14 @@ class BelongsToMany extends Relation
      * @param string $table 中间表名
      * @param string $foreignKey 关联模型外键
      * @param string $localKey 当前模型关联键
-     * @param array  $alias 别名定义
      */
-    public function __construct(Model $parent, $model, $table, $foreignKey, $localKey, $alias = [])
+    public function __construct(Model $parent, $model, $table, $foreignKey, $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
         $this->middle     = $table;
-        $this->alias      = $alias;
         $this->query      = (new $model)->db();
     }
 
