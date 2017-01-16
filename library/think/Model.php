@@ -1237,9 +1237,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = new static();
         if (is_array($operator) || $operator instanceof \Closure) {
-            return $model->$relation()->hasWhere($model, $operator);
+            return $model->$relation()->hasWhere($operator);
         }
-        return $model->$relation()->has($model, $operator, $count, $id);
+        return $model->$relation()->has($operator, $count, $id);
     }
 
     /**
@@ -1252,7 +1252,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function hasWhere($relation, $where = [])
     {
         $model = new static();
-        return $model->$relation()->hasWhere($model, $where);
+        return $model->$relation()->hasWhere($where);
     }
 
     /**
