@@ -549,14 +549,14 @@ if (!function_exists('token')) {
     }
 }
 
-if (!function_exists('loadRelation')) {
+if (!function_exists('load_relation')) {
     /**
      * 延迟预载入关联查询
      * @param mixed $resultSet 数据集
      * @param mixed $relation 关联
      * @return array
      */
-    function loadRelation($resultSet, $relation)
+    function load_relation($resultSet, $relation)
     {
         $item = current($resultSet);
         if ($item instanceof Model) {
