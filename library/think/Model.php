@@ -14,6 +14,7 @@ namespace think;
 use InvalidArgumentException;
 use think\db\Query;
 use think\Exception\ValidateException;
+use think\model\Collection;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
 use think\model\relation\BelongsToMany;

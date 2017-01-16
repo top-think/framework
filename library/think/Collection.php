@@ -352,21 +352,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return json_encode($this->toArray(), $options);
     }
 
-    /**
-     * 延迟预载入关联查询
-     * @access public
-     * @param mixed $relation 关联
-     * @return $this
-     */
-    public function load($relation)
-    {
-        $item = current($this->items);
-        if ($item instanceof Model) {
-            $item->eagerlyResultSet($this->items, $relation);
-        }
-        return $this;
-    }
-
     public function __toString()
     {
         return $this->toJson();
