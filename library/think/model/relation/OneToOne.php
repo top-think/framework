@@ -27,6 +27,18 @@ abstract class OneToOne extends Relation
     protected $bindAttr = [];
 
     /**
+     * 设置join类型
+     * @access public
+     * @param string  $type JOIN类型
+     * @return $this
+     */
+    public function joinType($type)
+    {
+        $this->joinType = $type;
+        return $this;
+    }
+
+    /**
      * 预载入关联查询（JOIN方式）
      * @access public
      * @param Query     $query 查询对象
