@@ -330,7 +330,7 @@ if (!function_exists('cookie')) {
             Cookie::clear($value);
         } elseif ('' === $value) {
             // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name);
+            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name, $option);
         } elseif (is_null($value)) {
             // 删除
             return Cookie::delete($name);
