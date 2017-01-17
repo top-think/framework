@@ -40,7 +40,7 @@ class HasOne extends OneToOne
      * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation($subRelation = '', $colsure = null)
+    public function getRelation($subRelation = '', $closure = null)
     {
         // 执行关联定义方法
         $localKey = $this->localKey;

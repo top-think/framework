@@ -19,7 +19,7 @@ use think\model\Relation;
 
 abstract class OneToOne extends Relation
 {
-    // 预载入方式
+    // 预载入方式 0 -JOIN 1 -IN
     protected $eagerlyType = 0;
     // 当前关联的JOIN类型
     protected $joinType;
@@ -79,8 +79,7 @@ abstract class OneToOne extends Relation
         if ($closure) {
             // 执行闭包查询
             call_user_func_array($closure, [ & $query]);
-            //指定获取关联的字段
-            //需要在 回调中 调方法 withField 方法，如
+            // 使用withField指定获取关联的字段，如
             // $query->where(['id'=>1])->withField('id,name');
             if ($query->getOptions('with_field')) {
                 $field = $query->getOptions('with_field');
