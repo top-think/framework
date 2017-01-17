@@ -1378,6 +1378,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 获取模型的默认外键名
+     * @access public
+     * @param string $name 模型名
+     * @return string
+     */
+    protected function getForeignKey($name)
+    {
+        if (strpos($name, '\\')) {
+            $name = basename(str_replace('\\', '/', $model));
+        }
+        return Loader::parseName($name) . '_id';
+    }
+
+    /**
      * HAS ONE 关联定义
      * @access public
      * @param string $model 模型名
@@ -1392,7 +1406,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
         return new HasOne($this, $model, $foreignKey, $localKey, $joinType);
     }
 
@@ -1410,7 +1424,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
+        $foreignKey = $foreignKey ?: $this->getForeignKey($model);
         $otherKey   = $otherKey ?: (new $model)->getPk();
         return new BelongsTo($this, $model, $foreignKey, $otherKey, $joinType);
     }
@@ -1428,7 +1442,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
         return new HasMany($this, $model, $foreignKey, $localKey);
     }
 
@@ -1448,9 +1462,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $through    = $this->parseModel($through);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        $name       = Loader::parseName(basename(str_replace('\\', '/', $through)));
-        $throughKey = $throughKey ?: $name . '_id';
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
+        $throughKey = $throughKey ?: $this->getForeignKey($through);
         return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey);
     }
 
@@ -1470,7 +1483,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
         $table      = $table ?: $this->db(false)->getTable(Loader::parseName($this->name) . '_' . $name);
         $foreignKey = $foreignKey ?: $name . '_id';
-        $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
+        $localKey   = $localKey ?: $this->getForeignKey($this->name);
         return new BelongsToMany($this, $model, $table, $foreignKey, $localKey);
     }
 
