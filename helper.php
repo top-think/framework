@@ -14,6 +14,7 @@
 //-------------------------
 
 use think\Cache;
+use think\Collection;
 use think\Config;
 use think\Cookie;
 use think\Db;
@@ -23,7 +24,6 @@ use think\exception\HttpResponseException;
 use think\Lang;
 use think\Loader;
 use think\Log;
-use think\model\Collection;
 use think\Request;
 use think\Response;
 use think\Session;

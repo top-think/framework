@@ -160,6 +160,7 @@ class MorphMany extends Relation
      * @param array     $where 关联预查询条件
      * @param string    $relation 关联名
      * @param string    $subRelation 子关联
+     * @param \Closure  $closure 闭包
      * @return array
      */
     protected function eagerlyMorphToMany($where, $relation, $subRelation = '', $closure = false)
