@@ -1415,18 +1415,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
-     * @param string $otherKey 关联主键
+     * @param string $localKey 关联主键
      * @param array  $alias 别名定义（已经废弃）
      * @param string $joinType JOIN类型
      * @return BelongsTo
      */
-    public function belongsTo($model, $foreignKey = '', $otherKey = '', $alias = [], $joinType = 'INNER')
+    public function belongsTo($model, $foreignKey = '', $localKey = '', $alias = [], $joinType = 'INNER')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: $this->getForeignKey($model);
-        $otherKey   = $otherKey ?: (new $model)->getPk();
-        return new BelongsTo($this, $model, $foreignKey, $otherKey, $joinType);
+        $localKey   = $localKey ?: (new $model)->getPk();
+        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType);
     }
 
     /**
