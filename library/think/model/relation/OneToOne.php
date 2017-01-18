@@ -20,7 +20,7 @@ use think\model\Relation;
 abstract class OneToOne extends Relation
 {
     // 预载入方式 0 -JOIN 1 -IN
-    protected $eagerlyType = 0;
+    protected $eagerlyType = 1;
     // 当前关联的JOIN类型
     protected $joinType;
     // 要绑定的属性
