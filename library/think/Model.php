@@ -1386,7 +1386,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function getForeignKey($name)
     {
         if (strpos($name, '\\')) {
-            $name = basename(str_replace('\\', '/', $model));
+            $name = basename(str_replace('\\', '/', $name));
         }
         return Loader::parseName($name) . '_id';
     }

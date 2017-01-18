@@ -245,7 +245,7 @@ class HasMany extends Relation
         }
         return $this->parent->db()->alias($model)
             ->field($model . '.*')
-            ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $this->joinType)
+            ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey)
             ->where($where);
     }
 
