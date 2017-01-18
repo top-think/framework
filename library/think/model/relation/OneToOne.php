@@ -267,6 +267,10 @@ abstract class OneToOne extends Relation
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
             call_user_func_array($closure, [ & $model]);
+            if ($model->getOptions('with_field')) {
+                $model->field($model->getOptions('with_field'));
+                $model->removeOption('with_field');
+            }
         }
         $list = $model->where($where)->with($subRelation)->select();
 
