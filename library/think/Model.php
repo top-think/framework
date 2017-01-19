@@ -107,6 +107,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $batchValidate = false;
     // 查询数据集对象
     protected $resultSetType;
+    // 关联自动写入
+    protected $relationWrite;
     //
     protected static $db;
 
@@ -658,6 +660,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 关联数据一起更新
+     * @access public
+     * @param mixed   $relation 关联
+     * @return $this
+     */
+    public function together($relation)
+    {
+        if (is_string($relation)) {
+            $relation = explode(',', $relation);
+        }
+        $this->relationWrite = $relation;
+        return $this;
+    }
+
+    /**
      * 获取模型对象的主键
      * @access public
      * @param string $name 模型名
@@ -712,6 +729,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
+            }
+        }
+
+        // 自动关联写入
+        if (!empty($this->relationWrite)) {
+            $relation = [];
+            foreach ($this->relationWrite as $name) {
+                if (isset($this->data[$name])) {
+                    $relation[$name] = $this->data[$name];
+                    if (!$this->isUpdate) {
+                        unset($this->data[$name]);
+                    }
+                }
             }
         }
 
@@ -775,7 +805,29 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 unset($data[$pk]);
             }
 
+            // 关联更新
+            if (isset($relation)) {
+                foreach ($relation as $name => $val) {
+                    if (isset($data[$name])) {
+                        unset($data[$name]);
+                    }
+                }
+            }
+
+            // 模型更新
             $result = $this->db()->where($where)->update($data);
+
+            // 关联更新
+            if (isset($relation)) {
+                foreach ($relation as $name => $val) {
+                    if ($val instanceof Model) {
+                        $val->save();
+                    } else {
+                        $this->getAttr($name)->save($val);
+                    }
+                }
+            }
+
             // 清空change
             $this->change = [];
             // 更新回调
@@ -802,6 +854,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $this->data[$pk] = $insertId;
                 }
             }
+
+            // 关联写入
+            if (isset($relation)) {
+                foreach ($relation as $name => $val) {
+                    $method = Loader::parseName($name, 1, false);
+                    $this->$method()->save($val);
+                }
+            }
+
             // 标记为更新
             $this->isUpdate = true;
             // 清空change

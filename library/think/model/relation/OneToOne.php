@@ -276,7 +276,7 @@ abstract class OneToOne extends Relation
         // 组装模型数据
         $data = [];
         foreach ($list as $set) {
-            $data[$set->$key][] = $set;
+            $data[$set->$key] = $set;
         }
         return $data;
     }
