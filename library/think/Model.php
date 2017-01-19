@@ -831,7 +831,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     if ($val instanceof Model) {
                         $val->save();
                     } else {
-                        $this->getAttr($name)->save($val);
+                        $model = $this->getAttr($name);
+                        if ($model instanceof Model) {
+                            $model->save($val);
+                        }
                     }
                 }
             }
@@ -987,7 +990,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
+        // 删除当前模型数据
         $result = $this->db()->delete($this->data);
+
+        // 关联删除
+        if (!empty($this->relationWrite)) {
+            foreach ($this->relationWrite as $key => $name) {
+                $name  = is_numeric($key) ? $name : $key;
+                $model = $this->getAttr($name);
+                if ($model instanceof Model) {
+                    $model->delete();
+                }
+            }
+        }
 
         $this->trigger('after_delete', $this);
         return $result;
