@@ -735,8 +735,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 自动关联写入
         if (!empty($this->relationWrite)) {
             $relation = [];
-            foreach ($this->relationWrite as $name) {
-                if (isset($this->data[$name])) {
+            foreach ($this->relationWrite as $key => $name) {
+                if (!is_numeric($key)) {
+                    $relation[$key] = [];
+                    foreach ($name as $val) {
+                        if (isset($this->data[$val])) {
+                            $relation[$key][$val] = $this->data[$val];
+                            unset($this->data[$val]);
+                        }
+                    }
+                } elseif (isset($this->data[$name])) {
                     $relation[$name] = $this->data[$name];
                     if (!$this->isUpdate) {
                         unset($this->data[$name]);
