@@ -831,6 +831,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     if ($val instanceof Model) {
                         $val->save();
                     } else {
+                        unset($this->data[$name]);
                         $model = $this->getAttr($name);
                         if ($model instanceof Model) {
                             $model->save($val);
