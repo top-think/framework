@@ -509,10 +509,17 @@ class Query
      * COUNT查询
      * @access public
      * @param string $field 字段名
-     * @return integer
+     * @return integer|string
      */
     public function count($field = '*')
     {
+        if (isset($this->options['group'])) {
+            // 支持GROUP
+            $options = $this->getOptions();
+            $subSql  = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
+            return $this->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0, true);
+        }
+
         return $this->value('COUNT(' . $field . ') AS tp_count', 0, true);
     }
 
@@ -1710,7 +1717,7 @@ class Query
         }
 
         list($guid) = explode(' ', $tableName);
-        $db = $this->getConfig('database');
+        $db         = $this->getConfig('database');
         if (!isset(self::$info[$db . '.' . $guid])) {
             if (!strpos($guid, '.')) {
                 $schema = $db . '.' . $guid;
@@ -1724,7 +1731,7 @@ class Query
                 $info = $this->connection->getFields($guid);
             }
             $fields = array_keys($info);
-            $bind   = $type = [];
+            $bind   = $type   = [];
             foreach ($info as $key => $val) {
                 // 记录字段类型
                 $type[$key] = $val['type'];
@@ -1889,7 +1896,7 @@ class Query
                 $relation   = $key;
                 $with[$key] = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                $with[$key] = $relation;
+                $with[$key]                   = $relation;
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
@@ -2227,7 +2234,7 @@ class Query
         if ($data instanceof Query) {
             return $data->select();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [& $this]);
+            call_user_func_array($data, [ & $this]);
             $data = null;
         }
         // 分析查询表达式
@@ -2327,7 +2334,7 @@ class Query
         if ($data instanceof Query) {
             return $data->find();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [& $this]);
+            call_user_func_array($data, [ & $this]);
             $data = null;
         }
         // 分析查询表达式
@@ -2659,10 +2666,10 @@ class Query
         if (isset($options['page'])) {
             // 根据页数计算limit
             list($page, $listRows) = $options['page'];
-            $page             = $page > 0 ? $page : 1;
-            $listRows         = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
-            $offset           = $listRows * ($page - 1);
-            $options['limit'] = $offset . ',' . $listRows;
+            $page                  = $page > 0 ? $page : 1;
+            $listRows              = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset                = $listRows * ($page - 1);
+            $options['limit']      = $offset . ',' . $listRows;
         }
 
         $this->options = [];
