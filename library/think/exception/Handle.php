@@ -17,6 +17,7 @@ use think\Config;
 use think\console\Output;
 use think\Lang;
 use think\Log;
+use think\Request;
 use think\Response;
 
 class Handle
@@ -149,20 +150,25 @@ class Handle
                 $data['message'] = Config::get('error_message');
             }
         }
+        if (Request::instance()->isAjax()) {
+            $type = Config::get('default_ajax_return');
+            $content = $data;
+        } else {
+            $type = Config::get('default_return_type');
+            //保留一层
+            while (ob_get_level() > 1) {
+                ob_end_clean();
+            }
 
-        //保留一层
-        while (ob_get_level() > 1) {
-            ob_end_clean();
+            $data['echo'] = ob_get_clean();
+
+            ob_start();
+            extract($data);
+            include Config::get('exception_tmpl');
+            // 获取并清空缓存
+            $content  = ob_get_clean();
         }
-
-        $data['echo'] = ob_get_clean();
-
-        ob_start();
-        extract($data);
-        include Config::get('exception_tmpl');
-        // 获取并清空缓存
-        $content  = ob_get_clean();
-        $response = new Response($content, 'html');
+        $response = Response::create($content, $type);
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();

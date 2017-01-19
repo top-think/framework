@@ -568,7 +568,7 @@ class Validate
                 break;
             case 'ip':
                 // 是否为IP地址
-                $result = $this->filter($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6);
+                $result = $this->filter($value, [FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6]);
                 break;
             case 'url':
                 // 是否为一个URL地址
@@ -591,7 +591,7 @@ class Validate
                 break;
             case 'boolean':
                 // 是否为布尔值
-                $result = in_array($value, [0, 1, true, false]);
+                $result = in_array($value, [0, 1, '0', '1', 'true', 'false', true, false], true);
                 break;
             case 'array':
                 // 是否为数组
