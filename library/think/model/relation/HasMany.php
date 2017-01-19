@@ -25,25 +25,28 @@ class HasMany extends Relation
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey, $alias = [])
+    public function __construct(Model $parent, $model, $foreignKey, $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        $this->alias      = $alias;
         $this->query      = (new $model)->db();
     }
 
     /**
      * 延迟获取关联数据
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation()
+    public function getRelation($subRelation = '', $closure = null)
     {
-        return $this->select();
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
+        return $this->relation($subRelation)->select();
     }
 
     /**
@@ -207,16 +210,15 @@ class HasMany extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param Model     $model 模型对象
      * @param string    $operator 比较操作符
      * @param integer   $count 个数
      * @param string    $id 关联表的统计字段
      * @return Query
      */
-    public function has($model, $operator = '>=', $count = 1, $id = '*')
+    public function has($operator = '>=', $count = 1, $id = '*')
     {
         $table = $this->query->getTable();
-        return $model->db()->alias('a')
+        return $this->parent->db()->alias('a')
             ->join($table . ' b', 'a.' . $this->localKey . '=b.' . $this->foreignKey, $this->joinType)
             ->group('b.' . $this->foreignKey)
             ->having('count(' . $id . ')' . $operator . $count);
@@ -225,24 +227,25 @@ class HasMany extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param Model    $model 模型对象
-     * @param mixed     $where 查询条件（数组或者闭包）
+     * @param mixed    $where 查询条件（数组或者闭包）
      * @return Query
      */
-    public function hasWhere($model, $where = [])
+    public function hasWhere($where = [])
     {
-        $table = $this->query->getTable();
+        $table    = $this->query->getTable();
+        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
+        $relation = basename(str_replace('\\', '/', $this->model));
         if (is_array($where)) {
             foreach ($where as $key => $val) {
                 if (false === strpos($key, '.')) {
-                    $where['b.' . $key] = $val;
+                    $where[$relation . '.' . $key] = $val;
                     unset($where[$key]);
                 }
             }
         }
-        return $model->db()->alias('a')
-            ->field('a.*')
-            ->join($table . ' b', 'a.' . $this->localKey . '=b.' . $this->foreignKey, $this->joinType)
+        return $this->parent->db()->alias($model)
+            ->field($model . '.*')
+            ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey)
             ->where($where);
     }
 

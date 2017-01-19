@@ -19,10 +19,24 @@ use think\model\Relation;
 
 abstract class OneToOne extends Relation
 {
-    // 预载入方式
-    protected $eagerlyType = 0;
+    // 预载入方式 0 -JOIN 1 -IN
+    protected $eagerlyType = 1;
+    // 当前关联的JOIN类型
+    protected $joinType;
     // 要绑定的属性
     protected $bindAttr = [];
+
+    /**
+     * 设置join类型
+     * @access public
+     * @param string  $type JOIN类型
+     * @return $this
+     */
+    public function joinType($type)
+    {
+        $this->joinType = $type;
+        return $this;
+    }
 
     /**
      * 预载入关联查询（JOIN方式）
@@ -37,7 +51,7 @@ abstract class OneToOne extends Relation
     public function eagerly(Query $query, $relation, $subRelation, $closure, $first)
     {
         $name  = Loader::parseName(basename(str_replace('\\', '/', $query->getModel())));
-        $alias = isset($this->alias[$name]) ? $this->alias[$name] : $name;
+        $alias = $name;
         if ($first) {
             $table = $query->getTable();
             $query->table([$table => $alias]);
@@ -53,7 +67,7 @@ abstract class OneToOne extends Relation
         // 预载入封装
         $joinTable = $this->query->getTable();
         $joinName  = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
-        $joinAlias = isset($this->alias[$joinName]) ? $this->alias[$joinName] : $relation;
+        $joinAlias = $relation;
         $query->via($joinAlias);
 
         if ($this instanceof BelongsTo) {
@@ -65,8 +79,7 @@ abstract class OneToOne extends Relation
         if ($closure) {
             // 执行闭包查询
             call_user_func_array($closure, [ & $query]);
-            //指定获取关联的字段
-            //需要在 回调中 调方法 withField 方法，如
+            // 使用withField指定获取关联的字段，如
             // $query->where(['id'=>1])->withField('id,name');
             if ($query->getOptions('with_field')) {
                 $field = $query->getOptions('with_field');
@@ -254,13 +267,16 @@ abstract class OneToOne extends Relation
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
             call_user_func_array($closure, [ & $model]);
+            if ($field = $model->getOptions('with_field')) {
+                $model->field($field)->removeOption('with_field');
+            }
         }
         $list = $model->where($where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
         foreach ($list as $set) {
-            $data[$set->$key][] = $set;
+            $data[$set->$key] = $set;
         }
         return $data;
     }

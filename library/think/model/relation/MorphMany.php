@@ -45,11 +45,16 @@ class MorphMany extends Relation
 
     /**
      * 延迟获取关联数据
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation()
+    public function getRelation($subRelation = '', $closure = null)
     {
-        return $this->select();
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
+        return $this->relation($subRelation)->select();
     }
 
     /**
@@ -155,6 +160,7 @@ class MorphMany extends Relation
      * @param array     $where 关联预查询条件
      * @param string    $relation 关联名
      * @param string    $subRelation 子关联
+     * @param \Closure  $closure 闭包
      * @return array
      */
     protected function eagerlyMorphToMany($where, $relation, $subRelation = '', $closure = false)

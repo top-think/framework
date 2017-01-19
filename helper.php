@@ -14,6 +14,7 @@
 //-------------------------
 
 use think\Cache;
+use think\Collection;
 use think\Config;
 use think\Cookie;
 use think\Db;
@@ -329,7 +330,7 @@ if (!function_exists('cookie')) {
             Cookie::clear($value);
         } elseif ('' === $value) {
             // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name);
+            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name, $option);
         } elseif (is_null($value)) {
             // 删除
             return Cookie::delete($name);
@@ -546,5 +547,34 @@ if (!function_exists('token')) {
     {
         $token = Request::instance()->token($name, $type);
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
+    }
+}
+
+if (!function_exists('load_relation')) {
+    /**
+     * 延迟预载入关联查询
+     * @param mixed $resultSet 数据集
+     * @param mixed $relation 关联
+     * @return array
+     */
+    function load_relation($resultSet, $relation)
+    {
+        $item = current($resultSet);
+        if ($item instanceof Model) {
+            $item->eagerlyResultSet($resultSet, $relation);
+        }
+        return $resultSet;
+    }
+}
+
+if (!function_exists('collection')) {
+    /**
+     * 数组转换为数据集对象
+     * @param array $resultSet 数据集数组
+     * @return Collection
+     */
+    function collection($resultSet)
+    {
+        return new Collection($resultSet);
     }
 }

@@ -31,32 +31,35 @@ class BelongsToMany extends Relation
      * @param string $table 中间表名
      * @param string $foreignKey 关联模型外键
      * @param string $localKey 当前模型关联键
-     * @param array  $alias 别名定义
      */
-    public function __construct(Model $parent, $model, $table, $foreignKey, $localKey, $alias = [])
+    public function __construct(Model $parent, $model, $table, $foreignKey, $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
         $this->middle     = $table;
-        $this->alias      = $alias;
         $this->query      = (new $model)->db();
     }
 
     /**
      * 延迟获取关联数据
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation()
+    public function getRelation($subRelation = '', $closure = null)
     {
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
         $middle     = $this->middle;
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
         // 关联查询
         $pk                              = $this->parent->getPk();
         $condition['pivot.' . $localKey] = $this->parent->$pk;
-        $result                          = $this->belongsToManyQuery($middle, $foreignKey, $localKey, $condition)->select();
+        $result                          = $this->belongsToManyQuery($middle, $foreignKey, $localKey, $condition)->relation($subRelation)->select();
         foreach ($result as $set) {
             $pivot = [];
             foreach ($set->getData() as $key => $val) {

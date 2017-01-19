@@ -22,29 +22,31 @@ class BelongsTo extends OneToOne
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      * @param string $joinType JOIN类型
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey, $alias = [], $joinType = 'INNER')
+    public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER')
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        $this->alias      = $alias;
         $this->joinType   = $joinType;
         $this->query      = (new $model)->db();
     }
 
     /**
      * 延迟获取关联数据
+     * @param string    $subRelation 子关联名
+     * @param \Closure  $closure 闭包查询条件
      * @access public
      */
-    public function getRelation()
+    public function getRelation($subRelation = '', $closure = null)
     {
         $foreignKey = $this->foreignKey;
-        $localKey   = $this->localKey;
-        return $this->query->where($localKey, $this->parent->$foreignKey)->find();
+        if ($closure) {
+            call_user_func_array($closure, [ & $this->query]);
+        }
+        return $this->query->where($this->localKey, $this->parent->$foreignKey)->relation($subRelation)->find();
     }
 
     /**

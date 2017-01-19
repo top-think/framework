@@ -14,6 +14,7 @@ namespace think;
 use InvalidArgumentException;
 use think\db\Query;
 use think\Exception\ValidateException;
+use think\model\Collection;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
 use think\model\relation\BelongsToMany;
@@ -22,12 +23,11 @@ use think\model\relation\HasManyThrough;
 use think\model\relation\HasOne;
 use think\model\relation\MorphMany;
 use think\model\relation\MorphTo;
-use think\paginator\Collection as PaginatorCollection;
 
 /**
  * Class Model
  * @package think
- * @method static PaginatorCollection paginate(integer $listRows = 15, boolean $simple = false, array $config = []) 分页查询
+ * @method static Paginator paginate(integer $listRows = 15, boolean $simple = false, array $config = []) 分页查询
  * @method static mixed value($field, $default = null) 得到某个字段的值
  * @method static array column($field, $key = '') 得到某个列的数组
  * @method static integer count($field = '*') COUNT查询
@@ -107,6 +107,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $batchValidate = false;
     // 查询数据集对象
     protected $resultSetType;
+    // 关联自动写入
+    protected $relationWrite;
     //
     protected static $db;
 
@@ -658,6 +660,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 关联数据一起更新
+     * @access public
+     * @param mixed   $relation 关联
+     * @return $this
+     */
+    public function together($relation)
+    {
+        if (is_string($relation)) {
+            $relation = explode(',', $relation);
+        }
+        $this->relationWrite = $relation;
+        return $this;
+    }
+
+    /**
      * 获取模型对象的主键
      * @access public
      * @param string $name 模型名
@@ -712,6 +729,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
+            }
+        }
+
+        // 自动关联写入
+        if (!empty($this->relationWrite)) {
+            $relation = [];
+            foreach ($this->relationWrite as $key => $name) {
+                if (!is_numeric($key)) {
+                    $relation[$key] = [];
+                    foreach ($name as $val) {
+                        if (isset($this->data[$val])) {
+                            $relation[$key][$val] = $this->data[$val];
+                            unset($this->data[$val]);
+                        }
+                    }
+                } elseif (isset($this->data[$name])) {
+                    $relation[$name] = $this->data[$name];
+                    if (!$this->isUpdate) {
+                        unset($this->data[$name]);
+                    }
+                }
             }
         }
 
@@ -775,7 +813,33 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 unset($data[$pk]);
             }
 
+            // 关联更新
+            if (isset($relation)) {
+                foreach ($relation as $name => $val) {
+                    if (isset($data[$name])) {
+                        unset($data[$name]);
+                    }
+                }
+            }
+
+            // 模型更新
             $result = $this->db()->where($where)->update($data);
+
+            // 关联更新
+            if (isset($relation)) {
+                foreach ($relation as $name => $val) {
+                    if ($val instanceof Model) {
+                        $val->save();
+                    } else {
+                        unset($this->data[$name]);
+                        $model = $this->getAttr($name);
+                        if ($model instanceof Model) {
+                            $model->save($val);
+                        }
+                    }
+                }
+            }
+
             // 清空change
             $this->change = [];
             // 更新回调
@@ -802,6 +866,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $this->data[$pk] = $insertId;
                 }
             }
+
+            // 关联写入
+            if (isset($relation)) {
+                foreach ($relation as $name => $val) {
+                    $method = Loader::parseName($name, 1, false);
+                    $this->$method()->save($val);
+                }
+            }
+
             // 标记为更新
             $this->isUpdate = true;
             // 清空change
@@ -918,7 +991,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
+        // 删除当前模型数据
         $result = $this->db()->delete($this->data);
+
+        // 关联删除
+        if (!empty($this->relationWrite)) {
+            foreach ($this->relationWrite as $key => $name) {
+                $name  = is_numeric($key) ? $name : $key;
+                $model = $this->getAttr($name);
+                if ($model instanceof Model) {
+                    $model->delete();
+                }
+            }
+        }
 
         $this->trigger('after_delete', $this);
         return $result;
@@ -1228,7 +1313,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 根据关联条件查询当前模型
      * @access public
      * @param string    $relation 关联方法名
-     * @param string    $operator 比较操作符
+     * @param mixed     $operator 比较操作符
      * @param integer   $count 个数
      * @param string    $id 关联表的统计字段
      * @return Model
@@ -1236,7 +1321,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
         $model = new static();
-        return $model->$relation()->has($model, $operator, $count, $id);
+        if (is_array($operator) || $operator instanceof \Closure) {
+            return $model->$relation()->hasWhere($operator);
+        }
+        return $model->$relation()->has($operator, $count, $id);
     }
 
     /**
@@ -1249,7 +1337,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function hasWhere($relation, $where = [])
     {
         $model = new static();
-        return $model->$relation()->hasWhere($model, $where);
+        return $model->$relation()->hasWhere($where);
     }
 
     /**
@@ -1281,8 +1369,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $relations = explode(',', $relations);
         }
 
-        foreach ($relations as $relation) {
-            $this->data[$relation] = $this->$relation()->getRelation();
+        foreach ($relations as $key => $relation) {
+            $subRelation = '';
+            $closure     = null;
+            if ($relation instanceof \Closure) {
+                // 支持闭包查询过滤关联条件
+                $closure  = $relation;
+                $relation = $key;
+            }
+            if (strpos($relation, '.')) {
+                list($relation, $subRelation) = explode('.', $relation, 2);
+            }
+            $method                = Loader::parseName($relation, 1, false);
+            $this->data[$relation] = $this->$method()->getRelation($subRelation, $closure);
         }
         return $this;
     }
@@ -1306,7 +1405,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $relation = $key;
             }
             if (strpos($relation, '.')) {
-                list($relation, $subRelation) = explode('.', $relation);
+                list($relation, $subRelation) = explode('.', $relation, 2);
             }
             $relation = Loader::parseName($relation, 1, false);
             $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class);
@@ -1333,7 +1432,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $relation = $key;
             }
             if (strpos($relation, '.')) {
-                list($relation, $subRelation) = explode('.', $relation);
+                list($relation, $subRelation) = explode('.', $relation, 2);
             }
             $relation = Loader::parseName($relation, 1, false);
             $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class);
@@ -1364,12 +1463,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 获取模型的默认外键名
+     * @access public
+     * @param string $name 模型名
+     * @return string
+     */
+    protected function getForeignKey($name)
+    {
+        if (strpos($name, '\\')) {
+            $name = basename(str_replace('\\', '/', $name));
+        }
+        return Loader::parseName($name) . '_id';
+    }
+
+    /**
      * HAS ONE 关联定义
      * @access public
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
+     * @param array  $alias 别名定义（已经废弃）
      * @param string $joinType JOIN类型
      * @return HasOne
      */
@@ -1378,8 +1491,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return new HasOne($this, $model, $foreignKey, $localKey, $alias, $joinType);
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
+        return new HasOne($this, $model, $foreignKey, $localKey, $joinType);
     }
 
     /**
@@ -1387,18 +1500,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
-     * @param string $otherKey 关联主键
-     * @param array  $alias 别名定义
+     * @param string $localKey 关联主键
+     * @param array  $alias 别名定义（已经废弃）
      * @param string $joinType JOIN类型
      * @return BelongsTo
      */
-    public function belongsTo($model, $foreignKey = '', $otherKey = '', $alias = [], $joinType = 'INNER')
+    public function belongsTo($model, $foreignKey = '', $localKey = '', $alias = [], $joinType = 'INNER')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $foreignKey = $foreignKey ?: Loader::parseName(basename(str_replace('\\', '/', $model))) . '_id';
-        $otherKey   = $otherKey ?: (new $model)->getPk();
-        return new BelongsTo($this, $model, $foreignKey, $otherKey, $alias, $joinType);
+        $foreignKey = $foreignKey ?: $this->getForeignKey($model);
+        $localKey   = $localKey ?: (new $model)->getPk();
+        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType);
     }
 
     /**
@@ -1407,16 +1520,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      * @return HasMany
      */
-    public function hasMany($model, $foreignKey = '', $localKey = '', $alias = [])
+    public function hasMany($model, $foreignKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        return new HasMany($this, $model, $foreignKey, $localKey, $alias);
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
+        return new HasMany($this, $model, $foreignKey, $localKey);
     }
 
     /**
@@ -1427,19 +1539,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $foreignKey 关联外键
      * @param string $throughKey 关联外键
      * @param string $localKey 关联主键
-     * @param array  $alias 别名定义
      * @return HasManyThrough
      */
-    public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '', $alias = [])
+    public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $through    = $this->parseModel($through);
         $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: Loader::parseName($this->name) . '_id';
-        $name       = Loader::parseName(basename(str_replace('\\', '/', $through)));
-        $throughKey = $throughKey ?: $name . '_id';
-        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey, $alias);
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
+        $throughKey = $throughKey ?: $this->getForeignKey($through);
+        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey);
     }
 
     /**
@@ -1449,18 +1559,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $table 中间表名
      * @param string $foreignKey 关联外键
      * @param string $localKey 当前模型关联键
-     * @param array  $alias 别名定义
      * @return BelongsToMany
      */
-    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '', $alias = [])
+    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
         $table      = $table ?: $this->db(false)->getTable(Loader::parseName($this->name) . '_' . $name);
         $foreignKey = $foreignKey ?: $name . '_id';
-        $localKey   = $localKey ?: Loader::parseName($this->name) . '_id';
-        return new BelongsToMany($this, $model, $table, $foreignKey, $localKey, $alias);
+        $localKey   = $localKey ?: $this->getForeignKey($this->name);
+        return new BelongsToMany($this, $model, $table, $foreignKey, $localKey);
     }
 
     /**

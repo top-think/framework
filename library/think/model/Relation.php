@@ -21,16 +21,12 @@ abstract class Relation
     protected $parent;
     /** @var  Model 当前关联的模型类 */
     protected $model;
+    // 关联模型查询对象
+    protected $query;
     // 关联表外键
     protected $foreignKey;
     // 关联表主键
     protected $localKey;
-    // 数据表别名
-    protected $alias;
-    // 当前关联的JOIN类型
-    protected $joinType;
-    // 关联模型查询对象
-    protected $query;
     // 关联查询条件
     protected $where;
     // 关联查询参数
@@ -78,18 +74,6 @@ abstract class Relation
     protected function resultSetBuild($resultSet, $class = '')
     {
         return $class ? new $class($resultSet) : $resultSet;
-    }
-
-    /**
-     * 设置当前关联定义的数据表别名
-     * @access public
-     * @param array  $alias 别名定义
-     * @return $this
-     */
-    public function setAlias($alias)
-    {
-        $this->alias = $alias;
-        return $this;
     }
 
     /**
