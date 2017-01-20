@@ -591,7 +591,7 @@ class Validate
                 break;
             case 'boolean':
                 // 是否为布尔值
-                $result = in_array($value, [0, 1, true, false]);
+                $result = in_array($value, [true, false, 0, 1, '0', '1'], true);
                 break;
             case 'array':
                 // 是否为数组
