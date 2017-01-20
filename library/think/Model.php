@@ -991,8 +991,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
+        // 删除条件
+        $pk = $this->getPk();
+        if (isset($this->data[$pk])) {
+            $where = [$pk => $this->data[$pk]];
+        } elseif (!empty($this->updateWhere)) {
+            $where = $this->updateWhere;
+        } else {
+            $where = null;
+        }
+
         // 删除当前模型数据
-        $result = $this->db()->delete($this->data);
+        $result = $this->db()->where($where)->delete();
 
         // 关联删除
         if (!empty($this->relationWrite)) {
