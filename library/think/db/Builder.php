@@ -523,10 +523,12 @@ abstract class Builder
             $array = [];
             foreach ($order as $key => $val) {
                 if (is_numeric($key)) {
-                    if (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($val, $options);
-                    } elseif ('[rand]' == $val) {
+                    if ('[rand]' == $val) {
                         $array[] = $this->parseRand();
+                    } elseif (false === strpos($val, '(')) {
+                        $array[] = $this->parseKey($val, $options);
+                    } else {
+                        $array[] = $val;
                     }
                 } else {
                     $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
