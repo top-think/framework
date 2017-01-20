@@ -755,6 +755,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 检测字段
         if (!empty($this->field)) {
+            if (true === $this->field) {
+                $this->field = $this->db(false)->getTableInfo('', 'fields');
+            }
             foreach ($this->data as $key => $val) {
                 if (!in_array($key, $this->field)) {
                     unset($this->data[$key]);
@@ -938,9 +941,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function allowField($field)
     {
-        if (true === $field) {
-            $field = $this->db(false)->getTableInfo('', 'fields');
-        }
         $this->field = $field;
         return $this;
     }
