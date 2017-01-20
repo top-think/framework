@@ -448,7 +448,7 @@ class Cx extends Taglib
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
-        $parseStr = '<?php if(!(empty(' . $name . ') || ((' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator) && ' . $name . '->isEmpty()))): ?>' . $content . '<?php endif; ?>';
+        $parseStr = '<?php if(!(empty(' . $name . ') || ((' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator ) && ' . $name . '->isEmpty()))): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
 
