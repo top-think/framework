@@ -936,11 +936,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 设置允许写入的字段
      * @access public
-     * @param bool|array $field 允许写入的字段 如果为true只允许写入数据表字段
+     * @param mixed $field 允许写入的字段 如果为true只允许写入数据表字段
      * @return $this
      */
     public function allowField($field)
     {
+        if (is_string($field)) {
+            $field = explode(',', $field);
+        }
         $this->field = $field;
         return $this;
     }
