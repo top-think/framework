@@ -228,7 +228,7 @@ abstract class OneToOne extends Relation
                 $this->bindAttr($relationModel, $result, $this->bindAttr);
             }
         }
-        $result->setAttr($relation, !isset($relationModel) ? null : $relationModel->isUpdate(true));
+        $result->setAttr(Loader::parseName($relation), !isset($relationModel) ? null : $relationModel->isUpdate(true));
     }
 
     /**

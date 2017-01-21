@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use think\Loader;
 use think\Model;
 
 class BelongsTo extends OneToOne
@@ -92,7 +93,7 @@ class BelongsTo extends OneToOne
                     $this->bindAttr($relationModel, $result, $this->bindAttr);
                 }
                 // 设置关联属性
-                $result->setAttr($relation, $relationModel);
+                $result->setAttr(Loader::parseName($relation), $relationModel);
             }
         }
     }
@@ -122,7 +123,7 @@ class BelongsTo extends OneToOne
             $this->bindAttr($relationModel, $result, $this->bindAttr);
         }
         // 设置关联属性
-        $result->setAttr($relation, $relationModel);
+        $result->setAttr(Loader::parseName($relation), $relationModel);
     }
 
 }

@@ -13,6 +13,7 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
+use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -94,7 +95,7 @@ class MorphMany extends Relation
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
-                $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
+                $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk], $class));
             }
         }
     }
@@ -114,7 +115,7 @@ class MorphMany extends Relation
         $pk = $result->getPk();
         if (isset($result->$pk)) {
             $data = $this->eagerlyMorphToMany([$this->morphKey => $result->$pk, $this->morphType => $this->type], $relation, $subRelation, $closure);
-            $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
+            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk], $class));
         }
     }
 

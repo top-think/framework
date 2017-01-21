@@ -126,7 +126,7 @@ class MorphTo extends Relation
                         if (!isset($data[$result->$morphKey])) {
                             $data[$result->$morphKey] = [];
                         }
-                        $result->setAttr($relation, $this->resultSetBuild($data[$result->$morphKey], $class));
+                        $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$morphKey], $class));
                     }
                 }
             }
@@ -179,7 +179,7 @@ class MorphTo extends Relation
         if ($data) {
             $data->isUpdate(true);
         }
-        $result->setAttr($relation, $data ?: null);
+        $result->setAttr(Loader::parseName($relation), $data ?: null);
     }
 
     /**

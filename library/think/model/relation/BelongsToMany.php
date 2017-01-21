@@ -14,6 +14,7 @@ namespace think\model\relation;
 use think\Db;
 use think\db\Query;
 use think\Exception;
+use think\Loader;
 use think\Model;
 use think\model\Pivot;
 use think\model\Relation;
@@ -115,7 +116,7 @@ class BelongsToMany extends Relation
                     $data[$result->$pk] = [];
                 }
 
-                $result->setAttr($relation, $this->resultSetBuild($data[$result->$pk], $class));
+                $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk], $class));
             }
         }
     }

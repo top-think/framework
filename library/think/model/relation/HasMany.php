@@ -13,6 +13,7 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
+use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -84,7 +85,7 @@ class HasMany extends Relation
                 if (!isset($data[$result->$localKey])) {
                     $data[$result->$localKey] = [];
                 }
-                $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+                $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey], $class));
             }
         }
     }
@@ -109,7 +110,7 @@ class HasMany extends Relation
             if (!isset($data[$result->$localKey])) {
                 $data[$result->$localKey] = [];
             }
-            $result->setAttr($relation, $this->resultSetBuild($data[$result->$localKey], $class));
+            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey], $class));
         }
     }
 

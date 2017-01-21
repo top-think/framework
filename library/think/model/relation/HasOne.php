@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use think\Loader;
 use think\Model;
 
 class HasOne extends OneToOne
@@ -119,7 +120,7 @@ class HasOne extends OneToOne
                     $this->bindAttr($relationModel, $result, $this->bindAttr);
                 }
                 // 设置关联属性
-                $result->setAttr($relation, $relationModel);
+                $result->setAttr(Loader::parseName($relation), $relationModel);
             }
         }
     }
@@ -148,7 +149,7 @@ class HasOne extends OneToOne
             // 绑定关联属性
             $this->bindAttr($relationModel, $result, $this->bindAttr);
         }
-        $result->setAttr($relation, $relationModel);
+        $result->setAttr(Loader::parseName($relation), $relationModel);
     }
 
 }
