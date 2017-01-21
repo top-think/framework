@@ -13,7 +13,6 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
-use think\Collection;
 use think\Db;
 use think\db\exception\BindParamException;
 use think\Debug;
@@ -547,11 +546,6 @@ abstract class Connection
         }
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
-
-        if ('collection' == $this->resultSetType) {
-            // 返回数据集Collection对象
-            $result = new Collection($result);
-        }
         return $result;
     }
 

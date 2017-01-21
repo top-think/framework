@@ -2312,6 +2312,9 @@ class Query
             }
             // 模型数据集转换
             $resultSet = (new $model)->toCollection($resultSet);
+        } elseif ('collection' == $this->connection->getConfig('resultset_type')) {
+            // 返回Collection对象
+            $resultSet = new Collection($resultSet);
         }
         // 返回结果处理
         if (!empty($options['fail']) && count($resultSet) == 0) {
