@@ -89,13 +89,14 @@ class MorphMany extends Relation
                 $morphKey  => ['in', $range],
                 $morphType => $type,
             ], $relation, $subRelation, $closure);
-
+            // 关联属性名
+            $attr = Loader::parseName($relation);
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
-                $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk], $class));
+                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk], $class));
             }
         }
     }

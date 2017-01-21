@@ -79,13 +79,14 @@ class HasMany extends Relation
                     $range,
                 ],
             ], $relation, $subRelation, $closure);
-
+            // 关联属性名
+            $attr = Loader::parseName($relation);
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$localKey])) {
                     $data[$result->$localKey] = [];
                 }
-                $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey], $class));
+                $result->setAttr($attr, $this->resultSetBuild($data[$result->$localKey], $class));
             }
         }
     }

@@ -81,7 +81,8 @@ class BelongsTo extends OneToOne
                     $range,
                 ],
             ], $localKey, $relation, $subRelation, $closure);
-
+            // 关联属性名
+            $attr = Loader::parseName($relation);
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$foreignKey])) {
@@ -93,7 +94,7 @@ class BelongsTo extends OneToOne
                     $this->bindAttr($relationModel, $result, $this->bindAttr);
                 }
                 // 设置关联属性
-                $result->setAttr(Loader::parseName($relation), $relationModel);
+                $result->setAttr($attr, $relationModel);
             }
         }
     }

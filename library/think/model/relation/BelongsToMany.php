@@ -109,14 +109,15 @@ class BelongsToMany extends Relation
                     $range,
                 ],
             ], $relation, $subRelation);
-
+            // 关联属性名
+            $attr = Loader::parseName($relation);
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
 
-                $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk], $class));
+                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk], $class));
             }
         }
     }
@@ -143,7 +144,7 @@ class BelongsToMany extends Relation
             if (!isset($data[$pk])) {
                 $data[$pk] = [];
             }
-            $result->setAttr($relation, $this->resultSetBuild($data[$pk], $class));
+            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$pk], $class));
         }
     }
 

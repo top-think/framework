@@ -111,6 +111,8 @@ class MorphTo extends Relation
         }
 
         if (!empty($range)) {
+            // 关联属性名
+            $attr = Loader::parseName($relation);
             foreach ($range as $key => $val) {
                 // 多态类型映射
                 $model = $this->parseModel($key);
@@ -126,7 +128,7 @@ class MorphTo extends Relation
                         if (!isset($data[$result->$morphKey])) {
                             $data[$result->$morphKey] = [];
                         }
-                        $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$morphKey], $class));
+                        $result->setAttr($attr, $this->resultSetBuild($data[$result->$morphKey], $class));
                     }
                 }
             }
