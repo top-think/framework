@@ -1504,6 +1504,30 @@ class Query
     }
 
     /**
+     * 设置模型输出显示字段
+     * @access public
+     * @param mixed $visible
+     * @return $this
+     */
+    public function visible($visible)
+    {
+        $this->options['visible'] = $visible;
+        return $this;
+    }
+
+    /**
+     * 设置模型输出隐藏字段
+     * @access public
+     * @param mixed $hidden
+     * @return $this
+     */
+    public function hidden($hidden)
+    {
+        $this->options['hidden'] = $hidden;
+        return $this;
+    }
+
+    /**
      * 指定数据表别名
      * @access public
      * @param mixed $alias 数据表别名
@@ -1911,7 +1935,11 @@ class Query
             }
         }
         $this->via();
-        $this->options['with'] = $with;
+        if (isset($this->options['with'])) {
+            $this->options['with'] = array_merge($this->options['with'], $with);
+        } else {
+            $this->options['with'] = $with;
+        }
         return $this;
     }
 
@@ -1976,12 +2004,22 @@ class Query
     /**
      * 设置关联查询
      * @access public
-     * @param string $relation 关联名称
+     * @param string|array $relation 关联名称
      * @return $this
      */
     public function relation($relation)
     {
-        $this->options['relation'] = $relation;
+        if (empty($relation)) {
+            return $this;
+        }
+        if (is_string($relation)) {
+            $relation = explode(',', $relation);
+        }
+        if (isset($this->options['relation'])) {
+            $this->options['relation'] = array_mrege($this->options['relation'], $relation);
+        } else {
+            $this->options['relation'] = $relation;
+        }
         return $this;
     }
 
@@ -2295,6 +2333,7 @@ class Query
                     /** @var Model $result */
                     $model = new $modelName($result);
                     $model->isUpdate(true);
+
                     // 关联查询
                     if (!empty($options['relation'])) {
                         $model->relationQuery($options['relation']);
@@ -2303,6 +2342,14 @@ class Query
                     if (!empty($options['with_count'])) {
                         $model->relationCount($model, $options['with_count']);
                     }
+
+                    // 显式或隐藏属性
+                    if (!empty($options['visible'])) {
+                        $model->visible($options['visible']);
+                    } elseif (!empty($options['hidden'])) {
+                        $model->hidden($options['hidden']);
+                    }
+
                     $resultSet[$key] = $model;
                 }
                 if (!empty($options['with'])) {
@@ -2413,6 +2460,12 @@ class Query
                 // 关联统计
                 if (!empty($options['with_count'])) {
                     $data->relationCount($data, $options['with_count']);
+                }
+                // 显式或隐藏属性
+                if (!empty($options['visible'])) {
+                    $data->visible($options['visible']);
+                } elseif (!empty($options['hidden'])) {
+                    $data->hidden($options['hidden']);
                 }
             }
         } elseif (!empty($options['fail'])) {
