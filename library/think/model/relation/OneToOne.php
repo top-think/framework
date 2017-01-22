@@ -20,8 +20,8 @@ use think\model\Relation;
 /**
  * Class OneToOne
  * @package think\model\relation
- * @method void eagerlySete($resultSet, $relation, $subRelation, $closure) 预载入关联查询（数据集）
- * @method void eagerlyOne($result, $relation, $subRelation, $closure) 预载入关联查询（数据）
+ * @method void eagerlySet(array $resultSet, string $relation, string $subRelation, \Closure $closure) 预载入关联查询（数据集）
+ * @method void eagerlyOne(Model $result, string $relation, string $subRelation, \Closure $closure) 预载入关联查询（数据）
  *
  */
 abstract class OneToOne extends Relation
