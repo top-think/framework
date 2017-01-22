@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\Exception;
 use think\Loader;
 use think\Model;
 
@@ -113,11 +112,11 @@ class HasOne extends OneToOne
             foreach ($resultSet as $result) {
                 // 关联模型
                 if (!isset($data[$result->$localKey])) {
-                    throw new Exception('relation data not exists : ' . $this->model);
+                    $relationModel = null;
                 } else {
                     $relationModel = $data[$result->$localKey];
                 }
-                if (!empty($this->bindAttr)) {
+                if ($relationModel && !empty($this->bindAttr)) {
                     // 绑定关联属性
                     $this->bindAttr($relationModel, $result, $this->bindAttr);
                 }
@@ -144,12 +143,12 @@ class HasOne extends OneToOne
 
         // 关联模型
         if (!isset($data[$result->$localKey])) {
-            throw new Exception('relation data not exists :' . $this->model);
+            $relationModel = null;
         } else {
             $relationModel = $data[$result->$localKey];
         }
 
-        if (!empty($this->bindAttr)) {
+        if ($relationModel && !empty($this->bindAttr)) {
             // 绑定关联属性
             $this->bindAttr($relationModel, $result, $this->bindAttr);
         }
