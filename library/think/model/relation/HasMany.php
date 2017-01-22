@@ -60,7 +60,7 @@ class HasMany extends Relation
      * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
         $localKey = $this->localKey;
         $range    = [];
@@ -72,8 +72,7 @@ class HasMany extends Relation
         }
 
         if (!empty($range)) {
-            $this->where[$this->foreignKey] = ['in', $range];
-            $data                           = $this->eagerlyOneToMany($this, [
+            $data = $this->eagerlyOneToMany($this, [
                 $this->foreignKey => [
                     'in',
                     $range,
@@ -86,7 +85,7 @@ class HasMany extends Relation
                 if (!isset($data[$result->$localKey])) {
                     $data[$result->$localKey] = [];
                 }
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$localKey], $class));
+                $result->setAttr($attr, $this->resultSetBuild($data[$result->$localKey]));
             }
         }
     }
@@ -101,7 +100,7 @@ class HasMany extends Relation
      * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
     {
         $localKey = $this->localKey;
 
@@ -111,7 +110,7 @@ class HasMany extends Relation
             if (!isset($data[$result->$localKey])) {
                 $data[$result->$localKey] = [];
             }
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey], $class));
+            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey]));
         }
     }
 
@@ -259,9 +258,7 @@ class HasMany extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery)) {
-            if (isset($this->where)) {
-                $this->query->where($this->where);
-            } elseif (isset($this->parent->{$this->localKey})) {
+            if (isset($this->parent->{$this->localKey})) {
                 // 关联查询带入关联条件
                 $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
             }

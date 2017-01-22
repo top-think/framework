@@ -155,6 +155,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->dateFormat = $this->db(false)->getConfig('datetime_format');
         }
 
+        if (is_null($this->resultSetType)) {
+            $this->resultSetType = $this->db(false)->getConfig('resultset_type');
+        }
         // 执行初始化操作
         $this->initialize();
     }
@@ -1404,10 +1407,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param array     $resultSet 数据集
      * @param string    $relation 关联名
-     * @param string    $class 数据集对象名 为空表示数组
      * @return array
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $class = '')
+    public function eagerlyResultSet(&$resultSet, $relation)
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
         foreach ($relations as $key => $relation) {
@@ -1421,7 +1423,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
             $relation = Loader::parseName($relation, 1, false);
-            $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $class);
+            $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure);
         }
     }
 
@@ -1430,10 +1432,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param Model     $result 数据对象
      * @param string    $relation 关联名
-     * @param string    $class 数据集对象名 为空表示数组
      * @return Model
      */
-    public function eagerlyResult(&$result, $relation, $class = '')
+    public function eagerlyResult(&$result, $relation)
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
@@ -1448,7 +1449,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
             $relation = Loader::parseName($relation, 1, false);
-            $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure, $class);
+            $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure);
         }
     }
 

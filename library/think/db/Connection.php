@@ -528,11 +528,11 @@ abstract class Connection
     }
 
     /**
-     * 获得数据集
+     * 获得数据集数组
      * @access protected
      * @param bool   $pdo 是否返回PDOStatement
      * @param bool   $procedure 是否存储过程
-     * @return mixed
+     * @return array
      */
     protected function getResult($pdo = false, $procedure = false)
     {

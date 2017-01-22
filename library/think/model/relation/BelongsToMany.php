@@ -84,10 +84,9 @@ class BelongsToMany extends Relation
      * @param string    $relation 当前关联名
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
-     * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -117,7 +116,7 @@ class BelongsToMany extends Relation
                     $data[$result->$pk] = [];
                 }
 
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk], $class));
+                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
     }
@@ -129,10 +128,9 @@ class BelongsToMany extends Relation
      * @param string    $relation 当前关联名
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
-     * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
     {
         $pk = $result->getPk();
         if (isset($result->$pk)) {
@@ -144,7 +142,7 @@ class BelongsToMany extends Relation
             if (!isset($data[$pk])) {
                 $data[$pk] = [];
             }
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$pk], $class));
+            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$pk]));
         }
     }
 

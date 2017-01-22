@@ -2289,29 +2289,31 @@ class Query
         // 数据列表读取后的处理
         if (!empty($this->model)) {
             // 生成模型对象
-            $model = $this->model;
+            $modelName = $this->model;
             if (count($resultSet) > 0) {
                 foreach ($resultSet as $key => $result) {
                     /** @var Model $result */
-                    $result = new $model($result);
-                    $result->isUpdate(true);
+                    $model = new $modelName($result);
+                    $model->isUpdate(true);
                     // 关联查询
                     if (!empty($options['relation'])) {
-                        $result->relationQuery($options['relation']);
+                        $model->relationQuery($options['relation']);
                     }
                     // 关联统计
                     if (!empty($options['with_count'])) {
-                        $result->relationCount($result, $options['with_count']);
+                        $model->relationCount($model, $options['with_count']);
                     }
-                    $resultSet[$key] = $result;
+                    $resultSet[$key] = $model;
                 }
                 if (!empty($options['with'])) {
                     // 预载入
-                    $result->eagerlyResultSet($resultSet, $options['with'], is_object($resultSet) ? get_class($resultSet) : '');
+                    $model->eagerlyResultSet($resultSet, $options['with']);
                 }
+                // 模型数据集转换
+                $resultSet = $model->toCollection($resultSet);
+            } else {
+                $resultSet = (new $modelName)->toCollection($resultSet);
             }
-            // 模型数据集转换
-            $resultSet = (new $model)->toCollection($resultSet);
         } elseif ('collection' == $this->connection->getConfig('resultset_type')) {
             // 返回Collection对象
             $resultSet = new Collection($resultSet);
@@ -2406,7 +2408,7 @@ class Query
                 }
                 // 预载入查询
                 if (!empty($options['with'])) {
-                    $data->eagerlyResult($data, $options['with'], is_object($result) ? get_class($result) : '');
+                    $data->eagerlyResult($data, $options['with']);
                 }
                 // 关联统计
                 if (!empty($options['with_count'])) {

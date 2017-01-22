@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use think\Exception;
 use think\Loader;
 use think\Model;
 
@@ -84,10 +85,9 @@ class HasOne extends OneToOne
      * @param string    $relation 当前关联名
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
-     * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure, $class)
+    protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -101,8 +101,7 @@ class HasOne extends OneToOne
         }
 
         if (!empty($range)) {
-            $this->where[$foreignKey] = ['in', $range];
-            $data                     = $this->eagerlyWhere($this, [
+            $data = $this->eagerlyWhere($this, [
                 $foreignKey => [
                     'in',
                     $range,
@@ -112,10 +111,12 @@ class HasOne extends OneToOne
             $attr = Loader::parseName($relation);
             // 关联数据封装
             foreach ($resultSet as $result) {
+                // 关联模型
                 if (!isset($data[$result->$localKey])) {
-                    $data[$result->$localKey] = [];
+                    throw new Exception('relation data not exists : ' . $this->model);
+                } else {
+                    $relationModel = $data[$result->$localKey];
                 }
-                $relationModel = $this->resultSetBuild($data[$result->$localKey], $class);
                 if (!empty($this->bindAttr)) {
                     // 绑定关联属性
                     $this->bindAttr($relationModel, $result, $this->bindAttr);
@@ -133,19 +134,21 @@ class HasOne extends OneToOne
      * @param string    $relation 当前关联名
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
-     * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    protected function eagerlyOne(&$result, $relation, $subRelation, $closure, $class)
+    protected function eagerlyOne(&$result, $relation, $subRelation, $closure)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
         $data       = $this->eagerlyWhere($this, [$foreignKey => $result->$localKey], $foreignKey, $relation, $subRelation, $closure);
-        // 关联数据封装
+
+        // 关联模型
         if (!isset($data[$result->$localKey])) {
-            $data[$result->$localKey] = [];
+            throw new Exception('relation data not exists :' . $this->model);
+        } else {
+            $relationModel = $data[$result->$localKey];
         }
-        $relationModel = $this->resultSetBuild($data[$result->$localKey], $class);
+
         if (!empty($this->bindAttr)) {
             // 绑定关联属性
             $this->bindAttr($relationModel, $result, $this->bindAttr);

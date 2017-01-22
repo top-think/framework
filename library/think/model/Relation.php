@@ -27,8 +27,6 @@ abstract class Relation
     protected $foreignKey;
     // 关联表主键
     protected $localKey;
-    // 关联查询条件
-    protected $where;
     // 关联查询参数
     protected $option;
     // 基础查询
@@ -68,12 +66,11 @@ abstract class Relation
      * 封装关联数据集
      * @access public
      * @param array     $resultSet 数据集
-     * @param string    $class 数据集类名
      * @return mixed
      */
-    protected function resultSetBuild($resultSet, $class = '')
+    protected function resultSetBuild($resultSet)
     {
-        return $class ? new $class($resultSet) : $resultSet;
+        return (new $this->model)->toCollection($resultSet);
     }
 
     /**

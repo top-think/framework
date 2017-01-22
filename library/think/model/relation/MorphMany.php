@@ -65,10 +65,9 @@ class MorphMany extends Relation
      * @param string    $relation 当前关联名
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
-     * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
         $morphType = $this->morphType;
         $morphKey  = $this->morphKey;
@@ -83,9 +82,7 @@ class MorphMany extends Relation
         }
 
         if (!empty($range)) {
-            $this->where[$morphKey]  = ['in', $range];
-            $this->where[$morphType] = $type;
-            $data                    = $this->eagerlyMorphToMany([
+            $data = $this->eagerlyMorphToMany([
                 $morphKey  => ['in', $range],
                 $morphType => $type,
             ], $relation, $subRelation, $closure);
@@ -96,7 +93,7 @@ class MorphMany extends Relation
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk], $class));
+                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
     }
@@ -108,15 +105,14 @@ class MorphMany extends Relation
      * @param string    $relation 当前关联名
      * @param string    $subRelation 子关联名
      * @param \Closure  $closure 闭包
-     * @param string    $class 数据集对象名 为空表示数组
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
     {
         $pk = $result->getPk();
         if (isset($result->$pk)) {
             $data = $this->eagerlyMorphToMany([$this->morphKey => $result->$pk, $this->morphType => $this->type], $relation, $subRelation, $closure);
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk], $class));
+            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
         }
     }
 
