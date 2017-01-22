@@ -63,7 +63,7 @@ trait SoftDelete
             $this->data[$name] = $this->autoWriteTimestamp($name);
             $result            = $this->isUpdate()->save();
         } else {
-            $result = $this->db()->delete($this->data);
+            $result = $this->db(false)->delete($this->data);
         }
 
         $this->trigger('after_delete', $this);
