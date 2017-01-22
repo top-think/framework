@@ -20,6 +20,10 @@ use JsonSerializable;
 class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
     protected $items = [];
+    // 显示属性
+    protected $visible = [];
+    // 隐藏属性
+    protected $hidden = [];
 
     public function __construct($items = [])
     {
@@ -40,11 +44,47 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return empty($this->items);
     }
 
+    /**
+     * 设置需要隐藏的输出属性
+     * @access public
+     * @param array $hidden 属性列表
+     * @param bool  $override  是否覆盖
+     * @return $this
+     */
+    public function hidden($hidden = [], $override = false)
+    {
+        $this->hidden = [$hidden, $override];
+        return $this;
+    }
+
+    /**
+     * 设置需要输出的属性
+     * @param array $visible
+     * @param bool  $override  是否覆盖
+     * @return $this
+     */
+    public function visible($visible = [], $override = false)
+    {
+        $this->visible = [$visible, $override];
+        return $this;
+    }
+
     public function toArray()
     {
-        return array_map(function ($value) {
-            return ($value instanceof Model || $value instanceof self) ? $value->toArray() : $value;
-        }, $this->items);
+        $result = [];
+        foreach ($this->items as $key => $item) {
+            if ($item instanceof Model || $item instanceof self) {
+                if (!empty($this->visible)) {
+                    $item->visible($this->visible[0], $this->visible[1]);
+                } elseif (!empty($this->hidden)) {
+                    $item->hidden($this->hidden[0], $this->hidden[1]);
+                }
+                $result[$key] = $item->toArray();
+            } else {
+                $result[$key] = $item;
+            }
+        }
+        return $result;
     }
 
     public function all()
@@ -225,7 +265,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
         $result = [];
         foreach ($this->items as $row) {
-            $key    = $value = null;
+            $key    = $value    = null;
             $keySet = $valueSet = false;
             if (null !== $index_key && array_key_exists($index_key, $row)) {
                 $keySet = true;

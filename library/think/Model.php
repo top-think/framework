@@ -596,13 +596,31 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function toArray()
     {
-        $item = [];
-
-        //过滤属性
+        $item    = [];
+        $visible = [];
+        $hidden  = [];
+        // 过滤属性
         if (!empty($this->visible)) {
-            $data = array_intersect_key($this->data, array_flip($this->visible));
+            $array = [];
+            foreach ($this->visible as $key => $val) {
+                if (is_array($val)) {
+                    $array[]       = $key;
+                    $visible[$key] = $val;
+                } else {
+                    $array[] = $val;
+                }
+            }
+            $data = array_intersect_key($this->data, array_flip($array));
         } elseif (!empty($this->hidden)) {
-            $data = array_diff_key($this->data, array_flip($this->hidden));
+            $array = [];
+            foreach ($this->hidden as $key => $val) {
+                if (is_array($val)) {
+                    $hidden[$key] = $val;
+                } else {
+                    $array[] = $val;
+                }
+            }
+            $data = array_diff_key($this->data, array_flip($array));
         } else {
             $data = $this->data;
         }
@@ -610,11 +628,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         foreach ($data as $key => $val) {
             if ($val instanceof Model || $val instanceof Collection) {
                 // 关联模型对象
+                if (isset($visible[$key])) {
+                    $val->visible($visible[$key]);
+                } elseif (isset($hidden[$key])) {
+                    $val->hidden($hidden[$key]);
+                }
                 $item[$key] = $val->toArray();
             } elseif (is_array($val) && reset($val) instanceof Model) {
                 // 关联模型数据集
                 $arr = [];
                 foreach ($val as $k => $value) {
+                    if (isset($visible[$k])) {
+                        $value->visible($visible[$k]);
+                    } elseif (isset($hidden[$k])) {
+                        $value->hidden($hidden[$k]);
+                    }
                     $arr[$k] = $value->toArray();
                 }
                 $item[$key] = $arr;

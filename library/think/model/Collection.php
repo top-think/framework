@@ -27,4 +27,5 @@ class Collection extends BaseCollection
         $item->eagerlyResultSet($this->items, $relation);
         return $this;
     }
+
 }
