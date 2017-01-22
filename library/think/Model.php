@@ -654,7 +654,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($this->resultSetType) {
             if ('collection' == $this->resultSetType) {
                 $collection = new Collection($collection);
-            } else {
+            } elseif (false !== strpos($this->resultSetType, '\\')) {
                 $class      = $this->resultSetType;
                 $collection = new $class($collection);
             }
