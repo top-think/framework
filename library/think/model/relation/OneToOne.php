@@ -17,6 +17,13 @@ use think\Loader;
 use think\Model;
 use think\model\Relation;
 
+/**
+ * Class OneToOne
+ * @package think\model\relation
+ * @method void eagerlySete($resultSet, $relation, $subRelation, $closure) 预载入关联查询（数据集）
+ * @method void eagerlyOne($result, $relation, $subRelation, $closure) 预载入关联查询（数据）
+ *
+ */
 abstract class OneToOne extends Relation
 {
     // 预载入方式 0 -JOIN 1 -IN
