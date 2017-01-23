@@ -579,6 +579,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 设置需要输出的属性
+     * @access public
      * @param array $visible
      * @param bool  $override  是否覆盖
      * @return $this
@@ -590,37 +591,67 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 解析隐藏及显示属性
+     * @access protected
+     * @param array  $attrs 属性
+     * @param array  $result  结果集
+     * @return array
+     */
+    protected function parseAttr($attrs, &$result, $visible = true)
+    {
+        $array = [];
+        foreach ($attrs as $key => $val) {
+            if (is_array($val)) {
+                if ($visible) {
+                    $array[] = $key;
+                }
+                $result[$key] = $val;
+            } elseif (strpos($val, '.')) {
+                list($key, $name) = explode('.', $val);
+                if ($visible) {
+                    $array[] = $key;
+                }
+                $result[$key][] = $name;
+            } else {
+                $array[] = $val;
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * 转换子模型对象
+     * @access protected
+     * @return array
+     */
+    protected function subToArray($model, $visible, $hidden, $key)
+    {
+        // 关联模型对象
+        if (isset($visible[$key])) {
+            $model->visible($visible[$key]);
+        } elseif (isset($hidden[$key])) {
+            $model->hidden($hidden[$key]);
+        }
+        return $model->toArray();
+    }
+
+    /**
      * 转换当前模型对象为数组
      * @access public
      * @return array
      */
     public function toArray()
     {
-        $item = [];
+        $item    = [];
+        $visible = [];
+        $hidden  = [];
         // 过滤属性
         if (!empty($this->visible)) {
-            $visible = [];
-            $array   = [];
-            foreach ($this->visible as $key => $val) {
-                if (is_array($val)) {
-                    $array[]       = $key;
-                    $visible[$key] = $val;
-                } else {
-                    $array[] = $val;
-                }
-            }
-            $data = array_intersect_key($this->data, array_flip($array));
+            $array = $this->parseAttr($this->visible, $visible);
+            $data  = array_intersect_key($this->data, array_flip($array));
         } elseif (!empty($this->hidden)) {
-            $hidden = [];
-            $array  = [];
-            foreach ($this->hidden as $key => $val) {
-                if (is_array($val)) {
-                    $hidden[$key] = $val;
-                } else {
-                    $array[] = $val;
-                }
-            }
-            $data = array_diff_key($this->data, array_flip($array));
+            $array = $this->parseAttr($this->hidden, $hidden, false);
+            $data  = array_diff_key($this->data, array_flip($array));
         } else {
             $data = $this->data;
         }
@@ -628,22 +659,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         foreach ($data as $key => $val) {
             if ($val instanceof Model || $val instanceof Collection) {
                 // 关联模型对象
-                if (isset($visible[$key])) {
-                    $val->visible($visible[$key]);
-                } elseif (isset($hidden[$key])) {
-                    $val->hidden($hidden[$key]);
-                }
-                $item[$key] = $val->toArray();
+                $item[$key] = $this->subToArray($val, $visible, $hidden, $key);
             } elseif (is_array($val) && reset($val) instanceof Model) {
                 // 关联模型数据集
                 $arr = [];
                 foreach ($val as $k => $value) {
-                    if (isset($visible[$k])) {
-                        $value->visible($visible[$k]);
-                    } elseif (isset($hidden[$k])) {
-                        $value->hidden($hidden[$k]);
-                    }
-                    $arr[$k] = $value->toArray();
+                    $arr[$k] = $this->subToArray($value, $visible, $hidden, $k);
                 }
                 $item[$key] = $arr;
             } else {
@@ -658,6 +679,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     // 追加关联对象属性
                     $relation   = $this->getAttr($key);
                     $item[$key] = $relation->append($name)->toArray();
+                } elseif (strpos($name, '.')) {
+                    list($key, $attr) = explode('.', $name);
+                    // 追加关联对象属性
+                    $relation   = $this->getAttr($key);
+                    $item[$key] = $relation->append([$attr])->toArray();
                 } else {
                     $item[$name] = $this->getAttr($name);
                 }
