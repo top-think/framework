@@ -12,6 +12,7 @@
 namespace think\model;
 
 use think\Collection as BaseCollection;
+use think\Model;
 
 class Collection extends BaseCollection
 {
@@ -25,6 +26,53 @@ class Collection extends BaseCollection
     {
         $item = current($this->items);
         $item->eagerlyResultSet($this->items, $relation);
+        return $this;
+    }
+
+    /**
+     * 设置需要隐藏的输出属性
+     * @access public
+     * @param array $hidden   属性列表
+     * @param bool  $override 是否覆盖
+     * @return $this
+     */
+    public function hidden($hidden = [], $override = false)
+    {
+        $this->each(function ($model) use ($hidden, $override) {
+            /** @var Model $model */
+            $model->hidden($hidden, $override);
+        });
+        return $this;
+    }
+
+    /**
+     * 设置需要输出的属性
+     * @param array $visible
+     * @param bool  $override 是否覆盖
+     * @return $this
+     */
+    public function visible($visible = [], $override = false)
+    {
+        $this->each(function ($model) use ($visible, $override) {
+            /** @var Model $model */
+            $model->visible($visible, $override);
+        });
+        return $this;
+    }
+
+    /**
+     * 设置需要追加的输出属性
+     * @access public
+     * @param array $append   属性列表
+     * @param bool  $override 是否覆盖
+     * @return $this
+     */
+    public function append($append = [], $override = false)
+    {
+        $this->each(function ($model) use ($append, $override) {
+            /** @var Model $model */
+            $model->append($append, $override);
+        });
         return $this;
     }
 

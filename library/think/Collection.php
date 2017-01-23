@@ -20,12 +20,6 @@ use JsonSerializable;
 class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
     protected $items = [];
-    // 显示属性
-    protected $visible = [];
-    // 隐藏属性
-    protected $hidden = [];
-    // 追加属性
-    protected $append = [];
 
     public function __construct($items = [])
     {
@@ -46,63 +40,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return empty($this->items);
     }
 
-    /**
-     * 设置需要隐藏的输出属性
-     * @access public
-     * @param array $hidden 属性列表
-     * @param bool  $override  是否覆盖
-     * @return $this
-     */
-    public function hidden($hidden = [], $override = false)
-    {
-        $this->hidden = [$hidden, $override];
-        return $this;
-    }
-
-    /**
-     * 设置需要输出的属性
-     * @param array $visible
-     * @param bool  $override  是否覆盖
-     * @return $this
-     */
-    public function visible($visible = [], $override = false)
-    {
-        $this->visible = [$visible, $override];
-        return $this;
-    }
-
-    /**
-     * 设置需要追加的输出属性
-     * @access public
-     * @param array $append 属性列表
-     * @param bool  $override  是否覆盖
-     * @return $this
-     */
-    public function append($append = [], $override = false)
-    {
-        $this->append = [$append, $override];
-        return $this;
-    }
-
     public function toArray()
     {
-        $result = [];
-        foreach ($this->items as $key => $item) {
-            if ($item instanceof Model || $item instanceof self) {
-                if (!empty($this->visible)) {
-                    $item->visible($this->visible[0], $this->visible[1]);
-                } elseif (!empty($this->hidden)) {
-                    $item->hidden($this->hidden[0], $this->hidden[1]);
-                }
-                if (!empty($this->append)) {
-                    $item->append($this->append[0], $this->append[1]);
-                }
-                $result[$key] = $item->toArray();
-            } else {
-                $result[$key] = $item;
-            }
-        }
-        return $result;
+        return array_map(function ($value) {
+            return ($value instanceof Model || $value instanceof self) ? $value->toArray() : $value;
+        }, $this->items);
     }
 
     public function all()

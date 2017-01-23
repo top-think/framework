@@ -593,8 +593,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 解析隐藏及显示属性
      * @access protected
-     * @param array  $attrs 属性
-     * @param array  $result  结果集
+     * @param array $attrs  属性
+     * @param array $result 结果集
+     * @param bool  $visible
      * @return array
      */
     protected function parseAttr($attrs, &$result, $visible = true)
@@ -622,6 +623,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 转换子模型对象
      * @access protected
+     * @param Model|Collection $model
+     * @param $visible
+     * @param $hidden
+     * @param $key
      * @return array
      */
     protected function subToArray($model, $visible, $hidden, $key)
