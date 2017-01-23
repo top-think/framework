@@ -73,7 +73,6 @@ abstract class OneToOne extends Relation
 
         // 预载入封装
         $joinTable = $this->query->getTable();
-        $joinName  = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
         $joinAlias = $relation;
         $query->via($joinAlias);
 
