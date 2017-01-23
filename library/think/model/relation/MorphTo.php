@@ -27,10 +27,10 @@ class MorphTo extends Relation
     /**
      * 架构函数
      * @access public
-     * @param Model  $parent 上级模型对象
+     * @param Model  $parent    上级模型对象
      * @param string $morphType 多态字段名
-     * @param string $morphKey 外键名
-     * @param array  $alias 多态别名定义
+     * @param string $morphKey  外键名
+     * @param array  $alias     多态别名定义
      */
     public function __construct(Model $parent, $morphType, $morphKey, $alias = [])
     {
@@ -42,9 +42,9 @@ class MorphTo extends Relation
 
     /**
      * 延迟获取关联数据
-     * @param string    $subRelation 子关联名
-     * @param \Closure  $closure 闭包查询条件
-     * @access public
+     * @param string   $subRelation 子关联名
+     * @param \Closure $closure     闭包查询条件
+     * @return mixed
      */
     public function getRelation($subRelation = '', $closure = null)
     {
@@ -80,7 +80,7 @@ class MorphTo extends Relation
     /**
      * 设置多态别名
      * @access public
-     * @param array  $alias 别名定义
+     * @param array $alias 别名定义
      * @return $this
      */
     public function setAlias($alias)
@@ -92,11 +92,12 @@ class MorphTo extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param array     $resultSet 数据集
-     * @param string    $relation 当前关联名
-     * @param string    $subRelation 子关联名
-     * @param \Closure  $closure 闭包
+     * @param array    $resultSet   数据集
+     * @param string   $relation    当前关联名
+     * @param string   $subRelation 子关联名
+     * @param \Closure $closure     闭包
      * @return void
+     * @throws Exception
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
@@ -140,10 +141,10 @@ class MorphTo extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param Model     $result 数据对象
-     * @param string    $relation 当前关联名
-     * @param string    $subRelation 子关联名
-     * @param \Closure  $closure 闭包
+     * @param Model    $result      数据对象
+     * @param string   $relation    当前关联名
+     * @param string   $subRelation 子关联名
+     * @param \Closure $closure     闭包
      * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure)
@@ -158,20 +159,21 @@ class MorphTo extends Relation
     /**
      * 关联统计
      * @access public
-     * @param Model     $result 数据对象
-     * @param \Closure  $closure 闭包
+     * @param Model    $result  数据对象
+     * @param \Closure $closure 闭包
      * @return integer
      */
     public function relationCount($result, $closure)
-    {}
+    {
+    }
 
     /**
      * 多态MorphTo 关联模型预查询
-     * @access public
-     * @param object    $model 关联模型对象
-     * @param array     $where 关联预查询条件
-     * @param string    $relation 关联名
-     * @param string    $subRelation 子关联
+     * @access   public
+     * @param object $model       关联模型对象
+     * @param string $relation    关联名
+     * @param        $result
+     * @param string $subRelation 子关联
      * @return void
      */
     protected function eagerlyMorphToOne($model, $relation, &$result, $subRelation = '')
