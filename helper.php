@@ -14,7 +14,6 @@
 //-------------------------
 
 use think\Cache;
-use think\Collection;
 use think\Config;
 use think\Cookie;
 use think\Db;
@@ -24,6 +23,7 @@ use think\exception\HttpResponseException;
 use think\Lang;
 use think\Loader;
 use think\Log;
+use think\Model;
 use think\Request;
 use think\Response;
 use think\Session;
@@ -571,10 +571,15 @@ if (!function_exists('collection')) {
     /**
      * 数组转换为数据集对象
      * @param array $resultSet 数据集数组
-     * @return Collection
+     * @return \think\model\Collection|\think\Collection
      */
     function collection($resultSet)
     {
-        return new Collection($resultSet);
+        $item = current($resultSet);
+        if ($item instanceof Model) {
+            return \think\model\Collection::make($resultSet);
+        } else {
+            return \think\Collection::make($resultSet);
+        }
     }
 }
