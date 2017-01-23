@@ -158,7 +158,7 @@ class Merge extends Model
             }
             // 数据对象赋值
             foreach ($data as $key => $value) {
-                $this->setAttr($key, $value);
+                $this->setAttr($key, $value, $data);
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
