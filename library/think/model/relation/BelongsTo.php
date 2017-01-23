@@ -37,9 +37,10 @@ class BelongsTo extends OneToOne
 
     /**
      * 延迟获取关联数据
-     * @param string    $subRelation 子关联名
-     * @param \Closure  $closure 闭包查询条件
+     * @param string   $subRelation 子关联名
+     * @param \Closure $closure     闭包查询条件
      * @access public
+     * @return array|false|\PDOStatement|string|Model
      */
     public function getRelation($subRelation = '', $closure = null)
     {
