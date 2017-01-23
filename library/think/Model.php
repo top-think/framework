@@ -596,12 +596,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function toArray()
     {
-        $item    = [];
-        $visible = [];
-        $hidden  = [];
+        $item = [];
         // 过滤属性
         if (!empty($this->visible)) {
-            $array = [];
+            $visible = [];
+            $array   = [];
             foreach ($this->visible as $key => $val) {
                 if (is_array($val)) {
                     $array[]       = $key;
@@ -612,7 +611,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             $data = array_intersect_key($this->data, array_flip($array));
         } elseif (!empty($this->hidden)) {
-            $array = [];
+            $hidden = [];
+            $array  = [];
             foreach ($this->hidden as $key => $val) {
                 if (is_array($val)) {
                     $hidden[$key] = $val;
@@ -653,8 +653,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         // 追加属性（必须定义获取器）
         if (!empty($this->append)) {
-            foreach ($this->append as $name) {
-                $item[$name] = $this->getAttr($name);
+            foreach ($this->append as $key => $name) {
+                if (is_array($name)) {
+                    // 追加关联对象属性
+                    $relation   = $this->getAttr($key);
+                    $item[$key] = $relation->append($name)->toArray();
+                } else {
+                    $item[$name] = $this->getAttr($name);
+                }
             }
         }
         return !empty($item) ? $item : [];

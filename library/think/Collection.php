@@ -24,6 +24,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     protected $visible = [];
     // 隐藏属性
     protected $hidden = [];
+    // 追加属性
+    protected $append = [];
 
     public function __construct($items = [])
     {
@@ -69,6 +71,19 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return $this;
     }
 
+    /**
+     * 设置需要追加的输出属性
+     * @access public
+     * @param array $append 属性列表
+     * @param bool  $override  是否覆盖
+     * @return $this
+     */
+    public function append($append = [], $override = false)
+    {
+        $this->append = [$append, $override];
+        return $this;
+    }
+
     public function toArray()
     {
         $result = [];
@@ -78,6 +93,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
                     $item->visible($this->visible[0], $this->visible[1]);
                 } elseif (!empty($this->hidden)) {
                     $item->hidden($this->hidden[0], $this->hidden[1]);
+                }
+                if (!empty($this->append)) {
+                    $item->append($this->append[0], $this->append[1]);
                 }
                 $result[$key] = $item->toArray();
             } else {
