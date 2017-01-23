@@ -85,6 +85,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $update = [];
     // 是否需要自动写入时间戳 如果设置为字符串 则表示时间字段的类型
     protected $autoWriteTimestamp;
+    // 是否需要自动获取时间戳
+    protected $autoReadTimestamp = true;
     // 创建时间字段
     protected $createTime = 'create_time';
     // 更新时间字段
@@ -442,7 +444,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif (isset($this->type[$name])) {
             // 类型转换
             $value = $this->readTransform($value, $this->type[$name]);
-        } elseif (in_array($name, [$this->createTime, $this->updateTime])) {
+        } elseif ($this->autoReadTimestamp == true && in_array($name, [$this->createTime, $this->updateTime])) {
             if (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), ['datetime', 'date', 'timestamp'])) {
                 $value = $this->formatDateTime(strtotime($value), $this->dateFormat);
             } else {
