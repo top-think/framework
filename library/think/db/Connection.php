@@ -741,7 +741,10 @@ abstract class Connection
      */
     public function close()
     {
-        $this->linkID = null;
+        $this->linkID    = null;
+        $this->linkWrite = null;
+        $this->linkRead  = null;
+        $this->links     = [];
     }
 
     /**
