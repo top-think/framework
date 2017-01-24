@@ -51,8 +51,6 @@ abstract class Connection
     protected $linkWrite;
 
     // 查询结果类型
-    protected $resultSetType = 'array';
-    // 查询结果类型
     protected $fetchType = PDO::FETCH_ASSOC;
     // 字段属性大小写
     protected $attrCase = PDO::CASE_LOWER;
@@ -269,10 +267,7 @@ abstract class Connection
             }
             // 记录当前字段属性大小写设置
             $this->attrCase = $params[PDO::ATTR_CASE];
-            // 记录数据集返回类型
-            if (isset($config['resultset_type'])) {
-                $this->resultSetType = $config['resultset_type'];
-            }
+
             // 数据返回类型
             if (isset($config['result_type'])) {
                 $this->fetchType = $config['result_type'];
