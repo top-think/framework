@@ -510,11 +510,13 @@ abstract class Connection
     protected function bindParam($bind)
     {
         foreach ($bind as $key => $val) {
-            if (is_numeric($key)) {
-                $key = $key + 1;
+            $param = is_numeric($key) ? $key + 1 : ':' . $key;
+            if (is_array($val)) {
+                array_unshift($val, $param);
+                $result = call_user_func_array([$this->PDOStatement, 'bindParam'], $val);
+            } else {
+                $result = $this->PDOStatement->bindValue($param, $val);
             }
-            array_unshift($val, $key);
-            $result = call_user_func_array([$this->PDOStatement, 'bindParam'], $val);
             if (!$result) {
                 $param = array_shift($val);
                 throw new BindParamException(
