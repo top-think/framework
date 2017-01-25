@@ -47,7 +47,9 @@ class Mysqli extends SessionHandler
     /**
      * 数据库句柄
      */
-    protected $handler = '', $lifeTime = '', $sessionTable = '';
+    protected $handler = '';
+    protected $lifeTime = '';
+    protected $sessionTable = '';
 
     /**
      * Db constructor.
