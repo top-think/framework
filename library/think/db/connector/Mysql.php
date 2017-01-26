@@ -21,6 +21,8 @@ use think\Log;
 class Mysql extends Connection
 {
 
+    protected $builder = '\\think\\db\\builder\\Mysql';
+
     /**
      * 解析pdo连接的dsn信息
      * @access protected
