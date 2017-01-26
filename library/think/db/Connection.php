@@ -58,6 +58,8 @@ abstract class Connection
     protected static $event = [];
     // 查询对象
     protected $query = [];
+    // 使用Builder类
+    protected $builder;
     // 数据库连接参数配置
     protected $config = [
         // 数据库类型
@@ -146,6 +148,20 @@ abstract class Connection
             $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
         }
         return $this->query[$model];
+    }
+
+    /**
+     * 获取当前连接器类对应的Builder类
+     * @access public
+     * @return string
+     */
+    public function getBuilder()
+    {
+        if (!empty($this->builder)) {
+            return $this->builder;
+        } else {
+            return $this->getConfig('builder') ?: '\\think\\db\\builder\\' . ucfirst($this->getConfig('type'));
+        }
     }
 
     /**
