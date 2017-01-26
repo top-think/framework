@@ -252,7 +252,7 @@ class Input
 
             return $token;
         }
-        return null;
+        return;
     }
 
     /**

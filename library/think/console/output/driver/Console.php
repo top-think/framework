@@ -196,7 +196,7 @@ class Console
     private function getSttyColumns()
     {
         if (!function_exists('proc_open')) {
-            return null;
+            return;
         }
 
         $descriptorspec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
@@ -209,7 +209,7 @@ class Console
 
             return $info;
         }
-        return null;
+        return;
     }
 
     /**
@@ -219,7 +219,7 @@ class Console
     private function getMode()
     {
         if (!function_exists('proc_open')) {
-            return null;
+            return;
         }
 
         $descriptorspec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
@@ -234,7 +234,7 @@ class Console
                 return $matches[2] . 'x' . $matches[1];
             }
         }
-        return null;
+        return;
     }
 
     private function stringWidth($string)
@@ -356,10 +356,10 @@ class Console
     {
         if (DIRECTORY_SEPARATOR === '\\') {
             return
-                '10.0.10586' === PHP_WINDOWS_VERSION_MAJOR . '.' . PHP_WINDOWS_VERSION_MINOR . '.' . PHP_WINDOWS_VERSION_BUILD
-                || false !== getenv('ANSICON')
-                || 'ON' === getenv('ConEmuANSI')
-                || 'xterm' === getenv('TERM');
+            '10.0.10586' === PHP_WINDOWS_VERSION_MAJOR . '.' . PHP_WINDOWS_VERSION_MINOR . '.' . PHP_WINDOWS_VERSION_BUILD
+            || false !== getenv('ANSICON')
+            || 'ON' === getenv('ConEmuANSI')
+            || 'xterm' === getenv('TERM');
         }
 
         return function_exists('posix_isatty') && @posix_isatty($stream);

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -79,7 +79,7 @@ class Memcache extends SessionHandler
      */
     public function read($sessID)
     {
-        return $this->handler->get($this->config['session_name'] . $sessID);
+        return (string) $this->handler->get($this->config['session_name'] . $sessID);
     }
 
     /**
@@ -87,6 +87,7 @@ class Memcache extends SessionHandler
      * @access public
      * @param string    $sessID
      * @param String    $sessData
+     * @return bool
      */
     public function write($sessID, $sessData)
     {
@@ -97,6 +98,7 @@ class Memcache extends SessionHandler
      * 删除Session
      * @access public
      * @param string $sessID
+     * @return bool
      */
     public function destroy($sessID)
     {
@@ -107,6 +109,7 @@ class Memcache extends SessionHandler
      * Session 垃圾回收
      * @access public
      * @param string $sessMaxLifeTime
+     * @return true
      */
     public function gc($sessMaxLifeTime)
     {

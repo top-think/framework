@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -59,11 +59,14 @@ class Config
             self::$config[$range] = [];
         }
         if (is_file($file)) {
+            $name = strtolower($name);
             $type = pathinfo($file, PATHINFO_EXTENSION);
-            if ('php' != $type) {
-                return self::parse($file, $type, $name, $range);
-            } else {
+            if ('php' == $type) {
                 return self::set(include $file, $name, $range);
+            } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
+                return self::set(yaml_parse_file($file), $name, $range);
+            } else {
+                return self::parse($file, $type, $name, $range);
             }
         } else {
             return self::$config[$range];
