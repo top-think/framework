@@ -81,9 +81,9 @@ class Cache
      * @param string $name 缓存标识
      * @return Driver
      */
-    public static function store($name)
+    public static function store($name = '')
     {
-        if ('complex' == Config::get('cache.type')) {
+        if ('' !== $name && 'complex' == Config::get('cache.type')) {
             self::connect(Config::get('cache.' . $name), strtolower($name));
         }
         return self::$handler;
