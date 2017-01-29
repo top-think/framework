@@ -2157,8 +2157,8 @@ class Query
         $options = $this->parseExpress();
         $data    = array_merge($options['data'], $data);
         $pk      = $this->getPk($options);
-        if (isset($options['cache']) && is_string($options['cache'])) {
-            $key = $options['cache'];
+        if (isset($options['cache']) && is_string($options['cache']['key'])) {
+            $key = $options['cache']['key'];
         }
 
         if (empty($options['where'])) {
@@ -2565,8 +2565,8 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
-        if (isset($options['cache']) && is_string($options['cache'])) {
-            $key = $options['cache'];
+        if (isset($options['cache']) && is_string($options['cache']['key'])) {
+            $key = $options['cache']['key'];
         }
 
         if (!is_null($data) && true !== $data) {
