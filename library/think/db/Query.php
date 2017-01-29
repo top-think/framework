@@ -2565,6 +2565,7 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
+        $pk      = $this->getPk($options);
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
         }
@@ -2576,6 +2577,8 @@ class Query
             }
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
+        } elseif (is_string($pk) && isset($options['where']['AND'][$pk]) && is_scalar($options['where']['AND'][$pk])) {
+            $key = 'think:' . $options['table'] . '|' . $options['where']['AND'][$pk];
         }
 
         if (true !== $data && empty($options['where'])) {
