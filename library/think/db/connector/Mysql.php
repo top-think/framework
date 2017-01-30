@@ -129,4 +129,18 @@ class Mysql extends Connection
     {
         return true;
     }
+
+    /**
+     * 是否断线
+     * @access protected
+     * @param \PDOException  $e 异常对象
+     * @return bool
+     */
+    protected function isBreak($e)
+    {
+        if (false !== stripos($e->getMessage(), 'server has gone away')) {
+            return true;
+        }
+        return false;
+    }
 }

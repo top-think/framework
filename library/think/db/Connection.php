@@ -108,6 +108,8 @@ abstract class Connection
         'builder'         => '',
         // Query类
         'query'           => '\\think\\db\\Query',
+        // 是否需要断线重连
+        'break_reconnect' => false,
     ];
 
     // PDO连接参数
@@ -391,6 +393,9 @@ abstract class Connection
             // 返回结果集
             return $this->getResult($pdo, $procedure);
         } catch (\PDOException $e) {
+            if ($this->config['break_reconnect'] && $this->isBreak($e)) {
+                return $this->close()->query($sql, $bind, $master, $pdo);
+            }
             throw new PDOException($e, $this->config, $this->getLastsql());
         }
     }
@@ -446,6 +451,9 @@ abstract class Connection
             $this->numRows = $this->PDOStatement->rowCount();
             return $this->numRows;
         } catch (\PDOException $e) {
+            if ($this->config['break_reconnect'] && $this->isBreak($e)) {
+                return $this->close()->execute($sql, $bind);
+            }
             throw new PDOException($e, $this->config, $this->getLastsql());
         }
     }
@@ -747,8 +755,9 @@ abstract class Connection
     }
 
     /**
-     * 关闭数据库
+     * 关闭数据库（或者重新连接）
      * @access public
+     * @return $this
      */
     public function close()
     {
@@ -756,6 +765,18 @@ abstract class Connection
         $this->linkWrite = null;
         $this->linkRead  = null;
         $this->links     = [];
+        return $this;
+    }
+
+    /**
+     * 是否断线
+     * @access protected
+     * @param \PDOException  $e 异常
+     * @return bool
+     */
+    protected function isBreak($e)
+    {
+        return false;
     }
 
     /**
