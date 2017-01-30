@@ -2070,11 +2070,17 @@ class Query
         // 执行操作
         $result = $this->execute($sql, $bind);
         if ($result) {
-            $this->trigger('after_insert', $options);
-        }
-        if ($getLastInsID) {
-            $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
-            return $this->getLastInsID($sequence);
+            $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
+            $lastInsId = $this->getLastInsID($sequence);
+            if ($lastInsId) {
+                $pk        = $this->getPk($options);
+                $data[$pk] = $lastInsId;
+            }
+            $this->trigger('after_insert', $data);
+
+            if ($getLastInsID) {
+                return $lastInsId;
+            }
         }
         return $result;
     }
@@ -2190,6 +2196,7 @@ class Query
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
             $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
         }
+
         // 生成UPDATE SQL语句
         $sql = $this->builder->update($data, $options);
         // 获取参数绑定
@@ -2728,15 +2735,15 @@ class Query
      * 触发事件
      * @access protected
      * @param string $event   事件名
-     * @param mixed  $options 当前查询参数
+     * @param mixed  $params  额外参数
      * @return bool
      */
-    protected function trigger($event, $options = [])
+    protected function trigger($event, $params = [])
     {
         $result = false;
         if (isset(self::$event[$event])) {
             $callback = self::$event[$event];
-            $result   = call_user_func_array($callback, [$options, $this]);
+            $result   = call_user_func_array($callback, [$params, $this]);
         }
         return $result;
     }
