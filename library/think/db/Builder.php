@@ -250,7 +250,10 @@ abstract class Builder
                     // 使用闭包查询
                     $query = new Query($this->connection);
                     call_user_func_array($value, [ & $query]);
-                    $str[] = ' ' . $key . ' ( ' . $this->buildWhere($query->getOptions('where'), $options) . ' )';
+                    $whereClause = $this->buildWhere($query->getOptions('where'), $options);
+                    if (!empty($whereClause)) {
+                        $str[] = ' ' . $key . ' ( ' . $whereClause . ' )';
+                    }
                 } elseif (strpos($field, '|')) {
                     // 不同字段使用相同查询条件（OR）
                     $array = explode('|', $field);
