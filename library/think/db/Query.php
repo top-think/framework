@@ -2214,6 +2214,14 @@ class Query
             // 执行操作
             $result = '' == $sql ? 0 : $this->execute($sql, $bind);
             if ($result) {
+                if (is_string($pk)) {
+                    if (isset($where[$pk])) {
+                        $data[$pk] = $where[$pk];
+                    } elseif (isset($key) && strpos($key, '|')) {
+                        list($a, $val) = explode('|', $key);
+                        $data[$pk]     = $val;
+                    }
+                }
                 $options['data'] = $data;
                 $this->trigger('after_update', $options);
             }
@@ -2287,6 +2295,8 @@ class Query
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
+
+            $options['data'] = $data;
             if ($resultSet = $this->trigger('before_select', $options)) {
             } else {
                 // 执行查询操作
@@ -2408,7 +2418,7 @@ class Query
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
-
+            $options['data'] = $data;
             // 事件回调
             if ($result = $this->trigger('before_find', $options)) {
             } else {
@@ -2625,6 +2635,7 @@ class Query
         // 执行操作
         $result = $this->execute($sql, $bind);
         if ($result) {
+            $options['data'] = $data;
             $this->trigger('after_delete', $options);
         }
         return $result;
