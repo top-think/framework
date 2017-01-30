@@ -153,7 +153,8 @@ class Url
         // 检测域名
         $domain = self::parseDomain($url, $domain);
         // URL组装
-        $url             = $domain . (self::$root ?: Request::instance()->root()) . '/' . ltrim($url, '/');
+        $url = $domain . rtrim(self::$root ?: Request::instance()->root(), '/') . '/' . ltrim($url, '/');
+
         self::$bindCheck = false;
         return $url;
     }
