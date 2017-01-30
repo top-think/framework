@@ -2213,6 +2213,7 @@ class Query
             // 执行操作
             $result = '' == $sql ? 0 : $this->execute($sql, $bind);
             if ($result) {
+                $options['data'] = $data;
                 $this->trigger('after_update', $options);
             }
             return $result;
