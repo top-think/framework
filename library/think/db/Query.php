@@ -2214,13 +2214,11 @@ class Query
             // 执行操作
             $result = '' == $sql ? 0 : $this->execute($sql, $bind);
             if ($result) {
-                if (is_string($pk)) {
-                    if (isset($where[$pk])) {
-                        $data[$pk] = $where[$pk];
-                    } elseif (isset($key) && strpos($key, '|')) {
-                        list($a, $val) = explode('|', $key);
-                        $data[$pk]     = $val;
-                    }
+                if (isset($where[$pk])) {
+                    $data[$pk] = $where[$pk];
+                } elseif (is_string($pk) && isset($key) && strpos($key, '|')) {
+                    list($a, $val) = explode('|', $key);
+                    $data[$pk]     = $val;
                 }
                 $options['data'] = $data;
                 $this->trigger('after_update', $options);
@@ -2418,17 +2416,29 @@ class Query
                 // 获取实际执行的SQL语句
                 return $this->connection->getRealSql($sql, $bind);
             }
+            if (is_string($pk)) {
+                if (!is_array($data)) {
+                    if (isset($key) && strpos($key, '|')) {
+                        list($a, $val) = explode('|', $key);
+                        $item[$pk]     = $val;
+                    } else {
+                        $item[$pk] = $data;
+                    }
+                    $data = $item;
+                }
+            }
             $options['data'] = $data;
             // 事件回调
             if ($result = $this->trigger('before_find', $options)) {
             } else {
                 // 执行查询
-                $result = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
+                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
 
-                if ($result instanceof \PDOStatement) {
+                if ($resultSet instanceof \PDOStatement) {
                     // 返回PDOStatement对象
-                    return $result;
+                    return $resultSet;
                 }
+                $result = isset($resultSet[0]) ? $resultSet[0] : [];
             }
 
             if (isset($cache)) {
@@ -2442,32 +2452,31 @@ class Query
         }
 
         // 数据处理
-        if (!empty($result[0])) {
-            $data = $result[0];
+        if (!empty($result)) {
             if (!empty($this->model)) {
                 // 返回模型对象
-                $model = $this->model;
-                $data  = new $model($data);
-                $data->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
+                $model  = $this->model;
+                $result = new $model($result);
+                $result->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
                 // 关联查询
                 if (!empty($options['relation'])) {
-                    $data->relationQuery($options['relation']);
+                    $result->relationQuery($options['relation']);
                 }
                 // 预载入查询
                 if (!empty($options['with'])) {
-                    $data->eagerlyResult($data, $options['with']);
+                    $result->eagerlyResult($result, $options['with']);
                 }
                 // 关联统计
                 if (!empty($options['with_count'])) {
-                    $data->relationCount($data, $options['with_count']);
+                    $result->relationCount($result, $options['with_count']);
                 }
             }
         } elseif (!empty($options['fail'])) {
             $this->throwNotFound($options);
         } else {
-            $data = null;
+            $result = null;
         }
-        return $data;
+        return $result;
     }
 
     /**
@@ -2635,6 +2644,11 @@ class Query
         // 执行操作
         $result = $this->execute($sql, $bind);
         if ($result) {
+            if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
+                list($a, $val) = explode('|', $key);
+                $item[$pk]     = $val;
+                $data          = $item;
+            }
             $options['data'] = $data;
             $this->trigger('after_delete', $options);
         }
