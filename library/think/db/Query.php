@@ -2076,7 +2076,8 @@ class Query
                 $pk        = $this->getPk($options);
                 $data[$pk] = $lastInsId;
             }
-            $this->trigger('after_insert', $data);
+            $options['data'] = $data;
+            $this->trigger('after_insert', $options);
 
             if ($getLastInsID) {
                 return $lastInsId;
