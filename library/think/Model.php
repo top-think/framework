@@ -1019,6 +1019,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置只读字段
+     * @access public
+     * @param mixed $field 只读字段
+     * @return $this
+     */
+    public function readonly($field)
+    {
+        if (is_string($field)) {
+            $field = explode(',', $field);
+        }
+        $this->readonly = $field;
+        return $this;
+    }
+
+    /**
      * 是否为更新数据
      * @access public
      * @param bool  $update
