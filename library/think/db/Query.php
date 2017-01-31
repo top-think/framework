@@ -2407,7 +2407,7 @@ class Query
             }
             $result = Cache::get($key);
         }
-        if (!$result) {
+        if (false === $result) {
             // 生成查询SQL
             $sql = $this->builder->select($options);
             // 获取参数绑定
@@ -2438,7 +2438,7 @@ class Query
                     // 返回PDOStatement对象
                     return $resultSet;
                 }
-                $result = isset($resultSet[0]) ? $resultSet[0] : [];
+                $result = isset($resultSet[0]) ? $resultSet[0] : null;
             }
 
             if (isset($cache)) {
