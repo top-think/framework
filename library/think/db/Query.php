@@ -2473,8 +2473,6 @@ class Query
             }
         } elseif (!empty($options['fail'])) {
             $this->throwNotFound($options);
-        } else {
-            $result = null;
         }
         return $result;
     }
