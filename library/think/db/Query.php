@@ -419,11 +419,7 @@ class Query
             }
             if (isset($cache)) {
                 // 缓存数据
-                if (isset($cache['tag'])) {
-                    Cache::tag($cache['tag'])->set($key, $result, $cache['expire']);
-                } else {
-                    Cache::set($key, $result, $cache['expire']);
-                }
+                $this->cacheData($key, $result, $cache);
             }
         } else {
             // 清空查询条件
@@ -491,11 +487,7 @@ class Query
             }
             if (isset($cache) && isset($guid)) {
                 // 缓存数据
-                if (isset($cache['tag'])) {
-                    Cache::tag($cache['tag'])->set($guid, $result, $cache['expire']);
-                } else {
-                    Cache::set($guid, $result, $cache['expire']);
-                }
+                $this->cacheData($guid, $result, $cache);
             }
         } else {
             // 清空查询条件
@@ -2308,11 +2300,7 @@ class Query
 
             if (isset($cache)) {
                 // 缓存数据集
-                if (isset($cache['tag'])) {
-                    Cache::tag($cache['tag'])->set($key, $resultSet, $cache['expire']);
-                } else {
-                    Cache::set($key, $resultSet, $cache['expire']);
-                }
+                $this->cacheData($key, $resultSet, $cache);
             }
         }
 
@@ -2356,6 +2344,28 @@ class Query
         return $resultSet;
     }
 
+    /**
+     * 缓存数据
+     * @access public
+     * @param string    $key    缓存标识
+     * @param mixed     $data   缓存数据
+     * @param array     $config 缓存参数
+     */
+    protected function cacheData($key, $data, $config = [])
+    {
+        if (isset($config['tag'])) {
+            Cache::tag($config['tag'])->set($key, $data, $config['expire']);
+        } else {
+            Cache::set($key, $data, $config['expire']);
+        }
+    }
+
+    /**
+     * 生成缓存标识
+     * @access public
+     * @param mixed     $value   缓存数据
+     * @param array     $options 缓存参数
+     */
     protected function getCacheKey($value, $options)
     {
         if (is_scalar($value)) {
@@ -2443,11 +2453,7 @@ class Query
 
             if (isset($cache)) {
                 // 缓存数据
-                if (isset($cache['tag'])) {
-                    Cache::tag($cache['tag'])->set($key, $result, $cache['expire']);
-                } else {
-                    Cache::set($key, $result, $cache['expire']);
-                }
+                $this->cacheData($key, $result, $cache);
             }
         }
 
