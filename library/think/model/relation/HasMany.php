@@ -45,7 +45,7 @@ class HasMany extends Relation
     public function getRelation($subRelation = '', $closure = null)
     {
         if ($closure) {
-            call_user_func_array($closure, [& $this->query]);
+            call_user_func_array($closure, [ & $this->query]);
         }
         return $this->relation($subRelation)->select();
     }
@@ -125,7 +125,7 @@ class HasMany extends Relation
         $count    = 0;
         if (isset($result->$localKey)) {
             if ($closure) {
-                call_user_func_array($closure, [& $this->query]);
+                call_user_func_array($closure, [ & $this->query]);
             }
             $count = $this->query->where([$this->foreignKey => $result->$localKey])->count();
         }
@@ -141,14 +141,14 @@ class HasMany extends Relation
     public function getRelationCountQuery($closure)
     {
         if ($closure) {
-            call_user_func_array($closure, [& $this->query]);
+            call_user_func_array($closure, [ & $this->query]);
         }
 
         return $this->query->where([
             $this->foreignKey => [
                 'exp',
-                '=' . $this->parent->getTable() . '.' . $this->parent->getPk()
-            ]
+                '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
+            ],
         ])->fetchSql()->count();
     }
 
@@ -167,7 +167,7 @@ class HasMany extends Relation
         $foreignKey = $this->foreignKey;
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
-            call_user_func_array($closure, [& $model]);
+            call_user_func_array($closure, [ & $model]);
         }
         $list = $model->where($where)->with($subRelation)->select();
 
@@ -217,13 +217,14 @@ class HasMany extends Relation
      * @param string  $operator 比较操作符
      * @param integer $count    个数
      * @param string  $id       关联表的统计字段
+     * @param string  $joinType JOIN类型
      * @return Query
      */
-    public function has($operator = '>=', $count = 1, $id = '*')
+    public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
         $table = $this->query->getTable();
         return $this->parent->db()->alias('a')
-            ->join($table . ' b', 'a.' . $this->localKey . '=b.' . $this->foreignKey, $this->joinType)
+            ->join($table . ' b', 'a.' . $this->localKey . '=b.' . $this->foreignKey, $joinType)
             ->group('b.' . $this->foreignKey)
             ->having('count(' . $id . ')' . $operator . $count);
     }
