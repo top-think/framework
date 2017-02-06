@@ -42,7 +42,7 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false)->where($field, 'exp', 'is not null');
+        return $model->db(false)->whereNotNull($field);
     }
 
     /**
@@ -129,7 +129,7 @@ trait SoftDelete
     protected function base($query)
     {
         $field = $this->getDeleteTimeField(true);
-        $query->where($field, 'null');
+        $query->whereNull($field);
     }
 
     /**
