@@ -1422,15 +1422,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param mixed   $operator 比较操作符
      * @param integer $count    个数
      * @param string  $id       关联表的统计字段
-     * @return Model
+     * @return Relation|Query
      */
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
-        $model = new static();
-        if (is_array($operator) || $operator instanceof \Closure) {
-            return $model->$relation()->hasWhere($operator);
+        $model    = new static();
+        $relation = $model->$relation();
+        if ($relation instanceof HasMany) {
+            if (is_array($operator) || $operator instanceof \Closure) {
+                return $relation->hasWhere($operator);
+            }
+            return $relation->has($operator, $count, $id);
+        } else {
+            return $relation;
         }
-        return $model->$relation()->has($operator, $count, $id);
     }
 
     /**
@@ -1438,12 +1443,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $relation 关联方法名
      * @param mixed  $where    查询条件（数组或者闭包）
-     * @return Model
+     * @return Relation|Query
      */
     public static function hasWhere($relation, $where = [])
     {
-        $model = new static();
-        return $model->$relation()->hasWhere($where);
+        $model    = new static();
+        $relation = $model->$relation();
+        if ($relation instanceof HasMany) {
+            return $model->$relation()->hasWhere($where);
+        } else {
+            return $relation;
+        }
     }
 
     /**
