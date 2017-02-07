@@ -1492,6 +1492,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 // 支持闭包查询过滤关联条件
                 $closure  = $relation;
                 $relation = $key;
+            } elseif (is_array($relation)) {
+                $subRelation = $relation;
+                $relation    = $key;
             }
             if (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation, 2);
