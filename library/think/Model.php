@@ -1450,7 +1450,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model    = new static();
         $relation = $model->$relation();
         if ($relation instanceof HasMany) {
-            return $model->$relation()->hasWhere($where);
+            return $relation->hasWhere($where);
         } else {
             return $relation;
         }
