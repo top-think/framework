@@ -1578,10 +1578,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
                 $relation = $key;
+            } elseif (is_string($key)) {
+                $name     = $relation;
+                $relation = $key;
             }
             $relation = Loader::parseName($relation, 1, false);
             $count    = $this->$relation()->relationCount($result, $closure);
-            $result->setAttr(Loader::parseName($relation) . '_count', $count);
+            if (!isset($name)) {
+                $name = Loader::parseName($relation) . '_count';
+            }
+            $result->setAttr($name, $count);
         }
     }
 
