@@ -2065,8 +2065,10 @@ class Query
             $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             $lastInsId = $this->getLastInsID($sequence);
             if ($lastInsId) {
-                $pk        = $this->getPk($options);
-                $data[$pk] = $lastInsId;
+                $pk = $this->getPk($options);
+                if (is_string($pk)) {
+                    $data[$pk] = $lastInsId;
+                }
             }
             $options['data'] = $data;
             $this->trigger('after_insert', $options);

@@ -14,7 +14,7 @@ namespace think;
 use InvalidArgumentException;
 use think\db\Query;
 use think\Exception\ValidateException;
-use think\model\Collection;
+use think\model\Collection as ModelCollection;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
 use think\model\relation\BelongsToMany;
@@ -624,7 +624,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 转换子模型对象
      * @access protected
-     * @param Model|Collection $model
+     * @param Model|ModelCollection $model
      * @param                  $visible
      * @param                  $hidden
      * @param                  $key
@@ -663,7 +663,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         foreach ($data as $key => $val) {
-            if ($val instanceof Model || $val instanceof Collection) {
+            if ($val instanceof Model || $val instanceof ModelCollection) {
                 // 关联模型对象
                 $item[$key] = $this->subToArray($val, $visible, $hidden, $key);
             } elseif (is_array($val) && reset($val) instanceof Model) {
@@ -712,14 +712,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 转换当前模型数据集为数据集对象
      * @access public
-     * @param array|Collection $collection 数据集
-     * @return Collection
+     * @param array|\think\Collection $collection 数据集
+     * @return \think\Collection
      */
     public function toCollection($collection)
     {
         if ($this->resultSetType) {
             if ('collection' == $this->resultSetType) {
-                $collection = new Collection($collection);
+                $collection = new ModelCollection($collection);
             } elseif (false !== strpos($this->resultSetType, '\\')) {
                 $class      = $this->resultSetType;
                 $collection = new $class($collection);
