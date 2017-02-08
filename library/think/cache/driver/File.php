@@ -225,6 +225,7 @@ class File extends Driver
         foreach ($files as $path) {
             if (is_dir($path)) {
                 array_map('unlink', glob($path . '/*.php'));
+                rmdir($path);
             } else {
                 unlink($path);
             }
