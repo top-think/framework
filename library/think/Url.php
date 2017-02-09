@@ -80,6 +80,9 @@ class Url
             if (!empty($match[1])) {
                 $domain = $match[1];
             }
+            if (!empty($match[2])) {
+                $suffix = $match[2];
+            }
         } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
@@ -288,18 +291,18 @@ class Url
     public static function getRuleUrl($rule, &$vars = [])
     {
         foreach ($rule as $item) {
-            list($url, $pattern, $domain) = $item;
+            list($url, $pattern, $domain, $suffix) = $item;
             if (empty($pattern)) {
-                return [$url, $domain];
+                return [$url, $domain, $suffix];
             }
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
                     $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
                     unset($vars[$key]);
-                    $result = [$url, $domain];
+                    $result = [$url, $domain, $suffix];
                 } elseif (2 == $val) {
                     $url    = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
-                    $result = [$url, $domain];
+                    $result = [$url, $domain, $suffix];
                 } else {
                     break;
                 }
