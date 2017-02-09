@@ -85,10 +85,10 @@ class BelongsTo extends OneToOne
             // 关联数据封装
             foreach ($resultSet as $result) {
                 // 关联模型
-                if (!isset($data[$result->$localKey])) {
+                if (!isset($data[$result->$foreignKey])) {
                     $relationModel = null;
                 } else {
-                    $relationModel = $data[$result->$localKey];
+                    $relationModel = $data[$result->$foreignKey];
                 }
 
                 if ($relationModel && !empty($this->bindAttr)) {
@@ -116,10 +116,10 @@ class BelongsTo extends OneToOne
         $foreignKey = $this->foreignKey;
         $data       = $this->eagerlyWhere($this, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
         // 关联模型
-        if (!isset($data[$result->$localKey])) {
+        if (!isset($data[$result->$foreignKey])) {
             $relationModel = null;
         } else {
-            $relationModel = $data[$result->$localKey];
+            $relationModel = $data[$result->$foreignKey];
         }
         if ($relationModel && !empty($this->bindAttr)) {
             // 绑定关联属性
