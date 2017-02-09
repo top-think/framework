@@ -65,7 +65,7 @@ class HasOne extends OneToOne
         $foreignKey = $this->foreignKey;
         return $this->parent->db()->alias('a')
             ->whereExists(function ($query) use ($table, $localKey, $foreignKey) {
-                $query->table([$table => 'b'])->whereExp('a.' . $localKey, '=b.' . $foreignKey);
+                $query->table([$table => 'b'])->field('b.' . $foreignKey)->whereExp('a.' . $localKey, '=b.' . $foreignKey);
             });
     }
 
