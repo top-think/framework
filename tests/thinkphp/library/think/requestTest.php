@@ -90,12 +90,14 @@ class requestTest extends \PHPUnit_Framework_TestCase
 
     public function testType()
     {
-        $request                = Request::instance();
-        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+        $request = Request::instance();
+        $request->server(['HTTP_ACCEPT' => 'application/json']);
+
         $this->assertEquals('json', $request->type());
         $request->mimeType('test', 'application/test');
         $request->mimeType(['test' => 'application/test']);
-        $_SERVER['HTTP_ACCEPT'] = 'application/test';
+        $request->server(['HTTP_ACCEPT' => 'application/test']);
+
         $this->assertEquals('test', $request->type());
     }
 
@@ -103,13 +105,13 @@ class requestTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
 
-        $request = new Request();
+        $request = Request::create('', '');
         $this->assertEquals('DELETE', $request->method());
         $this->assertEquals('GET', $request->method(true));
 
         Config::set('var_method', '_method');
         $_POST['_method'] = 'POST';
-        $request          = new Request();
+        $request          = Request::create('', '');
         $this->assertEquals('POST', $request->method());
         $this->assertEquals('GET', $request->method(true));
         $this->assertTrue($request->isPost());
@@ -130,7 +132,7 @@ class requestTest extends \PHPUnit_Framework_TestCase
     public function testVar()
     {
         Config::set('app_multi_module', true);
-        $request = new Request();
+        $request = Request::create('');
         $request->route(['name' => 'thinkphp', 'id' => 6]);
         $request->get(['id' => 10]);
         $request->post(['id' => 8]);
@@ -156,28 +158,28 @@ class requestTest extends \PHPUnit_Framework_TestCase
 
     public function testIsAjax()
     {
-        $request                          = new Request();
+        $request                          = Request::create('');
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
         $this->assertTrue($request->isAjax());
     }
 
     public function testIsPjax()
     {
-        $request                = new Request();
+        $request                = Request::create('');
         $_SERVER['HTTP_X_PJAX'] = true;
         $this->assertTrue($request->isPjax());
     }
 
     public function testIsMobile()
     {
-        $request             = new Request();
+        $request             = Request::create('');
         $_SERVER['HTTP_VIA'] = 'wap';
         $this->assertTrue($request->isMobile());
     }
 
     public function testBind()
     {
-        $request       = new Request();
+        $request       = Request::create('');
         $request->user = 'User1';
         $request->bind(['user' => 'User2']);
         $this->assertEquals('User2', $request->user);

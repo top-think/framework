@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -10,10 +10,6 @@
 // +----------------------------------------------------------------------
 
 namespace think;
-
-use think\App;
-use think\Cookie;
-use think\Log;
 
 class Lang
 {
@@ -83,7 +79,9 @@ class Lang
                 // 记录加载信息
                 App::$debug && Log::record('[ LANG ] ' . $_file, 'info');
                 $_lang = include $_file;
-                $lang  = array_change_key_case($_lang) + $lang;
+                if (is_array($_lang)) {
+                    $lang = array_change_key_case($_lang) + $lang;
+                }
             }
         }
         if (!empty($lang)) {

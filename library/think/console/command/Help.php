@@ -16,7 +16,6 @@ use think\console\Input;
 use think\console\input\Argument as InputArgument;
 use think\console\input\Option as InputOption;
 use think\console\Output;
-use think\console\helper\Descriptor as DescriptorHelper;
 
 class Help extends Command
 {

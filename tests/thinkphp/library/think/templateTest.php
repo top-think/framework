@@ -291,15 +291,15 @@ EOF;
 {\$Think.SITE.URL}
 EOF;
         $data = <<<EOF
-<?php echo \$_SERVER['SERVER_NAME']; ?><br/>
-<?php echo \$_GET['action']; ?><br/>
-<?php echo \$_POST['action']; ?><br/>
+<?php echo \\think\\Request::instance()->server('SERVER_NAME'); ?><br/>
+<?php echo \\think\\Request::instance()->get('action'); ?><br/>
+<?php echo \\think\\Request::instance()->post('action'); ?><br/>
 <?php echo \\think\\Cookie::get('action'); ?><br/>
 <?php echo \\think\\Cookie::get('action.name'); ?><br/>
 <?php echo \\think\\Session::get('action'); ?><br/>
 <?php echo \\think\\Session::get('action.name'); ?><br/>
-<?php echo \$_ENV['OS']; ?><br/>
-<?php echo \$_REQUEST['action']; ?><br/>
+<?php echo \\think\\Request::instance()->env('OS'); ?><br/>
+<?php echo \\think\\Request::instance()->request('action'); ?><br/>
 <?php echo SITE_NAME; ?><br/>
 <?php echo \\think\\Lang::get('action'); ?><br/>
 <?php echo \\think\\Config::get('action.name'); ?><br/>

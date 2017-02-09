@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -11,7 +11,7 @@
 
 namespace think;
 
-use think\App;
+use think\cache\Driver;
 
 class Cache
 {
@@ -31,7 +31,7 @@ class Cache
      * @access public
      * @param array         $options  配置数组
      * @param bool|string   $name 缓存连接标识 true 强制重新连接
-     * @return \think\cache\Driver
+     * @return Driver
      */
     public static function connect(array $options = [], $name = false)
     {
@@ -79,11 +79,11 @@ class Cache
      * 切换缓存类型 需要配置 cache.type 为 complex
      * @access public
      * @param string $name 缓存标识
-     * @return \think\cache\Driver
+     * @return Driver
      */
-    public static function store($name)
+    public static function store($name = '')
     {
-        if ('complex' == Config::get('cache.type')) {
+        if ('' !== $name && 'complex' == Config::get('cache.type')) {
             self::connect(Config::get('cache.' . $name), strtolower($name));
         }
         return self::$handler;
@@ -186,12 +186,41 @@ class Cache
     }
 
     /**
+     * 读取缓存并删除
+     * @access public
+     * @param string $name 缓存变量名
+     * @return mixed
+     */
+    public static function pull($name)
+    {
+        self::init();
+        self::$readTimes++;
+        self::$writeTimes++;
+        return self::$handler->pull($name);
+    }
+
+    /**
+     * 如果不存在则写入缓存
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param int       $expire  有效时间 0为永久
+     * @return mixed
+     */
+    public static function remember($name, $value, $expire = null)
+    {
+        self::init();
+        self::$readTimes++;
+        return self::$handler->remember($name, $value, $expire);
+    }
+
+    /**
      * 缓存标签
      * @access public
      * @param string        $name 标签名
      * @param string|array  $keys 缓存标识
      * @param bool          $overlay 是否覆盖
-     * @return \think\cache\Driver
+     * @return Driver
      */
     public static function tag($name, $keys = null, $overlay = false)
     {

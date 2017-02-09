@@ -58,6 +58,8 @@ return [
     'default_validate'       => '',
     // 默认的空控制器名
     'empty_controller'       => 'Error',
+    // 操作方法前缀
+    'use_action_prefix'      => false,
     // 操作方法后缀
     'action_suffix'          => '',
     // 自动搜索控制器
@@ -83,6 +85,8 @@ return [
     'url_route_on'           => true,
     // 路由配置文件（支持配置多个）
     'route_config_file'      => ['route'],
+    // 路由使用完整匹配
+    'route_complete_match'   => false,
     // 是否强制使用路由
     'url_route_must'         => false,
     // 域名部署
@@ -99,6 +103,12 @@ return [
     'var_ajax'               => '_ajax',
     // 表单pjax伪装变量
     'var_pjax'               => '_pjax',
+    // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
+    'request_cache'          => false,
+    // 请求缓存有效期
+    'request_cache_expire'   => null,
+    // 全局请求缓存排除规则
+    'request_cache_except'   => [],
 
     // +----------------------------------------------------------------------
     // | 模板设置
@@ -107,7 +117,9 @@ return [
     'template'               => [
         // 模板引擎类型 支持 php think 支持扩展
         'type'         => 'Think',
-        // 模板路径
+        // 视图基础目录，配置目录为所有模块的视图起始目录
+        'view_base'    => '',
+        // 当前模板的视图目录 留空为自动获取
         'view_path'    => '',
         // 模板后缀
         'view_suffix'  => 'html',
@@ -193,6 +205,8 @@ return [
         'type'           => '',
         // 是否自动开启 SESSION
         'auto_start'     => true,
+        'httponly'       => true,
+        'secure'         => true,
     ],
 
     // +----------------------------------------------------------------------
@@ -221,39 +235,45 @@ return [
 
     'database'               => [
         // 数据库类型
-        'type'           => 'mysql',
+        'type'            => 'mysql',
         // 数据库连接DSN配置
-        'dsn'            => '',
+        'dsn'             => '',
         // 服务器地址
-        'hostname'       => 'localhost',
+        'hostname'        => '127.0.0.1',
         // 数据库名
-        'database'       => '',
+        'database'        => '',
         // 数据库用户名
-        'username'       => 'root',
+        'username'        => 'root',
         // 数据库密码
-        'password'       => '',
+        'password'        => '',
         // 数据库连接端口
-        'hostport'       => '',
+        'hostport'        => '',
         // 数据库连接参数
-        'params'         => [],
+        'params'          => [],
         // 数据库编码默认采用utf8
-        'charset'        => 'utf8',
+        'charset'         => 'utf8',
         // 数据库表前缀
-        'prefix'         => '',
+        'prefix'          => '',
         // 数据库调试模式
-        'debug'          => false,
+        'debug'           => false,
         // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-        'deploy'         => 0,
+        'deploy'          => 0,
         // 数据库读写是否分离 主从式有效
-        'rw_separate'    => false,
+        'rw_separate'     => false,
         // 读写分离后 主服务器数量
-        'master_num'     => 1,
+        'master_num'      => 1,
         // 指定从服务器序号
-        'slave_no'       => '',
+        'slave_no'        => '',
         // 是否严格检查字段是否存在
-        'fields_strict'  => true,
+        'fields_strict'   => true,
+        // 数据集返回类型
+        'resultset_type'  => 'array',
         // 自动写入时间戳字段
-        'auto_timestamp' => false,
+        'auto_timestamp'  => false,
+        // 时间字段取出后的默认时间格式
+        'datetime_format' => 'Y-m-d H:i:s',
+        // 是否需要进行SQL性能分析
+        'sql_explain'     => false,
     ],
 
     //分页配置
