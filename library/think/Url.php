@@ -80,7 +80,7 @@ class Url
             if (!empty($match[1])) {
                 $domain = $match[1];
             }
-            if (!empty($match[2])) {
+            if (!is_null($match[2])) {
                 $suffix = $match[2];
             }
         } elseif (!empty($rule) && isset($name)) {
