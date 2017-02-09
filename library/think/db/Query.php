@@ -869,7 +869,7 @@ class Query
     public function view($join, $field = true, $on = null, $type = 'INNER')
     {
         $this->options['view'] = true;
-        if (is_array($join) && is_null($field)) {
+        if (is_array($join) && key($join) !== 0) {
             foreach ($join as $key => $val) {
                 $this->view($key, $val[0], isset($val[1]) ? $val[1] : null, isset($val[2]) ? $val[2] : 'INNER');
             }
@@ -2414,8 +2414,10 @@ class Query
             $cache = $options['cache'];
             if (true === $cache['key'] && !is_null($data) && !is_array($data)) {
                 $key = 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
+            } elseif (is_string($cache['key'])) {
+                $key = $cache['key'];
             } elseif (!isset($key)) {
-                $key = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+                $key = md5(serialize($options));
             }
             $result = Cache::get($key);
         }
