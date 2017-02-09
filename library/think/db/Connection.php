@@ -365,8 +365,8 @@ abstract class Connection
             $this->bind = $bind;
         }
 
-        //释放前次的查询结果
-        if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
+        // 释放前次的查询结果
+        if (!empty($this->PDOStatement)) {
             $this->free();
         }
 

@@ -2204,6 +2204,8 @@ class Query
             if (isset($key) && Cache::get($key)) {
                 // 删除缓存
                 Cache::rm($key);
+            } elseif (!empty($options['cache']['tag'])) {
+                Cache::clear($options['cache']['tag']);
             }
             // 执行操作
             $result = '' == $sql ? 0 : $this->execute($sql, $bind);
@@ -2377,6 +2379,8 @@ class Query
         }
         if (isset($data)) {
             return 'think:' . $options['table'] . '|' . $data;
+        } else {
+            return md5(serialize($options));
         }
     }
 
@@ -2648,6 +2652,8 @@ class Query
         if (isset($key) && Cache::get($key)) {
             // 删除缓存
             Cache::rm($key);
+        } elseif (!empty($options['cache']['tag'])) {
+            Cache::clear($options['cache']['tag']);
         }
         // 执行操作
         $result = $this->execute($sql, $bind);
