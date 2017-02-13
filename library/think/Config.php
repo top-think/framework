@@ -87,7 +87,7 @@ class Config
             return isset(self::$config[$range][strtolower($name)]);
         } else {
             // 二维数组设置和获取支持
-            $name = explode('.', $name);
+            $name = explode('.', $name, 2);
             return isset(self::$config[$range][strtolower($name[0])][$name[1]]);
         }
     }
@@ -111,7 +111,7 @@ class Config
             return isset(self::$config[$range][$name]) ? self::$config[$range][$name] : null;
         } else {
             // 二维数组设置和获取支持
-            $name    = explode('.', $name);
+            $name    = explode('.', $name, 2);
             $name[0] = strtolower($name[0]);
             return isset(self::$config[$range][$name[0]][$name[1]]) ? self::$config[$range][$name[0]][$name[1]] : null;
         }
@@ -135,7 +135,7 @@ class Config
                 self::$config[$range][strtolower($name)] = $value;
             } else {
                 // 二维数组设置和获取支持
-                $name                                                 = explode('.', $name);
+                $name                                                 = explode('.', $name, 2);
                 self::$config[$range][strtolower($name[0])][$name[1]] = $value;
             }
             return;
