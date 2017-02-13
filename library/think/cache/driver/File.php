@@ -21,7 +21,7 @@ class File extends Driver
 {
     protected $options = [
         'expire'        => 0,
-        'cache_subdir'  => false,
+        'cache_subdir'  => true,
         'prefix'        => '',
         'path'          => CACHE_PATH,
         'data_compress' => false,
@@ -225,6 +225,7 @@ class File extends Driver
         foreach ($files as $path) {
             if (is_dir($path)) {
                 array_map('unlink', glob($path . '/*.php'));
+                rmdir($path);
             } else {
                 unlink($path);
             }

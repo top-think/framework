@@ -304,8 +304,9 @@ class Route
         }
         $vars = self::parseVar($rule);
         if (isset($name)) {
-            $key = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
-            self::name($name, [$key, $vars, self::$domain]);
+            $key    = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
+            $suffix = isset($option['ext']) ? $option['ext'] : null;
+            self::name($name, [$key, $vars, self::$domain, $suffix]);
         }
         if ($group) {
             if ('*' != $type) {
@@ -447,7 +448,8 @@ class Route
                     $vars   = self::parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
                     // 设置路由标识
-                    self::name($route, [$name . ($key ? '/' . $key : ''), $vars, self::$domain]);
+                    $suffix = isset($options['ext']) ? $options['ext'] : null;
+                    self::name($route, [$name . ($key ? '/' . $key : ''), $vars, self::$domain, $suffix]);
                 }
                 self::$rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
             }
@@ -1067,7 +1069,7 @@ class Route
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
         $class  = !empty($array[0]) ? $array[0] : Config::get('default_controller');
-        $method = !empty($array[1]) ? $array[1] : Config::get('default_action');
+        $method = !empty($array[1]) ? $array[1] : Config::get('default);
         if (!empty($array[2])) {
             self::parseUrlParams($array[2]);
         }
@@ -1097,7 +1099,7 @@ class Route
      * 绑定到模块/控制器
      * @access public
      * @param string    $url URL地址
-     * @param string    $class 控制器类名（带命名空间）
+     * @param string    $controller 控制器类名（带命名空间）
      * @param string    $depr URL分隔符
      * @return array
      */
@@ -1122,10 +1124,10 @@ class Route
     private static function checkOption($option, $request)
     {
         if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
-            || (isset($option['ajax']) && ($option['ajax'] === $request->isAjax())) // Ajax检测
-             || (isset($option['pjax']) && ($option['pjax'] === $request->isPjax())) // Pjax检测
-             || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', $request->ext() ? '|' . $request->ext() . '|' : '')) // 伪静态后缀检测
-             || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', $request->ext() ? '|' . $request->ext() . '|' : ''))
+            || (isset($option['ajax']) && $option['ajax'] == equest->isAjax()) // Ajax检测
+             || (isset($option['pjax']) && $option['pjax'] == est->isPjax()) // Pjax检测
+             || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|')) // 伪静态后缀检测
+             || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))
             || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], self::$subDomain])) // 域名检测
              || (isset($option['https']) && ($option['https'] === $request->isSsl())) // https检测
              || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测

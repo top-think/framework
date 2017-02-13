@@ -23,6 +23,7 @@ use think\exception\HttpResponseException;
 use think\Lang;
 use think\Loader;
 use think\Log;
+use think\Model;
 use think\Request;
 use think\Response;
 use think\Session;
@@ -329,7 +330,7 @@ if (!function_exists('cookie')) {
             Cookie::clear($value);
         } elseif ('' === $value) {
             // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name);
+            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name, $option);
         } elseif (is_null($value)) {
             // 删除
             return Cookie::delete($name);
@@ -494,15 +495,16 @@ if (!function_exists('redirect')) {
      * @param mixed         $url 重定向地址 支持Url::build方法的地址
      * @param array|integer $params 额外参数
      * @param integer       $code 状态码
+     * @param array         $with 隐式传参
      * @return \think\response\Redirect
      */
-    function redirect($url = [], $params = [], $code = 302)
+    function redirect($url = [], $params = [], $code = 302, $with = [])
     {
         if (is_integer($params)) {
             $code   = $params;
             $params = [];
         }
-        return Response::create($url, 'redirect', $code)->params($params);
+        return Response::create($url, 'redirect', $code)->params($params)->with($with);
     }
 }
 
@@ -546,5 +548,39 @@ if (!function_exists('token')) {
     {
         $token = Request::instance()->token($name, $type);
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
+    }
+}
+
+if (!function_exists('load_relation')) {
+    /**
+     * 延迟预载入关联查询
+     * @param mixed $resultSet 数据集
+     * @param mixed $relation 关联
+     * @return array
+     */
+    function load_relation($resultSet, $relation)
+    {
+        $item = current($resultSet);
+        if ($item instanceof Model) {
+            $item->eagerlyResultSet($resultSet, $relation);
+        }
+        return $resultSet;
+    }
+}
+
+if (!function_exists('collection')) {
+    /**
+     * 数组转换为数据集对象
+     * @param array $resultSet 数据集数组
+     * @return \think\model\Collection|\think\Collection
+     */
+    function collection($resultSet)
+    {
+        $item = current($resultSet);
+        if ($item instanceof Model) {
+            return \think\model\Collection::make($resultSet);
+        } else {
+            return \think\Collection::make($resultSet);
+        }
     }
 }

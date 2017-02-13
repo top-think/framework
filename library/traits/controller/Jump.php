@@ -131,16 +131,17 @@ trait Jump
      * @param string         $url 跳转的URL表达式
      * @param array|integer  $params 其它URL参数
      * @param integer        $code http code
+     * @param array          $with 隐式传参
      * @return void
      */
-    protected function redirect($url, $params = [], $code = 302)
+    protected function redirect($url, $params = [], $code = 302, $with = [])
     {
         $response = new Redirect($url);
         if (is_integer($params)) {
             $code   = $params;
             $params = [];
         }
-        $response->code($code)->params($params);
+        $response->code($code)->params($params)->with($with);
         throw new HttpResponseException($response);
     }
 

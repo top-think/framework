@@ -42,7 +42,7 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false)->where($field, 'exp', 'is not null');
+        return $model->db(false)->whereNotNull($field);
     }
 
     /**
@@ -63,7 +63,7 @@ trait SoftDelete
             $this->data[$name] = $this->autoWriteTimestamp($name);
             $result            = $this->isUpdate()->save();
         } else {
-            $result = $this->db()->delete($this->data);
+            $result = $this->db(false)->delete($this->data);
         }
 
         $this->trigger('after_delete', $this);
@@ -129,7 +129,7 @@ trait SoftDelete
     protected function base($query)
     {
         $field = $this->getDeleteTimeField(true);
-        $query->where($field, 'null');
+        $query->whereNull($field);
     }
 
     /**
@@ -142,7 +142,7 @@ trait SoftDelete
     {
         $field = isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
         if (!strpos($field, '.')) {
-            $field = $this->db(false)->getTable() . '.' . $field;
+            $field = '__TABLE__.' . $field;
         }
         if (!$read && strpos($field, '.')) {
             $array = explode('.', $field);

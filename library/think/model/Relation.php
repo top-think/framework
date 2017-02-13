@@ -15,24 +15,24 @@ use think\db\Query;
 use think\Exception;
 use think\Model;
 
+/**
+ * Class Relation
+ * @package think\model
+ *
+ * @mixin Query
+ */
 abstract class Relation
 {
     // 父模型对象
     protected $parent;
     /** @var  Model 当前关联的模型类 */
     protected $model;
+    /** @var Query 关联模型查询对象 */
+    protected $query;
     // 关联表外键
     protected $foreignKey;
     // 关联表主键
     protected $localKey;
-    // 数据表别名
-    protected $alias;
-    // 当前关联的JOIN类型
-    protected $joinType;
-    // 关联模型查询对象
-    protected $query;
-    // 关联查询条件
-    protected $where;
     // 关联查询参数
     protected $option;
     // 基础查询
@@ -71,25 +71,12 @@ abstract class Relation
     /**
      * 封装关联数据集
      * @access public
-     * @param array     $resultSet 数据集
-     * @param string    $class 数据集类名
+     * @param array $resultSet 数据集
      * @return mixed
      */
-    protected function resultSetBuild($resultSet, $class = '')
+    protected function resultSetBuild($resultSet)
     {
-        return $class ? new $class($resultSet) : $resultSet;
-    }
-
-    /**
-     * 设置当前关联定义的数据表别名
-     * @access public
-     * @param array  $alias 别名定义
-     * @return $this
-     */
-    public function setAlias($alias)
-    {
-        $this->alias = $alias;
-        return $this;
+        return (new $this->model)->toCollection($resultSet);
     }
 
     /**
@@ -102,6 +89,13 @@ abstract class Relation
         $this->query->removeOption();
         return $this;
     }
+
+    /**
+     * 执行基础查询（进执行一次）
+     * @access protected
+     * @return void
+     */
+    abstract protected function baseQuery();
 
     public function __call($method, $args)
     {

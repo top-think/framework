@@ -98,7 +98,7 @@ class Cx extends Taglib
             $name = $this->autoBuildVar($name);
         }
 
-        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection): $' . $key . ' = 0;';
+        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator): $' . $key . ' = 0;';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
             $parseStr .= '$__LIST__ = is_array(' . $name . ') ? array_slice(' . $name . ',' . $offset . ',' . $length . ', true) : ' . $name . '->slice(' . $offset . ',' . $length . ', true); ';
@@ -158,7 +158,7 @@ class Cx extends Taglib
         } else {
             $name = $this->autoBuildVar($name);
         }
-        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection): ';
+        $parseStr .= 'if(is_array(' . $name . ') || ' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator): ';
         // 设置了输出数组长度
         if (0 != $offset || 'null' != $length) {
             if (!isset($var)) {
@@ -431,7 +431,7 @@ class Cx extends Taglib
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
-        $parseStr = '<?php if(empty(' . $name . ') || (' . $name . ' instanceof \think\Collection && ' . $name . '->isEmpty())): ?>' . $content . '<?php endif; ?>';
+        $parseStr = '<?php if(empty(' . $name . ') || ((' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator ) && ' . $name . '->isEmpty())): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
 
@@ -448,7 +448,7 @@ class Cx extends Taglib
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
-        $parseStr = '<?php if(!(empty(' . $name . ') || (' . $name . ' instanceof \think\Collection && ' . $name . '->isEmpty()))): ?>' . $content . '<?php endif; ?>';
+        $parseStr = '<?php if(!(empty(' . $name . ') || ((' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator ) && ' . $name . '->isEmpty()))): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
 
