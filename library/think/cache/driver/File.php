@@ -28,7 +28,7 @@ class File extends Driver
     ];
 
     /**
-     * 架构函数
+     * 构造函数
      * @param array $options
      */
     public function __construct($options = [])

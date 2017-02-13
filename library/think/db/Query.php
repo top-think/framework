@@ -54,7 +54,7 @@ class Query
     private static $event = [];
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param Connection $connection 数据库对象实例
      * @param string     $model      模型名

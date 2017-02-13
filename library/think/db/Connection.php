@@ -125,7 +125,7 @@ abstract class Connection
     protected $bind = [];
 
     /**
-     * 架构函数 读取数据库配置信息
+     * 构造函数 读取数据库配置信息
      * @access public
      * @param array $config 数据库配置数组
      */

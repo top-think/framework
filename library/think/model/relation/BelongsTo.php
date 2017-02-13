@@ -17,7 +17,7 @@ use think\Model;
 class BelongsTo extends OneToOne
 {
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param Model  $parent 上级模型对象
      * @param string $model 模型名

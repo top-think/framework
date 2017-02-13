@@ -25,7 +25,7 @@ class MorphTo extends Relation
     protected $alias;
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param Model  $parent    上级模型对象
      * @param string $morphType 多态字段名
