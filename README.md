@@ -1,9 +1,9 @@
-ThinkPHP 5.1
+ThinkPHP 5.1 Alpha
 ===============
 
-ThinkPHP5.1 Alpha
+## 环境要求
 
-> ThinkPHP5.1的运行环境要求PHP5.6以上。
+> PHP5.6+
 
 ## 命名规范
 
@@ -20,7 +20,7 @@ ThinkPHP遵循Apache2开源协议发布，并提供免费使用。
 
 本项目包含的第三方源码和二进制文件之版权信息另行标注。
 
-版权所有Copyright © 2006-2016 by ThinkPHP (http://thinkphp.cn)
+版权所有Copyright © 2006-2017 by ThinkPHP (http://thinkphp.cn)
 
 All rights reserved。
 
