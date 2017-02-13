@@ -15,7 +15,7 @@
 
 namespace tests\thinkphp\library\think;
 
-use \think\Db;
+use think\Db;
 
 class dbTest extends \PHPUnit_Framework_TestCase
 {
