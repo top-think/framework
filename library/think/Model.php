@@ -1081,7 +1081,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 删除条件
         $pk = $this->getPk();
-        if (isset($this->data[$pk])) {
+        if (is_string($pk) && isset($this->data[$pk])) {
             $where = [$pk => $this->data[$pk]];
         } elseif (!empty($this->updateWhere)) {
             $where = $this->updateWhere;
