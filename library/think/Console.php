@@ -88,18 +88,19 @@ class Console
     }
 
     /**
-     * @param       $command
-     * @param array $parameters
+     * @param        $command
+     * @param array  $parameters
+     * @param string $driver
      * @return Output|Buffer
      */
-    public static function call($command, array $parameters = [])
+    public static function call($command, array $parameters = [], $driver = 'buffer')
     {
         $console = self::init(false);
 
         array_unshift($parameters, $command);
 
         $input  = new Input($parameters);
-        $output = new Output('buffer');
+        $output = new Output($driver);
 
         $console->setCatchExceptions(false);
         $console->find($command)->run($input, $output);
@@ -317,7 +318,7 @@ class Console
 
         if (!$command->isEnabled()) {
             $command->setConsole(null);
-            return null;
+            return;
         }
 
         if (null === $command->getDefinition()) {

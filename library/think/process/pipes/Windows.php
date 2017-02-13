@@ -30,7 +30,7 @@ class Windows extends Pipes
 
     public function __construct($disableOutput, $input)
     {
-        $this->disableOutput = (bool)$disableOutput;
+        $this->disableOutput = (bool) $disableOutput;
 
         if (!$this->disableOutput) {
 
@@ -128,7 +128,7 @@ class Windows extends Pipes
      */
     public function areOpen()
     {
-        return (bool)$this->pipes && (bool)$this->fileHandles;
+        return (bool) $this->pipes && (bool) $this->fileHandles;
     }
 
     /**
@@ -213,7 +213,7 @@ class Windows extends Pipes
             while (strlen($this->inputBuffer)) {
                 $written = fwrite($w[0], $this->inputBuffer, 2 << 18);
                 if ($written > 0) {
-                    $this->inputBuffer = (string)substr($this->inputBuffer, $written);
+                    $this->inputBuffer = (string) substr($this->inputBuffer, $written);
                 } else {
                     break;
                 }

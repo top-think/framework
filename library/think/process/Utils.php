@@ -60,7 +60,7 @@ class Utils
                 return $input;
             }
             if (is_scalar($input)) {
-                return (string)$input;
+                return (string) $input;
             }
             throw new \InvalidArgumentException(sprintf('%s only accepts strings or stream resources.', $caller));
         }
