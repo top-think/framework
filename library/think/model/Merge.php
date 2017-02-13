@@ -11,7 +11,6 @@
 
 namespace think\model;
 
-use think\Db;
 use think\db\Query;
 use think\Model;
 
@@ -40,9 +39,9 @@ class Merge extends Model
     /**
      * 查找单条记录
      * @access public
-     * @param mixed     $data 主键值或者查询条件（闭包）
-     * @param string    $with 关联预查询
-     * @param bool      $cache 是否缓存
+     * @param mixed        $data  主键值或者查询条件（闭包）
+     * @param string|array $with  关联预查询
+     * @param bool         $cache 是否缓存
      * @return \think\Model
      */
     public static function get($data = null, $with = [], $cache = false)
@@ -78,11 +77,11 @@ class Merge extends Model
     /**
      * 获取关联模型的字段 并解决混淆
      * @access protected
-     * @param \think\db\Query   $query 查询对象
-     * @param string            $name 模型名称
-     * @param string            $table 关联表名称
-     * @param array             $map 字段映射
-     * @param array             $fields 查询字段
+     * @param \think\db\Query $query  查询对象
+     * @param string          $name   模型名称
+     * @param string          $table  关联表名称
+     * @param array           $map    字段映射
+     * @param array           $fields 查询字段
      * @return array
      */
     protected static function getModelField($query, $name, $table = '', $map = [], $fields = [])
@@ -104,8 +103,9 @@ class Merge extends Model
     /**
      * 查找所有记录
      * @access public
-     * @param mixed     $data 主键列表或者查询条件（闭包）
-     * @param string    $with 关联预查询
+     * @param mixed        $data 主键列表或者查询条件（闭包）
+     * @param array|string $with 关联预查询
+     * @param bool         $cache
      * @return array|false|string
      */
     public static function all($data = null, $with = [], $cache = false)
@@ -118,10 +118,10 @@ class Merge extends Model
     /**
      * 处理写入的模型数据
      * @access public
-     * @param string    $model 模型名称
-     * @param array     $data 数据
-     * @param bool      $insert 是否新增
-     * @return void
+     * @param string $model  模型名称
+     * @param array  $data   数据
+     * @param bool   $insert 是否新增
+     * @return array
      */
     protected function parseData($model, $data, $insert = false)
     {
@@ -144,10 +144,11 @@ class Merge extends Model
     /**
      * 保存模型数据 以及关联数据
      * @access public
-     * @param mixed     $data 数据
-     * @param array     $where 更新条件
-     * @param string    $sequence     自增序列名
-     * @return integer|false
+     * @param mixed  $data     数据
+     * @param array  $where    更新条件
+     * @param string $sequence 自增序列名
+     * @return false|int
+     * @throws \Exception
      */
     public function save($data = [], $where = [], $sequence = null)
     {
@@ -158,7 +159,7 @@ class Merge extends Model
             }
             // 数据对象赋值
             foreach ($data as $key => $value) {
-                $this->setAttr($key, $value);
+                $this->setAttr($key, $value, $data);
             }
             if (!empty($where)) {
                 $this->isUpdate = true;
@@ -278,7 +279,8 @@ class Merge extends Model
     /**
      * 删除当前的记录 并删除关联数据
      * @access public
-     * @return integer
+     * @return int
+     * @throws \Exception
      */
     public function delete()
     {

@@ -11,14 +11,19 @@
 
 namespace think;
 
-use think\paginator\Collection as PaginatorCollection;
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use JsonSerializable;
+use Traversable;
 
-abstract class Paginator
+abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
     /** @var bool 是否为简洁模式 */
     protected $simple = false;
 
-    /** @var PaginatorCollection 数据集 */
+    /** @var Collection 数据集 */
     protected $items;
 
     /** @var integer 当前页 */
@@ -44,7 +49,7 @@ abstract class Paginator
         'fragment' => '',
     ];
 
-    protected function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
+    public function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
@@ -53,10 +58,11 @@ abstract class Paginator
         $this->simple   = $simple;
         $this->listRows = $listRows;
 
+        if (!$items instanceof Collection) {
+            $items = Collection::make($items);
+        }
+
         if ($simple) {
-            if (!$items instanceof Collection) {
-                $items = Collection::make($items);
-            }
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = count($items) > ($this->listRows);
             $items             = $items->slice(0, $this->listRows);
@@ -66,8 +72,7 @@ abstract class Paginator
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = $this->currentPage < $this->lastPage;
         }
-
-        $this->items = PaginatorCollection::make($items, $this);
+        $this->items = $items;
     }
 
     /**
@@ -77,12 +82,11 @@ abstract class Paginator
      * @param bool  $simple
      * @param null  $total
      * @param array $options
-     * @return PaginatorCollection
+     * @return Paginator
      */
     public static function make($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
-        $paginator = new static($items, $listRows, $currentPage, $total, $simple, $options);
-        return $paginator->items;
+        return new static($items, $listRows, $currentPage, $total, $simple, $options);
     }
 
     protected function setCurrentPage($currentPage)
@@ -253,4 +257,113 @@ abstract class Paginator
      * @return mixed
      */
     abstract public function render();
+
+    public function items()
+    {
+        return $this->items->all();
+    }
+
+    public function getCollection()
+    {
+        return $this->items;
+    }
+
+    public function isEmpty()
+    {
+        return $this->items->isEmpty();
+    }
+
+    /**
+     * Retrieve an external iterator
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * <b>Traversable</b>
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->items->all());
+    }
+
+    /**
+     * Whether a offset exists
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return $this->items->offsetExists($offset);
+    }
+
+    /**
+     * Offset to retrieve
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->items->offsetGet($offset);
+    }
+
+    /**
+     * Offset to set
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->items->offsetSet($offset, $value);
+    }
+
+    /**
+     * Offset to unset
+     * @param mixed $offset
+     * @return void
+     * @since 5.0.0
+     */
+    public function offsetUnset($offset)
+    {
+        $this->items->offsetUnset($offset);
+    }
+
+    /**
+     * Count elements of an object
+     */
+    public function count()
+    {
+        return $this->items->count();
+    }
+
+    public function __toString()
+    {
+        return (string) $this->render();
+    }
+
+    public function toArray()
+    {
+        try {
+            $total = $this->total();
+        } catch (Exception $e) {
+            $total = null;
+        }
+
+        return [
+            'total'        => $total,
+            'per_page'     => $this->listRows(),
+            'current_page' => $this->currentPage(),
+            'data'         => $this->items->toArray()
+        ];
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    public function __call($name, $arguments)
+    {
+        return call_user_func_array([$this->getCollection(), $name], $arguments);
+    }
+
 }

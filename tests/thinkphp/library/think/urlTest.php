@@ -88,7 +88,7 @@ class urlTest extends \PHPUnit_Framework_TestCase
     public function testBuildNameRoute()
     {
         Route::get(['name', 'blog/:id'], 'index/blog');
-        $this->assertEquals([['blog/:id', ['id' => 1], null]], Route::name('name'));
+        $this->assertEquals([['blog/:id', ['id' => 1], null, null]], Route::name('name'));
         Config::set('url_html_suffix', 'shtml');
         $this->assertEquals('/blog/10.shtml', Url::build('name?id=10'));
     }

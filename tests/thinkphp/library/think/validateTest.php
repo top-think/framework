@@ -88,7 +88,7 @@ class validateTest extends \PHPUnit_Framework_TestCase
             'date'       => '16-3-8',
             'ok'         => 'yes',
             'value'      => 100,
-            'bool'       => 'true',
+            'bool'       => true,
             'title'      => '流年ThinkPHP',
             'city'       => '上海',
             'nickname'   => '流年ThinkPHP_2016',
