@@ -472,15 +472,14 @@ class Query
                     if (strpos($key, '.')) {
                         list($alias, $key) = explode('.', $key);
                     }
-                    foreach ($resultSet as $val) {
-                        if ($count > 2) {
-                            $result[$val[$key]] = $val;
-                        } elseif (2 == $count) {
-                            $result[$val[$key]] = $val[$key2];
-                        } elseif (1 == $count) {
-                            $result[$val[$key]] = $val[$key1];
-                        }
+                    if (2 == $count) {
+                        $column = $key2;
+                    } elseif (1 == $count) {
+                        $column = $key1;
+                    } else {
+                        $column = null;
                     }
+                    $result = array_column($resultSet, $column, $key);
                 } else {
                     $result = [];
                 }
