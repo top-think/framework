@@ -161,6 +161,9 @@ class Debug
     public static function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
+        if ($var instanceof \think\Model || $var instanceof \think\model\Collection) {
+            $var = $var->toArray();
+        }
         ob_start();
         var_dump($var);
         $output = ob_get_clean();
@@ -174,7 +177,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         } else {
             return $output;

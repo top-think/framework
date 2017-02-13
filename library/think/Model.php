@@ -1866,6 +1866,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->initialize();
     }
 
+    public function __debugInfo()
+    {
+        return [
+            'data' => $this->data,
+        ];
+    }
+
     /**
      * 模型事件快捷方法
      * @param      $callback
