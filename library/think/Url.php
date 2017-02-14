@@ -279,6 +279,9 @@ class Url
     protected static function parseSuffix($suffix)
     {
         if ($suffix) {
+            if ($suffix == '/') {
+                return '/';
+            }
             $suffix = true === $suffix ? Config::get('url_html_suffix') : $suffix;
             if ($pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
