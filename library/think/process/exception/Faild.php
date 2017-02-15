@@ -11,10 +11,9 @@
 
 namespace think\process\exception;
 
-
 use think\Process;
 
-class Failed extends \RuntimeException
+class Faild extends \RuntimeException
 {
 
     private $process;

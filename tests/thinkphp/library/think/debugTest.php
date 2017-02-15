@@ -170,7 +170,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
         $array      = explode("array", json_encode($output));
         if (IS_WIN) {
             $this->assertEquals("(1) {\\n  [\\\"key\\\"] => string(3) \\\"val\\\"\\n}\\n\\r\\n\"", end($array));
-        } else if (strstr(PHP_OS, 'Darwin')) {
+        } elseif (strstr(PHP_OS, 'Darwin')) {
             $this->assertEquals("(1) {\\n  [\\\"key\\\"] => string(3) \\\"val\\\"\\n}\\n\\n\"", end($array));
         } else {
             $this->assertEquals("(1) {\\n  'key' =>\\n  string(3) \\\"val\\\"\\n}\\n\\n\"", end($array));
