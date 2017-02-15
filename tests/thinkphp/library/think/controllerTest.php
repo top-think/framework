@@ -40,13 +40,13 @@ class Foo extends Controller
 
     public function fetchTest()
     {
-        $template = dirname(__FILE__) . '/display.html';        
-        return $this->fetch($template, ['name' => 'ThinkPHP']);        
+        $template = dirname(__FILE__) . '/display.html';
+        return $this->fetch($template, ['name' => 'ThinkPHP']);
     }
 
     public function displayTest()
     {
-        $template = dirname(__FILE__) . '/display.html';        
+        $template = dirname(__FILE__) . '/display.html';
         return $this->display($template, ['name' => 'ThinkPHP']);
     }
     public function test()
@@ -71,7 +71,7 @@ class Foo extends Controller
             ['sex', 'in:0,1', '性别只能为为男或女'],
             ['age', 'between:1,80', '年龄只能在10-80之间'],
         ];
-        return $this->validate($data, $validate);        
+        return $this->validate($data, $validate);
     }
 }
 
