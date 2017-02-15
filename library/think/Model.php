@@ -433,6 +433,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检测属性获取器
         $method = 'get' . Loader::parseName($name, 1) . 'Attr';
         if (method_exists($this, $method)) {
+            $reltion = Loader::parseName($name, 1, false);
+            if ($notFound && method_exists($this, $relation) && $this->$relation() instanceof Relation) {
+                // 首先获取关联数据
+                $this->$relation()->removeOption();
+                $value = $this->$relation()->getRelation();
+            }
             $value = $this->$method($value, $this->data);
         } elseif (isset($this->type[$name])) {
             // 类型转换
