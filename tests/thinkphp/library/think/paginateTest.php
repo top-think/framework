@@ -11,7 +11,6 @@
 
 namespace tests\thinkphp\library\think;
 
-
 use think\paginator\driver\Bootstrap;
 
 class paginateTest extends \PHPUnit_Framework_TestCase
@@ -37,8 +36,5 @@ class paginateTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($render, $p->render());
     }
-
-
-
 
 }
