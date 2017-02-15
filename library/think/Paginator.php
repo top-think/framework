@@ -341,7 +341,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     {
         try {
             $total = $this->total();
-        } catch (Exception $e) {
+        } catch (\DomainException $e) {
             $total = null;
         }
 
@@ -349,7 +349,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
             'total'        => $total,
             'per_page'     => $this->listRows(),
             'current_page' => $this->currentPage(),
-            'data'         => $this->items->toArray()
+            'data'         => $this->items->toArray(),
         ];
     }
 
