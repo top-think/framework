@@ -103,7 +103,7 @@ if (!function_exists('config')) {
     function config($name = '', $value = null, $range = '')
     {
         if (is_null($value) && is_string($name)) {
-            return 0 === strpos($name, '?') ? Config::has(substr($name, 1), $range) : Config::get($name, $range);
+            return isset($name[0]) && $name[0] == '?' ? Config::has(substr($name, 1), $range) : Config::get($name, $range);
         } else {
             return Config::set($name, $value, $range);
         }
@@ -120,7 +120,7 @@ if (!function_exists('input')) {
      */
     function input($key = '', $default = null, $filter = '')
     {
-        if (0 === strpos($key, '?')) {
+        if (isset($key[0]) && $key[0] === '?') {
             $key = substr($key, 1);
             $has = true;
         }
@@ -301,7 +301,7 @@ if (!function_exists('session')) {
             Session::clear('' === $value ? null : $value);
         } elseif ('' === $value) {
             // 判断或获取
-            return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
+            return isset($name[0]) && $name[0] === '?' ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
         } elseif (is_null($value)) {
             // 删除
             return Session::delete($name, $prefix);
@@ -330,7 +330,7 @@ if (!function_exists('cookie')) {
             Cookie::clear($value);
         } elseif ('' === $value) {
             // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name, $option);
+            return isset($name[0]) && $name[0] === '?' ? Cookie::has(substr($name, 1), $option) : Cookie::get($name, $option);
         } elseif (is_null($value)) {
             // 删除
             return Cookie::delete($name);
@@ -363,11 +363,11 @@ if (!function_exists('cache')) {
             return Cache::clear($value);
         } elseif ('' === $value) {
             // 获取缓存
-            return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
+            return isset($name[0]) && $name[0] === '?' ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::rm($name);
-        } elseif (0 === strpos($name, '?') && '' !== $value) {
+        } elseif (isset($name[0]) && $name[0] === '?' && '' !== $value) {
             $expire = is_numeric($options) ? $options : null;
             return Cache::remember(substr($name, 1), $value, $expire);
         } else {
