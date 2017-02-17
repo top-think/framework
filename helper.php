@@ -120,7 +120,7 @@ if (!function_exists('input')) {
      */
     function input($key = '', $default = null, $filter = '')
     {
-        if (isset($key[0]) && $key[0] === '?') {
+        if (isset($key[0]) && $key[0] == '?') {
             $key = substr($key, 1);
             $has = true;
         }
@@ -301,7 +301,7 @@ if (!function_exists('session')) {
             Session::clear('' === $value ? null : $value);
         } elseif ('' === $value) {
             // 判断或获取
-            return isset($name[0]) && $name[0] === '?' ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
+            return isset($name[0]) && $name[0] == '?' ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
         } elseif (is_null($value)) {
             // 删除
             return Session::delete($name, $prefix);
@@ -330,7 +330,7 @@ if (!function_exists('cookie')) {
             Cookie::clear($value);
         } elseif ('' === $value) {
             // 获取
-            return isset($name[0]) && $name[0] === '?' ? Cookie::has(substr($name, 1), $option) : Cookie::get($name, $option);
+            return isset($name[0]) && $name[0] == '?' ? Cookie::has(substr($name, 1), $option) : Cookie::get($name, $option);
         } elseif (is_null($value)) {
             // 删除
             return Cookie::delete($name);
@@ -363,11 +363,11 @@ if (!function_exists('cache')) {
             return Cache::clear($value);
         } elseif ('' === $value) {
             // 获取缓存
-            return isset($name[0]) && $name[0] === '?' ? Cache::has(substr($name, 1)) : Cache::get($name);
+            return isset($name[0]) && $name[0] == '?' ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::rm($name);
-        } elseif (isset($name[0]) && $name[0] === '?' && '' !== $value) {
+        } elseif (isset($name[0]) && $name[0] == '?' && '' !== $value) {
             $expire = is_numeric($options) ? $options : null;
             return Cache::remember(substr($name, 1), $value, $expire);
         } else {

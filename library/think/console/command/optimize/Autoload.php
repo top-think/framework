@@ -266,9 +266,9 @@ EOF;
                 $namespace = str_replace([' ', "\t", "\r", "\n"], '', $matches['nsname'][$i]) . '\\';
             } else {
                 $name = $matches['name'][$i];
-                if ($name[0] === ':') {
+                if (isset($name[0]) && $name[0] == ':') {
                     $name = 'xhp' . substr(str_replace(['-', ':'], ['_', '__'], $name), 1);
-                } elseif ($matches['type'][$i] === 'enum') {
+                } elseif ($matches['type'][$i] == 'enum') {
                     $name = rtrim($name, ':');
                 }
                 $classes[] = ltrim($namespace . $name, '\\');
