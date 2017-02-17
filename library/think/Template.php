@@ -57,7 +57,7 @@ class Template
     protected $storage;
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      */
     public function __construct(array $config = [])

@@ -142,7 +142,7 @@ trait SoftDelete
     {
         $field = isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
         if (!strpos($field, '.')) {
-            $field = $this->db(false)->getTable() . '.' . $field;
+            $field = '__TABLE__.' . $field;
         }
         if (!$read && strpos($field, '.')) {
             $array = explode('.', $field);

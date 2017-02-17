@@ -102,7 +102,7 @@ class Validate
     protected $batch = false;
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param array $rules 验证规则
      * @param array $message 验证提示信息

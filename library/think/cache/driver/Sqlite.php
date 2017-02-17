@@ -28,7 +28,7 @@ class Sqlite extends Driver
     ];
 
     /**
-     * 架构函数
+     * 构造函数
      * @param array $options 缓存参数
      * @throws \BadFunctionCallException
      * @access public

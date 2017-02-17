@@ -109,7 +109,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static $initialized = [];
 
     /**
-     * 架构函数
+     * 构造方法
      * @access public
      * @param array|object $data 数据
      */
@@ -1081,7 +1081,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 删除条件
         $pk = $this->getPk();
-        if (isset($this->data[$pk])) {
+        if (is_string($pk) && isset($this->data[$pk])) {
             $where = [$pk => $this->data[$pk]];
         } elseif (!empty($this->updateWhere)) {
             $where = $this->updateWhere;
@@ -1426,16 +1426,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
-        $model    = new static();
-        $relation = $model->$relation();
-        if ($relation instanceof HasMany) {
-            if (is_array($operator) || $operator instanceof \Closure) {
-                return $relation->hasWhere($operator);
-            }
-            return $relation->has($operator, $count, $id);
-        } else {
-            return $relation;
+        $relation = (new static())->$relation();
+        if (is_array($operator) || $operator instanceof \Closure) {
+            return $relation->hasWhere($operator);
         }
+        return $relation->has($operator, $count, $id);
     }
 
     /**
@@ -1447,13 +1442,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function hasWhere($relation, $where = [])
     {
-        $model    = new static();
-        $relation = $model->$relation();
-        if ($relation instanceof HasMany) {
-            return $relation->hasWhere($where);
-        } else {
-            return $relation;
-        }
+        return (new static())->$relation()->hasWhere($where);
     }
 
     /**

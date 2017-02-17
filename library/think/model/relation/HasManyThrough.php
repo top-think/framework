@@ -13,6 +13,7 @@ namespace think\model\relation;
 
 use think\Db;
 use think\db\Query;
+use think\Exception;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -25,7 +26,7 @@ class HasManyThrough extends Relation
     protected $through;
 
     /**
-     * 架构函数
+     * 构造函数
      * @access   public
      * @param Model  $parent     上级模型对象
      * @param string $model      模型名
@@ -54,9 +55,34 @@ class HasManyThrough extends Relation
     public function getRelation($subRelation = '', $closure = null)
     {
         if ($closure) {
-            call_user_func_array($closure, [& $this->query]);
+            call_user_func_array($closure, [ & $this->query]);
         }
         return $this->relation($subRelation)->select();
+    }
+
+    /**
+     * 根据关联条件查询当前模型
+     * @access public
+     * @param string  $operator 比较操作符
+     * @param integer $count    个数
+     * @param string  $id       关联表的统计字段
+     * @param string  $joinType JOIN类型
+     * @return Query
+     */
+    public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
+    {
+        return $this->parent;
+    }
+
+    /**
+     * 根据关联条件查询当前模型
+     * @access public
+     * @param mixed $where 查询条件（数组或者闭包）
+     * @return Query
+     */
+    public function hasWhere($where = [])
+    {
+        throw new Exception('relation not support: hasWhere');
     }
 
     /**

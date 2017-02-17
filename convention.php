@@ -206,7 +206,7 @@ return [
         // 是否自动开启 SESSION
         'auto_start'     => true,
         'httponly'       => true,
-        'secure'         => true,
+        'secure'         => false,
     ],
 
     // +----------------------------------------------------------------------

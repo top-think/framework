@@ -125,7 +125,7 @@ abstract class Connection
     protected $bind = [];
 
     /**
-     * 架构函数 读取数据库配置信息
+     * 构造函数 读取数据库配置信息
      * @access public
      * @param array $config 数据库配置数组
      */
@@ -365,8 +365,8 @@ abstract class Connection
             $this->bind = $bind;
         }
 
-        //释放前次的查询结果
-        if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
+        // 释放前次的查询结果
+        if (!empty($this->PDOStatement)) {
             $this->free();
         }
 

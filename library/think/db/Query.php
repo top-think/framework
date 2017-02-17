@@ -54,7 +54,7 @@ class Query
     private static $event = [];
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param Connection $connection 数据库对象实例
      * @param string     $model      模型名
@@ -869,7 +869,7 @@ class Query
     public function view($join, $field = true, $on = null, $type = 'INNER')
     {
         $this->options['view'] = true;
-        if (is_array($join) && is_null($field)) {
+        if (is_array($join) && key($join) !== 0) {
             foreach ($join as $key => $val) {
                 $this->view($key, $val[0], isset($val[1]) ? $val[1] : null, isset($val[2]) ? $val[2] : 'INNER');
             }
@@ -2204,6 +2204,8 @@ class Query
             if (isset($key) && Cache::get($key)) {
                 // 删除缓存
                 Cache::rm($key);
+            } elseif (!empty($options['cache']['tag'])) {
+                Cache::clear($options['cache']['tag']);
             }
             // 执行操作
             $result = '' == $sql ? 0 : $this->execute($sql, $bind);
@@ -2300,7 +2302,7 @@ class Query
                 }
             }
 
-            if (isset($cache)) {
+            if (isset($cache) && $resultSet) {
                 // 缓存数据集
                 $this->cacheData($key, $resultSet, $cache);
             }
@@ -2377,6 +2379,8 @@ class Query
         }
         if (isset($data)) {
             return 'think:' . $options['table'] . '|' . $data;
+        } else {
+            return md5(serialize($options));
         }
     }
 
@@ -2414,8 +2418,10 @@ class Query
             $cache = $options['cache'];
             if (true === $cache['key'] && !is_null($data) && !is_array($data)) {
                 $key = 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
+            } elseif (is_string($cache['key'])) {
+                $key = $cache['key'];
             } elseif (!isset($key)) {
-                $key = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+                $key = md5(serialize($options));
             }
             $result = Cache::get($key);
         }
@@ -2453,7 +2459,7 @@ class Query
                 $result = isset($resultSet[0]) ? $resultSet[0] : null;
             }
 
-            if (isset($cache)) {
+            if (isset($cache) && $result) {
                 // 缓存数据
                 $this->cacheData($key, $result, $cache);
             }
@@ -2646,6 +2652,8 @@ class Query
         if (isset($key) && Cache::get($key)) {
             // 删除缓存
             Cache::rm($key);
+        } elseif (!empty($options['cache']['tag'])) {
+            Cache::clear($options['cache']['tag']);
         }
         // 执行操作
         $result = $this->execute($sql, $bind);

@@ -32,7 +32,7 @@ abstract class Builder
     protected $deleteSql    = 'DELETE FROM %TABLE% %USING% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param Connection    $connection 数据库连接对象实例
      * @param Query         $query      数据库查询对象实例
@@ -379,7 +379,7 @@ abstract class Builder
                 } else {
                     $zone = implode(',', $this->parseValue($value, $field));
                 }
-                $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
+                $whereStr .= $key . ' ' . $exp . ' (' . (empty($zone) ? "''" : $zone) . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询

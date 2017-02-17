@@ -75,6 +75,8 @@ class Sqlsrv extends Builder
             list($table, $key) = explode('.', $key, 2);
             if (isset($options['alias'][$table])) {
                 $table = $options['alias'][$table];
+            } elseif ('__TABLE__' == $table) {
+                $table = $this->query->getTable();
             }
         }
         if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
