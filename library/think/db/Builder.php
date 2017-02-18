@@ -379,7 +379,7 @@ abstract class Builder
                 } else {
                     $zone = implode(',', $this->parseValue($value, $field));
                 }
-                $whereStr .= $key . ' ' . $exp . ' (' . $zone . ')';
+                $whereStr .= $key . ' ' . $exp . ' (' . (empty($zone) ? "''" : $zone) . ')';
             }
         } elseif (in_array($exp, ['NOT BETWEEN', 'BETWEEN'])) {
             // BETWEEN 查询
