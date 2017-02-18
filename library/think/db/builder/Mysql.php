@@ -36,10 +36,11 @@ class Mysql extends Builder
             $key                = 'json_extract(' . $field . ', \'$.' . $name . '\')';
         } elseif (strpos($key, '.') && !preg_match('/[,\'\"\(\)`\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
+            if ('__TABLE__' == $table) {
+                $table = $this->query->getTable();
+            }
             if (isset($options['alias'][$table])) {
                 $table = $options['alias'][$table];
-            } elseif ('__TABLE__' == $table) {
-                $table = $this->query->getTable();
             }
         }
         if (!preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
