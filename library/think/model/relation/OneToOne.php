@@ -82,12 +82,14 @@ abstract class OneToOne extends Relation
 
         if ($closure) {
             // 执行闭包查询
-            call_user_func_array($closure, [& $query]);
+            call_user_func_array($closure, [ & $query]);
             // 使用withField指定获取关联的字段，如
             // $query->where(['id'=>1])->withField('id,name');
             if ($query->getOptions('with_field')) {
                 $field = $query->getOptions('with_field');
                 $query->removeOption('with_field');
+            } else {
+                $field = true;
             }
         } elseif (isset($this->option['field'])) {
             $field = $this->option['field'];
@@ -290,7 +292,7 @@ abstract class OneToOne extends Relation
     {
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
-            call_user_func_array($closure, [& $model]);
+            call_user_func_array($closure, [ & $model]);
             if ($field = $model->getOptions('with_field')) {
                 $model->field($field)->removeOption('with_field');
             }
