@@ -290,9 +290,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 标记字段更改
-        if (isset($this->data[$name]) && is_scalar($this->data[$name]) && is_scalar($value) && 0 !== strcmp($this->data[$name], $value)) {
+        if (!isset($this->data[$name])) {
             $this->change[] = $name;
-        } elseif (!isset($this->data[$name]) || $value != $this->data[$name]) {
+        } elseif (is_scalar($value) && is_scalar($this->data[$name]) && 0 !== strcmp($this->data[$name], $value)) {
+            $this->change[] = $name;
+        } elseif (!is_object($value) && $value != $this->data[$name]) {
             $this->change[] = $name;
         }
         // 设置数据对象属性
