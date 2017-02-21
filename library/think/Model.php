@@ -789,11 +789,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function save($data = [], $where = [], $sequence = null)
     {
+        // 数据自动验证
+        if (!$this->validateData($data)) {
+            return false;
+        }
+        
         if (!empty($data)) {
-            // 数据自动验证
-            if (!$this->validateData($data)) {
-                return false;
-            }
             // 数据对象赋值
             foreach ($data as $key => $value) {
                 $this->setAttr($key, $value, $data);
