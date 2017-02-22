@@ -1357,7 +1357,11 @@ class Request
     {
         $contentType = $this->server('CONTENT_TYPE');
         if ($contentType) {
-            list($type) = explode(';', $contentType);
+            if (strpos($contentType, ';')) {
+                list($type) = explode(';', $contentType);
+            } else {
+                $type = $contentType;
+            }
             return trim($type);
         }
         return '';
