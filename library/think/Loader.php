@@ -369,7 +369,7 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        if (strpos($name, '\\')) {
+        if (false !== strpos($name, '\\')) {
             $class  = $name;
             $module = Request::instance()->module();
         } else {
@@ -405,7 +405,7 @@ class Loader
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
-        if (strpos($name, '\\')) {
+        if (false !== strpos($name, '\\')) {
             $class  = $name;
             $module = Request::instance()->module();
         } else {
@@ -442,7 +442,7 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        if (strpos($name, '\\')) {
+        if (false !== strpos($name, '\\')) {
             $class  = $name;
             $module = Request::instance()->module();
         } else {
