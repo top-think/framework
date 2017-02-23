@@ -115,6 +115,16 @@ class MorphTo extends Relation
     }
 
     /**
+     * 移除关联查询参数
+     * @access public
+     * @return $this
+     */
+    public function removeOption()
+    {
+        return $this;
+    }
+
+    /**
      * 预载入关联查询
      * @access public
      * @param array    $resultSet   数据集
