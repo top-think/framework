@@ -893,7 +893,7 @@ class Query
                         } else {
                             $name = $alias . '.' . $key;
                         }
-                        $fields[]                   = $name . ' AS ' . $val;
+                        $fields[$name]              = $val;
                         $this->options['map'][$val] = $name;
                     }
                 }
