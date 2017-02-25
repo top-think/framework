@@ -48,6 +48,7 @@ class Wincache extends Driver
      */
     public function has($name)
     {
+        $this->readTimes++;
         $key = $this->getCacheKey($name);
         return wincache_ucache_exists($key);
     }
@@ -61,6 +62,7 @@ class Wincache extends Driver
      */
     public function get($name, $default = false)
     {
+        $this->readTimes++;
         $key = $this->getCacheKey($name);
         return wincache_ucache_exists($key) ? wincache_ucache_get($key) : $default;
     }
@@ -75,6 +77,7 @@ class Wincache extends Driver
      */
     public function set($name, $value, $expire = null)
     {
+        $this->writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -98,6 +101,7 @@ class Wincache extends Driver
      */
     public function inc($name, $step = 1)
     {
+        $this->writeTimes++;
         $key = $this->getCacheKey($name);
         return wincache_ucache_inc($key, $step);
     }
@@ -111,6 +115,7 @@ class Wincache extends Driver
      */
     public function dec($name, $step = 1)
     {
+        $this->writeTimes++;
         $key = $this->getCacheKey($name);
         return wincache_ucache_dec($key, $step);
     }
@@ -123,6 +128,7 @@ class Wincache extends Driver
      */
     public function rm($name)
     {
+        $this->writeTimes++;
         return wincache_ucache_delete($this->getCacheKey($name));
     }
 
@@ -142,6 +148,7 @@ class Wincache extends Driver
             $this->rm('tag_' . md5($tag));
             return true;
         } else {
+            $this->writeTimes++;
             return wincache_ucache_clear();
         }
     }

@@ -79,6 +79,7 @@ class Redis extends Driver
      */
     public function get($name, $default = false)
     {
+        $this->readTimes++;
         $value = $this->handler->get($this->getCacheKey($name));
         if (is_null($value)) {
             return $default;
@@ -98,6 +99,7 @@ class Redis extends Driver
      */
     public function set($name, $value, $expire = null)
     {
+        $this->writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -125,6 +127,7 @@ class Redis extends Driver
      */
     public function inc($name, $step = 1)
     {
+        $this->writeTimes++;
         $key = $this->getCacheKey($name);
         return $this->handler->incrby($key, $step);
     }
@@ -138,6 +141,7 @@ class Redis extends Driver
      */
     public function dec($name, $step = 1)
     {
+        $this->writeTimes++;
         $key = $this->getCacheKey($name);
         return $this->handler->decrby($key, $step);
     }
@@ -150,6 +154,7 @@ class Redis extends Driver
      */
     public function rm($name)
     {
+        $this->writeTimes++;
         return $this->handler->delete($this->getCacheKey($name));
     }
 
@@ -170,6 +175,7 @@ class Redis extends Driver
             $this->rm('tag_' . md5($tag));
             return true;
         }
+        $this->writeTimes++;
         return $this->handler->flushDB();
     }
 

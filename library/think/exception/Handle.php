@@ -36,7 +36,7 @@ class Handle
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
-            if (App::$debug) {
+            if (App::isDebug()) {
                 $data = [
                     'file'    => $exception->getFile(),
                     'line'    => $exception->getLine(),
@@ -87,7 +87,7 @@ class Handle
      */
     public function renderForConsole(Output $output, Exception $e)
     {
-        if (App::$debug) {
+        if (App::isDebug()) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
         }
         $output->renderException($e);
@@ -101,7 +101,7 @@ class Handle
     {
         $status   = $e->getStatusCode();
         $template = Config::get('http_exception_template');
-        if (!App::$debug && !empty($template[$status])) {
+        if (!App::isDebug() && !empty($template[$status])) {
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
         } else {
             return $this->convertExceptionToResponse($e);
@@ -115,7 +115,7 @@ class Handle
     protected function convertExceptionToResponse(Exception $exception)
     {
         // 收集异常数据
-        if (App::$debug) {
+        if (App::isDebug()) {
             // 调试模式，获取详细的错误信息
             $data = [
                 'name'    => get_class($exception),
@@ -162,7 +162,7 @@ class Handle
         include Config::get('exception_tmpl');
         // 获取并清空缓存
         $content  = ob_get_clean();
-        $response = new Response($content, 'html');
+        $response = Response::init($content, 'html');
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();

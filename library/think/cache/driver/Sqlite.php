@@ -79,6 +79,7 @@ class Sqlite extends Driver
      */
     public function get($name, $default = false)
     {
+        $this->readTimes++;
         $name   = $this->getCacheKey($name);
         $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
@@ -103,6 +104,7 @@ class Sqlite extends Driver
      */
     public function set($name, $value, $expire = null)
     {
+        $this->writeTimes++;
         $name  = $this->getCacheKey($name);
         $value = sqlite_escape_string(serialize($value));
         if (is_null($expire)) {
@@ -168,6 +170,7 @@ class Sqlite extends Driver
      */
     public function rm($name)
     {
+        $this->writeTimes++;
         $name = $this->getCacheKey($name);
         $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\'';
         sqlite_query($this->handler, $sql);
@@ -188,6 +191,7 @@ class Sqlite extends Driver
             sqlite_query($this->handler, $sql);
             return true;
         }
+        $this->writeTimes++;
         $sql = 'DELETE FROM ' . $this->options['table'];
         sqlite_query($this->handler, $sql);
         return true;

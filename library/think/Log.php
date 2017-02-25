@@ -62,7 +62,7 @@ class Log
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
         // 记录初始化信息
-        App::$debug && Log::record('[ LOG ] INIT ' . $type, 'info');
+        App::isDebug() && Log::record('[ LOG ] INIT ' . $type, 'info');
     }
 
     /**
@@ -141,7 +141,7 @@ class Log
             if (empty(self::$config['level'])) {
                 // 获取全部日志
                 $log = self::$log;
-                if (!App::$debug && isset($log['debug'])) {
+                if (!App::isDebug() && isset($log['debug'])) {
                     unset($log['debug']);
                 }
             } else {

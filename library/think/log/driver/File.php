@@ -55,7 +55,7 @@ class File
 
         $depr = $depr ? "---------------------------------------------------------------\r\n" : '';
         $info = '';
-        if (App::$debug) {
+        if (App::isDebug()) {
             // 获取基本信息
             if (isset($_SERVER['HTTP_HOST'])) {
                 $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -92,7 +92,7 @@ class File
                 $info .= $level;
             }
         }
-        if (App::$debug) {
+        if (App::isDebug()) {
             $info = "{$server} {$remote} {$method} {$uri}\r\n" . $info;
         }
         return error_log("[{$now}] {$info}\r\n{$depr}", 3, $destination);

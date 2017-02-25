@@ -102,6 +102,7 @@ class File extends Driver
      */
     public function get($name, $default = false)
     {
+        $this->readTimes++;
         $filename = $this->getCacheKey($name);
         if (!is_file($filename)) {
             return $default;
@@ -136,6 +137,7 @@ class File extends Driver
      */
     public function set($name, $value, $expire = null)
     {
+        $this->writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -201,6 +203,7 @@ class File extends Driver
      */
     public function rm($name)
     {
+        $this->writeTimes++;
         return $this->unlink($this->getCacheKey($name));
     }
 
@@ -221,6 +224,7 @@ class File extends Driver
             $this->rm('tag_' . md5($tag));
             return true;
         }
+        $this->writeTimes++;
         $files = (array) glob($this->options['path'] . ($this->options['prefix'] ? $this->options['prefix'] . DS : '') . '*');
         foreach ($files as $path) {
             if (is_dir($path)) {

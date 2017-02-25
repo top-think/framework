@@ -15,8 +15,8 @@ use think\Cache;
 use think\Config;
 use think\Db;
 use think\Debug;
+use think\manager\ResponseManager;
 use think\Request;
-use think\Response;
 
 /**
  * 页面Trace调试
@@ -38,11 +38,11 @@ class Html
     /**
      * 调试输出接口
      * @access public
-     * @param Response  $response Response对象
+     * @param ResponseManager  $response ResponseManager对象
      * @param array     $log 日志信息
      * @return bool
      */
-    public function output(Response $response, array $log = [])
+    public function output(ResponseManager $response, array $log = [])
     {
         $request     = Request::instance();
         $contentType = $response->getHeader('Content-Type');
@@ -67,7 +67,7 @@ class Html
             '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
             '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
             '查询信息' => Db::$queryTimes . ' queries ' . Db::$executeTimes . ' writes ',
-            '缓存信息' => Cache::$readTimes . ' reads,' . Cache::$writeTimes . ' writes',
+            '缓存信息' => Cache::getReadTimes() . ' reads,' . Cache::getWriteTimes() . ' writes',
             '配置加载' => count(Config::get()),
         ];
 

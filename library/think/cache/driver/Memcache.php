@@ -75,6 +75,7 @@ class Memcache extends Driver
      */
     public function get($name, $default = false)
     {
+        $this->readTimes++;
         $result = $this->handler->get($this->getCacheKey($name));
         return false !== $result ? $result : $default;
     }
@@ -89,6 +90,7 @@ class Memcache extends Driver
      */
     public function set($name, $value, $expire = null)
     {
+        $this->writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -112,6 +114,7 @@ class Memcache extends Driver
      */
     public function inc($name, $step = 1)
     {
+        $this->writeTimes++;
         $key = $this->getCacheKey($name);
         return $this->handler->increment($key, $step);
     }
@@ -125,6 +128,7 @@ class Memcache extends Driver
      */
     public function dec($name, $step = 1)
     {
+        $this->writeTimes++;
         $key   = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
         $res   = $this->handler->set($key, $value);
@@ -143,6 +147,7 @@ class Memcache extends Driver
      */
     public function rm($name, $ttl = false)
     {
+        $this->writeTimes++;
         $key = $this->getCacheKey($name);
         return false === $ttl ?
         $this->handler->delete($key) :
@@ -166,6 +171,7 @@ class Memcache extends Driver
             $this->rm('tag_' . md5($tag));
             return true;
         }
+        $this->writeTimes++;
         return $this->handler->flush();
     }
 }

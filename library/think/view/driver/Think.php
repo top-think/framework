@@ -40,7 +40,7 @@ class Think
     {
         $this->config = array_merge($this->config, $config);
         if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = App::$modulePath . 'view' . DS;
+            $this->config['view_path'] = App::getModulePath() . 'view' . DS;
         }
 
         $this->template = new Template($this->config);
@@ -80,7 +80,7 @@ class Think
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        App::$debug && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
+        App::isDebug() && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
         $this->template->fetch($template, $data, $config);
     }
 

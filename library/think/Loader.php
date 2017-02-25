@@ -320,7 +320,7 @@ class Loader
                 $baseUrl = self::$prefixDirsPsr4[$name . '\\'];
             } elseif ('@' == $name) {
                 //加载当前模块应用类库
-                $baseUrl = App::$modulePath;
+                $baseUrl = App::getModulePath();
             } elseif (is_dir(EXTEND_PATH . $name)) {
                 $baseUrl = EXTEND_PATH . $name . DS;
             } else {
@@ -536,9 +536,9 @@ class Loader
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1) . (App::$suffix || $appendSuffix ? ucfirst($layer) : '');
+        $class = self::parseName(array_pop($array), 1) . (App::getSuffix() || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-        return App::$namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+        return App::getNamespace() . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
     /**

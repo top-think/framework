@@ -12,6 +12,7 @@
 namespace think;
 
 use think\exception\ClassNotFoundException;
+use think\manager\ResponseManager;
 use think\response\Redirect;
 
 class Debug
@@ -184,7 +185,7 @@ class Debug
         }
     }
 
-    public static function inject(Response $response, &$content)
+    public static function inject(ResponseManager $response, &$content)
     {
         $config  = Config::get('trace');
         $type    = isset($config['type']) ? $config['type'] : 'Html';

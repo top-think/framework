@@ -16,8 +16,10 @@ namespace think\cache;
  */
 abstract class Driver
 {
-    protected $handler = null;
-    protected $options = [];
+    protected $handler    = null;
+    protected $readTimes  = 0;
+    protected $writeTimes = 0;
+    protected $options    = [];
     protected $tag;
 
     /**
@@ -205,5 +207,15 @@ abstract class Driver
     public function handler()
     {
         return $this->handler;
+    }
+
+    public function getReadTimes()
+    {
+        return $this->readTimes;
+    }
+
+    public function getWriteTimes()
+    {
+        return $this->writeTimes;
     }
 }

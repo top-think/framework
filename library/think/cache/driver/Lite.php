@@ -73,6 +73,7 @@ class Lite extends Driver
      */
     public function get($name, $default = false)
     {
+        $this->readTimes++;
         $filename = $this->getCacheKey($name);
         if (is_file($filename)) {
             // 判断是否过期
@@ -98,6 +99,7 @@ class Lite extends Driver
      */
     public function set($name, $value, $expire = null)
     {
+        $this->writeTimes++;
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -160,6 +162,7 @@ class Lite extends Driver
      */
     public function rm($name)
     {
+        $this->writeTimes++;
         return unlink($this->getCacheKey($name));
     }
 
@@ -180,6 +183,7 @@ class Lite extends Driver
             $this->rm('tag_' . md5($tag));
             return true;
         }
+        $this->writeTimes++;
         array_map("unlink", glob($this->options['path'] . ($this->options['prefix'] ? $this->options['prefix'] . DS : '') . '*.php'));
     }
 }

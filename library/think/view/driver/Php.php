@@ -69,7 +69,7 @@ class Php
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        App::$debug && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
+        App::isDebug() && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
         if (isset($data['template'])) {
             $__template__ = $template;
             extract($data, EXTR_OVERWRITE);
@@ -108,7 +108,7 @@ class Php
     private function parseTemplate($template)
     {
         if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = App::$modulePath . 'view' . DS;
+            $this->config['view_path'] = App::getModulePath() . 'view' . DS;
         }
 
         $request = Request::instance();
