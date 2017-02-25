@@ -268,7 +268,7 @@ class Url
                 $host       = $request->host();
                 $rootDomain = substr_count($host, '.') > 1 ? substr(strstr($host, '.'), 1) : $host;
             }
-            if (!strpos($domain, $rootDomain)) {
+            if (substr_count($domain, '.') < 2 && !strpos($domain, $rootDomain)) {
                 $domain .= '.' . $rootDomain;
             }
         }
