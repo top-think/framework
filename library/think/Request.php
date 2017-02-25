@@ -886,7 +886,7 @@ class Request
                 return $array[$name];
             }
         }
-        return null;
+        return;
     }
 
     /**
