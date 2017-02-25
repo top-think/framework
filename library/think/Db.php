@@ -33,7 +33,7 @@ class Db extends Facade
      * @param mixed         $config 连接配置
      * @return object
      */
-    protected static function createFacade()
+    protected static function createFacade($args = [])
     {
         return self::connect();
     }

@@ -20,19 +20,30 @@ class Facade
      * 创建对象实例
      * @static
      * @access protected
-     * @param mixed         $config 连接配置
      * @return object
      */
-    protected static function createFacade()
+    protected static function createFacade($args = [])
     {
         $name = static::class;
 
         if (!isset(self::$instance[$name])) {
-            $class = static::getFacadeClass() ?: '\\think\\manager\\' . basename(str_replace('\\', '/', $name) . 'Manager');
-
-            self::$instance[$name] = new $class();
+            $class                 = static::getFacadeClass() ?: '\\think\\manager\\' . basename(str_replace('\\', '/', $name) . 'Manager');
+            self::$instance[$name] = self::invokeClass($class, $args);
         }
         return self::$instance[$name];
+    }
+
+    /**
+     * 调用反射执行类的实例化 支持依赖注入
+     * @access public
+     * @param string    $class 类名
+     * @param array     $vars  变量
+     * @return mixed
+     */
+    protected static function invokeClass($class, $vars = [])
+    {
+        $reflect = new \ReflectionClass($class);
+        return $reflect->newInstanceArgs($reflect->getConstructor() ? $vars : []);
     }
 
     protected static function getFacadeClass()
@@ -46,7 +57,8 @@ class Facade
      */
     public static function instance()
     {
-        return self::createFacade();
+        $args = func_get_args();
+        return self::createFacade($args);
     }
 
     // 调用驱动类的方法
