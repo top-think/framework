@@ -27,14 +27,15 @@ class Facade
         $name = static::class;
 
         if (!isset(self::$instance[$name])) {
-            $class                 = static::getFacadeClass() ?: '\\think\\manager\\' . basename(str_replace('\\', '/', $name) . 'Manager');
+            $class = static::getFacadeClass() ?: '\\think\\manager\\' . basename(str_replace('\\', '/', $name) . 'Manager');
+
             self::$instance[$name] = self::invokeClass($class, $args);
         }
         return self::$instance[$name];
     }
 
     /**
-     * 调用反射执行类的实例化 支持依赖注入
+     * 调用反射执行类的实例化
      * @access public
      * @param string    $class 类名
      * @param array     $vars  变量
@@ -55,13 +56,12 @@ class Facade
      * @access public
      * @return object
      */
-    public static function instance()
+    public static function instance(...$args)
     {
-        $args = func_get_args();
         return self::createFacade($args);
     }
 
-    // 调用驱动类的方法
+    // 调用类的方法
     public static function __callStatic($method, $params)
     {
         return call_user_func_array([self::createFacade(), $method], $params);
