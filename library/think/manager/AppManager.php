@@ -21,6 +21,7 @@ use think\Lang;
 use think\Loader;
 use think\Log;
 use think\Request;
+use think\RequestManager;
 use think\Response;
 use think\ResponseManager;
 use think\Route;
@@ -100,7 +101,7 @@ class AppManager
      * @return Response
      * @throws Exception
      */
-    public function run(Request $request = null)
+    public function run(RequestManager $request = null)
     {
         is_null($request) && $request = Request::instance();
 
@@ -137,7 +138,7 @@ class AppManager
             $dispatch = $this->dispatch;
             if (empty($dispatch)) {
                 // 进行URL路由检测
-                $dispatch = self::routeCheck($request, $config);
+                $dispatch = $this->routeCheck($request, $config);
             }
             // 记录当前调度信息
             $request->dispatch($dispatch);
@@ -165,12 +166,12 @@ class AppManager
                     break;
                 case 'controller':
                     // 执行控制器操作
-                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                    $vars = array_merge($request->param(), $dispatch['var']);
                     $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
                     break;
                 case 'method':
                     // 执行回调方法
-                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                    $vars = array_merge($request->param(), $dispatch['var']);
                     $data = $this->invokeMethod($dispatch['method'], $vars);
                     break;
                 case 'function':
@@ -230,7 +231,7 @@ class AppManager
     public function invokeFunction($function, $vars = [])
     {
         $reflect = new \ReflectionFunction($function);
-        $args    = self::bindParams($reflect, $vars);
+        $args    = $this->bindParams($reflect, $vars);
         // 记录执行信息
         $this->debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
         return $reflect->invokeArgs($args);
@@ -246,13 +247,13 @@ class AppManager
     public function invokeMethod($method, $vars = [])
     {
         if (is_array($method)) {
-            $class   = is_object($method[0]) ? $method[0] : self::invokeClass($method[0]);
+            $class   = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
             $reflect = new \ReflectionMethod($class, $method[1]);
         } else {
             // 静态方法
             $reflect = new \ReflectionMethod($method);
         }
-        $args = self::bindParams($reflect, $vars);
+        $args = $this->bindParams($reflect, $vars);
 
         $this->debug && Log::record('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]', 'info');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
@@ -270,7 +271,7 @@ class AppManager
         $reflect     = new \ReflectionClass($class);
         $constructor = $reflect->getConstructor();
         if ($constructor) {
-            $args = self::bindParams($constructor, $vars);
+            $args = $this->bindParams($constructor, $vars);
         } else {
             $args = [];
         }
@@ -289,9 +290,9 @@ class AppManager
         if (empty($vars)) {
             // 自动获取请求变量
             if (Config::get('url_param_type')) {
-                $vars = Request::instance()->route();
+                $vars = Request::route();
             } else {
-                $vars = Request::instance()->param();
+                $vars = Request::param();
             }
         }
         $args = [];
@@ -305,7 +306,7 @@ class AppManager
                 $class = $param->getClass();
                 if ($class) {
                     $className = $class->getName();
-                    $bind      = Request::instance()->$name;
+                    $bind      = Request::getBind($name);
                     if ($bind instanceof $className) {
                         $args[] = $bind;
                     } else {
@@ -368,7 +369,7 @@ class AppManager
             if ($module && $available) {
                 // 初始化模块
                 $request->module($module);
-                $config = self::init($module);
+                $config = $this->init($module);
                 // 模块请求缓存检查
                 $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
             } else {
@@ -420,7 +421,7 @@ class AppManager
 
         Hook::listen('action_begin', $call);
 
-        return self::invokeMethod($call, $vars);
+        return $this->invokeMethod($call, $vars);
     }
 
     /**
@@ -430,7 +431,7 @@ class AppManager
     {
         if (empty($this->init)) {
             // 初始化应用
-            $config       = self::init();
+            $config       = $this->init();
             $this->suffix = $config['class_suffix'];
 
             // 应用调试模式
@@ -529,7 +530,7 @@ class AppManager
 
             // 加载当前模块语言包
             if ($module) {
-                Lang::load($path . 'lang' . DS . Request::instance()->langset() . EXT);
+                Lang::load($path . 'lang' . DS . Request::langset() . EXT);
             }
         }
         return Config::get();

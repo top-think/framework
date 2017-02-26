@@ -1587,6 +1587,11 @@ class RequestManager
         }
     }
 
+    public function getBind($name)
+    {
+        return isset($this->bind[$name]) ? $this->bind[$name] : null;
+    }
+
     public function __set($name, $value)
     {
         $this->bind[$name] = $value;

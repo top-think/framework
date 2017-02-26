@@ -162,7 +162,7 @@ class Handle
         include Config::get('exception_tmpl');
         // 获取并清空缓存
         $content  = ob_get_clean();
-        $response = Response::init($content, 'html');
+        $response = Response::create($content, 'html');
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();

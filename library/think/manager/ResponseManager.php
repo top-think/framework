@@ -16,11 +16,7 @@ use think\Debug;
 use think\Env;
 use think\Hook;
 use think\Request;
-use think\response\Json as JsonResponse;
-use think\response\Jsonp as JsonpResponse;
 use think\response\Redirect as RedirectResponse;
-use think\response\View as ViewResponse;
-use think\response\Xml as XmlResponse;
 use think\Session;
 
 class ResponseManager
@@ -53,7 +49,7 @@ class ResponseManager
      * @param array $header
      * @param array $options 输出参数
      */
-    public function init($data = '', $code = 200, array $header = [], $options = [])
+    public function __construct($data = '', $code = 200, array $header = [], $options = [])
     {
         $this->data($data);
         $this->header = $header;
@@ -62,29 +58,6 @@ class ResponseManager
             $this->options = array_merge($this->options, $options);
         }
         $this->contentType($this->contentType, $this->charset);
-        return $this;
-    }
-
-    /**
-     * 创建Response对象
-     * @access public
-     * @param mixed  $data    输出数据
-     * @param string $type    输出类型
-     * @param int    $code
-     * @param array  $header
-     * @param array  $options 输出参数
-     * @return Response|JsonResponse|ViewResponse|XmlResponse|RedirectResponse|JsonpResponse
-     */
-    public function create($data = '', $type = '', $code = 200, array $header = [], $options = [])
-    {
-        $type = empty($type) ? 'null' : strtolower($type);
-
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst($type);
-        if (class_exists($class)) {
-            return new $class($data, $code, $header, $options);
-        } else {
-            return $this->init($data, $code, $header, $options);
-        }
     }
 
     /**

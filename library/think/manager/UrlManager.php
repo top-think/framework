@@ -160,14 +160,14 @@ class UrlManager
         // 检测域名
         $domain = $this->parseDomain($url, $domain);
         // URL组装
-        $url = $domain . rtrim($this->root ?: Request::instance()->root(), '/') . '/' . ltrim($url, '/');
+        $url = $domain . rtrim($this->root ?: Request::root(), '/') . '/' . ltrim($url, '/');
 
         $this->bindCheck = false;
         return $url;
     }
 
     // 直接解析URL地址
-    protected static function parseUrl($url, &$domain)
+    protected function parseUrl($url, &$domain)
     {
         $request = Request::instance();
         if (0 === strpos($url, '/')) {
@@ -230,16 +230,16 @@ class UrlManager
     }
 
     // 检测域名
-    protected static function parseDomain(&$url, $domain)
+    protected function parseDomain(&$url, $domain)
     {
         if (!$domain) {
             return '';
         }
-        $request    = Request::instance();
+        $host       = Request::host();
         $rootDomain = Config::get('url_domain_root');
         if (true === $domain) {
             // 自动判断域名
-            $domain = $request->host();
+            $domain = $host;
 
             $domains = Route::rules('domain');
             if ($domains) {
@@ -269,18 +269,17 @@ class UrlManager
 
         } else {
             if (empty($rootDomain)) {
-                $host       = $request->host();
                 $rootDomain = substr_count($host, '.') > 1 ? substr(strstr($host, '.'), 1) : $host;
             }
             if (!strpos($domain, $rootDomain)) {
                 $domain .= '.' . $rootDomain;
             }
         }
-        return ($request->isSsl() ? 'https://' : 'http://') . $domain;
+        return (Request::isSsl() ? 'https://' : 'http://') . $domain;
     }
 
     // 解析URL后缀
-    protected static function parseSuffix($suffix)
+    protected function parseSuffix($suffix)
     {
         if ($suffix) {
             $suffix = true === $suffix ? Config::get('url_html_suffix') : $suffix;
@@ -292,7 +291,7 @@ class UrlManager
     }
 
     // 匹配路由地址
-    public static function getRuleUrl($rule, &$vars = [])
+    public function getRuleUrl($rule, &$vars = [])
     {
         foreach ($rule as $item) {
             list($url, $pattern, $domain, $suffix) = $item;
@@ -319,9 +318,9 @@ class UrlManager
     }
 
     // 指定当前生成URL地址的root
-    public static function root($root)
+    public function root($root)
     {
         $this->root = $root;
-        Request::instance()->root($root);
+        Request::root($root);
     }
 }
