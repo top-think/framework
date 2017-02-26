@@ -11,8 +11,6 @@
 
 namespace think;
 
-use think\Facade;
-
 class Route extends Facade
 {
 
