@@ -70,9 +70,9 @@ class Facade
     public static function make($class)
     {
         if (false === strpos($class, '\\')) {
-            $class = '\\think\\' . $class;
+            $class = '\\think\\facade\\' . $class;
         }
-        return self::createFacade($class);
+        return self::createFacade(ltrim($class, '\\'));
     }
 
     // 调用类的方法
