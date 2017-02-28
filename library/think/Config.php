@@ -167,4 +167,37 @@ class Config
             $this->config[$range] = [];
         }
     }
+
+    /**
+     * 设置配置
+     * @access public
+     * @param string    $name  参数名
+     * @param mixed     $value 值
+     */
+    public function __set($name, $value)
+    {
+        return $this->set($name, $value);
+    }
+
+    /**
+     * 获取配置参数
+     * @access protected
+     * @param string $name 参数名
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+
+    /**
+     * 检测是否存在参数
+     * @access public
+     * @param string $name 参数名
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return $this->has($name);
+    }
 }
