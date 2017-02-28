@@ -12,7 +12,6 @@
 namespace think\debug;
 
 use think\Db;
-use think\Debug;
 use think\Facade;
 use think\Response;
 
@@ -36,7 +35,7 @@ class Html
     /**
      * 调试输出接口
      * @access public
-     * @param ResponseManager  $response ResponseManager对象
+     * @param Response  $response Response对象
      * @param array     $log 日志信息
      * @return bool
      */
@@ -73,7 +72,7 @@ class Html
             $base['会话信息'] = 'SESSION_ID=' . session_id();
         }
 
-        $info = Debug::getFile(true);
+        $info = Facade::make('Debug')->getFile(true);
 
         // 页面Trace信息
         $trace = [];

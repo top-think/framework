@@ -13,21 +13,21 @@
 // ThinkPHP 助手函数
 //-------------------------
 
-use think\Cache;
-use think\Config;
-use think\Cookie;
 use think\Db;
-use think\Debug;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\Facade;
-use think\Lang;
+use think\facade\Cache;
+use think\facade\Config;
+use think\facade\Cookie;
+use think\facade\Debug;
+use think\facade\Lang;
+use think\facade\Log;
+use think\facade\Request;
+use think\facade\Session;
+use think\facade\Url;
 use think\Loader;
-use think\Log;
-use think\Request;
 use think\Response;
-use think\Session;
-use think\Url;
 use think\View;
 
 if (!function_exists('facade')) {

@@ -18,9 +18,9 @@ use think\response\Redirect;
 class Debug
 {
     // 区间时间信息
-    protected static $info = [];
+    protected $info = [];
     // 区间内存信息
-    protected static $mem = [];
+    protected $mem = [];
 
     /**
      * 记录时间（微秒）和内存使用情况
@@ -28,13 +28,13 @@ class Debug
      * @param mixed     $value 标记值 留空则取当前 time 表示仅记录时间 否则同时记录时间和内存
      * @return mixed
      */
-    public static function remark($name, $value = '')
+    public function remark($name, $value = '')
     {
         // 记录时间和内存使用
-        self::$info[$name] = is_float($value) ? $value : microtime(true);
+        $this->info[$name] = is_float($value) ? $value : microtime(true);
         if ('time' != $value) {
-            self::$mem['mem'][$name]  = is_float($value) ? $value : memory_get_usage();
-            self::$mem['peak'][$name] = memory_get_peak_usage();
+            $this->mem['mem'][$name]  = is_float($value) ? $value : memory_get_usage();
+            $this->mem['peak'][$name] = memory_get_peak_usage();
         }
     }
 
@@ -45,12 +45,12 @@ class Debug
      * @param integer|string    $dec 小数位
      * @return integer
      */
-    public static function getRangeTime($start, $end, $dec = 6)
+    public function getRangeTime($start, $end, $dec = 6)
     {
-        if (!isset(self::$info[$end])) {
-            self::$info[$end] = microtime(true);
+        if (!isset($this->info[$end])) {
+            $this->info[$end] = microtime(true);
         }
-        return number_format((self::$info[$end] - self::$info[$start]), $dec);
+        return number_format(($this->info[$end] - $this->info[$start]), $dec);
     }
 
     /**
@@ -58,7 +58,7 @@ class Debug
      * @param integer|string $dec 小数位
      * @return integer
      */
-    public static function getUseTime($dec = 6)
+    public function getUseTime($dec = 6)
     {
         return number_format((microtime(true) - THINK_START_TIME), $dec);
     }
@@ -67,9 +67,9 @@ class Debug
      * 获取当前访问的吞吐率情况
      * @return string
      */
-    public static function getThroughputRate()
+    public function getThroughputRate()
     {
-        return number_format(1 / self::getUseTime(), 2) . 'req/s';
+        return number_format(1 / $this->getUseTime(), 2) . 'req/s';
     }
 
     /**
@@ -79,12 +79,12 @@ class Debug
      * @param integer|string    $dec 小数位
      * @return string
      */
-    public static function getRangeMem($start, $end, $dec = 2)
+    public function getRangeMem($start, $end, $dec = 2)
     {
-        if (!isset(self::$mem['mem'][$end])) {
-            self::$mem['mem'][$end] = memory_get_usage();
+        if (!isset($this->mem['mem'][$end])) {
+            $this->mem['mem'][$end] = memory_get_usage();
         }
-        $size = self::$mem['mem'][$end] - self::$mem['mem'][$start];
+        $size = $this->mem['mem'][$end] - $this->mem['mem'][$start];
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
         while ($size >= 1024) {
@@ -99,7 +99,7 @@ class Debug
      * @param integer|string $dec 小数位
      * @return string
      */
-    public static function getUseMem($dec = 2)
+    public function getUseMem($dec = 2)
     {
         $size = memory_get_usage() - THINK_START_MEM;
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -118,12 +118,12 @@ class Debug
      * @param integer|string    $dec 小数位
      * @return mixed
      */
-    public static function getMemPeak($start, $end, $dec = 2)
+    public function getMemPeak($start, $end, $dec = 2)
     {
-        if (!isset(self::$mem['peak'][$end])) {
-            self::$mem['peak'][$end] = memory_get_peak_usage();
+        if (!isset($this->mem['peak'][$end])) {
+            $this->mem['peak'][$end] = memory_get_peak_usage();
         }
-        $size = self::$mem['peak'][$end] - self::$mem['peak'][$start];
+        $size = $this->mem['peak'][$end] - $this->mem['peak'][$start];
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
         while ($size >= 1024) {
@@ -138,7 +138,7 @@ class Debug
      * @param bool  $detail 是否显示详细
      * @return integer|array
      */
-    public static function getFile($detail = false)
+    public function getFile($detail = false)
     {
         if ($detail) {
             $files = get_included_files();
@@ -159,7 +159,7 @@ class Debug
      * @param integer       $flags htmlspecialchars flags
      * @return void|string
      */
-    public static function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
+    public function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
         if ($var instanceof Model || $var instanceof Collection) {
@@ -185,7 +185,7 @@ class Debug
         }
     }
 
-    public static function inject(Response $response, &$content)
+    public function inject(Response $response, &$content)
     {
         $config = Facade::make('App')->config('trace');
         $type   = isset($config['type']) ? $config['type'] : 'Html';

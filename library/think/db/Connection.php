@@ -853,12 +853,13 @@ abstract class Connection
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
+			$debug = Facade::make('Debug');
             if ($start) {
-                Debug::remark('queryStartTime', 'time');
+                $debug->remark('queryStartTime', 'time');
             } else {
                 // 记录操作结束时间
-                Debug::remark('queryEndTime', 'time');
-                $runtime = Debug::getRangeTime('queryStartTime', 'queryEndTime');
+                $debug->remark('queryEndTime', 'time');
+                $runtime = $debug->getRangeTime('queryStartTime', 'queryEndTime');
                 $sql     = $sql ?: $this->getLastsql();
                 $log     = $sql . ' [ RunTime:' . $runtime . 's ]';
                 $result  = [];

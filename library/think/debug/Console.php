@@ -12,7 +12,6 @@
 namespace think\debug;
 
 use think\Db;
-use think\Debug;
 use think\Facade;
 use think\Response;
 
@@ -73,7 +72,7 @@ class Console
             $base['会话信息'] = 'SESSION_ID=' . session_id();
         }
 
-        $info = Debug::getFile(true);
+        $info = Facade::make('Debug')->getFile(true);
 
         // 页面Trace信息
         $trace = [];
