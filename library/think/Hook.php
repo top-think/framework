@@ -127,7 +127,7 @@ class Hook
             $result = $obj->$method($params, $extra);
         }
         if (Facade::make('App')->isDebug()) {
-			$debug = Facade::make('Debug');
+            $debug = Facade::make('Debug');
             $debug->remark('behavior_end', 'time');
             Facade::make('App')->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
