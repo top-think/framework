@@ -11,7 +11,6 @@
 
 namespace think;
 
-use SplFileInfo;
 use SplFileObject;
 
 class File extends SplFileObject
