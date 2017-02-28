@@ -1238,14 +1238,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function trigger($event)
     {
         if (isset(self::$event[$this->class][$event])) {
-            $app = Facade::make('App');
             foreach (self::$event[$this->class][$event] as $callback) {
-                if ($callback instanceof \Closure) {
-                    $result = $app->invokeFunction($callback, [$this]);
-                } else {
-                    $result = $app->invokeMethod($callback, [$this]);
-                }
-
+                $result = Facade::make('App')->invoke($callback, [$this]);
                 if (false === $result) {
                     return false;
                 }

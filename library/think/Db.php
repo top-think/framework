@@ -19,24 +19,14 @@ use think\db\Query;
  * @package think
  * @mixin Query
  */
-class Db extends Facade
+class Db
 {
+    //  数据库连接实例
+    private static $instance = [];
     // 查询次数
     public static $queryTimes = 0;
     // 执行次数
     public static $executeTimes = 0;
-
-    /**
-     * 创建对象实例
-     * @static
-     * @access protected
-     * @param mixed         $config 连接配置
-     * @return object
-     */
-    protected static function createFacade($name = '', $args = [])
-    {
-        return self::connect();
-    }
 
     /**
      * 数据库初始化 并取得数据库类实例
@@ -125,4 +115,10 @@ class Db extends Facade
         return $dsn;
     }
 
+    // 调用驱动类的方法
+    public static function __callStatic($method, $params)
+    {
+        // 自动初始化数据库
+        return call_user_func_array([self::connect(), $method], $params);
+    }
 }

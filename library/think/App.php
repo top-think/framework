@@ -256,6 +256,23 @@ class App
     }
 
     /**
+     * 调用反射执行callable 支持参数绑定
+     * @access public
+     * @param mixed $callable
+     * @param array $vars   变量
+     * @return mixed
+     */
+    public function invoke($callable, $vars = [])
+    {
+        if ($callable instanceof \Closure) {
+            $result = $this->invokeFunction($callable, $vars);
+        } else {
+            $result = $this->invokeMethod($callable, $vars);
+        }
+        return $result;
+    }
+
+    /**
      * 调用反射执行类的实例化 支持依赖注入
      * @access public
      * @param string    $class 类名

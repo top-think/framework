@@ -2785,13 +2785,7 @@ class Query
     {
         $result = false;
         if (isset(self::$event[$event])) {
-            $callback = self::$event[$event];
-            $app      = Facade::make('App');
-            if ($callback instanceof \Closure) {
-                $result = $app->invokeFunction($callback, [$params, $this]);
-            } else {
-                $result = $app->invokeMethod($callback, [$params, $this]);
-            }
+            $result = Facade::make('App')->invoke(self::$event[$event], [$params, $this]);
         }
         return $result;
     }
