@@ -58,7 +58,8 @@ class App
     protected $routeMust;
 
     protected $dispatch;
-    protected $file = [];
+    protected $file   = [];
+    protected $config = [];
 
     public function version()
     {
@@ -88,6 +89,11 @@ class App
     public function getSuffix()
     {
         return $this->suffix;
+    }
+
+    public function __construct(Config $config)
+    {
+        $this->config = $config;
     }
 
     /**

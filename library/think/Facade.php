@@ -43,8 +43,62 @@ class Facade
      */
     protected static function invokeClass($class, $vars = [])
     {
-        $reflect = new \ReflectionClass($class);
-        return $reflect->newInstanceArgs($reflect->getConstructor() ? $vars : []);
+        $reflect     = new \ReflectionClass($class);
+        $constructor = $reflect->getConstructor();
+        if ($constructor) {
+            $args = self::bindParams($constructor, $vars);
+        } else {
+            $args = [];
+        }
+        return $reflect->newInstanceArgs($args);
+    }
+
+    /**
+     * 绑定参数
+     * @access public
+     * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
+     * @param array                                 $vars    变量
+     * @return array
+     */
+    private static function bindParams($reflect, $vars = [])
+    {
+        $args = [];
+        // 判断数组类型 数字数组时按顺序绑定参数
+        reset($vars);
+        $type = key($vars) === 0 ? 1 : 0;
+        if ($reflect->getNumberOfParameters() > 0) {
+            $params = $reflect->getParameters();
+            foreach ($params as $param) {
+                $name  = $param->getName();
+                $class = $param->getClass();
+                if ($class) {
+                    $className = $class->getName();
+                    if (0 === strpos($className, 'think\\')) {
+                        $array = explode('\\', $className);
+                        array_shift($array);
+                        array_unshift($array, 'facade');
+                        array_unshift($array, 'think');
+                        $name = implode('\\', $array);
+                    }
+                    if (isset(self::$instance[$className])) {
+                        $args[] = self::$instance[$className];
+                    } elseif (isset(self::$instance[$name])) {
+                        $args[] = self::$instance[$name];
+                    } else {
+                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className;
+                    }
+                } elseif (1 == $type && !empty($vars)) {
+                    $args[] = array_shift($vars);
+                } elseif (0 == $type && isset($vars[$name])) {
+                    $args[] = $vars[$name];
+                } elseif ($param->isDefaultValueAvailable()) {
+                    $args[] = $param->getDefaultValue();
+                } else {
+                    throw new \InvalidArgumentException('method param miss:' . $name);
+                }
+            }
+        }
+        return $args;
     }
 
     protected static function getFacadeClass()

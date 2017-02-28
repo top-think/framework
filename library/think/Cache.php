@@ -24,6 +24,11 @@ class Cache
      */
     protected $handler;
 
+    public function __construct(Config $config)
+    {
+        $this->config = $config;
+    }
+
     /**
      * 连接缓存
      * @access public
