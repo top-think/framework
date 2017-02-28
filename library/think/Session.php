@@ -15,7 +15,6 @@ use think\exception\ClassNotFoundException;
 use think\facade\App as AppFacade;
 use think\facade\Config as ConfigFacade;
 
-
 class Session
 {
     protected $prefix = '';
