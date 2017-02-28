@@ -11,7 +11,7 @@
 
 namespace think\response;
 
-use think\Config;
+use think\Facade;
 use think\Response;
 use think\View as ViewTemplate;
 
@@ -32,7 +32,7 @@ class View extends Response
     protected function output($data)
     {
         // 渲染模板输出
-        return ViewTemplate::instance(Config::get('template'), Config::get('view_replace_str'))
+        return ViewTemplate::instance(Facade::make('Config')->get('template'), Facade::make('Config')->get('view_replace_str'))
             ->fetch($data, $this->vars, $this->replace);
     }
 

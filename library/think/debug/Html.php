@@ -11,12 +11,10 @@
 
 namespace think\debug;
 
-use think\facade\Cache;
-use think\facade\Config;
 use think\Db;
 use think\Debug;
+use think\Facade;
 use think\Response;
-use think\facade\Request;
 
 /**
  * 页面Trace调试
@@ -44,7 +42,7 @@ class Html
      */
     public function output(Response $response, array $log = [])
     {
-        $request     = Request::instance();
+        $request     = Facade::make('Request');
         $contentType = $response->getHeader('Content-Type');
         $accept      = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
@@ -67,8 +65,8 @@ class Html
             '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
             '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
             '查询信息' => Db::$queryTimes . ' queries ' . Db::$executeTimes . ' writes ',
-            '缓存信息' => Cache::getReadTimes() . ' reads,' . Cache::getWriteTimes() . ' writes',
-            '配置加载' => count(Config::get()),
+            '缓存信息' => Facade::make('Cache')->getReadTimes() . ' reads,' . Facade::make('Cache')->getWriteTimes() . ' writes',
+            '配置加载' => count(Facade::make('Config')->get()),
         ];
 
         if (session_id()) {

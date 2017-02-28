@@ -12,7 +12,6 @@
 namespace think;
 
 use think\exception\ClassNotFoundException;
-use think\facade\Config as ConfigFacade;
 use think\model\Collection;
 use think\response\Redirect;
 
@@ -188,7 +187,7 @@ class Debug
 
     public static function inject(Response $response, &$content)
     {
-        $config = ConfigFacade::get('trace');
+        $config = Facade::make('Config')->get('trace');
         $type   = isset($config['type']) ? $config['type'] : 'Html';
         $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);

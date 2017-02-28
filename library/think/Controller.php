@@ -40,16 +40,16 @@ class Controller
     protected $beforeActionList = [];
 
     /**
-     * 架构函数
+     * 构造方法
      * @param Request $request Request对象
      * @access public
      */
     public function __construct(Request $request = null)
     {
         if (is_null($request)) {
-            $request = Request::instance();
+            $request = Facade::make('Request');
         }
-        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
+        $this->view    = View::instance(Facade::make('Config')->get('template'), Facade::make('Config')->get('view_replace_str'));
         $this->request = $request;
 
         // 控制器初始化

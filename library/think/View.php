@@ -35,7 +35,7 @@ class View
         // 初始化模板引擎
         $this->engine((array) $engine);
         // 基础替换字符串
-        $request = Request::instance();
+        $request = Facade::make('Request');
         $base    = $request->root();
         $root    = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
         if ('' != $root) {
@@ -161,7 +161,7 @@ class View
         // 获取并清空缓存
         $content = ob_get_clean();
         // 内容过滤标签
-        Hook::listen('view_filter', $content);
+        Facade::make('Hook')->listen('view_filter', $content);
         // 允许用户自定义模板的字符串替换
         $replace = array_merge($this->replace, $replace);
         if (!empty($replace)) {

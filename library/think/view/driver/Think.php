@@ -11,11 +11,10 @@
 
 namespace think\view\driver;
 
-use think\App;
 use think\exception\TemplateNotFoundException;
+use think\Facade;
 use think\Loader;
 use think\Log;
-use think\Request;
 use think\Template;
 
 class Think
@@ -40,7 +39,7 @@ class Think
     {
         $this->config = array_merge($this->config, $config);
         if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = App::getModulePath() . 'view' . DS;
+            $this->config['view_path'] = Facade::make('App')->getModulePath() . 'view' . DS;
         }
 
         $this->template = new Template($this->config);
@@ -80,7 +79,7 @@ class Think
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        App::isDebug() && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
+        Facade::make('App')->isDebug() && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
         $this->template->fetch($template, $data, $config);
     }
 
@@ -106,7 +105,7 @@ class Think
     private function parseTemplate($template)
     {
         // 分析模板文件规则
-        $request = Request::instance();
+        $request = Facade::make('Request');
         // 获取视图根目录
         if (strpos($template, '@')) {
             // 跨模块调用

@@ -11,8 +11,6 @@
 
 namespace think;
 
-use think\facade\Config as ConfigFacade;
-
 class Request
 {
     /**
@@ -134,7 +132,7 @@ class Request
             }
         }
         if (is_null($this->filter)) {
-            $this->filter = ConfigFacade::get('default_filter');
+            $this->filter = Facade::make('Config')->get('default_filter');
         }
         // 保存 php://input
         $this->input = file_get_contents('php://input');
@@ -372,10 +370,11 @@ class Request
     public function pathinfo()
     {
         if (is_null($this->pathinfo)) {
-            if (isset($_GET[ConfigFacade::get('var_pathinfo')])) {
+            $config = Facade::make('Config');
+            if (isset($_GET[$config->get('var_pathinfo')])) {
                 // 判断URL里面是否有兼容模式参数
-                $_SERVER['PATH_INFO'] = $_GET[ConfigFacade::get('var_pathinfo')];
-                unset($_GET[ConfigFacade::get('var_pathinfo')]);
+                $_SERVER['PATH_INFO'] = $_GET[$config->get('var_pathinfo')];
+                unset($_GET[$config->get('var_pathinfo')]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
                 $_SERVER['PATH_INFO'] = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
@@ -383,7 +382,7 @@ class Request
 
             // 分析PATHINFO信息
             if (!isset($_SERVER['PATH_INFO'])) {
-                foreach (ConfigFacade::get('pathinfo_fetch') as $type) {
+                foreach ($config->get('pathinfo_fetch') as $type) {
                     if (!empty($_SERVER[$type])) {
                         $_SERVER['PATH_INFO'] = (0 === strpos($_SERVER[$type], $_SERVER['SCRIPT_NAME'])) ?
                         substr($_SERVER[$type], strlen($_SERVER['SCRIPT_NAME'])) : $_SERVER[$type];
@@ -404,7 +403,7 @@ class Request
     public function path()
     {
         if (is_null($this->path)) {
-            $suffix   = ConfigFacade::get('url_html_suffix');
+            $suffix   = Facade::make('Config')->get('url_html_suffix');
             $pathinfo = $this->pathinfo();
             if (false === $suffix) {
                 // 禁止伪静态访问
@@ -492,8 +491,8 @@ class Request
             // 获取原始请求类型
             return $this->isCli() ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
         } elseif (!$this->method) {
-            if (isset($_POST[ConfigFacade::get('var_method')])) {
-                $this->method = strtoupper($_POST[ConfigFacade::get('var_method')]);
+            if (isset($_POST[Facade::make('Config')->get('var_method')])) {
+                $this->method = strtoupper($_POST[Facade::make('Config')->get('var_method')]);
                 $this->{$this->method}($_POST);
             } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
                 $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
@@ -1204,7 +1203,7 @@ class Request
         if (true === $ajax) {
             return $result;
         } else {
-            return $this->param(ConfigFacade::get('var_ajax')) ? true : $result;
+            return $this->param(Facade::make('Config')->get('var_ajax')) ? true : $result;
         }
     }
 
@@ -1220,7 +1219,7 @@ class Request
         if (true === $pjax) {
             return $result;
         } else {
-            return $this->param(ConfigFacade::get('var_pjax')) ? true : $result;
+            return $this->param(Facade::make('Config')->get('var_pjax')) ? true : $result;
         }
     }
 

@@ -13,11 +13,9 @@ namespace think\exception;
 
 use Exception;
 use think\console\Output;
-use think\facade\App;
-use think\facade\Config;
-use think\facade\Lang;
-use think\facade\Response;
+use think\Facade;
 use think\Log;
+use think\Response;
 
 class Handle
 {
@@ -36,7 +34,7 @@ class Handle
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
-            if (App::isDebug()) {
+            if (Facade::make('App')->isDebug()) {
                 $data = [
                     'file'    => $exception->getFile(),
                     'line'    => $exception->getLine(),
@@ -87,7 +85,7 @@ class Handle
      */
     public function renderForConsole(Output $output, Exception $e)
     {
-        if (App::isDebug()) {
+        if (Facade::make('App')->isDebug()) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
         }
         $output->renderException($e);
@@ -100,8 +98,8 @@ class Handle
     protected function renderHttpException(HttpException $e)
     {
         $status   = $e->getStatusCode();
-        $template = Config::get('http_exception_template');
-        if (!App::isDebug() && !empty($template[$status])) {
+        $template = Facade::make('Config')->get('http_exception_template');
+        if (!Facade::make('App')->isDebug() && !empty($template[$status])) {
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
         } else {
             return $this->convertExceptionToResponse($e);
@@ -115,7 +113,7 @@ class Handle
     protected function convertExceptionToResponse(Exception $exception)
     {
         // 收集异常数据
-        if (App::isDebug()) {
+        if (Facade::make('App')->isDebug()) {
             // 调试模式，获取详细的错误信息
             $data = [
                 'name'    => get_class($exception),
@@ -144,9 +142,9 @@ class Handle
                 'message' => $this->getMessage($exception),
             ];
 
-            if (!Config::get('show_error_msg')) {
+            if (!Facade::make('Config')->get('show_error_msg')) {
                 // 不显示详细错误信息
-                $data['message'] = Config::get('error_message');
+                $data['message'] = Facade::make('Config')->get('error_message');
             }
         }
 
@@ -159,7 +157,7 @@ class Handle
 
         ob_start();
         extract($data);
-        include Config::get('exception_tmpl');
+        include Facade::make('Config')->get('exception_tmpl');
         // 获取并清空缓存
         $content  = ob_get_clean();
         $response = Response::create($content, 'html');
@@ -203,15 +201,15 @@ class Handle
         if (PHP_SAPI == 'cli') {
             return $message;
         }
-
+        $lang = Facade::make('Lang');
         if (strpos($message, ':')) {
             $name    = strstr($message, ':', true);
-            $message = Lang::has($name) ? Lang::get($name) . strstr($message, ':') : $message;
+            $message = $lang->has($name) ? $lang->get($name) . strstr($message, ':') : $message;
         } elseif (strpos($message, ',')) {
             $name    = strstr($message, ',', true);
-            $message = Lang::has($name) ? Lang::get($name) . ':' . substr(strstr($message, ','), 1) : $message;
-        } elseif (Lang::has($message)) {
-            $message = Lang::get($message);
+            $message = $lang->has($name) ? $lang->get($name) . ':' . substr(strstr($message, ','), 1) : $message;
+        } elseif ($lang->has($message)) {
+            $message = $lang->get($message);
         }
         return $message;
     }
