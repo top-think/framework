@@ -16,6 +16,7 @@ use think\cache\Driver;
 class Cache
 {
     protected $instance = [];
+    protected $config;
 
     /**
      * 操作句柄
@@ -68,13 +69,12 @@ class Cache
     {
         if (is_null($this->handler)) {
             // 自动初始化缓存
-            $app = Facade::make('App');
             if (!empty($options)) {
                 $this->connect($options);
-            } elseif ('complex' == $app->config('cache.type')) {
-                $this->connect($app->config('cache.default'));
+            } elseif ('complex' == $this->config->get('cache.type')) {
+                $this->connect($this->config->get('cache.default'));
             } else {
-                $this->connect($app->config('cache'));
+                $this->connect($this->config->get('cache'));
             }
         }
         return $this->handler;
@@ -88,9 +88,8 @@ class Cache
      */
     public function store($name = '')
     {
-        $app = Facade::make('App');
-        if ('' !== $name && 'complex' == $app->config('cache.type')) {
-            $this->connect($app->config('cache.' . $name), strtolower($name));
+        if ('' !== $name && 'complex' == $this->config->get('cache.type')) {
+            $this->connect($this->config->get('cache.' . $name), strtolower($name));
         }
         return $this->handler;
     }

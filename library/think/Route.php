@@ -65,6 +65,11 @@ class Route
     private $domain;
     // 当前路由执行过程中的参数
     private $option = [];
+    protected $config;
+    public function __construct(Config $config)
+    {
+        $this->config = $config;
+    }
 
     /**
      * 注册变量规则
@@ -292,7 +297,7 @@ class Route
             $name = $route;
         }
         if (!isset($option['complete_match'])) {
-            if (Facade::make('App')->config('route_complete_match')) {
+            if ($this->config->get('route_complete_match')) {
                 $option['complete_match'] = true;
             } elseif ('$' == substr($rule, -1, 1)) {
                 // 是否完整匹配
@@ -746,7 +751,7 @@ class Route
                 // 完整域名或者IP配置
                 $item = $rules[$host];
             } else {
-                $rootDomain = Facade::make('App')->config('url_domain_root');
+                $rootDomain = $this->config->get('url_domain_root');
                 if ($rootDomain) {
                     // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
                     $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
@@ -1062,7 +1067,7 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Facade::make('App')->config('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->config->get('default_action');
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
@@ -1081,8 +1086,8 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : Facade::make('App')->config('default_controller');
-        $method = !empty($array[1]) ? $array[1] : Facade::make('App')->config('default_action');
+        $class  = !empty($array[0]) ? $array[0] : $this->config->get('default_controller');
+        $method = !empty($array[1]) ? $array[1] : $this->config->get('default_action');
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2]);
         }
@@ -1101,7 +1106,7 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Facade::make('App')->config('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->config->get('default_action');
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
@@ -1120,7 +1125,7 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Facade::make('App')->config('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->config->get('default_action');
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
@@ -1538,9 +1543,9 @@ class Route
         list($path, $var) = $this->parseUrlPath($url);
         $action           = array_pop($path);
         $controller       = !empty($path) ? array_pop($path) : null;
-        $module           = Facade::make('App')->config('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $module           = $this->config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
         $method           = Facade::make('Request')->method();
-        if (Facade::make('App')->config('use_action_prefix') && !empty($this->methodPrefix[$method])) {
+        if ($this->config->get('use_action_prefix') && !empty($this->methodPrefix[$method])) {
             // 操作方法前缀支持
             $action = 0 !== strpos($action, $this->methodPrefix[$method]) ? $this->methodPrefix[$method] . $action : $action;
         }
@@ -1560,7 +1565,7 @@ class Route
     private function parseUrlParams($url, &$var = [])
     {
         if ($url) {
-            if (Facade::make('App')->config('url_param_type')) {
+            if ($this->config->get('url_param_type')) {
                 $var += explode('|', $url);
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {

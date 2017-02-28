@@ -419,7 +419,7 @@ class Loader
         if (class_exists($class)) {
             return Facade::make('App')->invokeClass($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
-            return new $emptyClass(Facade::make('Request'));
+            return Facade::make('App')->invokeClass($emptyClass);
         }
     }
 

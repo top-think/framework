@@ -58,8 +58,8 @@ class App
     protected $routeMust;
 
     protected $dispatch;
-    protected $file   = [];
-    protected $config = [];
+    protected $file = [];
+    protected $config;
 
     public function version()
     {
@@ -315,7 +315,7 @@ class App
      */
     public function config($name = '')
     {
-        return Facade::make('Config')->get($name);
+        return $this->config->get($name);
     }
 
     /**
