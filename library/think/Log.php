@@ -62,7 +62,7 @@ class Log
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
         // 记录初始化信息
-        App::isDebug() && Log::record('[ LOG ] INIT ' . $type, 'info');
+        Facade::make('App')->isDebug() && Log::record('[ LOG ] INIT ' . $type, 'info');
     }
 
     /**
@@ -130,7 +130,7 @@ class Log
     {
         if (!empty(self::$log)) {
             if (is_null(self::$driver)) {
-                self::init(Config::get('log'));
+                self::init(Facade::make('Config')->get('log'));
             }
 
             if (!self::check(self::$config)) {
@@ -141,7 +141,7 @@ class Log
             if (empty(self::$config['level'])) {
                 // 获取全部日志
                 $log = self::$log;
-                if (!App::isDebug() && isset($log['debug'])) {
+                if (!Facade::make('App')->isDebug() && isset($log['debug'])) {
                     unset($log['debug']);
                 }
             } else {
@@ -183,9 +183,9 @@ class Log
         }
 
         // 监听log_write
-        Hook::listen('log_write', $log);
+        Facade::make('Hook')->listen('log_write', $log);
         if (is_null(self::$driver)) {
-            self::init(Config::get('log'));
+            self::init(Facade::make('Config')->get('log'));
         }
         // 写入日志
         return self::$driver->save($log, false);

@@ -33,7 +33,7 @@ class Db extends Facade
      * @param mixed         $config 连接配置
      * @return object
      */
-    protected static function createFacade($args = [])
+    protected static function createFacade($name = '', $args = [])
     {
         return self::connect();
     }
@@ -60,7 +60,7 @@ class Db extends Facade
             }
             $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
-            if (App::isDebug()) {
+            if (Facade::make('App')->isDebug()) {
                 Log::record('[ DB ] INIT ' . $options['type'], 'info');
             }
             if (true === $name) {
@@ -82,10 +82,10 @@ class Db extends Facade
     private static function parseConfig($config)
     {
         if (empty($config)) {
-            $config = Config::get('database');
+            $config = Facade::make('Config')->get('database');
         } elseif (is_string($config) && false === strpos($config, '/')) {
             // 支持读取配置参数
-            $config = Config::get($config);
+            $config = Facade::make('Config')->get($config);
         }
         if (is_string($config)) {
             return self::parseDsn($config);

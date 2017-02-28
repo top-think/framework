@@ -320,7 +320,7 @@ class Loader
                 $baseUrl = self::$prefixDirsPsr4[$name . '\\'];
             } elseif ('@' == $name) {
                 //加载当前模块应用类库
-                $baseUrl = App::getModulePath();
+                $baseUrl = Facade::make('App')->getModulePath();
             } elseif (is_dir(EXTEND_PATH . $name)) {
                 $baseUrl = EXTEND_PATH . $name . DS;
             } else {
@@ -371,12 +371,12 @@ class Loader
         }
         if (false !== strpos($name, '\\')) {
             $class  = $name;
-            $module = Request::instance()->module();
+            $module = Facade::make('Request')->module();
         } else {
             if (strpos($name, '/')) {
                 list($module, $name) = explode('/', $name, 2);
             } else {
-                $module = Request::instance()->module();
+                $module = Facade::make('Request')->module();
             }
             $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
@@ -407,19 +407,19 @@ class Loader
     {
         if (false !== strpos($name, '\\')) {
             $class  = $name;
-            $module = Request::instance()->module();
+            $module = Facade::make('Request')->module();
         } else {
             if (strpos($name, '/')) {
                 list($module, $name) = explode('/', $name);
             } else {
-                $module = Request::instance()->module();
+                $module = Facade::make('Request')->module();
             }
             $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
         if (class_exists($class)) {
-            return App::invokeClass($class);
+            return Facade::make('App')->invokeClass($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
-            return new $emptyClass(Request::instance());
+            return new $emptyClass(Facade::make('Request'));
         }
     }
 
@@ -434,7 +434,7 @@ class Loader
      */
     public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
-        $name = $name ?: Config::get('default_validate');
+        $name = $name ?: Facade::make('Config')->get('default_validate');
         if (empty($name)) {
             return new Validate;
         }
@@ -444,12 +444,12 @@ class Loader
         }
         if (false !== strpos($name, '\\')) {
             $class  = $name;
-            $module = Request::instance()->module();
+            $module = Facade::make('Request')->module();
         } else {
             if (strpos($name, '/')) {
                 list($module, $name) = explode('/', $name);
             } else {
-                $module = Request::instance()->module();
+                $module = Facade::make('Request')->module();
             }
             $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
@@ -490,7 +490,7 @@ class Loader
     {
         $info   = pathinfo($url);
         $action = $info['basename'];
-        $module = '.' != $info['dirname'] ? $info['dirname'] : Request::instance()->controller();
+        $module = '.' != $info['dirname'] ? $info['dirname'] : Facade::make('Request')->controller();
         $class  = self::controller($module, $layer, $appendSuffix);
         if ($class) {
             if (is_scalar($vars)) {
@@ -500,7 +500,7 @@ class Loader
                     $vars = [$vars];
                 }
             }
-            return App::invokeMethod([$class, $action . Config::get('action_suffix')], $vars);
+            return Facade::make('App')->invokeMethod([$class, $action . Facade::make('Config')->get('action_suffix')], $vars);
         }
     }
 
@@ -536,9 +536,9 @@ class Loader
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1) . (App::getSuffix() || $appendSuffix ? ucfirst($layer) : '');
+        $class = self::parseName(array_pop($array), 1) . (Facade::make('App')->getSuffix() || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-        return App::getNamespace() . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+        return Facade::make('App')->getNamespace() . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
     /**

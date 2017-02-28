@@ -20,6 +20,7 @@ use think\Db;
 use think\Debug;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
+use think\Facade;
 use think\Lang;
 use think\Loader;
 use think\Log;
@@ -28,6 +29,18 @@ use think\Response;
 use think\Session;
 use think\Url;
 use think\View;
+
+if (!function_exists('facade')) {
+    /**
+     * 通过Facade快速创建一个对象
+     * @param string    $class 类名
+     * @return object
+     */
+    function facade($name)
+    {
+        return Facade::make($name);
+    }
+}
 
 if (!function_exists('load_trait')) {
     /**

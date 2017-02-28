@@ -22,12 +22,12 @@ class Facade
      * @access protected
      * @return object
      */
-    protected static function createFacade($args = [])
+    protected static function createFacade($name = '', $args = [])
     {
-        $name = static::class;
+        $name = $name ?: static::class;
 
         if (!isset(self::$instance[$name])) {
-            $class = static::getFacadeClass() ?: '\\think\\manager\\' . basename(str_replace('\\', '/', $name) . 'Manager');
+            $class = static::getFacadeClass() ?: '\\think\\' . basename(str_replace('\\', '/', $name));
 
             self::$instance[$name] = self::invokeClass($class, $args);
         }
@@ -52,13 +52,27 @@ class Facade
     }
 
     /**
-     * 初始化
+     * 带参数实例化当前Facade类
      * @access public
      * @return object
      */
     public static function instance(...$args)
     {
-        return self::createFacade($args);
+        return self::createFacade('', $args);
+    }
+
+    /**
+     * 指定某个类进行实例化
+     * @access public
+     * @param string    $class 类名
+     * @return object
+     */
+    public static function make($class)
+    {
+        if (false === strpos($class, '\\')) {
+            $class = '\\think\\' . $class;
+        }
+        return self::createFacade($class);
     }
 
     // 调用类的方法

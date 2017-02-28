@@ -11,12 +11,12 @@
 
 namespace think\debug;
 
-use think\Cache;
-use think\Config;
+use think\facade\Cache;
+use think\facade\Config;
 use think\Db;
 use think\Debug;
-use think\manager\ResponseManager;
-use think\Request;
+use think\Response;
+use think\facade\Request;
 
 /**
  * 页面Trace调试
@@ -42,7 +42,7 @@ class Html
      * @param array     $log 日志信息
      * @return bool
      */
-    public function output(ResponseManager $response, array $log = [])
+    public function output(Response $response, array $log = [])
     {
         $request     = Request::instance();
         $contentType = $response->getHeader('Content-Type');

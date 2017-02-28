@@ -286,7 +286,7 @@
     <div class="echo">
         <?php echo $echo;?>
     </div>
-    <?php if(\think\App::isDebug()) { ?>
+    <?php if(\think\facade\App::isDebug()) { ?>
     <div class="exception">
     <div class="message">
         
@@ -414,7 +414,7 @@
         <span>V<?php echo THINK_VERSION; ?></span> 
         <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
     </div>
-    <?php if(\think\App::isDebug()) { ?>
+    <?php if(\think\facade\App::isDebug()) { ?>
     <script>
         var LINE = <?php echo $line; ?>;
 

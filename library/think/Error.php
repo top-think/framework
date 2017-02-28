@@ -41,7 +41,7 @@ class Error
         }
 
         self::getExceptionHandler()->report($e);
-        if (IS_CLI) {
+        if (PHP_SAPI == 'cli') {
             self::getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
         } else {
             self::getExceptionHandler()->render($e)->send();
@@ -105,7 +105,7 @@ class Error
         static $handle;
         if (!$handle) {
             // 异常处理handle
-            $class = Config::get('exception_handle');
+            $class = Facade::make('Config')->get('exception_handle');
             if ($class && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
                 $handle = new $class;
             } else {

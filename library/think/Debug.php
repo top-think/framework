@@ -12,7 +12,8 @@
 namespace think;
 
 use think\exception\ClassNotFoundException;
-use think\manager\ResponseManager;
+use think\facade\Config as ConfigFacade;
+use think\model\Collection;
 use think\response\Redirect;
 
 class Debug
@@ -162,14 +163,14 @@ class Debug
     public static function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
-        if ($var instanceof \think\Model || $var instanceof \think\model\Collection) {
+        if ($var instanceof Model || $var instanceof Collection) {
             $var = $var->toArray();
         }
         ob_start();
         var_dump($var);
         $output = ob_get_clean();
         $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);
-        if (IS_CLI) {
+        if (PHP_SAPI == 'cli') {
             $output = PHP_EOL . $label . $output . PHP_EOL;
         } else {
             if (!extension_loaded('xdebug')) {
@@ -185,12 +186,11 @@ class Debug
         }
     }
 
-    public static function inject(ResponseManager $response, &$content)
+    public static function inject(Response $response, &$content)
     {
-        $config  = Config::get('trace');
-        $type    = isset($config['type']) ? $config['type'] : 'Html';
-        $request = Request::instance();
-        $class   = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
+        $config = ConfigFacade::get('trace');
+        $type   = isset($config['type']) ? $config['type'] : 'Html';
+        $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);
         if (class_exists($class)) {
             $trace = new $class($config);

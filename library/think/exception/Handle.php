@@ -12,12 +12,12 @@
 namespace think\exception;
 
 use Exception;
-use think\App;
-use think\Config;
 use think\console\Output;
-use think\Lang;
+use think\facade\App;
+use think\facade\Config;
+use think\facade\Lang;
+use think\facade\Response;
 use think\Log;
-use think\Response;
 
 class Handle
 {
@@ -200,7 +200,7 @@ class Handle
     protected function getMessage(Exception $exception)
     {
         $message = $exception->getMessage();
-        if (IS_CLI) {
+        if (PHP_SAPI == 'cli') {
             return $message;
         }
 

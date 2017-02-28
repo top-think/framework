@@ -12,6 +12,7 @@
 namespace think;
 
 use InvalidArgumentException;
+use think\facade\Config as ConfigFacade;
 use think\db\Query;
 use think\Exception\ValidateException;
 use think\model\Collection as ModelCollection;
@@ -128,7 +129,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 当前模型名
             $name       = str_replace('\\', '/', $this->class);
             $this->name = basename($name);
-            if (Config::get('class_suffix')) {
+            if (ConfigFacade::get('class_suffix')) {
                 $suffix     = basename(dirname($name));
                 $this->name = substr($this->name, 0, -strlen($suffix));
             }
@@ -164,7 +165,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 合并数据库配置
             if (!empty($this->connection)) {
                 if (is_array($this->connection)) {
-                    $connection = array_merge(Config::get('database'), $this->connection);
+                    $connection = array_merge(ConfigFacade::get('database'), $this->connection);
                 } else {
                     $connection = $this->connection;
                 }
