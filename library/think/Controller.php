@@ -49,7 +49,7 @@ class Controller
         if (is_null($request)) {
             $request = Facade::make('Request');
         }
-        $this->view    = View::instance(Facade::make('Config')->get('template'), Facade::make('Config')->get('view_replace_str'));
+        $this->view    = View::instance(Facade::make('App')->config('template'), Facade::make('App')->config('view_replace_str'));
         $this->request = $request;
 
         // 控制器初始化

@@ -11,10 +11,7 @@
 
 namespace think\response;
 
-use think\Request;
-use think\Response;
-use think\Session;
-use think\Url;
+use think\Facade;
 
 class Redirect extends Response
 {
@@ -51,12 +48,13 @@ class Redirect extends Response
      */
     public function with($name, $value = null)
     {
+        $session = Facade::make('Session');
         if (is_array($name)) {
             foreach ($name as $key => $val) {
-                Session::flash($key, $val);
+                $session->flash($key, $val);
             }
         } else {
-            Session::flash($name, $value);
+            $session->flash($name, $value);
         }
         return $this;
     }
@@ -67,7 +65,7 @@ class Redirect extends Response
      */
     public function getTargetUrl()
     {
-        return (strpos($this->data, '://') || 0 === strpos($this->data, '/')) ? $this->data : Url::build($this->data, $this->params);
+        return (strpos($this->data, '://') || 0 === strpos($this->data, '/')) ? $this->data : Facade::make('Url')->build($this->data, $this->params);
     }
 
     public function params($params = [])
@@ -82,7 +80,7 @@ class Redirect extends Response
      */
     public function remember()
     {
-        Session::set('redirect_url', Request::instance()->url());
+        Facade::make('Session')->set('redirect_url', Facade::make('Request')->url());
         return $this;
     }
 
@@ -92,9 +90,10 @@ class Redirect extends Response
      */
     public function restore()
     {
-        if (Session::has('redirect_url')) {
-            $this->data = Session::get('redirect_url');
-            Session::delete('redirect_url');
+        $session = Facade::make('Session');
+        if ($session->has('redirect_url')) {
+            $this->data = $session->get('redirect_url');
+            $session->delete('redirect_url');
         }
         return $this;
     }

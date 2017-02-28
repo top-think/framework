@@ -32,7 +32,7 @@ class View extends Response
     protected function output($data)
     {
         // 渲染模板输出
-        return ViewTemplate::instance(Facade::make('Config')->get('template'), Facade::make('Config')->get('view_replace_str'))
+        return ViewTemplate::instance(Facade::make('App')->config('template'), Facade::make('App')->config('view_replace_str'))
             ->fetch($data, $this->vars, $this->replace);
     }
 

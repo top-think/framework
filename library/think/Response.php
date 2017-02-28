@@ -88,7 +88,7 @@ class Response
         $data = $this->getContent();
 
         // Trace调试注入
-        if (Env::get('app_trace', Facade::make('Config')->get('app_trace'))) {
+        if (Env::get('app_trace', Facade::make('App')->config('app_trace'))) {
             Debug::inject($this, $data);
         }
 

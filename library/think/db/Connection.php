@@ -18,7 +18,7 @@ use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
-use think\Log;
+use think\Facade;
 
 /**
  * Class Connection
@@ -300,11 +300,11 @@ abstract class Connection
                 $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
                 if ($config['debug']) {
                     // 记录数据库连接信息
-                    Log::record('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn'], 'sql');
+                    $this->log('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn']);
                 }
             } catch (\PDOException $e) {
                 if ($autoConnection) {
-                    Log::record($e->getMessage(), 'error');
+                    $this->log($e->getMessage(), 'error');
                     return $this->connect($autoConnection, $linkNum);
                 } else {
                     throw $e;
@@ -901,13 +901,17 @@ abstract class Connection
             }
         } else {
             // 未注册监听则记录到日志中
-            Log::record('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]', 'sql');
+            $this->log('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]');
             if (!empty($explain)) {
-                Log::record('[ EXPLAIN : ' . var_export($explain, true) . ' ]', 'sql');
+                $this->log('[ EXPLAIN : ' . var_export($explain, true) . ' ]');
             }
         }
     }
 
+    public function log($log, $type = 'sql')
+    {
+        $this->config['debug'] && Facade::make('Log')->record($log, $type);
+    }
     /**
      * 初始化数据库连接
      * @access protected

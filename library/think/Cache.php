@@ -42,7 +42,7 @@ class Cache
             $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
 
             // 记录初始化信息
-            Facade::make('App')->isDebug() && Log::record('[ CACHE ] INIT ' . $type, 'info');
+            Facade::make('App')->log('[ CACHE ] INIT ' . $type);
             if (true === $name) {
                 return new $class($options);
             } else {
@@ -63,13 +63,13 @@ class Cache
     {
         if (is_null($this->handler)) {
             // 自动初始化缓存
-            $config = Facade::make('Config');
+            $app = Facade::make('App');
             if (!empty($options)) {
                 $this->connect($options);
-            } elseif ('complex' == $config->get('cache.type')) {
-                $this->connect($config->get('cache.default'));
+            } elseif ('complex' == $app->config('cache.type')) {
+                $this->connect($app->config('cache.default'));
             } else {
-                $this->connect($config->get('cache'));
+                $this->connect($app->config('cache'));
             }
         }
         return $this->handler;
@@ -83,9 +83,9 @@ class Cache
      */
     public function store($name = '')
     {
-        $config = Facade::make('Config');
-        if ('' !== $name && 'complex' == $config->get('cache.type')) {
-            $this->connect($config->get('cache.' . $name), strtolower($name));
+        $app = Facade::make('App');
+        if ('' !== $name && 'complex' == $app->config('cache.type')) {
+            $this->connect($app->config('cache.' . $name), strtolower($name));
         }
         return $this->handler;
     }

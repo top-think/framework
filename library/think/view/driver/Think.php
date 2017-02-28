@@ -14,7 +14,6 @@ namespace think\view\driver;
 use think\exception\TemplateNotFoundException;
 use think\Facade;
 use think\Loader;
-use think\Log;
 use think\Template;
 
 class Think
@@ -79,7 +78,7 @@ class Think
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        Facade::make('App')->isDebug() && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
+        Facade::make('App')->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
         $this->template->fetch($template, $data, $config);
     }
 

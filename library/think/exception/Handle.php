@@ -14,7 +14,6 @@ namespace think\exception;
 use Exception;
 use think\console\Output;
 use think\Facade;
-use think\Log;
 use think\Response;
 
 class Handle
@@ -50,7 +49,7 @@ class Handle
                 $log = "[{$data['code']}]{$data['message']}";
             }
 
-            Log::record($log, 'error');
+            Facade::make('Log')->record($log, 'error');
         }
     }
 
@@ -98,7 +97,7 @@ class Handle
     protected function renderHttpException(HttpException $e)
     {
         $status   = $e->getStatusCode();
-        $template = Facade::make('Config')->get('http_exception_template');
+        $template = Facade::make('App')->config('http_exception_template');
         if (!Facade::make('App')->isDebug() && !empty($template[$status])) {
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
         } else {
@@ -142,9 +141,9 @@ class Handle
                 'message' => $this->getMessage($exception),
             ];
 
-            if (!Facade::make('Config')->get('show_error_msg')) {
+            if (!Facade::make('App')->config('show_error_msg')) {
                 // 不显示详细错误信息
-                $data['message'] = Facade::make('Config')->get('error_message');
+                $data['message'] = Facade::make('App')->config('error_message');
             }
         }
 
@@ -157,7 +156,7 @@ class Handle
 
         ob_start();
         extract($data);
-        include Facade::make('Config')->get('exception_tmpl');
+        include Facade::make('App')->config('exception_tmpl');
         // 获取并清空缓存
         $content  = ob_get_clean();
         $response = Response::create($content, 'html');

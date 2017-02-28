@@ -128,7 +128,7 @@ class Hook
         }
         if (Facade::make('App')->isDebug()) {
             Debug::remark('behavior_end', 'time');
-            Log::record('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]', 'info');
+            Facade::make('App')->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . Debug::getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
         return $result;
     }

@@ -141,9 +141,9 @@ class App
 
             // 记录路由和请求信息
             if ($this->debug) {
-                Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');
-                Log::record('[ HEADER ] ' . var_export($request->header(), true), 'info');
-                Log::record('[ PARAM ] ' . var_export($request->param(), true), 'info');
+                $this->log('[ ROUTE ] ' . var_export($dispatch, true));
+                $this->log('[ HEADER ] ' . var_export($request->header(), true));
+                $this->log('[ PARAM ] ' . var_export($request->param(), true));
             }
 
             // 监听app_begin
@@ -193,8 +193,7 @@ class App
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
             $isAjax   = $request->isAjax();
-            $config   = Facade::make('Config');
-            $type     = $isAjax ? $config->get('default_ajax_return') : $config->get('default_return_type');
+            $type     = $isAjax ? $this->config('default_ajax_return') : $this->config('default_return_type');
             $response = Response::create($data, $type);
         } else {
             $response = Response::create();
@@ -230,7 +229,7 @@ class App
         $reflect = new \ReflectionFunction($function);
         $args    = $this->bindParams($reflect, $vars);
         // 记录执行信息
-        $this->debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
+        $this->log('[ RUN ] ' . $reflect->__toString());
         return $reflect->invokeArgs($args);
     }
 
@@ -252,7 +251,7 @@ class App
         }
         $args = $this->bindParams($reflect, $vars);
 
-        $this->debug && Log::record('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]', 'info');
+        $this->log('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
@@ -276,6 +275,27 @@ class App
     }
 
     /**
+     * 记录调试信息
+     * @param mixed  $msg  调试信息
+     * @param string $type 信息类型
+     * @return void
+     */
+    public function log($log, $type = 'info')
+    {
+        $this->debug && Facade::make('Log')->record($log, $type);
+    }
+
+    /**
+     * 获取配置参数 为空则获取所有配置
+     * @param string    $name 配置参数名（支持二级配置 .号分割）
+     * @return mixed
+     */
+    public function config($name = '')
+    {
+        return Facade::make('Config')->get($name);
+    }
+
+    /**
      * 绑定参数
      * @access public
      * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
@@ -287,7 +307,7 @@ class App
         $request = Facade::make('Request');
         if (empty($vars)) {
             // 自动获取请求变量
-            if (Facade::make('Config')->get('url_param_type')) {
+            if ($this->config('url_param_type')) {
                 $vars = $request->route();
             } else {
                 $vars = $request->param();
@@ -434,7 +454,7 @@ class App
             $this->suffix = $config['class_suffix'];
 
             // 应用调试模式
-            $this->debug = Env::get('app_debug', Facade::make('Config')->get('app_debug'));
+            $this->debug = Env::get('app_debug', $this->config('app_debug'));
             if (!$this->debug) {
                 ini_set('display_errors', 'Off');
             } elseif (PHP_SAPI != 'cli') {
@@ -474,7 +494,7 @@ class App
 
             $this->init = true;
         }
-        return Facade::make('Config')->get();
+        return $this->config();
     }
 
     /**
@@ -532,7 +552,7 @@ class App
                 Facade::make('Lang')->load($path . 'lang' . DS . Facade::make('Request')->langset() . EXT);
             }
         }
-        return $configFacade->get();
+        return $this->config();
     }
 
     /**

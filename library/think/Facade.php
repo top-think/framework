@@ -62,7 +62,7 @@ class Facade
     }
 
     /**
-     * 指定某个类进行实例化
+     * 指定某个Facade类进行实例化
      * @access public
      * @param string    $class 类名
      * @return object

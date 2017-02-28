@@ -13,17 +13,6 @@ namespace think;
 
 use think\exception\ClassNotFoundException;
 
-/**
- * Class Log
- * @package think
- *
- * @method void log($msg) static
- * @method void error($msg) static
- * @method void info($msg) static
- * @method void sql($msg) static
- * @method void notice($msg) static
- * @method void alert($msg) static
- */
 class Log
 {
     const LOG    = 'log';
@@ -35,34 +24,35 @@ class Log
     const DEBUG  = 'debug';
 
     // 日志信息
-    protected static $log = [];
+    protected $log = [];
     // 配置参数
-    protected static $config = [];
+    protected $config = [];
     // 日志类型
-    protected static $type = ['log', 'error', 'info', 'sql', 'notice', 'alert', 'debug'];
+    protected $type = ['log', 'error', 'info', 'sql', 'notice', 'alert', 'debug'];
     // 日志写入驱动
-    protected static $driver;
+    protected $driver;
 
     // 当前日志授权key
-    protected static $key;
+    protected $key;
 
     /**
      * 日志初始化
      * @param array $config
      */
-    public static function init($config = [])
+    public function init($config = [])
     {
         $type         = isset($config['type']) ? $config['type'] : 'File';
         $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
-        self::$config = $config;
+        $this->config = $config;
         unset($config['type']);
         if (class_exists($class)) {
-            self::$driver = new $class($config);
+            $this->driver = new $class($config);
         } else {
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
         // 记录初始化信息
-        Facade::make('App')->isDebug() && Log::record('[ LOG ] INIT ' . $type, 'info');
+        Facade::make('App')->isDebug() && $this->record('[ LOG ] INIT ' . $type, 'info');
+        return $this;
     }
 
     /**
@@ -70,9 +60,9 @@ class Log
      * @param string $type 信息类型
      * @return array
      */
-    public static function getLog($type = '')
+    public function getLog($type = '')
     {
-        return $type ? self::$log[$type] : self::$log;
+        return $type ? $this->log[$type] : $this->log;
     }
 
     /**
@@ -81,22 +71,24 @@ class Log
      * @param string $type 信息类型
      * @return void
      */
-    public static function record($msg, $type = 'log')
+    public function record($msg, $type = 'log')
     {
-        self::$log[$type][] = $msg;
-        if (IS_CLI && count(self::$log[$type]) > 100) {
+        $this->log[$type][] = $msg;
+        if (IS_CLI && count($this->log[$type]) > 100) {
             // 命令行下面日志写入改进
-            self::save();
+            $this->save();
         }
+        return $this;
     }
 
     /**
      * 清空日志信息
      * @return void
      */
-    public static function clear()
+    public function clear()
     {
-        self::$log = [];
+        $this->log = [];
+        return $this;
     }
 
     /**
@@ -104,9 +96,10 @@ class Log
      * @param string  $key  授权key
      * @return void
      */
-    public static function key($key)
+    public function key($key)
     {
-        self::$key = $key;
+        $this->key = $key;
+        return $this;
     }
 
     /**
@@ -114,9 +107,9 @@ class Log
      * @param array  $config  当前日志配置参数
      * @return bool
      */
-    public static function check($config)
+    public function check($config)
     {
-        if (self::$key && !empty($config['allow_key']) && !in_array(self::$key, $config['allow_key'])) {
+        if ($this->key && !empty($config['allow_key']) && !in_array($this->key, $config['allow_key'])) {
             return false;
         }
         return true;
@@ -126,37 +119,37 @@ class Log
      * 保存调试信息
      * @return bool
      */
-    public static function save()
+    public function save()
     {
-        if (!empty(self::$log)) {
-            if (is_null(self::$driver)) {
-                self::init(Facade::make('Config')->get('log'));
+        if (!empty($this->log)) {
+            if (is_null($this->driver)) {
+                $this->init(Facade::make('App')->config('log'));
             }
 
-            if (!self::check(self::$config)) {
+            if (!$this->check($this->config)) {
                 // 检测日志写入权限
                 return false;
             }
 
-            if (empty(self::$config['level'])) {
+            if (empty($this->config['level'])) {
                 // 获取全部日志
-                $log = self::$log;
+                $log = $this->log;
                 if (!Facade::make('App')->isDebug() && isset($log['debug'])) {
                     unset($log['debug']);
                 }
             } else {
                 // 记录允许级别
                 $log = [];
-                foreach (self::$config['level'] as $level) {
-                    if (isset(self::$log[$level])) {
-                        $log[$level] = self::$log[$level];
+                foreach ($this->config['level'] as $level) {
+                    if (isset($this->log[$level])) {
+                        $log[$level] = $this->log[$level];
                     }
                 }
             }
 
-            $result = self::$driver->save($log);
+            $result = $this->driver->save($log);
             if ($result) {
-                self::$log = [];
+                $this->log = [];
             }
 
             return $result;
@@ -171,12 +164,12 @@ class Log
      * @param bool   $force 是否强制写入
      * @return bool
      */
-    public static function write($msg, $type = 'log', $force = false)
+    public function write($msg, $type = 'log', $force = false)
     {
         // 封装日志信息
-        if (true === $force || empty(self::$config['level'])) {
+        if (true === $force || empty($this->config['level'])) {
             $log[$type][] = $msg;
-        } elseif (in_array($type, self::$config['level'])) {
+        } elseif (in_array($type, $this->config['level'])) {
             $log[$type][] = $msg;
         } else {
             return false;
@@ -184,24 +177,24 @@ class Log
 
         // 监听log_write
         Facade::make('Hook')->listen('log_write', $log);
-        if (is_null(self::$driver)) {
-            self::init(Facade::make('Config')->get('log'));
+        if (is_null($this->driver)) {
+            $this->init(Facade::make('App')->config('log'));
         }
         // 写入日志
-        return self::$driver->save($log, false);
+        return $this->driver->save($log, false);
     }
 
     /**
-     * 静态调用
+     *
      * @param $method
      * @param $args
      * @return mixed
      */
-    public static function __callStatic($method, $args)
+    public function __call($method, $args)
     {
-        if (in_array($method, self::$type)) {
+        if (in_array($method, $this->type)) {
             array_push($args, $method);
-            return call_user_func_array('\\think\\Log::record', $args);
+            return call_user_func_array([$this, 'record'], $args);
         }
     }
 

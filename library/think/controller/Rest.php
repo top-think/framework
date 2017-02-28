@@ -11,8 +11,7 @@
 
 namespace think\controller;
 
-use think\App;
-use think\Request;
+use think\Facade;
 use think\Response;
 
 abstract class Rest
@@ -38,7 +37,7 @@ abstract class Rest
     public function __construct()
     {
         // 资源类型检测
-        $request = Request::instance();
+        $request = Facade::make('Request');
         $ext     = $request->ext();
         if ('' == $ext) {
             // 自动检测资源类型
@@ -76,7 +75,7 @@ abstract class Rest
             $fun = $method . '_' . $this->method;
         }
         if (isset($fun)) {
-            return App::invokeMethod([$this, $fun]);
+            return Facade::make('App')->invokeMethod([$this, $fun]);
         } else {
             // 抛出异常
             throw new \Exception('error action :' . $method);

@@ -12,9 +12,6 @@
 namespace think;
 
 use think\exception\ClassNotFoundException;
-use think\facade\App as AppFacade;
-use think\facade\Config as ConfigFacade;
-
 
 class Session
 {
@@ -44,10 +41,10 @@ class Session
     public function init(array $config = [])
     {
         if (empty($config)) {
-            $config = ConfigFacade::get('session');
+            $config = Facade::make('App')->config('session');
         }
         // 记录初始化信息
-        AppFacade::isDebug() && Log::record('[ SESSION ] INIT ' . var_export($config, true), 'info');
+        Facade::make('App')->log('[ SESSION ] INIT ' . var_export($config, true));
         $isDoStart = false;
         if (isset($config['use_trans_sid'])) {
             ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);

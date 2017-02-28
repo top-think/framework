@@ -13,9 +13,8 @@ namespace think\view\driver;
 
 use think\App;
 use think\exception\TemplateNotFoundException;
+use think\Facade;
 use think\Loader;
-use think\Log;
-use think\Request;
 
 class Php
 {
@@ -69,7 +68,7 @@ class Php
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        App::isDebug() && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
+        Facade::make('App')->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
         if (isset($data['template'])) {
             $__template__ = $template;
             extract($data, EXTR_OVERWRITE);
@@ -111,7 +110,7 @@ class Php
             $this->config['view_path'] = App::getModulePath() . 'view' . DS;
         }
 
-        $request = Request::instance();
+        $request = Facade::make('Request');
         // 获取视图根目录
         if (strpos($template, '@')) {
             // 跨模块调用

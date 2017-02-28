@@ -40,7 +40,7 @@ class Cookie
     public function init(array $config = [])
     {
         if (empty($config)) {
-            $config = Facade::make('Config')->get('cookie');
+            $config = Facade::make('App')->config('cookie');
         }
         $this->config = array_merge($this->config, array_change_key_case($config));
         if (!empty($this->config['httponly'])) {

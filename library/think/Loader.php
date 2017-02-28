@@ -434,7 +434,7 @@ class Loader
      */
     public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
-        $name = $name ?: Facade::make('Config')->get('default_validate');
+        $name = $name ?: Facade::make('App')->config('default_validate');
         if (empty($name)) {
             return new Validate;
         }
@@ -500,7 +500,7 @@ class Loader
                     $vars = [$vars];
                 }
             }
-            return Facade::make('App')->invokeMethod([$class, $action . Facade::make('Config')->get('action_suffix')], $vars);
+            return Facade::make('App')->invokeMethod([$class, $action . Facade::make('App')->config('action_suffix')], $vars);
         }
     }
 

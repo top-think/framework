@@ -11,7 +11,7 @@
 
 namespace think\log\driver;
 
-use think\App;
+use think\Facade;
 
 /**
  * github: https://github.com/luofei614/SocketLog
@@ -66,7 +66,7 @@ class Socket
             return false;
         }
         $trace = [];
-        if (App::isDebug()) {
+        if (Facade::make('App')->isDebug()) {
             $runtime    = round(microtime(true) - THINK_START_TIME, 10);
             $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
             $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';

@@ -1035,7 +1035,7 @@ class Route
             $type = $this->bind['type'];
             $bind = $this->bind[$type];
             // 记录绑定信息
-            App::isDebug() && Log::record('[ BIND ] ' . var_export($bind, true), 'info');
+            Facade::make('App')->log('[ BIND ] ' . var_export($bind, true));
             // 如果有URL绑定 则进行绑定检测
             switch ($type) {
                 case 'class':

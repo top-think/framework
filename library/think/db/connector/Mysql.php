@@ -13,7 +13,6 @@ namespace think\db\connector;
 
 use PDO;
 use think\db\Connection;
-use think\Log;
 
 /**
  * mysql数据库驱动
@@ -119,7 +118,7 @@ class Mysql extends Connection
         $result = array_change_key_case($result);
         if (isset($result['extra'])) {
             if (strpos($result['extra'], 'filesort') || strpos($result['extra'], 'temporary')) {
-                Log::record('SQL:' . $this->queryStr . '[' . $result['extra'] . ']', 'warn');
+                $this->log('SQL:' . $this->queryStr . '[' . $result['extra'] . ']', 'warn');
             }
         }
         return $result;

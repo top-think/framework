@@ -187,7 +187,7 @@ class Debug
 
     public static function inject(Response $response, &$content)
     {
-        $config = Facade::make('Config')->get('trace');
+        $config = Facade::make('App')->config('trace');
         $type   = isset($config['type']) ? $config['type'] : 'Html';
         $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);
@@ -200,7 +200,7 @@ class Debug
         if ($response instanceof Redirect) {
             //TODO 记录
         } else {
-            $output = $trace->output($response, Log::getLog());
+            $output = $trace->output($response, Facade::make('Log')->getLog());
             if (is_string($output)) {
                 // trace调试信息注入
                 $pos = strripos($content, '</body>');

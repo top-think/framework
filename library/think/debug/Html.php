@@ -66,7 +66,7 @@ class Html
             '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
             '查询信息' => Db::$queryTimes . ' queries ' . Db::$executeTimes . ' writes ',
             '缓存信息' => Facade::make('Cache')->getReadTimes() . ' reads,' . Facade::make('Cache')->getWriteTimes() . ' writes',
-            '配置加载' => count(Facade::make('Config')->get()),
+            '配置加载' => count(Facade::make('App')->config()),
         ];
 
         if (session_id()) {

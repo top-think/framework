@@ -11,9 +11,6 @@
 
 namespace think;
 
-use think\facade\App as AppFacade;
-use think\facade\Cookie;
-
 class Lang
 {
     // 语言数据
@@ -80,7 +77,7 @@ class Lang
         foreach ($file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
-                AppFacade::isDebug() && Log::record('[ LANG ] ' . $_file, 'info');
+                Facade::make('App')->log('[ LANG ] ' . $_file);
                 $_lang = include $_file;
                 if (is_array($_lang)) {
                     $lang = array_change_key_case($_lang) + $lang;
@@ -155,18 +152,19 @@ class Lang
     {
         // 自动侦测设置获取语言选择
         $langSet = '';
+        $cookie  = Facade::make('Cookie');
         if (isset($_GET[$this->langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[$this->langDetectVar]);
-            Cookie::set($this->langCookieVar, $langSet, $this->langCookieExpire);
-        } elseif (Cookie::get($this->langCookieVar)) {
+            $cookie->set($this->langCookieVar, $langSet, $this->langCookieExpire);
+        } elseif ($cookie->get($this->langCookieVar)) {
             // 获取上次用户的选择
-            $langSet = strtolower(Cookie::get($this->langCookieVar));
+            $langSet = strtolower($cookie->get($this->langCookieVar));
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
             $langSet = strtolower($matches[1]);
-            Cookie::set($this->langCookieVar, $langSet, $this->langCookieExpire);
+            $cookie->set($this->langCookieVar, $langSet, $this->langCookieExpire);
         }
         if (empty($this->allowLangList) || in_array($langSet, $this->allowLangList)) {
             // 合法的语言
