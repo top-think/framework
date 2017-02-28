@@ -12,9 +12,9 @@
 namespace think;
 
 use InvalidArgumentException;
-use think\facade\Config as ConfigFacade;
 use think\db\Query;
 use think\Exception\ValidateException;
+use think\facade\Config as ConfigFacade;
 use think\model\Collection as ModelCollection;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
@@ -850,7 +850,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 事件回调
-        if (false === $this->trigger('before_write', $this)) {
+        if (false === $this->trigger('before_write')) {
             return false;
         }
         $pk = $this->getPk();
@@ -859,7 +859,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->autoCompleteData($this->update);
 
             // 事件回调
-            if (false === $this->trigger('before_update', $this)) {
+            if (false === $this->trigger('before_update')) {
                 return false;
             }
 
@@ -922,7 +922,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 清空change
             $this->change = [];
             // 更新回调
-            $this->trigger('after_update', $this);
+            $this->trigger('after_update');
         } else {
             // 自动写入
             $this->autoCompleteData($this->insert);
@@ -932,7 +932,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->setAttr($this->createTime, null);
             }
 
-            if (false === $this->trigger('before_insert', $this)) {
+            if (false === $this->trigger('before_insert')) {
                 return false;
             }
 
@@ -959,10 +959,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 清空change
             $this->change = [];
             // 新增回调
-            $this->trigger('after_insert', $this);
+            $this->trigger('after_insert');
         }
         // 写入回调
-        $this->trigger('after_write', $this);
+        $this->trigger('after_write');
 
         return $result;
     }
@@ -1082,7 +1082,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function delete()
     {
-        if (false === $this->trigger('before_delete', $this)) {
+        if (false === $this->trigger('before_delete')) {
             return false;
         }
 
@@ -1110,7 +1110,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        $this->trigger('after_delete', $this);
+        $this->trigger('after_delete');
         return $result;
     }
 
@@ -1233,18 +1233,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 触发事件
      * @access protected
      * @param string $event  事件名
-     * @param mixed  $params 传入参数（引用）
      * @return bool
      */
-    protected function trigger($event, &$params)
+    protected function trigger($event)
     {
         if (isset(self::$event[$this->class][$event])) {
+            $app = Facade::make('App');
             foreach (self::$event[$this->class][$event] as $callback) {
-                if (is_callable($callback)) {
-                    $result = call_user_func_array($callback, [ & $params]);
-                    if (false === $result) {
-                        return false;
-                    }
+                if ($callback instanceof \Closure) {
+                    $result = $app->invokeFunction($callback, [$this]);
+                } else {
+                    $result = $app->invokeMethod($callback, [$this]);
+                }
+
+                if (false === $result) {
+                    return false;
                 }
             }
         }

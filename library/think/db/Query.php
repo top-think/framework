@@ -12,9 +12,7 @@
 namespace think\db;
 
 use PDO;
-use think\Cache;
 use think\Collection;
-use think\Config;
 use think\Db;
 use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
@@ -22,6 +20,7 @@ use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
 use think\exception\PDOException;
+use think\Facade;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -402,7 +401,7 @@ class Query
                 $this->options['table'] = $this->getTable();
             }
             $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
-            $result = Cache::get($key);
+            $result = Facade::make('Cache')->get($key);
         }
         if (false === $result) {
             if (isset($this->options['field'])) {
@@ -445,7 +444,7 @@ class Query
                 $this->options['table'] = $this->getTable();
             }
             $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
-            $result = Cache::get($guid);
+            $result = Facade::make('Cache')->get($guid);
         }
         if (false === $result) {
             if (isset($this->options['field'])) {
@@ -645,19 +644,20 @@ class Query
      */
     protected function lazyWrite($type, $guid, $step, $lazyTime)
     {
-        if (!Cache::has($guid . '_time')) {
+        $cache = Facade::make('Cache');
+        if (!$cache->has($guid . '_time')) {
             // 计时开始
-            Cache::set($guid . '_time', $_SERVER['REQUEST_TIME'], 0);
-            Cache::$type($guid, $step, 0);
-        } elseif ($_SERVER['REQUEST_TIME'] > Cache::get($guid . '_time') + $lazyTime) {
+            $cache->set($guid . '_time', $_SERVER['REQUEST_TIME'], 0);
+            $cache->$type($guid, $step, 0);
+        } elseif ($_SERVER['REQUEST_TIME'] > $cache->get($guid . '_time') + $lazyTime) {
             // 删除缓存
-            $value = Cache::$type($guid, $step, 0);
-            Cache::rm($guid);
-            Cache::rm($guid . '_time');
+            $value = $cache->$type($guid, $step, 0);
+            $cache->rm($guid);
+            $cache->rm($guid . '_time');
             return 0 === $value ? false : $value;
         } else {
             // 更新缓存
-            Cache::$type($guid, $step, 0);
+            $cache->$type($guid, $step, 0);
         }
         return false;
     }
@@ -1294,10 +1294,10 @@ class Query
             $simple = false;
         }
         if (is_array($listRows)) {
-            $config   = array_merge(Config::get('paginate'), $listRows);
+            $config   = array_merge(Facade::make('App')->config('paginate'), $listRows);
             $listRows = $config['list_rows'];
         } else {
-            $config   = array_merge(Config::get('paginate'), $config);
+            $config   = array_merge(Facade::make('App')->config('paginate'), $config);
             $listRows = $listRows ?: $config['list_rows'];
         }
 
@@ -2200,11 +2200,12 @@ class Query
             return $this->connection->getRealSql($sql, $bind);
         } else {
             // 检测缓存
-            if (isset($key) && Cache::get($key)) {
+            $cache = Facade::make('Cache');
+            if (isset($key) && $cache->get($key)) {
                 // 删除缓存
-                Cache::rm($key);
+                $cache->rm($key);
             } elseif (!empty($options['cache']['tag'])) {
-                Cache::clear($options['cache']['tag']);
+                $cache->clear($options['cache']['tag']);
             }
             // 执行操作
             $result = '' == $sql ? 0 : $this->execute($sql, $bind);
@@ -2277,7 +2278,7 @@ class Query
             $cache = $options['cache'];
             unset($options['cache']);
             $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
-            $resultSet = Cache::get($key);
+            $resultSet = Facade::make('Cache')->get($key);
         }
         if (!$resultSet) {
             // 生成查询SQL
@@ -2356,10 +2357,11 @@ class Query
      */
     protected function cacheData($key, $data, $config = [])
     {
+        $cache = Facade::make('Cache');
         if (isset($config['tag'])) {
-            Cache::tag($config['tag'])->set($key, $data, $config['expire']);
+            $cache->tag($config['tag'])->set($key, $data, $config['expire']);
         } else {
-            Cache::set($key, $data, $config['expire']);
+            $cache->set($key, $data, $config['expire']);
         }
     }
 
@@ -2422,7 +2424,7 @@ class Query
             } elseif (!isset($key)) {
                 $key = md5(serialize($options));
             }
-            $result = Cache::get($key);
+            $result = Facade::make('Cache')->get($key);
         }
         if (false === $result) {
             // 生成查询SQL
@@ -2648,11 +2650,12 @@ class Query
         }
 
         // 检测缓存
-        if (isset($key) && Cache::get($key)) {
+        $cache = Facade::make('Cache');
+        if (isset($key) && $cache->get($key)) {
             // 删除缓存
-            Cache::rm($key);
+            $cache->rm($key);
         } elseif (!empty($options['cache']['tag'])) {
-            Cache::clear($options['cache']['tag']);
+            $cache->clear($options['cache']['tag']);
         }
         // 执行操作
         $result = $this->execute($sql, $bind);
@@ -2783,7 +2786,12 @@ class Query
         $result = false;
         if (isset(self::$event[$event])) {
             $callback = self::$event[$event];
-            $result   = call_user_func_array($callback, [$params, $this]);
+            $app      = Facade::make('App');
+            if ($callback instanceof \Closure) {
+                $result = $app->invokeFunction($callback, [$params, $this]);
+            } else {
+                $result = $app->invokeMethod($callback, [$params, $this]);
+            }
         }
         return $result;
     }
