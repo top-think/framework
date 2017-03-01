@@ -267,37 +267,42 @@ class App
         if ($reflect->getNumberOfParameters() > 0) {
             $params = $reflect->getParameters();
             foreach ($params as $param) {
-                $name  = $param->getName();
-                $class = $param->getClass();
-                if ($class) {
-                    $className = $class->getName();
-                    $bind      = Request::instance()->$name;
-                    if ($bind instanceof $className) {
-                        $args[] = $bind;
-                    } else {
-                        if (method_exists($className, 'invoke')) {
-                            $method = new \ReflectionMethod($className, 'invoke');
-                            if ($method->isPublic() && $method->isStatic()) {
-                                $args[] = $className::invoke(Request::instance());
-                                continue;
-                            }
-                        }
-                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className;
-                    }
-                } elseif (1 == $type && !empty($vars)) {
-                    $args[] = array_shift($vars);
-                } elseif (0 == $type && isset($vars[$name])) {
-                    $args[] = $vars[$name];
-                } elseif ($param->isDefaultValueAvailable()) {
-                    $args[] = $param->getDefaultValue();
-                } else {
-                    throw new \InvalidArgumentException('method param miss:' . $name);
-                }
+                $args[] = self::getParamValue($param,$type,$vars);
             }
         }
         return $args;
     }
 
+    private static function getParamValue($param,$type,$vars){
+        $name  = $param->getName();
+        $class = $param->getClass();
+        if ($class) {
+            $className = $class->getName();
+            $bind      = Request::instance()->$name;
+            if ($bind instanceof $className) {
+                $result = $bind;
+            } else {
+                if (method_exists($className, 'invoke')) {
+                    $method = new \ReflectionMethod($className, 'invoke');
+                    if ($method->isPublic() && $method->isStatic()) {
+                        $result = $className::invoke(Request::instance());
+                        continue;
+                    }
+                }
+                $result = method_exists($className, 'instance') ? $className::instance() : new $className;
+            }
+        } elseif (1 == $type && !empty($vars)) {
+            $result = array_shift($vars);
+        } elseif (0 == $type && isset($vars[$name])) {
+            $result = $vars[$name];
+        } elseif ($param->isDefaultValueAvailable()) {
+            $result = $param->getDefaultValue();
+        } else {
+            throw new \InvalidArgumentException('method param miss:' . $name);
+        }   
+        return $result;     
+    }
+    
     /**
      * 执行模块
      * @access public
