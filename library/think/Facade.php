@@ -16,6 +16,17 @@ class Facade
     //  对象实例
     protected static $instance = [];
 
+    protected static $bind = [];
+
+    public static function bind($name, $class = null)
+    {
+        if (is_array($name)) {
+            self::$bind = array_merge(self::$bind, $name);
+        } else {
+            self::$bind[$name] = $class;
+        }
+    }
+
     /**
      * 创建对象实例
      * @static
@@ -27,7 +38,7 @@ class Facade
         $name = $name ?: static::class;
 
         if (!isset(self::$instance[$name])) {
-            $class = static::getFacadeClass() ?: '\\think\\' . basename(str_replace('\\', '/', $name));
+            $class = static::getFacadeClass() ?: self::$bind[$name];
 
             self::$instance[$name] = self::invokeClass($class, $args);
         }
@@ -69,38 +80,39 @@ class Facade
         if ($reflect->getNumberOfParameters() > 0) {
             $params = $reflect->getParameters();
             foreach ($params as $param) {
-                $name  = $param->getName();
-                $class = $param->getClass();
-                if ($class) {
-                    $className = $class->getName();
-                    if (0 === strpos($className, 'think\\')) {
-                        $array = explode('\\', $className);
-                        array_shift($array);
-                        array_unshift($array, 'facade');
-                        array_unshift($array, 'think');
-                        $name = implode('\\', $array);
-                    }
-                    if (isset(self::$instance[$className])) {
-                        $args[] = self::$instance[$className];
-                    } elseif (isset(self::$instance[$name])) {
-                        $args[] = self::$instance[$name];
-                    } else {
-                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className;
-                    }
-                } elseif (1 == $type && !empty($vars)) {
-                    $args[] = array_shift($vars);
-                } elseif (0 == $type && isset($vars[$name])) {
-                    $args[] = $vars[$name];
-                } elseif ($param->isDefaultValueAvailable()) {
-                    $args[] = $param->getDefaultValue();
-                } else {
-                    throw new \InvalidArgumentException('method param miss:' . $name);
-                }
+                $args[] = self::getParamValue($param, $type);
             }
         }
         return $args;
     }
 
+    private static function getParamValue($param, $type)
+    {
+        $name  = $param->getName();
+        $class = $param->getClass();
+        if ($class) {
+            $className = $class->getName();
+            if (isset(self::$instance[$className])) {
+                $result = self::$instance[$className];
+            } else {
+                $name = array_search($className, self::$bind);
+                if (isset(self::$instance[$name])) {
+                    $result = self::$instance[$name];
+                } else {
+                    $result = method_exists($className, 'instance') ? $className::instance() : new $className;
+                }
+            }
+        } elseif (1 == $type && !empty($vars)) {
+            $result = array_shift($vars);
+        } elseif (0 == $type && isset($vars[$name])) {
+            $result = $vars[$name];
+        } elseif ($param->isDefaultValueAvailable()) {
+            $result = $param->getDefaultValue();
+        } else {
+            throw new \InvalidArgumentException('method param miss:' . $name);
+        }
+        return $result;
+    }
     protected static function getFacadeClass()
     {
     }
