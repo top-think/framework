@@ -120,7 +120,7 @@ class App
             // 请求缓存检查
             $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
 
-            $data = self::exec($dispatch,$config);
+            $data = self::exec($dispatch, $config);
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
         }
@@ -234,9 +234,9 @@ class App
         }
         $args = [];
         if ($reflect->getNumberOfParameters() > 0) {
-        	// 判断数组类型 数字数组时按顺序绑定参数
-        	reset($vars);
-        	$type   = key($vars) === 0 ? 1 : 0;
+            // 判断数组类型 数字数组时按顺序绑定参数
+            reset($vars);
+            $type   = key($vars) === 0 ? 1 : 0;
             $params = $reflect->getParameters();
             foreach ($params as $param) {
                 $args[] = self::getParamValue($param, $vars, $type);
@@ -280,7 +280,7 @@ class App
             $result = $param->getDefaultValue();
         } else {
             throw new \InvalidArgumentException('method param miss:' . $name);
-        } 
+        }
         return $result;
     }
 
