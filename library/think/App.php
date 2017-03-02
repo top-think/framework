@@ -120,35 +120,7 @@ class App
             // 请求缓存检查
             $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
 
-            switch ($dispatch['type']) {
-                case 'redirect':
-                    // 执行重定向跳转
-                    $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
-                    break;
-                case 'module':
-                    // 模块/控制器/操作
-                    $data = self::module($dispatch['module'], $config, isset($dispatch['convert']) ? $dispatch['convert'] : null);
-                    break;
-                case 'controller':
-                    // 执行控制器操作
-                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
-                    $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
-                    break;
-                case 'method':
-                    // 执行回调方法
-                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
-                    $data = self::invokeMethod($dispatch['method'], $vars);
-                    break;
-                case 'function':
-                    // 执行闭包
-                    $data = self::invokeFunction($dispatch['function']);
-                    break;
-                case 'response':
-                    $data = $dispatch['response'];
-                    break;
-                default:
-                    throw new \InvalidArgumentException('dispatch type not support');
-            }
+            $data = self::exec($dispatch,$config);
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
         }
@@ -245,7 +217,7 @@ class App
 
     /**
      * 绑定参数
-     * @access public
+     * @access private
      * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
      * @param array                                 $vars    变量
      * @return array
@@ -261,19 +233,28 @@ class App
             }
         }
         $args = [];
-        // 判断数组类型 数字数组时按顺序绑定参数
-        reset($vars);
-        $type = key($vars) === 0 ? 1 : 0;
         if ($reflect->getNumberOfParameters() > 0) {
+        	// 判断数组类型 数字数组时按顺序绑定参数
+        	reset($vars);
+        	$type   = key($vars) === 0 ? 1 : 0;
             $params = $reflect->getParameters();
             foreach ($params as $param) {
-                $args[] = self::getParamValue($param,$type,$vars);
+                $args[] = self::getParamValue($param, $vars, $type);
             }
         }
         return $args;
     }
 
-    private static function getParamValue($param,$type,$vars){
+    /**
+     * 获取参数值
+     * @access private
+     * @param \ReflectionParameter  $param
+     * @param array                 $vars    变量
+     * @param string                $type
+     * @return array
+     */
+    private static function getParamValue($param, $vars, $type)
+    {
         $name  = $param->getName();
         $class = $param->getClass();
         if ($class) {
@@ -299,10 +280,44 @@ class App
             $result = $param->getDefaultValue();
         } else {
             throw new \InvalidArgumentException('method param miss:' . $name);
-        }   
-        return $result;     
+        } 
+        return $result;
     }
-    
+
+    protected static function exec($dispatch, $config)
+    {
+        switch ($dispatch['type']) {
+            case 'redirect':
+                // 执行重定向跳转
+                $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
+                break;
+            case 'module':
+                // 模块/控制器/操作
+                $data = self::module($dispatch['module'], $config, isset($dispatch['convert']) ? $dispatch['convert'] : null);
+                break;
+            case 'controller':
+                // 执行控制器操作
+                $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
+                break;
+            case 'method':
+                // 执行回调方法
+                $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                $data = self::invokeMethod($dispatch['method'], $vars);
+                break;
+            case 'function':
+                // 执行闭包
+                $data = self::invokeFunction($dispatch['function']);
+                break;
+            case 'response':
+                $data = $dispatch['response'];
+                break;
+            default:
+                throw new \InvalidArgumentException('dispatch type not support');
+        }
+        return $data;
+    }
+
     /**
      * 执行模块
      * @access public
