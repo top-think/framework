@@ -17,6 +17,7 @@ class Request
      * @var object 对象实例
      */
     protected $instance;
+    protected $config;
 
     protected $method;
     /**
@@ -124,15 +125,16 @@ class Request
      * @access public
      * @param array $options 参数
      */
-    public function __construct($options = [])
+    public function __construct(Config $config, $options = [])
     {
         foreach ($options as $name => $item) {
             if (property_exists($this, $name)) {
                 $this->$name = $item;
             }
         }
+        $this->config = $config;
         if (is_null($this->filter)) {
-            $this->filter = Facade::make('App')->config('default_filter');
+            $this->filter = $this->config->get('default_filter');
         }
         // 保存 php://input
         $this->input = file_get_contents('php://input');
@@ -370,11 +372,10 @@ class Request
     public function pathinfo()
     {
         if (is_null($this->pathinfo)) {
-            $config = Facade::make('Config');
-            if (isset($_GET[$config->get('var_pathinfo')])) {
+            if (isset($_GET[$this->config->get('var_pathinfo')])) {
                 // 判断URL里面是否有兼容模式参数
-                $_SERVER['PATH_INFO'] = $_GET[$config->get('var_pathinfo')];
-                unset($_GET[$config->get('var_pathinfo')]);
+                $_SERVER['PATH_INFO'] = $_GET[$this->config->get('var_pathinfo')];
+                unset($_GET[$this->config->get('var_pathinfo')]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
                 $_SERVER['PATH_INFO'] = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
@@ -382,7 +383,7 @@ class Request
 
             // 分析PATHINFO信息
             if (!isset($_SERVER['PATH_INFO'])) {
-                foreach ($config->get('pathinfo_fetch') as $type) {
+                foreach ($this->config->get('pathinfo_fetch') as $type) {
                     if (!empty($_SERVER[$type])) {
                         $_SERVER['PATH_INFO'] = (0 === strpos($_SERVER[$type], $_SERVER['SCRIPT_NAME'])) ?
                         substr($_SERVER[$type], strlen($_SERVER['SCRIPT_NAME'])) : $_SERVER[$type];
@@ -403,7 +404,7 @@ class Request
     public function path()
     {
         if (is_null($this->path)) {
-            $suffix   = Facade::make('App')->config('url_html_suffix');
+            $suffix   = $this->config->get('url_html_suffix');
             $pathinfo = $this->pathinfo();
             if (false === $suffix) {
                 // 禁止伪静态访问
@@ -491,8 +492,8 @@ class Request
             // 获取原始请求类型
             return $this->isCli() ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
         } elseif (!$this->method) {
-            if (isset($_POST[Facade::make('App')->config('var_method')])) {
-                $this->method = strtoupper($_POST[Facade::make('App')->config('var_method')]);
+            if (isset($_POST[$this->config->get('var_method')])) {
+                $this->method = strtoupper($_POST[$this->config->get('var_method')]);
                 $this->{$this->method}($_POST);
             } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
                 $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
@@ -1203,7 +1204,7 @@ class Request
         if (true === $ajax) {
             return $result;
         } else {
-            return $this->param(Facade::make('App')->config('var_ajax')) ? true : $result;
+            return $this->param($this->config->get('var_ajax')) ? true : $result;
         }
     }
 
@@ -1219,7 +1220,7 @@ class Request
         if (true === $pjax) {
             return $result;
         } else {
-            return $this->param(Facade::make('App')->config('var_pjax')) ? true : $result;
+            return $this->param($this->config->get('var_pjax')) ? true : $result;
         }
     }
 
