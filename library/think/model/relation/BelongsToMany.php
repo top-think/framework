@@ -64,7 +64,7 @@ class BelongsToMany extends Relation
     protected function newPivot($data)
     {
         $pivot = $this->pivot ?: '\\think\\model\\Pivot';
-        return new $pivot($data, $this->middle);
+        return new $pivot($this->parent, $data, $this->middle);
     }
 
     /**
