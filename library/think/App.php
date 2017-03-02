@@ -253,7 +253,7 @@ class App
      * @param string                $type
      * @return array
      */
-    private static function getParamValue($param, $vars, $type)
+    private static function getParamValue($param, &$vars, $type)
     {
         $name  = $param->getName();
         $class = $param->getClass();
