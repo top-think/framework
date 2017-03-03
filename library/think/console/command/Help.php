@@ -11,11 +11,11 @@
 
 namespace think\console\command;
 
+use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument as InputArgument;
 use think\console\input\Option as InputOption;
 use think\console\Output;
-use think\console\helper\Descriptor as DescriptorHelper;
 
 class Help extends Command
 {
@@ -60,9 +60,7 @@ EOF
             $this->command = $this->getConsole()->find($input->getArgument('command_name'));
         }
 
-
-        $helper = new DescriptorHelper();
-        $helper->describe($output, $this->command, [
+        $output->describe($this->command, [
             'raw_text' => $input->getOption('raw'),
         ]);
 

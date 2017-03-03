@@ -9,19 +9,14 @@
 
 namespace think;
 
-use think\console\command\Command;
+use think\console\Command;
 use think\console\command\Help as HelpCommand;
-use think\console\helper\Debug as DebugFormatterHelper;
-use think\console\helper\Formatter as FormatterHelper;
-use think\console\helper\Process as ProcessHelper;
-use think\console\helper\Question as QuestionHelper;
-use think\console\helper\Set as HelperSet;
-use think\console\Input as ConsoleInput;
+use think\console\Input;
 use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
 use think\console\Output;
-use think\console\output\Stream;
+use think\console\output\driver\Buffer;
 
 class Console
 {
@@ -34,22 +29,22 @@ class Console
 
     private $wantHelps = false;
 
-    /** @var  Command */
-    private $runningCommand;
-
     private $catchExceptions = true;
     private $autoExit        = true;
     private $definition;
-    private $helperSet;
-    private $terminalDimensions;
     private $defaultCommand;
 
     private static $defaultCommands = [
         "think\\console\\command\\Help",
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
+        "think\\console\\command\\Clear",
         "think\\console\\command\\make\\Controller",
         "think\\console\\command\\make\\Model",
+        "think\\console\\command\\optimize\\Autoload",
+        "think\\console\\command\\optimize\\Config",
+        "think\\console\\command\\optimize\\Route",
+        "think\\console\\command\\optimize\\Schema",
     ];
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
@@ -58,7 +53,6 @@ class Console
         $this->version = $version;
 
         $this->defaultCommand = 'list';
-        $this->helperSet      = $this->getDefaultHelperSet();
         $this->definition     = $this->getDefaultInputDefinition();
 
         foreach ($this->getDefaultCommands() as $command) {
@@ -66,24 +60,52 @@ class Console
         }
     }
 
-    public static function init()
+    public static function init($run = true)
     {
-        // 实例化console
-        $console = new self('Think Console', '0.1');
-        // 读取指令集
-        if (is_file(CONF_PATH . 'command' . EXT)) {
-            $commands = include CONF_PATH . 'command' . EXT;
-            if (is_array($commands)) {
-                foreach ($commands as $command) {
-                    if (class_exists($command) && is_subclass_of($command, "\\think\\console\\command\\Command")) {
-                        // 注册指令
-                        $console->add(new $command());
+        static $console;
+        if (!$console) {
+            // 实例化console
+            $console = new self('Think Console', '0.1');
+            // 读取指令集
+            if (is_file(CONF_PATH . 'command' . EXT)) {
+                $commands = include CONF_PATH . 'command' . EXT;
+                if (is_array($commands)) {
+                    foreach ($commands as $command) {
+                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
+                            // 注册指令
+                            $console->add(new $command());
+                        }
                     }
                 }
             }
         }
-        // 运行
-        $console->run();
+        if ($run) {
+            // 运行
+            return $console->run();
+        } else {
+            return $console;
+        }
+    }
+
+    /**
+     * @param        $command
+     * @param array  $parameters
+     * @param string $driver
+     * @return Output|Buffer
+     */
+    public static function call($command, array $parameters = [], $driver = 'buffer')
+    {
+        $console = self::init(false);
+
+        array_unshift($parameters, $command);
+
+        $input  = new Input($parameters);
+        $output = new Output($driver);
+
+        $console->setCatchExceptions(false);
+        $console->find($command)->run($input, $output);
+
+        return $output;
     }
 
     /**
@@ -94,7 +116,7 @@ class Console
      */
     public function run()
     {
-        $input  = new ConsoleInput();
+        $input  = new Input();
         $output = new Output();
 
         $this->configureIO($input, $output);
@@ -106,11 +128,11 @@ class Console
                 throw $e;
             }
 
-            $this->renderException($e, $output->getErrorOutput());
+            $output->renderException($e);
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int)$exitCode;
+                $exitCode = (int) $exitCode;
                 if (0 === $exitCode) {
                     $exitCode = 1;
                 }
@@ -132,11 +154,11 @@ class Console
 
     /**
      * 执行指令
-     * @param ConsoleInput $input
-     * @param Output       $output
+     * @param Input  $input
+     * @param Output $output
      * @return int
      */
-    public function doRun(ConsoleInput $input, Output $output)
+    public function doRun(Input $input, Output $output)
     {
         if (true === $input->hasParameterOption(['--version', '-V'])) {
             $output->writeln($this->getLongVersion());
@@ -149,7 +171,7 @@ class Console
         if (true === $input->hasParameterOption(['--help', '-h'])) {
             if (!$name) {
                 $name  = 'help';
-                $input = new ConsoleInput(['help']);
+                $input = new Input(['help']);
             } else {
                 $this->wantHelps = true;
             }
@@ -157,34 +179,14 @@ class Console
 
         if (!$name) {
             $name  = $this->defaultCommand;
-            $input = new ConsoleInput([$this->defaultCommand]);
+            $input = new Input([$this->defaultCommand]);
         }
 
         $command = $this->find($name);
 
-        $this->runningCommand = $command;
-        $exitCode             = $this->doRunCommand($command, $input, $output);
-        $this->runningCommand = null;
+        $exitCode = $this->doRunCommand($command, $input, $output);
 
         return $exitCode;
-    }
-
-    /**
-     * 设置助手集
-     * @param HelperSet $helperSet
-     */
-    public function setHelperSet(HelperSet $helperSet)
-    {
-        $this->helperSet = $helperSet;
-    }
-
-    /**
-     * 获取助手集
-     * @return HelperSet
-     */
-    public function getHelperSet()
-    {
-        return $this->helperSet;
     }
 
     /**
@@ -221,7 +223,7 @@ class Console
      */
     public function setCatchExceptions($boolean)
     {
-        $this->catchExceptions = (bool)$boolean;
+        $this->catchExceptions = (bool) $boolean;
     }
 
     /**
@@ -231,7 +233,7 @@ class Console
      */
     public function setAutoExit($boolean)
     {
-        $this->autoExit = (bool)$boolean;
+        $this->autoExit = (bool) $boolean;
     }
 
     /**
@@ -316,7 +318,7 @@ class Console
 
         if (!$command->isEnabled()) {
             $command->setConsole(null);
-            return null;
+            return;
         }
 
         if (null === $command->getDefinition()) {
@@ -361,7 +363,7 @@ class Console
 
     /**
      * 某个指令是否存在
-     * @param string $name 指令民初
+     * @param string $name 指令名称
      * @return bool
      */
     public function has($name)
@@ -399,7 +401,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -437,7 +439,7 @@ class Console
         $expr        = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $name);
-        $commands    = preg_grep('{^' . $expr . '}', $allCommands);
+        $commands = preg_grep('{^' . $expr . '}', $allCommands);
 
         if (empty($commands) || count(preg_grep('{^' . $expr . '$}', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
@@ -518,152 +520,11 @@ class Console
     }
 
     /**
-     * 呈现捕获的异常
-     * @param \Exception $e
-     * @param Stream     $output
-     */
-    public function renderException(\Exception $e, Stream $output)
-    {
-        do {
-            $title = sprintf('  [%s]  ', get_class($e));
-
-            $len = $this->stringWidth($title);
-
-            $width = $this->getTerminalWidth() ? $this->getTerminalWidth() - 1 : PHP_INT_MAX;
-
-            if (defined('HHVM_VERSION') && $width > 1 << 31) {
-                $width = 1 << 31;
-            }
-            $formatter = $output->getFormatter();
-            $lines     = [];
-            foreach (preg_split('/\r?\n/', $e->getMessage()) as $line) {
-                foreach ($this->splitStringByWidth($line, $width - 4) as $line) {
-
-                    $lineLength = $this->stringWidth(preg_replace('/\[[^m]*m/', '', $formatter->format($line))) + 4;
-                    $lines[]    = [$line, $lineLength];
-
-                    $len = max($lineLength, $len);
-                }
-            }
-
-            $messages   = ['', ''];
-            $messages[] = $emptyLine = $formatter->format(sprintf('<error>%s</error>', str_repeat(' ', $len)));
-            $messages[] = $formatter->format(sprintf('<error>%s%s</error>', $title, str_repeat(' ', max(0, $len - $this->stringWidth($title)))));
-            foreach ($lines as $line) {
-                $messages[] = $formatter->format(sprintf('<error>  %s  %s</error>', $line[0], str_repeat(' ', $len - $line[1])));
-            }
-            $messages[] = $emptyLine;
-            $messages[] = '';
-            $messages[] = '';
-
-            $output->writeln($messages, Output::OUTPUT_RAW);
-
-            if (Output::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
-                $output->writeln('<comment>Exception trace:</comment>');
-
-                // exception related properties
-                $trace = $e->getTrace();
-                array_unshift($trace, [
-                    'function' => '',
-                    'file'     => $e->getFile() !== null ? $e->getFile() : 'n/a',
-                    'line'     => $e->getLine() !== null ? $e->getLine() : 'n/a',
-                    'args'     => [],
-                ]);
-
-                for ($i = 0, $count = count($trace); $i < $count; ++$i) {
-                    $class    = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
-                    $type     = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
-                    $function = $trace[$i]['function'];
-                    $file     = isset($trace[$i]['file']) ? $trace[$i]['file'] : 'n/a';
-                    $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
-
-                    $output->writeln(sprintf(' %s%s%s() at <info>%s:%s</info>', $class, $type, $function, $file, $line));
-                }
-
-                $output->writeln('');
-                $output->writeln('');
-            }
-        } while ($e = $e->getPrevious());
-
-        if (null !== $this->runningCommand) {
-            $output->writeln(sprintf('<info>%s</info>', sprintf($this->runningCommand->getSynopsis(), $this->getName())));
-            $output->writeln('');
-            $output->writeln('');
-        }
-    }
-
-    /**
-     * 获取终端宽度
-     * @return int|null
-     */
-    protected function getTerminalWidth()
-    {
-        $dimensions = $this->getTerminalDimensions();
-
-        return $dimensions[0];
-    }
-
-    /**
-     * 获取终端高度
-     * @return int|null
-     */
-    protected function getTerminalHeight()
-    {
-        $dimensions = $this->getTerminalDimensions();
-
-        return $dimensions[1];
-    }
-
-    /**
-     * 获取当前终端的尺寸
-     * @return array
-     */
-    public function getTerminalDimensions()
-    {
-        if ($this->terminalDimensions) {
-            return $this->terminalDimensions;
-        }
-
-        if ('\\' === DS) {
-            if (preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim(getenv('ANSICON')), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
-            }
-            if (preg_match('/^(\d+)x(\d+)$/', $this->getConsoleMode(), $matches)) {
-                return [(int)$matches[1], (int)$matches[2]];
-            }
-        }
-
-        if ($sttyString = $this->getSttyColumns()) {
-            if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
-            }
-            if (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
-                return [(int)$matches[2], (int)$matches[1]];
-            }
-        }
-
-        return [null, null];
-    }
-
-    /**
-     * 设置终端尺寸
-     * @param int $width
-     * @param int $height
-     * @return Console
-     */
-    public function setTerminalDimensions($width, $height)
-    {
-        $this->terminalDimensions = [$width, $height];
-
-        return $this;
-    }
-
-    /**
      * 配置基于用户的参数和选项的输入和输出实例。
-     * @param ConsoleInput $input  输入实例
-     * @param Output       $output 输出实例
+     * @param Input  $input  输入实例
+     * @param Output $output 输出实例
      */
-    protected function configureIO(ConsoleInput $input, Output $output)
+    protected function configureIO(Input $input, Output $output)
     {
         if (true === $input->hasParameterOption(['--ansi'])) {
             $output->setDecorated(true);
@@ -673,11 +534,6 @@ class Console
 
         if (true === $input->hasParameterOption(['--no-interaction', '-n'])) {
             $input->setInteractive(false);
-        } elseif (function_exists('posix_isatty') && $this->getHelperSet()->has('question')) {
-            $inputStream = $this->getHelperSet()->get('question')->getInputStream();
-            if (!@posix_isatty($inputStream) && false === getenv('SHELL_INTERACTIVE')) {
-                $input->setInteractive(false);
-            }
         }
 
         if (true === $input->hasParameterOption(['--quiet', '-q'])) {
@@ -695,23 +551,23 @@ class Console
 
     /**
      * 执行指令
-     * @param Command      $command 指令实例
-     * @param ConsoleInput $input   输入实例
-     * @param Output       $output  输出实例
+     * @param Command $command 指令实例
+     * @param Input   $input   输入实例
+     * @param Output  $output  输出实例
      * @return int
      * @throws \Exception
      */
-    protected function doRunCommand(Command $command, ConsoleInput $input, Output $output)
+    protected function doRunCommand(Command $command, Input $input, Output $output)
     {
         return $command->run($input, $output);
     }
 
     /**
      * 获取指令的基础名称
-     * @param ConsoleInput $input
+     * @param Input $input
      * @return string
      */
-    protected function getCommandName(ConsoleInput $input)
+    protected function getCommandName(Input $input)
     {
         return $input->getFirstArgument();
     }
@@ -743,7 +599,7 @@ class Console
         $defaultCommands = [];
 
         foreach (self::$defaultCommands as $classname) {
-            if (class_exists($classname) && is_subclass_of($classname, "think\\console\\command\\Command")) {
+            if (class_exists($classname) && is_subclass_of($classname, "think\\console\\Command")) {
                 $defaultCommands[] = new $classname();
             }
         }
@@ -754,68 +610,6 @@ class Console
     public static function addDefaultCommands(array $classnames)
     {
         self::$defaultCommands = array_merge(self::$defaultCommands, $classnames);
-    }
-
-    /**
-     * 设置默认助手
-     * @return HelperSet
-     */
-    protected function getDefaultHelperSet()
-    {
-        return new HelperSet([
-            new FormatterHelper(),
-            new DebugFormatterHelper(),
-            new ProcessHelper(),
-            new QuestionHelper(),
-        ]);
-    }
-
-    /**
-     * 获取stty列数
-     * @return string
-     */
-    private function getSttyColumns()
-    {
-        if (!function_exists('proc_open')) {
-            return null;
-        }
-
-        $descriptorspec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-        $process        = proc_open('stty -a | grep columns', $descriptorspec, $pipes, null, null, ['suppress_errors' => true]);
-        if (is_resource($process)) {
-            $info = stream_get_contents($pipes[1]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            proc_close($process);
-
-            return $info;
-        }
-        return null;
-    }
-
-    /**
-     * 获取终端模式
-     * @return string <width>x<height> 或 null
-     */
-    private function getConsoleMode()
-    {
-        if (!function_exists('proc_open')) {
-            return null;
-        }
-
-        $descriptorspec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-        $process        = proc_open('mode CON', $descriptorspec, $pipes, null, null, ['suppress_errors' => true]);
-        if (is_resource($process)) {
-            $info = stream_get_contents($pipes[1]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            proc_close($process);
-
-            if (preg_match('/--------+\r?\n.+?(\d+)\r?\n.+?(\d+)\r?\n/', $info, $matches)) {
-                return $matches[2] . 'x' . $matches[1];
-            }
-        }
-        return null;
     }
 
     /**
@@ -899,49 +693,6 @@ class Console
     public function setDefaultCommand($commandName)
     {
         $this->defaultCommand = $commandName;
-    }
-
-    private function stringWidth($string)
-    {
-        if (!function_exists('mb_strwidth')) {
-            return strlen($string);
-        }
-
-        if (false === $encoding = mb_detect_encoding($string)) {
-            return strlen($string);
-        }
-
-        return mb_strwidth($string, $encoding);
-    }
-
-    private function splitStringByWidth($string, $width)
-    {
-        if (!function_exists('mb_strwidth')) {
-            return str_split($string, $width);
-        }
-
-        if (false === $encoding = mb_detect_encoding($string)) {
-            return str_split($string, $width);
-        }
-
-        $utf8String = mb_convert_encoding($string, 'utf8', $encoding);
-        $lines      = [];
-        $line       = '';
-        foreach (preg_split('//u', $utf8String) as $char) {
-            if (mb_strwidth($line . $char, 'utf8') <= $width) {
-                $line .= $char;
-                continue;
-            }
-            $lines[] = str_pad($line, $width);
-            $line    = $char;
-        }
-        if (strlen($line)) {
-            $lines[] = count($lines) ? str_pad($line, $width) : $line;
-        }
-
-        mb_convert_variables($encoding, 'utf8', $lines);
-
-        return $lines;
     }
 
     /**

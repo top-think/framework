@@ -11,37 +11,99 @@
 
 namespace think\console\command;
 
-class Make extends Command
+use think\Config;
+use think\console\Command;
+use think\console\Input;
+use think\console\input\Argument;
+use think\console\Output;
+
+abstract class Make extends Command
 {
-    // 创建目录
-    protected static function buildDir($dir)
+
+    protected $type;
+
+    abstract protected function getStub();
+
+    protected function configure()
     {
-        if (!is_dir(APP_PATH . $dir)) {
-            mkdir(APP_PATH . strtolower($dir), 0777, true);
-        }
+        $this->addArgument('name', Argument::REQUIRED, "The name of the class");
     }
 
-    // 创建文件
-    protected static function buildFile($file, $content)
+    protected function execute(Input $input, Output $output)
     {
-        if (is_file(APP_PATH . $file)) {
-            exception('file already exists');
+
+        $name = trim($input->getArgument('name'));
+
+        $classname = $this->getClassName($name);
+
+        $pathname = $this->getPathName($classname);
+
+        if (is_file($pathname)) {
+            $output->writeln('<error>' . $this->type . ' already exists!</error>');
+            return false;
         }
-        file_put_contents(APP_PATH . $file, $content);
+
+        if (!is_dir(dirname($pathname))) {
+            mkdir(strtolower(dirname($pathname)), 0755, true);
+        }
+
+        file_put_contents($pathname, $this->buildClass($classname));
+
+        $output->writeln('<info>' . $this->type . ' created successfully.</info>');
+
     }
 
-    protected static function formatNameSpace($namespace)
+    protected function buildClass($name)
     {
-        $namespace = explode('\\', $namespace);
+        $stub = file_get_contents($this->getStub());
 
-        foreach ($namespace as $key => $value) {
-            if ($key == count($namespace) - 1) {
-                $newNameSpace[1] = $value;
+        $namespace = trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
+
+        $class = str_replace($namespace . '\\', '', $name);
+
+        return str_replace(['{%className%}', '{%namespace%}', '{%app_namespace%}'], [
+            $class,
+            $namespace,
+            Config::get('app_namespace')
+        ], $stub);
+
+    }
+
+    protected function getPathName($name)
+    {
+        $name = str_replace(Config::get('app_namespace') . '\\', '', $name);
+
+        return APP_PATH . str_replace('\\', '/', $name) . '.php';
+    }
+
+    protected function getClassName($name)
+    {
+        $appNamespace = Config::get('app_namespace');
+
+        if (strpos($name, $appNamespace . '\\') === 0) {
+            return $name;
+        }
+
+        if (Config::get('app_multi_module')) {
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name, 2);
             } else {
-                $newNameSpace[0][$key] = $value;
+                $module = 'common';
             }
+        } else {
+            $module = null;
         }
 
-        return $newNameSpace;
+        if (strpos($name, '/') !== false) {
+            $name = str_replace('/', '\\', $name);
+        }
+
+        return $this->getNamespace($appNamespace, $module) . '\\' . $name;
     }
+
+    protected function getNamespace($appNamespace, $module)
+    {
+        return $module ? ($appNamespace . '\\' . $module) : $appNamespace;
+    }
+
 }

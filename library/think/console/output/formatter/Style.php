@@ -34,7 +34,7 @@ class Style
         'cyan'    => ['set' => 46, 'unset' => 49],
         'white'   => ['set' => 47, 'unset' => 49],
     ];
-    private static $availableOptions          = [
+    private static $availableOptions = [
         'bold'       => ['set' => 1, 'unset' => 22],
         'underscore' => ['set' => 4, 'unset' => 24],
         'blink'      => ['set' => 5, 'unset' => 25],

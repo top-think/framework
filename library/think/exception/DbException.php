@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -16,28 +16,27 @@ use think\Exception;
 /**
  * Database相关异常处理类
  */
-class DbException extends Exception 
+class DbException extends Exception
 {
     /**
      * DbException constructor.
-     * @param string $message
-     * @param array $config
-     * @param string $sql
-     * @param int $code
+     * @param string    $message
+     * @param array     $config
+     * @param string    $sql
+     * @param int       $code
      */
-    public function __construct($message, Array $config, $sql, $code = 10500)
+    public function __construct($message, array $config, $sql, $code = 10500)
     {
-        $this->message  = $message;
-        $this->code     = $code;
+        $this->message = $message;
+        $this->code    = $code;
 
         $this->setData('Database Status', [
             'Error Code'    => $code,
             'Error Message' => $message,
-            'Error SQL'     => $sql
+            'Error SQL'     => $sql,
         ]);
 
         $this->setData('Database Config', $config);
     }
-
 
 }

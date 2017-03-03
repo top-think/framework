@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -11,14 +11,19 @@
 
 namespace think;
 
-use think\paginator\Collection as PaginatorCollection;
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use JsonSerializable;
+use Traversable;
 
-abstract class Paginator
+abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
     /** @var bool 是否为简洁模式 */
     protected $simple = false;
 
-    /** @var PaginatorCollection 数据集 */
+    /** @var Collection 数据集 */
     protected $items;
 
     /** @var integer 当前页 */
@@ -41,40 +46,48 @@ abstract class Paginator
         'var_page' => 'page',
         'path'     => '/',
         'query'    => [],
-        'fragment' => ''
+        'fragment' => '',
     ];
 
-    public function __construct($items, $listRows, $currentPage = null, $simple = false, $total = null, $options = [])
+    public function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
-        $this->options['path'] = $this->options['path'] != '/' ? rtrim($this->options['path'], '/') : $this->options['path'];
+        $this->options['path'] = '/' != $this->options['path'] ? rtrim($this->options['path'], '/') : $this->options['path'];
 
         $this->simple   = $simple;
         $this->listRows = $listRows;
 
+        if (!$items instanceof Collection) {
+            $items = Collection::make($items);
+        }
+
         if ($simple) {
-            if (!$items instanceof Collection) {
-                $items = Collection::make($items);
-            }
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = count($items) > ($this->listRows);
             $items             = $items->slice(0, $this->listRows);
         } else {
             $this->total       = $total;
-            $this->lastPage    = (int)ceil($total / $listRows);
+            $this->lastPage    = (int) ceil($total / $listRows);
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = $this->currentPage < $this->lastPage;
         }
-
-        $this->items = PaginatorCollection::make($items, $this);
+        $this->items = $items;
     }
 
-    public function items()
+    /**
+     * @param       $items
+     * @param       $listRows
+     * @param null  $currentPage
+     * @param bool  $simple
+     * @param null  $total
+     * @param array $options
+     * @return Paginator
+     */
+    public static function make($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
-        return $this->items;
+        return new static($items, $listRows, $currentPage, $total, $simple, $options);
     }
-
 
     protected function setCurrentPage($currentPage)
     {
@@ -122,9 +135,9 @@ abstract class Paginator
      */
     public static function getCurrentPage($varPage = 'page', $default = 1)
     {
-        $page = Input::request($varPage);
+        $page = Request::instance()->request($varPage);
 
-        if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int)$page >= 1) {
+        if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int) $page >= 1) {
             return $page;
         }
 
@@ -143,7 +156,7 @@ abstract class Paginator
     public function total()
     {
         if ($this->simple) {
-            throw new \DomainException('简洁模式下不能获取数据总数');
+            throw new \DomainException('not support total');
         }
         return $this->total;
     }
@@ -161,7 +174,7 @@ abstract class Paginator
     public function lastPage()
     {
         if ($this->simple) {
-            throw new \DomainException('简洁模式下不能获取最后一页');
+            throw new \DomainException('not support last');
         }
         return $this->lastPage;
     }
@@ -172,7 +185,7 @@ abstract class Paginator
      */
     public function hasPages()
     {
-        return !($this->currentPage == 1 && !$this->hasMore);
+        return !(1 == $this->currentPage && !$this->hasMore);
     }
 
     /**
@@ -229,7 +242,6 @@ abstract class Paginator
         return $this;
     }
 
-
     /**
      * 构造锚点字符串
      *
@@ -245,4 +257,113 @@ abstract class Paginator
      * @return mixed
      */
     abstract public function render();
+
+    public function items()
+    {
+        return $this->items->all();
+    }
+
+    public function getCollection()
+    {
+        return $this->items;
+    }
+
+    public function isEmpty()
+    {
+        return $this->items->isEmpty();
+    }
+
+    /**
+     * Retrieve an external iterator
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * <b>Traversable</b>
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->items->all());
+    }
+
+    /**
+     * Whether a offset exists
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return $this->items->offsetExists($offset);
+    }
+
+    /**
+     * Offset to retrieve
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->items->offsetGet($offset);
+    }
+
+    /**
+     * Offset to set
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->items->offsetSet($offset, $value);
+    }
+
+    /**
+     * Offset to unset
+     * @param mixed $offset
+     * @return void
+     * @since 5.0.0
+     */
+    public function offsetUnset($offset)
+    {
+        $this->items->offsetUnset($offset);
+    }
+
+    /**
+     * Count elements of an object
+     */
+    public function count()
+    {
+        return $this->items->count();
+    }
+
+    public function __toString()
+    {
+        return (string) $this->render();
+    }
+
+    public function toArray()
+    {
+        try {
+            $total = $this->total();
+        } catch (\DomainException $e) {
+            $total = null;
+        }
+
+        return [
+            'total'        => $total,
+            'per_page'     => $this->listRows(),
+            'current_page' => $this->currentPage(),
+            'data'         => $this->items->toArray(),
+        ];
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    public function __call($name, $arguments)
+    {
+        return call_user_func_array([$this->getCollection(), $name], $arguments);
+    }
+
 }

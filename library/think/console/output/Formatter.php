@@ -10,8 +10,8 @@
 // +----------------------------------------------------------------------
 namespace think\console\output;
 
-use think\console\output\formatter\Style;
 use think\console\output\formatter\Stack as StyleStack;
+use think\console\output\formatter\Style;
 
 class Formatter
 {
@@ -39,17 +39,19 @@ class Formatter
         $this->setStyle('info', new Style('green'));
         $this->setStyle('comment', new Style('yellow'));
         $this->setStyle('question', new Style('black', 'cyan'));
+        $this->setStyle('highlight', new Style('red'));
+        $this->setStyle('warning', new Style('black', 'yellow'));
 
         $this->styleStack = new StyleStack();
     }
 
     /**
      * 设置外观标识
-     * @param bool $decorated 是否美化文职
+     * @param bool $decorated 是否美化文字
      */
     public function setDecorated($decorated)
     {
-        $this->decorated = (bool)$decorated;
+        $this->decorated = (bool) $decorated;
     }
 
     /**

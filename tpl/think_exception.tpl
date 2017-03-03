@@ -1,16 +1,95 @@
+<?php
+    if(!function_exists('parse_padding')){
+        function parse_padding($source)
+        {
+            $length  = strlen(strval(count($source['source']) + $source['first']));
+            return 40 + ($length - 1) * 8;
+        }
+    }
+
+    if(!function_exists('parse_class')){
+        function parse_class($name)
+        {
+            $names = explode('\\', $name);
+            return '<abbr title="'.$name.'">'.end($names).'</abbr>';
+        }
+    }
+
+    if(!function_exists('parse_file')){
+        function parse_file($file, $line)
+        {
+            return '<a class="toggle" title="'."{$file} line {$line}".'">'.basename($file)." line {$line}".'</a>';
+        }
+    }
+
+    if(!function_exists('parse_args')){
+        function parse_args($args)
+        {
+            $result = [];
+
+            foreach ($args as $key => $item) {
+                switch (true) {
+                    case is_object($item):
+                        $value = sprintf('<em>object</em>(%s)', parse_class(get_class($item)));
+                        break;
+                    case is_array($item):
+                        if(count($item) > 3){
+                            $value = sprintf('[%s, ...]', parse_args(array_slice($item, 0, 3)));
+                        } else {
+                            $value = sprintf('[%s]', parse_args($item));
+                        }
+                        break;
+                    case is_string($item):
+                        if(strlen($item) > 20){
+                            $value = sprintf(
+                                '\'<a class="toggle" title="%s">%s...</a>\'',
+                                htmlentities($item),
+                                htmlentities(substr($item, 0, 20))
+                            );
+                        } else {
+                            $value = sprintf("'%s'", htmlentities($item));
+                        }
+                        break;
+                    case is_int($item):
+                    case is_float($item):
+                        $value = $item;
+                        break;
+                    case is_null($item):
+                        $value = '<em>null</em>';
+                        break;
+                    case is_bool($item):
+                        $value = '<em>' . ($item ? 'true' : 'false') . '</em>';
+                        break;
+                    case is_resource($item):
+                        $value = '<em>resource</em>';
+                        break;
+                    default:
+                        $value = htmlentities(str_replace("\n", '', var_export(strval($item), true)));
+                        break;
+                }
+
+                $result[] = is_int($key) ? $value : "'{$key}' => {$value}";
+            }
+
+            return implode(', ', $result);
+        }
+    }
+?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>系统发生错误</title>
+    <title><?php echo lang('System Error'); ?></title>
     <meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <style>
         /* Base */
-        body{
+        body {
             color: #333;
-            font: 16px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
-            margin: 0px;
-            padding: 20px;
+            font: 14px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0 20px 20px;
+            word-break: break-word;
         }
         h1{
             margin: 10px 0 0;
@@ -25,6 +104,11 @@
             margin: 6px 0 0;
             font-size: 18px;
             border-bottom: 1px solid #eee;
+        }
+        h3.subheading {
+            color: #4288ce;
+            margin: 6px 0 0;
+            font-weight: 400;
         }
         h3{
             margin: 12px;
@@ -46,14 +130,57 @@
         .line-error{
             background: #f8cbcb;
         }
-    
+
+        .echo table {
+            width: 100%;
+        }
+
+        .echo pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f7f7f7;
+            border: 0;
+            border-radius: 3px;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        .echo pre > pre {
+            padding: 0;
+            margin: 0;
+        }
+        /* Layout */
+        .col-md-3 {
+            width: 25%;
+        }
+        .col-md-9 {
+            width: 75%;
+        }
+        [class^="col-md-"] {
+            float: left;
+        }
+        .clearfix {
+            clear:both;
+        }
+        @media only screen 
+        and (min-device-width : 375px) 
+        and (max-device-width : 667px) { 
+            .col-md-3,
+            .col-md-9 {
+                width: 100%;
+            }
+        }
         /* Exception Info */
+        .exception {
+            margin-top: 20px;
+        }
         .exception .message{
             padding: 12px;
             border: 1px solid #ddd;
             border-bottom: 0 none;
             line-height: 18px;
-        font-size:16px;
+            font-size:16px;
             border-top-left-radius: 4px;
             border-top-right-radius: 4px;
             font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
@@ -126,6 +253,8 @@
             width: 100%;
             margin: 12px 0;
             box-sizing: border-box;
+            table-layout:fixed;
+            word-wrap:break-word;            
         }
         .exception-var table caption{
             text-align: left;
@@ -146,10 +275,10 @@
         .exception-var table td{
             padding: 0 6px;
             vertical-align: top;
-            word-break: break-word;
+            word-break: break-all;
         }
         .exception-var table td:first-child{
-            width: 12px;
+            width: 28%;
             font-weight: bold;
             white-space: nowrap;
         }
@@ -181,7 +310,10 @@
     </style>
 </head>
 <body>
-    <?php if(APP_DEBUG) { ?>
+    <div class="echo">
+        <?php echo $echo;?>
+    </div>
+    <?php if(\think\App::$debug) { ?>
     <div class="exception">
     <div class="message">
         
@@ -189,7 +321,7 @@
                 <div>
                     <h2>[<?php echo $code; ?>] <?php echo sprintf('%s in %s', parse_class($name), parse_file($file, $line)); ?></h2>
                 </div>
-                <div><h1><?php echo htmlentities($message); ?></h1></div>
+                <div><h1><?php echo nl2br(htmlentities($message)); ?></h1></div>
             </div>
         
     </div>
@@ -273,16 +405,19 @@
     <div class="exception-var">
         <h2>Environment Variables</h2>
         <?php foreach ((array) $tables as $label => $value) { ?>
-        <table>
+        <div>
             <?php if(empty($value)){ ?>
-            <caption><?php echo $label; ?><small>empty</small></caption>
+            <div class="clearfix">
+                <div class="col-md-3"><strong><?php echo $label; ?></strong></div>
+                <div class="col-md-9"><small>empty</small></div>
+            </div>
             <?php } else { ?>
-            <caption><?php echo $label; ?></caption>
-            <tbody>
+            <h3 class="subheading"><?php echo $label; ?></h3>
+            <div>
                 <?php foreach ((array) $value as $key => $val) { ?>
-                <tr>
-                    <td><?php echo htmlentities($key); ?></td>
-                    <td>
+                <div class="clearfix">
+                    <div class="col-md-3"><strong><?php echo htmlentities($key); ?></strong></div>
+                    <div class="col-md-9"><small>
                         <?php 
                             if(is_array($val) || is_object($val)){ 
                                 echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
@@ -294,12 +429,12 @@
                                 echo 'Resource';
                             }
                         ?>
-                    </td>
-                </tr>
+                    </small></div>
+                </div>
                 <?php } ?>
-            </tbody>
+            </div>
             <?php } ?>
-        </table>
+        </div>
         <?php } ?>
     </div>
     <?php } ?>
@@ -309,7 +444,7 @@
         <span>V<?php echo THINK_VERSION; ?></span> 
         <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
     </div>
-    <?php if(APP_DEBUG) { ?>
+    <?php if(\think\App::$debug) { ?>
     <script>
         var LINE = <?php echo $line; ?>;
 
@@ -400,71 +535,3 @@
     <?php } ?>
 </body>
 </html>
-<?php
-    function parse_padding($source)
-    {
-        $length  = strlen(strval(count($source['source']) + $source['first']));
-        return 40 + ($length - 1) * 8;
-    }
-
-    function parse_class($name)
-    {
-        $names = explode('\\', $name);
-        return '<abbr title="'.$name.'">'.end($names).'</abbr>';
-    }
-
-    function parse_file($file, $line)
-    {
-        return '<a class="toggle" title="'."{$file} line {$line}".'">'.basename($file)." line {$line}".'</a>';
-    }
-
-    function parse_args($args)
-    {
-        $result = [];
-
-        foreach ($args as $key => $item) {
-            switch (true) {
-                case is_object($item):
-                    $value = sprintf('<em>object</em>(%s)', parse_class(get_class($item)));
-                    break;
-                case is_array($item):
-                    if(count($item) > 3){
-                        $value = sprintf('[%s, ...]', parse_args(array_slice($item, 0, 3)));
-                    } else {
-                        $value = sprintf('[%s]', parse_args($item));
-                    }
-                    break;
-                case is_string($item):
-                    if(strlen($item) > 20){
-                        $value = sprintf(
-                            '\'<a class="toggle" title="%s">%s...</a>\'', 
-                            htmlentities($item), 
-                            htmlentities(substr($item, 0, 20))
-                        );
-                    } else {
-                        $value = sprintf("'%s'", htmlentities($item));
-                    }
-                    break;
-                case is_int($item):
-                case is_float($item):
-                    $value = $item;
-                    break;
-                case is_null($item):
-                    $value = '<em>null</em>';
-                    break;
-                case is_bool($item):
-                    $value = '<em>' . ($item ? 'true' : 'false') . '</em>';
-                    break;
-                case is_resource($item):
-                    $value = '<em>resource</em>';
-                    break;
-                default:
-                    $value = htmlentities(str_replace("\n", '', var_export(strval($item), true)));
-                    break;
-            }
-
-            $result[] = is_int($key) ? $value : "'{$key}' => {$value}";
-        }
-
-        return implode(', ', $result);
-    }

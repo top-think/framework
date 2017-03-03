@@ -11,13 +11,12 @@
 
 namespace think\console\command;
 
-
+use think\console\Command;
 use think\console\Input;
 use think\console\Output;
 use think\console\input\Argument as InputArgument;
 use think\console\input\Option as InputOption;
 use think\console\input\Definition as InputDefinition;
-use think\console\helper\Descriptor as DescriptorHelper;
 
 class Lists extends Command
 {
@@ -56,9 +55,7 @@ EOF
      */
     protected function execute(Input $input, Output $output)
     {
-
-        $helper = new DescriptorHelper();
-        $helper->describe($output, $this->getConsole(), [
+        $output->describe($this->getConsole(), [
             'raw_text'  => $input->getOption('raw'),
             'namespace' => $input->getArgument('namespace'),
         ]);

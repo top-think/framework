@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -10,6 +10,9 @@
 // +----------------------------------------------------------------------
 
 namespace think;
+
+use think\exception\ClassNotFoundException;
+use think\response\Redirect;
 
 class Debug
 {
@@ -20,8 +23,8 @@ class Debug
 
     /**
      * 记录时间（微秒）和内存使用情况
-     * @param string $name 标记位置
-     * @param mixed $value 标记值 留空则取当前 time 表示仅记录时间 否则同时记录时间和内存
+     * @param string    $name 标记位置
+     * @param mixed     $value 标记值 留空则取当前 time 表示仅记录时间 否则同时记录时间和内存
      * @return mixed
      */
     public static function remark($name, $value = '')
@@ -36,9 +39,9 @@ class Debug
 
     /**
      * 统计某个区间的时间（微秒）使用情况
-     * @param string $start 开始标签
-     * @param string $end 结束标签
-     * @param integer|string $dec 小数位
+     * @param string            $start 开始标签
+     * @param string            $end 结束标签
+     * @param integer|string    $dec 小数位
      * @return integer
      */
     public static function getRangeTime($start, $end, $dec = 6)
@@ -56,7 +59,7 @@ class Debug
      */
     public static function getUseTime($dec = 6)
     {
-        return number_format((microtime(true) - START_TIME), $dec);
+        return number_format((microtime(true) - THINK_START_TIME), $dec);
     }
 
     /**
@@ -70,9 +73,9 @@ class Debug
 
     /**
      * 记录区间的内存使用情况
-     * @param string $start 开始标签
-     * @param string $end 结束标签
-     * @param integer|string $dec 小数位
+     * @param string            $start 开始标签
+     * @param string            $end 结束标签
+     * @param integer|string    $dec 小数位
      * @return string
      */
     public static function getRangeMem($start, $end, $dec = 2)
@@ -97,7 +100,7 @@ class Debug
      */
     public static function getUseMem($dec = 2)
     {
-        $size = memory_get_usage() - START_MEM;
+        $size = memory_get_usage() - THINK_START_MEM;
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
         while ($size >= 1024) {
@@ -109,9 +112,9 @@ class Debug
 
     /**
      * 统计区间的内存峰值情况
-     * @param string $start 开始标签
-     * @param string $end 结束标签
-     * @param integer|string $dec 小数位
+     * @param string            $start 开始标签
+     * @param string            $end 结束标签
+     * @param integer|string    $dec 小数位
      * @return mixed
      */
     public static function getMemPeak($start, $end, $dec = 2)
@@ -131,7 +134,7 @@ class Debug
 
     /**
      * 获取文件加载信息
-     * @param bool $detail 是否显示详细
+     * @param bool  $detail 是否显示详细
      * @return integer|array
      */
     public static function getFile($detail = false)
@@ -149,12 +152,13 @@ class Debug
 
     /**
      * 浏览器友好的变量输出
-     * @param mixed $var 变量
-     * @param boolean $echo 是否输出 默认为true 如果为false 则返回输出字符串
-     * @param string $label 标签 默认为空
+     * @param mixed         $var 变量
+     * @param boolean       $echo 是否输出 默认为true 如果为false 则返回输出字符串
+     * @param string        $label 标签 默认为空
+     * @param integer       $flags htmlspecialchars flags
      * @return void|string
      */
-    public static function dump($var, $echo = true, $label = null)
+    public static function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
         ob_start();
@@ -165,16 +169,44 @@ class Debug
             $output = PHP_EOL . $label . $output . PHP_EOL;
         } else {
             if (!extension_loaded('xdebug')) {
-                $output = htmlspecialchars($output, ENT_QUOTES);
+                $output = htmlspecialchars($output, $flags);
             }
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo ($output);
-            return null;
+            echo($output);
+            return;
         } else {
             return $output;
         }
     }
 
+    public static function inject(Response $response, &$content)
+    {
+        $config  = Config::get('trace');
+        $type    = isset($config['type']) ? $config['type'] : 'Html';
+        $request = Request::instance();
+        $class   = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
+        unset($config['type']);
+        if (class_exists($class)) {
+            $trace = new $class($config);
+        } else {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
+        }
+
+        if ($response instanceof Redirect) {
+            //TODO 记录
+        } else {
+            $output = $trace->output($response, Log::getLog());
+            if (is_string($output)) {
+                // trace调试信息注入
+                $pos = strripos($content, '</body>');
+                if (false !== $pos) {
+                    $content = substr($content, 0, $pos) . $output . substr($content, $pos);
+                } else {
+                    $content = $content . $output;
+                }
+            }
+        }
+    }
 }

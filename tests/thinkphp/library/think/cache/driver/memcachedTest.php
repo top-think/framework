@@ -47,4 +47,26 @@ class memcachedTest extends cacheTestCase
     public function testExpire()
     {
     }
+
+    public function testStaticCall()
+    {
+    }
+
+    /**
+     * 测试缓存自增
+     * @return  mixed
+     * @access public
+     */
+    public function testInc()
+    {
+    }
+
+    /**
+     * 测试缓存自减
+     * @return  mixed
+     * @access public
+     */
+    public function testDec()
+    {
+    }
 }

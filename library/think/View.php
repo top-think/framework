@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -19,11 +19,13 @@ class View
     public $engine;
     // 模板变量
     protected $data = [];
+    // 用于静态赋值的模板变量
+    protected static $var = [];
     // 视图输出替换
     protected $replace = [];
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param array $engine  模板引擎参数
      * @param array $replace  字符串替换参数
@@ -32,7 +34,21 @@ class View
     {
         // 初始化模板引擎
         $this->engine((array) $engine);
-        $this->replace = $replace;
+        // 基础替换字符串
+        $request = Request::instance();
+        $base    = $request->root();
+        $root    = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
+        if ('' != $root) {
+            $root = '/' . ltrim($root, '/');
+        }
+        $baseReplace = [
+            '__ROOT__'   => $root,
+            '__URL__'    => $base . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
+            '__STATIC__' => $root . '/static',
+            '__CSS__'    => $root . '/static/css',
+            '__JS__'     => $root . '/static/js',
+        ];
+        $this->replace = array_merge($baseReplace, (array) $replace);
     }
 
     /**
@@ -51,6 +67,22 @@ class View
     }
 
     /**
+     * 模板变量静态赋值
+     * @access public
+     * @param mixed $name  变量名
+     * @param mixed $value 变量值
+     * @return void
+     */
+    public static function share($name, $value = '')
+    {
+        if (is_array($name)) {
+            self::$var = array_merge(self::$var, $name);
+        } else {
+            self::$var[$name] = $value;
+        }
+    }
+
+    /**
      * 模板变量赋值
      * @access public
      * @param mixed $name  变量名
@@ -61,7 +93,6 @@ class View
     {
         if (is_array($name)) {
             $this->data = array_merge($this->data, $name);
-            return $this;
         } else {
             $this->data[$name] = $value;
         }
@@ -83,7 +114,7 @@ class View
             $type = !empty($options['type']) ? $options['type'] : 'Think';
         }
 
-        $class = (!empty($options['namespace']) ? $options['namespace'] : '\\think\\view\\driver\\') . ucfirst($type);
+        $class = false !== strpos($type, '\\') ? $type : '\\think\\view\\driver\\' . ucfirst($type);
         if (isset($options['type'])) {
             unset($options['type']);
         }
@@ -92,19 +123,32 @@ class View
     }
 
     /**
+     * 配置模板引擎
+     * @access private
+     * @param string|array  $name 参数名
+     * @param mixed         $value 参数值
+     * @return void
+     */
+    public function config($name, $value = null)
+    {
+        $this->engine->config($name, $value);
+        return $this;
+    }
+
+    /**
      * 解析和获取模板内容 用于输出
-     * @param string $template 模板文件名或者内容
-     * @param array  $vars     模板输出变量
-     * @param array  $replace 替换内容
-     * @param array  $config     模板参数
-     * @param bool  $renderContent     是否渲染内容
+     * @param string    $template 模板文件名或者内容
+     * @param array     $vars     模板输出变量
+     * @param array     $replace 替换内容
+     * @param array     $config     模板参数
+     * @param bool      $renderContent     是否渲染内容
      * @return string
      * @throws Exception
      */
     public function fetch($template = '', $vars = [], $replace = [], $config = [], $renderContent = false)
     {
         // 模板变量
-        $vars = array_merge($this->data, $vars);
+        $vars = array_merge(self::$var, $this->data, $vars);
 
         // 页面缓存
         ob_start();
@@ -129,8 +173,8 @@ class View
     /**
      * 视图内容替换
      * @access public
-     * @param string|array $content 被替换内容（支持批量替换）
-     * @param string  $replace    替换内容
+     * @param string|array  $content 被替换内容（支持批量替换）
+     * @param string        $replace    替换内容
      * @return $this
      */
     public function replace($content, $replace = '')
@@ -160,8 +204,8 @@ class View
     /**
      * 模板变量赋值
      * @access public
-     * @param string $name  变量名
-     * @param mixed $value 变量值
+     * @param string    $name  变量名
+     * @param mixed     $value 变量值
      */
     public function __set($name, $value)
     {

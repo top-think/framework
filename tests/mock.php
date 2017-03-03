@@ -15,10 +15,6 @@ $_SERVER['REQUEST_METHOD'] = 'GET';
 define('TEST_PATH', __DIR__ . '/');
 // 定义项目路径
 define('APP_PATH', __DIR__ . '/application/');
-// 开启调试模式
-define('APP_DEBUG', true);
-// 关闭应用自动执行
-define('APP_AUTO_RUN', false);
-// 加载框架引导文件
-require __DIR__ . '/../start.php';
+// 加载框架基础文件
+require __DIR__ . '/../base.php';
 \think\Loader::addNamespace('tests', TEST_PATH);

@@ -181,10 +181,10 @@ class Option
     public function equals(Option $option)
     {
         return $option->getName() === $this->getName()
-               && $option->getShortcut() === $this->getShortcut()
-               && $option->getDefault() === $this->getDefault()
-               && $option->isArray() === $this->isArray()
-               && $option->isValueRequired() === $this->isValueRequired()
-               && $option->isValueOptional() === $this->isValueOptional();
+        && $option->getShortcut() === $this->getShortcut()
+        && $option->getDefault() === $this->getDefault()
+        && $option->isArray() === $this->isArray()
+        && $option->isValueRequired() === $this->isValueRequired()
+        && $option->isValueOptional() === $this->isValueOptional();
     }
 }

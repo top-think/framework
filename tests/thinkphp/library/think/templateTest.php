@@ -78,7 +78,7 @@ EOF;
 {\$name.a==\$name.b?='test'}
 EOF;
         $data = <<<EOF
-<?php if(\$name['a']==\$name['b']) echo 'test'; ?>
+<?php if(!empty(\$name['a']) && \$name['a']==\$name['b']) echo 'test'; ?>
 EOF;
 
         $template->parse($content);
@@ -88,7 +88,7 @@ EOF;
 {\$name.a==\$name.b?'a':'b'}
 EOF;
         $data = <<<EOF
-<?php echo (\$name['a']==\$name['b'])?'a':'b'; ?>
+<?php echo !empty(\$name['a']) && \$name['a']==\$name['b']?'a':'b'; ?>
 EOF;
 
         $template->parse($content);
@@ -98,7 +98,7 @@ EOF;
 {\$name.a|default='test'==\$name.b?'a':'b'}
 EOF;
         $data = <<<EOF
-<?php echo ((isset(\$name['a']) && (\$name['a'] !== '')?\$name['a']:'test')==\$name['b'])?'a':'b'; ?>
+<?php echo (isset(\$name['a']) && (\$name['a'] !== '')?\$name['a']:'test')==\$name['b']?'a':'b'; ?>
 EOF;
 
         $template->parse($content);
@@ -210,7 +210,7 @@ EOF;
 <#\$info.a??'test'#>
 EOF;
         $data = <<<EOF
-<?php echo (is_array(\$info)?\$info['a']:\$info->a) ? (is_array(\$info)?\$info['a']:\$info->a) : 'test'; ?>
+<?php echo ((is_array(\$info)?\$info['a']:\$info->a)) ? (is_array(\$info)?\$info['a']:\$info->a) : 'test'; ?>
 EOF;
 
         $template->parse($content);
@@ -291,15 +291,15 @@ EOF;
 {\$Think.SITE.URL}
 EOF;
         $data = <<<EOF
-<?php echo \$_SERVER['SERVER_NAME']; ?><br/>
-<?php echo \$_GET['action']; ?><br/>
-<?php echo \$_POST['action']; ?><br/>
+<?php echo \\think\\Request::instance()->server('SERVER_NAME'); ?><br/>
+<?php echo \\think\\Request::instance()->get('action'); ?><br/>
+<?php echo \\think\\Request::instance()->post('action'); ?><br/>
 <?php echo \\think\\Cookie::get('action'); ?><br/>
-<?php echo \$_COOKIE['action']['name']; ?><br/>
+<?php echo \\think\\Cookie::get('action.name'); ?><br/>
 <?php echo \\think\\Session::get('action'); ?><br/>
-<?php echo \$_SESSION['action']['name']; ?><br/>
-<?php echo \$_ENV['OS']; ?><br/>
-<?php echo \$_REQUEST['action']; ?><br/>
+<?php echo \\think\\Session::get('action.name'); ?><br/>
+<?php echo \\think\\Request::instance()->env('OS'); ?><br/>
+<?php echo \\think\\Request::instance()->request('action'); ?><br/>
 <?php echo SITE_NAME; ?><br/>
 <?php echo \\think\\Lang::get('action'); ?><br/>
 <?php echo \\think\\Config::get('action.name'); ?><br/>
@@ -320,7 +320,7 @@ EOF;
         $template->assign('name', 'name');
         $config = [
             'strip_space'   => true,
-            'view_path'     => dirname(__FILE__) . '/',
+            'view_path'     => dirname(__FILE__) . DS,
             'cache_id'      => '__CACHE_ID__',
             'display_cache' => true,
         ];
@@ -331,7 +331,7 @@ EOF;
 
     public function testDisplay()
     {
-        $config['view_path']   = dirname(__FILE__) . '/';
+        $config['view_path']   = dirname(__FILE__) . DS;
         $config['view_suffix'] = '.html';
         $config['layout_on']   = true;
         $config['layout_name'] = 'layout';
@@ -407,7 +407,7 @@ EOF;
     public function testIsCache()
     {
         $template = new Template(['cache_id' => '__CACHE_ID__', 'display_cache' => true]);
-        $this->assertTrue(!$template->isCache('__CACHE_ID__'));
+        $this->assertTrue($template->isCache('__CACHE_ID__'));
         $template->display_cache = false;
         $this->assertTrue(!$template->isCache('__CACHE_ID__'));
     }

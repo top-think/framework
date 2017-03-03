@@ -19,7 +19,7 @@ namespace tests\thinkphp\library\think\tempplate\taglib;
 use think\Template;
 use think\template\taglib\Cx;
 
-class templateTest extends \PHPUnit_Framework_TestCase
+class cxTest extends \PHPUnit_Framework_TestCase
 {
     public function testPhp()
     {
@@ -47,7 +47,7 @@ EOF;
 {/volist}
 EOF;
         $data = <<<EOF
-<?php if(is_array(\$list) || \$list instanceof \\think\\Collection): \$key = 0; \$__LIST__ = \$list;if( count(\$__LIST__)==0 ) : echo "" ;else: foreach(\$__LIST__ as \$key=>\$vo): \$mod = (\$key % 2 );++\$key;?>
+<?php if(is_array(\$list) || \$list instanceof \\think\\Collection || \$list instanceof \\think\\Paginator): \$key = 0; \$__LIST__ = \$list;if( count(\$__LIST__)==0 ) : echo "" ;else: foreach(\$__LIST__ as \$key=>\$vo): \$mod = (\$key % 2 );++\$key;?>
 
 <?php endforeach; endif; else: echo "" ;endif; ?>
 EOF;
@@ -88,7 +88,7 @@ EOF;
 {/foreach}
 EOF;
         $data = <<<EOF
-<?php if(is_array(\$list) || \$list instanceof \\think\\Collection): if( count(\$list)==0 ) : echo "empty" ;else: foreach(\$list as \$key=>\$val): ?>
+<?php if(is_array(\$list) || \$list instanceof \\think\\Collection || \$list instanceof \\think\\Paginator): if( count(\$list)==0 ) : echo "empty" ;else: foreach(\$list as \$key=>\$val): ?>
 
 <?php endforeach; endif; else: echo "empty" ;endif; ?>
 EOF;
@@ -389,7 +389,7 @@ default
 {/empty}
 EOF;
         $data = <<<EOF
-<?php if(empty(\$var) || (\$var instanceof \\think\\Collection && \$var->isEmpty())): ?>
+<?php if(empty(\$var) || ((\$var instanceof \\think\\Collection || \$var instanceof \\think\\Paginator ) && \$var->isEmpty())): ?>
 default
 <?php endif; ?>
 EOF;
@@ -402,7 +402,7 @@ default
 {/notempty}
 EOF;
         $data = <<<EOF
-<?php if(!(empty(\$var) || (\$var instanceof \\think\\Collection && \$var->isEmpty()))): ?>
+<?php if(!(empty(\$var) || ((\$var instanceof \\think\\Collection || \$var instanceof \\think\\Paginator ) && \$var->isEmpty()))): ?>
 default
 <?php endif; ?>
 EOF;
@@ -448,37 +448,10 @@ EOF;
         $cx       = new Cx($template);
 
         $content = <<<EOF
-{import file="base?ver=1.0" value="\$name.a" /}
-EOF;
-        $data = <<<EOF
-<?php if(isset(\$name['a'])): ?><script type="text/javascript" src="/public/base.js?ver=1.0"></script><?php endif; ?>
-EOF;
-        $cx->parseTag($content);
-        $this->assertEquals($content, $data);
-
-        $content = <<<EOF
-{import file="base" type="css" /}
-EOF;
-        $data = <<<EOF
-<link rel="stylesheet" type="text/css" href="/public/base.css" />
-EOF;
-        $cx->parseTag($content);
-        $this->assertEquals($content, $data);
-
-        $content = <<<EOF
-{import file="base,common" type="php" /}
-EOF;
-        $data = <<<EOF
-<?php \\think\\Loader::import("base"); ?><?php \\think\\Loader::import("common"); ?>
-EOF;
-        $cx->parseTag($content);
-        $this->assertEquals($content, $data);
-
-        $content = <<<EOF
 {load file="base.php" value="\$name.a" /}
 EOF;
         $data = <<<EOF
-<?php if(isset(\$name['a'])): ?><?php require_cache("base.php"); ?><?php endif; ?>
+<?php if(isset(\$name['a'])): ?><?php include "base.php"; ?><?php endif; ?>
 EOF;
         $cx->parseTag($content);
         $this->assertEquals($content, $data);
@@ -561,6 +534,15 @@ EOF;
 EOF;
         $template->display($content);
         $this->expectOutputString('123456789');
+    }
+    public function testUrl()
+    {
+        $template = new template();
+        $content  = <<<EOF
+{url link="Index/index"  /}
+EOF;
+        $template->display($content);
+        $this->expectOutputString(\think\Url::build('Index/index'));
     }
 
     public function testFunction()

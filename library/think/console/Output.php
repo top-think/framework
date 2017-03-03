@@ -11,43 +11,152 @@
 
 namespace think\console;
 
-use think\console\output\Formatter;
-use think\console\output\Stream;
+use Exception;
+use think\console\output\Ask;
+use think\console\output\Descriptor;
+use think\console\output\driver\Buffer;
+use think\console\output\driver\Console;
+use think\console\output\driver\Nothing;
+use think\console\output\Question;
+use think\console\output\question\Choice;
+use think\console\output\question\Confirmation;
 
-class Output extends Stream
+/**
+ * Class Output
+ * @package think\console
+ *
+ * @see     \think\console\output\driver\Console::setDecorated
+ * @method void setDecorated($decorated)
+ *
+ * @see     \think\console\output\driver\Buffer::fetch
+ * @method string fetch()
+ *
+ * @method void info($message)
+ * @method void error($message)
+ * @method void comment($message)
+ * @method void warning($message)
+ * @method void highlight($message)
+ * @method void question($message)
+ */
+class Output
 {
+    const VERBOSITY_QUIET        = 0;
+    const VERBOSITY_NORMAL       = 1;
+    const VERBOSITY_VERBOSE      = 2;
+    const VERBOSITY_VERY_VERBOSE = 3;
+    const VERBOSITY_DEBUG        = 4;
 
-    /** @var Stream */
-    private $stderr;
+    const OUTPUT_NORMAL = 0;
+    const OUTPUT_RAW    = 1;
+    const OUTPUT_PLAIN  = 2;
 
-    public function __construct()
+    private $verbosity = self::VERBOSITY_NORMAL;
+
+    /** @var Buffer|Console|Nothing */
+    private $handle = null;
+
+    protected $styles = [
+        'info',
+        'error',
+        'comment',
+        'question',
+        'highlight',
+        'warning'
+    ];
+
+    public function __construct($driver = 'console')
     {
-        $outputStream = 'php://stdout';
-        if (!$this->hasStdoutSupport()) {
-            $outputStream = 'php://output';
+        $class = '\\think\\console\\output\\driver\\' . ucwords($driver);
+
+        $this->handle = new $class($this);
+    }
+
+    public function ask(Input $input, $question, $default = null, $validator = null)
+    {
+        $question = new Question($question, $default);
+        $question->setValidator($validator);
+
+        return $this->askQuestion($input, $question);
+    }
+
+    public function askHidden(Input $input, $question, $validator = null)
+    {
+        $question = new Question($question);
+
+        $question->setHidden(true);
+        $question->setValidator($validator);
+
+        return $this->askQuestion($input, $question);
+    }
+
+    public function confirm(Input $input, $question, $default = true)
+    {
+        return $this->askQuestion($input, new Confirmation($question, $default));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function choice(Input $input, $question, array $choices, $default = null)
+    {
+        if (null !== $default) {
+            $values  = array_flip($choices);
+            $default = $values[$default];
         }
 
-        parent::__construct(fopen($outputStream, 'w'));
+        return $this->askQuestion($input, new Choice($question, $choices, $default));
+    }
 
-        $this->stderr = new Stream(fopen('php://stderr', 'w'), $this->getFormatter());
+    protected function askQuestion(Input $input, Question $question)
+    {
+        $ask    = new Ask($input, $this, $question);
+        $answer = $ask->run();
+
+        if ($input->isInteractive()) {
+            $this->newLine();
+        }
+
+        return $answer;
+    }
+
+    protected function block($style, $message)
+    {
+        $this->writeln("<{$style}>{$message}</$style>");
     }
 
     /**
-     * {@inheritdoc}
+     * 输出空行
+     * @param int $count
      */
-    public function setDecorated($decorated)
+    public function newLine($count = 1)
     {
-        parent::setDecorated($decorated);
-        $this->stderr->setDecorated($decorated);
+        $this->write(str_repeat(PHP_EOL, $count));
     }
 
     /**
-     * {@inheritdoc}
+     * 输出信息并换行
+     * @param string $messages
+     * @param int    $type
      */
-    public function setFormatter(Formatter $formatter)
+    public function writeln($messages, $type = self::OUTPUT_NORMAL)
     {
-        parent::setFormatter($formatter);
-        $this->stderr->setFormatter($formatter);
+        $this->write($messages, true, $type);
+    }
+
+    /**
+     * 输出信息
+     * @param string $messages
+     * @param bool   $newline
+     * @param int    $type
+     */
+    public function write($messages, $newline = false, $type = self::OUTPUT_NORMAL)
+    {
+        $this->handle->write($messages, $newline, $type);
+    }
+
+    public function renderException(\Exception $e)
+    {
+        $this->handle->renderException($e);
     }
 
     /**
@@ -55,32 +164,59 @@ class Output extends Stream
      */
     public function setVerbosity($level)
     {
-        parent::setVerbosity($level);
-        $this->stderr->setVerbosity($level);
+        $this->verbosity = (int) $level;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getErrorOutput()
+    public function getVerbosity()
     {
-        return $this->stderr;
+        return $this->verbosity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setErrorOutput(Output $error)
+    public function isQuiet()
     {
-        $this->stderr = $error;
+        return self::VERBOSITY_QUIET === $this->verbosity;
     }
 
-    /**
-     * 检查当前环境是否支持控制台输出写入标准输出。
-     * @return bool
-     */
-    protected function hasStdoutSupport()
+    public function isVerbose()
     {
-        return ('OS400' != php_uname('s'));
+        return self::VERBOSITY_VERBOSE <= $this->verbosity;
     }
+
+    public function isVeryVerbose()
+    {
+        return self::VERBOSITY_VERY_VERBOSE <= $this->verbosity;
+    }
+
+    public function isDebug()
+    {
+        return self::VERBOSITY_DEBUG <= $this->verbosity;
+    }
+
+    public function describe($object, array $options = [])
+    {
+        $descriptor = new Descriptor();
+        $options    = array_merge([
+            'raw_text' => false,
+        ], $options);
+
+        $descriptor->describe($this, $object, $options);
+    }
+
+    public function __call($method, $args)
+    {
+        if (in_array($method, $this->styles)) {
+            array_unshift($args, $method);
+            return call_user_func_array([$this, 'block'], $args);
+        }
+
+        if ($this->handle && method_exists($this->handle, $method)) {
+            return call_user_func_array([$this->handle, $method], $args);
+        } else {
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+        }
+    }
+
 }

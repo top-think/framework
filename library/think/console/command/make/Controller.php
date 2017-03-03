@@ -11,84 +11,40 @@
 
 namespace think\console\command\make;
 
-use think\console\Input;
-use think\console\input\Argument;
+use think\Config;
+use think\console\command\Make;
 use think\console\input\Option;
-use think\console\Output;
 
-class Controller extends \think\console\command\Make
+class Controller extends Make
 {
-    /**
-     * {@inheritdoc}
-     */
+
+    protected $type = "Controller";
+
     protected function configure()
     {
-        $this
-            ->setName('make:controller')
-            ->setDescription('Create a new controller class')
-            ->addArgument('namespace', Argument::OPTIONAL, null)
-            ->addOption('module', 'm', Option::VALUE_OPTIONAL, 'Module Name', null)
-            ->addOption('extend', 'e', Option::VALUE_OPTIONAL, 'Base on Controller class', null);
+        parent::configure();
+        $this->setName('make:controller')
+            ->addOption('plain', null, Option::VALUE_NONE, 'Generate an empty controller class.')
+            ->setDescription('Create a new resource controller class');
     }
 
-    protected function execute(Input $input, Output $output)
+    protected function getStub()
     {
-        $namespace = $input->getArgument('namespace');
-        $module = $input->getOption('module');
-
-
-        // 处理命名空间
-        if (!empty($module)) {
-            $namespace = APP_NAMESPACE . "\\" . $module . "\\" . 'controller' . "\\" . $namespace;
+        if ($this->input->getOption('plain')) {
+            return __DIR__ . '/stubs/controller.plain.stub';
         }
 
-        // 处理继承
-        $extend = $input->getOption('extend');
-
-        if (empty($extend)) {
-            $extend = "\\think\\Controller";
-        } else {
-            if (!preg_match("/\\\/", $extend)) {
-                if (!empty($module)) {
-                    $extend = "\\" . APP_NAMESPACE . "\\" . $module . "\\" . 'controller' . "\\" . $extend;
-                }
-            }
-        }
-
-
-        $result = $this->build($namespace, $extend);
-        $output->writeln("output:" . $result);
+        return __DIR__ . '/stubs/controller.stub';
     }
 
-    private function build($namespace, $extend)
+    protected function getClassName($name)
     {
-        $tpl = file_get_contents(THINK_PATH . 'tpl' . DS . 'make_controller.tpl');
-
-        // comminute namespace
-        $allNamespace = self::formatNameSpace($namespace);
-        $namespace = implode('\\', $allNamespace[0]);
-        $className = ucwords($allNamespace[1]);
-
-        // 处理内容
-        $content = str_replace("{%extend%}", $extend,
-            str_replace("{%className%}", $className,
-                str_replace("{%namespace%}", $namespace, $tpl)
-            )
-        );
-
-        // 处理文件夹
-        $path = '';
-        foreach ($allNamespace[0] as $key => $value) {
-            if ($key >= 1) {
-                self::buildDir($path . $value);
-                $path .= $value . "\\";
-            }
-        }
-
-        // 处理文件
-        $file = $path . $className . '.php';
-        self::buildFile($file, $content);
-
-        return APP_PATH . $file;
+        return parent::getClassName($name) . (Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '');
     }
+
+    protected function getNamespace($appNamespace, $module)
+    {
+        return parent::getNamespace($appNamespace, $module) . '\controller';
+    }
+
 }

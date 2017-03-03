@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -16,11 +16,13 @@ use think\Exception;
 
 class Redis extends SessionHandler
 {
+    /** @var \Redis */
     protected $handler = null;
     protected $config  = [
         'host'         => '127.0.0.1', // redis主机
         'port'         => 6379, // redis端口
         'password'     => '', // 密码
+        'select'       => 0, // 操作库
         'expire'       => 3600, // 有效期(秒)
         'timeout'      => 0, // 超时时间(秒)
         'persistent'   => true, // 是否长连接
@@ -36,13 +38,15 @@ class Redis extends SessionHandler
      * 打开Session
      * @access public
      * @param string $savePath
-     * @param mixed $sessName
+     * @param mixed  $sessName
+     * @return bool
+     * @throws Exception
      */
     public function open($savePath, $sessName)
     {
         // 检测php环境
         if (!extension_loaded('redis')) {
-            throw new Exception('_NOT_SUPPERT_:redis');
+            throw new Exception('not support:redis');
         }
         $this->handler = new \Redis;
 
@@ -53,6 +57,11 @@ class Redis extends SessionHandler
         if ('' != $this->config['password']) {
             $this->handler->auth($this->config['password']);
         }
+
+        if (0 != $this->config['select']) {
+            $this->handler->select($this->config['select']);
+        }
+
         return true;
     }
 
@@ -72,10 +81,11 @@ class Redis extends SessionHandler
      * 读取Session
      * @access public
      * @param string $sessID
+     * @return string
      */
     public function read($sessID)
     {
-        return $this->handler->get($this->config['session_name'] . $sessID);
+        return (string) $this->handler->get($this->config['session_name'] . $sessID);
     }
 
     /**
@@ -83,6 +93,7 @@ class Redis extends SessionHandler
      * @access public
      * @param string $sessID
      * @param String $sessData
+     * @return bool
      */
     public function write($sessID, $sessData)
     {
@@ -97,16 +108,18 @@ class Redis extends SessionHandler
      * 删除Session
      * @access public
      * @param string $sessID
+     * @return bool
      */
     public function destroy($sessID)
     {
-        return $this->handler->delete($this->config['session_name'] . $sessID) ? true : false;
+        return $this->handler->delete($this->config['session_name'] . $sessID) > 0;
     }
 
     /**
      * Session 垃圾回收
      * @access public
      * @param string $sessMaxLifeTime
+     * @return bool
      */
     public function gc($sessMaxLifeTime)
     {

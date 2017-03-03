@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -68,7 +68,7 @@ class TagLib
     protected $comparison = [' nheq ' => ' !== ', ' heq ' => ' === ', ' neq ' => ' != ', ' eq ' => ' == ', ' egt ' => ' >= ', ' gt ' => ' > ', ' elt ' => ' <= ', ' lt ' => ' < '];
 
     /**
-     * 架构函数
+     * 构造函数
      * @access public
      * @param \stdClass $template 模板引擎对象
      */
@@ -87,15 +87,15 @@ class TagLib
     public function parseTag(&$content, $lib = '')
     {
         $tags = [];
-        $_lib = $lib ? $lib . ':' : '';
+        $lib  = $lib ? strtolower($lib) . ':' : '';
         foreach ($this->tags as $name => $val) {
-            $close                       = !isset($val['close']) || $val['close'] ? 1 : 0;
-            $tags[$close][$_lib . $name] = $name;
+            $close                      = !isset($val['close']) || $val['close'] ? 1 : 0;
+            $tags[$close][$lib . $name] = $name;
             if (isset($val['alias'])) {
                 // 别名设置
                 $array = (array) $val['alias'];
                 foreach (explode(',', $array[0]) as $v) {
-                    $tags[$close][$_lib . $v] = $name;
+                    $tags[$close][$lib . $v] = $name;
                 }
             }
         }
@@ -108,7 +108,7 @@ class TagLib
                 $right = [];
                 foreach ($matches as $match) {
                     if ('' == $match[1][0]) {
-                        $name = $match[2][0];
+                        $name = strtolower($match[2][0]);
                         // 如果有没闭合的标签头则取出最后一个
                         if (!empty($right[$name])) {
                             // $match[0][1]为标签结束符在模板中的位置
@@ -120,7 +120,7 @@ class TagLib
                         }
                     } else {
                         // 标签头压入栈
-                        $right[$match[1][0]][] = $match[0];
+                        $right[strtolower($match[1][0])][] = $match[0];
                     }
                 }
                 unset($right, $matches);
@@ -135,10 +135,10 @@ class TagLib
                 foreach ($nodes as $pos => $node) {
                     // 对应的标签名
                     $name  = $tags[1][$node['name']];
-                    $alias = $_lib . $name != $node['name'] ? ($_lib ? strstr($node['name'], $_lib) : $node['name']) : '';
+                    $alias = $lib . $name != $node['name'] ? ($lib ? strstr($node['name'], $lib) : $node['name']) : '';
                     // 解析标签属性
                     $attrs  = $this->parseAttr($node['begin'][0], $name, $alias);
-                    $method = '_' . $name;
+                    $method = 'tag' . $name;
                     // 读取标签库中对应的标签内容 replace[0]用来替换标签头，replace[1]用来替换标签尾
                     $replace = explode($break, $this->$method($attrs, $break));
                     if (count($replace) > 1) {
@@ -170,13 +170,13 @@ class TagLib
         // 自闭合标签
         if (!empty($tags[0])) {
             $regex   = $this->getRegex(array_keys($tags[0]), 0);
-            $content = preg_replace_callback($regex, function ($matches) use (&$tags, &$_lib) {
+            $content = preg_replace_callback($regex, function ($matches) use (&$tags, &$lib) {
                 // 对应的标签名
-                $name  = $tags[0][$matches[1]];
-                $alias = $_lib . $name != $matches[1] ? ($_lib ? strstr($matches[1], $_lib) : $matches[1]) : '';
+                $name  = $tags[0][strtolower($matches[1])];
+                $alias = $lib . $name != $matches[1] ? ($lib ? strstr($matches[1], $lib) : $matches[1]) : '';
                 // 解析标签属性
                 $attrs  = $this->parseAttr($matches[0], $name, $alias);
-                $method = '_' . $name;
+                $method = 'tag' . $name;
                 return $this->$method($attrs, '');
             }, $content);
         }
@@ -186,8 +186,8 @@ class TagLib
     /**
      * 按标签生成正则
      * @access private
-     * @param  array|string $tags 标签名
-     * @param  boolean $close 是否为闭合标签
+     * @param  array|string     $tags 标签名
+     * @param  boolean          $close 是否为闭合标签
      * @return string
      */
     private function getRegex($tags, $close)
@@ -224,7 +224,7 @@ class TagLib
      */
     public function parseAttr($str, $name, $alias = '')
     {
-        $regex  = '/\s+(?>(?<name>[\w-]+)\s*)=(?>\s*)([\"\'])(?<value>(?:(?!\\2).)*)\\2/is';
+        $regex  = '/\s+(?>(?P<name>[\w-]+)\s*)=(?>\s*)([\"\'])(?P<value>(?:(?!\\2).)*)\\2/is';
         $result = [];
         if (preg_match_all($regex, $str, $matches)) {
             foreach ($matches['name'] as $key => $val) {
@@ -255,7 +255,7 @@ class TagLib
                 $must = explode(',', $tag['must']);
                 foreach ($must as $name) {
                     if (!isset($result[$name])) {
-                        throw new Exception('_PARAM_ERROR_:' . $name);
+                        throw new Exception('tag attr must:' . $name);
                     }
                 }
             }
@@ -272,7 +272,7 @@ class TagLib
                 $result['expression'] = rtrim($result['expression'], '/');
                 $result['expression'] = trim($result['expression']);
             } elseif (empty($this->tags[$name]) || !empty($this->tags[$name]['attr'])) {
-                throw new Exception('_XML_TAG_ERROR_:' . $name);
+                throw new Exception('tag error:' . $name);
             }
         }
         return $result;
@@ -286,6 +286,9 @@ class TagLib
      */
     public function parseCondition($condition)
     {
+        if (strpos($condition, ':')) {
+            $condition = ' ' . substr(strstr($condition, ':'), 1);
+        }
         $condition = str_ireplace(array_keys($this->comparison), array_values($this->comparison), $condition);
         $this->tpl->parseVar($condition);
         // $this->tpl->parseVarFunction($condition); // XXX: 此句能解析表达式中用|分隔的函数，但表达式中如果有|、||这样的逻辑运算就产生了歧异

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -11,34 +11,38 @@
 
 namespace think\cache\driver;
 
-use think\Cache;
-use think\Exception;
+use think\cache\Driver;
 
-class Memcached
+class Memcached extends Driver
 {
-    protected $handler = null;
     protected $options = [
-        'host'    => '127.0.0.1',
-        'port'    => 11211,
-        'expire'  => 0,
-        'timeout' => 0, // 超时时间（单位：毫秒）
-        'prefix'  => '',
+        'host'     => '127.0.0.1',
+        'port'     => 11211,
+        'expire'   => 0,
+        'timeout'  => 0, // 超时时间（单位：毫秒）
+        'prefix'   => '',
+        'username' => '', //账号
+        'password' => '', //密码
+        'option'   => [],
     ];
 
     /**
-     * 架构函数
+     * 构造函数
      * @param array $options 缓存参数
      * @access public
      */
     public function __construct($options = [])
     {
         if (!extension_loaded('memcached')) {
-            throw new \BadFunctionCallException('not support memcached');
+            throw new \BadFunctionCallException('not support: memcached');
         }
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
         $this->handler = new \Memcached;
+        if (!empty($this->options['option'])) {
+            $this->handler->setOptions($this->options['option']);
+        }
         // 设置连接超时时间（单位：毫秒）
         if ($this->options['timeout'] > 0) {
             $this->handler->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $this->options['timeout']);
@@ -55,25 +59,43 @@ class Memcached
             $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
         }
         $this->handler->addServers($servers);
+        if ('' != $this->options['username']) {
+            $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
+            $this->handler->setSaslAuthData($this->options['username'], $this->options['password']);
+        }
+    }
+
+    /**
+     * 判断缓存
+     * @access public
+     * @param string $name 缓存变量名
+     * @return bool
+     */
+    public function has($name)
+    {
+        $key = $this->getCacheKey($name);
+        return $this->handler->get($key) ? true : false;
     }
 
     /**
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name)
+    public function get($name, $default = false)
     {
-        return $this->handler->get($this->options['prefix'] . $name);
+        $result = $this->handler->get($this->getCacheKey($name));
+        return false !== $result ? $result : $default;
     }
 
     /**
      * 写入缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
+     * @param string    $name 缓存变量名
+     * @param mixed     $value  存储数据
+     * @param integer   $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -81,12 +103,48 @@ class Memcached
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
-        $name   = $this->options['prefix'] . $name;
-        $expire = 0 == $expire ? 0 : time() + $expire;
-        if ($this->handler->set($name, $value, $expire)) {
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
+        $key    = $this->getCacheKey($name);
+        $expire = 0 == $expire ? 0 : $_SERVER['REQUEST_TIME'] + $expire;
+        if ($this->handler->set($key, $value, $expire)) {
+            isset($first) && $this->setTagItem($key);
             return true;
         }
         return false;
+    }
+
+    /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function inc($name, $step = 1)
+    {
+        $key = $this->getCacheKey($name);
+        return $this->handler->increment($key, $step);
+    }
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param string    $name 缓存变量名
+     * @param int       $step 步长
+     * @return false|int
+     */
+    public function dec($name, $step = 1)
+    {
+        $key   = $this->getCacheKey($name);
+        $value = $this->handler->get($key) - $step;
+        $res   = $this->handler->set($key, $value);
+        if (!$res) {
+            return false;
+        } else {
+            return $value;
+        }
     }
 
     /**
@@ -97,19 +155,27 @@ class Memcached
      */
     public function rm($name, $ttl = false)
     {
-        $name = $this->options['prefix'] . $name;
+        $key = $this->getCacheKey($name);
         return false === $ttl ?
-        $this->handler->delete($name) :
-        $this->handler->delete($name, $ttl);
+        $this->handler->delete($key) :
+        $this->handler->delete($key, $ttl);
     }
 
     /**
      * 清除缓存
      * @access public
+     * @param string $tag 标签名
      * @return bool
      */
-    public function clear()
+    public function clear($tag = null)
     {
+        if ($tag) {
+            // 指定标签清除
+            $keys = $this->getTagItem($tag);
+            $this->handler->deleteMulti($keys);
+            $this->rm('tag_' . md5($tag));
+            return true;
+        }
         return $this->handler->flush();
     }
 }

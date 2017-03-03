@@ -124,7 +124,7 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         // session_status()
         if (strstr(PHP_VERSION, 'hhvm')) {
             $this->assertEquals('', ini_get('session.auto_start'));
-        }else{
+        } else {
             $this->assertEquals(0, ini_get('session.auto_start'));
         }
 
@@ -156,8 +156,7 @@ class sessionTest extends \PHPUnit_Framework_TestCase
             'use_cookies'    => '1',
             'cache_limiter'  => '60',
             'cache_expire'   => '60',
-            'type'           => 'memcache', //
-            'namespace'      => '\\think\\session\\driver\\', // ?
+            'type'           => '\\think\\session\\driver\\Memcache', //
             'auto_start'     => '1',
         ];
 
@@ -212,6 +211,14 @@ class sessionTest extends \PHPUnit_Framework_TestCase
 
         Session::set('sessionnamegetarrper.subname', 'sessionvalue', 'think_');
         $this->assertEquals(Session::get('sessionnamegetarrper.subname', 'think_'), $_SESSION['think_']['sessionnamegetarrper']['subname']);
+    }
+
+    public function testPull()
+    {
+        Session::prefix(null);
+        Session::set('sessionnamedel', 'sessionvalue');
+        $this->assertEquals('sessionvalue', Session::pull('sessionnameget'));
+        $this->assertNull(Session::get('sessionnameget'));
     }
 
     /**

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -28,10 +28,6 @@ class Error
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);
         register_shutdown_function([__CLASS__, 'appShutdown']);
-
-        if (!APP_DEBUG) {
-            ini_set('display_errors', 'Off');
-        }
     }
 
     /**
@@ -67,7 +63,7 @@ class Error
         if (error_reporting() & $errno) {
             // 将错误信息托管至 think\exception\ErrorException
             throw $exception;
-        }else{
+        } else {
             self::getExceptionHandler()->report($exception);
         }
     }
@@ -102,24 +98,20 @@ class Error
     /**
      * Get an instance of the exception handler.
      *
-     * @return \think\exception\Handle
+     * @return Handle
      */
-    protected static function getExceptionHandler()
+    public static function getExceptionHandler()
     {
         static $handle;
-
         if (!$handle) {
-
-            if ($class = Config::get('exception_handle')) {
-                if (class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
-                    $handle = new $class;
-                }
-            }
-            if (!$handle) {
-                $handle = new Handle();
+            // 异常处理handle
+            $class = Config::get('exception_handle');
+            if ($class && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
+                $handle = new $class;
+            } else {
+                $handle = new Handle;
             }
         }
-
         return $handle;
     }
 }

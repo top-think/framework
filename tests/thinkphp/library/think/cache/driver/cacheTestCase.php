@@ -63,6 +63,28 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * 测试缓存自增
+     * @return  mixed
+     * @access public
+     */
+    public function testInc()
+    {
+        $cache = $this->getCacheInstance();
+        $this->assertEquals(14, $cache->inc('number_test', 3));
+    }
+
+    /**
+     * 测试缓存自减
+     * @return  mixed
+     * @access public
+     */
+    public function testDec()
+    {
+        $cache = $this->getCacheInstance();
+        $this->assertEquals(8, $cache->dec('number_test', 6));
+    }
+
+    /**
      * 测试缓存读取，包括测试字符串、整数、数组和对象
      * @return  mixed
      * @access public
@@ -75,7 +97,7 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
         $array = $cache->get('array_test');
         $this->assertArrayHasKey('array_test', $array);
         $this->assertEquals('array_test', $array['array_test']);
-        
+
         $result = $cache->set('no_expire', 1, 0);
         $this->assertTrue($result);
     }
@@ -88,9 +110,9 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     public function testExists()
     {
         $cache = $this->prepare();
-        $this->assertNotEmpty($cache->get('string_test'));
-        $this->assertNotEmpty($cache->get('number_test'));
-        $this->assertFalse($cache->get('not_exists'));
+        $this->assertNotEmpty($cache->has('string_test'));
+        $this->assertNotEmpty($cache->has('number_test'));
+        $this->assertFalse($cache->has('not_exists'));
     }
 
     /**
@@ -101,7 +123,7 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     public function testGetNonExistent()
     {
         $cache = $this->getCacheInstance();
-        $this->assertFalse($cache->get('non_existent_key'));
+        $this->assertFalse($cache->get('non_existent_key', false));
     }
 
     /**
@@ -145,6 +167,18 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * 获取并删除缓存测试
+     * @return  mixed
+     * @access public
+     */
+    public function testPull()
+    {
+        $cache = $this->prepare();
+        $this->assertEquals(11, $cache->pull('number_test'));
+        $this->assertFalse($cache->get('number_test'));
+    }
+
+    /**
      * 清空缓存测试
      * @return  mixed
      * @access public
@@ -158,9 +192,16 @@ abstract class cacheTestCase extends \PHPUnit_Framework_TestCase
 
     public function testStaticCall()
     {
-        $this->assertTrue(Cache::set('a', 'a'));
-        $this->assertEquals('a', Cache::get('a'));
+        $this->assertTrue(Cache::set('a', 1));
+        $this->assertEquals(1, Cache::get('a'));
+        $this->assertEquals(2, Cache::inc('a'));
+        $this->assertEquals(4, Cache::inc('a', 2));
+        $this->assertEquals(4, Cache::get('a'));
+        $this->assertEquals(3, Cache::dec('a'));
+        $this->assertEquals(1, Cache::dec('a', 2));
+        $this->assertEquals(1, Cache::get('a'));
         $this->assertNotNull(Cache::rm('a'));
+        $this->assertNotNull(Cache::clear());
     }
 
 }
