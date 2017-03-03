@@ -54,10 +54,26 @@ if (is_file(ROOT_PATH . '.env')) {
 }
 
 // 注册自动加载
-\think\Loader::register();
+think\Loader::register();
 
 // 注册错误和异常处理机制
-\think\Error::register();
+think\Error::register();
+
+think\Facade::bind([
+    'think\facade\App'     => 'think\App',
+    'think\facade\Cache'   => 'think\Cache',
+    'think\facade\Config'  => 'think\Config',
+    'think\facade\Cookie'  => 'think\Cookie',
+    'think\facade\Debug'   => 'think\Debug',
+    'think\facade\Hook'    => 'think\Hook',
+    'think\facade\Lang'    => 'think\Lang',
+    'think\facade\Log'     => 'think\Log',
+    'think\facade\Request' => 'think\Request',
+    'think\facade\Reponse' => 'think\Reponse',
+    'think\facade\Route'   => 'think\Route',
+    'think\facade\Session' => 'think\Session',
+    'think\facade\Url'     => 'think\Url',
+]);
 
 // 加载惯例配置文件
-\think\facade\Config::set(include THINK_PATH . 'convention' . EXT);
+think\facade\Config::set(include THINK_PATH . 'convention' . EXT);
