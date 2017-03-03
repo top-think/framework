@@ -187,11 +187,14 @@ class HasMany extends Relation
      */
     public function save($data)
     {
-        if ($data instanceof Model) {
-            $data = $data->getData();
-        }
         // 保存关联表数据
         $data[$this->foreignKey] = $this->parent->{$this->localKey};
+
+        // 如果是模型则使用模型本身的保存
+        if ($data instanceof Model) {
+            return $data->save();
+        }
+
         $model                   = new $this->model;
         return $model->save($data);
     }
