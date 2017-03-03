@@ -387,7 +387,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = (bool) $value;
                 break;
             case 'timestamp':
-                if (!is_numeric($value)) {
+                if (is_null($value)){
+                    $value = $_SERVER['REQUEST_TIME'];
+                }elseif (!is_numeric($value)){
                     $value = strtotime($value);
                 }
                 break;
