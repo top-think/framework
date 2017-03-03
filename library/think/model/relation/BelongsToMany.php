@@ -160,6 +160,28 @@ class BelongsToMany extends Relation
     }
 
     /**
+     * 查找多条记录 如果不存在则抛出异常
+     * @access public
+     * @param array|string|Query|\Closure $data
+     * @return array|\PDOStatement|string|Model
+     */
+    public function selectOrFail($data = null)
+    {
+        return $this->failException(true)->select($data);
+    }
+
+    /**
+     * 查找单条记录 如果不存在则抛出异常
+     * @access public
+     * @param array|string|Query|\Closure $data
+     * @return array|\PDOStatement|string|Model
+     */
+    public function findOrFail($data = null)
+    {
+        return $this->failException(true)->find($data);
+    }
+
+    /**
      * 根据关联条件查询当前模型
      * @access public
      * @param string  $operator 比较操作符
