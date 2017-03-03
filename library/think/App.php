@@ -19,7 +19,7 @@ use think\exception\RouteNotFoundException;
  * App 应用管理
  * @author  liu21st <liu21st@gmail.com>
  */
-class App
+class App extends Container
 {
     const VERSION = '5.1.0alpha';
     /**
@@ -60,6 +60,8 @@ class App
     protected $dispatch;
     protected $file = [];
     protected $config;
+    protected static $instance;
+    protected $bind = [];
 
     public function version()
     {
@@ -94,6 +96,15 @@ class App
     public function __construct(Config $config)
     {
         $this->config = $config;
+    }
+
+    public static function getInstance()
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static;
+        }
+
+        return static::$instance;
     }
 
     /**
@@ -157,35 +168,8 @@ class App
             // 请求缓存检查
             $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
 
-            switch ($dispatch['type']) {
-                case 'redirect':
-                    // 执行重定向跳转
-                    $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
-                    break;
-                case 'module':
-                    // 模块/控制器/操作
-                    $data = $this->module($request, $dispatch['module'], $config, isset($dispatch['convert']) ? $dispatch['convert'] : null);
-                    break;
-                case 'controller':
-                    // 执行控制器操作
-                    $vars = array_merge($request->param(), $dispatch['var']);
-                    $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
-                    break;
-                case 'method':
-                    // 执行回调方法
-                    $vars = array_merge($request->param(), $dispatch['var']);
-                    $data = $this->invokeMethod($dispatch['method'], $vars);
-                    break;
-                case 'function':
-                    // 执行闭包
-                    $data = $this->invokeFunction($dispatch['function']);
-                    break;
-                case 'response':
-                    $data = $dispatch['response'];
-                    break;
-                default:
-                    throw new \InvalidArgumentException('dispatch type not support');
-            }
+            $this->exec($dispatch, $config);
+
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
         }
@@ -211,6 +195,40 @@ class App
         return $response;
     }
 
+    public function exec($dispatch, $config)
+    {
+        switch ($dispatch['type']) {
+            case 'redirect':
+                // 执行重定向跳转
+                $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
+                break;
+            case 'module':
+                // 模块/控制器/操作
+                $data = $this->module($request, $dispatch['module'], $config, isset($dispatch['convert']) ? $dispatch['convert'] : null);
+                break;
+            case 'controller':
+                // 执行控制器操作
+                $vars = array_merge($request->param(), $dispatch['var']);
+                $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
+                break;
+            case 'method':
+                // 执行回调方法
+                $vars = array_merge($request->param(), $dispatch['var']);
+                $data = $this->invokeMethod($dispatch['method'], $vars);
+                break;
+            case 'function':
+                // 执行闭包
+                $data = $this->invokeFunction($dispatch['function']);
+                break;
+            case 'response':
+                $data = $dispatch['response'];
+                break;
+            default:
+                throw new \InvalidArgumentException('dispatch type not support');
+        }
+        return $data;
+    }
+
     /**
      * 设置当前请求的调度信息
      * @access public
@@ -221,80 +239,6 @@ class App
     public function dispatch($dispatch, $type = 'module')
     {
         $this->dispatch = ['type' => $type, $type => $dispatch];
-    }
-
-    /**
-     * 执行函数或者闭包方法 支持参数调用
-     * @access public
-     * @param string|array|\Closure $function 函数或者闭包
-     * @param array                 $vars     变量
-     * @return mixed
-     */
-    public function invokeFunction($function, $vars = [])
-    {
-        $reflect = new \ReflectionFunction($function);
-        $args    = $this->bindParams($reflect, $vars);
-        // 记录执行信息
-        $this->log('[ RUN ] ' . $reflect->__toString());
-        return $reflect->invokeArgs($args);
-    }
-
-    /**
-     * 调用反射执行类的方法 支持参数绑定
-     * @access public
-     * @param string|array $method 方法
-     * @param array        $vars   变量
-     * @return mixed
-     */
-    public function invokeMethod($method, $vars = [])
-    {
-        if (is_array($method)) {
-            $class   = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
-            $reflect = new \ReflectionMethod($class, $method[1]);
-        } else {
-            // 静态方法
-            $reflect = new \ReflectionMethod($method);
-        }
-        $args = $this->bindParams($reflect, $vars);
-
-        $this->log('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]');
-        return $reflect->invokeArgs(isset($class) ? $class : null, $args);
-    }
-
-    /**
-     * 调用反射执行callable 支持参数绑定
-     * @access public
-     * @param mixed $callable
-     * @param array $vars   变量
-     * @return mixed
-     */
-    public function invoke($callable, $vars = [])
-    {
-        if ($callable instanceof \Closure) {
-            $result = $this->invokeFunction($callable, $vars);
-        } else {
-            $result = $this->invokeMethod($callable, $vars);
-        }
-        return $result;
-    }
-
-    /**
-     * 调用反射执行类的实例化 支持依赖注入
-     * @access public
-     * @param string    $class 类名
-     * @param array     $vars  变量
-     * @return mixed
-     */
-    public function invokeClass($class, $vars = [])
-    {
-        $reflect     = new \ReflectionClass($class);
-        $constructor = $reflect->getConstructor();
-        if ($constructor) {
-            $args = $this->bindParams($constructor, $vars);
-        } else {
-            $args = [];
-        }
-        return $reflect->newInstanceArgs($args);
     }
 
     /**
@@ -316,62 +260,6 @@ class App
     public function config($name = '')
     {
         return $this->config->get($name);
-    }
-
-    /**
-     * 绑定参数
-     * @access public
-     * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
-     * @param array                                 $vars    变量
-     * @return array
-     */
-    private function bindParams($reflect, $vars = [])
-    {
-        $request = Facade::make('Request');
-        if (empty($vars)) {
-            // 自动获取请求变量
-            if ($this->config('url_param_type')) {
-                $vars = $request->route();
-            } else {
-                $vars = $request->param();
-            }
-        }
-        $args = [];
-        // 判断数组类型 数字数组时按顺序绑定参数
-        reset($vars);
-        $type = key($vars) === 0 ? 1 : 0;
-        if ($reflect->getNumberOfParameters() > 0) {
-            $params = $reflect->getParameters();
-            foreach ($params as $param) {
-                $name  = $param->getName();
-                $class = $param->getClass();
-                if ($class) {
-                    $className = $class->getName();
-                    $bind      = $request->getBind($name);
-                    if ($bind instanceof $className) {
-                        $args[] = $bind;
-                    } else {
-                        if (method_exists($className, 'invoke')) {
-                            $method = new \ReflectionMethod($className, 'invoke');
-                            if ($method->isPublic() && $method->isStatic()) {
-                                $args[] = $className::invoke($request);
-                                continue;
-                            }
-                        }
-                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className;
-                    }
-                } elseif (1 == $type && !empty($vars)) {
-                    $args[] = array_shift($vars);
-                } elseif (0 == $type && isset($vars[$name])) {
-                    $args[] = $vars[$name];
-                } elseif ($param->isDefaultValueAvailable()) {
-                    $args[] = $param->getDefaultValue();
-                } else {
-                    throw new \InvalidArgumentException('method param miss:' . $name);
-                }
-            }
-        }
-        return $args;
     }
 
     /**
