@@ -370,10 +370,14 @@ class BelongsToMany extends Relation
         // 关联查询封装
         $tableName  = $this->query->getTable();
         $relationFk = $this->query->getPk();
-        return $this->query->field($tableName . '.*')
-            ->field(true, false, $table, 'pivot', 'pivot__')
-            ->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
-            ->where($condition);
+        $query      = $this->query->field($tableName . '.*')
+            ->field(true, false, $table, 'pivot', 'pivot__');
+
+        if (empty($this->baseQuery)) {
+            $query->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
+                ->where($condition);
+        }
+        return $query;
     }
 
     /**
