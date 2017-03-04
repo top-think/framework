@@ -196,7 +196,7 @@ class File extends SplFileObject
         }
 
         /* 检查图像文件 */
-        if (!$this->checkImg()) {
+        if (isset($rule['image']) && !$this->checkImg()) {
             $this->error = '非法图像文件！';
             return false;
         }
