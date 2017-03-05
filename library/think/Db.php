@@ -50,7 +50,7 @@ class Db
             }
             $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
-            Facade::make('App')->log('[ DB ] INIT ' . $options['type']);
+            Facade::make('app')->log('[ DB ] INIT ' . $options['type']);
 
             if (true === $name) {
                 return new $class($options);
@@ -71,10 +71,10 @@ class Db
     private static function parseConfig($config)
     {
         if (empty($config)) {
-            $config = Facade::make('App')->config('database');
+            $config = Facade::make('app')->config('database');
         } elseif (is_string($config) && false === strpos($config, '/')) {
             // 支持读取配置参数
-            $config = Facade::make('App')->config($config);
+            $config = Facade::make('app')->config($config);
         }
         if (is_string($config)) {
             return self::parseDsn($config);

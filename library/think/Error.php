@@ -81,7 +81,7 @@ class Error
         }
 
         // 写入日志
-        Facade::make('Log')->save();
+        Facade::make('log')->save();
     }
 
     /**
@@ -105,7 +105,7 @@ class Error
         static $handle;
         if (!$handle) {
             // 异常处理handle
-            $class = Facade::make('App')->config('exception_handle');
+            $class = Facade::make('app')->config('exception_handle');
             if ($class && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
                 $handle = new $class;
             } else {

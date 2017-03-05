@@ -401,7 +401,7 @@ class Query
                 $this->options['table'] = $this->getTable();
             }
             $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
-            $result = Facade::make('Cache')->get($key);
+            $result = Facade::make('cache')->get($key);
         }
         if (false === $result) {
             if (isset($this->options['field'])) {
@@ -444,7 +444,7 @@ class Query
                 $this->options['table'] = $this->getTable();
             }
             $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
-            $result = Facade::make('Cache')->get($guid);
+            $result = Facade::make('cache')->get($guid);
         }
         if (false === $result) {
             if (isset($this->options['field'])) {
@@ -644,7 +644,7 @@ class Query
      */
     protected function lazyWrite($type, $guid, $step, $lazyTime)
     {
-        $cache = Facade::make('Cache');
+        $cache = Facade::make('cache');
         if (!$cache->has($guid . '_time')) {
             // 计时开始
             $cache->set($guid . '_time', $_SERVER['REQUEST_TIME'], 0);
@@ -1294,10 +1294,10 @@ class Query
             $simple = false;
         }
         if (is_array($listRows)) {
-            $config   = array_merge(Facade::make('App')->config('paginate'), $listRows);
+            $config   = array_merge(Facade::make('app')->config('paginate'), $listRows);
             $listRows = $config['list_rows'];
         } else {
-            $config   = array_merge(Facade::make('App')->config('paginate'), $config);
+            $config   = array_merge(Facade::make('app')->config('paginate'), $config);
             $listRows = $listRows ?: $config['list_rows'];
         }
 
@@ -2200,7 +2200,7 @@ class Query
             return $this->connection->getRealSql($sql, $bind);
         } else {
             // 检测缓存
-            $cache = Facade::make('Cache');
+            $cache = Facade::make('cache');
             if (isset($key) && $cache->get($key)) {
                 // 删除缓存
                 $cache->rm($key);
@@ -2278,7 +2278,7 @@ class Query
             $cache = $options['cache'];
             unset($options['cache']);
             $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
-            $resultSet = Facade::make('Cache')->get($key);
+            $resultSet = Facade::make('cache')->get($key);
         }
         if (!$resultSet) {
             // 生成查询SQL
@@ -2357,7 +2357,7 @@ class Query
      */
     protected function cacheData($key, $data, $config = [])
     {
-        $cache = Facade::make('Cache');
+        $cache = Facade::make('cache');
         if (isset($config['tag'])) {
             $cache->tag($config['tag'])->set($key, $data, $config['expire']);
         } else {
@@ -2424,7 +2424,7 @@ class Query
             } elseif (!isset($key)) {
                 $key = md5(serialize($options));
             }
-            $result = Facade::make('Cache')->get($key);
+            $result = Facade::make('cache')->get($key);
         }
         if (false === $result) {
             // 生成查询SQL
@@ -2650,7 +2650,7 @@ class Query
         }
 
         // 检测缓存
-        $cache = Facade::make('Cache');
+        $cache = Facade::make('cache');
         if (isset($key) && $cache->get($key)) {
             // 删除缓存
             $cache->rm($key);
@@ -2785,7 +2785,7 @@ class Query
     {
         $result = false;
         if (isset(self::$event[$event])) {
-            $result = Facade::make('App')->invoke(self::$event[$event], [$params, $this]);
+            $result = Facade::make('app')->invoke(self::$event[$event], [$params, $this]);
         }
         return $result;
     }

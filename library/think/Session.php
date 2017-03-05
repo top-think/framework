@@ -41,10 +41,10 @@ class Session
     public function init(array $config = [])
     {
         if (empty($config)) {
-            $config = Facade::make('App')->config('session');
+            $config = Facade::make('app')->config('session');
         }
         // 记录初始化信息
-        Facade::make('App')->log('[ SESSION ] INIT ' . var_export($config, true));
+        Facade::make('app')->log('[ SESSION ] INIT ' . var_export($config, true));
         $isDoStart = false;
         if (isset($config['use_trans_sid'])) {
             ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);

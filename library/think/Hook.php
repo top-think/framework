@@ -106,7 +106,7 @@ class Hook
      */
     public function exec($class, $tag = '', $params = null, $extra = null)
     {
-        Facade::make('App')->isDebug() && Facade::make('Debug')->remark('behavior_start', 'time');
+        Facade::make('app')->isDebug() && Facade::make('debug')->remark('behavior_start', 'time');
         $method = Loader::parseName($tag, 1, false);
         if ($class instanceof \Closure) {
             $result = call_user_func_array($class, [ & $params, $extra]);
@@ -126,10 +126,10 @@ class Hook
             $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
             $result = $obj->$method($params, $extra);
         }
-        if (Facade::make('App')->isDebug()) {
-			$debug = Facade::make('Debug');
+        if (Facade::make('app')->isDebug()) {
+			$debug = Facade::make('debug');
             $debug->remark('behavior_end', 'time');
-            Facade::make('App')->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
+            Facade::make('app')->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
         return $result;
     }

@@ -68,7 +68,7 @@ class Php
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        Facade::make('App')->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
+        Facade::make('app')->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
         if (isset($data['template'])) {
             $__template__ = $template;
             extract($data, EXTR_OVERWRITE);
@@ -110,7 +110,7 @@ class Php
             $this->config['view_path'] = App::getModulePath() . 'view' . DS;
         }
 
-        $request = Facade::make('Request');
+        $request = Facade::make('request');
         // 获取视图根目录
         if (strpos($template, '@')) {
             // 跨模块调用

@@ -48,7 +48,7 @@ class Cache
             $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
 
             // 记录初始化信息
-            Facade::make('App')->log('[ CACHE ] INIT ' . $type);
+            Facade::make('app')->log('[ CACHE ] INIT ' . $type);
             if (true === $name) {
                 return new $class($options);
             } else {

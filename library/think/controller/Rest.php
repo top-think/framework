@@ -37,7 +37,7 @@ abstract class Rest
     public function __construct()
     {
         // 资源类型检测
-        $request = Facade::make('Request');
+        $request = Facade::make('request');
         $ext     = $request->ext();
         if ('' == $ext) {
             // 自动检测资源类型
@@ -75,7 +75,7 @@ abstract class Rest
             $fun = $method . '_' . $this->method;
         }
         if (isset($fun)) {
-            return Facade::make('App')->invokeMethod([$this, $fun]);
+            return Facade::make('app')->invokeMethod([$this, $fun]);
         } else {
             // 抛出异常
             throw new \Exception('error action :' . $method);

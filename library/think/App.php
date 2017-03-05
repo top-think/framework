@@ -60,8 +60,6 @@ class App extends Container
     protected $dispatch;
     protected $file = [];
     protected $config;
-    protected static $instance;
-    protected $bind = [];
 
     public function version()
     {
@@ -95,16 +93,24 @@ class App extends Container
 
     public function __construct(Config $config)
     {
+        Container::getInstance()->bind([
+            'app'     => 'think\App',
+            'cache'   => 'think\Cache',
+            'config'  => 'think\Config',
+            'cookie'  => 'think\Cookie',
+            'debug'   => 'think\Debug',
+            'hook'    => 'think\Hook',
+            'lang'    => 'think\Lang',
+            'log'     => 'think\Log',
+            'request' => 'think\Request',
+            'reponse' => 'think\Reponse',
+            'route'   => 'think\Route',
+            'session' => 'think\Session',
+            'url'     => 'think\Url',
+        ]);
+
         $this->config = $config;
-    }
 
-    public static function getInstance()
-    {
-        if (is_null(static::$instance)) {
-            static::$instance = new static;
-        }
-
-        return static::$instance;
     }
 
     /**
@@ -116,23 +122,23 @@ class App extends Container
      */
     public function run(Request $request = null)
     {
-        is_null($request) && $request = Facade::make('Request');
+        is_null($request) && $request = Facade::make('request');
 
         try {
             $config = $this->initCommon();
             if (defined('BIND_MODULE')) {
                 // 模块/控制器绑定
-                BIND_MODULE && Facade::make('Route')->bind(BIND_MODULE);
+                BIND_MODULE && Facade::make('route')->bind(BIND_MODULE);
             } elseif ($config['auto_bind_module']) {
                 // 入口自动绑定
                 $name = pathinfo($request->baseFile(), PATHINFO_FILENAME);
                 if ($name && 'index' != $name && is_dir(APP_PATH . $name)) {
-                    Facade::make('Route')->bind($name);
+                    Facade::make('route')->bind($name);
                 }
             }
 
             $request->filter($config['default_filter']);
-            $lang = Facade::make('Lang');
+            $lang = Facade::make('lang');
             if ($config['lang_switch_on']) {
                 // 开启多语言机制 检测当前语言
                 $lang->detect();
@@ -164,11 +170,11 @@ class App extends Container
             }
 
             // 监听app_begin
-            Facade::make('Hook')->listen('app_begin', $dispatch);
+            Facade::make('hook')->listen('app_begin', $dispatch);
             // 请求缓存检查
             $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
 
-            $this->exec($dispatch, $config);
+            $data = $this->exec($request, $dispatch, $config);
 
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
@@ -190,12 +196,12 @@ class App extends Container
         }
 
         // 监听app_end
-        Facade::make('Hook')->listen('app_end', $response);
+        Facade::make('hook')->listen('app_end', $response);
 
         return $response;
     }
 
-    public function exec($dispatch, $config)
+    public function exec($request, $dispatch, $config)
     {
         switch ($dispatch['type']) {
             case 'redirect':
@@ -249,7 +255,7 @@ class App extends Container
      */
     public function log($log, $type = 'info')
     {
-        $this->debug && Facade::make('Log')->record($log, $type);
+        $this->debug && Facade::make('log')->record($log, $type);
     }
 
     /**
@@ -280,7 +286,7 @@ class App extends Container
         if ($config['app_multi_module']) {
             // 多模块部署
             $module    = strip_tags(strtolower($result[0] ?: $config['default_module']));
-            $bind      = Facade::make('Route')->getBind('module');
+            $bind      = Facade::make('route')->getBind('module');
             $available = false;
             if ($bind) {
                 // 绑定模块
@@ -327,7 +333,7 @@ class App extends Container
         $request->controller(Loader::parseName($controller, 1))->action($actionName);
 
         // 监听module_init
-        Facade::make('Hook')->listen('module_init', $request);
+        Facade::make('hook')->listen('module_init', $request);
 
         $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
         if (is_null($instance)) {
@@ -349,7 +355,7 @@ class App extends Container
             throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
         }
 
-        Facade::make('Hook')->listen('action_begin', $call);
+        Facade::make('hook')->listen('action_begin', $call);
 
         return $this->invokeMethod($call, $vars);
     }
@@ -401,7 +407,7 @@ class App extends Container
             date_default_timezone_set($config['default_timezone']);
 
             // 监听app_init
-            Facade::make('Hook')->listen('app_init');
+            Facade::make('hook')->listen('app_init');
 
             $this->init = true;
         }
@@ -418,7 +424,7 @@ class App extends Container
     {
         // 定位模块目录
         $module       = $module ? $module . DS : '';
-        $configFacade = Facade::make('Config');
+
         // 加载初始化文件
         if (is_file(APP_PATH . $module . 'init' . EXT)) {
             include APP_PATH . $module . 'init' . EXT;
@@ -427,10 +433,10 @@ class App extends Container
         } else {
             $path = APP_PATH . $module;
             // 加载模块配置
-            $config = $configFacade->load(CONF_PATH . $module . 'config' . CONF_EXT);
+            $config = $this->config->load(CONF_PATH . $module . 'config' . CONF_EXT);
             // 读取数据库配置文件
             $filename = CONF_PATH . $module . 'database' . CONF_EXT;
-            $configFacade->load($filename, 'database');
+            $this->config->load($filename, 'database');
             // 读取扩展配置文件
             if (is_dir(CONF_PATH . $module . 'extra')) {
                 $dir   = CONF_PATH . $module . 'extra';
@@ -438,19 +444,19 @@ class App extends Container
                 foreach ($files as $file) {
                     if (strpos($file, CONF_EXT)) {
                         $filename = $dir . DS . $file;
-                        $configFacade->load($filename, pathinfo($file, PATHINFO_FILENAME));
+                        $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
                     }
                 }
             }
 
             // 加载应用状态配置
             if ($config['app_status']) {
-                $config = $configFacade->load(CONF_PATH . $module . $config['app_status'] . CONF_EXT);
+                $config = $this->config->load(CONF_PATH . $module . $config['app_status'] . CONF_EXT);
             }
 
             // 加载行为扩展文件
             if (is_file(CONF_PATH . $module . 'tags' . EXT)) {
-                Facade::make('Hook')->import(include CONF_PATH . $module . 'tags' . EXT);
+                Facade::make('hook')->import(include CONF_PATH . $module . 'tags' . EXT);
             }
 
             // 加载公共文件
@@ -460,7 +466,7 @@ class App extends Container
 
             // 加载当前模块语言包
             if ($module) {
-                Facade::make('Lang')->load($path . 'lang' . DS . Facade::make('Request')->langset() . EXT);
+                Facade::make('lang')->load($path . 'lang' . DS . Facade::make('request')->langset() . EXT);
             }
         }
         return $this->config();
@@ -479,7 +485,7 @@ class App extends Container
         $path   = $request->path();
         $depr   = $config['pathinfo_depr'];
         $result = false;
-        $route  = Facade::make('Route');
+        $route  = Facade::make('route');
         // 路由检测
         $check = !is_null($this->routeCheck) ? $this->routeCheck : $config['url_route_on'];
         if ($check) {

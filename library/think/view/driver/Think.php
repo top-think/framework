@@ -38,7 +38,7 @@ class Think
     {
         $this->config = array_merge($this->config, $config);
         if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = Facade::make('App')->getModulePath() . 'view' . DS;
+            $this->config['view_path'] = Facade::make('app')->getModulePath() . 'view' . DS;
         }
 
         $this->template = new Template($this->config);
@@ -78,7 +78,7 @@ class Think
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
         // 记录视图信息
-        Facade::make('App')->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
+        Facade::make('app')->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
         $this->template->fetch($template, $data, $config);
     }
 
@@ -104,7 +104,7 @@ class Think
     private function parseTemplate($template)
     {
         // 分析模板文件规则
-        $request = Facade::make('Request');
+        $request = Facade::make('request');
         // 获取视图根目录
         if (strpos($template, '@')) {
             // 跨模块调用

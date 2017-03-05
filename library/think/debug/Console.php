@@ -41,7 +41,7 @@ class Console
      */
     public function output(Response $response, array $log = [])
     {
-        $request     = Facade::make('Request');
+        $request     = Facade::make('request');
         $contentType = $response->getHeader('Content-Type');
         $accept      = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
@@ -65,14 +65,14 @@ class Console
             '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
             '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
             '查询信息' => Db::$queryTimes . ' queries ' . Db::$executeTimes . ' writes ',
-            '缓存信息' => Facade::make('Cache')->getReadTimes() . ' reads,' . Facade::make('Cache')->getWriteTimes() . ' writes',
-            '配置加载' => count(Facade::make('App')->config())];
+            '缓存信息' => Facade::make('cache')->getReadTimes() . ' reads,' . Facade::make('cache')->getWriteTimes() . ' writes',
+            '配置加载' => count(Facade::make('app')->config())];
 
         if (session_id()) {
             $base['会话信息'] = 'SESSION_ID=' . session_id();
         }
 
-        $info = Facade::make('Debug')->getFile(true);
+        $info = Facade::make('debug')->getFile(true);
 
         // 页面Trace信息
         $trace = [];

@@ -11,12 +11,12 @@
 
 namespace think;
 
-class Container implements ArrayAccess
+class Container implements \ArrayAccess
 {
     //  对象实例
     protected static $instance;
-    protected $instances      = [];
-    protected $bind = [];
+    protected $instances = [];
+    protected $bind      = [];
 
     public static function getInstance()
     {
@@ -27,8 +27,13 @@ class Container implements ArrayAccess
         return static::$instance;
     }
 
-    public function bind($abstract, $concrete){
-        $this->bind[$abstract] = $concrete;
+    public function bind($abstract, $concrete = null)
+    {
+        if (is_array($abstract)) {
+            $this->bind = array_merge($this->bind, $abstract);
+        } else {
+            $this->bind[$abstract] = $concrete;
+        }
     }
 
     public function instance($abstract, $instance)
@@ -41,15 +46,20 @@ class Container implements ArrayAccess
         return isset($this->bind[$abstract]) || isset($this->instances[$abstract]);
     }
 
-    public function make($abstract)
+    public function make($abstract, $vars = [])
     {
         if (isset($this->instances[$abstract])) {
-            $object= $this->instances[$abstract];
-        }elseif(isset($this->bind[$abstract])){
+            $object = $this->instances[$abstract];
+        } elseif (isset($this->bind[$abstract])) {
             $concrete = $this->bind[$abstract];
-            $object = $this->make($concrete);
-        }else{
-            $object = method_exists($abstract, 'instance') ? $abstract::instance() : new $abstract;
+            if ($concrete instanceof \Closure) {
+                $object = call_user_func_array($concrete, $vars);
+            } else {
+                $object = $this->make($concrete, $vars);
+            }
+        } else {
+            $object = $this->invokeClass($abstract, $vars);
+
             $this->instances[$abstract] = $object;
         }
         return $object;
@@ -66,8 +76,6 @@ class Container implements ArrayAccess
     {
         $reflect = new \ReflectionFunction($function);
         $args    = $this->bindParams($reflect, $vars);
-        // 记录执行信息
-        $this->log('[ RUN ] ' . $reflect->__toString());6
         return $reflect->invokeArgs($args);
     }
 
@@ -88,8 +96,6 @@ class Container implements ArrayAccess
             $reflect = new \ReflectionMethod($method);
         }
         $args = $this->bindParams($reflect, $vars);
-
-        $this->log('[ RUN ] ' . $reflect->class . '->' . $reflect->name . '[ ' . $reflect->getFileName() . ' ]');
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
@@ -149,7 +155,7 @@ class Container implements ArrayAccess
                 $class = $param->getClass();
                 if ($class) {
                     $className = $class->getName();
-                    $args[] = $this->make($className);
+                    $args[]    = $this->make($className);
                 } elseif (1 == $type && !empty($vars)) {
                     $args[] = array_shift($vars);
                 } elseif (0 == $type && isset($vars[$name])) {
@@ -181,12 +187,12 @@ class Container implements ArrayAccess
 
     public function offsetUnset($key)
     {
-        $this->__unset($name));
+        $this->__unset($name);
     }
 
     public function __set($name, $value)
     {
-        $this->bind($name,$value);
+        $this->bind($name, $value);
     }
 
     public function __get($name)
@@ -197,10 +203,11 @@ class Container implements ArrayAccess
     public function __isset($name)
     {
         return $this->bound($name);
-    }    
+    }
 
     public function __unset($name)
     {
-        unset($this->bind[$key], $this->instances[$key]);        
+        unset($this->bind[$key], $this->instances[$key]);
     }
+
 }

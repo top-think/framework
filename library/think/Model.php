@@ -1239,7 +1239,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (isset(self::$event[$this->class][$event])) {
             foreach (self::$event[$this->class][$event] as $callback) {
-                $result = Facade::make('App')->invoke($callback, [$this]);
+                $result = Facade::make('app')->invoke($callback, [$this]);
                 if (false === $result) {
                     return false;
                 }

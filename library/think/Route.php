@@ -1038,7 +1038,7 @@ class Route
             $type = $this->bind['type'];
             $bind = $this->bind[$type];
             // 记录绑定信息
-            Facade::make('App')->log('[ BIND ] ' . var_export($bind, true));
+            Facade::make('app')->log('[ BIND ] ' . var_export($bind, true));
             // 如果有URL绑定 则进行绑定检测
             switch ($type) {
                 case 'class':
@@ -1227,7 +1227,7 @@ class Route
         $route            = [null, null, null];
         if (isset($path)) {
             // 解析模块
-            $app    = Facade::make('App');
+            $app    = Facade::make('app');
             $module = $app->config('app_multi_module') ? array_shift($path) : null;
             if ($autoSearch) {
                 // 自动搜索控制器
@@ -1392,7 +1392,7 @@ class Route
      */
     private function parseRule($rule, $route, $pathinfo, $option = [], $matches = [])
     {
-        $request = Facade::make('Request');
+        $request = Facade::make('request');
         // 解析路由规则
         if ($rule) {
             $rule = explode('/', $rule);
@@ -1478,7 +1478,7 @@ class Route
                 $result = call_user_func_array($option['after_behavior'], []);
             } else {
                 foreach ((array) $option['after_behavior'] as $behavior) {
-                    $result = Facade::make('Hook')->exec($behavior, '');
+                    $result = Facade::make('hook')->exec($behavior, '');
                     if (!is_null($result)) {
                         break;
                     }
@@ -1509,7 +1509,7 @@ class Route
             $route             = substr($route, 1);
             list($route, $var) = $this->parseUrlPath($route);
             $result            = ['type' => 'controller', 'controller' => implode('/', $route), 'var' => $var];
-            $app               = Facade::make('App');
+            $app               = Facade::make('app');
             $request->action(array_pop($route));
             $request->controller($route ? array_pop($route) : $app->config('default_controller'));
             $request->module($route ? array_pop($route) : $app->config('default_module'));
@@ -1544,13 +1544,13 @@ class Route
         $action           = array_pop($path);
         $controller       = !empty($path) ? array_pop($path) : null;
         $module           = $this->config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-        $method           = Facade::make('Request')->method();
+        $method           = Facade::make('request')->method();
         if ($this->config->get('use_action_prefix') && !empty($this->methodPrefix[$method])) {
             // 操作方法前缀支持
             $action = 0 !== strpos($action, $this->methodPrefix[$method]) ? $this->methodPrefix[$method] . $action : $action;
         }
         // 设置当前请求的路由变量
-        Facade::make('Request')->route($var);
+        Facade::make('request')->route($var);
         // 路由到模块/控制器/操作
         return ['type' => 'module', 'module' => [$module, $controller, $action], 'convert' => false];
     }
@@ -1574,7 +1574,7 @@ class Route
             }
         }
         // 设置当前请求的参数
-        Facade::make('Request')->route($var);
+        Facade::make('request')->route($var);
     }
 
     // 分析路由规则中的变量

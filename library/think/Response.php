@@ -88,17 +88,17 @@ class Response
         $data = $this->getContent();
 
         // Trace调试注入
-        if (Env::get('app_trace', Facade::make('App')->config('app_trace'))) {
-            Facade::make('Debug')->inject($this, $data);
+        if (Env::get('app_trace', Facade::make('app')->config('app_trace'))) {
+            Facade::make('debug')->inject($this, $data);
         }
 
         if (200 == $this->code) {
-            $cache = Facade::make('Request')->getCache();
+            $cache = Facade::make('request')->getCache();
             if ($cache) {
                 $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
                 $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
                 $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
-                Facade::make('Cache')->set($cache[0], [$data, $this->header], $cache[1]);
+                Facade::make('cache')->set($cache[0], [$data, $this->header], $cache[1]);
             }
         }
 
@@ -119,11 +119,11 @@ class Response
         }
 
         // 监听response_end
-        Facade::make('Hook')->listen('response_end', $this);
+        Facade::make('hook')->listen('response_end', $this);
 
         // 清空当次请求有效的数据
         if (!($this instanceof RedirectResponse)) {
-            Facade::make('Session')->flush();
+            Facade::make('session')->flush();
         }
     }
 

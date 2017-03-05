@@ -65,7 +65,7 @@ class Redirect extends Response
      */
     public function getTargetUrl()
     {
-        return (strpos($this->data, '://') || 0 === strpos($this->data, '/')) ? $this->data : Facade::make('Url')->build($this->data, $this->params);
+        return (strpos($this->data, '://') || 0 === strpos($this->data, '/')) ? $this->data : Facade::make('url')->build($this->data, $this->params);
     }
 
     public function params($params = [])
@@ -80,7 +80,7 @@ class Redirect extends Response
      */
     public function remember()
     {
-        Facade::make('Session')->set('redirect_url', Facade::make('Request')->url());
+        Facade::make('Session')->set('redirect_url', Facade::make('request')->url());
         return $this;
     }
 

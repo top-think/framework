@@ -853,7 +853,7 @@ abstract class Connection
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
-			$debug = Facade::make('Debug');
+			$debug = Facade::make('debug');
             if ($start) {
                 $debug->remark('queryStartTime', 'time');
             } else {
@@ -911,7 +911,7 @@ abstract class Connection
 
     public function log($log, $type = 'sql')
     {
-        $this->config['debug'] && Facade::make('Log')->record($log, $type);
+        $this->config['debug'] && Facade::make('log')->record($log, $type);
     }
     /**
      * 初始化数据库连接

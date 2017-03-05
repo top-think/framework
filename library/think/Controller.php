@@ -47,9 +47,9 @@ class Controller
     public function __construct(Request $request = null)
     {
         if (is_null($request)) {
-            $request = Facade::make('Request');
+            $request = Facade::make('request');
         }
-        $this->view    = View::instance(Facade::make('App')->config('template'), Facade::make('App')->config('view_replace_str'));
+        $this->view    = View::instance(Facade::make('app')->config('template'), Facade::make('app')->config('view_replace_str'));
         $this->request = $request;
 
         // 控制器初始化
