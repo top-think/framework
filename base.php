@@ -9,9 +9,6 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-define('THINK_VERSION', '5.1.0alpha');
-define('THINK_START_TIME', microtime(true));
-define('THINK_START_MEM', memory_get_usage());
 define('EXT', '.php');
 define('DS', DIRECTORY_SEPARATOR);
 defined('THINK_PATH') or define('THINK_PATH', __DIR__ . DS);
@@ -35,7 +32,7 @@ define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
 define('IS_WIN', strpos(PHP_OS, 'WIN') !== false);
 
 // 载入Loader类
-require CORE_PATH . 'Loader.php';
+require __DIR__ . '/library/think/Loader.php';
 
 // 加载环境变量配置文件
 if (is_file(ROOT_PATH . '.env')) {
@@ -59,6 +56,24 @@ think\Loader::register();
 // 注册错误和异常处理机制
 think\Error::register();
 
+// 注册核心类到容器
+think\Container::getInstance()->bind([
+    'app'     => 'think\App',
+    'cache'   => 'think\Cache',
+    'config'  => 'think\Config',
+    'cookie'  => 'think\Cookie',
+    'debug'   => 'think\Debug',
+    'hook'    => 'think\Hook',
+    'lang'    => 'think\Lang',
+    'log'     => 'think\Log',
+    'request' => 'think\Request',
+    'reponse' => 'think\Reponse',
+    'route'   => 'think\Route',
+    'session' => 'think\Session',
+    'url'     => 'think\Url',
+]);
+
+// 注册核心类的静态代理
 think\Facade::bind([
     'think\facade\App'     => 'think\App',
     'think\facade\Cache'   => 'think\Cache',
@@ -67,6 +82,7 @@ think\Facade::bind([
     'think\facade\Debug'   => 'think\Debug',
     'think\facade\Hook'    => 'think\Hook',
     'think\facade\Lang'    => 'think\Lang',
+    'think\facade\Loader'  => 'think\Loader',
     'think\facade\Log'     => 'think\Log',
     'think\facade\Request' => 'think\Request',
     'think\facade\Reponse' => 'think\Reponse',
@@ -76,4 +92,4 @@ think\Facade::bind([
 ]);
 
 // 加载惯例配置文件
-think\facade\Config::set(include THINK_PATH . 'convention' . EXT);
+think\facade\Config::set(include __DIR__ . '/convention.php');

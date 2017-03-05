@@ -63,10 +63,10 @@ class File
                 $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
             }
 
-            $runtime    = round(microtime(true) - THINK_START_TIME, 10);
+            $runtime    = round(microtime(true) - Facade::make('app')->getBeginTime(), 10);
             $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
             $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
-            $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
+            $memory_use = number_format((memory_get_usage() - Facade::make('app')->getBeginMem()) / 1024, 2);
             $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
             $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
 

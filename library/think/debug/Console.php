@@ -50,9 +50,9 @@ class Console
             return false;
         }
         // 获取基本信息
-        $runtime = number_format(microtime(true) - THINK_START_TIME, 10);
+        $runtime = number_format(microtime(true) - Facade::make('app')->getBeginTime(), 10);
         $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $mem     = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
+        $mem     = number_format((memory_get_usage() - Facade::make('app')->getBeginMem()) / 1024, 2);
 
         if (isset($_SERVER['HTTP_HOST'])) {
             $uri = $_SERVER['SERVER_PROTOCOL'] . ' ' . $_SERVER['REQUEST_METHOD'] . ' : ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];

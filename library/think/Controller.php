@@ -23,10 +23,17 @@ class Controller
      * @var \think\View 视图类实例
      */
     protected $view;
+
     /**
      * @var \think\Request Request实例
      */
     protected $request;
+
+    /**
+     * @var \think\App 应用实例
+     */
+    protected $app;
+
     // 验证失败是否抛出异常
     protected $failException = false;
     // 是否批量验证
@@ -44,13 +51,12 @@ class Controller
      * @param Request $request Request对象
      * @access public
      */
-    public function __construct(Request $request = null)
+    public function __construct(Request $request, App $app)
     {
-        if (is_null($request)) {
-            $request = Facade::make('request');
-        }
-        $this->view    = View::instance(Facade::make('app')->config('template'), Facade::make('app')->config('view_replace_str'));
+
+        $this->view    = View::instance($app->config('template'), $app->config('view_replace_str'));
         $this->request = $request;
+        $this->app     = $app;
 
         // 控制器初始化
         $this->_initialize();

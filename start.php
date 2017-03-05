@@ -13,4 +13,4 @@
 // 加载基础文件
 require __DIR__ . '/base.php';
 // 执行应用
-\think\facade\App::run()->send();
+think\Facade::make('app', [APP_PATH])->run()->send();

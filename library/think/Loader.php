@@ -417,9 +417,9 @@ class Loader
             $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
         if (class_exists($class)) {
-            return Facade::make('app')->invokeClass($class);
+            return Facade::make($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
-            return Facade::make('app')->invokeClass($emptyClass);
+            return Facade::make($emptyClass);
         }
     }
 
@@ -500,7 +500,7 @@ class Loader
                     $vars = [$vars];
                 }
             }
-            return Facade::make('app')->invokeMethod([$class, $action . Facade::make('app')->config('action_suffix')], $vars);
+            return Container::getInstance()->invokeMethod([$class, $action . Facade::make('app')->config('action_suffix')], $vars);
         }
     }
 

@@ -20,7 +20,7 @@ return [
     // 注册的根命名空间
     'root_namespace'         => [],
     // 扩展函数文件
-    'extra_file_list'        => [THINK_PATH . 'helper' . EXT],
+    'extra_file_list'        => [__DIR__ . '/helper.php'],
     // 默认输出类型
     'default_return_type'    => 'html',
     // 默认AJAX 数据返回格式,可选json xml ...
@@ -138,15 +138,15 @@ return [
     // 视图输出字符串内容替换
     'view_replace_str'       => [],
     // 默认跳转页面对应的模板文件
-    'dispatch_success_tmpl'  => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',
-    'dispatch_error_tmpl'    => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',
+    'dispatch_success_tmpl'  => __DIR__ . '/tpl/dispatch_jump.tpl',
+    'dispatch_error_tmpl'    => __DIR__ . '/tpl/dispatch_jump.tpl',
 
     // +----------------------------------------------------------------------
     // | 异常及错误设置
     // +----------------------------------------------------------------------
 
     // 异常页面的模板文件
-    'exception_tmpl'         => THINK_PATH . 'tpl' . DS . 'think_exception.tpl',
+    'exception_tmpl'         => __DIR__ . '/tpl/think_exception.tpl',
 
     // 错误显示信息,非调试模式有效
     'error_message'          => '页面错误！请稍后再试～',
