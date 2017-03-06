@@ -233,11 +233,11 @@ class App extends Container
             case 'method':
                 // 执行回调方法
                 $vars = array_merge($this->request->param(), $dispatch['var']);
-                $data = $this->invokeMethod($dispatch['method'], $vars);
+                $data = Container::getInstance()->invokeMethod($dispatch['method'], $vars);
                 break;
             case 'function':
                 // 执行闭包
-                $data = $this->invokeFunction($dispatch['function']);
+                $data = Container::getInstance()->invokeFunction($dispatch['function']);
                 break;
             case 'response':
                 $data = $dispatch['response'];
@@ -368,7 +368,7 @@ class App extends Container
 
         $this->hook->listen('action_begin', $call);
 
-        return $this->invokeMethod($call, $vars);
+        return Container::getInstance()->invokeMethod($call, $vars);
     }
 
     /**
