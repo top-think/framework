@@ -32,7 +32,7 @@ use think\View;
 
 if (!function_exists('app')) {
     /**
-     * 快速获取容器中的实例
+     * 快速获取容器中的实例 支持依赖注入
      * @param string    $name 类名或标识
      * @param array     $args 参数
      * @return object
@@ -45,26 +45,27 @@ if (!function_exists('app')) {
 
 if (!function_exists('call')) {
     /**
-     * 调用反射执行callable 支持参数绑定
-     * @param mixed $callable
-     * @param array $vars   变量
+     * 调用反射执行callable 支持依赖注入
+     * @param mixed $callable   支持闭包等callable写法
+     * @param array $args       变量
      * @return mixed
      */
-    function call($name, $args = [])
+    function call($callable, $args = [])
     {
-        return Container::getInstance()->invoke($name, $args);
+        return Container::getInstance()->invoke($callable, $args);
     }
 }
 
 if (!function_exists('facade')) {
     /**
-     * 通过Facade快速创建一个对象
-     * @param string    $class 类名
+     * 通过Facade快速创建一个对象 支持依赖注入
+     * @param string    $name    类名或者标识
+     * @param array     $args    变量
      * @return object
      */
-    function facade($name)
+    function facade($name, $args = [])
     {
-        return Facade::make($name);
+        return Facade::make($name, $args);
     }
 }
 
