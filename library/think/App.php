@@ -220,9 +220,6 @@ class App extends Container
             $data = $exception->getResponse();
         }
 
-        // 清空类的实例化
-        Loader::clearInstance();
-
         // 输出数据到客户端
         if ($data instanceof Response) {
             $response = $data;
@@ -454,7 +451,7 @@ class App extends Container
 
         // Composer自动加载支持
         if (is_dir($this->rootPath . 'vendor/composer')) {
-            Loader::registerComposerLoader();
+            Loader::registerComposerLoader($this->rootPath . 'vendor/composer/');
         }
 
         // 自动加载extend目录

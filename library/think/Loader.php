@@ -15,7 +15,6 @@ use think\exception\ClassNotFoundException;
 
 class Loader
 {
-    protected static $instance = [];
     // 类名映射
     protected static $map = [];
 
@@ -257,31 +256,31 @@ class Loader
     }
 
     // 注册composer自动加载
-    private static function registerComposerLoader()
+    private static function registerComposerLoader($composerPath)
     {
-        if (is_file(VENDOR_PATH . 'composer/autoload_namespaces.php')) {
-            $map = require VENDOR_PATH . 'composer/autoload_namespaces.php';
+        if (is_file($composerPath . 'autoload_namespaces.php')) {
+            $map = require $composerPath . 'autoload_namespaces.php';
             foreach ($map as $namespace => $path) {
                 self::addPsr0($namespace, $path);
             }
         }
 
-        if (is_file(VENDOR_PATH . 'composer/autoload_psr4.php')) {
-            $map = require VENDOR_PATH . 'composer/autoload_psr4.php';
+        if (is_file($composerPath . 'autoload_psr4.php')) {
+            $map = require $composerPath . 'autoload_psr4.php';
             foreach ($map as $namespace => $path) {
                 self::addPsr4($namespace, $path);
             }
         }
 
-        if (is_file(VENDOR_PATH . 'composer/autoload_classmap.php')) {
-            $classMap = require VENDOR_PATH . 'composer/autoload_classmap.php';
+        if (is_file($composerPath . 'autoload_classmap.php')) {
+            $classMap = require $composerPath . 'autoload_classmap.php';
             if ($classMap) {
                 self::addClassMap($classMap);
             }
         }
 
-        if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
-            $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
+        if (is_file($composerPath . 'autoload_files.php')) {
+            $includeFiles = require $composerPath . 'autoload_files.php';
             foreach ($includeFiles as $fileIdentifier => $file) {
                 if (empty(self::$autoloadFiles[$fileIdentifier])) {
                     __require_file($file);
@@ -361,8 +360,8 @@ class Loader
     public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
         $guid = $name . $layer;
-        if (isset(self::$instance[$guid])) {
-            return self::$instance[$guid];
+        if (Container::getInstance()->bound($guid)) {
+            return Container::getInstance()->make($guid);
         }
         if (false !== strpos($name, '\\')) {
             $class  = $name;
@@ -376,16 +375,16 @@ class Loader
             $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
         if (class_exists($class)) {
-            $model = new $class();
+            $model = Container::getInstance()->make($class);
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
-                $model = new $class();
+                $model = Container::getInstance()->make($class);
             } else {
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-        self::$instance[$guid] = $model;
+        Container::getInstance()->bind($guid, $class);
         return $model;
     }
 
@@ -434,8 +433,8 @@ class Loader
             return new Validate;
         }
         $guid = $name . $layer;
-        if (isset(self::$instance[$guid])) {
-            return self::$instance[$guid];
+        if (Container::getInstance()->bound($guid)) {
+            return Container::getInstance()->make($guid);
         }
         if (false !== strpos($name, '\\')) {
             $class  = $name;
@@ -449,16 +448,16 @@ class Loader
             $class = self::parseClass($module, $layer, $name, $appendSuffix);
         }
         if (class_exists($class)) {
-            $validate = new $class;
+            $validate = Container::getInstance()->make($class);
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
-                $validate = new $class;
+                $validate = Container::getInstance()->make($class);
             } else {
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-        self::$instance[$guid] = $validate;
+        Container::getInstance()->bind($guid, $class);
         return $validate;
     }
 
@@ -536,14 +535,6 @@ class Loader
         return Facade::make('app')->getNamespace() . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
-    /**
-     * 初始化类的实例
-     * @return void
-     */
-    public static function clearInstance()
-    {
-        self::$instance = [];
-    }
 }
 
 /**
