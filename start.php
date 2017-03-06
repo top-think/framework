@@ -13,4 +13,7 @@
 // 加载基础文件
 require __DIR__ . '/base.php';
 // 执行应用
-think\Facade::make('app', [APP_PATH])->run()->send();
+
+think\Facade::make('app', [defined('APP_PATH') ? APP_PATH : ''])
+    ->run()
+    ->send();
