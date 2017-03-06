@@ -12,7 +12,6 @@
 namespace think;
 
 use InvalidArgumentException;
-use think\Container;
 use think\db\Query;
 use think\Exception\ValidateException;
 use think\facade\Config as ConfigFacade;
