@@ -30,6 +30,32 @@ use think\Loader;
 use think\Response;
 use think\View;
 
+if (!function_exists('app')) {
+    /**
+     * 快速获取容器中的实例
+     * @param string    $name 类名或标识
+     * @param array     $args 参数
+     * @return object
+     */
+    function app($name, $args = [])
+    {
+        return Container::getInstance()->make($name, $args);
+    }
+}
+
+if (!function_exists('call')) {
+    /**
+     * 调用反射执行callable 支持参数绑定
+     * @param mixed $callable
+     * @param array $vars   变量
+     * @return mixed
+     */
+    function call($name, $args = [])
+    {
+        return Container::getInstance()->invoke($name, $args);
+    }
+}
+
 if (!function_exists('facade')) {
     /**
      * 通过Facade快速创建一个对象
@@ -250,7 +276,7 @@ if (!function_exists('vendor')) {
      */
     function vendor($class, $ext = '.php')
     {
-        return Loader::import($class, Facade::make('app')->getRootPath().'vendor', $ext);
+        return Loader::import($class, Facade::make('app')->getRootPath() . 'vendor', $ext);
     }
 }
 
@@ -542,5 +568,78 @@ if (!function_exists('token')) {
     {
         $token = Request::instance()->token($name, $type);
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
+    }
+}
+
+if (!function_exists('parse_name')) {
+    /**
+     * 字符串命名风格转换
+     * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
+     * @param string  $name 字符串
+     * @param integer $type 转换类型
+     * @param bool    $ucfirst 首字母是否大写（驼峰规则）
+     * @return string
+     */
+    function parse_name($name, $type = 0, $ucfirst = true)
+    {
+        if ($type) {
+            $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
+                return strtoupper($match[1]);
+            }, $name);
+            return $ucfirst ? ucfirst($name) : lcfirst($name);
+        } else {
+            return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
+        }
+    }
+}
+
+if (!function_exists('class_basename')) {
+    /**
+     * 获取类名(不包含命名空间)
+     *
+     * @param  string|object $class
+     * @return string
+     */
+    function class_basename($class)
+    {
+        $class = is_object($class) ? get_class($class) : $class;
+        return basename(str_replace('\\', '/', $class));
+    }
+}
+
+if (!function_exists('class_uses_recursive')) {
+    /**
+     *获取一个类里所有用到的trait，包括父类的
+     *
+     * @param $class
+     * @return array
+     */
+    function class_uses_recursive($class)
+    {
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
+        $results = [];
+        foreach (array_merge([$class => $class], class_parents($class)) as $class) {
+            $results += trait_uses_recursive($class);
+        }
+        return array_unique($results);
+    }
+}
+
+if (!function_exists('trait_uses_recursive')) {
+    /**
+     * 获取一个trait里所有引用到的trait
+     *
+     * @param  string $trait
+     * @return array
+     */
+    function trait_uses_recursive($trait)
+    {
+        $traits = class_uses($trait);
+        foreach ($traits as $trait) {
+            $traits += trait_uses_recursive($trait);
+        }
+        return $traits;
     }
 }
