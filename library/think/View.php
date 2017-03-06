@@ -35,15 +35,11 @@ class View
         // 初始化模板引擎
         $this->engine((array) $engine);
         // 基础替换字符串
-        $request = Facade::make('request');
-        $base    = $request->root();
-        $root    = strpos($base, '.') ? ltrim(dirname($base), DIRECTORY_SEPARATOR) : $base;
-        if ('' != $root) {
-            $root = '/' . ltrim($root, '/');
-        }
+        $request     = Facade::make('request');
+        $root        = $request->rootUrl();
         $baseReplace = [
+            '__URL__'    => $request->root() . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
             '__ROOT__'   => $root,
-            '__URL__'    => $base . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
             '__STATIC__' => $root . '/static',
             '__CSS__'    => $root . '/static/css',
             '__JS__'     => $root . '/static/js',

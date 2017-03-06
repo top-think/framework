@@ -365,6 +365,21 @@ class Request
     }
 
     /**
+     * 获取URL访问根目录
+     * @access public
+     * @return string
+     */
+    public function rootUrl()
+    {
+        $base = $this->root();
+        $root = strpos($base, '.') ? ltrim(dirname($base), DIRECTORY_SEPARATOR) : $base;
+        if ('' != $root) {
+            $root = '/' . ltrim($root, '/');
+        }
+        return $root;
+    }
+
+    /**
      * 获取当前请求URL的pathinfo信息（含URL后缀）
      * @access public
      * @return string
