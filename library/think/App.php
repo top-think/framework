@@ -32,7 +32,15 @@ class App extends Container
      * @var bool 应用调试模式
      */
     protected $debug = true;
+
+    /**
+     * @var float 应用开始时间
+     */
     protected $beginTime;
+
+    /**
+     * @var integer 应用内存初始占用
+     */
     protected $beginMem;
 
     /**
@@ -54,104 +62,216 @@ class App extends Container
      * @var bool 严格路由检测
      */
     protected $routeMust;
+
+    /**
+     * @var string 应用类库目录
+     */
     protected $appPath;
+
+    /**
+     * @var string 框架目录
+     */
     protected $thinkPath;
+
+    /**
+     * @var string 应用根目录
+     */
     protected $rootPath;
+
+    /**
+     * @var string 运行时目录
+     */
     protected $runtimePath;
+
+    /**
+     * @var string 配置目录
+     */
     protected $configPath;
+
+    /**
+     * @var string 配置后缀
+     */
     protected $configExt;
+
+    /**
+     * @var array 应用调图信息
+     */
     protected $dispatch;
+
+    /**
+     * @var array 应用加载文件列表
+     */
     protected $file = [];
+
+    /**
+     * @var think\Config 当前配置对象
+     */
     protected $config;
+
+    /**
+     * @var think\Request 当前请求对象
+     */
     protected $request;
+
+    /**
+     * @var think\Hook Hook对象
+     */
     protected $hook;
+
+    /**
+     * @var think\Lang 语言对象
+     */
     protected $lang;
+
+    /**
+     * @var think\Route 路由对象
+     */
     protected $route;
 
     public function __construct($appPath = '', Config $config, Request $request)
     {
-        $this->beginTime   = microtime(true);
-        $this->beginMem    = memory_get_usage();
-        $this->thinkPath   = __DIR__ . '/../../';
+        $this->beginTime = microtime(true);
+        $this->beginMem  = memory_get_usage();
+
+        $this->config  = $config;
+        $this->request = $request;
+        $this->hook    = Facade::make('hook');
+        $this->lang    = Facade::make('lang');
+        $this->route   = Facade::make('route');
+
+        $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
         $this->appPath     = $appPath ?: dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR;
-        $this->config      = $config;
-        $this->request     = $request;
-        $this->hook        = Facade::make('hook');
-        $this->lang        = Facade::make('lang');
-        $this->route       = Facade::make('route');
-        $this->rootPath    = $this->config('root_path') ?: dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
-        $this->runtimePath = $this->config('runtime_path') ?: $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->configPath  = $this->config('config_path') ?: $this->appPath;
+        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
         $this->configExt   = $this->config('config_ext') ?: '.php';
+
         // 初始化应用
         $this->initialize();
     }
 
+    /**
+     * 获取框架版本
+     * @return string
+     */
     public function version()
     {
         return static::VERSION;
     }
 
+    /**
+     * 是否为调试模式
+     * @return bool
+     */
     public function isDebug()
     {
         return $this->debug;
     }
 
+    /**
+     * 获取模块路径
+     * @return string
+     */
     public function getModulePath()
     {
         return $this->modulePath;
     }
 
+    /**
+     * 设置模块路径
+     * @param string $path 路径
+     * @return void
+     */
     public function setModulePath($path)
     {
         $this->modulePath = $path;
     }
 
+    /**
+     * 获取应用根目录
+     * @return string
+     */
     public function getRootPath()
     {
         return $this->rootPath;
     }
 
+    /**
+     * 获取应用类库目录
+     * @return string
+     */
     public function getAppPath()
     {
         return $this->appPath;
     }
 
+    /**
+     * 获取应用运行时目录
+     * @return string
+     */
     public function getRuntimePath()
     {
         return $this->runtimePath;
     }
 
+    /**
+     * 获取核心框架目录
+     * @return string
+     */
     public function getThinkPath()
     {
         return $this->thinkPath;
     }
 
+    /**
+     * 获取应用配置目录
+     * @return string
+     */
     public function getConfigPath()
     {
         return $this->configPath;
     }
 
+    /**
+     * 获取配置后缀
+     * @return string
+     */
     public function getConfigExt()
     {
         return $this->configExt;
     }
 
+    /**
+     * 获取应用类库命名空间
+     * @return string
+     */
     public function getNamespace()
     {
         return $this->namespace;
     }
 
+    /**
+     * 是否启用类库后缀
+     * @return bool
+     */
     public function getSuffix()
     {
         return $this->suffix;
     }
 
+    /**
+     * 获取应用开启时间
+     * @return float
+     */
     public function getBeginTime()
     {
         return $this->beginTime;
     }
 
+    /**
+     * 获取应用初始内存占用
+     * @return integer
+     */
     public function getBeginMem()
     {
         return $this->beginMem;
@@ -456,6 +576,7 @@ class App extends Container
 
         // 自动加载extend目录
         Loader::addAutoLoadDir($this->rootPath . 'extend');
+
         // 加载额外文件
         if (!empty($this->config('extra_file_list'))) {
             foreach ($this->config('extra_file_list') as $file) {
@@ -472,7 +593,6 @@ class App extends Container
 
         // 监听app_init
         $this->hook->listen('app_init');
-
     }
 
     /**
