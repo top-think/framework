@@ -32,6 +32,8 @@ class App extends Container
      * @var bool 应用调试模式
      */
     protected $debug = true;
+    protected $beginTime;
+    protected $beginMem;
 
     /**
      * @var string 应用类库命名空间
@@ -353,10 +355,13 @@ class App extends Container
         // 获取当前操作名
         $action = $actionName . $this->config('action_suffix');
 
-        $vars = [];
         if (is_callable([$instance, $action])) {
             // 执行操作方法
             $call = [$instance, $action];
+            // 自动获取请求变量
+            $vars = $this->Config('url_param_type')
+            ? $this->request->route()
+            : $this->request->param();
         } elseif (is_callable([$instance, '_empty'])) {
             // 空操作
             $call = [$instance, '_empty'];

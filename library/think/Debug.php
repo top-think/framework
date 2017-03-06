@@ -60,7 +60,7 @@ class Debug
      */
     public function getUseTime($dec = 6)
     {
-        return number_format((microtime(true) - App::getBeginTime()), $dec);
+        return number_format((microtime(true) - Facade::make('app')->getBeginTime()), $dec);
     }
 
     /**
@@ -101,7 +101,7 @@ class Debug
      */
     public function getUseMem($dec = 2)
     {
-        $size = memory_get_usage() - App::getBeginMem();
+        $size = memory_get_usage() - Facade::make('app')->getBeginMem();
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
         while ($size >= 1024) {
