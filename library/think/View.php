@@ -37,7 +37,7 @@ class View
         // 基础替换字符串
         $request = Facade::make('request');
         $base    = $request->root();
-        $root    = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
+        $root    = strpos($base, '.') ? ltrim(dirname($base), DIRECTORY_SEPARATOR) : $base;
         if ('' != $root) {
             $root = '/' . ltrim($root, '/');
         }

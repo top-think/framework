@@ -24,11 +24,12 @@ class Build
     public static function run(array $build = [], $namespace = 'app', $suffix = false)
     {
         // 锁定
-        $lockfile = APP_PATH . 'build.lock';
+		$appPath = Facade::make('app')->getAppPath();
+        $lockfile = $appPath . 'build.lock';
         if (is_writable($lockfile)) {
             return;
         } elseif (!touch($lockfile)) {
-            throw new Exception('应用目录[' . APP_PATH . ']不可写，目录无法自动生成！<BR>请手动生成项目目录~', 10006);
+            throw new Exception('应用目录[' . $appPath . ']不可写，目录无法自动生成！<BR>请手动生成项目目录~', 10006);
         }
         foreach ($build as $module => $list) {
             if ('__dir__' == $module) {
@@ -55,9 +56,9 @@ class Build
     protected static function buildDir($list)
     {
         foreach ($list as $dir) {
-            if (!is_dir(APP_PATH . $dir)) {
+            if (!is_dir(Facade::make('app')->getAppPath() . $dir)) {
                 // 创建目录
-                mkdir(APP_PATH . $dir, 0755, true);
+                mkdir(Facade::make('app')->getAppPath() . $dir, 0755, true);
             }
         }
     }
@@ -70,13 +71,14 @@ class Build
      */
     protected static function buildFile($list)
     {
+		$appPath = Facade::make('app')->getAppPath();
         foreach ($list as $file) {
-            if (!is_dir(APP_PATH . dirname($file))) {
+            if (!is_dir($appPath . dirname($file))) {
                 // 创建目录
-                mkdir(APP_PATH . dirname($file), 0755, true);
+                mkdir($appPath . dirname($file), 0755, true);
             }
-            if (!is_file(APP_PATH . $file)) {
-                file_put_contents(APP_PATH . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
+            if (!is_file($appPath . $file)) {
+                file_put_contents($appPath . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
             }
         }
     }
@@ -93,11 +95,12 @@ class Build
     public static function module($module = '', $list = [], $namespace = 'app', $suffix = false)
     {
         $module = $module ? $module : '';
-        if (!is_dir(APP_PATH . $module)) {
+		$appPath = Facade::make('app')->getAppPath();
+        if (!is_dir($appPath . $module)) {
             // 创建模块目录
-            mkdir(APP_PATH . $module);
+            mkdir($appPath . $module);
         }
-        if (basename(RUNTIME_PATH) != $module) {
+        if (basename(Facade::make('app')->getRuntimePath()) != $module) {
             // 创建配置文件和公共文件
             self::buildCommon($module);
             // 创建模块的默认页面
@@ -112,7 +115,7 @@ class Build
         }
         // 创建子目录和文件
         foreach ($list as $path => $file) {
-            $modulePath = APP_PATH . $module . DS;
+            $modulePath = $appPath . $module . '/';
             if ('__dir__' == $path) {
                 // 生成子目录
                 foreach ($file as $dir) {
@@ -132,7 +135,7 @@ class Build
                 // 生成相关MVC文件
                 foreach ($file as $val) {
                     $val      = trim($val);
-                    $filename = $modulePath . $path . DS . $val . ($suffix ? ucfirst($path) : '') . EXT;
+                    $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $val . ($suffix ? ucfirst($path) : '') . '.php';
                     $space    = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
                     $class    = $val . ($suffix ? ucfirst($path) : '');
                     switch ($path) {
@@ -143,7 +146,7 @@ class Build
                             $content = "<?php\nnamespace {$space};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
                             break;
                         case 'view': // 视图
-                            $filename = $modulePath . $path . DS . $val . '.html';
+                            $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $val . '.html';
                             if (!is_dir(dirname($filename))) {
                                 // 创建目录
                                 mkdir(dirname($filename), 0755, true);
@@ -173,9 +176,9 @@ class Build
      */
     protected static function buildHello($module, $namespace, $suffix = false)
     {
-        $filename = APP_PATH . ($module ? $module . DS : '') . 'controller' . DS . 'Index' . ($suffix ? 'Controller' : '') . EXT;
+        $filename = Facade::make('app')->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . ($suffix ? 'Controller' : '') . '.php';
         if (!is_file($filename)) {
-            $content = file_get_contents(THINK_PATH . 'tpl' . DS . 'default_index.tpl');
+            $content = file_get_contents(Facade::make('app')->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
             $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', $suffix ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
                 mkdir(dirname($filename), 0755, true);
@@ -192,11 +195,11 @@ class Build
      */
     protected static function buildCommon($module)
     {
-        $filename = CONF_PATH . ($module ? $module . DS : '') . 'config.php';
+        $filename = Facade::make('app')->getConfigPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'config.php';
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
         }
-        $filename = APP_PATH . ($module ? $module . DS : '') . 'common.php';
+        $filename = Facade::make('app')->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'common.php';
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n");
         }

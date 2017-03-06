@@ -27,7 +27,7 @@ class Template
         'view_path'          => '', // 模板路径
         'view_base'          => '',
         'view_suffix'        => 'html', // 默认模板文件后缀
-        'view_depr'          => DS,
+        'view_depr'          => DIRECTORY_SEPARATOR,
         'cache_suffix'       => 'php', // 默认模板缓存后缀
         'tpl_deny_func_list' => 'echo,exit', // 模板引擎禁用函数
         'tpl_deny_php'       => false, // 默认模板引擎是否禁用PHP原生代码
@@ -62,7 +62,7 @@ class Template
      */
     public function __construct(array $config = [])
     {
-        $this->config['cache_path']   = TEMP_PATH;
+        $this->config['cache_path']   = Facade::make('app')->getRuntimePath() . 'temp/';
         $this->config                 = array_merge($this->config, $config);
         $this->config['taglib_begin'] = $this->stripPreg($this->config['taglib_begin']);
         $this->config['taglib_end']   = $this->stripPreg($this->config['taglib_end']);
@@ -351,7 +351,7 @@ class Template
         $replace = $this->config['tpl_replace_string'];
         $content = str_replace(array_keys($replace), array_values($replace), $content);
         // 添加安全代码及模板引用记录
-        $content = '<?php if (!defined(\'THINK_PATH\')) exit(); /*' . serialize($this->includeFile) . '*/ ?>' . "\n" . $content;
+        $content = '<?php /*' . serialize($this->includeFile) . '*/ ?>' . "\n" . $content;
         // 编译存储
         $this->storage->write($cacheFile, $content);
         $this->includeFile = [];
@@ -1071,9 +1071,9 @@ class Template
             }
             if ($this->config['view_base']) {
                 $module = isset($module) ? $module : Request::instance()->module();
-                $path   = $this->config['view_base'] . ($module ? $module . DS : '');
+                $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
             } else {
-                $path = isset($module) ? APP_PATH . $module . DS . basename($this->config['view_path']) . DS : $this->config['view_path'];
+                $path = isset($module) ? Facade::make('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . basename($this->config['view_path']) . DIRECTORY_SEPARATOR : $this->config['view_path'];
             }
             $template = $path . $template . '.' . ltrim($this->config['view_suffix'], '.');
         }

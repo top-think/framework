@@ -12,6 +12,7 @@
 namespace think\console\command;
 
 use think\Config;
+use think\Facade;
 use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
@@ -73,7 +74,7 @@ abstract class Make extends Command
     {
         $name = str_replace(Config::get('app_namespace') . '\\', '', $name);
 
-        return APP_PATH . str_replace('\\', '/', $name) . '.php';
+        return Facade::make('app')->getAppPath() . str_replace('\\', '/', $name) . '.php';
     }
 
     protected function getClassName($name)

@@ -13,6 +13,7 @@ namespace think\console\command\optimize;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
+use think\Facade;
 
 class Route extends Command
 {
@@ -27,7 +28,7 @@ class Route extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        file_put_contents(RUNTIME_PATH . 'route.php', $this->buildRouteCache());
+        file_put_contents(Facade::make('app')->getRuntimePath() . 'route.php', $this->buildRouteCache());
         $output->writeln('<info>Succeed!</info>');
     }
 
@@ -35,8 +36,8 @@ class Route extends Command
     {
         $files = \think\Config::get('route_config_file');
         foreach ($files as $file) {
-            if (is_file(CONF_PATH . $file . CONF_EXT)) {
-                $config = include CONF_PATH . $file . CONF_EXT;
+            if (is_file(Facade::make('app')->getConfigPath() . $file . Facade::make('app')->getConfigExt())) {
+                $config = include Facade::make('app')->getConfigPath() . $file . Facade::make('app')->getConfigExt();
                 if (is_array($config)) {
                     \think\Route::import($config);
                 }

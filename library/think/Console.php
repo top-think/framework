@@ -67,8 +67,8 @@ class Console
             // 实例化console
             $console = new self('Think Console', '0.1');
             // 读取指令集
-            if (is_file(CONF_PATH . 'command' . EXT)) {
-                $commands = include CONF_PATH . 'command' . EXT;
+            if (is_file(Facade::make('app')->getConfigPath() . 'command.php')) {
+                $commands = include Facade::make('app')->getConfigPath() . 'command.php';
                 if (is_array($commands)) {
                     foreach ($commands as $command) {
                         if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {

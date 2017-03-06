@@ -132,7 +132,7 @@ class Process
         $this->commandline = $commandline;
         $this->cwd         = $cwd;
 
-        if (null === $this->cwd && (defined('ZEND_THREAD_SAFE') || '\\' === DS)) {
+        if (null === $this->cwd && (defined('ZEND_THREAD_SAFE') || '\\' === DIRECTORY_SEPARATOR)) {
             $this->cwd = getcwd();
         }
         if (null !== $env) {
@@ -141,10 +141,10 @@ class Process
 
         $this->input = $input;
         $this->setTimeout($timeout);
-        $this->useFileHandles               = '\\' === DS;
+        $this->useFileHandles               = '\\' === DIRECTORY_SEPARATOR;
         $this->pty                          = false;
         $this->enhanceWindowsCompatibility  = true;
-        $this->enhanceSigchildCompatibility = '\\' !== DS && $this->isSigchildEnabled();
+        $this->enhanceSigchildCompatibility = '\\' !== DIRECTORY_SEPARATOR && $this->isSigchildEnabled();
         $this->options                      = array_replace([
             'suppress_errors' => true,
             'binary_pipes'    => true,
@@ -216,7 +216,7 @@ class Process
 
         $commandline = $this->commandline;
 
-        if ('\\' === DS && $this->enhanceWindowsCompatibility) {
+        if ('\\' === DIRECTORY_SEPARATOR && $this->enhanceWindowsCompatibility) {
             $commandline = 'cmd /V:ON /E:ON /C "(' . $commandline . ')';
             foreach ($this->processPipes->getFiles() as $offset => $filename) {
                 $commandline .= ' ' . $offset . '>' . Utils::escapeArgument($filename);
@@ -278,8 +278,8 @@ class Process
 
         do {
             $this->checkTimeout();
-            $running = '\\' === DS ? $this->isRunning() : $this->processPipes->areOpen();
-            $close   = '\\' !== DS || !$running;
+            $running = '\\' === DIRECTORY_SEPARATOR ? $this->isRunning() : $this->processPipes->areOpen();
+            $close   = '\\' !== DIRECTORY_SEPARATOR || !$running;
             $this->readPipes(true, $close);
         } while ($running);
 
@@ -380,7 +380,7 @@ class Process
 
         $this->requireProcessIsStarted(__FUNCTION__);
 
-        $this->readPipes(false, '\\' === DS ? !$this->processInformation['running'] : true);
+        $this->readPipes(false, '\\' === DIRECTORY_SEPARATOR ? !$this->processInformation['running'] : true);
 
         return $this->stdout;
     }
@@ -430,7 +430,7 @@ class Process
 
         $this->requireProcessIsStarted(__FUNCTION__);
 
-        $this->readPipes(false, '\\' === DS ? !$this->processInformation['running'] : true);
+        $this->readPipes(false, '\\' === DIRECTORY_SEPARATOR ? !$this->processInformation['running'] : true);
 
         return $this->stderr;
     }
@@ -617,7 +617,7 @@ class Process
     public function stop()
     {
         if ($this->isRunning()) {
-            if ('\\' === DS && !$this->isSigchildEnabled()) {
+            if ('\\' === DIRECTORY_SEPARATOR && !$this->isSigchildEnabled()) {
                 exec(sprintf('taskkill /F /T /PID %d 2>&1', $this->getPid()), $output, $exitCode);
                 if ($exitCode > 0) {
                     throw new \RuntimeException('Unable to kill the process');
@@ -734,7 +734,7 @@ class Process
      */
     public function setTty($tty)
 {
-        if ('\\' === DS && $tty) {
+        if ('\\' === DIRECTORY_SEPARATOR && $tty) {
             throw new \RuntimeException('TTY mode is not supported on Windows platform.');
         }
         if ($tty && (!file_exists('/dev/tty') || !is_readable('/dev/tty'))) {
@@ -951,7 +951,7 @@ class Process
             return $result;
         }
 
-        if ('\\' === DS) {
+        if ('\\' === DIRECTORY_SEPARATOR) {
             return $result = false;
         }
 
@@ -971,7 +971,7 @@ class Process
      */
     private function getDescriptors()
 {
-        if ('\\' === DS) {
+        if ('\\' === DIRECTORY_SEPARATOR) {
             $this->processPipes = WindowsPipes::create($this, $this->input);
         } else {
             $this->processPipes = UnixPipes::create($this, $this->input);
@@ -1024,7 +1024,7 @@ class Process
         $this->processInformation = proc_get_status($this->process);
         $this->captureExitCode();
 
-        $this->readPipes($blocking, '\\' === DS ? !$this->processInformation['running'] : true);
+        $this->readPipes($blocking, '\\' === DIRECTORY_SEPARATOR ? !$this->processInformation['running'] : true);
 
         if (!$this->processInformation['running']) {
             $this->close();

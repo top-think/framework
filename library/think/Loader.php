@@ -51,7 +51,7 @@ class Loader
         if ($file = self::findFile($class)) {
 
             // Win环境严格区分大小写
-            if (IS_WIN && pathinfo($file, PATHINFO_FILENAME) != pathinfo(realpath($file), PATHINFO_FILENAME)) {
+            if (strpos(PHP_OS, 'WIN') !== false && pathinfo($file, PATHINFO_FILENAME) != pathinfo(realpath($file), PATHINFO_FILENAME)) {
                 return false;
             }
 
@@ -73,14 +73,14 @@ class Loader
         }
 
         // 查找 PSR-4
-        $logicalPathPsr4 = strtr($class, '\\', DS) . EXT;
+        $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . '.php';
 
         $first = $class[0];
         if (isset(self::$prefixLengthsPsr4[$first])) {
             foreach (self::$prefixLengthsPsr4[$first] as $prefix => $length) {
                 if (0 === strpos($class, $prefix)) {
                     foreach (self::$prefixDirsPsr4[$prefix] as $dir) {
-                        if (is_file($file = $dir . DS . substr($logicalPathPsr4, $length))) {
+                        if (is_file($file = $dir . DIRECTORY_SEPARATOR . substr($logicalPathPsr4, $length))) {
                             return $file;
                         }
                     }
@@ -90,7 +90,7 @@ class Loader
 
         // 查找 PSR-4 fallback dirs
         foreach (self::$fallbackDirsPsr4 as $dir) {
-            if (is_file($file = $dir . DS . $logicalPathPsr4)) {
+            if (is_file($file = $dir . DIRECTORY_SEPARATOR . $logicalPathPsr4)) {
                 return $file;
             }
         }
@@ -99,17 +99,17 @@ class Loader
         if (false !== $pos = strrpos($class, '\\')) {
             // namespaced class name
             $logicalPathPsr0 = substr($logicalPathPsr4, 0, $pos + 1)
-            . strtr(substr($logicalPathPsr4, $pos + 1), '_', DS);
+            . strtr(substr($logicalPathPsr4, $pos + 1), '_', DIRECTORY_SEPARATOR);
         } else {
             // PEAR-like class name
-            $logicalPathPsr0 = strtr($class, '_', DS) . EXT;
+            $logicalPathPsr0 = strtr($class, '_', DIRECTORY_SEPARATOR) . '.php';
         }
 
         if (isset(self::$prefixesPsr0[$first])) {
             foreach (self::$prefixesPsr0[$first] as $prefix => $dirs) {
                 if (0 === strpos($class, $prefix)) {
                     foreach ($dirs as $dir) {
-                        if (is_file($file = $dir . DS . $logicalPathPsr0)) {
+                        if (is_file($file = $dir . DIRECTORY_SEPARATOR . $logicalPathPsr0)) {
                             return $file;
                         }
                     }
@@ -119,7 +119,7 @@ class Loader
 
         // 查找 PSR-0 fallback dirs
         foreach (self::$fallbackDirsPsr0 as $dir) {
-            if (is_file($file = $dir . DS . $logicalPathPsr0)) {
+            if (is_file($file = $dir . DIRECTORY_SEPARATOR . $logicalPathPsr0)) {
                 return $file;
             }
         }
@@ -142,10 +142,10 @@ class Loader
     {
         if (is_array($namespace)) {
             foreach ($namespace as $prefix => $paths) {
-                self::addPsr4($prefix . '\\', rtrim($paths, DS), true);
+                self::addPsr4($prefix . '\\', rtrim($paths, DIRECTORY_SEPARATOR), true);
             }
         } else {
-            self::addPsr4($namespace . '\\', rtrim($path, DS), true);
+            self::addPsr4($namespace . '\\', rtrim($path, DIRECTORY_SEPARATOR), true);
         }
     }
 
@@ -236,29 +236,24 @@ class Loader
         }
     }
 
+    public static function addAutoLoadDir($path)
+    {
+        self::$fallbackDirsPsr4[] = $path;
+    }
+
     // 注册自动加载机制
     public static function register($autoload = '')
     {
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
+
         // 注册命名空间定义
         self::addNamespace([
-            'think'    => LIB_PATH . 'think' . DS,
-            'behavior' => LIB_PATH . 'behavior' . DS,
-            'traits'   => LIB_PATH . 'traits' . DS,
+            'think'    => __DIR__ . '/',
+            'behavior' => __DIR__ . '/../behavior/',
+            'traits'   => __DIR__ . '/../traits/',
         ]);
-        // 加载类库映射文件
-        if (is_file(RUNTIME_PATH . 'classmap' . EXT)) {
-            self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
-        }
 
-        // Composer自动加载支持
-        if (is_dir(VENDOR_PATH . 'composer')) {
-            self::registerComposerLoader();
-        }
-
-        // 自动加载extend目录
-        self::$fallbackDirsPsr4[] = rtrim(EXTEND_PATH, DS);
     }
 
     // 注册composer自动加载
@@ -303,17 +298,17 @@ class Loader
      * @param string $ext     导入的文件扩展名
      * @return boolean
      */
-    public static function import($class, $baseUrl = '', $ext = EXT)
+    public static function import($class, $baseUrl = '', $ext = '.php')
     {
         static $_file = [];
         $key          = $class . $baseUrl;
-        $class        = str_replace(['.', '#'], [DS, '.'], $class);
+        $class        = str_replace(['.', '#'], [DIRECTORY_SEPARATOR, '.'], $class);
         if (isset($_file[$key])) {
             return true;
         }
 
         if (empty($baseUrl)) {
-            list($name, $class) = explode(DS, $class, 2);
+            list($name, $class) = explode(DIRECTORY_SEPARATOR, $class, 2);
 
             if (isset(self::$prefixDirsPsr4[$name . '\\'])) {
                 // 注册的命名空间
@@ -321,19 +316,19 @@ class Loader
             } elseif ('@' == $name) {
                 //加载当前模块应用类库
                 $baseUrl = Facade::make('app')->getModulePath();
-            } elseif (is_dir(EXTEND_PATH . $name)) {
-                $baseUrl = EXTEND_PATH . $name . DS;
+            } elseif (is_dir(Facade::make('app')->getRootPath() . 'extend/' . $name)) {
+                $baseUrl = Facade::make('app')->getRootPath() . 'extend/' . $name;
             } else {
                 // 加载其它模块的类库
-                $baseUrl = APP_PATH . $name . DS;
+                $baseUrl = Facade::make('app')->getAppPath() . $name;
             }
-        } elseif (substr($baseUrl, -1) != DS) {
-            $baseUrl .= DS;
+        } elseif (substr($baseUrl, -1) != DIRECTORY_SEPARATOR) {
+            $baseUrl .= DIRECTORY_SEPARATOR;
         }
         // 如果类存在 则导入类库文件
         if (is_array($baseUrl)) {
             foreach ($baseUrl as $path) {
-                $filename = $path . DS . $class . $ext;
+                $filename = $path . DIRECTORY_SEPARATOR . $class . $ext;
                 if (is_file($filename)) {
                     break;
                 }
@@ -344,7 +339,7 @@ class Loader
 
         if (!empty($filename) && is_file($filename)) {
             // 开启调试模式Win环境严格区分大小写
-            if (IS_WIN && pathinfo($filename, PATHINFO_FILENAME) != pathinfo(realpath($filename), PATHINFO_FILENAME)) {
+            if (strpos(PHP_OS, 'WIN') !== false && pathinfo($filename, PATHINFO_FILENAME) != pathinfo(realpath($filename), PATHINFO_FILENAME)) {
                 return false;
             }
             __include_file($filename);

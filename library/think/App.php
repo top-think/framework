@@ -107,9 +107,34 @@ class App extends Container
         $this->modulePath = $path;
     }
 
+    public function getRootPath()
+    {
+        return $this->rootPath;
+    }
+
     public function getAppPath()
     {
         return $this->appPath;
+    }
+
+    public function getRuntimePath()
+    {
+        return $this->runtimePath;
+    }
+
+    public function getThinkPath()
+    {
+        return $this->thinkPath;
+    }
+
+    public function getConfigPath()
+    {
+        return $this->configPath;
+    }
+
+    public function getConfigExt()
+    {
+        return $this->configExt;
     }
 
     public function getNamespace()
@@ -330,7 +355,7 @@ class App extends Container
             $this->request->module($module);
         }
         // 当前模块路径
-        $this->modulePath = $this->appPath . ($module ? $module . DS : '');
+        $this->modulePath = $this->appPath . ($module ? $module . '/' : '');
 
         // 是否自动转换控制器和操作名
         $convert = is_bool($convert) ? $convert : $this->config('url_convert');
@@ -381,6 +406,21 @@ class App extends Container
      */
     public function initialize()
     {
+        // 加载环境变量配置文件
+        if (is_file($this->rootPath . '.env')) {
+            $env = parse_ini_file($this->rootPath . '.env', true);
+            foreach ($env as $key => $val) {
+                $name = $this->config('env_prefix') . strtoupper($key);
+                if (is_array($val)) {
+                    foreach ($val as $k => $v) {
+                        $item = $name . '_' . strtoupper($k);
+                        putenv("$item=$v");
+                    }
+                } else {
+                    putenv("$name=$val");
+                }
+            }
+        }
         // 初始化应用
         $this->init();
         $this->suffix = $this->config('class_suffix');
@@ -407,6 +447,18 @@ class App extends Container
             Loader::addNamespace($this->config('root_namespace'));
         }
 
+        // 加载类库映射文件
+        if (is_file($this->runtimePath . 'classmap.php')) {
+            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
+        }
+
+        // Composer自动加载支持
+        if (is_dir($this->rootPath . 'vendor/composer')) {
+            Loader::registerComposerLoader();
+        }
+
+        // 自动加载extend目录
+        Loader::addAutoLoadDir($this->rootPath . 'extend');
         // 加载额外文件
         if (!empty($this->config('extra_file_list'))) {
             foreach ($this->config('extra_file_list') as $file) {

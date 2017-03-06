@@ -1231,19 +1231,19 @@ class Route
             $module = $app->config('app_multi_module') ? array_shift($path) : null;
             if ($autoSearch) {
                 // 自动搜索控制器
-                $dir    = APP_PATH . ($module ? $module . DS : '') . $app->config('url_controller_layer');
+                $dir    = $app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . $app->config('url_controller_layer');
                 $suffix = $app->getSuffix() || $app->config('controller_suffix') ? ucfirst($app->config('url_controller_layer')) : '';
                 $item   = [];
                 $find   = false;
                 foreach ($path as $val) {
                     $item[] = $val;
-                    $file   = $dir . DS . str_replace('.', DS, $val) . $suffix . EXT;
-                    $file   = pathinfo($file, PATHINFO_DIRNAME) . DS . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . EXT;
+                    $file   = $dir . DIRECTORY_SEPARATOR . str_replace('.', DIRECTORY_SEPARATOR, $val) . $suffix . '.php';
+                    $file   = pathinfo($file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
                     if (is_file($file)) {
                         $find = true;
                         break;
                     } else {
-                        $dir .= DS . Loader::parseName($val);
+                        $dir .= DIRECTORY_SEPARATOR . Loader::parseName($val);
                     }
                 }
                 if ($find) {
@@ -1513,7 +1513,7 @@ class Route
             $request->action(array_pop($route));
             $request->controller($route ? array_pop($route) : $app->config('default_controller'));
             $request->module($route ? array_pop($route) : $app->config('default_module'));
-            $app->setModulePath(APP_PATH . ($app->config('app_multi_module') ? $request->module() . DS : ''));
+            $app->setModulePath($app->getAppPath() . ($app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
         } else {
             // 路由到模块/控制器/操作
             $result = $this->parseModule($route);

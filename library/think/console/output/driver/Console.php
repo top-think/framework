@@ -168,7 +168,7 @@ class Console
             return $this->terminalDimensions;
         }
 
-        if ('\\' === DS) {
+        if ('\\' === DIRECTORY_SEPARATOR) {
             if (preg_match('/^(\d+)x\d+ \(\d+x(\d+)\)$/', trim(getenv('ANSICON')), $matches)) {
                 return [(int) $matches[1], (int) $matches[2]];
             }

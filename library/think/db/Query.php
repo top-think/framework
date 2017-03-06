@@ -1715,8 +1715,8 @@ class Query
                 $schema = $guid;
             }
             // 读取缓存
-            if (is_file(RUNTIME_PATH . 'schema/' . $schema . '.php')) {
-                $info = include RUNTIME_PATH . 'schema/' . $schema . '.php';
+            if (is_file(Facade::make('app')->getRuntimePath() . 'schema/' . $schema . '.php')) {
+                $info = include Facade::make('app')->getRuntimePath() . 'schema/' . $schema . '.php';
             } else {
                 $info = $this->connection->getFields($guid);
             }

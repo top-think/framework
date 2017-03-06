@@ -43,7 +43,7 @@ class Build extends Command
         if ($input->hasOption('config')) {
             $build = include $input->getOption('config');
         } else {
-            $build = include APP_PATH . 'build.php';
+            $build = include \think\Facade::make('app')->getAppPath() . 'build.php';
         }
         if (empty($build)) {
             $output->writeln("Build Config Is Empty");

@@ -42,19 +42,6 @@ if (!function_exists('facade')) {
     }
 }
 
-if (!function_exists('load_trait')) {
-    /**
-     * 快速导入Traits PHP5.5以上无需调用
-     * @param string    $class trait库
-     * @param string    $ext 类库后缀
-     * @return boolean
-     */
-    function load_trait($class, $ext = EXT)
-    {
-        return Loader::import($class, TRAIT_PATH, $ext);
-    }
-}
-
 if (!function_exists('exception')) {
     /**
      * 抛出异常处理
@@ -248,7 +235,7 @@ if (!function_exists('import')) {
      * @param string    $ext 导入的文件扩展名
      * @return boolean
      */
-    function import($class, $baseUrl = '', $ext = EXT)
+    function import($class, $baseUrl = '', $ext = '.php')
     {
         return Loader::import($class, $baseUrl, $ext);
     }
@@ -261,9 +248,9 @@ if (!function_exists('vendor')) {
      * @param string    $ext 类库后缀
      * @return boolean
      */
-    function vendor($class, $ext = EXT)
+    function vendor($class, $ext = '.php')
     {
-        return Loader::import($class, VENDOR_PATH, $ext);
+        return Loader::import($class, Facade::make('app')->getRootPath().'vendor', $ext);
     }
 }
 

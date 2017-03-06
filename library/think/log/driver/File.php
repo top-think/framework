@@ -21,7 +21,7 @@ class File
     protected $config = [
         'time_format' => ' c ',
         'file_size'   => 2097152,
-        'path'        => LOG_PATH,
+        'path'        => '',
         'apart_level' => [],
     ];
 
@@ -30,6 +30,9 @@ class File
     {
         if (is_array($config)) {
             $this->config = array_merge($this->config, $config);
+        }
+        if (empty($this->config['path'])) {
+            $this->config['path'] = Facade::make('app')->getRuntimePath() . 'log/';
         }
     }
 
@@ -43,14 +46,14 @@ class File
     public function save(array $log = [], $depr = true)
     {
         $now         = date($this->config['time_format']);
-        $destination = $this->config['path'] . date('Ym') . DS . date('d') . '.log';
+        $destination = $this->config['path'] . date('Ym') . '/' . date('d') . '.log';
 
         $path = dirname($destination);
         !is_dir($path) && mkdir($path, 0755, true);
 
         //检测日志文件大小，超过配置大小则备份日志文件重新生成
         if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
-            rename($destination, dirname($destination) . DS . $_SERVER['REQUEST_TIME'] . '-' . basename($destination));
+            rename($destination, dirname($destination) . '/' . $_SERVER['REQUEST_TIME'] . '-' . basename($destination));
         }
 
         $depr = $depr ? "---------------------------------------------------------------\r\n" : '';
@@ -86,7 +89,7 @@ class File
             }
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
-                $filename = $path . DS . date('d') . '_' . $type . '.log';
+                $filename = $path . '/' . date('d') . '_' . $type . '.log';
                 error_log("[{$now}] {$level}\r\n{$depr}", 3, $filename);
             } else {
                 $info .= $level;

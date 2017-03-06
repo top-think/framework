@@ -11,6 +11,7 @@
 namespace think\console\command\optimize;
 
 use think\App;
+use think\Facade;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -38,11 +39,11 @@ return [
 EOF;
 
         $namespacesToScan = [
-            App::$namespace . '\\' => realpath(rtrim(APP_PATH)),
-            'think\\'              => LIB_PATH . 'think',
-            'behavior\\'           => LIB_PATH . 'behavior',
-            'traits\\'             => LIB_PATH . 'traits',
-            ''                     => realpath(rtrim(EXTEND_PATH))
+            Facade::make('app')->getNamespace() . '\\' => realpath(rtrim(Facade::make('app')->getAppPath())),
+            'think\\'              => Facade::make('app')->getAppPath() . 'library/think',
+            'behavior\\'           => Facade::make('app')->getAppPath() . 'library/behavior',
+            'traits\\'             => Facade::make('app')->getAppPath() . 'library/traits',
+            ''                     => realpath(rtrim(Facade::make('app')->getRootPath().'extend'))
         ];
 
         krsort($namespacesToScan);
@@ -62,12 +63,12 @@ EOF;
             $classmapFile .= '    ' . var_export($class, true) . ' => ' . $code;
         }
         $classmapFile .= "];\n";
-
-        if (!is_dir(RUNTIME_PATH)) {
-            @mkdir(RUNTIME_PATH, 0755, true);
+		$runtimePath = Facade::make('app')->getRuntimePath();
+        if (!is_dir($runtimePath)) {
+            @mkdir($runtimePath, 0755, true);
         }
 
-        file_put_contents(RUNTIME_PATH . 'classmap' . EXT, $classmapFile);
+        file_put_contents($runtimePath . 'classmap.php' , $classmapFile);
 
         $output->writeln('<info>Succeed!</info>');
     }
@@ -96,13 +97,13 @@ EOF;
     {
 
         $baseDir    = '';
-        $appPath    = $this->normalizePath(realpath(APP_PATH));
-        $libPath    = $this->normalizePath(realpath(LIB_PATH));
-        $extendPath = $this->normalizePath(realpath(EXTEND_PATH));
+        $appPath    = $this->normalizePath(realpath(Facade::make('app')->getAppPath()));
+        $libPath    = $this->normalizePath(realpath(Facade::make('app')->getThinkPath().'library'));
+        $extendPath = $this->normalizePath(realpath(Facade::make('app')->getRootPath().'extend'));
         $path       = $this->normalizePath($path);
 
         if (strpos($path, $libPath . '/') === 0) {
-            $path    = substr($path, strlen(LIB_PATH));
+            $path    = substr($path, strlen(Facade::make('app')->getThinkPath().'library'));
             $baseDir = 'LIB_PATH';
         } elseif (strpos($path, $appPath . '/') === 0) {
             $path    = substr($path, strlen($appPath) + 1);
