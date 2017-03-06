@@ -12,6 +12,7 @@
 namespace think;
 
 use InvalidArgumentException;
+use think\Container;
 use think\db\Query;
 use think\Exception\ValidateException;
 use think\facade\Config as ConfigFacade;
@@ -1239,7 +1240,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (isset(self::$event[$this->class][$event])) {
             foreach (self::$event[$this->class][$event] as $callback) {
-                $result = Facade::make('app')->invoke($callback, [$this]);
+                $result = Container::getInstance()->invoke($callback, [$this]);
                 if (false === $result) {
                     return false;
                 }

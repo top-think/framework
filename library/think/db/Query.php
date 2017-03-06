@@ -13,6 +13,7 @@ namespace think\db;
 
 use PDO;
 use think\Collection;
+use think\Container;
 use think\Db;
 use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
@@ -2785,7 +2786,7 @@ class Query
     {
         $result = false;
         if (isset(self::$event[$event])) {
-            $result = Facade::make('app')->invoke(self::$event[$event], [$params, $this]);
+            $result = Container::getInstance()->invoke(self::$event[$event], [$params, $this]);
         }
         return $result;
     }
