@@ -140,15 +140,35 @@ class App
         $this->route   = Facade::make('route');
 
         $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
-        $this->appPath     = $appPath ?: dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR;
+        $this->appPath     = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
         $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
         $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
         $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
         $this->configExt   = $this->config('app.config_ext') ?: '.php';
 
+        // 设置路径环境变量
+        $this->setEnvPath();
         // 初始化应用
         $this->initialize();
+    }
+
+    /**
+     * 设置路径到环境变量
+     * @access protected
+     * @return void
+     */
+    protected function setEnvPath()
+    {
+        $path = [
+            'root_path'  => $this->rootPath,
+            'app_path'   => $this->appPath,
+            'think_path' => $this->thinkPath,
+        ];
+        foreach ($path as $key => $val) {
+            $name = 'PHP_' . strtoupper($key);
+            putenv("$name=$val");
+        }
     }
 
     /**

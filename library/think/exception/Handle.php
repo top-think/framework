@@ -258,6 +258,7 @@ class Handle
      */
     private static function getConst()
     {
-        return get_defined_constants(true)['user'];
+        $const = get_defined_constants(true);
+        return isset($const['user']) ? $const['user'] : [];
     }
 }
