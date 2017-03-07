@@ -239,10 +239,11 @@ class App extends Container
     {
         // 定位模块目录
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';
+        $path   = $this->appPath . $module;
 
         // 加载初始化文件
-        if (is_file($this->appPath . $module . 'init.php')) {
-            include $this->appPath . $module . 'init.php';
+        if (is_file($path . 'init.php')) {
+            include $path . 'init.php';
         } elseif (is_file($this->runtimePath . $module . 'init.php')) {
             include $this->runtimePath . $module . 'init.php';
         } else {
@@ -259,9 +260,14 @@ class App extends Container
                 }
             }
 
+            // 加载行为扩展文件
+            if (is_file($path . 'tags.php')) {
+                $this->hook->import(include $path . 'tags.php');
+            }
+
             // 加载公共文件
-            if (is_file($this->appPath . $module . 'common.php')) {
-                include $this->appPath . $module . 'common.php';
+            if (is_file($path . 'common.php')) {
+                include $path . 'common.php';
             }
 
         }
