@@ -1244,6 +1244,28 @@ class Query
     /**
      * 指定查询数量
      * @access public
+     * @param mixed             $condition  满足条件（支持闭包）
+     * @param \Closure|array    $query      查询表达式（闭包或数组）
+     * @return $this
+     */
+    public function when($condition, $query)
+    {
+        if ($condition instanceof \Closure) {
+            $condition = call_user_func_array($condition, [ & $this]);
+        }
+        if ($condition) {
+            if ($query instanceof \Closure) {
+                call_user_func_array($query, [ & $this]);
+            } elseif (is_array($query)) {
+                $this->where($query);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * 指定查询数量
+     * @access public
      * @param mixed $offset 起始位置
      * @param mixed $length 查询数量
      * @return $this
