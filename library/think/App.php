@@ -104,11 +104,6 @@ class App
     protected $dispatch;
 
     /**
-     * @var array 应用加载文件列表
-     */
-    protected $file = [];
-
-    /**
      * @var think\Config 当前配置对象
      */
     protected $config;
