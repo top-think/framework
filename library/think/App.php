@@ -19,7 +19,7 @@ use think\exception\RouteNotFoundException;
  * App 应用管理
  * @author  liu21st <liu21st@gmail.com>
  */
-class App extends Container
+class App
 {
     const VERSION = '5.1.0alpha';
 
@@ -379,11 +379,11 @@ class App extends Container
             case 'method':
                 // 执行回调方法
                 $vars = array_merge($this->request->param(), $dispatch['var']);
-                $data = Container::getInstance()->invokeMethod($dispatch['method'], $vars);
+                $data = $this->container()->invokeMethod($dispatch['method'], $vars);
                 break;
             case 'function':
                 // 执行闭包
-                $data = Container::getInstance()->invokeFunction($dispatch['function']);
+                $data = $this->container()->invokeFunction($dispatch['function']);
                 break;
             case 'response':
                 $data = $dispatch['response'];
@@ -524,7 +524,7 @@ class App extends Container
 
         $this->hook->listen('action_begin', $call);
 
-        return Container::getInstance()->invokeMethod($call, $vars);
+        return $this->container()->invokeMethod($call, $vars);
     }
 
     /**
@@ -717,5 +717,25 @@ class App extends Container
     public function getBeginMem()
     {
         return $this->beginMem;
+    }
+
+    public function container()
+    {
+        return Container::getInstance();
+    }
+
+    public function __set($name, $value)
+    {
+        $this->container()->bind($name, $value);
+    }
+
+    public function __get($name)
+    {
+        return $this->container()->make($name);
+    }
+
+    public function __isset($name)
+    {
+        return $this->container()->bound($name);
     }
 }

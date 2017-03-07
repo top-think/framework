@@ -13,6 +13,7 @@
 // ThinkPHP 助手函数
 //-------------------------
 
+use think\Container;
 use think\Db;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
