@@ -1242,13 +1242,14 @@ class Query
     }
 
     /**
-     * 指定查询数量
+     * 条件查询
      * @access public
      * @param mixed             $condition  满足条件（支持闭包）
-     * @param \Closure|array    $query      查询表达式（闭包或数组）
+     * @param \Closure|array    $query      满足条件后执行的查询表达式（闭包或数组）
+     * @param \Closure|array    $otherwise  不满足条件后执行
      * @return $this
      */
-    public function when($condition, $query)
+    public function when($condition, $query, $otherwise = null)
     {
         if ($condition instanceof \Closure) {
             $condition = call_user_func_array($condition, [ & $this]);
@@ -1258,6 +1259,12 @@ class Query
                 call_user_func_array($query, [ & $this]);
             } elseif (is_array($query)) {
                 $this->where($query);
+            }
+        } elseif ($otherwise) {
+            if ($otherwise instanceof \Closure) {
+                call_user_func_array($otherwise, [ & $this]);
+            } elseif (is_array($otherwise)) {
+                $this->where($otherwise);
             }
         }
         return $this;
