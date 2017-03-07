@@ -89,6 +89,11 @@ class App extends Container
     protected $configPath;
 
     /**
+     * @var string 路由目录
+     */
+    protected $routePath;
+
+    /**
      * @var string 配置后缀
      */
     protected $configExt;
@@ -143,6 +148,7 @@ class App extends Container
         $this->appPath     = $appPath ?: dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR;
         $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
         $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
         $this->configExt   = $this->config('config_ext') ?: '.php';
 
@@ -342,7 +348,7 @@ class App extends Container
                 $this->init($module);
 
                 // 加载当前模块语言包
-                $this->lang->load($path . 'lang/' . $this->request->langset() . '.php');
+                $this->lang->load($this->appPath . $module . '/lang/' . $this->request->langset() . '.php');
 
                 // 模块请求缓存检查
                 $this->request->cache($this->config('request_cache'), $this->config('request_cache_expire'), $this->config('request_cache_except'));
@@ -500,18 +506,20 @@ class App extends Container
             include $this->runtimePath . $module . 'init.php';
         } else {
             // 读取配置文件
-            $dir   = $this->configPath . $module;
-            $files = scandir($dir);
-            foreach ($files as $file) {
-                if (strpos($file, $this->configExt)) {
-                    $filename = $dir . DIRECTORY_SEPARATOR . $file;
-                    $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
+            $dir = $this->configPath . $module;
+            if (is_dir($dir)) {
+                $files = scandir($dir);
+                foreach ($files as $file) {
+                    if (strpos($file, $this->configExt)) {
+                        $filename = $dir . DIRECTORY_SEPARATOR . $file;
+                        $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
+                    }
                 }
             }
 
             // 加载公共文件
-            if (is_file($path . 'common.php')) {
-                include $path . 'common.php';
+            if (is_file($this->appPath . $module . 'common.php')) {
+                include $this->appPath . $module . 'common.php';
             }
 
         }
@@ -541,10 +549,12 @@ class App extends Container
                     $this->route->rules($rules);
                 }
             } else {
-                foreach ($this->config('route_config_file') as $file) {
-                    if (is_file($this->appPath . $file . '.php')) {
+                $files = scandir($this->routePath);
+                foreach ($files as $file) {
+                    if (strpos($file, '.php')) {
+                        $filename = $this->routePath . DIRECTORY_SEPARATOR . $file;
                         // 导入路由配置
-                        $rules = include $this->appPath . $file . '.php';
+                        $rules = include $filename;
                         if (is_array($rules)) {
                             $this->route->import($rules);
                         }

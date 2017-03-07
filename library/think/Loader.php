@@ -256,7 +256,7 @@ class Loader
     }
 
     // 注册composer自动加载
-    private static function registerComposerLoader($composerPath)
+    public static function registerComposerLoader($composerPath)
     {
         if (is_file($composerPath . 'autoload_namespaces.php')) {
             $map = require $composerPath . 'autoload_namespaces.php';
