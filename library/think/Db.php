@@ -71,10 +71,10 @@ class Db
     private static function parseConfig($config)
     {
         if (empty($config)) {
-            $config = Facade::make('app')->config('database');
+            $config = Facade::make('config')->pull('database');
         } elseif (is_string($config) && false === strpos($config, '/')) {
             // 支持读取配置参数
-            $config = Facade::make('app')->config($config);
+            $config = Facade::make('config')->get('database.' . $config);
         }
         if (is_string($config)) {
             return self::parseDsn($config);

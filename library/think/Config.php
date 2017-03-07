@@ -16,9 +16,15 @@ class Config
     // 配置参数
     private $config = [];
     // 参数作用域
-    private $range = '_sys_';
+    protected $range  = '_sys_';
+    protected $prefix = 'app';
 
-    // 设定配置参数的作用域
+    /**
+     * 设置配置参数作用域
+     * @access public
+     * @param string    $range 作用域
+     * @return void
+     */
     public function range($range)
     {
         $this->range = $range;
@@ -28,7 +34,19 @@ class Config
     }
 
     /**
+     * 设置配置参数默认前缀
+     * @access public
+     * @param string    $prefix 前缀
+     * @return void
+     */
+    public function setDefaultPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
+    /**
      * 解析配置文件或内容
+     * @access public
      * @param string    $config 配置文件路径或内容
      * @param string    $type 配置解析类型
      * @param string    $name 配置名（如设置即表示二级配置）
@@ -47,6 +65,7 @@ class Config
 
     /**
      * 加载配置文件（PHP格式）
+     * @access public
      * @param string    $file 配置文件名
      * @param string    $name 配置名（如设置即表示二级配置）
      * @param string    $range  作用域
@@ -75,6 +94,7 @@ class Config
 
     /**
      * 检测配置是否存在
+     * @access public
      * @param string    $name 配置参数名（支持二级配置 .号分割）
      * @param string    $range  作用域
      * @return bool
@@ -84,16 +104,35 @@ class Config
         $range = $range ?: $this->range;
 
         if (!strpos($name, '.')) {
-            return isset($this->config[$range][strtolower($name)]);
-        } else {
-            // 二维数组设置和获取支持
-            $name = explode('.', $name);
-            return isset($this->config[$range][strtolower($name[0])][$name[1]]);
+            $name = $this->prefix . '.' . $name;
         }
+
+        $name = explode('.', $name);
+        return isset($this->config[$range][strtolower($name[0])][strtolower($name[1])]);
+
+    }
+
+    /**
+     * 获取一级配置
+     * @access public
+     * @param string    $name 一级配置名
+     * @param string    $range  作用域
+     * @return mixed
+     */
+    public function pull($name = null, $range = '')
+    {
+        $range = $range ?: $this->range;
+        // 无参数时获取所有
+        if (empty($name) && isset($this->config[$range])) {
+            return $this->config[$range];
+        }
+        $name = strtolower($name);
+        return isset($this->config[$range][$name]) ? $this->config[$range][$name] : null;
     }
 
     /**
      * 获取配置参数 为空则获取所有配置
+     * @access public
      * @param string    $name 配置参数名（支持二级配置 .号分割）
      * @param string    $range  作用域
      * @return mixed
@@ -107,18 +146,17 @@ class Config
         }
 
         if (!strpos($name, '.')) {
-            $name = strtolower($name);
-            return isset($this->config[$range][$name]) ? $this->config[$range][$name] : null;
-        } else {
-            // 二维数组设置和获取支持
-            $name    = explode('.', $name);
-            $name[0] = strtolower($name[0]);
-            return isset($this->config[$range][$name[0]][$name[1]]) ? $this->config[$range][$name[0]][$name[1]] : null;
+            $name = $this->prefix . '.' . $name;
         }
+
+        $name = explode('.', strtolower($name));
+        return isset($this->config[$range][$name[0]][$name[1]]) ? $this->config[$range][$name[0]][$name[1]] : null;
+
     }
 
     /**
      * 设置配置参数 name为数组则为批量设置
+     * @access public
      * @param string|array  $name 配置参数名（支持二级配置 .号分割）
      * @param mixed         $value 配置值
      * @param string        $range  作用域
@@ -132,35 +170,40 @@ class Config
         }
         if (is_string($name)) {
             if (!strpos($name, '.')) {
-                $this->config[$range][strtolower($name)] = $value;
-            } else {
-                // 二维数组设置和获取支持
-                $name                                                 = explode('.', $name);
-                $this->config[$range][strtolower($name[0])][$name[1]] = $value;
+                $name = $this->prefix . '.' . $name;
             }
-            return;
+            $name = explode('.', $name);
+
+            $this->config[$range][strtolower($name[0])][$name[1]] = $value;
+            return $value;
         } elseif (is_array($name)) {
             // 批量设置
             if (!empty($value)) {
-                $this->config[$range][$value] = isset($this->config[$range][$value]) ?
-                array_merge($this->config[$range][$value], $name) :
-                $this->config[$range][$value] = $name;
-                return $this->config[$range][$value];
+                if (isset($this->config[$range][$value])) {
+                    $result = array_merge($this->config[$range][$value], $name);
+                } else {
+                    $result = $name;
+                }
+                $this->config[$range][$value] = $result;
             } else {
-                return $this->config[$range] = array_merge($this->config[$range], array_change_key_case($name));
+                $result = $this->config[$range] = array_merge($this->config[$range], array_change_key_case($name));
             }
         } else {
             // 为空直接返回 已有配置
-            return $this->config[$range];
+            $result = $this->config[$range];
         }
+        return $result;
     }
 
     /**
      * 重置配置参数
+     * @access public
+     * @param string    $range  作用域
      */
     public function reset($range = '')
     {
         $range = $range ?: $this->range;
+
         if (true === $range) {
             $this->config = [];
         } else {
@@ -181,7 +224,7 @@ class Config
 
     /**
      * 获取配置参数
-     * @access protected
+     * @access public
      * @param string $name 参数名
      * @return mixed
      */

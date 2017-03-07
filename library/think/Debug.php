@@ -187,7 +187,7 @@ class Debug
 
     public function inject(Response $response, &$content)
     {
-        $config = Facade::make('app')->config('trace');
+        $config = Facade::make('config')->pull('trace');
         $type   = isset($config['type']) ? $config['type'] : 'Html';
         $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);

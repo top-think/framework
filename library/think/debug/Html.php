@@ -21,15 +21,14 @@ use think\Response;
 class Html
 {
     protected $config = [
-        'trace_file' => '',
-        'trace_tabs' => ['base' => '基本', 'file' => '文件', 'info' => '流程', 'notice|error' => '错误', 'sql' => 'SQL', 'debug|log' => '调试'],
+        'file' => '',
+        'tabs' => ['base' => '基本', 'file' => '文件', 'info' => '流程', 'notice|error' => '错误', 'sql' => 'SQL', 'debug|log' => '调试'],
     ];
 
     // 实例化并传入参数
     public function __construct(array $config = [])
     {
-        $this->config['trace_file'] = Facade::make('app')->getThinkPath() . 'tpl/page_trace.tpl';
-        $this->config               = array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -76,7 +75,7 @@ class Html
 
         // 页面Trace信息
         $trace = [];
-        foreach ($this->config['trace_tabs'] as $name => $title) {
+        foreach ($this->config['tabs'] as $name => $title) {
             $name = strtolower($name);
             switch ($name) {
                 case 'base': // 基本信息
@@ -101,7 +100,7 @@ class Html
         }
         // 调用Trace页面模板
         ob_start();
-        include $this->config['trace_file'];
+        include $this->config['file'];
         return ob_get_clean();
     }
 

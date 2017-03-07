@@ -150,10 +150,121 @@ class App extends Container
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
         $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
         $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
-        $this->configExt   = $this->config('config_ext') ?: '.php';
+        $this->configExt   = $this->config('app.config_ext') ?: '.php';
 
         // 初始化应用
         $this->initialize();
+    }
+
+    /**
+     * 初始化应用
+     */
+    public function initialize()
+    {
+        // 加载环境变量配置文件
+        if (is_file($this->rootPath . '.env')) {
+            $env = parse_ini_file($this->rootPath . '.env', true);
+            foreach ($env as $key => $val) {
+                $name = 'PHP_' . strtoupper($key);
+                if (is_array($val)) {
+                    foreach ($val as $k => $v) {
+                        $item = $name . '_' . strtoupper($k);
+                        putenv("$item=$v");
+                    }
+                } else {
+                    putenv("$name=$val");
+                }
+            }
+        }
+        // 初始化应用
+        $this->init();
+
+        // 开启类名后缀
+        $this->suffix = $this->config('app.class_suffix');
+
+        // 应用调试模式
+        $this->debug = Env::get('app.app_debug', $this->config('app.app_debug'));
+        if (!$this->debug) {
+            ini_set('display_errors', 'Off');
+        } elseif (PHP_SAPI != 'cli') {
+            //重新申请一块比较大的buffer
+            if (ob_get_level() > 0) {
+                $output = ob_get_clean();
+            }
+            ob_start();
+            if (!empty($output)) {
+                echo $output;
+            }
+        }
+
+        // 注册应用命名空间
+        $this->namespace = $this->config('app.app_namespace');
+        Loader::addNamespace($this->config('app.app_namespace'), $this->appPath);
+
+        // 注册根命名空间
+        if (!empty($this->config('app.root_namespace'))) {
+            Loader::addNamespace($this->config('app.root_namespace'));
+        }
+
+        // 加载类库映射文件
+        if (is_file($this->runtimePath . 'classmap.php')) {
+            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
+        }
+
+        // Composer自动加载支持
+        if (is_dir($this->rootPath . 'vendor/composer')) {
+            Loader::registerComposerLoader($this->rootPath . 'vendor/composer/');
+        }
+
+        // 自动加载extend目录
+        Loader::addAutoLoadDir($this->rootPath . 'extend');
+
+        // 加载系统助手函数
+        include $this->thinkPath . 'helper.php';
+
+        // 设置系统时区
+        date_default_timezone_set($this->config('app.default_timezone'));
+
+        // 监听app_init
+        $this->hook->listen('app_init');
+    }
+
+    /**
+     * 初始化应用或模块
+     * @access public
+     * @param string $module 模块名
+     * @return void
+     */
+    private function init($module = '')
+    {
+        // 定位模块目录
+        $module = $module ? $module . DIRECTORY_SEPARATOR : '';
+
+        // 加载初始化文件
+        if (is_file($this->appPath . $module . 'init.php')) {
+            include $this->appPath . $module . 'init.php';
+        } elseif (is_file($this->runtimePath . $module . 'init.php')) {
+            include $this->runtimePath . $module . 'init.php';
+        } else {
+
+            // 自动读取配置文件
+            $dir = $this->configPath . $module;
+            if (is_dir($dir)) {
+                $files = scandir($dir);
+                foreach ($files as $file) {
+                    if (strpos($file, $this->configExt)) {
+                        $filename = $dir . DIRECTORY_SEPARATOR . $file;
+                        $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
+                    }
+                }
+            }
+
+            // 加载公共文件
+            if (is_file($this->appPath . $module . 'common.php')) {
+                include $this->appPath . $module . 'common.php';
+            }
+
+        }
     }
 
     /**
@@ -168,7 +279,7 @@ class App extends Container
             if (defined('BIND_MODULE')) {
                 // 模块/控制器绑定
                 BIND_MODULE && $this->route->bind(BIND_MODULE);
-            } elseif ($this->config('auto_bind_module')) {
+            } elseif ($this->config('app.auto_bind_module')) {
                 // 入口自动绑定
                 $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
                 if ($name && 'index' != $name && is_dir($this->appPath . $name)) {
@@ -176,14 +287,14 @@ class App extends Container
                 }
             }
 
-            $this->request->filter($this->config('default_filter'));
+            $this->request->filter($this->config('app.default_filter'));
 
-            if ($this->config('lang_switch_on')) {
+            if ($this->config('app.lang_switch_on')) {
                 // 开启多语言机制 检测当前语言
                 $this->lang->detect();
             } else {
                 // 读取默认语言
-                $this->lang->range($this->config('default_lang'));
+                $this->lang->range($this->config('app.default_lang'));
             }
             $this->request->langset($this->lang->range());
             // 加载系统语言包
@@ -211,7 +322,7 @@ class App extends Container
             // 监听app_begin
             $this->hook->listen('app_begin', $dispatch);
             // 请求缓存检查
-            $this->request->cache($this->config('request_cache'), $this->config('request_cache_expire'), $this->config('request_cache_except'));
+            $this->request->cache($this->config('app.request_cache'), $this->config('app.request_cache_expire'), $this->config('app.request_cache_except'));
 
             $data = $this->exec($dispatch);
 
@@ -225,7 +336,7 @@ class App extends Container
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
             $isAjax   = $this->request->isAjax();
-            $type     = $isAjax ? $this->config('default_ajax_return') : $this->config('default_return_type');
+            $type     = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
             $response = Response::create($data, $type);
         } else {
             $response = Response::create();
@@ -257,7 +368,7 @@ class App extends Container
             case 'controller':
                 // 执行控制器操作
                 $vars = array_merge($this->request->param(), $dispatch['var']);
-                $data = Loader::action($dispatch['controller'], $vars, $this->config('url_controller_layer'), $this->config('controller_suffix'));
+                $data = Loader::action($dispatch['controller'], $vars, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'));
                 break;
             case 'method':
                 // 执行回调方法
@@ -323,9 +434,9 @@ class App extends Container
             $result = explode('/', $result);
         }
 
-        if ($this->config('app_multi_module')) {
+        if ($this->config('app.app_multi_module')) {
             // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $this->config('default_module')));
+            $module    = strip_tags(strtolower($result[0] ?: $this->config('app.default_module')));
             $bind      = $this->route->getBind('module');
             $available = false;
             if ($bind) {
@@ -337,7 +448,7 @@ class App extends Container
                 } elseif ($module == $bindModule) {
                     $available = true;
                 }
-            } elseif (!in_array($module, $this->config('deny_module_list')) && is_dir($this->appPath . $module)) {
+            } elseif (!in_array($module, $this->config('app.deny_module_list')) && is_dir($this->appPath . $module)) {
                 $available = true;
             }
 
@@ -351,7 +462,7 @@ class App extends Container
                 $this->lang->load($this->appPath . $module . '/lang/' . $this->request->langset() . '.php');
 
                 // 模块请求缓存检查
-                $this->request->cache($this->config('request_cache'), $this->config('request_cache_expire'), $this->config('request_cache_except'));
+                $this->request->cache($this->config('app.request_cache'), $this->config('app.request_cache_expire'), $this->config('app.request_cache_except'));
 
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
@@ -365,13 +476,13 @@ class App extends Container
         $this->modulePath = $this->appPath . ($module ? $module . '/' : '');
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($convert) ? $convert : $this->config('url_convert');
+        $convert = is_bool($convert) ? $convert : $this->config('app.url_convert');
         // 获取控制器名
-        $controller = strip_tags($result[1] ?: $this->config('default_controller'));
+        $controller = strip_tags($result[1] ?: $this->config('app.default_controller'));
         $controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
-        $actionName = strip_tags($result[2] ?: $this->config('default_action'));
+        $actionName = strip_tags($result[2] ?: $this->config('app.default_action'));
         $actionName = $convert ? strtolower($actionName) : $actionName;
 
         // 设置当前请求的控制器、操作
@@ -380,20 +491,20 @@ class App extends Container
         // 监听module_init
         $this->hook->listen('module_init', $this->request);
 
-        $instance = Loader::controller($controller, $this->config('url_controller_layer'), $this->config('controller_suffix'), $this->config('empty_controller'));
+        $instance = Loader::controller($controller, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'), $this->config('app.empty_controller'));
 
         if (is_null($instance)) {
             throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
         }
 
         // 获取当前操作名
-        $action = $actionName . $this->config('action_suffix');
+        $action = $actionName . $this->config('app.action_suffix');
 
         if (is_callable([$instance, $action])) {
             // 执行操作方法
             $call = [$instance, $action];
             // 自动获取请求变量
-            $vars = $this->Config('url_param_type')
+            $vars = $this->Config('app.url_param_type')
             ? $this->request->route()
             : $this->request->param();
         } elseif (is_callable([$instance, '_empty'])) {
@@ -411,122 +522,6 @@ class App extends Container
     }
 
     /**
-     * 初始化应用
-     */
-    public function initialize()
-    {
-        // 加载环境变量配置文件
-        if (is_file($this->rootPath . '.env')) {
-            $env = parse_ini_file($this->rootPath . '.env', true);
-            foreach ($env as $key => $val) {
-                $name = 'PHP_' . strtoupper($key);
-                if (is_array($val)) {
-                    foreach ($val as $k => $v) {
-                        $item = $name . '_' . strtoupper($k);
-                        putenv("$item=$v");
-                    }
-                } else {
-                    putenv("$name=$val");
-                }
-            }
-        }
-        // 初始化应用
-        $this->init();
-        $this->suffix = $this->config('class_suffix');
-
-        // 应用调试模式
-        $this->debug = Env::get('app_debug', $this->config('app_debug'));
-        if (!$this->debug) {
-            ini_set('display_errors', 'Off');
-        } elseif (PHP_SAPI != 'cli') {
-            //重新申请一块比较大的buffer
-            if (ob_get_level() > 0) {
-                $output = ob_get_clean();
-            }
-            ob_start();
-            if (!empty($output)) {
-                echo $output;
-            }
-        }
-
-        // 注册应用命名空间
-        $this->namespace = $this->config('app_namespace');
-        Loader::addNamespace($this->config('app_namespace'), $this->appPath);
-        // 注册根命名空间
-        if (!empty($this->config('root_namespace'))) {
-            Loader::addNamespace($this->config('root_namespace'));
-        }
-
-        // 加载类库映射文件
-        if (is_file($this->runtimePath . 'classmap.php')) {
-            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
-        }
-
-        // Composer自动加载支持
-        if (is_dir($this->rootPath . 'vendor/composer')) {
-            Loader::registerComposerLoader($this->rootPath . 'vendor/composer/');
-        }
-
-        // 自动加载extend目录
-        Loader::addAutoLoadDir($this->rootPath . 'extend');
-
-        // 加载额外文件
-        if (!empty($this->config('extra_file_list'))) {
-            foreach ($this->config('extra_file_list') as $file) {
-                $file = strpos($file, '.') ? $file : $this->appPath . $file . '.php';
-                if (is_file($file) && !isset($this->file[$file])) {
-                    include $file;
-                    $this->file[$file] = true;
-                }
-            }
-        }
-
-        // 设置系统时区
-        date_default_timezone_set($this->config('default_timezone'));
-
-        // 监听app_init
-        $this->hook->listen('app_init');
-    }
-
-    /**
-     * 初始化应用或模块
-     * @access public
-     * @param string $module 模块名
-     * @return void
-     */
-    private function init($module = '')
-    {
-        // 定位模块目录
-        $module = $module ? $module . DIRECTORY_SEPARATOR : '';
-
-        // 加载初始化文件
-        if (is_file($this->appPath . $module . 'init.php')) {
-            include $this->appPath . $module . 'init.php';
-        } elseif (is_file($this->runtimePath . $module . 'init.php')) {
-            include $this->runtimePath . $module . 'init.php';
-        } else {
-            // 读取配置文件
-            $dir = $this->configPath . $module;
-            if (is_dir($dir)) {
-                $files = scandir($dir);
-                foreach ($files as $file) {
-                    if (strpos($file, $this->configExt)) {
-                        $filename = $dir . DIRECTORY_SEPARATOR . $file;
-                        $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
-                    }
-                }
-            }
-
-            // 加载公共文件
-            if (is_file($this->appPath . $module . 'common.php')) {
-                include $this->appPath . $module . 'common.php';
-            }
-
-        }
-
-    }
-
-    /**
      * URL路由检测（根据PATH_INFO)
      * @access public
      * @return array
@@ -535,11 +530,11 @@ class App extends Container
     public function routeCheck()
     {
         $path   = $this->request->path();
-        $depr   = $this->config('pathinfo_depr');
+        $depr   = $this->config('app.pathinfo_depr');
         $result = false;
 
         // 路由检测
-        $check = !is_null($this->routeCheck) ? $this->routeCheck : $this->config('url_route_on');
+        $check = !is_null($this->routeCheck) ? $this->routeCheck : $this->config('app.url_route_on');
         if ($check) {
             // 开启路由
             if (is_file($this->runtimePath . 'route.php')) {
@@ -563,8 +558,8 @@ class App extends Container
             }
 
             // 路由检测（根据路由定义返回不同的URL调度）
-            $result = $this->route->check($this->request, $path, $depr, $this->config('url_domain_deploy'));
-            $must   = !is_null($this->routeMust) ? $this->routeMust : $this->config('url_route_must');
+            $result = $this->route->check($this->request, $path, $depr, $this->config('app.url_domain_deploy'));
+            $must   = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
 
             if ($must && false === $result) {
                 // 路由无效
@@ -573,7 +568,7 @@ class App extends Container
         }
         if (false === $result) {
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
-            $result = $this->route->parseUrl($path, $depr, $this->config('controller_auto_search'));
+            $result = $this->route->parseUrl($path, $depr, $this->config('app.controller_auto_search'));
         }
         return $result;
     }

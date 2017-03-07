@@ -74,7 +74,7 @@ class Cache
             } elseif ('complex' == $this->config->get('cache.type')) {
                 $this->connect($this->config->get('cache.default'));
             } else {
-                $this->connect($this->config->get('cache'));
+                $this->connect($this->config->pull('cache'));
             }
         }
         return $this->handler;
