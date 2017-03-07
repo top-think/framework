@@ -21,7 +21,7 @@ use think\Response;
 class Console
 {
     protected $config = [
-        'trace_tabs' => ['base' => '基本', 'file' => '文件', 'info' => '流程', 'notice|error' => '错误', 'sql' => 'SQL', 'debug|log' => '调试'],
+        'tabs' => ['base' => '基本', 'file' => '文件', 'info' => '流程', 'notice|error' => '错误', 'sql' => 'SQL', 'debug|log' => '调试'],
     ];
 
     // 实例化并传入参数
@@ -76,7 +76,7 @@ class Console
 
         // 页面Trace信息
         $trace = [];
-        foreach ($this->config['trace_tabs'] as $name => $title) {
+        foreach ($this->config['tabs'] as $name => $title) {
             $name = strtolower($name);
             switch ($name) {
                 case 'base': // 基本信息
@@ -117,7 +117,7 @@ JS;
     protected function console($type, $msg)
     {
         $type       = strtolower($type);
-        $trace_tabs = array_values($this->config['trace_tabs']);
+        $trace_tabs = array_values($this->config['tabs']);
         $line[]     = ($type == $trace_tabs[0] || '调试' == $type || '错误' == $type)
         ? "console.group('{$type}');"
         : "console.groupCollapsed('{$type}');";
