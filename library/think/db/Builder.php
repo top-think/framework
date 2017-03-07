@@ -249,7 +249,7 @@ abstract class Builder
                 if ($value instanceof \Closure) {
                     // 使用闭包查询
                     $query = new Query($this->connection);
-                    call_user_func_array($value, [ & $query]);
+                    $value($query);
                     $whereClause = $this->buildWhere($query->getOptions('where'), $options);
                     if (!empty($whereClause)) {
                         $str[] = ' ' . $key . ' ( ' . $whereClause . ' )';
@@ -425,7 +425,7 @@ abstract class Builder
     protected function parseClosure($call, $show = true)
     {
         $query = new Query($this->connection);
-        call_user_func_array($call, [ & $query]);
+        $call($query);
         return $query->buildSql($show);
     }
 

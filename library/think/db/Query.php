@@ -1252,17 +1252,17 @@ class Query
     public function when($condition, $query, $otherwise = null)
     {
         if ($condition instanceof \Closure) {
-            $condition = call_user_func_array($condition, [ & $this]);
+            $condition = $condition($this);
         }
         if ($condition) {
             if ($query instanceof \Closure) {
-                call_user_func_array($query, [ & $this]);
+                $query($this);
             } elseif (is_array($query)) {
                 $this->where($query);
             }
         } elseif ($otherwise) {
             if ($otherwise instanceof \Closure) {
-                call_user_func_array($otherwise, [ & $this]);
+                $otherwise($this);
             } elseif (is_array($otherwise)) {
                 $this->where($otherwise);
             }
@@ -2288,7 +2288,7 @@ class Query
         if ($data instanceof Query) {
             return $data->select();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $this]);
+            $data($this);
             $data = null;
         }
         // 分析查询表达式
@@ -2429,7 +2429,7 @@ class Query
         if ($data instanceof Query) {
             return $data->find();
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $this]);
+            $data($this);
             $data = null;
         }
         // 分析查询表达式

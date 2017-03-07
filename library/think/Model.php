@@ -1337,7 +1337,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $result = $result->where($data);
             $data   = null;
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $result]);
+            $data($result);
             $data = null;
         } elseif ($data instanceof Query) {
             $result = $data->with($with)->cache($cache);
@@ -1360,7 +1360,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $query->where($data);
             $data = null;
         } elseif ($data instanceof \Closure) {
-            call_user_func_array($data, [ & $query]);
+            $data($query);
             $data = null;
         } elseif (is_null($data)) {
             return 0;
