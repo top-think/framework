@@ -472,14 +472,13 @@ class App
     {
         // 定位模块目录
         $module = $module ? $module . DS : '';
-
+        $path = APP_PATH . $module;
         // 加载初始化文件
-        if (is_file(APP_PATH . $module . 'init' . EXT)) {
-            include APP_PATH . $module . 'init' . EXT;
+        if (is_file($path . 'init' . EXT)) {
+            include $path . 'init' . EXT;
         } elseif (is_file(RUNTIME_PATH . $module . 'init' . EXT)) {
             include RUNTIME_PATH . $module . 'init' . EXT;
         } else {
-            $path = APP_PATH . $module;
             // 加载模块配置
             $config = Config::load(CONF_PATH . $module . 'config' . CONF_EXT);
             // 读取数据库配置文件
