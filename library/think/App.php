@@ -234,6 +234,9 @@ class App
         // 自动加载extend目录
         Loader::addAutoLoadDir($this->rootPath . 'extend');
 
+        // 注册类库别名
+        Loader::addClassAlias($this->config->pull('alias'));
+
         // 加载系统助手函数
         include $this->thinkPath . 'helper.php';
 

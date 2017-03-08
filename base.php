@@ -44,13 +44,29 @@ think\Facade::bind([
     'think\facade\Debug'   => 'think\Debug',
     'think\facade\Hook'    => 'think\Hook',
     'think\facade\Lang'    => 'think\Lang',
-    'think\facade\Loader'  => 'think\Loader',
     'think\facade\Log'     => 'think\Log',
     'think\facade\Request' => 'think\Request',
     'think\facade\Reponse' => 'think\Reponse',
     'think\facade\Route'   => 'think\Route',
     'think\facade\Session' => 'think\Session',
     'think\facade\Url'     => 'think\Url',
+]);
+
+// 注册类库别名
+think\Loader::addClassAlias([
+    'App'     => 'think\facade\App',
+    'Cache'   => 'think\facade\Cache',
+    'Config'  => 'think\facade\Config',
+    'Cookie'  => 'think\facade\Cookie',
+    'Debug'   => 'think\facade\Debug',
+    'Hook'    => 'think\facade\Hook',
+    'Lang'    => 'think\facade\Lang',
+    'Log'     => 'think\facade\Log',
+    'Request' => 'think\facade\Request',
+    'Reponse' => 'think\facade\Reponse',
+    'Route'   => 'think\facade\Route',
+    'Session' => 'think\facade\Session',
+    'Url'     => 'think\facade\Url',
 ]);
 
 // 加载惯例配置文件

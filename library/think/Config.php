@@ -127,7 +127,7 @@ class Config
             return $this->config[$range];
         }
         $name = strtolower($name);
-        return isset($this->config[$range][$name]) ? $this->config[$range][$name] : null;
+        return isset($this->config[$range][$name]) ? $this->config[$range][$name] : [];
     }
 
     /**
