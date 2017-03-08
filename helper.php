@@ -31,29 +31,16 @@ use think\Loader;
 use think\Response;
 use think\View;
 
-if (!function_exists('box')) {
-    /**
-     * 快速获取容器中的实例 支持依赖注入
-     * @param string    $name 类名或标识
-     * @param array     $args 参数
-     * @return object
-     */
-    function box($name, $args = [])
-    {
-        return Container::getInstance()->make($name, $args);
-    }
-}
-
 if (!function_exists('app')) {
     /**
-     * 快速获取当前应用实例
-     * @param string    $name 类名或标识
+     * 快速获取容器中的实例 支持依赖注入
+     * @param string    $name 类名或标识 默认获取当前应用实例
      * @param array     $args 参数
      * @return object
      */
-    function app()
+    function app($name = 'think\App', $args = [])
     {
-        return Container::getInstance()->make('think\App');
+        return Container::getInstance()->make($name, $args);
     }
 }
 

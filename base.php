@@ -8,67 +8,69 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+namespace think;
 
 // 载入Loader类
 require __DIR__ . '/library/think/Loader.php';
 
 // 注册自动加载
-think\Loader::register();
+Loader::register();
 
 // 注册错误和异常处理机制
-think\Error::register();
+Error::register();
 
 // 注册核心类到容器
-think\Container::getInstance()->bind([
-    'app'     => 'think\App',
-    'cache'   => 'think\Cache',
-    'config'  => 'think\Config',
-    'cookie'  => 'think\Cookie',
-    'debug'   => 'think\Debug',
-    'hook'    => 'think\Hook',
-    'lang'    => 'think\Lang',
-    'log'     => 'think\Log',
-    'request' => 'think\Request',
-    'reponse' => 'think\Reponse',
-    'route'   => 'think\Route',
-    'session' => 'think\Session',
-    'url'     => 'think\Url',
+Container::getInstance()->bind([
+    'app'     => App::class,
+    'cache'   => Cache::class,
+    'config'  => Config::class,
+    'cookie'  => Cookie::class,
+    'debug'   => Debug::class,
+    'hook'    => Hook::class,
+    'lang'    => Lang::class,
+    'log'     => Log::class,
+    'request' => Request::class,
+    'reponse' => Reponse::class,
+    'route'   => Route::class,
+    'session' => Session::class,
+    'url'     => Url::class,
 ]);
 
 // 注册核心类的静态代理
-think\Facade::bind([
-    'think\facade\App'     => 'think\App',
-    'think\facade\Cache'   => 'think\Cache',
-    'think\facade\Config'  => 'think\Config',
-    'think\facade\Cookie'  => 'think\Cookie',
-    'think\facade\Debug'   => 'think\Debug',
-    'think\facade\Hook'    => 'think\Hook',
-    'think\facade\Lang'    => 'think\Lang',
-    'think\facade\Log'     => 'think\Log',
-    'think\facade\Request' => 'think\Request',
-    'think\facade\Reponse' => 'think\Reponse',
-    'think\facade\Route'   => 'think\Route',
-    'think\facade\Session' => 'think\Session',
-    'think\facade\Url'     => 'think\Url',
+Facade::bind([
+    facade\App::class     => App::class,
+    facade\Cache::class   => Cache::class,
+    facade\Config::class  => Config::class,
+    facade\Cookie::class  => Cookie::class,
+    facade\Debug::class   => Debug::class,
+    facade\Hook::class    => Hook::class,
+    facade\Lang::class    => Lang::class,
+    facade\Log::class     => Log::class,
+    facade\Request::class => Request::class,
+    facade\Reponse::class => Reponse::class,
+    facade\Route::class   => Route::class,
+    facade\Session::class => Session::class,
+    facade\Url::class     => Url::class,
 ]);
 
 // 注册类库别名
-think\Loader::addClassAlias([
-    'App'     => 'think\facade\App',
-    'Cache'   => 'think\facade\Cache',
-    'Config'  => 'think\facade\Config',
-    'Cookie'  => 'think\facade\Cookie',
-    'Db'      => 'think\Db',
-    'Debug'   => 'think\facade\Debug',
-    'Hook'    => 'think\facade\Hook',
-    'Lang'    => 'think\facade\Lang',
-    'Log'     => 'think\facade\Log',
-    'Request' => 'think\facade\Request',
-    'Reponse' => 'think\facade\Reponse',
-    'Route'   => 'think\facade\Route',
-    'Session' => 'think\facade\Session',
-    'Url'     => 'think\facade\Url',
+Loader::addClassAlias([
+    'App'     => facade\App::class,
+    'Cache'   => facade\Cache::class,
+    'Config'  => facade\Config::class,
+    'Cookie'  => facade\Cookie::class,
+    'Db'      => Db::class,
+    'Debug'   => facade\Debug::class,
+    'Env'     => Env::class,
+    'Hook'    => facade\Hook::class,
+    'Lang'    => facade\Lang::class,
+    'Log'     => facade\Log::class,
+    'Request' => facade\Request::class,
+    'Reponse' => facade\Reponse::class,
+    'Route'   => facade\Route::class,
+    'Session' => facade\Session::class,
+    'Url'     => facade\Url::class,
 ]);
 
 // 加载惯例配置文件
-think\facade\Config::set(include __DIR__ . '/convention.php');
+facade\Config::set(include __DIR__ . '/convention.php');
