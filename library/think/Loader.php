@@ -21,6 +21,9 @@ class Loader
     // 命名空间别名
     protected static $namespaceAlias = [];
 
+    // 类库别名
+    protected static $classAlias = [];
+
     // PSR-4
     private static $prefixLengthsPsr4 = [];
     private static $prefixDirsPsr4    = [];
@@ -45,6 +48,10 @@ class Loader
                     return class_alias($original, $class, false);
                 }
             }
+        }
+
+        if (isset(self::$classAlias[$class])) {
+            return class_alias(self::$classAlias[$class], $class);
         }
 
         if ($file = self::findFile($class)) {
@@ -238,6 +245,15 @@ class Loader
     public static function addAutoLoadDir($path)
     {
         self::$fallbackDirsPsr4[] = $path;
+    }
+
+    public static function addClassAlias($alias, $class = null)
+    {
+        if (is_array($alias)) {
+            self::$classAlias = array_merge(self::$classAlias, $alias);
+        } else {
+            self::$classAlias[$alias] = $class;
+        }
     }
 
     // 注册自动加载机制

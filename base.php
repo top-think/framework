@@ -58,6 +58,7 @@ think\Loader::addClassAlias([
     'Cache'   => 'think\facade\Cache',
     'Config'  => 'think\facade\Config',
     'Cookie'  => 'think\facade\Cookie',
+    'Db'      => 'think\Db',
     'Debug'   => 'think\facade\Debug',
     'Hook'    => 'think\facade\Hook',
     'Lang'    => 'think\facade\Lang',
