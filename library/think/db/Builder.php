@@ -102,10 +102,13 @@ abstract class Builder
                 if ($options['strict']) {
                     throw new Exception('fields not exists:[' . $key . ']');
                 }
-            } elseif (isset($val[0]) && 'exp' == $val[0]) {
-                $result[$item] = $val[1];
             } elseif (is_null($val)) {
                 $result[$item] = 'NULL';
+            } elseif (is_object($val) && method_exists($val, '__toString')) {
+                // 对象数据写入
+                $result[$item] = $val->__toString();
+            } elseif (isset($val[0]) && 'exp' == $val[0]) {
+                $result[$item] = $val[1];
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
                 if (0 === strpos($val, ':') && $this->query->isBind(substr($val, 1))) {
@@ -115,9 +118,6 @@ abstract class Builder
                     $this->query->bind('__data__' . $key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
                     $result[$item] = ':__data__' . $key;
                 }
-            } elseif (is_object($val) && method_exists($val, '__toString')) {
-                // 对象数据写入
-                $result[$item] = $val->__toString();
             }
         }
         return $result;
