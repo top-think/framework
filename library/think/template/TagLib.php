@@ -185,12 +185,12 @@ class TagLib
 
     /**
      * 按标签生成正则
-     * @access private
+     * @access public
      * @param  array|string     $tags 标签名
      * @param  boolean          $close 是否为闭合标签
      * @return string
      */
-    private function getRegex($tags, $close)
+    public function getRegex($tags, $close)
     {
         $begin   = $this->tpl->config('taglib_begin');
         $end     = $this->tpl->config('taglib_end');

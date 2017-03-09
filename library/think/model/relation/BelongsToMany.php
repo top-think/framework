@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use think\Collection;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -20,8 +21,10 @@ use think\model\Relation;
 
 class BelongsToMany extends Relation
 {
-    // 中间表模型
+    // 中间表表名
     protected $middle;
+    // 中间表模型
+    protected $pivot;
 
     /**
      * 架构函数
@@ -43,6 +46,64 @@ class BelongsToMany extends Relation
     }
 
     /**
+     * 设置中间表模型
+     * @param $pivot
+     * @return $this
+     */
+    public function pivot($pivot)
+    {
+        $this->pivot = $pivot;
+        return $this;
+    }
+
+    /**
+     * 实例化中间表模型
+     * @param $data
+     * @return mixed
+     */
+    protected function newPivot($data)
+    {
+        $pivot = $this->pivot ?: '\\think\\model\\Pivot';
+        return new $pivot($this->parent, $data, $this->middle);
+    }
+
+    /**
+     * 合成中间表模型
+     * @param array|Collection|Paginator $models
+     */
+    protected function hydratePivot($models)
+    {
+        foreach ($models as $model) {
+            $pivot = [];
+            foreach ($model->getData() as $key => $val) {
+                if (strpos($key, '__')) {
+                    list($name, $attr) = explode('__', $key, 2);
+                    if ('pivot' == $name) {
+                        $pivot[$attr] = $val;
+                        unset($model->$key);
+                    }
+                }
+            }
+            $model->pivot = $this->newPivot($pivot);
+        }
+    }
+
+    /**
+     * 创建关联查询Query对象
+     * @return Query
+     */
+    protected function buildQuery()
+    {
+        $foreignKey = $this->foreignKey;
+        $localKey   = $this->localKey;
+        $middle     = $this->middle;
+        // 关联查询
+        $pk                              = $this->parent->getPk();
+        $condition['pivot.' . $localKey] = $this->parent->$pk;
+        return $this->belongsToManyQuery($middle, $foreignKey, $localKey, $condition);
+    }
+
+    /**
      * 延迟获取关联数据
      * @param string   $subRelation 子关联名
      * @param \Closure $closure     闭包查询条件
@@ -50,30 +111,72 @@ class BelongsToMany extends Relation
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        $foreignKey = $this->foreignKey;
-        $localKey   = $this->localKey;
-        $middle     = $this->middle;
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
-        // 关联查询
-        $pk                              = $this->parent->getPk();
-        $condition['pivot.' . $localKey] = $this->parent->$pk;
-        $result                          = $this->belongsToManyQuery($middle, $foreignKey, $localKey, $condition)->relation($subRelation)->select();
-        foreach ($result as $set) {
-            $pivot = [];
-            foreach ($set->getData() as $key => $val) {
-                if (strpos($key, '__')) {
-                    list($name, $attr) = explode('__', $key, 2);
-                    if ('pivot' == $name) {
-                        $pivot[$attr] = $val;
-                        unset($set->$key);
-                    }
-                }
-            }
-            $set->pivot = new Pivot($pivot, $this->middle);
-        }
+        $result = $this->buildQuery()->relation($subRelation)->select();
+        $this->hydratePivot($result);
         return $result;
+    }
+
+    /**
+     * 重载select方法
+     * @param null $data
+     * @return false|\PDOStatement|string|Collection
+     */
+    public function select($data = null)
+    {
+        $result = $this->buildQuery()->select($data);
+        $this->hydratePivot($result);
+        return $result;
+    }
+
+    /**
+     * 重载paginate方法
+     * @param null  $listRows
+     * @param bool  $simple
+     * @param array $config
+     * @return Paginator
+     */
+    public function paginate($listRows = null, $simple = false, $config = [])
+    {
+        $result = $this->buildQuery()->paginate($listRows, $simple, $config);
+        $this->hydratePivot($result);
+        return $result;
+    }
+
+    /**
+     * 重载find方法
+     * @param null $data
+     * @return array|false|\PDOStatement|string|Model
+     */
+    public function find($data = null)
+    {
+        $result = $this->buildQuery()->find($data);
+        $this->hydratePivot([$result]);
+        return $result;
+    }
+
+    /**
+     * 查找多条记录 如果不存在则抛出异常
+     * @access public
+     * @param array|string|Query|\Closure $data
+     * @return array|\PDOStatement|string|Model
+     */
+    public function selectOrFail($data = null)
+    {
+        return $this->failException(true)->select($data);
+    }
+
+    /**
+     * 查找单条记录 如果不存在则抛出异常
+     * @access public
+     * @param array|string|Query|\Closure $data
+     * @return array|\PDOStatement|string|Model
+     */
+    public function findOrFail($data = null)
+    {
+        return $this->failException(true)->find($data);
     }
 
     /**
@@ -95,10 +198,25 @@ class BelongsToMany extends Relation
      * @access public
      * @param mixed $where 查询条件（数组或者闭包）
      * @return Query
+     * @throws Exception
      */
     public function hasWhere($where = [])
     {
         throw new Exception('relation not support: hasWhere');
+    }
+
+    /**
+     * 设置中间表的查询条件
+     * @param      $field
+     * @param null $op
+     * @param null $condition
+     * @return $this
+     */
+    public function wherePivot($field, $op = null, $condition = null)
+    {
+        $field = 'pivot.' . $field;
+        $this->query->where($field, $op, $condition);
+        return $this;
     }
 
     /**
@@ -230,7 +348,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $set->pivot                      = new Pivot($pivot, $this->middle);
+            $set->pivot                      = $this->newPivot($pivot);
             $data[$pivot[$this->localKey]][] = $set;
         }
         return $data;
@@ -250,10 +368,14 @@ class BelongsToMany extends Relation
         // 关联查询封装
         $tableName  = $this->query->getTable();
         $relationFk = $this->query->getPk();
-        return $this->query->field($tableName . '.*')
-            ->field(true, false, $table, 'pivot', 'pivot__')
-            ->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
-            ->where($condition);
+        $query      = $this->query->field($tableName . '.*')
+            ->field(true, false, $table, 'pivot', 'pivot__');
+
+        if (empty($this->baseQuery)) {
+            $query->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
+                ->where($condition);
+        }
+        return $query;
     }
 
     /**
@@ -327,7 +449,7 @@ class BelongsToMany extends Relation
             foreach ($ids as $id) {
                 $pivot[$this->foreignKey] = $id;
                 $this->query->table($this->middle)->insert($pivot, true);
-                $result[] = new Pivot($pivot, $this->middle);
+                $result[] = $this->newPivot($pivot);
             }
             if (count($result) == 1) {
                 // 返回中间表模型对象

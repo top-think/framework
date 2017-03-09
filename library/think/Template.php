@@ -927,7 +927,7 @@ class Template
                         if (false === strpos($name, '(')) {
                             $name = '(isset(' . $name . ') && (' . $name . ' !== \'\')?' . $name . ':' . $args[1] . ')';
                         } else {
-                            $name = '(' . $name . ' !== \'\'?' . $name . ':' . $args[1] . ')';
+                            $name = '(' . $name . ' ?: ' . $args[1] . ')';
                         }
                         break;
                     default: // 通用模板函数
