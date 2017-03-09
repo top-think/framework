@@ -779,6 +779,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return false;
     }
 
+    protected function autoWriteUpdateTime()
+    {
+        // 自动写入更新时间
+        if ($this->autoWriteTimestamp && $this->updateTime && (empty($this->change) || !in_array($this->updateTime, $this->change))) {
+            $this->setAttr($this->updateTime, null);
+        }
+    }
+
+    protected function autoWriteCreateTime()
+    {
+        // 自动写入创建时间
+        if ($this->autoWriteTimestamp && $this->createTime && (empty($this->change) || !in_array($this->createTime, $this->change))) {
+            $this->setAttr($this->createTime, null);
+        }
+    }
+
     /**
      * 保存当前数据对象
      * @access public
@@ -839,11 +855,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
-        // 自动写入更新时间
-        if ($this->autoWriteTimestamp && $this->updateTime && (empty($this->change) || !in_array($this->updateTime, $this->change))) {
-            $this->setAttr($this->updateTime, null);
-        }
-
         // 事件回调
         if (false === $this->trigger('before_write', $this)) {
             return false;
@@ -873,6 +884,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                         unset($data[$field]);
                     }
                 }
+            }
+
+            if (!empty($data)) {
+                $this->autoWriteUpdateTime();
+            } else {
+                return 0;
             }
 
             if (empty($where) && !empty($this->updateWhere)) {
@@ -922,10 +939,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 自动写入
             $this->autoCompleteData($this->insert);
 
-            // 自动写入创建时间
-            if ($this->autoWriteTimestamp && $this->createTime && (empty($this->change) || !in_array($this->createTime, $this->change))) {
-                $this->setAttr($this->createTime, null);
-            }
+            $this->autoWriteCreateTime();
+            $this->autoWriteUpdateTime();
 
             if (false === $this->trigger('before_insert', $this)) {
                 return false;
