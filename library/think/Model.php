@@ -779,19 +779,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return false;
     }
 
-    protected function autoWriteUpdateTime()
+    protected function autoWriteUpdateTime(&$data)
     {
         // 自动写入更新时间
         if ($this->autoWriteTimestamp && $this->updateTime && (empty($this->change) || !in_array($this->updateTime, $this->change))) {
-            $this->setAttr($this->updateTime, null);
+            $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
         }
     }
 
-    protected function autoWriteCreateTime()
+    protected function autoWriteCreateTime(&$data)
     {
         // 自动写入创建时间
         if ($this->autoWriteTimestamp && $this->createTime && (empty($this->change) || !in_array($this->createTime, $this->change))) {
-            $this->setAttr($this->createTime, null);
+            $data[$this->createTime] = $this->autoWriteTimestamp($this->createTime);
         }
     }
 
@@ -887,7 +887,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             if (!empty($data)) {
-                $this->autoWriteUpdateTime();
+                // 自动写入更新时间
+                $this->autoWriteUpdateTime($data);
             } else {
                 return 0;
             }
@@ -938,9 +939,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             // 自动写入
             $this->autoCompleteData($this->insert);
-
-            $this->autoWriteCreateTime();
-            $this->autoWriteUpdateTime();
+            // 自动写入创建时间
+            $this->autoWriteCreateTime($this->data);
+            // 自动写入更新时间
+            $this->autoWriteUpdateTime($this->data);
 
             if (false === $this->trigger('before_insert', $this)) {
                 return false;
