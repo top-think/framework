@@ -877,13 +877,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            if (!empty($data)) {
-                if ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
-                    // 自动写入更新时间
-                    $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
-                }
-            } else {
+            if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
+                // 没有更新
                 return 0;
+            } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
+                // 自动写入更新时间
+                $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
             }
 
             if (empty($where) && !empty($this->updateWhere)) {
