@@ -12,6 +12,10 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
  + 模型和数据库增强
  + 依赖注入完善
 
+计划下一版废除的功能：
+
+ + 聚合模型
+ + 
 
 > ThinkPHP5的运行环境要求PHP5.6以上。
 
@@ -105,8 +109,8 @@ www  WEB部署目录（或者子目录）
 * think\Session  => think\facade\Session （或者 Session ）
 * think\Url      => think\facade\Url （或者 Url ）
 
-原有的配置文件config.php 拆分为app.php cache.php 等独立配置文件 放入config目录。
-原有的路由定义文件route.php 移动到route目录
+原有的配置文件config.php 拆分为app.php cache.php 等独立配置文件 放入config目录（原来模块的配置目录直接移动到config目录下面）。
+原有的路由定义文件route.php 移动到route目录（支持放置任意文件名的路由定义文件）
 
 ## 命名规范
 
