@@ -63,12 +63,12 @@ EOF;
             $classmapFile .= '    ' . var_export($class, true) . ' => ' . $code;
         }
         $classmapFile .= "];\n";
-		$runtimePath = Facade::make('app')->getRuntimePath();
+        $runtimePath = Facade::make('app')->getRuntimePath();
         if (!is_dir($runtimePath)) {
             @mkdir($runtimePath, 0755, true);
         }
 
-        file_put_contents($runtimePath . 'classmap.php' , $classmapFile);
+        file_put_contents($runtimePath . 'classmap.php', $classmapFile);
 
         $output->writeln('<info>Succeed!</info>');
     }
