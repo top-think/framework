@@ -292,6 +292,8 @@ class Validate
             if (strpos($key, '|')) {
                 // 字段|描述 用于指定属性名称
                 list($key, $title) = explode('|', $key);
+            } elseif (is_array($item) && isset($item['title'])) {
+                $title = $item['title'];
             } else {
                 $title = isset($this->field[$key]) ? $this->field[$key] : $key;
             }
