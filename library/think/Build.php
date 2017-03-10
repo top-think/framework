@@ -24,7 +24,7 @@ class Build
     public static function run(array $build = [], $namespace = 'app', $suffix = false)
     {
         // 锁定
-		$appPath = Facade::make('app')->getAppPath();
+        $appPath = Facade::make('app')->getAppPath();
         $lockfile = $appPath . 'build.lock';
         if (is_writable($lockfile)) {
             return;
@@ -71,7 +71,7 @@ class Build
      */
     protected static function buildFile($list)
     {
-		$appPath = Facade::make('app')->getAppPath();
+        $appPath = Facade::make('app')->getAppPath();
         foreach ($list as $file) {
             if (!is_dir($appPath . dirname($file))) {
                 // 创建目录
@@ -95,7 +95,7 @@ class Build
     public static function module($module = '', $list = [], $namespace = 'app', $suffix = false)
     {
         $module = $module ? $module : '';
-		$appPath = Facade::make('app')->getAppPath();
+        $appPath = Facade::make('app')->getAppPath();
         if (!is_dir($appPath . $module)) {
             // 创建模块目录
             mkdir($appPath . $module);
