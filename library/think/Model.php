@@ -15,7 +15,7 @@ use InvalidArgumentException;
 use think\Container;
 use think\db\Query;
 use think\Exception\ValidateException;
-use think\facade\Config as ConfigFacade;
+use think\Facade;
 use think\model\Collection as ModelCollection;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
@@ -35,6 +35,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 {
     // 数据库对象池
     private static $links = [];
+    // 当前数据库实例
+    private static $db;
+    // 关联自动写入
+    private $relationWrite;
+    // 是否为更新数据
+    private $isUpdate = false;
+    // 更新条件
+    private $updateWhere;
+    // 回调事件
+    private static $event = [];
+    // 当前数据
+    private $data = [];
+    // 原始数据
+    private $origin = [];
     // 数据库配置
     protected $connection = [];
     // 数据库查询对象
@@ -45,8 +59,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $table;
     // 当前类名称
     protected $class;
-    // 回调事件
-    private static $event = [];
     // 错误信息
     protected $error;
     // 字段验证规则
@@ -63,11 +75,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $hidden = [];
     // 追加属性
     protected $append = [];
-    // 当前数据
-    private $data = [];
-    // 原始数据
-    private $origin = [];
-
     // 保存自动完成列表
     protected $auto = [];
     // 新增自动完成列表
@@ -84,12 +91,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $dateFormat;
     // 字段类型或者格式转换
     protected $type = [];
-    // 是否为更新数据
-    protected $isUpdate = false;
-    // 更新条件
-    protected $updateWhere;
-    // 当前执行的关联对象
-    protected $relation;
     // 验证失败是否抛出异常
     protected $failException = false;
     // 全局查询范围
@@ -98,10 +99,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $batchValidate = false;
     // 查询数据集对象
     protected $resultSetType;
-    // 关联自动写入
-    protected $relationWrite;
-    //
-    protected static $db;
 
     /**
      * 初始化过的模型.
@@ -133,7 +130,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 当前模型名
             $name       = str_replace('\\', '/', $this->class);
             $this->name = basename($name);
-            if (ConfigFacade::get('class_suffix')) {
+            if (Facade::make('config')->get('class_suffix')) {
                 $suffix     = basename(dirname($name));
                 $this->name = substr($this->name, 0, -strlen($suffix));
             }
@@ -169,7 +166,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 合并数据库配置
             if (!empty($this->connection)) {
                 if (is_array($this->connection)) {
-                    $connection = array_merge(ConfigFacade::get('database'), $this->connection);
+                    $connection = array_merge(Facade::make('config')->pull('database'), $this->connection);
                 } else {
                     $connection = $this->connection;
                 }
