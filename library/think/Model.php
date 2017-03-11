@@ -34,7 +34,7 @@ use think\model\relation\MorphTo;
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
     // 数据库对象池
-    protected static $links = [];
+    private static $links = [];
     // 数据库配置
     protected $connection = [];
     // 数据库查询对象
@@ -63,10 +63,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $hidden = [];
     // 追加属性
     protected $append = [];
-    // 数据信息
-    protected $data = [];
-    // 记录改变字段
-    protected $change = [];
+    // 当前数据
+    private $data = [];
+    // 原始数据
+    private $origin = [];
 
     // 保存自动完成列表
     protected $auto = [];
@@ -122,6 +122,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $this->data = $data;
         }
+
+        // 记录原始数据
+        $this->origin = $this->data;
 
         // 当前类名
         $this->class = get_class($this);
@@ -250,6 +253,43 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 批量设置数据对象值
+     * @access public
+     * @param mixed $data  数据
+     * @param bool  $set   是否需要进行数据处理
+     * @return $this
+     */
+    public function appendData($data, $set = false)
+    {
+        if ($set) {
+            // 进行数据处理
+            foreach ($data as $key => $value) {
+                $this->setAttr($key, $value, $data);
+            }
+        } else {
+            if (is_object($data)) {
+                $data = get_object_vars($data);
+            }
+            $this->data = array_merge($this->data, $data);
+        }
+    }
+
+    /**
+     * 获取对象原始数据 如果不存在指定字段返回null
+     * @access public
+     * @param string $name 字段名 留空获取全部
+     * @return mixed
+     */
+    public function getOrigin($name = null)
+    {
+        if (is_null($name)) {
+            return $this->origin;
+        } else {
+            return array_key_exists($name, $this->origin) ? $this->origin[$name] : null;
+        }
+    }
+
+    /**
      * 获取对象原始数据 如果不存在指定字段返回false
      * @access public
      * @param string $name 字段名 留空获取全部
@@ -291,12 +331,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        // 标记字段更改
-        if (isset($this->data[$name]) && is_scalar($this->data[$name]) && is_scalar($value) && 0 !== strcmp($this->data[$name], $value)) {
-            $this->change[] = $name;
-        } elseif (!isset($this->data[$name]) || $value != $this->data[$name]) {
-            $this->change[] = $name;
-        }
         // 设置数据对象属性
         $this->data[$name] = $value;
         return $this;
@@ -861,9 +895,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             // 去除没有更新的字段
-            $data = [];
+            $data = array_diff($this->data, $this->origin);
             foreach ($this->data as $key => $val) {
-                if (in_array($key, $this->change) || $this->isPk($key)) {
+                if ($this->isPk($key)) {
                     $data[$key] = $val;
                 }
             }
@@ -924,8 +958,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            // 清空change
-            $this->change = [];
+            // 重新记录原始数据
+            $this->origin = $this->data;
             // 更新回调
             $this->trigger('after_update');
         } else {
@@ -965,8 +999,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 标记为更新
             $this->isUpdate = true;
-            // 清空change
-            $this->change = [];
+            // 记录原始数据
+            $this->origin = $this->data;
             // 新增回调
             $this->trigger('after_insert');
         }
@@ -1078,8 +1112,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $field = $value;
                 $value = null;
             }
-            if (!in_array($field, $this->change)) {
-                $this->setAttr($field, !is_null($value) ? $value : (isset($this->data[$field]) ? $this->data[$field] : $value));
+            if (!isset($this->data[$field])) {
+                $this->setAttr($field, !is_null($value) ? $value : null);
+            } elseif (isset($this->origin[$field]) && $this->data[$field] === $this->origin[$field]) {
+                $this->setAttr($field, !is_null($value) ? $value : $this->data[$field]);
             }
         }
     }
@@ -1120,6 +1156,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         $this->trigger('after_delete');
+        // 清空原始数据
+        $this->origin = [];
         return $result;
     }
 

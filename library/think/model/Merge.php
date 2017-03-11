@@ -127,7 +127,7 @@ class Merge extends Model
     {
         $item = [];
         foreach ($data as $key => $val) {
-            if ($insert || in_array($key, $this->change) || $this->isPk($key)) {
+            if ($insert || $this->isPk($key)) {
                 if ($this->fk != $key && array_key_exists($key, $this->mapFields)) {
                     list($name, $key) = explode('.', $this->mapFields[$key]);
                     if ($model == $name) {
@@ -214,7 +214,7 @@ class Merge extends Model
                     }
                 }
                 // 清空change
-                $this->change = [];
+                $this->origin = $this->data;
                 // 新增回调
                 $this->trigger('after_update', $this);
             } else {
@@ -240,9 +240,6 @@ class Merge extends Model
                     if ($insertId) {
                         if (is_string($pk)) {
                             $this->data[$pk] = $insertId;
-                            if ($this->fk == $pk) {
-                                $this->change[] = $pk;
-                            }
                         }
                         $this->data[$this->fk] = $insertId;
                     }
@@ -263,8 +260,8 @@ class Merge extends Model
                 }
                 // 标记为更新
                 $this->isUpdate = true;
-                // 清空change
-                $this->change = [];
+                // 记录原始数据
+                $this->origin = $this->data;
                 // 新增回调
                 $this->trigger('after_insert', $this);
             }

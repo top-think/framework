@@ -59,7 +59,6 @@ trait SoftDelete
         $name = $this->getDeleteTimeField();
         if (!$force) {
             // 软删除
-            $this->change[]    = $name;
             $this->data[$name] = $this->autoWriteTimestamp($name);
             $result            = $this->isUpdate()->save();
         } else {
