@@ -272,6 +272,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
             $this->data = array_merge($this->data, $data);
         }
+        return $this;
     }
 
     /**
