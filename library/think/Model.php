@@ -894,10 +894,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 去除没有更新的字段
             $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-                if ($a === $b) {
-                    return 0;
-                }
-                return $a > $b ? 1 : -1;
+                return $a === $b ? 0 : 1;
             });
             // 保留主键数据
             foreach ($this->data as $key => $val) {
