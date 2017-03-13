@@ -20,18 +20,6 @@ use think\Log;
 class logTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function testRecord()
-    {
-        Log::clear();
-        Log::record('test');
-        $this->assertEquals(['log' => ['test']], Log::getLog());
-        Log::record('hello', 'info');
-        $this->assertEquals(['log' => ['test'], 'info' => ['hello']], Log::getLog());
-        Log::clear();
-        Log::info('test');
-        $this->assertEquals(['info' => ['test']], Log::getLog());
-    }
-
     public function testSave()
     {
         Log::init(['type' => 'test']);

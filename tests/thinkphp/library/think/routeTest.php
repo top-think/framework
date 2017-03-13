@@ -40,7 +40,7 @@ class routeTest extends \PHPUnit_Framework_TestCase
         Route::any('user/:id', 'index/user');
         $result = Route::check($request, 'hello/thinkphp');
         $this->assertEquals([null, 'index', 'hello'], $result['module']);
-        $this->assertEquals(['hello' => true, 'user/:id' => true, 'hello/:name' => ['rule' => 'hello/:name', 'route' => 'index/hello', 'var' => ['name' => 1], 'option' => [], 'pattern' => []]], Route::rules('GET'));
+        $this->assertEquals(['user/:id' => true, 'hello/:name' => ['rule' => 'hello/:name', 'route' => 'index/hello', 'var' => ['name' => 1], 'option' => [], 'pattern' => []]], Route::rules('GET'));
         Route::rule('type1/:name', 'index/type', 'PUT|POST');
         Route::rule(['type2/:name' => 'index/type1']);
         Route::rule([['type3/:name', 'index/type2', ['method' => 'POST']]]);
@@ -257,10 +257,10 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['index', 'blog', 'test'], $result['module']);
 
         Route::bind('\app\index\controller', 'namespace');
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read']], Route::check($request, 'blog/read'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read'], 'var' => []], Route::check($request, 'blog/read'));
 
         Route::bind('\app\index\controller\Blog', 'class');
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read']], Route::check($request, 'read'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read'], 'var' => []], Route::check($request, 'read'));
     }
 
     public function testDomain()
