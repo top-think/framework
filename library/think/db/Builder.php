@@ -280,6 +280,13 @@ abstract class Builder
 
             $whereStr .= empty($whereStr) ? substr(implode(' ', $str), strlen($key) + 1) : implode(' ', $str);
         }
+        if (!empty($options['soft_delete'])) {
+            // 附加软删除条件
+            list($field, $condition) = $options['soft_delete'];
+
+            $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
+            $whereStr = $whereStr . $this->parseWhereItem($field, $condition, '', $options, $binds);
+        }
         return $whereStr;
     }
 
