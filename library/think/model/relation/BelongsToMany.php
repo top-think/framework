@@ -23,7 +23,9 @@ class BelongsToMany extends Relation
 {
     // 中间表表名
     protected $middle;
-    // 中间表模型
+    // 中间表模型名称
+    protected $pivotName;
+    // 中间表模型对象
     protected $pivot;
 
     /**
@@ -41,8 +43,13 @@ class BelongsToMany extends Relation
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        $this->middle     = $table;
-        $this->query      = (new $model)->db();
+        if (false === strpos($table, '\\')) {
+            $this->middle = $table;
+        } else {
+            $this->pivotName = $table;
+        }
+        $this->query = (new $model)->db();
+        $this->pivot = $this->newPivot();
     }
 
     /**
@@ -52,7 +59,7 @@ class BelongsToMany extends Relation
      */
     public function pivot($pivot)
     {
-        $this->pivot = $pivot;
+        $this->pivotName = $pivot;
         return $this;
     }
 
@@ -61,9 +68,9 @@ class BelongsToMany extends Relation
      * @param $data
      * @return mixed
      */
-    protected function newPivot($data)
+    protected function newPivot($data = [])
     {
-        $pivot = $this->pivot ?: '\\think\\model\\Pivot';
+        $pivot = $this->pivotName ?: '\\think\\model\\Pivot';
         return new $pivot($this->parent, $data, $this->middle);
     }
 
