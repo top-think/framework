@@ -15,29 +15,29 @@ use think\exception\ClassNotFoundException;
 
 class Log
 {
-    const LOG    = 'log';
-    const ERROR  = 'error';
-    const INFO   = 'info';
-    const SQL    = 'sql';
-    const NOTICE = 'notice';
-    const ALERT  = 'alert';
-    const DEBUG  = 'debug';
+    const EMERGENCY = 'emergency';
+    const ALERT     = 'alert';
+    const CRITICAL  = 'critical';
+    const ERROR     = 'error';
+    const WARNING   = 'warning';
+    const NOTICE    = 'notice';
+    const INFO      = 'info';
+    const DEBUG     = 'debug';
+    const SQL       = 'sql';
 
     // 日志信息
     protected $log = [];
     // 配置参数
     protected $config = [];
-    // 日志类型
-    protected $type = ['log', 'error', 'info', 'sql', 'notice', 'alert', 'debug'];
     // 日志写入驱动
     protected $driver;
-
     // 当前日志授权key
     protected $key;
 
     /**
      * 日志初始化
      * @param array $config
+     * @return $this
      */
     public function init($config = [])
     {
@@ -51,7 +51,7 @@ class Log
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
         // 记录初始化信息
-        Facade::make('app')->isDebug() && $this->record('[ LOG ] INIT ' . $type, 'info');
+        Facade::make('app')->isDebug() && $this->record('[ LOG ] INIT ' . $type);
         return $this;
     }
 
@@ -66,13 +66,22 @@ class Log
     }
 
     /**
-     * 记录调试信息
-     * @param mixed  $msg  调试信息
-     * @param string $type 信息类型
-     * @return void
+     * 记录日志信息
+     * @param mixed  $msg       日志信息
+     * @param string $type      日志级别
+     * @param array  $context   替换内容
+     * @return $this
      */
-    public function record($msg, $type = 'log')
+    public function record($msg, $type = 'info', array $context = [])
     {
+        if (is_string($msg)) {
+            $replace = [];
+            foreach ($context as $key => $val) {
+                $replace['{' . $key . '}'] = $val;
+            }
+            $msg = strtr($msg, $replace);
+        }
+
         $this->log[$type][] = $msg;
         if (PHP_SAPI == 'cli') {
             // 命令行日志实时写入
@@ -83,7 +92,7 @@ class Log
 
     /**
      * 清空日志信息
-     * @return void
+     * @return $this
      */
     public function clear()
     {
@@ -94,7 +103,7 @@ class Log
     /**
      * 当前日志记录的授权key
      * @param string  $key  授权key
-     * @return void
+     * @return $this
      */
     public function key($key)
     {
@@ -159,17 +168,17 @@ class Log
 
     /**
      * 实时写入日志信息 并支持行为
-     * @param mixed  $msg  调试信息
-     * @param string $type 信息类型
+     * @param mixed  $msg   调试信息
+     * @param string $level 日志级别
      * @param bool   $force 是否强制写入
      * @return bool
      */
-    public function write($msg, $type = 'log', $force = false)
+    public function write($msg, $level = 'info', $force = false)
     {
         // 封装日志信息
         if (true === $force || empty($this->config['level'])) {
             $log[$type][] = $msg;
-        } elseif (in_array($type, $this->config['level'])) {
+        } elseif (in_array($level, $this->config['level'])) {
             $log[$type][] = $msg;
         } else {
             return false;
@@ -178,24 +187,124 @@ class Log
         // 监听log_write
         Facade::make('hook')->listen('log_write', $log);
         if (is_null($this->driver)) {
-            $this->init(Facade::make('app')->config('log'));
+            $this->init(Facade::make('config')->pull('log'));
         }
         // 写入日志
-        return $this->driver->save($log, false);
+        $result = self::$driver->save($log);
+        if ($result) {
+            self::$log = [];
+        }
+        return $result;
     }
 
     /**
-     *
-     * @param $method
-     * @param $args
-     * @return mixed
+     * 记录日志信息
+     * @param string $level     日志级别
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
      */
-    public function __call($method, $args)
+    public function log($level, $message, array $context = [])
     {
-        if (in_array($method, $this->type)) {
-            array_push($args, $method);
-            return call_user_func_array([$this, 'record'], $args);
-        }
+        $this->record($message, $level, $context);
     }
 
+    /**
+     * 记录emergency信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function emergency($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录警报信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function alert($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录紧急情况
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function critical($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录错误信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function error($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录warning信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function warning($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录notice信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function notice($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录一般信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function info($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录调试信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function debug($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
+
+    /**
+     * 记录sql信息
+     * @param mixed  $message   日志信息
+     * @param array  $context   替换内容
+     * @return void
+     */
+    public function sql($message, array $context = [])
+    {
+        $this->log(__FUNCTION__, $message, $context);
+    }
 }

@@ -1071,7 +1071,7 @@ class Route
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
-        return ['type' => 'method', 'method' => [$class, $action]];
+        return ['type' => 'method', 'method' => [$class, $action], 'var' => []];
     }
 
     /**
@@ -1091,7 +1091,7 @@ class Route
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2]);
         }
-        return ['type' => 'method', 'method' => [$namespace . '\\' . Loader::parseName($class, 1), $method]];
+        return ['type' => 'method', 'method' => [$namespace . '\\' . Loader::parseName($class, 1), $method], 'var' => []];
     }
 
     /**
@@ -1110,7 +1110,7 @@ class Route
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
-        return ['type' => 'controller', 'controller' => $controller . '/' . $action];
+        return ['type' => 'controller', 'controller' => $controller . '/' . $action, 'var' => []];
     }
 
     /**
