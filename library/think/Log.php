@@ -74,8 +74,8 @@ class Log
     public function record($msg, $type = 'log')
     {
         $this->log[$type][] = $msg;
-        if (PHP_SAPI == 'cli' && count($this->log[$type]) > 100) {
-            // 命令行下面日志写入改进
+        if (PHP_SAPI == 'cli') {
+            // 命令行日志实时写入
             $this->save();
         }
         return $this;

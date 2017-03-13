@@ -962,8 +962,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            // 重新记录原始数据
-            $this->origin = $this->data;
             // 更新回调
             $this->trigger('after_update');
         } else {
@@ -1003,14 +1001,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 标记为更新
             $this->isUpdate = true;
-            // 记录原始数据
-            $this->origin = $this->data;
             // 新增回调
             $this->trigger('after_insert');
         }
         // 写入回调
         $this->trigger('after_write');
-
+        // 记录原始数据
+        $this->origin = $this->data;
         return $result;
     }
 
