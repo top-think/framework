@@ -29,6 +29,6 @@ class fileTest extends \PHPUnit_Framework_TestCase
         Log::record($record_msg, 'notice');
         $logs = Log::getLog();
 
-        $this->assertEquals([], $logs));
+        $this->assertEquals([], $logs);
     }
 }
