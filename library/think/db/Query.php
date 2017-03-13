@@ -1121,6 +1121,20 @@ class Query
     }
 
     /**
+     * 设置软删除字段及条件
+     * @access public
+     * @param false|string  $field     查询字段
+     * @param mixed         $condition 查询条件
+     * @return $this
+     */
+    public function useSoftDelete($field, $condition = null)
+    {
+        if ($field) {
+            $this->options['soft_delete'] = [$field, $condition ?: ['null', '']];
+        }
+    }
+
+    /**
      * 分析查询表达式
      * @access public
      * @param string                $logic     查询逻辑 and or xor
