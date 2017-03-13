@@ -2419,7 +2419,7 @@ class Query
      * 查找单条记录
      * @access public
      * @param array|string|Query|\Closure $data
-     * @return array|false|\PDOStatement|string|Model
+     * @return array|null|\PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
