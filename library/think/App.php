@@ -85,14 +85,14 @@ class App
 
             $request->filter($config['default_filter']);
 
+            // 默认语言
+            Lang::range($config['default_lang']);
             if ($config['lang_switch_on']) {
                 // 开启多语言机制 检测当前语言
                 Lang::detect();
-            } else {
-                // 读取默认语言
-                Lang::range($config['default_lang']);
             }
             $request->langset(Lang::range());
+
             // 加载系统语言包
             Lang::load([
                 THINK_PATH . 'lang' . DS . $request->langset() . EXT,
