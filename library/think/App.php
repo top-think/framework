@@ -313,12 +313,11 @@ class App
 
             $this->request->filter($this->config('app.default_filter'));
 
+            // 读取默认语言
+            $this->lang->range($this->config('app.default_lang'));
             if ($this->config('app.lang_switch_on')) {
                 // 开启多语言机制 检测当前语言
                 $this->lang->detect();
-            } else {
-                // 读取默认语言
-                $this->lang->range($this->config('app.default_lang'));
             }
             $this->request->langset($this->lang->range());
             // 加载系统语言包
