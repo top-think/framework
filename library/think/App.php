@@ -19,7 +19,7 @@ use think\exception\RouteNotFoundException;
  * App 应用管理
  * @author  liu21st <liu21st@gmail.com>
  */
-class App
+class App implements \ArrayAccess
 {
     const VERSION = '5.1.0alpha';
 
@@ -103,42 +103,10 @@ class App
      */
     protected $dispatch;
 
-    /**
-     * @var think\Config 当前配置对象
-     */
-    protected $config;
-
-    /**
-     * @var think\Request 当前请求对象
-     */
-    protected $request;
-
-    /**
-     * @var think\Hook Hook对象
-     */
-    protected $hook;
-
-    /**
-     * @var think\Lang 语言对象
-     */
-    protected $lang;
-
-    /**
-     * @var think\Route 路由对象
-     */
-    protected $route;
-
-    public function __construct($appPath = '', Config $config, Request $request)
+    public function __construct($appPath = '')
     {
-        $this->beginTime = microtime(true);
-        $this->beginMem  = memory_get_usage();
-
-        $this->config  = $config;
-        $this->request = $request;
-        $this->hook    = Facade::make('hook');
-        $this->lang    = Facade::make('lang');
-        $this->route   = Facade::make('route');
-
+        $this->beginTime   = microtime(true);
+        $this->beginMem    = memory_get_usage();
         $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
         $this->appPath     = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
         $this->rootPath    = dirname(realpath($this->appPath)) . '/';
@@ -149,8 +117,6 @@ class App
 
         // 设置路径环境变量
         $this->setEnvPath();
-        // 初始化应用
-        $this->initialize();
     }
 
     /**
@@ -299,6 +265,9 @@ class App
      */
     public function run()
     {
+        // 初始化应用
+        $this->initialize();
+
         try {
             if (defined('BIND_MODULE')) {
                 // 模块/控制器绑定
@@ -431,7 +400,7 @@ class App
      */
     public function log($log, $type = 'info')
     {
-        $this->debug && Facade::make('log')->record($log, $type);
+        $this->debug && $this->log->record($log, $type);
     }
 
     /**
@@ -754,5 +723,30 @@ class App
     public function __isset($name)
     {
         return $this->container()->bound($name);
+    }
+
+    public function __unset($name)
+    {
+        $this->container()->__unset($name);
+    }
+
+    public function offsetExists($key)
+    {
+        return $this->__isset($key);
+    }
+
+    public function offsetGet($key)
+    {
+        return $this->__get($key);
+    }
+
+    public function offsetSet($key, $value)
+    {
+        $this->__set($key, $value);
+    }
+
+    public function offsetUnset($key)
+    {
+        $this->__unset($key);
     }
 }

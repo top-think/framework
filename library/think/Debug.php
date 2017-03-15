@@ -22,6 +22,13 @@ class Debug
     // 区间内存信息
     protected $mem = [];
 
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
+
     /**
      * 记录时间（微秒）和内存使用情况
      * @param string    $name 标记位置
@@ -60,7 +67,7 @@ class Debug
      */
     public function getUseTime($dec = 6)
     {
-        return number_format((microtime(true) - Facade::make('app')->getBeginTime()), $dec);
+        return number_format((microtime(true) - $this->app->getBeginTime()), $dec);
     }
 
     /**
@@ -101,7 +108,7 @@ class Debug
      */
     public function getUseMem($dec = 2)
     {
-        $size = memory_get_usage() - Facade::make('app')->getBeginMem();
+        $size = memory_get_usage() - $this->app->getBeginMem();
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
         while ($size >= 1024) {
@@ -187,7 +194,7 @@ class Debug
 
     public function inject(Response $response, &$content)
     {
-        $config = Facade::make('config')->pull('trace');
+        $config = $this->app['config']->pull('trace');
         $type   = isset($config['type']) ? $config['type'] : 'Html';
         $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);
@@ -200,7 +207,7 @@ class Debug
         if ($response instanceof Redirect) {
             //TODO 记录
         } else {
-            $output = $trace->output($response, Facade::make('log')->getLog());
+            $output = $trace->output($response, $this->app['log']->getLog());
             if (is_string($output)) {
                 // trace调试信息注入
                 $pos = strripos($content, '</body>');

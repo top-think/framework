@@ -50,10 +50,10 @@ class Controller
      * @param Request $request Request对象
      * @access public
      */
-    public function __construct(Request $request, App $app, Config $config)
+    public function __construct(Request $request, App $app)
     {
 
-        $this->view    = View::instance($config->pull('template'), $config->get('view_replace_str'));
+        $this->view    = View::instance($app['config']->pull('template'), $app['config']->get('view_replace_str'));
         $this->request = $request;
         $this->app     = $app;
 

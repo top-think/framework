@@ -65,10 +65,10 @@ class Route
     private $domain;
     // 当前路由执行过程中的参数
     private $option = [];
-    protected $config;
-    public function __construct(Config $config)
+    protected $app;
+    public function __construct(App $app)
     {
-        $this->config = $config;
+        $this->app = $app;
     }
 
     /**
@@ -297,7 +297,7 @@ class Route
             $name = $route;
         }
         if (!isset($option['complete_match'])) {
-            if ($this->config->get('route_complete_match')) {
+            if ($this->app['config']->get('route_complete_match')) {
                 $option['complete_match'] = true;
             } elseif ('$' == substr($rule, -1, 1)) {
                 // 是否完整匹配
@@ -751,7 +751,7 @@ class Route
                 // 完整域名或者IP配置
                 $item = $rules[$host];
             } else {
-                $rootDomain = $this->config->get('url_domain_root');
+                $rootDomain = $this->app['config']->get('url_domain_root');
                 if ($rootDomain) {
                     // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
                     $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
@@ -1038,7 +1038,7 @@ class Route
             $type = $this->bind['type'];
             $bind = $this->bind[$type];
             // 记录绑定信息
-            Facade::make('app')->log('[ BIND ] ' . var_export($bind, true));
+            $this->app->log('[ BIND ] ' . var_export($bind, true));
             // 如果有URL绑定 则进行绑定检测
             switch ($type) {
                 case 'class':
@@ -1067,7 +1067,7 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->config->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
@@ -1086,8 +1086,8 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : $this->config->get('default_controller');
-        $method = !empty($array[1]) ? $array[1] : $this->config->get('default_action');
+        $class  = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_controller');
+        $method = !empty($array[1]) ? $array[1] : $this->app['config']->get('default_action');
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2]);
         }
@@ -1106,7 +1106,7 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->config->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
@@ -1125,7 +1125,7 @@ class Route
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->config->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
         }
@@ -1227,12 +1227,11 @@ class Route
         $route            = [null, null, null];
         if (isset($path)) {
             // 解析模块
-            $app    = Facade::make('app');
-            $module = $app->config('app_multi_module') ? array_shift($path) : null;
+            $module = $this->app->config('app_multi_module') ? array_shift($path) : null;
             if ($autoSearch) {
                 // 自动搜索控制器
-                $dir    = $app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . $app->config('url_controller_layer');
-                $suffix = $app->getSuffix() || $app->config('controller_suffix') ? ucfirst($app->config('url_controller_layer')) : '';
+                $dir    = $this->app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . $this->app->config('url_controller_layer');
+                $suffix = $this->app->getSuffix() || $this->app->config('controller_suffix') ? ucfirst($this->app->config('url_controller_layer')) : '';
                 $item   = [];
                 $find   = false;
                 foreach ($path as $val) {
@@ -1392,7 +1391,7 @@ class Route
      */
     private function parseRule($rule, $route, $pathinfo, $option = [], $matches = [])
     {
-        $request = Facade::make('request');
+        $request = $this->app['request'];
         // 解析路由规则
         if ($rule) {
             $rule = explode('/', $rule);
@@ -1478,7 +1477,7 @@ class Route
                 $result = call_user_func_array($option['after_behavior'], []);
             } else {
                 foreach ((array) $option['after_behavior'] as $behavior) {
-                    $result = Facade::make('hook')->exec($behavior, '');
+                    $result = $this->app['hook']->exec($behavior, '');
                     if (!is_null($result)) {
                         break;
                     }
@@ -1509,11 +1508,11 @@ class Route
             $route             = substr($route, 1);
             list($route, $var) = $this->parseUrlPath($route);
             $result            = ['type' => 'controller', 'controller' => implode('/', $route), 'var' => $var];
-            $app               = Facade::make('app');
+
             $request->action(array_pop($route));
-            $request->controller($route ? array_pop($route) : $app->config('default_controller'));
-            $request->module($route ? array_pop($route) : $app->config('default_module'));
-            $app->setModulePath($app->getAppPath() . ($app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
+            $request->controller($route ? array_pop($route) : $this->app->config('default_controller'));
+            $request->module($route ? array_pop($route) : $this->app->config('default_module'));
+            $this->app->setModulePath($this->app->getAppPath() . ($this->app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
         } else {
             // 路由到模块/控制器/操作
             $result = $this->parseModule($route);
@@ -1543,14 +1542,14 @@ class Route
         list($path, $var) = $this->parseUrlPath($url);
         $action           = array_pop($path);
         $controller       = !empty($path) ? array_pop($path) : null;
-        $module           = $this->config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-        $method           = Facade::make('request')->method();
-        if ($this->config->get('use_action_prefix') && !empty($this->methodPrefix[$method])) {
+        $module           = $this->app['config']->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $method           = $this->app['request']->method();
+        if ($this->app['config']->get('use_action_prefix') && !empty($this->methodPrefix[$method])) {
             // 操作方法前缀支持
             $action = 0 !== strpos($action, $this->methodPrefix[$method]) ? $this->methodPrefix[$method] . $action : $action;
         }
         // 设置当前请求的路由变量
-        Facade::make('request')->route($var);
+        $this->app['request']->route($var);
         // 路由到模块/控制器/操作
         return ['type' => 'module', 'module' => [$module, $controller, $action], 'convert' => false];
     }
@@ -1565,7 +1564,7 @@ class Route
     private function parseUrlParams($url, &$var = [])
     {
         if ($url) {
-            if ($this->config->get('url_param_type')) {
+            if ($this->app['config']->get('url_param_type')) {
                 $var += explode('|', $url);
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -1574,7 +1573,7 @@ class Route
             }
         }
         // 设置当前请求的参数
-        Facade::make('request')->route($var);
+        $this->app['request']->route($var);
     }
 
     // 分析路由规则中的变量

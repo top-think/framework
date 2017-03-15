@@ -27,13 +27,13 @@ class View
     /**
      * 架构函数
      * @access public
-     * @param array $engine  模板引擎参数
+     * @param mixed $engine  模板引擎参数
      * @param array $replace  字符串替换参数
      */
     public function __construct($engine = [], $replace = [])
     {
         // 初始化模板引擎
-        $this->engine((array) $engine);
+        $this->engine($engine);
         // 基础替换字符串
         $request     = Facade::make('request');
         $root        = $request->rootUrl();

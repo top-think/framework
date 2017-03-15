@@ -17,6 +17,13 @@ class Url
     protected $root;
     protected $bindCheck;
 
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
+
     /**
      * URL生成 支持路由反射
      * @param string            $url 路由地址
@@ -27,7 +34,7 @@ class Url
      */
     public function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
-        if (false === $domain && Facade::make('route')->rules('domain')) {
+        if (false === $domain && $this->app['route']->rules('domain')) {
             $domain = true;
         }
         // 解析URL
@@ -63,9 +70,9 @@ class Url
         }
 
         if ($url) {
-            $rule = Facade::make('route')->name(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
+            $rule = $this->app['route']->name(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
             if (is_null($rule) && isset($info['query'])) {
-                $rule = Facade::make('route')->name($url);
+                $rule = $this->app['route']->name($url);
                 // 解析地址里面参数 合并到vars
                 parse_str($info['query'], $params);
                 $vars = array_merge($params, $vars);
@@ -87,7 +94,7 @@ class Url
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 检查别名路由
-            $alias      = Facade::make('route')->rules('alias');
+            $alias      = $this->app['route']->rules('alias');
             $matchAlias = false;
             if ($alias) {
                 // 别名路由解析
@@ -115,16 +122,16 @@ class Url
 
         // 检测URL绑定
         if (!$this->bindCheck) {
-            $type = Facade::make('route')->getBind('type');
+            $type = $this->app['route']->getBind('type');
             if ($type) {
-                $bind = Facade::make('route')->getBind($type);
+                $bind = $this->app['route']->getBind($type);
                 if (0 === strpos($url, $bind)) {
                     $url = substr($url, strlen($bind) + 1);
                 }
             }
         }
         // 还原URL分隔符
-        $depr = Facade::make('config')->get('pathinfo_depr');
+        $depr = $this->app['config']->get('pathinfo_depr');
         $url  = str_replace('/', $depr, $url);
 
         // URL后缀
@@ -134,11 +141,11 @@ class Url
         // 参数组装
         if (!empty($vars)) {
             // 添加参数
-            if (Facade::make('config')->get('url_common_param')) {
+            if ($this->app['config']->get('url_common_param')) {
                 $vars = urldecode(http_build_query($vars));
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
-                $paramType = Facade::make('config')->get('url_param_type');
+                $paramType = $this->app['config']->get('url_param_type');
                 foreach ($vars as $var => $val) {
                     if ('' !== trim($val)) {
                         if ($paramType) {
@@ -156,7 +163,7 @@ class Url
         // 检测域名
         $domain = $this->parseDomain($url, $domain);
         // URL组装
-        $url = $domain . rtrim($this->root ?: Facade::make('request')->root(), '/') . '/' . ltrim($url, '/');
+        $url = $domain . rtrim($this->root ?: $this->app['request']->root(), '/') . '/' . ltrim($url, '/');
 
         $this->bindCheck = false;
         return $url;
@@ -165,7 +172,7 @@ class Url
     // 直接解析URL地址
     protected function parseUrl($url, &$domain)
     {
-        $request = Facade::make('request');
+        $request = $this->app['request'];
         if (0 === strpos($url, '/')) {
             // 直接作为路由地址解析
             $url = substr($url, 1);
@@ -178,7 +185,7 @@ class Url
         } else {
             // 解析到 模块/控制器/操作
             $module  = $request->module();
-            $domains = Facade::make('route')->rules('domain');
+            $domains = $this->app['route']->rules('domain');
             if (true === $domain && 2 == substr_count($url, '/')) {
                 $current = $request->host();
                 $match   = [];
@@ -216,8 +223,8 @@ class Url
                 $url = $module . $controller . '/' . $request->action();
             } else {
                 $path       = explode('/', $url);
-                $action     = Facade::make('config')->get('url_convert') ? strtolower(array_pop($path)) : array_pop($path);
-                $controller = empty($path) ? $controller : (Facade::make('config')->get('url_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
+                $action     = $this->app['config']->get('url_convert') ? strtolower(array_pop($path)) : array_pop($path);
+                $controller = empty($path) ? $controller : ($this->app['config']->get('url_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
                 $module     = empty($path) ? $module : array_pop($path) . '/';
                 $url        = $module . $controller . '/' . $action;
             }
@@ -231,13 +238,13 @@ class Url
         if (!$domain) {
             return '';
         }
-        $host       = Facade::make('request')->host();
-        $rootDomain = Facade::make('config')->get('url_domain_root');
+        $host       = $this->app['request']->host();
+        $rootDomain = $this->app['config']->get('url_domain_root');
         if (true === $domain) {
             // 自动判断域名
             $domain = $host;
 
-            $domains = Facade::make('route')->rules('domain');
+            $domains = $this->app['route']->rules('domain');
             if ($domains) {
                 $route_domain = array_keys($domains);
                 foreach ($route_domain as $domain_prefix) {
@@ -271,14 +278,14 @@ class Url
                 $domain .= '.' . $rootDomain;
             }
         }
-        return (Facade::make('request')->isSsl() ? 'https://' : 'http://') . $domain;
+        return ($this->app['request']->isSsl() ? 'https://' : 'http://') . $domain;
     }
 
     // 解析URL后缀
     protected function parseSuffix($suffix)
     {
         if ($suffix) {
-            $suffix = true === $suffix ? Facade::make('config')->get('url_html_suffix') : $suffix;
+            $suffix = true === $suffix ? $this->app['config']->get('url_html_suffix') : $suffix;
             if ($pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
             }
@@ -317,6 +324,6 @@ class Url
     public function root($root)
     {
         $this->root = $root;
-        Facade::make('request')->root($root);
+        $this->app['request']->root($root);
     }
 }

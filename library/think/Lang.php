@@ -26,6 +26,13 @@ class Lang
     // 允许语言列表
     protected $allowLangList = [];
 
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
+
     // 设定当前的语言
     public function range($range = '')
     {
@@ -77,7 +84,7 @@ class Lang
         foreach ($file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
-                Facade::make('app')->log('[ LANG ] ' . $_file);
+                $this->app->log('[ LANG ] ' . $_file);
                 $_lang = include $_file;
                 if (is_array($_lang)) {
                     $lang = array_change_key_case($_lang) + $lang;
@@ -152,7 +159,7 @@ class Lang
     {
         // 自动侦测设置获取语言选择
         $langSet = '';
-        $cookie  = Facade::make('Cookie');
+        $cookie  = $this->app['cookie'];
         if (isset($_GET[$this->langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[$this->langDetectVar]);

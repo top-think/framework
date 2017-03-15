@@ -31,6 +31,12 @@ class Cookie
     ];
 
     protected $init;
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
 
     /**
      * Cookie初始化
@@ -40,7 +46,7 @@ class Cookie
     public function init(array $config = [])
     {
         if (empty($config)) {
-            $config = Facade::make('config')->pull('cookie');
+            $config = $this->app['config']->pull('cookie');
         }
         $this->config = array_merge($this->config, array_change_key_case($config));
         if (!empty($this->config['httponly'])) {

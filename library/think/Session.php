@@ -18,6 +18,13 @@ class Session
     protected $prefix = '';
     protected $init   = null;
 
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
+
     /**
      * 设置或者获取session作用域（前缀）
      * @param string $prefix
@@ -41,10 +48,10 @@ class Session
     public function init(array $config = [])
     {
         if (empty($config)) {
-            $config = Facade::make('app')->config('session');
+            $config = $this->app['config']->pull('session');
         }
         // 记录初始化信息
-        Facade::make('app')->log('[ SESSION ] INIT ' . var_export($config, true));
+        $this->app->log('[ SESSION ] INIT ' . var_export($config, true));
         $isDoStart = false;
         if (isset($config['use_trans_sid'])) {
             ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);

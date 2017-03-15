@@ -16,6 +16,13 @@ class Hook
 
     private $tags = [];
 
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
+
     /**
      * 动态添加行为扩展到某个标签
      * @param string    $tag 标签名称
@@ -106,7 +113,7 @@ class Hook
      */
     public function exec($class, $tag = '', $params = null, $extra = null)
     {
-        Facade::make('app')->isDebug() && Facade::make('debug')->remark('behavior_start', 'time');
+        $this->app->isDebug() && $this->app['debug']->remark('behavior_start', 'time');
         $method = Loader::parseName($tag, 1, false);
         if ($class instanceof \Closure) {
             $result = call_user_func_array($class, [ & $params, $extra]);
@@ -126,10 +133,10 @@ class Hook
             $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
             $result = $obj->$method($params, $extra);
         }
-        if (Facade::make('app')->isDebug()) {
-			$debug = Facade::make('debug');
+        if ($this->app->isDebug()) {
+            $debug = $this->app['debug'];
             $debug->remark('behavior_end', 'time');
-            Facade::make('app')->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
+            $this->app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
         return $result;
     }

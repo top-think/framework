@@ -34,6 +34,13 @@ class Log
     // 当前日志授权key
     protected $key;
 
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
+
     /**
      * 日志初始化
      * @param array $config
@@ -51,7 +58,7 @@ class Log
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
         // 记录初始化信息
-        Facade::make('app')->isDebug() && $this->record('[ LOG ] INIT ' . $type);
+        $this->app->isDebug() && $this->record('[ LOG ] INIT ' . $type);
         return $this;
     }
 
@@ -132,7 +139,7 @@ class Log
     {
         if (!empty($this->log)) {
             if (is_null($this->driver)) {
-                $this->init(Facade::make('app')->config('log'));
+                $this->init($this->app['config']->pull('log'));
             }
 
             if (!$this->check($this->config)) {
@@ -143,7 +150,7 @@ class Log
             if (empty($this->config['level'])) {
                 // 获取全部日志
                 $log = $this->log;
-                if (!Facade::make('app')->isDebug() && isset($log['debug'])) {
+                if (!$this->app->isDebug() && isset($log['debug'])) {
                     unset($log['debug']);
                 }
             } else {
@@ -185,9 +192,9 @@ class Log
         }
 
         // 监听log_write
-        Facade::make('hook')->listen('log_write', $log);
+        $this->app['hook']->listen('log_write', $log);
         if (is_null($this->driver)) {
-            $this->init(Facade::make('config')->pull('log'));
+            $this->init($this->app['config']->pull('log'));
         }
         // 写入日志
         $result = self::$driver->save($log);
