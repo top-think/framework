@@ -412,7 +412,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 if (empty($param)) {
                     $value = (float) $value;
                 } else {
-                    $value = (float) number_format($value, $param);
+                    $value = (float) number_format($value, $param, '.', '');
                 }
                 break;
             case 'boolean':
@@ -526,7 +526,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 if (empty($param)) {
                     $value = (float) $value;
                 } else {
-                    $value = (float) number_format($value, $param);
+                    $value = (float) number_format($value, $param, '.', '');
                 }
                 break;
             case 'boolean':
