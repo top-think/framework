@@ -42,7 +42,7 @@ class Schema extends Command
             $list = scandir(APP_PATH . $module . DS . 'model');
             $app  = App::$namespace;
             foreach ($list as $file) {
-                if ('.' == $file || '..' == $file) {
+                if (0 === strpos($file, '.')) {
                     continue;
                 }
                 $class = '\\' . $app . '\\' . $module . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
@@ -63,7 +63,7 @@ class Schema extends Command
             $app  = App::$namespace;
             $list = scandir(APP_PATH . 'model');
             foreach ($list as $file) {
-                if ('.' == $file || '..' == $file) {
+                if (0 === strpos($file, '.')) {
                     continue;
                 }
                 $class = '\\' . $app . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
