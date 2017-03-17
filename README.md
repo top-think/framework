@@ -112,6 +112,9 @@ www  WEB部署目录（或者子目录）
 原有的配置文件config.php 拆分为app.php cache.php 等独立配置文件 放入config目录（原来模块的配置目录直接移动到config目录下面）。
 原有的路由定义文件route.php 移动到route目录（支持放置任意文件名的路由定义文件）
 
+取消Loader::import方法以及import和vendor助手函数
+原来Loader类的controller、model、action和validate方法改为App类的同名方法
+
 ## 命名规范
 
 `ThinkPHP5`遵循PSR-2命名规范和PSR-4自动加载规范。
