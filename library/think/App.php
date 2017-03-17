@@ -110,6 +110,7 @@ class App implements \ArrayAccess
 
     public function __construct($appPath = '')
     {
+        $this->container   = Container::getInstance();
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
         $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
@@ -370,11 +371,11 @@ class App implements \ArrayAccess
             case 'method':
                 // 执行回调方法
                 $vars = array_merge($this->request->param(), $dispatch['var']);
-                $data = $this->container()->invokeMethod($dispatch['method'], $vars);
+                $data = $this->container->invokeMethod($dispatch['method'], $vars);
                 break;
             case 'function':
                 // 执行闭包
-                $data = $this->container()->invokeFunction($dispatch['function']);
+                $data = $this->container->invokeFunction($dispatch['function']);
                 break;
             case 'response':
                 $data = $dispatch['response'];
@@ -515,7 +516,7 @@ class App implements \ArrayAccess
 
         $this->hook->listen('action_begin', $call);
 
-        return $this->container()->invokeMethod($call, $vars);
+        return $this->container->invokeMethod($call, $vars);
     }
 
     /**
@@ -629,8 +630,7 @@ class App implements \ArrayAccess
      * @param string $layer        控制层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $empty        空控制器名称
-     * @return Object|false
-     * @throws ClassNotFoundException
+     * @return Object|null
      */
     public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
@@ -658,7 +658,7 @@ class App implements \ArrayAccess
      * @param string $layer        验证层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $common       公共模块名
-     * @return Object|false
+     * @return Object
      * @throws ClassNotFoundException
      */
     public function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
@@ -729,7 +729,7 @@ class App implements \ArrayAccess
                     $vars = [$vars];
                 }
             }
-            return $this->container()->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
+            return $this->container->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
         }
     }
 
@@ -745,9 +745,9 @@ class App implements \ArrayAccess
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = Loader::parseName(array_pop($array), 1) . ($this->getSuffix() || $appendSuffix ? ucfirst($layer) : '');
+        $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-        return $this->getNamespace() . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+        return $this->namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
     /**
@@ -877,28 +877,24 @@ class App implements \ArrayAccess
         return $this->beginMem;
     }
 
-    public function container()
-    {
-        return Container::getInstance();
-    }
     public function __set($name, $value)
     {
-        $this->container()->bind($name, $value);
+        $this->container->bind($name, $value);
     }
 
     public function __get($name)
     {
-        return $this->container()->make($name);
+        return $this->container->make($name);
     }
 
     public function __isset($name)
     {
-        return $this->container()->bound($name);
+        return $this->container->bound($name);
     }
 
     public function __unset($name)
     {
-        $this->container()->__unset($name);
+        $this->container->__unset($name);
     }
 
     public function offsetExists($key)
