@@ -37,7 +37,7 @@ class Config extends Command
         }
 
         $content = '<?php ' . PHP_EOL . $this->buildCacheContent($module);
-		$runtimePath = Facade::make('app')->getRuntimePath();
+        $runtimePath = Facade::make('app')->getRuntimePath();
         if (!is_dir($runtimePath . $module)) {
             @mkdir($runtimePath . $module, 0755, true);
         }
@@ -51,8 +51,8 @@ class Config extends Command
     {
         $content = '';
         $path    = realpath(Facade::make('app')->getAppPath() . $module) . DIRECTORY_SEPARATOR;
-		$configPath = Facade::make('app')->getConfigPath();
-		$ext = Facade::make('app')->getConfigExt();
+        $configPath = Facade::make('app')->getConfigPath();
+        $ext = Facade::make('app')->getConfigExt();
         if ($module) {
             // 加载模块配置
             $config = Facade::make('config')->load($configPath . $module . 'config' . $ext);
@@ -80,7 +80,7 @@ class Config extends Command
 
         // 加载行为扩展文件
         if (is_file($configPath . $module . 'tags.php' )) {
-            $content .= '\think\Hook::import(' . (var_export(include $configPath . $module . 'tags.php' , true)) . ');' . PHP_EOL;
+            $content .= '\think\Hook::import(' . (var_export(include $configPath . $module . 'tags.php', true)) . ');' . PHP_EOL;
         }
 
         // 加载公共文件
