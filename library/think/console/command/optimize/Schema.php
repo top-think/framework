@@ -10,7 +10,6 @@
 // +----------------------------------------------------------------------
 namespace think\console\command\optimize;
 
-use think\App;
 use think\console\Command;
 use think\console\Input;
 use think\console\input\Option;
@@ -43,7 +42,7 @@ class Schema extends Command
             $list = scandir(Facade::make('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . 'model');
             $app  = Facade::make('app')->getNamespace();
             foreach ($list as $file) {
-                if ('.' == $file || '..' == $file) {
+                if (0 === strpos($file, '.')) {
                     continue;
                 }
                 $class = '\\' . $app . '\\' . $module . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
@@ -64,7 +63,7 @@ class Schema extends Command
             $app  = Facade::make('app')->getNamespace();
             $list = scandir(Facade::make('app')->getAppPath() . 'model');
             foreach ($list as $file) {
-                if ('.' == $file || '..' == $file) {
+                if (0 === strpos($file, '.')) {
                     continue;
                 }
                 $class = '\\' . $app . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
