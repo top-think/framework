@@ -17,7 +17,6 @@ use think\Container;
 use think\Db;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
-use think\Facade;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
@@ -53,19 +52,6 @@ if (!function_exists('call')) {
     function call($callable, $args = [])
     {
         return Container::getInstance()->invoke($callable, $args);
-    }
-}
-
-if (!function_exists('facade')) {
-    /**
-     * 通过Facade快速创建一个对象 支持依赖注入
-     * @param string    $name    类名或者标识
-     * @param array     $args    变量
-     * @return object
-     */
-    function facade($name, $args = [])
-    {
-        return Facade::make($name, $args);
     }
 }
 
