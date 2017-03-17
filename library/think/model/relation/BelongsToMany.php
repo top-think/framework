@@ -376,11 +376,11 @@ class BelongsToMany extends Relation
         // 关联查询封装
         $tableName  = $this->query->getTable();
         $relationFk = $this->query->getPk();
+        $table      = $this->pivot->getTable();
         $query      = $this->query->field($tableName . '.*')
             ->field(true, false, $table, 'pivot', 'pivot__');
 
         if (empty($this->baseQuery)) {
-            $table = $this->pivot->getTable();
             $query->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
                 ->where($condition);
         }
