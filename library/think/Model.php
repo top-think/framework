@@ -12,10 +12,8 @@
 namespace think;
 
 use InvalidArgumentException;
-use think\Container;
 use think\db\Query;
 use think\Exception\ValidateException;
-use think\Facade;
 use think\model\Collection as ModelCollection;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
