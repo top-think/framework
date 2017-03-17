@@ -30,7 +30,7 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false)->removeWhereField($field);
+        return $model->db(false);
     }
 
     /**
@@ -42,7 +42,8 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false)->whereNotNull($field);
+        return $model->db(false)
+            ->useSoftDelete($field, ['not null', '']);
     }
 
     /**
@@ -112,12 +113,14 @@ trait SoftDelete
     {
         $name = $this->getDeleteTimeField();
         if (empty($where)) {
-            $pk           = $this->getPk();
-            $where[$pk]   = $this->getData($pk);
-            $where[$name] = ['not null', ''];
+            $pk         = $this->getPk();
+            $where[$pk] = $this->getData($pk);
         }
         // 恢复删除
-        return $this->db(false)->removeWhereField($this->getDeleteTimeField(true))->where($where)->update([$name => null]);
+        return $this->db(false)
+            ->useSoftDelete($name, ['not null', ''])
+            ->where($where)
+            ->update([$name => null]);
     }
 
     /**
@@ -129,7 +132,7 @@ trait SoftDelete
     protected function base($query)
     {
         $field = $this->getDeleteTimeField(true);
-        $query->whereNull($field);
+        $query->useSoftDelete($field);
     }
 
     /**

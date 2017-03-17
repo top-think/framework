@@ -183,7 +183,7 @@ class HasMany extends Relation
      * 保存（新增）当前关联数据对象
      * @access public
      * @param mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
-     * @return integer
+     * @return Model|false
      */
     public function save($data)
     {
@@ -191,9 +191,9 @@ class HasMany extends Relation
             $data = $data->getData();
         }
         // 保存关联表数据
-        $data[$this->foreignKey] = $this->parent->{$this->localKey};
         $model                   = new $this->model;
-        return $model->save($data);
+        $data[$this->foreignKey] = $this->parent->{$this->localKey};
+        return $model->save($data) ? $model : false;
     }
 
     /**
