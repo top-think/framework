@@ -15,6 +15,7 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Option;
 use think\console\Output;
+use think\Facade;
 
 class Build extends Command
 {
@@ -35,7 +36,7 @@ class Build extends Command
     protected function execute(Input $input, Output $output)
     {
         if ($input->hasOption('module')) {
-            \think\Build::module($input->getOption('module'));
+            Facade::make('build')->module($input->getOption('module'));
             $output->writeln("Successed");
             return;
         }
@@ -43,13 +44,13 @@ class Build extends Command
         if ($input->hasOption('config')) {
             $build = include $input->getOption('config');
         } else {
-            $build = include \think\Facade::make('app')->getAppPath() . 'build.php';
+            $build = include Facade::make('app')->getAppPath() . 'build.php';
         }
         if (empty($build)) {
             $output->writeln("Build Config Is Empty");
             return;
         }
-        \think\Build::run($build);
+        Facade::make('build')->run($build);
         $output->writeln("Successed");
 
     }

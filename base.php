@@ -22,6 +22,7 @@ Error::register();
 // 注册核心类到容器
 Container::getInstance()->bind([
     'app'     => App::class,
+    'build'   => Build::class,
     'cache'   => Cache::class,
     'config'  => Config::class,
     'cookie'  => Cookie::class,
@@ -39,6 +40,7 @@ Container::getInstance()->bind([
 // 注册核心类的静态代理
 Facade::bind([
     facade\App::class     => App::class,
+    facade\Build::class   => Build::class,
     facade\Cache::class   => Cache::class,
     facade\Config::class  => Config::class,
     facade\Cookie::class  => Cookie::class,
@@ -56,6 +58,7 @@ Facade::bind([
 // 注册类库别名
 Loader::addClassAlias([
     'App'     => facade\App::class,
+    'Build'   => facade\Build::class,
     'Cache'   => facade\Cache::class,
     'Config'  => facade\Config::class,
     'Cookie'  => facade\Cookie::class,

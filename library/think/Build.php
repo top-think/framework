@@ -13,6 +13,15 @@ namespace think;
 
 class Build
 {
+    protected $app;
+    protected $basePath;
+
+    public function __construct(App $app)
+    {
+        $this->app      = $app;
+        $this->basePath = $this->app->getAppPath();
+    }
+
     /**
      * 根据传入的build资料创建目录和文件
      * @access protected
@@ -21,26 +30,25 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public static function run(array $build = [], $namespace = 'app', $suffix = false)
+    public function run(array $build = [], $namespace = 'app', $suffix = false)
     {
         // 锁定
-		$appPath = Facade::make('app')->getAppPath();
-        $lockfile = $appPath . 'build.lock';
+        $lockfile = $this->basePath . 'build.lock';
         if (is_writable($lockfile)) {
             return;
         } elseif (!touch($lockfile)) {
-            throw new Exception('应用目录[' . $appPath . ']不可写，目录无法自动生成！<BR>请手动生成项目目录~', 10006);
+            throw new Exception('应用目录[' . $this->basePath . ']不可写，目录无法自动生成！<BR>请手动生成项目目录~', 10006);
         }
         foreach ($build as $module => $list) {
             if ('__dir__' == $module) {
                 // 创建目录列表
-                self::buildDir($list);
+                $this->buildDir($list);
             } elseif ('__file__' == $module) {
                 // 创建文件列表
-                self::buildFile($list);
+                $this->buildFile($list);
             } else {
                 // 创建模块
-                self::module($module, $list, $namespace, $suffix);
+                $this->module($module, $list, $namespace, $suffix);
             }
         }
         // 解除锁定
@@ -53,12 +61,12 @@ class Build
      * @param  array $list 目录列表
      * @return void
      */
-    protected static function buildDir($list)
+    protected function buildDir($list)
     {
         foreach ($list as $dir) {
-            if (!is_dir(Facade::make('app')->getAppPath() . $dir)) {
+            if (!is_dir($this->basePath . $dir)) {
                 // 创建目录
-                mkdir(Facade::make('app')->getAppPath() . $dir, 0755, true);
+                mkdir($this->basePath . $dir, 0755, true);
             }
         }
     }
@@ -69,16 +77,15 @@ class Build
      * @param  array $list 文件列表
      * @return void
      */
-    protected static function buildFile($list)
+    protected function buildFile($list)
     {
-		$appPath = Facade::make('app')->getAppPath();
         foreach ($list as $file) {
-            if (!is_dir($appPath . dirname($file))) {
+            if (!is_dir($this->basePath . dirname($file))) {
                 // 创建目录
-                mkdir($appPath . dirname($file), 0755, true);
+                mkdir($this->basePath . dirname($file), 0755, true);
             }
-            if (!is_file($appPath . $file)) {
-                file_put_contents($appPath . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
+            if (!is_file($this->basePath . $file)) {
+                file_put_contents($this->basePath . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
             }
         }
     }
@@ -92,19 +99,18 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public static function module($module = '', $list = [], $namespace = 'app', $suffix = false)
+    public function module($module = '', $list = [], $namespace = 'app', $suffix = false)
     {
         $module = $module ? $module : '';
-		$appPath = Facade::make('app')->getAppPath();
-        if (!is_dir($appPath . $module)) {
+        if (!is_dir($this->basePath . $module)) {
             // 创建模块目录
-            mkdir($appPath . $module);
+            mkdir($this->basePath . $module);
         }
-        if (basename(Facade::make('app')->getRuntimePath()) != $module) {
+        if (basename($this->app->getRuntimePath()) != $module) {
             // 创建配置文件和公共文件
-            self::buildCommon($module);
+            $this->buildCommon($module);
             // 创建模块的默认页面
-            self::buildHello($module, $namespace, $suffix);
+            $this->buildHello($module, $namespace, $suffix);
         }
         if (empty($list)) {
             // 创建默认的模块目录和文件
@@ -115,7 +121,7 @@ class Build
         }
         // 创建子目录和文件
         foreach ($list as $path => $file) {
-            $modulePath = $appPath . $module . '/';
+            $modulePath = $this->basePath . $module . '/';
             if ('__dir__' == $path) {
                 // 生成子目录
                 foreach ($file as $dir) {
@@ -174,11 +180,11 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    protected static function buildHello($module, $namespace, $suffix = false)
+    protected function buildHello($module, $namespace, $suffix = false)
     {
-        $filename = Facade::make('app')->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . ($suffix ? 'Controller' : '') . '.php';
+        $filename = $this->basePath . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . ($suffix ? 'Controller' : '') . '.php';
         if (!is_file($filename)) {
-            $content = file_get_contents(Facade::make('app')->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
+            $content = file_get_contents($this->app->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
             $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', $suffix ? 'Controller' : ''], $content);
             if (!is_dir(dirname($filename))) {
                 mkdir(dirname($filename), 0755, true);
@@ -193,13 +199,16 @@ class Build
      * @param  string $module 模块名
      * @return void
      */
-    protected static function buildCommon($module)
+    protected function buildCommon($module)
     {
-        $filename = Facade::make('app')->getConfigPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'config.php';
+        $filename = $this->app->getConfigPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'config.php';
+        if (!is_dir(dirname($filename))) {
+            mkdir(dirname($filename), 0755, true);
+        }
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
         }
-        $filename = Facade::make('app')->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'common.php';
+        $filename = $this->basePath . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'common.php';
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n");
         }
