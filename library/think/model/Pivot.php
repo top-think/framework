@@ -35,8 +35,9 @@ class Pivot extends Model
         }
 
         $this->parent = $parent;
-
-        $this->table = $table;
+        if (is_null($this->name)) {
+            $this->name = $table;
+        }
     }
 
 }
