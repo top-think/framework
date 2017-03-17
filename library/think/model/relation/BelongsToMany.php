@@ -43,10 +43,11 @@ class BelongsToMany extends Relation
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        if (false === strpos($table, '\\')) {
-            $this->middle = $table;
-        } else {
+        if (false !== strpos($table, '\\')) {
             $this->pivotName = $table;
+            $this->middle    = basename(str_replace('\\', '/', $table));
+        } else {
+            $this->middle = $table;
         }
         $this->query = (new $model)->db();
         $this->pivot = $this->newPivot();
