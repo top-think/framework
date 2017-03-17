@@ -27,7 +27,6 @@ use think\facade\Request;
 use think\facade\Session;
 use think\facade\Url;
 use think\Response;
-use think\View;
 
 if (!function_exists('app')) {
     /**
@@ -526,7 +525,7 @@ if (!function_exists('token')) {
      */
     function token($name = '__token__', $type = 'md5')
     {
-        $token = Request::instance()->token($name, $type);
+        $token = Request::token($name, $type);
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
     }
 }
@@ -580,7 +579,8 @@ if (!function_exists('class_uses_recursive')) {
             $class = get_class($class);
         }
         $results = [];
-        foreach (array_merge([$class => $class], class_parents($class)) as $class) {
+        $classes = array_merge([$class => $class], class_parents($class));
+        foreach ($classes as $class) {
             $results += trait_uses_recursive($class);
         }
         return array_unique($results);
