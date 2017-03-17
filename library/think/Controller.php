@@ -179,14 +179,14 @@ class Controller
     protected function validate($data, $validate, $message = [], $batch = false, $callback = null)
     {
         if (is_array($validate)) {
-            $v = Loader::validate();
+            $v = $this->app->validate();
             $v->rule($validate);
         } else {
             if (strpos($validate, '.')) {
                 // 支持场景
                 list($validate, $scene) = explode('.', $validate);
             }
-            $v = Loader::validate($validate);
+            $v = $this->app->validate($validate);
             if (!empty($scene)) {
                 $v->scene($scene);
             }

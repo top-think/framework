@@ -8,12 +8,15 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+namespace think;
 
 // ThinkPHP 引导文件
 // 加载基础文件
 require __DIR__ . '/base.php';
-// 执行应用
 
-think\Facade::make('app', [defined('APP_PATH') ? APP_PATH : ''])
+// 支持事先使用静态方法设置Request对象和Config对象
+
+// 执行应用并响应
+Facade::make('app', [defined('APP_PATH') ? APP_PATH : ''])
     ->run()
     ->send();

@@ -65,6 +65,7 @@ Loader::addClassAlias([
     'Db'      => Db::class,
     'Debug'   => facade\Debug::class,
     'Env'     => Env::class,
+    'Facade'  => Facade::class,
     'Hook'    => facade\Hook::class,
     'Lang'    => facade\Lang::class,
     'Log'     => facade\Log::class,

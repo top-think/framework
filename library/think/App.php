@@ -103,6 +103,11 @@ class App implements \ArrayAccess
      */
     protected $dispatch;
 
+    /**
+     * @var Container 容器对象实例
+     */
+    protected $container;
+
     public function __construct($appPath = '')
     {
         $this->beginTime   = microtime(true);
@@ -360,7 +365,7 @@ class App implements \ArrayAccess
             case 'controller':
                 // 执行控制器操作
                 $vars = array_merge($this->request->param(), $dispatch['var']);
-                $data = Loader::action($dispatch['controller'], $vars, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'));
+                $data = $this->action($dispatch['controller'], $vars, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'));
                 break;
             case 'method':
                 // 执行回调方法
@@ -483,7 +488,7 @@ class App implements \ArrayAccess
         // 监听module_init
         $this->hook->listen('module_init', $this->request);
 
-        $instance = Loader::controller($controller, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'), $this->config('app.empty_controller'));
+        $instance = $this->controller($controller, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'), $this->config('app.empty_controller'));
 
         if (is_null($instance)) {
             throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
@@ -576,6 +581,173 @@ class App implements \ArrayAccess
     {
         $this->routeCheck = $route;
         $this->routeMust  = $must;
+    }
+
+    /**
+     * 实例化（分层）模型
+     * @param string $name         Model名称
+     * @param string $layer        业务层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param string $common       公共模块名
+     * @return Object
+     * @throws ClassNotFoundException
+     */
+    public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
+    {
+        $guid = $name . $layer;
+        if ($this->__isset($guid)) {
+            return $this->__get($guid);
+        }
+        if (false !== strpos($name, '\\')) {
+            $class  = $name;
+            $module = $this->request->module();
+        } else {
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name, 2);
+            } else {
+                $module = $this->request->module();
+            }
+            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
+        }
+        if (class_exists($class)) {
+            $model = $this->__get($class);
+        } else {
+            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
+            if (class_exists($class)) {
+                $model = $this->__get($class);
+            } else {
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
+            }
+        }
+        $this->__set($guid, $class);
+        return $model;
+    }
+
+    /**
+     * 实例化（分层）控制器 格式：[模块名/]控制器名
+     * @param string $name         资源地址
+     * @param string $layer        控制层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param string $empty        空控制器名称
+     * @return Object|false
+     * @throws ClassNotFoundException
+     */
+    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
+    {
+        if (false !== strpos($name, '\\')) {
+            $class  = $name;
+            $module = $this->request->module();
+        } else {
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name);
+            } else {
+                $module = $this->request->module();
+            }
+            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
+        }
+        if (class_exists($class)) {
+            return $this->__get($class);
+        } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
+            return $this->__get($emptyClass);
+        }
+    }
+
+    /**
+     * 实例化验证类 格式：[模块名/]验证器名
+     * @param string $name         资源地址
+     * @param string $layer        验证层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param string $common       公共模块名
+     * @return Object|false
+     * @throws ClassNotFoundException
+     */
+    public function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
+    {
+        $name = $name ?: $this->config('default_validate');
+        if (empty($name)) {
+            return new Validate;
+        }
+        $guid = $name . $layer;
+        if ($this->__isset($guid)) {
+            return $this->__get($guid);
+        }
+        if (false !== strpos($name, '\\')) {
+            $class  = $name;
+            $module = $this->request->module();
+        } else {
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name);
+            } else {
+                $module = $this->request->module();
+            }
+            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
+        }
+        if (class_exists($class)) {
+            $validate = $this->__get($class);
+        } else {
+            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
+            if (class_exists($class)) {
+                $validate = $this->__get($class);
+            } else {
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
+            }
+        }
+        $this->__set($guid, $class);
+        return $validate;
+    }
+
+    /**
+     * 数据库初始化 并取得数据库类实例
+     * @param mixed         $config 数据库配置
+     * @param bool|string   $name 连接标识 true 强制重新连接
+     * @return \think\db\Connection
+     */
+    public function db($config = [], $name = false)
+    {
+        return Db::connect($config, $name);
+    }
+
+    /**
+     * 远程调用模块的操作方法 参数格式 [模块/控制器/]操作
+     * @param string       $url          调用地址
+     * @param string|array $vars         调用参数 支持字符串和数组
+     * @param string       $layer        要调用的控制层名称
+     * @param bool         $appendSuffix 是否添加类名后缀
+     * @return mixed
+     */
+    public function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
+    {
+        $info   = pathinfo($url);
+        $action = $info['basename'];
+        $module = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
+        $class  = $this->controller($module, $layer, $appendSuffix);
+        if ($class) {
+            if (is_scalar($vars)) {
+                if (strpos($vars, '=')) {
+                    parse_str($vars, $vars);
+                } else {
+                    $vars = [$vars];
+                }
+            }
+            return $this->container()->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
+        }
+    }
+
+    /**
+     * 解析应用类的类名
+     * @param string $module 模块名
+     * @param string $layer  层名 controller model ...
+     * @param string $name   类名
+     * @param bool   $appendSuffix
+     * @return string
+     */
+    public function parseClass($module, $layer, $name, $appendSuffix = false)
+    {
+        $name  = str_replace(['/', '.'], '\\', $name);
+        $array = explode('\\', $name);
+        $class = Loader::parseName(array_pop($array), 1) . ($this->getSuffix() || $appendSuffix ? ucfirst($layer) : '');
+        $path  = $array ? implode('\\', $array) . '\\' : '';
+        return $this->getNamespace() . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
     /**
@@ -709,7 +881,6 @@ class App implements \ArrayAccess
     {
         return Container::getInstance();
     }
-
     public function __set($name, $value)
     {
         $this->container()->bind($name, $value);

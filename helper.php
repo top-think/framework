@@ -27,7 +27,6 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Session;
 use think\facade\Url;
-use think\Loader;
 use think\Response;
 use think\View;
 
@@ -180,7 +179,7 @@ if (!function_exists('widget')) {
      */
     function widget($name, $data = [])
     {
-        return Loader::action($name, $data, 'widget');
+        return app()->action($name, $data, 'widget');
     }
 }
 
@@ -194,7 +193,7 @@ if (!function_exists('model')) {
      */
     function model($name = '', $layer = 'model', $appendSuffix = false)
     {
-        return Loader::model($name, $layer, $appendSuffix);
+        return app()->model($name, $layer, $appendSuffix);
     }
 }
 
@@ -208,7 +207,7 @@ if (!function_exists('validate')) {
      */
     function validate($name = '', $layer = 'validate', $appendSuffix = false)
     {
-        return Loader::validate($name, $layer, $appendSuffix);
+        return app()->validate($name, $layer, $appendSuffix);
     }
 }
 
@@ -236,7 +235,7 @@ if (!function_exists('controller')) {
      */
     function controller($name, $layer = 'controller', $appendSuffix = false)
     {
-        return Loader::controller($name, $layer, $appendSuffix);
+        return app()->controller($name, $layer, $appendSuffix);
     }
 }
 
@@ -251,34 +250,7 @@ if (!function_exists('action')) {
      */
     function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
     {
-        return Loader::action($url, $vars, $layer, $appendSuffix);
-    }
-}
-
-if (!function_exists('import')) {
-    /**
-     * 导入所需的类库 同java的Import 本函数有缓存功能
-     * @param string    $class 类库命名空间字符串
-     * @param string    $baseUrl 起始路径
-     * @param string    $ext 导入的文件扩展名
-     * @return boolean
-     */
-    function import($class, $baseUrl = '', $ext = '.php')
-    {
-        return Loader::import($class, $baseUrl, $ext);
-    }
-}
-
-if (!function_exists('vendor')) {
-    /**
-     * 快速导入第三方框架类库 所有第三方框架的类库文件统一放到 系统的Vendor目录下面
-     * @param string    $class 类库
-     * @param string    $ext 类库后缀
-     * @return boolean
-     */
-    function vendor($class, $ext = '.php')
-    {
-        return Loader::import($class, Facade::make('app')->getRootPath() . 'vendor', $ext);
+        return app()->action($url, $vars, $layer, $appendSuffix);
     }
 }
 
@@ -433,7 +405,7 @@ if (!function_exists('request')) {
      */
     function request()
     {
-        return Request::instance();
+        return app('request');
     }
 }
 

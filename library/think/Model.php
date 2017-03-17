@@ -1220,7 +1220,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (!empty($info)) {
             if (is_array($info)) {
-                $validate = Loader::validate();
+                $validate = Facade::make('app')->validate();
                 $validate->rule($info['rule']);
                 $validate->message($info['msg']);
             } else {
@@ -1228,7 +1228,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 if (strpos($name, '.')) {
                     list($name, $scene) = explode('.', $name);
                 }
-                $validate = Loader::validate($name);
+                $validate = Facade::make('app')->validate($name);
                 if (!empty($scene)) {
                     $validate->scene($scene);
                 }
