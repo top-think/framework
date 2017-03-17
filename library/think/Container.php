@@ -221,7 +221,7 @@ class Container implements \ArrayAccess
 
     public function offsetUnset($key)
     {
-        $this->__unset($name);
+        $this->__unset($key);
     }
 
     public function __set($name, $value)
@@ -241,7 +241,7 @@ class Container implements \ArrayAccess
 
     public function __unset($name)
     {
-        unset($this->bind[$key], $this->instances[$key]);
+        unset($this->bind[$name], $this->instances[$name]);
     }
 
 }
