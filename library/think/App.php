@@ -349,11 +349,15 @@ class App
                 $available = true;
             }
 
-            // 模块初始化
             if ($module && $available) {
                 // 初始化模块
                 $request->module($module);
-                $config = self::init($module);
+                self::init($module);
+                
+                // 监听module_init
+                Hook::listen('module_init', $request);
+                
+                $config = Config::get();
                 // 模块请求缓存检查
                 $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
             } else {
@@ -379,9 +383,6 @@ class App
 
         // 设置当前请求的控制器、操作
         $request->controller(Loader::parseName($controller, 1))->action($actionName);
-
-        // 监听module_init
-        Hook::listen('module_init', $request);
 
         $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
         if (is_null($instance)) {
