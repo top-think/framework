@@ -353,6 +353,9 @@ class App
             if ($module && $available) {
                 // 初始化模块
                 $request->module($module);
+                // 监听module_init
+                Hook::listen('module_init', $request);
+                
                 $config = self::init($module);
                 // 模块请求缓存检查
                 $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
@@ -372,16 +375,11 @@ class App
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $config['default_controller']);
         $controller = $convert ? strtolower($controller) : $controller;
-
         // 获取操作名
         $actionName = strip_tags($result[2] ?: $config['default_action']);
         $actionName = $convert ? strtolower($actionName) : $actionName;
-
         // 设置当前请求的控制器、操作
         $request->controller(Loader::parseName($controller, 1))->action($actionName);
-
-        // 监听module_init
-        Hook::listen('module_init', $request);
 
         $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
         if (is_null($instance)) {
