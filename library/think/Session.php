@@ -56,10 +56,8 @@ class Session
             $isDoStart = true;
         }
 
-        if (self::$prefix === '') {
-            if (isset($config['prefix'])) {
-                self::$prefix = $config['prefix'];
-            }
+        if (isset($config['prefix']) && self::$prefix === '') {
+            self::$prefix = $config['prefix'];
         }
         if (isset($config['var_session_id']) && isset($_REQUEST[$config['var_session_id']])) {
             session_id($_REQUEST[$config['var_session_id']]);
