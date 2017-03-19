@@ -31,6 +31,19 @@ class Loader
     // 自动加载的文件
     private static $autoloadFiles = [];
 
+    // 注册自动加载机制
+    public static function register($autoload = '')
+    {
+        // 注册系统自动加载
+        spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
+
+        // 注册命名空间定义
+        self::addNamespace([
+            'think'  => __DIR__ . '/',
+            'traits' => __DIR__ . '/../traits/',
+        ]);
+    }
+
     // 自动加载
     public static function autoload($class)
     {
@@ -216,11 +229,13 @@ class Loader
         }
     }
 
+    // 注册自动加载类库目录
     public static function addAutoLoadDir($path)
     {
         self::$fallbackDirsPsr4[] = $path;
     }
 
+    // 注册类别名
     public static function addClassAlias($alias, $class = null)
     {
         if (is_array($alias)) {
@@ -228,21 +243,6 @@ class Loader
         } else {
             self::$classAlias[$alias] = $class;
         }
-    }
-
-    // 注册自动加载机制
-    public static function register($autoload = '')
-    {
-        // 注册系统自动加载
-        spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
-
-        // 注册命名空间定义
-        self::addNamespace([
-            'think'    => __DIR__ . '/',
-            'behavior' => __DIR__ . '/../behavior/',
-            'traits'   => __DIR__ . '/../traits/',
-        ]);
-
     }
 
     // 注册composer自动加载

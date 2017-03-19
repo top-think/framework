@@ -14,8 +14,7 @@ namespace think\facade;
 use think\Facade;
 
 /**
- * Class Route
- * @package think
+ * @see \think\Route
  * @mixin \think\Route
  */
 class Route extends Facade
