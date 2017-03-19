@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Request
+ * @mixin \think\Request
+ */
 class Request extends Facade
 {
 }

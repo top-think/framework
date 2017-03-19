@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Response
+ * @mixin \think\Response
+ */
 class Response extends Facade
 {
 }

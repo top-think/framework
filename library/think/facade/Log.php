@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Log
+ * @mixin \think\Log
+ */
 class Log extends Facade
 {
 

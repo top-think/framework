@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Session
+ * @mixin \think\Session
+ */
 class Session extends Facade
 {
 }

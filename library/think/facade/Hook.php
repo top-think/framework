@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Hook
+ * @mixin \think\Hook
+ */
 class Hook extends Facade
 {
 }

@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Cache
+ * @mixin \think\Cache
+ */
 class Cache extends Facade
 {
 }

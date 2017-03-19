@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Debug
+ * @mixin \think\Debug
+ */
 class Debug extends Facade
 {
 }

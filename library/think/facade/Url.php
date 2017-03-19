@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Url
+ * @mixin \think\Url
+ */
 class Url extends Facade
 {
 }

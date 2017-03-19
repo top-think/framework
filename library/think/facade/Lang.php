@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Lang
+ * @mixin \think\Lang
+ */
 class Lang extends Facade
 {
 }

@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Build
+ * @mixin \think\Build
+ */
 class Build extends Facade
 {
 }

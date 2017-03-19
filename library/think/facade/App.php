@@ -14,8 +14,8 @@ namespace think\facade;
 use think\Facade;
 
 /**
- * App 应用管理
- * @author  liu21st <liu21st@gmail.com>
+ * @see \think\App
+ * @mixin \think\App
  */
 class App extends Facade
 {

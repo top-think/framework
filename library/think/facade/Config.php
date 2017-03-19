@@ -13,6 +13,10 @@ namespace think\facade;
 
 use think\Facade;
 
+/**
+ * @see \think\Config
+ * @mixin \think\Config
+ */
 class Config extends Facade
 {
 }
