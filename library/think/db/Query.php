@@ -451,7 +451,9 @@ class Query
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
-            if ($key && '*' != $field) {
+            if (is_null($field)) {
+                $field = '*';
+            } elseif ($key && '*' != $field) {
                 $field = $key . ',' . $field;
             }
             $pdo = $this->field($field)->getPdo();
@@ -463,7 +465,9 @@ class Query
                 $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
             } else {
                 $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
-                if ($resultSet) {
+                if ('*' == $field && $key) {
+                    $result = array_column($resultSet, null, $key);
+                } elseif ($resultSet) {
                     $fields = array_keys($resultSet[0]);
                     $count  = count($fields);
                     $key1   = array_shift($fields);
