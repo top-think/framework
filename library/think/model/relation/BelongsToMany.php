@@ -504,7 +504,7 @@ class BelongsToMany extends Relation
     }
 
     /**
-     * 执行基础查询（进执行一次）
+     * 执行基础查询（仅执行一次）
      * @access protected
      * @return void
      */

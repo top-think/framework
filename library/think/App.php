@@ -349,7 +349,7 @@ class App implements \ArrayAccess
     /**
      * 执行当前请求的调度
      * @access public
-     * @param array|string  $dispatch 调度信息
+     * @param array  $dispatch 调度信息
      * @return mixed
      */
     public function exec($dispatch)

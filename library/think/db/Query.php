@@ -52,6 +52,8 @@ class Query
     protected static $info = [];
     // 回调事件
     private static $event = [];
+    // 扩展查询方法
+    private static $extend = [];
 
     /**
      * 架构函数
@@ -79,7 +81,11 @@ class Query
      */
     public function __call($method, $args)
     {
-        if (strtolower(substr($method, 0, 5)) == 'getby') {
+        if (isset(self::$extend[strtolower($method)])) {
+            // 调用扩展查询方法
+            array_unshift($args, $this);
+            return Container::getInstance()->invoke(self::$extend[strtolower($method)], $args);
+        } elseif (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
             $field         = Loader::parseName(substr($method, 5));
             $where[$field] = $args[0];
@@ -91,6 +97,24 @@ class Query
             return $this->where($where)->value($args[1]);
         } else {
             throw new Exception('method not exist:' . __CLASS__ . '->' . $method);
+        }
+    }
+
+    /**
+     * 扩展查询方法
+     * @access public
+     * @param string|array  $method     查询方法名
+     * @param callable      $callback
+     * @return $this
+     */
+    public static function extend($method, $callback = null)
+    {
+        if (is_array($method)) {
+            foreach ($method as $key => $val) {
+                self::$extend[strtolower($key)] = $val;
+            }
+        } else {
+            self::$extend[strtolower($method)] = $callback;
         }
     }
 
