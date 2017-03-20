@@ -459,7 +459,7 @@ class Validate
      * @param array     $data  数据
      * @return bool
      */
-    protected function egt($value, $rule)
+    protected function egt($value, $rule, $data)
     {
         return !is_null($this->getDataValue($data, $rule)) && $value >= $this->getDataValue($data, $rule);
     }
@@ -472,7 +472,7 @@ class Validate
      * @param array     $data  数据
      * @return bool
      */
-    protected function gt($value, $rule)
+    protected function gt($value, $rule, $data)
     {
         return !is_null($this->getDataValue($data, $rule)) && $value > $this->getDataValue($data, $rule);
     }
@@ -485,7 +485,7 @@ class Validate
      * @param array     $data  数据
      * @return bool
      */
-    protected function elt($value, $rule)
+    protected function elt($value, $rule, $data)
     {
         return !is_null($this->getDataValue($data, $rule)) && $value <= $this->getDataValue($data, $rule);
     }
