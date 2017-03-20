@@ -508,12 +508,11 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
-     * @param array     $data  数据
      * @return bool
      */
-    protected function eq($value, $rule, $data)
+    protected function eq($value, $rule)
     {
-        return !is_null($this->getDataValue($data, $rule)) && $value == $this->getDataValue($data, $rule);
+        return $value == $rule;
     }
 
     /**
