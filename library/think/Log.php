@@ -13,7 +13,7 @@ namespace think;
 
 use think\exception\ClassNotFoundException;
 
-class Log
+class Log implements LoggerInterface
 {
     const EMERGENCY = 'emergency';
     const ALERT     = 'alert';

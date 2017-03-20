@@ -19,22 +19,33 @@ Loader::register();
 // 注册错误和异常处理机制
 Error::register();
 
+// 实现日志接口
+if (interface_exists('Psr\Log\LoggerInterface')) {
+    interface LoggerInterface extends \Psr\Log\LoggerInterface
+    {}
+} else {
+    interface LoggerInterface
+    {}
+}
+
 // 注册核心类到容器
 Container::getInstance()->bind([
-    'app'      => App::class,
-    'build'    => Build::class,
-    'cache'    => Cache::class,
-    'config'   => Config::class,
-    'cookie'   => Cookie::class,
-    'debug'    => Debug::class,
-    'hook'     => Hook::class,
-    'lang'     => Lang::class,
-    'log'      => Log::class,
-    'request'  => Request::class,
-    'response' => Response::class,
-    'route'    => Route::class,
-    'session'  => Session::class,
-    'url'      => Url::class,
+    'app'                   => App::class,
+    'build'                 => Build::class,
+    'cache'                 => Cache::class,
+    'config'                => Config::class,
+    'cookie'                => Cookie::class,
+    'debug'                 => Debug::class,
+    'hook'                  => Hook::class,
+    'lang'                  => Lang::class,
+    'log'                   => Log::class,
+    'request'               => Request::class,
+    'response'              => Response::class,
+    'route'                 => Route::class,
+    'session'               => Session::class,
+    'url'                   => Url::class,
+    // 接口依赖注入
+    'think\LoggerInterface' => Log::class,
 ]);
 
 // 注册核心类的静态代理
