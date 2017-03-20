@@ -103,8 +103,8 @@ class Query
     /**
      * 扩展查询方法
      * @access public
-     * @param string|array      $method
-     * @param string|\Closure   $callback
+     * @param string|array  $method     查询方法名
+     * @param callable      $callback
      * @return $this
      */
     public static function extend($method, $callback = null)
