@@ -108,8 +108,8 @@ abstract class Builder
                 }
             } elseif (is_null($val)) {
                 $result[$item] = 'NULL';
-            } elseif (isset($val[0]) && 'exp' == $val[0]) {
-                $result[$item] = $val[1];
+            } elseif (is_array($val) && $val = $this->parseArrayData($val)) {
+                $result[$item] = $val;
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
                 if (0 === strpos($val, ':') && $this->query->isBind(substr($val, 1))) {
@@ -120,6 +120,25 @@ abstract class Builder
                     $result[$item] = ':__data__' . $key;
                 }
             }
+        }
+        return $result;
+    }
+
+    /**
+     * 数组数据解析
+     * @access protected
+     * @param array  $data
+     * @return mixed
+     */
+    protected function parseArrayData($data)
+    {
+        list($type, $value) = $data;
+        switch (strtolower($type)) {
+            case 'exp':
+                $result = $value;
+                break;
+            default:
+                $result = false;
         }
         return $result;
     }

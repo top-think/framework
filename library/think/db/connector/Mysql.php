@@ -13,6 +13,7 @@ namespace think\db\connector;
 
 use PDO;
 use think\db\Connection;
+use think\db\Query;
 
 /**
  * mysql数据库驱动
@@ -21,6 +22,27 @@ class Mysql extends Connection
 {
 
     protected $builder = '\\think\\db\\builder\\Mysql';
+
+    /**
+     * 初始化
+     * @access protected
+     * @return void
+     */
+    protected function initialize()
+    {
+        // Point类型支持
+        Query::extend('point', function ($query, $field, $value = null, $fun = 'GeomFromText', $type = 'POINT') {
+            if (!is_null($value)) {
+                $query->data($field, ['point', $value, $fun, $type]);
+            } else {
+                if (is_string($field)) {
+                    $field = explode(',', $field);
+                }
+                $query->setOption('point', $field);
+            }
+            return $query;
+        });
+    }
 
     /**
      * 解析pdo连接的dsn信息

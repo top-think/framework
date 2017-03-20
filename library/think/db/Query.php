@@ -1929,6 +1929,19 @@ class Query
     }
 
     /**
+     * 设置当前的查询参数
+     * @access public
+     * @param string $option 参数名
+     * @param mixed  $value  参数值
+     * @return $this
+     */
+    public function setOption($option, $value)
+    {
+        $this->options[$option] = $value;
+        return $this;
+    }
+
+    /**
      * 设置关联查询JOIN预查询
      * @access public
      * @param string|array $with 关联方法名称

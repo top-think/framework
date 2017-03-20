@@ -52,6 +52,54 @@ class Mysql extends Builder
     }
 
     /**
+     * field分析
+     * @access protected
+     * @param mixed     $fields
+     * @param array     $options
+     * @return string
+     */
+    protected function parseField($fields, $options = [])
+    {
+        $fieldsStr = parent::parseField($fields, $options);
+        if (!empty($options['point'])) {
+            $array = [];
+            foreach ($options['point'] as $key => $field) {
+                $key     = !is_numeric($key) ? $key : $field;
+                $array[] = 'AsText(' . $this->parseKey($key, $options) . ') AS ' . $this->parseKey($field, $options);
+            }
+            $fieldsStr .= ',' . implode(',', $array);
+        }
+        return $fieldsStr;
+    }
+
+    /**
+     * 数组数据解析
+     * @access protected
+     * @param array  $data
+     * @return mixed
+     */
+    protected function parseArrayData($data)
+    {
+        list($type, $value) = $data;
+        switch (strtolower($type)) {
+            case 'exp':
+                $result = $value;
+                break;
+            case 'point':
+                $fun   = isset($data[2]) ? $data[2] : 'GeomFromText';
+                $point = isset($data[3]) ? $data[3] : 'POINT';
+                if (is_array($value)) {
+                    $value = implode(' ', $value);
+                }
+                $result = $fun . '(\'' . $point . '(' . $value . ')\')';
+                break;
+            default:
+                $result = false;
+        }
+        return $result;
+    }
+
+    /**
      * 随机排序
      * @access protected
      * @return string

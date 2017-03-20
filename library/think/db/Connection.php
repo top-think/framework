@@ -134,7 +134,17 @@ abstract class Connection
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
         }
+        // 执行初始化操作
+        $this->initialize();
     }
+
+    /**
+     * 初始化
+     * @access protected
+     * @return void
+     */
+    protected function initialize()
+    {}
 
     /**
      * 创建指定模型的查询对象
