@@ -456,11 +456,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
     protected function egt($value, $rule)
     {
-        return $value >= $rule;
+        return !is_null($this->getDataValue($data, $rule)) && $value >= $this->getDataValue($data, $rule);
     }
 
     /**
@@ -468,11 +469,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
     protected function gt($value, $rule)
     {
-        return $value > $rule;
+        return !is_null($this->getDataValue($data, $rule)) && $value > $this->getDataValue($data, $rule);
     }
 
     /**
@@ -480,11 +482,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
     protected function elt($value, $rule)
     {
-        return $value <= $rule;
+        return !is_null($this->getDataValue($data, $rule)) && $value <= $this->getDataValue($data, $rule);
     }
 
     /**
@@ -492,11 +495,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function lt($value, $rule)
+    protected function lt($value, $rule, $data)
     {
-        return $value < $rule;
+        return !is_null($this->getDataValue($data, $rule)) && $value < $this->getDataValue($data, $rule);
     }
 
     /**
@@ -504,11 +508,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function eq($value, $rule)
+    protected function eq($value, $rule, $data)
     {
-        return $value == $rule;
+        return !is_null($this->getDataValue($data, $rule)) && $value == $this->getDataValue($data, $rule);
     }
 
     /**
@@ -1191,7 +1196,7 @@ class Validate
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
-            $value = isset($data[$key]) ? $data[$key] : null;
+            $value = is_numeric($key) ? $key : (isset($data[$key]) ? $data[$key] : null);
         }
         return $value;
     }
