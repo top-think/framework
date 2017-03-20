@@ -1183,17 +1183,20 @@ class Validate
 
     /**
      * 获取数据值
+     * 
      * @access protected
-     * @param array     $data  数据
-     * @param string    $key  数据标识 支持二维
+     * @param array $data
+     *            数据
+     * @param string $key
+     *            数据标识 支持二维
      * @return mixed
      */
     protected function getDataValue($data, $key)
     {
         if (strpos($key, '.')) {
             // 支持二维数组验证
-            list($name1, $name2) = explode('.', $key);
-            $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
+            list ($name1, $name2) = explode('.', $key);
+            $value = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
             $value = is_numeric($key) ? $key : (isset($data[$key]) ? $data[$key] : null);
         }
