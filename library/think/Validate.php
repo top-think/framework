@@ -128,6 +128,7 @@ class Validate
         if (is_null(self::$instance)) {
             self::$instance = new self($rules, $message, $field);
         }
+
         return self::$instance;
     }
 
@@ -145,6 +146,7 @@ class Validate
         } else {
             $this->rule[$name] = $rule;
         }
+
         return $this;
     }
 
@@ -194,6 +196,7 @@ class Validate
         } else {
             $this->message[$name] = $message;
         }
+
         return $this;
     }
 
@@ -215,6 +218,7 @@ class Validate
             // 设置验证场景
             $this->scene[$name] = $fields;
         }
+
         return $this;
     }
 
@@ -238,6 +242,7 @@ class Validate
     public function batch($batch = true)
     {
         $this->batch = $batch;
+
         return $this;
     }
 
@@ -336,6 +341,7 @@ class Validate
                 }
             }
         }
+
         return !empty($this->error) ? false : true;
     }
 
@@ -356,6 +362,7 @@ class Validate
         if (is_string($rules)) {
             $rules = explode('|', $rules);
         }
+
         $i = 0;
         foreach ($rules as $key => $rule) {
             if ($rule instanceof \Closure) {
@@ -414,6 +421,7 @@ class Validate
             }
             $i++;
         }
+
         return $result;
     }
 
@@ -435,6 +443,7 @@ class Validate
                 $rule = $field . '_confirm';
             }
         }
+
         return $this->getDataValue($data, $rule) === $value;
     }
 
@@ -615,6 +624,7 @@ class Validate
                     $result = $this->regex($value, $rule);
                 }
         }
+
         return $result;
     }
 
@@ -641,6 +651,7 @@ class Validate
         if (!in_array($rule, ['A', 'MX', 'NS', 'SOA', 'PTR', 'CNAME', 'AAAA', 'A6', 'SRV', 'NAPTR', 'TXT', 'ANY'])) {
             $rule = 'MX';
         }
+
         return checkdnsrr($value, $rule);
     }
 
@@ -656,6 +667,7 @@ class Validate
         if (!in_array($rule, ['ipv4', 'ipv6'])) {
             $rule = 'ipv4';
         }
+
         return $this->filter($value, [FILTER_VALIDATE_IP, 'ipv6' == $rule ? FILTER_FLAG_IPV6 : FILTER_FLAG_IPV4]);
     }
 
@@ -671,9 +683,11 @@ class Validate
         if (!($file instanceof File)) {
             return false;
         }
+
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
+
         if (is_array($file)) {
             foreach ($file as $item) {
                 if (!$item->checkExt($rule)) {
@@ -698,9 +712,11 @@ class Validate
         if (!($file instanceof File)) {
             return false;
         }
+
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
+
         if (is_array($file)) {
             foreach ($file as $item) {
                 if (!$item->checkMime($rule)) {
@@ -725,6 +741,7 @@ class Validate
         if (!($file instanceof File)) {
             return false;
         }
+
         if (is_array($file)) {
             foreach ($file as $item) {
                 if (!$item->checkSize($rule)) {
@@ -749,6 +766,7 @@ class Validate
         if (!($file instanceof File)) {
             return false;
         }
+
         if ($rule) {
             $rule                        = explode(',', $rule);
             list($width, $height, $type) = getimagesize($file->getRealPath());
@@ -809,6 +827,7 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
+
         if (false !== strpos($rule[0], '\\')) {
             // 指定模型类
             $db = new $rule[0];
@@ -819,6 +838,7 @@ class Validate
                 $db = Db::name($rule[0]);
             }
         }
+
         $key = isset($rule[1]) ? $rule[1] : $field;
 
         if (strpos($key, '^')) {
@@ -834,6 +854,7 @@ class Validate
         }
 
         $pk = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
+
         if (isset($rule[2])) {
             $map[$pk] = ['neq', $rule[2]];
         } elseif (isset($data[$pk])) {
@@ -876,6 +897,7 @@ class Validate
         } else {
             $param = null;
         }
+
         return false !== filter_var($value, is_int($rule) ? $rule : filter_id($rule), $param);
     }
 
@@ -890,6 +912,7 @@ class Validate
     protected function requireIf($value, $rule, $data)
     {
         list($field, $val) = explode(',', $rule);
+
         if ($this->getDataValue($data, $field) == $val) {
             return !empty($value);
         } else {
@@ -908,6 +931,7 @@ class Validate
     protected function requireCallback($value, $rule, $data)
     {
         $result = call_user_func_array($rule, [$value, $data]);
+
         if ($result) {
             return !empty($value);
         } else {
@@ -926,6 +950,7 @@ class Validate
     protected function requireWith($value, $rule, $data)
     {
         $val = $this->getDataValue($data, $rule);
+
         if (!empty($val)) {
             return !empty($value);
         } else {
@@ -970,6 +995,7 @@ class Validate
             $rule = explode(',', $rule);
         }
         list($min, $max) = $rule;
+
         return $value >= $min && $value <= $max;
     }
 
@@ -986,6 +1012,7 @@ class Validate
             $rule = explode(',', $rule);
         }
         list($min, $max) = $rule;
+
         return $value < $min || $value > $max;
     }
 
@@ -1032,6 +1059,7 @@ class Validate
         } else {
             $length = mb_strlen((string) $value);
         }
+
         return $length <= $rule;
     }
 
@@ -1051,6 +1079,7 @@ class Validate
         } else {
             $length = mb_strlen((string) $value);
         }
+
         return $length >= $rule;
     }
 
@@ -1090,7 +1119,9 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
+
         list($start, $end) = $rule;
+
         if (!is_numeric($start)) {
             $start = strtotime($start);
         }
@@ -1098,6 +1129,7 @@ class Validate
         if (!is_numeric($end)) {
             $end = strtotime($end);
         }
+
         return $_SERVER['REQUEST_TIME'] >= $start && $_SERVER['REQUEST_TIME'] <= $end;
     }
 
@@ -1137,10 +1169,12 @@ class Validate
         if (isset($this->regex[$rule])) {
             $rule = $this->regex[$rule];
         }
+
         if (0 !== strpos($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
             // 不是正则表达式则两端补上/
             $rule = '/^' . $rule . '$/';
         }
+
         return 1 === preg_match($rule, (string) $value);
     }
 
@@ -1155,6 +1189,7 @@ class Validate
     protected function token($value, $rule, $data)
     {
         $rule = !empty($rule) ? $rule : '__token__';
+
         if (!isset($data[$rule]) || !Session::has($rule)) {
             // 令牌数据无效
             return false;
@@ -1166,8 +1201,10 @@ class Validate
             Session::delete($rule); // 验证完成销毁session
             return true;
         }
+
         // 开启TOKEN重置
         Session::delete($rule);
+
         return false;
     }
 
@@ -1193,6 +1230,7 @@ class Validate
         } else {
             $value = isset($data[$key]) ? $data[$key] : null;
         }
+
         return $value;
     }
 
@@ -1235,6 +1273,7 @@ class Validate
                 [$title, (string) $rule, $array[0], $array[1], $array[2]],
                 $msg);
         }
+
         return $msg;
     }
 
@@ -1260,12 +1299,14 @@ class Validate
         } else {
             $scene = [];
         }
+
         return $scene;
     }
 
     public static function __callStatic($method, $params)
     {
         $class = self::make();
+
         if (method_exists($class, $method)) {
             return call_user_func_array([$class, $method], $params);
         } else {

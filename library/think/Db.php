@@ -42,6 +42,7 @@ class Db
         if (false === $name) {
             $name = md5(serialize($config));
         }
+
         if (true === $name || !isset(self::$instance[$name])) {
             // 解析连接参数 支持数组和字符串
             $options = self::parseConfig($config);
@@ -58,6 +59,7 @@ class Db
                 self::$instance[$name] = new $class($options);
             }
         }
+
         return self::$instance[$name];
     }
 
@@ -76,6 +78,7 @@ class Db
             // 支持读取配置参数
             $config = Facade::make('config')->get('database.' . $config);
         }
+
         if (is_string($config)) {
             return self::parseDsn($config);
         } else {
@@ -94,9 +97,11 @@ class Db
     private static function parseDsn($dsnStr)
     {
         $info = parse_url($dsnStr);
+
         if (!$info) {
             return [];
         }
+
         $dsn = [
             'type'     => $info['scheme'],
             'username' => isset($info['user']) ? $info['user'] : '',
@@ -112,6 +117,7 @@ class Db
         } else {
             $dsn['params'] = [];
         }
+
         return $dsn;
     }
 

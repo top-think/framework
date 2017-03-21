@@ -33,6 +33,7 @@ class View
     {
         // 初始化模板引擎
         $this->engine($engine);
+
         // 基础替换字符串
         $request     = Facade::make('request');
         $root        = $request->rootUrl();
@@ -43,7 +44,9 @@ class View
             '__CSS__'    => $root . '/static/css',
             '__JS__'     => $root . '/static/js',
         ];
+
         $this->replace = array_merge($baseReplace, (array) $replace);
+
         return $this;
     }
 
@@ -61,6 +64,7 @@ class View
         } else {
             self::$var[$name] = $value;
         }
+
         return $this;
     }
 
@@ -78,6 +82,7 @@ class View
         } else {
             $this->data[$name] = $value;
         }
+
         return $this;
     }
 
@@ -97,10 +102,12 @@ class View
         }
 
         $class = false !== strpos($type, '\\') ? $type : '\\think\\view\\driver\\' . ucfirst($type);
+
         if (isset($options['type'])) {
             unset($options['type']);
         }
         $this->engine = new $class($options);
+
         return $this;
     }
 
@@ -114,6 +121,7 @@ class View
     public function config($name, $value = null)
     {
         $this->engine->config($name, $value);
+
         return $this;
     }
 
@@ -136,6 +144,7 @@ class View
             // 应用对象模板变量
             $vars['App'] = Facade::make('app');
         }
+
         // 页面缓存
         ob_start();
         ob_implicit_flush(0);
@@ -146,13 +155,16 @@ class View
 
         // 获取并清空缓存
         $content = ob_get_clean();
+
         // 内容过滤标签
         Facade::make('hook')->listen('view_filter', $content);
+
         // 允许用户自定义模板的字符串替换
         $replace = array_merge($this->replace, $replace);
         if (!empty($replace)) {
             $content = strtr($content, $replace);
         }
+
         return $content;
     }
 
@@ -170,6 +182,7 @@ class View
         } else {
             $this->replace[$content] = $replace;
         }
+
         return $this;
     }
 

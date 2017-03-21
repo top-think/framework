@@ -50,6 +50,7 @@ class Session
         if (empty($config)) {
             $config = $this->app['config']->pull('session');
         }
+
         // 记录初始化信息
         $this->app->log('[ SESSION ] INIT ' . var_export($config, true));
         $isDoStart = false;
@@ -66,39 +67,50 @@ class Session
         if (isset($config['prefix'])) {
             $this->prefix = $config['prefix'];
         }
+
         if (isset($config['var_session_id']) && isset($_REQUEST[$config['var_session_id']])) {
             session_id($_REQUEST[$config['var_session_id']]);
         } elseif (isset($config['id']) && !empty($config['id'])) {
             session_id($config['id']);
         }
+
         if (isset($config['name'])) {
             session_name($config['name']);
         }
+
         if (isset($config['path'])) {
             session_save_path($config['path']);
         }
+
         if (isset($config['domain'])) {
             ini_set('session.cookie_domain', $config['domain']);
         }
+
         if (isset($config['expire'])) {
             ini_set('session.gc_maxlifetime', $config['expire']);
             ini_set('session.cookie_lifetime', $config['expire']);
         }
+
         if (isset($config['secure'])) {
             ini_set('session.cookie_secure', $config['secure']);
         }
+
         if (isset($config['httponly'])) {
             ini_set('session.cookie_httponly', $config['httponly']);
         }
+
         if (isset($config['use_cookies'])) {
             ini_set('session.use_cookies', $config['use_cookies'] ? 1 : 0);
         }
+
         if (isset($config['cache_limiter'])) {
             session_cache_limiter($config['cache_limiter']);
         }
+
         if (isset($config['cache_expire'])) {
             session_cache_expire($config['cache_expire']);
         }
+
         if (!empty($config['type'])) {
             // 读取session驱动
             $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\session\\driver\\' . ucwords($config['type']);
@@ -108,6 +120,7 @@ class Session
                 throw new ClassNotFoundException('error session handler:' . $class, $class);
             }
         }
+
         if ($isDoStart) {
             session_start();
             $this->init = true;
@@ -144,6 +157,7 @@ class Session
         empty($this->init) && $this->boot();
 
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
+
         if (strpos($name, '.')) {
             // 二维数组赋值
             list($name1, $name2) = explode('.', $name);
@@ -169,6 +183,7 @@ class Session
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
+
         if ('' == $name) {
             // 获取全部的session
             $value = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
@@ -200,6 +215,7 @@ class Session
     public function pull($name, $prefix = null)
     {
         $result = $this->get($name, $prefix);
+
         if ($result) {
             $this->delete($name, $prefix);
             return $result;
@@ -218,9 +234,11 @@ class Session
     public function flash($name, $value)
     {
         $this->set($name, $value);
+
         if (!$this->has('__flash__.__time__')) {
             $this->set('__flash__.__time__', $_SERVER['REQUEST_TIME_FLOAT']);
         }
+
         $this->push('__flash__', $name);
     }
 
@@ -235,6 +253,7 @@ class Session
 
             if (!empty($item)) {
                 $time = $item['__time__'];
+
                 if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
                     unset($item['__time__']);
                     $this->delete($item);
@@ -254,6 +273,7 @@ class Session
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
+
         if (is_array($name)) {
             foreach ($name as $key) {
                 $this->delete($key, $prefix);
@@ -283,6 +303,7 @@ class Session
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
+
         if ($prefix) {
             unset($_SESSION[$prefix]);
         } else {
@@ -300,9 +321,11 @@ class Session
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
+
         if (strpos($name, '.')) {
             // 支持数组
             list($name1, $name2) = explode('.', $name);
+
             return $prefix ? isset($_SESSION[$prefix][$name1][$name2]) : isset($_SESSION[$name1][$name2]);
         } else {
             return $prefix ? isset($_SESSION[$prefix][$name]) : isset($_SESSION[$name]);
@@ -318,10 +341,13 @@ class Session
     public function push($key, $value)
     {
         $array = $this->get($key);
+
         if (is_null($array)) {
             $array = [];
         }
+
         $array[] = $value;
+
         $this->set($key, $array);
     }
 
@@ -332,6 +358,7 @@ class Session
     public function start()
     {
         session_start();
+
         $this->init = true;
     }
 
@@ -344,8 +371,10 @@ class Session
         if (!empty($_SESSION)) {
             $_SESSION = [];
         }
+
         session_unset();
         session_destroy();
+
         $this->init = null;
     }
 
@@ -367,6 +396,7 @@ class Session
     {
         // 暂停session
         session_write_close();
+
         $this->init = false;
     }
 }

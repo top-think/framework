@@ -48,10 +48,13 @@ class Cookie
         if (empty($config)) {
             $config = $this->app['config']->pull('cookie');
         }
+
         $this->config = array_merge($this->config, array_change_key_case($config));
+
         if (!empty($this->config['httponly'])) {
             ini_set('session.cookie_httponly', 1);
         }
+
         $this->init = true;
     }
 
@@ -65,6 +68,7 @@ class Cookie
         if (empty($prefix)) {
             return $this->config['prefix'];
         }
+
         $this->config['prefix'] = $prefix;
     }
 
@@ -81,6 +85,7 @@ class Cookie
     public function set($name, $value = '', $option = null)
     {
         !isset($this->init) && $this->init();
+
         // 参数设置(会覆盖黙认设置)
         if (!is_null($option)) {
             if (is_numeric($option)) {
@@ -92,16 +97,21 @@ class Cookie
         } else {
             $config = $this->config;
         }
+
         $name = $config['prefix'] . $name;
+
         // 设置cookie
         if (is_array($value)) {
             array_walk_recursive($value, $this->jsonFormatProtect, 'encode');
             $value = 'think:' . json_encode($value);
         }
+
         $expire = !empty($config['expire']) ? $_SERVER['REQUEST_TIME'] + intval($config['expire']) : 0;
+
         if ($config['setcookie']) {
             setcookie($name, $value, $expire, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
         }
+
         $_COOKIE[$name] = $value;
     }
 
@@ -117,7 +127,9 @@ class Cookie
         if (is_null($option) || is_numeric($option)) {
             $option = [];
         }
+
         $option['expire'] = 315360000;
+
         $this->set($name, $value, $option);
     }
 
@@ -130,8 +142,10 @@ class Cookie
     public function has($name, $prefix = null)
     {
         !isset($this->init) && $this->init();
+
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
         $name   = $prefix . $name;
+
         return isset($_COOKIE[$name]);
     }
 
@@ -144,8 +158,10 @@ class Cookie
     public function get($name, $prefix = null)
     {
         !isset($this->init) && $this->init();
+
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
         $name   = $prefix . $name;
+
         if (isset($_COOKIE[$name])) {
             $value = $_COOKIE[$name];
             if (0 === strpos($value, 'think:')) {
@@ -168,12 +184,15 @@ class Cookie
     public function delete($name, $prefix = null)
     {
         !isset($this->init) && $this->init();
+
         $config = $this->config;
         $prefix = !is_null($prefix) ? $prefix : $config['prefix'];
         $name   = $prefix . $name;
+
         if ($config['setcookie']) {
             setcookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
         }
+
         // 删除指定cookie
         unset($_COOKIE[$name]);
     }
@@ -189,10 +208,13 @@ class Cookie
         if (empty($_COOKIE)) {
             return;
         }
+
         !isset($this->init) && $this->init();
+
         // 要删除的cookie前缀，不指定则删除config设置的指定前缀
         $config = $this->config;
         $prefix = !is_null($prefix) ? $prefix : $config['prefix'];
+
         if ($prefix) {
             // 如果前缀为空字符串将不作处理直接返回
             foreach ($_COOKIE as $key => $val) {
@@ -204,6 +226,7 @@ class Cookie
                 }
             }
         }
+
         return;
     }
 

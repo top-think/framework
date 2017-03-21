@@ -41,6 +41,7 @@ class Error
         }
 
         self::getExceptionHandler()->report($e);
+
         if (PHP_SAPI == 'cli') {
             self::getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
         } else {
@@ -103,6 +104,7 @@ class Error
     public static function getExceptionHandler()
     {
         static $handle;
+
         if (!$handle) {
             // 异常处理handle
             $class = Facade::make('app')->config('exception_handle');
@@ -112,6 +114,7 @@ class Error
                 $handle = new Handle;
             }
         }
+
         return $handle;
     }
 }

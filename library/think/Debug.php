@@ -39,6 +39,7 @@ class Debug
     {
         // 记录时间和内存使用
         $this->info[$name] = is_float($value) ? $value : microtime(true);
+
         if ('time' != $value) {
             $this->mem['mem'][$name]  = is_float($value) ? $value : memory_get_usage();
             $this->mem['peak'][$name] = memory_get_peak_usage();
@@ -57,6 +58,7 @@ class Debug
         if (!isset($this->info[$end])) {
             $this->info[$end] = microtime(true);
         }
+
         return number_format(($this->info[$end] - $this->info[$start]), $dec);
     }
 
@@ -91,13 +93,16 @@ class Debug
         if (!isset($this->mem['mem'][$end])) {
             $this->mem['mem'][$end] = memory_get_usage();
         }
+
         $size = $this->mem['mem'][$end] - $this->mem['mem'][$start];
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
+
         while ($size >= 1024) {
             $size /= 1024;
             $pos++;
         }
+
         return round($size, $dec) . " " . $a[$pos];
     }
 
@@ -111,10 +116,12 @@ class Debug
         $size = memory_get_usage() - $this->app->getBeginMem();
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
+
         while ($size >= 1024) {
             $size /= 1024;
             $pos++;
         }
+
         return round($size, $dec) . " " . $a[$pos];
     }
 
@@ -130,13 +137,16 @@ class Debug
         if (!isset($this->mem['peak'][$end])) {
             $this->mem['peak'][$end] = memory_get_peak_usage();
         }
+
         $size = $this->mem['peak'][$end] - $this->mem['peak'][$start];
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
         $pos  = 0;
+
         while ($size >= 1024) {
             $size /= 1024;
             $pos++;
         }
+
         return round($size, $dec) . " " . $a[$pos];
     }
 
@@ -150,11 +160,14 @@ class Debug
         if ($detail) {
             $files = get_included_files();
             $info  = [];
+
             foreach ($files as $key => $file) {
                 $info[] = $file . ' ( ' . number_format(filesize($file) / 1024, 2) . ' KB )';
             }
+
             return $info;
         }
+
         return count(get_included_files());
     }
 
@@ -172,10 +185,13 @@ class Debug
         if ($var instanceof Model || $var instanceof Collection) {
             $var = $var->toArray();
         }
+
         ob_start();
         var_dump($var);
+
         $output = ob_get_clean();
         $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);
+
         if (PHP_SAPI == 'cli') {
             $output = PHP_EOL . $label . $output . PHP_EOL;
         } else {
@@ -185,7 +201,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         } else {
             return $output;
@@ -198,6 +214,7 @@ class Debug
         $type   = isset($config['type']) ? $config['type'] : 'Html';
         $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);
+
         if (class_exists($class)) {
             $trace = new $class($config);
         } else {

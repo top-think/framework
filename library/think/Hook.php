@@ -33,6 +33,7 @@ class Hook
     public function add($tag, $behavior, $first = false)
     {
         isset($this->tags[$tag]) || $this->tags[$tag] = [];
+
         if (is_array($behavior) && !is_callable($behavior)) {
             if (!array_key_exists('_overlay', $behavior) || !$behavior['_overlay']) {
                 unset($behavior['_overlay']);
@@ -91,6 +92,7 @@ class Hook
     {
         $results = [];
         $tags    = $this->get($tag);
+
         foreach ($tags as $key => $name) {
             $results[$key] = $this->exec($name, $tag, $params, $extra);
             if (false === $results[$key]) {
@@ -100,6 +102,7 @@ class Hook
                 break;
             }
         }
+
         return $once ? end($results) : $results;
     }
 
@@ -114,7 +117,9 @@ class Hook
     public function exec($class, $tag = '', $params = null, $extra = null)
     {
         $this->app->isDebug() && $this->app['debug']->remark('behavior_start', 'time');
+
         $method = Loader::parseName($tag, 1, false);
+
         if ($class instanceof \Closure) {
             $result = call_user_func_array($class, [ & $params, $extra]);
             $class  = 'Closure';
@@ -133,11 +138,13 @@ class Hook
             $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
             $result = $obj->$method($params, $extra);
         }
+
         if ($this->app->isDebug()) {
             $debug = $this->app['debug'];
             $debug->remark('behavior_end', 'time');
             $this->app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
+
         return $result;
     }
 

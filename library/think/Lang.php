@@ -76,11 +76,14 @@ class Lang
         if (!isset($this->lang[$range])) {
             $this->lang[$range] = [];
         }
+
         // 批量定义
         if (is_string($file)) {
             $file = [$file];
         }
+
         $lang = [];
+
         foreach ($file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
@@ -91,9 +94,11 @@ class Lang
                 }
             }
         }
+
         if (!empty($lang)) {
             $this->lang[$range] = $lang + $this->lang[$range];
         }
+
         return $this->lang[$range];
     }
 
@@ -107,6 +112,7 @@ class Lang
     public function has($name, $range = '')
     {
         $range = $range ?: $this->range;
+
         return isset($this->lang[$range][strtolower($name)]);
     }
 
@@ -120,10 +126,12 @@ class Lang
     public function get($name = null, $vars = [], $range = '')
     {
         $range = $range ?: $this->range;
+
         // 空参数返回所有定义
         if (empty($name)) {
             return $this->lang[$range];
         }
+
         $key   = strtolower($name);
         $value = isset($this->lang[$range][$key]) ? $this->lang[$range][$key] : $name;
 
@@ -146,8 +154,8 @@ class Lang
                 }
                 $value = str_replace($replace, $vars, $value);
             }
-
         }
+
         return $value;
     }
 
@@ -160,6 +168,7 @@ class Lang
         // 自动侦测设置获取语言选择
         $langSet = '';
         $cookie  = $this->app['cookie'];
+
         if (isset($_GET[$this->langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[$this->langDetectVar]);
@@ -173,13 +182,16 @@ class Lang
             $langSet = strtolower($matches[1]);
             $cookie->set($this->langCookieVar, $langSet, $this->langCookieExpire);
         }
+
         if (empty($this->allowLangList) || in_array($langSet, $this->allowLangList)) {
             // 合法的语言
             $this->range = $langSet ?: $this->range;
         }
+
         if ('zh-hans-cn' == $this->range) {
             $this->range = 'zh-cn';
         }
+
         return $this->range;
     }
 

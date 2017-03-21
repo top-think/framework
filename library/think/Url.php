@@ -37,12 +37,14 @@ class Url
         if (false === $domain && $this->app['route']->rules('domain')) {
             $domain = true;
         }
+
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
             // [name] 表示使用路由命名标识生成URL
             $name = substr($url, 1, $pos - 1);
             $url  = 'name' . substr($url, $pos + 1);
         }
+
         if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
             $info = parse_url($url);
             $url  = !empty($info['path']) ? $info['path'] : '';
@@ -79,6 +81,7 @@ class Url
                 unset($info['query']);
             }
         }
+
         if (!empty($rule) && $match = $this->getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识
             $url = $match[0];
@@ -136,6 +139,7 @@ class Url
 
         // URL后缀
         $suffix = in_array($url, ['/', '']) ? '' : $this->parseSuffix($suffix);
+
         // 锚点
         $anchor = !empty($anchor) ? '#' . $anchor : '';
         // 参数组装
@@ -160,12 +164,15 @@ class Url
         } else {
             $url .= $suffix . $anchor;
         }
+
         // 检测域名
         $domain = $this->parseDomain($url, $domain);
+
         // URL组装
         $url = $domain . rtrim($this->root ?: $this->app['request']->root(), '/') . '/' . ltrim($url, '/');
 
         $this->bindCheck = false;
+
         return $url;
     }
 
@@ -173,6 +180,7 @@ class Url
     protected function parseUrl($url, &$domain)
     {
         $request = $this->app['request'];
+
         if (0 === strpos($url, '/')) {
             // 直接作为路由地址解析
             $url = substr($url, 1);
@@ -229,6 +237,7 @@ class Url
                 $url        = $module . $controller . '/' . $action;
             }
         }
+
         return $url;
     }
 
@@ -238,8 +247,10 @@ class Url
         if (!$domain) {
             return '';
         }
+
         $host       = $this->app['request']->host();
         $rootDomain = $this->app['config']->get('url_domain_root');
+
         if (true === $domain) {
             // 自动判断域名
             $domain = $host;
@@ -274,10 +285,12 @@ class Url
             if (empty($rootDomain)) {
                 $rootDomain = substr_count($host, '.') > 1 ? substr(strstr($host, '.'), 1) : $host;
             }
+
             if (substr_count($domain, '.') < 2 && !strpos($domain, $rootDomain)) {
                 $domain .= '.' . $rootDomain;
             }
         }
+
         return ($this->app['request']->isSsl() ? 'https://' : 'http://') . $domain;
     }
 
@@ -286,10 +299,12 @@ class Url
     {
         if ($suffix) {
             $suffix = true === $suffix ? $this->app['config']->get('url_html_suffix') : $suffix;
+
             if ($pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
             }
         }
+
         return (empty($suffix) || 0 === strpos($suffix, '.')) ? $suffix : '.' . $suffix;
     }
 
@@ -301,6 +316,7 @@ class Url
             if (empty($pattern)) {
                 return [$url, $domain, $suffix];
             }
+
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
                     $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], $vars[$key], $url);
@@ -313,10 +329,12 @@ class Url
                     break;
                 }
             }
+
             if (isset($result)) {
                 return $result;
             }
         }
+
         return false;
     }
 

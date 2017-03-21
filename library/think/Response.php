@@ -48,9 +48,11 @@ class Response
         $this->data($data);
         $this->header = $header;
         $this->code   = $code;
+
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
+
         $this->contentType($this->contentType, $this->charset);
     }
 
@@ -69,6 +71,7 @@ class Response
         $type = empty($type) ? 'null' : strtolower($type);
 
         $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst($type);
+
         if (class_exists($class)) {
             return new $class($data, $code, $header, $options);
         } else {
@@ -147,6 +150,7 @@ class Response
     public function options($options = [])
     {
         $this->options = array_merge($this->options, $options);
+
         return $this;
     }
 
@@ -159,6 +163,7 @@ class Response
     public function data($data)
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -176,6 +181,7 @@ class Response
         } else {
             $this->header[$name] = $value;
         }
+
         return $this;
     }
 
@@ -207,6 +213,7 @@ class Response
     public function code($code)
     {
         $this->code = $code;
+
         return $this;
     }
 
@@ -218,6 +225,7 @@ class Response
     public function lastModified($time)
     {
         $this->header['Last-Modified'] = $time;
+
         return $this;
     }
 
@@ -229,6 +237,7 @@ class Response
     public function expires($time)
     {
         $this->header['Expires'] = $time;
+
         return $this;
     }
 
@@ -240,6 +249,7 @@ class Response
     public function eTag($eTag)
     {
         $this->header['ETag'] = $eTag;
+
         return $this;
     }
 
@@ -251,6 +261,7 @@ class Response
     public function cacheControl($cache)
     {
         $this->header['Cache-control'] = $cache;
+
         return $this;
     }
 
@@ -263,6 +274,7 @@ class Response
     public function contentType($contentType, $charset = 'utf-8')
     {
         $this->header['Content-Type'] = $contentType . '; charset=' . $charset;
+
         return $this;
     }
 
@@ -308,6 +320,7 @@ class Response
 
             $this->content = (string) $content;
         }
+
         return $this->content;
     }
 

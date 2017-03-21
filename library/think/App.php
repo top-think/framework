@@ -137,6 +137,7 @@ class App implements \ArrayAccess
             'app_path'   => $this->appPath,
             'think_path' => $this->thinkPath,
         ];
+
         foreach ($path as $key => $val) {
             $name = 'PHP_' . strtoupper($key);
             putenv("$name=$val");
@@ -171,6 +172,7 @@ class App implements \ArrayAccess
 
         // 应用调试模式
         $this->debug = Env::get('app.app_debug', $this->config('app.app_debug'));
+
         if (!$this->debug) {
             ini_set('display_errors', 'Off');
         } elseif (PHP_SAPI != 'cli') {
@@ -237,7 +239,6 @@ class App implements \ArrayAccess
         } elseif (is_file($this->runtimePath . $module . 'init.php')) {
             include $this->runtimePath . $module . 'init.php';
         } else {
-
             // 自动读取配置文件
             $dir = $this->configPath . $module;
             if (is_dir($dir)) {
@@ -294,7 +295,9 @@ class App implements \ArrayAccess
                 // 开启多语言机制 检测当前语言
                 $this->lang->detect();
             }
+
             $this->request->langset($this->lang->range());
+
             // 加载系统语言包
             $this->lang->load([
                 $this->thinkPath . 'lang/' . $this->request->langset() . '.php',
@@ -307,6 +310,7 @@ class App implements \ArrayAccess
                 // 进行URL路由检测
                 $dispatch = $this->routeCheck($this->request);
             }
+
             // 记录当前调度信息
             $this->request->dispatch($dispatch);
 
@@ -319,6 +323,7 @@ class App implements \ArrayAccess
 
             // 监听app_begin
             $this->hook->listen('app_begin', $dispatch);
+
             // 请求缓存检查
             $this->request->cache($this->config('app.request_cache'), $this->config('app.request_cache_expire'), $this->config('app.request_cache_except'));
 
@@ -333,7 +338,8 @@ class App implements \ArrayAccess
             $response = $data;
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
-            $isAjax   = $this->request->isAjax();
+            $isAjax = $this->request->isAjax();
+
             $type     = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
             $response = Response::create($data, $type);
         } else {
@@ -437,6 +443,7 @@ class App implements \ArrayAccess
             $module    = strip_tags(strtolower($result[0] ?: $this->config('app.default_module')));
             $bind      = $this->route->getBind('module');
             $available = false;
+
             if ($bind) {
                 // 绑定模块
                 list($bindModule) = explode('/', $bind);
@@ -533,6 +540,7 @@ class App implements \ArrayAccess
 
         // 路由检测
         $check = !is_null($this->routeCheck) ? $this->routeCheck : $this->config('app.url_route_on');
+
         if ($check) {
             // 开启路由
             if (is_file($this->runtimePath . 'route.php')) {
@@ -596,9 +604,11 @@ class App implements \ArrayAccess
     public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
         $guid = $name . $layer;
+
         if ($this->__isset($guid)) {
             return $this->__get($guid);
         }
+
         if (false !== strpos($name, '\\')) {
             $class  = $name;
             $module = $this->request->module();
@@ -610,6 +620,7 @@ class App implements \ArrayAccess
             }
             $class = $this->parseClass($module, $layer, $name, $appendSuffix);
         }
+
         if (class_exists($class)) {
             $model = $this->__get($class);
         } else {
@@ -620,7 +631,9 @@ class App implements \ArrayAccess
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
+
         $this->__set($guid, $class);
+
         return $model;
     }
 
@@ -645,6 +658,7 @@ class App implements \ArrayAccess
             }
             $class = $this->parseClass($module, $layer, $name, $appendSuffix);
         }
+
         if (class_exists($class)) {
             return $this->__get($class);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
@@ -664,13 +678,16 @@ class App implements \ArrayAccess
     public function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
         $name = $name ?: $this->config('default_validate');
+
         if (empty($name)) {
             return new Validate;
         }
+
         $guid = $name . $layer;
         if ($this->__isset($guid)) {
             return $this->__get($guid);
         }
+
         if (false !== strpos($name, '\\')) {
             $class  = $name;
             $module = $this->request->module();
@@ -682,6 +699,7 @@ class App implements \ArrayAccess
             }
             $class = $this->parseClass($module, $layer, $name, $appendSuffix);
         }
+
         if (class_exists($class)) {
             $validate = $this->__get($class);
         } else {
@@ -692,7 +710,9 @@ class App implements \ArrayAccess
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
+
         $this->__set($guid, $class);
+
         return $validate;
     }
 
@@ -721,6 +741,7 @@ class App implements \ArrayAccess
         $action = $info['basename'];
         $module = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
         $class  = $this->controller($module, $layer, $appendSuffix);
+
         if ($class) {
             if (is_scalar($vars)) {
                 if (strpos($vars, '=')) {
@@ -747,6 +768,7 @@ class App implements \ArrayAccess
         $array = explode('\\', $name);
         $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
+
         return $this->namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 

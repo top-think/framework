@@ -55,7 +55,9 @@ class Cache
                 $this->instance[$name] = new $class($options);
             }
         }
+
         $this->handler = $this->instance[$name];
+
         return $this->handler;
     }
 
@@ -91,6 +93,7 @@ class Cache
         if ('' !== $name && 'complex' == $this->app['config']->get('cache.type')) {
             $this->connect($this->app['config']->get('cache.' . $name), strtolower($name));
         }
+
         return $this->handler;
     }
 

@@ -28,6 +28,7 @@ class Config
     public function range($range)
     {
         $this->range = $range;
+
         if (!isset($this->config[$range])) {
             $this->config[$range] = [];
         }
@@ -56,10 +57,13 @@ class Config
     public function parse($config, $type = '', $name = '', $range = '')
     {
         $range = $range ?: $this->range;
+
         if (empty($type)) {
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
+
         $class = false !== strpos($type, '\\') ? $type : '\\think\\config\\driver\\' . ucwords($type);
+
         return $this->set((new $class())->parse($config), $name, $range);
     }
 
@@ -74,12 +78,15 @@ class Config
     public function load($file, $name = '', $range = '')
     {
         $range = $range ?: $this->range;
+
         if (!isset($this->config[$range])) {
             $this->config[$range] = [];
         }
+
         if (is_file($file)) {
             $name = strtolower($name);
             $type = pathinfo($file, PATHINFO_EXTENSION);
+
             if ('php' == $type) {
                 return $this->set(include $file, $name, $range);
             } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
@@ -108,6 +115,7 @@ class Config
         }
 
         $name = explode('.', $name);
+
         return isset($this->config[$range][strtolower($name[0])][strtolower($name[1])]);
 
     }
@@ -122,11 +130,14 @@ class Config
     public function pull($name = null, $range = '')
     {
         $range = $range ?: $this->range;
+
         // 无参数时获取所有
         if (empty($name) && isset($this->config[$range])) {
             return $this->config[$range];
         }
+
         $name = strtolower($name);
+
         return isset($this->config[$range][$name]) ? $this->config[$range][$name] : [];
     }
 
@@ -140,6 +151,7 @@ class Config
     public function get($name = null, $range = '')
     {
         $range = $range ?: $this->range;
+
         // 无参数时获取所有
         if (empty($name) && isset($this->config[$range])) {
             return $this->config[$range];
@@ -150,6 +162,7 @@ class Config
         }
 
         $name = explode('.', strtolower($name));
+
         return isset($this->config[$range][$name[0]][$name[1]]) ? $this->config[$range][$name[0]][$name[1]] : null;
 
     }
@@ -165,9 +178,11 @@ class Config
     public function set($name, $value = null, $range = '')
     {
         $range = $range ?: $this->range;
+
         if (!isset($this->config[$range])) {
             $this->config[$range] = [];
         }
+
         if (is_string($name)) {
             if (!strpos($name, '.')) {
                 $name = $this->prefix . '.' . $name;
@@ -192,6 +207,7 @@ class Config
             // 为空直接返回 已有配置
             $result = $this->config[$range];
         }
+
         return $result;
     }
 

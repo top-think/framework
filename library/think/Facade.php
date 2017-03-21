@@ -45,11 +45,13 @@ class Facade
     {
         $class       = $class ?: static::class;
         $facadeClass = static::getFacadeClass();
+
         if ($facadeClass) {
             $class = $facadeClass;
         } elseif (isset(self::$bind[$class])) {
             $class = self::$bind[$class];
         }
+
         return Container::getInstance()->make($class, $args);
     }
 

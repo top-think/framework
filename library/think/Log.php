@@ -48,17 +48,22 @@ class Log implements LoggerInterface
      */
     public function init($config = [])
     {
-        $type         = isset($config['type']) ? $config['type'] : 'File';
-        $class        = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
+        $type  = isset($config['type']) ? $config['type'] : 'File';
+        $class = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
+
         $this->config = $config;
+
         unset($config['type']);
+
         if (class_exists($class)) {
             $this->driver = new $class($config);
         } else {
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
+
         // 记录初始化信息
         $this->app->isDebug() && $this->record('[ LOG ] INIT ' . $type);
+
         return $this;
     }
 
@@ -90,10 +95,12 @@ class Log implements LoggerInterface
         }
 
         $this->log[$type][] = $msg;
+
         if (PHP_SAPI == 'cli') {
             // 命令行日志实时写入
             $this->save();
         }
+
         return $this;
     }
 
@@ -104,6 +111,7 @@ class Log implements LoggerInterface
     public function clear()
     {
         $this->log = [];
+
         return $this;
     }
 
@@ -115,6 +123,7 @@ class Log implements LoggerInterface
     public function key($key)
     {
         $this->key = $key;
+
         return $this;
     }
 
@@ -128,6 +137,7 @@ class Log implements LoggerInterface
         if ($this->key && !empty($config['allow_key']) && !in_array($this->key, $config['allow_key'])) {
             return false;
         }
+
         return true;
     }
 
@@ -170,6 +180,7 @@ class Log implements LoggerInterface
 
             return $result;
         }
+
         return true;
     }
 
@@ -193,14 +204,18 @@ class Log implements LoggerInterface
 
         // 监听log_write
         $this->app['hook']->listen('log_write', $log);
+
         if (is_null($this->driver)) {
             $this->init($this->app['config']->pull('log'));
         }
+
         // 写入日志
         $result = self::$driver->save($log);
+
         if ($result) {
             self::$log = [];
         }
+
         return $result;
     }
 

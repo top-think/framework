@@ -86,6 +86,7 @@ class Container implements \ArrayAccess
             $object = $this->instances[$abstract];
         } elseif (isset($this->bind[$abstract])) {
             $concrete = $this->bind[$abstract];
+
             if ($concrete instanceof \Closure) {
                 $object = call_user_func_array($concrete, $vars);
             } else {
@@ -96,6 +97,7 @@ class Container implements \ArrayAccess
 
             $this->instances[$abstract] = $object;
         }
+
         return $object;
     }
 
@@ -110,6 +112,7 @@ class Container implements \ArrayAccess
     {
         $reflect = new \ReflectionFunction($function);
         $args    = $this->bindParams($reflect, $vars);
+
         return $reflect->invokeArgs($args);
     }
 
@@ -129,7 +132,9 @@ class Container implements \ArrayAccess
             // 静态方法
             $reflect = new \ReflectionMethod($method);
         }
+
         $args = $this->bindParams($reflect, $vars);
+
         return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
@@ -147,6 +152,7 @@ class Container implements \ArrayAccess
         } else {
             $result = $this->invokeMethod($callable, $vars);
         }
+
         return $result;
     }
 
@@ -159,13 +165,16 @@ class Container implements \ArrayAccess
      */
     public function invokeClass($class, $vars = [])
     {
-        $reflect     = new \ReflectionClass($class);
+        $reflect = new \ReflectionClass($class);
+
         $constructor = $reflect->getConstructor();
+
         if ($constructor) {
             $args = $this->bindParams($constructor, $vars);
         } else {
             $args = [];
         }
+
         return $reflect->newInstanceArgs($args);
     }
 
@@ -179,6 +188,7 @@ class Container implements \ArrayAccess
     protected function bindParams($reflect, $vars = [])
     {
         $args = [];
+
         if ($reflect->getNumberOfParameters() > 0) {
             // 判断数组类型 数字数组时按顺序绑定参数
             reset($vars);
@@ -201,6 +211,7 @@ class Container implements \ArrayAccess
                 }
             }
         }
+
         return $args;
     }
 
