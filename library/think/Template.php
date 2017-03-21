@@ -868,7 +868,7 @@ class Template
                             } else {
                                 $params = '';
                             }
-                            $parseStr = '\think\Request::instance()->' . $method . '(' . $params . ')';
+                            $parseStr = 'app(\'request\')->' . $method . '(' . $params . ')';
                         } else {
                             switch ($this->config['tpl_var_identify']) {
                                 case 'array': // 识别为数组
@@ -967,34 +967,34 @@ class Template
         if ($vars) {
             switch ($type) {
                 case 'SERVER':
-                    $parseStr = '\\think\\Request::instance()->server(\'' . $param . '\')';
+                    $parseStr = 'app(\'request\')->server(\'' . $param . '\')';
                     break;
                 case 'GET':
-                    $parseStr = '\\think\\Request::instance()->get(\'' . $param . '\')';
+                    $parseStr = 'app(\'request\')->get(\'' . $param . '\')';
                     break;
                 case 'POST':
-                    $parseStr = '\\think\\Request::instance()->post(\'' . $param . '\')';
+                    $parseStr = 'app(\'request\')->post(\'' . $param . '\')';
                     break;
                 case 'COOKIE':
-                    $parseStr = '\\think\\Cookie::get(\'' . $param . '\')';
+                    $parseStr = 'app(\'cookie\')->get(\'' . $param . '\')';
                     break;
                 case 'SESSION':
-                    $parseStr = '\\think\\Session::get(\'' . $param . '\')';
+                    $parseStr = 'app(\'session\')->get(\'' . $param . '\')';
                     break;
                 case 'ENV':
-                    $parseStr = '\\think\\Request::instance()->env(\'' . $param . '\')';
+                    $parseStr = 'app(\'request\')->env(\'' . $param . '\')';
                     break;
                 case 'REQUEST':
-                    $parseStr = '\\think\\Request::instance()->request(\'' . $param . '\')';
+                    $parseStr = 'app(\'request\')->request(\'' . $param . '\')';
                     break;
                 case 'CONST':
                     $parseStr = strtoupper($param);
                     break;
                 case 'LANG':
-                    $parseStr = '\\think\\Lang::get(\'' . $param . '\')';
+                    $parseStr = 'app(\'lang\')->get(\'' . $param . '\')';
                     break;
                 case 'CONFIG':
-                    $parseStr = '\\think\\Config::get(\'' . $param . '\')';
+                    $parseStr = 'app(\'config\')->get(\'' . $param . '\')';
                     break;
                 default:
                     $parseStr = '\'\'';
