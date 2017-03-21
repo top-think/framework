@@ -36,7 +36,7 @@ class Think
 
     public function __construct($config = [])
     {
-        $this->config = array_merge($this->config, $config);
+        $this->config = array_merge($this->config, (array) $config);
         if (empty($this->config['view_path'])) {
             $this->config['view_path'] = Facade::make('app')->getModulePath() . 'view' . DIRECTORY_SEPARATOR;
         }

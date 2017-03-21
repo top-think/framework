@@ -13,8 +13,6 @@ namespace think;
 
 class View
 {
-    // 视图实例
-    protected static $instance;
     // 模板引擎实例
     public $engine;
     // 模板变量
@@ -25,12 +23,13 @@ class View
     protected $replace = [];
 
     /**
-     * 架构函数
+     * 初始化
      * @access public
      * @param mixed $engine  模板引擎参数
      * @param array $replace  字符串替换参数
+     * @return $this
      */
-    public function __construct($engine = [], $replace = [])
+    public function init($engine = [], $replace = [])
     {
         // 初始化模板引擎
         $this->engine($engine);
@@ -45,21 +44,7 @@ class View
             '__JS__'     => $root . '/static/js',
         ];
         $this->replace = array_merge($baseReplace, (array) $replace);
-    }
-
-    /**
-     * 初始化视图
-     * @access public
-     * @param array $engine  模板引擎参数
-     * @param array $replace  字符串替换参数
-     * @return object
-     */
-    public static function instance($engine = [], $replace = [])
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self($engine, $replace);
-        }
-        return self::$instance;
+        return $this;
     }
 
     /**
@@ -67,15 +52,16 @@ class View
      * @access public
      * @param mixed $name  变量名
      * @param mixed $value 变量值
-     * @return void
+     * @return $this
      */
-    public static function share($name, $value = '')
+    public function share($name, $value = '')
     {
         if (is_array($name)) {
             self::$var = array_merge(self::$var, $name);
         } else {
             self::$var[$name] = $value;
         }
+        return $this;
     }
 
     /**
@@ -123,7 +109,7 @@ class View
      * @access private
      * @param string|array  $name 参数名
      * @param mixed         $value 参数值
-     * @return void
+     * @return $this
      */
     public function config($name, $value = null)
     {
@@ -145,6 +131,7 @@ class View
     {
         // 模板变量
         $vars = array_merge(self::$var, $this->data, $vars);
+
         if (!isset($vars['App'])) {
             // 应用对象模板变量
             $vars['App'] = Facade::make('app');

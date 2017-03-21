@@ -53,7 +53,7 @@ class Controller
     public function __construct(Request $request, App $app)
     {
 
-        $this->view    = View::instance($app['config']->pull('template'), $app['config']->get('view_replace_str'));
+        $this->view    = Facade::make('view')->init($app['config']->pull('template'), $app['config']->get('view_replace_str'));
         $this->request = $request;
         $this->app     = $app;
 

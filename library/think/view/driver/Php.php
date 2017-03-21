@@ -32,7 +32,7 @@ class Php
 
     public function __construct($config = [])
     {
-        $this->config = array_merge($this->config, $config);
+        $this->config = array_merge($this->config, (array) $config);
     }
 
     /**

@@ -44,6 +44,7 @@ Container::getInstance()->bind([
     'route'                 => Route::class,
     'session'               => Session::class,
     'url'                   => Url::class,
+    'view'                  => View::class,
     // 接口依赖注入
     'think\LoggerInterface' => Log::class,
 ]);
@@ -64,6 +65,7 @@ Facade::bind([
     facade\Route::class    => Route::class,
     facade\Session::class  => Session::class,
     facade\Url::class      => Url::class,
+    facade\View::class     => View::class,
 ]);
 
 // 注册类库别名
@@ -85,6 +87,7 @@ Loader::addClassAlias([
     'Route'    => facade\Route::class,
     'Session'  => facade\Session::class,
     'Url'      => facade\Url::class,
+    'View'     => facade\View::class,
 ]);
 
 // 加载惯例配置文件
