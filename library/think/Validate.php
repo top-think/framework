@@ -461,7 +461,8 @@ class Validate
      */
     protected function egt($value, $rule, $data)
     {
-        return !is_null($this->getDataValue($data, $rule)) && $value >= $this->getDataValue($data, $rule);
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value >= $val;
     }
 
     /**
@@ -474,7 +475,8 @@ class Validate
      */
     protected function gt($value, $rule, $data)
     {
-        return !is_null($this->getDataValue($data, $rule)) && $value > $this->getDataValue($data, $rule);
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value > $val;
     }
 
     /**
@@ -487,7 +489,8 @@ class Validate
      */
     protected function elt($value, $rule, $data)
     {
-        return !is_null($this->getDataValue($data, $rule)) && $value <= $this->getDataValue($data, $rule);
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value <= $val;
     }
 
     /**
@@ -500,7 +503,8 @@ class Validate
      */
     protected function lt($value, $rule, $data)
     {
-        return !is_null($this->getDataValue($data, $rule)) && $value < $this->getDataValue($data, $rule);
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value < $val;
     }
 
     /**
@@ -1193,7 +1197,7 @@ class Validate
         if (strpos($key, '.')) {
             // 支持二维数组验证
             list($name1, $name2) = explode('.', $key);
-            $value = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
+            $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
             $value = is_numeric($key) ? $key : (isset($data[$key]) ? $data[$key] : null);
         }
