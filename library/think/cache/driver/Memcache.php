@@ -116,7 +116,10 @@ class Memcache extends Driver
     {
         $this->writeTimes++;
         $key = $this->getCacheKey($name);
-        return $this->handler->increment($key, $step);
+        if ($this->handler->get($key)) {
+            return $this->handler->increment($key, $step);
+        }
+        return $this->handler->set($key, $step);
     }
 
     /**
