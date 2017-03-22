@@ -1424,8 +1424,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @return static
      * @throws exception\DbException
      */
-    public static function get($data = null, $with = [], $cache = false)
+    public static function get($data, $with = [], $cache = false)
     {
+        if (is_null($data)) {
+            return null;
+        }
+
         if (true === $with || is_int($with)) {
             $cache = $with;
             $with  = [];

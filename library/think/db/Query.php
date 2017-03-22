@@ -2373,8 +2373,8 @@ class Query
 
         // 生成SQL语句
         $table = $this->parseSqlTable($table);
+        $sql   = $this->builder->selectInsert($fields, $table, $options);
 
-        $sql = $this->builder->selectInsert($fields, $table, $options);
         // 获取参数绑定
         $bind = $this->getBind();
 
@@ -2482,8 +2482,10 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
+
         // 生成查询SQL
         $sql = $this->builder->select($options);
+
         // 获取参数绑定
         $bind = $this->getBind();
 
@@ -2531,6 +2533,7 @@ class Query
             // 判断查询缓存
             $cache = $options['cache'];
             unset($options['cache']);
+
             $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
             $resultSet = Facade::make('cache')->get($key);
         }
@@ -2570,29 +2573,18 @@ class Query
             // 生成模型对象
             $modelName = $this->model;
             if (count($resultSet) > 0) {
-                foreach ($resultSet as $key => $result) {
-                    /** @var Model $result */
-                    $model = new $modelName($result);
-                    $model->isUpdate(true);
-
-                    // 关联查询
-                    if (!empty($options['relation'])) {
-                        $model->relationQuery($options['relation']);
-                    }
-
-                    // 关联统计
-                    if (!empty($options['with_count'])) {
-                        $model->relationCount($model, $options['with_count']);
-                    }
-                    $resultSet[$key] = $model;
+                foreach ($resultSet as $key => &$result) {
+                    // 数据转换为模型对象
+                    $this->resultToModel($result, $options, true);
                 }
+
                 if (!empty($options['with'])) {
                     // 预载入
-                    $model->eagerlyResultSet($resultSet, $options['with']);
+                    $result->eagerlyResultSet($resultSet, $options['with']);
                 }
 
                 // 模型数据集转换
-                $resultSet = $model->toCollection($resultSet);
+                $resultSet = $result->toCollection($resultSet);
             } else {
                 $resultSet = (new $modelName)->toCollection($resultSet);
             }
@@ -2698,6 +2690,7 @@ class Query
         if (false === $result) {
             // 生成查询SQL
             $sql = $this->builder->select($options);
+
             // 获取参数绑定
             $bind = $this->getBind();
 
@@ -2730,6 +2723,7 @@ class Query
                     // 返回PDOStatement对象
                     return $resultSet;
                 }
+
                 $result = isset($resultSet[0]) ? $resultSet[0] : null;
             }
 
@@ -2743,27 +2737,46 @@ class Query
         if (!empty($result)) {
             if (!empty($this->model)) {
                 // 返回模型对象
-                $model  = $this->model;
-                $result = new $model($result);
-                $result->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
-                // 关联查询
-                if (!empty($options['relation'])) {
-                    $result->relationQuery($options['relation']);
-                }
-                // 预载入查询
-                if (!empty($options['with'])) {
-                    $result->eagerlyResult($result, $options['with']);
-                }
-                // 关联统计
-                if (!empty($options['with_count'])) {
-                    $result->relationCount($result, $options['with_count']);
-                }
+                $this->resultToModel($result, $options);
             }
         } elseif (!empty($options['fail'])) {
             $this->throwNotFound($options);
         }
 
         return $result;
+    }
+
+    /**
+     * 查询数据转换为模型对象
+     * @access public
+     * @param array $result     查询数据
+     * @param array $options    查询参数
+     * @param bool  $resultSet  是否为数据集查询
+     * @return void
+     */
+    protected function resultToModel(&$result, $options = [], $resultSet = false)
+    {
+        $model  = $this->model;
+        $result = new $model($result);
+
+        $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;
+        $result->isUpdate(true, $condition);
+
+        // 关联查询
+        if (!empty($options['relation'])) {
+            $result->relationQuery($options['relation']);
+        }
+
+        // 预载入查询
+        if (!$resultSet && !empty($options['with'])) {
+            $result->eagerlyResult($result, $options['with']);
+        }
+
+        // 关联统计
+        if (!empty($options['with_count'])) {
+            $result->relationCount($result, $options['with_count']);
+        }
+
     }
 
     /**
@@ -2956,7 +2969,9 @@ class Query
                 $item[$pk]     = $val;
                 $data          = $item;
             }
+
             $options['data'] = $data;
+
             $this->trigger('after_delete', $options);
         }
 
@@ -2981,40 +2996,7 @@ class Query
             $options['where'] = [];
         } elseif (isset($options['view'])) {
             // 视图查询条件处理
-            foreach (['AND', 'OR'] as $logic) {
-                if (isset($options['where'][$logic])) {
-                    foreach ($options['where'][$logic] as $key => $val) {
-                        if (array_key_exists($key, $options['map'])) {
-                            $options['where'][$logic][$options['map'][$key]] = $val;
-                            unset($options['where'][$logic][$key]);
-                        }
-                    }
-                }
-            }
-
-            if (isset($options['order'])) {
-                // 视图查询排序处理
-                if (is_string($options['order'])) {
-                    $options['order'] = explode(',', $options['order']);
-                }
-                foreach ($options['order'] as $key => $val) {
-                    if (is_numeric($key)) {
-                        if (strpos($val, ' ')) {
-                            list($field, $sort) = explode(' ', $val);
-                            if (array_key_exists($field, $options['map'])) {
-                                $options['order'][$options['map'][$field]] = $sort;
-                                unset($options['order'][$key]);
-                            }
-                        } elseif (array_key_exists($val, $options['map'])) {
-                            $options['order'][$options['map'][$val]] = 'asc';
-                            unset($options['order'][$key]);
-                        }
-                    } elseif (array_key_exists($key, $options['map'])) {
-                        $options['order'][$options['map'][$key]] = $val;
-                        unset($options['order'][$key]);
-                    }
-                }
-            }
+            $this->parseView($options);
         }
 
         if (!isset($options['field'])) {
@@ -3053,6 +3035,50 @@ class Query
         $this->options = [];
 
         return $options;
+    }
+
+    /**
+     * 视图查询处理
+     * @access public
+     * @param array   $options    查询参数
+     * @return void
+     */
+    protected function parseView(&$options)
+    {
+        foreach (['AND', 'OR'] as $logic) {
+            if (isset($options['where'][$logic])) {
+                foreach ($options['where'][$logic] as $key => $val) {
+                    if (array_key_exists($key, $options['map'])) {
+                        $options['where'][$logic][$options['map'][$key]] = $val;
+                        unset($options['where'][$logic][$key]);
+                    }
+                }
+            }
+        }
+
+        if (isset($options['order'])) {
+            // 视图查询排序处理
+            if (is_string($options['order'])) {
+                $options['order'] = explode(',', $options['order']);
+            }
+            foreach ($options['order'] as $key => $val) {
+                if (is_numeric($key)) {
+                    if (strpos($val, ' ')) {
+                        list($field, $sort) = explode(' ', $val);
+                        if (array_key_exists($field, $options['map'])) {
+                            $options['order'][$options['map'][$field]] = $sort;
+                            unset($options['order'][$key]);
+                        }
+                    } elseif (array_key_exists($val, $options['map'])) {
+                        $options['order'][$options['map'][$val]] = 'asc';
+                        unset($options['order'][$key]);
+                    }
+                } elseif (array_key_exists($key, $options['map'])) {
+                    $options['order'][$options['map'][$key]] = $val;
+                    unset($options['order'][$key]);
+                }
+            }
+        }
     }
 
     /**

@@ -93,7 +93,7 @@ www  WEB部署目录（或者子目录）
 
 ## 升级指导
 
-原有下面系统类库的命名空间需要调整：
+取消命名空间的别名功能，原有下面系统类库的命名空间需要调整：
 
 * think\App      => think\facade\App （或者 App ）
 * think\Cache    => think\facade\Cache （或者 Cache ）
@@ -108,12 +108,14 @@ www  WEB部署目录（或者子目录）
 * think\Route    => think\facade\Route （或者 Route ）
 * think\Session  => think\facade\Session （或者 Session ）
 * think\Url      => think\facade\Url （或者 Url ）
+* think\View     => think\facade\View （或者 View ）
 
 原有的配置文件config.php 拆分为app.php cache.php 等独立配置文件 放入config目录（原来模块的配置目录直接移动到config目录下面）。
 原有的路由定义文件route.php 移动到route目录（支持放置任意文件名的路由定义文件）
 
 取消Loader::import方法以及import和vendor助手函数
 原来Loader类的controller、model、action和validate方法改为App类的同名方法
+
 
 ## 命名规范
 
