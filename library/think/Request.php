@@ -1003,7 +1003,7 @@ class Request
             $this->filterValue($data, $name, $filter);
         }
 
-        if (isset($type) && $data !== $default) {
+        if (isset($type) && $data !== $default && !is_array($data)) {
             // 强制类型转换
             $this->typeCast($data, $type);
         }
