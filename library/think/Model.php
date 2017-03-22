@@ -1294,11 +1294,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param mixed        $data  主键值或者查询条件（闭包）
      * @param array|string $with  关联预查询
      * @param bool         $cache 是否缓存
-     * @return static
+     * @return static|null
      * @throws exception\DbException
      */
-    public static function get($data = null, $with = [], $cache = false)
+    public static function get($data, $with = [], $cache = false)
     {
+        if (is_null($data)) {
+            return null;
+        }
+
         if (true === $with || is_int($with)) {
             $cache = $with;
             $with  = [];
