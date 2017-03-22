@@ -1672,17 +1672,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         foreach ($relations as $key => $relation) {
             $subRelation = '';
             $closure     = false;
+
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
                 $relation = $key;
             }
+
             if (is_array($relation)) {
                 $subRelation = $relation;
                 $relation    = $key;
             } elseif (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
+
             $relation = Loader::parseName($relation, 1, false);
+
             $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure);
         }
     }
@@ -1749,6 +1753,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (!isset($name)) {
                 $name = Loader::parseName($relation) . '_count';
             }
+
             $result->setAttr($name, $count);
         }
     }
@@ -1938,6 +1943,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $method = 'scope' . $method;
             array_unshift($args, $query);
             call_user_func_array([$this, $method], $args);
+
             return $this;
         } else {
             return call_user_func_array([$query, $method], $args);
