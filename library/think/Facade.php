@@ -37,11 +37,12 @@ class Facade
      * 创建Facade实例
      * @static
      * @access protected
-     * @param string    $class    类名或标识
-     * @param array     $args     变量
+     * @param string    $class          类名或标识
+     * @param array     $args           变量
+     * @param bool      $newInstance    是否每次创建新的实例
      * @return object
      */
-    protected static function createFacade($class = '', $args = [])
+    protected static function createFacade($class = '', $args = [], $newInstance = false)
     {
         $class       = $class ?: static::class;
         $facadeClass = static::getFacadeClass();
@@ -52,7 +53,7 @@ class Facade
             $class = self::$bind[$class];
         }
 
-        return Container::getInstance()->make($class, $args);
+        return Container::getInstance()->make($class, $args, $newInstance);
     }
 
     protected static function getFacadeClass()
@@ -71,13 +72,20 @@ class Facade
     /**
      * 指定某个Facade类进行实例化
      * @access public
-     * @param string    $class    类名或者标识
-     * @param array     $args     变量
+     * @param string        $class          类名或者标识
+     * @param array|true    $args           变量
+     * @param bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public static function make($class, $args = [])
+    public static function make($class, $args = [], $newInstance = false)
     {
-        return self::createFacade($class, $args);
+        if (true === $args) {
+            // 总是创建新的实例化对象
+            $newInstance = true;
+            $args        = [];
+        }
+
+        return self::createFacade($class, $args, $newInstance);
     }
 
     // 调用实际类的方法

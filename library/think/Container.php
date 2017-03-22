@@ -76,13 +76,20 @@ class Container implements \ArrayAccess
     /**
      * 创建类的实例
      * @access public
-     * @param string    $class    类名或者标识
-     * @param array     $args     变量
+     * @param string        $class          类名或者标识
+     * @param array|true    $args           变量
+     * @param bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public function make($abstract, $vars = [])
+    public function make($abstract, $vars = [], $newInstance = false)
     {
-        if (isset($this->instances[$abstract])) {
+        if (true === $vars) {
+            // 总是创建新的实例化对象
+            $newInstance = true;
+            $vars        = [];
+        }
+
+        if (isset($this->instances[$abstract]) && !$newInstance) {
             $object = $this->instances[$abstract];
         } elseif (isset($this->bind[$abstract])) {
             $concrete = $this->bind[$abstract];
@@ -90,12 +97,14 @@ class Container implements \ArrayAccess
             if ($concrete instanceof \Closure) {
                 $object = call_user_func_array($concrete, $vars);
             } else {
-                $object = $this->make($concrete, $vars);
+                $object = $this->make($concrete, $vars, $newInstance);
             }
         } else {
             $object = $this->invokeClass($abstract, $vars);
 
-            $this->instances[$abstract] = $object;
+            if (!$newInstance) {
+                $this->instances[$abstract] = $object;
+            }
         }
 
         return $object;
