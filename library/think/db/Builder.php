@@ -222,6 +222,14 @@ abstract class Builder
     protected function parseWhere($where, $options)
     {
         $whereStr = $this->buildWhere($where, $options);
+        if (!empty($options['soft_delete'])) {
+            // 附加软删除条件
+            list($field, $condition) = $options['soft_delete'];
+
+            $binds    = $this->query->getFieldsBind($options);
+            $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
+            $whereStr = $whereStr . $this->parseWhereItem($field, $condition, '', $options, $binds);
+        }
         return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
     }
 
@@ -280,13 +288,7 @@ abstract class Builder
 
             $whereStr .= empty($whereStr) ? substr(implode(' ', $str), strlen($key) + 1) : implode(' ', $str);
         }
-        if (!empty($options['soft_delete'])) {
-            // 附加软删除条件
-            list($field, $condition) = $options['soft_delete'];
 
-            $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
-            $whereStr = $whereStr . $this->parseWhereItem($field, $condition, '', $options, $binds);
-        }
         return $whereStr;
     }
 
