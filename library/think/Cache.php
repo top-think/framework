@@ -56,29 +56,30 @@ class Cache
             }
         }
 
-        $this->handler = $this->instance[$name];
-
-        return $this->handler;
+        return $this->instance[$name];
     }
 
     /**
      * 自动初始化缓存
      * @access public
      * @param array         $options  配置数组
-     * @return void
+     * @return Driver
      */
     public function init(array $options = [])
     {
         if (is_null($this->handler)) {
             // 自动初始化缓存
             if (!empty($options)) {
-                $this->connect($options);
+                $connect = $this->connect($options);
             } elseif ('complex' == $this->app['config']->get('cache.type')) {
-                $this->connect($this->app['config']->get('cache.default'));
+                $connect = $this->connect($this->app['config']->get('cache.default'));
             } else {
-                $this->connect($this->app['config']->pull('cache'));
+                $connect = $this->connect($this->app['config']->pull('cache'));
             }
+
+            $this->handler = $connect;
         }
+
         return $this->handler;
     }
 
@@ -91,10 +92,10 @@ class Cache
     public function store($name = '')
     {
         if ('' !== $name && 'complex' == $this->app['config']->get('cache.type')) {
-            $this->connect($this->app['config']->get('cache.' . $name), strtolower($name));
+            return $this->connect($this->app['config']->get('cache.' . $name), strtolower($name));
         }
 
-        return $this->handler;
+        return $this->init();
     }
 
     public function __call($method, $args)

@@ -18,6 +18,7 @@ abstract class Builder
 {
     // connection对象实例
     protected $connection;
+
     // 查询对象实例
     protected $query;
 
@@ -25,11 +26,15 @@ abstract class Builder
     protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', '>= time' => '>= TIME', '<= time' => '<= TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
 
     // SQL表达式
-    protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
-    protected $insertSql    = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
+    protected $selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
+
+    protected $insertSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
+
     protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
-    protected $updateSql    = 'UPDATE %TABLE% SET %SET% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
-    protected $deleteSql    = 'DELETE FROM %TABLE% %USING% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    protected $updateSql = 'UPDATE %TABLE% SET %SET% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    protected $deleteSql = 'DELETE FROM %TABLE% %USING% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**
      * 架构函数
@@ -89,6 +94,7 @@ abstract class Builder
 
         // 获取绑定信息
         $bind = $this->query->getFieldsBind($options);
+
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
         } else {
@@ -96,12 +102,15 @@ abstract class Builder
         }
 
         $result = [];
+
         foreach ($data as $key => $val) {
             $item = $this->parseKey($key, $options);
+
             if (is_object($val) && method_exists($val, '__toString')) {
                 // 对象数据写入
                 $val = $val->__toString();
             }
+
             if (false === strpos($key, '.') && !in_array($key, $fields, true)) {
                 if ($options['strict']) {
                     throw new Exception('fields not exists:[' . $key . ']');
@@ -121,6 +130,7 @@ abstract class Builder
                 }
             }
         }
+
         return $result;
     }
 
@@ -339,11 +349,13 @@ abstract class Builder
         if (!is_array($val)) {
             $val = ['=', $val];
         }
+
         list($exp, $value) = $val;
 
         // 对一个字段使用多个查询条件
         if (is_array($exp)) {
             $item = array_pop($val);
+
             // 传入 or 或者 and
             if (is_string($item) && in_array($item, ['AND', 'and', 'OR', 'or'])) {
                 $rule = $item;
@@ -369,6 +381,7 @@ abstract class Builder
                 throw new Exception('where express error:' . $exp);
             }
         }
+
         $bindName = $bindName ?: 'where_' . str_replace(['.', '-'], '_', $field);
 
         if (preg_match('/\W/', $bindName)) {
@@ -377,6 +390,7 @@ abstract class Builder
         }
 
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
+
         if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (strpos($value, ':') !== 0 || !$this->query->isBind(substr($value, 1))) {
                 if ($this->query->isBind($bindName)) {
@@ -398,6 +412,7 @@ abstract class Builder
                 foreach ($value as $item) {
                     $array[] = $key . ' ' . $exp . ' ' . $this->parseValue($item, $field);
                 }
+
                 $logic = isset($val[2]) ? $val[2] : 'AND';
                 $whereStr .= '(' . implode($array, ' ' . strtoupper($logic) . ' ') . ')';
             } else {
@@ -479,6 +494,7 @@ abstract class Builder
 
             $whereStr .= $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($value[0], $field, $options, $bindName . '_between_1', $bindType) . ' AND ' . $this->parseDateTime($value[1], $field, $options, $bindName . '_between_2', $bindType);
         }
+
         return $whereStr;
     }
 
@@ -506,6 +522,7 @@ abstract class Builder
         // 获取时间字段类型
         if (strpos($key, '.')) {
             list($table, $key) = explode('.', $key);
+
             if (isset($options['alias']) && $pos = array_search($table, $options['alias'])) {
                 $table = $pos;
             }
@@ -578,6 +595,7 @@ abstract class Builder
                 }
 
                 $table = $this->parseTable($table, $options);
+
                 $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
             }
         }
