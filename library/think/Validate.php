@@ -465,11 +465,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function egt($value, $rule)
+    protected function egt($value, $rule, $data)
     {
-        return $value >= $rule;
+        return $value >= $this->getDataValue($data, $rule);
     }
 
     /**
@@ -477,11 +478,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function gt($value, $rule)
+    protected function gt($value, $rule, $data)
     {
-        return $value > $rule;
+        return $value > $this->getDataValue($data, $rule);
     }
 
     /**
@@ -489,11 +491,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function elt($value, $rule)
+    protected function elt($value, $rule, $data)
     {
-        return $value <= $rule;
+        return $value <= $this->getDataValue($data, $rule);
     }
 
     /**
@@ -501,11 +504,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function lt($value, $rule)
+    protected function lt($value, $rule, $data)
     {
-        return $value < $rule;
+        return $value < $this->getDataValue($data, $rule);
     }
 
     /**
@@ -768,19 +772,24 @@ class Validate
         }
 
         if ($rule) {
-            $rule                        = explode(',', $rule);
+            $rule = explode(',', $rule);
+
             list($width, $height, $type) = getimagesize($file->getRealPath());
+
             if (isset($rule[2])) {
                 $imageType = strtolower($rule[2]);
+
                 if ('jpeg' == $imageType) {
                     $imageType = 'jpg';
                 }
+
                 if (image_type_to_extension($type, false) != $imageType) {
                     return false;
                 }
             }
 
             list($w, $h) = $rule;
+
             return $w == $width && $h == $height;
         } else {
             return in_array($this->getImageType($file->getRealPath()), [1, 2, 3, 6]);
@@ -796,7 +805,7 @@ class Validate
      */
     protected function method($value, $rule)
     {
-        $method = Request::instance()->method();
+        $method = Facade::make('request')->method();
         return strtoupper($rule) == $method;
     }
 
@@ -833,7 +842,7 @@ class Validate
             $db = new $rule[0];
         } else {
             try {
-                $db = Loader::model($rule[0]);
+                $db = Facade::make('app')->model($rule[0]);
             } catch (ClassNotFoundException $e) {
                 $db = Db::name($rule[0]);
             }
@@ -1188,22 +1197,23 @@ class Validate
      */
     protected function token($value, $rule, $data)
     {
-        $rule = !empty($rule) ? $rule : '__token__';
+        $rule    = !empty($rule) ? $rule : '__token__';
+        $session = Facade::make('session');
 
-        if (!isset($data[$rule]) || !Session::has($rule)) {
+        if (!isset($data[$rule]) || !$session->has($rule)) {
             // 令牌数据无效
             return false;
         }
 
         // 令牌验证
-        if (isset($data[$rule]) && Session::get($rule) === $data[$rule]) {
+        if (isset($data[$rule]) && $session->get($rule) === $data[$rule]) {
             // 防止重复提交
-            Session::delete($rule); // 验证完成销毁session
+            $session->delete($rule); // 验证完成销毁session
             return true;
         }
 
         // 开启TOKEN重置
-        Session::delete($rule);
+        $session->delete($rule);
 
         return false;
     }
@@ -1223,7 +1233,9 @@ class Validate
      */
     protected function getDataValue($data, $key)
     {
-        if (strpos($key, '.')) {
+        if (is_numberic($key)) {
+            $value = $key;
+        } elseif (strpos($key, '.')) {
             // 支持二维数组验证
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
@@ -1258,7 +1270,7 @@ class Validate
         }
 
         if (is_string($msg) && 0 === strpos($msg, '{%')) {
-            $msg = Lang::get(substr($msg, 2, -1));
+            $msg = Facade::make('lang')->get(substr($msg, 2, -1));
         }
 
         if (is_string($msg) && is_scalar($rule) && false !== strpos($msg, ':')) {
