@@ -28,6 +28,7 @@ class Pgsql extends Builder
     public function parseLimit($limit)
     {
         $limitStr = '';
+
         if (!empty($limit)) {
             $limit = explode(',', $limit);
             if (count($limit) > 1) {
@@ -36,6 +37,7 @@ class Pgsql extends Builder
                 $limitStr .= ' LIMIT ' . $limit[0] . ' ';
             }
         }
+
         return $limitStr;
     }
 
@@ -49,6 +51,7 @@ class Pgsql extends Builder
     protected function parseKey($key, $options = [])
     {
         $key = trim($key);
+
         if (strpos($key, '$.') && false === strpos($key, '(')) {
             // JSON字段支持
             list($field, $name) = explode('$.', $key);
@@ -61,9 +64,11 @@ class Pgsql extends Builder
                 $table = $this->query->getTable();
             }
         }
+
         if (isset($table)) {
             $key = $table . '.' . $key;
         }
+
         return $key;
     }
 

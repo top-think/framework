@@ -40,6 +40,7 @@ class Mysql extends Connection
                 }
                 $query->setOption('point', $field);
             }
+
             return $query;
         });
     }
@@ -58,9 +59,11 @@ class Mysql extends Connection
         } elseif (!empty($config['socket'])) {
             $dsn .= ';unix_socket=' . $config['socket'];
         }
+
         if (!empty($config['charset'])) {
             $dsn .= ';charset=' . $config['charset'];
         }
+
         return $dsn;
     }
 
@@ -73,21 +76,28 @@ class Mysql extends Connection
     public function getFields($tableName)
     {
         $this->initConnect(true);
+
         list($tableName) = explode(' ', $tableName);
+
         if (false === strpos($tableName, '`')) {
             if (strpos($tableName, '.')) {
                 $tableName = str_replace('.', '`.`', $tableName);
             }
             $tableName = '`' . $tableName . '`';
         }
+
         $sql = 'SHOW COLUMNS FROM ' . $tableName;
+
         // 调试开始
         $this->debug(true);
         $pdo = $this->linkID->query($sql);
+
         // 调试结束
         $this->debug(false, $sql);
+
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
+
         if ($result) {
             foreach ($result as $key => $val) {
                 $val                 = array_change_key_case($val);
@@ -101,6 +111,7 @@ class Mysql extends Connection
                 ];
             }
         }
+
         return $this->fieldCase($info);
     }
 
@@ -114,16 +125,21 @@ class Mysql extends Connection
     {
         $this->initConnect(true);
         $sql = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
+
         // 调试开始
         $this->debug(true);
         $pdo = $this->linkID->query($sql);
+
         // 调试结束
         $this->debug(false, $sql);
+
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
+
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }
+
         return $info;
     }
 
@@ -138,11 +154,13 @@ class Mysql extends Connection
         $pdo    = $this->linkID->query("EXPLAIN " . $sql);
         $result = $pdo->fetch(PDO::FETCH_ASSOC);
         $result = array_change_key_case($result);
+
         if (isset($result['extra'])) {
             if (strpos($result['extra'], 'filesort') || strpos($result['extra'], 'temporary')) {
                 $this->log('SQL:' . $this->queryStr . '[' . $result['extra'] . ']', 'warn');
             }
         }
+
         return $result;
     }
 
@@ -162,6 +180,7 @@ class Mysql extends Connection
         if (false !== stripos($e->getMessage(), 'server has gone away')) {
             return true;
         }
+
         return false;
     }
 }

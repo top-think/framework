@@ -27,6 +27,7 @@ class Sqlite extends Builder
     public function parseLimit($limit)
     {
         $limitStr = '';
+
         if (!empty($limit)) {
             $limit = explode(',', $limit);
             if (count($limit) > 1) {
@@ -35,6 +36,7 @@ class Sqlite extends Builder
                 $limitStr .= ' LIMIT ' . $limit[0] . ' ';
             }
         }
+
         return $limitStr;
     }
 
@@ -58,6 +60,7 @@ class Sqlite extends Builder
     protected function parseKey($key, $options = [])
     {
         $key = trim($key);
+
         if (strpos($key, '.')) {
             list($table, $key) = explode('.', $key, 2);
             if (isset($options['alias'][$table])) {
@@ -66,9 +69,11 @@ class Sqlite extends Builder
                 $table = $this->query->getTable();
             }
         }
+
         if (isset($table)) {
             $key = $table . '.' . $key;
         }
+
         return $key;
     }
 }

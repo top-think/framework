@@ -30,6 +30,7 @@ class Mysql extends Builder
     protected function parseKey($key, $options = [])
     {
         $key = trim($key);
+
         if (strpos($key, '$.') && false === strpos($key, '(')) {
             // JSON字段支持
             list($field, $name) = explode('$.', $key);
@@ -42,12 +43,15 @@ class Mysql extends Builder
                 $table = $this->query->getTable();
             }
         }
+
         if (!preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
             $key = '`' . $key . '`';
         }
+
         if (isset($table)) {
             $key = '`' . $table . '`.' . $key;
         }
+
         return $key;
     }
 
@@ -61,6 +65,7 @@ class Mysql extends Builder
     protected function parseField($fields, $options = [])
     {
         $fieldsStr = parent::parseField($fields, $options);
+
         if (!empty($options['point'])) {
             $array = [];
             foreach ($options['point'] as $key => $field) {
@@ -69,6 +74,7 @@ class Mysql extends Builder
             }
             $fieldsStr .= ',' . implode(',', $array);
         }
+
         return $fieldsStr;
     }
 
@@ -81,6 +87,7 @@ class Mysql extends Builder
     protected function parseArrayData($data)
     {
         list($type, $value) = $data;
+
         switch (strtolower($type)) {
             case 'exp':
                 $result = $value;
@@ -96,6 +103,7 @@ class Mysql extends Builder
             default:
                 $result = false;
         }
+
         return $result;
     }
 

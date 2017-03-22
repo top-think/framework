@@ -134,6 +134,7 @@ abstract class Connection
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
         }
+
         // 执行初始化操作
         $this->initialize();
     }
@@ -156,9 +157,11 @@ abstract class Connection
     public function getQuery($model = 'db', $queryClass = '')
     {
         if (!isset($this->query[$model])) {
-            $class               = $queryClass ?: $this->config['query'];
+            $class = $queryClass ?: $this->config['query'];
+
             $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
         }
+
         return $this->query[$model];
     }
 
@@ -240,6 +243,7 @@ abstract class Connection
             default:
                 // 不做转换
         }
+
         return $info;
     }
 
@@ -287,12 +291,14 @@ abstract class Connection
             } else {
                 $config = array_merge($this->config, $config);
             }
+
             // 连接参数
             if (isset($config['params']) && is_array($config['params'])) {
                 $params = $config['params'] + $this->params;
             } else {
                 $params = $this->params;
             }
+
             // 记录当前字段属性大小写设置
             $this->attrCase = $params[PDO::ATTR_CASE];
 
@@ -300,14 +306,18 @@ abstract class Connection
             if (isset($config['result_type'])) {
                 $this->fetchType = $config['result_type'];
             }
+
             try {
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
                 }
+
                 if ($config['debug']) {
                     $startTime = microtime(true);
                 }
+
                 $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
+
                 if ($config['debug']) {
                     // 记录数据库连接信息
                     $this->log('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn']);
@@ -321,6 +331,7 @@ abstract class Connection
                 }
             }
         }
+
         return $this->links[$linkNum];
     }
 
@@ -365,12 +376,14 @@ abstract class Connection
     public function query($sql, $bind = [], $master = false, $pdo = false)
     {
         $this->initConnect($master);
+
         if (!$this->linkID) {
             return false;
         }
 
         // 记录SQL语句
         $this->queryStr = $sql;
+
         if ($bind) {
             $this->bind = $bind;
         }
@@ -381,31 +394,39 @@ abstract class Connection
         }
 
         Db::$queryTimes++;
+
         try {
             // 调试开始
             $this->debug(true);
+
             // 预处理
             if (empty($this->PDOStatement)) {
                 $this->PDOStatement = $this->linkID->prepare($sql);
             }
+
             // 是否为存储过程调用
             $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
+
             // 参数绑定
             if ($procedure) {
                 $this->bindParam($bind);
             } else {
                 $this->bindValue($bind);
             }
+
             // 执行查询
             $this->PDOStatement->execute();
+
             // 调试结束
             $this->debug(false);
+
             // 返回结果集
             return $this->getResult($pdo, $procedure);
         } catch (\PDOException $e) {
             if ($this->config['break_reconnect'] && $this->isBreak($e)) {
                 return $this->close()->query($sql, $bind, $master, $pdo);
             }
+
             throw new PDOException($e, $this->config, $this->getLastsql());
         }
     }
@@ -422,6 +443,7 @@ abstract class Connection
     public function execute($sql, $bind = [])
     {
         $this->initConnect(true);
+
         if (!$this->linkID) {
             return false;
         }
@@ -441,29 +463,36 @@ abstract class Connection
         try {
             // 调试开始
             $this->debug(true);
+
             // 预处理
             if (empty($this->PDOStatement)) {
                 $this->PDOStatement = $this->linkID->prepare($sql);
             }
+
             // 是否为存储过程调用
             $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
+
             // 参数绑定
             if ($procedure) {
                 $this->bindParam($bind);
             } else {
                 $this->bindValue($bind);
             }
+
             // 执行语句
             $this->PDOStatement->execute();
+
             // 调试结束
             $this->debug(false);
 
             $this->numRows = $this->PDOStatement->rowCount();
+
             return $this->numRows;
         } catch (\PDOException $e) {
             if ($this->config['break_reconnect'] && $this->isBreak($e)) {
                 return $this->close()->execute($sql, $bind);
             }
+
             throw new PDOException($e, $this->config, $this->getLastsql());
         }
     }
@@ -480,11 +509,13 @@ abstract class Connection
         foreach ($bind as $key => $val) {
             $value = is_array($val) ? $val[0] : $val;
             $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
+
             if (PDO::PARAM_STR == $type) {
                 $value = $this->quote($value);
             } elseif (PDO::PARAM_INT == $type) {
                 $value = (float) $value;
             }
+
             // 判断占位符
             $sql = is_numeric($key) ?
             substr_replace($sql, $value, strpos($sql, '?'), 1) :
@@ -493,6 +524,7 @@ abstract class Connection
                 [$value . ')', $value . ',', $value . ' '],
                 $sql . ' ');
         }
+
         return rtrim($sql);
     }
 
@@ -510,6 +542,7 @@ abstract class Connection
         foreach ($bind as $key => $val) {
             // 占位符
             $param = is_numeric($key) ? $key + 1 : ':' . $key;
+
             if (is_array($val)) {
                 if (PDO::PARAM_INT == $val[1] && '' === $val[0]) {
                     $val[0] = 0;
@@ -518,6 +551,7 @@ abstract class Connection
             } else {
                 $result = $this->PDOStatement->bindValue($param, $val);
             }
+
             if (!$result) {
                 throw new BindParamException(
                     "Error occurred  when binding parameters '{$param}'",
@@ -540,14 +574,17 @@ abstract class Connection
     {
         foreach ($bind as $key => $val) {
             $param = is_numeric($key) ? $key + 1 : ':' . $key;
+
             if (is_array($val)) {
                 array_unshift($val, $param);
                 $result = call_user_func_array([$this->PDOStatement, 'bindParam'], $val);
             } else {
                 $result = $this->PDOStatement->bindValue($param, $val);
             }
+
             if (!$result) {
                 $param = array_shift($val);
+
                 throw new BindParamException(
                     "Error occurred  when binding parameters '{$param}'",
                     $this->config,
@@ -571,12 +608,15 @@ abstract class Connection
             // 返回PDOStatement对象处理
             return $this->PDOStatement;
         }
+
         if ($procedure) {
             // 存储过程返回结果
             return $this->procedure();
         }
+
         $result        = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
+
         return $result;
     }
 
@@ -588,13 +628,16 @@ abstract class Connection
     protected function procedure()
     {
         $item = [];
+
         do {
             $result = $this->getResult();
             if ($result) {
                 $item[] = $result;
             }
         } while ($this->PDOStatement->nextRowset());
+
         $this->numRows = count($item);
+
         return $item;
     }
 
@@ -610,11 +653,13 @@ abstract class Connection
     public function transaction($callback)
     {
         $this->startTrans();
+
         try {
             $result = null;
             if (is_callable($callback)) {
                 $result = call_user_func_array($callback, [$this]);
             }
+
             $this->commit();
             return $result;
         } catch (\Exception $e) {
@@ -728,8 +773,10 @@ abstract class Connection
         if (!is_array($sqlArray)) {
             return false;
         }
+
         // 自动启动事务支持
         $this->startTrans();
+
         try {
             foreach ($sqlArray as $sql) {
                 $this->execute($sql);
@@ -740,6 +787,7 @@ abstract class Connection
             $this->rollback();
             throw $e;
         }
+
         return true;
     }
 
@@ -775,6 +823,7 @@ abstract class Connection
         $this->linkWrite = null;
         $this->linkRead  = null;
         $this->links     = [];
+
         return $this;
     }
 
@@ -833,9 +882,11 @@ abstract class Connection
         } else {
             $error = '';
         }
+
         if ('' != $this->queryStr) {
             $error .= "\n [ SQL语句 ] : " . $this->getLastsql();
         }
+
         return $error;
     }
 
@@ -849,6 +900,7 @@ abstract class Connection
     public function quote($str, $master = true)
     {
         $this->initConnect($master);
+
         return $this->linkID ? $this->linkID->quote($str) : $str;
     }
 
@@ -864,6 +916,7 @@ abstract class Connection
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
             $debug = Facade::make('debug');
+
             if ($start) {
                 $debug->remark('queryStartTime', 'time');
             } else {
@@ -873,10 +926,12 @@ abstract class Connection
                 $sql     = $sql ?: $this->getLastsql();
                 $log     = $sql . ' [ RunTime:' . $runtime . 's ]';
                 $result  = [];
+
                 // SQL性能分析
                 if ($this->config['sql_explain'] && 0 === stripos(trim($sql), 'select')) {
                     $result = $this->getExplain($sql);
                 }
+
                 // SQL监听
                 $this->trigger($sql, $runtime, $result);
             }
@@ -913,6 +968,7 @@ abstract class Connection
         } else {
             // 未注册监听则记录到日志中
             $this->log('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]');
+
             if (!empty($explain)) {
                 $this->log('[ EXPLAIN : ' . var_export($explain, true) . ' ]');
             }
@@ -937,11 +993,13 @@ abstract class Connection
                 if (!$this->linkWrite) {
                     $this->linkWrite = $this->multiConnect(true);
                 }
+
                 $this->linkID = $this->linkWrite;
             } else {
                 if (!$this->linkRead) {
                     $this->linkRead = $this->multiConnect(false);
                 }
+
                 $this->linkID = $this->linkRead;
             }
         } elseif (!$this->linkID) {
@@ -959,6 +1017,7 @@ abstract class Connection
     protected function multiConnect($master = false)
     {
         $_config = [];
+
         // 分布式数据库配置解析
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
             $_config[$name] = explode(',', $this->config[$name]);
@@ -984,16 +1043,20 @@ abstract class Connection
             $r = floor(mt_rand(0, count($_config['hostname']) - 1));
         }
         $dbMaster = false;
+
         if ($m != $r) {
             $dbMaster = [];
             foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
                 $dbMaster[$name] = isset($_config[$name][$m]) ? $_config[$name][$m] : $_config[$name][0];
             }
         }
+
         $dbConfig = [];
+
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
             $dbConfig[$name] = isset($_config[$name][$r]) ? $_config[$name][$r] : $_config[$name][0];
         }
+
         return $this->connect($dbConfig, $r, $r == $m ? false : $dbMaster);
     }
 
@@ -1007,6 +1070,7 @@ abstract class Connection
         if ($this->PDOStatement) {
             $this->free();
         }
+
         // 关闭连接
         $this->close();
     }

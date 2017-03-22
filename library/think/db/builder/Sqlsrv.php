@@ -34,6 +34,7 @@ class Sqlsrv extends Builder
     {
         if (is_array($order)) {
             $array = [];
+
             foreach ($order as $key => $val) {
                 if (is_numeric($key)) {
                     if (false === strpos($val, '(')) {
@@ -46,8 +47,10 @@ class Sqlsrv extends Builder
                     $array[] = $this->parseKey($key, $options) . ' ' . $sort;
                 }
             }
+
             $order = implode(',', $array);
         }
+
         return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
     }
 
@@ -71,6 +74,7 @@ class Sqlsrv extends Builder
     protected function parseKey($key, $options = [])
     {
         $key = trim($key);
+
         if (strpos($key, '.') && !preg_match('/[,\'\"\(\)\[\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
             if (isset($options['alias'][$table])) {
@@ -79,12 +83,15 @@ class Sqlsrv extends Builder
                 $table = $this->query->getTable();
             }
         }
+
         if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
             $key = '[' . $key . ']';
         }
+
         if (isset($table)) {
             $key = '[' . $table . '].' . $key;
         }
+
         return $key;
     }
 
@@ -101,17 +108,20 @@ class Sqlsrv extends Builder
         }
 
         $limit = explode(',', $limit);
+
         if (count($limit) > 1) {
             $limitStr = '(T1.ROW_NUMBER BETWEEN ' . $limit[0] . ' + 1 AND ' . $limit[0] . ' + ' . $limit[1] . ')';
         } else {
             $limitStr = '(T1.ROW_NUMBER BETWEEN 1 AND ' . $limit[0] . ")";
         }
+
         return 'WHERE ' . $limitStr;
     }
 
     public function selectInsert($fields, $table, $options)
     {
         $this->selectSql = $this->selectInsertSql;
+
         return parent::selectInsert($fields, $table, $options);
     }
 

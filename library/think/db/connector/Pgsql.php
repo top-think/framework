@@ -30,9 +30,11 @@ class Pgsql extends Connection
     protected function parseDsn($config)
     {
         $dsn = 'pgsql:dbname=' . $config['database'] . ';host=' . $config['hostname'];
+
         if (!empty($config['hostport'])) {
             $dsn .= ';port=' . $config['hostport'];
         }
+
         return $dsn;
     }
 
@@ -45,15 +47,20 @@ class Pgsql extends Connection
     public function getFields($tableName)
     {
         $this->initConnect(true);
+
         list($tableName) = explode(' ', $tableName);
         $sql             = 'select fields_name as "field",fields_type as "type",fields_not_null as "null",fields_key_name as "key",fields_default as "default",fields_default as "extra" from table_msg(\'' . $tableName . '\');';
+
         // 调试开始
         $this->debug(true);
         $pdo = $this->linkID->query($sql);
+
         // 调试结束
         $this->debug(false, $sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info   = [];
+
+        $info = [];
+
         if ($result) {
             foreach ($result as $key => $val) {
                 $val                 = array_change_key_case($val);
@@ -67,6 +74,7 @@ class Pgsql extends Connection
                 ];
             }
         }
+
         return $this->fieldCase($info);
     }
 
@@ -79,17 +87,24 @@ class Pgsql extends Connection
     public function getTables($dbName = '')
     {
         $this->initConnect(true);
+
         $sql = "select tablename as Tables_in_test from pg_tables where  schemaname ='public'";
+
         // 调试开始
         $this->debug(true);
+
         $pdo = $this->linkID->query($sql);
+
         // 调试结束
         $this->debug(false, $sql);
+
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
+
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }
+
         return $info;
     }
 

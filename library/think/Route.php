@@ -155,14 +155,17 @@ class Route
     {
         if (is_array($name)) {
             $this->rules['name'] = $name;
+
             return $this;
         } elseif ('' === $name) {
             return $this->rules['name'];
         } elseif (!is_null($value)) {
             $this->rules['name'][strtolower($name)][] = $value;
+
             return $this;
         } else {
             $name = strtolower($name);
+
             return isset($this->rules['name'][$name]) ? $this->rules['name'][$name] : null;
         }
     }
@@ -223,9 +226,11 @@ class Route
             if (is_numeric($key)) {
                 $key = array_shift($val);
             }
+
             if (empty($val)) {
                 continue;
             }
+
             if (is_string($key) && 0 === strpos($key, '[')) {
                 $key = substr($key, 1, -1);
                 $this->group($key, $val);
@@ -270,6 +275,7 @@ class Route
                 if (is_numeric($key)) {
                     $key = array_shift($val);
                 }
+
                 if (is_array($val)) {
                     $route    = $val[0];
                     $option1  = array_merge($option, $val[1]);
@@ -277,6 +283,7 @@ class Route
                 } else {
                     $route = $val;
                 }
+
                 $this->setRule($key, $route, $type, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern, $group);
             }
         } else {
@@ -338,6 +345,7 @@ class Route
             if ('*' != $type) {
                 $option['method'] = $type;
             }
+
             if ($this->domain) {
                 $this->rules['domain'][$this->domain]['*'][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
             } else {
@@ -347,11 +355,13 @@ class Route
             if ('*' != $type && isset($this->rules['*'][$rule])) {
                 unset($this->rules['*'][$rule]);
             }
+
             if ($this->domain) {
                 $this->rules['domain'][$this->domain][$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
             } else {
                 $this->rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
             }
+
             if ('*' == $type) {
                 // 注册路由快捷方式
                 foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
@@ -443,9 +453,11 @@ class Route
             if ($routes instanceof \Closure) {
                 $currentOption  = $this->getGroup('option');
                 $currentPattern = $this->getGroup('pattern');
+
                 $this->setGroup($name, array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
                 call_user_func_array($routes, []);
                 $this->setGroup($currentGroup, $currentOption, $currentPattern);
+
                 if ($currentGroup != $name) {
                     $this->rules['*'][$name]['route']   = '';
                     $this->rules['*'][$name]['var']     = $this->parseVar($name);
@@ -458,6 +470,7 @@ class Route
                     if (is_numeric($key)) {
                         $key = array_shift($val);
                     }
+
                     if (is_array($val)) {
                         $route    = $val[0];
                         $option1  = array_merge($option, isset($val[1]) ? $val[1] : []);
@@ -468,16 +481,20 @@ class Route
 
                     $options  = isset($option1) ? $option1 : $option;
                     $patterns = isset($pattern1) ? $pattern1 : $pattern;
+
                     if ('$' == substr($key, -1, 1)) {
                         // 是否完整匹配
                         $options['complete_match'] = true;
                         $key                       = substr($key, 0, -1);
                     }
+
                     $key    = trim($key, '/');
                     $vars   = $this->parseVar($key);
                     $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
+
                     // 设置路由标识
                     $suffix = isset($options['ext']) ? $options['ext'] : null;
+
                     $this->name($route, [$name . ($key ? '/' . $key : ''), $vars, $this->domain, $suffix]);
                 }
                 $this->rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
@@ -609,6 +626,7 @@ class Route
                 if (is_array($val)) {
                     list($val, $option, $pattern) = array_pad($val, 3, []);
                 }
+
                 $this->resource($key, $val, $option, $pattern);
             }
         } else {
@@ -617,9 +635,11 @@ class Route
                 $array = explode('.', $rule);
                 $last  = array_pop($array);
                 $item  = [];
+
                 foreach ($array as $val) {
                     $item[] = $val . '/:' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id');
                 }
+
                 $rule = implode('/', $item) . '/' . $last;
             }
             // 注册资源路由
@@ -628,13 +648,16 @@ class Route
                     || (isset($option['except']) && in_array($key, $option['except']))) {
                     continue;
                 }
+
                 if (isset($last) && strpos($val[1], ':id') && isset($option['var'][$last])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$last], $val[1]);
                 } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
                     $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
                 }
+
                 $item           = ltrim($rule . $val[1], '/');
                 $option['rest'] = $key;
+
                 $this->rule($item . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
             }
         }
@@ -906,9 +929,11 @@ class Route
         if (isset($rules[$item])) {
             // 静态路由规则检测
             $rule = $rules[$item];
+
             if (true === $rule) {
                 $rule = $this->getRouteExpress($item);
             }
+
             if (!empty($rule['route']) && $this->checkOption($rule['option'], $request)) {
                 $this->setOption($rule['option']);
                 return $this->parseRule($item, $rule['route'], $url, $rule['option']);
@@ -945,9 +970,11 @@ class Route
             if (true === $item) {
                 $item = $this->getRouteExpress($key);
             }
+
             if (!isset($item['rule'])) {
                 continue;
             }
+
             $rule    = $item['rule'];
             $route   = $item['route'];
             $vars    = $item['var'];
@@ -977,6 +1004,7 @@ class Route
                 if (is_string($str) && $str && 0 !== strpos(str_replace('|', '/', $url), $str)) {
                     continue;
                 }
+
                 $this->setOption($option);
 
                 $result = $this->checkRoute($request, $rule, $url, $depr, $key, $option);
@@ -997,6 +1025,7 @@ class Route
                 }
 
                 $this->setOption($option);
+
                 if (isset($options['bind_model']) && isset($option['bind_model'])) {
                     $option['bind_model'] = array_merge($options['bind_model'], $option['bind_model']);
                 }
@@ -1084,8 +1113,10 @@ class Route
         if (!empty($this->bind)) {
             $type = $this->bind['type'];
             $bind = $this->bind[$type];
+
             // 记录绑定信息
             $this->app->log('[ BIND ] ' . var_export($bind, true));
+
             // 如果有URL绑定 则进行绑定检测
             switch ($type) {
                 case 'class':
@@ -1257,7 +1288,9 @@ class Route
                     return false;
                 }
             }
+
             $pattern = array_merge($this->rules['pattern'], $pattern);
+
             if (false !== $match = $this->match($url, $rule, $pattern, $merge)) {
                 // 匹配到路由规则
                 return $this->parseRule($rule, $route, $url, $option, $match, $merge);
@@ -1636,10 +1669,11 @@ class Route
     private function parseModule($url)
     {
         list($path, $var) = $this->parseUrlPath($url);
-        $action           = array_pop($path);
-        $controller       = !empty($path) ? array_pop($path) : null;
-        $module           = $this->app['config']->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-        $method           = $this->app['request']->method();
+
+        $action     = array_pop($path);
+        $controller = !empty($path) ? array_pop($path) : null;
+        $module     = $this->app['config']->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $method     = $this->app['request']->method();
 
         if ($this->app['config']->get('use_action_prefix') && !empty($this->methodPrefix[$method])) {
             // 操作方法前缀支持
