@@ -48,6 +48,7 @@ class Merge extends Model
     {
         $query = self::parseQuery($data, $with, $cache);
         $query = self::attachQuery($query);
+
         return $query->find($data);
     }
 
@@ -71,6 +72,7 @@ class Merge extends Model
             $fields = self::getModelField($query, $name, $table, $class->mapFields, $class->field);
             $query->field($fields);
         }
+
         return $query;
     }
 
@@ -89,6 +91,7 @@ class Merge extends Model
         // 获取模型的字段信息
         $fields = $fields ?: $query->getTableInfo($table, 'fields');
         $array  = [];
+
         foreach ($fields as $field) {
             if ($key = array_search($name . '.' . $field, $map)) {
                 // 需要处理映射字段
@@ -97,6 +100,7 @@ class Merge extends Model
                 $array[] = $field;
             }
         }
+
         return $array;
     }
 
@@ -112,6 +116,7 @@ class Merge extends Model
     {
         $query = self::parseQuery($data, $with, $cache);
         $query = self::attachQuery($query);
+
         return $query->select($data);
     }
 
@@ -138,6 +143,7 @@ class Merge extends Model
                 }
             }
         }
+
         return $item;
     }
 
@@ -177,6 +183,7 @@ class Merge extends Model
         $db = $this->db();
         $db->startTrans();
         $pk = $this->getPk();
+
         try {
             if ($this->isUpdate) {
                 // 自动写入
@@ -215,6 +222,7 @@ class Merge extends Model
                 }
                 // 清空change
                 $this->origin = $this->data;
+
                 // 新增回调
                 $this->trigger('after_update', $this);
             } else {
@@ -287,6 +295,7 @@ class Merge extends Model
 
         $db = $this->db();
         $db->startTrans();
+
         try {
             $result = $db->delete($this->data);
             if ($result) {
@@ -300,6 +309,7 @@ class Merge extends Model
                     $query->table($table)->where($this->fk, $pk)->delete();
                 }
             }
+
             $this->trigger('after_delete', $this);
             $db->commit();
             return $result;

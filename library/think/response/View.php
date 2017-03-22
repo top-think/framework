@@ -31,7 +31,8 @@ class View extends Response
     protected function output($data)
     {
         // 渲染模板输出
-        return Facade::make('view')->init(Facade::make('app')->config('template'), Facade::make('app')->config('view_replace_str'))
+        return Facade::make('view')
+            ->init(Facade::make('app')->config('template'), Facade::make('app')->config('view_replace_str'))
             ->fetch($data, $this->vars, $this->replace);
     }
 
@@ -65,6 +66,7 @@ class View extends Response
         } else {
             $this->vars[$name] = $value;
         }
+
         return $this;
     }
 
@@ -82,6 +84,7 @@ class View extends Response
         } else {
             $this->replace[$content] = $replace;
         }
+
         return $this;
     }
 

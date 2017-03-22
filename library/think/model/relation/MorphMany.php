@@ -56,6 +56,7 @@ class MorphMany extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
+
         return $this->relation($subRelation)->select();
     }
 
@@ -99,6 +100,7 @@ class MorphMany extends Relation
         $morphKey  = $this->morphKey;
         $type      = $this->type;
         $range     = [];
+
         foreach ($resultSet as $result) {
             $pk = $result->getPk();
             // 获取关联外键列表
@@ -112,13 +114,16 @@ class MorphMany extends Relation
                 $morphKey  => ['in', $range],
                 $morphType => $type,
             ], $relation, $subRelation, $closure);
+
             // 关联属性名
             $attr = Loader::parseName($relation);
+
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
+
                 $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
@@ -136,11 +141,13 @@ class MorphMany extends Relation
     public function eagerlyResult(&$result, $relation, $subRelation, $closure)
     {
         $pk = $result->getPk();
+
         if (isset($result->$pk)) {
             $data = $this->eagerlyMorphToMany([
                 $this->morphKey  => $result->$pk,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
+
             $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
         }
     }
@@ -156,12 +163,17 @@ class MorphMany extends Relation
     {
         $pk    = $result->getPk();
         $count = 0;
+
         if (isset($result->$pk)) {
             if ($closure) {
                 call_user_func_array($closure, [ & $this->query]);
             }
-            $count = $this->query->where([$this->morphKey => $result->$pk, $this->morphType => $this->type])->count();
+
+            $count = $this->query
+                ->where([$this->morphKey => $result->$pk, $this->morphType => $this->type])
+                ->count();
         }
+
         return $count;
     }
 
@@ -177,13 +189,16 @@ class MorphMany extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        return $this->query->where([
-            $this->morphKey  => [
-                'exp',
-                '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
-            ],
-            $this->morphType => $this->type,
-        ])->fetchSql()->count();
+        return $this->query
+            ->where([
+                $this->morphKey  => [
+                    'exp',
+                    '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
+                ],
+                $this->morphType => $this->type,
+            ])
+            ->fetchSql()
+            ->count();
     }
 
     /**
@@ -203,11 +218,13 @@ class MorphMany extends Relation
         }
         $list     = $this->query->where($where)->with($subRelation)->select();
         $morphKey = $this->morphKey;
+
         // 组装模型数据
         $data = [];
         foreach ($list as $set) {
             $data[$set->$morphKey][] = $set;
         }
+
         return $data;
     }
 
@@ -222,12 +239,14 @@ class MorphMany extends Relation
         if ($data instanceof Model) {
             $data = $data->getData();
         }
+
         // 保存关联表数据
         $pk = $this->parent->getPk();
 
         $model                  = new $this->model;
         $data[$this->morphKey]  = $this->parent->$pk;
         $data[$this->morphType] = $this->type;
+
         return $model->save($data) ? $model : false;
     }
 
@@ -243,6 +262,7 @@ class MorphMany extends Relation
         foreach ($dataSet as $key => $data) {
             $result = $this->save($data);
         }
+
         return $result;
     }
 
@@ -254,10 +274,13 @@ class MorphMany extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery)) {
-            $pk                    = $this->parent->getPk();
+            $pk = $this->parent->getPk();
+
             $map[$this->morphKey]  = $this->parent->$pk;
             $map[$this->morphType] = $this->type;
+
             $this->query->where($map);
+
             $this->baseQuery = true;
         }
     }

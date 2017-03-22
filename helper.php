@@ -135,6 +135,7 @@ if (!function_exists('input')) {
             $key = substr($key, 1);
             $has = true;
         }
+
         if ($pos = strpos($key, '.')) {
             // 指定参数来源
             $method = substr($key, 0, $pos);
@@ -147,6 +148,7 @@ if (!function_exists('input')) {
             // 默认为自动判断
             $method = 'param';
         }
+
         if (isset($has)) {
             return request()->has($key, $method, $default);
         } else {
@@ -344,6 +346,7 @@ if (!function_exists('cache')) {
             // 缓存初始化
             return Cache::connect($name);
         }
+
         if ('' === $value) {
             // 获取缓存
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
@@ -357,6 +360,7 @@ if (!function_exists('cache')) {
             } else {
                 $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
             }
+
             if (is_null($tag)) {
                 return Cache::set($name, $value, $expire);
             } else {
@@ -483,6 +487,7 @@ if (!function_exists('redirect')) {
             $code   = $params;
             $params = [];
         }
+
         return Response::create($url, 'redirect', $code)->params($params);
     }
 }
@@ -512,6 +517,7 @@ if (!function_exists('halt')) {
     function halt($var)
     {
         dump($var);
+
         throw new HttpResponseException(new Response);
     }
 }
@@ -526,6 +532,7 @@ if (!function_exists('token')) {
     function token($name = '__token__', $type = 'md5')
     {
         $token = Request::token($name, $type);
+
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
     }
 }
@@ -545,6 +552,7 @@ if (!function_exists('parse_name')) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
                 return strtoupper($match[1]);
             }, $name);
+
             return $ucfirst ? ucfirst($name) : lcfirst($name);
         } else {
             return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
@@ -578,11 +586,13 @@ if (!function_exists('class_uses_recursive')) {
         if (is_object($class)) {
             $class = get_class($class);
         }
+
         $results = [];
         $classes = array_merge([$class => $class], class_parents($class));
         foreach ($classes as $class) {
             $results += trait_uses_recursive($class);
         }
+
         return array_unique($results);
     }
 }
@@ -600,6 +610,7 @@ if (!function_exists('trait_uses_recursive')) {
         foreach ($traits as $trait) {
             $traits += trait_uses_recursive($trait);
         }
+
         return $traits;
     }
 }

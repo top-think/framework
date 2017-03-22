@@ -50,10 +50,13 @@ class MorphTo extends Relation
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
+
         // 多态模型
         $model = $this->parseModel($this->parent->$morphType);
+
         // 主键数据
         $pk = $this->parent->$morphKey;
+
         return (new $model)->relation($subRelation)->find($pk);
     }
 
@@ -93,12 +96,14 @@ class MorphTo extends Relation
         if (isset($this->alias[$model])) {
             $model = $this->alias[$model];
         }
+
         if (false === strpos($model, '\\')) {
             $path = explode('\\', get_class($this->parent));
             array_pop($path);
             array_push($path, Loader::parseName($model, 1));
             $model = implode('\\', $path);
         }
+
         return $model;
     }
 
@@ -111,6 +116,7 @@ class MorphTo extends Relation
     public function setAlias($alias)
     {
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -139,6 +145,7 @@ class MorphTo extends Relation
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
         $range     = [];
+
         foreach ($resultSet as $result) {
             // 获取关联外键列表
             if (!empty($result->$morphKey)) {
@@ -149,6 +156,7 @@ class MorphTo extends Relation
         if (!empty($range)) {
             // 关联属性名
             $attr = Loader::parseName($relation);
+
             foreach ($range as $key => $val) {
                 // 多态类型映射
                 $model = $this->parseModel($key);
@@ -156,9 +164,11 @@ class MorphTo extends Relation
                 $pk    = $obj->getPk();
                 $list  = $obj->all($val, $subRelation);
                 $data  = [];
+
                 foreach ($list as $k => $vo) {
                     $data[$vo->$pk] = $vo;
                 }
+
                 foreach ($resultSet as $result) {
                     if ($key == $result->$morphType) {
                         // 关联模型
@@ -188,6 +198,7 @@ class MorphTo extends Relation
         $morphType = $this->morphType;
         // 多态类型映射
         $model = $this->parseModel($result->{$this->morphType});
+
         $this->eagerlyMorphToOne($model, $relation, $result, $subRelation);
     }
 
@@ -216,9 +227,11 @@ class MorphTo extends Relation
         // 预载入关联查询 支持嵌套预载入
         $pk   = $this->parent->{$this->morphKey};
         $data = (new $model)->with($subRelation)->find($pk);
+
         if ($data) {
             $data->isUpdate(true);
         }
+
         $result->setAttr(Loader::parseName($relation), $data ?: null);
     }
 
@@ -228,6 +241,5 @@ class MorphTo extends Relation
      * @return void
      */
     protected function baseQuery()
-    {
-    }
+    {}
 }

@@ -56,6 +56,7 @@ class Think
             // 获取模板文件名
             $template = $this->parseTemplate($template);
         }
+
         return is_file($template);
     }
 
@@ -73,12 +74,16 @@ class Think
             // 获取模板文件名
             $template = $this->parseTemplate($template);
         }
+
         // 模板不存在 抛出异常
         if (!is_file($template)) {
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
+
         // 记录视图信息
-        Facade::make('app')->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
+        Facade::make('app')
+            ->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
+
         $this->template->fetch($template, $data, $config);
     }
 
@@ -105,11 +110,13 @@ class Think
     {
         // 分析模板文件规则
         $request = Facade::make('request');
+
         // 获取视图根目录
         if (strpos($template, '@')) {
             // 跨模块调用
             list($module, $template) = explode('@', $template);
         }
+
         if ($this->config['view_base']) {
             // 基础视图目录
             $module = isset($module) ? $module : $request->module();
@@ -119,6 +126,7 @@ class Think
         }
 
         $depr = $this->config['view_depr'];
+
         if (0 !== strpos($template, '/')) {
             $template   = str_replace(['/', ':'], $depr, $template);
             $controller = Loader::parseName($request->controller());
@@ -133,6 +141,7 @@ class Think
         } else {
             $template = str_replace(['/', ':'], $depr, substr($template, 1));
         }
+
         return $path . ltrim($template, '/') . '.' . ltrim($this->config['view_suffix'], '.');
     }
 

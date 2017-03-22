@@ -43,10 +43,13 @@ class Redis extends Driver
         if (!extension_loaded('redis')) {
             throw new \BadFunctionCallException('not support: redis');
         }
+
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        $func          = $this->options['persistent'] ? 'pconnect' : 'connect';
+
+        $func = $this->options['persistent'] ? 'pconnect' : 'connect';
+
         $this->handler = new \Redis;
         $this->handler->$func($this->options['host'], $this->options['port'], $this->options['timeout']);
 
@@ -80,11 +83,15 @@ class Redis extends Driver
     public function get($name, $default = false)
     {
         $this->readTimes++;
+
         $value = $this->handler->get($this->getCacheKey($name));
+
         if (is_null($value)) {
             return $default;
         }
+
         $jsonData = json_decode($value, true);
+
         // 检测是否为JSON数据 true 返回JSON解析数组, false返回源数据 byron sampson<xiaobo.sun@qq.com>
         return (null === $jsonData) ? $value : $jsonData;
     }
@@ -100,21 +107,28 @@ class Redis extends Driver
     public function set($name, $value, $expire = null)
     {
         $this->writeTimes++;
+
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
+
         if ($this->tag && !$this->has($name)) {
             $first = true;
         }
+
         $key = $this->getCacheKey($name);
+
         //对数组/对象数据进行缓存处理，保证数据完整性  byron sampson<xiaobo.sun@qq.com>
         $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
+
         if (is_int($expire) && $expire) {
             $result = $this->handler->setex($key, $expire, $value);
         } else {
             $result = $this->handler->set($key, $value);
         }
+
         isset($first) && $this->setTagItem($key);
+
         return $result;
     }
 
@@ -128,7 +142,9 @@ class Redis extends Driver
     public function inc($name, $step = 1)
     {
         $this->writeTimes++;
+
         $key = $this->getCacheKey($name);
+
         return $this->handler->incrby($key, $step);
     }
 
@@ -142,7 +158,9 @@ class Redis extends Driver
     public function dec($name, $step = 1)
     {
         $this->writeTimes++;
+
         $key = $this->getCacheKey($name);
+
         return $this->handler->decrby($key, $step);
     }
 
@@ -155,6 +173,7 @@ class Redis extends Driver
     public function rm($name)
     {
         $this->writeTimes++;
+
         return $this->handler->delete($this->getCacheKey($name));
     }
 
@@ -169,13 +188,17 @@ class Redis extends Driver
         if ($tag) {
             // 指定标签清除
             $keys = $this->getTagItem($tag);
+
             foreach ($keys as $key) {
                 $this->handler->delete($key);
             }
+
             $this->rm('tag_' . md5($tag));
             return true;
         }
+
         $this->writeTimes++;
+
         return $this->handler->flushDB();
     }
 

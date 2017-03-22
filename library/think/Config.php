@@ -16,7 +16,8 @@ class Config
     // 配置参数
     private $config = [];
     // 参数作用域
-    protected $range  = '_sys_';
+    protected $range = '_sys_';
+    // 当前参数前缀
     protected $prefix = 'app';
 
     /**

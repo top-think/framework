@@ -41,11 +41,12 @@ class Jsonp extends Response
 
             $data = json_encode($data, $this->options['json_encode_param']);
 
-            if ($data === false) {
+            if (false === $data) {
                 throw new \InvalidArgumentException(json_last_error_msg());
             }
 
             $data = $handler . '(' . $data . ');';
+
             return $data;
         } catch (\Exception $e) {
             if ($e->getPrevious()) {

@@ -57,15 +57,18 @@ abstract class OneToOne extends Relation
     {
         $name  = Loader::parseName(basename(str_replace('\\', '/', $query->getModel())));
         $alias = $name;
+
         if ($first) {
             $table = $query->getTable();
             $query->table([$table => $alias]);
+
             if ($query->getOptions('field')) {
                 $field = $query->getOptions('field');
                 $query->removeOption('field');
             } else {
                 $field = true;
             }
+
             $query->field($field, false, $table, $alias);
         }
 
@@ -96,6 +99,7 @@ abstract class OneToOne extends Relation
         } else {
             $field = true;
         }
+
         $query->field($field, false, $joinTable, $joinAlias, $relation . '__');
     }
 
@@ -172,9 +176,11 @@ abstract class OneToOne extends Relation
         if ($data instanceof Model) {
             $data = $data->getData();
         }
+
         $model = new $this->model;
         // 保存关联表数据
         $data[$this->foreignKey] = $this->parent->{$this->localKey};
+
         return $model->save($data) ? $model : false;
     }
 
@@ -187,6 +193,7 @@ abstract class OneToOne extends Relation
     public function setEagerlyType($type)
     {
         $this->eagerlyType = $type;
+
         return $this;
     }
 
@@ -212,6 +219,7 @@ abstract class OneToOne extends Relation
             $attr = explode(',', $attr);
         }
         $this->bindAttr = $attr;
+
         return $this;
     }
 
@@ -246,12 +254,14 @@ abstract class OneToOne extends Relation
                 }
             }
         }
+
         if (isset($list[$relation])) {
             $relationModel = new $model($list[$relation]);
             if (!empty($this->bindAttr)) {
                 $this->bindAttr($relationModel, $result, $this->bindAttr);
             }
         }
+
         $result->setAttr(Loader::parseName($relation), !isset($relationModel) ? null : $relationModel->isUpdate(true));
     }
 
@@ -296,13 +306,16 @@ abstract class OneToOne extends Relation
                 $model->field($field)->removeOption('with_field');
             }
         }
+
         $list = $model->where($where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
+
         foreach ($list as $set) {
             $data[$set->$key] = $set;
         }
+
         return $data;
     }
 
@@ -312,6 +325,5 @@ abstract class OneToOne extends Relation
      * @return void
      */
     protected function baseQuery()
-    {
-    }
+    {}
 }

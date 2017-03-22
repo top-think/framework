@@ -33,7 +33,9 @@ class Pivot extends Model
         } else {
             $this->data = $data;
         }
+
         $this->parent = $parent;
+
         if (is_null($this->name)) {
             $this->name = $table;
         }

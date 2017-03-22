@@ -24,6 +24,7 @@ class Redirect extends Response
     public function __construct($data = '', $code = 302, array $header = [], array $options = [])
     {
         parent::__construct($data, $code, $header, $options);
+
         $this->cacheControl('no-cache,must-revalidate');
     }
 
@@ -36,6 +37,7 @@ class Redirect extends Response
     protected function output($data)
     {
         $this->header['Location'] = $this->getTargetUrl();
+
         return;
     }
 
@@ -49,6 +51,7 @@ class Redirect extends Response
     public function with($name, $value = null)
     {
         $session = Facade::make('Session');
+
         if (is_array($name)) {
             foreach ($name as $key => $val) {
                 $session->flash($key, $val);
@@ -56,6 +59,7 @@ class Redirect extends Response
         } else {
             $session->flash($name, $value);
         }
+
         return $this;
     }
 
@@ -71,6 +75,7 @@ class Redirect extends Response
     public function params($params = [])
     {
         $this->params = $params;
+
         return $this;
     }
 
@@ -81,6 +86,7 @@ class Redirect extends Response
     public function remember()
     {
         Facade::make('Session')->set('redirect_url', Facade::make('request')->url());
+
         return $this;
     }
 
@@ -91,10 +97,12 @@ class Redirect extends Response
     public function restore()
     {
         $session = Facade::make('Session');
+
         if ($session->has('redirect_url')) {
             $this->data = $session->get('redirect_url');
             $session->delete('redirect_url');
         }
+
         return $this;
     }
 }

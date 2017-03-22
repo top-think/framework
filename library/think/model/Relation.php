@@ -87,6 +87,7 @@ abstract class Relation
     public function removeOption()
     {
         $this->query->removeOption();
+
         return $this;
     }
 
@@ -104,12 +105,15 @@ abstract class Relation
             $this->baseQuery();
 
             $result = call_user_func_array([$this->query, $method], $args);
+
             if ($result instanceof Query) {
                 $this->option = $result->getOptions();
+
                 return $this;
             } else {
                 $this->option    = [];
                 $this->baseQuery = false;
+
                 return $result;
             }
         } else {

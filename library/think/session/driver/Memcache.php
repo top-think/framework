@@ -43,13 +43,17 @@ class Memcache extends SessionHandler
         if (!extension_loaded('memcache')) {
             throw new Exception('not support:memcache');
         }
+
         $this->handler = new \Memcache;
+
         // 支持集群
         $hosts = explode(',', $this->config['host']);
         $ports = explode(',', $this->config['port']);
+
         if (empty($ports[0])) {
             $ports[0] = 11211;
         }
+
         // 建立连接
         foreach ((array) $hosts as $i => $host) {
             $port = isset($ports[$i]) ? $ports[$i] : $ports[0];
@@ -57,6 +61,7 @@ class Memcache extends SessionHandler
             $this->handler->addServer($host, $port, $this->config['persistent'], 1, $this->config['timeout']) :
             $this->handler->addServer($host, $port, $this->config['persistent'], 1);
         }
+
         return true;
     }
 
@@ -69,6 +74,7 @@ class Memcache extends SessionHandler
         $this->gc(ini_get('session.gc_maxlifetime'));
         $this->handler->close();
         $this->handler = null;
+
         return true;
     }
 

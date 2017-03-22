@@ -48,7 +48,11 @@ class BelongsTo extends OneToOne
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
-        return $this->query->where($this->localKey, $this->parent->$foreignKey)->relation($subRelation)->find();
+
+        return $this->query
+            ->where($this->localKey, $this->parent->$foreignKey)
+            ->relation($subRelation)
+            ->find();
     }
 
     /**
@@ -76,6 +80,7 @@ class BelongsTo extends OneToOne
         $table    = $this->query->getTable();
         $model    = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
+
         if (is_array($where)) {
             foreach ($where as $key => $val) {
                 if (false === strpos($key, '.')) {
@@ -84,7 +89,9 @@ class BelongsTo extends OneToOne
                 }
             }
         }
-        return $this->parent->db()->alias($model)
+
+        return $this->parent->db()
+            ->alias($model)
             ->field($model . '.*')
             ->join($table . ' ' . $relation, $model . '.' . $this->foreignKey . '=' . $relation . '.' . $this->localKey, $this->joinType)
             ->where($where);
@@ -119,8 +126,10 @@ class BelongsTo extends OneToOne
                     $range,
                 ],
             ], $localKey, $relation, $subRelation, $closure);
+
             // 关联属性名
             $attr = Loader::parseName($relation);
+
             // 关联数据封装
             foreach ($resultSet as $result) {
                 // 关联模型
@@ -134,6 +143,7 @@ class BelongsTo extends OneToOne
                     // 绑定关联属性
                     $this->bindAttr($relationModel, $result, $this->bindAttr);
                 }
+
                 // 设置关联属性
                 $result->setAttr($attr, $relationModel);
             }
@@ -154,16 +164,19 @@ class BelongsTo extends OneToOne
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
         $data       = $this->eagerlyWhere($this, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
+
         // 关联模型
         if (!isset($data[$result->$foreignKey])) {
             $relationModel = null;
         } else {
             $relationModel = $data[$result->$foreignKey];
         }
+
         if ($relationModel && !empty($this->bindAttr)) {
             // 绑定关联属性
             $this->bindAttr($relationModel, $result, $this->bindAttr);
         }
+
         // 设置关联属性
         $result->setAttr(Loader::parseName($relation), $relationModel);
     }

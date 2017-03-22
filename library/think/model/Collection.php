@@ -26,6 +26,7 @@ class Collection extends BaseCollection
     {
         $item = current($this->items);
         $item->eagerlyResultSet($this->items, $relation);
+
         return $this;
     }
 
@@ -42,6 +43,7 @@ class Collection extends BaseCollection
             /** @var Model $model */
             $model->hidden($hidden, $override);
         });
+
         return $this;
     }
 
@@ -57,6 +59,7 @@ class Collection extends BaseCollection
             /** @var Model $model */
             $model->visible($visible, $override);
         });
+
         return $this;
     }
 
@@ -73,6 +76,7 @@ class Collection extends BaseCollection
             /** @var Model $model */
             $model->append($append, $override);
         });
+
         return $this;
     }
 

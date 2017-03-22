@@ -57,6 +57,7 @@ class HasManyThrough extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
+
         return $this->relation($subRelation)->select();
     }
 
@@ -136,10 +137,14 @@ class HasManyThrough extends Relation
             $pk           = (new $this->model)->getPk();
             $throughKey   = $this->throughKey;
             $modelTable   = $this->parent->getTable();
-            $this->query->field($alias . '.*')->alias($alias)
+
+            $this->query
+                ->field($alias . '.*')
+                ->alias($alias)
                 ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
                 ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
                 ->where($throughTable . '.' . $this->foreignKey, $this->parent->{$this->localKey});
+
             $this->baseQuery = true;
         }
     }

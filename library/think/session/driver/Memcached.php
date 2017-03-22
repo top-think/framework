@@ -44,27 +44,35 @@ class Memcached extends SessionHandler
         if (!extension_loaded('memcached')) {
             throw new Exception('not support:memcached');
         }
+
         $this->handler = new \Memcached;
+
         // 设置连接超时时间（单位：毫秒）
         if ($this->config['timeout'] > 0) {
             $this->handler->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $this->config['timeout']);
         }
+
         // 支持集群
         $hosts = explode(',', $this->config['host']);
         $ports = explode(',', $this->config['port']);
+
         if (empty($ports[0])) {
             $ports[0] = 11211;
         }
+
         // 建立连接
         $servers = [];
         foreach ((array) $hosts as $i => $host) {
             $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
         }
+
         $this->handler->addServers($servers);
+
         if ('' != $this->config['username']) {
             $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
             $this->handler->setSaslAuthData($this->config['username'], $this->config['password']);
         }
+
         return true;
     }
 
@@ -77,6 +85,7 @@ class Memcached extends SessionHandler
         $this->gc(ini_get('session.gc_maxlifetime'));
         $this->handler->quit();
         $this->handler = null;
+
         return true;
     }
 
