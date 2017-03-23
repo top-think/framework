@@ -1300,7 +1300,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function get($data, $with = [], $cache = false)
     {
         if (is_null($data)) {
-            return null;
+            return;
         }
 
         if (true === $with || is_int($with)) {
