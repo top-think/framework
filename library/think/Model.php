@@ -917,10 +917,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            // 清空change
-            $this->change = [];
             // 更新回调
             $this->trigger('after_update', $this);
+
         } else {
             // 自动写入
             $this->autoCompleteData($this->insert);
@@ -958,13 +957,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 标记为更新
             $this->isUpdate = true;
-            // 清空change
-            $this->change = [];
+
             // 新增回调
             $this->trigger('after_insert', $this);
         }
         // 写入回调
         $this->trigger('after_write', $this);
+
+        // 清空change
+        $this->change = [];
 
         return $result;
     }
