@@ -840,17 +840,31 @@ class Request
      */
     public function cookie($name = '', $default = null, $filter = '')
     {
+        $cookie = Facade::make('cookie');
+
         if (empty($this->cookie)) {
-            $this->cookie = Facade::make('cookie')->get();
+            $this->cookie = $cookie->get();
         }
 
         if (is_array($name)) {
             return $this->cookie = array_merge($this->cookie, $name);
         } elseif (!empty($name)) {
-            $name = Facade::make('cookie')->prefix() . $name;
+            $data = $cookie->has($name) ? $cookie->get($name) : $default;
+        } else {
+            $data = $this->cookie;
         }
 
-        return $this->input($this->cookie, $name, $default, $filter);
+        // 解析过滤器
+        $filter = $this->getFilter($filter, $default);
+
+        if (is_array($data)) {
+            array_walk_recursive($data, [$this, 'filterValue'], $filter);
+            reset($data);
+        } else {
+            $this->filterValue($data, $name, $filter);
+        }
+
+        return $data;
     }
 
     /**
@@ -1039,18 +1053,8 @@ class Request
         }
 
         // 解析过滤器
-        if (is_null($filter)) {
-            $filter = [];
-        } else {
-            $filter = $filter ?: $this->filter;
-            if (is_string($filter)) {
-                $filter = explode(',', $filter);
-            } else {
-                $filter = (array) $filter;
-            }
-        }
+        $filter = $this->getFilter($filter, $default);
 
-        $filter[] = $default;
         if (is_array($data)) {
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
             reset($data);
@@ -1078,6 +1082,24 @@ class Request
         } else {
             $this->filter = $filter;
         }
+    }
+
+    protected function getFilter($filter, $default)
+    {
+        if (is_null($filter)) {
+            $filter = [];
+        } else {
+            $filter = $filter ?: $this->filter;
+            if (is_string($filter)) {
+                $filter = explode(',', $filter);
+            } else {
+                $filter = (array) $filter;
+            }
+        }
+
+        $filter[] = $default;
+
+        return $filter;
     }
 
     /**
