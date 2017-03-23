@@ -802,10 +802,12 @@ class Request
     public function cookie($name = '', $default = null, $filter = '')
     {
         if (empty($this->cookie)) {
-            $this->cookie = $_COOKIE;
+            $this->cookie = Cookie::get();
         }
         if (is_array($name)) {
             return $this->cookie = array_merge($this->cookie, $name);
+        } elseif (!empty($name)) {
+            $name = Cookie::prefix() . $name;
         }
         return $this->input($this->cookie, $name, $default, $filter);
     }

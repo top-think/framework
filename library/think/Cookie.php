@@ -135,22 +135,35 @@ class Cookie
      * @param string|null   $prefix cookie前缀
      * @return mixed
      */
-    public static function get($name, $prefix = null)
+    public static function get($name = '', $prefix = null)
     {
         !isset(self::$init) && self::init();
         $prefix = !is_null($prefix) ? $prefix : self::$config['prefix'];
-        $name   = $prefix . $name;
-        if (isset($_COOKIE[$name])) {
-            $value = $_COOKIE[$name];
+        $key    = $prefix . $name;
+
+        if ('' == $name) {
+            // 获取全部
+            if ($prefix) {
+                $value = [];
+                foreach ($_COOKIE as $k => $val) {
+                    if (0 === strpos($k, $prefix)) {
+                        $value[$k] = $val;
+                    }
+                }
+            } else {
+                $value = $_COOKIE;
+            }
+        } elseif (isset($_COOKIE[$key])) {
+            $value = $_COOKIE[$key];
             if (0 === strpos($value, 'think:')) {
                 $value = substr($value, 6);
                 $value = json_decode($value, true);
                 array_walk_recursive($value, 'self::jsonFormatProtect', 'decode');
             }
-            return $value;
         } else {
-            return;
+            $value = null;
         }
+        return $value;
     }
 
     /**
