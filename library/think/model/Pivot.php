@@ -19,6 +19,8 @@ class Pivot extends Model
     /** @var Model */
     public $parent;
 
+    protected $autoWriteTimestamp = false;
+
     /**
      * 架构函数
      * @access public
@@ -28,17 +30,16 @@ class Pivot extends Model
      */
     public function __construct(Model $parent, $data = [], $table = '')
     {
-        if (is_object($data)) {
-            $this->data = get_object_vars($data);
-        } else {
-            $this->data = $data;
-        }
-
         $this->parent = $parent;
 
         if (is_null($this->name)) {
             $this->name = $table;
         }
+
+        parent::__construct($data);
+
+        // 当前类名
+        $this->class = $this->name;
     }
 
 }
