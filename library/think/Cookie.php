@@ -151,28 +151,40 @@ class Cookie
 
     /**
      * Cookie获取
-     * @param string        $name cookie名称
+     * @param string        $name cookie名称 留空获取全部
      * @param string|null   $prefix cookie前缀
      * @return mixed
      */
-    public function get($name, $prefix = null)
+    public function get($name = '', $prefix = null)
     {
         !isset($this->init) && $this->init();
 
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
-        $name   = $prefix . $name;
+        $key    = $prefix . $name;
 
-        if (isset($_COOKIE[$name])) {
-            $value = $_COOKIE[$name];
+        if ('' == $name) {
+            if ($prefix) {
+                $value = [];
+                foreach ($_COOKIE as $k => $val) {
+                    if (0 === strpos($k, $prefix)) {
+                        $value[$k] = $val;
+                    }
+                }
+            } else {
+                $value = $_COOKIE;
+            }
+        } elseif (isset($_COOKIE[$key])) {
+            $value = $_COOKIE[$key];
             if (0 === strpos($value, 'think:')) {
                 $value = substr($value, 6);
                 $value = json_decode($value, true);
                 array_walk_recursive($value, $this->jsonFormatProtect, 'decode');
             }
-            return $value;
         } else {
-            return;
+            $value = null;
         }
+
+        return $value;
     }
 
     /**

@@ -820,7 +820,7 @@ class Request
     public function session($name = '', $default = null, $filter = '')
     {
         if (empty($this->session)) {
-            $this->session = Session::get();
+            $this->session = Facade::make('session')->get();
         }
 
         if (is_array($name)) {
@@ -841,11 +841,13 @@ class Request
     public function cookie($name = '', $default = null, $filter = '')
     {
         if (empty($this->cookie)) {
-            $this->cookie = $_COOKIE;
+            $this->cookie = Facade::make('cookie')->get();
         }
 
         if (is_array($name)) {
             return $this->cookie = array_merge($this->cookie, $name);
+        } elseif (!empty($name)) {
+            $name = Facade::make('cookie')->prefix() . $name;
         }
 
         return $this->input($this->cookie, $name, $default, $filter);
@@ -1634,13 +1636,13 @@ class Request
             if (isset($fun)) {
                 $key = $fun($key);
             }
-
+            $cache = Facade::make('cache');
             if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
                 // 读取缓存
                 $response = Response::create()->code(304);
                 throw new \think\exception\HttpResponseException($response);
-            } elseif (Cache::has($key)) {
-                list($content, $header) = Cache::get($key);
+            } elseif ($cache->has($key)) {
+                list($content, $header) = $cache->get($key);
                 $response               = Response::create($content)->header($header);
                 throw new \think\exception\HttpResponseException($response);
             } else {
