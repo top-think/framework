@@ -314,6 +314,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 获取变化的数据
+     * @access public
+     * @return array
+     */
+    public function getChangeData()
+    {
+        return array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+            return $a === $b ? 0 : 1;
+        });
+    }
+
+    /**
      * 修改器 设置数据对象值
      * @access public
      * @param string $name  属性名
@@ -938,9 +950,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             // 去除没有更新的字段
-            $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-                return $a === $b ? 0 : 1;
-            });
+            $data = $this->getChangeData();
 
             // 保留主键数据
             foreach ($this->data as $key => $val) {
