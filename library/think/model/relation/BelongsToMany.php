@@ -121,7 +121,7 @@ class BelongsToMany extends Relation
     public function getRelation($subRelation = '', $closure = null)
     {
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            call_user_func_array($closure, [& $this->query]);
         }
         $result = $this->buildQuery()->relation($subRelation)->select();
         $this->hydratePivot($result);
@@ -501,6 +501,55 @@ class BelongsToMany extends Relation
             $model = $this->model;
             $model::destroy($id);
         }
+    }
+
+    /**
+     * 数据同步
+     * @param array $ids
+     * @param bool  $detaching
+     * @return array
+     */
+    public function sync($ids, $detaching = true)
+    {
+        $changes = [
+            'attached' => [],
+            'detached' => [],
+            'updated'  => []
+        ];
+        $pk      = $this->parent->getPk();
+        $current = $this->pivot->where($this->localKey, $this->parent->$pk)
+            ->column($this->foreignKey);
+        $records = [];
+
+        foreach ($ids as $key => $value) {
+            if (!is_array($value)) {
+                $records[$value] = [];
+            } else {
+                $records[$key] = $value;
+            }
+        }
+
+        $detach = array_diff($current, array_keys($records));
+
+        if ($detaching && count($detach) > 0) {
+            $this->detach($detach);
+
+            $changes['detached'] = $detach;
+        }
+
+        foreach ($records as $id => $attributes) {
+            if (!in_array($id, $current)) {
+                $this->attach($id, $attributes);
+                $changes['attached'][] = $id;
+            } elseif (count($attributes) > 0 &&
+                $this->attach($id, $attributes)
+            ) {
+                $changes['updated'][] = $id;
+            }
+        }
+
+        return $changes;
+
     }
 
     /**
