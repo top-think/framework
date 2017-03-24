@@ -1291,9 +1291,9 @@ class Route
 
             $pattern = array_merge($this->rules['pattern'], $pattern);
 
-            if (false !== $match = $this->match($url, $rule, $pattern, $merge)) {
+            if (false !== $match = $this->match($url, $rule, $pattern)) {
                 // 匹配到路由规则
-                return $this->parseRule($rule, $route, $url, $option, $match, $merge);
+                return $this->parseRule($rule, $route, $url, $option, $match);
             }
         }
 

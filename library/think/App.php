@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\exception\RouteNotFoundException;
 
@@ -327,7 +326,8 @@ class App implements \ArrayAccess
             // 请求缓存检查
             $this->request->cache($this->config('app.request_cache'), $this->config('app.request_cache_expire'), $this->config('app.request_cache_except'));
 
-            $data = $this->exec($dispatch);
+            // 执行调度
+            $data = $dispatch->run();
 
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
@@ -353,55 +353,14 @@ class App implements \ArrayAccess
     }
 
     /**
-     * 执行当前请求的调度
-     * @access public
-     * @param array  $dispatch 调度信息
-     * @return mixed
-     */
-    public function exec($dispatch)
-    {
-        switch ($dispatch['type']) {
-            case 'redirect':
-                // 执行重定向跳转
-                $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
-                break;
-            case 'module':
-                // 模块/控制器/操作
-                $data = $this->module($dispatch['module'], isset($dispatch['convert']) ? $dispatch['convert'] : null);
-                break;
-            case 'controller':
-                // 执行控制器操作
-                $vars = array_merge($this->request->param(), $dispatch['var']);
-                $data = $this->action($dispatch['controller'], $vars, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'));
-                break;
-            case 'method':
-                // 执行回调方法
-                $vars = array_merge($this->request->param(), $dispatch['var']);
-                $data = $this->container->invokeMethod($dispatch['method'], $vars);
-                break;
-            case 'function':
-                // 执行闭包
-                $data = $this->container->invokeFunction($dispatch['function']);
-                break;
-            case 'response':
-                $data = $dispatch['response'];
-                break;
-            default:
-                throw new \InvalidArgumentException('dispatch type not support');
-        }
-        return $data;
-    }
-
-    /**
      * 设置当前请求的调度信息
      * @access public
-     * @param array|string  $dispatch 调度信息
-     * @param string        $type 调度类型
+     * @param Dispatch  $dispatch 调度信息
      * @return void
      */
-    public function dispatch($dispatch, $type = 'module')
+    public function dispatch(Dispatch $dispatch)
     {
-        $this->dispatch = ['type' => $type, $type => $dispatch];
+        $this->dispatch = $dispatch;
     }
 
     /**
@@ -423,107 +382,6 @@ class App implements \ArrayAccess
     public function config($name = '')
     {
         return $this->config->get($name);
-    }
-
-    /**
-     * 执行模块
-     * @access public
-     * @param array $result 模块/控制器/操作
-     * @param bool  $convert 是否自动转换控制器和操作名
-     * @return mixed
-     */
-    public function module($result, $convert = null)
-    {
-        if (is_string($result)) {
-            $result = explode('/', $result);
-        }
-
-        if ($this->config('app.app_multi_module')) {
-            // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $this->config('app.default_module')));
-            $bind      = $this->route->getBind('module');
-            $available = false;
-
-            if ($bind) {
-                // 绑定模块
-                list($bindModule) = explode('/', $bind);
-                if (empty($result[0])) {
-                    $module    = $bindModule;
-                    $available = true;
-                } elseif ($module == $bindModule) {
-                    $available = true;
-                }
-            } elseif (!in_array($module, $this->config('app.deny_module_list')) && is_dir($this->appPath . $module)) {
-                $available = true;
-            }
-
-            // 模块初始化
-            if ($module && $available) {
-                // 初始化模块
-                $this->request->module($module);
-                $this->init($module);
-
-                // 加载当前模块语言包
-                $this->lang->load($this->appPath . $module . '/lang/' . $this->request->langset() . '.php');
-
-                // 模块请求缓存检查
-                $this->request->cache($this->config('app.request_cache'), $this->config('app.request_cache_expire'), $this->config('app.request_cache_except'));
-
-            } else {
-                throw new HttpException(404, 'module not exists:' . $module);
-            }
-        } else {
-            // 单一模块部署
-            $module = '';
-            $this->request->module($module);
-        }
-        // 当前模块路径
-        $this->modulePath = $this->appPath . ($module ? $module . '/' : '');
-
-        // 是否自动转换控制器和操作名
-        $convert = is_bool($convert) ? $convert : $this->config('app.url_convert');
-        // 获取控制器名
-        $controller = strip_tags($result[1] ?: $this->config('app.default_controller'));
-        $controller = $convert ? strtolower($controller) : $controller;
-
-        // 获取操作名
-        $actionName = strip_tags($result[2] ?: $this->config('app.default_action'));
-        $actionName = $convert ? strtolower($actionName) : $actionName;
-
-        // 设置当前请求的控制器、操作
-        $this->request->controller(Loader::parseName($controller, 1))->action($actionName);
-
-        // 监听module_init
-        $this->hook->listen('module_init', $this->request);
-
-        $instance = $this->controller($controller, $this->config('app.url_controller_layer'), $this->config('app.controller_suffix'), $this->config('app.empty_controller'));
-
-        if (is_null($instance)) {
-            throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
-        }
-
-        // 获取当前操作名
-        $action = $actionName . $this->config('app.action_suffix');
-
-        if (is_callable([$instance, $action])) {
-            // 执行操作方法
-            $call = [$instance, $action];
-            // 自动获取请求变量
-            $vars = $this->Config('app.url_param_type')
-            ? $this->request->route()
-            : $this->request->param();
-        } elseif (is_callable([$instance, '_empty'])) {
-            // 空操作
-            $call = [$instance, '_empty'];
-            $vars = [$actionName];
-        } else {
-            // 操作不存在
-            throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
-        }
-
-        $this->hook->listen('action_begin', $call);
-
-        return $this->container->invokeMethod($call, $vars);
     }
 
     /**
