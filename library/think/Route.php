@@ -1184,9 +1184,9 @@ class Route
                 }
             }
             $pattern = array_merge(self::$rules['pattern'], $pattern);
-            if (false !== $match = self::match($url, $rule, $pattern, $merge)) {
+            if (false !== $match = self::match($url, $rule, $pattern)) {
                 // 匹配到路由规则
-                return self::parseRule($rule, $route, $url, $option, $match, $merge);
+                return self::parseRule($rule, $route, $url, $option, $match);
             }
         }
         return false;
