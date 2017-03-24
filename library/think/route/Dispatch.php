@@ -17,8 +17,6 @@ abstract class Dispatch
 {
     // 应用实例
     protected $app;
-    // 调度类型
-    protected $type;
     // 调度操作
     protected $action;
     // 调度参数
@@ -28,19 +26,21 @@ abstract class Dispatch
     // 是否区分大小写
     protected $caseUrl = true;
 
-    public function __construct($type, $action, $param = [], $code = null)
+    public function __construct($action, $param = [], $code = null)
     {
         $this->app    = Container::make('app');
-        $this->type   = $type;
         $this->action = $action;
         $this->param  = $param;
         $this->code   = $code;
     }
 
-    function case ($case) {
+    public function caseUrl($case)
+    {
         $this->caseUrl = $case;
+
+        return $this;
     }
 
-    public function run()
-    {}
+    abstract public function run();
+
 }

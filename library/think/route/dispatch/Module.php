@@ -11,24 +11,14 @@
 
 namespace think\route\dispatch;
 
+use think\Container;
 use think\exception\HttpException;
+use think\Loader;
 use think\route\Dispatch;
 
 class Module extends Dispatch
 {
     public function run()
-    {
-        return $this->module();
-    }
-
-    /**
-     * 执行模块
-     * @access public
-     * @param array $result 模块/控制器/操作
-     * @param bool  $convert 是否自动转换控制器和操作名
-     * @return mixed
-     */
-    public function module()
     {
         $result = $this->action;
 
@@ -59,7 +49,7 @@ class Module extends Dispatch
             if ($module && $available) {
                 // 初始化模块
                 $this->app['request']->module($module);
-                $this->init($module);
+                $this->app->init($module);
 
                 // 加载当前模块语言包
                 $this->app['lang']->load($this->app->getAppPath() . $module . '/lang/' . $this->app['request']->langset() . '.php');
@@ -79,7 +69,7 @@ class Module extends Dispatch
         $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . '/' : ''));
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($convert) ? $convert : $this->app->config('app.url_convert');
+        $convert = is_bool($this->caseUrl) ? $caseUrl : $this->app->config('app.url_convert');
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $this->app->config('app.default_controller'));
         $controller = $convert ? strtolower($controller) : $controller;

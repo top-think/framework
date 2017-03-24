@@ -11,9 +11,7 @@
 
 namespace think\route;
 
-use IteratorAggregate;
-
-class RuleGroup extends Rule implements IteratorAggregate
+class Domain extends Rule
 {
 
     protected $name;
@@ -36,16 +34,7 @@ class RuleGroup extends Rule implements IteratorAggregate
         $this->name    = $name;
         $this->option  = $option;
         $this->pattern = $pattern;
-    }
-
-    /**
-     * Retrieve an external iterator
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->rules);
+        $this->request = $router['request'];
     }
 
     // 检测分组下的路由

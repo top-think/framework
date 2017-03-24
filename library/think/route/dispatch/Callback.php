@@ -11,6 +11,7 @@
 
 namespace think\route\dispatch;
 
+use think\Container;
 use think\route\Dispatch;
 
 class Callback extends Dispatch

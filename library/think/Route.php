@@ -12,6 +12,9 @@
 namespace think;
 
 use think\exception\HttpException;
+use think\route\Domain;
+use think\route\Rule;
+use think\route\RuleGroup;
 
 class Route
 {
@@ -58,6 +61,7 @@ class Route
     private $bind = [];
     // 当前分组信息
     private $group = [];
+
     // 当前子域名绑定
     private $domainBind;
     private $domainRule;
@@ -94,35 +98,23 @@ class Route
     /**
      * 注册子域名部署规则
      * @access public
-     * @param string|array  $domain 子域名
+     * @param string|array  $name 子域名
      * @param mixed         $rule 路由规则
      * @param array         $option 路由参数
      * @param array         $pattern 变量规则
      * @return void
      */
-    public function domain($domain, $rule = '', $option = [], $pattern = [])
+    public function domain($name, $rule = '', $option = [], $pattern = [])
     {
-        if (is_array($domain)) {
-            foreach ($domain as $key => $item) {
-                $this->domain($key, $item, $option, $pattern);
-            }
-        } elseif ($rule instanceof \Closure) {
-            // 执行闭包
-            $this->setDomain($domain);
-            call_user_func_array($rule, []);
-            $this->setDomain(null);
-        } elseif (is_array($rule)) {
-            $this->setDomain($domain);
-            $this->group('', function () use ($rule) {
-                // 动态注册域名的路由规则
-                $this->registerRules($rule);
-            }, $option, $pattern);
-            $this->setDomain(null);
-        } else {
-            $this->rules['domain'][$domain]['[bind]'] = [$rule, $option, $pattern];
-        }
 
-        return $this;
+        // 执行闭包
+        $this->setDomain($name);
+        $domain               = new Domain($this, $name, $option, $pattern);
+        $this->domains[$name] = $domain;
+        call_user_func_array($rule, []);
+        $this->setDomain(null);
+
+        return $domain;
     }
 
     private function setDomain($domain)
@@ -235,9 +227,9 @@ class Route
                 $key = substr($key, 1, -1);
                 $this->group($key, $val);
             } elseif (is_array($val)) {
-                $this->setRule($key, $val[0], $type, $val[1], isset($val[2]) ? $val[2] : []);
+                $this->rule($key, $val[0], $type, $val[1], isset($val[2]) ? $val[2] : []);
             } else {
-                $this->setRule($key, $val, $type);
+                $this->rule($key, $val, $type);
             }
         }
 
@@ -253,277 +245,117 @@ class Route
      * @param array     $pattern 变量规则
      * @return void
      */
-    public function rule($rule, $route = '', $type = '*', $option = [], $pattern = [])
-    {
-        $group = $this->getGroup('name');
-
-        if (!is_null($group)) {
-            // 路由分组
-            $option  = array_merge($this->getGroup('option'), $option);
-            $pattern = array_merge($this->getGroup('pattern'), $pattern);
-        }
-
-        $type = strtolower($type);
-
-        if (strpos($type, '|')) {
-            $option['method'] = $type;
-            $type             = '*';
-        }
-
-        if (is_array($rule) && empty($route)) {
-            foreach ($rule as $key => $val) {
-                if (is_numeric($key)) {
-                    $key = array_shift($val);
-                }
-
-                if (is_array($val)) {
-                    $route    = $val[0];
-                    $option1  = array_merge($option, $val[1]);
-                    $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
-                } else {
-                    $route = $val;
-                }
-
-                $this->setRule($key, $route, $type, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern, $group);
-            }
-        } else {
-            $this->setRule($rule, $route, $type, $option, $pattern, $group);
-        }
-
-        return $this;
-    }
-
-    /**
-     * 设置路由规则
-     * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param string    $type 请求类型
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
-     * @param string    $group 所属分组
-     * @return void
-     */
-    protected function setRule($rule, $route, $type = '*', $option = [], $pattern = [], $group = '')
+    public function rule($rule, $route, $type = '*', $option = [], $pattern = [])
     {
         if (is_array($rule)) {
-            $name = $rule[0];
-            $rule = $rule[1];
+            list($name, $rule) = $rule;
         } elseif (is_string($route)) {
             $name = $route;
         }
-
-        if (!isset($option['complete_match'])) {
-            if ($this->app['config']->get('route_complete_match')) {
-                $option['complete_match'] = true;
-            } elseif ('$' == substr($rule, -1, 1)) {
-                // 是否完整匹配
-                $option['complete_match'] = true;
-            }
-        } elseif (empty($option['complete_match']) && '$' == substr($rule, -1, 1)) {
-            // 是否完整匹配
-            $option['complete_match'] = true;
-        }
-
-        if ('$' == substr($rule, -1, 1)) {
-            $rule = substr($rule, 0, -1);
-        }
-
-        if ('/' != $rule || $group) {
-            $rule = trim($rule, '/');
-        }
-
-        $vars = $this->parseVar($rule);
-
         if (isset($name)) {
-            $key    = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
-            $suffix = isset($option['ext']) ? $option['ext'] : null;
-            $this->name($name, [$key, $vars, $this->domain, $suffix]);
+            $vars = $this->parseVar($rule);
+            $this->setName($name, $rule, $vars, $option);
         }
+        $type = strtolower($type);
 
-        if ($group) {
-            if ('*' != $type) {
-                $option['method'] = $type;
-            }
+        $rule = new Rule($this, $rule, $route, $type, $option, $pattern);
 
-            if ($this->domain) {
-                $this->rules['domain'][$this->domain]['*'][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
-            } else {
-                $this->rules['*'][$group]['rule'][] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
-            }
-        } else {
-            if ('*' != $type && isset($this->rules['*'][$rule])) {
-                unset($this->rules['*'][$rule]);
-            }
+        $this->rules[$type][] = $rule;
 
-            if ($this->domain) {
-                $this->rules['domain'][$this->domain][$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
-            } else {
-                $this->rules[$type][$rule] = ['rule' => $rule, 'route' => $route, 'var' => $vars, 'option' => $option, 'pattern' => $pattern];
-            }
+        $groupName = $this->getCurrentGroup();
+        $group     = $this->getRuleGroup($groupName);
 
-            if ('*' == $type) {
-                // 注册路由快捷方式
-                foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
-                    if ($this->domain) {
-                        $this->rules['domain'][$this->domain][$method][$rule] = true;
-                    } else {
-                        $this->rules[$method][$rule] = true;
-                    }
-                }
-            }
+        $group->addRule($rule, $type);
+
+        if ($this->domain) {
+            $this->domains[$this->domain]->addRule($rule);
         }
+        return $rule;
     }
 
-    /**
-     * 设置当前执行的参数信息
-     * @access public
-     * @param array    $options 参数信息
-     * @return mixed
-     */
-    protected function setOption($options = [])
+    public function setName($name, $vars = [], $option = [])
     {
-        $this->option[] = $options;
-    }
+        $group = $this->getCurrentGroup();
+        $key   = $group ? $group() . ($rule ? '/' . $rule : '') : $rule;
 
-    /**
-     * 获取当前执行的所有参数信息
-     * @access public
-     * @return array
-     */
-    public function getOption()
-    {
-        return $this->option;
-    }
+        $suffix = isset($option['ext']) ? $option['ext'] : null;
 
-    /**
-     * 获取当前的分组信息
-     * @access public
-     * @param string    $type 分组信息名称 name option pattern
-     * @return mixed
-     */
-    public function getGroup($type)
-    {
-        if (isset($this->group[$type])) {
-            return $this->group[$type];
-        } else {
-            return 'name' == $type ? null : [];
-        }
-    }
-
-    /**
-     * 设置当前的路由分组
-     * @access public
-     * @param string    $name 分组名称
-     * @param array     $option 分组路由参数
-     * @param array     $pattern 分组变量规则
-     * @return void
-     */
-    public function setGroup($name, $option = [], $pattern = [])
-    {
-        $this->group['name']    = $name;
-        $this->group['option']  = $option ?: [];
-        $this->group['pattern'] = $pattern ?: [];
+        $this->name[strtolower($name)] = [$key, $vars, $this->domain, $suffix];
     }
 
     /**
      * 注册路由分组
      * @access public
-     * @param string|array      $name 分组名称或者参数
-     * @param array|\Closure    $routes 路由地址
-     * @param array             $option 路由参数
-     * @param array             $pattern 变量规则
-     * @return void
+     * @param string|array  $name       分组名称或者参数
+     * @param \Closure      $closure    分组路由
+     * @param array         $option     路由参数
+     * @param array         $pattern    变量规则
+     * @return RuleGroup
      */
-    public function group($name, $routes, $option = [], $pattern = [])
+    public function group($name, $closure, $option = [], $pattern = [])
     {
         if (is_array($name)) {
             $option = $name;
             $name   = isset($option['name']) ? $option['name'] : '';
         }
 
-        // 分组
-        $currentGroup = $this->getGroup('name');
-
-        if ($currentGroup) {
-            $name = $currentGroup . ($name ? '/' . ltrim($name, '/') : '');
+        if ($this->group) {
+            // 存在上级分组
+            $parentGroupName = $this->getCurrentGroup();
         }
 
-        if (!empty($name)) {
-            if ($routes instanceof \Closure) {
-                $currentOption  = $this->getGroup('option');
-                $currentPattern = $this->getGroup('pattern');
+        // 分组开始
+        $this->startGroup($name);
 
-                $this->setGroup($name, array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
-                call_user_func_array($routes, []);
-                $this->setGroup($currentGroup, $currentOption, $currentPattern);
+        $groupName = $this->getCurrentGroup();
+        $group     = new RuleGroup($this, $groupName, $option, $pattern);
 
-                if ($currentGroup != $name) {
-                    $this->rules['*'][$name]['route']   = '';
-                    $this->rules['*'][$name]['var']     = $this->parseVar($name);
-                    $this->rules['*'][$name]['option']  = $option;
-                    $this->rules['*'][$name]['pattern'] = $pattern;
-                }
-            } else {
-                $item = [];
-                foreach ($routes as $key => $val) {
-                    if (is_numeric($key)) {
-                        $key = array_shift($val);
-                    }
+        $this->setRuleGroup($groupName, $group);
 
-                    if (is_array($val)) {
-                        $route    = $val[0];
-                        $option1  = array_merge($option, isset($val[1]) ? $val[1] : []);
-                        $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
-                    } else {
-                        $route = $val;
-                    }
-
-                    $options  = isset($option1) ? $option1 : $option;
-                    $patterns = isset($pattern1) ? $pattern1 : $pattern;
-
-                    if ('$' == substr($key, -1, 1)) {
-                        // 是否完整匹配
-                        $options['complete_match'] = true;
-                        $key                       = substr($key, 0, -1);
-                    }
-
-                    $key    = trim($key, '/');
-                    $vars   = $this->parseVar($key);
-                    $item[] = ['rule' => $key, 'route' => $route, 'var' => $vars, 'option' => $options, 'pattern' => $patterns];
-
-                    // 设置路由标识
-                    $suffix = isset($options['ext']) ? $options['ext'] : null;
-
-                    $this->name($route, [$name . ($key ? '/' . $key : ''), $vars, $this->domain, $suffix]);
-                }
-                $this->rules['*'][$name] = ['rule' => $item, 'route' => '', 'var' => [], 'option' => $option, 'pattern' => $pattern];
-            }
-
-            foreach (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'] as $method) {
-                if (!isset($this->rules[$method][$name])) {
-                    $this->rules[$method][$name] = true;
-                } elseif (is_array($this->rules[$method][$name])) {
-                    $this->rules[$method][$name] = array_merge($this->rules['*'][$name], $this->rules[$method][$name]);
-                }
-            }
-
-        } elseif ($routes instanceof \Closure) {
-            // 闭包注册
-            $currentOption  = $this->getGroup('option');
-            $currentPattern = $this->getGroup('pattern');
-
-            $this->setGroup('', array_merge($currentOption, $option), array_merge($currentPattern, $pattern));
-
-            call_user_func_array($routes, []);
-
-            $this->setGroup($currentGroup, $currentOption, $currentPattern);
-        } else {
-            // 批量注册路由
-            $this->rule($routes, '', '*', $option, $pattern);
+        if (isset($parentGroupName)) {
+            $parentGroup = $this->getRuleGroup($parentGroupName);
+            $parentGroup->addRule($group);
         }
 
+        // 注册分组路由
+        call_user_func_array($closure);
+
+        // 结束当前分组
+        $this->endGroup();
+
+        if ($this->domain) {
+            $this->domains[$this->domain]->addRule($group);
+        }
+        return $group;
+    }
+
+    public function getRuleGroup($name)
+    {
+        if (!isset($this->rules[$name])) {
+            $this->rules[$name] = new RuleGroup($this, $name);
+        }
+        return $this->rules[$name];
+    }
+
+    public function setRuleGroup($name, $group)
+    {
+        $this->rules[$name] = $group;
         return $this;
+    }
+
+    public function startGroup($name)
+    {
+        $this->group[] = $name;
+    }
+
+    public function endGroup()
+    {
+        array_pop($this->group);
+    }
+
+    public function getCurrentGroup()
+    {
+        return implode('/', $this->group) ?: '__default__';
     }
 
     /**
@@ -895,6 +727,7 @@ class Route
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace($depr, '|', $url);
 
+        // 检测别名路由
         if (isset($this->rules['alias'][$url]) || isset($this->rules['alias'][strstr($url, '|', true)])) {
             // 检测路由别名
             $result = $this->checkRouteAlias($request, $url, $depr);
@@ -924,6 +757,17 @@ class Route
             $url = rtrim($url, '|');
         }
 
+        $match = $this->checkRoutes($rules, $url, $request);
+        if (!$match) {
+            $match = $this->checkRoutes($this->rules[$method], $url, $request);
+        }
+
+        return $match;
+
+    }
+
+    protected function checkRoutes($rules, $url, $request)
+    {
         $item = str_replace('|', '/', $url);
 
         if (isset($rules[$item])) {
@@ -944,7 +788,6 @@ class Route
         if (!empty($rules)) {
             return $this->checkRoute($request, $rules, $url, $depr);
         }
-
         return false;
     }
 
@@ -967,74 +810,17 @@ class Route
     private function checkRoute($request, $rules, $url, $depr = '/', $group = '', $options = [])
     {
         foreach ($rules as $key => $item) {
-            if (true === $item) {
-                $item = $this->getRouteExpress($key);
-            }
-
-            if (!isset($item['rule'])) {
+            if ($item->hasMiss()) {
+                $miss = $item;
+                continue;
+            } elseif ($item->hasAuto()) {
+                $auto = $item;
                 continue;
             }
 
-            $rule    = $item['rule'];
-            $route   = $item['route'];
-            $vars    = $item['var'];
-            $option  = $item['option'];
-            $pattern = $item['pattern'];
-
-            // 检查参数有效性
-            if (!$this->checkOption($option, $request)) {
-                continue;
-            }
-
-            if (isset($option['ext'])) {
-                // 路由ext参数 优先于系统配置的URL伪静态后缀参数
-                $url = preg_replace('/\.' . $request->ext() . '$/i', '', $url);
-            }
-
-            if (is_array($rule)) {
-                // 分组路由
-                $pos = strpos(str_replace('<', ':', $key), ':');
-
-                if (false !== $pos) {
-                    $str = substr($key, 0, $pos);
-                } else {
-                    $str = $key;
-                }
-
-                if (is_string($str) && $str && 0 !== strpos(str_replace('|', '/', $url), $str)) {
-                    continue;
-                }
-
-                $this->setOption($option);
-
-                $result = $this->checkRoute($request, $rule, $url, $depr, $key, $option);
-
-                if (false !== $result) {
-                    return $result;
-                }
-            } elseif ($route) {
-                if ('__miss__' == $rule || '__auto__' == $rule) {
-                    // 指定特殊路由
-                    $var    = trim($rule, '__');
-                    ${$var} = $item;
-                    continue;
-                }
-
-                if ($group) {
-                    $rule = $group . ($rule ? '/' . ltrim($rule, '/') : '');
-                }
-
-                $this->setOption($option);
-
-                if (isset($options['bind_model']) && isset($option['bind_model'])) {
-                    $option['bind_model'] = array_merge($options['bind_model'], $option['bind_model']);
-                }
-
-                $result = $this->checkRule($rule, $route, $url, $pattern, $option, $depr);
-
-                if (false !== $result) {
-                    return $result;
-                }
+            $result = $item->check($url);
+            if (false !== $result) {
+                return $result;
             }
         }
 
@@ -1152,7 +938,7 @@ class Route
             $this->parseUrlParams($array[1]);
         }
 
-        return ['type' => 'method', 'method' => [$class, $action], 'var' => []];
+        return new CallbackDispatch([$class, $action]);
     }
 
     /**
@@ -1174,7 +960,7 @@ class Route
             $this->parseUrlParams($array[2]);
         }
 
-        return ['type' => 'method', 'method' => [$namespace . '\\' . Loader::parseName($class, 1), $method], 'var' => []];
+        return new CallbackDispatch([$namespace . '\\' . Loader::parseName($class, 1), $method]);
     }
 
     /**
@@ -1195,7 +981,7 @@ class Route
             $this->parseUrlParams($array[1]);
         }
 
-        return ['type' => 'controller', 'controller' => $controller . '/' . $action, 'var' => []];
+        return new ControllerDispatch($controller . '/' . $action);
     }
 
     /**
@@ -1216,88 +1002,7 @@ class Route
             $this->parseUrlParams($array[1]);
         }
 
-        return ['type' => 'module', 'module' => $controller . '/' . $action];
-    }
-
-    /**
-     * 路由参数有效性检查
-     * @access private
-     * @param array     $option 路由参数
-     * @param Request   $request Request对象
-     * @return bool
-     */
-    private function checkOption($option, $request)
-    {
-        if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
-            || (isset($option['ajax']) && $option['ajax'] && !$request->isAjax()) // Ajax检测
-             || (isset($option['ajax']) && !$option['ajax'] && $request->isAjax()) // 非Ajax检测
-             || (isset($option['pjax']) && $option['pjax'] && !$request->isPjax()) // Pjax检测
-             || (isset($option['pjax']) && !$option['pjax'] && $request->isPjax()) // 非Pjax检测
-             || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|')) // 伪静态后缀检测
-             || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))
-            || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $this->subDomain])) // 域名检测
-             || (isset($option['https']) && $option['https'] && !$request->isSsl()) // https检测
-             || (isset($option['https']) && !$option['https'] && $request->isSsl()) // https检测
-             || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测
-             || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * 检测路由规则
-     * @access private
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param string    $url URL地址
-     * @param array     $pattern 变量规则
-     * @param array     $option 路由参数
-     * @param string    $depr URL分隔符（全局）
-     * @return array|false
-     */
-    private function checkRule($rule, $route, $url, $pattern, $option, $depr)
-    {
-        // 检查完整规则定义
-        if (isset($pattern['__url__']) && !preg_match('/^' . $pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
-            return false;
-        }
-
-        // 检查路由的参数分隔符
-        if (isset($option['param_depr'])) {
-            $url = str_replace(['|', $option['param_depr']], [$depr, '|'], $url);
-        }
-
-        $len1 = substr_count($url, '|');
-        $len2 = substr_count($rule, '/');
-
-        // 多余参数是否合并
-        $merge = !empty($option['merge_extra_vars']) ? true : false;
-
-        if ($merge && $len1 > $len2) {
-            $url = str_replace('|', $depr, $url);
-            $url = implode('|', explode($depr, $url, $len2 + 1));
-        }
-
-        if ($len1 >= $len2 || strpos($rule, '[')) {
-            if (!empty($option['complete_match'])) {
-                // 完整匹配
-                if (!$merge && $len1 != $len2 && (false === strpos($rule, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($rule, '['))) {
-                    return false;
-                }
-            }
-
-            $pattern = array_merge($this->rules['pattern'], $pattern);
-
-            if (false !== $match = $this->match($url, $rule, $pattern)) {
-                // 匹配到路由规则
-                return $this->parseRule($rule, $route, $url, $option, $match);
-            }
-        }
-
-        return false;
+        return new ModuleDispatch($controller . '/' . $action);
     }
 
     /**
@@ -1377,7 +1082,7 @@ class Route
             }
         }
 
-        return ['type' => 'module', 'module' => $route];
+        return new ModuleDispatch($route);
     }
 
     /**
@@ -1409,282 +1114,6 @@ class Route
         }
 
         return [$path, $var];
-    }
-
-    /**
-     * 检测URL和规则路由是否匹配
-     * @access private
-     * @param string    $url URL地址
-     * @param string    $rule 路由规则
-     * @param array     $pattern 变量规则
-     * @return array|false
-     */
-    private function match($url, $rule, $pattern)
-    {
-        $m2 = explode('/', $rule);
-        $m1 = explode('|', $url);
-
-        $var = [];
-
-        foreach ($m2 as $key => $val) {
-            // val中定义了多个变量 <id><name>
-            if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
-                $value   = [];
-                $replace = [];
-
-                foreach ($matches[1] as $name) {
-                    if (strpos($name, '?')) {
-                        $name      = substr($name, 0, -1);
-                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')?';
-                    } else {
-                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')';
-                    }
-                    $value[] = $name;
-                }
-
-                $val = str_replace($matches[0], $replace, $val);
-
-                if (preg_match('/^' . $val . '$/', isset($m1[$key]) ? $m1[$key] : '', $match)) {
-                    array_shift($match);
-                    foreach ($value as $k => $name) {
-                        if (isset($match[$k])) {
-                            $var[$name] = $match[$k];
-                        }
-                    }
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-
-            if (0 === strpos($val, '[:')) {
-                // 可选参数
-                $val      = substr($val, 1, -1);
-                $optional = true;
-            } else {
-                $optional = false;
-            }
-
-            if (0 === strpos($val, ':')) {
-                // URL变量
-                $name = substr($val, 1);
-
-                if (!$optional && !isset($m1[$key])) {
-                    return false;
-                }
-
-                if (isset($m1[$key]) && isset($pattern[$name])) {
-                    // 检查变量规则
-                    if ($pattern[$name] instanceof \Closure) {
-                        $result = call_user_func_array($pattern[$name], [$m1[$key]]);
-                        if (false === $result) {
-                            return false;
-                        }
-                    } elseif (!preg_match('/^' . $pattern[$name] . '$/', $m1[$key])) {
-                        return false;
-                    }
-                }
-
-                $var[$name] = isset($m1[$key]) ? $m1[$key] : '';
-            } elseif (!isset($m1[$key]) || 0 !== strcasecmp($val, $m1[$key])) {
-                return false;
-            }
-        }
-
-        // 成功匹配后返回URL中的动态变量数组
-        return $var;
-    }
-
-    /**
-     * 解析规则路由
-     * @access private
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param string    $pathinfo URL地址
-     * @param array     $option 路由参数
-     * @param array     $matches 匹配的变量
-     * @return array
-     */
-    private function parseRule($rule, $route, $pathinfo, $option = [], $matches = [])
-    {
-        $request = $this->app['request'];
-
-        // 解析路由规则
-        if ($rule) {
-            $rule = explode('/', $rule);
-            // 获取URL地址中的参数
-            $paths = explode('|', $pathinfo);
-
-            foreach ($rule as $item) {
-                $fun = '';
-                if (0 === strpos($item, '[:')) {
-                    $item = substr($item, 1, -1);
-                }
-                if (0 === strpos($item, ':')) {
-                    $var           = substr($item, 1);
-                    $matches[$var] = array_shift($paths);
-                } else {
-                    // 过滤URL中的静态变量
-                    array_shift($paths);
-                }
-            }
-        } else {
-            $paths = explode('|', $pathinfo);
-        }
-
-        // 获取路由地址规则
-        if (is_string($route) && isset($option['prefix'])) {
-            // 路由地址前缀
-            $route = $option['prefix'] . $route;
-        }
-
-        // 替换路由地址中的变量
-        if (is_string($route) && !empty($matches)) {
-            foreach ($matches as $key => $val) {
-                if (false !== strpos($route, ':' . $key)) {
-                    $route = str_replace(':' . $key, $val, $route);
-                }
-            }
-        }
-
-        // 绑定模型数据
-        if (isset($option['bind_model'])) {
-            $bind = [];
-            foreach ($option['bind_model'] as $key => $val) {
-                if ($val instanceof \Closure) {
-                    $result = call_user_func_array($val, [$matches]);
-                } else {
-                    if (is_array($val)) {
-                        $fields    = explode('&', $val[1]);
-                        $model     = $val[0];
-                        $exception = isset($val[2]) ? $val[2] : true;
-                    } else {
-                        $fields    = ['id'];
-                        $model     = $val;
-                        $exception = true;
-                    }
-
-                    $where = [];
-                    $match = true;
-
-                    foreach ($fields as $field) {
-                        if (!isset($matches[$field])) {
-                            $match = false;
-                            break;
-                        } else {
-                            $where[$field] = $matches[$field];
-                        }
-                    }
-
-                    if ($match) {
-                        $query  = strpos($model, '\\') ? $model::where($where) : Loader::model($model)->where($where);
-                        $result = $query->failException($exception)->find();
-                    }
-                }
-                if (!empty($result)) {
-                    $bind[$key] = $result;
-                }
-            }
-
-            $request->bind($bind);
-        }
-
-        // 解析额外参数
-        $this->parseUrlParams(empty($paths) ? '' : implode('|', $paths), $matches);
-        // 记录匹配的路由信息
-        $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
-
-        // 检测路由after行为
-        if (!empty($option['after_behavior'])) {
-            if ($option['after_behavior'] instanceof \Closure) {
-                $result = call_user_func_array($option['after_behavior'], []);
-            } else {
-                foreach ((array) $option['after_behavior'] as $behavior) {
-                    $result = $this->app['hook']->exec($behavior, '');
-
-                    if (!is_null($result)) {
-                        break;
-                    }
-                }
-            }
-
-            // 路由规则重定向
-            if ($result instanceof Response) {
-                return ['type' => 'response', 'response' => $result];
-            } elseif (is_array($result)) {
-                return $result;
-            }
-        }
-
-        if ($route instanceof \Closure) {
-            // 执行闭包
-            $result = ['type' => 'function', 'function' => $route];
-        } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
-            // 路由到重定向地址
-            $result = ['type' => 'redirect', 'url' => $route, 'status' => isset($option['status']) ? $option['status'] : 301];
-        } elseif (false !== strpos($route, '\\')) {
-            // 路由到方法
-            list($path, $var) = $this->parseUrlPath($route);
-            $route            = str_replace('/', '@', implode('/', $path));
-            $method           = strpos($route, '@') ? explode('@', $route) : $route;
-            $result           = ['type' => 'method', 'method' => $method, 'var' => $var];
-        } elseif (0 === strpos($route, '@')) {
-            // 路由到控制器
-            $route             = substr($route, 1);
-            list($route, $var) = $this->parseUrlPath($route);
-            $result            = ['type' => 'controller', 'controller' => implode('/', $route), 'var' => $var];
-
-            $request->action(array_pop($route));
-            $request->controller($route ? array_pop($route) : $this->app->config('default_controller'));
-            $request->module($route ? array_pop($route) : $this->app->config('default_module'));
-            $this->app->setModulePath($this->app->getAppPath() . ($this->app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
-        } else {
-            // 路由到模块/控制器/操作
-            $result = $this->parseModule($route);
-        }
-
-        // 开启请求缓存
-        if ($request->isGet() && isset($option['cache'])) {
-            $cache = $option['cache'];
-
-            if (is_array($cache)) {
-                list($key, $expire) = $cache;
-            } else {
-                $key    = str_replace('|', '/', $pathinfo);
-                $expire = $cache;
-            }
-
-            $request->cache($key, $expire);
-        }
-
-        return $result;
-    }
-
-    /**
-     * 解析URL地址为 模块/控制器/操作
-     * @access private
-     * @param string    $url URL地址
-     * @return array
-     */
-    private function parseModule($url)
-    {
-        list($path, $var) = $this->parseUrlPath($url);
-
-        $action     = array_pop($path);
-        $controller = !empty($path) ? array_pop($path) : null;
-        $module     = $this->app['config']->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-        $method     = $this->app['request']->method();
-
-        if ($this->app['config']->get('use_action_prefix') && !empty($this->methodPrefix[$method])) {
-            // 操作方法前缀支持
-            $action = 0 !== strpos($action, $this->methodPrefix[$method]) ? $this->methodPrefix[$method] . $action : $action;
-        }
-
-        // 设置当前请求的路由变量
-        $this->app['request']->route($var);
-
-        // 路由到模块/控制器/操作
-        return ['type' => 'module', 'module' => [$module, $controller, $action], 'convert' => false];
     }
 
     /**
