@@ -13,7 +13,7 @@ namespace think;
 
 use think\exception\HttpException;
 use think\route\Domain;
-use think\route\Rule;
+use think\route\RouteRule as Rule;
 use think\route\RuleGroup;
 
 class Route
@@ -268,6 +268,7 @@ class Route
         $group->addRule($rule, $type);
 
         if ($this->domain) {
+            // TODO 如果上级分组已经添加了 则这里不需要添加
             $this->domains[$this->domain]->addRule($rule);
         }
         return $rule;
@@ -756,44 +757,8 @@ class Route
         if ('|' != $url) {
             $url = rtrim($url, '|');
         }
-
-        $match = $this->checkRoutes($rules, $url, $request);
-        if (!$match) {
-            $match = $this->checkRoutes($this->rules[$method], $url, $request);
-        }
-
-        return $match;
-
-    }
-
-    protected function checkRoutes($rules, $url, $request)
-    {
-        $item = str_replace('|', '/', $url);
-
-        if (isset($rules[$item])) {
-            // 静态路由规则检测
-            $rule = $rules[$item];
-
-            if (true === $rule) {
-                $rule = $this->getRouteExpress($item);
-            }
-
-            if (!empty($rule['route']) && $this->checkOption($rule['option'], $request)) {
-                $this->setOption($rule['option']);
-                return $this->parseRule($item, $rule['route'], $url, $rule['option']);
-            }
-        }
-
-        // 路由规则检测
-        if (!empty($rules)) {
-            return $this->checkRoute($request, $rules, $url, $depr);
-        }
-        return false;
-    }
-
-    private function getRouteExpress($key)
-    {
-        return $this->domainRule ? $this->domainRule['*'][$key] : $this->rules['*'][$key];
+        $url = str_replace('|', '/', $url);
+        return $this->checkRoute($this->rules, $url, $request);
     }
 
     /**
@@ -807,29 +772,13 @@ class Route
      * @param array     $options 路由参数（分组）
      * @return mixed
      */
-    private function checkRoute($request, $rules, $url, $depr = '/', $group = '', $options = [])
+    private function checkRoute($rules, $url, $depr = '/')
     {
         foreach ($rules as $key => $item) {
-            if ($item->hasMiss()) {
-                $miss = $item;
-                continue;
-            } elseif ($item->hasAuto()) {
-                $auto = $item;
-                continue;
-            }
-
-            $result = $item->check($url);
+            $result = $item->check($url, $depr);
             if (false !== $result) {
                 return $result;
             }
-        }
-
-        if (isset($auto)) {
-            // 自动解析URL地址
-            return $this->parseUrl($auto['route'] . '/' . $url, $depr);
-        } elseif (isset($miss)) {
-            // 未匹配所有路由的路由规则处理
-            return $this->parseRule('', $miss['route'], $url, $miss['option']);
         }
 
         return false;

@@ -51,7 +51,17 @@ class RuleGroup extends Rule implements IteratorAggregate
     // 检测分组下的路由
     public function check($url, $depr = '/')
     {
+        // 检测静态路由
 
+        // 检测分组路由
+
+        if (isset($auto)) {
+            // 自动解析URL地址
+            return $this->parseUrl($auto['route'] . '/' . $url, $depr);
+        } elseif (isset($miss)) {
+            // 未匹配所有路由的路由规则处理
+            return $this->parseRule('', $miss['route'], $url, $miss['option']);
+        }
     }
 
     public function addRule($rule, $method = '*')
