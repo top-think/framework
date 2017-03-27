@@ -31,6 +31,7 @@ class File
         if (is_array($config)) {
             $this->config = array_merge($this->config, $config);
         }
+
         if (empty($this->config['path'])) {
             $this->config['path'] = Facade::make('app')->getRuntimePath() . 'log/';
         }
@@ -79,6 +80,7 @@ class File
             $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
             $uri    = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
         }
+
         foreach ($log as $type => $val) {
             $level = '';
             foreach ($val as $msg) {
@@ -87,6 +89,7 @@ class File
                 }
                 $level .= '[ ' . $type . ' ] ' . $msg . "\r\n";
             }
+
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 $filename = $path . '/' . date('d') . '_' . $type . '.log';
@@ -95,9 +98,11 @@ class File
                 $info .= $level;
             }
         }
+
         if (Facade::make('app')->isDebug()) {
             $info = "{$server} {$remote} {$method} {$uri}\r\n" . $info;
         }
+
         return error_log("[{$now}] {$info}\r\n{$depr}", 3, $destination);
     }
 

@@ -260,17 +260,11 @@ class Route
 
         $rule = new Rule($this, $rule, $route, $type, $option, $pattern);
 
-        $this->rules[$type][] = $rule;
-
         $groupName = $this->getCurrentGroup();
         $group     = $this->getRuleGroup($groupName);
 
         $group->addRule($rule, $type);
 
-        if ($this->domain) {
-            // TODO 如果上级分组已经添加了 则这里不需要添加
-            $this->domains[$this->domain]->addRule($rule);
-        }
         return $rule;
     }
 
@@ -334,6 +328,11 @@ class Route
     {
         if (!isset($this->rules[$name])) {
             $this->rules[$name] = new RuleGroup($this, $name);
+
+            if ($this->domain) {
+                // 给域名添加分组规则
+                $this->domains[$this->domain]->addRule($this->rules[$name]);
+            }
         }
         return $this->rules[$name];
     }
@@ -527,9 +526,9 @@ class Route
     public function alias($rule = null, $route = '', $option = [])
     {
         if (is_array($rule)) {
-            $this->rules['alias'] = array_merge($this->rules['alias'], $rule);
+            $this->alias = array_merge($this->alias, $rule);
         } else {
-            $this->rules['alias'][$rule] = $option ? [$route, $option] : $route;
+            $this->alias[$rule] = $option ? [$route, $option] : $route;
         }
 
         return $this;
@@ -616,102 +615,70 @@ class Route
      * 检测子域名部署
      * @access public
      * @param Request   $request Request请求对象
-     * @param array     $currentRules 当前路由规则
+     * @param array     $rules 当前路由规则
      * @param string    $method 请求类型
      * @return void
      */
-    public function checkDomain($request, &$currentRules, $method = 'get')
+    public function checkDomain($request, &$rules, $method = 'get')
     {
-        // 域名规则
-        $rules = $this->rules['domain'];
-
         // 开启子域名部署 支持二级和三级域名
-        if (!empty($rules)) {
+        if (!empty($this->domains)) {
             $host = $request->host();
-            if (isset($rules[$host])) {
+            if (isset($this->domains[$host])) {
                 // 完整域名或者IP配置
-                $item = $rules[$host];
+                $item = $this->domains[$host];
             } else {
-                $rootDomain = $this->app['config']->get('url_domain_root');
-                if ($rootDomain) {
-                    // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-                    $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
-                } else {
-                    $domain = explode('.', $host, -2);
-                }
-                // 子域名配置
-                if (!empty($domain)) {
-                    // 当前子域名
-                    $subDomain       = implode('.', $domain);
-                    $this->subDomain = $subDomain;
-                    $domain2         = array_pop($domain);
-                    if ($domain) {
-                        // 存在三级域名
-                        $domain3 = array_pop($domain);
-                    }
-                    if ($subDomain && isset($rules[$subDomain])) {
-                        // 子域名配置
-                        $item = $rules[$subDomain];
-                    } elseif (isset($rules['*.' . $domain2]) && !empty($domain3)) {
-                        // 泛三级域名
-                        $item      = $rules['*.' . $domain2];
-                        $panDomain = $domain3;
-                    } elseif (isset($rules['*']) && !empty($domain2)) {
-                        // 泛二级域名
-                        if ('www' != $domain2) {
-                            $item      = $rules['*'];
-                            $panDomain = $domain2;
-                        }
-                    }
-                }
+                // 自动检测当前域名
+                $item = $this->matchDomain($this->domains);
             }
+
             if (!empty($item)) {
-                if (isset($panDomain)) {
-                    // 保存当前泛域名
-                    $request->route(['__domain__' => $panDomain]);
-                }
-                if (isset($item['[bind]'])) {
-                    // 解析子域名部署规则
-                    list($rule, $option, $pattern) = $item['[bind]'];
-                    if (!empty($option['https']) && !$request->isSsl()) {
-                        // https检测
-                        throw new HttpException(404, 'must use https request:' . $host);
-                    }
-
-                    if (strpos($rule, '?')) {
-                        // 传入其它参数
-                        $array  = parse_url($rule);
-                        $result = $array['path'];
-                        parse_str($array['query'], $params);
-                        if (isset($panDomain)) {
-                            $pos = array_search('*', $params);
-                            if (false !== $pos) {
-                                // 泛域名作为参数
-                                $params[$pos] = $panDomain;
-                            }
-                        }
-                        $_GET = array_merge($_GET, $params);
-                    } else {
-                        $result = $rule;
-                    }
-
-                    if (0 === strpos($result, '\\')) {
-                        // 绑定到命名空间 例如 \app\index\behavior
-                        $this->bind = ['type' => 'namespace', 'namespace' => $result];
-                    } elseif (0 === strpos($result, '@')) {
-                        // 绑定到类 例如 @app\index\controller\User
-                        $this->bind = ['type' => 'class', 'class' => substr($result, 1)];
-                    } else {
-                        // 绑定到模块/控制器 例如 index/user
-                        $this->bind = ['type' => 'module', 'module' => $result];
-                    }
-                    $this->domainBind = true;
-                } else {
-                    $this->domainRule = $item;
-                    $currentRules     = isset($item[$method]) ? $item[$method] : $item['*'];
-                }
+                return $item->check($request, $url);
             }
         }
+        return false;
+    }
+
+    protected function matchDomain($domains)
+    {
+        $rootDomain = $this->app['config']->get('url_domain_root');
+        if ($rootDomain) {
+            // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
+            $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
+        } else {
+            $domain = explode('.', $host, -2);
+        }
+        // 子域名配置
+        $item = false;
+        if (!empty($domain)) {
+            // 当前子域名
+            $subDomain       = implode('.', $domain);
+            $this->subDomain = $subDomain;
+            $domain2         = array_pop($domain);
+            if ($domain) {
+                // 存在三级域名
+                $domain3 = array_pop($domain);
+            }
+            if ($subDomain && isset($domains[$subDomain])) {
+                // 子域名配置
+                $item = $domains[$subDomain];
+            } elseif (isset($domains['*.' . $domain2]) && !empty($domain3)) {
+                // 泛三级域名
+                $item      = $domains['*.' . $domain2];
+                $panDomain = $domain3;
+            } elseif (isset($domains['*']) && !empty($domain2)) {
+                // 泛二级域名
+                if ('www' != $domain2) {
+                    $item      = $domains['*'];
+                    $panDomain = $domain2;
+                }
+            }
+            if (isset($panDomain)) {
+                // 保存当前泛域名
+                $request->route(['__domain__' => $panDomain]);
+            }
+        }
+        return $item;
     }
 
     /**
@@ -729,7 +696,7 @@ class Route
         $url = str_replace($depr, '|', $url);
 
         // 检测别名路由
-        if (isset($this->rules['alias'][$url]) || isset($this->rules['alias'][strstr($url, '|', true)])) {
+        if (isset($this->alias[$url]) || isset($this->alias[strstr($url, '|', true)])) {
             // 检测路由别名
             $result = $this->checkRouteAlias($request, $url, $depr);
             if (false !== $result) {
@@ -739,12 +706,12 @@ class Route
 
         $method = strtolower($request->method());
 
-        // 获取当前请求类型的路由规则
-        $rules = $this->rules[$method];
-
         // 检测域名部署
         if ($checkDomain) {
-            $this->checkDomain($request, $rules, $method);
+            $result = $this->checkDomain($url, $request, $method);
+            if (false !== $result) {
+                return $result;
+            }
         }
 
         // 检测URL绑定
@@ -758,6 +725,7 @@ class Route
             $url = rtrim($url, '|');
         }
         $url = str_replace('|', '/', $url);
+
         return $this->checkRoute($this->rules, $url, $request);
     }
 
@@ -776,6 +744,7 @@ class Route
     {
         foreach ($rules as $key => $item) {
             $result = $item->check($url, $depr);
+
             if (false !== $result) {
                 return $result;
             }
@@ -796,7 +765,7 @@ class Route
     {
         $array = explode('|', $url);
         $alias = array_shift($array);
-        $item  = $this->rules['alias'][$alias];
+        $item  = $this->alias[$alias];
 
         if (is_array($item)) {
             list($rule, $option) = $item;

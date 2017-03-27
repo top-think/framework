@@ -19,29 +19,19 @@ use think\route\dispatch\Callback as CallbackDispatch;
 
 class RouteRule extends Rule
 {
-    // 路由对象实例
-    private $router;
     // 路由规则
-    private $rule;
+    protected $rule;
     // 路由标识
-    private $name;
+    protected $name;
     // 路由地址
-    private $route;
+    protected $route;
     // 请求类型
-    private $method;
-    // 域名
-    private $domain;
-    // 当前分组
-    private $group;
-    // 路由参数
-    private $option = [];
-    // 路由变量规则
-    private $pattern = [];
+    protected $method;
 
     // 路由匹配模式
-    private $completeMatch = false;
+    protected $completeMatch = false;
     // 不同请求类型的方法前缀
-    private $methodPrefix = [
+    protected $methodPrefix = [
         'get'    => 'get',
         'post'   => 'post',
         'put'    => 'put',
@@ -113,23 +103,8 @@ class RouteRule extends Rule
         $this->method = $method;
     }
 
-    /**
-     * 获取路由标识信息
-     * @access public
-     * @return array
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function getOption($name)
-    {
-        return isset($this->option[$name]) ? $this->option[$name] : null;
-    }
-
     // 检测路由规则
-    public function check($url, $request, $depr = '/')
+    public function check($request, $url, $depr = '/')
     {
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {

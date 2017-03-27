@@ -424,6 +424,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function writeTransform($value, $type)
     {
+        if (is_null($value)) {
+            return null;
+        }
+
         if (is_array($type)) {
             list($type, $param) = $type;
         } elseif (strpos($type, ':')) {
@@ -543,6 +547,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function readTransform($value, $type)
     {
+        if (is_null($value)) {
+            return null;
+        }
+
         if (is_array($type)) {
             list($type, $param) = $type;
         } elseif (strpos($type, ':')) {

@@ -98,7 +98,7 @@ class App implements \ArrayAccess
     protected $configExt;
 
     /**
-     * @var array 应用调图信息
+     * @var Dispatch 应用调度实例
      */
     protected $dispatch;
 

@@ -16,12 +16,14 @@ use IteratorAggregate;
 class RuleGroup extends Rule implements IteratorAggregate
 {
 
+    // 分组名
     protected $name;
-    protected $rules   = [];
-    protected $option  = [];
+    // 分组路由（包括子分组）
+    protected $rules = [];
+    // 分组参数
+    protected $option = [];
+    // 分组变量规则
     protected $pattern = [];
-    protected $router;
-    protected $request;
 
     /**
      * 架构函数
@@ -36,16 +38,6 @@ class RuleGroup extends Rule implements IteratorAggregate
         $this->name    = $name;
         $this->option  = $option;
         $this->pattern = $pattern;
-    }
-
-    /**
-     * Retrieve an external iterator
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->rules);
     }
 
     // 检测分组下的路由
@@ -71,33 +63,13 @@ class RuleGroup extends Rule implements IteratorAggregate
         return $this;
     }
 
-    public function option($option)
+    /**
+     * Retrieve an external iterator
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * <b>Traversable</b>
+     */
+    public function getIterator()
     {
-        $this->option = $option;
-
-        return $this;
+        return new ArrayIterator($this->rules);
     }
-
-    public function pattern($pattern)
-    {
-        $this->pattern = $pattern;
-
-        return $this;
-    }
-
-    public function getOption()
-    {
-        return $this->option;
-    }
-
-    public function getPattern()
-    {
-        return $this->pattern;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
 }

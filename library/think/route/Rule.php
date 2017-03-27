@@ -11,26 +11,14 @@
 
 namespace think\route;
 
-class Rule
+abstract class Rule
 {
     // 路由对象实例
-    private $router;
-    // 路由规则
-    private $rule;
-    // 路由标识
-    private $name;
-    // 路由地址
-    private $route;
-    // 请求类型
-    private $method;
-    // 域名
-    private $domain;
-    // 当前分组
-    private $group;
+    protected $router;
     // 路由参数
-    private $option = [];
+    protected $option = [];
     // 路由变量规则
-    private $pattern = [];
+    protected $pattern = [];
 
     // 路由匹配模式
     private $completeMatch = false;
@@ -43,8 +31,41 @@ class Rule
         'patch'  => 'patch',
     ];
 
-    public function getOption($name)
+    abstract public function check($request, $url, $depr = '/');
+
+    public function option(array $option = [])
     {
+        $this->option = $option;
+
+        return $this;
+    }
+
+    public function pattern(array $pattern = [])
+    {
+        $this->pattern = $pattern;
+
+        return $this;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getPattern($name = '')
+    {
+        if ('' === $name) {
+            return $this->pattern;
+        }
+        return isset($this->pattern[$name]) ? $this->pattern[$name] : null;
+    }
+
+    public function getOption($name = '')
+    {
+        if ('' === $name) {
+            return $this->option;
+        }
+
         return isset($this->option[$name]) ? $this->option[$name] : null;
     }
 
@@ -78,12 +99,12 @@ class Rule
 
     /**
      * 解析URL地址中的参数Request对象
-     * @access private
+     * @access protected
      * @param string    $rule 路由规则
      * @param array     $var 变量
      * @return void
      */
-    private function parseUrlParams($url, &$var = [])
+    protected function parseUrlParams($url, &$var = [])
     {
         if ($url) {
             if ($this->app['config']->get('url_param_type')) {
@@ -101,11 +122,11 @@ class Rule
 
     /**
      * 解析URL的pathinfo参数和变量
-     * @access private
+     * @access protected
      * @param string    $url URL地址
      * @return array
      */
-    private function parseUrlPath($url)
+    protected function parseUrlPath($url)
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
