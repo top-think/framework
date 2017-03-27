@@ -102,22 +102,22 @@ EOF;
     {
 
         $baseDir    = '';
-        $appPath    = $this->normalizePath(realpath(APP_PATH));
         $libPath    = $this->normalizePath(realpath(LIB_PATH));
+        $appPath    = $this->normalizePath(realpath(APP_PATH));
         $extendPath = $this->normalizePath(realpath(EXTEND_PATH));
         $rootPath   = $this->normalizePath(realpath(ROOT_PATH));
         $path       = $this->normalizePath($path);
 
-        if (strpos($path, $libPath . '/') === 0) {
+        if ($libPath !== null && strpos($path, $libPath . '/') === 0) {
             $path    = substr($path, strlen(LIB_PATH));
             $baseDir = 'LIB_PATH';
-        } elseif (strpos($path, $appPath . '/') === 0) {
+        } elseif ($appPath !== null && strpos($path, $appPath . '/') === 0) {
             $path    = substr($path, strlen($appPath) + 1);
             $baseDir = 'APP_PATH';
-        } elseif (strpos($path, $extendPath . '/') === 0) {
+        } elseif ($extendPath !== null && strpos($path, $extendPath . '/') === 0) {
             $path    = substr($path, strlen($extendPath) + 1);
             $baseDir = 'EXTEND_PATH';
-        } elseif (strpos($path, $rootPath . '/') === 0) {
+        } elseif ($rootPath !== null && strpos($path, $rootPath . '/') === 0) {
             $path    = substr($path, strlen($rootPath) + 1);
             $baseDir = 'ROOT_PATH';
         }
@@ -131,6 +131,9 @@ EOF;
 
     protected function normalizePath($path)
     {
+        if ($path === false) {
+            return null;
+        }
         $parts    = [];
         $path     = strtr($path, '\\', '/');
         $prefix   = '';
