@@ -368,7 +368,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function writeTransform($value, $type)
     {
         if (is_null($value)) {
-            return null;
+            return;
         }
 
         if (is_array($type)) {
@@ -480,7 +480,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function readTransform($value, $type)
     {
         if (is_null($value)) {
-            return null;
+            return;
         }
 
         if (is_array($type)) {

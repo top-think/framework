@@ -132,7 +132,7 @@ EOF;
     protected function normalizePath($path)
     {
         if ($path === false) {
-            return null;
+            return;
         }
         $parts    = [];
         $path     = strtr($path, '\\', '/');
