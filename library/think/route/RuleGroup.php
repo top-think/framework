@@ -12,6 +12,7 @@
 namespace think\route;
 
 use IteratorAggregate;
+use think\Route;
 
 class RuleGroup extends Rule implements IteratorAggregate
 {
@@ -41,18 +42,32 @@ class RuleGroup extends Rule implements IteratorAggregate
     }
 
     // 检测分组下的路由
-    public function check($url, $depr = '/')
+    public function check($request, $url, $depr = '/')
     {
+        // 检查参数有效性
+        if (!$this->checkOption($this->option, $request)) {
+            return false;
+        }
+
         // 检测静态路由
 
         // 检测分组路由
+        $method = strtolower($request->method());
 
-        if (isset($auto)) {
+        foreach ($this->rules[$method] as $key => $item) {
+            $result = $item->check($request, $url, $depr);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
+
+        if (isset($this->auto)) {
             // 自动解析URL地址
-            return $this->parseUrl($auto['route'] . '/' . $url, $depr);
-        } elseif (isset($miss)) {
+            return $this->parseUrl($this->auto['route'] . '/' . $url, $depr);
+        } elseif (isset($this->miss)) {
             // 未匹配所有路由的路由规则处理
-            return $this->parseRule('', $miss['route'], $url, $miss['option']);
+            return $this->parseRule('', $this->miss['route'], $url, $this->miss['option']);
         }
     }
 

@@ -13,27 +13,14 @@ namespace think;
 
 use think\exception\HttpException;
 use think\route\Domain;
-use think\route\RouteRule as Rule;
+use think\route\RouteRule;
 use think\route\RuleGroup;
 
 class Route
 {
 
     // 路由规则
-    private $rules = [
-        'get'     => [],
-        'post'    => [],
-        'put'     => [],
-        'delete'  => [],
-        'patch'   => [],
-        'head'    => [],
-        'options' => [],
-        '*'       => [],
-        'alias'   => [],
-        'domain'  => [],
-        'pattern' => [],
-        'name'    => [],
-    ];
+    private $rules = [];
 
     // REST路由操作方法定义
     private $rest = [
@@ -68,7 +55,8 @@ class Route
     // 当前域名
     private $domain;
     // 当前路由执行过程中的参数
-    private $option = [];
+    private $option    = [];
+    protected $pattern = [];
 
     protected $app;
 
@@ -87,9 +75,11 @@ class Route
     public function pattern($name = null, $rule = '')
     {
         if (is_array($name)) {
-            $this->rules['pattern'] = array_merge($this->rules['pattern'], $name);
+            $this->pattern = array_merge($this->pattern, $name);
+        } elseif (is_null($name)) {
+            return $this->pattern;
         } else {
-            $this->rules['pattern'][$name] = $rule;
+            $this->pattern[$name] = $rule;
         }
 
         return $this;
@@ -258,7 +248,7 @@ class Route
         }
         $type = strtolower($type);
 
-        $rule = new Rule($this, $rule, $route, $type, $option, $pattern);
+        $rule = new RouteRule($this, $rule, $route, $type, $option, $pattern);
 
         $groupName = $this->getCurrentGroup();
         $group     = $this->getRuleGroup($groupName);
@@ -268,10 +258,10 @@ class Route
         return $rule;
     }
 
-    public function setName($name, $vars = [], $option = [])
+    public function setName($name, $rule, $vars = [], $option = [])
     {
         $group = $this->getCurrentGroup();
-        $key   = $group ? $group() . ($rule ? '/' . $rule : '') : $rule;
+        $key   = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
 
         $suffix = isset($option['ext']) ? $option['ext'] : null;
 
@@ -313,7 +303,7 @@ class Route
         }
 
         // 注册分组路由
-        call_user_func_array($closure);
+        call_user_func($closure);
 
         // 结束当前分组
         $this->endGroup();
@@ -729,6 +719,11 @@ class Route
         return $this->checkRoute($this->rules, $url, $request);
     }
 
+    public function getRequest()
+    {
+        return $this->app['request'];
+    }
+
     /**
      * 检测路由规则
      * @access private
@@ -743,7 +738,7 @@ class Route
     private function checkRoute($rules, $url, $depr = '/')
     {
         foreach ($rules as $key => $item) {
-            $result = $item->check($url, $depr);
+            $result = $item->check($this->app['request'], $url, $depr);
 
             if (false !== $result) {
                 return $result;

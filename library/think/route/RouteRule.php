@@ -11,11 +11,11 @@
 
 namespace think\route;
 
-use think\route\dispatch\Response as ResponseDispatch;
-use think\route\dispatch\Redirect as RedirectDispatch;
-use think\route\dispatch\Module as ModuleDispatch;
-use think\route\dispatch\Controller as ControllerDispatch;
+use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
+use think\route\dispatch\Controller as ControllerDispatch;
+use think\route\dispatch\Module as ModuleDispatch;
+use think\route\dispatch\Redirect as RedirectDispatch;
 
 class RouteRule extends Rule
 {
@@ -48,16 +48,12 @@ class RouteRule extends Rule
      * @param array             $option 路由参数
      * @param array             $pattern 变量规则
      */
-    public function __construct(Route $router, GroupRule $group, $rule, $route, $method = '*', $option = [], $pattern = [])
+    public function __construct(Route $router, $rule, $route, $method = '*', $option = [], $pattern = [])
     {
         $this->router = $router;
-        $this->group  = $group;
-
-
+        $this->group  = $router->getCurrentGroup();
 
         $this->setRule($rule, $option);
-
-
 
         $this->setMethod($method);
 
@@ -116,35 +112,7 @@ class RouteRule extends Rule
             $url = preg_replace('/\.' . $request->ext() . '$/i', '', $url);
         }
 
-        return $this->checkRule($url, $depr);
-    }
-
-    /**
-     * 路由参数有效性检查
-     * @access private
-     * @param array     $option 路由参数
-     * @param Request   $request Request对象
-     * @return bool
-     */
-    private function checkOption($option, $request)
-    {
-        if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
-            || (isset($option['ajax']) && $option['ajax'] && !$request->isAjax()) // Ajax检测
-             || (isset($option['ajax']) && !$option['ajax'] && $request->isAjax()) // 非Ajax检测
-             || (isset($option['pjax']) && $option['pjax'] && !$request->isPjax()) // Pjax检测
-             || (isset($option['pjax']) && !$option['pjax'] && $request->isPjax()) // 非Pjax检测
-             || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|')) // 伪静态后缀检测
-             || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))
-            || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $this->subDomain])) // 域名检测
-             || (isset($option['https']) && $option['https'] && !$request->isSsl()) // https检测
-             || (isset($option['https']) && !$option['https'] && $request->isSsl()) // https检测
-             || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测
-             || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
-        ) {
-            return false;
-        }
-
-        return true;
+        return $this->checkRule($request, $url, $depr);
     }
 
     /**
@@ -158,7 +126,7 @@ class RouteRule extends Rule
      * @param string    $depr URL分隔符（全局）
      * @return array|false
      */
-    private function checkRule($url, $depr)
+    private function checkRule($request, $url, $depr)
     {
         // 检查完整规则定义
         if (isset($this->pattern['__url__']) && !preg_match('/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
@@ -189,11 +157,11 @@ class RouteRule extends Rule
                 }
             }
 
-            $pattern = array_merge($this->router->pattern(), $pattern);
+            $pattern = array_merge($this->router->pattern(), $this->pattern);
 
             if (false !== $match = $this->match($url, $pattern)) {
                 // 匹配到路由规则
-                return $this->parseRule($this->rule, $this->route, $url, $this->option, $match);
+                return $this->parseRule($request, $this->rule, $this->route, $url, $this->option, $match);
             }
         }
 
@@ -293,9 +261,8 @@ class RouteRule extends Rule
      * @param array     $matches 匹配的变量
      * @return Dispatch
      */
-    private function parseRule($rule, $route, $pathinfo, $option = [], $matches = [])
+    private function parseRule($request, $rule, $route, $pathinfo, $option = [], $matches = [])
     {
-        $request = $this->app['request'];
 
         // 解析路由规则
         if ($rule) {
@@ -413,7 +380,7 @@ class RouteRule extends Rule
             // 路由规则重定向
             if ($result instanceof Response) {
                 return ['type' => 'response', 'response' => $result];
-            } elseif ($result instanceof Dispatch )) {
+            } elseif ($result instanceof Dispatch) {
                 return $result;
             }
         }
@@ -423,7 +390,7 @@ class RouteRule extends Rule
             $result = new CallbackDispatch($route);
         } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
-            $result = new RedirectDispatch($route, [],isset($option['status']) ? $option['status'] : 301);
+            $result = new RedirectDispatch($route, [], isset($option['status']) ? $option['status'] : 301);
         } elseif (false !== strpos($route, '\\')) {
             // 路由到方法
             list($path, $var) = $this->parseUrlPath($route);
@@ -474,60 +441,5 @@ class RouteRule extends Rule
         // 路由到模块/控制器/操作
         return new ModuleDispatch([$module, $controller, $action]);
     }
-
-    /**
-     * 解析URL地址中的参数Request对象
-     * @access private
-     * @param string    $rule 路由规则
-     * @param array     $var 变量
-     * @return void
-     */
-    private function parseUrlParams($url, &$var = [])
-    {
-        if ($url) {
-            if ($this->app['config']->get('url_param_type')) {
-                $var += explode('|', $url);
-            } else {
-                preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
-                    $var[$match[1]] = strip_tags($match[2]);
-                }, $url);
-            }
-        }
-
-        // 设置当前请求的参数
-        $this->app['request']->route($var);
-    }
-
-    /**
-     * 解析URL的pathinfo参数和变量
-     * @access private
-     * @param string    $url URL地址
-     * @return array
-     */
-    private function parseUrlPath($url)
-    {
-        // 分隔符替换 确保路由定义使用统一的分隔符
-        $url = str_replace('|', '/', $url);
-        $url = trim($url, '/');
-        $var = [];
-
-        if (false !== strpos($url, '?')) {
-            // [模块/控制器/操作?]参数1=值1&参数2=值2...
-            $info = parse_url($url);
-            $path = explode('/', $info['path']);
-            parse_str($info['query'], $var);
-        } elseif (strpos($url, '/')) {
-            // [模块/控制器/操作]
-            $path = explode('/', $url);
-        } elseif (false !== strpos($url, '=')) {
-            // 参数1=值1&参数2=值2...
-            parse_str($url, $var);
-        } else {
-            $path = [$url];
-        }
-
-        return [$path, $var];
-    }
-
 
 }

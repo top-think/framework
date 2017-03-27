@@ -11,6 +11,8 @@
 
 namespace think\route;
 
+use think\Route;
+
 class Domain extends Rule
 {
     // 域名

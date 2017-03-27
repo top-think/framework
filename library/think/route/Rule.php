@@ -11,6 +11,9 @@
 
 namespace think\route;
 
+use think\Facade;
+use think\Request;
+
 abstract class Rule
 {
     // 路由对象实例
@@ -107,7 +110,7 @@ abstract class Rule
     protected function parseUrlParams($url, &$var = [])
     {
         if ($url) {
-            if ($this->app['config']->get('url_param_type')) {
+            if (Facade::make('config')->get('url_param_type')) {
                 $var += explode('|', $url);
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -117,7 +120,7 @@ abstract class Rule
         }
 
         // 设置当前请求的参数
-        $this->app['request']->route($var);
+        Facade::make('request')->route($var);
     }
 
     /**
