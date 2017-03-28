@@ -22,6 +22,7 @@ use think\model\relation\HasMany;
 use think\model\relation\HasManyThrough;
 use think\model\relation\HasOne;
 use think\model\relation\MorphMany;
+use think\model\relation\MorphOne;
 use think\model\relation\MorphTo;
 
 /**
@@ -1819,8 +1820,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: $this->getForeignKey($model);
         $localKey   = $localKey ?: (new $model)->getPk();
+        $trace      = debug_backtrace(false, 2);
+        $relation   = Loader::parseName($trace[1]['function']);
 
-        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType);
+        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType, $relation);
     }
 
     /**
@@ -1885,6 +1888,36 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * MORPH  One 关联定义
+     * @access public
+     * @param string       $model 模型名
+     * @param string|array $morph 多态字段信息
+     * @param string       $type  多态类型
+     * @return MorphOne
+     */
+    public function morphOne($model, $morph = null, $type = '')
+    {
+        // 记录当前关联信息
+        $model = $this->parseModel($model);
+
+        if (is_null($morph)) {
+            $trace = debug_backtrace(false, 2);
+            $morph = Loader::parseName($trace[1]['function']);
+        }
+
+        if (is_array($morph)) {
+            list($morphType, $foreignKey) = $morph;
+        } else {
+            $morphType  = $morph . '_type';
+            $foreignKey = $morph . '_id';
+        }
+
+        $type = $type ?: Loader::parseName($this->name);
+
+        return new MorphOne($this, $model, $foreignKey, $morphType, $type);
+    }
+
+    /**
      * MORPH  MANY 关联定义
      * @access public
      * @param string       $model 模型名
@@ -1923,9 +1956,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function morphTo($morph = null, $alias = [])
     {
+        $trace    = debug_backtrace(false, 2);
+        $relation = Loader::parseName($trace[1]['function']);
+
         if (is_null($morph)) {
-            $trace = debug_backtrace(false, 2);
-            $morph = Loader::parseName($trace[1]['function']);
+            $morph = $relation;
         }
 
         // 记录当前关联信息
@@ -1936,7 +1971,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $foreignKey = $morph . '_id';
         }
 
-        return new MorphTo($this, $morphType, $foreignKey, $alias);
+        return new MorphTo($this, $morphType, $foreignKey, $alias, $relation);
     }
 
     public function __call($method, $args)
