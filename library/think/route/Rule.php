@@ -22,6 +22,7 @@ use think\route\dispatch\Response as ResponseDispatch;
 
 abstract class Rule
 {
+    protected $name;
     // 路由对象实例
     protected $router;
     // 路由参数
@@ -31,6 +32,7 @@ abstract class Rule
 
     // 路由匹配模式
     private $completeMatch = false;
+
     // 不同请求类型的方法前缀
     private $methodPrefix = [
         'get'    => 'get',
@@ -42,16 +44,38 @@ abstract class Rule
 
     abstract public function check($request, $url, $depr = '/');
 
-    public function option(array $option = [])
+    /**
+     * 注册路由参数
+     * @access public
+     * @param string|array  $name  参数名
+     * @param mixed         $value 值
+     * @return $this
+     */
+    public function option($name, $value = '')
     {
-        $this->option = $option;
+        if (is_array($name)) {
+            $this->option = array_merge($this->option, $name);
+        } else {
+            $this->option[$name] = $value;
+        }
 
         return $this;
     }
 
-    public function pattern(array $pattern = [])
+    /**
+     * 注册变量规则
+     * @access public
+     * @param string|array  $name 变量名
+     * @param string        $rule 变量规则
+     * @return $this
+     */
+    public function pattern($name, $rule = '')
     {
-        $this->pattern = $pattern;
+        if (is_array($name)) {
+            $this->pattern = array_merge($this->pattern, $name);
+        } else {
+            $this->pattern[$name] = $rule;
+        }
 
         return $this;
     }
@@ -313,9 +337,10 @@ abstract class Rule
             $result            = new ControllerDispatch(implode('/', $route), $var);
 
             $request->action(array_pop($route));
-            $request->controller($route ? array_pop($route) : $this->app->config('default_controller'));
-            $request->module($route ? array_pop($route) : $this->app->config('default_module'));
-            $this->app->setModulePath($this->app->getAppPath() . ($this->app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
+            $app = Facade::make('app');
+            $request->controller($route ? array_pop($route) : $app->config('default_controller'));
+            $request->module($route ? array_pop($route) : $app->config('default_module'));
+            $app->setModulePath($app->getAppPath() . ($app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
         } else {
             // 路由到模块/控制器/操作
             $result = $this->parseModule($route);

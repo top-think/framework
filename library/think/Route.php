@@ -64,64 +64,51 @@ class Route
 
     public function __construct(App $app)
     {
-        $this->app = $app;
-        $this->setDefault();
-
-    }
-
-    public function setDefault()
-    {
+        $this->app     = $app;
         $this->group[] = '';
-        $host          = $this->app['request']->host();
-        $this->setDomain($host);
-        $this->domains[$host]       = new Domain($this, $host);
+
+        // 默认分组
         $this->rules['__default__'] = new RuleGroup($this, '');
-        $this->domains[$host]->addRule($this->rules['__default__']);
-        return $this;
+
+        // 默认域名
+        $host = $this->app['request']->host();
+
+        // 注册默认分组到默认域名下
+        $this->domain($host)->addRule($this->rules['__default__']);
     }
 
     /**
-     * 注册变量规则
-     * @access public
-     * @param string|array  $name 变量名
-     * @param string        $rule 变量规则
-     * @return void
-     */
-    public function pattern($name = null, $rule = '')
-    {
-        if (is_array($name)) {
-            $this->pattern = array_merge($this->pattern, $name);
-        } elseif (is_null($name)) {
-            return $this->pattern;
-        } else {
-            $this->pattern[$name] = $rule;
-        }
-
-        return $this;
-    }
-
-    /**
-     * 注册子域名部署规则
+     * 注册域名部署规则
      * @access public
      * @param string|array  $name 子域名
      * @param mixed         $rule 路由规则
      * @param array         $option 路由参数
      * @param array         $pattern 变量规则
-     * @return void
+     * @return Domain
      */
     public function domain($name, $rule = '', $option = [], $pattern = [])
     {
-        // 执行闭包
+        // 设置当前域名
         $this->setDomain($name);
-        $domain               = new Domain($this, $name, $option, $pattern);
-        $this->domains[$name] = $domain;
-        call_user_func_array($rule, []);
+
+        if (!isset($this->domains[$name])) {
+            $this->domains[$name] = new Domain($this, $name, $option, $pattern);
+        }
+
+        // 执行域名路由
+        if ($rule instanceof \Closure) {
+            call_user_func($rule);
+        }
+
+        // 还原默认域名
         $this->setDomain($this->app['request']->host());
 
-        return $domain;
+        // 返回域名对象
+        return $this->domains[$name];
     }
 
-    private function setDomain($domain)
+    // 设置当前域名
+    protected function setDomain($domain)
     {
         $this->domain = $domain;
     }
@@ -150,19 +137,19 @@ class Route
     public function name($name = '', $value = null)
     {
         if (is_array($name)) {
-            $this->rules['name'] = $name;
+            $this->name = $name;
 
             return $this;
         } elseif ('' === $name) {
-            return $this->rules['name'];
+            return $this->name;
         } elseif (!is_null($value)) {
-            $this->rules['name'][strtolower($name)][] = $value;
+            $this->name[strtolower($name)][] = $value;
 
             return $this;
         } else {
             $name = strtolower($name);
 
-            return isset($this->rules['name'][$name]) ? $this->rules['name'][$name] : null;
+            return isset($this->name[$name]) ? $this->name[$name] : null;
         }
     }
 
@@ -247,7 +234,7 @@ class Route
      * @param string    $type 请求类型
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return RuleItem
      */
     public function rule($rule, $route, $type = '*', $option = [], $pattern = [])
     {
@@ -264,11 +251,14 @@ class Route
             $this->setName($name, $rule, $vars, $option);
         }
 
-        $type      = strtolower($type);
+        $type = strtolower($type);
+
         $groupName = $this->getCurrentGroup();
+
         if ('__default__' != $groupName) {
             $rule = $groupName . ($rule ? '/' . $rule : '');
         }
+
         // 创建路由规则实例
         $rule = new RuleItem($this, $rule, $route, $type, $option, $pattern);
 
@@ -282,7 +272,7 @@ class Route
     public function setName($name, $rule, $vars = [], $option = [])
     {
         $group = $this->getCurrentGroup();
-        if ('__default__' != $group) {
+        if ($group && '__default__' != $group) {
             $key = $group . ($rule ? '/' . $rule : '');
         } else {
             $key = $rule;
@@ -310,6 +300,7 @@ class Route
         }
 
         if (empty($name)) {
+            // 给空分组随机生成一个名称
             $name = '__empty__' . uniqid('', true);
         }
 
@@ -336,11 +327,13 @@ class Route
         // 结束当前分组
         $this->endGroup();
 
+        // 注册分组到当前域名
         $this->domains[$this->domain]->addRule($group);
 
         return $group;
     }
 
+    // 获取指定分组对象实例
     public function getRuleGroup($name)
     {
         if (!isset($this->rules[$name])) {
@@ -640,28 +633,30 @@ class Route
     public function checkDomain($request, $url, $method = 'get', $depr)
     {
         // 开启子域名部署 支持二级和三级域名
-
         $host = $request->host();
+
         if (isset($this->domains[$host])) {
             // 完整域名或者IP配置
             $item = $this->domains[$host];
         } else {
             // 自动检测当前域名
-            $item = $this->matchDomain($this->domains, $host);
+            $item = $this->matchDomainRoute($this->domains, $host);
         }
 
-        return $item->check($request, $url, $depr);
+        return $item ? $item->check($request, $url, $depr) : false;
     }
 
-    protected function matchDomain($domains, $host)
+    protected function matchDomainRoute($domains, $host)
     {
         $rootDomain = $this->app['config']->get('url_domain_root');
+
         if ($rootDomain) {
             // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
             $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
         } else {
             $domain = explode('.', $host, -2);
         }
+
         // 子域名配置
         $item = false;
         if (!empty($domain)) {
@@ -669,10 +664,12 @@ class Route
             $subDomain       = implode('.', $domain);
             $this->subDomain = $subDomain;
             $domain2         = array_pop($domain);
+
             if ($domain) {
                 // 存在三级域名
                 $domain3 = array_pop($domain);
             }
+
             if ($subDomain && isset($domains[$subDomain])) {
                 // 子域名配置
                 $item = $domains[$subDomain];
@@ -687,11 +684,13 @@ class Route
                     $panDomain = $domain2;
                 }
             }
+
             if (isset($panDomain)) {
                 // 保存当前泛域名
                 $request->route(['__domain__' => $panDomain]);
             }
         }
+
         return $item;
     }
 
