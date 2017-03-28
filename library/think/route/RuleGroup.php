@@ -33,6 +33,8 @@ class RuleGroup extends Rule implements IteratorAggregate
     protected $option = [];
     // 分组变量规则
     protected $pattern = [];
+    protected $miss;
+    protected $auto;
 
     /**
      * 架构函数

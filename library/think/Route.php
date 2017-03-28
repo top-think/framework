@@ -55,6 +55,7 @@ class Route
     private $domainRule;
     // 当前域名
     private $domain;
+    private $domains;
     // 当前路由执行过程中的参数
     private $option    = [];
     protected $pattern = [];
@@ -64,15 +65,18 @@ class Route
     public function __construct(App $app)
     {
         $this->app = $app;
-        $this->setDefaultGrup();
+        $this->setDefault();
 
     }
 
-    public function setDefaultGrup()
+    public function setDefault()
     {
-        $this->group[]              = '';
+        $this->group[] = '';
+        $host          = $this->app['request']->host();
+        $this->setDomain($host);
+        $this->domains[$host]       = new Domain($this, $host);
         $this->rules['__default__'] = new RuleGroup($this, '');
-
+        $this->domains[$host]->addRule($this->rules['__default__']);
         return $this;
     }
 
@@ -112,7 +116,7 @@ class Route
         $domain               = new Domain($this, $name, $option, $pattern);
         $this->domains[$name] = $domain;
         call_user_func_array($rule, []);
-        $this->setDomain(null);
+        $this->setDomain($this->app['request']->host());
 
         return $domain;
     }
@@ -332,9 +336,7 @@ class Route
         // 结束当前分组
         $this->endGroup();
 
-        if ($this->domain) {
-            $this->domains[$this->domain]->addRule($group);
-        }
+        $this->domains[$this->domain]->addRule($group);
 
         return $group;
     }
@@ -635,27 +637,23 @@ class Route
      * @param string    $method 请求类型
      * @return void
      */
-    public function checkDomain($request, &$rules, $method = 'get')
+    public function checkDomain($request, $url, $method = 'get', $depr)
     {
         // 开启子域名部署 支持二级和三级域名
-        if (!empty($this->domains)) {
-            $host = $request->host();
-            if (isset($this->domains[$host])) {
-                // 完整域名或者IP配置
-                $item = $this->domains[$host];
-            } else {
-                // 自动检测当前域名
-                $item = $this->matchDomain($this->domains);
-            }
 
-            if (!empty($item)) {
-                return $item->check($request, $url);
-            }
+        $host = $request->host();
+        if (isset($this->domains[$host])) {
+            // 完整域名或者IP配置
+            $item = $this->domains[$host];
+        } else {
+            // 自动检测当前域名
+            $item = $this->matchDomain($this->domains, $host);
         }
-        return false;
+
+        return $item->check($request, $url, $depr);
     }
 
-    protected function matchDomain($domains)
+    protected function matchDomain($domains, $host)
     {
         $rootDomain = $this->app['config']->get('url_domain_root');
         if ($rootDomain) {
@@ -721,56 +719,16 @@ class Route
         }
 
         $method = strtolower($request->method());
-
-        // 检测域名部署
-        if ($checkDomain) {
-            $result = $this->checkDomain($url, $request, $method);
-            if (false !== $result) {
-                return $result;
-            }
-        }
-
         // 检测URL绑定
         $return = $this->checkUrlBind($url, $rules, $depr);
 
-        if (false !== $return) {
-            return $return;
-        }
-
-        if ('|' != $url) {
-            $url = rtrim($url, '|');
-        }
-
-        return $this->checkRoute($this->rules, $url, $request);
+        // 检测域名部署
+        return $this->checkDomain($request, $url, $method, $depr);
     }
 
     public function getRequest()
     {
         return $this->app['request'];
-    }
-
-    /**
-     * 检测路由规则
-     * @access private
-     * @param Request   $request
-     * @param array     $rules 路由规则
-     * @param string    $url URL地址
-     * @param string    $depr URL分割符
-     * @param string    $group 路由分组名
-     * @param array     $options 路由参数（分组）
-     * @return mixed
-     */
-    private function checkRoute($rules, $url, $depr = '/')
-    {
-        foreach ($rules as $key => $item) {
-            $result = $item->check($this->app['request'], $url, $depr);
-
-            if (false !== $result) {
-                return $result;
-            }
-        }
-
-        return false;
     }
 
     /**
