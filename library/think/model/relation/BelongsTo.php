@@ -24,6 +24,7 @@ class BelongsTo extends OneToOne
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
      * @param string $joinType JOIN类型
+     * @param string $relation  关联名
      */
     public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER', $relation = null)
     {
