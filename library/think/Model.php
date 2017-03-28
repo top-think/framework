@@ -22,6 +22,7 @@ use think\model\relation\HasMany;
 use think\model\relation\HasManyThrough;
 use think\model\relation\HasOne;
 use think\model\relation\MorphMany;
+use think\model\relation\MorphOne;
 use think\model\relation\MorphTo;
 
 /**
@@ -1738,6 +1739,32 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $foreignKey = $morph . '_id';
         }
         return new MorphMany($this, $model, $foreignKey, $morphType, $type);
+    }
+
+    /**
+     * MORPH  One 关联定义
+     * @access public
+     * @param string       $model 模型名
+     * @param string|array $morph 多态字段信息
+     * @param string       $type  多态类型
+     * @return MorphOne
+     */
+    public function morphOne($model, $morph = null, $type = '')
+    {
+        // 记录当前关联信息
+        $model = $this->parseModel($model);
+        if (is_null($morph)) {
+            $trace = debug_backtrace(false, 2);
+            $morph = Loader::parseName($trace[1]['function']);
+        }
+        $type = $type ?: Loader::parseName($this->name);
+        if (is_array($morph)) {
+            list($morphType, $foreignKey) = $morph;
+        } else {
+            $morphType  = $morph . '_type';
+            $foreignKey = $morph . '_id';
+        }
+        return new MorphOne($this, $model, $foreignKey, $morphType, $type);
     }
 
     /**
