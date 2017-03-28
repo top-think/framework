@@ -1747,9 +1747,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function morphTo($morph = null, $alias = [])
     {
+        $trace    = debug_backtrace(false, 2);
+        $relation = Loader::parseName($trace[1]['function']);
+
         if (is_null($morph)) {
-            $trace = debug_backtrace(false, 2);
-            $morph = Loader::parseName($trace[1]['function']);
+            $morph = $relation;
         }
         // 记录当前关联信息
         if (is_array($morph)) {
@@ -1758,7 +1760,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $morphType  = $morph . '_type';
             $foreignKey = $morph . '_id';
         }
-        return new MorphTo($this, $morphType, $foreignKey, $alias);
+        return new MorphTo($this, $morphType, $foreignKey, $alias, $relation);
     }
 
     public function __call($method, $args)

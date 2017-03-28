@@ -23,6 +23,7 @@ class MorphTo extends Relation
     protected $morphType;
     // 多态别名
     protected $alias;
+    protected $relation;
 
     /**
      * 构造函数
@@ -31,13 +32,15 @@ class MorphTo extends Relation
      * @param string $morphType 多态字段名
      * @param string $morphKey  外键名
      * @param array  $alias     多态别名定义
+     * @param string $relation  关联名
      */
-    public function __construct(Model $parent, $morphType, $morphKey, $alias = [])
+    public function __construct(Model $parent, $morphType, $morphKey, $alias = [], $relation)
     {
         $this->parent    = $parent;
         $this->morphType = $morphType;
         $this->morphKey  = $morphKey;
         $this->alias     = $alias;
+        $this->relation  = $relation;
     }
 
     /**
@@ -237,13 +240,13 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphKey, $model->$pk);
         $this->parent->setAttr($morphType, get_class($model));
         $this->parent->save();
-        return $this;
+
+        return $this->parent->setAttr($this->relation, $model);
     }
 
     /**
-     * 添加关联数据
+     * 注销关联数据
      * @access public
-     * @param Model $model       关联模型对象
      * @return Model
      */
     public function dissociate()
@@ -254,7 +257,8 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphKey, null);
         $this->parent->setAttr($morphType, null);
         $this->parent->save();
-        return $this;
+
+        return $this->parent->setAttr($this->relation, null);
     }
 
     /**
