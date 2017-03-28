@@ -1651,7 +1651,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: $this->getForeignKey($model);
         $localKey   = $localKey ?: (new $model)->getPk();
-        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType);
+        $trace      = debug_backtrace(false, 2);
+        $relation   = Loader::parseName($trace[1]['function']);
+        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType, $relation);
     }
 
     /**

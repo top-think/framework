@@ -30,6 +30,8 @@ abstract class OneToOne extends Relation
     protected $joinType;
     // 要绑定的属性
     protected $bindAttr = [];
+    // 关联方法名
+    protected $relation;
 
     /**
      * 设置join类型

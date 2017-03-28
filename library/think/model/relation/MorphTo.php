@@ -34,7 +34,7 @@ class MorphTo extends Relation
      * @param array  $alias     多态别名定义
      * @param string $relation  关联名
      */
-    public function __construct(Model $parent, $morphType, $morphKey, $alias = [], $relation)
+    public function __construct(Model $parent, $morphType, $morphKey, $alias = [], $relation = null)
     {
         $this->parent    = $parent;
         $this->morphType = $morphType;

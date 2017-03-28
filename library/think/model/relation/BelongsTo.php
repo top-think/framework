@@ -25,7 +25,7 @@ class BelongsTo extends OneToOne
      * @param string $localKey 关联主键
      * @param string $joinType JOIN类型
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER')
+    public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER', $relation = null)
     {
         $this->parent     = $parent;
         $this->model      = $model;
@@ -33,6 +33,7 @@ class BelongsTo extends OneToOne
         $this->localKey   = $localKey;
         $this->joinType   = $joinType;
         $this->query      = (new $model)->db();
+        $this->relation   = $realtion;
     }
 
     /**
@@ -168,4 +169,35 @@ class BelongsTo extends OneToOne
         $result->setAttr(Loader::parseName($relation), $relationModel);
     }
 
+    /**
+     * 添加关联数据
+     * @access public
+     * @param Model $model       关联模型对象
+     * @return Model
+     */
+    public function associate($model)
+    {
+        $foreignKey = $this->foreignKey;
+        $pk         = $model->getPk();
+
+        $this->parent->setAttr($foreignKey, $model->$pk);
+        $this->parent->save();
+
+        return $this->parent->setAttr($this->relation, $model);
+    }
+
+    /**
+     * 注销关联数据
+     * @access public
+     * @return Model
+     */
+    public function dissociate()
+    {
+        $foreignKey = $this->foreignKey;
+
+        $this->parent->setAttr($foreignKey, null);
+        $this->parent->save();
+
+        return $this->parent->setAttr($this->relation, null);
+    }
 }
