@@ -260,10 +260,10 @@ class Route
         }
 
         // 创建路由规则实例
-        $rule = new RuleItem($this, $rule, $route, $type, $option, $pattern);
+        $group = $this->getRuleGroup($groupName);
+        $rule  = new RuleItem($this, $group, $rule, $route, $type, $option, $pattern);
 
         // 添加到当前分组
-        $group = $this->getRuleGroup($groupName);
         $group->addRule($rule, $type);
 
         return $rule;

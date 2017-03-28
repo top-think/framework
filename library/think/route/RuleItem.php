@@ -45,10 +45,10 @@ class RuleItem extends Rule
      * @param array             $option 路由参数
      * @param array             $pattern 变量规则
      */
-    public function __construct(Route $router, $rule, $route, $method = '*', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $group, $rule, $route, $method = '*', $option = [], $pattern = [])
     {
         $this->router = $router;
-        $this->group  = $router->getCurrentGroup();
+        $this->group  = $group;
 
         $this->setRule($rule, $option);
 
@@ -153,7 +153,7 @@ class RuleItem extends Rule
                 }
             }
 
-            $pattern = array_merge($this->router->pattern(), $this->pattern);
+            $pattern = array_merge($this->group->getPattern(), $this->pattern);
 
             if (false !== $match = $this->match($url, $pattern)) {
                 // 匹配到路由规则
