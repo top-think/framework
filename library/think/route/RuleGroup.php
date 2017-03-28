@@ -20,7 +20,15 @@ class RuleGroup extends Rule implements IteratorAggregate
     // 分组名
     protected $name;
     // 分组路由（包括子分组）
-    protected $rules = [];
+    protected $rules = [
+        '*'      => [],
+        'get'    => [],
+        'post'   => [],
+        'delete' => [],
+        'put'    => [],
+        'head'   => [],
+        'option' => [],
+    ];
     // 分组参数
     protected $option = [];
     // 分组变量规则
@@ -36,7 +44,7 @@ class RuleGroup extends Rule implements IteratorAggregate
     public function __construct(Route $router, $name = '', $option = [], $pattern = [])
     {
         $this->router  = $router;
-        $this->name    = $name;
+        $this->name    = trim($name, '/');
         $this->option  = $option;
         $this->pattern = $pattern;
     }
@@ -49,12 +57,29 @@ class RuleGroup extends Rule implements IteratorAggregate
             return false;
         }
 
-        // 检测静态路由
-
-        // 检测分组路由
+        // 获取当前路由规则
         $method = strtolower($request->method());
+        $rules  = $this->rules['*'] + $this->rules[$method];
 
-        foreach ($this->rules[$method] as $key => $item) {
+        if (isset($rules[$url])) {
+            // 快速定位
+            $item   = $rules[$url];
+            $result = $item->check($request, $url, $depr);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
+
+        // 遍历分组路由
+        foreach ($rules as $key => $item) {
+            if ('__miss__' == $item->getRule()) {
+                $this->miss = $item;
+                continue;
+            } elseif ('__auto__' == $item->getRule()) {
+                $this->auto = $item;
+                continue;
+            }
             $result = $item->check($request, $url, $depr);
 
             if (false !== $result) {
@@ -64,18 +89,27 @@ class RuleGroup extends Rule implements IteratorAggregate
 
         if (isset($this->auto)) {
             // 自动解析URL地址
-            return $this->parseUrl($this->auto['route'] . '/' . $url, $depr);
+            return $this->router->parseUrl($this->auto->getRoute() . '/' . $url, $depr);
         } elseif (isset($this->miss)) {
             // 未匹配所有路由的路由规则处理
-            return $this->parseRule('', $this->miss['route'], $url, $this->miss['option']);
+            return $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
+        } else {
+            return false;
         }
     }
 
     public function addRule($rule, $method = '*')
     {
-        $this->rules[$method][] = $rule;
+        $key = $rule->getRule();
+
+        $this->rules[$method][$key] = $rule;
 
         return $this;
+    }
+
+    public function getRule()
+    {
+        return $this->name;
     }
 
     /**

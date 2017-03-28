@@ -12,9 +12,10 @@
 namespace think;
 
 use think\exception\HttpException;
+use think\route\dispatch\Module as ModuleDispatch;
 use think\route\Domain;
-use think\route\RouteRule;
 use think\route\RuleGroup;
+use think\route\RuleItem;
 
 class Route
 {
@@ -63,6 +64,16 @@ class Route
     public function __construct(App $app)
     {
         $this->app = $app;
+        $this->setDefaultGrup();
+
+    }
+
+    public function setDefaultGrup()
+    {
+        $this->group[]              = '';
+        $this->rules['__default__'] = new RuleGroup($this, '');
+
+        return $this;
     }
 
     /**
@@ -96,7 +107,6 @@ class Route
      */
     public function domain($name, $rule = '', $option = [], $pattern = [])
     {
-
         // 执行闭包
         $this->setDomain($name);
         $domain               = new Domain($this, $name, $option, $pattern);
@@ -237,22 +247,29 @@ class Route
      */
     public function rule($rule, $route, $type = '*', $option = [], $pattern = [])
     {
+        // 读取路由标识
         if (is_array($rule)) {
             list($name, $rule) = $rule;
         } elseif (is_string($route)) {
             $name = $route;
         }
+
         if (isset($name)) {
+            // 设置路由标识 用于URL快速生成
             $vars = $this->parseVar($rule);
             $this->setName($name, $rule, $vars, $option);
         }
-        $type = strtolower($type);
 
-        $rule = new RouteRule($this, $rule, $route, $type, $option, $pattern);
-
+        $type      = strtolower($type);
         $groupName = $this->getCurrentGroup();
-        $group     = $this->getRuleGroup($groupName);
+        if ('__default__' != $groupName) {
+            $rule = $groupName . ($rule ? '/' . $rule : '');
+        }
+        // 创建路由规则实例
+        $rule = new RuleItem($this, $rule, $route, $type, $option, $pattern);
 
+        // 添加到当前分组
+        $group = $this->getRuleGroup($groupName);
         $group->addRule($rule, $type);
 
         return $rule;
@@ -261,7 +278,11 @@ class Route
     public function setName($name, $rule, $vars = [], $option = [])
     {
         $group = $this->getCurrentGroup();
-        $key   = $group ? $group . ($rule ? '/' . $rule : '') : $rule;
+        if ('__default__' != $group) {
+            $key = $group . ($rule ? '/' . $rule : '');
+        } else {
+            $key = $rule;
+        }
 
         $suffix = isset($option['ext']) ? $option['ext'] : null;
 
@@ -284,23 +305,26 @@ class Route
             $name   = isset($option['name']) ? $option['name'] : '';
         }
 
-        if ($this->group) {
-            // 存在上级分组
-            $parentGroupName = $this->getCurrentGroup();
+        if (empty($name)) {
+            $name = '__empty__' . uniqid('', true);
         }
+
+        // 上级分组
+        $parentGroupName = $this->getCurrentGroup();
 
         // 分组开始
         $this->startGroup($name);
 
+        // 当前分组名
         $groupName = $this->getCurrentGroup();
-        $group     = new RuleGroup($this, $groupName, $option, $pattern);
 
+        // 创建分组实例
+        $group = new RuleGroup($this, $groupName, $option, $pattern);
         $this->setRuleGroup($groupName, $group);
 
-        if (isset($parentGroupName)) {
-            $parentGroup = $this->getRuleGroup($parentGroupName);
-            $parentGroup->addRule($group);
-        }
+        // 注册子分组
+        $parentGroup = $this->getRuleGroup($parentGroupName);
+        $parentGroup->addRule($group);
 
         // 注册分组路由
         call_user_func($closure);
@@ -311,6 +335,7 @@ class Route
         if ($this->domain) {
             $this->domains[$this->domain]->addRule($group);
         }
+
         return $group;
     }
 
@@ -330,6 +355,7 @@ class Route
     public function setRuleGroup($name, $group)
     {
         $this->rules[$name] = $group;
+
         return $this;
     }
 
@@ -345,7 +371,7 @@ class Route
 
     public function getCurrentGroup()
     {
-        return implode('/', $this->group) ?: '__default__';
+        return trim(implode('/', $this->group), '/') ?: '__default__';
     }
 
     /**
@@ -714,7 +740,6 @@ class Route
         if ('|' != $url) {
             $url = rtrim($url, '|');
         }
-        $url = str_replace('|', '/', $url);
 
         return $this->checkRoute($this->rules, $url, $request);
     }

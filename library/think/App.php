@@ -226,7 +226,7 @@ class App implements \ArrayAccess
      * @param string $module 模块名
      * @return void
      */
-    private function init($module = '')
+    public function init($module = '')
     {
         // 定位模块目录
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';

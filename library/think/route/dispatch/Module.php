@@ -69,7 +69,7 @@ class Module extends Dispatch
         $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . '/' : ''));
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($this->caseUrl) ? $caseUrl : $this->app->config('app.url_convert');
+        $convert = is_bool($this->caseUrl) ? $this->caseUrl : $this->app->config('app.url_convert');
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $this->app->config('app.default_controller'));
         $controller = $convert ? strtolower($controller) : $controller;
@@ -82,7 +82,7 @@ class Module extends Dispatch
         $this->app['request']->controller(Loader::parseName($controller, 1))->action($actionName);
 
         // 监听module_init
-        $this->app['hook']->listen('module_init', $this->request);
+        $this->app['hook']->listen('module_init', $this->app['request']);
 
         $instance = $this->app->controller($controller, $this->app->config('app.url_controller_layer'), $this->app->config('app.controller_suffix'), $this->app->config('app.empty_controller'));
 
