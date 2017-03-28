@@ -241,7 +241,7 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphType, get_class($model));
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, $model);
+        return $this->parent->data($this->relation, $model);
     }
 
     /**
@@ -258,7 +258,7 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphType, null);
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, null);
+        return $this->parent->data($this->relation, null);
     }
 
     /**

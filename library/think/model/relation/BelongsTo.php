@@ -184,7 +184,7 @@ class BelongsTo extends OneToOne
         $this->parent->setAttr($foreignKey, $model->$pk);
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, $model);
+        return $this->parent->data($this->relation, $model);
     }
 
     /**
@@ -199,6 +199,6 @@ class BelongsTo extends OneToOne
         $this->parent->setAttr($foreignKey, null);
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, null);
+        return $this->parent->data($this->relation, null);
     }
 }
