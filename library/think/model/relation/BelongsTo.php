@@ -34,7 +34,7 @@ class BelongsTo extends OneToOne
         $this->localKey   = $localKey;
         $this->joinType   = $joinType;
         $this->query      = (new $model)->db();
-        $this->relation   = $realtion;
+        $this->relation   = $relation;
     }
 
     /**
