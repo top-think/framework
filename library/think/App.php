@@ -12,7 +12,6 @@
 namespace think;
 
 use think\exception\HttpResponseException;
-use think\exception\RouteNotFoundException;
 use think\route\dispatch\Url as UrlDispatch;
 
 /**
@@ -422,19 +421,16 @@ class App implements \ArrayAccess
                 }
             }
 
+            $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
             // 路由检测（根据路由定义返回不同的URL调度）
-            $result = $this->route->check($this->request, $path, $depr, $this->config('app.url_domain_deploy'));
-            $must   = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
-
-            if ($must && false === $result) {
-                // 路由无效
-                throw new RouteNotFoundException();
-            }
+            $result = $this->route->check($this->request, $path, $depr, $this->config('app.url_domain_deploy'), $must);
         }
+
         if (false === $result) {
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
             $result = new UrlDispatch($path, ['depr' => $depr, 'auto_search' => $this->config('app.controller_auto_search')]);
         }
+
         return $result;
     }
 

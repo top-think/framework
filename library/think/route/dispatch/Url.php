@@ -101,7 +101,7 @@ class Url extends Dispatch
             }
         }
 
-        return new Module($route);
+        return (new Module($route))->run();
     }
 
     /**

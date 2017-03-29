@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\exception\RouteNotFoundException;
+use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
 use think\route\Resource;
 use think\route\RuleGroup;
@@ -52,8 +54,6 @@ class Route
     protected $domain;
     // 域名对象
     protected $domains;
-    // 全局路由参数
-    protected $option = [];
     // 全局路由变量
     protected $pattern = [];
     // 当前应用实例
@@ -181,33 +181,9 @@ class Route
      * @param string    $type 请求类型
      * @return void
      */
-    public function import(array $rule, $type = '*')
+    public function import(array $rule)
     {
-        // 检查域名部署
-        if (isset($rule['__domain__'])) {
-            $this->domain($rule['__domain__']);
-            unset($rule['__domain__']);
-        }
-
-        // 检查变量规则
-        if (isset($rule['__pattern__'])) {
-            $this->pattern($rule['__pattern__']);
-            unset($rule['__pattern__']);
-        }
-
-        // 检查路由别名
-        if (isset($rule['__alias__'])) {
-            $this->alias($rule['__alias__']);
-            unset($rule['__alias__']);
-        }
-
-        // 检查资源路由
-        if (isset($rule['__rest__'])) {
-            $this->resource($rule['__rest__']);
-            unset($rule['__rest__']);
-        }
-
-        $this->registerRules($rule, strtolower($type));
+        $this->registerRules($rule);
 
         return $this;
     }
@@ -241,12 +217,12 @@ class Route
      * @access public
      * @param string    $rule       路由规则
      * @param string    $route      路由地址
-     * @param string    $type       请求类型
+     * @param string    $method     请求类型
      * @param array     $option     路由参数
      * @param array     $pattern    变量规则
      * @return RuleItem
      */
-    public function rule($rule, $route, $type = '*', $option = [], $pattern = [])
+    public function rule($rule, $route, $method = '*', $option = [], $pattern = [])
     {
         // 读取路由标识
         if (is_array($rule)) {
@@ -261,7 +237,7 @@ class Route
             $this->setName($name, $rule, $vars, $option);
         }
 
-        $type = strtolower($type);
+        $method = strtolower($method);
 
         $groupName = $this->getCurrentGroup();
 
@@ -271,10 +247,10 @@ class Route
 
         // 创建路由规则实例
         $group = $this->getRuleGroup($groupName);
-        $rule  = new RuleItem($this, $group, $rule, $route, $type, $option, $pattern);
+        $rule  = new RuleItem($this, $group, $rule, $route, $method, $option, $pattern);
 
         // 添加到当前分组
-        $group->addRule($rule, $type);
+        $group->addRule($rule, $method);
 
         return $rule;
     }
@@ -283,12 +259,12 @@ class Route
      * 批量注册路由规则
      * @access public
      * @param string    $rules      路由规则
-     * @param string    $type       请求类型
+     * @param string    $method     请求类型
      * @param array     $option     路由参数
      * @param array     $pattern    变量规则
      * @return void
      */
-    public function setRules($rules, $type = '*', $option = [], $pattern = [])
+    public function setRules($rules, $method = '*', $option = [], $pattern = [])
     {
         foreach ($rules as $key => $val) {
             if (is_numeric($key)) {
@@ -301,7 +277,7 @@ class Route
             } else {
                 $route = $val;
             }
-            $this->rule($key, $route, $type, $option, $pattern);
+            $this->rule($key, $route, $method, $option, $pattern);
         }
     }
 
@@ -323,12 +299,12 @@ class Route
      * 注册路由分组
      * @access public
      * @param string|array      $name       分组名称或者参数
-     * @param array|\Closure    $closure    分组路由
+     * @param array|\Closure    $route      分组路由
      * @param array             $option     路由参数
      * @param array             $pattern    变量规则
      * @return RuleGroup
      */
-    public function group($name, $closure, $option = [], $pattern = [])
+    public function group($name, $route, $option = [], $pattern = [])
     {
         if (is_array($name)) {
             $option = $name;
@@ -337,7 +313,7 @@ class Route
 
         if (empty($name)) {
             // 给空分组随机生成一个名称
-            $name = '__empty__' . uniqid('', true);
+            $name = uniqid() . '__empty__';
         }
 
         // 上级分组
@@ -358,10 +334,10 @@ class Route
         $parentGroup->addRule($group);
 
         // 注册分组路由
-        if ($closure instanceof \Closure) {
-            call_user_func($closure);
+        if ($route instanceof \Closure) {
+            call_user_func($route);
         } else {
-            $this->setRules($closure);
+            $this->setRules($route);
         }
 
         // 结束当前分组
@@ -599,7 +575,7 @@ class Route
      */
     public function miss($route, $method = '*', $option = [])
     {
-        return $this->rule('__miss__', $route, $method, $option, []);
+        return $this->rule('__miss__', $route, $method, $option);
     }
 
     /**
@@ -610,7 +586,7 @@ class Route
      */
     public function auto($route)
     {
-        return $this->rule('__auto__', $route, '*', [], []);
+        return $this->rule('__auto__', $route);
     }
 
     /**
@@ -708,17 +684,29 @@ class Route
      * @param string    $url URL地址
      * @param string    $depr URL分隔符
      * @param bool      $checkDomain 是否检测域名规则
+     * @param bool      $must 是否强制路由
      * @return false|array
      */
-    public function check($request, $url, $depr = '/', $checkDomain = false)
+    public function check($request, $url, $depr = '/', $checkDomain = false, $must = false)
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace($depr, '|', $url);
 
         $method = strtolower($request->method());
 
-        // 检测域名部署
-        return $this->checkDomain($request, $url, $method, $depr);
+        // 域名路由检测
+        $result = $this->checkDomain($request, $url, $method, $depr);
+
+        if (false !== $result) {
+            // 路由匹配
+            return $result;
+        } elseif ($must) {
+            // 强制路由不匹配则抛出异常
+            throw new RouteNotFoundException();
+        } else {
+            // 默认路由解析
+            return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->app->config('app.controller_auto_search')]);
+        }
     }
 
     // 分析路由规则中的变量

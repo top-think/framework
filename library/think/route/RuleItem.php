@@ -48,13 +48,8 @@ class RuleItem extends Rule
 
         $this->setMethod($method);
 
-        $this->route = $route;
-
-        if (!isset($option['complete_match']) && $group->getOption('complete_match')) {
-            $option['complete_match'] = $group->getOption('complete_match');
-        }
-
-        $this->option  = $option;
+        $this->route   = $route;
+        $this->option  = array_merge($group->getOption(), $option);
         $this->pattern = $pattern;
     }
 
@@ -80,6 +75,16 @@ class RuleItem extends Rule
     public function getRoute()
     {
         return $this->route;
+    }
+
+    public function isMiss()
+    {
+        return '__miss__' == $this->rule;
+    }
+
+    public function isAuto()
+    {
+        return '__auto__' == $this->rule;
     }
 
     public function setMethod($method, &$option = [])

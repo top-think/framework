@@ -11,6 +11,8 @@
 
 namespace think\route;
 
+use think\Facade;
+use think\Loader;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
@@ -104,7 +106,7 @@ class Domain extends RuleGroup
             $bind = $this->bind;
 
             // 记录绑定信息
-            $this->app->log('[ BIND ] ' . var_export($bind, true));
+            Facade::make('app')->log('[ BIND ] ' . var_export($bind, true));
 
             // 如果有URL绑定 则进行绑定检测
             if (0 === strpos($bind, '\\')) {
@@ -134,7 +136,7 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
@@ -155,8 +157,8 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_controller');
-        $method = !empty($array[1]) ? $array[1] : $this->app['config']->get('default_action');
+        $class  = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_controller');
+        $method = !empty($array[1]) ? $array[1] : Facade::make('config')->get('default_action');
 
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2]);
@@ -177,7 +179,7 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
@@ -198,7 +200,7 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
@@ -217,7 +219,7 @@ class Domain extends RuleGroup
     public function parseUrlParams($url, &$var = [])
     {
         if ($url) {
-            if ($this->app['config']->get('url_param_type')) {
+            if (Facade::make('config')->get('url_param_type')) {
                 $var += explode('|', $url);
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -225,7 +227,7 @@ class Domain extends RuleGroup
                 }, $url);
             }
             // 设置当前请求的参数
-            $this->app['request']->route($var);
+            Facade::make('request')->route($var);
         }
 
     }
