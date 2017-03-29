@@ -13,6 +13,7 @@ namespace think;
 
 use think\exception\HttpResponseException;
 use think\exception\RouteNotFoundException;
+use think\route\dispatch\Url as UrlDispatch;
 
 /**
  * App 应用管理
@@ -432,7 +433,7 @@ class App implements \ArrayAccess
         }
         if (false === $result) {
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
-            $result = $this->route->parseUrl($path, $depr, $this->config('app.controller_auto_search'));
+            $result = new UrlDispatch($path, ['depr' => $depr, 'auto_search' => $this->config('app.controller_auto_search')]);
         }
         return $result;
     }

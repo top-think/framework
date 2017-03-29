@@ -13,6 +13,7 @@ namespace think\route;
 
 use IteratorAggregate;
 use think\Route;
+use think\route\dispatch\Url as UrlDispatch;
 
 class RuleGroup extends Rule implements IteratorAggregate
 {
@@ -89,7 +90,7 @@ class RuleGroup extends Rule implements IteratorAggregate
 
         if (isset($this->auto)) {
             // 自动解析URL地址
-            return $this->router->parseUrl($this->auto->getRoute() . '/' . $url, $depr);
+            return new UrlDispatch($this->auto->getRoute() . '/' . $url, ['depr' => $depr, 'auto_search' => false]);
         } elseif (isset($this->miss)) {
             // 未匹配所有路由的路由规则处理
             return $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());

@@ -11,8 +11,6 @@
 
 namespace think;
 
-use think\exception\HttpException;
-use think\route\dispatch\Module as ModuleDispatch;
 use think\route\Domain;
 use think\route\Resource;
 use think\route\RuleGroup;
@@ -44,11 +42,12 @@ class Route
         'patch'  => 'patch',
     ];
 
-    // 域名绑定
-    private $bind = [];
-    // 当前分组信息
-    private $group = [];
+    // 路由绑定
+    protected $bind;
 
+    // 当前分组信息
+    protected $group = [];
+    protected $name  = [];
     // 当前域名
     protected $domain;
     // 域名对象
@@ -121,13 +120,12 @@ class Route
     /**
      * 设置路由绑定
      * @access public
-     * @param mixed     $bind 绑定信息
-     * @param string    $type 绑定类型 默认为module 支持 namespace class controller
-     * @return mixed
+     * @param string     $bind 绑定信息
+     * @return $this
      */
-    public function bind($bind, $type = 'module')
+    public function bind($bind)
     {
-        $this->bind = ['type' => $type, $type => $bind];
+        $this->bind = $bind;
 
         return $this;
     }
@@ -139,34 +137,41 @@ class Route
      * @param array            $value 路由地址及变量信息
      * @return array
      */
-    public function name($name = '', $value = null)
+    public function name($name, $value = null)
     {
         if (is_array($name)) {
             $this->name = $name;
-
-            return $this;
-        } elseif ('' === $name) {
-            return $this->name;
-        } elseif (!is_null($value)) {
-            $this->name[strtolower($name)][] = $value;
-
-            return $this;
         } else {
-            $name = strtolower($name);
-
-            return isset($this->name[$name]) ? $this->name[$name] : null;
+            $this->name[strtolower($name)][] = $value;
         }
+
+        return $this;
     }
 
     /**
      * 读取路由绑定
      * @access public
-     * @param string    $type 绑定类型
-     * @return mixed
+     * @return string
      */
-    public function getBind($type)
+    public function getName($name = null)
     {
-        return isset($this->bind[$type]) ? $this->bind[$type] : null;
+        if (is_null($name)) {
+            return $this->name;
+        }
+
+        $name = strtolower($name);
+
+        return isset($this->name[$name]) ? $this->name[$name] : null;
+    }
+
+    /**
+     * 读取路由绑定
+     * @access public
+     * @return string
+     */
+    public function getBind()
+    {
+        return $this->bind;
     }
 
     /**
@@ -545,6 +550,11 @@ class Route
         return $this;
     }
 
+    public function getAlias($name)
+    {
+        return isset($this->alias[$name]) ? $this->alias[$name] : null;
+    }
+
     /**
      * 设置不同请求类型下面的方法前缀
      * @access public
@@ -616,9 +626,7 @@ class Route
         } elseif ($rules) {
             return true === $rules ? $this->rules : $this->rules[strtolower($rules)];
         } else {
-            $rules = $this->rules;
-            unset($rules['pattern'], $rules['alias'], $rules['domain'], $rules['name']);
-            return $rules;
+            return $this->rules;
         }
     }
 
@@ -707,335 +715,10 @@ class Route
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace($depr, '|', $url);
 
-        // 检测别名路由
-        if (isset($this->alias[$url]) || isset($this->alias[strstr($url, '|', true)])) {
-            // 检测路由别名
-            $result = $this->checkRouteAlias($request, $url, $depr);
-            if (false !== $result) {
-                return $result;
-            }
-        }
-
         $method = strtolower($request->method());
-
-        // 检测URL绑定
-        $result = $this->checkUrlBind($url, $rules, $depr);
-
-        if (false !== $result) {
-            return $result;
-        }
 
         // 检测域名部署
         return $this->checkDomain($request, $url, $method, $depr);
-    }
-
-    public function getRequest()
-    {
-        return $this->app['request'];
-    }
-
-    /**
-     * 检测路由别名
-     * @access private
-     * @param Request   $request
-     * @param string    $url URL地址
-     * @param string    $depr URL分隔符
-     * @return mixed
-     */
-    private function checkRouteAlias($request, $url, $depr)
-    {
-        $array = explode('|', $url);
-        $alias = array_shift($array);
-        $item  = $this->alias[$alias];
-
-        if (is_array($item)) {
-            list($rule, $option) = $item;
-            $action              = $array[0];
-
-            if (isset($option['allow']) && !in_array($action, explode(',', $option['allow']))) {
-                // 允许操作
-                return false;
-            } elseif (isset($option['except']) && in_array($action, explode(',', $option['except']))) {
-                // 排除操作
-                return false;
-            }
-
-            if (isset($option['method'][$action])) {
-                $option['method'] = $option['method'][$action];
-            }
-        } else {
-            $rule = $item;
-        }
-
-        $bind = implode('|', $array);
-
-        // 参数有效性检查
-        if (isset($option) && !$this->checkOption($option, $request)) {
-            // 路由不匹配
-            return false;
-        } elseif (0 === strpos($rule, '\\')) {
-            // 路由到类
-            return $this->bindToClass($bind, substr($rule, 1), $depr);
-        } elseif (0 === strpos($rule, '@')) {
-            // 路由到控制器类
-            return $this->bindToController($bind, substr($rule, 1), $depr);
-        } else {
-            // 路由到模块/控制器
-            return $this->bindToModule($bind, $rule, $depr);
-        }
-    }
-
-    /**
-     * 检测URL绑定
-     * @access private
-     * @param string    $url URL地址
-     * @param array     $rules 路由规则
-     * @param string    $depr URL分隔符
-     * @return mixed
-     */
-    private function checkUrlBind(&$url, &$rules, $depr = '/')
-    {
-        if (!empty($this->bind)) {
-            $type = $this->bind['type'];
-            $bind = $this->bind[$type];
-
-            // 记录绑定信息
-            $this->app->log('[ BIND ] ' . var_export($bind, true));
-
-            // 如果有URL绑定 则进行绑定检测
-            switch ($type) {
-                case 'class':
-                    // 绑定到类
-                    return $this->bindToClass($url, $bind, $depr);
-                case 'controller':
-                    // 绑定到控制器类
-                    return $this->bindToController($url, $bind, $depr);
-                case 'namespace':
-                    // 绑定到命名空间
-                    return $this->bindToNamespace($url, $bind, $depr);
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * 绑定到类
-     * @access public
-     * @param string    $url URL地址
-     * @param string    $class 类名（带命名空间）
-     * @param string    $depr URL分隔符
-     * @return array
-     */
-    public function bindToClass($url, $class, $depr = '/')
-    {
-        $url    = str_replace($depr, '|', $url);
-        $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
-
-        if (!empty($array[1])) {
-            $this->parseUrlParams($array[1]);
-        }
-
-        return new CallbackDispatch([$class, $action]);
-    }
-
-    /**
-     * 绑定到命名空间
-     * @access public
-     * @param string    $url URL地址
-     * @param string    $namespace 命名空间
-     * @param string    $depr URL分隔符
-     * @return array
-     */
-    public function bindToNamespace($url, $namespace, $depr = '/')
-    {
-        $url    = str_replace($depr, '|', $url);
-        $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_controller');
-        $method = !empty($array[1]) ? $array[1] : $this->app['config']->get('default_action');
-
-        if (!empty($array[2])) {
-            $this->parseUrlParams($array[2]);
-        }
-
-        return new CallbackDispatch([$namespace . '\\' . Loader::parseName($class, 1), $method]);
-    }
-
-    /**
-     * 绑定到控制器类
-     * @access public
-     * @param string    $url URL地址
-     * @param string    $controller 控制器名 （支持带模块名 index/user ）
-     * @param string    $depr URL分隔符
-     * @return array
-     */
-    public function bindToController($url, $controller, $depr = '/')
-    {
-        $url    = str_replace($depr, '|', $url);
-        $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
-
-        if (!empty($array[1])) {
-            $this->parseUrlParams($array[1]);
-        }
-
-        return new ControllerDispatch($controller . '/' . $action);
-    }
-
-    /**
-     * 绑定到模块/控制器
-     * @access public
-     * @param string    $url URL地址
-     * @param string    $controller 控制器类名（带命名空间）
-     * @param string    $depr URL分隔符
-     * @return array
-     */
-    public function bindToModule($url, $controller, $depr = '/')
-    {
-        $url    = str_replace($depr, '|', $url);
-        $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->app['config']->get('default_action');
-
-        if (!empty($array[1])) {
-            $this->parseUrlParams($array[1]);
-        }
-
-        return new ModuleDispatch($controller . '/' . $action);
-    }
-
-    /**
-     * 解析模块的URL地址 [模块/控制器/操作?]参数1=值1&参数2=值2...
-     * @access public
-     * @param string    $url URL地址
-     * @param string    $depr URL分隔符
-     * @param bool      $autoSearch 是否自动深度搜索控制器
-     * @return array
-     */
-    public function parseUrl($url, $depr = '/', $autoSearch = false)
-    {
-
-        if (isset($this->bind['module'])) {
-            $bind = str_replace('/', $depr, $this->bind['module']);
-            // 如果有模块/控制器绑定
-            $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
-        }
-
-        $url              = str_replace($depr, '|', $url);
-        list($path, $var) = $this->parseUrlPath($url);
-        $route            = [null, null, null];
-
-        if (isset($path)) {
-            // 解析模块
-            $module = $this->app->config('app_multi_module') ? array_shift($path) : null;
-            if ($autoSearch) {
-                // 自动搜索控制器
-                $dir    = $this->app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . $this->app->config('url_controller_layer');
-                $suffix = $this->app->getSuffix() || $this->app->config('controller_suffix') ? ucfirst($this->app->config('url_controller_layer')) : '';
-                $item   = [];
-                $find   = false;
-
-                foreach ($path as $val) {
-                    $item[] = $val;
-                    $file   = $dir . DIRECTORY_SEPARATOR . str_replace('.', DIRECTORY_SEPARATOR, $val) . $suffix . '.php';
-                    $file   = pathinfo($file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
-                    if (is_file($file)) {
-                        $find = true;
-                        break;
-                    } else {
-                        $dir .= DIRECTORY_SEPARATOR . Loader::parseName($val);
-                    }
-                }
-
-                if ($find) {
-                    $controller = implode('.', $item);
-                    $path       = array_slice($path, count($item));
-                } else {
-                    $controller = array_shift($path);
-                }
-            } else {
-                // 解析控制器
-                $controller = !empty($path) ? array_shift($path) : null;
-            }
-
-            // 解析操作
-            $action = !empty($path) ? array_shift($path) : null;
-
-            // 解析额外参数
-            $this->parseUrlParams(empty($path) ? '' : implode('|', $path));
-
-            // 封装路由
-            $route = [$module, $controller, $action];
-
-            // 检查地址是否被定义过路由
-            $name = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
-
-            $name2 = '';
-
-            if (empty($module) || isset($bind) && $module == $bind) {
-                $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
-            }
-
-            if (isset($this->rules['name'][$name]) || isset($this->rules['name'][$name2])) {
-                throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
-            }
-        }
-
-        return new ModuleDispatch($route);
-    }
-
-    /**
-     * 解析URL的pathinfo参数和变量
-     * @access private
-     * @param string    $url URL地址
-     * @return array
-     */
-    private function parseUrlPath($url)
-    {
-        // 分隔符替换 确保路由定义使用统一的分隔符
-        $url = str_replace('|', '/', $url);
-        $url = trim($url, '/');
-        $var = [];
-
-        if (false !== strpos($url, '?')) {
-            // [模块/控制器/操作?]参数1=值1&参数2=值2...
-            $info = parse_url($url);
-            $path = explode('/', $info['path']);
-            parse_str($info['query'], $var);
-        } elseif (strpos($url, '/')) {
-            // [模块/控制器/操作]
-            $path = explode('/', $url);
-        } elseif (false !== strpos($url, '=')) {
-            // 参数1=值1&参数2=值2...
-            parse_str($url, $var);
-        } else {
-            $path = [$url];
-        }
-
-        return [$path, $var];
-    }
-
-    /**
-     * 解析URL地址中的参数Request对象
-     * @access private
-     * @param string    $rule 路由规则
-     * @param array     $var 变量
-     * @return void
-     */
-    private function parseUrlParams($url, &$var = [])
-    {
-        if ($url) {
-            if ($this->app['config']->get('url_param_type')) {
-                $var += explode('|', $url);
-            } else {
-                preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
-                    $var[$match[1]] = strip_tags($match[2]);
-                }, $url);
-            }
-        }
-
-        // 设置当前请求的参数
-        $this->app['request']->route($var);
     }
 
     // 分析路由规则中的变量
