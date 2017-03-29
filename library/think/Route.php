@@ -14,6 +14,7 @@ namespace think;
 use think\exception\HttpException;
 use think\route\dispatch\Module as ModuleDispatch;
 use think\route\Domain;
+use think\route\Resource;
 use think\route\RuleGroup;
 use think\route\RuleItem;
 
@@ -43,24 +44,20 @@ class Route
         'patch'  => 'patch',
     ];
 
-    // 子域名
-    private $subDomain = '';
     // 域名绑定
     private $bind = [];
     // 当前分组信息
     private $group = [];
 
-    // 当前子域名绑定
-    private $domainBind;
-    private $domainRule;
     // 当前域名
     protected $domain;
     // 域名对象
     protected $domains;
-    // 当前路由执行过程中的参数
-    private $option    = [];
+    // 全局路由参数
+    protected $option = [];
+    // 全局路由变量
     protected $pattern = [];
-
+    // 当前应用实例
     protected $app;
 
     public function __construct(App $app)
@@ -503,48 +500,12 @@ class Route
      */
     public function resource($rule, $route = '', $option = [], $pattern = [])
     {
-        if (is_array($rule)) {
-            foreach ($rule as $key => $val) {
-                if (is_array($val)) {
-                    list($val, $option, $pattern) = array_pad($val, 3, []);
-                }
+        $resource = new Resource($this, $rule, $route, $option, $pattern);
 
-                $this->resource($key, $val, $option, $pattern);
-            }
-        } else {
-            if (strpos($rule, '.')) {
-                // 注册嵌套资源路由
-                $array = explode('.', $rule);
-                $last  = array_pop($array);
-                $item  = [];
+        // 注册分组到当前域名
+        $this->domains[$this->domain]->addRule($resource);
 
-                foreach ($array as $val) {
-                    $item[] = $val . '/:' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id');
-                }
-
-                $rule = implode('/', $item) . '/' . $last;
-            }
-            // 注册资源路由
-            foreach ($this->rest as $key => $val) {
-                if ((isset($option['only']) && !in_array($key, $option['only']))
-                    || (isset($option['except']) && in_array($key, $option['except']))) {
-                    continue;
-                }
-
-                if (isset($last) && strpos($val[1], ':id') && isset($option['var'][$last])) {
-                    $val[1] = str_replace(':id', ':' . $option['var'][$last], $val[1]);
-                } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
-                    $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
-                }
-
-                $item           = ltrim($rule . $val[1], '/');
-                $option['rest'] = $key;
-
-                $this->rule($item . '$', $route . '/' . $val[2], $val[0], $option, $pattern);
-            }
-        }
-
-        return $this;
+        return $resource;
     }
 
     /**
@@ -700,9 +661,8 @@ class Route
         $item = false;
         if (!empty($domain)) {
             // 当前子域名
-            $subDomain       = implode('.', $domain);
-            $this->subDomain = $subDomain;
-            $domain2         = array_pop($domain);
+            $subDomain = implode('.', $domain);
+            $domain2   = array_pop($domain);
 
             if ($domain) {
                 // 存在三级域名
@@ -757,8 +717,13 @@ class Route
         }
 
         $method = strtolower($request->method());
+
         // 检测URL绑定
-        $return = $this->checkUrlBind($url, $rules, $depr);
+        $result = $this->checkUrlBind($url, $rules, $depr);
+
+        if (false !== $result) {
+            return $result;
+        }
 
         // 检测域名部署
         return $this->checkDomain($request, $url, $method, $depr);
@@ -1074,7 +1039,7 @@ class Route
     }
 
     // 分析路由规则中的变量
-    private function parseVar($rule)
+    public function parseVar($rule)
     {
         // 提取路由规则中的变量
         $var = [];

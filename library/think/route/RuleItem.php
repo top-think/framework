@@ -27,18 +27,12 @@ class RuleItem extends Rule
 
     // 路由匹配模式
     protected $completeMatch = false;
-    // 不同请求类型的方法前缀
-    protected $methodPrefix = [
-        'get'    => 'get',
-        'post'   => 'post',
-        'put'    => 'put',
-        'delete' => 'delete',
-        'patch'  => 'patch',
-    ];
 
     /**
      * 架构函数
      * @access public
+     * @param Route             $router 路由实例
+     * @param RuleGroup         $group 路由所属分组对象
      * @param string|array      $rule 路由规则
      * @param string|\Closure   $route 路由地址
      * @param string            $method 请求类型
@@ -54,7 +48,12 @@ class RuleItem extends Rule
 
         $this->setMethod($method);
 
-        $this->route   = $route;
+        $this->route = $route;
+
+        if (!isset($option['complete_match']) && $group->getOption('complete_match')) {
+            $option['complete_match'] = $group->getOption('complete_match');
+        }
+
         $this->option  = $option;
         $this->pattern = $pattern;
     }
@@ -146,7 +145,7 @@ class RuleItem extends Rule
         }
 
         if ($len1 >= $len2 || strpos($this->rule, '[')) {
-            if (!empty($this->option['complete_match'])) {
+            if (!empty($this->completeMatch)) {
                 // 完整匹配
                 if (!$merge && $len1 != $len2 && (false === strpos($this->rule, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->rule, '['))) {
                     return false;

@@ -16,9 +16,6 @@ use think\Route;
 
 class RuleGroup extends Rule implements IteratorAggregate
 {
-
-    // 分组名
-    protected $name;
     // 分组路由（包括子分组）
     protected $rules = [
         '*'      => [],
@@ -28,12 +25,13 @@ class RuleGroup extends Rule implements IteratorAggregate
         'put'    => [],
         'head'   => [],
         'option' => [],
+        'patch'  => [],
     ];
-    // 分组参数
-    protected $option = [];
-    // 分组变量规则
-    protected $pattern = [];
+
+    // MISS路由
     protected $miss;
+
+    // 自动路由
     protected $auto;
 
     /**
