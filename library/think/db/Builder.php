@@ -745,7 +745,11 @@ abstract class Builder
                 }
             }
             $value    = array_values($data);
-            $values[] = '(' . implode(',', $value).')';
+            if($this->connection->getConfig('type') === 'mysql'){
+                $values[] = '(' . implode(',', $value).')';
+            }else{
+                $values[] = 'SELECT ' . implode(',', $value);
+            }
         }
         $fields = array_map([$this, 'parseKey'], array_keys(reset($dataSet)));
         $sqldata = '';
