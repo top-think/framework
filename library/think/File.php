@@ -196,7 +196,8 @@ class File extends SplFileObject
         }
 
         /* 检查图像文件 */
-        if (!$this->checkImg()) {
+        $is_chunk = isset($rule['is_chunk']) && $rule['is_chunk'] === true;
+        if (!$is_chunk && !$this->checkImg()) {
             $this->error = '非法图像文件！';
             return false;
         }
