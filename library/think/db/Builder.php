@@ -27,7 +27,7 @@ abstract class Builder
     // SQL表达式
     protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
     protected $insertSql    = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
-    protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
+    protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
     protected $updateSql    = 'UPDATE %TABLE% SET %SET% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
     protected $deleteSql    = 'DELETE FROM %TABLE% %USING% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
@@ -745,7 +745,7 @@ abstract class Builder
                 }
             }
             $value    = array_values($data);
-            $values[] = 'SELECT ' . implode(',', $value);
+            $values[] = '(' . implode(',', $value).')';
         }
         $fields = array_map([$this, 'parseKey'], array_keys(reset($dataSet)));
         $sql    = str_replace(
@@ -753,7 +753,7 @@ abstract class Builder
             [
                 $this->parseTable($options['table'], $options),
                 implode(' , ', $fields),
-                implode(' UNION ALL ', $values),
+                implode(',', $values),
                 $this->parseComment($options['comment']),
             ], $this->insertAllSql);
 
