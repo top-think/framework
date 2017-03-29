@@ -181,15 +181,7 @@ class Route
      * @param string    $type 请求类型
      * @return void
      */
-    public function import(array $rule)
-    {
-        $this->registerRules($rule);
-
-        return $this;
-    }
-
-    // 批量注册路由
-    protected function registerRules($rules, $type = '*')
+    public function import(array $rules, $type = '*')
     {
         foreach ($rules as $key => $val) {
             if (is_numeric($key)) {
