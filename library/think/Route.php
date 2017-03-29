@@ -54,8 +54,9 @@ class Route
     private $domainBind;
     private $domainRule;
     // 当前域名
-    private $domain;
-    private $domains;
+    protected $domain;
+    // 域名对象
+    protected $domains;
     // 当前路由执行过程中的参数
     private $option    = [];
     protected $pattern = [];
@@ -78,7 +79,7 @@ class Route
     }
 
     /**
-     * 注册域名部署规则
+     * 注册域名路由
      * @access public
      * @param string|array  $name 子域名
      * @param mixed         $rule 路由规则
@@ -93,6 +94,8 @@ class Route
 
         if (!isset($this->domains[$name])) {
             $this->domains[$name] = new Domain($this, $name, $option, $pattern);
+        } else {
+            $this->domains[$name]->option($option)->pattern($pattern);
         }
 
         // 执行域名路由
@@ -107,7 +110,12 @@ class Route
         return $this->domains[$name];
     }
 
-    // 设置当前域名
+    /**
+     * 设置当前域名
+     * @access public
+     * @param string    $domain 域名
+     * @return void
+     */
     protected function setDomain($domain)
     {
         $this->domain = $domain;
@@ -229,11 +237,11 @@ class Route
     /**
      * 注册路由规则
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param string    $type 请求类型
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string    $rule       路由规则
+     * @param string    $route      路由地址
+     * @param string    $type       请求类型
+     * @param array     $option     路由参数
+     * @param array     $pattern    变量规则
      * @return RuleItem
      */
     public function rule($rule, $route, $type = '*', $option = [], $pattern = [])
@@ -269,6 +277,32 @@ class Route
         return $rule;
     }
 
+    /**
+     * 批量注册路由规则
+     * @access public
+     * @param string    $rules      路由规则
+     * @param string    $type       请求类型
+     * @param array     $option     路由参数
+     * @param array     $pattern    变量规则
+     * @return void
+     */
+    public function setRules($rules, $type = '*', $option = [], $pattern = [])
+    {
+        foreach ($rules as $key => $val) {
+            if (is_numeric($key)) {
+                $key = array_shift($val);
+            }
+            if (is_array($val)) {
+                $route   = array_shift($val);
+                $option  = $val ? array_shift($val) : [];
+                $pattern = $val ? array_shift($val) : [];
+            } else {
+                $route = $val;
+            }
+            $this->rule($key, $route, $type, $option, $pattern);
+        }
+    }
+
     public function setName($name, $rule, $vars = [], $option = [])
     {
         $group = $this->getCurrentGroup();
@@ -286,10 +320,10 @@ class Route
     /**
      * 注册路由分组
      * @access public
-     * @param string|array  $name       分组名称或者参数
-     * @param \Closure      $closure    分组路由
-     * @param array         $option     路由参数
-     * @param array         $pattern    变量规则
+     * @param string|array      $name       分组名称或者参数
+     * @param array|\Closure    $closure    分组路由
+     * @param array             $option     路由参数
+     * @param array             $pattern    变量规则
      * @return RuleGroup
      */
     public function group($name, $closure, $option = [], $pattern = [])
@@ -322,7 +356,11 @@ class Route
         $parentGroup->addRule($group);
 
         // 注册分组路由
-        call_user_func($closure);
+        if ($closure instanceof \Closure) {
+            call_user_func($closure);
+        } else {
+            $this->setRules($closure);
+        }
 
         // 结束当前分组
         $this->endGroup();
@@ -344,6 +382,7 @@ class Route
                 $this->domains[$this->domain]->addRule($this->rules[$name]);
             }
         }
+
         return $this->rules[$name];
     }
 
@@ -376,7 +415,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return RuleItem
      */
     public function any($rule, $route = '', $option = [], $pattern = [])
     {
@@ -390,7 +429,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return RuleItem
      */
     public function get($rule, $route = '', $option = [], $pattern = [])
     {
@@ -404,7 +443,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return RuleItem
      */
     public function post($rule, $route = '', $option = [], $pattern = [])
     {
@@ -418,7 +457,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return RuleItem
      */
     public function put($rule, $route = '', $option = [], $pattern = [])
     {
@@ -432,7 +471,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return RuleItem
      */
     public function delete($rule, $route = '', $option = [], $pattern = [])
     {
@@ -446,7 +485,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return RuleItem
      */
     public function patch($rule, $route = '', $option = [], $pattern = [])
     {
@@ -585,22 +624,22 @@ class Route
      * @param string    $route 路由地址
      * @param string    $method 请求类型
      * @param array     $option 路由参数
-     * @return void
+     * @return RuleItem
      */
     public function miss($route, $method = '*', $option = [])
     {
-        $this->rule('__miss__', $route, $method, $option, []);
+        return $this->rule('__miss__', $route, $method, $option, []);
     }
 
     /**
      * 注册一个自动解析的URL路由
      * @access public
      * @param string    $route 路由地址
-     * @return void
+     * @return RuleItem
      */
     public function auto($route)
     {
-        $this->rule('__auto__', $route, '*', [], []);
+        return $this->rule('__auto__', $route, '*', [], []);
     }
 
     /**
