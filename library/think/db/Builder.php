@@ -752,7 +752,6 @@ abstract class Builder
             }
         }
         $fields = array_map([$this, 'parseKey'], array_keys(reset($dataSet)));
-        $sqldata = '';
         if($this->connection->getConfig('type') === 'mysql'){
             $sqldata = implode(',', $values);
         }else{
