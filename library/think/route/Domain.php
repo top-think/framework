@@ -13,7 +13,6 @@ namespace think\route;
 
 use think\Facade;
 use think\Loader;
-use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
 use think\route\dispatch\Module as ModuleDispatch;
