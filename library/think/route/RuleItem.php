@@ -44,11 +44,11 @@ class RuleItem extends Rule
 
         $this->setRule($name, $option);
 
-        $this->setMethod($method);
-
         $this->route   = $route;
         $this->option  = array_merge($group->getOption(), $option);
         $this->pattern = $pattern;
+
+        $this->method($method);
     }
 
     public function setRule($rule, $option = [])
@@ -80,16 +80,18 @@ class RuleItem extends Rule
         return '__auto__' == $this->name;
     }
 
-    public function setMethod($method, &$option = [])
+    public function method($method)
     {
         $method = strtolower($method);
 
         if (strpos($method, '|')) {
-            $option['method'] = $method;
-            $method           = '*';
+            $this->option['method'] = $method;
+            $method                 = '*';
         }
 
         $this->method = $method;
+
+        return $this;
     }
 
     // 检测路由规则

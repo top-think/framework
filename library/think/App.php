@@ -401,22 +401,14 @@ class App implements \ArrayAccess
 
         if ($check) {
             // 开启路由
-            if (is_file($this->runtimePath . 'route.php')) {
-                // 读取路由缓存
-                $rules = include $this->runtimePath . 'route.php';
-                if (is_array($rules)) {
-                    $this->route->rules($rules);
-                }
-            } else {
-                $files = scandir($this->routePath);
-                foreach ($files as $file) {
-                    if (strpos($file, '.php')) {
-                        $filename = $this->routePath . DIRECTORY_SEPARATOR . $file;
-                        // 导入路由配置
-                        $rules = include $filename;
-                        if (is_array($rules)) {
-                            $this->route->import($rules);
-                        }
+            $files = scandir($this->routePath);
+            foreach ($files as $file) {
+                if (strpos($file, '.php')) {
+                    $filename = $this->routePath . DIRECTORY_SEPARATOR . $file;
+                    // 导入路由配置
+                    $rules = include $filename;
+                    if (is_array($rules)) {
+                        $this->route->import($rules);
                     }
                 }
             }

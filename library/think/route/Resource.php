@@ -15,19 +15,11 @@ use think\Route;
 
 class Resource extends RuleGroup
 {
-
+    // 资源路由地址
     protected $route;
 
-    // REST路由操作方法定义
-    protected $rest = [
-        'index'  => ['get', '', 'index'],
-        'create' => ['get', '/create', 'create'],
-        'edit'   => ['get', '/:id/edit', 'edit'],
-        'read'   => ['get', '/:id', 'read'],
-        'save'   => ['post', '', 'save'],
-        'update' => ['put', '/:id', 'update'],
-        'delete' => ['delete', '/:id', 'delete'],
-    ];
+    // REST路由方法定义
+    protected $rest = [];
 
     /**
      * 架构函数
@@ -50,8 +42,7 @@ class Resource extends RuleGroup
 
         $this->pattern = $pattern;
         $this->option  = $option;
-
-        $this->rest($rest);
+        $this->rest    = $rest;
 
         $this->buildRule($name, $option);
     }
@@ -105,22 +96,9 @@ class Resource extends RuleGroup
         $this->router->setGroup($group);
     }
 
-    /**
-     * rest方法定义和修改
-     * @access public
-     * @param string|array  $name 方法名称
-     * @param array|bool    $resource 资源
-     * @return $this
-     */
-    public function rest($name, $resource = [])
+    public function vars($var)
     {
-        if (is_array($name)) {
-            $this->rest = $resource ? $name : array_merge($this->rest, $name);
-        } else {
-            $this->rest[$name] = $resource;
-        }
-
-        return $this;
+        return $this->option('var', $var);
     }
 
 }

@@ -136,4 +136,9 @@ class RuleGroup extends Rule
         return $this;
     }
 
+    public function prefix($prefix)
+    {
+        return $this->option('prefix', $prefix);
+    }
+
 }

@@ -20,7 +20,6 @@ use think\route\RuleItem;
 
 class Route
 {
-
     // REST路由操作方法定义
     private $rest = [
         'index'  => ['get', '', 'index'],
@@ -43,7 +42,6 @@ class Route
 
     // 路由绑定
     protected $bind;
-
     // 当前分组信息
     protected $group = [];
     protected $name  = [];
@@ -89,6 +87,34 @@ class Route
     public function getGroup()
     {
         return $this->group;
+    }
+
+    /**
+     * 注册变量规则
+     * @access public
+     * @param string|array  $name 变量名
+     * @param string        $rule 变量规则
+     * @return $this
+     */
+    public function pattern($name, $rule = '')
+    {
+        $this->group->pattern($name, $rule);
+
+        return $this;
+    }
+
+    /**
+     * 注册路由参数
+     * @access public
+     * @param string|array  $name  参数名
+     * @param mixed         $value 值
+     * @return $this
+     */
+    public function option($name, $value = '')
+    {
+        $this->group->option($name, $value);
+
+        return $this;
     }
 
     /**
@@ -250,18 +276,27 @@ class Route
             $name = $route;
         }
 
-        if (isset($name)) {
-            // 设置路由标识 用于URL快速生成
-            $vars = $this->parseVar($rule);
-            $this->setName($name, $rule, $vars, array_merge($this->group->getOption(), $option));
-        }
-
         $method = strtolower($method);
 
         // 当前分组名
         $group = $this->group->getName();
         if ($group) {
             $rule = $group . '/' . $rule;
+        }
+
+        if (isset($name)) {
+            // 设置路由标识 用于URL快速生成
+            $vars = $this->parseVar($rule);
+
+            if (isset($option['ext'])) {
+                $suffix = $option['ext'];
+            } elseif ($this->group->getOption('ext')) {
+                $suffix = $this->group->getOption('ext');
+            } else {
+                $suffix = null;
+            }
+
+            $this->name($name, [$rule, $vars, $this->domain, $suffix]);
         }
 
         // 创建路由规则实例
@@ -282,7 +317,7 @@ class Route
      * @param array     $pattern    变量规则
      * @return void
      */
-    public function setRules($rules, $method = '*', $option = [], $pattern = [])
+    public function rules($rules, $method = '*', $option = [], $pattern = [])
     {
         foreach ($rules as $key => $val) {
             if (is_numeric($key)) {
@@ -297,16 +332,6 @@ class Route
             }
             $this->rule($key, $route, $method, $option, $pattern);
         }
-    }
-
-    protected function setName($name, $rule, $vars = [], $option = [])
-    {
-        // TODO 获取当前分组名称
-        $group  = $this->group->getName();
-        $key    = $group . ($rule ? '/' . $rule : '');
-        $suffix = isset($option['ext']) ? $option['ext'] : null;
-
-        $this->name($name, [$key, $vars, $this->domain, $suffix]);
     }
 
     /**
@@ -341,7 +366,7 @@ class Route
         if ($route instanceof \Closure) {
             call_user_func($route);
         } else {
-            $this->setRules($route);
+            $this->rules($route);
         }
 
         // 还原当前分组
@@ -448,7 +473,7 @@ class Route
      */
     public function resource($rule, $route = '', $option = [], $pattern = [])
     {
-        $resource = new Resource($this, $rule, $route, $option, $pattern);
+        $resource = new Resource($this, $rule, $route, $option, $pattern, $this->rest);
 
         // 注册分组到当前域名
         $this->domains[$this->domain]->addRule($resource);
@@ -493,6 +518,12 @@ class Route
         return $this;
     }
 
+    /**
+     * 获取别名路由定义
+     * @access public
+     * @param string    $name 路由别名
+     * @return string|array
+     */
     public function getAlias($name = null)
     {
         if (is_null($name)) {
@@ -521,11 +552,23 @@ class Route
     }
 
     /**
+     * 获取请求类型的方法前缀
+     * @access public
+     * @param string    $method 请求类型
+     * @param string    $prefix 类型前缀
+     * @return void
+     */
+    public function getMethodPrefix($method)
+    {
+        return isset($this->methodPrefix[strtolower($method)]) ? $this->methodPrefix[strtolower($method)] : null;
+    }
+
+    /**
      * rest方法定义和修改
      * @access public
      * @param string        $name 方法名称
      * @param array|bool    $resource 资源
-     * @return void
+     * @return $this
      */
     public function rest($name, $resource = [])
     {
@@ -534,6 +577,23 @@ class Route
         } else {
             $this->rest[$name] = $resource;
         }
+
+        return $this;
+    }
+
+    /**
+     * 获取rest方法定义的参数
+     * @access public
+     * @param string        $name 方法名称
+     * @return array|null
+     */
+    public function getRest($name = null)
+    {
+        if (is_null($name)) {
+            return $this->rest;
+        }
+
+        return isset($this->rest[$name]) ? $this->rest[$name] : null;
     }
 
     /**
@@ -561,32 +621,62 @@ class Route
     }
 
     /**
-     * 检测子域名部署
+     * 检测URL路由
      * @access public
      * @param Request   $request Request请求对象
-     * @param array     $rules 当前路由规则
-     * @param string    $method 请求类型
-     * @return void
+     * @param string    $url URL地址
+     * @param string    $depr URL分隔符
+     * @param bool      $checkDomain 是否检测域名规则
+     * @param bool      $must 是否强制路由
+     * @return false|array
      */
-    public function checkDomain($request, $url, $method = 'get', $depr)
+    public function check($request, $url, $depr = '/', $checkDomain = false, $must = false)
     {
-        // 开启子域名部署 支持二级和三级域名
+        // 分隔符替换 确保路由定义使用统一的分隔符
+        $url = str_replace($depr, '|', $url);
+
+        $method = strtolower($request->method());
+
+        // 获取当前域名
         $host = $request->host();
 
-        if (isset($this->domains[$host])) {
-            // 完整域名或者IP配置
-            $item = $this->domains[$host];
-        } else {
-            // 自动检测当前域名
-            $item = $this->matchDomainRoute($this->domains, $host);
+        // 域名路由检测
+        $domain = false;
+
+        if ($checkDomain) {
+            // 自动检测域名路由
+            $domain = $this->checkDomain($host);
         }
 
-        return $item ? $item->check($request, $url, $depr) : false;
+        if (false === $domain) {
+            // 完整域名或者IP配置
+            $domain = $this->domains[$host];
+        }
+
+        $result = $domain->check($request, $url, $depr);
+
+        if (false !== $result) {
+            // 路由匹配
+            return $result;
+        } elseif ($must) {
+            // 强制路由不匹配则抛出异常
+            throw new RouteNotFoundException();
+        } else {
+            // 默认路由解析
+            return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->app->config('app.controller_auto_search')]);
+        }
     }
 
-    protected function matchDomainRoute($domains, $host)
+    /**
+     * 检测域名的路由规则
+     * @access public
+     * @param string    $host 当前主机地址
+     * @return Domain|false
+     */
+    protected function checkDomain($host)
     {
         $rootDomain = $this->app['config']->get('url_domain_root');
+        $domains    = $this->domains;
 
         if ($rootDomain) {
             // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
@@ -597,6 +687,7 @@ class Route
 
         // 子域名配置
         $item = false;
+
         if (!empty($domain)) {
             // 当前子域名
             $subDomain = implode('.', $domain);
@@ -632,38 +723,11 @@ class Route
     }
 
     /**
-     * 检测URL路由
+     * 分析路由规则中的变量
      * @access public
-     * @param Request   $request Request请求对象
-     * @param string    $url URL地址
-     * @param string    $depr URL分隔符
-     * @param bool      $checkDomain 是否检测域名规则
-     * @param bool      $must 是否强制路由
-     * @return false|array
+     * @param string    $rule 路由规则
+     * @return array
      */
-    public function check($request, $url, $depr = '/', $checkDomain = false, $must = false)
-    {
-        // 分隔符替换 确保路由定义使用统一的分隔符
-        $url = str_replace($depr, '|', $url);
-
-        $method = strtolower($request->method());
-
-        // 域名路由检测
-        $result = $this->checkDomain($request, $url, $method, $depr);
-
-        if (false !== $result) {
-            // 路由匹配
-            return $result;
-        } elseif ($must) {
-            // 强制路由不匹配则抛出异常
-            throw new RouteNotFoundException();
-        } else {
-            // 默认路由解析
-            return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->app->config('app.controller_auto_search')]);
-        }
-    }
-
-    // 分析路由规则中的变量
     public function parseVar($rule)
     {
         // 提取路由规则中的变量
