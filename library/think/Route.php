@@ -61,17 +61,15 @@ class Route
 
     public function __construct(App $app)
     {
-        $this->app     = $app;
-        $this->group[] = '';
-
+        $this->app = $app;
         // 默认分组
-        $this->rules['__default__'] = new RuleGroup($this, '');
+        $this->group = new RuleGroup($this, '');
 
         // 默认域名
         $host = $this->app['request']->host();
 
         // 注册默认分组到默认域名下
-        $this->domain($host)->addRule($this->rules['__default__']);
+        $this->domain($host)->addRule($this->group);
     }
 
     /**
@@ -231,18 +229,11 @@ class Route
 
         $method = strtolower($method);
 
-        $groupName = $this->getCurrentGroup();
-
-        if ('__default__' != $groupName) {
-            $rule = $groupName . ($rule ? '/' . $rule : '');
-        }
-
         // 创建路由规则实例
-        $group = $this->getRuleGroup($groupName);
-        $rule  = new RuleItem($this, $group, $rule, $route, $method, $option, $pattern);
+        $rule = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
 
         // 添加到当前分组
-        $group->addRule($rule, $method);
+        $this->group->addRule($rule, $method);
 
         return $rule;
     }
@@ -275,13 +266,9 @@ class Route
 
     public function setName($name, $rule, $vars = [], $option = [])
     {
-        $group = $this->getCurrentGroup();
-        if ($group && '__default__' != $group) {
-            $key = $group . ($rule ? '/' . $rule : '');
-        } else {
-            $key = $rule;
-        }
-
+        // TODO 获取当前分组名称
+        $group  = $this->group->getName();
+        $key    = $group . ($rule ? '/' . $rule : '');
         $suffix = isset($option['ext']) ? $option['ext'] : null;
 
         $this->name[strtolower($name)] = [$key, $vars, $this->domain, $suffix];
@@ -303,27 +290,17 @@ class Route
             $name   = isset($option['name']) ? $option['name'] : '';
         }
 
-        if (empty($name)) {
-            // 给空分组随机生成一个名称
-            $name = uniqid() . '__empty__';
-        }
-
         // 上级分组
-        $parentGroupName = $this->getCurrentGroup();
-
-        // 分组开始
-        $this->startGroup($name);
-
-        // 当前分组名
-        $groupName = $this->getCurrentGroup();
+        $parentGroup = $this->group;
 
         // 创建分组实例
-        $group = new RuleGroup($this, $groupName, $option, $pattern);
-        $this->setRuleGroup($groupName, $group);
+        $group = new RuleGroup($this, $name, $option, $pattern);
 
         // 注册子分组
-        $parentGroup = $this->getRuleGroup($parentGroupName);
         $parentGroup->addRule($group);
+
+        // 设置当前分组
+        $this->group = $group;
 
         // 注册分组路由
         if ($route instanceof \Closure) {
@@ -332,50 +309,13 @@ class Route
             $this->setRules($route);
         }
 
-        // 结束当前分组
-        $this->endGroup();
+        // 还原当前分组
+        $this->group = $parentGroup;
 
         // 注册分组到当前域名
         $this->domains[$this->domain]->addRule($group);
 
         return $group;
-    }
-
-    // 获取指定分组对象实例
-    public function getRuleGroup($name)
-    {
-        if (!isset($this->rules[$name])) {
-            $this->rules[$name] = new RuleGroup($this, $name);
-
-            if ($this->domain) {
-                // 给域名添加分组规则
-                $this->domains[$this->domain]->addRule($this->rules[$name]);
-            }
-        }
-
-        return $this->rules[$name];
-    }
-
-    public function setRuleGroup($name, $group)
-    {
-        $this->rules[$name] = $group;
-
-        return $this;
-    }
-
-    public function startGroup($name)
-    {
-        $this->group[] = $name;
-    }
-
-    public function endGroup()
-    {
-        array_pop($this->group);
-    }
-
-    public function getCurrentGroup()
-    {
-        return trim(implode('/', $this->group), '/') ?: '__default__';
     }
 
     /**
