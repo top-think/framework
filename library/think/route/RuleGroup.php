@@ -13,7 +13,6 @@ namespace think\route;
 
 use think\Request;
 use think\Route;
-use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
 
 class RuleGroup extends Rule
