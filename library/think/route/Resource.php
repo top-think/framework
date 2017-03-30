@@ -17,7 +17,7 @@ class Resource extends RuleGroup
 {
     // 资源路由地址
     protected $route;
-
+    protected $rule;
     // REST路由方法定义
     protected $rest = [];
 
@@ -25,17 +25,23 @@ class Resource extends RuleGroup
      * 架构函数
      * @access public
      * @param Route         $router     路由实例
-     * @param string        $name       资源名称
+     * @param string        $rule       资源名称
      * @param string        $route      路由地址
      * @param array         $option     路由参数
      * @param array         $pattern    变量规则
      * @param array         $rest       资源定义
      */
-    public function __construct(Route $router, $name, $route, $option = [], $pattern = [], $rest = [])
+    public function __construct(Route $router, $rule, $route, $option = [], $pattern = [], $rest = [])
     {
         $this->router = $router;
-        $this->name   = $name;
-        $this->route  = $route;
+
+        $this->rule = $rule;
+        if (strpos($rule, '.')) {
+            $this->name = strstr($rule, '.', true);
+        } else {
+            $this->name = $rule;
+        }
+        $this->route = $route;
 
         // 资源路由默认为完整匹配
         $option['complete_match'] = true;
@@ -43,19 +49,36 @@ class Resource extends RuleGroup
         $this->pattern = $pattern;
         $this->option  = $option;
         $this->rest    = $rest;
+    }
 
-        $this->buildRule($name, $option);
+    /**
+     * 检测分组路由
+     * @access public
+     * @param Request      $request  请求对象
+     * @param string       $url      访问地址
+     * @param string       $depr     路径分隔符
+     * @return Dispatch
+     */
+    public function check($request, $url, $depr = '/')
+    {
+        // 生成资源路由的路由规则
+        $this->buildResourceRule();
+
+        return parent::check($request, $url, $depr);
     }
 
     /**
      * 生成资源路由规则
-     * @access public
+     * @access protected
      * @param string    $rule       路由规则
      * @param array     $option     路由参数
      * @return void
      */
-    public function buildRule($rule, $option)
+    protected function buildResourceRule()
     {
+        $rule   = $this->rule;
+        $option = $this->option;
+
         if (strpos($rule, '.')) {
             // 注册嵌套资源路由
             $array = explode('.', $rule);
@@ -87,7 +110,7 @@ class Resource extends RuleGroup
                 $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
             }
 
-            $item           = ltrim($rule . $val[1], '/');
+            $item           = ltrim(ltrim($rule . $val[1], '/'), $this->name . '/');
             $option['rest'] = $key;
 
             $this->router->rule($item, $this->route . '/' . $val[2], $val[0], $option);
@@ -96,9 +119,37 @@ class Resource extends RuleGroup
         $this->router->setGroup($group);
     }
 
-    public function vars($var)
+    /**
+     * 设置资源允许
+     * @access public
+     * @param array     $only
+     * @return $this
+     */
+    public function only($only)
     {
-        return $this->option('var', $var);
+        return $this->option('only', $only);
+    }
+
+    /**
+     * 设置资源排除
+     * @access public
+     * @param array     $except
+     * @return $this
+     */
+    public function except($except)
+    {
+        return $this->option('except', $except);
+    }
+
+    /**
+     * 设置资源路由的变量
+     * @access public
+     * @param array     $vars
+     * @return $this
+     */
+    public function vars($vars)
+    {
+        return $this->option('var', $vars);
     }
 
 }

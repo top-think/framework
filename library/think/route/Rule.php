@@ -124,62 +124,145 @@ abstract class Rule
         return isset($this->option[$name]) ? $this->option[$name] : null;
     }
 
+    /**
+     * 设置路由前置行为
+     * @access public
+     * @param callback     $callback
+     * @return $this
+     */
     public function before($callback)
     {
         return $this->option('before_behavior', $callback);
     }
 
+    /**
+     * 设置路由后置行为
+     * @access public
+     * @param callback     $callback
+     * @return $this
+     */
     public function after($callback)
     {
         return $this->option('after_behavior', $callback);
     }
 
+    /**
+     * 使用闭包检查
+     * @access public
+     * @param callback     $callback
+     * @return $this
+     */
+    public function validate($callback)
+    {
+        return $this->option('callback', $callback);
+    }
+
+    /**
+     * 检查后缀
+     * @access public
+     * @param string     $ext
+     * @return $this
+     */
     public function ext($ext)
     {
         return $this->option('ext', $ext);
     }
 
+    /**
+     * 检查禁止后缀
+     * @access public
+     * @param string     $ext
+     * @return $this
+     */
     public function denyExt($ext)
     {
         return $this->option('deny_ext', $ext);
     }
 
+    /**
+     * 检查域名
+     * @access public
+     * @param string     $domain
+     * @return $this
+     */
     public function domain($domain)
     {
         return $this->option('domain', $domain);
     }
 
+    /**
+     * 绑定模型
+     * @access public
+     * @param array     $model
+     * @return $this
+     */
     public function bindModel($model)
     {
         return $this->option('bind_model', $model);
     }
 
-    public function cache($time)
+    /**
+     * 设置路由缓存
+     * @access public
+     * @param array|string     $cache
+     * @return $this
+     */
+    public function cache($cache)
     {
-        return $this->option('cache', $time);
+        return $this->option('cache', $cache);
     }
 
+    /**
+     * 检查URL分隔符
+     * @access public
+     * @param bool     $depr
+     * @return $this
+     */
     public function depr($depr)
     {
         return $this->option('param_depr', $depr);
     }
 
+    /**
+     * 是否合并额外参数
+     * @access public
+     * @param bool     $merge
+     * @return $this
+     */
     public function mergeExtraVars($merge = true)
     {
         return $this->option('merge_extra_vars', $merge);
     }
 
+    /**
+     * 检查是否为HTTPS请求
+     * @access public
+     * @param bool     $https
+     * @return $this
+     */
     public function https($https = true)
     {
         return $this->option('https', $https);
     }
 
+    /**
+     * 检查是否为AJAX请求
+     * @access public
+     * @param bool     $ajax
+     * @return $this
+     */
     public function ajax($ajax = true)
     {
         return $this->option('ajax', $ajax);
     }
 
-    public function pjax($pjax)
+    /**
+     * 检查是否为PJAX请求
+     * @access public
+     * @param bool     $pjax
+     * @return $this
+     */
+    public function pjax($pjax = true)
     {
         return $this->option('pjax', $pjax);
     }

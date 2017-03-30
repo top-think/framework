@@ -136,6 +136,12 @@ class RuleGroup extends Rule
         return $this;
     }
 
+    /**
+     * 设置路由分组的前缀
+     * @access public
+     * @param string     $prefix
+     * @return $this
+     */
     public function prefix($prefix)
     {
         return $this->option('prefix', $prefix);
