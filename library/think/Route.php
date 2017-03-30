@@ -53,6 +53,7 @@ class Route
     protected $pattern = [];
     // 当前应用实例
     protected $app;
+    protected $routeName;
 
     public function __construct(App $app)
     {
@@ -194,19 +195,14 @@ class Route
     }
 
     /**
-     * 设置路由标识
+     * 设置当前路由标识
      * @access public
-     * @param string|array     $name 路由命名标识 数组表示批量设置
-     * @param array            $value 路由地址及变量信息
-     * @return array
+     * @param string     $name 路由命名标识
+     * @return $this
      */
-    public function name($name, $value = null)
+    public function name($name)
     {
-        if (is_array($name)) {
-            $this->name = $name;
-        } else {
-            $this->name[strtolower($name)][] = $value;
-        }
+        $this->routeName = $name;
 
         return $this;
     }
@@ -272,6 +268,9 @@ class Route
         // 读取路由标识
         if (is_array($rule)) {
             list($name, $rule) = $rule;
+        } elseif ($this->routeName) {
+            $name            = $this->routeName;
+            $this->routeName = null;
         } elseif (is_string($route)) {
             $name = $route;
         }
@@ -296,7 +295,7 @@ class Route
                 $suffix = null;
             }
 
-            $this->name($name, [$rule, $vars, $this->domain, $suffix]);
+            $this->name[strtolower($name)][] = [$rule, $vars, $this->domain, $suffix];
         }
 
         // 创建路由规则实例
@@ -354,7 +353,8 @@ class Route
         $parentGroup = $this->group;
 
         // 创建分组实例
-        $group = new RuleGroup($this, $name, $option, $pattern);
+        $option = array_merge($this->group->getOption(), $option);
+        $group  = new RuleGroup($this, $name, $option, $pattern);
 
         // 注册子分组
         $parentGroup->addRule($group);
