@@ -80,19 +80,50 @@ abstract class Rule
         return $this;
     }
 
+    /**
+     * 设置Name
+     * @access public
+     * @param string|array  $name 变量名
+     * @return $this
+     */
+    public function name($name)
+    {
+        $this->name = trim($name, '/');
+
+        return $this;
+    }
+
+    /**
+     * 获取Name
+     * @access public
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * 获取变量规则定义
+     * @access public
+     * @param string  $name 变量名
+     * @return mixed
+     */
     public function getPattern($name = '')
     {
         if ('' === $name) {
             return $this->pattern;
         }
+
         return isset($this->pattern[$name]) ? $this->pattern[$name] : null;
     }
 
+    /**
+     * 获取路由参数定义
+     * @access public
+     * @param string  $name 参数名
+     * @return mixed
+     */
     public function getOption($name = '')
     {
         if ('' === $name) {

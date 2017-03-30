@@ -16,8 +16,6 @@ use think\Route;
 class RuleItem extends Rule
 {
     // 路由规则
-    protected $rule;
-    // 路由标识
     protected $name;
     // 路由地址
     protected $route;
@@ -33,18 +31,18 @@ class RuleItem extends Rule
      * @access public
      * @param Route             $router 路由实例
      * @param RuleGroup         $group 路由所属分组对象
-     * @param string|array      $rule 路由规则
+     * @param string|array      $name 路由规则
      * @param string|\Closure   $route 路由地址
      * @param string            $method 请求类型
      * @param array             $option 路由参数
      * @param array             $pattern 变量规则
      */
-    public function __construct(Route $router, RuleGroup $group, $rule, $route, $method = '*', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $group, $name, $route, $method = '*', $option = [], $pattern = [])
     {
         $this->router = $router;
         $this->group  = $group;
 
-        $this->setRule($rule, $option);
+        $this->setRule($name, $option);
 
         $this->setMethod($method);
 
@@ -64,12 +62,7 @@ class RuleItem extends Rule
             $this->completeMatch = true;
         }
 
-        $this->rule = trim($rule, '/');
-    }
-
-    public function getRule()
-    {
-        return $this->rule;
+        $this->name($rule);
     }
 
     public function getRoute()
@@ -79,12 +72,12 @@ class RuleItem extends Rule
 
     public function isMiss()
     {
-        return '__miss__' == $this->rule;
+        return '__miss__' == $this->name;
     }
 
     public function isAuto()
     {
-        return '__auto__' == $this->rule;
+        return '__auto__' == $this->name;
     }
 
     public function setMethod($method, &$option = [])
@@ -139,7 +132,7 @@ class RuleItem extends Rule
         }
 
         $len1 = substr_count($url, '|');
-        $len2 = substr_count($this->rule, '/');
+        $len2 = substr_count($this->name, '/');
 
         // 多余参数是否合并
         $merge = !empty($this->option['merge_extra_vars']) ? true : false;
@@ -149,10 +142,10 @@ class RuleItem extends Rule
             $url = implode('|', explode($depr, $url, $len2 + 1));
         }
 
-        if ($len1 >= $len2 || strpos($this->rule, '[')) {
+        if ($len1 >= $len2 || strpos($this->name, '[')) {
             if (!empty($this->completeMatch)) {
                 // 完整匹配
-                if (!$merge && $len1 != $len2 && (false === strpos($this->rule, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->rule, '['))) {
+                if (!$merge && $len1 != $len2 && (false === strpos($this->name, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->name, '['))) {
                     return false;
                 }
             }
@@ -161,7 +154,7 @@ class RuleItem extends Rule
 
             if (false !== $match = $this->match($url, $pattern)) {
                 // 匹配到路由规则
-                return $this->parseRule($request, $this->rule, $this->route, $url, $this->option, $match);
+                return $this->parseRule($request, $this->name, $this->route, $url, $this->option, $match);
             }
         }
 
@@ -177,7 +170,7 @@ class RuleItem extends Rule
      */
     private function match($url, $pattern)
     {
-        $m2 = explode('/', $this->rule);
+        $m2 = explode('/', $this->name);
         $m1 = explode('|', $url);
 
         $var = [];

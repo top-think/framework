@@ -21,9 +21,6 @@ use think\route\RuleItem;
 class Route
 {
 
-    // 路由规则
-    private $rules = [];
-
     // REST路由操作方法定义
     private $rest = [
         'index'  => ['get', '', 'index'],
@@ -62,6 +59,7 @@ class Route
     public function __construct(App $app)
     {
         $this->app = $app;
+
         // 默认分组
         $this->group = new RuleGroup($this, '');
 
@@ -70,6 +68,27 @@ class Route
 
         // 注册默认分组到默认域名下
         $this->domain($host)->addRule($this->group);
+    }
+
+    /**
+     * 设置当前域名
+     * @access public
+     * @param RuleGroup    $group 域名
+     * @return void
+     */
+    public function setGroup(RuleGroup $group)
+    {
+        $this->group = $group;
+    }
+
+    /**
+     * 获取当前分组
+     * @access public
+     * @return RuleGroup
+     */
+    public function getGroup()
+    {
+        return $this->group;
     }
 
     /**
@@ -116,6 +135,16 @@ class Route
     }
 
     /**
+     * 读取域名
+     * @access public
+     * @return array
+     */
+    public function getDomain()
+    {
+        return $this->domain;
+    }
+
+    /**
      * 设置路由绑定
      * @access public
      * @param string     $bind 绑定信息
@@ -129,7 +158,17 @@ class Route
     }
 
     /**
-     * 设置或者获取路由标识
+     * 读取路由绑定
+     * @access public
+     * @return string
+     */
+    public function getBind()
+    {
+        return $this->bind;
+    }
+
+    /**
+     * 设置路由标识
      * @access public
      * @param string|array     $name 路由命名标识 数组表示批量设置
      * @param array            $value 路由地址及变量信息
@@ -147,7 +186,7 @@ class Route
     }
 
     /**
-     * 读取路由绑定
+     * 读取路由标识
      * @access public
      * @return string
      */
@@ -160,16 +199,6 @@ class Route
         $name = strtolower($name);
 
         return isset($this->name[$name]) ? $this->name[$name] : null;
-    }
-
-    /**
-     * 读取路由绑定
-     * @access public
-     * @return string
-     */
-    public function getBind()
-    {
-        return $this->bind;
     }
 
     /**
@@ -224,10 +253,16 @@ class Route
         if (isset($name)) {
             // 设置路由标识 用于URL快速生成
             $vars = $this->parseVar($rule);
-            $this->setName($name, $rule, $vars, $option);
+            $this->setName($name, $rule, $vars, array_merge($this->group->getOption(), $option));
         }
 
         $method = strtolower($method);
+
+        // 当前分组名
+        $group = $this->group->getName();
+        if ($group) {
+            $rule = $group . '/' . $rule;
+        }
 
         // 创建路由规则实例
         $rule = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
@@ -264,14 +299,14 @@ class Route
         }
     }
 
-    public function setName($name, $rule, $vars = [], $option = [])
+    protected function setName($name, $rule, $vars = [], $option = [])
     {
         // TODO 获取当前分组名称
         $group  = $this->group->getName();
         $key    = $group . ($rule ? '/' . $rule : '');
         $suffix = isset($option['ext']) ? $option['ext'] : null;
 
-        $this->name[strtolower($name)] = [$key, $vars, $this->domain, $suffix];
+        $this->name($name, [$key, $vars, $this->domain, $suffix]);
     }
 
     /**
@@ -458,8 +493,12 @@ class Route
         return $this;
     }
 
-    public function getAlias($name)
+    public function getAlias($name = null)
     {
+        if (is_null($name)) {
+            return $this->alias;
+        }
+
         return isset($this->alias[$name]) ? $this->alias[$name] : null;
     }
 
@@ -519,23 +558,6 @@ class Route
     public function auto($route)
     {
         return $this->rule('__auto__', $route);
-    }
-
-    /**
-     * 获取或者批量设置路由定义
-     * @access public
-     * @param mixed $rules 请求类型或者路由定义数组
-     * @return array
-     */
-    public function rules($rules = '')
-    {
-        if (is_array($rules)) {
-            $this->rules = $rules;
-        } elseif ($rules) {
-            return true === $rules ? $this->rules : $this->rules[strtolower($rules)];
-        } else {
-            return $this->rules;
-        }
     }
 
     /**

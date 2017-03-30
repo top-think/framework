@@ -21,6 +21,14 @@ use think\route\dispatch\Module as ModuleDispatch;
 class Domain extends RuleGroup
 {
 
+    /**
+     * 检测域名路由
+     * @access public
+     * @param Request      $request  请求对象
+     * @param string       $url      访问地址
+     * @param string       $depr     路径分隔符
+     * @return Dispatch
+     */
     public function check($request, $url, $depr = '/')
     {
         // 检测别名路由
@@ -102,9 +110,8 @@ class Domain extends RuleGroup
      */
     private function checkUrlBind(&$url, $depr = '/')
     {
-        if (!empty($this->bind)) {
-            $bind = $this->bind;
-
+        $bind = $this->router->getBind();
+        if (!empty($bind)) {
             // 记录绑定信息
             Facade::make('app')->log('[ BIND ] ' . var_export($bind, true));
 
@@ -209,26 +216,4 @@ class Domain extends RuleGroup
         return new ModuleDispatch($controller . '/' . $action);
     }
 
-    /**
-     * 解析URL地址中的参数Request对象
-     * @access private
-     * @param string    $rule 路由规则
-     * @param array     $var 变量
-     * @return void
-     */
-    public function parseUrlParams($url, &$var = [])
-    {
-        if ($url) {
-            if (Facade::make('config')->get('url_param_type')) {
-                $var += explode('|', $url);
-            } else {
-                preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
-                    $var[$match[1]] = strip_tags($match[2]);
-                }, $url);
-            }
-            // 设置当前请求的参数
-            Facade::make('request')->route($var);
-        }
-
-    }
 }

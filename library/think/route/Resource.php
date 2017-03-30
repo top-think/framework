@@ -79,7 +79,9 @@ class Resource extends RuleGroup
         }
 
         // 注册分组
-        $this->router->setRuleGroup($rule, $this);
+        $group = $this->router->getGroup();
+
+        $this->router->setGroup($this);
 
         // 注册资源路由
         foreach ($this->rest as $key => $val) {
@@ -97,44 +99,10 @@ class Resource extends RuleGroup
             $item           = ltrim($rule . $val[1], '/');
             $option['rest'] = $key;
 
-            $this->rule($item, $this->route . '/' . $val[2], $val[0], $option);
-
-        }
-    }
-
-    /**
-     * 注册路由规则
-     * @access public
-     * @param string    $rule       路由规则
-     * @param string    $route      路由地址
-     * @param string    $type       请求类型
-     * @param array     $option     路由参数
-     * @param array     $pattern    变量规则
-     * @return RuleItem
-     */
-    public function rule($rule, $route, $type = '*', $option = [], $pattern = [])
-    {
-        // 读取路由标识
-        if (is_array($rule)) {
-            list($name, $rule) = $rule;
-        } elseif (is_string($route)) {
-            $name = $route;
+            $this->router->rule($item, $this->route . '/' . $val[2], $val[0], $option);
         }
 
-        if (isset($name)) {
-            // 设置路由标识 用于URL快速生成
-            $vars = $this->router->parseVar($rule);
-            $this->router->setName($name, $rule, $vars, $option);
-        }
-
-        $type = strtolower($type);
-
-        $rule = new RuleItem($this->router, $this, $rule, $route, $type, $option, $pattern);
-
-        // 添加到当前分组
-        $this->addRule($rule, $type);
-
-        return $rule;
+        $this->router->setGroup($group);
     }
 
     /**

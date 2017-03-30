@@ -11,11 +11,12 @@
 
 namespace think\route;
 
-use IteratorAggregate;
+use think\Request;
 use think\Route;
+use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
 
-class RuleGroup extends Rule implements IteratorAggregate
+class RuleGroup extends Rule
 {
     // 分组路由（包括子分组）
     protected $rules = [
@@ -44,14 +45,20 @@ class RuleGroup extends Rule implements IteratorAggregate
      */
     public function __construct(Route $router, $name = '', $option = [], $pattern = [])
     {
-        $this->router = $router;
-
+        $this->router  = $router;
         $this->name    = trim($name, '/');
         $this->option  = $option;
         $this->pattern = $pattern;
     }
 
-    // 检测分组下的路由
+    /**
+     * 检测分组路由
+     * @access public
+     * @param Request      $request  请求对象
+     * @param string       $url      访问地址
+     * @param string       $depr     路径分隔符
+     * @return Dispatch
+     */
     public function check($request, $url, $depr = '/')
     {
         // 检查参数有效性
@@ -61,7 +68,7 @@ class RuleGroup extends Rule implements IteratorAggregate
 
         // 获取当前路由规则
         $method = strtolower($request->method());
-        $rules  = $this->rules['*'] + $this->rules[$method];
+        $rules  = array_merge($this->rules['*'], $this->rules[$method]);
 
         if (isset($rules[$url])) {
             // 快速定位
@@ -105,27 +112,28 @@ class RuleGroup extends Rule implements IteratorAggregate
         return $result;
     }
 
+    /**
+     * 添加分组下的路由规则或者子分组
+     * @access public
+     * @param RuleGroup|RuleItem    $rule  路由规则
+     * @param string                $method      请求类型
+     * @return $this
+     */
     public function addRule($rule, $method = '*')
     {
-        $key = $rule->getRule();
+        $name = $rule->getName();
 
-        $this->rules[$method][$key] = $rule;
+        if ($this->name && !($this instanceof Domain) && $rule instanceof RuleGroup) {
+            $rule->name($this->name . '/' . $name);
+        }
+
+        if ($name) {
+            $this->rules[$method][$name] = $rule;
+        } else {
+            $this->rules[$method][] = $rule;
+        }
 
         return $this;
     }
 
-    public function getRule()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Retrieve an external iterator
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->rules);
-    }
 }
