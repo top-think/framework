@@ -419,7 +419,7 @@ abstract class Rule
         $hook = Facade::make('hook');
 
         foreach ((array) $after as $behavior) {
-            $result = $hook->invoke($behavior);
+            $result = $hook->exec($behavior);
 
             if (!is_null($result)) {
                 break;
@@ -521,7 +521,7 @@ abstract class Rule
             $hook   = Facade::make('hook');
 
             foreach ((array) $before as $behavior) {
-                $result = $hook->invoke($behavior);
+                $result = $hook->exec($behavior);
 
                 if (false === $result) {
                     return false;
