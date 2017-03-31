@@ -364,11 +364,7 @@ abstract class Connection
      * @param string    $sql sql指令
      * @param array     $bind 参数绑定
      * @param bool      $master 是否在主服务器读操作
-     * @param bool      $class 是否返回PDO对象
-     * @param string        $sql sql指令
-     * @param array         $bind 参数绑定
-     * @param boolean       $master 是否在主服务器读操作
-     * @param bool          $pdo 是否返回PDO对象
+     * @param bool      $pdo 是否返回PDO对象
      * @return mixed
      * @throws BindParamException
      * @throws PDOException
