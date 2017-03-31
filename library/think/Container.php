@@ -11,7 +11,7 @@
 
 namespace think;
 
-class Container implements \ArrayAccess
+class Container
 {
     // 容器对象实例
     protected static $instance;
@@ -38,7 +38,7 @@ class Container implements \ArrayAccess
      * 绑定一个类到容器
      * @access public
      * @param string  $abstract    类标识、接口
-     * @param mixed   $concrete    要绑定的类或者闭包
+     * @param mixed   $concrete    要绑定的类、闭包或者实例
      * @return void
      */
     public function bind($abstract, $concrete = null)
@@ -226,46 +226,6 @@ class Container implements \ArrayAccess
         }
 
         return $args;
-    }
-
-    public function offsetExists($key)
-    {
-        return $this->bound($key);
-    }
-
-    public function offsetGet($key)
-    {
-        return $this->make($key);
-    }
-
-    public function offsetSet($key, $value)
-    {
-        $this->bind($key, $value);
-    }
-
-    public function offsetUnset($key)
-    {
-        $this->__unset($key);
-    }
-
-    public function __set($name, $value)
-    {
-        $this->bind($name, $value);
-    }
-
-    public function __get($name)
-    {
-        return $this->make($name);
-    }
-
-    public function __isset($name)
-    {
-        return $this->bound($name);
-    }
-
-    public function __unset($name)
-    {
-        unset($this->bind[$name], $this->instances[$name]);
     }
 
 }
