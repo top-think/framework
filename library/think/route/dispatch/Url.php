@@ -23,6 +23,8 @@ class Url extends Dispatch
         $router = $this->app['route'];
         $bind   = $router->getBind();
         $depr   = $this->param['depr'];
+        $url    = str_replace($this->param['depr'], '|', $this->action);
+
         if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
             // 如果有模块/控制器绑定
@@ -31,7 +33,6 @@ class Url extends Dispatch
             $bind = false;
         }
 
-        $url              = str_replace($this->param['depr'], '|', $this->action);
         list($path, $var) = $this->parseUrlPath($url);
         $route            = [null, null, null];
 

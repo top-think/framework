@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
 use think\route\dispatch\Url as UrlDispatch;
 
@@ -486,13 +487,15 @@ class App implements \ArrayAccess
 
     /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
-     * @param string $name         资源地址
-     * @param string $layer        控制层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
-     * @param string $empty        空控制器名称
+     * @param string $name              资源地址
+     * @param string $layer             控制层名称
+     * @param bool   $appendSuffix      是否添加类名后缀
+     * @param string $empty             空控制器名称
+     * @param bool   $throwException    是否抛异常
      * @return Object|null
+     * @throws ClassNotFoundException
      */
-    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
+    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '', $throwException = true)
     {
         if (false !== strpos($name, '\\')) {
             $class  = $name;
@@ -510,6 +513,8 @@ class App implements \ArrayAccess
             return $this->__get($class);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
             return $this->__get($emptyClass);
+        } elseif ($throwException) {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
     }
 
@@ -581,6 +586,7 @@ class App implements \ArrayAccess
      * @param string       $layer        要调用的控制层名称
      * @param bool         $appendSuffix 是否添加类名后缀
      * @return mixed
+     * @throws ClassNotFoundException
      */
     public function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
     {
@@ -589,16 +595,15 @@ class App implements \ArrayAccess
         $module = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
         $class  = $this->controller($module, $layer, $appendSuffix);
 
-        if ($class) {
-            if (is_scalar($vars)) {
-                if (strpos($vars, '=')) {
-                    parse_str($vars, $vars);
-                } else {
-                    $vars = [$vars];
-                }
+        if (is_scalar($vars)) {
+            if (strpos($vars, '=')) {
+                parse_str($vars, $vars);
+            } else {
+                $vars = [$vars];
             }
-            return $this->container->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
         }
+
+        return $this->container->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
     }
 
     /**

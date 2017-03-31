@@ -110,7 +110,8 @@ class Domain extends RuleGroup
      */
     private function checkUrlBind(&$url, $depr = '/')
     {
-        $bind = $this->router->getBind();
+        $bind = $this->router->getBind($this->name);
+
         if (!empty($bind)) {
             // 记录绑定信息
             Facade::make('app')->log('[ BIND ] ' . var_export($bind, true));

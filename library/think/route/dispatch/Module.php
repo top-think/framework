@@ -29,7 +29,7 @@ class Module extends Dispatch
         if ($this->app->config('app.app_multi_module')) {
             // 多模块部署
             $module    = strip_tags(strtolower($result[0] ?: $this->app->config('app.default_module')));
-            $bind      = $this->app['route']->getBind('module');
+            $bind      = $this->app['route']->getBind();
             $available = false;
 
             if ($bind) {
@@ -84,7 +84,7 @@ class Module extends Dispatch
         // 监听module_init
         $this->app['hook']->listen('module_init', $this->app['request']);
 
-        $instance = $this->app->controller($controller, $this->app->config('app.url_controller_layer'), $this->app->config('app.controller_suffix'), $this->app->config('app.empty_controller'));
+        $instance = $this->app->controller($controller, $this->app->config('app.url_controller_layer'), $this->app->config('app.controller_suffix'), $this->app->config('app.empty_controller'), false);
 
         if (is_null($instance)) {
             throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));

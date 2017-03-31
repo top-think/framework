@@ -130,7 +130,7 @@ class Route
     public function domain($name, $rule = '', $option = [], $pattern = [])
     {
         // 设置当前域名
-        $this->setDomain($name);
+        $this->domain = $name;
 
         if (!isset($this->domains[$name])) {
             $this->domains[$name] = new Domain($this, $name, $option, $pattern);
@@ -141,34 +141,17 @@ class Route
         // 执行域名路由
         if ($rule instanceof \Closure) {
             call_user_func($rule);
+        } elseif (is_array($rule)) {
+            $this->rules($rule);
+        } else {
+            $this->bind($rule);
         }
 
         // 还原默认域名
-        $this->setDomain($this->app['request']->host());
+        $this->domain = $this->app['request']->host();
 
         // 返回域名对象
         return $this->domains[$name];
-    }
-
-    /**
-     * 设置当前域名
-     * @access public
-     * @param string    $domain 域名
-     * @return void
-     */
-    protected function setDomain($domain)
-    {
-        $this->domain = $domain;
-    }
-
-    /**
-     * 读取域名
-     * @access public
-     * @return array
-     */
-    public function getDomain()
-    {
-        return $this->domain;
     }
 
     /**
@@ -179,7 +162,7 @@ class Route
      */
     public function bind($bind)
     {
-        $this->bind = $bind;
+        $this->bind[$this->domain] = $bind;
 
         return $this;
     }
@@ -187,11 +170,16 @@ class Route
     /**
      * 读取路由绑定
      * @access public
+     * @param string    $domain 域名
      * @return string
      */
-    public function getBind()
+    public function getBind($domain = null)
     {
-        return $this->bind;
+        if (is_null($domain)) {
+            $domain = $this->domain;
+        }
+
+        return $this->bind[$domain];
     }
 
     /**
@@ -210,7 +198,8 @@ class Route
     /**
      * 读取路由标识
      * @access public
-     * @return string
+     * @param string    $name 路由标识
+     * @return array|null
      */
     public function getName($name = null)
     {
@@ -250,7 +239,6 @@ class Route
                 $this->rule($key, $val, $type);
             }
         }
-
     }
 
     /**
@@ -269,7 +257,8 @@ class Route
         if (is_array($rule)) {
             list($name, $rule) = $rule;
         } elseif ($this->routeName) {
-            $name            = $this->routeName;
+            $name = $this->routeName;
+
             $this->routeName = null;
         } elseif (is_string($route)) {
             $name = $route;
@@ -469,7 +458,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return Resource
      */
     public function resource($rule, $route = '', $option = [], $pattern = [])
     {
@@ -488,7 +477,7 @@ class Route
      * @param string    $route 路由地址
      * @param array     $option 路由参数
      * @param array     $pattern 变量规则
-     * @return void
+     * @return $this
      */
     public function controller($rule, $route = '', $option = [], $pattern = [])
     {
@@ -505,7 +494,7 @@ class Route
      * @param string|array  $rule 路由别名
      * @param string        $route 路由地址
      * @param array         $option 路由参数
-     * @return void
+     * @return $this
      */
     public function alias($rule = null, $route = '', $option = [])
     {
@@ -536,9 +525,9 @@ class Route
     /**
      * 设置不同请求类型下面的方法前缀
      * @access public
-     * @param string    $method 请求类型
-     * @param string    $prefix 类型前缀
-     * @return void
+     * @param string|array  $method 请求类型
+     * @param string        $prefix 类型前缀
+     * @return $this
      */
     public function setMethodPrefix($method, $prefix = '')
     {
@@ -556,11 +545,13 @@ class Route
      * @access public
      * @param string    $method 请求类型
      * @param string    $prefix 类型前缀
-     * @return void
+     * @return string|null
      */
     public function getMethodPrefix($method)
     {
-        return isset($this->methodPrefix[strtolower($method)]) ? $this->methodPrefix[strtolower($method)] : null;
+        $method = strtolower($method);
+
+        return isset($this->methodPrefix[$method]) ? $this->methodPrefix[$method] : null;
     }
 
     /**
@@ -628,19 +619,14 @@ class Route
      * @param string    $depr URL分隔符
      * @param bool      $checkDomain 是否检测域名规则
      * @param bool      $must 是否强制路由
-     * @return false|array
+     * @return Dispatch
+     * @throws RouteNotFoundException
      */
     public function check($request, $url, $depr = '/', $checkDomain = false, $must = false)
     {
-        // 分隔符替换 确保路由定义使用统一的分隔符
-        $url = str_replace($depr, '|', $url);
-
+        $url    = str_replace($depr, '|', $url);
         $method = strtolower($request->method());
-
-        // 获取当前域名
-        $host = $request->host();
-
-        // 域名路由检测
+        $host   = $request->host();
         $domain = false;
 
         if ($checkDomain) {
@@ -649,7 +635,7 @@ class Route
         }
 
         if (false === $domain) {
-            // 完整域名或者IP配置
+            // 检测当前完整域名
             $domain = $this->domains[$host];
         }
 
