@@ -191,7 +191,7 @@ class Route
             $domain = $this->domain;
         }
 
-        return $this->bind[$domain];
+        return isset($this->bind[$domain]) ? $this->bind[$domain] : null;
     }
 
     /**
