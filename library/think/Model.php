@@ -2003,7 +2003,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
     }
 
-    public static function __callStatic($method, $params)
+    public static function __callStatic($method, $args)
     {
         if (isset(static::$db)) {
             $query      = static::$db;
@@ -2011,8 +2011,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $query = (new static())->db();
         }
+        if (method_exists($this, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $query);
+            call_user_func_array([$this, $method], $args);
 
-        return call_user_func_array([$query, $method], $params);
+            return $this;
+        } else {
+            return call_user_func_array([$query, $method], $args);
+        }
     }
 
     /**

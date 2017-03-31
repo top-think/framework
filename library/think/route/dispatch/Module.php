@@ -32,7 +32,7 @@ class Module extends Dispatch
             $bind      = $this->app['route']->getBind();
             $available = false;
 
-            if ($bind) {
+            if ($bind && preg_match('/^[a-z]/is', $bind)) {
                 // 绑定模块
                 list($bindModule) = explode('/', $bind);
                 if (empty($result[0])) {
@@ -65,6 +65,7 @@ class Module extends Dispatch
             $module = '';
             $this->app['request']->module($module);
         }
+
         // 当前模块路径
         $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . '/' : ''));
 

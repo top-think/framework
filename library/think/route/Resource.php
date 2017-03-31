@@ -15,16 +15,17 @@ use think\Route;
 
 class Resource extends RuleGroup
 {
+    // 资源路由名称
+    protected $rule;
     // 资源路由地址
     protected $route;
-    protected $rule;
     // REST路由方法定义
     protected $rest = [];
 
     /**
      * 架构函数
      * @access public
-     * @param Route         $router     路由实例
+     * @param Route         $router     路由对象
      * @param string        $rule       资源名称
      * @param string        $route      路由地址
      * @param array         $option     路由参数
@@ -34,14 +35,9 @@ class Resource extends RuleGroup
     public function __construct(Route $router, $rule, $route, $option = [], $pattern = [], $rest = [])
     {
         $this->router = $router;
-
-        $this->rule = $rule;
-        if (strpos($rule, '.')) {
-            $this->name = strstr($rule, '.', true);
-        } else {
-            $this->name = $rule;
-        }
-        $this->route = $route;
+        $this->rule   = $rule;
+        $this->route  = $route;
+        $this->name   = strpos($rule, '.') ? strstr($rule, '.', true) : $rule;
 
         // 资源路由默认为完整匹配
         $option['complete_match'] = true;
@@ -62,7 +58,7 @@ class Resource extends RuleGroup
     public function check($request, $url, $depr = '/')
     {
         // 生成资源路由的路由规则
-        $this->buildResourceRule();
+        $this->buildResourceRule($this->rule, $this->option);
 
         return parent::check($request, $url, $depr);
     }
@@ -74,11 +70,8 @@ class Resource extends RuleGroup
      * @param array     $option     路由参数
      * @return void
      */
-    protected function buildResourceRule()
+    protected function buildResourceRule($rule, $option = [])
     {
-        $rule   = $this->rule;
-        $option = $this->option;
-
         if (strpos($rule, '.')) {
             // 注册嵌套资源路由
             $array = explode('.', $rule);
@@ -110,7 +103,8 @@ class Resource extends RuleGroup
                 $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
             }
 
-            $item           = ltrim(ltrim($rule . $val[1], '/'), $this->name . '/');
+            $item = ltrim(ltrim($rule . $val[1], '/'), $this->name . '/');
+
             $option['rest'] = $key;
 
             $this->router->rule($item, $this->route . '/' . $val[2], $val[0], $option);

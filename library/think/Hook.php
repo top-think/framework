@@ -14,13 +14,30 @@ namespace think;
 class Hook
 {
 
-    private $tags = [];
-
+    private $tags   = [];
+    protected $bind = [];
     protected $app;
 
     public function __construct(App $app)
     {
         $this->app = $app;
+    }
+
+    /**
+     * 绑定行为标识 便于调用
+     * @param string    $name     行为标识
+     * @param mixed     $behavior 行为
+     * @return void
+     */
+    public function alias($name, $behavior = null)
+    {
+        if (is_array($name)) {
+            $this->bind = array_merge($this->bind, $name);
+        } else {
+            $this->bind[$name] = $behavior;
+        }
+
+        return $this;
     }
 
     /**
@@ -107,11 +124,32 @@ class Hook
     }
 
     /**
+     * 执行行为
+     * @param mixed     $class  行为
+     * @param array     $params 参数
+     * @return mixed
+     */
+    public function invoke($class, $params = [])
+    {
+        if (isset($this->bind[$class])) {
+            $class = $this->bind[$class];
+        }
+
+        if ($class instanceof \Closure) {
+            $method = $class;
+        } else {
+            $method = [$class, 'run'];
+        }
+
+        return Container::getInstance()->invoke($method, $params);
+    }
+
+    /**
      * 执行某个行为
-     * @param mixed     $class 要执行的行为
-     * @param string    $tag 方法名（标签名）
-     * @param Mixed     $params 传人的参数
-     * @param mixed     $extra 额外参数
+     * @param mixed     $class  要执行的行为
+     * @param string    $tag    方法名（标签名）
+     * @param mixed     $params 参数
+     * @param mixed     $extra  额外参数
      * @return mixed
      */
     public function exec($class, $tag = '', $params = null, $extra = null)

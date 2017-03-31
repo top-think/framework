@@ -22,11 +22,11 @@ class RuleGroup extends Rule
         '*'       => [],
         'get'     => [],
         'post'    => [],
-        'delete'  => [],
         'put'     => [],
+        'patch'   => [],
+        'delete'  => [],
         'head'    => [],
         'options' => [],
-        'patch'   => [],
     ];
 
     // MISS路由
@@ -38,9 +38,10 @@ class RuleGroup extends Rule
     /**
      * 架构函数
      * @access public
-     * @param string      $rule     分组名称
-     * @param array       $option     路由参数
-     * @param array       $pattern     变量规则
+     * @param Route       $router   路由对象
+     * @param string      $name     分组名称
+     * @param array       $option   路由参数
+     * @param array       $pattern  变量规则
      */
     public function __construct(Route $router, $name = '', $option = [], $pattern = [])
     {
@@ -102,15 +103,15 @@ class RuleGroup extends Rule
     /**
      * 添加分组下的路由规则或者子分组
      * @access public
-     * @param RuleGroup|RuleItem    $rule  路由规则
-     * @param string                $method      请求类型
+     * @param Rule     $rule   路由规则
+     * @param string   $method 请求类型
      * @return $this
      */
     public function addRule($rule, $method = '*')
     {
         $name = $rule->getName();
 
-        if ($this->name && !($this instanceof Domain) && $rule instanceof RuleGroup) {
+        if ($this->name && $rule instanceof RuleGroup && !($this instanceof Domain)) {
             $rule->name($this->name . '/' . $name);
         }
 
@@ -132,7 +133,7 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 设置路由分组的前缀
+     * 设置分组的路由前缀
      * @access public
      * @param string     $prefix
      * @return $this

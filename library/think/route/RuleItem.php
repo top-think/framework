@@ -21,8 +21,6 @@ class RuleItem extends Rule
     protected $route;
     // 所属分组
     protected $group;
-    // 路由匹配模式
-    protected $completeMatch = false;
 
     /**
      * 架构函数
@@ -59,9 +57,7 @@ class RuleItem extends Rule
             // 是否完整匹配
             $rule = substr($rule, 0, -1);
 
-            $this->completeMatch = true;
-        } elseif (!empty($option['complete_match'])) {
-            $this->completeMatch = true;
+            $this->option['complete_match'] = true;
         }
 
         $this->name($rule);
@@ -155,7 +151,7 @@ class RuleItem extends Rule
         }
 
         if ($len1 >= $len2 || strpos($this->name, '[')) {
-            if (!empty($this->completeMatch)) {
+            if (!empty($this->option['complete_match'])) {
                 // 完整匹配
                 if (!$merge && $len1 != $len2 && (false === strpos($this->name, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->name, '['))) {
                     return false;

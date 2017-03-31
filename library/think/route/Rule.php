@@ -12,7 +12,6 @@
 namespace think\route;
 
 use think\Facade;
-use think\Hook;
 use think\Request;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
@@ -138,34 +137,23 @@ abstract class Rule
     /**
      * 设置路由前置行为
      * @access public
-     * @param callback     $callback
+     * @param array|\Closure    $before
      * @return $this
      */
-    public function before($callback)
+    public function before($before)
     {
-        return $this->option('before_behavior', $callback);
+        return $this->option('before', $before);
     }
 
     /**
      * 设置路由后置行为
      * @access public
-     * @param callback     $callback
+     * @param array|\Closure     $after
      * @return $this
      */
-    public function after($callback)
+    public function after($after)
     {
-        return $this->option('after_behavior', $callback);
-    }
-
-    /**
-     * 使用闭包检查
-     * @access public
-     * @param callback     $callback
-     * @return $this
-     */
-    public function validate($callback)
-    {
-        return $this->option('callback', $callback);
+        return $this->option('after', $after);
     }
 
     /**
@@ -408,8 +396,8 @@ abstract class Rule
         $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
 
         // 检测路由after行为
-        if (!empty($option['after_behavior'])) {
-            $dispatch = $this->checkAfter($option['after_behavior']);
+        if (!empty($option['after'])) {
+            $dispatch = $this->checkAfter($option['after']);
 
             if (false !== $dispatch) {
                 return $dispatch;
@@ -428,17 +416,13 @@ abstract class Rule
      */
     protected function checkAfter($after)
     {
-        if ($after instanceof \Closure) {
-            $result = call_user_func_array($after, []);
-        } else {
-            $hook = Facade::make('hook');
+        $hook = Facade::make('hook');
 
-            foreach ((array) $after as $behavior) {
-                $result = $hook->exec($behavior, '');
+        foreach ((array) $after as $behavior) {
+            $result = $hook->invoke($behavior);
 
-                if (!is_null($result)) {
-                    break;
-                }
+            if (!is_null($result)) {
+                break;
             }
         }
 
@@ -523,7 +507,7 @@ abstract class Rule
     }
 
     /**
-     * 路由参数有效性检查
+     * 路由检查
      * @access protected
      * @param array     $option 路由参数
      * @param Request   $request Request对象
@@ -531,19 +515,51 @@ abstract class Rule
      */
     protected function checkOption($option, Request $request)
     {
-        if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
-            || (isset($option['ajax']) && $option['ajax'] && !$request->isAjax()) // Ajax检测
-             || (isset($option['ajax']) && !$option['ajax'] && $request->isAjax()) // 非Ajax检测
-             || (isset($option['pjax']) && $option['pjax'] && !$request->isPjax()) // Pjax检测
-             || (isset($option['pjax']) && !$option['pjax'] && $request->isPjax()) // 非Pjax检测
-             || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|')) // 伪静态后缀检测
-             || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))
-            || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $this->subDomain])) // 域名检测
-             || (isset($option['https']) && $option['https'] && !$request->isSsl()) // https检测
-             || (isset($option['https']) && !$option['https'] && $request->isSsl()) // https检测
-             || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测
-             || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
-        ) {
+        if (!empty($option['before'])) {
+            // 路由前置检查
+            $before = $option['before'];
+            $hook   = Facade::make('hook');
+
+            foreach ((array) $before as $behavior) {
+                $result = $hook->invoke($behavior);
+
+                if (false === $result) {
+                    return false;
+                }
+            }
+        }
+
+        // 请求类型检测
+        if (!empty($option['method'])) {
+            if (is_string($option['method']) && false === stripos($option['method'], $request->method())) {
+                return false;
+            }
+        }
+
+        // AJAX PJAX 请求检查
+        foreach (['ajax', 'pjax'] as $item) {
+            if (isset($option[$item])) {
+                $call = 'is' . $item;
+                if ($option[$item] && !$request->$call() || !$option[$item] && $request->$call()) {
+                    return false;
+                }
+            }
+        }
+
+        // 伪静态后缀检测
+        if ((isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|'))
+            || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))) {
+            return false;
+        }
+
+        // 域名检查
+        if ((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $this->subDomain]))) {
+            return false;
+        }
+
+        // HTTPS检查
+        if ((isset($option['https']) && $option['https'] && !$request->isSsl())
+            || (isset($option['https']) && !$option['https'] && $request->isSsl())) {
             return false;
         }
 
