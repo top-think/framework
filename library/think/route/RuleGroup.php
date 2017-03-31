@@ -81,16 +81,6 @@ class RuleGroup extends Rule
 
         // 遍历分组路由
         foreach ($rules as $key => $item) {
-            if ($item instanceof RuleItem) {
-                if ($item->isMiss()) {
-                    $this->miss = $item;
-                    continue;
-                } elseif ($item->isAuto()) {
-                    $this->auto = $item;
-                    continue;
-                }
-            }
-
             $result = $item->check($request, $url, $depr);
 
             if (false !== $result) {
@@ -104,8 +94,6 @@ class RuleGroup extends Rule
         } elseif (isset($this->miss)) {
             // 未匹配所有路由的路由规则处理
             $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
-        } else {
-            $result = false;
         }
 
         return $result;
@@ -130,6 +118,14 @@ class RuleGroup extends Rule
             $this->rules[$method][$name] = $rule;
         } else {
             $this->rules[$method][] = $rule;
+        }
+
+        if ($rule instanceof RuleItem) {
+            if ($rule->isMiss()) {
+                $this->miss = $rule;
+            } elseif ($rule->isAuto()) {
+                $this->auto = $rule;
+            }
         }
 
         return $this;

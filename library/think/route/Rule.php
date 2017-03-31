@@ -125,6 +125,17 @@ abstract class Rule
     }
 
     /**
+     * 设置路由请求类型
+     * @access public
+     * @param string     $method
+     * @return $this
+     */
+    public function method($method)
+    {
+        return $this->option('method', strtolower($method));
+    }
+
+    /**
      * 设置路由前置行为
      * @access public
      * @param callback     $callback
@@ -267,42 +278,105 @@ abstract class Rule
         return $this->option('pjax', $pjax);
     }
 
+    protected function parseRuleVars($rule, &$paths)
+    {
+        $matches = [];
+        foreach ($rule as $item) {
+            $fun = '';
+            if (0 === strpos($item, '[:')) {
+                $item = substr($item, 1, -1);
+            }
+            if (0 === strpos($item, ':')) {
+                $var           = substr($item, 1);
+                $matches[$var] = array_shift($paths);
+            } else {
+                // 过滤URL中的静态变量
+                array_shift($paths);
+            }
+        }
+        return $matches;
+    }
+
+    protected function createBindModel($bindModel, $matches)
+    {
+        $bind = [];
+
+        foreach ($bindModel as $key => $val) {
+            if ($val instanceof \Closure) {
+                $result = call_user_func_array($val, [$matches]);
+            } else {
+                if (is_array($val)) {
+                    $fields    = explode('&', $val[1]);
+                    $model     = $val[0];
+                    $exception = isset($val[2]) ? $val[2] : true;
+                } else {
+                    $fields    = ['id'];
+                    $model     = $val;
+                    $exception = true;
+                }
+
+                $where = [];
+                $match = true;
+
+                foreach ($fields as $field) {
+                    if (!isset($matches[$field])) {
+                        $match = false;
+                        break;
+                    } else {
+                        $where[$field] = $matches[$field];
+                    }
+                }
+
+                if ($match) {
+                    $query  = strpos($model, '\\') ? $model::where($where) : Loader::model($model)->where($where);
+                    $result = $query->failException($exception)->find();
+                }
+            }
+
+            if (!empty($result)) {
+                $bind[$key] = $result;
+            }
+        }
+
+        $request->bind($bind);
+    }
+
+    protected function parseRequestCache($request, $cache)
+    {
+        if (is_array($cache)) {
+            list($key, $expire) = $cache;
+        } else {
+            $key    = str_replace('|', '/', $url);
+            $expire = $cache;
+        }
+
+        $request->cache($key, $expire);
+    }
+
     /**
-     * 解析规则路由
+     * 解析匹配到的规则路由
      * @access public
+     * @param Request   $request 请求对象
      * @param string    $rule 路由规则
      * @param string    $route 路由地址
-     * @param string    $pathinfo URL地址
+     * @param string    $url URL地址
      * @param array     $option 路由参数
      * @param array     $matches 匹配的变量
      * @return Dispatch
      */
-    public function parseRule($request, $rule, $route, $pathinfo, $option = [], $matches = [])
+    public function parseRule($request, $rule, $route, $url, $option = [], $matches = [])
     {
         // 解析路由规则
         if ($rule) {
             $rule = explode('/', $rule);
             // 获取URL地址中的参数
-            $paths = explode('|', $pathinfo);
-
-            foreach ($rule as $item) {
-                $fun = '';
-                if (0 === strpos($item, '[:')) {
-                    $item = substr($item, 1, -1);
-                }
-                if (0 === strpos($item, ':')) {
-                    $var           = substr($item, 1);
-                    $matches[$var] = array_shift($paths);
-                } else {
-                    // 过滤URL中的静态变量
-                    array_shift($paths);
-                }
-            }
+            $paths   = explode('|', $url);
+            $matches = $this->parseRuleVars($rule, $paths);
         } else {
-            $paths = explode('|', $pathinfo);
+            $paths   = explode('|', $url);
+            $matches = [];
         }
 
-        // 获取路由地址规则
         if (is_string($route) && isset($option['prefix'])) {
             // 路由地址前缀
             $route = $option['prefix'] . $route;
@@ -319,87 +393,75 @@ abstract class Rule
 
         // 绑定模型数据
         if (isset($option['bind_model'])) {
-            $bind = [];
-            foreach ($option['bind_model'] as $key => $val) {
-                if ($val instanceof \Closure) {
-                    $result = call_user_func_array($val, [$matches]);
-                } else {
-                    if (is_array($val)) {
-                        $fields    = explode('&', $val[1]);
-                        $model     = $val[0];
-                        $exception = isset($val[2]) ? $val[2] : true;
-                    } else {
-                        $fields    = ['id'];
-                        $model     = $val;
-                        $exception = true;
-                    }
-
-                    $where = [];
-                    $match = true;
-
-                    foreach ($fields as $field) {
-                        if (!isset($matches[$field])) {
-                            $match = false;
-                            break;
-                        } else {
-                            $where[$field] = $matches[$field];
-                        }
-                    }
-
-                    if ($match) {
-                        $query  = strpos($model, '\\') ? $model::where($where) : Loader::model($model)->where($where);
-                        $result = $query->failException($exception)->find();
-                    }
-                }
-                if (!empty($result)) {
-                    $bind[$key] = $result;
-                }
-            }
-
-            $request->bind($bind);
+            $this->createBindModel($option['bind_model'], $matches);
         }
 
         // 开启请求缓存
         if ($request->isGet() && isset($option['cache'])) {
-            $cache = $option['cache'];
-
-            if (is_array($cache)) {
-                list($key, $expire) = $cache;
-            } else {
-                $key    = str_replace('|', '/', $pathinfo);
-                $expire = $cache;
-            }
-
-            $request->cache($key, $expire);
+            $this->parseRequestCache($request, $option['cache']);
         }
 
         // 解析额外参数
         $this->parseUrlParams(empty($paths) ? '' : implode('|', $paths), $matches);
+
         // 记录匹配的路由信息
         $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
 
         // 检测路由after行为
         if (!empty($option['after_behavior'])) {
-            if ($option['after_behavior'] instanceof \Closure) {
-                $result = call_user_func_array($option['after_behavior'], []);
-            } else {
-                foreach ((array) $option['after_behavior'] as $behavior) {
-                    $result = $this->app['hook']->exec($behavior, '');
+            $dispatch = $this->checkAfter($option['after_behavior']);
 
-                    if (!is_null($result)) {
-                        break;
-                    }
-                }
-            }
-
-            // 路由规则重定向
-            if ($result instanceof Response) {
-                return new ResponseDispatch($result);
-            } elseif ($result instanceof Dispatch) {
-                return $result;
+            if (false !== $dispatch) {
+                return $dispatch;
             }
         }
 
+        // 发起路由调度
+        return $this->dispatch($request, $route, $option);
+    }
+
+    /**
+     * 检查路由后置行为
+     * @access protected
+     * @param mixed   $after 后置行为
+     * @return mixed
+     */
+    protected function checkAfter($after)
+    {
+        if ($after instanceof \Closure) {
+            $result = call_user_func_array($after, []);
+        } else {
+            $hook = Facade::make('hook');
+
+            foreach ((array) $after as $behavior) {
+                $result = $hook->exec($behavior, '');
+
+                if (!is_null($result)) {
+                    break;
+                }
+            }
+        }
+
+        // 路由规则重定向
+        if ($result instanceof Response) {
+            return new ResponseDispatch($result);
+        } elseif ($result instanceof Dispatch) {
+            return $result;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 发起路由调度
+     * @access protected
+     * @param Request   $request Request对象
+     * @param mixed     $route  路由地址
+     * @param array     $option 路由参数
+     * @return Dispatch
+     */
+    protected function dispatch($request, $route, $option)
+    {
         if ($route instanceof \Closure) {
             // 执行闭包
             $result = new CallbackDispatch($route);
@@ -429,6 +491,35 @@ abstract class Rule
         }
 
         return $result;
+    }
+
+    /**
+     * 解析URL地址为 模块/控制器/操作
+     * @access protected
+     * @param string    $url URL地址
+     * @return array
+     */
+    protected function parseModule($url)
+    {
+        list($path, $var) = $this->parseUrlPath($url);
+        $config           = Facade::make('config');
+        $request          = Facade::make('request');
+        $action           = array_pop($path);
+        $controller       = !empty($path) ? array_pop($path) : null;
+        $module           = $config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $method           = $request->method();
+
+        if ($config->get('use_action_prefix') && $this->router->getMethodPrefix($method)) {
+            $prefix = $this->router->getMethodPrefix($method);
+            // 操作方法前缀支持
+            $action = 0 !== strpos($action, $prefix) ? $prefix . $action : $action;
+        }
+
+        // 设置当前请求的路由变量
+        $request->route($var);
+
+        // 路由到模块/控制器/操作
+        return new ModuleDispatch([$module, $controller, $action]);
     }
 
     /**
@@ -511,35 +602,6 @@ abstract class Rule
         }
 
         return [$path, $var];
-    }
-
-    /**
-     * 解析URL地址为 模块/控制器/操作
-     * @access protected
-     * @param string    $url URL地址
-     * @return array
-     */
-    protected function parseModule($url)
-    {
-        list($path, $var) = $this->parseUrlPath($url);
-        $config           = Facade::make('config');
-        $request          = Facade::make('request');
-        $action           = array_pop($path);
-        $controller       = !empty($path) ? array_pop($path) : null;
-        $module           = $config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-        $method           = $request->method();
-
-        if ($config->get('use_action_prefix') && $this->router->getMethodPrefix($method)) {
-            $prefix = $this->router->getMethodPrefix($method);
-            // 操作方法前缀支持
-            $action = 0 !== strpos($action, $prefix) ? $prefix . $action : $action;
-        }
-
-        // 设置当前请求的路由变量
-        $request->route($var);
-
-        // 路由到模块/控制器/操作
-        return new ModuleDispatch([$module, $controller, $action]);
     }
 
 }

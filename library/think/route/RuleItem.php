@@ -19,10 +19,8 @@ class RuleItem extends Rule
     protected $name;
     // 路由地址
     protected $route;
-    // 请求类型
-    protected $method;
+    // 所属分组
     protected $group;
-
     // 路由匹配模式
     protected $completeMatch = false;
 
@@ -33,24 +31,28 @@ class RuleItem extends Rule
      * @param RuleGroup         $group 路由所属分组对象
      * @param string|array      $name 路由规则
      * @param string|\Closure   $route 路由地址
-     * @param string            $method 请求类型
      * @param array             $option 路由参数
      * @param array             $pattern 变量规则
      */
-    public function __construct(Route $router, RuleGroup $group, $name, $route, $method = '*', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $group, $name, $route, $option = [], $pattern = [])
     {
         $this->router = $router;
         $this->group  = $group;
+        $this->route  = $route;
 
         $this->setRule($name, $option);
 
-        $this->route   = $route;
         $this->option  = array_merge($group->getOption(), $option);
         $this->pattern = $pattern;
-
-        $this->method($method);
     }
 
+    /**
+     * 路由规则预处理
+     * @access public
+     * @param string      $rule     路由规则
+     * @param array       $option   路由参数
+     * @return void
+     */
     public function setRule($rule, $option = [])
     {
         if ('$' == substr($rule, -1, 1)) {
@@ -65,36 +67,44 @@ class RuleItem extends Rule
         $this->name($rule);
     }
 
+    /**
+     * 获取当前路由地址
+     * @access public
+     * @return mixed
+     */
     public function getRoute()
     {
         return $this->route;
     }
 
+    /**
+     * 是否为MISS路由
+     * @access public
+     * @return bool
+     */
     public function isMiss()
     {
         return '__miss__' == $this->name;
     }
 
+    /**
+     * 是否为自动路由
+     * @access public
+     * @return bool
+     */
     public function isAuto()
     {
         return '__auto__' == $this->name;
     }
 
-    public function method($method)
-    {
-        $method = strtolower($method);
-
-        if (strpos($method, '|')) {
-            $this->option['method'] = $method;
-            $method                 = '*';
-        }
-
-        $this->method = $method;
-
-        return $this;
-    }
-
-    // 检测路由规则
+    /**
+     * 检测路由
+     * @access public
+     * @param Request      $request  请求对象
+     * @param string       $url      访问地址
+     * @param string       $depr     路径分隔符
+     * @return Dispatch
+     */
     public function check($request, $url, $depr = '/')
     {
         // 检查参数有效性

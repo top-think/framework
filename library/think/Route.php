@@ -21,7 +21,7 @@ use think\route\RuleItem;
 class Route
 {
     // REST路由操作方法定义
-    private $rest = [
+    protected $rest = [
         'index'  => ['get', '', 'index'],
         'create' => ['get', '/create', 'create'],
         'edit'   => ['get', '/:id/edit', 'edit'],
@@ -32,7 +32,7 @@ class Route
     ];
 
     // 不同请求类型的方法前缀
-    private $methodPrefix = [
+    protected $methodPrefix = [
         'get'    => 'get',
         'post'   => 'post',
         'put'    => 'put',
@@ -40,19 +40,20 @@ class Route
         'patch'  => 'patch',
     ];
 
-    // 路由绑定
-    protected $bind;
-    // 当前分组信息
-    protected $group = [];
-    protected $name  = [];
-    // 当前域名
-    protected $domain;
-    // 域名对象
-    protected $domains;
-    // 全局路由变量
-    protected $pattern = [];
     // 当前应用实例
     protected $app;
+    // 当前域名
+    protected $domain;
+    // 当前分组
+    protected $group;
+
+    // 路由标识
+    protected $name = [];
+    // 路由绑定
+    protected $bind = [];
+    // 域名对象
+    protected $domains = [];
+    // 当前路由标识
     protected $routeName;
 
     public function __construct(App $app)
@@ -64,6 +65,8 @@ class Route
 
         // 默认域名
         $host = $this->app['request']->host();
+
+        $this->domain = $host;
 
         // 注册默认分组到默认域名下
         $this->domain($host)->addRule($this->group);
@@ -129,13 +132,16 @@ class Route
      */
     public function domain($name, $rule = '', $option = [], $pattern = [])
     {
-        // 设置当前域名
-        $this->domain = $name;
+        // 支持多个域名使用相同路由规则
+        $domain = is_array($name) ? array_shift($name) : $name;
 
-        if (!isset($this->domains[$name])) {
-            $this->domains[$name] = new Domain($this, $name, $option, $pattern);
+        // 设置当前域名
+        $this->domain = $domain;
+
+        if (!isset($this->domains[$domain])) {
+            $this->domains[$domain] = new Domain($this, $domain, $option, $pattern);
         } else {
-            $this->domains[$name]->option($option)->pattern($pattern);
+            $this->domains[$domain]->option($option)->pattern($pattern);
         }
 
         // 执行域名路由
@@ -143,15 +149,21 @@ class Route
             call_user_func($rule);
         } elseif (is_array($rule)) {
             $this->rules($rule);
-        } else {
-            $this->bind($rule);
+        } elseif ($rule) {
+            $this->bindTo($rule);
         }
 
         // 还原默认域名
         $this->domain = $this->app['request']->host();
 
+        if (is_array($name) && !empty($name)) {
+            foreach ($name as $item) {
+                $this->domains[$item] = $this->domains[$domain];
+            }
+        }
+
         // 返回域名对象
-        return $this->domains[$name];
+        return $this->domains[$domain];
     }
 
     /**
@@ -160,7 +172,7 @@ class Route
      * @param string     $bind 绑定信息
      * @return $this
      */
-    public function bind($bind)
+    public function bindTo($bind)
     {
         $this->bind[$this->domain] = $bind;
 
@@ -245,7 +257,7 @@ class Route
      * 注册路由规则
      * @access public
      * @param string    $rule       路由规则
-     * @param string    $route      路由地址
+     * @param mixed     $route      路由地址
      * @param string    $method     请求类型
      * @param array     $option     路由参数
      * @param array     $pattern    变量规则
@@ -288,7 +300,7 @@ class Route
         }
 
         // 创建路由规则实例
-        $rule = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
+        $rule = new RuleItem($this, $this->group, $rule, $route, $option, $pattern);
 
         // 添加到当前分组
         $this->group->addRule($rule, $method);
