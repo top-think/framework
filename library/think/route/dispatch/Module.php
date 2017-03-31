@@ -55,7 +55,11 @@ class Module extends Dispatch
                 $this->app['lang']->load($this->app->getAppPath() . $module . '/lang/' . $this->app['request']->langset() . '.php');
 
                 // 模块请求缓存检查
-                $this->app['request']->cache($this->app->config('app.request_cache'), $this->app->config('app.request_cache_expire'), $this->app->config('app.request_cache_except'));
+                $this->app['request']->cache(
+                    $this->app->config('app.request_cache'),
+                    $this->app->config('app.request_cache_expire'),
+                    $this->app->config('app.request_cache_except')
+                );
 
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
@@ -85,7 +89,12 @@ class Module extends Dispatch
         // 监听module_init
         $this->app['hook']->listen('module_init', $this->app['request']);
 
-        $instance = $this->app->controller($controller, $this->app->config('app.url_controller_layer'), $this->app->config('app.controller_suffix'), $this->app->config('app.empty_controller'), false);
+        // 实例化控制器
+        $instance = $this->app->controller($controller,
+            $this->app->config('app.url_controller_layer'),
+            $this->app->config('app.controller_suffix'),
+            $this->app->config('app.empty_controller'),
+            false);
 
         if (is_null($instance)) {
             throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));

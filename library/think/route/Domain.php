@@ -55,7 +55,7 @@ class Domain extends RuleGroup
      * @param Request   $request
      * @param string    $url URL地址
      * @param string    $depr URL分隔符
-     * @return mixed
+     * @return Dispatch|false
      */
     private function checkRouteAlias($request, $url, $depr)
     {
@@ -105,7 +105,7 @@ class Domain extends RuleGroup
      * @access private
      * @param string    $url URL地址
      * @param string    $depr URL分隔符
-     * @return mixed
+     * @return Dispatch|false
      */
     private function checkUrlBind(&$url, $depr = '/')
     {
@@ -137,7 +137,7 @@ class Domain extends RuleGroup
      * @param string    $url URL地址
      * @param string    $class 类名（带命名空间）
      * @param string    $depr URL分隔符
-     * @return array
+     * @return CallbackDispatch
      */
     public function bindToClass($url, $class, $depr = '/')
     {
@@ -158,7 +158,7 @@ class Domain extends RuleGroup
      * @param string    $url URL地址
      * @param string    $namespace 命名空间
      * @param string    $depr URL分隔符
-     * @return array
+     * @return CallbackDispatch
      */
     public function bindToNamespace($url, $namespace, $depr = '/')
     {
@@ -180,7 +180,7 @@ class Domain extends RuleGroup
      * @param string    $url URL地址
      * @param string    $controller 控制器名 （支持带模块名 index/user ）
      * @param string    $depr URL分隔符
-     * @return array
+     * @return ControllerDispatch
      */
     public function bindToController($url, $controller, $depr = '/')
     {
@@ -201,7 +201,7 @@ class Domain extends RuleGroup
      * @param string    $url URL地址
      * @param string    $controller 控制器类名（带命名空间）
      * @param string    $depr URL分隔符
-     * @return array
+     * @return ModuleDispatch
      */
     public function bindToModule($url, $controller, $depr = '/')
     {

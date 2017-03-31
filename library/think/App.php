@@ -325,7 +325,11 @@ class App implements \ArrayAccess
             $this->hook->listen('app_begin', $dispatch);
 
             // 请求缓存检查
-            $this->request->cache($this->config('app.request_cache'), $this->config('app.request_cache_expire'), $this->config('app.request_cache_except'));
+            $this->request->cache(
+                $this->config('app.request_cache'),
+                $this->config('app.request_cache_expire'),
+                $this->config('app.request_cache_except')
+            );
 
             // 执行调度
             $data = $dispatch->run();
@@ -415,13 +419,23 @@ class App implements \ArrayAccess
             }
 
             $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
+
             // 路由检测（根据路由定义返回不同的URL调度）
-            $result = $this->route->check($this->request, $path, $depr, $this->config('app.url_domain_deploy'), $must);
+            $result = $this->route->check(
+                $this->request,
+                $path,
+                $depr,
+                $this->config('app.url_domain_deploy'),
+                $must
+            );
         }
 
         if (false === $result) {
             // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
-            $result = new UrlDispatch($path, ['depr' => $depr, 'auto_search' => $this->config('app.controller_auto_search')]);
+            $result = new UrlDispatch($path, [
+                'depr'        => $depr,
+                'auto_search' => $this->config('app.controller_auto_search'),
+            ]);
         }
 
         return $result;

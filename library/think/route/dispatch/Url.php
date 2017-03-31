@@ -19,90 +19,136 @@ class Url extends Dispatch
 {
     public function run()
     {
+        // 解析默认的URL规则
+        $url    = str_replace($this->param['depr'], '|', $this->action);
+        $result = $this->parseUrl($url);
 
+        return (new Module($result))->run();
+    }
+
+    /**
+     * 解析URL地址
+     * @access protected
+     * @param string    $url URL
+     * @return array
+     */
+    protected function parseUrl($url)
+    {
         $router = $this->app['route'];
         $bind   = $router->getBind();
         $depr   = $this->param['depr'];
-        $url    = str_replace($this->param['depr'], '|', $this->action);
 
         if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
             // 如果有模块/控制器绑定
             $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
-        } else {
-            $bind = false;
         }
 
         list($path, $var) = $this->parseUrlPath($url);
-        $route            = [null, null, null];
+        if (empty($path)) {
+            return [null, null, null];
+        }
 
-        if (isset($path)) {
-            // 解析模块
-            $module = $this->app->config('app_multi_module') ? array_shift($path) : null;
-            if ($this->param['auto_search']) {
-                // 自动搜索控制器
-                $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->app->config('url_controller_layer');
-                $suffix = $this->app->getSuffix() || $this->app->config('controller_suffix') ? ucfirst($this->app->config('url_controller_layer')) : '';
-                $item   = [];
-                $find   = false;
+        // 解析模块
+        $module = $this->app->config('app_multi_module') ? array_shift($path) : null;
+        if ($this->param['auto_search']) {
+            $controller = $this->autoFindController($module, $path);
+        } else {
+            // 解析控制器
+            $controller = !empty($path) ? array_shift($path) : null;
+        }
 
-                foreach ($path as $val) {
-                    $item[] = $val;
-                    $file   = $dir . '/' . str_replace('.', '/', $val) . $suffix . '.php';
-                    $file   = pathinfo($file, PATHINFO_DIRNAME) . '/' . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
-                    if (is_file($file)) {
-                        $find = true;
-                        break;
-                    } else {
-                        $dir .= '/' . Loader::parseName($val);
-                    }
-                }
+        // 解析操作
+        $action = !empty($path) ? array_shift($path) : null;
 
-                if ($find) {
-                    $controller = implode('.', $item);
-                    $path       = array_slice($path, count($item));
-                } else {
-                    $controller = array_shift($path);
-                }
+        // 解析额外参数
+        if ($path) {
+            if ($this->app['config']->get('url_param_type')) {
+                $var += $path;
             } else {
-                // 解析控制器
-                $controller = !empty($path) ? array_shift($path) : null;
-            }
-
-            // 解析操作
-            $action = !empty($path) ? array_shift($path) : null;
-
-            // 解析额外参数
-            if ($path) {
-                if ($this->app['config']->get('url_param_type')) {
-                    $var += $path;
-                } else {
-                    preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
-                        $var[$match[1]] = strip_tags($match[2]);
-                    }, $path);
-                }
-            }
-            // 设置当前请求的参数
-            $this->app['request']->route($var);
-
-            // 封装路由
-            $route = [$module, $controller, $action];
-
-            // 检查地址是否被定义过路由
-            $name = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
-
-            $name2 = '';
-
-            if (empty($module) || $module == $bind) {
-                $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
-            }
-
-            if ($router->getName($name) || $router->getName($name2)) {
-                throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
+                preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
+                    $var[$match[1]] = strip_tags($match[2]);
+                }, $path);
             }
         }
 
-        return (new Module($route))->run();
+        // 设置当前请求的参数
+        $this->app['request']->route($var);
+
+        // 封装路由
+        $route = [$module, $controller, $action];
+
+        if ($this->hasDefinedRoute($route, $bind)) {
+            throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
+        }
+
+        return $route;
+    }
+
+    /**
+     * 检查URL是否已经定义过路由
+     * @access protected
+     * @param string    $route  路由信息
+     * @param string    $bind   绑定信息
+     * @return bool
+     */
+    protected function hasDefinedRoute($route, $bind)
+    {
+        list($module, $controller, $action) = $route;
+
+        // 检查地址是否被定义过路由
+        $name = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
+
+        $name2 = '';
+
+        if (empty($module) || $module == $bind) {
+            $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
+        }
+
+        $router = $this->app['route'];
+
+        if ($router->getName($name) || $router->getName($name2)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 自动定位控制器类
+     * @access protected
+     * @param string    $module 模块名
+     * @param array     $path   URL
+     * @return string
+     */
+    protected function autoFindController($module, &$path)
+    {
+        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->app->config('url_controller_layer');
+        $suffix = $this->app->getSuffix() || $this->app->config('controller_suffix') ? ucfirst($this->app->config('url_controller_layer')) : '';
+
+        $item = [];
+        $find = false;
+
+        foreach ($path as $val) {
+            $item[] = $val;
+            $file   = $dir . '/' . str_replace('.', '/', $val) . $suffix . '.php';
+            $file   = pathinfo($file, PATHINFO_DIRNAME) . '/' . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
+            if (is_file($file)) {
+                $find = true;
+                break;
+            } else {
+                $dir .= '/' . Loader::parseName($val);
+            }
+        }
+
+        if ($find) {
+            $controller = implode('.', $item);
+            $path       = array_slice($path, count($item));
+        } else {
+            $controller = array_shift($path);
+        }
+
+        return $controller;
     }
 
     /**
