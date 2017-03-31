@@ -11,6 +11,7 @@
 
 namespace think\route;
 
+use think\Container;
 use think\Facade;
 use think\Request;
 use think\route\dispatch\Callback as CallbackDispatch;
@@ -266,6 +267,13 @@ abstract class Rule
         return $this->option('pjax', $pjax);
     }
 
+    /**
+     * 解析路由变量
+     * @access public
+     * @param array    $rule 路由规则
+     * @param array    $paths URL
+     * @return array
+     */
     protected function parseRuleVars($rule, &$paths)
     {
         $matches = [];
@@ -285,11 +293,16 @@ abstract class Rule
         return $matches;
     }
 
+    /**
+     * 路由绑定模型实例
+     * @access public
+     * @param array|\Clousre    $bindModel 绑定模型
+     * @param array             $matches   路由变量
+     * @return void
+     */
     protected function createBindModel($bindModel, $matches)
     {
-        $bind = [];
-
-        foreach ($bindModel as $key => $val) {
+        foreach ((array) $bindModel as $key => $val) {
             if ($val instanceof \Closure) {
                 $result = call_user_func_array($val, [$matches]);
             } else {
@@ -316,19 +329,25 @@ abstract class Rule
                 }
 
                 if ($match) {
-                    $query  = strpos($model, '\\') ? $model::where($where) : Loader::model($model)->where($where);
+                    $query  = strpos($model, '\\') ? $model::where($where) : Facade::make('app')->model($model)->where($where);
                     $result = $query->failException($exception)->find();
                 }
             }
 
             if (!empty($result)) {
-                $bind[$key] = $result;
+                // 注入容器
+                Container::getInstance()->instance(get_class($result), $result);
             }
         }
-
-        $request->bind($bind);
     }
 
+    /**
+     * 处理路由请求缓存
+     * @access public
+     * @param Request       $request 请求对象
+     * @param string|array  $cache  路由缓存
+     * @return void
+     */
     protected function parseRequestCache($request, $cache)
     {
         if (is_array($cache)) {

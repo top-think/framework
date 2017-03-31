@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\exception\HttpResponseException;
+
 class Request
 {
     /**
@@ -1662,11 +1664,11 @@ class Request
             if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
                 // 读取缓存
                 $response = Response::create()->code(304);
-                throw new \think\exception\HttpResponseException($response);
+                throw new HttpResponseException($response);
             } elseif ($cache->has($key)) {
                 list($content, $header) = $cache->get($key);
                 $response               = Response::create($content)->header($header);
-                throw new \think\exception\HttpResponseException($response);
+                throw new HttpResponseException($response);
             } else {
                 $this->cache = [$key, $expire];
             }

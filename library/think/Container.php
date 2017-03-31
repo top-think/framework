@@ -203,9 +203,11 @@ class Container implements \ArrayAccess
             reset($vars);
             $type   = key($vars) === 0 ? 1 : 0;
             $params = $reflect->getParameters();
+
             foreach ($params as $param) {
                 $name  = $param->getName();
                 $class = $param->getClass();
+
                 if ($class) {
                     $className = $class->getName();
                     $args[]    = $this->make($className);

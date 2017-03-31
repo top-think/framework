@@ -110,6 +110,7 @@ class Hook
 
         foreach ($tags as $key => $name) {
             $results[$key] = $this->execTag($name, $tag, $params, $extra);
+
             if (false === $results[$key]) {
                 // 如果返回false 则中断行为执行
                 break;
