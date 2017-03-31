@@ -23,7 +23,7 @@ class Container
     /**
      * 获取当前容器的实例（单例）
      * @access public
-     * @return object
+     * @return static
      */
     public static function getInstance()
     {
@@ -176,8 +176,7 @@ class Container
      */
     public function invokeClass($class, $vars = [])
     {
-        $reflect = new \ReflectionClass($class);
-
+        $reflect     = new \ReflectionClass($class);
         $constructor = $reflect->getConstructor();
 
         if ($constructor) {
