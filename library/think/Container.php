@@ -37,14 +37,16 @@ class Container implements \ArrayAccess
     /**
      * 绑定一个类到容器
      * @access public
-     * @param string            $abstract    类标识、接口
-     * @param string|\Closure   $concrete    要绑定的类或者闭包
+     * @param string  $abstract    类标识、接口
+     * @param mixed   $concrete    要绑定的类或者闭包
      * @return void
      */
     public function bind($abstract, $concrete = null)
     {
         if (is_array($abstract)) {
             $this->bind = array_merge($this->bind, $abstract);
+        } elseif (is_object($concrete)) {
+            $this->instances[$abstract] = $concrete;
         } else {
             $this->bind[$abstract] = $concrete;
         }
