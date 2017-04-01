@@ -259,12 +259,17 @@ abstract class OneToOne extends Relation
 
         if (isset($list[$relation])) {
             $relationModel = new $model($list[$relation]);
+            $relationModel->setParent($result);
+            $relationModel->isUpdate(true);
+
             if (!empty($this->bindAttr)) {
                 $this->bindAttr($relationModel, $result, $this->bindAttr);
             }
+        } else {
+            $relationModel = null;
         }
 
-        $result->setAttr(Loader::parseName($relation), !isset($relationModel) ? null : $relationModel->isUpdate(true));
+        $result->setAttr(Loader::parseName($relation), $relationModel);
     }
 
     /**

@@ -124,6 +124,11 @@ class MorphMany extends Relation
                     $data[$result->$pk] = [];
                 }
 
+                foreach ($data[$result->$pk] as &$relationModel) {
+                    $relationModel->setParent($result);
+                    $relationModel->isUpdate(true);
+                }
+
                 $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
@@ -147,6 +152,11 @@ class MorphMany extends Relation
                 $this->morphKey  => $result->$pk,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
+
+            foreach ($data[$result->$pk] as &$relationModel) {
+                $relationModel->setParent($result);
+                $relationModel->isUpdate(true);
+            }
 
             $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
         }

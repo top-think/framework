@@ -179,7 +179,11 @@ class MorphTo extends Relation
                         if (!isset($data[$result->$morphKey])) {
                             throw new Exception('relation data not exists :' . $this->model);
                         } else {
-                            $result->setAttr($attr, $data[$result->$morphKey]);
+                            $relationModel = $data[$result->$morphKey];
+                            $relationModel->setParent($result);
+                            $relationModel->isUpdate(true);
+
+                            $result->setAttr($attr, $relationModel);
                         }
                     }
                 }
@@ -214,15 +218,14 @@ class MorphTo extends Relation
      * @return integer
      */
     public function relationCount($result, $closure)
-    {
-    }
+    {}
 
     /**
      * 多态MorphTo 关联模型预查询
      * @access   public
      * @param object $model       关联模型对象
      * @param string $relation    关联名
-     * @param        $result
+     * @param Model  $result
      * @param string $subRelation 子关联
      * @return void
      */
@@ -233,6 +236,7 @@ class MorphTo extends Relation
         $data = (new $model)->with($subRelation)->find($pk);
 
         if ($data) {
+            $data->setParent($result);
             $data->isUpdate(true);
         }
 

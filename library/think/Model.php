@@ -48,6 +48,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $data = [];
     // 原始数据
     private $origin = [];
+    // 父关联模型对象
+    private $parent;
     // 数据库配置
     protected $connection = [];
     // 数据库查询对象
@@ -225,6 +227,29 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {}
 
     /**
+     * 设置父关联对象
+     * @access public
+     * @param Model $model  模型对象
+     * @return $this
+     */
+    public function setParent($model)
+    {
+        $this->parent = $model;
+
+        return $this;
+    }
+
+    /**
+     * 获取父关联对象
+     * @access public
+     * @return Model
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
      * 设置数据对象值
      * @access public
      * @param mixed $data  数据或者属性名
@@ -344,7 +369,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
 
             if (method_exists($this, $method)) {
-                $value = $this->$method($value, array_merge($data, $this->data));
+                $value = $this->$method($value, array_merge($this->data, $data));
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
@@ -502,9 +527,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $relation = Loader::parseName($name, 1, false);
 
             if ($notFound && method_exists($this, $relation) && $this->$relation() instanceof Relation) {
-                // 首先获取关联数据
-                $this->$relation()->removeOption();
-                $value = $this->$relation()->getRelation();
+                $modelRelation = $this->$relation();
+                $value         = $this->getRelationData($modelRelation);
             }
 
             $value = $this->$method($value, $this->data);
@@ -525,10 +549,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $method = Loader::parseName($name, 1, false);
 
             if (method_exists($this, $method) && $this->$method() instanceof Relation) {
-                // 清空之前的查询参数
-                $this->$method()->removeOption();
-                // 不存在该字段 获取关联数据
-                $value = $this->$method()->getRelation();
+                $modelRelation = $this->$method();
+                $value         = $this->getRelationData($modelRelation);
+
                 // 保存关联对象值
                 $this->data[$name] = $value;
             } else {
@@ -536,6 +559,24 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
+        return $value;
+    }
+
+    /**
+     * 获取关联模型数据
+     * @access public
+     * @param mixed        $value 值
+     * @param string|array $type  要转换的类型
+     * @return mixed
+     */
+    protected function getRelationData($modelRelation)
+    {
+        if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
+            $value = $this->parent;
+        } else {
+            // 首先获取关联数据
+            $value = $modelRelation->removeOption()->getRelation();
+        }
         return $value;
     }
 
