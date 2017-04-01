@@ -36,6 +36,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static $links = [];
     // 数据库配置
     protected $connection = [];
+    // 父关联模型对象
+    protected $parent;
     // 数据库查询对象
     protected $query;
     // 当前模型名称
@@ -217,6 +219,29 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected static function init()
     {
+    }
+
+    /**
+     * 设置父关联对象
+     * @access public
+     * @param Model $model  模型对象
+     * @return $this
+     */
+    public function setParent($model)
+    {
+        $this->parent = $model;
+
+        return $this;
+    }
+
+    /**
+     * 获取父关联对象
+     * @access public
+     * @return Model
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 
     /**
@@ -458,15 +483,32 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif ($notFound) {
             $method = Loader::parseName($name, 1, false);
             if (method_exists($this, $method) && $this->$method() instanceof Relation) {
-                // 清空之前的查询参数
-                $this->$method()->removeOption();
+                $modelRelation = $this->$method();
                 // 不存在该字段 获取关联数据
-                $value = $this->$method()->getRelation();
+                $value = $this->getRelationData($modelRelation);
                 // 保存关联对象值
                 $this->data[$name] = $value;
             } else {
                 throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
             }
+        }
+        return $value;
+    }
+
+    /**
+     * 获取关联模型数据
+     * @access public
+     * @param mixed        $value 值
+     * @param string|array $type  要转换的类型
+     * @return mixed
+     */
+    protected function getRelationData($modelRelation)
+    {
+        if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
+            $value = $this->parent;
+        } else {
+            // 首先获取关联数据
+            $value = $modelRelation->removeOption()->getRelation();
         }
         return $value;
     }

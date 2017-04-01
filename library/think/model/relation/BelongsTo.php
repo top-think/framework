@@ -130,6 +130,8 @@ class BelongsTo extends OneToOne
                     $relationModel = null;
                 } else {
                     $relationModel = $data[$result->$foreignKey];
+                    $relationModel->setParent($result);
+                    $relationModel->isUpdate(true);
                 }
 
                 if ($relationModel && !empty($this->bindAttr)) {
@@ -161,6 +163,8 @@ class BelongsTo extends OneToOne
             $relationModel = null;
         } else {
             $relationModel = $data[$result->$foreignKey];
+            $relationModel->setParent($result);
+            $relationModel->isUpdate(true);
         }
         if ($relationModel && !empty($this->bindAttr)) {
             // 绑定关联属性

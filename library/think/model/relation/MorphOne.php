@@ -117,9 +117,14 @@ class MorphOne extends Relation
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$pk])) {
-                    $data[$result->$pk] = [];
+                    $relationModel = null;
+                } else {
+                    $relationModel = $data[$result->$pk];
+                    $relationModel->setParent($result);
+                    $relationModel->isUpdate(true);
                 }
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
+
+                $result->setAttr($attr, $relationModel);
             }
         }
     }
@@ -137,11 +142,21 @@ class MorphOne extends Relation
     {
         $pk = $result->getPk();
         if (isset($result->$pk)) {
+            $pk   = $result->$pk;
             $data = $this->eagerlyMorphToOne([
-                $this->morphKey  => $result->$pk,
+                $this->morphKey  => $pk,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
+
+            if (isset($data[$pk])) {
+                $relationModel = $data[$pk];
+                $data[$pk]->setParent($result);
+                $relationModel->isUpdate(true);
+            } else {
+                $relationModel = null;
+            }
+
+            $result->setAttr(Loader::parseName($relation), $relationModel);
         }
     }
 
