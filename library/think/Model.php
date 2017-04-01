@@ -498,8 +498,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取关联模型数据
      * @access public
-     * @param mixed        $value 值
-     * @param string|array $type  要转换的类型
+     * @param Relation        $modelRelation 模型关联对象
      * @return mixed
      */
     protected function getRelationData($modelRelation)
