@@ -283,7 +283,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
-                $value = $this->$method($value, $data);
+                $value = $this->$method($value, array_merge($this->data, $data));
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
