@@ -36,8 +36,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private static $links = [];
     // 当前数据库实例
     private static $db;
-    // 关联自动写入
-    private $relationWrite;
     // 是否为更新数据
     private $isUpdate = false;
     // 更新条件
@@ -50,6 +48,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $origin = [];
     // 父关联模型对象
     private $parent;
+    // 关联模型
+    private $relation = [];
+    // 关联自动写入
+    private $relationWrite;
     // 数据库配置
     protected $connection = [];
     // 数据库查询对象
@@ -334,8 +336,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return $this->data;
         } elseif (array_key_exists($name, $this->data)) {
             return $this->data[$name];
+        } elseif (array_key_exists($name, $this->relation)) {
+            return $this->relation[$name];
         } else {
             throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
+        }
+    }
+
+    /**
+     * 获取当前模型的关联模型数据
+     * @access public
+     * @param string $name 关联方法名
+     * @return mixed
+     */
+    public function getRelation($name = null)
+    {
+        if (is_null($name)) {
+            return $this->relation;
+        } elseif (array_key_exists($name, $this->relation)) {
+            return $this->relation[$name];
+        } else {
+            return null;
         }
     }
 
@@ -361,6 +382,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function setAttr($name, $value, $data = [])
     {
+        $isRelationData = false;
+
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
             $value = $this->autoWriteTimestamp($name);
@@ -370,16 +393,42 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (method_exists($this, $method)) {
                 $value = $this->$method($value, array_merge($this->data, $data));
+            }
+
+            if ($this->isRelationAttr($name)) {
+                $isRelationData = true;
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
             }
+
         }
 
         // 设置数据对象属性
-        $this->data[$name] = $value;
+        if ($isRelationData) {
+            $this->relation[$name] = $value;
+        } else {
+            $this->data[$name] = $value;
+        }
 
         return $this;
+    }
+
+    /**
+     * 检查属性是否为关联属性 如果是则返回关联方法名
+     * @access public
+     * @param string $attr 关联属性名
+     * @return string|false
+     */
+    protected function isRelationAttr($attr)
+    {
+        $relation = Loader::parseName($attr, 1, false);
+
+        if (method_exists($this, $relation) && $this->$relation() instanceof Relation) {
+            return $relation;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -524,9 +573,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $method = 'get' . Loader::parseName($name, 1) . 'Attr';
 
         if (method_exists($this, $method)) {
-            $relation = Loader::parseName($name, 1, false);
-
-            if ($notFound && method_exists($this, $relation) && $this->$relation() instanceof Relation) {
+            if ($notFound && $relation = $this->isRelationAttr($name)) {
                 $modelRelation = $this->$relation();
                 $value         = $this->getRelationData($modelRelation);
             }
@@ -546,14 +593,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = $this->formatDateTime($value, $this->dateFormat);
             }
         } elseif ($notFound) {
-            $method = Loader::parseName($name, 1, false);
+            $relation = $this->isRelationAttr($name);
 
-            if (method_exists($this, $method) && $this->$method() instanceof Relation) {
-                $modelRelation = $this->$method();
+            if ($relation) {
+                $modelRelation = $this->$relation();
                 $value         = $this->getRelationData($modelRelation);
 
                 // 保存关联对象值
-                $this->data[$name] = $value;
+                $this->relation[$name] = $value;
             } else {
                 throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
             }
@@ -565,8 +612,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取关联模型数据
      * @access public
-     * @param mixed        $value 值
-     * @param string|array $type  要转换的类型
+     * @param Relation        $modelRelation 模型关联对象
      * @return mixed
      */
     protected function getRelationData($modelRelation)
@@ -577,6 +623,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 首先获取关联数据
             $value = $modelRelation->removeOption()->getRelation();
         }
+
         return $value;
     }
 
@@ -785,15 +832,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $visible = [];
         $hidden  = [];
 
+        // 合并关联数据
+        $data = array_merge($this->data, $this->relation);
+
         // 过滤属性
         if (!empty($this->visible)) {
             $array = $this->parseAttr($this->visible, $visible);
-            $data  = array_intersect_key($this->data, array_flip($array));
+            $data  = array_intersect_key($data, array_flip($array));
         } elseif (!empty($this->hidden)) {
             $array = $this->parseAttr($this->hidden, $hidden, false);
-            $data  = array_diff_key($this->data, array_flip($array));
-        } else {
-            $data = $this->data;
+            $data  = array_diff_key($data, array_flip($array));
         }
 
         foreach ($data as $key => $val) {
