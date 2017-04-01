@@ -1812,16 +1812,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
     }
 
-    public static function __callStatic($method, $params)
+    public static function __callStatic($method, $args)
     {
+        $model = new static();
+
         if (isset(static::$db)) {
             $query      = static::$db;
             static::$db = null;
         } else {
-            $query = (new static())->db();
+            $query = $model->db();
         }
 
-        return call_user_func_array([$query, $method], $params);
+        if (method_exists($model, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $query);
+
+            call_user_func_array([$model, $method], $args);
+            return $query;
+        } else {
+            return call_user_func_array([$query, $method], $args);
+        }
     }
 
     /**
