@@ -180,7 +180,7 @@ class MorphTo extends Relation
                             throw new Exception('relation data not exists :' . $this->model);
                         } else {
                             $relationModel = $data[$result->$morphKey];
-                            $relationModel->setParent($result);
+                            $relationModel->setParent(clone $result);
                             $relationModel->isUpdate(true);
 
                             $result->setAttr($attr, $relationModel);
@@ -236,7 +236,7 @@ class MorphTo extends Relation
         $data = (new $model)->with($subRelation)->find($pk);
 
         if ($data) {
-            $data->setParent($result);
+            $data->setParent(clone $result);
             $data->isUpdate(true);
         }
 

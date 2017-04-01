@@ -46,10 +46,11 @@ class BelongsTo extends OneToOne
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        $foreignKey = $this->foreignKey;
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
+
+        $foreignKey = $this->foreignKey;
 
         return $this->query
             ->where($this->localKey, $this->parent->$foreignKey)
@@ -139,7 +140,7 @@ class BelongsTo extends OneToOne
                     $relationModel = null;
                 } else {
                     $relationModel = $data[$result->$foreignKey];
-                    $relationModel->setParent($result);
+                    $relationModel->setParent(clone $result);
                     $relationModel->isUpdate(true);
 
                     if (!empty($this->bindAttr)) {
@@ -174,7 +175,7 @@ class BelongsTo extends OneToOne
             $relationModel = null;
         } else {
             $relationModel = $data[$result->$foreignKey];
-            $relationModel->setParent($result);
+            $relationModel->setParent(clone $result);
             $relationModel->isUpdate(true);
 
             if (!empty($this->bindAttr)) {

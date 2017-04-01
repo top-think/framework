@@ -91,7 +91,7 @@ class HasMany extends Relation
                 }
 
                 foreach ($data[$pk] as &$relationModel) {
-                    $relationModel->setParent($result);
+                    $relationModel->setParent(clone $result);
                 }
 
                 $result->setAttr($attr, $this->resultSetBuild($data[$pk]));
@@ -122,7 +122,7 @@ class HasMany extends Relation
             }
 
             foreach ($data[$pk] as &$relationModel) {
-                $relationModel->setParent($result);
+                $relationModel->setParent(clone $result);
             }
 
             $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$pk]));
@@ -283,6 +283,7 @@ class HasMany extends Relation
                 }
             }
         }
+
         return $this->parent->db()
             ->alias($model)
             ->field($model . '.*')
