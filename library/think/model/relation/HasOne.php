@@ -132,7 +132,7 @@ class HasOne extends OneToOne
                     $relationModel = null;
                 } else {
                     $relationModel = $data[$result->$localKey];
-                    $relationModel->setParent($result);
+                    $relationModel->setParent(clone $result);
                     $relationModel->isUpdate(true);
                     if (!empty($this->bindAttr)) {
                         // 绑定关联属性
@@ -165,7 +165,7 @@ class HasOne extends OneToOne
             $relationModel = null;
         } else {
             $relationModel = $data[$result->$localKey];
-            $relationModel->setParent($result);
+            $relationModel->setParent(clone $result);
             $relationModel->isUpdate(true);
             if (!empty($this->bindAttr)) {
                 // 绑定关联属性

@@ -86,7 +86,7 @@ class HasMany extends Relation
                 }
 
                 foreach ($data[$result->$localKey] as &$relationModel) {
-                    $relationModel->setParent($result);
+                    $relationModel->setParent(clone $result);
                 }
 
                 $result->setAttr($attr, $this->resultSetBuild($data[$result->$localKey]));
@@ -115,7 +115,7 @@ class HasMany extends Relation
             }
 
             foreach ($data[$result->$localKey] as &$relationModel) {
-                $relationModel->setParent($result);
+                $relationModel->setParent(clone $result);
             }
 
             $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey]));
