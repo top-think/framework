@@ -57,6 +57,7 @@ class HasManyThrough extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
+
         return $this->relation($subRelation)->select();
     }
 
@@ -96,8 +97,7 @@ class HasManyThrough extends Relation
      * @return void
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
-    {
-    }
+    {}
 
     /**
      * 预载入关联查询 返回模型对象
@@ -110,8 +110,7 @@ class HasManyThrough extends Relation
      * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
-    {
-    }
+    {}
 
     /**
      * 关联统计
@@ -121,8 +120,7 @@ class HasManyThrough extends Relation
      * @return integer
      */
     public function relationCount($result, $closure)
-    {
-    }
+    {}
 
     /**
      * 执行基础查询（进执行一次）

@@ -50,7 +50,13 @@ class BelongsTo extends OneToOne
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
-        return $this->query->where($this->localKey, $this->parent->$foreignKey)->relation($subRelation)->find();
+        $relationModel = $this->query
+            ->where($this->localKey, $this->parent->$foreignKey)
+            ->relation($subRelation)
+            ->find();
+        $relationModel->setParent(clone $this->parent);
+
+        return $relationModel;
     }
 
     /**
