@@ -48,7 +48,14 @@ class HasMany extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        return $this->relation($subRelation)->select();
+        $list   = $this->relation($subRelation)->select();
+        $parent = clone $this->parent;
+
+        foreach ($list as &$model) {
+            $model->setParent($parent);
+        }
+
+        return $list;
     }
 
     /**

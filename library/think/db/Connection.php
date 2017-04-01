@@ -97,7 +97,7 @@ abstract class Connection
         // 数据返回类型
         'result_type'     => PDO::FETCH_ASSOC,
         // 数据集返回类型
-        'resultset_type'  => 'array',
+        'resultset_type'  => '',
         // 自动写入时间戳字段
         'auto_timestamp'  => false,
         // 时间字段取出后的默认时间格式

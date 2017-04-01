@@ -848,15 +848,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if ($val instanceof Model || $val instanceof ModelCollection) {
                 // 关联模型对象
                 $item[$key] = $this->subToArray($val, $visible, $hidden, $key);
-            } elseif (is_array($val) && reset($val) instanceof Model) {
-                // 关联模型数据集
-                $arr = [];
-
-                foreach ($val as $k => $value) {
-                    $arr[$k] = $this->subToArray($value, $visible, $hidden, $k);
-                }
-
-                $item[$key] = $arr;
             } else {
                 // 模型属性
                 $item[$key] = $this->getAttr($key);
@@ -903,13 +894,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function toCollection($collection)
     {
-        if ($this->resultSetType) {
-            if ('collection' == $this->resultSetType) {
-                $collection = new ModelCollection($collection);
-            } elseif (false !== strpos($this->resultSetType, '\\')) {
-                $class      = $this->resultSetType;
-                $collection = new $class($collection);
-            }
+        if ($this->resultSetType && false !== strpos($this->resultSetType, '\\')) {
+            $class      = $this->resultSetType;
+            $collection = new $class($collection);
+        } else {
+            $collection = new ModelCollection($collection);
         }
 
         return $collection;
@@ -1760,7 +1749,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             $method = Loader::parseName($relation, 1, false);
 
-            $this->data[$relation] = $this->$method()->getRelation($subRelation, $closure);
+            $this->relation[$relation] = $this->$method()->getRelation($subRelation, $closure);
         }
 
         return $this;

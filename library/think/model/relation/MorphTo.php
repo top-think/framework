@@ -61,7 +61,10 @@ class MorphTo extends Relation
         // 主键数据
         $pk = $this->parent->$morphKey;
 
-        return (new $model)->relation($subRelation)->find($pk);
+        $relationModel = (new $model)->relation($subRelation)->find($pk);
+        $relationModel->setParent(clone $this->parent);
+
+        return $relationModel;
     }
 
     /**
