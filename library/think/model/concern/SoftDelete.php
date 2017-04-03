@@ -1,9 +1,12 @@
 <?php
 
-namespace traits\model;
+namespace think\model\concern;
 
 use think\db\Query;
 
+/**
+ * 数据软删除
+ */
 trait SoftDelete
 {
 

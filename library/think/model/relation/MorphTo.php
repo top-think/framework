@@ -62,7 +62,10 @@ class MorphTo extends Relation
         $pk = $this->parent->$morphKey;
 
         $relationModel = (new $model)->relation($subRelation)->find($pk);
-        $relationModel->setParent(clone $this->parent);
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
 
         return $relationModel;
     }

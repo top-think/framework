@@ -14,6 +14,9 @@ namespace think\model\concern;
 use think\Exception\ValidateException;
 use think\Facade;
 
+/**
+ * 模型数据验证
+ */
 trait ValidateData
 {
 

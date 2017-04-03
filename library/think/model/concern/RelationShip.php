@@ -23,6 +23,9 @@ use think\model\relation\MorphMany;
 use think\model\relation\MorphOne;
 use think\model\relation\MorphTo;
 
+/**
+ * 模型关联处理
+ */
 trait RelationShip
 {
     // 父关联模型对象
@@ -73,6 +76,21 @@ trait RelationShip
     }
 
     /**
+     * 获取模型的默认外键名
+     * @access public
+     * @param string $name 模型名
+     * @return string
+     */
+    protected function getForeignKey($name)
+    {
+        if (strpos($name, '\\')) {
+            $name = basename(str_replace('\\', '/', $name));
+        }
+
+        return Loader::parseName($name) . '_id';
+    }
+
+    /**
      * 检查属性是否为关联属性 如果是则返回关联方法名
      * @access public
      * @param string $attr 关联属性名
@@ -90,9 +108,9 @@ trait RelationShip
     }
 
     /**
-     * 获取关联模型数据
+     * 智能获取关联模型数据
      * @access public
-     * @param Relation        $modelRelation 模型关联对象
+     * @param Relation  $modelRelation 模型关联对象
      * @return mixed
      */
     protected function getRelationData($modelRelation)
@@ -100,41 +118,11 @@ trait RelationShip
         if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
             $value = $this->parent;
         } else {
-            // 首先获取关联数据
+            // 获取关联数据
             $value = $modelRelation->removeOption()->getRelation();
         }
 
         return $value;
-    }
-
-    /**
-     * 设置附加关联对象的属性
-     * @access public
-     * @param string       $relation 关联方法
-     * @param string|array $append   追加属性名
-     * @return $this
-     * @throws Exception
-     */
-    public function appendRelationAttr($relation, $append)
-    {
-        if (is_string($append)) {
-            $append = explode(',', $append);
-        }
-
-        $model = $this->getAttr($relation);
-
-        if ($model instanceof Model) {
-            foreach ($append as $key => $attr) {
-                $key = is_numeric($key) ? $attr : $key;
-                if ($this->__isset($key)) {
-                    throw new Exception('bind attr has exists:' . $key);
-                } else {
-                    $this->setAttr($key, $model->$attr);
-                }
-            }
-        }
-
-        return $this;
     }
 
     /**
@@ -321,21 +309,6 @@ trait RelationShip
 
             $result->setAttr($name, $count);
         }
-    }
-
-    /**
-     * 获取模型的默认外键名
-     * @access public
-     * @param string $name 模型名
-     * @return string
-     */
-    protected function getForeignKey($name)
-    {
-        if (strpos($name, '\\')) {
-            $name = basename(str_replace('\\', '/', $name));
-        }
-
-        return Loader::parseName($name) . '_id';
     }
 
     /**
@@ -526,4 +499,21 @@ trait RelationShip
         return new MorphTo($this, $morphType, $foreignKey, $alias, $relation);
     }
 
+    /**
+     * 解析模型的完整命名空间
+     * @access public
+     * @param string $model 模型名（或者完整类名）
+     * @return string
+     */
+    protected function parseModel($model)
+    {
+        if (false === strpos($model, '\\')) {
+            $path = explode('\\', get_called_class());
+            array_pop($path);
+            array_push($path, Loader::parseName($model, 1));
+            $model = implode('\\', $path);
+        }
+
+        return $model;
+    }
 }

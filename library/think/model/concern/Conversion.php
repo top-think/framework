@@ -11,18 +11,22 @@
 
 namespace think\model\concern;
 
-trait Serialize
-{
+use think\Collection;
 
+/**
+ * 模型数据转换处理
+ */
+trait Conversion
+{
     // 显示属性
     protected $visible = [];
     // 隐藏属性
     protected $hidden = [];
-    // 追加属性
+    // 附加属性
     protected $append = [];
 
     /**
-     * 设置需要追加的输出属性
+     * 设置需要附加的输出属性
      * @access public
      * @param array $append   属性列表
      * @param bool  $override 是否覆盖
@@ -31,6 +35,37 @@ trait Serialize
     public function append($append = [], $override = false)
     {
         $this->append = $override ? $append : array_merge($this->append, $append);
+
+        return $this;
+    }
+
+    /**
+     * 设置附加关联对象的属性
+     * @access public
+     * @param string       $attr    关联属性
+     * @param string|array $append  追加属性名
+     * @return $this
+     * @throws Exception
+     */
+    public function appendRelationAttr($attr, $append)
+    {
+        if (is_string($append)) {
+            $append = explode(',', $append);
+        }
+
+        $relation = Loader::parseName($attr, 1, false);
+        $model    = $this->getRelation($relation);
+
+        if ($model instanceof Model) {
+            foreach ($append as $key => $attr) {
+                $key = is_numeric($key) ? $attr : $key;
+                if ($this->__isset($key)) {
+                    throw new Exception('bind attr has exists:' . $key);
+                } else {
+                    $this->setAttr($key, $model->$attr);
+                }
+            }
+        }
 
         return $this;
     }
@@ -61,40 +96,6 @@ trait Serialize
         $this->visible = $override ? $visible : array_merge($this->visible, $visible);
 
         return $this;
-    }
-
-    /**
-     * 解析隐藏及显示属性
-     * @access protected
-     * @param array $attrs  属性
-     * @param array $result 结果集
-     * @param bool  $visible
-     * @return array
-     */
-    protected function parseAttr($attrs, &$result, $visible = true)
-    {
-        $array = [];
-
-        foreach ($attrs as $key => $val) {
-            if (is_array($val)) {
-                if ($visible) {
-                    $array[] = $key;
-                }
-
-                $result[$key] = $val;
-            } elseif (strpos($val, '.')) {
-                list($key, $name) = explode('.', $val);
-
-                if ($visible) {
-                    $array[] = $key;
-                }
-
-                $result[$key][] = $name;
-            } else {
-                $array[] = $val;
-            }
-        }
-        return $array;
     }
 
     /**
@@ -154,7 +155,7 @@ trait Serialize
             }
         }
 
-        return !empty($item) ? $item : [];
+        return $item;
     }
 
     /**
@@ -168,4 +169,67 @@ trait Serialize
         return json_encode($this->toArray(), $options);
     }
 
+    public function __toString()
+    {
+        return $this->toJson();
+    }
+
+    // JsonSerializable
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * 转换数据集为数据集对象
+     * @access public
+     * @param array|Collection $collection 数据集
+     * @return Collection
+     */
+    public function toCollection($collection)
+    {
+        if ($this->resultSetType && false !== strpos($this->resultSetType, '\\')) {
+            $class      = $this->resultSetType;
+            $collection = new $class($collection);
+        } else {
+            $collection = new \think\model\Collection($collection);
+        }
+
+        return $collection;
+    }
+
+    /**
+     * 解析隐藏及显示属性
+     * @access protected
+     * @param array $attrs  属性
+     * @param array $result 结果集
+     * @param bool  $visible
+     * @return array
+     */
+    protected function parseAttr($attrs, &$result, $visible = true)
+    {
+        $array = [];
+
+        foreach ($attrs as $key => $val) {
+            if (is_array($val)) {
+                if ($visible) {
+                    $array[] = $key;
+                }
+
+                $result[$key] = $val;
+            } elseif (strpos($val, '.')) {
+                list($key, $name) = explode('.', $val);
+
+                if ($visible) {
+                    $array[] = $key;
+                }
+
+                $result[$key][] = $name;
+            } else {
+                $array[] = $val;
+            }
+        }
+
+        return $array;
+    }
 }

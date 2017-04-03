@@ -115,6 +115,8 @@ www  WEB部署目录（或者子目录）
 
 取消Loader::import方法以及import和vendor助手函数
 原来Loader类的controller、model、action和validate方法改为App类的同名方法
+模型的数据集查询始终返回数据集对象而不是数组
+路由的before_behavior和after_behavior参数更改为before和after
 
 
 ## 命名规范

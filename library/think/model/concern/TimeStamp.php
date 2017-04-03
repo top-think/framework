@@ -11,6 +11,9 @@
 
 namespace think\model\concern;
 
+/**
+ * 自动时间戳
+ */
 trait TimeStamp
 {
     // 是否需要自动写入时间戳 如果设置为字符串 则表示时间字段的类型

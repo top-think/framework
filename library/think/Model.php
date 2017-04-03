@@ -11,10 +11,7 @@
 
 namespace think;
 
-use InvalidArgumentException;
 use think\db\Query;
-use think\model\Collection as ModelCollection;
-use think\model\Relation;
 
 /**
  * Class Model
@@ -23,13 +20,12 @@ use think\model\Relation;
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
+    use model\concern\Attribute;
     use model\concern\RelationShip;
     use model\concern\ModelEvent;
-    use model\concern\Getter;
-    use model\concern\Setter;
     use model\concern\TimeStamp;
     use model\concern\Scope;
-    use model\concern\Serialize;
+    use model\concern\Conversion;
     use model\concern\ValidateData;
 
     // 数据库对象池
@@ -40,10 +36,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $isUpdate = false;
     // 更新条件
     private $updateWhere;
-    // 当前数据
-    private $data = [];
-    // 原始数据
-    private $origin = [];
     // 数据库配置
     protected $connection = [];
     // 数据库查询对象
@@ -54,26 +46,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $table;
     // 当前类名称
     protected $class;
-
-    // 数据表主键 复合主键使用数组定义 不设置则自动获取
-    protected $pk;
-    // 数据表字段信息 留空则自动获取
-    protected $field = [];
-    // 只读字段
-    protected $readonly = [];
     // 保存自动完成列表
     protected $auto = [];
     // 新增自动完成列表
     protected $insert = [];
     // 更新自动完成列表
     protected $update = [];
-
-    // 字段类型或者格式转换
-    protected $type = [];
-
     // 全局查询范围
     protected $useGlobalScope = true;
-
     // 查询数据集对象
     protected $resultSetType;
 
@@ -201,165 +181,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected static function init()
     {}
-
-    /**
-     * 设置数据对象值
-     * @access public
-     * @param mixed $data  数据或者属性名
-     * @param mixed $value 值
-     * @return $this
-     */
-    public function data($data, $value = null)
-    {
-        if (is_string($data)) {
-            $this->data[$data] = $value;
-        } else {
-            // 清空数据
-            $this->data = [];
-
-            if (is_object($data)) {
-                $data = get_object_vars($data);
-            }
-
-            if (true === $value) {
-                // 数据对象赋值
-                foreach ($data as $key => $value) {
-                    $this->setAttr($key, $value, $data);
-                }
-            } else {
-                $this->data = $data;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * 批量设置数据对象值
-     * @access public
-     * @param mixed $data  数据
-     * @param bool  $set   是否需要进行数据处理
-     * @return $this
-     */
-    public function appendData($data, $set = false)
-    {
-        if ($set) {
-            // 进行数据处理
-            foreach ($data as $key => $value) {
-                $this->setAttr($key, $value, $data);
-            }
-        } else {
-            if (is_object($data)) {
-                $data = get_object_vars($data);
-            }
-
-            $this->data = array_merge($this->data, $data);
-        }
-
-        return $this;
-    }
-
-    /**
-     * 获取对象原始数据 如果不存在指定字段返回null
-     * @access public
-     * @param string $name 字段名 留空获取全部
-     * @return mixed
-     */
-    public function getOrigin($name = null)
-    {
-        if (is_null($name)) {
-            return $this->origin;
-        } else {
-            return array_key_exists($name, $this->origin) ? $this->origin[$name] : null;
-        }
-    }
-
-    /**
-     * 获取对象原始数据 如果不存在指定字段返回false
-     * @access public
-     * @param string $name 字段名 留空获取全部
-     * @return mixed
-     * @throws InvalidArgumentException
-     */
-    public function getData($name = null)
-    {
-        if (is_null($name)) {
-            return $this->data;
-        } elseif (array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        } elseif (array_key_exists($name, $this->relation)) {
-            return $this->relation[$name];
-        } else {
-            throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
-        }
-    }
-
-    /**
-     * 获取变化的数据
-     * @access public
-     * @return array
-     */
-    public function getChangeData()
-    {
-        return array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-            return $a === $b ? 0 : 1;
-        });
-    }
-
-    /**
-     * 转换当前模型数据集为数据集对象
-     * @access public
-     * @param array|\think\Collection $collection 数据集
-     * @return \think\Collection
-     */
-    public function toCollection($collection)
-    {
-        if ($this->resultSetType && false !== strpos($this->resultSetType, '\\')) {
-            $class      = $this->resultSetType;
-            $collection = new $class($collection);
-        } else {
-            $collection = new ModelCollection($collection);
-        }
-
-        return $collection;
-    }
-
-    /**
-     * 获取模型对象的主键
-     * @access public
-     * @param string $name 模型名
-     * @return mixed
-     */
-    public function getPk($name = '')
-    {
-        if (!empty($name)) {
-            $table = $this->db(false)->getTable($name);
-
-            return $this->db(false)->getPk($table);
-        } elseif (empty($this->pk)) {
-            $this->pk = $this->db(false)->getPk();
-        }
-
-        return $this->pk;
-    }
-
-    /**
-     * 判断一个字段名是否为主键字段
-     * @access public
-     * @param string $key 名称
-     * @return bool
-     */
-    protected function isPk($key)
-    {
-        $pk = $this->getPk();
-        if (is_string($pk) && $pk == $key) {
-            return true;
-        } elseif (is_array($pk) && in_array($key, $pk)) {
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * 保存当前数据对象
@@ -610,40 +431,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 设置允许写入的字段
-     * @access public
-     * @param mixed $field 允许写入的字段 如果为true只允许写入数据表字段
-     * @return $this
-     */
-    public function allowField($field)
-    {
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-
-        $this->field = $field;
-
-        return $this;
-    }
-
-    /**
-     * 设置只读字段
-     * @access public
-     * @param mixed $field 只读字段
-     * @return $this
-     */
-    public function readonly($field)
-    {
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-
-        $this->readonly = $field;
-
-        return $this;
-    }
-
-    /**
      * 是否为更新数据
      * @access public
      * @param bool  $update
@@ -885,155 +672,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         return $count;
-    }
-
-    /**
-     * 解析模型的完整命名空间
-     * @access public
-     * @param string $model 模型名（或者完整类名）
-     * @return string
-     */
-    protected function parseModel($model)
-    {
-        if (false === strpos($model, '\\')) {
-            $path = explode('\\', get_called_class());
-            array_pop($path);
-            array_push($path, Loader::parseName($model, 1));
-            $model = implode('\\', $path);
-        }
-
-        return $model;
-    }
-
-    public function __call($method, $args)
-    {
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = $this->db();
-        }
-
-        if (method_exists($this, 'scope' . $method)) {
-            // 动态调用命名范围
-            $method = 'scope' . $method;
-            array_unshift($args, $query);
-            call_user_func_array([$this, $method], $args);
-
-            return $this;
-        } else {
-            return call_user_func_array([$query, $method], $args);
-        }
-    }
-
-    public static function __callStatic($method, $args)
-    {
-        $model = new static();
-
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = $model->db();
-        }
-
-        if (method_exists($model, 'scope' . $method)) {
-            // 动态调用命名范围
-            $method = 'scope' . $method;
-            array_unshift($args, $query);
-
-            call_user_func_array([$model, $method], $args);
-            return $query;
-        } else {
-            return call_user_func_array([$query, $method], $args);
-        }
-    }
-
-    /**
-     * 修改器 设置数据对象的值
-     * @access public
-     * @param string $name  名称
-     * @param mixed  $value 值
-     * @return void
-     */
-    public function __set($name, $value)
-    {
-        $this->setAttr($name, $value);
-    }
-
-    /**
-     * 获取器 获取数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        return $this->getAttr($name);
-    }
-
-    /**
-     * 检测数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @return boolean
-     */
-    public function __isset($name)
-    {
-        try {
-            if (array_key_exists($name, $this->data)) {
-                return true;
-            } else {
-                $this->getAttr($name);
-                return true;
-            }
-        } catch (InvalidArgumentException $e) {
-            return false;
-        }
-
-    }
-
-    /**
-     * 销毁数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @return void
-     */
-    public function __unset($name)
-    {
-        unset($this->data[$name]);
-    }
-
-    public function __toString()
-    {
-        return $this->toJson();
-    }
-
-    // JsonSerializable
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    // ArrayAccess
-    public function offsetSet($name, $value)
-    {
-        $this->setAttr($name, $value);
-    }
-
-    public function offsetExists($name)
-    {
-        return $this->__isset($name);
-    }
-
-    public function offsetUnset($name)
-    {
-        $this->__unset($name);
-    }
-
-    public function offsetGet($name)
-    {
-        return $this->getAttr($name);
     }
 
     /**

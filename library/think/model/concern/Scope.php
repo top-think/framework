@@ -11,6 +11,11 @@
 
 namespace think\model\concern;
 
+use think\db\Query;
+
+/**
+ * 查询范围
+ */
 trait Scope
 {
     /**
@@ -63,4 +68,47 @@ trait Scope
         return $model;
     }
 
+    public function __call($method, $args)
+    {
+        if (isset(static::$db)) {
+            $query      = static::$db;
+            static::$db = null;
+        } else {
+            $query = $this->db();
+        }
+
+        if (method_exists($this, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $query);
+            call_user_func_array([$this, $method], $args);
+
+            return $this;
+        } else {
+            return call_user_func_array([$query, $method], $args);
+        }
+    }
+
+    public static function __callStatic($method, $args)
+    {
+        $model = new static();
+
+        if (isset(static::$db)) {
+            $query      = static::$db;
+            static::$db = null;
+        } else {
+            $query = $model->db();
+        }
+
+        if (method_exists($model, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $query);
+
+            call_user_func_array([$model, $method], $args);
+            return $query;
+        } else {
+            return call_user_func_array([$query, $method], $args);
+        }
+    }
 }

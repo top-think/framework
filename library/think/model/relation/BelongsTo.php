@@ -57,7 +57,9 @@ class BelongsTo extends OneToOne
             ->relation($subRelation)
             ->find();
 
-        $relationModel->setParent(clone $this->parent);
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
 
         return $relationModel;
     }

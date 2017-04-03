@@ -13,6 +13,9 @@ namespace think\model\concern;
 
 use think\Container;
 
+/**
+ * 模型事件处理
+ */
 trait ModelEvent
 {
     // 回调事件
