@@ -206,28 +206,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        // 自动关联写入
-        if (!empty($this->relationWrite)) {
-            $relation = [];
-            foreach ($this->relationWrite as $key => $name) {
-                if (!is_numeric($key)) {
-                    $relation[$key] = [];
-
-                    foreach ($name as $val) {
-                        if (isset($this->data[$val])) {
-                            $relation[$key][$val] = $this->data[$val];
-                            unset($this->data[$val]);
-                        }
-                    }
-                } elseif (isset($this->data[$name])) {
-                    $relation[$name] = $this->data[$name];
-
-                    if (!$this->isUpdate) {
-                        unset($this->data[$name]);
-                    }
-                }
-            }
-        }
+        // 关联写入检查
+        $this->checkAutoRelationWrite();
 
         // 检测字段
         if (!empty($this->field)) {
@@ -301,31 +281,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 unset($data[$pk]);
             }
 
-            // 关联更新
-            if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    if (isset($data[$name])) {
-                        unset($data[$name]);
-                    }
-                }
-            }
-
             // 模型更新
             $result = $this->db()->where($where)->update($data);
 
             // 关联更新
-            if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    if ($val instanceof Model) {
-                        $val->save();
-                    } else {
-                        unset($this->data[$name]);
-                        $model = $this->getAttr($name);
-                        if ($model instanceof Model) {
-                            $model->save($val);
-                        }
-                    }
-                }
+            if (isset($this->relationWrite)) {
+                $this->autoRelationUpdate();
             }
 
             // 更新回调
@@ -333,15 +294,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             // 自动写入
             $this->autoCompleteData($this->insert);
-            // 自动写入创建时间和更新时间
-            if ($this->autoWriteTimestamp) {
-                if ($this->createTime && !isset($this->data[$this->createTime])) {
-                    $this->data[$this->createTime] = $this->autoWriteTimestamp($this->createTime);
-                }
-                if ($this->updateTime && !isset($this->data[$this->updateTime])) {
-                    $this->data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
-                }
-            }
+
+            // 时间戳自动写入
+            $this->checkTimeStampWrite();
 
             if (false === $this->trigger('before_insert')) {
                 return false;
@@ -358,22 +313,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             // 关联写入
-            if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    $method = Loader::parseName($name, 1, false);
-                    $this->$method()->save($val);
-                }
+            if (isset($this->relationWrite)) {
+                $this->autoRelationInsert();
             }
 
             // 标记为更新
             $this->isUpdate = true;
+
             // 新增回调
             $this->trigger('after_insert');
         }
         // 写入回调
         $this->trigger('after_write');
 
-        // 记录原始数据
+        // 重新记录原始数据
         $this->origin = $this->data;
 
         return $result;
@@ -403,7 +356,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $result = [];
 
         $db = $this->db();
-
         $db->startTrans();
 
         try {
@@ -497,13 +449,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 关联删除
         if (!empty($this->relationWrite)) {
-            foreach ($this->relationWrite as $key => $name) {
-                $name  = is_numeric($key) ? $name : $key;
-                $model = $this->getAttr($name);
-                if ($model instanceof Model) {
-                    $model->delete();
-                }
-            }
+            $this->autoRelationDelete();
         }
 
         $this->trigger('after_delete');

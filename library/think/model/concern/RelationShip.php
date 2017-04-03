@@ -32,6 +32,8 @@ trait RelationShip
     private $parent;
     // 关联模型
     private $relation = [];
+    //
+    private $together;
     // 关联自动写入
     private $relationWrite;
 
@@ -76,56 +78,6 @@ trait RelationShip
     }
 
     /**
-     * 获取模型的默认外键名
-     * @access public
-     * @param string $name 模型名
-     * @return string
-     */
-    protected function getForeignKey($name)
-    {
-        if (strpos($name, '\\')) {
-            $name = basename(str_replace('\\', '/', $name));
-        }
-
-        return Loader::parseName($name) . '_id';
-    }
-
-    /**
-     * 检查属性是否为关联属性 如果是则返回关联方法名
-     * @access public
-     * @param string $attr 关联属性名
-     * @return string|false
-     */
-    protected function isRelationAttr($attr)
-    {
-        $relation = Loader::parseName($attr, 1, false);
-
-        if (method_exists($this, $relation) && $this->$relation() instanceof Relation) {
-            return $relation;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * 智能获取关联模型数据
-     * @access public
-     * @param Relation  $modelRelation 模型关联对象
-     * @return mixed
-     */
-    protected function getRelationData($modelRelation)
-    {
-        if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
-            $value = $this->parent;
-        } else {
-            // 获取关联数据
-            $value = $modelRelation->removeOption()->getRelation();
-        }
-
-        return $value;
-    }
-
-    /**
      * 关联数据一起更新
      * @access public
      * @param mixed $relation 关联
@@ -137,7 +89,7 @@ trait RelationShip
             $relation = explode(',', $relation);
         }
 
-        $this->relationWrite = $relation;
+        $this->together = $relation;
 
         return $this;
     }
@@ -515,5 +467,132 @@ trait RelationShip
         }
 
         return $model;
+    }
+
+    /**
+     * 获取模型的默认外键名
+     * @access public
+     * @param string $name 模型名
+     * @return string
+     */
+    protected function getForeignKey($name)
+    {
+        if (strpos($name, '\\')) {
+            $name = basename(str_replace('\\', '/', $name));
+        }
+
+        return Loader::parseName($name) . '_id';
+    }
+
+    /**
+     * 检查属性是否为关联属性 如果是则返回关联方法名
+     * @access public
+     * @param string $attr 关联属性名
+     * @return string|false
+     */
+    protected function isRelationAttr($attr)
+    {
+        $relation = Loader::parseName($attr, 1, false);
+
+        if (method_exists($this, $relation) && $this->$relation() instanceof Relation) {
+            return $relation;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 智能获取关联模型数据
+     * @access public
+     * @param Relation  $modelRelation 模型关联对象
+     * @return mixed
+     */
+    protected function getRelationData($modelRelation)
+    {
+        if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
+            $value = $this->parent;
+        } else {
+            // 获取关联数据
+            $value = $modelRelation->removeOption()->getRelation();
+        }
+
+        return $value;
+    }
+
+    /**
+     * 关联数据自动写入检查
+     * @access public
+     * @return array
+     */
+    protected function checkAutoRelationWrite()
+    {
+        if ($this->together) {
+            foreach ($this->together as $key => $name) {
+                if (!is_numeric($key)) {
+                    $this->relationWrite[$key] = [];
+
+                    foreach ($name as $val) {
+                        if (isset($this->relation[$val])) {
+                            $this->relationWrite[$key][$val] = $this->relation[$val];
+                        }
+                    }
+                } elseif (isset($this->relation[$name])) {
+                    $this->relationWrite[$name] = $this->relation[$name];
+                }
+            }
+        }
+    }
+
+    /**
+     * 自动关联数据更新
+     * @access public
+     * @return void
+     */
+    protected function autoRelationUpdate()
+    {
+        foreach ($this->relationWrite as $name => $model) {
+            if ($model instanceof Model) {
+                $model->save();
+            } else {
+                $model = $this->getAttr($name);
+                if ($model instanceof Model) {
+                    $model->save($val);
+                }
+            }
+        }
+    }
+
+    /**
+     * 自动关联数据写入
+     * @access public
+     * @return void
+     */
+    protected function autoRelationInsert()
+    {
+        foreach ($this->relationWrite as $name => $val) {
+            $method = Loader::parseName($name, 1, false);
+            $this->$method()->save($val);
+        }
+    }
+
+    /**
+     * 自动关联数据删除
+     * @access public
+     * @return void
+     */
+    protected function autoRelationDelete()
+    {
+        foreach ($this->relationWrite as $key => $name) {
+            $name   = is_numeric($key) ? $name : $key;
+            $result = $this->getRelation($name);
+
+            if ($result instanceof Model) {
+                $result->delete();
+            } elseif ($result instanceof Collection) {
+                foreach ($result as $model) {
+                    $model->delete();
+                }
+            }
+        }
     }
 }

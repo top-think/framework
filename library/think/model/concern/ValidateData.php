@@ -19,7 +19,6 @@ use think\Facade;
  */
 trait ValidateData
 {
-
     // 验证失败是否抛出异常
     protected $failException = false;
     // 错误信息
@@ -103,7 +102,7 @@ trait ValidateData
     /**
      * 返回模型的错误信息
      * @access public
-     * @return string
+     * @return string|array
      */
     public function getError()
     {

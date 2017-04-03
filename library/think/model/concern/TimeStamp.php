@@ -43,4 +43,17 @@ trait TimeStamp
 
         return $time;
     }
+
+    protected function checkTimeStampWrite()
+    {
+        // 自动写入创建时间和更新时间
+        if ($this->autoWriteTimestamp) {
+            if ($this->createTime && !isset($this->data[$this->createTime])) {
+                $this->data[$this->createTime] = $this->autoWriteTimestamp($this->createTime);
+            }
+            if ($this->updateTime && !isset($this->data[$this->updateTime])) {
+                $this->data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
+            }
+        }
+    }
 }
