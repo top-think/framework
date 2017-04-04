@@ -17,16 +17,16 @@ use think\Facade;
 /**
  * 模型数据验证
  */
-trait ValidateData
+trait DataValidate
 {
-    // 验证失败是否抛出异常
-    protected $failException = false;
-    // 错误信息
-    protected $error;
     // 字段验证规则
     protected $validate;
+    // 错误信息
+    protected $error;
     // 是否采用批量验证
     protected $batchValidate = false;
+    // 验证失败是否抛出异常
+    protected $failException = false;
 
     /**
      * 设置字段验证

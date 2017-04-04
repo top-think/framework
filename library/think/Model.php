@@ -26,7 +26,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     use model\concern\TimeStamp;
     use model\concern\Scope;
     use model\concern\Conversion;
-    use model\concern\ValidateData;
+    use model\concern\DataValidate;
 
     // 数据库对象池
     private static $links = [];
@@ -36,6 +36,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $isUpdate = false;
     // 更新条件
     private $updateWhere;
+
     // 数据库配置
     protected $connection = [];
     // 数据库查询对象
@@ -44,18 +45,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $name;
     // 数据表名称
     protected $table;
-    // 当前类名称
-    protected $class;
-    // 保存自动完成列表
+
+    // 写入自动完成列表
     protected $auto = [];
     // 新增自动完成列表
     protected $insert = [];
     // 更新自动完成列表
     protected $update = [];
-    // 全局查询范围
-    protected $useGlobalScope = true;
-    // 查询数据集对象
-    protected $resultSetType;
 
     /**
      * 初始化过的模型.
@@ -80,12 +76,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录原始数据
         $this->origin = $this->data;
 
-        // 当前类名
-        $this->class = get_class($this);
-
         if (empty($this->name)) {
             // 当前模型名
-            $name       = str_replace('\\', '/', $this->class);
+            $name       = str_replace('\\', '/', get_class($this));
             $this->name = basename($name);
             if (Facade::make('config')->get('class_suffix')) {
                 $suffix     = basename(dirname($name));
@@ -119,7 +112,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function db($baseQuery = true)
     {
-        $model = $this->class;
+        $model = get_class($this);
 
         if (!isset(self::$links[$model])) {
             // 合并数据库配置
@@ -197,10 +190,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (!$this->validateData($data)) {
                 return false;
             }
+
             // 数据对象赋值
             foreach ($data as $key => $value) {
                 $this->setAttr($key, $value, $data);
             }
+
             if (!empty($where)) {
                 $this->isUpdate = true;
             }
@@ -214,6 +209,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (true === $this->field) {
                 $this->field = $this->db(false)->getTableInfo('', 'fields');
             }
+
             foreach ($this->data as $key => $val) {
                 if (!in_array($key, $this->field)) {
                     unset($this->data[$key]);
@@ -240,26 +236,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
-            // 去除没有更新的字段
-            $data = $this->getChangeData();
+            // 获取有更新的数据
+            $data = $this->getChangedData();
 
-            // 保留主键数据
-            foreach ($this->data as $key => $val) {
-                if ($this->isPk($key)) {
-                    $data[$key] = $val;
-                }
-            }
-
-            if (!empty($this->readonly)) {
-                // 只读字段不允许更新
-                foreach ($this->readonly as $key => $field) {
-                    if (isset($data[$field])) {
-                        unset($data[$field]);
-                    }
-                }
-            }
-
-            if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
+            if (empty($data)) {
                 // 没有更新
                 return 0;
             } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
@@ -271,6 +251,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (empty($where) && !empty($this->updateWhere)) {
                 $where = $this->updateWhere;
+            }
+
+            // 保留主键数据
+            foreach ($this->data as $key => $val) {
+                if ($this->isPk($key)) {
+                    $data[$key] = $val;
+                }
             }
 
             if (is_string($pk) && isset($data[$pk])) {
@@ -398,28 +385,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         return $this;
-    }
-
-    /**
-     * 数据自动完成
-     * @access public
-     * @param array $auto 要自动更新的字段列表
-     * @return void
-     */
-    protected function autoCompleteData($auto = [])
-    {
-        foreach ($auto as $field => $value) {
-            if (is_integer($field)) {
-                $field = $value;
-                $value = null;
-            }
-
-            if (!isset($this->data[$field])) {
-                $this->setAttr($field, !is_null($value) ? $value : null);
-            } elseif (isset($this->origin[$field]) && $this->data[$field] === $this->origin[$field]) {
-                $this->setAttr($field, !is_null($value) ? $value : $this->data[$field]);
-            }
-        }
     }
 
     /**
@@ -635,4 +600,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         ];
     }
 
+    /**
+     * 数据自动完成
+     * @access public
+     * @param array $auto 要自动更新的字段列表
+     * @return void
+     */
+    protected function autoCompleteData($auto = [])
+    {
+        foreach ($auto as $field => $value) {
+            if (is_integer($field)) {
+                $field = $value;
+                $value = null;
+            }
+
+            if (!isset($this->data[$field])) {
+                $default = null;
+            } elseif (isset($this->origin[$field]) && $this->data[$field] === $this->origin[$field]) {
+                $default = $this->data[$field];
+            }
+
+            $this->setAttr($field, !is_null($value) ? $value : $default);
+        }
+    }
 }

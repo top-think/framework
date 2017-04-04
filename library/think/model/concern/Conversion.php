@@ -24,6 +24,8 @@ trait Conversion
     protected $hidden = [];
     // 附加属性
     protected $append = [];
+    // 查询数据集对象
+    protected $resultSetType;
 
     /**
      * 设置需要附加的输出属性

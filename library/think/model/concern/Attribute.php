@@ -189,20 +189,31 @@ trait Attribute
         } elseif (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         } else {
-            throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
+            throw new InvalidArgumentException('property not exists:' . get_class($this) . '->' . $name);
         }
     }
 
     /**
-     * 获取变化的数据
+     * 获取变化的数据 并排除只读数据
      * @access public
      * @return array
      */
-    public function getChangeData()
+    public function getChangedData()
     {
-        return array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+        $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
             return $a === $b ? 0 : 1;
         });
+
+        if (!empty($this->readonly)) {
+            // 只读字段不允许更新
+            foreach ($this->readonly as $key => $field) {
+                if (isset($data[$field])) {
+                    unset($data[$field]);
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**

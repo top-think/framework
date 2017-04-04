@@ -18,6 +18,7 @@ use think\db\Query;
  */
 trait Scope
 {
+
     /**
      * 命名范围
      * @access public
