@@ -421,9 +421,7 @@ class App implements \ArrayAccess
 
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = $this->route->check(
-                $this->request,
-                $path,
-                $depr,
+                $this->request, $path, $depr,
                 $this->config('app.url_domain_deploy'),
                 $must
             );

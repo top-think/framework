@@ -1383,13 +1383,13 @@ class Query
 
         if ($condition) {
             if ($query instanceof \Closure) {
-                $query($this);
+                $query($this, $condition);
             } elseif (is_array($query)) {
                 $this->where($query);
             }
         } elseif ($otherwise) {
             if ($otherwise instanceof \Closure) {
-                $otherwise($this);
+                $otherwise($this, $condition);
             } elseif (is_array($otherwise)) {
                 $this->where($otherwise);
             }
