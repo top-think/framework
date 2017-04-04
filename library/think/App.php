@@ -397,9 +397,8 @@ class App implements \ArrayAccess
      */
     public function routeCheck()
     {
-        $path   = $this->request->path();
-        $depr   = $this->config('app.pathinfo_depr');
-        $result = false;
+        $path = $this->request->path();
+        $depr = $this->config('app.pathinfo_depr');
 
         // 路由检测
         $check = !is_null($this->routeCheck) ? $this->routeCheck : $this->config('app.url_route_on');
@@ -428,10 +427,8 @@ class App implements \ArrayAccess
                 $this->config('app.url_domain_deploy'),
                 $must
             );
-        }
-
-        if (false === $result) {
-            // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
+        } else {
+            // 解析模块/控制器/操作/参数... 支持控制器自动搜索
             $result = new UrlDispatch($path, [
                 'depr'        => $depr,
                 'auto_search' => $this->config('app.controller_auto_search'),
