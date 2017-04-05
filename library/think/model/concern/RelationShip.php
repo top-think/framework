@@ -13,6 +13,7 @@ namespace think\model\concern;
 
 use think\db\Query;
 use think\Loader;
+use think\Model;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
 use think\model\relation\BelongsToMany;
@@ -530,10 +531,10 @@ trait RelationShip
             foreach ($this->together as $key => $name) {
                 if (!is_numeric($key)) {
                     $this->relationWrite[$key] = [];
-
-                    foreach ($name as $val) {
-                        if (isset($this->relation[$val])) {
-                            $this->relationWrite[$key][$val] = $this->relation[$val];
+                    // 绑定关联属性
+                    foreach ((array) $name as $val) {
+                        if (isset($this->data[$val])) {
+                            $this->relationWrite[$key][$val] = $this->data[$val];
                         }
                     }
                 } elseif (isset($this->relation[$name])) {
@@ -550,9 +551,9 @@ trait RelationShip
      */
     protected function autoRelationUpdate()
     {
-        foreach ($this->relationWrite as $name => $model) {
-            if ($model instanceof Model) {
-                $model->save();
+        foreach ($this->relationWrite as $name => $val) {
+            if ($val instanceof Model) {
+                $val->save();
             } else {
                 $model = $this->getAttr($name);
                 if ($model instanceof Model) {

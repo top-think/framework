@@ -78,7 +78,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (empty($this->name)) {
             // 当前模型名
-            $name       = str_replace('\\', '/', get_class($this));
+            $name       = str_replace('\\', '/', get_called_class());
             $this->name = basename($name);
             if (Facade::make('config')->get('class_suffix')) {
                 $suffix     = basename(dirname($name));
@@ -112,7 +112,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function db($baseQuery = true)
     {
-        $model = get_class($this);
+        $model = get_called_class();
 
         if (!isset(self::$links[$model])) {
             // 合并数据库配置
@@ -266,6 +266,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $where[$pk] = $data[$pk];
                 }
                 unset($data[$pk]);
+            }
+
+            if ($this->relationWrite) {
+                foreach ($this->relationWrite as $name => $val) {
+                    if (is_array($val)) {
+                        foreach ($val as $key) {
+                            if (isset($data[$key])) {
+                                unset($data[$key]);
+                            }
+                        }
+                    }
+                }
             }
 
             // 模型更新

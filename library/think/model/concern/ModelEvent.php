@@ -48,8 +48,10 @@ trait ModelEvent
      */
     protected function trigger($event)
     {
-        if (isset(self::$event[$this->class][$event])) {
-            foreach (self::$event[$this->class][$event] as $callback) {
+        $class = get_called_class();
+
+        if (isset(self::$event[$class][$event])) {
+            foreach (self::$event[$class][$event] as $callback) {
                 $result = Container::getInstance()->invoke($callback, [$this]);
 
                 if (false === $result) {

@@ -410,7 +410,7 @@ trait Attribute
                 // 保存关联对象值
                 $this->relation[$name] = $value;
             } else {
-                throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
+                throw new InvalidArgumentException('property not exists:' . get_class($this) . '->' . $name);
             }
         }
 
