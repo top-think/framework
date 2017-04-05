@@ -523,29 +523,27 @@ trait RelationShip
     /**
      * 关联数据自动写入检查
      * @access public
-     * @return array
+     * @return void
      */
     protected function checkAutoRelationWrite()
     {
-        if ($this->together) {
-            foreach ($this->together as $key => $name) {
-                if (!is_numeric($key)) {
-                    $this->relationWrite[$key] = [];
-                    // 绑定关联属性
-                    foreach ((array) $name as $val) {
-                        if (isset($this->data[$val])) {
-                            $this->relationWrite[$key][$val] = $this->data[$val];
-                        }
+        foreach ($this->together as $key => $name) {
+            if (!is_numeric($key)) {
+                $this->relationWrite[$key] = [];
+                // 绑定关联属性
+                foreach ((array) $name as $val) {
+                    if (isset($this->data[$val])) {
+                        $this->relationWrite[$key][$val] = $this->data[$val];
                     }
-                } elseif (isset($this->relation[$name])) {
-                    $this->relationWrite[$name] = $this->relation[$name];
                 }
+            } elseif (isset($this->relation[$name])) {
+                $this->relationWrite[$name] = $this->relation[$name];
             }
         }
     }
 
     /**
-     * 自动关联数据更新
+     * 自动关联数据更新（针对一对一关联）
      * @access public
      * @return void
      */
@@ -564,7 +562,7 @@ trait RelationShip
     }
 
     /**
-     * 自动关联数据写入
+     * 自动关联数据写入（针对一对一关联）
      * @access public
      * @return void
      */
@@ -577,7 +575,7 @@ trait RelationShip
     }
 
     /**
-     * 自动关联数据删除
+     * 自动关联数据删除（支持一对一及一对多关联）
      * @access public
      * @return void
      */

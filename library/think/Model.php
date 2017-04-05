@@ -202,7 +202,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 关联写入检查
-        $this->checkAutoRelationWrite();
+        if ($this->together) {
+            $this->checkAutoRelationWrite();
+        }
 
         // 检测字段
         if (!empty($this->field)) {
