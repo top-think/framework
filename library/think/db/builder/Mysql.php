@@ -47,6 +47,9 @@ class Mysql extends Builder
             $key = '`' . $key . '`';
         }
         if (isset($table)) {
+            if (strpos($table, '.')) {
+                $table = str_replace('.', '`.`', $table);
+            }
             $key = '`' . $table . '`.' . $key;
         }
         return $key;
