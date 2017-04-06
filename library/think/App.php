@@ -420,11 +420,7 @@ class App implements \ArrayAccess
             $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
 
             // 路由检测（根据路由定义返回不同的URL调度）
-            $result = $this->route->check(
-                $this->request, $path, $depr,
-                $this->config('app.url_domain_deploy'),
-                $must
-            );
+            $result = $this->route->check($path, $depr, $must);
         } else {
             // 解析模块/控制器/操作/参数... 支持控制器自动搜索
             $result = new UrlDispatch($path, [

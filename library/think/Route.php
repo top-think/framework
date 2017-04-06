@@ -42,11 +42,12 @@ class Route
 
     // 当前应用实例
     protected $app;
+    // 当前请求对象
+    protected $request;
     // 当前域名
     protected $domain;
     // 当前分组
     protected $group;
-
     // 路由标识
     protected $name = [];
     // 路由绑定
@@ -56,9 +57,10 @@ class Route
     // 当前路由标识
     protected $routeName;
 
-    public function __construct(App $app)
+    public function __construct(App $app, Request $request)
     {
-        $this->app = $app;
+        $this->app     = $app;
+        $this->request = $request;
 
         // 默认分组
         $this->group = new RuleGroup($this, '');
@@ -227,12 +229,41 @@ class Route
     /**
      * 导入配置文件的路由规则
      * @access public
-     * @param array     $rule 路由规则
-     * @param string    $type 请求类型
+     * @param array     $rules 路由规则
+     * @param string    $type  请求类型
      * @return void
      */
     public function import(array $rules, $type = '*')
     {
+        // 检查域名部署
+        if (isset($rules['__domain__'])) {
+            foreach ($rules['__domain__'] as $key => $rule) {
+                $this->domain($key, $rule);
+            }
+            unset($rules['__domain__']);
+        }
+
+        // 检查变量规则
+        if (isset($rules['__pattern__'])) {
+            $this->pattern($rules['__pattern__']);
+            unset($rules['__pattern__']);
+        }
+
+        // 检查路由别名
+        if (isset($rules['__alias__'])) {
+            $this->alias($rules['__alias__']);
+            unset($rules['__alias__']);
+        }
+
+        // 检查资源路由
+        if (isset($rules['__rest__'])) {
+            foreach ($rules['__rest__'] as $key => $rule) {
+                $this->resource($key, $rule);
+            }
+            unset($rules['__rest__']);
+        }
+
+        // 检查路由规则（包含分组）
         foreach ($rules as $key => $val) {
             if (is_numeric($key)) {
                 $key = array_shift($val);
@@ -626,22 +657,20 @@ class Route
     /**
      * 检测URL路由
      * @access public
-     * @param Request   $request Request请求对象
      * @param string    $url URL地址
      * @param string    $depr URL分隔符
-     * @param bool      $checkDomain 是否检测域名规则
      * @param bool      $must 是否强制路由
      * @return Dispatch
      * @throws RouteNotFoundException
      */
-    public function check($request, $url, $depr = '/', $checkDomain = false, $must = false)
+    public function check($url, $depr = '/', $must = false)
     {
         $url    = str_replace($depr, '|', $url);
-        $method = strtolower($request->method());
-        $host   = $request->host();
+        $method = strtolower($this->request->method());
+        $host   = $this->request->host();
         $domain = false;
 
-        if ($checkDomain) {
+        if (count($this->domains) > 1) {
             // 自动检测域名路由
             $domain = $this->checkDomain($host);
         }
@@ -651,7 +680,7 @@ class Route
             $domain = $this->domains[$host];
         }
 
-        $result = $domain->check($request, $url, $depr);
+        $result = $domain->check($this->request, $url, $depr);
 
         if (false !== $result) {
             // 路由匹配
@@ -713,7 +742,7 @@ class Route
 
             if (isset($panDomain)) {
                 // 保存当前泛域名
-                $request->route(['__domain__' => $panDomain]);
+                $this->request->route(['__domain__' => $panDomain]);
             }
         }
 
