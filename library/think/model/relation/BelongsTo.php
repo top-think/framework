@@ -54,7 +54,10 @@ class BelongsTo extends OneToOne
             ->where($this->localKey, $this->parent->$foreignKey)
             ->relation($subRelation)
             ->find();
-        $relationModel->setParent(clone $this->parent);
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
 
         return $relationModel;
     }

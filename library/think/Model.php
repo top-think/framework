@@ -1258,7 +1258,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 返回模型的错误信息
      * @access public
-     * @return string
+     * @return string|array
      */
     public function getError()
     {

@@ -51,7 +51,10 @@ class HasOne extends OneToOne
         }
         // 判断关联类型执行查询
         $relationModel = $this->query->where($this->foreignKey, $this->parent->$localKey)->relation($subRelation)->find();
-        $relationModel->setParent(clone $this->parent);
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
 
         return $relationModel;
     }
