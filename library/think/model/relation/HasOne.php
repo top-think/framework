@@ -50,7 +50,13 @@ class HasOne extends OneToOne
             call_user_func_array($closure, [ & $this->query]);
         }
         // 判断关联类型执行查询
-        return $this->query->where($this->foreignKey, $this->parent->$localKey)->relation($subRelation)->find();
+        $relationModel = $this->query->where($this->foreignKey, $this->parent->$localKey)->relation($subRelation)->find();
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
+
+        return $relationModel;
     }
 
     /**
@@ -132,10 +138,12 @@ class HasOne extends OneToOne
                     $relationModel = null;
                 } else {
                     $relationModel = $data[$result->$localKey];
-                }
-                if ($relationModel && !empty($this->bindAttr)) {
-                    // 绑定关联属性
-                    $this->bindAttr($relationModel, $result, $this->bindAttr);
+                    $relationModel->setParent(clone $result);
+                    $relationModel->isUpdate(true);
+                    if (!empty($this->bindAttr)) {
+                        // 绑定关联属性
+                        $this->bindAttr($relationModel, $result, $this->bindAttr);
+                    }
                 }
                 // 设置关联属性
                 $result->setAttr($attr, $relationModel);
@@ -163,12 +171,14 @@ class HasOne extends OneToOne
             $relationModel = null;
         } else {
             $relationModel = $data[$result->$localKey];
+            $relationModel->setParent(clone $result);
+            $relationModel->isUpdate(true);
+            if (!empty($this->bindAttr)) {
+                // 绑定关联属性
+                $this->bindAttr($relationModel, $result, $this->bindAttr);
+            }
         }
 
-        if ($relationModel && !empty($this->bindAttr)) {
-            // 绑定关联属性
-            $this->bindAttr($relationModel, $result, $this->bindAttr);
-        }
         $result->setAttr(Loader::parseName($relation), $relationModel);
     }
 

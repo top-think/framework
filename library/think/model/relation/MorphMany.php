@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\Db;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -56,7 +55,14 @@ class MorphMany extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
-        return $this->relation($subRelation)->select();
+        $list   = $this->relation($subRelation)->select();
+        $parent = clone $this->parent;
+
+        foreach ($list as &$model) {
+            $model->setParent($parent);
+        }
+
+        return $list;
     }
 
     /**
@@ -119,6 +125,10 @@ class MorphMany extends Relation
                 if (!isset($data[$result->$pk])) {
                     $data[$result->$pk] = [];
                 }
+                foreach ($data[$result->$pk] as &$relationModel) {
+                    $relationModel->setParent(clone $result);
+                    $relationModel->isUpdate(true);
+                }
                 $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
@@ -141,6 +151,12 @@ class MorphMany extends Relation
                 $this->morphKey  => $result->$pk,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
+
+            foreach ($data[$result->$pk] as &$relationModel) {
+                $relationModel->setParent(clone $result);
+                $relationModel->isUpdate(true);
+            }
+
             $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
         }
     }

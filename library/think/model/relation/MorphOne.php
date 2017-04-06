@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\Db;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -56,7 +55,13 @@ class MorphOne extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
-        return $this->relation($subRelation)->find();
+        $relationModel = $this->relation($subRelation)->find();
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
+
+        return $relationModel;
     }
 
     /**
@@ -117,9 +122,14 @@ class MorphOne extends Relation
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$pk])) {
-                    $data[$result->$pk] = [];
+                    $relationModel = null;
+                } else {
+                    $relationModel = $data[$result->$pk];
+                    $relationModel->setParent(clone $result);
+                    $relationModel->isUpdate(true);
                 }
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
+
+                $result->setAttr($attr, $relationModel);
             }
         }
     }
@@ -137,11 +147,21 @@ class MorphOne extends Relation
     {
         $pk = $result->getPk();
         if (isset($result->$pk)) {
+            $pk   = $result->$pk;
             $data = $this->eagerlyMorphToOne([
-                $this->morphKey  => $result->$pk,
+                $this->morphKey  => $pk,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
+
+            if (isset($data[$pk])) {
+                $relationModel = $data[$pk];
+                $relationModel->setParent(clone $result);
+                $relationModel->isUpdate(true);
+            } else {
+                $relationModel = null;
+            }
+
+            $result->setAttr(Loader::parseName($relation), $relationModel);
         }
     }
 

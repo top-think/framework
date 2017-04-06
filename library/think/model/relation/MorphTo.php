@@ -56,8 +56,13 @@ class MorphTo extends Relation
         // 多态模型
         $model = $this->parseModel($this->parent->$morphType);
         // 主键数据
-        $pk = $this->parent->$morphKey;
-        return (new $model)->relation($subRelation)->find($pk);
+        $pk            = $this->parent->$morphKey;
+        $relationModel = (new $model)->relation($subRelation)->find($pk);
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
+        return $relationModel;
     }
 
     /**
@@ -168,7 +173,11 @@ class MorphTo extends Relation
                         if (!isset($data[$result->$morphKey])) {
                             throw new Exception('relation data not exists :' . $this->model);
                         } else {
-                            $result->setAttr($attr, $data[$result->$morphKey]);
+                            $relationModel = $data[$result->$morphKey];
+                            $relationModel->setParent(clone $result);
+                            $relationModel->isUpdate(true);
+
+                            $result->setAttr($attr, $relationModel);
                         }
                     }
                 }
@@ -220,6 +229,7 @@ class MorphTo extends Relation
         $pk   = $this->parent->{$this->morphKey};
         $data = (new $model)->with($subRelation)->find($pk);
         if ($data) {
+            $data->setParent(clone $result);
             $data->isUpdate(true);
         }
         $result->setAttr(Loader::parseName($relation), $data ?: null);

@@ -36,6 +36,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected static $links = [];
     // 数据库配置
     protected $connection = [];
+    // 父关联模型对象
+    protected $parent;
     // 数据库查询对象
     protected $query;
     // 当前模型名称
@@ -220,6 +222,29 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 设置父关联对象
+     * @access public
+     * @param Model $model  模型对象
+     * @return $this
+     */
+    public function setParent($model)
+    {
+        $this->parent = $model;
+
+        return $this;
+    }
+
+    /**
+     * 获取父关联对象
+     * @access public
+     * @return Model
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
      * 设置数据对象值
      * @access public
      * @param mixed $data  数据或者属性名
@@ -283,7 +308,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 检测修改器
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
-                $value = $this->$method($value, $data);
+                $value = $this->$method($value, array_merge($this->data, $data));
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
@@ -458,15 +483,31 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif ($notFound) {
             $method = Loader::parseName($name, 1, false);
             if (method_exists($this, $method) && $this->$method() instanceof Relation) {
-                // 清空之前的查询参数
-                $this->$method()->removeOption();
+                $modelRelation = $this->$method();
                 // 不存在该字段 获取关联数据
-                $value = $this->$method()->getRelation();
+                $value = $this->getRelationData($modelRelation);
                 // 保存关联对象值
                 $this->data[$name] = $value;
             } else {
                 throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
             }
+        }
+        return $value;
+    }
+
+    /**
+     * 获取关联模型数据
+     * @access public
+     * @param Relation        $modelRelation 模型关联对象
+     * @return mixed
+     */
+    protected function getRelationData($modelRelation)
+    {
+        if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
+            $value = $this->parent;
+        } else {
+            // 首先获取关联数据
+            $value = $modelRelation->removeOption()->getRelation();
         }
         return $value;
     }
@@ -1217,7 +1258,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 返回模型的错误信息
      * @access public
-     * @return string
+     * @return string|array
      */
     public function getError()
     {
@@ -1812,16 +1853,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
     }
 
-    public static function __callStatic($method, $params)
+    public static function __callStatic($method, $args)
     {
+        $model = new static();
+
         if (isset(static::$db)) {
             $query      = static::$db;
             static::$db = null;
         } else {
-            $query = (new static())->db();
+            $query = $model->db();
         }
 
-        return call_user_func_array([$query, $method], $params);
+        if (method_exists($model, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $query);
+
+            call_user_func_array([$model, $method], $args);
+            return $query;
+        } else {
+            return call_user_func_array([$query, $method], $args);
+        }
     }
 
     /**
