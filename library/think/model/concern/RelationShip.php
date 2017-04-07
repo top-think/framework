@@ -514,7 +514,7 @@ trait RelationShip
             $value = $this->parent;
         } else {
             // 获取关联数据
-            $value = $modelRelation->removeOption()->getRelation();
+            $value = $modelRelation->getRelation();
         }
 
         return $value;

@@ -44,14 +44,15 @@ class HasOne extends OneToOne
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        // 执行关联定义方法
+        $query    = $this->getQuery(true);
         $localKey = $this->localKey;
+
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            call_user_func_array($closure, [ & $query]);
         }
 
         // 判断关联类型执行查询
-        $relationModel = $this->query
+        $relationModel = $query
             ->where($this->foreignKey, $this->parent->$localKey)
             ->relation($subRelation)
             ->find();

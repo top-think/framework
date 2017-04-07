@@ -52,10 +52,12 @@ class MorphOne extends Relation
      */
     public function getRelation($subRelation = '', $closure = null)
     {
+        $query = $this->getQuery(true);
+
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            call_user_func_array($closure, [ & $query]);
         }
-        $relationModel = $this->relation($subRelation)->find();
+        $relationModel = $query->relation($subRelation)->find();
 
         if ($relationModel) {
             $relationModel->setParent(clone $this->parent);

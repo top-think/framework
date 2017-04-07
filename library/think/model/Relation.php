@@ -61,11 +61,12 @@ abstract class Relation
     /**
      * 获取关联的查询对象
      * @access public
+     * @param bool $new 是否重新实例化
      * @return Query
      */
-    public function getQuery()
+    public function getQuery($new = false)
     {
-        return $this->query;
+        return $new ? (new $this->model)->db() : $this->query;
     }
 
     /**
