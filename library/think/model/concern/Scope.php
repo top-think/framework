@@ -88,7 +88,7 @@ trait Scope
     public static function __callStatic($method, $args)
     {
         $model = new static();
-        $query = $model->db();
+        $query = $model->db(true, false);
 
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围

@@ -39,11 +39,11 @@ trait Attribute
     public function getPk($name = '')
     {
         if (!empty($name)) {
-            $table = $this->db(false)->getTable($name);
+            $table = $this->getQuery()->getTable($name);
 
-            return $this->db(false)->getPk($table);
+            return $this->getQuery()->getPk($table);
         } elseif (empty($this->pk)) {
-            $this->pk = $this->db(false)->getPk();
+            $this->pk = $this->getQuery()->getPk();
         }
 
         return $this->pk;
