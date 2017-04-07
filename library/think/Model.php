@@ -1475,16 +1475,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string|array|\Closure $name 命名范围名称 逗号分隔
      * @internal  mixed                 ...$params 参数调用
-     * @return Model|Query
+     * @return Query
      */
     public static function scope($name)
     {
         if ($name instanceof Query) {
             return $name;
         }
-        $model     = new static();
-        $params    = func_get_args();
-        $params[0] = $model->getQuery();
+        $model  = new static();
+        $query  = $model->db();
+        $params = func_get_args();
+        array_unshift($params, $query);
         if ($name instanceof \Closure) {
             call_user_func_array($name, $params);
         } elseif (is_string($name)) {
@@ -1498,7 +1499,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
         }
-        return $model;
+        return $query;
     }
 
     /**
@@ -1885,7 +1886,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $args)
     {
         $model = new static();
-        $query = $model->db(true, false);
+        $query = $model->db();
 
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围
