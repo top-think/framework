@@ -30,7 +30,7 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false);
+        return $model->getQuery();
     }
 
     /**
@@ -42,7 +42,7 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false)
+        return $model->getQuery()
             ->useSoftDelete($field, ['not null', '']);
     }
 
@@ -64,7 +64,7 @@ trait SoftDelete
             $this->data[$name] = $this->autoWriteTimestamp($name);
             $result            = $this->isUpdate()->save();
         } else {
-            $result = $this->db(false)->delete($this->data);
+            $result = $this->getQuery()->delete($this->data);
         }
 
         $this->trigger('after_delete', $this);
@@ -117,7 +117,7 @@ trait SoftDelete
             $where[$pk] = $this->getData($pk);
         }
         // 恢复删除
-        return $this->db(false)
+        return $this->getQuery()
             ->useSoftDelete($name, ['not null', ''])
             ->where($where)
             ->update([$name => null]);
