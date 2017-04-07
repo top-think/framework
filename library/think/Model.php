@@ -138,16 +138,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
-            $this->autoWriteTimestamp = $this->db(false)->getConfig('auto_timestamp');
+            $this->autoWriteTimestamp = $this->getQuery()->getConfig('auto_timestamp');
         }
 
         if (is_null($this->dateFormat)) {
             // 设置时间戳格式
-            $this->dateFormat = $this->db(false)->getConfig('datetime_format');
+            $this->dateFormat = $this->getQuery()->getConfig('datetime_format');
         }
 
         if (is_null($this->resultSetType)) {
-            $this->resultSetType = $this->db(false)->getConfig('resultset_type');
+            $this->resultSetType = $this->getQuery()->getConfig('resultset_type');
         }
         // 执行初始化操作
         $this->initialize();
@@ -839,10 +839,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function getPk($name = '')
     {
         if (!empty($name)) {
-            $table = $this->db(false)->getTable($name);
-            return $this->db(false)->getPk($table);
+            $table = $this->getQuery()->getTable($name);
+            return $this->getQuery()->getPk($table);
         } elseif (empty($this->pk)) {
-            $this->pk = $this->db(false)->getPk();
+            $this->pk = $this->getQuery()->getPk();
         }
         return $this->pk;
     }
@@ -912,7 +912,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检测字段
         if (!empty($this->field)) {
             if (true === $this->field) {
-                $this->field = $this->db(false)->getTableInfo('', 'fields');
+                $this->field = $this->getQuery()->getTableInfo('', 'fields');
             }
             foreach ($this->data as $key => $val) {
                 if (!in_array($key, $this->field)) {
@@ -1785,7 +1785,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: $this->db(false)->getTable(Loader::parseName($this->name) . '_' . $name);
+        $table      = $table ?: $this->getQuery()->getTable(Loader::parseName($this->name) . '_' . $name);
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: $this->getForeignKey($this->name);
         return new BelongsToMany($this, $model, $table, $foreignKey, $localKey);
@@ -1870,7 +1870,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __call($method, $args)
     {
-        $query = $this->db();
+        $query = $this->db(true, false);
 
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
