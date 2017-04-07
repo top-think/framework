@@ -148,21 +148,32 @@ abstract class Connection
     {}
 
     /**
+     * 指定当前使用的查询对象
+     * @access public
+     * @param Query $query 查询对象
+     * @return $this
+     */
+    public function setQuery($query)
+    {
+        $this->query = $query;
+
+        return $this;
+    }
+
+    /**
      * 创建指定模型的查询对象
      * @access public
-     * @param string $model 模型类名称
-     * @param string $queryClass 查询对象类名
      * @return Query
      */
-    public function getQuery($model = 'db', $queryClass = '')
+    public function getQuery()
     {
-        if (!isset($this->query[$model])) {
-            $class = $queryClass ?: $this->config['query'];
+        if (!isset($this->query)) {
+            $class = $this->config['query'];
 
-            $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
+            $this->query = new $class($this);
         }
 
-        return $this->query[$model];
+        return $this->query;
     }
 
     /**

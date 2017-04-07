@@ -28,10 +28,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     use model\concern\Conversion;
     use model\concern\DataValidate;
 
-    // 数据库对象池
-    private static $links = [];
-    // 当前数据库实例
-    private static $db;
     // 是否为更新数据
     private $isUpdate = false;
     // 更新条件
@@ -39,6 +35,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     // 数据库配置
     protected $connection = [];
+    // 数据库查询对象类名
+    protected $queryClass;
     // 数据库查询对象
     protected $query;
     // 当前模型名称
@@ -105,51 +103,83 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 获取当前模型的数据库查询对象
-     * @access public
-     * @param bool $baseQuery 是否调用全局查询范围
+     * 创建模型的查询对象
+     * @access protected
      * @return Query
      */
-    public function db($baseQuery = true)
+    protected function buildQuery()
     {
-        $model = get_called_class();
-
-        if (!isset(self::$links[$model])) {
-            // 合并数据库配置
-            if (!empty($this->connection)) {
-                if (is_array($this->connection)) {
-                    $connection = array_merge(Facade::make('config')->pull('database'), $this->connection);
-                } else {
-                    $connection = $this->connection;
-                }
+        // 合并数据库配置
+        if (!empty($this->connection)) {
+            if (is_array($this->connection)) {
+                $connection = array_merge(Facade::make('config')->pull('database'), $this->connection);
             } else {
-                $connection = [];
+                $connection = $this->connection;
             }
-
-            // 设置当前模型 确保查询返回模型对象
-            $query = Db::connect($connection)->getQuery($model, $this->query);
-
-            // 设置当前数据表和模型名
-            if (!empty($this->table)) {
-                $query->setTable($this->table);
-            } else {
-                $query->name($this->name);
-            }
-
-            if (!empty($this->pk)) {
-                $query->pk($this->pk);
-            }
-
-            self::$links[$model] = $query;
+        } else {
+            $connection = [];
         }
 
+        $con = Db::connect($connection);
+        // 设置当前模型 确保查询返回模型对象
+        $queryClass = $this->queryClass ?: $con->getConfig('query');
+        $query      = new $queryClass($con, get_called_class());
+        $con->setQuery($query);
+
+        // 设置当前数据表和模型名
+        if (!empty($this->table)) {
+            $query->setTable($this->table);
+        } else {
+            $query->name($this->name);
+        }
+
+        if (!empty($this->pk)) {
+            $query->pk($this->pk);
+        }
+
+        return $query;
+    }
+
+    /**
+     * 获取当前模型的查询对象
+     * @access public
+     * @param bool      $buildNewQuery  创建新的查询对象
+     * @return Query
+     */
+    public function getQuery($buildNewQuery = false)
+    {
+        if (!$buildNewQuery && $this->query) {
+            return $this->query;
+        } else {
+            // 创建模型查询对象
+            $query = $this->buildQuery();
+
+            if (!$buildNewQuery) {
+                $this->query = $query;
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * 获取当前模型的数据库查询对象
+     * @access public
+     * @param bool $useBaseQuery 是否调用全局查询范围
+     * @param bool $buildNewQuery 创建新的查询对象
+     * @return Query
+     */
+    public function db($useBaseQuery = true, $buildNewQuery = true)
+    {
+        $query = $this->getQuery($buildNewQuery);
+
         // 全局作用域
-        if ($baseQuery && method_exists($this, 'base')) {
-            call_user_func_array([$this, 'base'], [ & self::$links[$model]]);
+        if ($useBaseQuery && method_exists($this, 'base')) {
+            call_user_func_array([$this, 'base'], [ & $query]);
         }
 
         // 返回当前模型的数据库查询对象
-        return self::$links[$model];
+        return $query;
     }
 
     /**

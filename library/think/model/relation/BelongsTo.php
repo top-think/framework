@@ -46,15 +46,13 @@ class BelongsTo extends OneToOne
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        $query = $this->getQuery(true);
-
         if ($closure) {
-            call_user_func_array($closure, [ & $query]);
+            call_user_func_array($closure, [ & $this->query]);
         }
 
         $foreignKey = $this->foreignKey;
 
-        $relationModel = $query
+        $relationModel = $this->query
             ->where($this->localKey, $this->parent->$foreignKey)
             ->relation($subRelation)
             ->find();

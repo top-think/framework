@@ -52,13 +52,11 @@ class MorphMany extends Relation
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        $query = $this->getQuery(true);
-
         if ($closure) {
-            call_user_func_array($closure, [ & $query]);
+            call_user_func_array($closure, [ & $this->query]);
         }
 
-        $list   = $query->relation($subRelation)->select();
+        $list   = $this->query->relation($subRelation)->select();
         $parent = clone $this->parent;
 
         foreach ($list as &$model) {

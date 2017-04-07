@@ -71,12 +71,7 @@ trait Scope
 
     public function __call($method, $args)
     {
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = $this->db();
-        }
+        $query = $this->db();
 
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
@@ -93,13 +88,7 @@ trait Scope
     public static function __callStatic($method, $args)
     {
         $model = new static();
-
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = $model->db();
-        }
+        $query = $model->db();
 
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围
