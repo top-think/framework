@@ -63,15 +63,14 @@ trait Scope
      */
     public static function useGlobalScope($use)
     {
-        $model      = new static();
-        static::$db = $model->db($use);
+        $model = new static();
 
         return $model;
     }
 
     public function __call($method, $args)
     {
-        $query = $this->db();
+        $query = $this->db(true, false);
 
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
@@ -88,7 +87,7 @@ trait Scope
     public static function __callStatic($method, $args)
     {
         $model = new static();
-        $query = $model->db(true, false);
+        $query = $model->db();
 
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围
