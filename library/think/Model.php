@@ -175,7 +175,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 设置当前模型 确保查询返回模型对象
         $queryClass = $this->query ?: $con->getConfig('query');
         $query      = new $queryClass($con, $this->class);
-        $con->setQuery($query);
+        $con->setQuery($query, $this->class);
 
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
