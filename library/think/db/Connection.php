@@ -153,9 +153,9 @@ abstract class Connection
      * @param Query $query 查询对象
      * @return $this
      */
-    public function setQuery($query)
+    public function setQuery($query, $model = 'db')
     {
-        $this->query = $query;
+        $this->query[$model] = $query;
 
         return $this;
     }
@@ -165,15 +165,15 @@ abstract class Connection
      * @access public
      * @return Query
      */
-    public function getQuery()
+    public function getQuery($model = 'db')
     {
-        if (!isset($this->query)) {
+        if (!isset($this->query[$model])) {
             $class = $this->config['query'];
 
-            $this->query = new $class($this);
+            $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
         }
 
-        return $this->query;
+        return $this->query[$model];
     }
 
     /**
