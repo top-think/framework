@@ -40,6 +40,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $parent;
     // 数据库查询对象
     protected $query;
+    protected $queryObj;
     // 当前模型名称
     protected $name;
     // 数据表名称
@@ -101,8 +102,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $resultSetType;
     // 关联自动写入
     protected $relationWrite;
-    //
-    protected static $db;
 
     /**
      * 初始化过的模型.
@@ -125,7 +124,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 当前类名
-        $this->class = get_class($this);
+        $this->class = get_called_class();
 
         if (empty($this->name)) {
             // 当前模型名
@@ -155,47 +154,83 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 获取当前模型的数据库查询对象
-     * @access public
-     * @param bool $baseQuery 是否调用全局查询范围
+     * 创建模型的查询对象
+     * @access protected
      * @return Query
      */
-    public function db($baseQuery = true)
+    protected function buildQuery()
     {
-        $model = $this->class;
-        if (!isset(self::$links[$model])) {
-            // 合并数据库配置
-            if (!empty($this->connection)) {
-                if (is_array($this->connection)) {
-                    $connection = array_merge(Config::get('database'), $this->connection);
-                } else {
-                    $connection = $this->connection;
-                }
+        // 合并数据库配置
+        if (!empty($this->connection)) {
+            if (is_array($this->connection)) {
+                $connection = array_merge(Config::get('database'), $this->connection);
             } else {
-                $connection = [];
+                $connection = $this->connection;
             }
-            // 设置当前模型 确保查询返回模型对象
-            $query = Db::connect($connection)->getQuery($model, $this->query);
-
-            // 设置当前数据表和模型名
-            if (!empty($this->table)) {
-                $query->setTable($this->table);
-            } else {
-                $query->name($this->name);
-            }
-
-            if (!empty($this->pk)) {
-                $query->pk($this->pk);
-            }
-
-            self::$links[$model] = $query;
+        } else {
+            $connection = [];
         }
+
+        $con = Db::connect($connection);
+        // 设置当前模型 确保查询返回模型对象
+        $queryClass = $this->query ?: $con->getConfig('query');
+        $query      = new $queryClass($con, $this->class);
+        $con->setQuery($query);
+
+        // 设置当前数据表和模型名
+        if (!empty($this->table)) {
+            $query->setTable($this->table);
+        } else {
+            $query->name($this->name);
+        }
+
+        if (!empty($this->pk)) {
+            $query->pk($this->pk);
+        }
+
+        return $query;
+    }
+
+    /**
+     * 获取当前模型的查询对象
+     * @access public
+     * @param bool      $buildNewQuery  创建新的查询对象
+     * @return Query
+     */
+    public function getQuery($buildNewQuery = false)
+    {
+        if (!$buildNewQuery && $this->queryObj) {
+            return $this->queryObj;
+        } else {
+            // 创建模型查询对象
+            $query = $this->buildQuery();
+
+            if (!$buildNewQuery) {
+                $this->queryObj = $query;
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * 获取当前模型的数据库查询对象
+     * @access public
+     * @param bool $useBaseQuery 是否调用全局查询范围
+     * @param bool $buildNewQuery 创建新的查询对象
+     * @return Query
+     */
+    public function db($useBaseQuery = true, $buildNewQuery = true)
+    {
+        $query = $this->getQuery($buildNewQuery);
+
         // 全局作用域
-        if ($baseQuery && method_exists($this, 'base')) {
-            call_user_func_array([$this, 'base'], [ & self::$links[$model]]);
+        if ($useBaseQuery && method_exists($this, 'base')) {
+            call_user_func_array([$this, 'base'], [ & $query]);
         }
+
         // 返回当前模型的数据库查询对象
-        return self::$links[$model];
+        return $query;
     }
 
     /**
@@ -507,7 +542,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $value = $this->parent;
         } else {
             // 首先获取关联数据
-            $value = $modelRelation->removeOption()->getRelation();
+            $value = $modelRelation->getRelation();
         }
         return $value;
     }
@@ -1835,12 +1870,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __call($method, $args)
     {
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = $this->db();
-        }
+        $query = $this->db();
 
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
@@ -1856,13 +1886,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $args)
     {
         $model = new static();
-
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = $model->db();
-        }
+        $query = $model->db();
 
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围

@@ -1911,7 +1911,7 @@ class Query
             $relation = Loader::parseName($relation, 1, false);
             $model    = $class->$relation();
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
-                $model->removeOption()->eagerly($this, $relation, $subRelation, $closure, $first);
+                $model->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
             } elseif ($closure) {
                 $with[$key] = $closure;
