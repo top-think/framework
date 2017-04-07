@@ -1484,7 +1484,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         $model     = new static();
         $params    = func_get_args();
-        $params[0] = $model->db();
+        $params[0] = $model->getQuery();
         if ($name instanceof \Closure) {
             call_user_func_array($name, $params);
         } elseif (is_string($name)) {
@@ -1509,8 +1509,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function useGlobalScope($use)
     {
-        $model      = new static();
-        static::$db = $model->db($use);
+        $model = new static();
         return $model;
     }
 
@@ -1886,7 +1885,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function __callStatic($method, $args)
     {
         $model = new static();
-        $query = $model->db();
+        $query = $model->db(true, false);
 
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围
