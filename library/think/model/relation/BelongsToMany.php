@@ -128,6 +128,8 @@ class BelongsToMany extends Relation
      */
     public function getRelation($subRelation = '', $closure = null)
     {
+        $this->query->removeOption();
+
         if ($closure) {
             $closure($this->query);
         }
