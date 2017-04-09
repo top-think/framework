@@ -13,7 +13,7 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
-use think\Db;
+use think\Db as Query;
 use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
@@ -57,8 +57,10 @@ abstract class Connection
     // 监听回调
     protected static $event = [];
     // 查询对象
-    protected $query = [];
+    protected $query;
     // 使用Builder类
+    protected $builderClassName;
+    // Builder对象
     protected $builder;
     // 数据库连接参数配置
     protected $config = [
@@ -135,6 +137,11 @@ abstract class Connection
             $this->config = array_merge($this->config, $config);
         }
 
+        // 创建Builder对象
+        $class = $this->getBuilderClass();
+
+        $this->builder = new $class($this);
+
         // 执行初始化操作
         $this->initialize();
     }
@@ -150,30 +157,24 @@ abstract class Connection
     /**
      * 指定当前使用的查询对象
      * @access public
-     * @param Query $query 查询对象
+     * @param Query  $query 查询对象
      * @return $this
      */
-    public function setQuery($query, $model = 'db')
+    public function setQuery($query)
     {
-        $this->query[$model] = $query;
+        $this->query = $query;
 
         return $this;
     }
 
     /**
-     * 创建指定模型的查询对象
+     * 获取指定模型的查询对象
      * @access public
      * @return Query
      */
-    public function getQuery($model = 'db')
+    public function getQuery()
     {
-        if (!isset($this->query[$model])) {
-            $class = $this->config['query'];
-
-            $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
-        }
-
-        return $this->query[$model];
+        return $this->query;
     }
 
     /**
@@ -181,25 +182,36 @@ abstract class Connection
      * @access public
      * @return string
      */
-    public function getBuilder()
+    public function getBuilderClass()
     {
-        if (!empty($this->builder)) {
-            return $this->builder;
+        if (!empty($this->builderClassName)) {
+            return $this->builderClassName;
         } else {
             return $this->getConfig('builder') ?: '\\think\\db\\builder\\' . ucfirst($this->getConfig('type'));
         }
     }
 
     /**
-     * 调用Query类的查询方法
-     * @access public
-     * @param string    $method 方法名称
-     * @param array     $args 调用参数
-     * @return mixed
+     * 设置当前的数据库Builder对象
+     * @access protected
+     * @param Builder    $builder
+     * @return void
      */
-    public function __call($method, $args)
+    protected function setBuilder(Builder $builder)
     {
-        return call_user_func_array([$this->getQuery(), $method], $args);
+        $this->builder = $builder;
+
+        return $this;
+    }
+
+    /**
+     * 获取当前的builder实例对象
+     * @access public
+     * @return Builder
+     */
+    public function getBuilder()
+    {
+        return $this->builder;
     }
 
     /**
@@ -400,7 +412,7 @@ abstract class Connection
             $this->free();
         }
 
-        Db::$queryTimes++;
+        Query::$queryTimes++;
 
         try {
             // 调试开始
@@ -466,7 +478,7 @@ abstract class Connection
             $this->free();
         }
 
-        Db::$executeTimes++;
+        Query::$executeTimes++;
         try {
             // 调试开始
             $this->debug(true);
@@ -502,6 +514,567 @@ abstract class Connection
 
             throw new PDOException($e, $this->config, $this->getLastsql());
         }
+    }
+
+    /**
+     * 查找单条记录
+     * @access public
+     * @param Query                         $query        查询对象
+     * @param array|string|Query|\Closure   $data
+     * @return array|null|\PDOStatement|string|Model
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function find(Query $query, $data = null)
+    {
+        // 分析查询表达式
+        $options = $this->parseOptions($query);
+        $pk      = $query->getPk($options);
+
+        if (!is_null($data)) {
+            // AR模式分析主键条件
+            $this->parsePkWhere($data, $options);
+        } elseif (!empty($options['cache']) && true === $options['cache']['key'] && is_string($pk) && isset($options['where']['AND'][$pk])) {
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+        }
+
+        $result = false;
+
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
+            // 判断查询缓存
+            $cache = $options['cache'];
+
+            if (true === $cache['key'] && !is_null($data) && !is_array($data)) {
+                $key = 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
+            } elseif (is_string($cache['key'])) {
+                $key = $cache['key'];
+            } elseif (!isset($key)) {
+                $key = md5(serialize($options));
+            }
+
+            $result = Facade::make('cache')->get($key);
+        }
+
+        if (false === $result) {
+            if (is_string($pk)) {
+                if (!is_array($data)) {
+                    if (isset($key) && strpos($key, '|')) {
+                        list($a, $val) = explode('|', $key);
+                        $item[$pk]     = $val;
+                    } else {
+                        $item[$pk] = $data;
+                    }
+                    $data = $item;
+                }
+            }
+
+            $options['data']  = $data;
+            $options['limit'] = 1;
+
+            // 生成查询SQL
+            list($sql, $bind) = $this->builder->select($options);
+
+            if ($options['fetch_sql']) {
+                // 获取实际执行的SQL语句
+                return $this->getRealSql($sql, $bind);
+            }
+
+            // 事件回调
+            if ($result = $query->trigger('before_find', $options)) {
+            } else {
+                // 执行查询
+                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
+
+                if ($resultSet instanceof \PDOStatement) {
+                    // 返回PDOStatement对象
+                    return $resultSet;
+                }
+
+                $result = isset($resultSet[0]) ? $resultSet[0] : null;
+            }
+
+            if (isset($cache) && $result) {
+                // 缓存数据
+                $this->cacheData($key, $result, $cache);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 查找记录
+     * @access public
+     * @param Query                         $query        查询对象
+     * @param array|string|Query|\Closure   $data
+     * @return Collection|false|\PDOStatement|string
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function select(Query $query, $data = null)
+    {
+        // 分析查询表达式
+        $options = $this->parseOptions($query);
+
+        if (false === $data) {
+            // 用于子查询 不查询只返回SQL
+            $options['fetch_sql'] = true;
+        } elseif (!is_null($data)) {
+            // 主键条件分析
+            $this->parsePkWhere($data, $options);
+        }
+
+        $resultSet = false;
+
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
+            // 判断查询缓存
+            $cache = $options['cache'];
+            unset($options['cache']);
+
+            $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+            $resultSet = Facade::make('cache')->get($key);
+        }
+
+        if (!$resultSet) {
+            $options['data'] = $data;
+
+            // 生成查询SQL
+            list($sql, $bind) = $this->builder->select($options);
+
+            if ($options['fetch_sql']) {
+                // 获取实际执行的SQL语句
+                return $this->getRealSql($sql, $bind);
+            }
+
+            if ($resultSet = $query->trigger('before_select', $options)) {
+            } else {
+                // 执行查询操作
+                $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
+
+                if ($resultSet instanceof \PDOStatement) {
+                    // 返回PDOStatement对象
+                    return $resultSet;
+                }
+            }
+
+            if (isset($cache) && $resultSet) {
+                // 缓存数据集
+                $this->cacheData($key, $resultSet, $cache);
+            }
+        }
+
+        return $resultSet;
+    }
+
+    /**
+     * 插入记录
+     * @access public
+     * @param Query   $query        查询对象
+     * @param mixed   $data         数据
+     * @param boolean $replace      是否replace
+     * @param boolean $getLastInsID 返回自增主键
+     * @param string  $sequence     自增序列名
+     * @return integer|string
+     */
+    public function insert(Query $query, $data = [], $replace = false, $getLastInsID = false, $sequence = null)
+    {
+        // 分析查询表达式
+        $options = $this->parseOptions($query);
+        $data    = array_merge($options['data'], $data);
+
+        // 生成SQL语句
+        list($sql, $bind) = $this->builder->insert($data, $options, $replace);
+
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql, $bind);
+        }
+
+        // 执行操作
+        $result = $this->execute($sql, $bind);
+        if ($result) {
+            $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
+            $lastInsId = $this->getLastInsID($sequence);
+
+            if ($lastInsId) {
+                $pk = $query->getPk($options);
+                if (is_string($pk)) {
+                    $data[$pk] = $lastInsId;
+                }
+            }
+
+            $options['data'] = $data;
+
+            $query->trigger('after_insert', $options);
+
+            if ($getLastInsID) {
+                return $lastInsId;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 批量插入记录
+     * @access public
+     * @param Query     $query      查询对象
+     * @param mixed     $dataSet    数据集
+     * @return integer|string
+     */
+    public function insertAll(Query $query, $dataSet = [])
+    {
+        if (!is_array(reset($dataSet))) {
+            return false;
+        }
+
+        $options = $this->parseOptions($query);
+        // 生成SQL语句
+        list($sql, $bind) = $this->builder->insertAll($dataSet, $options);
+
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql, $bind);
+        } else {
+            // 执行操作
+            return $this->execute($sql, $bind);
+        }
+    }
+
+    /**
+     * 通过Select方式插入记录
+     * @access public
+     * @param Query     $query      查询对象
+     * @param string    $fields     要插入的数据表字段名
+     * @param string    $table      要插入的数据表名
+     * @return integer|string
+     * @throws PDOException
+     */
+    public function selectInsert(Query $query, $fields, $table)
+    {
+        // 分析查询表达式
+        $options = $this->parseOptions($query);
+
+        // 生成SQL语句
+        $table            = $this->parseSqlTable($table);
+        list($sql, $bind) = $this->builder->selectInsert($fields, $table, $options);
+
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql, $bind);
+        } else {
+            // 执行操作
+            return $this->execute($sql, $bind);
+        }
+    }
+
+    /**
+     * 更新记录
+     * @access public
+     * @param Query     $query  查询对象
+     * @param mixed     $data   数据
+     * @return integer|string
+     * @throws Exception
+     * @throws PDOException
+     */
+    public function update(Query $query, $data = [])
+    {
+        $options = $this->parseOptions($query);
+        $data    = array_merge($options['data'], $data);
+        $pk      = $query->getPk($options);
+
+        if (isset($options['cache']) && is_string($options['cache']['key'])) {
+            $key = $options['cache']['key'];
+        }
+
+        if (empty($options['where'])) {
+            // 如果存在主键数据 则自动作为更新条件
+            if (is_string($pk) && isset($data[$pk])) {
+                $where[$pk] = $data[$pk];
+                if (!isset($key)) {
+                    $key = 'think:' . $options['table'] . '|' . $data[$pk];
+                }
+                unset($data[$pk]);
+            } elseif (is_array($pk)) {
+                // 增加复合主键支持
+                foreach ($pk as $field) {
+                    if (isset($data[$field])) {
+                        $where[$field] = $data[$field];
+                    } else {
+                        // 如果缺少复合主键数据则不执行
+                        throw new Exception('miss complex primary data');
+                    }
+                    unset($data[$field]);
+                }
+            }
+
+            if (!isset($where)) {
+                // 如果没有任何更新条件则不执行
+                throw new Exception('miss update condition');
+            } else {
+                $options['where']['AND'] = $where;
+            }
+        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+        }
+
+        // 生成UPDATE SQL语句
+        list($sql, $bind) = $this->builder->update($data, $options);
+
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql, $bind);
+        } else {
+            // 检测缓存
+            $cache = Facade::make('cache');
+
+            if (isset($key) && $cache->get($key)) {
+                // 删除缓存
+                $cache->rm($key);
+            } elseif (!empty($options['cache']['tag'])) {
+                $cache->clear($options['cache']['tag']);
+            }
+
+            // 执行操作
+            $result = '' == $sql ? 0 : $this->execute($sql, $bind);
+
+            if ($result) {
+                if (is_string($pk) && isset($where[$pk])) {
+                    $data[$pk] = $where[$pk];
+                } elseif (is_string($pk) && isset($key) && strpos($key, '|')) {
+                    list($a, $val) = explode('|', $key);
+                    $data[$pk]     = $val;
+                }
+
+                $options['data'] = $data;
+                $query->trigger('after_update', $options);
+            }
+
+            return $result;
+        }
+    }
+
+    public function delete(Query $query, $data = nul)
+    {
+        // 分析查询表达式
+        $options = $this->parseOptions($query);
+        $pk      = $query->getPk($options);
+
+        if (isset($options['cache']) && is_string($options['cache']['key'])) {
+            $key = $options['cache']['key'];
+        }
+
+        if (!is_null($data) && true !== $data) {
+            if (!isset($key) && !is_array($data)) {
+                // 缓存标识
+                $key = 'think:' . $options['table'] . '|' . $data;
+            }
+
+            // AR模式分析主键条件
+            $this->parsePkWhere($data, $options);
+        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+        }
+
+        if (true !== $data && empty($options['where'])) {
+            // 如果条件为空 不进行删除操作 除非设置 1=1
+            throw new Exception('delete without condition');
+        }
+
+        // 生成删除SQL语句
+        list($sql, $bind) = $this->builder->delete($options);
+
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql, $bind);
+        }
+
+        // 检测缓存
+        $cache = Facade::make('cache');
+
+        if (isset($key) && $cache->get($key)) {
+            // 删除缓存
+            $cache->rm($key);
+        } elseif (!empty($options['cache']['tag'])) {
+            $cache->clear($options['cache']['tag']);
+        }
+
+        // 执行操作
+        $result = $this->execute($sql, $bind);
+
+        if ($result) {
+            if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
+                list($a, $val) = explode('|', $key);
+                $item[$pk]     = $val;
+                $data          = $item;
+            }
+
+            $options['data'] = $data;
+
+            $query->trigger('after_delete', $options);
+        }
+
+        return $result;
+    }
+
+    public function value(Query $query, $field, $force = false)
+    {
+        $options = $this->parseOptions($query);
+        $result  = false;
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
+            // 判断查询缓存
+            $cache = $options['cache'];
+
+            $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
+            $result = Facade::make('cache')->get($key);
+        }
+
+        if (false === $result) {
+            if (isset($options['field'])) {
+                unset($options['field']);
+            }
+
+            if (is_string($field)) {
+                $field = array_map('trim', explode(',', $field));
+            }
+
+            $options['field'] = $field;
+            $options['limit'] = 1;
+            // 生成查询SQL
+            list($sql, $bind) = $this->builder->select($options);
+
+            if ($options['fetch_sql']) {
+                // 获取实际执行的SQL语句
+                return $this->getRealSql($sql, $bind);
+            }
+
+            // 执行查询操作
+            $pdo = $this->query($sql, $bind, $options['master'], true);
+
+            if (is_string($pdo)) {
+                // 返回SQL语句
+                return $pdo;
+            }
+
+            $result = $pdo->fetchColumn();
+
+            if ($force) {
+                $result = is_numeric($result) ? $result + 0 : $result;
+            }
+
+            if (isset($cache)) {
+                // 缓存数据
+                $this->cacheData($key, $result, $cache);
+            }
+        }
+
+        return $result;
+    }
+
+    public function column(Query $query, $field, $key = '')
+    {
+        $options = $this->parseOptions($query);
+
+        $result = false;
+
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
+            // 判断查询缓存
+            $cache = $options['cache'];
+
+            $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($options));
+            $result = Facade::make('cache')->get($guid);
+        }
+
+        if (false === $result) {
+            if (isset($options['field'])) {
+                unset($options['field']);
+            }
+
+            if (is_null($field)) {
+                $field = '*';
+            } elseif ($key && '*' != $field) {
+                $field = $key . ',' . $field;
+            }
+
+            if (is_string($field)) {
+                $field = array_map('trim', explode(',', $field));
+            }
+
+            $options['field'] = $field;
+
+            // 生成查询SQL
+            list($sql, $bind) = $this->builder->select($options);
+
+            if ($options['fetch_sql']) {
+                // 获取实际执行的SQL语句
+                return $this->getRealSql($sql, $bind);
+            }
+
+            // 执行查询操作
+            $pdo = $this->query($sql, $bind, $options['master'], true);
+
+            if (1 == $pdo->columnCount()) {
+                $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
+            } else {
+                $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
+
+                if ('*' == $field && $key) {
+                    $result = array_column($resultSet, null, $key);
+                } elseif ($resultSet) {
+                    $fields = array_keys($resultSet[0]);
+                    $count  = count($fields);
+                    $key1   = array_shift($fields);
+                    $key2   = $fields ? array_shift($fields) : '';
+                    $key    = $key ?: $key1;
+
+                    if (strpos($key, '.')) {
+                        list($alias, $key) = explode('.', $key);
+                    }
+
+                    if (2 == $count) {
+                        $column = $key2;
+                    } elseif (1 == $count) {
+                        $column = $key1;
+                    } else {
+                        $column = null;
+                    }
+
+                    $result = array_column($resultSet, $column, $key);
+                } else {
+                    $result = [];
+                }
+            }
+            if (isset($cache) && isset($guid)) {
+                // 缓存数据
+                $this->cacheData($guid, $result, $cache);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 执行查询但只返回PDOStatement对象
+     * @access public
+     * @return \PDOStatement|string
+     */
+    public function pdo(Query $query)
+    {
+        // 分析查询表达式
+        $options = $this->parseOptions($query);
+
+        // 生成查询SQL
+        list($sql, $bind) = $this->builder->select($options);
+
+        if ($options['fetch_sql']) {
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql, $bind);
+        }
+
+        // 执行查询操作
+        return $this->query($sql, $bind, $options['master'], true);
     }
 
     /**
@@ -806,7 +1379,7 @@ abstract class Connection
      */
     public function getQueryTimes($execute = false)
     {
-        return $execute ? Db::$queryTimes + Db::$executeTimes : Db::$queryTimes;
+        return $execute ? Query::$queryTimes + Query::$executeTimes : Query::$queryTimes;
     }
 
     /**
@@ -816,7 +1389,7 @@ abstract class Connection
      */
     public function getExecuteTimes()
     {
-        return Db::$executeTimes;
+        return Query::$executeTimes;
     }
 
     /**
@@ -940,7 +1513,7 @@ abstract class Connection
                 }
 
                 // SQL监听
-                $this->trigger($sql, $runtime, $result);
+                $this->triggerSql($sql, $runtime, $result);
             }
         }
     }
@@ -964,7 +1537,7 @@ abstract class Connection
      * @param mixed     $explain SQL分析
      * @return bool
      */
-    protected function trigger($sql, $runtime, $explain = [])
+    protected function triggerSql($sql, $runtime, $explain = [])
     {
         if (!empty(self::$event)) {
             foreach (self::$event as $callback) {
@@ -986,6 +1559,7 @@ abstract class Connection
     {
         $this->config['debug'] && Facade::make('log')->record($log, $type);
     }
+
     /**
      * 初始化数据库连接
      * @access protected
@@ -1080,5 +1654,151 @@ abstract class Connection
 
         // 关闭连接
         $this->close();
+    }
+
+    /**
+     * 缓存数据
+     * @access public
+     * @param string    $key    缓存标识
+     * @param mixed     $data   缓存数据
+     * @param array     $config 缓存参数
+     */
+    protected function cacheData($key, $data, $config = [])
+    {
+        $cache = Facade::make('cache');
+
+        if (isset($config['tag'])) {
+            $cache->tag($config['tag'])->set($key, $data, $config['expire']);
+        } else {
+            $cache->set($key, $data, $config['expire']);
+        }
+    }
+
+    /**
+     * 生成缓存标识
+     * @access public
+     * @param mixed     $value   缓存数据
+     * @param array     $options 缓存参数
+     */
+    protected function getCacheKey($value, $options)
+    {
+        if (is_scalar($value)) {
+            $data = $value;
+        } elseif (is_array($value) && 'eq' == strtolower($value[0])) {
+            $data = $value[1];
+        }
+
+        if (isset($data)) {
+            return 'think:' . $options['table'] . '|' . $data;
+        } else {
+            return md5(serialize($options));
+        }
+    }
+
+    /**
+     * 分析表达式（可用于查询或者写入操作）
+     * @access protected
+     * @param Query     $query   查询对象
+     * @return array
+     */
+    protected function parseOptions($query)
+    {
+        $options = $query->getOptions();
+
+        // 获取数据表
+        if (empty($options['table'])) {
+            $options['table'] = $this->query->getTable();
+        }
+
+        if (!isset($options['where'])) {
+            $options['where'] = [];
+        } elseif (isset($options['view'])) {
+            // 视图查询条件处理
+            $this->parseView($options);
+        }
+
+        if (!isset($options['field'])) {
+            $options['field'] = '*';
+        }
+
+        if (!isset($options['data'])) {
+            $options['data'] = [];
+        }
+
+        if (!isset($options['strict'])) {
+            $options['strict'] = $this->getConfig('fields_strict');
+        }
+
+        foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {
+            if (!isset($options[$name])) {
+                $options[$name] = false;
+            }
+        }
+
+        foreach (['join', 'union', 'group', 'having', 'limit', 'order', 'force', 'comment'] as $name) {
+            if (!isset($options[$name])) {
+                $options[$name] = '';
+            }
+        }
+
+        if (isset($options['page'])) {
+            // 根据页数计算limit
+            list($page, $listRows) = $options['page'];
+            $page                  = $page > 0 ? $page : 1;
+            $listRows              = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset                = $listRows * ($page - 1);
+            $options['limit']      = $offset . ',' . $listRows;
+        }
+
+        return $options;
+    }
+
+    /**
+     * 把主键值转换为查询条件 支持复合主键
+     * @access public
+     * @param array|string $data    主键数据
+     * @param mixed        $options 表达式参数
+     * @return void
+     * @throws Exception
+     */
+    protected function parsePkWhere($data, &$options)
+    {
+        $pk = $this->query->getPk($options);
+        // 获取当前数据表
+        $table = is_array($options['table']) ? key($options['table']) : $options['table'];
+
+        if (!empty($options['alias'][$table])) {
+            $alias = $options['alias'][$table];
+        }
+
+        if (is_string($pk)) {
+            $key = isset($alias) ? $alias . '.' . $pk : $pk;
+            // 根据主键查询
+            if (is_array($data)) {
+                $where[$key] = isset($data[$pk]) ? $data[$pk] : ['in', $data];
+            } else {
+                $where[$key] = strpos($data, ',') ? ['IN', $data] : $data;
+            }
+        } elseif (is_array($pk) && is_array($data) && !empty($data)) {
+            // 根据复合主键查询
+            foreach ($pk as $key) {
+                if (isset($data[$key])) {
+                    $attr         = isset($alias) ? $alias . '.' . $key : $key;
+                    $where[$attr] = $data[$key];
+                } else {
+                    throw new Exception('miss complex primary data');
+                }
+            }
+        }
+
+        if (!empty($where)) {
+            if (isset($options['where']['AND'])) {
+                $options['where']['AND'] = array_merge($options['where']['AND'], $where);
+            } else {
+                $options['where']['AND'] = $where;
+            }
+        }
+
+        return;
     }
 }

@@ -12,6 +12,7 @@
 namespace think\db;
 
 use PDO;
+use think\Db as Query;
 use think\Exception;
 
 abstract class Builder
@@ -42,10 +43,9 @@ abstract class Builder
      * @param Connection    $connection 数据库连接对象实例
      * @param Query         $query      数据库查询对象实例
      */
-    public function __construct(Connection $connection, Query $query)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->query      = $query;
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class Builder
      */
     public function getQuery()
     {
-        return $this->query;
+        return $this->connection->getQuery();
     }
 
     /**
@@ -76,7 +76,7 @@ abstract class Builder
      */
     protected function parseSqlTable($sql)
     {
-        return $this->query->parseSqlTable($sql);
+        return $this->getQuery()->parseSqlTable($sql);
     }
 
     /**
@@ -93,7 +93,7 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $this->query->getFieldsBind($options);
+        $bind = $this->getQuery()->getFieldsBind($options);
 
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
@@ -121,11 +121,11 @@ abstract class Builder
                 $result[$item] = $val;
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
-                if (0 === strpos($val, ':') && $this->query->isBind(substr($val, 1))) {
+                if (0 === strpos($val, ':') && $this->getQuery()->isBind(substr($val, 1))) {
                     $result[$item] = $val;
                 } else {
                     $key = str_replace('.', '_', $key);
-                    $this->query->bind('__data__' . $key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
+                    $this->getQuery()->bind('__data__' . $key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
                     $result[$item] = ':__data__' . $key;
                 }
             }
@@ -177,7 +177,7 @@ abstract class Builder
     protected function parseValue($value, $field = '')
     {
         if (is_string($value)) {
-            $value = strpos($value, ':') === 0 && $this->query->isBind(substr($value, 1)) ? $value : $this->connection->quote($value);
+            $value = strpos($value, ':') === 0 && $this->getQuery()->isBind(substr($value, 1)) ? $value : $this->connection->quote($value);
         } elseif (is_array($value)) {
             $value = array_map([$this, 'parseValue'], $value);
         } elseif (is_bool($value)) {
@@ -266,7 +266,7 @@ abstract class Builder
             // 附加软删除条件
             list($field, $condition) = $options['soft_delete'];
 
-            $binds    = $this->query->getFieldsBind($options);
+            $binds    = $this->getQuery()->getFieldsBind($options);
             $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
             $whereStr = $whereStr . $this->parseWhereItem($field, $condition, '', $options, $binds);
         }
@@ -292,7 +292,7 @@ abstract class Builder
         }
 
         $whereStr = '';
-        $binds    = $this->query->getFieldsBind($options);
+        $binds    = $this->getQuery()->getFieldsBind($options);
 
         foreach ($where as $key => $val) {
             $str = [];
@@ -392,12 +392,12 @@ abstract class Builder
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
 
         if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
-            if (strpos($value, ':') !== 0 || !$this->query->isBind(substr($value, 1))) {
-                if ($this->query->isBind($bindName)) {
+            if (strpos($value, ':') !== 0 || !$this->getQuery()->isBind(substr($value, 1))) {
+                if ($this->getQuery()->isBind($bindName)) {
                     $bindName .= '_' . str_replace('.', '_', uniqid('', true));
                 }
 
-                $this->query->bind($bindName, $value, $bindType);
+                $this->getQuery()->bind($bindName, $value, $bindType);
                 $value = ':' . $bindName;
             }
         }
@@ -435,7 +435,7 @@ abstract class Builder
                     $array = [];
 
                     foreach ($value as $k => $v) {
-                        if ($this->query->isBind($bindName . '_in_' . $k)) {
+                        if ($this->getQuery()->isBind($bindName . '_in_' . $k)) {
                             $bindKey = $bindName . '_in_' . uniqid() . '_' . $k;
                         } else {
                             $bindKey = $bindName . '_in_' . $k;
@@ -444,7 +444,7 @@ abstract class Builder
                         $array[]        = ':' . $bindKey;
                     }
 
-                    $this->query->bind($bind);
+                    $this->getQuery()->bind($bind);
                     $zone = implode(',', $array);
                 } else {
                     $zone = implode(',', $this->parseValue($value, $field));
@@ -457,7 +457,7 @@ abstract class Builder
             $data = is_array($value) ? $value : explode(',', $value);
 
             if (array_key_exists($field, $binds)) {
-                if ($this->query->isBind($bindName . '_between_1')) {
+                if ($this->getQuery()->isBind($bindName . '_between_1')) {
                     $bindKey1 = $bindName . '_between_1' . uniqid();
                     $bindKey2 = $bindName . '_between_2' . uniqid();
                 } else {
@@ -470,7 +470,7 @@ abstract class Builder
                     $bindKey2 => [$data[1], $bindType],
                 ];
 
-                $this->query->bind($bind);
+                $this->getQuery()->bind($bind);
 
                 $between = ':' . $bindKey1 . ' AND :' . $bindKey2;
             } else {
@@ -530,7 +530,7 @@ abstract class Builder
             $table = $options['table'];
         }
 
-        $type = $this->query->getTableInfo($table, 'type');
+        $type = $this->getQuery()->getTableInfo($table, 'type');
 
         if (isset($type[$key])) {
             $info = $type[$key];
@@ -552,7 +552,7 @@ abstract class Builder
 
         $bindName = $bindName ?: $key;
 
-        $this->query->bind($bindName, $value, $bindType);
+        $this->getQuery()->bind($bindName, $value, $bindType);
 
         return ':' . $bindName;
     }
@@ -737,10 +737,10 @@ abstract class Builder
     }
 
     /**
-     * 生成查询SQL
+     * 生成查询SQL和参数绑定
      * @access public
      * @param array $options 表达式
-     * @return string
+     * @return array
      */
     public function select($options = [])
     {
@@ -762,16 +762,16 @@ abstract class Builder
                 $this->parseForce($options['force']),
             ], $this->selectSql);
 
-        return $sql;
+        return [$sql, $this->getQuery()->getBind()];
     }
 
     /**
-     * 生成insert SQL
+     * 生成Insert SQL和参数绑定
      * @access public
      * @param array     $data 数据
      * @param array     $options 表达式
      * @param bool      $replace 是否replace
-     * @return string
+     * @return array
      */
     public function insert(array $data, $options = [], $replace = false)
     {
@@ -794,21 +794,21 @@ abstract class Builder
                 $this->parseComment($options['comment']),
             ], $this->insertSql);
 
-        return $sql;
+        return [$sql, $this->getQuery()->getBind()];
     }
 
     /**
-     * 生成insertall SQL
+     * 生成insertall SQL和参数绑定
      * @access public
      * @param array     $dataSet 数据集
      * @param array     $options 表达式
-     * @return string
+     * @return array
      */
     public function insertAll($dataSet, $options)
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $fields = array_keys($this->query->getFieldsType($options));
+            $fields = array_keys($this->getQuery()->getFieldsType($options));
         } else {
             $fields = $options['field'];
         }
@@ -848,16 +848,16 @@ abstract class Builder
                 $this->parseComment($options['comment']),
             ], $this->insertAllSql);
 
-        return $sql;
+        return [$sql, $this->getQuery()->getBind()];
     }
 
     /**
-     * 生成slectinsert SQL
+     * 生成slectinsert SQL 和参数绑定
      * @access public
      * @param array     $fields 数据
      * @param string    $table 数据表
      * @param array     $options 表达式
-     * @return string
+     * @return array
      */
     public function selectInsert($fields, $table, $options)
     {
@@ -868,15 +868,15 @@ abstract class Builder
         $fields = array_map([$this, 'parseKey'], $fields);
         $sql    = 'INSERT INTO ' . $this->parseTable($table, $options) . ' (' . implode(',', $fields) . ') ' . $this->select($options);
 
-        return $sql;
+        return [$sql, $this->getQuery()->getBind()];
     }
 
     /**
-     * 生成update SQL
+     * 生成update SQL和参数绑定
      * @access public
      * @param array     $fields 数据
      * @param array     $options 表达式
-     * @return string
+     * @return array
      */
     public function update($data, $options)
     {
@@ -904,14 +904,14 @@ abstract class Builder
                 $this->parseComment($options['comment']),
             ], $this->updateSql);
 
-        return $sql;
+        return [$sql, $this->getQuery()->getBind()];
     }
 
     /**
-     * 生成delete SQL
+     * 生成delete SQL和参数绑定
      * @access public
      * @param array $options 表达式
-     * @return string
+     * @return array
      */
     public function delete($options)
     {
@@ -928,6 +928,6 @@ abstract class Builder
                 $this->parseComment($options['comment']),
             ], $this->deleteSql);
 
-        return $sql;
+        return [$sql, $this->getQuery()->getBind()];
     }
 }

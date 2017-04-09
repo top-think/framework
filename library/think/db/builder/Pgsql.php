@@ -61,7 +61,7 @@ class Pgsql extends Builder
             if (isset($options['alias'][$table])) {
                 $table = $options['alias'][$table];
             } elseif ('__TABLE__' == $table) {
-                $table = $this->query->getTable();
+                $table = $this->getQuery()->getTable();
             }
         }
 

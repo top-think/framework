@@ -2,7 +2,7 @@
 
 namespace think\model\concern;
 
-use think\db\Query;
+use think\Db as Query;
 
 /**
  * 数据软删除
@@ -19,7 +19,7 @@ trait SoftDelete
     {
         $field = $this->getDeleteTimeField();
 
-        if (!empty($this->data[$field])) {
+        if (!empty($this->getOrigin($field))) {
             return true;
         }
 
@@ -69,10 +69,10 @@ trait SoftDelete
 
         if (!$force) {
             // 软删除
-            $this->data[$name] = $this->autoWriteTimestamp($name);
-            $result            = $this->isUpdate()->save();
+            $this->data($name, $this->autoWriteTimestamp($name));
+            $result = $this->isUpdate()->save();
         } else {
-            $result = $this->getQuery()->delete($this->data);
+            $result = $this->getQuery()->delete($this->getData());
         }
 
         $this->trigger('after_delete', $this);
