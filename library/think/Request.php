@@ -802,12 +802,26 @@ class Request
     public function cookie($name = '', $default = null, $filter = '')
     {
         if (empty($this->cookie)) {
-            $this->cookie = $_COOKIE;
+            $this->cookie = Cookie::get();
         }
         if (is_array($name)) {
             return $this->cookie = array_merge($this->cookie, $name);
+        } elseif (!empty($name)) {
+            $data = Cookie::has($name) ? Cookie::get($name) : $default;
+        } else {
+            $data = $this->cookie;
         }
-        return $this->input($this->cookie, $name, $default, $filter);
+
+        // 解析过滤器
+        $filter = $this->getFilter($filter, $default);
+
+        if (is_array($data)) {
+            array_walk_recursive($data, [$this, 'filterValue'], $filter);
+            reset($data);
+        } else {
+            $this->filterValue($data, $name, $filter);
+        }
+        return $data;
     }
 
     /**
@@ -984,18 +998,8 @@ class Request
         }
 
         // 解析过滤器
-        if (is_null($filter)) {
-            $filter = [];
-        } else {
-            $filter = $filter ?: $this->filter;
-            if (is_string($filter)) {
-                $filter = explode(',', $filter);
-            } else {
-                $filter = (array) $filter;
-            }
-        }
+        $filter = $this->getFilter($filter, $default);
 
-        $filter[] = $default;
         if (is_array($data)) {
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
             reset($data);
@@ -1022,6 +1026,23 @@ class Request
         } else {
             $this->filter = $filter;
         }
+    }
+
+    protected function getFilter($filter, $default)
+    {
+        if (is_null($filter)) {
+            $filter = [];
+        } else {
+            $filter = $filter ?: $this->filter;
+            if (is_string($filter)) {
+                $filter = explode(',', $filter);
+            } else {
+                $filter = (array) $filter;
+            }
+        }
+
+        $filter[] = $default;
+        return $filter;
     }
 
     /**
@@ -1527,13 +1548,13 @@ class Request
                     }
                 }
                 // 自动缓存功能
-                $key = md5($this->host()) . '__URL__';
+                $key = '__URL__';
             } elseif (strpos($key, '|')) {
                 list($key, $fun) = explode('|', $key);
             }
             // 特殊规则替换
             if (false !== strpos($key, '__')) {
-                $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__', ''], [$this->module, $this->controller, $this->action, md5($this->url())], $key);
+                $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__', ''], [$this->module, $this->controller, $this->action, md5($this->url(true))], $key);
             }
 
             if (false !== strpos($key, ':')) {

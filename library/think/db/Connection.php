@@ -137,18 +137,31 @@ abstract class Connection
     }
 
     /**
+     * 指定当前使用的查询对象
+     * @access public
+     * @param Query $query 查询对象
+     * @return $this
+     */
+    public function setQuery($query, $model = 'db')
+    {
+        $this->query[$model] = $query;
+
+        return $this;
+    }
+
+    /**
      * 创建指定模型的查询对象
      * @access public
-     * @param string $model 模型类名称
-     * @param string $queryClass 查询对象类名
      * @return Query
      */
-    public function getQuery($model = 'db', $queryClass = '')
+    public function getQuery($model = 'db')
     {
         if (!isset($this->query[$model])) {
-            $class               = $queryClass ?: $this->config['query'];
+            $class = $this->config['query'];
+
             $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
         }
+
         return $this->query[$model];
     }
 
@@ -340,13 +353,9 @@ abstract class Connection
     /**
      * 执行查询 返回数据集
      * @access public
-     * @param string    $sql sql指令
-     * @param array     $bind 参数绑定
-     * @param bool      $master 是否在主服务器读操作
-     * @param bool      $class 是否返回PDO对象
      * @param string        $sql sql指令
      * @param array         $bind 参数绑定
-     * @param boolean       $master 是否在主服务器读操作
+     * @param bool          $master 是否在主服务器读操作
      * @param bool          $pdo 是否返回PDO对象
      * @return mixed
      * @throws BindParamException

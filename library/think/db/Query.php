@@ -451,7 +451,9 @@ class Query
             if (isset($this->options['field'])) {
                 unset($this->options['field']);
             }
-            if ($key && '*' != $field) {
+            if (is_null($field)) {
+                $field = '*';
+            } elseif ($key && '*' != $field) {
                 $field = $key . ',' . $field;
             }
             $pdo = $this->field($field)->getPdo();
@@ -649,16 +651,16 @@ class Query
         if (!Cache::has($guid . '_time')) {
             // 计时开始
             Cache::set($guid . '_time', $_SERVER['REQUEST_TIME'], 0);
-            Cache::$type($guid, $step, 0);
+            Cache::$type($guid, $step);
         } elseif ($_SERVER['REQUEST_TIME'] > Cache::get($guid . '_time') + $lazyTime) {
             // 删除缓存
-            $value = Cache::$type($guid, $step, 0);
+            $value = Cache::$type($guid, $step);
             Cache::rm($guid);
             Cache::rm($guid . '_time');
             return 0 === $value ? false : $value;
         } else {
             // 更新缓存
-            Cache::$type($guid, $step, 0);
+            Cache::$type($guid, $step);
         }
         return false;
     }
@@ -1118,6 +1120,20 @@ class Query
     {
         $this->parseWhereExp($logic, $field, 'exp', $condition);
         return $this;
+    }
+
+    /**
+     * 设置软删除字段及条件
+     * @access public
+     * @param false|string  $field     查询字段
+     * @param mixed         $condition 查询条件
+     * @return $this
+     */
+    public function useSoftDelete($field, $condition = null)
+    {
+        if ($field) {
+            $this->options['soft_delete'] = [$field, $condition ?: ['null', '']];
+        }
     }
 
     /**
@@ -1895,7 +1911,7 @@ class Query
             $relation = Loader::parseName($relation, 1, false);
             $model    = $class->$relation();
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
-                $model->removeOption()->eagerly($this, $relation, $subRelation, $closure, $first);
+                $model->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
             } elseif ($closure) {
                 $with[$key] = $closure;

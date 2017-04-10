@@ -85,14 +85,14 @@ class App
 
             $request->filter($config['default_filter']);
 
+            // 默认语言
+            Lang::range($config['default_lang']);
             if ($config['lang_switch_on']) {
                 // 开启多语言机制 检测当前语言
                 Lang::detect();
-            } else {
-                // 读取默认语言
-                Lang::range($config['default_lang']);
             }
             $request->langset(Lang::range());
+
             // 加载系统语言包
             Lang::load([
                 THINK_PATH . 'lang' . DS . $request->langset() . EXT,
@@ -120,35 +120,7 @@ class App
             // 请求缓存检查
             $request->cache($config['request_cache'], $config['request_cache_expire'], $config['request_cache_except']);
 
-            switch ($dispatch['type']) {
-                case 'redirect':
-                    // 执行重定向跳转
-                    $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
-                    break;
-                case 'module':
-                    // 模块/控制器/操作
-                    $data = self::module($dispatch['module'], $config, isset($dispatch['convert']) ? $dispatch['convert'] : null);
-                    break;
-                case 'controller':
-                    // 执行控制器操作
-                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
-                    $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
-                    break;
-                case 'method':
-                    // 执行回调方法
-                    $vars = array_merge(Request::instance()->param(), $dispatch['var']);
-                    $data = self::invokeMethod($dispatch['method'], $vars);
-                    break;
-                case 'function':
-                    // 执行闭包
-                    $data = self::invokeFunction($dispatch['function']);
-                    break;
-                case 'response':
-                    $data = $dispatch['response'];
-                    break;
-                default:
-                    throw new \InvalidArgumentException('dispatch type not support');
-            }
+            $data = self::exec($dispatch, $config);
         } catch (HttpResponseException $exception) {
             $data = $exception->getResponse();
         }
@@ -245,7 +217,7 @@ class App
 
     /**
      * 绑定参数
-     * @access public
+     * @access private
      * @param \ReflectionMethod|\ReflectionFunction $reflect 反射类
      * @param array                                 $vars    变量
      * @return array
@@ -261,41 +233,88 @@ class App
             }
         }
         $args = [];
-        // 判断数组类型 数字数组时按顺序绑定参数
-        reset($vars);
-        $type = key($vars) === 0 ? 1 : 0;
         if ($reflect->getNumberOfParameters() > 0) {
+            // 判断数组类型 数字数组时按顺序绑定参数
+            reset($vars);
+            $type   = key($vars) === 0 ? 1 : 0;
             $params = $reflect->getParameters();
             foreach ($params as $param) {
-                $name  = $param->getName();
-                $class = $param->getClass();
-                if ($class) {
-                    $className = $class->getName();
-                    $bind      = Request::instance()->$name;
-                    if ($bind instanceof $className) {
-                        $args[] = $bind;
-                    } else {
-                        if (method_exists($className, 'invoke')) {
-                            $method = new \ReflectionMethod($className, 'invoke');
-                            if ($method->isPublic() && $method->isStatic()) {
-                                $args[] = $className::invoke(Request::instance());
-                                continue;
-                            }
-                        }
-                        $args[] = method_exists($className, 'instance') ? $className::instance() : new $className;
-                    }
-                } elseif (1 == $type && !empty($vars)) {
-                    $args[] = array_shift($vars);
-                } elseif (0 == $type && isset($vars[$name])) {
-                    $args[] = $vars[$name];
-                } elseif ($param->isDefaultValueAvailable()) {
-                    $args[] = $param->getDefaultValue();
-                } else {
-                    throw new \InvalidArgumentException('method param miss:' . $name);
-                }
+                $args[] = self::getParamValue($param, $vars, $type);
             }
         }
         return $args;
+    }
+
+    /**
+     * 获取参数值
+     * @access private
+     * @param \ReflectionParameter  $param
+     * @param array                 $vars    变量
+     * @param string                $type
+     * @return array
+     */
+    private static function getParamValue($param, &$vars, $type)
+    {
+        $name  = $param->getName();
+        $class = $param->getClass();
+        if ($class) {
+            $className = $class->getName();
+            $bind      = Request::instance()->$name;
+            if ($bind instanceof $className) {
+                $result = $bind;
+            } else {
+                if (method_exists($className, 'invoke')) {
+                    $method = new \ReflectionMethod($className, 'invoke');
+                    if ($method->isPublic() && $method->isStatic()) {
+                        return $className::invoke(Request::instance());
+                    }
+                }
+                $result = method_exists($className, 'instance') ? $className::instance() : new $className;
+            }
+        } elseif (1 == $type && !empty($vars)) {
+            $result = array_shift($vars);
+        } elseif (0 == $type && isset($vars[$name])) {
+            $result = $vars[$name];
+        } elseif ($param->isDefaultValueAvailable()) {
+            $result = $param->getDefaultValue();
+        } else {
+            throw new \InvalidArgumentException('method param miss:' . $name);
+        }
+        return $result;
+    }
+
+    protected static function exec($dispatch, $config)
+    {
+        switch ($dispatch['type']) {
+            case 'redirect':
+                // 执行重定向跳转
+                $data = Response::create($dispatch['url'], 'redirect')->code($dispatch['status']);
+                break;
+            case 'module':
+                // 模块/控制器/操作
+                $data = self::module($dispatch['module'], $config, isset($dispatch['convert']) ? $dispatch['convert'] : null);
+                break;
+            case 'controller':
+                // 执行控制器操作
+                $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                $data = Loader::action($dispatch['controller'], $vars, $config['url_controller_layer'], $config['controller_suffix']);
+                break;
+            case 'method':
+                // 执行回调方法
+                $vars = array_merge(Request::instance()->param(), $dispatch['var']);
+                $data = self::invokeMethod($dispatch['method'], $vars);
+                break;
+            case 'function':
+                // 执行闭包
+                $data = self::invokeFunction($dispatch['function']);
+                break;
+            case 'response':
+                $data = $dispatch['response'];
+                break;
+            default:
+                throw new \InvalidArgumentException('dispatch type not support');
+        }
+        return $data;
     }
 
     /**

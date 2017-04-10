@@ -257,10 +257,10 @@ class routeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['index', 'blog', 'test'], $result['module']);
 
         Route::bind('\app\index\controller', 'namespace');
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read']], Route::check($request, 'blog/read'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read'], 'var' => []], Route::check($request, 'blog/read'));
 
         Route::bind('\app\index\controller\Blog', 'class');
-        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read']], Route::check($request, 'read'));
+        $this->assertEquals(['type' => 'method', 'method' => ['\app\index\controller\Blog', 'read'], 'var' => []], Route::check($request, 'read'));
     }
 
     public function testDomain()

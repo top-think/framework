@@ -190,7 +190,7 @@ class TagLib
      * @param  boolean          $close 是否为闭合标签
      * @return string
      */
-    private function getRegex($tags, $close)
+    public function getRegex($tags, $close)
     {
         $begin   = $this->tpl->config('taglib_begin');
         $end     = $this->tpl->config('taglib_end');

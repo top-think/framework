@@ -240,7 +240,7 @@ EOF;
 <#\$info.a|default='test'?'yes':'no'#>
 EOF;
         $data = <<<EOF
-<?php echo ((is_array(\$info)?\$info['a']:\$info->a) !== ''?(is_array(\$info)?\$info['a']:\$info->a):'test')?'yes':'no'; ?>
+<?php echo ((is_array(\$info)?\$info['a']:\$info->a) ?: 'test')?'yes':'no'; ?>
 EOF;
         $template->parse($content);
         $this->assertEquals($data, $content);

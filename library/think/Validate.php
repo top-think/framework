@@ -456,11 +456,13 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function egt($value, $rule)
+    protected function egt($value, $rule, $data)
     {
-        return $value >= $rule;
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value >= $val;
     }
 
     /**
@@ -468,11 +470,13 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function gt($value, $rule)
+    protected function gt($value, $rule, $data)
     {
-        return $value > $rule;
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value > $val;
     }
 
     /**
@@ -480,11 +484,13 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function elt($value, $rule)
+    protected function elt($value, $rule, $data)
     {
-        return $value <= $rule;
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value <= $val;
     }
 
     /**
@@ -492,11 +498,13 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function lt($value, $rule)
+    protected function lt($value, $rule, $data)
     {
-        return $value < $rule;
+        $val = $this->getDataValue($data, $rule);
+        return !is_null($val) && $value < $val;
     }
 
     /**
@@ -1180,8 +1188,8 @@ class Validate
     /**
      * 获取数据值
      * @access protected
-     * @param array     $data  数据
-     * @param string    $key  数据标识 支持二维
+     * @param array $data 数据
+     * @param string $key 数据标识 支持二维
      * @return mixed
      */
     protected function getDataValue($data, $key)
@@ -1191,7 +1199,7 @@ class Validate
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
-            $value = isset($data[$key]) ? $data[$key] : null;
+            $value = is_numeric($key) ? $key : (isset($data[$key]) ? $data[$key] : null);
         }
         return $value;
     }
