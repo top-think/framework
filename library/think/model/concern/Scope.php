@@ -11,7 +11,7 @@
 
 namespace think\model\concern;
 
-use think\Db as Query;
+use think\db\Query;
 
 /**
  * 查询范围
@@ -70,7 +70,7 @@ trait Scope
 
     public function __call($method, $args)
     {
-        $query = $this->db(true, false);
+        $query = $this->db();
 
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围

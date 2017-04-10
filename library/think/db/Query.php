@@ -1735,6 +1735,25 @@ class Query
     }
 
     /**
+     * 添加查询范围
+     * @access public
+     * @param \Closure  $scope 闭包
+     * @param array     $args  参数
+     * @return $this
+     */
+    public function scope($scope, $args = [])
+    {
+        if ($scope instanceof Query) {
+            return $scope;
+        }
+
+        array_unshift($args, $this);
+        call_user_func_array($scope, $args);
+
+        return $this;
+    }
+
+    /**
      * 指定数据表主键
      * @access public
      * @param string $pk 主键
