@@ -61,8 +61,8 @@ abstract class Builder
     /**
      * 数据分析
      * @access protected
+     * @param Query     $query        查询对象
      * @param array     $data 数据
-     * @param array     $options 查询参数
      * @return array
      */
     protected function parseData($query, $data = [])
@@ -138,8 +138,8 @@ abstract class Builder
     /**
      * 字段名分析
      * @access protected
+     * @param Query  $query        查询对象
      * @param string $key
-     * @param array  $options
      * @return string
      */
     protected function parseKey($query, $key)
@@ -150,6 +150,7 @@ abstract class Builder
     /**
      * value分析
      * @access protected
+     * @param Query     $query        查询对象
      * @param mixed     $value
      * @param string    $field
      * @return string|array
@@ -170,8 +171,8 @@ abstract class Builder
     /**
      * field分析
      * @access protected
+     * @param Query     $query        查询对象
      * @param mixed     $fields
-     * @param array     $options
      * @return string
      */
     protected function parseField($query, $fields)
@@ -199,8 +200,8 @@ abstract class Builder
     /**
      * table分析
      * @access protected
-     * @param mixed $tables
-     * @param array $options
+     * @param Query     $query        查询对象
+     * @param mixed     $tables
      * @return string
      */
     protected function parseTable($query, $tables)
@@ -232,8 +233,8 @@ abstract class Builder
     /**
      * where分析
      * @access protected
-     * @param mixed $where   查询条件
-     * @param array $options 查询参数
+     * @param Query     $query        查询对象
+     * @param mixed     $where   查询条件
      * @return string
      */
     protected function parseWhere($query, $where)
@@ -256,6 +257,7 @@ abstract class Builder
     /**
      * 生成查询条件SQL
      * @access public
+     * @param Query     $query        查询对象
      * @param mixed     $where
      * @param array     $options
      * @return string
@@ -489,6 +491,7 @@ abstract class Builder
     /**
      * 日期时间条件解析
      * @access protected
+     * @param Query     $query        查询对象
      * @param string    $value
      * @param string    $key
      * @param array     $options
@@ -539,7 +542,8 @@ abstract class Builder
     /**
      * limit分析
      * @access protected
-     * @param mixed $lmit
+     * @param Query     $query        查询对象
+     * @param mixed     $lmit
      * @return string
      */
     protected function parseLimit($query, $limit)
@@ -550,8 +554,8 @@ abstract class Builder
     /**
      * join分析
      * @access protected
-     * @param array $join
-     * @param array $options 查询条件
+     * @param Query     $query        查询对象
+     * @param array     $join
      * @return string
      */
     protected function parseJoin($query, $join)
@@ -585,8 +589,8 @@ abstract class Builder
     /**
      * order分析
      * @access protected
-     * @param mixed $order
-     * @param array $options 查询条件
+     * @param Query     $query        查询对象
+     * @param mixed     $order
      * @return string
      */
     protected function parseOrder($query, $order)
@@ -618,7 +622,8 @@ abstract class Builder
     /**
      * group分析
      * @access protected
-     * @param mixed $group
+     * @param Query     $query        查询对象
+     * @param mixed     $group
      * @return string
      */
     protected function parseGroup($query, $group)
@@ -629,6 +634,7 @@ abstract class Builder
     /**
      * having分析
      * @access protected
+     * @param Query  $query        查询对象
      * @param string $having
      * @return string
      */
@@ -640,6 +646,7 @@ abstract class Builder
     /**
      * comment分析
      * @access protected
+     * @param Query  $query        查询对象
      * @param string $comment
      * @return string
      */
@@ -651,7 +658,8 @@ abstract class Builder
     /**
      * distinct分析
      * @access protected
-     * @param mixed $distinct
+     * @param Query     $query        查询对象
+     * @param mixed     $distinct
      * @return string
      */
     protected function parseDistinct($query, $distinct)
@@ -662,7 +670,8 @@ abstract class Builder
     /**
      * union分析
      * @access protected
-     * @param mixed $union
+     * @param Query     $query        查询对象
+     * @param mixed     $union
      * @return string
      */
     protected function parseUnion($query, $union)
@@ -688,7 +697,8 @@ abstract class Builder
     /**
      * index分析，可在操作链中指定需要强制使用的索引
      * @access protected
-     * @param mixed $index
+     * @param Query     $query        查询对象
+     * @param mixed     $index
      * @return string
      */
     protected function parseForce($query, $index)
@@ -707,7 +717,8 @@ abstract class Builder
     /**
      * 设置锁机制
      * @access protected
-     * @param bool $locl
+     * @param Query     $query        查询对象
+     * @param bool      $locl
      * @return string
      */
     protected function parseLock($query, $lock = false)
@@ -718,7 +729,7 @@ abstract class Builder
     /**
      * 生成查询SQL和参数绑定
      * @access public
-     * @param array $options 表达式
+     * @param Query  $query        查询对象
      * @return array
      */
     public function select(Query $query)
@@ -749,8 +760,7 @@ abstract class Builder
     /**
      * 生成Insert SQL和参数绑定
      * @access public
-     * @param array     $data 数据
-     * @param array     $options 表达式
+     * @param Query     $query        查询对象
      * @param bool      $replace 是否replace
      * @return array
      */
@@ -783,8 +793,8 @@ abstract class Builder
     /**
      * 生成insertall SQL和参数绑定
      * @access public
+     * @param Query     $query        查询对象
      * @param array     $dataSet 数据集
-     * @param array     $options 表达式
      * @return array
      */
     public function insertAll(Query $query, $dataSet)
@@ -841,9 +851,9 @@ abstract class Builder
     /**
      * 生成slectinsert SQL 和参数绑定
      * @access public
+     * @param Query     $query        查询对象
      * @param array     $fields 数据
      * @param string    $table 数据表
-     * @param array     $options 表达式
      * @return array
      */
     public function selectInsert(Query $query, $fields, $table)
@@ -866,8 +876,8 @@ abstract class Builder
     /**
      * 生成update SQL和参数绑定
      * @access public
+     * @param Query     $query        查询对象
      * @param array     $fields 数据
-     * @param array     $options 表达式
      * @return array
      */
     public function update(Query $query)
@@ -904,7 +914,7 @@ abstract class Builder
     /**
      * 生成delete SQL和参数绑定
      * @access public
-     * @param array $options 表达式
+     * @param Query  $query        查询对象
      * @return array
      */
     public function delete(Query $query)

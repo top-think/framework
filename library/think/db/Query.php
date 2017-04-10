@@ -2161,7 +2161,9 @@ class Query
     public function insert(array $data = [], $replace = false, $getLastInsID = false, $sequence = null)
     {
         $this->parseOptions();
+
         $this->options['data'] = array_merge($this->options['data'], $data);
+
         return $this->connection->insert($this, $replace, $getLastInsID, $sequence);
     }
 
@@ -2187,6 +2189,7 @@ class Query
     public function insertAll(array $dataSet)
     {
         $this->parseOptions();
+
         return $this->connection->insertAll($this, $dataSet);
     }
 
@@ -2201,6 +2204,7 @@ class Query
     public function selectInsert($fields, $table)
     {
         $this->parseOptions();
+
         return $this->connection->selectInsert($this, $fields, $table);
     }
 
@@ -2215,7 +2219,9 @@ class Query
     public function update(array $data = [])
     {
         $this->parseOptions();
+
         $this->options['data'] = array_merge($this->options['data'], $data);
+
         return $this->connection->update($this);
     }
 
@@ -2230,7 +2236,9 @@ class Query
     public function delete($data = null)
     {
         $this->parseOptions();
+
         $this->options['data'] = $data;
+
         return $this->connection->delete($this);
     }
 
@@ -2241,6 +2249,8 @@ class Query
      */
     public function getPdo()
     {
+        $this->parseOptions();
+
         return $this->connection->pdo($this);
     }
 
@@ -2267,7 +2277,7 @@ class Query
             $this->options['fetch_sql'] = true;
         } elseif (!is_null($data)) {
             // 主键条件分析
-            $this->parsePkWhere($data, $this->options);
+            $this->parsePkWhere($data);
         }
 
         $this->options['data'] = $data;
@@ -2327,7 +2337,7 @@ class Query
 
         if (!is_null($data)) {
             // AR模式分析主键条件
-            $this->parsePkWhere($data, $this->options);
+            $this->parsePkWhere($data);
         }
 
         $this->options['data'] = $data;
@@ -2553,18 +2563,18 @@ class Query
      * 把主键值转换为查询条件 支持复合主键
      * @access public
      * @param array|string $data    主键数据
-     * @param mixed        $options 表达式参数
      * @return void
      * @throws Exception
      */
-    public function parsePkWhere($data, &$options)
+    public function parsePkWhere($data)
     {
-        $pk = $this->getPk($options);
-        // 获取当前数据表
-        $table = is_array($options['table']) ? key($options['table']) : $options['table'];
+        $pk = $this->getPk($this->options);
 
-        if (!empty($options['alias'][$table])) {
-            $alias = $options['alias'][$table];
+        // 获取当前数据表
+        $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
+
+        if (!empty($this->options['alias'][$table])) {
+            $alias = $this->options['alias'][$table];
         }
 
         if (is_string($pk)) {
@@ -2588,10 +2598,10 @@ class Query
         }
 
         if (!empty($where)) {
-            if (isset($options['where']['AND'])) {
-                $options['where']['AND'] = array_merge($options['where']['AND'], $where);
+            if (isset($this->options['where']['AND'])) {
+                $this->options['where']['AND'] = array_merge($this->options['where']['AND'], $where);
             } else {
-                $options['where']['AND'] = $where;
+                $this->options['where']['AND'] = $where;
             }
         }
 

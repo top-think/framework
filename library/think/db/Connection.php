@@ -497,7 +497,6 @@ abstract class Connection
      * 查找单条记录
      * @access public
      * @param Query                         $query        查询对象
-     * @param array|string|Query|\Closure   $data
      * @return array|null|\PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
@@ -580,7 +579,6 @@ abstract class Connection
      * 查找记录
      * @access public
      * @param Query                         $query        查询对象
-     * @param array|string|Query|\Closure   $data
      * @return Collection|false|\PDOStatement|string
      * @throws DbException
      * @throws ModelNotFoundException
@@ -634,7 +632,6 @@ abstract class Connection
      * 插入记录
      * @access public
      * @param Query   $query        查询对象
-     * @param mixed   $data         数据
      * @param boolean $replace      是否replace
      * @param boolean $getLastInsID 返回自增主键
      * @param string  $sequence     自增序列名
@@ -737,7 +734,6 @@ abstract class Connection
      * 更新记录
      * @access public
      * @param Query     $query  查询对象
-     * @param mixed     $data   数据
      * @return integer|string
      * @throws Exception
      * @throws PDOException
@@ -820,6 +816,14 @@ abstract class Connection
         }
     }
 
+    /**
+     * 删除记录
+     * @access public
+     * @param Query $query 查询对象
+     * @return int
+     * @throws Exception
+     * @throws PDOException
+     */
     public function delete(Query $query)
     {
         // 分析查询表达式
@@ -837,7 +841,7 @@ abstract class Connection
             }
 
             // AR模式分析主键条件
-            $query->parsePkWhere($data, $options);
+            $query->parsePkWhere($data);
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
             $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
         }
@@ -877,15 +881,23 @@ abstract class Connection
 
             $options['data'] = $data;
 
-            $query->trigger('after_delete', $options);
+            $query->trigger('after_delete');
         }
 
         return $result;
     }
 
+    /**
+     * 得到某个字段的值
+     * @access public
+     * @param Query     $query 查询对象
+     * @param string    $field   字段名
+     * @param bool      $force   强制转为数字类型
+     * @return mixed
+     */
     public function value(Query $query, $field, $force = false)
     {
-        $options = $this->parseOptions($query);
+        $options = $query->getOptions();
         $result  = false;
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
@@ -897,17 +909,17 @@ abstract class Connection
 
         if (false === $result) {
             if (isset($options['field'])) {
-                unset($options['field']);
+                $query->removeOption('field');
             }
 
             if (is_string($field)) {
                 $field = array_map('trim', explode(',', $field));
             }
 
-            $options['field'] = $field;
-            $options['limit'] = 1;
+            $query->setOptions('field', $field);
+            $query->setOptions('limit', 1);
             // 生成查询SQL
-            list($sql, $bind) = $this->builder->select($query, $options);
+            list($sql, $bind) = $this->builder->select($query);
 
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
@@ -937,9 +949,17 @@ abstract class Connection
         return $result;
     }
 
+    /**
+     * 得到某个列的数组
+     * @access public
+     * @param Query     $query 查询对象
+     * @param string    $field 字段名 多个字段用逗号分隔
+     * @param string    $key   索引
+     * @return array
+     */
     public function column(Query $query, $field, $key = '')
     {
-        $options = $this->parseOptions($query);
+        $options = $query->getOptions();
 
         $result = false;
 
@@ -953,7 +973,7 @@ abstract class Connection
 
         if (false === $result) {
             if (isset($options['field'])) {
-                unset($options['field']);
+                $query->removeOption('field');
             }
 
             if (is_null($field)) {
@@ -966,10 +986,10 @@ abstract class Connection
                 $field = array_map('trim', explode(',', $field));
             }
 
-            $options['field'] = $field;
+            $query->setOptions('field', $field);
 
             // 生成查询SQL
-            list($sql, $bind) = $this->builder->select($query, $options);
+            list($sql, $bind) = $this->builder->select($query);
 
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
