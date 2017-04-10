@@ -30,7 +30,7 @@ class Sqlsrv extends Builder
      * @param array $options
      * @return string
      */
-    protected function parseOrder($order, $options = [])
+    protected function parseOrder($query, $order)
     {
         if (is_array($order)) {
             $array = [];
@@ -38,13 +38,13 @@ class Sqlsrv extends Builder
             foreach ($order as $key => $val) {
                 if (is_numeric($key)) {
                     if (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($val, $options);
+                        $array[] = $this->parseKey($query, $val);
                     } elseif ('[rand]' == $val) {
                         $array[] = $this->parseRand();
                     }
                 } else {
                     $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($key, $options) . ' ' . $sort;
+                    $array[] = $this->parseKey($query, $key) . ' ' . $sort;
                 }
             }
 
@@ -59,7 +59,7 @@ class Sqlsrv extends Builder
      * @access protected
      * @return string
      */
-    protected function parseRand()
+    protected function parseRand($query)
     {
         return 'rand()';
     }
@@ -71,16 +71,17 @@ class Sqlsrv extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($query, $key)
     {
         $key = trim($key);
 
         if (strpos($key, '.') && !preg_match('/[,\'\"\(\)\[\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
-            if (isset($options['alias'][$table])) {
-                $table = $options['alias'][$table];
+            $alias             = $query->getOptions('alias');
+            if (isset($alias[$table])) {
+                $table = $alias[$table];
             } elseif ('__TABLE__' == $table) {
-                $table = $this->getQuery()->getTable();
+                $table = $query->getTable();
             }
         }
 
@@ -101,7 +102,7 @@ class Sqlsrv extends Builder
      * @param mixed $limit
      * @return string
      */
-    protected function parseLimit($limit)
+    protected function parseLimit($query, $limit)
     {
         if (empty($limit)) {
             return '';
@@ -118,11 +119,11 @@ class Sqlsrv extends Builder
         return 'WHERE ' . $limitStr;
     }
 
-    public function selectInsert($fields, $table, $options)
+    public function selectInsert($query, $fields, $table)
     {
         $this->selectSql = $this->selectInsertSql;
 
-        return parent::selectInsert($fields, $table, $options);
+        return parent::selectInsert($query, $fields, $table);
     }
 
 }

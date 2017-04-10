@@ -27,7 +27,7 @@ class Mysql extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($query, $key)
     {
         $key = trim($key);
 
@@ -37,10 +37,11 @@ class Mysql extends Builder
             $key                = 'json_extract(' . $field . ', \'$.' . $name . '\')';
         } elseif (strpos($key, '.') && !preg_match('/[,\'\"\(\)`\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
-            if (isset($options['alias'][$table])) {
-                $table = $options['alias'][$table];
+            $alias             = $query->getOptions('alias');
+            if (isset($alias[$table])) {
+                $table = $alias[$table];
             } elseif ('__TABLE__' == $table) {
-                $table = $this->getQuery()->getTable();
+                $table = $query->getTable();
             }
         }
 
@@ -66,15 +67,16 @@ class Mysql extends Builder
      * @param array     $options
      * @return string
      */
-    protected function parseField($fields, $options = [])
+    protected function parseField($query, $fields)
     {
-        $fieldsStr = parent::parseField($fields, $options);
+        $fieldsStr = parent::parseField($query, $fields);
+        $options   = $query->getOptions();
 
         if (!empty($options['point'])) {
             $array = [];
             foreach ($options['point'] as $key => $field) {
                 $key     = !is_numeric($key) ? $key : $field;
-                $array[] = 'AsText(' . $this->parseKey($key, $options) . ') AS ' . $this->parseKey($field, $options);
+                $array[] = 'AsText(' . $this->parseKey($query, $key) . ') AS ' . $this->parseKey($query, $field);
             }
             $fieldsStr .= ',' . implode(',', $array);
         }
@@ -116,7 +118,7 @@ class Mysql extends Builder
      * @access protected
      * @return string
      */
-    protected function parseRand()
+    protected function parseRand($query)
     {
         return 'rand()';
     }

@@ -11,7 +11,7 @@
 
 namespace think;
 
-use think\Db as Query;
+use think\db\Query;
 
 /**
  * Class Model

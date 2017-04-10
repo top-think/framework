@@ -25,7 +25,7 @@ class Pgsql extends Builder
      * @param mixed $limit
      * @return string
      */
-    public function parseLimit($limit)
+    public function parseLimit($query, $limit)
     {
         $limitStr = '';
 
@@ -48,7 +48,7 @@ class Pgsql extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($query, $key)
     {
         $key = trim($key);
 
@@ -58,10 +58,11 @@ class Pgsql extends Builder
             $key                = $field . '->>\'' . $name . '\'';
         } elseif (strpos($key, '.')) {
             list($table, $key) = explode('.', $key, 2);
-            if (isset($options['alias'][$table])) {
-                $table = $options['alias'][$table];
+            $alias             = $query->getOptions('alias');
+            if (isset($alias[$table])) {
+                $table = $alias[$table];
             } elseif ('__TABLE__' == $table) {
-                $table = $this->getQuery()->getTable();
+                $table = $query->getTable();
             }
         }
 
@@ -77,7 +78,7 @@ class Pgsql extends Builder
      * @access protected
      * @return string
      */
-    protected function parseRand()
+    protected function parseRand($query)
     {
         return 'RANDOM()';
     }

@@ -24,7 +24,7 @@ class Sqlite extends Builder
      * @access public
      * @return string
      */
-    public function parseLimit($limit)
+    public function parseLimit($query, $limit)
     {
         $limitStr = '';
 
@@ -45,7 +45,7 @@ class Sqlite extends Builder
      * @access protected
      * @return string
      */
-    protected function parseRand()
+    protected function parseRand($query)
     {
         return 'RANDOM()';
     }
@@ -57,16 +57,16 @@ class Sqlite extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($query, $key)
     {
         $key = trim($key);
-
         if (strpos($key, '.')) {
             list($table, $key) = explode('.', $key, 2);
-            if (isset($options['alias'][$table])) {
-                $table = $options['alias'][$table];
+            $alias             = $query->getOptions('alias');
+            if (isset($alias[$table])) {
+                $table = $alias[$table];
             } elseif ('__TABLE__' == $table) {
-                $table = $this->getQuery()->getTable();
+                $table = $query->getTable();
             }
         }
 

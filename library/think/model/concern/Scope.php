@@ -11,7 +11,7 @@
 
 namespace think\model\concern;
 
-use think\db\Query;
+use think\Db as Query;
 
 /**
  * 查询范围
