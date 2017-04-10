@@ -59,13 +59,12 @@ trait Scope
      * 设置是否使用全局查询范围
      * @param bool $use 是否启用全局查询范围
      * @access public
-     * @return Model
+     * @return Query
      */
     public static function useGlobalScope($use)
     {
         $model = new static();
-
-        return $model;
+        return $model->db($use);
     }
 
     public function __call($method, $args)
