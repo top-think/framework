@@ -26,7 +26,9 @@ class Lang
     // 允许语言列表
     protected static $allowLangList = [];
     // Accept-Language转义为对应语言包名称 系统默认配置
-    private static $acceptLanguage = ['zh-hans-cn'=>'zh-cn'];
+    protected static $acceptLanguage = [
+        'zh-hans-cn' => 'zh-cn',
+    ];
 
     // 设定当前的语言
     public static function range($range = '')
@@ -158,16 +160,15 @@ class Lang
         if (isset($_GET[self::$langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[self::$langDetectVar]);
-        }
-        elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
-            $langSet = strtolower($matches[1]);
-            $header_accept_lang_config = Config::get('header_accept_lang');
-            if(isset($header_accept_lang_config[$langSet])){
-                $langSet =$header_accept_lang_config[$langSet];
-            }elseif(isset(self::$acceptLanguage[$langSet])){
-                $langSet =self::$acceptLanguage[$langSet];
+            $langSet     = strtolower($matches[1]);
+            $acceptLangs = Config::get('header_accept_lang');
+            if (isset($acceptLangs[$langSet])) {
+                $langSet = $acceptLangs[$langSet];
+            } elseif (isset(self::$acceptLanguage[$langSet])) {
+                $langSet = self::$acceptLanguage[$langSet];
             }
         }
         if (empty(self::$allowLangList) || in_array($langSet, self::$allowLangList)) {
