@@ -370,7 +370,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 模型更新
-        $result = $this->db()->where($where)->update($data);
+        $result = $this->db(false)->where($where)->update($data);
 
         // 关联更新
         if (isset($this->relationWrite)) {
@@ -401,7 +401,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
-        $result = $this->db()->insert($this->data);
+        $result = $this->db(false)->insert($this->data);
 
         $pk = $this->getPk();
 

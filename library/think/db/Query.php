@@ -2703,14 +2703,13 @@ class Query
      * 触发事件
      * @access protected
      * @param string $event   事件名
-     * @param mixed  $params  额外参数
      * @return bool
      */
-    public function trigger($event, $params = [])
+    public function trigger($event)
     {
         $result = false;
         if (isset(self::$event[$event])) {
-            $result = Container::getInstance()->invoke(self::$event[$event], [$params, $this]);
+            $result = Container::getInstance()->invoke(self::$event[$event], [$this]);
         }
 
         return $result;

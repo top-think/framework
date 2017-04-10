@@ -665,7 +665,7 @@ abstract class Connection
                 }
             }
 
-            $query->setOptions('data', $data);
+            $query->setOption('data', $data);
 
             $query->trigger('after_insert');
 
@@ -774,7 +774,7 @@ abstract class Connection
                 throw new Exception('miss update condition');
             } else {
                 $options['where']['AND'] = $where;
-                $query->setOptions('where', ['AND' => $where]);
+                $query->setOption('where', ['AND' => $where]);
             }
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
             $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
@@ -808,7 +808,7 @@ abstract class Connection
                     $data[$pk]     = $val;
                 }
 
-                $query->setOptions('data', $data);
+                $query->setOption('data', $data);
                 $query->trigger('after_update');
             }
 
@@ -916,8 +916,8 @@ abstract class Connection
                 $field = array_map('trim', explode(',', $field));
             }
 
-            $query->setOptions('field', $field);
-            $query->setOptions('limit', 1);
+            $query->setOption('field', $field);
+            $query->setOption('limit', 1);
             // 生成查询SQL
             list($sql, $bind) = $this->builder->select($query);
 
@@ -986,7 +986,7 @@ abstract class Connection
                 $field = array_map('trim', explode(',', $field));
             }
 
-            $query->setOptions('field', $field);
+            $query->setOption('field', $field);
 
             // 生成查询SQL
             list($sql, $bind) = $this->builder->select($query);
