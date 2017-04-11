@@ -63,8 +63,19 @@ class Query
     public function __construct($options = [])
     {
         $this->connect();
+
         $this->prefix  = $this->connection->getConfig('prefix');
         $this->options = $options;
+    }
+
+    /**
+     * 创建一个新的查询对象
+     * @access public
+     * @return Query
+     */
+    public function newQuery()
+    {
+        return new static;
     }
 
     /**
@@ -151,11 +162,6 @@ class Query
         } else {
             self::$extend[strtolower($method)] = $callback;
         }
-    }
-
-    public function newInstance()
-    {
-        return new static;
     }
 
     /**

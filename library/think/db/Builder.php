@@ -280,7 +280,7 @@ abstract class Builder
             foreach ($val as $field => $value) {
                 if ($value instanceof \Closure) {
                     // 使用闭包查询
-                    $newQuery = $query->newInstance()->setConnection($this->connection);
+                    $newQuery = $query->newQuery()->setConnection($this->connection);
                     $value($newQuery);
                     $whereClause = $this->buildWhere($newQuery->getOptions('where'), $options);
 
@@ -482,7 +482,7 @@ abstract class Builder
     // 执行闭包子查询
     protected function parseClosure($query, $call, $show = true)
     {
-        $newQuery = $query->newInstance()->setConnection($this->connection);
+        $newQuery = $query->newQuery()->setConnection($this->connection);
         $call($newQuery);
 
         return $newQuery->buildSql($show);

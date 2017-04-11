@@ -2,7 +2,7 @@
 
 namespace think\model\concern;
 
-use think\Db as Query;
+use think\db\Query;
 
 /**
  * 数据软删除
@@ -158,7 +158,7 @@ trait SoftDelete
      */
     protected function getDeleteTimeField($read = false)
     {
-        $field = isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
+        $field = property_exists($this, 'deleteTime') && isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
 
         if (!strpos($field, '.')) {
             $field = '__TABLE__.' . $field;
