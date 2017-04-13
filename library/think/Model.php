@@ -32,7 +32,7 @@ use think\model\relation\MorphTo;
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
-    // 数据库对象池
+    // 数据库查询对象池
     protected static $links = [];
     // 数据库配置
     protected $connection = [];
@@ -40,7 +40,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $parent;
     // 数据库查询对象
     protected $query;
-    protected $queryObj;
     // 当前模型名称
     protected $name;
     // 数据表名称
@@ -199,18 +198,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getQuery($buildNewQuery = false)
     {
-        if (!$buildNewQuery && $this->queryObj) {
-            return $this->queryObj;
-        } else {
+        if ($buildNewQuery) {
+            return $this->buildQuery();
+        } elseif (!isset(self::$links[$this->class])) {
             // 创建模型查询对象
-            $query = $this->buildQuery();
-
-            if (!$buildNewQuery) {
-                $this->queryObj = $query;
-            }
+            self::$links[$this->class] = $this->buildQuery();
         }
 
-        return $query;
+        return self::$links[$this->class];
     }
 
     /**
