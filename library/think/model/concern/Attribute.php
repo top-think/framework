@@ -17,7 +17,7 @@ use think\Loader;
 trait Attribute
 {
     // 数据表主键 复合主键使用数组定义 不设置则自动获取
-    protected $pk;
+    protected $pk = 'id';
     // 数据表字段信息 留空则自动获取
     protected $field = [];
     // 只读字段
@@ -33,19 +33,10 @@ trait Attribute
     /**
      * 获取模型对象的主键
      * @access public
-     * @param string $name 模型名
-     * @return mixed
+     * @return string|array
      */
-    public function getPk($name = '')
+    public function getPk()
     {
-        if (!empty($name)) {
-            $table = $this->getQuery()->getTable($name);
-
-            return $this->getQuery()->getPk($table);
-        } elseif (empty($this->pk)) {
-            $this->pk = $this->getQuery()->getPk();
-        }
-
         return $this->pk;
     }
 

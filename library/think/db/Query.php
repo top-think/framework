@@ -60,12 +60,15 @@ class Query
      * 架构函数
      * @access public
      */
-    public function __construct($options = [])
+    public function __construct(Connection $connection = null)
     {
-        $this->connect();
+        if (is_null($connection)) {
+            $this->connection = Connection::instance();
+        } else {
+            $this->connection = $connection;
+        }
 
-        $this->prefix  = $this->connection->getConfig('prefix');
-        $this->options = $options;
+        $this->prefix = $this->connection->getConfig('prefix');
     }
 
     /**
@@ -76,44 +79,6 @@ class Query
     public function newQuery()
     {
         return new static;
-    }
-
-    /**
-     * 数据库初始化 并取得数据库连接类实例
-     * @access public
-     * @param mixed         $config 连接配置
-     * @param bool|string   $name 连接标识 true 强制重新连接
-     * @return Connection
-     * @throws Exception
-     */
-    public function connect($config = [], $name = false)
-    {
-        if (false === $name) {
-            $name = md5(serialize($config));
-        }
-
-        if (true === $name || !isset(self::$connections[$name])) {
-            // 解析连接参数 支持数组和字符串
-            $options = $this->parseConfig($config);
-            if (empty($options['type'])) {
-                throw new \InvalidArgumentException('Underfined db type');
-            }
-
-            $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
-            // 记录初始化信息
-            Facade::make('app')->log('[ DB ] INIT ' . $options['type']);
-
-            if (true === $name) {
-                $this->connection = new $class($options);
-            } else {
-                $this->connection         = new $class($options);
-                self::$connections[$name] = $this->connection;
-            }
-        } else {
-            $this->connection = self::$connections[$name];
-        }
-
-        return $this;
     }
 
     /**
@@ -170,7 +135,7 @@ class Query
      * @param Connection      $connection
      * @return $this
      */
-    public function setConnection($connection)
+    public function setConnection(Connection $connection)
     {
         $this->connection = $connection;
 
@@ -274,6 +239,21 @@ class Query
         }
 
         return $sql;
+    }
+
+    /**
+     * 切换数据库连接
+     * @access public
+     * @param mixed         $config 连接配置
+     * @param bool|string   $name 连接标识 true 强制重新连接
+     * @return $this
+     * @throws Exception
+     */
+    public function connect($config = [], $name = false)
+    {
+        $this->connection = Connection::instance($config, $name);
+
+        return $this;
     }
 
     /**
@@ -2721,59 +2701,4 @@ class Query
         return $result;
     }
 
-    /**
-     * 数据库连接参数解析
-     * @access private
-     * @param mixed $config
-     * @return array
-     */
-    private function parseConfig($config)
-    {
-        if (empty($config)) {
-            $config = Facade::make('config')->pull('database');
-        } elseif (is_string($config) && false === strpos($config, '/')) {
-            // 支持读取配置参数
-            $config = Facade::make('config')->get('database.' . $config);
-        }
-
-        if (is_string($config)) {
-            return $this->parseDsn($config);
-        } else {
-            return $config;
-        }
-    }
-
-    /**
-     * DSN解析
-     * 格式： mysql://username:passwd@localhost:3306/DbName?param1=val1&param2=val2#utf8
-     * @access private
-     * @param string $dsnStr
-     * @return array
-     */
-    private function parseDsn($dsnStr)
-    {
-        $info = parse_url($dsnStr);
-
-        if (!$info) {
-            return [];
-        }
-
-        $dsn = [
-            'type'     => $info['scheme'],
-            'username' => isset($info['user']) ? $info['user'] : '',
-            'password' => isset($info['pass']) ? $info['pass'] : '',
-            'hostname' => isset($info['host']) ? $info['host'] : '',
-            'hostport' => isset($info['port']) ? $info['port'] : '',
-            'database' => !empty($info['path']) ? ltrim($info['path'], '/') : '',
-            'charset'  => isset($info['fragment']) ? $info['fragment'] : 'utf8',
-        ];
-
-        if (isset($info['query'])) {
-            parse_str($info['query'], $dsn['params']);
-        } else {
-            $dsn['params'] = [];
-        }
-
-        return $dsn;
-    }
 }

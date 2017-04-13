@@ -34,10 +34,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $updateWhere;
 
     // 数据库配置
-    protected $connection = [];
-    // 数据库查询对象类名
-    protected $queryClass;
-    // 数据库查询对象
+    protected $connection;
+    // 数据库查询类
     protected $query;
     // 当前模型名称
     protected $name;
@@ -86,16 +84,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
-            $this->autoWriteTimestamp = $this->getQuery()->getConfig('auto_timestamp');
+            $this->autoWriteTimestamp = Facade::make('config')->get('database.auto_timestamp');
         }
 
         if (is_null($this->dateFormat)) {
             // 设置时间戳格式
-            $this->dateFormat = $this->getQuery()->getConfig('datetime_format');
+            $this->dateFormat = Facade::make('config')->get('database.datetime_format');
         }
 
         if (is_null($this->resultSetType)) {
-            $this->resultSetType = $this->getQuery()->getConfig('resultset_type');
+            $this->resultSetType = Facade::make('config')->get('database.resultset_type');
         }
 
         // 执行初始化操作
@@ -121,7 +119,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 设置当前模型 确保查询返回模型对象
-        $class = $this->queryClass ?: Facade::make('config')->get('database.query');
+        $class = $this->query ?: Facade::make('config')->get('database.query');
         $query = new $class();
         $query->connect($connection)->model(get_called_class());
 
@@ -140,33 +138,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 获取当前模型的查询对象
-     * @access public
-     * @param bool      $buildNewQuery  创建新的查询对象
-     * @return Query
-     */
-    public function getQuery($buildNewQuery = false)
-    {
-        if ($buildNewQuery) {
-            return $this->buildQuery();
-        } elseif (!$this->query) {
-            // 创建模型查询对象
-            $this->query = $this->buildQuery();
-        }
-
-        return $this->query;
-    }
-
-    /**
      * 获取当前模型的数据库查询对象
      * @access public
      * @param bool $useBaseQuery 是否调用全局查询范围
-     * @param bool $buildNewQuery 创建新的查询对象
      * @return Query
      */
-    public function db($useBaseQuery = true, $buildNewQuery = false)
+    public function db($useBaseQuery = true)
     {
-        $query = $this->getQuery($buildNewQuery);
+        $query = $this->buildQuery();
 
         // 全局作用域
         if ($useBaseQuery && method_exists($this, 'base')) {
@@ -286,7 +265,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检测字段
         if (!empty($this->field)) {
             if (true === $this->field) {
-                $this->field = $this->getQuery()->getTableInfo('', 'fields');
+                $this->field = $this->db(false)->getTableInfo('', 'fields');
             }
 
             foreach ($this->data as $key => $val) {

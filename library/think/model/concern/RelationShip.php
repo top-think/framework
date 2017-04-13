@@ -358,7 +358,7 @@ trait RelationShip
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: $this->getQuery()->getTable(Loader::parseName($this->name) . '_' . $name);
+        $table      = $table ?: $this->getTable(Loader::parseName($this->name) . '_' . $name);
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: $this->getForeignKey($this->name);
 
