@@ -66,8 +66,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $append = [];
     // 数据信息
     protected $data = [];
-    // 记录改变字段
-    protected $change = [];
+    // 原始数据
+    protected $origin = [];
 
     // 保存自动完成列表
     protected $auto = [];
@@ -121,6 +121,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $this->data = $data;
         }
+        // 记录原始数据
+        $this->origin = $this->data;
 
         // 当前类名
         $this->class = get_called_class();
@@ -345,16 +347,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        // 标记字段更改
-        if (!isset($this->data[$name])) {
-            $this->change[] = $name;
-        } elseif (is_scalar($value) && is_scalar($this->data[$name]) && 0 !== strcmp($this->data[$name], $value)) {
-            $this->change[] = $name;
-        } elseif (!is_object($value) && $value != $this->data[$name]) {
-            $this->change[] = $name;
-        }
         // 设置数据对象属性
         $this->data[$name] = $value;
+
         return $this;
     }
 
@@ -933,13 +928,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
-            // 去除没有更新的字段
-            $data = [];
-            foreach ($this->data as $key => $val) {
-                if (in_array($key, $this->change) || $this->isPk($key)) {
-                    $data[$key] = $val;
-                }
-            }
+            // 获取有更新的数据
+            $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+                return $a === $b ? 0 : 1;
+            });
 
             if (!empty($this->readonly)) {
                 // 只读字段不允许更新
@@ -960,6 +952,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (empty($where) && !empty($this->updateWhere)) {
                 $where = $this->updateWhere;
+            }
+
+            // 保留主键数据
+            foreach ($this->data as $key => $val) {
+                if ($this->isPk($key)) {
+                    $data[$key] = $val;
+                }
             }
 
             if (is_string($pk) && isset($data[$pk])) {
@@ -1044,8 +1043,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 写入回调
         $this->trigger('after_write', $this);
 
-        // 清空change
-        $this->change = [];
+        // 重新记录原始数据
+        $this->origin = $this->data;
 
         return $result;
     }
@@ -1152,9 +1151,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $field = $value;
                 $value = null;
             }
-            if (!in_array($field, $this->change)) {
-                $this->setAttr($field, !is_null($value) ? $value : (isset($this->data[$field]) ? $this->data[$field] : $value));
+            if (!isset($this->data[$field])) {
+                $default = null;
+            } elseif (isset($this->origin[$field]) && $this->data[$field] === $this->origin[$field]) {
+                $default = $this->data[$field];
             }
+
+            $this->setAttr($field, !is_null($value) ? $value : $default);
         }
     }
 
@@ -1194,6 +1197,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         $this->trigger('after_delete', $this);
+        // 清空原始数据
+        $this->origin = [];
+
         return $result;
     }
 
