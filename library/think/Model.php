@@ -68,6 +68,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $data = [];
     // 原始数据
     protected $origin = [];
+    // 关联模型
+    protected $relation = [];
 
     // 保存自动完成列表
     protected $auto = [];
@@ -89,8 +91,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $isUpdate = false;
     // 更新条件
     protected $updateWhere;
-    // 当前执行的关联对象
-    protected $relation;
     // 验证失败是否抛出异常
     protected $failException = false;
     // 全局查询范围
@@ -318,6 +318,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return $this->data;
         } elseif (array_key_exists($name, $this->data)) {
             return $this->data[$name];
+        } elseif (array_key_exists($name, $this->relation)) {
+            return $this->relation[$name];
         } else {
             throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
         }
@@ -341,14 +343,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $method = 'set' . Loader::parseName($name, 1) . 'Attr';
             if (method_exists($this, $method)) {
                 $value = $this->$method($value, array_merge($this->data, $data));
+            }
+            if ($this->isRelationAttr($name)) {
+                $isRelationData = true;
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
             }
+
         }
 
         // 设置数据对象属性
-        $this->data[$name] = $value;
+        if (isset($isRelationData)) {
+            $this->relation[$name] = $value;
+        } else {
+            $this->data[$name] = $value;
+        }
 
         return $this;
     }
@@ -506,13 +516,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = $this->formatDateTime($value, $this->dateFormat);
             }
         } elseif ($notFound) {
-            $method = Loader::parseName($name, 1, false);
-            if (method_exists($this, $method) && $this->$method() instanceof Relation) {
-                $modelRelation = $this->$method();
+            $relation = $this->isRelationAttr($name);
+            $method   = Loader::parseName($name, 1, false);
+            if ($relation) {
+                $modelRelation = $this->$relation();
                 // 不存在该字段 获取关联数据
                 $value = $this->getRelationData($modelRelation);
                 // 保存关联对象值
-                $this->data[$name] = $value;
+                $this->relation[$name] = $value;
             } else {
                 throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
             }
@@ -890,11 +901,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                             unset($this->data[$val]);
                         }
                     }
-                } elseif (isset($this->data[$name])) {
-                    $relation[$name] = $this->data[$name];
-                    if (!$this->isUpdate) {
-                        unset($this->data[$name]);
-                    }
+                } elseif (isset($this->relation[$name])) {
+                    $relation[$name] = $this->relation[$name];
                 }
             }
         }
@@ -956,15 +964,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $where[$pk] = $data[$pk];
                 }
                 unset($data[$pk]);
-            }
-
-            // 关联更新
-            if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    if (isset($data[$name])) {
-                        unset($data[$name]);
-                    }
-                }
             }
 
             // 模型更新
@@ -1059,6 +1058,23 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         return $data;
+    }
+
+    /**
+     * 检查属性是否为关联属性 如果是则返回关联方法名
+     * @access public
+     * @param string $attr 关联属性名
+     * @return string|false
+     */
+    protected function isRelationAttr($attr)
+    {
+        $relation = Loader::parseName($attr, 1, false);
+
+        if (method_exists($this, $relation) && $this->$relation() instanceof Relation) {
+            return $relation;
+        } else {
+            return false;
+        }
     }
 
     /**
