@@ -25,6 +25,10 @@ class Lang
     protected static $langCookieExpire = 3600;
     // 允许语言列表
     protected static $allowLangList = [];
+    // Accept-Language转义为对应语言包名称 系统默认配置
+    protected static $acceptLanguage = [
+        'zh-hans-cn' => 'zh-cn',
+    ];
 
     // 设定当前的语言
     public static function range($range = '')
@@ -34,6 +38,7 @@ class Lang
         } else {
             self::$range = $range;
         }
+        return self::$range;
     }
 
     /**
@@ -93,7 +98,6 @@ class Lang
     /**
      * 获取语言定义(不区分大小写)
      * @param string|null   $name 语言变量
-     * @param array         $vars 变量替换
      * @param string        $range 语言作用域
      * @return mixed
      */
@@ -152,25 +156,24 @@ class Lang
     {
         // 自动侦测设置获取语言选择
         $langSet = '';
+
         if (isset($_GET[self::$langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[self::$langDetectVar]);
-            Cookie::set(self::$langCookieVar, $langSet, self::$langCookieExpire);
-        } elseif (Cookie::get(self::$langCookieVar)) {
-            // 获取上次用户的选择
-            $langSet = strtolower(Cookie::get(self::$langCookieVar));
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
-            $langSet = strtolower($matches[1]);
-            Cookie::set(self::$langCookieVar, $langSet, self::$langCookieExpire);
+            $langSet     = strtolower($matches[1]);
+            $acceptLangs = Config::get('header_accept_lang');
+            if (isset($acceptLangs[$langSet])) {
+                $langSet = $acceptLangs[$langSet];
+            } elseif (isset(self::$acceptLanguage[$langSet])) {
+                $langSet = self::$acceptLanguage[$langSet];
+            }
         }
         if (empty(self::$allowLangList) || in_array($langSet, self::$allowLangList)) {
             // 合法的语言
             self::$range = $langSet ?: self::$range;
-        }
-        if ('zh-hans-cn' == self::$range) {
-            self::$range = 'zh-cn';
         }
         return self::$range;
     }

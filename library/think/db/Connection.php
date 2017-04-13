@@ -927,7 +927,7 @@ abstract class Connection
     {
         if (!empty($this->config['deploy'])) {
             // 采用分布式数据库
-            if ($master) {
+            if ($master || $this->transTimes) {
                 if (!$this->linkWrite) {
                     $this->linkWrite = $this->multiConnect(true);
                 }
