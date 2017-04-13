@@ -929,18 +929,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             // 获取有更新的数据
-            $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-                return is_object($a) || $a != $b ? 1 : 0;
-            });
-
-            if (!empty($this->readonly)) {
-                // 只读字段不允许更新
-                foreach ($this->readonly as $key => $field) {
-                    if (isset($data[$field])) {
-                        unset($data[$field]);
-                    }
-                }
-            }
+            $data = $this->getChangedData();
 
             if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
                 // 没有更新
@@ -1047,6 +1036,29 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->origin = $this->data;
 
         return $result;
+    }
+
+    /**
+     * 获取变化的数据 并排除只读数据
+     * @access public
+     * @return array
+     */
+    public function getChangedData()
+    {
+        $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+            return is_object($a) || $a != $b ? 1 : 0;
+        });
+
+        if (!empty($this->readonly)) {
+            // 只读字段不允许更新
+            foreach ($this->readonly as $key => $field) {
+                if (isset($data[$field])) {
+                    unset($data[$field]);
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**
