@@ -33,7 +33,7 @@ trait RelationShip
     private $parent;
     // 关联模型
     private $relation = [];
-    //
+    // 关联写入
     private $together;
     // 关联自动写入
     private $relationWrite;
@@ -76,6 +76,28 @@ trait RelationShip
         } else {
             return;
         }
+    }
+
+    /**
+     * 设置关联数据对象值
+     * @access public
+     * @param string $name  属性名
+     * @param mixed  $value 属性值
+     * @param array  $data  数据
+     * @return $this
+     */
+    public function setRelation($name, $value, $data = [])
+    {
+        // 检测修改器
+        $method = 'set' . Loader::parseName($name, 1) . 'Attr';
+
+        if (method_exists($this, $method)) {
+            $value = $this->$method($value, array_merge($this->data, $data));
+        }
+
+        $this->relation[$name] = $value;
+
+        return $this;
     }
 
     /**

@@ -131,7 +131,7 @@ class MorphOne extends Relation
                     $relationModel->isUpdate(true);
                 }
 
-                $result->setAttr($attr, $relationModel);
+                $result->setRelation($attr, $relationModel);
             }
         }
     }
@@ -163,7 +163,7 @@ class MorphOne extends Relation
                 $relationModel = null;
             }
 
-            $result->setAttr(Loader::parseName($relation), $relationModel);
+            $result->setRelation(Loader::parseName($relation), $relationModel);
         }
     }
 

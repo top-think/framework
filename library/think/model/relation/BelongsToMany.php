@@ -281,7 +281,7 @@ class BelongsToMany extends Relation
                     $data[$result->$pk] = [];
                 }
 
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
+                $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
     }
@@ -309,7 +309,7 @@ class BelongsToMany extends Relation
                 $data[$pk] = [];
             }
 
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$pk]));
+            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$pk]));
         }
     }
 

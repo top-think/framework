@@ -135,7 +135,7 @@ class MorphMany extends Relation
                     $relationModel->isUpdate(true);
                 }
 
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
+                $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
     }
@@ -164,7 +164,7 @@ class MorphMany extends Relation
                 $relationModel->isUpdate(true);
             }
 
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
+            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
         }
     }
 

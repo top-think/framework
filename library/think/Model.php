@@ -386,7 +386,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 获取自动增长主键
         if ($result && is_string($pk) && (!isset($this->data[$pk]) || '' == $this->data[$pk])) {
-            $insertId = $this->db()->getLastInsID($sequence);
+            $insertId = $this->db(false)->getLastInsID($sequence);
             if ($insertId) {
                 $this->data[$pk] = $insertId;
             }
@@ -497,7 +497,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 删除当前模型数据
-        $result = $this->db()->where($where)->delete();
+        $result = $this->db(false)->where($where)->delete();
 
         // 关联删除
         if (!empty($this->relationWrite)) {
@@ -506,7 +506,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $this->trigger('after_delete');
 
-        // 清空原始数据
+        // 清空数据
+        $this->data   = [];
         $this->origin = [];
 
         return $result;
