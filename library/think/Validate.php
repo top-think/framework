@@ -312,7 +312,7 @@ class Validate
 
             // 获取数据 支持二维数组
             $value = $this->getDataValue($data, $key);
-
+            
             // 字段验证
             if ($rule instanceof \Closure) {
                 // 匿名函数验证 支持传入当前字段和所有字段两个数据
@@ -320,6 +320,7 @@ class Validate
             } else {
                 $result = $this->checkItem($key, $value, $rule, $data, $title, $msg);
             }
+
 
             if (true !== $result) {
                 // 没有返回true 则表示验证失败
@@ -461,8 +462,7 @@ class Validate
      */
     protected function egt($value, $rule, $data)
     {
-        $val = $this->getDataValue($data, $rule);
-        return !is_null($val) && $value >= $val;
+        return $value >= $this->getDataValue($data, $rule);
     }
 
     /**
@@ -475,8 +475,7 @@ class Validate
      */
     protected function gt($value, $rule, $data)
     {
-        $val = $this->getDataValue($data, $rule);
-        return !is_null($val) && $value > $val;
+        return $value > $this->getDataValue($data, $rule);
     }
 
     /**
@@ -489,8 +488,7 @@ class Validate
      */
     protected function elt($value, $rule, $data)
     {
-        $val = $this->getDataValue($data, $rule);
-        return !is_null($val) && $value <= $val;
+        return $value <= $this->getDataValue($data, $rule);
     }
 
     /**
@@ -503,8 +501,7 @@ class Validate
      */
     protected function lt($value, $rule, $data)
     {
-        $val = $this->getDataValue($data, $rule);
-        return !is_null($val) && $value < $val;
+        return $value < $this->getDataValue($data, $rule);
     }
 
     /**
@@ -512,11 +509,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  验证数据
      * @return bool
      */
-    protected function eq($value, $rule)
+    protected function eq($value, $rule, $data)
     {
-        return $value == $rule;
+        return $value == $this->getDataValue($data, $rule);
     }
 
     /**
@@ -1069,9 +1067,9 @@ class Validate
      * @param mixed     $rule  验证规则
      * @return bool
      */
-    protected function after($value, $rule)
+    protected function after($value, $rule, $data)
     {
-        return strtotime($value) >= strtotime($rule);
+        return strtotime($value) >= strtotime($this->getDataValue($data, $rule));
     }
 
     /**
@@ -1081,9 +1079,9 @@ class Validate
      * @param mixed     $rule  验证规则
      * @return bool
      */
-    protected function before($value, $rule)
+    protected function before($value, $rule, $data)
     {
-        return strtotime($value) <= strtotime($rule);
+        return strtotime($value) <= strtotime($this->getDataValue($data, $rule));
     }
 
     /**
@@ -1188,8 +1186,8 @@ class Validate
     /**
      * 获取数据值
      * @access protected
-     * @param array $data 数据
-     * @param string $key 数据标识 支持二维
+     * @param array     $data  数据
+     * @param string    $key  数据标识 支持二维
      * @return mixed
      */
     protected function getDataValue($data, $key)
@@ -1199,7 +1197,7 @@ class Validate
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
-            $value = is_numeric($key) ? $key : (isset($data[$key]) ? $data[$key] : null);
+            $value = isset($data[$key]) ? $data[$key] : $key;
         }
         return $value;
     }
