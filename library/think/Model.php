@@ -1179,9 +1179,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $field = $value;
                 $value = null;
             }
+
             if (!isset($this->data[$field])) {
                 $default = null;
-            } elseif (isset($this->origin[$field]) && $this->data[$field] === $this->origin[$field]) {
+            } else {
                 $default = $this->data[$field];
             }
 
