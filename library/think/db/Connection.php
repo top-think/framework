@@ -58,6 +58,9 @@ abstract class Connection
     // 监听回调
     protected static $event = [];
 
+    // 数据表信息
+    protected static $info = [];
+
     // 使用Builder类
     protected $builderClassName;
     // Builder对象
@@ -280,6 +283,139 @@ abstract class Connection
         }
 
         return $info;
+    }
+
+    /**
+     * 获取字段绑定类型
+     * @access public
+     * @param string $type 字段类型
+     * @return integer
+     */
+    public function getFieldBindType($type)
+    {
+        if (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
+            $bind = PDO::PARAM_INT;
+        } elseif (preg_match('/bool/is', $type)) {
+            $bind = PDO::PARAM_BOOL;
+        } else {
+            $bind = PDO::PARAM_STR;
+        }
+
+        return $bind;
+    }
+
+    /**
+     * 将SQL语句中的__TABLE_NAME__字符串替换成带前缀的表名（小写）
+     * @access public
+     * @param string $sql sql语句
+     * @return string
+     */
+    public function parseSqlTable($sql)
+    {
+        if (false !== strpos($sql, '__')) {
+            $prefix = $this->prefix;
+            $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
+                return $prefix . strtolower($match[1]);
+            }, $sql);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * 获取数据表信息
+     * @access public
+     * @param mixed  $tableName 数据表名 留空自动获取
+     * @param string $fetch     获取信息类型 包括 fields type bind pk
+     * @return mixed
+     */
+    public function getTableInfo($tableName, $fetch = '')
+    {
+        if (is_array($tableName)) {
+            $tableName = key($tableName) ?: current($tableName);
+        }
+
+        if (strpos($tableName, ',')) {
+            // 多表不获取字段信息
+            return false;
+        } else {
+            $tableName = $this->parseSqlTable($tableName);
+        }
+
+        // 修正子查询作为表名的问题
+        if (strpos($tableName, ')')) {
+            return [];
+        }
+
+        list($tableName) = explode(' ', $tableName);
+
+        if (!strpos($tableName, '.')) {
+            $schema = $this->getConfig('database') . '.' . $tableName;
+        } else {
+            $schema = $tableName;
+        }
+
+        if (!isset(self::$info[$schema])) {
+            // 读取缓存
+            $cacheFile = Facade::make('app')->getRuntimePath() . 'schema/' . $schema . '.php';
+            if (is_file($cacheFile)) {
+                $info = include $cacheFile;
+            } else {
+                $info = $this->getFields($tableName);
+            }
+
+            $fields = array_keys($info);
+            $bind   = $type   = [];
+
+            foreach ($info as $key => $val) {
+                // 记录字段类型
+                $type[$key] = $val['type'];
+                $bind[$key] = $this->getFieldBindType($val['type']);
+                if (!empty($val['primary'])) {
+                    $pk[] = $key;
+                }
+            }
+
+            if (isset($pk)) {
+                // 设置主键
+                $pk = count($pk) > 1 ? $pk : $pk[0];
+            } else {
+                $pk = null;
+            }
+
+            self::$info[$schema] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
+        }
+
+        return $fetch ? self::$info[$schema][$fetch] : self::$info[$schema];
+    }
+
+    /**
+     * 获取数据表的主键
+     * @access public
+     * @param string $tableName 数据表名
+     * @return string|array
+     */
+    public function getPk($tableName)
+    {
+        return $this->getTableInfo($tableName, 'pk');
+    }
+
+    // 获取当前数据表字段信息
+    public function getTableFields($tableName)
+    {
+        return $this->getTableInfo($tableName, 'fields');
+    }
+
+    // 获取当前数据表字段类型
+    public function getFieldsType($tableName)
+    {
+        return $this->getTableInfo($tableName, 'type');
+    }
+
+    // 获取当前数据表绑定信息
+    public function getFieldsBind($tableName)
+    {
+        return $this->getTableInfo($tableName, 'bind');
     }
 
     /**

@@ -49,8 +49,6 @@ class Query
     // 参数绑定
     protected $bind = [];
 
-    // 数据表信息
-    protected static $info = [];
     // 回调事件
     private static $event = [];
     // 扩展查询方法
@@ -221,24 +219,6 @@ class Query
         }
 
         return $tableName;
-    }
-
-    /**
-     * 将SQL语句中的__TABLE_NAME__字符串替换成带前缀的表名（小写）
-     * @access public
-     * @param string $sql sql语句
-     * @return string
-     */
-    public function parseSqlTable($sql)
-    {
-        if (false !== strpos($sql, '__')) {
-            $prefix = $this->prefix;
-            $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
-                return $prefix . strtolower($match[1]);
-            }, $sql);
-        }
-
-        return $sql;
     }
 
     /**
@@ -764,11 +744,11 @@ class Query
 
         if (true === $field) {
             // 获取全部字段
-            $fields = $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = $this->connection->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
             $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
-            $fields = $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
+            $fields = $this->connection->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
 
@@ -1605,7 +1585,7 @@ class Query
             if (isset($this->options['table'])) {
                 $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
                 if (false !== strpos($table, '__')) {
-                    $table = $this->parseSqlTable($table);
+                    $table = $this->connection->parseSqlTable($table);
                 }
             } else {
                 $table = $this->getTable();
@@ -1805,77 +1785,6 @@ class Query
     }
 
     /**
-     * 获取数据表信息
-     * @access public
-     * @param mixed  $tableName 数据表名 留空自动获取
-     * @param string $fetch     获取信息类型 包括 fields type bind pk
-     * @return mixed
-     */
-    public function getTableInfo($tableName = '', $fetch = '')
-    {
-        if (!$tableName) {
-            $tableName = $this->getTable();
-        }
-
-        if (is_array($tableName)) {
-            $tableName = key($tableName) ?: current($tableName);
-        }
-
-        if (strpos($tableName, ',')) {
-            // 多表不获取字段信息
-            return false;
-        } else {
-            $tableName = $this->parseSqlTable($tableName);
-        }
-
-        // 修正子查询作为表名的问题
-        if (strpos($tableName, ')')) {
-            return [];
-        }
-
-        list($guid) = explode(' ', $tableName);
-        $db         = $this->getConfig('database');
-
-        if (!isset(self::$info[$db . '.' . $guid])) {
-            if (!strpos($guid, '.')) {
-                $schema = $db . '.' . $guid;
-            } else {
-                $schema = $guid;
-            }
-
-            // 读取缓存
-            if (is_file(Facade::make('app')->getRuntimePath() . 'schema/' . $schema . '.php')) {
-                $info = include Facade::make('app')->getRuntimePath() . 'schema/' . $schema . '.php';
-            } else {
-                $info = $this->connection->getFields($guid);
-            }
-
-            $fields = array_keys($info);
-            $bind   = $type   = [];
-
-            foreach ($info as $key => $val) {
-                // 记录字段类型
-                $type[$key] = $val['type'];
-                $bind[$key] = $this->getFieldBindType($val['type']);
-                if (!empty($val['primary'])) {
-                    $pk[] = $key;
-                }
-            }
-
-            if (isset($pk)) {
-                // 设置主键
-                $pk = count($pk) > 1 ? $pk : $pk[0];
-            } else {
-                $pk = null;
-            }
-
-            self::$info[$db . '.' . $guid] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
-        }
-
-        return $fetch ? self::$info[$db . '.' . $guid][$fetch] : self::$info[$db . '.' . $guid];
-    }
-
-    /**
      * 获取当前数据表的主键
      * @access public
      * @param string|array $options 数据表名或者查询参数
@@ -1886,56 +1795,10 @@ class Query
         if (!empty($this->pk)) {
             $pk = $this->pk;
         } else {
-            $pk = $this->getTableInfo(is_array($options) ? $options['table'] : $options, 'pk');
+            $pk = $this->connection->getPk(is_array($options) ? $options['table'] : $this->getTable());
         }
 
         return $pk;
-    }
-
-    // 获取当前数据表字段信息
-    public function getTableFields($options)
-    {
-        return $this->getTableInfo($options['table'], 'fields');
-    }
-
-    // 获取当前数据表字段类型
-    public function getFieldsType($options)
-    {
-        return $this->getTableInfo($options['table'], 'type');
-    }
-
-    // 获取当前数据表绑定信息
-    public function getFieldsBind()
-    {
-        $types = $this->getFieldsType($this->options);
-        $bind  = [];
-
-        if ($types) {
-            foreach ($types as $key => $type) {
-                $bind[$key] = $this->getFieldBindType($type);
-            }
-        }
-
-        return $bind;
-    }
-
-    /**
-     * 获取字段绑定类型
-     * @access public
-     * @param string $type 字段类型
-     * @return integer
-     */
-    protected function getFieldBindType($type)
-    {
-        if (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
-            $bind = PDO::PARAM_INT;
-        } elseif (preg_match('/bool/is', $type)) {
-            $bind = PDO::PARAM_BOOL;
-        } else {
-            $bind = PDO::PARAM_STR;
-        }
-
-        return $bind;
     }
 
     /**

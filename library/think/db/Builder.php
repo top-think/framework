@@ -73,7 +73,7 @@ abstract class Builder
 
         $options = $query->getOptions();
         // 获取绑定信息
-        $bind = $query->getFieldsBind();
+        $bind = $this->connection->getFieldsBind($options['table']);
 
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
@@ -214,10 +214,10 @@ abstract class Builder
                     $key = strstr($key, '@think', true);
                 }
 
-                $key    = $query->parseSqlTable($key);
+                $key    = $this->connection->parseSqlTable($key);
                 $item[] = $this->parseKey($query, $key) . ' ' . $this->parseKey($query, $table);
             } else {
-                $table = $query->parseSqlTable($table);
+                $table = $this->connection->parseSqlTable($table);
 
                 if (isset($options['alias'][$table])) {
                     $item[] = $this->parseKey($query, $table) . ' ' . $this->parseKey($query, $options['alias'][$table]);
@@ -246,7 +246,7 @@ abstract class Builder
             // 附加软删除条件
             list($field, $condition) = $options['soft_delete'];
 
-            $binds    = $query->getFieldsBind($options);
+            $binds    = $this->connection->getFieldsBind($options['table']);
             $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
             $whereStr = $whereStr . $this->parseWhereItem($query, $field, $condition, '', $options, $binds);
         }
@@ -269,11 +269,11 @@ abstract class Builder
         }
 
         if ($where instanceof Query) {
-            return $this->buildWhere($where->getOptions('where'), $options);
+            return $this->buildWhere($query, $where->getOptions('where'), $options);
         }
 
         $whereStr = '';
-        $binds    = $query->getFieldsBind($options);
+        $binds    = $this->connection->getFieldsBind($options['table']);
 
         foreach ($where as $key => $val) {
             $str = [];
@@ -282,7 +282,7 @@ abstract class Builder
                     // 使用闭包查询
                     $newQuery = $query->newQuery()->setConnection($this->connection);
                     $value($newQuery);
-                    $whereClause = $this->buildWhere($newQuery->getOptions('where'), $options);
+                    $whereClause = $this->buildWhere($query, $newQuery->getOptions('where'), $options);
 
                     if (!empty($whereClause)) {
                         $str[] = ' ' . $key . ' ( ' . $whereClause . ' )';
@@ -512,7 +512,7 @@ abstract class Builder
             $table = $options['table'];
         }
 
-        $type = $query->getTableInfo($table, 'type');
+        $type = $this->connection->getTableInfo($table, 'type');
 
         if (isset($type[$key])) {
             $info = $type[$key];
@@ -687,7 +687,7 @@ abstract class Builder
             if ($u instanceof \Closure) {
                 $sql[] = $type . ' ' . $this->parseClosure($query, $u, false);
             } elseif (is_string($u)) {
-                $sql[] = $type . ' ' . $query->parseSqlTable($u);
+                $sql[] = $type . ' ' . $this->connection->parseSqlTable($u);
             }
         }
 
@@ -803,7 +803,7 @@ abstract class Builder
 
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $fields = array_keys($query->getFieldsType($options));
+            $fields = $this->connection->getTableFields($options['table']);
         } else {
             $fields = $options['field'];
         }
