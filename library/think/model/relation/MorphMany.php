@@ -159,6 +159,10 @@ class MorphMany extends Relation
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
 
+            if (!isset($data[$result->$pk])) {
+                $data[$result->$pk] = [];
+            }
+
             foreach ($data[$result->$pk] as &$relationModel) {
                 $relationModel->setParent(clone $result);
                 $relationModel->isUpdate(true);
