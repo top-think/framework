@@ -378,6 +378,10 @@ class Route
         // 添加到当前分组
         $this->group->addRule($rule, $method);
 
+        if (!empty($option['cross_domain'])) {
+            $this->setCrossDomainRule($rule, $method);
+        }
+
         return $rule;
     }
 
@@ -466,6 +470,10 @@ class Route
 
         // 注册分组到当前域名
         $this->domains[$this->domain]->addRule($group);
+
+        if (!empty($option['cross_domain'])) {
+            $this->setCrossDomainRule($group);
+        }
 
         return $group;
     }
