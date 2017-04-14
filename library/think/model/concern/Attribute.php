@@ -180,7 +180,7 @@ trait Attribute
         } elseif (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         } else {
-            throw new InvalidArgumentException('property not exists:' . get_class($this) . '->' . $name);
+            throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
         }
     }
 
@@ -401,7 +401,7 @@ trait Attribute
                 // 保存关联对象值
                 $this->relation[$name] = $value;
             } else {
-                throw new InvalidArgumentException('property not exists:' . get_class($this) . '->' . $name);
+                throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
             }
         }
 

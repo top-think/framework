@@ -74,7 +74,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (empty($this->name)) {
             // 当前模型名
-            $name       = str_replace('\\', '/', get_called_class());
+            $name       = str_replace('\\', '/', static::class);
             $this->name = basename($name);
             if (Facade::make('config')->get('class_suffix')) {
                 $suffix     = basename(dirname($name));
@@ -121,7 +121,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 设置当前模型 确保查询返回模型对象
         $class = $this->query ?: Facade::make('config')->get('database.query');
         $query = new $class();
-        $query->connect($connection)->model(get_called_class());
+        $query->connect($connection)->model(static::class);
 
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
@@ -163,10 +163,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function initialize()
     {
-        $class = get_class($this);
-
-        if (!isset(static::$initialized[$class])) {
-            static::$initialized[$class] = true;
+        if (!isset(static::$initialized[static::class])) {
+            static::$initialized[static::class] = true;
             static::init();
         }
     }

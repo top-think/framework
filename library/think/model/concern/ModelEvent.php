@@ -31,7 +31,7 @@ trait ModelEvent
      */
     public static function event($event, $callback, $override = false)
     {
-        $class = get_called_class();
+        $class = static::class;
 
         if ($override) {
             self::$event[$class][$event] = [];
@@ -48,7 +48,7 @@ trait ModelEvent
      */
     protected function trigger($event)
     {
-        $class = get_called_class();
+        $class = static::class;
 
         if (isset(self::$event[$class][$event])) {
             foreach (self::$event[$class][$event] as $callback) {

@@ -483,7 +483,7 @@ trait RelationShip
     protected function parseModel($model)
     {
         if (false === strpos($model, '\\')) {
-            $path = explode('\\', get_called_class());
+            $path = explode('\\', static::class);
             array_pop($path);
             array_push($path, Loader::parseName($model, 1));
             $model = implode('\\', $path);
