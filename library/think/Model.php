@@ -739,13 +739,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $item    = [];
         $visible = [];
         $hidden  = [];
+
+        $data = array_merge($this->data, $this->relation);
+
         // 过滤属性
         if (!empty($this->visible)) {
             $array = $this->parseAttr($this->visible, $visible);
-            $data  = array_intersect_key($this->data, array_flip($array));
+            $data  = array_intersect_key($data, array_flip($array));
         } elseif (!empty($this->hidden)) {
             $array = $this->parseAttr($this->hidden, $hidden, false);
-            $data  = array_diff_key($this->data, array_flip($array));
+            $data  = array_diff_key($data, array_flip($array));
         } else {
             $data = $this->data;
         }
