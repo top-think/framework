@@ -749,8 +749,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif (!empty($this->hidden)) {
             $array = $this->parseAttr($this->hidden, $hidden, false);
             $data  = array_diff_key($data, array_flip($array));
-        } else {
-            $data = $this->data;
         }
 
         foreach ($data as $key => $val) {
