@@ -54,6 +54,8 @@ class Route
     protected $bind = [];
     // 域名对象
     protected $domains = [];
+    // 跨域路由规则
+    protected $cross;
     // 当前路由标识
     protected $routeName;
 
@@ -371,12 +373,30 @@ class Route
         }
 
         // 创建路由规则实例
-        $rule = new RuleItem($this, $this->group, $rule, $route, $option, $pattern);
+        $rule = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
 
         // 添加到当前分组
         $this->group->addRule($rule, $method);
 
         return $rule;
+    }
+
+    /**
+     * 设置跨域有效路由规则
+     * @access public
+     * @param Rule      $rule      路由规则
+     * @param string    $method    请求类型
+     * @return void
+     */
+    public function setCrossDomainRule($rule, $method = '*')
+    {
+        if (!isset($this->cross)) {
+            $this->cross = new RuleGroup($this);
+        }
+
+        $this->cross->addRule($rule, $method);
+
+        return $this;
     }
 
     /**
@@ -721,6 +741,11 @@ class Route
         }
 
         $result = $domain->check($this->request, $url, $depr);
+
+        if (false === $result && !empty($this->cross)) {
+            // 检测跨越路由
+            $result = $this->cross->check($this->request, $url, $depr);
+        }
 
         if (false !== $result) {
             // 路由匹配

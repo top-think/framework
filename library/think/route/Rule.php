@@ -268,6 +268,24 @@ abstract class Rule
     }
 
     /**
+     * 设置路由规则全局有效
+     * @access public
+     * @return $this
+     */
+    public function crossDomain()
+    {
+        if ($this instanceof RuleGroup) {
+            $method = '*';
+        } else {
+            $method = $this->method;
+        }
+
+        $this->router->setCrossDomainRule($this, $method);
+
+        return $this;
+    }
+
+    /**
      * 解析路由变量
      * @access public
      * @param array    $rule 路由规则

@@ -19,6 +19,8 @@ class RuleItem extends Rule
     protected $name;
     // 路由地址
     protected $route;
+    // 请求类型
+    protected $method;
     // 所属分组
     protected $group;
 
@@ -28,15 +30,17 @@ class RuleItem extends Rule
      * @param Route             $router 路由实例
      * @param RuleGroup         $group 路由所属分组对象
      * @param string|array      $name 路由规则
+     * @param string            $method 请求类型
      * @param string|\Closure   $route 路由地址
      * @param array             $option 路由参数
      * @param array             $pattern 变量规则
      */
-    public function __construct(Route $router, RuleGroup $group, $name, $route, $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $group, $name, $route, $method = '*', $option = [], $pattern = [])
     {
         $this->router = $router;
         $this->group  = $group;
         $this->route  = $route;
+        $this->method = $method;
 
         $this->setRule($name, $option);
 
