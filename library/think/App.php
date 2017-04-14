@@ -508,10 +508,11 @@ class App
             }
 
             // 加载公共文件
-            if (is_file($path . 'common' . EXT)) {
-                include $path . 'common' . EXT;
+            if(!IS_CLI) {
+                if (is_file($path . 'common' . EXT)) {
+                    include $path . 'common' . EXT;
+                }
             }
-
             // 加载当前模块语言包
             if ($module) {
                 Lang::load($path . 'lang' . DS . Request::instance()->langset() . EXT);
