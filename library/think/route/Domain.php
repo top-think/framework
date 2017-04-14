@@ -19,14 +19,13 @@ use think\route\dispatch\Module as ModuleDispatch;
 
 class Domain extends RuleGroup
 {
-
     /**
      * 检测域名路由
      * @access public
      * @param Request      $request  请求对象
      * @param string       $url      访问地址
      * @param string       $depr     路径分隔符
-     * @return Dispatch
+     * @return Dispatch|false
      */
     public function check($request, $url, $depr = '/')
     {

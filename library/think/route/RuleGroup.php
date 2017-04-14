@@ -57,7 +57,7 @@ class RuleGroup extends Rule
      * @param Request      $request  请求对象
      * @param string       $url      访问地址
      * @param string       $depr     路径分隔符
-     * @return Dispatch
+     * @return Dispatch|false
      */
     public function check($request, $url, $depr = '/')
     {
@@ -95,6 +95,8 @@ class RuleGroup extends Rule
         } elseif (isset($this->miss)) {
             // 未匹配所有路由的路由规则处理
             $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
+        } else {
+            $result = false;
         }
 
         return $result;
@@ -143,4 +145,18 @@ class RuleGroup extends Rule
         return $this->option('prefix', $prefix);
     }
 
+    /**
+     * 获取分组的路由规则
+     * @access public
+     * @param string     $method
+     * @return array
+     */
+    public function getRules($method = '')
+    {
+        if ('' === $method) {
+            return $this->rules;
+        } else {
+            return isset($this->rules[strtolower($method)]) ? $this->rules[strtolower($method)] : [];
+        }
+    }
 }

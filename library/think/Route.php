@@ -61,17 +61,44 @@ class Route
     {
         $this->app     = $app;
         $this->request = $request;
+        $this->host    = $this->app['request']->host();
+
+        $this->setDefaultDomain();
+    }
+
+    /**
+     * 初始化默认域名
+     * @access public
+     * @param RuleGroup    $group 域名
+     * @return void
+     */
+    protected function setDefaultDomain()
+    {
+        // 默认域名
+        $this->domain = $this->host;
+
+        // 注册默认域名
+        $domain = new Domain($this, $this->host);
+
+        $this->domains[$this->host] = $domain;
 
         // 默认分组
-        $this->group = new RuleGroup($this, '');
+        $this->group = $this->createTopGroup($domain);
 
-        // 默认域名
-        $host = $this->app['request']->host();
+    }
 
-        $this->domain = $host;
+    /**
+     * 创建一个域名下的顶级路由分组
+     * @access protected
+     * @return RuleGroup
+     */
+    protected function createTopGroup($domain)
+    {
+        $group = new RuleGroup($this);
+        // 注册分组到当前域名
+        $domain->addRule($group);
 
-        // 注册默认分组到默认域名下
-        $this->domain($host)->addRule($this->group);
+        return $group;
     }
 
     /**
@@ -137,14 +164,15 @@ class Route
         // 支持多个域名使用相同路由规则
         $domain = is_array($name) ? array_shift($name) : $name;
 
+        // 获取原始分组
+        $originGroup = $this->group;
+
         // 设置当前域名
         $this->domain = $domain;
 
-        if (!isset($this->domains[$domain])) {
-            $this->domains[$domain] = new Domain($this, $domain, $option, $pattern);
-        } else {
-            $this->domains[$domain]->option($option)->pattern($pattern);
-        }
+        $this->domains[$domain] = new Domain($this, $domain, $option, $pattern);
+
+        $this->group = $this->createTopGroup($this->domains[$domain]);
 
         // 执行域名路由
         if ($rule instanceof \Closure) {
@@ -156,7 +184,9 @@ class Route
         }
 
         // 还原默认域名
-        $this->domain = $this->app['request']->host();
+        $this->domain = $this->host;
+        // 还原默认分组
+        $this->group = $originGroup;
 
         if (is_array($name) && !empty($name)) {
             foreach ($name as $item) {
@@ -166,6 +196,16 @@ class Route
 
         // 返回域名对象
         return $this->domains[$domain];
+    }
+
+    /**
+     * 获取域名
+     * @access public
+     * @return array
+     */
+    public function getDomains()
+    {
+        return $this->domains;
     }
 
     /**
