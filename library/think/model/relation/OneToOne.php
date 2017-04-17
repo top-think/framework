@@ -233,8 +233,7 @@ abstract class OneToOne extends Relation
      * @return integer
      */
     public function relationCount($result, $closure)
-    {
-    }
+    {}
 
     /**
      * 一对一 关联模型预查询拼装
@@ -269,7 +268,7 @@ abstract class OneToOne extends Relation
             $relationModel = null;
         }
 
-        $result->setAttr(Loader::parseName($relation), $relationModel);
+        $result->setRelation(Loader::parseName($relation), $relationModel);
     }
 
     /**
