@@ -154,21 +154,22 @@ class MorphMany extends Relation
         $pk = $result->getPk();
 
         if (isset($result->$pk)) {
+            $key  = $result->$pk;
             $data = $this->eagerlyMorphToMany([
-                $this->morphKey  => $result->$pk,
+                $this->morphKey  => $key,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
 
-            if (!isset($data[$result->$pk])) {
-                $data[$result->$pk] = [];
+            if (!isset($data[$key])) {
+                $data[$key] = [];
             }
 
-            foreach ($data[$result->$pk] as &$relationModel) {
+            foreach ($data[$key] as &$relationModel) {
                 $relationModel->setParent(clone $result);
                 $relationModel->isUpdate(true);
             }
 
-            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
+            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$key]));
         }
     }
 

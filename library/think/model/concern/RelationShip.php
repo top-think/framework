@@ -550,13 +550,18 @@ trait RelationShip
     protected function checkAutoRelationWrite()
     {
         foreach ($this->together as $key => $name) {
-            if (!is_numeric($key)) {
-                $this->relationWrite[$key] = [];
-                // 绑定关联属性
-                foreach ((array) $name as $val) {
-                    if (isset($this->data[$val])) {
-                        $this->relationWrite[$key][$val] = $this->data[$val];
+            if (is_array($name)) {
+                if (key($name) === 0) {
+                    $this->relationWrite[$key] = [];
+                    // 绑定关联属性
+                    foreach ((array) $name as $val) {
+                        if (isset($this->data[$val])) {
+                            $this->relationWrite[$key][$val] = $this->data[$val];
+                        }
                     }
+                } else {
+                    // 直接传入关联数据
+                    $this->relationWrite[$key] = $name;
                 }
             } elseif (isset($this->relation[$name])) {
                 $this->relationWrite[$name] = $this->relation[$name];

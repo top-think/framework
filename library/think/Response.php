@@ -110,7 +110,7 @@ class Response
             http_response_code($this->code);
             // 发送头部信息
             foreach ($this->header as $name => $val) {
-                header($name . ':' . $val);
+                header($name . (!is_null($val) ? ':' . $val : ''));
             }
         }
 
