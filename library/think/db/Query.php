@@ -1999,7 +1999,7 @@ class Query
             $relation = explode(',', $relation);
         }
         if (isset($this->options['relation'])) {
-            $this->options['relation'] = array_mrege($this->options['relation'], $relation);
+            $this->options['relation'] = array_merge($this->options['relation'], $relation);
         } else {
             $this->options['relation'] = $relation;
         }
