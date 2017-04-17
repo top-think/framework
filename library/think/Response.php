@@ -113,7 +113,11 @@ class Response
             http_response_code($this->code);
             // 发送头部信息
             foreach ($this->header as $name => $val) {
-                header($name . ':' . $val);
+                if (is_null($val)) {
+                    header($name);
+                } else {
+                    header($name . ':' . $val);
+                }
             }
         }
 
@@ -193,9 +197,9 @@ class Response
     public function content($content)
     {
         if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-            $content,
-            '__toString',
-        ])
+                $content,
+                '__toString',
+            ])
         ) {
             throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
         }
@@ -305,9 +309,9 @@ class Response
             $content = $this->output($this->data);
 
             if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-                $content,
-                '__toString',
-            ])
+                    $content,
+                    '__toString',
+                ])
             ) {
                 throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
             }
