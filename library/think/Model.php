@@ -894,13 +894,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!empty($this->relationWrite)) {
             $relation = [];
             foreach ($this->relationWrite as $key => $name) {
-                if (!is_numeric($key)) {
-                    $relation[$key] = [];
-                    foreach ($name as $val) {
-                        if (isset($this->data[$val])) {
-                            $relation[$key][$val] = $this->data[$val];
-                            unset($this->data[$val]);
+                if (is_array($name)) {
+                    if (key($name) === 0) {
+                        $relation[$key] = [];
+                        foreach ($name as $val) {
+                            if (isset($this->data[$val])) {
+                                $relation[$key][$val] = $this->data[$val];
+                                unset($this->data[$val]);
+                            }
                         }
+                    } else {
+                        $relation[$key] = $name;
                     }
                 } elseif (isset($this->relation[$name])) {
                     $relation[$name] = $this->relation[$name];
@@ -943,17 +947,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
                 // 关联更新
                 if (isset($relation)) {
-                    foreach ($relation as $name => $val) {
-                        if ($val instanceof Model) {
-                            $val->save();
-                        } else {
-                            unset($this->data[$name]);
-                            $model = $this->getAttr($name);
-                            if ($model instanceof Model) {
-                                $model->save($val);
-                            }
-                        }
-                    }
+                    $this->autoRelationUpdate($relation);
                 }
                 return 0;
             } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
@@ -985,17 +979,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 关联更新
             if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    if ($val instanceof Model) {
-                        $val->save();
-                    } else {
-                        unset($this->data[$name]);
-                        $model = $this->getAttr($name);
-                        if ($model instanceof Model) {
-                            $model->save($val);
-                        }
-                    }
-                }
+                $this->autoRelationUpdate($relation);
             }
 
             // 更新回调
@@ -1049,6 +1033,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->origin = $this->data;
 
         return $result;
+    }
+
+    protected function autoRelationUpdate($relation)
+    {
+        foreach ($relation as $name => $val) {
+            if ($val instanceof Model) {
+                $val->save();
+            } else {
+                unset($this->data[$name]);
+                $model = $this->getAttr($name);
+                if ($model instanceof Model) {
+                    $model->save($val);
+                }
+            }
+        }
     }
 
     /**
