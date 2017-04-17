@@ -941,7 +941,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $data = $this->getChangedData();
 
             if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
-                // 没有更新
+                // 关联更新
+                if (isset($relation)) {
+                    foreach ($relation as $name => $val) {
+                        if ($val instanceof Model) {
+                            $val->save();
+                        } else {
+                            unset($this->data[$name]);
+                            $model = $this->getAttr($name);
+                            if ($model instanceof Model) {
+                                $model->save($val);
+                            }
+                        }
+                    }
+                }
                 return 0;
             } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
                 // 自动写入更新时间
