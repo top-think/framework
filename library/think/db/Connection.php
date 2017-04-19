@@ -21,13 +21,6 @@ use think\Exception;
 use think\exception\PDOException;
 use think\Facade;
 
-/**
- * Class Connection
- * @package think
- * @method Query table(string $table) 指定数据表（含前缀）
- * @method Query name(string $name) 指定数据表（不含前缀）
- *
- */
 abstract class Connection
 {
     protected static $instance = [];
@@ -1201,6 +1194,7 @@ abstract class Connection
                     $result = [];
                 }
             }
+
             if (isset($cache) && isset($guid)) {
                 // 缓存数据
                 $this->cacheData($guid, $result, $cache);
@@ -1349,7 +1343,8 @@ abstract class Connection
             return $this->procedure();
         }
 
-        $result        = $this->PDOStatement->fetchAll($this->fetchType);
+        $result = $this->PDOStatement->fetchAll($this->fetchType);
+
         $this->numRows = count($result);
 
         return $result;
@@ -1534,7 +1529,7 @@ abstract class Connection
      */
     public function getQueryTimes($execute = false)
     {
-        return $execute ? Query::$queryTimes + Query::$executeTimes : Query::$queryTimes;
+        return $execute ? Db::$queryTimes + Db::$executeTimes : Db::$queryTimes;
     }
 
     /**
@@ -1544,7 +1539,7 @@ abstract class Connection
      */
     public function getExecuteTimes()
     {
-        return Query::$executeTimes;
+        return Db::$executeTimes;
     }
 
     /**
