@@ -11,6 +11,7 @@
 
 namespace think\model;
 
+use think\Db;
 use think\db\Query;
 use think\Model;
 
@@ -120,22 +121,19 @@ class Merge extends Model
      * @access public
      * @param string $model  模型名称
      * @param array  $data   数据
-     * @param bool   $insert 是否新增
      * @return array
      */
-    protected function parseData($model, $data, $insert = false)
+    protected function parseData($model, $data)
     {
         $item = [];
         foreach ($data as $key => $val) {
-            if ($insert || in_array($key, $this->change) || $this->isPk($key)) {
-                if ($this->fk != $key && array_key_exists($key, $this->mapFields)) {
-                    list($name, $key) = explode('.', $this->mapFields[$key]);
-                    if ($model == $name) {
-                        $item[$key] = $val;
-                    }
-                } else {
+            if ($this->fk != $key && array_key_exists($key, $this->mapFields)) {
+                list($name, $key) = explode('.', $this->mapFields[$key]);
+                if ($model == $name) {
                     $item[$key] = $val;
                 }
+            } else {
+                $item[$key] = $val;
             }
         }
         return $item;
@@ -174,6 +172,11 @@ class Merge extends Model
             $this->setAttr($this->updateTime, null);
         }
 
+        // 事件回调
+        if (false === $this->trigger('before_write', $this)) {
+            return false;
+        }
+
         $db = $this->db();
         $db->startTrans();
         $pk = $this->getPk();
@@ -190,8 +193,16 @@ class Merge extends Model
                     $where = $this->updateWhere;
                 }
 
+                // 获取有更新的数据
+                $data = $this->getChangedData();
+                // 保留主键数据
+                foreach ($this->data as $key => $val) {
+                    if ($this->isPk($key)) {
+                        $data[$key] = $val;
+                    }
+                }
                 // 处理模型数据
-                $data = $this->parseData($this->name, $this->data);
+                $data = $this->parseData($this->name, $data);
                 if (is_string($pk) && isset($data[$pk])) {
                     if (!isset($where[$pk])) {
                         unset($where);
@@ -207,14 +218,12 @@ class Merge extends Model
                     $name  = is_int($key) ? $model : $key;
                     $table = is_int($key) ? $db->getTable($model) : $model;
                     // 处理关联模型数据
-                    $data  = $this->parseData($name, $this->data);
-                    $query = new Query;
-                    if ($query->table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data)) {
+                    $data = $this->parseData($name, $data);
+                    if (Db::table($table)->strict(false)->where($this->fk, $this->data[$this->getPk()])->update($data)) {
                         $result = 1;
                     }
                 }
-                // 清空change
-                $this->change = [];
+
                 // 新增回调
                 $this->trigger('after_update', $this);
             } else {
@@ -231,7 +240,7 @@ class Merge extends Model
                 }
 
                 // 处理模型数据
-                $data = $this->parseData($this->name, $this->data, true);
+                $data = $this->parseData($this->name, $this->data);
                 // 写入主表数据
                 $result = $db->name($this->name)->strict(false)->insert($data);
                 if ($result) {
@@ -240,9 +249,6 @@ class Merge extends Model
                     if ($insertId) {
                         if (is_string($pk)) {
                             $this->data[$pk] = $insertId;
-                            if ($this->fk == $pk) {
-                                $this->change[] = $pk;
-                            }
                         }
                         $this->data[$this->fk] = $insertId;
                     }
@@ -256,19 +262,20 @@ class Merge extends Model
                         $name  = is_int($key) ? $model : $key;
                         $table = is_int($key) ? $db->getTable($model) : $model;
                         // 处理关联模型数据
-                        $data  = $this->parseData($name, $source, true);
-                        $query = new Query;
-                        $query->table($table)->strict(false)->insert($data);
+                        $data = $this->parseData($name, $source);
+                        Db::table($table)->strict(false)->insert($data);
                     }
                 }
                 // 标记为更新
                 $this->isUpdate = true;
-                // 清空change
-                $this->change = [];
                 // 新增回调
                 $this->trigger('after_insert', $this);
             }
             $db->commit();
+            // 写入回调
+            $this->trigger('after_write', $this);
+
+            $this->origin = $this->data;
             return $result;
         } catch (\Exception $e) {
             $db->rollback();

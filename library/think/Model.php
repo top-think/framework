@@ -1083,11 +1083,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $relation = Loader::parseName($attr, 1, false);
 
-        if (method_exists($this, $relation) && $this->$relation() instanceof Relation) {
-            return $relation;
-        } else {
-            return false;
+        if (method_exists($this, $relation)) {
+            $reflect = new \ReflectionMethod($this, $relation);
+            if (0 == $reflect->getNumberOfParameters() && $this->$relation() instanceof Relation) {
+                return $relation;
+            }
         }
+        return false;
+
     }
 
     /**
@@ -1522,9 +1525,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function scope($name)
     {
-        if ($name instanceof Query) {
-            return $name;
-        }
         $model  = new static();
         $query  = $model->db();
         $params = func_get_args();
@@ -1542,7 +1542,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
         }
-        return $query;
+        return $model;
     }
 
     /**
@@ -1937,7 +1937,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             array_unshift($args, $query);
 
             call_user_func_array([$model, $method], $args);
-            return $query;
+            return $model;
         } else {
             return call_user_func_array([$query, $method], $args);
         }
