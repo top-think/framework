@@ -261,15 +261,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 检测字段
-        if (!empty($this->field)) {
-            if (true === $this->field) {
-                $this->field = $this->db(false)->getTableInfo('', 'fields');
-            }
+        if (empty($this->field) || true === $this->field) {
+            if (!empty($this->origin)) {
+                $this->field = array_keys($this->origin);
+            } else {
+                $query = $this->db(false);
+                $table = $query->getTable();
 
-            foreach ($this->data as $key => $val) {
-                if (!in_array($key, $this->field)) {
-                    unset($this->data[$key]);
-                }
+                $this->field = $query->getConnection()->getTableFields($table);
+            }
+        }
+
+        // 去除非法数据
+        foreach ($this->data as $key => $val) {
+            if (!in_array($key, $this->field)) {
+                unset($this->data[$key]);
             }
         }
 
