@@ -517,11 +517,15 @@ trait RelationShip
     {
         $relation = Loader::parseName($attr, 1, false);
 
-        if (method_exists($this, $relation) && $this->$relation() instanceof Relation) {
-            return $relation;
-        } else {
-            return false;
+        if (method_exists($this, $relation)) {
+            $reflect = new \ReflectionMethod($this, $relation);
+
+            if (0 == $reflect->getNumberOfParameters() && $this->$relation() instanceof Relation) {
+                return $relation;
+            }
         }
+
+        return false;
     }
 
     /**

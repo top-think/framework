@@ -13,7 +13,6 @@ namespace think;
 
 use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
-use think\route\dispatch\Url as UrlDispatch;
 
 /**
  * App 应用管理
@@ -52,11 +51,6 @@ class App implements \ArrayAccess
      * @var bool 应用类库后缀
      */
     protected $suffix = false;
-
-    /**
-     * @var bool 应用路由检测
-     */
-    protected $routeCheck;
 
     /**
      * @var bool 严格路由检测
@@ -361,11 +355,13 @@ class App implements \ArrayAccess
      * 设置当前请求的调度信息
      * @access public
      * @param Dispatch  $dispatch 调度信息
-     * @return void
+     * @return $this
      */
     public function dispatch(Dispatch $dispatch)
     {
         $this->dispatch = $dispatch;
+
+        return $this;
     }
 
     /**
@@ -401,33 +397,22 @@ class App implements \ArrayAccess
         $depr = $this->config('app.pathinfo_depr');
 
         // 路由检测
-        $check = !is_null($this->routeCheck) ? $this->routeCheck : $this->config('app.url_route_on');
-
-        if ($check) {
-            // 开启路由
-            $files = scandir($this->routePath);
-            foreach ($files as $file) {
-                if (strpos($file, '.php')) {
-                    $filename = $this->routePath . DIRECTORY_SEPARATOR . $file;
-                    // 导入路由配置
-                    $rules = include $filename;
-                    if (is_array($rules)) {
-                        $this->route->import($rules);
-                    }
+        $files = scandir($this->routePath);
+        foreach ($files as $file) {
+            if (strpos($file, '.php')) {
+                $filename = $this->routePath . DIRECTORY_SEPARATOR . $file;
+                // 导入路由配置
+                $rules = include $filename;
+                if (is_array($rules)) {
+                    $this->route->import($rules);
                 }
             }
-
-            $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
-
-            // 路由检测（根据路由定义返回不同的URL调度）
-            $result = $this->route->check($path, $depr, $must);
-        } else {
-            // 解析模块/控制器/操作/参数... 支持控制器自动搜索
-            $result = new UrlDispatch($path, [
-                'depr'        => $depr,
-                'auto_search' => $this->config('app.controller_auto_search'),
-            ]);
         }
+
+        $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
+
+        // 路由检测（根据路由定义返回不同的URL调度）
+        $result = $this->route->check($path, $depr, $must);
 
         return $result;
     }
@@ -435,14 +420,14 @@ class App implements \ArrayAccess
     /**
      * 设置应用的路由检测机制
      * @access public
-     * @param  bool $route 是否需要检测路由
      * @param  bool $must  是否强制检测路由
-     * @return void
+     * @return $this
      */
-    public function route($route, $must = false)
+    public function routeMust($must = false)
     {
-        $this->routeCheck = $route;
-        $this->routeMust  = $must;
+        $this->routeMust = $must;
+
+        return $this;
     }
 
     /**
