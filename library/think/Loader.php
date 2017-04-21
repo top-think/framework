@@ -534,11 +534,16 @@ class Loader
      */
     public static function parseClass($module, $layer, $name, $appendSuffix = false)
     {
+        if(strpos($module, '://')){
+            list($namespace, $module) = explode('://', $module, 2);
+        }else{
+            $namespace = App::$namespace;
+        }
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
         $class = self::parseName(array_pop($array), 1) . (App::$suffix || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-        return App::$namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+        return $namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
     /**
