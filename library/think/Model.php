@@ -1122,7 +1122,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $auto = true;
             }
             foreach ($dataSet as $key => $data) {
-                if (!empty($auto) && isset($data[$pk])) {
+                if (!empty($auto) && isset($data[$pk]) && $data[$pk]>0) {
                     $result[$key] = self::update($data, [], $this->field);
                 } else {
                     $result[$key] = self::create($data, $this->field);
