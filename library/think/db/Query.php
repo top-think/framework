@@ -613,9 +613,9 @@ class Query
 
         if (!$cache->has($guid . '_time')) {
             // 计时开始
-            $cache->set($guid . '_time', $_SERVER['REQUEST_TIME'], 0);
+            $cache->set($guid . '_time', time(), 0);
             $cache->$type($guid, $step);
-        } elseif ($_SERVER['REQUEST_TIME'] > $cache->get($guid . '_time') + $lazyTime) {
+        } elseif (time() > $cache->get($guid . '_time') + $lazyTime) {
             // 删除缓存
             $value = $cache->$type($guid, $step);
             $cache->rm($guid);
