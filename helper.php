@@ -52,6 +52,20 @@ if (!function_exists('app')) {
     }
 }
 
+if (!function_exists('bind')) {
+    /**
+     * 绑定一个类到容器
+     * @access public
+     * @param string  $abstract    类标识、接口
+     * @param mixed   $concrete    要绑定的类、闭包或者实例
+     * @return Container
+     */
+    function bind($abstract, $concrete = null)
+    {
+        return Container::getInstance()->bind($abstract, $concrete);
+    }
+}
+
 if (!function_exists('call')) {
     /**
      * 调用反射执行callable 支持依赖注入

@@ -320,7 +320,7 @@ abstract class Rule
      */
     protected function createBindModel($bindModel, $matches)
     {
-        foreach ((array) $bindModel as $key => $val) {
+        foreach ((array) $bindModel as $val) {
             if ($val instanceof \Closure) {
                 $result = call_user_func_array($val, [$matches]);
             } else {

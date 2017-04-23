@@ -39,7 +39,7 @@ class Container
      * @access public
      * @param string  $abstract    类标识、接口
      * @param mixed   $concrete    要绑定的类、闭包或者实例
-     * @return void
+     * @return $this
      */
     public function bind($abstract, $concrete = null)
     {
@@ -50,6 +50,8 @@ class Container
         } else {
             $this->bind[$abstract] = $concrete;
         }
+
+        return $this;
     }
 
     /**
@@ -57,11 +59,13 @@ class Container
      * @access public
      * @param string    $abstract    类名或者标识
      * @param object    $instance    类的实例
-     * @return void
+     * @return $this
      */
     public function instance($abstract, $instance)
     {
         $this->instances[$abstract] = $instance;
+
+        return $this;
     }
 
     /**
