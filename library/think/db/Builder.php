@@ -346,7 +346,7 @@ abstract class Builder
 
             foreach ($val as $k => $item) {
                 $bindName = 'where_' . str_replace('.', '_', $field) . '_' . $k;
-                $str[]    = $this->parseWhereItem($field, $item, $rule, $options, $binds, $bindName);
+                $str[]    = $this->parseWhereItem($query, $field, $item, $rule, $options, $binds, $bindName);
             }
 
             return '( ' . implode(' ' . $rule . ' ', $str) . ' )';
