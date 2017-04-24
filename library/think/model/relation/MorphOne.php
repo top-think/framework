@@ -223,7 +223,7 @@ class MorphOne extends Relation
      */
     protected function baseQuery()
     {
-        if (empty($this->baseQuery)) {
+        if (empty($this->baseQuery) && $this->parent->getData()) {
             $pk                    = $this->parent->getPk();
             $map[$this->morphKey]  = $this->parent->$pk;
             $map[$this->morphType] = $this->type;

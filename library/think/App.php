@@ -412,9 +412,7 @@ class App implements \ArrayAccess
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
 
         // 路由检测（根据路由定义返回不同的URL调度）
-        $result = $this->route->check($path, $depr, $must);
-
-        return $result;
+        return $this->route->check($path, $depr, $must);
     }
 
     /**
@@ -559,10 +557,10 @@ class App implements \ArrayAccess
     }
 
     /**
-     * 数据库初始化 并取得数据库类实例
+     * 数据库初始化
      * @param mixed         $config 数据库配置
      * @param bool|string   $name 连接标识 true 强制重新连接
-     * @return \think\db\Connection
+     * @return \think\db\Query
      */
     public function db($config = [], $name = false)
     {

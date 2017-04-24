@@ -128,7 +128,7 @@ class HasManyThrough extends Relation
      */
     protected function baseQuery()
     {
-        if (empty($this->baseQuery)) {
+        if (empty($this->baseQuery) && $this->parent->getData()) {
             $through      = $this->through;
             $model        = $this->model;
             $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));

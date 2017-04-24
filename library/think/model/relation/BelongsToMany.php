@@ -591,7 +591,7 @@ class BelongsToMany extends Relation
      */
     protected function baseQuery()
     {
-        if (empty($this->baseQuery)) {
+        if (empty($this->baseQuery) && $this->parent->getData()) {
             $pk    = $this->parent->getPk();
             $table = $this->pivot->getTable();
 
