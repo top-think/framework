@@ -1542,7 +1542,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
         }
-        return $model;
+        return $query;
     }
 
     /**
@@ -1937,7 +1937,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             array_unshift($args, $query);
 
             call_user_func_array([$model, $method], $args);
-            return $model;
+            return $query;
         } else {
             return call_user_func_array([$query, $method], $args);
         }
