@@ -137,7 +137,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
-            $query->setTable($this->table);
+            $query->table($this->table);
         } else {
             $query->name($this->name);
         }

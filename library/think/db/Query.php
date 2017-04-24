@@ -35,8 +35,6 @@ class Query
     protected $connection;
     // 当前模型对象
     protected $model;
-    // 当前数据表名称（含前缀）
-    protected $table = '';
     // 当前数据表名称（不含前缀）
     protected $name = '';
     // 当前数据表主键
@@ -92,22 +90,27 @@ class Query
         if (isset(self::$extend[strtolower($method)])) {
             // 调用扩展查询方法
             array_unshift($args, $this);
+
             return Container::getInstance()->invoke(self::$extend[strtolower($method)], $args);
         } elseif (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
             $field         = Loader::parseName(substr($method, 5));
             $where[$field] = $args[0];
+
             return $this->where($where)->find();
         } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
             // 根据某个字段获取记录的某个值
             $name         = Loader::parseName(substr($method, 10));
             $where[$name] = $args[0];
+
             return $this->where($where)->value($args[1]);
         } elseif ($this->model && method_exists($this->model, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
             array_unshift($args, $this);
+
             call_user_func_array([$this->model, $method], $args);
+
             return $this;
         } else {
             throw new Exception('method not exist:' . static::class . '->' . $method);
@@ -119,7 +122,7 @@ class Query
      * @access public
      * @param string|array  $method     查询方法名
      * @param callable      $callback
-     * @return $this
+     * @return void
      */
     public static function extend($method, $callback = null)
     {
@@ -179,7 +182,7 @@ class Query
     }
 
     /**
-     * 指定默认的数据表名（不含前缀）
+     * 指定当前数据表名（不含前缀）
      * @access public
      * @param string $name
      * @return $this
@@ -192,19 +195,6 @@ class Query
     }
 
     /**
-     * 指定默认数据表名（含前缀）
-     * @access public
-     * @param string $table 表名
-     * @return $this
-     */
-    public function setTable($table)
-    {
-        $this->table = $table;
-
-        return $this;
-    }
-
-    /**
      * 得到当前或者指定名称的数据表
      * @access public
      * @param string $name
@@ -212,18 +202,9 @@ class Query
      */
     public function getTable($name = '')
     {
-        if ($name || empty($this->table)) {
-            $name      = $name ?: $this->name;
-            $tableName = $this->prefix;
+        $name = $name ?: $this->name;
 
-            if ($name) {
-                $tableName .= Loader::parseName($name);
-            }
-        } else {
-            $tableName = $this->table;
-        }
-
-        return $tableName;
+        return $this->prefix . Loader::parseName($name);
     }
 
     /**
