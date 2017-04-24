@@ -143,6 +143,9 @@ class App implements \ArrayAccess
      */
     public function initialize()
     {
+        // 注册应用命名空间
+        Loader::addNamespace($this->namespace, $this->appPath);
+
         // 加载环境变量配置文件
         if (is_file($this->rootPath . '.env')) {
             $env = parse_ini_file($this->rootPath . '.env', true);
@@ -179,10 +182,6 @@ class App implements \ArrayAccess
                 echo $output;
             }
         }
-
-        // 注册应用命名空间
-        $this->namespace = $this->config('app.app_namespace');
-        Loader::addNamespace($this->config('app.app_namespace'), $this->appPath);
 
         // 注册根命名空间
         if (!empty($this->config('app.root_namespace'))) {
@@ -710,6 +709,18 @@ class App implements \ArrayAccess
     public function getNamespace()
     {
         return $this->namespace;
+    }
+
+    /**
+     * 设置应用类库命名空间
+     * @param string $namespace 命名空间名称
+     * @return $this
+     */
+    public function setNamespace($namespace)
+    {
+        $this->namespace = $namespace;
+
+        return $this;
     }
 
     /**

@@ -177,6 +177,7 @@ class Loader
 
             return;
         }
+
         if ($prepend) {
             self::$prefixesPsr0[$first][$prefix] = array_merge(
                 (array) $paths,
@@ -212,6 +213,7 @@ class Loader
             if ('\\' !== $prefix[$length - 1]) {
                 throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
             }
+
             self::$prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
             self::$prefixDirsPsr4[$prefix]                = (array) $paths;
         } elseif ($prepend) {
