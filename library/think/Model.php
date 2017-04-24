@@ -1554,7 +1554,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function useGlobalScope($use)
     {
         $model = new static();
-        return $model;
+        return $model->db($use);
     }
 
     /**
