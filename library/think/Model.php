@@ -1975,7 +1975,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __isset($name)
     {
         try {
-            if (array_key_exists($name, $this->data)) {
+            if (array_key_exists($name, $this->data) || array_key_exists($name, $this->relation)) {
                 return true;
             } else {
                 $this->getAttr($name);
@@ -1995,7 +1995,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __unset($name)
     {
-        unset($this->data[$name]);
+        unset($this->data[$name], $this->relation[$name]);
     }
 
     public function __toString()
