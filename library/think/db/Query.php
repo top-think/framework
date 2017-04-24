@@ -33,8 +33,7 @@ class Query
     protected static $connections = [];
     // 当前数据库Connection对象
     protected $connection;
-
-    // 当前模型类名称
+    // 当前模型对象
     protected $model;
     // 当前数据表名称（含前缀）
     protected $table = '';
@@ -76,7 +75,7 @@ class Query
      */
     public function newQuery()
     {
-        return new static;
+        return new static($this->connection);
     }
 
     /**
@@ -111,7 +110,7 @@ class Query
             call_user_func_array([$this->model, $method], $args);
             return $this;
         } else {
-            throw new Exception('method not exist:' . __CLASS__ . '->' . $method);
+            throw new Exception('method not exist:' . static::class . '->' . $method);
         }
     }
 

@@ -595,9 +595,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 查找单条记录
      * @access public
-     * @param mixed        $data  主键值或者查询条件（闭包）
-     * @param array|string $with  关联预查询
-     * @param bool         $cache 是否缓存
+     * @param mixed     $data  主键值或者查询条件（闭包）
+     * @param mixed     $with  关联预查询
+     * @param bool      $cache 是否缓存
      * @return static
      * @throws exception\DbException
      */

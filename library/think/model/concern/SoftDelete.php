@@ -163,6 +163,7 @@ trait SoftDelete
         if (!strpos($field, '.')) {
             $field = '__TABLE__.' . $field;
         }
+
         if (!$read && strpos($field, '.')) {
             $array = explode('.', $field);
             $field = array_pop($array);
