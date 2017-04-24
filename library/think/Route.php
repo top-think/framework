@@ -842,7 +842,7 @@ class Route
         }
         $method = strtolower($request->method());
         // 获取当前请求类型的路由规则
-        $rules = self::$rules[$method];
+        $rules = isset(self::$rules[$method]) ? self::$rules[$method] : [];
         // 检测域名部署
         if ($checkDomain) {
             self::checkDomain($request, $rules, $method);
