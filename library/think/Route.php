@@ -57,7 +57,7 @@ class Route
     // 跨域路由规则
     protected $cross;
     // 当前路由标识
-    protected $routeName;
+    protected $ruleName;
 
     public function __construct(App $app, Request $request)
     {
@@ -246,7 +246,7 @@ class Route
      */
     public function name($name)
     {
-        $this->routeName = $name;
+        $this->ruleName = $name;
 
         return $this;
     }
@@ -341,10 +341,10 @@ class Route
         // 读取路由标识
         if (is_array($rule)) {
             list($name, $rule) = $rule;
-        } elseif ($this->routeName) {
-            $name = $this->routeName;
+        } elseif ($this->ruleName) {
+            $name = $this->ruleName;
 
-            $this->routeName = null;
+            $this->ruleName = null;
         } elseif (is_string($route)) {
             $name = $route;
         }
@@ -359,17 +359,7 @@ class Route
 
         if (isset($name)) {
             // 设置路由标识 用于URL快速生成
-            $vars = $this->parseVar($rule);
-
-            if (isset($option['ext'])) {
-                $suffix = $option['ext'];
-            } elseif ($this->group->getOption('ext')) {
-                $suffix = $this->group->getOption('ext');
-            } else {
-                $suffix = null;
-            }
-
-            $this->name[strtolower($name)][] = [$rule, $vars, $this->domain, $suffix];
+            $this->setRuleName($rule, $name, $option);
         }
 
         // 创建路由规则实例
@@ -383,6 +373,22 @@ class Route
         }
 
         return $rule;
+    }
+
+    protected function setRuleName($rule, $name, $option = [])
+    {
+        // 设置路由标识 用于URL快速生成
+        $vars = $this->parseVar($rule);
+
+        if (isset($option['ext'])) {
+            $suffix = $option['ext'];
+        } elseif ($this->group->getOption('ext')) {
+            $suffix = $this->group->getOption('ext');
+        } else {
+            $suffix = null;
+        }
+
+        $this->name[strtolower($name)][] = [$rule, $vars, $this->domain, $suffix];
     }
 
     /**
