@@ -103,11 +103,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 创建新的模型实例
      * @access public
      * @param array|object $data 数据
+     * @param bool         $isUpdate 是否为更新
+     * @param mixed        $where 更新条件
      * @return Model
      */
-    public function newInstance($data = [])
+    public function newInstance($data = [], $isUpdate = false, $where = null)
     {
-        return new static($data);
+        return (new static($data))->isUpdate($isUpdate, $where);
     }
 
     /**
@@ -483,10 +485,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function isUpdate($update = true, $where = null)
     {
-        $this->isUpdate = $update;
+        if (is_bool($update)) {
+            $this->isUpdate = $update;
 
-        if (!empty($where)) {
-            $this->updateWhere = $where;
+            if (!empty($where)) {
+                $this->updateWhere = $where;
+            }
+        } else {
+            $this->isUpdate    = true;
+            $this->updateWhere = $update;
         }
 
         return $this;

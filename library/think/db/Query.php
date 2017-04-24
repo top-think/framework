@@ -1715,15 +1715,20 @@ class Query
      */
     public function scope($scope, $args = [])
     {
+        // 查询范围的第一个参数始终是当前查询对象
         array_unshift($args, $this);
 
         if ($scope instanceof \Closure) {
             call_user_func_array($scope, $args);
-        } elseif (is_string($scope)) {
+            return $this;
+        }
+
+        if (is_string($scope)) {
             $scope = explode(',', $scope);
         }
 
-        if (is_array($scope) && $this->model) {
+        if ($this->model) {
+            // 检查模型类的查询范围方法
             foreach ($scope as $name) {
                 $method = 'scope' . trim($name);
 
@@ -2250,10 +2255,9 @@ class Query
      */
     protected function resultToModel(&$result, $options = [], $resultSet = false)
     {
-        $result = $this->model->newInstance($result);
 
         $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;
-        $result->isUpdate(true, $condition);
+        $result    = $this->model->newInstance($result, $condition);
 
         // 关联查询
         if (!empty($options['relation'])) {
