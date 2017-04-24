@@ -104,6 +104,12 @@ class Query
             $name         = Loader::parseName(substr($method, 10));
             $where[$name] = $args[0];
             return $this->where($where)->value($args[1]);
+        } elseif ($this->model && method_exists($this->model, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $this);
+            call_user_func_array([$this->model, $method], $args);
+            return $this;
         } else {
             throw new Exception('method not exist:' . __CLASS__ . '->' . $method);
         }
@@ -151,9 +157,9 @@ class Query
     }
 
     /**
-     * 指定当前模型
+     * 指定模型
      * @access public
-     * @param string $model 模型类名
+     * @param Model $model 模型对象实例
      * @return $this
      */
     public function model($model)
@@ -164,9 +170,9 @@ class Query
     }
 
     /**
-     * 获取当前的模型对象名
+     * 获取当前的模型对象
      * @access public
-     * @return string
+     * @return Model
      */
     public function getModel()
     {
@@ -1703,18 +1709,29 @@ class Query
     /**
      * 添加查询范围
      * @access public
-     * @param \Closure  $scope 闭包
-     * @param array     $args  参数
+     * @param array|string|\Closure   $scope 查询范围定义
+     * @param array                   $args  参数
      * @return $this
      */
     public function scope($scope, $args = [])
     {
-        if ($scope instanceof Query) {
-            return $scope;
+        array_unshift($args, $this);
+
+        if ($scope instanceof \Closure) {
+            call_user_func_array($scope, $args);
+        } elseif (is_string($scope)) {
+            $scope = explode(',', $scope);
         }
 
-        array_unshift($args, $this);
-        call_user_func_array($scope, $args);
+        if (is_array($scope) && $this->model) {
+            foreach ($scope as $name) {
+                $method = 'scope' . trim($name);
+
+                if (method_exists($this->model, $method)) {
+                    call_user_func_array([$this->model, $method], $args);
+                }
+            }
+        }
 
         return $this;
     }
@@ -1889,11 +1906,10 @@ class Query
             $with = explode(',', $with);
         }
 
-        $first        = true;
-        $currentModel = $this->model;
+        $first = true;
 
         /** @var Model $class */
-        $class = new $currentModel;
+        $class = $this->model;
         foreach ($with as $key => $relation) {
             $subRelation = '';
             $closure     = false;
@@ -1954,7 +1970,7 @@ class Query
                     $relation = $key;
                 }
                 $relation = Loader::parseName($relation, 1, false);
-                $count    = '(' . (new $this->model)->$relation()->getRelationCountQuery($closure) . ')';
+                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure) . ')';
                 $this->field([$count => Loader::parseName($relation) . '_count']);
             }
         }
@@ -2155,7 +2171,6 @@ class Query
         // 数据列表读取后的处理
         if (!empty($this->model)) {
             // 生成模型对象
-            $modelName = $this->model;
             if (count($resultSet) > 0) {
                 foreach ($resultSet as $key => &$result) {
                     // 数据转换为模型对象
@@ -2170,7 +2185,7 @@ class Query
                 // 模型数据集转换
                 $resultSet = $result->toCollection($resultSet);
             } else {
-                $resultSet = (new $modelName)->toCollection($resultSet);
+                $resultSet = $this->model->toCollection($resultSet);
             }
         } elseif ('collection' == $this->connection->getConfig('resultset_type')) {
             // 返回Collection对象
@@ -2235,8 +2250,7 @@ class Query
      */
     protected function resultToModel(&$result, $options = [], $resultSet = false)
     {
-        $model  = $this->model;
-        $result = new $model($result);
+        $result = $this->model->newInstance($result);
 
         $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;
         $result->isUpdate(true, $condition);
@@ -2268,7 +2282,8 @@ class Query
     protected function throwNotFound($options = [])
     {
         if (!empty($this->model)) {
-            throw new ModelNotFoundException('model data Not Found:' . $this->model, $this->model, $options);
+            $class = get_class($this->model);
+            throw new ModelNotFoundException('model data Not Found:' . $class, $class, $options);
         } else {
             $table = is_array($options['table']) ? key($options['table']) : $options['table'];
             throw new DataNotFoundException('table data not Found:' . $table, $table, $options);

@@ -24,7 +24,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     use model\concern\RelationShip;
     use model\concern\ModelEvent;
     use model\concern\TimeStamp;
-    use model\concern\Scope;
     use model\concern\Conversion;
     use model\concern\DataValidate;
 
@@ -101,6 +100,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 创建新的模型实例
+     * @access public
+     * @param array|object $data 数据
+     * @return Model
+     */
+    public function newInstance($data = [])
+    {
+        return new static($data);
+    }
+
+    /**
      * 创建模型的查询对象
      * @access protected
      * @return Query
@@ -121,7 +131,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 设置当前模型 确保查询返回模型对象
         $class = $this->query ?: Facade::make('config')->get('database.query');
         $query = new $class();
-        $query->connect($connection)->model(static::class);
+        $query->connect($connection)->model($this);
 
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
@@ -728,7 +738,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __isset($name)
     {
         try {
-            if (array_key_exists($name, $this->data)) {
+            if (array_key_exists($name, $this->data) || array_key_exists($name, $this->relation)) {
                 return true;
             } else {
                 $this->getAttr($name);
@@ -748,7 +758,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __unset($name)
     {
-        unset($this->data[$name]);
+        unset($this->data[$name], $this->relation[$name]);
     }
 
     // ArrayAccess
@@ -772,4 +782,28 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $this->getAttr($name);
     }
 
+    /**
+     * 设置是否使用全局查询范围
+     * @param bool $use 是否启用全局查询范围
+     * @access public
+     * @return Query
+     */
+    public static function useGlobalScope($use)
+    {
+        $model = new static();
+
+        return $model->db($use);
+    }
+
+    public function __call($method, $args)
+    {
+        return call_user_func_array([$this->db(), $method], $args);
+    }
+
+    public static function __callStatic($method, $args)
+    {
+        $model = new static();
+
+        return call_user_func_array([$model->db(), $method], $args);
+    }
 }
