@@ -380,12 +380,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 case 'datetime':
                 case 'date':
                     $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = $this->formatDateTime($_SERVER['REQUEST_TIME'], $format);
+                    $value  = $this->formatDateTime(time(), $format);
                     break;
                 case 'timestamp':
                 case 'integer':
                 default:
-                    $value = $_SERVER['REQUEST_TIME'];
+                    $value = time();
                     break;
             }
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
@@ -394,9 +394,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             'timestamp',
         ])
         ) {
-            $value = $this->formatDateTime($_SERVER['REQUEST_TIME'], $this->dateFormat);
+            $value = $this->formatDateTime(time(), $this->dateFormat);
         } else {
-            $value = $this->formatDateTime($_SERVER['REQUEST_TIME'], $this->dateFormat, true);
+            $value = $this->formatDateTime(time(), $this->dateFormat, true);
         }
         return $value;
     }
