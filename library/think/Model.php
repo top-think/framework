@@ -709,7 +709,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __debugInfo()
     {
         return [
-            'data' => $this->data,
+            'data'     => $this->data,
+            'relation' => $this->relation,
         ];
     }
 
