@@ -517,7 +517,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         } elseif ($notFound) {
             $relation = $this->isRelationAttr($name);
-            $method   = Loader::parseName($name, 1, false);
             if ($relation) {
                 $modelRelation = $this->$relation();
                 // 不存在该字段 获取关联数据
@@ -537,7 +536,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param Relation        $modelRelation 模型关联对象
      * @return mixed
      */
-    protected function getRelationData($modelRelation)
+    protected function getRelationData(Relation $modelRelation)
     {
         if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
             $value = $this->parent;
@@ -1084,10 +1083,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $relation = Loader::parseName($attr, 1, false);
 
         if (method_exists($this, $relation)) {
-            $reflect = new \ReflectionMethod($this, $relation);
-            if (0 == $reflect->getNumberOfParameters() && $this->$relation() instanceof Relation) {
-                return $relation;
-            }
+            return $relation;
         }
         return false;
 
