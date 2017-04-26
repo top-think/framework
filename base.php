@@ -36,6 +36,7 @@ Container::getInstance()->bind([
     'config'                => Config::class,
     'cookie'                => Cookie::class,
     'debug'                 => Debug::class,
+    'env'                   => Env::class,
     'hook'                  => Hook::class,
     'lang'                  => Lang::class,
     'log'                   => Log::class,
@@ -45,6 +46,7 @@ Container::getInstance()->bind([
     'session'               => Session::class,
     'url'                   => Url::class,
     'view'                  => View::class,
+
     // 接口依赖注入
     'think\LoggerInterface' => Log::class,
 ]);
@@ -57,6 +59,7 @@ Facade::bind([
     facade\Config::class   => Config::class,
     facade\Cookie::class   => Cookie::class,
     facade\Debug::class    => Debug::class,
+    facade\Env::class      => Env::class,
     facade\Hook::class     => Hook::class,
     facade\Lang::class     => Lang::class,
     facade\Log::class      => Log::class,
@@ -77,7 +80,7 @@ Loader::addClassAlias([
     'Cookie'   => facade\Cookie::class,
     'Db'       => Db::class,
     'Debug'    => facade\Debug::class,
-    'Env'      => Env::class,
+    'Env'      => facade\Env::class,
     'Facade'   => Facade::class,
     'Hook'     => facade\Hook::class,
     'Lang'     => facade\Lang::class,

@@ -961,7 +961,7 @@ class Request
     public function env($name = '', $default = null, $filter = '')
     {
         if (empty($this->env)) {
-            $this->env = $_ENV;
+            $this->env = Facade::make('env')->get();
         }
 
         if (is_array($name)) {

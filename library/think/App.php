@@ -116,7 +116,7 @@ class App implements \ArrayAccess
         $this->configExt   = $this->config('app.config_ext') ?: '.php';
 
         // 设置路径环境变量
-        Env::set([
+        $this->env->set([
             'think_path'   => $this->thinkPath,
             'root_path'    => $this->rootPath,
             'app_path'     => $this->appPath,
@@ -136,19 +136,9 @@ class App implements \ArrayAccess
 
         // 加载环境变量配置文件
         if (is_file($this->rootPath . '.env')) {
-            $env = parse_ini_file($this->rootPath . '.env', true);
-            foreach ($env as $key => $val) {
-                $name = 'PHP_' . strtoupper($key);
-                if (is_array($val)) {
-                    foreach ($val as $k => $v) {
-                        $item = $name . '_' . strtoupper($k);
-                        putenv("$item=$v");
-                    }
-                } else {
-                    putenv("$name=$val");
-                }
-            }
+            $this->env->load($this->rootPath . '.env');
         }
+
         // 初始化应用
         $this->init();
 
@@ -156,7 +146,7 @@ class App implements \ArrayAccess
         $this->suffix = $this->config('app.class_suffix');
 
         // 应用调试模式
-        $this->debug = Env::get('app.app_debug', $this->config('app.app_debug'));
+        $this->debug = $this->env->get('app.app_debug', $this->config('app.app_debug'));
 
         if (!$this->debug) {
             ini_set('display_errors', 'Off');
