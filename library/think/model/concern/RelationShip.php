@@ -518,11 +518,7 @@ trait RelationShip
         $relation = Loader::parseName($attr, 1, false);
 
         if (method_exists($this, $relation)) {
-            $reflect = new \ReflectionMethod($this, $relation);
-
-            if (0 == $reflect->getNumberOfParameters() && $this->$relation() instanceof Relation) {
-                return $relation;
-            }
+            return $relation;
         }
 
         return false;
@@ -534,7 +530,7 @@ trait RelationShip
      * @param Relation  $modelRelation 模型关联对象
      * @return mixed
      */
-    protected function getRelationData($modelRelation)
+    protected function getRelationData(Relation $modelRelation)
     {
         if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
             $value = $this->parent;
