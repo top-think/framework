@@ -254,6 +254,10 @@ class App implements \ArrayAccess
                 include $path . 'common.php';
             }
 
+            // 注册服务和容器对象实例
+            if (is_file($path . 'provider.php')) {
+                $this->container->bind(include $path . 'provider.php');
+            }
         }
     }
 
