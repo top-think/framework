@@ -39,7 +39,7 @@ class Env
     public static function set($env, $value = null)
     {
         if (!is_array($env)) {
-            $env = [$name => $value];
+            $env = [$env => $value];
         }
 
         foreach ($env as $key => $val) {
