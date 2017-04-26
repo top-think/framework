@@ -101,6 +101,7 @@ www  WEB部署目录（或者子目录）
 * think\Config   => think\facade\Config （或者 Config ）
 * think\Cookie   => think\facade\Cookie （或者 Cookie ）
 * think\Debug    => think\facade\Debug （或者 Debug ）
+* think\Env      => think\facade\Env （或者 Env ）
 * think\Hook     => think\facade\Hook （或者 Hook ）
 * think\Lang     => think\facade\Lang （或者 Lang ）
 * think\Log      => think\facade\Log （或者 Log ）
