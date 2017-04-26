@@ -116,26 +116,14 @@ class App implements \ArrayAccess
         $this->configExt   = $this->config('app.config_ext') ?: '.php';
 
         // 设置路径环境变量
-        $this->setEnvPath();
-    }
-
-    /**
-     * 设置路径到环境变量
-     * @access protected
-     * @return void
-     */
-    protected function setEnvPath()
-    {
-        $path = [
-            'root_path'  => $this->rootPath,
-            'app_path'   => $this->appPath,
-            'think_path' => $this->thinkPath,
-        ];
-
-        foreach ($path as $key => $val) {
-            $name = 'PHP_' . strtoupper($key);
-            putenv("$name=$val");
-        }
+        Env::set([
+            'think_path'   => $this->thinkPath,
+            'root_path'    => $this->rootPath,
+            'app_path'     => $this->appPath,
+            'config_path'  => $this->configPath,
+            'route_path'   => $this->routePath,
+            'runtime_path' => $this->runtimePath,
+        ]);
     }
 
     /**

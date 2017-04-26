@@ -29,4 +29,22 @@ class Env
             return $default;
         }
     }
+
+    /**
+     * 设置环境变量值
+     * @param string|array  $name   环境变量
+     * @param string        $value  值
+     * @return void
+     */
+    public static function set($name, $value = null)
+    {
+        if (!is_array($name)) {
+            $name = [$name => $value];
+        }
+
+        foreach ($name as $key => $val) {
+            $name = 'PHP_' . strtoupper($key);
+            putenv("$name=$val");
+        }
+    }
 }
