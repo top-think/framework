@@ -95,7 +95,7 @@ class HasMany extends Relation
                     $relationModel->setParent(clone $result);
                 }
 
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$localKey]));
+                $result->setRelation($attr, $this->resultSetBuild($data[$result->$localKey]));
             }
         }
     }
@@ -124,7 +124,7 @@ class HasMany extends Relation
                 $relationModel->setParent(clone $result);
             }
 
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey]));
+            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey]));
         }
     }
 

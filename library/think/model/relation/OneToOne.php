@@ -257,7 +257,7 @@ abstract class OneToOne extends Relation
         } else {
             $relationModel = null;
         }
-        $result->setAttr(Loader::parseName($relation), $relationModel);
+        $result->setRelation(Loader::parseName($relation), $relationModel);
     }
 
     /**
@@ -317,6 +317,5 @@ abstract class OneToOne extends Relation
      * @return void
      */
     protected function baseQuery()
-    {
-    }
+    {}
 }

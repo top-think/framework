@@ -146,7 +146,7 @@ class HasOne extends OneToOne
                     }
                 }
                 // 设置关联属性
-                $result->setAttr($attr, $relationModel);
+                $result->setRelation($attr, $relationModel);
             }
         }
     }
@@ -179,7 +179,7 @@ class HasOne extends OneToOne
             }
         }
 
-        $result->setAttr(Loader::parseName($relation), $relationModel);
+        $result->setRelation(Loader::parseName($relation), $relationModel);
     }
 
 }

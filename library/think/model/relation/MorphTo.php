@@ -177,7 +177,7 @@ class MorphTo extends Relation
                             $relationModel->setParent(clone $result);
                             $relationModel->isUpdate(true);
 
-                            $result->setAttr($attr, $relationModel);
+                            $result->setRelation($attr, $relationModel);
                         }
                     }
                 }
@@ -232,7 +232,7 @@ class MorphTo extends Relation
             $data->setParent(clone $result);
             $data->isUpdate(true);
         }
-        $result->setAttr(Loader::parseName($relation), $data ?: null);
+        $result->setRelation(Loader::parseName($relation), $data ?: null);
     }
 
     /**
@@ -251,7 +251,7 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphType, get_class($model));
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, $model);
+        return $this->parent->setRelation($this->relation, $model);
     }
 
     /**
@@ -268,7 +268,7 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphType, null);
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, null);
+        return $this->parent->setRelation($this->relation, null);
     }
 
     /**
@@ -277,6 +277,5 @@ class MorphTo extends Relation
      * @return void
      */
     protected function baseQuery()
-    {
-    }
+    {}
 }

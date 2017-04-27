@@ -56,8 +56,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $pk;
     // 数据表字段信息 留空则自动获取
     protected $field = [];
-    // 关联属性
-    protected $relationAttr = [];
     // 只读字段
     protected $readonly = [];
     // 显示属性
@@ -349,20 +347,23 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
             }
-
-            if ($this->isRelationAttr($name)) {
-                $isRelationData = true;
-            }
-
         }
 
         // 设置数据对象属性
-        if (isset($isRelationData)) {
-            $this->relation[$name] = $value;
-        } else {
-            $this->data[$name] = $value;
-        }
+        $this->data[$name] = $value;
+        return $this;
+    }
 
+    /**
+     * 设置关联数据对象值
+     * @access public
+     * @param string $name  属性名
+     * @param mixed  $value 属性值
+     * @return $this
+     */
+    public function setRelation($name, $value)
+    {
+        $this->relation[$name] = $value;
         return $this;
     }
 
@@ -519,8 +520,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $value = $this->formatDateTime($value, $this->dateFormat);
             }
         } elseif ($notFound) {
-            $relation = $this->isRelationAttr($name);
-            if ($relation) {
+            $relation = Loader::parseName($name, 1, false);
+            if (method_exists($this, $relation)) {
                 $modelRelation = $this->$relation();
                 // 不存在该字段 获取关联数据
                 $value = $this->getRelationData($modelRelation);
@@ -1073,24 +1074,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         return $data;
-    }
-
-    /**
-     * 检查属性是否为关联属性 如果是则返回关联方法名
-     * @access public
-     * @param string $attr 关联属性名
-     * @return string|false
-     */
-    protected function isRelationAttr($attr)
-    {
-        $relation = Loader::parseName($attr, 1, false);
-
-        if (!empty($this->relationAttr) && in_array($attr, $this->relationAttr)) {
-            return $relation;
-        } elseif (method_exists($this, $relation)) {
-            return $relation;
-        }
-        return false;
     }
 
     /**
