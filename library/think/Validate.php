@@ -1194,12 +1194,14 @@ class Validate
      */
     protected function getDataValue($data, $key)
     {
-        if (strpos($key, '.')) {
+        if (is_numberic($key)) {
+            $value = $key;
+        } elseif (strpos($key, '.')) {
             // 支持二维数组验证
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
-            $value = is_numeric($key) ? $key : (isset($data[$key]) ? $data[$key] : null);
+            $value = isset($data[$key]) ? $data[$key] : null;
         }
         return $value;
     }
