@@ -228,13 +228,13 @@ trait Attribute
 
             if (method_exists($this, $method)) {
                 $value = $this->$method($value, array_merge($this->data, $data));
+            } elseif (isset($this->type[$name])) {
+                // 类型转换
+                $value = $this->writeTransform($value, $this->type[$name]);
             }
 
             if ($this->isRelationAttr($name)) {
                 $isRelationData = true;
-            } elseif (isset($this->type[$name])) {
-                // 类型转换
-                $value = $this->writeTransform($value, $this->type[$name]);
             }
 
         }
