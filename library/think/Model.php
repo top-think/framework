@@ -355,6 +355,23 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 获取当前模型的关联模型数据
+     * @access public
+     * @param string $name 关联方法名
+     * @return mixed
+     */
+    public function getRelation($name = null)
+    {
+        if (is_null($name)) {
+            return $this->relation;
+        } elseif (array_key_exists($name, $this->relation)) {
+            return $this->relation[$name];
+        } else {
+            return;
+        }
+    }
+
+    /**
      * 设置关联数据对象值
      * @access public
      * @param string $name  属性名
