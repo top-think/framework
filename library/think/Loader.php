@@ -42,6 +42,21 @@ class Loader
             'think'  => __DIR__ . '/',
             'traits' => __DIR__ . '/../traits/',
         ]);
+
+        $rootPath = realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../') . '/';
+
+        // 加载类库映射文件
+        if (is_file($rootPath . 'runtime/classmap.php')) {
+            self::addClassMap(__include_file($rootPath . 'runtime/classmap.php'));
+        }
+
+        // Composer自动加载支持
+        if (is_dir($rootPath . 'vendor/composer')) {
+            self::registerComposerLoader($rootPath . 'vendor/composer/');
+        }
+
+        // 自动加载extend目录
+        self::addAutoLoadDir($rootPath . 'extend');
     }
 
     // 自动加载

@@ -146,7 +146,7 @@ class App implements \ArrayAccess
         $this->suffix = $this->config('app.class_suffix');
 
         // 应用调试模式
-        $this->debug = $this->env->get('app.app_debug', $this->config('app.app_debug'));
+        $this->debug = $this->env->get('app_debug', $this->config('app.app_debug'));
 
         if (!$this->debug) {
             ini_set('display_errors', 'Off');
@@ -165,19 +165,6 @@ class App implements \ArrayAccess
         if (!empty($this->config('app.root_namespace'))) {
             Loader::addNamespace($this->config('app.root_namespace'));
         }
-
-        // 加载类库映射文件
-        if (is_file($this->runtimePath . 'classmap.php')) {
-            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
-        }
-
-        // Composer自动加载支持
-        if (is_dir($this->rootPath . 'vendor/composer')) {
-            Loader::registerComposerLoader($this->rootPath . 'vendor/composer/');
-        }
-
-        // 自动加载extend目录
-        Loader::addAutoLoadDir($this->rootPath . 'extend');
 
         // 注册类库别名
         Loader::addClassAlias($this->config->pull('alias'));
