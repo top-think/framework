@@ -232,19 +232,10 @@ trait Attribute
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
             }
-
-            if ($this->isRelationAttr($name)) {
-                $isRelationData = true;
-            }
-
         }
 
         // 设置数据对象属性
-        if ($isRelationData) {
-            $this->relation[$name] = $value;
-        } else {
-            $this->data[$name] = $value;
-        }
+        $this->data[$name] = $value;
 
         return $this;
     }
