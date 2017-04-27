@@ -1233,7 +1233,7 @@ class Validate
      */
     protected function getDataValue($data, $key)
     {
-        if (is_numberic($key)) {
+        if (is_numeric($key)) {
             $value = $key;
         } elseif (strpos($key, '.')) {
             // 支持二维数组验证
