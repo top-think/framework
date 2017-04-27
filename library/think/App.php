@@ -20,7 +20,7 @@ use think\exception\HttpResponseException;
  */
 class App implements \ArrayAccess
 {
-    const VERSION = '5.1.0alpha';
+    const VERSION = '5.1.0beta';
 
     /**
      * @var string 当前模块路径

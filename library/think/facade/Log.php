@@ -19,5 +19,4 @@ use think\Facade;
  */
 class Log extends Facade
 {
-
 }
