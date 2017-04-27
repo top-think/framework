@@ -56,6 +56,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $pk;
     // 数据表字段信息 留空则自动获取
     protected $field = [];
+    // 关联属性
+    protected $relationAttr = [];
     // 只读字段
     protected $readonly = [];
     // 显示属性
@@ -1083,11 +1085,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $relation = Loader::parseName($attr, 1, false);
 
-        if (method_exists($this, $relation)) {
+        if (!empty($this->relationAttr) && in_array($attr, $this->relationAttr)) {
+            return $relation;
+        } elseif (method_exists($this, $relation)) {
             return $relation;
         }
         return false;
-
     }
 
     /**
