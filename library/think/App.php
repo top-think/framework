@@ -436,6 +436,11 @@ class App
                 }
             }
 
+            // 注册应用命名空间
+            if (self::$namespace != $config['app_namespace']) {
+                Loader::addNamespace($config['app_namespace'], APP_PATH);
+            }
+
             if (!empty($config['root_namespace'])) {
                 Loader::addNamespace($config['root_namespace']);
             }
