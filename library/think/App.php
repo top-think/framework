@@ -414,7 +414,9 @@ class App
     public static function initCommon()
     {
         if (empty(self::$init)) {
+            $array = include CONF_PATH . 'config' . CONF_EXT;
             // 注册应用命名空间
+            self::$namespace = $array['app_namespace'];
             Loader::addNamespace(self::$namespace, APP_PATH);
 
             // 初始化应用
@@ -434,11 +436,6 @@ class App
                 if (!empty($output)) {
                     echo $output;
                 }
-            }
-
-            // 注册应用命名空间
-            if (self::$namespace != $config['app_namespace']) {
-                Loader::addNamespace($config['app_namespace'], APP_PATH);
             }
 
             if (!empty($config['root_namespace'])) {
