@@ -11,93 +11,152 @@
 
 namespace think\route;
 
-use IteratorAggregate;
+use think\Request;
+use think\Route;
+use think\route\dispatch\Url as UrlDispatch;
 
-class RuleGroup extends Rule implements IteratorAggregate
+class RuleGroup extends Rule
 {
+    // 分组路由（包括子分组）
+    protected $rules = [
+        '*'       => [],
+        'get'     => [],
+        'post'    => [],
+        'put'     => [],
+        'patch'   => [],
+        'delete'  => [],
+        'head'    => [],
+        'options' => [],
+    ];
 
-    protected $name;
-    protected $rules   = [];
-    protected $option  = [];
-    protected $pattern = [];
-    protected $router;
-    protected $request;
+    // MISS路由
+    protected $miss;
+
+    // 自动路由
+    protected $auto;
 
     /**
      * 架构函数
      * @access public
-     * @param string      $rule     分组名称
-     * @param array       $option     路由参数
-     * @param array       $pattern     变量规则
+     * @param Route       $router   路由对象
+     * @param string      $name     分组名称
+     * @param array       $option   路由参数
+     * @param array       $pattern  变量规则
      */
     public function __construct(Route $router, $name = '', $option = [], $pattern = [])
     {
         $this->router  = $router;
-        $this->name    = $name;
+        $this->name    = trim($name, '/');
         $this->option  = $option;
         $this->pattern = $pattern;
     }
 
     /**
-     * Retrieve an external iterator
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
+     * 检测分组路由
+     * @access public
+     * @param Request      $request  请求对象
+     * @param string       $url      访问地址
+     * @param string       $depr     路径分隔符
+     * @return Dispatch|false
      */
-    public function getIterator()
+    public function check($request, $url, $depr = '/')
     {
-        return new ArrayIterator($this->rules);
-    }
-
-    // 检测分组下的路由
-    public function check($url, $depr = '/')
-    {
-        // 检测静态路由
-
-        // 检测分组路由
-
-        if (isset($auto)) {
-            // 自动解析URL地址
-            return $this->parseUrl($auto['route'] . '/' . $url, $depr);
-        } elseif (isset($miss)) {
-            // 未匹配所有路由的路由规则处理
-            return $this->parseRule('', $miss['route'], $url, $miss['option']);
+        // 检查参数有效性
+        if (!$this->checkOption($this->option, $request)) {
+            return false;
         }
+
+        // 获取当前路由规则
+        $method = strtolower($request->method());
+        $rules  = array_merge($this->rules['*'], $this->rules[$method]);
+
+        if (isset($rules[$url])) {
+            // 快速定位
+            $item   = $rules[$url];
+            $result = $item->check($request, $url, $depr);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
+
+        // 遍历分组路由
+        foreach ($rules as $key => $item) {
+            $result = $item->check($request, $url, $depr);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
+
+        if (isset($this->auto)) {
+            // 自动解析URL地址
+            $result = new UrlDispatch($this->auto->getRoute() . '/' . $url, ['depr' => $depr, 'auto_search' => false]);
+        } elseif (isset($this->miss)) {
+            // 未匹配所有路由的路由规则处理
+            $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
+        } else {
+            $result = false;
+        }
+
+        return $result;
     }
 
+    /**
+     * 添加分组下的路由规则或者子分组
+     * @access public
+     * @param Rule     $rule   路由规则
+     * @param string   $method 请求类型
+     * @return $this
+     */
     public function addRule($rule, $method = '*')
     {
-        $this->rules[$method][] = $rule;
+        $name = $rule->getName();
+
+        if ($this->name && $rule instanceof RuleGroup && !($this instanceof Domain)) {
+            $rule->name($this->name . '/' . $name);
+        }
+
+        if ($name) {
+            $this->rules[$method][$name] = $rule;
+        } else {
+            $this->rules[$method][] = $rule;
+        }
+
+        if ($rule instanceof RuleItem) {
+            if ($rule->isMiss()) {
+                $this->miss = $rule;
+            } elseif ($rule->isAuto()) {
+                $this->auto = $rule;
+            }
+        }
 
         return $this;
     }
 
-    public function option($option)
+    /**
+     * 设置分组的路由前缀
+     * @access public
+     * @param string     $prefix
+     * @return $this
+     */
+    public function prefix($prefix)
     {
-        $this->option = $option;
-
-        return $this;
+        return $this->option('prefix', $prefix);
     }
 
-    public function pattern($pattern)
+    /**
+     * 获取分组的路由规则
+     * @access public
+     * @param string     $method
+     * @return array
+     */
+    public function getRules($method = '')
     {
-        $this->pattern = $pattern;
-
-        return $this;
+        if ('' === $method) {
+            return $this->rules;
+        } else {
+            return isset($this->rules[strtolower($method)]) ? $this->rules[strtolower($method)] : [];
+        }
     }
-
-    public function getOption()
-    {
-        return $this->option;
-    }
-
-    public function getPattern()
-    {
-        return $this->pattern;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
 }

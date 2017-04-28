@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\exception\HttpResponseException;
+
 class Request
 {
     /**
@@ -111,8 +113,6 @@ class Request
     protected $filter;
     // Hook扩展方法
     protected static $hook = [];
-    // 绑定的属性
-    protected $bind = [];
     // php://input
     protected $input;
     // 请求缓存
@@ -149,7 +149,7 @@ class Request
             array_unshift($args, $this);
             return call_user_func_array($this->hook[$method], $args);
         } else {
-            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+            throw new Exception('method not exists:' . static::class . '->' . $method);
         }
     }
 
@@ -961,7 +961,7 @@ class Request
     public function env($name = '', $default = null, $filter = '')
     {
         if (empty($this->env)) {
-            $this->env = $_ENV;
+            $this->env = Facade::make('env')->get();
         }
 
         if (is_array($name)) {
@@ -1597,7 +1597,7 @@ class Request
             header($name . ': ' . $token);
         }
 
-        Session::set($name, $token);
+        Facade::make('session')->set($name, $token);
 
         return $token;
     }
@@ -1662,11 +1662,11 @@ class Request
             if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
                 // 读取缓存
                 $response = Response::create()->code(304);
-                throw new \think\exception\HttpResponseException($response);
+                throw new HttpResponseException($response);
             } elseif ($cache->has($key)) {
                 list($content, $header) = $cache->get($key);
                 $response               = Response::create($content)->header($header);
-                throw new \think\exception\HttpResponseException($response);
+                throw new HttpResponseException($response);
             } else {
                 $this->cache = [$key, $expire];
             }
@@ -1683,39 +1683,4 @@ class Request
         return $this->cache;
     }
 
-    /**
-     * 设置当前请求绑定的对象实例
-     * @access public
-     * @param string $name 绑定的对象标识
-     * @param mixed  $obj 绑定的对象实例
-     * @return mixed
-     */
-    public function bind($name, $obj = null)
-    {
-        if (is_array($name)) {
-            $this->bind = array_merge($this->bind, $name);
-        } else {
-            $this->bind[$name] = $obj;
-        }
-    }
-
-    public function getBind($name)
-    {
-        return isset($this->bind[$name]) ? $this->bind[$name] : null;
-    }
-
-    public function __set($name, $value)
-    {
-        $this->bind[$name] = $value;
-    }
-
-    public function __get($name)
-    {
-        return isset($this->bind[$name]) ? $this->bind[$name] : null;
-    }
-
-    public function __isset($name)
-    {
-        return isset($this->bind[$name]);
-    }
 }

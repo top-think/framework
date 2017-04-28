@@ -1,10 +1,11 @@
-ThinkPHP 5.1Alpha
+ThinkPHP 5.1Beta
 ===============
 
 ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特性包括：
 
  + 采用容器统一管理对象
  + 支持Facade
+ + 更易用的路由
  + 配置和路由目录独立
  + 取消系统常量
  + 助手函数增强
@@ -12,10 +13,10 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
  + 模型和数据库增强
  + 依赖注入完善
 
-计划下一版废除的功能：
+废除的功能：
 
  + 聚合模型
- + Rest控制器扩展类
+ + 内置控制器扩展类
 
 > ThinkPHP5的运行环境要求PHP5.6以上。
 
@@ -93,6 +94,8 @@ www  WEB部署目录（或者子目录）
 
 ## 升级指导
 
+应用类库的命名空间app如果需要更改，设置app_namespace环境变量
+
 取消命名空间的别名功能，原有下面系统类库的命名空间需要调整：
 
 * think\App      => think\facade\App （或者 App ）
@@ -100,6 +103,7 @@ www  WEB部署目录（或者子目录）
 * think\Config   => think\facade\Config （或者 Config ）
 * think\Cookie   => think\facade\Cookie （或者 Cookie ）
 * think\Debug    => think\facade\Debug （或者 Debug ）
+* think\Env      => think\facade\Env （或者 Env ）
 * think\Hook     => think\facade\Hook （或者 Hook ）
 * think\Lang     => think\facade\Lang （或者 Lang ）
 * think\Log      => think\facade\Log （或者 Log ）
@@ -115,7 +119,11 @@ www  WEB部署目录（或者子目录）
 
 取消Loader::import方法以及import和vendor助手函数
 原来Loader类的controller、model、action和validate方法改为App类的同名方法
-
+模型的数据集查询始终返回数据集对象而不是数组
+模型的数据表主键如果不是id 需要设置模型的pk属性
+路由的before_behavior和after_behavior参数更改为before和after
+路由缓存功能暂时取消
+软删除trait引入更改为 think\model\concern\SoftDelete
 
 ## 命名规范
 

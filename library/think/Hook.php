@@ -13,18 +13,30 @@ namespace think;
 
 class Hook
 {
+    private $tags   = [];
+    protected $bind = [];
 
-    private $tags = [];
-
-    protected $app;
-
-    public function __construct(App $app)
+    /**
+     * 指定行为标识 便于调用
+     * @access public
+     * @param string|array  $name     行为标识
+     * @param mixed         $behavior 行为
+     * @return void
+     */
+    public function alias($name, $behavior = null)
     {
-        $this->app = $app;
+        if (is_array($name)) {
+            $this->bind = array_merge($this->bind, $name);
+        } else {
+            $this->bind[$name] = $behavior;
+        }
+
+        return $this;
     }
 
     /**
      * 动态添加行为扩展到某个标签
+     * @access public
      * @param string    $tag 标签名称
      * @param mixed     $behavior 行为名称
      * @param bool      $first 是否放到开头执行
@@ -51,8 +63,9 @@ class Hook
 
     /**
      * 批量导入插件
-     * @param array        $tags 插件信息
-     * @param boolean     $recursive 是否递归合并
+     * @access public
+     * @param array     $tags 插件信息
+     * @param bool      $recursive 是否递归合并
      */
     public function import(array $tags, $recursive = true)
     {
@@ -67,6 +80,7 @@ class Hook
 
     /**
      * 获取插件信息
+     * @access public
      * @param string $tag 插件位置 留空获取全部
      * @return array
      */
@@ -82,6 +96,7 @@ class Hook
 
     /**
      * 监听标签的行为
+     * @access public
      * @param string $tag    标签名称
      * @param mixed  $params 传入参数
      * @param mixed  $extra  额外参数
@@ -94,7 +109,8 @@ class Hook
         $tags    = $this->get($tag);
 
         foreach ($tags as $key => $name) {
-            $results[$key] = $this->exec($name, $tag, $params, $extra);
+            $results[$key] = $this->execTag($name, $tag, $params, $extra);
+
             if (false === $results[$key]) {
                 // 如果返回false 则中断行为执行
                 break;
@@ -107,42 +123,66 @@ class Hook
     }
 
     /**
-     * 执行某个行为
-     * @param mixed     $class 要执行的行为
-     * @param string    $tag 方法名（标签名）
-     * @param Mixed     $params 传人的参数
-     * @param mixed     $extra 额外参数
+     * 执行行为
+     * @access public
+     * @param mixed     $class  行为
+     * @param array     $params 参数
      * @return mixed
      */
-    public function exec($class, $tag = '', $params = null, $extra = null)
+    public function exec($class, $params = [])
     {
-        $this->app->isDebug() && $this->app['debug']->remark('behavior_start', 'time');
+        if (isset($this->bind[$class])) {
+            $class = $this->bind[$class];
+        }
+
+        if ($class instanceof \Closure || is_array($class)) {
+            $method = $class;
+        } else {
+            $method = [$class, 'run'];
+        }
+
+        return Container::getInstance()->invoke($method, $params);
+    }
+
+    /**
+     * 执行某个标签的行为
+     * @access protected
+     * @param mixed     $class  要执行的行为
+     * @param string    $tag    方法名（标签名）
+     * @param mixed     $params 参数
+     * @param mixed     $extra  额外参数
+     * @return mixed
+     */
+    protected function execTag($class, $tag = '', $params = null, $extra = null)
+    {
+        $app = Facade::make('app');
+
+        $app->isDebug() && $app['debug']->remark('behavior_start', 'time');
 
         $method = Loader::parseName($tag, 1, false);
 
         if ($class instanceof \Closure) {
-            $result = call_user_func_array($class, [ & $params, $extra]);
-            $class  = 'Closure';
-        } elseif (is_array($class)) {
-            list($class, $method) = $class;
-
-            $result = (new $class())->$method($params, $extra);
-            $class  = $class . '->' . $method;
-        } elseif (is_object($class)) {
-            $result = $class->$method($params, $extra);
-            $class  = get_class($class);
+            $call  = $class;
+            $class = 'Closure';
         } elseif (strpos($class, '::')) {
-            $result = call_user_func_array($class, [ & $params, $extra]);
+            $call = $class;
         } else {
-            $obj    = new $class();
-            $method = ($tag && is_callable([$obj, $method])) ? $method : 'run';
-            $result = $obj->$method($params, $extra);
+            $obj = Facade::make($class);
+
+            if (!is_callable([$obj, $method])) {
+                $method = 'run';
+            }
+
+            $call  = [$class, $method];
+            $class = $class . '->' . $method;
         }
 
-        if ($this->app->isDebug()) {
-            $debug = $this->app['debug'];
+        $result = Container::getInstance()->invoke($call, [$params, $extra]);
+
+        if ($app->isDebug()) {
+            $debug = $app['debug'];
             $debug->remark('behavior_end', 'time');
-            $this->app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
+            $app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
 
         return $result;

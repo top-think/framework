@@ -20,8 +20,8 @@ class Facade
      * 绑定类的静态代理
      * @static
      * @access public
-     * @param string    $name    代理名
-     * @param string    $class   实际类名
+     * @param string    $name    类标识
+     * @param string    $class   类名
      * @return object
      */
     public static function bind($name, $class = null)
@@ -70,7 +70,7 @@ class Facade
     }
 
     /**
-     * 指定某个Facade类进行实例化
+     * 调用类的实例
      * @access public
      * @param string        $class          类名或者标识
      * @param array|true    $args           变量

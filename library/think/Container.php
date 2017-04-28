@@ -11,7 +11,7 @@
 
 namespace think;
 
-class Container implements \ArrayAccess
+class Container
 {
     // 容器对象实例
     protected static $instance;
@@ -23,7 +23,7 @@ class Container implements \ArrayAccess
     /**
      * 获取当前容器的实例（单例）
      * @access public
-     * @return object
+     * @return static
      */
     public static function getInstance()
     {
@@ -37,17 +37,21 @@ class Container implements \ArrayAccess
     /**
      * 绑定一个类到容器
      * @access public
-     * @param string            $abstract    类标识、接口
-     * @param string|\Closure   $concrete    要绑定的类或者闭包
-     * @return void
+     * @param string  $abstract    类标识、接口
+     * @param mixed   $concrete    要绑定的类、闭包或者实例
+     * @return $this
      */
     public function bind($abstract, $concrete = null)
     {
         if (is_array($abstract)) {
             $this->bind = array_merge($this->bind, $abstract);
+        } elseif (is_object($concrete)) {
+            $this->instances[$abstract] = $concrete;
         } else {
             $this->bind[$abstract] = $concrete;
         }
+
+        return $this;
     }
 
     /**
@@ -55,11 +59,13 @@ class Container implements \ArrayAccess
      * @access public
      * @param string    $abstract    类名或者标识
      * @param object    $instance    类的实例
-     * @return void
+     * @return $this
      */
     public function instance($abstract, $instance)
     {
         $this->instances[$abstract] = $instance;
+
+        return $this;
     }
 
     /**
@@ -174,8 +180,7 @@ class Container implements \ArrayAccess
      */
     public function invokeClass($class, $vars = [])
     {
-        $reflect = new \ReflectionClass($class);
-
+        $reflect     = new \ReflectionClass($class);
         $constructor = $reflect->getConstructor();
 
         if ($constructor) {
@@ -203,9 +208,11 @@ class Container implements \ArrayAccess
             reset($vars);
             $type   = key($vars) === 0 ? 1 : 0;
             $params = $reflect->getParameters();
+
             foreach ($params as $param) {
                 $name  = $param->getName();
                 $class = $param->getClass();
+
                 if ($class) {
                     $className = $class->getName();
                     $args[]    = $this->make($className);
@@ -222,46 +229,6 @@ class Container implements \ArrayAccess
         }
 
         return $args;
-    }
-
-    public function offsetExists($key)
-    {
-        return $this->bound($key);
-    }
-
-    public function offsetGet($key)
-    {
-        return $this->make($key);
-    }
-
-    public function offsetSet($key, $value)
-    {
-        $this->bind($key, $value);
-    }
-
-    public function offsetUnset($key)
-    {
-        $this->__unset($key);
-    }
-
-    public function __set($name, $value)
-    {
-        $this->bind($name, $value);
-    }
-
-    public function __get($name)
-    {
-        return $this->make($name);
-    }
-
-    public function __isset($name)
-    {
-        return $this->bound($name);
-    }
-
-    public function __unset($name)
-    {
-        unset($this->bind[$name], $this->instances[$name]);
     }
 
 }

@@ -219,34 +219,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      */
     public function column($column_key, $index_key = null)
     {
-        if (function_exists('array_column')) {
-            return array_column($this->items, $column_key, $index_key);
-        }
-
-        $result = [];
-        foreach ($this->items as $row) {
-            $key    = $value    = null;
-            $keySet = $valueSet = false;
-            if (null !== $index_key && array_key_exists($index_key, $row)) {
-                $keySet = true;
-                $key    = (string) $row[$index_key];
-            }
-            if (null === $column_key) {
-                $valueSet = true;
-                $value    = $row;
-            } elseif (is_array($row) && array_key_exists($column_key, $row)) {
-                $valueSet = true;
-                $value    = $row[$column_key];
-            }
-            if ($valueSet) {
-                if ($keySet) {
-                    $result[$key] = $value;
-                } else {
-                    $result[] = $value;
-                }
-            }
-        }
-        return $result;
+        return array_column($this->items, $column_key, $index_key);
     }
 
     /**

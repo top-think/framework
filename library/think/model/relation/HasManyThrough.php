@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\Db;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -58,7 +57,7 @@ class HasManyThrough extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        return $this->relation($subRelation)->select();
+        return $this->query->relation($subRelation)->select();
     }
 
     /**
@@ -129,7 +128,7 @@ class HasManyThrough extends Relation
      */
     protected function baseQuery()
     {
-        if (empty($this->baseQuery)) {
+        if (empty($this->baseQuery) && $this->parent->getData()) {
             $through      = $this->through;
             $model        = $this->model;
             $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));

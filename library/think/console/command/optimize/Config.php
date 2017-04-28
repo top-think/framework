@@ -15,6 +15,7 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
 use think\Facade;
+use think\facade\App;
 
 class Config extends Command
 {
@@ -36,8 +37,8 @@ class Config extends Command
             $module = '';
         }
 
-        $content = '<?php ' . PHP_EOL . $this->buildCacheContent($module);
-        $runtimePath = Facade::make('app')->getRuntimePath();
+        $content     = '<?php ' . PHP_EOL . $this->buildCacheContent($module);
+        $runtimePath = App::getRuntimePath();
         if (!is_dir($runtimePath . $module)) {
             @mkdir($runtimePath . $module, 0755, true);
         }
@@ -49,22 +50,25 @@ class Config extends Command
 
     protected function buildCacheContent($module)
     {
-        $content = '';
-        $path    = realpath(Facade::make('app')->getAppPath() . $module) . DIRECTORY_SEPARATOR;
-        $configPath = Facade::make('app')->getConfigPath();
-        $ext = Facade::make('app')->getConfigExt();
+        $content    = '';
+        $path       = realpath(App::getAppPath() . $module) . DIRECTORY_SEPARATOR;
+        $configPath = App::getConfigPath();
+        $ext        = App::getConfigExt();
+        $con        = Facade::make('config');
+
         if ($module) {
             // 加载模块配置
-            $config = Facade::make('config')->load($configPath . $module . 'config' . $ext);
+            $config = $con->load($configPath . $module . 'config' . $ext);
 
             // 读取数据库配置文件
             $filename = $configPath . $module . 'database' . $ext;
-            Facade::make('config')->load($filename, 'database');
+            $con->load($filename, 'database');
 
             // 加载应用状态配置
-            if ($config['app_status']) {
-                $config = Facade::make('config')->load($configPath . $module . $config['app_status'] . $ext);
+            if (!empty($config['app_status'])) {
+                $config = $con->load($configPath . $module . $config['app_status'] . $ext);
             }
+
             // 读取扩展配置文件
             if (is_dir($configPath . $module . 'extra')) {
                 $dir   = $configPath . $module . 'extra';
@@ -72,23 +76,24 @@ class Config extends Command
                 foreach ($files as $file) {
                     if (strpos($file, $ext)) {
                         $filename = $dir . DIRECTORY_SEPARATOR . $file;
-                        Facade::make('config')->load($filename, pathinfo($file, PATHINFO_FILENAME));
+                        $con->load($filename, pathinfo($file, PATHINFO_FILENAME));
                     }
                 }
             }
         }
 
         // 加载行为扩展文件
-        if (is_file($configPath . $module . 'tags.php' )) {
+        if (is_file($configPath . $module . 'tags.php')) {
             $content .= '\think\Hook::import(' . (var_export(include $configPath . $module . 'tags.php', true)) . ');' . PHP_EOL;
         }
 
         // 加载公共文件
-        if (is_file($path . 'common.php' )) {
-            $content .= substr(php_strip_whitespace($path . 'common.php' ), 5) . PHP_EOL;
+        if (is_file($path . 'common.php')) {
+            $content .= substr(php_strip_whitespace($path . 'common.php'), 5) . PHP_EOL;
         }
 
-        $content .= '\think\facade\Config::set(' . var_export(\think\facade\Config::get(), true) . ');';
+        $content .= '\think\facade\Config::set(' . var_export($con->get(), true) . ');';
+
         return $content;
     }
 }

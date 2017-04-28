@@ -9,19 +9,14 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\route\dispatch;
+namespace think\facade;
 
-use think\Container;
-use think\route\Dispatch;
+use think\Facade;
 
-class Callback extends Dispatch
+/**
+ * @see \think\Env
+ * @mixin \think\Env
+ */
+class Env extends Facade
 {
-    public function run()
-    {
-        // 执行回调方法
-        $vars = array_merge($this->app['request']->param(), $this->param);
-
-        return Container::getInstance()->invoke($this->action, $vars);
-    }
-
 }

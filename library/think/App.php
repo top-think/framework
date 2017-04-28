@@ -11,8 +11,8 @@
 
 namespace think;
 
+use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
-use think\exception\RouteNotFoundException;
 
 /**
  * App 应用管理
@@ -20,7 +20,7 @@ use think\exception\RouteNotFoundException;
  */
 class App implements \ArrayAccess
 {
-    const VERSION = '5.1.0alpha';
+    const VERSION = '5.1.0beta';
 
     /**
      * @var string 当前模块路径
@@ -51,11 +51,6 @@ class App implements \ArrayAccess
      * @var bool 应用类库后缀
      */
     protected $suffix = false;
-
-    /**
-     * @var bool 应用路由检测
-     */
-    protected $routeCheck;
 
     /**
      * @var bool 严格路由检测
@@ -98,7 +93,7 @@ class App implements \ArrayAccess
     protected $configExt;
 
     /**
-     * @var array 应用调图信息
+     * @var Dispatch 应用调度实例
      */
     protected $dispatch;
 
@@ -118,29 +113,7 @@ class App implements \ArrayAccess
         $this->runtimePath = $this->rootPath . 'runtime/';
         $this->routePath   = $this->rootPath . 'route/';
         $this->configPath  = $this->rootPath . 'config/';
-        $this->configExt   = $this->config('app.config_ext') ?: '.php';
 
-        // 设置路径环境变量
-        $this->setEnvPath();
-    }
-
-    /**
-     * 设置路径到环境变量
-     * @access protected
-     * @return void
-     */
-    protected function setEnvPath()
-    {
-        $path = [
-            'root_path'  => $this->rootPath,
-            'app_path'   => $this->appPath,
-            'think_path' => $this->thinkPath,
-        ];
-
-        foreach ($path as $key => $val) {
-            $name = 'PHP_' . strtoupper($key);
-            putenv("$name=$val");
-        }
     }
 
     /**
@@ -148,21 +121,31 @@ class App implements \ArrayAccess
      */
     public function initialize()
     {
+        // 设置路径环境变量
+        $this->env->set([
+            'think_path'   => $this->thinkPath,
+            'root_path'    => $this->rootPath,
+            'app_path'     => $this->appPath,
+            'config_path'  => $this->configPath,
+            'route_path'   => $this->routePath,
+            'runtime_path' => $this->runtimePath,
+            'extend_path'  => $this->rootPath . 'extend/',
+            'vendor_path'  => $this->rootPath . 'vendor/',
+
+        ]);
+
         // 加载环境变量配置文件
         if (is_file($this->rootPath . '.env')) {
-            $env = parse_ini_file($this->rootPath . '.env', true);
-            foreach ($env as $key => $val) {
-                $name = 'PHP_' . strtoupper($key);
-                if (is_array($val)) {
-                    foreach ($val as $k => $v) {
-                        $item = $name . '_' . strtoupper($k);
-                        putenv("$item=$v");
-                    }
-                } else {
-                    putenv("$name=$val");
-                }
-            }
+            $this->env->load($this->rootPath . '.env');
         }
+
+        $this->namespace = $this->env->get('app_namespace', $this->namespace);
+
+        // 注册应用命名空间
+        Loader::addNamespace($this->namespace, $this->appPath);
+
+        $this->configExt = $this->env->get('config_ext', '.php');
+
         // 初始化应用
         $this->init();
 
@@ -170,7 +153,7 @@ class App implements \ArrayAccess
         $this->suffix = $this->config('app.class_suffix');
 
         // 应用调试模式
-        $this->debug = Env::get('app.app_debug', $this->config('app.app_debug'));
+        $this->debug = $this->env->get('app_debug', $this->config('app.app_debug'));
 
         if (!$this->debug) {
             ini_set('display_errors', 'Off');
@@ -185,27 +168,10 @@ class App implements \ArrayAccess
             }
         }
 
-        // 注册应用命名空间
-        $this->namespace = $this->config('app.app_namespace');
-        Loader::addNamespace($this->config('app.app_namespace'), $this->appPath);
-
         // 注册根命名空间
         if (!empty($this->config('app.root_namespace'))) {
             Loader::addNamespace($this->config('app.root_namespace'));
         }
-
-        // 加载类库映射文件
-        if (is_file($this->runtimePath . 'classmap.php')) {
-            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
-        }
-
-        // Composer自动加载支持
-        if (is_dir($this->rootPath . 'vendor/composer')) {
-            Loader::registerComposerLoader($this->rootPath . 'vendor/composer/');
-        }
-
-        // 自动加载extend目录
-        Loader::addAutoLoadDir($this->rootPath . 'extend');
 
         // 注册类库别名
         Loader::addClassAlias($this->config->pull('alias'));
@@ -226,7 +192,7 @@ class App implements \ArrayAccess
      * @param string $module 模块名
      * @return void
      */
-    private function init($module = '')
+    public function init($module = '')
     {
         // 定位模块目录
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';
@@ -260,6 +226,10 @@ class App implements \ArrayAccess
                 include $path . 'common.php';
             }
 
+            // 注册服务和容器对象实例
+            if (is_file($path . 'provider.php')) {
+                $this->container->bind(include $path . 'provider.php');
+            }
         }
     }
 
@@ -277,12 +247,12 @@ class App implements \ArrayAccess
         try {
             if (defined('BIND_MODULE')) {
                 // 模块/控制器绑定
-                BIND_MODULE && $this->route->bind(BIND_MODULE);
+                BIND_MODULE && $this->route->bindTo(BIND_MODULE);
             } elseif ($this->config('app.auto_bind_module')) {
                 // 入口自动绑定
                 $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
                 if ($name && 'index' != $name && is_dir($this->appPath . $name)) {
-                    $this->route->bind($name);
+                    $this->route->bindTo($name);
                 }
             }
 
@@ -315,7 +285,7 @@ class App implements \ArrayAccess
 
             // 记录路由和请求信息
             if ($this->debug) {
-                $this->log('[ ROUTE ] ' . var_export($dispatch, true));
+                $this->log('[ ROUTE ] ' . var_export($this->request->routeinfo(), true));
                 $this->log('[ HEADER ] ' . var_export($this->request->header(), true));
                 $this->log('[ PARAM ] ' . var_export($this->request->param(), true));
             }
@@ -324,7 +294,11 @@ class App implements \ArrayAccess
             $this->hook->listen('app_begin', $dispatch);
 
             // 请求缓存检查
-            $this->request->cache($this->config('app.request_cache'), $this->config('app.request_cache_expire'), $this->config('app.request_cache_except'));
+            $this->request->cache(
+                $this->config('app.request_cache'),
+                $this->config('app.request_cache_expire'),
+                $this->config('app.request_cache_except')
+            );
 
             // 执行调度
             $data = $dispatch->run();
@@ -356,11 +330,13 @@ class App implements \ArrayAccess
      * 设置当前请求的调度信息
      * @access public
      * @param Dispatch  $dispatch 调度信息
-     * @return void
+     * @return $this
      */
     public function dispatch(Dispatch $dispatch)
     {
         $this->dispatch = $dispatch;
+
+        return $this;
     }
 
     /**
@@ -392,62 +368,39 @@ class App implements \ArrayAccess
      */
     public function routeCheck()
     {
-        $path   = $this->request->path();
-        $depr   = $this->config('app.pathinfo_depr');
-        $result = false;
+        $path = $this->request->path();
+        $depr = $this->config('app.pathinfo_depr');
 
         // 路由检测
-        $check = !is_null($this->routeCheck) ? $this->routeCheck : $this->config('app.url_route_on');
-
-        if ($check) {
-            // 开启路由
-            if (is_file($this->runtimePath . 'route.php')) {
-                // 读取路由缓存
-                $rules = include $this->runtimePath . 'route.php';
+        $files = scandir($this->routePath);
+        foreach ($files as $file) {
+            if (strpos($file, '.php')) {
+                $filename = $this->routePath . DIRECTORY_SEPARATOR . $file;
+                // 导入路由配置
+                $rules = include $filename;
                 if (is_array($rules)) {
-                    $this->route->rules($rules);
-                }
-            } else {
-                $files = scandir($this->routePath);
-                foreach ($files as $file) {
-                    if (strpos($file, '.php')) {
-                        $filename = $this->routePath . DIRECTORY_SEPARATOR . $file;
-                        // 导入路由配置
-                        $rules = include $filename;
-                        if (is_array($rules)) {
-                            $this->route->import($rules);
-                        }
-                    }
+                    $this->route->import($rules);
                 }
             }
-
-            // 路由检测（根据路由定义返回不同的URL调度）
-            $result = $this->route->check($this->request, $path, $depr, $this->config('app.url_domain_deploy'));
-            $must   = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
-
-            if ($must && false === $result) {
-                // 路由无效
-                throw new RouteNotFoundException();
-            }
         }
-        if (false === $result) {
-            // 路由无效 解析模块/控制器/操作/参数... 支持控制器自动搜索
-            $result = $this->route->parseUrl($path, $depr, $this->config('app.controller_auto_search'));
-        }
-        return $result;
+
+        $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
+
+        // 路由检测（根据路由定义返回不同的URL调度）
+        return $this->route->check($path, $depr, $must);
     }
 
     /**
      * 设置应用的路由检测机制
      * @access public
-     * @param  bool $route 是否需要检测路由
      * @param  bool $must  是否强制检测路由
-     * @return void
+     * @return $this
      */
-    public function route($route, $must = false)
+    public function routeMust($must = false)
     {
-        $this->routeCheck = $route;
-        $this->routeMust  = $must;
+        $this->routeMust = $must;
+
+        return $this;
     }
 
     /**
@@ -497,13 +450,15 @@ class App implements \ArrayAccess
 
     /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
-     * @param string $name         资源地址
-     * @param string $layer        控制层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
-     * @param string $empty        空控制器名称
+     * @param string $name              资源地址
+     * @param string $layer             控制层名称
+     * @param bool   $appendSuffix      是否添加类名后缀
+     * @param string $empty             空控制器名称
+     * @param bool   $throwException    是否抛异常
      * @return Object|null
+     * @throws ClassNotFoundException
      */
-    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
+    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '', $throwException = true)
     {
         if (false !== strpos($name, '\\')) {
             $class  = $name;
@@ -521,6 +476,8 @@ class App implements \ArrayAccess
             return $this->__get($class);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
             return $this->__get($emptyClass);
+        } elseif ($throwException) {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
     }
 
@@ -575,10 +532,10 @@ class App implements \ArrayAccess
     }
 
     /**
-     * 数据库初始化 并取得数据库类实例
+     * 数据库初始化
      * @param mixed         $config 数据库配置
      * @param bool|string   $name 连接标识 true 强制重新连接
-     * @return \think\db\Connection
+     * @return \think\db\Query
      */
     public function db($config = [], $name = false)
     {
@@ -592,6 +549,7 @@ class App implements \ArrayAccess
      * @param string       $layer        要调用的控制层名称
      * @param bool         $appendSuffix 是否添加类名后缀
      * @return mixed
+     * @throws ClassNotFoundException
      */
     public function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
     {
@@ -600,16 +558,15 @@ class App implements \ArrayAccess
         $module = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
         $class  = $this->controller($module, $layer, $appendSuffix);
 
-        if ($class) {
-            if (is_scalar($vars)) {
-                if (strpos($vars, '=')) {
-                    parse_str($vars, $vars);
-                } else {
-                    $vars = [$vars];
-                }
+        if (is_scalar($vars)) {
+            if (strpos($vars, '=')) {
+                parse_str($vars, $vars);
+            } else {
+                $vars = [$vars];
             }
-            return $this->container->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
         }
+
+        return $this->container->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
     }
 
     /**
@@ -728,6 +685,18 @@ class App implements \ArrayAccess
     public function getNamespace()
     {
         return $this->namespace;
+    }
+
+    /**
+     * 设置应用类库命名空间
+     * @param string $namespace 命名空间名称
+     * @return $this
+     */
+    public function setNamespace($namespace)
+    {
+        $this->namespace = $namespace;
+
+        return $this;
     }
 
     /**

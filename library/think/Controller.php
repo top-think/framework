@@ -52,8 +52,11 @@ class Controller
      */
     public function __construct(Request $request, App $app)
     {
+        $this->view = Facade::make('view')->init(
+            $app['config']->pull('template'),
+            $app['config']->get('view_replace_str')
+        );
 
-        $this->view    = Facade::make('view')->init($app['config']->pull('template'), $app['config']->get('view_replace_str'));
         $this->request = $request;
         $this->app     = $app;
 
@@ -72,8 +75,7 @@ class Controller
 
     // 初始化
     protected function _initialize()
-    {
-    }
+    {}
 
     /**
      * 前置操作
@@ -135,22 +137,26 @@ class Controller
      * @access protected
      * @param mixed $name  要显示的模板变量
      * @param mixed $value 变量的值
-     * @return void
+     * @return $this
      */
     protected function assign($name, $value = '')
     {
         $this->view->assign($name, $value);
+
+        return $this;
     }
 
     /**
      * 初始化模板引擎
      * @access protected
      * @param array|string $engine 引擎参数
-     * @return void
+     * @return $this
      */
     protected function engine($engine)
     {
         $this->view->engine($engine);
+
+        return $this;
     }
 
     /**
@@ -162,6 +168,7 @@ class Controller
     protected function validateFailException($fail = true)
     {
         $this->failException = $fail;
+
         return $this;
     }
 
@@ -191,6 +198,7 @@ class Controller
                 $v->scene($scene);
             }
         }
+
         // 是否批量验证
         if ($batch || $this->batchValidate) {
             $v->batch(true);

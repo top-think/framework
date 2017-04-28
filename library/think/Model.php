@@ -11,19 +11,7 @@
 
 namespace think;
 
-use InvalidArgumentException;
 use think\db\Query;
-use think\Exception\ValidateException;
-use think\model\Collection as ModelCollection;
-use think\model\Relation;
-use think\model\relation\BelongsTo;
-use think\model\relation\BelongsToMany;
-use think\model\relation\HasMany;
-use think\model\relation\HasManyThrough;
-use think\model\relation\HasOne;
-use think\model\relation\MorphMany;
-use think\model\relation\MorphOne;
-use think\model\relation\MorphTo;
 
 /**
  * Class Model
@@ -32,72 +20,33 @@ use think\model\relation\MorphTo;
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
-    // 数据库对象池
-    private static $links = [];
-    // 当前数据库实例
-    private static $db;
-    // 关联自动写入
-    private $relationWrite;
+    use model\concern\Attribute;
+    use model\concern\RelationShip;
+    use model\concern\ModelEvent;
+    use model\concern\TimeStamp;
+    use model\concern\Conversion;
+    use model\concern\DataValidate;
+
     // 是否为更新数据
     private $isUpdate = false;
     // 更新条件
     private $updateWhere;
-    // 回调事件
-    private static $event = [];
-    // 当前数据
-    private $data = [];
-    // 原始数据
-    private $origin = [];
+
     // 数据库配置
-    protected $connection = [];
-    // 数据库查询对象
+    protected $connection;
+    // 数据库查询类
     protected $query;
     // 当前模型名称
     protected $name;
     // 数据表名称
     protected $table;
-    // 当前类名称
-    protected $class;
-    // 错误信息
-    protected $error;
-    // 字段验证规则
-    protected $validate;
-    // 数据表主键 复合主键使用数组定义 不设置则自动获取
-    protected $pk;
-    // 数据表字段信息 留空则自动获取
-    protected $field = [];
-    // 只读字段
-    protected $readonly = [];
-    // 显示属性
-    protected $visible = [];
-    // 隐藏属性
-    protected $hidden = [];
-    // 追加属性
-    protected $append = [];
-    // 保存自动完成列表
+
+    // 写入自动完成列表
     protected $auto = [];
     // 新增自动完成列表
     protected $insert = [];
     // 更新自动完成列表
     protected $update = [];
-    // 是否需要自动写入时间戳 如果设置为字符串 则表示时间字段的类型
-    protected $autoWriteTimestamp;
-    // 创建时间字段
-    protected $createTime = 'create_time';
-    // 更新时间字段
-    protected $updateTime = 'update_time';
-    // 时间字段取出后的默认时间格式
-    protected $dateFormat;
-    // 字段类型或者格式转换
-    protected $type = [];
-    // 验证失败是否抛出异常
-    protected $failException = false;
-    // 全局查询范围
-    protected $useGlobalScope = true;
-    // 是否采用批量验证
-    protected $batchValidate = false;
-    // 查询数据集对象
-    protected $resultSetType;
 
     /**
      * 初始化过的模型.
@@ -122,12 +71,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录原始数据
         $this->origin = $this->data;
 
-        // 当前类名
-        $this->class = get_class($this);
-
         if (empty($this->name)) {
             // 当前模型名
-            $name       = str_replace('\\', '/', $this->class);
+            $name       = str_replace('\\', '/', static::class);
             $this->name = basename($name);
             if (Facade::make('config')->get('class_suffix')) {
                 $suffix     = basename(dirname($name));
@@ -137,16 +83,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
-            $this->autoWriteTimestamp = $this->db(false)->getConfig('auto_timestamp');
+            $this->autoWriteTimestamp = Facade::make('config')->get('database.auto_timestamp');
         }
 
         if (is_null($this->dateFormat)) {
             // 设置时间戳格式
-            $this->dateFormat = $this->db(false)->getConfig('datetime_format');
+            $this->dateFormat = Facade::make('config')->get('database.datetime_format');
         }
 
         if (is_null($this->resultSetType)) {
-            $this->resultSetType = $this->db(false)->getConfig('resultset_type');
+            $this->resultSetType = Facade::make('config')->get('database.resultset_type');
         }
 
         // 执行初始化操作
@@ -154,51 +100,72 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 获取当前模型的数据库查询对象
+     * 创建新的模型实例
      * @access public
-     * @param bool $baseQuery 是否调用全局查询范围
+     * @param array|object $data 数据
+     * @param bool         $isUpdate 是否为更新
+     * @param mixed        $where 更新条件
+     * @return Model
+     */
+    public function newInstance($data = [], $isUpdate = false, $where = null)
+    {
+        return (new static($data))->isUpdate($isUpdate, $where);
+    }
+
+    /**
+     * 创建模型的查询对象
+     * @access protected
      * @return Query
      */
-    public function db($baseQuery = true)
+    protected function buildQuery()
     {
-        $model = $this->class;
-
-        if (!isset(self::$links[$model])) {
-            // 合并数据库配置
-            if (!empty($this->connection)) {
-                if (is_array($this->connection)) {
-                    $connection = array_merge(Facade::make('config')->pull('database'), $this->connection);
-                } else {
-                    $connection = $this->connection;
-                }
+        // 合并数据库配置
+        if (!empty($this->connection)) {
+            if (is_array($this->connection)) {
+                $connection = array_merge(Facade::make('config')->pull('database'), $this->connection);
             } else {
-                $connection = [];
+                $connection = $this->connection;
             }
-
-            // 设置当前模型 确保查询返回模型对象
-            $query = Db::connect($connection)->getQuery($model, $this->query);
-
-            // 设置当前数据表和模型名
-            if (!empty($this->table)) {
-                $query->setTable($this->table);
-            } else {
-                $query->name($this->name);
-            }
-
-            if (!empty($this->pk)) {
-                $query->pk($this->pk);
-            }
-
-            self::$links[$model] = $query;
+        } else {
+            $connection = [];
         }
 
+        // 设置当前模型 确保查询返回模型对象
+        $class = $this->query ?: Facade::make('config')->get('database.query');
+        $query = new $class();
+        $query->connect($connection)->model($this);
+
+        // 设置当前数据表和模型名
+        if (!empty($this->table)) {
+            $query->table($this->table);
+        } else {
+            $query->name($this->name);
+        }
+
+        if (!empty($this->pk)) {
+            $query->pk($this->pk);
+        }
+
+        return $query;
+    }
+
+    /**
+     * 获取当前模型的数据库查询对象
+     * @access public
+     * @param bool $useBaseQuery 是否调用全局查询范围
+     * @return Query
+     */
+    public function db($useBaseQuery = true)
+    {
+        $query = $this->buildQuery();
+
         // 全局作用域
-        if ($baseQuery && method_exists($this, 'base')) {
-            call_user_func_array([$this, 'base'], [ & self::$links[$model]]);
+        if ($useBaseQuery && method_exists($this, 'base')) {
+            call_user_func_array([$this, 'base'], [ & $query]);
         }
 
         // 返回当前模型的数据库查询对象
-        return self::$links[$model];
+        return $query;
     }
 
     /**
@@ -208,10 +175,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function initialize()
     {
-        $class = get_class($this);
-
-        if (!isset(static::$initialized[$class])) {
-            static::$initialized[$class] = true;
+        if (!isset(static::$initialized[static::class])) {
+            static::$initialized[static::class] = true;
             static::init();
         }
     }
@@ -225,651 +190,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {}
 
     /**
-     * 设置数据对象值
-     * @access public
-     * @param mixed $data  数据或者属性名
-     * @param mixed $value 值
-     * @return $this
-     */
-    public function data($data, $value = null)
-    {
-        if (is_string($data)) {
-            $this->data[$data] = $value;
-        } else {
-            // 清空数据
-            $this->data = [];
-
-            if (is_object($data)) {
-                $data = get_object_vars($data);
-            }
-
-            if (true === $value) {
-                // 数据对象赋值
-                foreach ($data as $key => $value) {
-                    $this->setAttr($key, $value, $data);
-                }
-            } else {
-                $this->data = $data;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * 批量设置数据对象值
-     * @access public
-     * @param mixed $data  数据
-     * @param bool  $set   是否需要进行数据处理
-     * @return $this
-     */
-    public function appendData($data, $set = false)
-    {
-        if ($set) {
-            // 进行数据处理
-            foreach ($data as $key => $value) {
-                $this->setAttr($key, $value, $data);
-            }
-        } else {
-            if (is_object($data)) {
-                $data = get_object_vars($data);
-            }
-
-            $this->data = array_merge($this->data, $data);
-        }
-
-        return $this;
-    }
-
-    /**
-     * 获取对象原始数据 如果不存在指定字段返回null
-     * @access public
-     * @param string $name 字段名 留空获取全部
-     * @return mixed
-     */
-    public function getOrigin($name = null)
-    {
-        if (is_null($name)) {
-            return $this->origin;
-        } else {
-            return array_key_exists($name, $this->origin) ? $this->origin[$name] : null;
-        }
-    }
-
-    /**
-     * 获取对象原始数据 如果不存在指定字段返回false
-     * @access public
-     * @param string $name 字段名 留空获取全部
-     * @return mixed
-     * @throws InvalidArgumentException
-     */
-    public function getData($name = null)
-    {
-        if (is_null($name)) {
-            return $this->data;
-        } elseif (array_key_exists($name, $this->data)) {
-            return $this->data[$name];
-        } else {
-            throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
-        }
-    }
-
-    /**
-     * 获取变化的数据
-     * @access public
-     * @return array
-     */
-    public function getChangeData()
-    {
-        return array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-            return $a === $b ? 0 : 1;
-        });
-    }
-
-    /**
-     * 修改器 设置数据对象值
-     * @access public
-     * @param string $name  属性名
-     * @param mixed  $value 属性值
-     * @param array  $data  数据
-     * @return $this
-     */
-    public function setAttr($name, $value, $data = [])
-    {
-        if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
-            // 自动写入的时间戳字段
-            $value = $this->autoWriteTimestamp($name);
-        } else {
-            // 检测修改器
-            $method = 'set' . Loader::parseName($name, 1) . 'Attr';
-
-            if (method_exists($this, $method)) {
-                $value = $this->$method($value, array_merge($data, $this->data));
-            } elseif (isset($this->type[$name])) {
-                // 类型转换
-                $value = $this->writeTransform($value, $this->type[$name]);
-            }
-        }
-
-        // 设置数据对象属性
-        $this->data[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * 自动写入时间戳
-     * @access public
-     * @param string $name 时间戳字段
-     * @return mixed
-     */
-    protected function autoWriteTimestamp($name)
-    {
-        if (isset($this->type[$name])) {
-            $type = $this->type[$name];
-
-            if (strpos($type, ':')) {
-                list($type, $param) = explode(':', $type, 2);
-            }
-
-            switch ($type) {
-                case 'datetime':
-                case 'date':
-                    $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = $this->formatDateTime($_SERVER['REQUEST_TIME'], $format);
-                    break;
-                case 'timestamp':
-                case 'integer':
-                default:
-                    $value = $_SERVER['REQUEST_TIME'];
-                    break;
-            }
-        } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
-            'datetime',
-            'date',
-            'timestamp',
-        ])) {
-            $value = $this->formatDateTime($_SERVER['REQUEST_TIME'], $this->dateFormat);
-        } else {
-            $value = $this->formatDateTime($_SERVER['REQUEST_TIME'], $this->dateFormat, true);
-        }
-
-        return $value;
-    }
-
-    /**
-     * 时间日期字段格式化处理
-     * @access public
-     * @param mixed $time      时间日期表达式
-     * @param mixed $format    日期格式
-     * @param bool  $timestamp 是否进行时间戳转换
-     * @return mixed
-     */
-    protected function formatDateTime($time, $format, $timestamp = false)
-    {
-        if (false !== strpos($format, '\\')) {
-            $time = new $format($time);
-        } elseif (!$timestamp && false !== $format) {
-            $time = date($format, $time);
-        }
-
-        return $time;
-    }
-
-    /**
-     * 数据写入 类型转换
-     * @access public
-     * @param mixed        $value 值
-     * @param string|array $type  要转换的类型
-     * @return mixed
-     */
-    protected function writeTransform($value, $type)
-    {
-        if (is_array($type)) {
-            list($type, $param) = $type;
-        } elseif (strpos($type, ':')) {
-            list($type, $param) = explode(':', $type, 2);
-        }
-
-        switch ($type) {
-            case 'integer':
-                $value = (int) $value;
-                break;
-            case 'float':
-                if (empty($param)) {
-                    $value = (float) $value;
-                } else {
-                    $value = (float) number_format($value, $param, '.', '');
-                }
-                break;
-            case 'boolean':
-                $value = (bool) $value;
-                break;
-            case 'timestamp':
-                if (!is_numeric($value)) {
-                    $value = strtotime($value);
-                }
-                break;
-            case 'datetime':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = is_numeric($value) ? $value : strtotime($value);
-                $value  = $this->formatDateTime($value, $format);
-                break;
-            case 'object':
-                if (is_object($value)) {
-                    $value = json_encode($value, JSON_FORCE_OBJECT);
-                }
-                break;
-            case 'array':
-                $value = (array) $value;
-            case 'json':
-                $option = !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE;
-                $value  = json_encode($value, $option);
-                break;
-            case 'serialize':
-                $value = serialize($value);
-                break;
-        }
-
-        return $value;
-    }
-
-    /**
-     * 获取器 获取数据对象的值
-     * @access public
-     * @param string $name 名称
-     * @return mixed
-     * @throws InvalidArgumentException
-     */
-    public function getAttr($name)
-    {
-        try {
-            $notFound = false;
-            $value    = $this->getData($name);
-        } catch (InvalidArgumentException $e) {
-            $notFound = true;
-            $value    = null;
-        }
-
-        // 检测属性获取器
-        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
-
-        if (method_exists($this, $method)) {
-            $relation = Loader::parseName($name, 1, false);
-
-            if ($notFound && method_exists($this, $relation) && $this->$relation() instanceof Relation) {
-                // 首先获取关联数据
-                $this->$relation()->removeOption();
-                $value = $this->$relation()->getRelation();
-            }
-
-            $value = $this->$method($value, $this->data);
-        } elseif (isset($this->type[$name])) {
-            // 类型转换
-            $value = $this->readTransform($value, $this->type[$name]);
-        } elseif (in_array($name, [$this->createTime, $this->updateTime])) {
-            if (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
-                'datetime',
-                'date',
-                'timestamp',
-            ])) {
-                $value = $this->formatDateTime(strtotime($value), $this->dateFormat);
-            } else {
-                $value = $this->formatDateTime($value, $this->dateFormat);
-            }
-        } elseif ($notFound) {
-            $method = Loader::parseName($name, 1, false);
-
-            if (method_exists($this, $method) && $this->$method() instanceof Relation) {
-                // 清空之前的查询参数
-                $this->$method()->removeOption();
-                // 不存在该字段 获取关联数据
-                $value = $this->$method()->getRelation();
-                // 保存关联对象值
-                $this->data[$name] = $value;
-            } else {
-                throw new InvalidArgumentException('property not exists:' . $this->class . '->' . $name);
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * 数据读取 类型转换
-     * @access public
-     * @param mixed        $value 值
-     * @param string|array $type  要转换的类型
-     * @return mixed
-     */
-    protected function readTransform($value, $type)
-    {
-        if (is_array($type)) {
-            list($type, $param) = $type;
-        } elseif (strpos($type, ':')) {
-            list($type, $param) = explode(':', $type, 2);
-        }
-
-        switch ($type) {
-            case 'integer':
-                $value = (int) $value;
-                break;
-            case 'float':
-                if (empty($param)) {
-                    $value = (float) $value;
-                } else {
-                    $value = (float) number_format($value, $param, '.', '');
-                }
-                break;
-            case 'boolean':
-                $value = (bool) $value;
-                break;
-            case 'timestamp':
-                if (!is_null($value)) {
-                    $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = $this->formatDateTime($value, $format);
-                }
-                break;
-            case 'datetime':
-                if (!is_null($value)) {
-                    $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = $this->formatDateTime(strtotime($value), $format);
-                }
-                break;
-            case 'json':
-                $value = json_decode($value, true);
-                break;
-            case 'array':
-                $value = empty($value) ? [] : json_decode($value, true);
-                break;
-            case 'object':
-                $value = empty($value) ? new \stdClass() : json_decode($value);
-                break;
-            case 'serialize':
-                $value = unserialize($value);
-                break;
-            default:
-                if (false !== strpos($type, '\\')) {
-                    // 对象类型
-                    $value = new $type($value);
-                }
-        }
-
-        return $value;
-    }
-
-    /**
-     * 设置需要追加的输出属性
-     * @access public
-     * @param array $append   属性列表
-     * @param bool  $override 是否覆盖
-     * @return $this
-     */
-    public function append($append = [], $override = false)
-    {
-        $this->append = $override ? $append : array_merge($this->append, $append);
-
-        return $this;
-    }
-
-    /**
-     * 设置附加关联对象的属性
-     * @access public
-     * @param string       $relation 关联方法
-     * @param string|array $append   追加属性名
-     * @return $this
-     * @throws Exception
-     */
-    public function appendRelationAttr($relation, $append)
-    {
-        if (is_string($append)) {
-            $append = explode(',', $append);
-        }
-
-        $model = $this->getAttr($relation);
-
-        if ($model instanceof Model) {
-            foreach ($append as $key => $attr) {
-                $key = is_numeric($key) ? $attr : $key;
-                if ($this->__isset($key)) {
-                    throw new Exception('bind attr has exists:' . $key);
-                } else {
-                    $this->setAttr($key, $model->$attr);
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * 设置需要隐藏的输出属性
-     * @access public
-     * @param array $hidden   属性列表
-     * @param bool  $override 是否覆盖
-     * @return $this
-     */
-    public function hidden($hidden = [], $override = false)
-    {
-        $this->hidden = $override ? $hidden : array_merge($this->hidden, $hidden);
-
-        return $this;
-    }
-
-    /**
-     * 设置需要输出的属性
-     * @access public
-     * @param array $visible
-     * @param bool  $override 是否覆盖
-     * @return $this
-     */
-    public function visible($visible = [], $override = false)
-    {
-        $this->visible = $override ? $visible : array_merge($this->visible, $visible);
-
-        return $this;
-    }
-
-    /**
-     * 解析隐藏及显示属性
+     * 数据自动完成
      * @access protected
-     * @param array $attrs  属性
-     * @param array $result 结果集
-     * @param bool  $visible
-     * @return array
+     * @param array $auto 要自动更新的字段列表
+     * @return void
      */
-    protected function parseAttr($attrs, &$result, $visible = true)
+    protected function autoCompleteData($auto = [])
     {
-        $array = [];
+        foreach ($auto as $field => $value) {
+            if (is_integer($field)) {
+                $field = $value;
+                $value = null;
+            }
 
-        foreach ($attrs as $key => $val) {
-            if (is_array($val)) {
-                if ($visible) {
-                    $array[] = $key;
-                }
-
-                $result[$key] = $val;
-            } elseif (strpos($val, '.')) {
-                list($key, $name) = explode('.', $val);
-
-                if ($visible) {
-                    $array[] = $key;
-                }
-
-                $result[$key][] = $name;
+            if (!isset($this->data[$field])) {
+                $default = null;
             } else {
-                $array[] = $val;
+                $default = $this->data[$field];
             }
+
+            $this->setAttr($field, !is_null($value) ? $value : $default);
         }
-        return $array;
-    }
-
-    /**
-     * 转换子模型对象
-     * @access protected
-     * @param Model|ModelCollection $model
-     * @param                  $visible
-     * @param                  $hidden
-     * @param                  $key
-     * @return array
-     */
-    protected function subToArray($model, $visible, $hidden, $key)
-    {
-        // 关联模型对象
-        if (isset($visible[$key])) {
-            $model->visible($visible[$key]);
-        } elseif (isset($hidden[$key])) {
-            $model->hidden($hidden[$key]);
-        }
-
-        return $model->toArray();
-    }
-
-    /**
-     * 转换当前模型对象为数组
-     * @access public
-     * @return array
-     */
-    public function toArray()
-    {
-        $item    = [];
-        $visible = [];
-        $hidden  = [];
-
-        // 过滤属性
-        if (!empty($this->visible)) {
-            $array = $this->parseAttr($this->visible, $visible);
-            $data  = array_intersect_key($this->data, array_flip($array));
-        } elseif (!empty($this->hidden)) {
-            $array = $this->parseAttr($this->hidden, $hidden, false);
-            $data  = array_diff_key($this->data, array_flip($array));
-        } else {
-            $data = $this->data;
-        }
-
-        foreach ($data as $key => $val) {
-            if ($val instanceof Model || $val instanceof ModelCollection) {
-                // 关联模型对象
-                $item[$key] = $this->subToArray($val, $visible, $hidden, $key);
-            } elseif (is_array($val) && reset($val) instanceof Model) {
-                // 关联模型数据集
-                $arr = [];
-
-                foreach ($val as $k => $value) {
-                    $arr[$k] = $this->subToArray($value, $visible, $hidden, $k);
-                }
-
-                $item[$key] = $arr;
-            } else {
-                // 模型属性
-                $item[$key] = $this->getAttr($key);
-            }
-        }
-
-        // 追加属性（必须定义获取器）
-        if (!empty($this->append)) {
-            foreach ($this->append as $key => $name) {
-                if (is_array($name)) {
-                    // 追加关联对象属性
-                    $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->append($name)->toArray();
-                } elseif (strpos($name, '.')) {
-                    list($key, $attr) = explode('.', $name);
-                    // 追加关联对象属性
-                    $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->append([$attr])->toArray();
-                } else {
-                    $item[$name] = $this->getAttr($name);
-                }
-            }
-        }
-
-        return !empty($item) ? $item : [];
-    }
-
-    /**
-     * 转换当前模型对象为JSON字符串
-     * @access public
-     * @param integer $options json参数
-     * @return string
-     */
-    public function toJson($options = JSON_UNESCAPED_UNICODE)
-    {
-        return json_encode($this->toArray(), $options);
-    }
-
-    /**
-     * 转换当前模型数据集为数据集对象
-     * @access public
-     * @param array|\think\Collection $collection 数据集
-     * @return \think\Collection
-     */
-    public function toCollection($collection)
-    {
-        if ($this->resultSetType) {
-            if ('collection' == $this->resultSetType) {
-                $collection = new ModelCollection($collection);
-            } elseif (false !== strpos($this->resultSetType, '\\')) {
-                $class      = $this->resultSetType;
-                $collection = new $class($collection);
-            }
-        }
-
-        return $collection;
-    }
-
-    /**
-     * 关联数据一起更新
-     * @access public
-     * @param mixed $relation 关联
-     * @return $this
-     */
-    public function together($relation)
-    {
-        if (is_string($relation)) {
-            $relation = explode(',', $relation);
-        }
-
-        $this->relationWrite = $relation;
-
-        return $this;
-    }
-
-    /**
-     * 获取模型对象的主键
-     * @access public
-     * @param string $name 模型名
-     * @return mixed
-     */
-    public function getPk($name = '')
-    {
-        if (!empty($name)) {
-            $table = $this->db(false)->getTable($name);
-
-            return $this->db(false)->getPk($table);
-        } elseif (empty($this->pk)) {
-            $this->pk = $this->db(false)->getPk();
-        }
-
-        return $this->pk;
-    }
-
-    /**
-     * 判断一个字段名是否为主键字段
-     * @access public
-     * @param string $key 名称
-     * @return bool
-     */
-    protected function isPk($key)
-    {
-        $pk = $this->getPk();
-        if (is_string($pk) && $pk == $key) {
-            return true;
-        } elseif (is_array($pk) && in_array($key, $pk)) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -882,52 +223,71 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function save($data = [], $where = [], $sequence = null)
     {
+        if (!$this->checkBeforeSave($data, $where)) {
+            return false;
+        }
+
+        $result = $this->isUpdate ? $this->updateData($where) : $this->insertData($sequence);
+
+        if (false === $result) {
+            return false;
+        }
+
+        // 写入回调
+        $this->trigger('after_write');
+
+        // 重新记录原始数据
+        $this->origin = $this->data;
+
+        return $result;
+    }
+
+    /**
+     * 写入之前检查数据
+     * @access protected
+     * @param array   $data  数据
+     * @param array   $where 保存条件
+     * @return bool
+     */
+    protected function checkBeforeSave($data, $where)
+    {
         if (!empty($data)) {
             // 数据自动验证
             if (!$this->validateData($data)) {
                 return false;
             }
+
             // 数据对象赋值
             foreach ($data as $key => $value) {
                 $this->setAttr($key, $value, $data);
             }
+
             if (!empty($where)) {
                 $this->isUpdate = true;
             }
         }
 
-        // 自动关联写入
-        if (!empty($this->relationWrite)) {
-            $relation = [];
-            foreach ($this->relationWrite as $key => $name) {
-                if (!is_numeric($key)) {
-                    $relation[$key] = [];
-
-                    foreach ($name as $val) {
-                        if (isset($this->data[$val])) {
-                            $relation[$key][$val] = $this->data[$val];
-                            unset($this->data[$val]);
-                        }
-                    }
-                } elseif (isset($this->data[$name])) {
-                    $relation[$name] = $this->data[$name];
-
-                    if (!$this->isUpdate) {
-                        unset($this->data[$name]);
-                    }
-                }
-            }
+        // 关联写入检查
+        if ($this->together) {
+            $this->checkAutoRelationWrite();
         }
 
         // 检测字段
-        if (!empty($this->field)) {
-            if (true === $this->field) {
-                $this->field = $this->db(false)->getTableInfo('', 'fields');
+        if (empty($this->field) || true === $this->field) {
+            if (!empty($this->origin)) {
+                $this->field = array_keys($this->origin);
+            } else {
+                $query = $this->db(false);
+                $table = $query->getTable();
+
+                $this->field = $query->getConnection()->getTableFields($table);
             }
-            foreach ($this->data as $key => $val) {
-                if (!in_array($key, $this->field)) {
-                    unset($this->data[$key]);
-                }
+        }
+
+        // 去除非法数据
+        foreach ($this->data as $key => $val) {
+            if (!in_array($key, $this->field)) {
+                unset($this->data[$key]);
             }
         }
 
@@ -939,132 +299,129 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
+        return true;
+    }
+
+    /**
+     * 保存写入数据
+     * @access protected
+     * @param array   $where 保存条件
+     * @return int|false
+     */
+    protected function updateData($where)
+    {
+        // 自动更新
+        $this->autoCompleteData($this->update);
+
+        // 事件回调
+        if (false === $this->trigger('before_update')) {
+            return false;
+        }
+
+        // 获取有更新的数据
+        $data = $this->getChangedData();
+
+        if (empty($data)) {
+            // 关联更新
+            if (isset($this->relationWrite)) {
+                $this->autoRelationUpdate();
+            }
+
+            return 0;
+        } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
+            // 自动写入更新时间
+            $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
+
+            $this->data[$this->updateTime] = $data[$this->updateTime];
+        }
+
+        if (empty($where) && !empty($this->updateWhere)) {
+            $where = $this->updateWhere;
+        }
+
+        // 保留主键数据
+        foreach ($this->data as $key => $val) {
+            if ($this->isPk($key)) {
+                $data[$key] = $val;
+            }
+        }
+
         $pk = $this->getPk();
 
-        if ($this->isUpdate) {
-            // 自动更新
-            $this->autoCompleteData($this->update);
-
-            // 事件回调
-            if (false === $this->trigger('before_update')) {
-                return false;
+        if (is_string($pk) && isset($data[$pk])) {
+            if (!isset($where[$pk])) {
+                unset($where);
+                $where[$pk] = $data[$pk];
             }
+            unset($data[$pk]);
+        }
 
-            // 去除没有更新的字段
-            $data = $this->getChangeData();
-
-            // 保留主键数据
-            foreach ($this->data as $key => $val) {
-                if ($this->isPk($key)) {
-                    $data[$key] = $val;
-                }
-            }
-
-            if (!empty($this->readonly)) {
-                // 只读字段不允许更新
-                foreach ($this->readonly as $key => $field) {
-                    if (isset($data[$field])) {
-                        unset($data[$field]);
-                    }
-                }
-            }
-
-            if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
-                // 没有更新
-                return 0;
-            } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
-                // 自动写入更新时间
-                $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
-
-                $this->data[$this->updateTime] = $data[$this->updateTime];
-            }
-
-            if (empty($where) && !empty($this->updateWhere)) {
-                $where = $this->updateWhere;
-            }
-
-            if (is_string($pk) && isset($data[$pk])) {
-                if (!isset($where[$pk])) {
-                    unset($where);
-                    $where[$pk] = $data[$pk];
-                }
-                unset($data[$pk]);
-            }
-
-            // 关联更新
-            if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    if (isset($data[$name])) {
-                        unset($data[$name]);
-                    }
-                }
-            }
-
-            // 模型更新
-            $result = $this->db()->where($where)->update($data);
-
-            // 关联更新
-            if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    if ($val instanceof Model) {
-                        $val->save();
-                    } else {
-                        unset($this->data[$name]);
-                        $model = $this->getAttr($name);
-                        if ($model instanceof Model) {
-                            $model->save($val);
+        if ($this->relationWrite) {
+            foreach ($this->relationWrite as $name => $val) {
+                if (is_array($val)) {
+                    foreach ($val as $key) {
+                        if (isset($data[$key])) {
+                            unset($data[$key]);
                         }
                     }
                 }
             }
-
-            // 更新回调
-            $this->trigger('after_update');
-        } else {
-            // 自动写入
-            $this->autoCompleteData($this->insert);
-            // 自动写入创建时间和更新时间
-            if ($this->autoWriteTimestamp) {
-                if ($this->createTime && !isset($this->data[$this->createTime])) {
-                    $this->data[$this->createTime] = $this->autoWriteTimestamp($this->createTime);
-                }
-                if ($this->updateTime && !isset($this->data[$this->updateTime])) {
-                    $this->data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
-                }
-            }
-
-            if (false === $this->trigger('before_insert')) {
-                return false;
-            }
-
-            $result = $this->db()->insert($this->data);
-
-            // 获取自动增长主键
-            if ($result && is_string($pk) && (!isset($this->data[$pk]) || '' == $this->data[$pk])) {
-                $insertId = $this->db()->getLastInsID($sequence);
-                if ($insertId) {
-                    $this->data[$pk] = $insertId;
-                }
-            }
-
-            // 关联写入
-            if (isset($relation)) {
-                foreach ($relation as $name => $val) {
-                    $method = Loader::parseName($name, 1, false);
-                    $this->$method()->save($val);
-                }
-            }
-
-            // 标记为更新
-            $this->isUpdate = true;
-            // 新增回调
-            $this->trigger('after_insert');
         }
-        // 写入回调
-        $this->trigger('after_write');
 
-        // 记录原始数据
-        $this->origin = $this->data;
+        // 模型更新
+        $result = $this->db(false)->where($where)->update($data);
+
+        // 关联更新
+        if (isset($this->relationWrite)) {
+            $this->autoRelationUpdate();
+        }
+
+        // 更新回调
+        $this->trigger('after_update');
+
+        return $result;
+    }
+
+    /**
+     * 新增写入数据
+     * @access protected
+     * @param string   $sequence 自增名
+     * @return int|false
+     */
+    protected function insertData($sequence)
+    {
+        // 自动写入
+        $this->autoCompleteData($this->insert);
+
+        // 时间戳自动写入
+        $this->checkTimeStampWrite();
+
+        if (false === $this->trigger('before_insert')) {
+            return false;
+        }
+
+        $result = $this->db(false)->insert($this->data);
+
+        $pk = $this->getPk();
+
+        // 获取自动增长主键
+        if ($result && is_string($pk) && (!isset($this->data[$pk]) || '' == $this->data[$pk])) {
+            $insertId = $this->db(false)->getLastInsID($sequence);
+            if ($insertId) {
+                $this->data[$pk] = $insertId;
+            }
+        }
+
+        // 关联写入
+        if (isset($this->relationWrite)) {
+            $this->autoRelationInsert();
+        }
+
+        // 标记为更新
+        $this->isUpdate = true;
+
+        // 新增回调
+        $this->trigger('after_insert');
 
         return $result;
     }
@@ -1093,7 +450,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $result = [];
 
         $db = $this->db();
-
         $db->startTrans();
 
         try {
@@ -1121,40 +477,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 设置允许写入的字段
-     * @access public
-     * @param mixed $field 允许写入的字段 如果为true只允许写入数据表字段
-     * @return $this
-     */
-    public function allowField($field)
-    {
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-
-        $this->field = $field;
-
-        return $this;
-    }
-
-    /**
-     * 设置只读字段
-     * @access public
-     * @param mixed $field 只读字段
-     * @return $this
-     */
-    public function readonly($field)
-    {
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-
-        $this->readonly = $field;
-
-        return $this;
-    }
-
-    /**
      * 是否为更新数据
      * @access public
      * @param bool  $update
@@ -1163,35 +485,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function isUpdate($update = true, $where = null)
     {
-        $this->isUpdate = $update;
+        if (is_bool($update)) {
+            $this->isUpdate = $update;
 
-        if (!empty($where)) {
-            $this->updateWhere = $where;
+            if (!empty($where)) {
+                $this->updateWhere = $where;
+            }
+        } else {
+            $this->isUpdate    = true;
+            $this->updateWhere = $update;
         }
 
         return $this;
-    }
-
-    /**
-     * 数据自动完成
-     * @access public
-     * @param array $auto 要自动更新的字段列表
-     * @return void
-     */
-    protected function autoCompleteData($auto = [])
-    {
-        foreach ($auto as $field => $value) {
-            if (is_integer($field)) {
-                $field = $value;
-                $value = null;
-            }
-
-            if (!isset($this->data[$field])) {
-                $this->setAttr($field, !is_null($value) ? $value : null);
-            } elseif (isset($this->origin[$field]) && $this->data[$field] === $this->origin[$field]) {
-                $this->setAttr($field, !is_null($value) ? $value : $this->data[$field]);
-            }
-        }
     }
 
     /**
@@ -1217,22 +522,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 删除当前模型数据
-        $result = $this->db()->where($where)->delete();
+        $result = $this->db(false)->where($where)->delete();
 
         // 关联删除
         if (!empty($this->relationWrite)) {
-            foreach ($this->relationWrite as $key => $name) {
-                $name  = is_numeric($key) ? $name : $key;
-                $model = $this->getAttr($name);
-                if ($model instanceof Model) {
-                    $model->delete();
-                }
-            }
+            $this->autoRelationDelete();
         }
 
         $this->trigger('after_delete');
 
-        // 清空原始数据
+        // 清空数据
+        $this->data   = [];
         $this->origin = [];
 
         return $result;
@@ -1249,140 +549,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->auto = $fields;
 
         return $this;
-    }
-
-    /**
-     * 设置字段验证
-     * @access public
-     * @param array|string|bool $rule  验证规则 true表示自动读取验证器类
-     * @param array             $msg   提示信息
-     * @param bool              $batch 批量验证
-     * @return $this
-     */
-    public function validate($rule = true, $msg = [], $batch = false)
-    {
-        if (is_array($rule)) {
-            $this->validate = [
-                'rule' => $rule,
-                'msg'  => $msg,
-            ];
-        } else {
-            $this->validate = true === $rule ? $this->name : $rule;
-        }
-
-        $this->batchValidate = $batch;
-
-        return $this;
-    }
-
-    /**
-     * 设置验证失败后是否抛出异常
-     * @access public
-     * @param bool $fail 是否抛出异常
-     * @return $this
-     */
-    public function validateFailException($fail = true)
-    {
-        $this->failException = $fail;
-
-        return $this;
-    }
-
-    /**
-     * 自动验证数据
-     * @access protected
-     * @param array $data  验证数据
-     * @param mixed $rule  验证规则
-     * @param bool  $batch 批量验证
-     * @return bool
-     */
-    protected function validateData($data, $rule = null, $batch = null)
-    {
-        $info = is_null($rule) ? $this->validate : $rule;
-
-        if (!empty($info)) {
-            if (is_array($info)) {
-                $validate = Facade::make('app')->validate();
-
-                $validate->rule($info['rule']);
-                $validate->message($info['msg']);
-            } else {
-                $name = is_string($info) ? $info : $this->name;
-
-                if (strpos($name, '.')) {
-                    list($name, $scene) = explode('.', $name);
-                }
-
-                $validate = Facade::make('app')->validate($name);
-                if (!empty($scene)) {
-                    $validate->scene($scene);
-                }
-            }
-            $batch = is_null($batch) ? $this->batchValidate : $batch;
-
-            if (!$validate->batch($batch)->check($data)) {
-                $this->error = $validate->getError();
-
-                if ($this->failException) {
-                    throw new ValidateException($this->error);
-                } else {
-                    return false;
-                }
-            }
-            $this->validate = null;
-        }
-
-        return true;
-    }
-
-    /**
-     * 返回模型的错误信息
-     * @access public
-     * @return string
-     */
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    /**
-     * 注册回调方法
-     * @access public
-     * @param string   $event    事件名
-     * @param callable $callback 回调方法
-     * @param bool     $override 是否覆盖
-     * @return void
-     */
-    public static function event($event, $callback, $override = false)
-    {
-        $class = get_called_class();
-
-        if ($override) {
-            self::$event[$class][$event] = [];
-        }
-
-        self::$event[$class][$event][] = $callback;
-    }
-
-    /**
-     * 触发事件
-     * @access protected
-     * @param string $event  事件名
-     * @return bool
-     */
-    protected function trigger($event)
-    {
-        if (isset(self::$event[$this->class][$event])) {
-            foreach (self::$event[$this->class][$event] as $callback) {
-                $result = Container::getInstance()->invoke($callback, [$this]);
-
-                if (false === $result) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -1429,9 +595,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 查找单条记录
      * @access public
-     * @param mixed        $data  主键值或者查询条件（闭包）
-     * @param array|string $with  关联预查询
-     * @param bool         $cache 是否缓存
+     * @param mixed     $data  主键值或者查询条件（闭包）
+     * @param mixed     $with  关联预查询
+     * @param bool      $cache 是否缓存
      * @return static
      * @throws exception\DbException
      */
@@ -1533,478 +699,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 命名范围
-     * @access public
-     * @param string|array|\Closure $name 命名范围名称 逗号分隔
-     * @internal  mixed                 ...$params 参数调用
-     * @return Model|Query
+     * 解序列化后处理
      */
-    public static function scope($name)
+    public function __wakeup()
     {
-        if ($name instanceof Query) {
-            return $name;
-        }
-
-        $model     = new static();
-        $params    = func_get_args();
-        $params[0] = $model->db();
-
-        if ($name instanceof \Closure) {
-            call_user_func_array($name, $params);
-        } elseif (is_string($name)) {
-            $name = explode(',', $name);
-        }
-
-        if (is_array($name)) {
-            foreach ($name as $scope) {
-                $method = 'scope' . trim($scope);
-
-                if (method_exists($model, $method)) {
-                    call_user_func_array([$model, $method], $params);
-                }
-            }
-        }
-
-        return $model;
+        $this->initialize();
     }
 
-    /**
-     * 设置是否使用全局查询范围
-     * @param bool $use 是否启用全局查询范围
-     * @access public
-     * @return Model
-     */
-    public static function useGlobalScope($use)
+    public function __debugInfo()
     {
-        $model      = new static();
-        static::$db = $model->db($use);
-
-        return $model;
-    }
-
-    /**
-     * 根据关联条件查询当前模型
-     * @access public
-     * @param string  $relation 关联方法名
-     * @param mixed   $operator 比较操作符
-     * @param integer $count    个数
-     * @param string  $id       关联表的统计字段
-     * @return Relation|Query
-     */
-    public static function has($relation, $operator = '>=', $count = 1, $id = '*')
-    {
-        $relation = (new static())->$relation();
-
-        if (is_array($operator) || $operator instanceof \Closure) {
-            return $relation->hasWhere($operator);
-        }
-
-        return $relation->has($operator, $count, $id);
-    }
-
-    /**
-     * 根据关联条件查询当前模型
-     * @access public
-     * @param string $relation 关联方法名
-     * @param mixed  $where    查询条件（数组或者闭包）
-     * @return Relation|Query
-     */
-    public static function hasWhere($relation, $where = [])
-    {
-        return (new static())->$relation()->hasWhere($where);
-    }
-
-    /**
-     * 解析模型的完整命名空间
-     * @access public
-     * @param string $model 模型名（或者完整类名）
-     * @return string
-     */
-    protected function parseModel($model)
-    {
-        if (false === strpos($model, '\\')) {
-            $path = explode('\\', get_called_class());
-            array_pop($path);
-            array_push($path, Loader::parseName($model, 1));
-            $model = implode('\\', $path);
-        }
-
-        return $model;
-    }
-
-    /**
-     * 查询当前模型的关联数据
-     * @access public
-     * @param string|array $relations 关联名
-     * @return $this
-     */
-    public function relationQuery($relations)
-    {
-        if (is_string($relations)) {
-            $relations = explode(',', $relations);
-        }
-
-        foreach ($relations as $key => $relation) {
-            $subRelation = '';
-            $closure     = null;
-
-            if ($relation instanceof \Closure) {
-                // 支持闭包查询过滤关联条件
-                $closure  = $relation;
-                $relation = $key;
-            }
-
-            if (is_array($relation)) {
-                $subRelation = $relation;
-                $relation    = $key;
-            } elseif (strpos($relation, '.')) {
-                list($relation, $subRelation) = explode('.', $relation, 2);
-            }
-
-            $method = Loader::parseName($relation, 1, false);
-
-            $this->data[$relation] = $this->$method()->getRelation($subRelation, $closure);
-        }
-
-        return $this;
-    }
-
-    /**
-     * 预载入关联查询 返回数据集
-     * @access public
-     * @param array  $resultSet 数据集
-     * @param string $relation  关联名
-     * @return array
-     */
-    public function eagerlyResultSet(&$resultSet, $relation)
-    {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
-
-        foreach ($relations as $key => $relation) {
-            $subRelation = '';
-            $closure     = false;
-
-            if ($relation instanceof \Closure) {
-                $closure  = $relation;
-                $relation = $key;
-            }
-
-            if (is_array($relation)) {
-                $subRelation = $relation;
-                $relation    = $key;
-            } elseif (strpos($relation, '.')) {
-                list($relation, $subRelation) = explode('.', $relation, 2);
-            }
-
-            $relation = Loader::parseName($relation, 1, false);
-
-            $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure);
-        }
-    }
-
-    /**
-     * 预载入关联查询 返回模型对象
-     * @access public
-     * @param Model  $result   数据对象
-     * @param string $relation 关联名
-     * @return Model
-     */
-    public function eagerlyResult(&$result, $relation)
-    {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
-
-        foreach ($relations as $key => $relation) {
-            $subRelation = '';
-            $closure     = false;
-
-            if ($relation instanceof \Closure) {
-                $closure  = $relation;
-                $relation = $key;
-            }
-
-            if (is_array($relation)) {
-                $subRelation = $relation;
-                $relation    = $key;
-            } elseif (strpos($relation, '.')) {
-                list($relation, $subRelation) = explode('.', $relation, 2);
-            }
-
-            $relation = Loader::parseName($relation, 1, false);
-
-            $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure);
-        }
-    }
-
-    /**
-     * 关联统计
-     * @access public
-     * @param Model        $result   数据对象
-     * @param string|array $relation 关联名
-     * @return void
-     */
-    public function relationCount(&$result, $relation)
-    {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
-
-        foreach ($relations as $key => $relation) {
-            $closure = false;
-
-            if ($relation instanceof \Closure) {
-                $closure  = $relation;
-                $relation = $key;
-            } elseif (is_string($key)) {
-                $name     = $relation;
-                $relation = $key;
-            }
-
-            $relation = Loader::parseName($relation, 1, false);
-
-            $count = $this->$relation()->relationCount($result, $closure);
-
-            if (!isset($name)) {
-                $name = Loader::parseName($relation) . '_count';
-            }
-
-            $result->setAttr($name, $count);
-        }
-    }
-
-    /**
-     * 获取模型的默认外键名
-     * @access public
-     * @param string $name 模型名
-     * @return string
-     */
-    protected function getForeignKey($name)
-    {
-        if (strpos($name, '\\')) {
-            $name = basename(str_replace('\\', '/', $name));
-        }
-
-        return Loader::parseName($name) . '_id';
-    }
-
-    /**
-     * HAS ONE 关联定义
-     * @access public
-     * @param string $model      模型名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
-     * @param array  $alias      别名定义（已经废弃）
-     * @param string $joinType   JOIN类型
-     * @return HasOne
-     */
-    public function hasOne($model, $foreignKey = '', $localKey = '', $alias = [], $joinType = 'INNER')
-    {
-        // 记录当前关联信息
-        $model      = $this->parseModel($model);
-        $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
-
-        return new HasOne($this, $model, $foreignKey, $localKey, $joinType);
-    }
-
-    /**
-     * BELONGS TO 关联定义
-     * @access public
-     * @param string $model      模型名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
-     * @param array  $alias      别名定义（已经废弃）
-     * @param string $joinType   JOIN类型
-     * @return BelongsTo
-     */
-    public function belongsTo($model, $foreignKey = '', $localKey = '', $alias = [], $joinType = 'INNER')
-    {
-        // 记录当前关联信息
-        $model      = $this->parseModel($model);
-        $foreignKey = $foreignKey ?: $this->getForeignKey($model);
-        $localKey   = $localKey ?: (new $model)->getPk();
-        $trace      = debug_backtrace(false, 2);
-        $relation   = Loader::parseName($trace[1]['function']);
-
-        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType, $relation);
-    }
-
-    /**
-     * HAS MANY 关联定义
-     * @access public
-     * @param string $model      模型名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
-     * @return HasMany
-     */
-    public function hasMany($model, $foreignKey = '', $localKey = '')
-    {
-        // 记录当前关联信息
-        $model      = $this->parseModel($model);
-        $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
-
-        return new HasMany($this, $model, $foreignKey, $localKey);
-    }
-
-    /**
-     * HAS MANY 远程关联定义
-     * @access public
-     * @param string $model      模型名
-     * @param string $through    中间模型名
-     * @param string $foreignKey 关联外键
-     * @param string $throughKey 关联外键
-     * @param string $localKey   关联主键
-     * @return HasManyThrough
-     */
-    public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '')
-    {
-        // 记录当前关联信息
-        $model      = $this->parseModel($model);
-        $through    = $this->parseModel($through);
-        $localKey   = $localKey ?: $this->getPk();
-        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
-        $throughKey = $throughKey ?: $this->getForeignKey($through);
-
-        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey);
-    }
-
-    /**
-     * BELONGS TO MANY 关联定义
-     * @access public
-     * @param string $model      模型名
-     * @param string $table      中间表名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   当前模型关联键
-     * @return BelongsToMany
-     */
-    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '')
-    {
-        // 记录当前关联信息
-        $model      = $this->parseModel($model);
-        $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: $this->db(false)->getTable(Loader::parseName($this->name) . '_' . $name);
-        $foreignKey = $foreignKey ?: $name . '_id';
-        $localKey   = $localKey ?: $this->getForeignKey($this->name);
-
-        return new BelongsToMany($this, $model, $table, $foreignKey, $localKey);
-    }
-
-    /**
-     * MORPH  One 关联定义
-     * @access public
-     * @param string       $model 模型名
-     * @param string|array $morph 多态字段信息
-     * @param string       $type  多态类型
-     * @return MorphOne
-     */
-    public function morphOne($model, $morph = null, $type = '')
-    {
-        // 记录当前关联信息
-        $model = $this->parseModel($model);
-
-        if (is_null($morph)) {
-            $trace = debug_backtrace(false, 2);
-            $morph = Loader::parseName($trace[1]['function']);
-        }
-
-        if (is_array($morph)) {
-            list($morphType, $foreignKey) = $morph;
-        } else {
-            $morphType  = $morph . '_type';
-            $foreignKey = $morph . '_id';
-        }
-
-        $type = $type ?: Loader::parseName($this->name);
-
-        return new MorphOne($this, $model, $foreignKey, $morphType, $type);
-    }
-
-    /**
-     * MORPH  MANY 关联定义
-     * @access public
-     * @param string       $model 模型名
-     * @param string|array $morph 多态字段信息
-     * @param string       $type  多态类型
-     * @return MorphMany
-     */
-    public function morphMany($model, $morph = null, $type = '')
-    {
-        // 记录当前关联信息
-        $model = $this->parseModel($model);
-
-        if (is_null($morph)) {
-            $trace = debug_backtrace(false, 2);
-            $morph = Loader::parseName($trace[1]['function']);
-        }
-
-        $type = $type ?: Loader::parseName($this->name);
-
-        if (is_array($morph)) {
-            list($morphType, $foreignKey) = $morph;
-        } else {
-            $morphType  = $morph . '_type';
-            $foreignKey = $morph . '_id';
-        }
-
-        return new MorphMany($this, $model, $foreignKey, $morphType, $type);
-    }
-
-    /**
-     * MORPH TO 关联定义
-     * @access public
-     * @param string|array $morph 多态字段信息
-     * @param array        $alias 多态别名定义
-     * @return MorphTo
-     */
-    public function morphTo($morph = null, $alias = [])
-    {
-        $trace    = debug_backtrace(false, 2);
-        $relation = Loader::parseName($trace[1]['function']);
-
-        if (is_null($morph)) {
-            $morph = $relation;
-        }
-
-        // 记录当前关联信息
-        if (is_array($morph)) {
-            list($morphType, $foreignKey) = $morph;
-        } else {
-            $morphType  = $morph . '_type';
-            $foreignKey = $morph . '_id';
-        }
-
-        return new MorphTo($this, $morphType, $foreignKey, $alias, $relation);
-    }
-
-    public function __call($method, $args)
-    {
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = $this->db();
-        }
-
-        if (method_exists($this, 'scope' . $method)) {
-            // 动态调用命名范围
-            $method = 'scope' . $method;
-            array_unshift($args, $query);
-            call_user_func_array([$this, $method], $args);
-
-            return $this;
-        } else {
-            return call_user_func_array([$query, $method], $args);
-        }
-    }
-
-    public static function __callStatic($method, $params)
-    {
-        if (isset(static::$db)) {
-            $query      = static::$db;
-            static::$db = null;
-        } else {
-            $query = (new static())->db();
-        }
-
-        return call_user_func_array([$query, $method], $params);
+        return [
+            'data'     => $this->data,
+            'relation' => $this->relation,
+        ];
     }
 
     /**
@@ -2039,7 +746,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __isset($name)
     {
         try {
-            if (array_key_exists($name, $this->data)) {
+            if (array_key_exists($name, $this->data) || array_key_exists($name, $this->relation)) {
                 return true;
             } else {
                 $this->getAttr($name);
@@ -2059,18 +766,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __unset($name)
     {
-        unset($this->data[$name]);
-    }
-
-    public function __toString()
-    {
-        return $this->toJson();
-    }
-
-    // JsonSerializable
-    public function jsonSerialize()
-    {
-        return $this->toArray();
+        unset($this->data[$name], $this->relation[$name]);
     }
 
     // ArrayAccess
@@ -2095,63 +791,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 解序列化后处理
+     * 设置是否使用全局查询范围
+     * @param bool $use 是否启用全局查询范围
+     * @access public
+     * @return Query
      */
-    public function __wakeup()
+    public static function useGlobalScope($use)
     {
-        $this->initialize();
+        $model = new static();
+
+        return $model->db($use);
     }
 
-    public function __debugInfo()
+    public function __call($method, $args)
     {
-        return [
-            'data' => $this->data,
-        ];
+        return call_user_func_array([$this->db(), $method], $args);
     }
 
-    /**
-     * 模型事件快捷方法
-     * @param      $callback
-     * @param bool $override
-     */
-    protected static function beforeInsert($callback, $override = false)
+    public static function __callStatic($method, $args)
     {
-        self::event('before_insert', $callback, $override);
-    }
+        $model = new static();
 
-    protected static function afterInsert($callback, $override = false)
-    {
-        self::event('after_insert', $callback, $override);
+        return call_user_func_array([$model->db(), $method], $args);
     }
-
-    protected static function beforeUpdate($callback, $override = false)
-    {
-        self::event('before_update', $callback, $override);
-    }
-
-    protected static function afterUpdate($callback, $override = false)
-    {
-        self::event('after_update', $callback, $override);
-    }
-
-    protected static function beforeWrite($callback, $override = false)
-    {
-        self::event('before_write', $callback, $override);
-    }
-
-    protected static function afterWrite($callback, $override = false)
-    {
-        self::event('after_write', $callback, $override);
-    }
-
-    protected static function beforeDelete($callback, $override = false)
-    {
-        self::event('before_delete', $callback, $override);
-    }
-
-    protected static function afterDelete($callback, $override = false)
-    {
-        self::event('after_delete', $callback, $override);
-    }
-
 }

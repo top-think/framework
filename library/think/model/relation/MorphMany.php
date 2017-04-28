@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\Db;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -57,7 +56,14 @@ class MorphMany extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        return $this->relation($subRelation)->select();
+        $list   = $this->query->relation($subRelation)->select();
+        $parent = clone $this->parent;
+
+        foreach ($list as &$model) {
+            $model->setParent($parent);
+        }
+
+        return $list;
     }
 
     /**
@@ -124,7 +130,12 @@ class MorphMany extends Relation
                     $data[$result->$pk] = [];
                 }
 
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$pk]));
+                foreach ($data[$result->$pk] as &$relationModel) {
+                    $relationModel->setParent(clone $result);
+                    $relationModel->isUpdate(true);
+                }
+
+                $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
             }
         }
     }
@@ -143,12 +154,22 @@ class MorphMany extends Relation
         $pk = $result->getPk();
 
         if (isset($result->$pk)) {
+            $key  = $result->$pk;
             $data = $this->eagerlyMorphToMany([
-                $this->morphKey  => $result->$pk,
+                $this->morphKey  => $key,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
 
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$pk]));
+            if (!isset($data[$key])) {
+                $data[$key] = [];
+            }
+
+            foreach ($data[$key] as &$relationModel) {
+                $relationModel->setParent(clone $result);
+                $relationModel->isUpdate(true);
+            }
+
+            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$key]));
         }
     }
 
@@ -273,7 +294,7 @@ class MorphMany extends Relation
      */
     protected function baseQuery()
     {
-        if (empty($this->baseQuery)) {
+        if (empty($this->baseQuery) && $this->parent->getData()) {
             $pk = $this->parent->getPk();
 
             $map[$this->morphKey]  = $this->parent->$pk;

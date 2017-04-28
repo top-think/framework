@@ -28,6 +28,17 @@ use think\facade\Session;
 use think\facade\Url;
 use think\Response;
 
+if (!function_exists('container')) {
+    /**
+     * 获取容器对象实例
+     * @return Container
+     */
+    function container()
+    {
+        return Container::getInstance();
+    }
+}
+
 if (!function_exists('app')) {
     /**
      * 快速获取容器中的实例 支持依赖注入
@@ -41,11 +52,25 @@ if (!function_exists('app')) {
     }
 }
 
+if (!function_exists('bind')) {
+    /**
+     * 绑定一个类到容器
+     * @access public
+     * @param string  $abstract    类标识、接口
+     * @param mixed   $concrete    要绑定的类、闭包或者实例
+     * @return Container
+     */
+    function bind($abstract, $concrete = null)
+    {
+        return Container::getInstance()->bind($abstract, $concrete);
+    }
+}
+
 if (!function_exists('call')) {
     /**
      * 调用反射执行callable 支持依赖注入
      * @param mixed $callable   支持闭包等callable写法
-     * @param array $args       变量
+     * @param array $args       参数
      * @return mixed
      */
     function call($callable, $args = [])

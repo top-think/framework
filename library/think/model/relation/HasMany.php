@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\Db;
 use think\db\Query;
 use think\Loader;
 use think\Model;
@@ -48,7 +47,14 @@ class HasMany extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        return $this->relation($subRelation)->select();
+        $list   = $this->query->relation($subRelation)->select();
+        $parent = clone $this->parent;
+
+        foreach ($list as &$model) {
+            $model->setParent($parent);
+        }
+
+        return $list;
     }
 
     /**
@@ -85,11 +91,16 @@ class HasMany extends Relation
 
             // 关联数据封装
             foreach ($resultSet as $result) {
-                if (!isset($data[$result->$localKey])) {
-                    $data[$result->$localKey] = [];
+                $pk = $result->$localKey;
+                if (!isset($data[$pk])) {
+                    $data[$pk] = [];
                 }
 
-                $result->setAttr($attr, $this->resultSetBuild($data[$result->$localKey]));
+                foreach ($data[$pk] as &$relationModel) {
+                    $relationModel->setParent(clone $result);
+                }
+
+                $result->setRelation($attr, $this->resultSetBuild($data[$pk]));
             }
         }
     }
@@ -108,14 +119,19 @@ class HasMany extends Relation
         $localKey = $this->localKey;
 
         if (isset($result->$localKey)) {
-            $data = $this->eagerlyOneToMany($this, [$this->foreignKey => $result->$localKey], $relation, $subRelation, $closure);
+            $pk   = $result->$localKey;
+            $data = $this->eagerlyOneToMany($this, [$this->foreignKey => $pk], $relation, $subRelation, $closure);
 
             // 关联数据封装
-            if (!isset($data[$result->$localKey])) {
-                $data[$result->$localKey] = [];
+            if (!isset($data[$pk])) {
+                $data[$pk] = [];
             }
 
-            $result->setAttr(Loader::parseName($relation), $this->resultSetBuild($data[$result->$localKey]));
+            foreach ($data[$pk] as &$relationModel) {
+                $relationModel->setParent(clone $result);
+            }
+
+            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$pk]));
         }
     }
 
@@ -273,6 +289,7 @@ class HasMany extends Relation
                 }
             }
         }
+
         return $this->parent->db()
             ->alias($model)
             ->field($model . '.*')

@@ -42,6 +42,21 @@ class Loader
             'think'  => __DIR__ . '/',
             'traits' => __DIR__ . '/../traits/',
         ]);
+
+        $rootPath = realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../') . '/';
+
+        // 加载类库映射文件
+        if (is_file($rootPath . 'runtime/classmap.php')) {
+            self::addClassMap(__include_file($rootPath . 'runtime/classmap.php'));
+        }
+
+        // Composer自动加载支持
+        if (is_dir($rootPath . 'vendor/composer')) {
+            self::registerComposerLoader($rootPath . 'vendor/composer/');
+        }
+
+        // 自动加载extend目录
+        self::addAutoLoadDir($rootPath . 'extend');
     }
 
     // 自动加载
@@ -177,6 +192,7 @@ class Loader
 
             return;
         }
+
         if ($prepend) {
             self::$prefixesPsr0[$first][$prefix] = array_merge(
                 (array) $paths,
@@ -212,6 +228,7 @@ class Loader
             if ('\\' !== $prefix[$length - 1]) {
                 throw new \InvalidArgumentException("A non-empty PSR-4 prefix must end with a namespace separator.");
             }
+
             self::$prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
             self::$prefixDirsPsr4[$prefix]                = (array) $paths;
         } elseif ($prepend) {

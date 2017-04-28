@@ -61,7 +61,13 @@ class MorphTo extends Relation
         // 主键数据
         $pk = $this->parent->$morphKey;
 
-        return (new $model)->relation($subRelation)->find($pk);
+        $relationModel = (new $model)->relation($subRelation)->find($pk);
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
+
+        return $relationModel;
     }
 
     /**
@@ -179,7 +185,11 @@ class MorphTo extends Relation
                         if (!isset($data[$result->$morphKey])) {
                             throw new Exception('relation data not exists :' . $this->model);
                         } else {
-                            $result->setAttr($attr, $data[$result->$morphKey]);
+                            $relationModel = $data[$result->$morphKey];
+                            $relationModel->setParent(clone $result);
+                            $relationModel->isUpdate(true);
+
+                            $result->setRelation($attr, $relationModel);
                         }
                     }
                 }
@@ -214,15 +224,14 @@ class MorphTo extends Relation
      * @return integer
      */
     public function relationCount($result, $closure)
-    {
-    }
+    {}
 
     /**
      * 多态MorphTo 关联模型预查询
      * @access   public
      * @param object $model       关联模型对象
      * @param string $relation    关联名
-     * @param        $result
+     * @param Model  $result
      * @param string $subRelation 子关联
      * @return void
      */
@@ -233,10 +242,11 @@ class MorphTo extends Relation
         $data = (new $model)->with($subRelation)->find($pk);
 
         if ($data) {
+            $data->setParent(clone $result);
             $data->isUpdate(true);
         }
 
-        $result->setAttr(Loader::parseName($relation), $data ?: null);
+        $result->setRelation(Loader::parseName($relation), $data ?: null);
     }
 
     /**
@@ -255,7 +265,7 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphType, get_class($model));
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, $model);
+        return $this->parent->setRelation($this->relation, $model);
     }
 
     /**
@@ -272,7 +282,7 @@ class MorphTo extends Relation
         $this->parent->setAttr($morphType, null);
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, null);
+        return $this->parent->setRelation($this->relation, null);
     }
 
     /**

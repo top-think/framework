@@ -46,15 +46,22 @@ class BelongsTo extends OneToOne
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        $foreignKey = $this->foreignKey;
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        return $this->query
+        $foreignKey = $this->foreignKey;
+
+        $relationModel = $this->query
             ->where($this->localKey, $this->parent->$foreignKey)
             ->relation($subRelation)
             ->find();
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
+
+        return $relationModel;
     }
 
     /**
@@ -139,15 +146,17 @@ class BelongsTo extends OneToOne
                     $relationModel = null;
                 } else {
                     $relationModel = $data[$result->$foreignKey];
-                }
+                    $relationModel->setParent(clone $result);
+                    $relationModel->isUpdate(true);
 
-                if ($relationModel && !empty($this->bindAttr)) {
-                    // 绑定关联属性
-                    $this->bindAttr($relationModel, $result, $this->bindAttr);
+                    if (!empty($this->bindAttr)) {
+                        // 绑定关联属性
+                        $this->bindAttr($relationModel, $result, $this->bindAttr);
+                    }
                 }
 
                 // 设置关联属性
-                $result->setAttr($attr, $relationModel);
+                $result->setRelation($attr, $relationModel);
             }
         }
     }
@@ -172,15 +181,17 @@ class BelongsTo extends OneToOne
             $relationModel = null;
         } else {
             $relationModel = $data[$result->$foreignKey];
-        }
+            $relationModel->setParent(clone $result);
+            $relationModel->isUpdate(true);
 
-        if ($relationModel && !empty($this->bindAttr)) {
-            // 绑定关联属性
-            $this->bindAttr($relationModel, $result, $this->bindAttr);
+            if (!empty($this->bindAttr)) {
+                // 绑定关联属性
+                $this->bindAttr($relationModel, $result, $this->bindAttr);
+            }
         }
 
         // 设置关联属性
-        $result->setAttr(Loader::parseName($relation), $relationModel);
+        $result->setRelation(Loader::parseName($relation), $relationModel);
     }
 
     /**
@@ -197,7 +208,7 @@ class BelongsTo extends OneToOne
         $this->parent->setAttr($foreignKey, $model->$pk);
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, $model);
+        return $this->parent->setRelation($this->relation, $model);
     }
 
     /**
@@ -212,6 +223,6 @@ class BelongsTo extends OneToOne
         $this->parent->setAttr($foreignKey, null);
         $this->parent->save();
 
-        return $this->parent->setAttr($this->relation, null);
+        return $this->parent->setRelation($this->relation, null);
     }
 }

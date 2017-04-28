@@ -1,9 +1,12 @@
 <?php
 
-namespace traits\model;
+namespace think\model\concern;
 
 use think\db\Query;
 
+/**
+ * 数据软删除
+ */
 trait SoftDelete
 {
 
@@ -16,7 +19,7 @@ trait SoftDelete
     {
         $field = $this->getDeleteTimeField();
 
-        if (!empty($this->data[$field])) {
+        if (!empty($this->getOrigin($field))) {
             return true;
         }
 
@@ -66,10 +69,10 @@ trait SoftDelete
 
         if (!$force) {
             // 软删除
-            $this->data[$name] = $this->autoWriteTimestamp($name);
-            $result            = $this->isUpdate()->save();
+            $this->data($name, $this->autoWriteTimestamp($name));
+            $result = $this->isUpdate()->save();
         } else {
-            $result = $this->db(false)->delete($this->data);
+            $result = $this->db(false)->delete($this->getData());
         }
 
         $this->trigger('after_delete', $this);
@@ -155,11 +158,12 @@ trait SoftDelete
      */
     protected function getDeleteTimeField($read = false)
     {
-        $field = isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
+        $field = property_exists($this, 'deleteTime') && isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
 
         if (!strpos($field, '.')) {
             $field = '__TABLE__.' . $field;
         }
+
         if (!$read && strpos($field, '.')) {
             $array = explode('.', $field);
             $field = array_pop($array);

@@ -34,10 +34,6 @@ class Url
      */
     public function build($url = '', $vars = '', $suffix = true, $domain = false)
     {
-        if (false === $domain && $this->app['route']->rules('domain')) {
-            $domain = true;
-        }
-
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
             // [name] 表示使用路由命名标识生成URL
@@ -72,9 +68,9 @@ class Url
         }
 
         if ($url) {
-            $rule = $this->app['route']->name(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
+            $rule = $this->app['route']->getName(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
             if (is_null($rule) && isset($info['query'])) {
-                $rule = $this->app['route']->name($url);
+                $rule = $this->app['route']->getName($url);
                 // 解析地址里面参数 合并到vars
                 parse_str($info['query'], $params);
                 $vars = array_merge($params, $vars);
@@ -97,7 +93,7 @@ class Url
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 检查别名路由
-            $alias      = $this->app['route']->rules('alias');
+            $alias      = $this->app['route']->getAlias();
             $matchAlias = false;
             if ($alias) {
                 // 别名路由解析
@@ -125,13 +121,12 @@ class Url
 
         // 检测URL绑定
         if (!$this->bindCheck) {
-            $type = $this->app['route']->getBind('type');
-            if ($type) {
-                $bind = $this->app['route']->getBind($type);
-                if (0 === strpos($url, $bind)) {
-                    $url = substr($url, strlen($bind) + 1);
-                }
+
+            $bind = $this->app['route']->getBind();
+            if (0 === strpos($url, $bind)) {
+                $url = substr($url, strlen($bind) + 1);
             }
+
         }
         // 还原URL分隔符
         $depr = $this->app['config']->get('pathinfo_depr');
@@ -192,37 +187,7 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 模块/控制器/操作
-            $module  = $request->module();
-            $domains = $this->app['route']->rules('domain');
-            if (true === $domain && 2 == substr_count($url, '/')) {
-                $current = $request->host();
-                $match   = [];
-                $pos     = [];
-                foreach ($domains as $key => $item) {
-                    if (isset($item['[bind]']) && 0 === strpos($url, $item['[bind]'][0])) {
-                        $pos[$key] = strlen($item['[bind]'][0]) + 1;
-                        $match[]   = $key;
-                        $module    = '';
-                    }
-                }
-                if ($match) {
-                    $domain = current($match);
-                    foreach ($match as $item) {
-                        if (0 === strpos($current, $item)) {
-                            $domain = $item;
-                        }
-                    }
-                    $this->bindCheck = true;
-                    $url             = substr($url, $pos[$domain]);
-                }
-            } elseif ($domain) {
-                if (isset($domains[$domain]['[bind]'][0])) {
-                    $bindModule = $domains[$domain]['[bind]'][0];
-                    if ($bindModule && !in_array($bindModule[0], ['\\', '@'])) {
-                        $module = '';
-                    }
-                }
-            }
+            $module = $request->module();
             $module = $module ? $module . '/' : '';
 
             $controller = Loader::parseName($request->controller());
@@ -255,7 +220,7 @@ class Url
             // 自动判断域名
             $domain = $host;
 
-            $domains = $this->app['route']->rules('domain');
+            $domains = $this->app['route']->getDomain();
             if ($domains) {
                 $route_domain = array_keys($domains);
                 foreach ($route_domain as $domain_prefix) {

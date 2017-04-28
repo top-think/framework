@@ -29,10 +29,10 @@ class Module extends Dispatch
         if ($this->app->config('app.app_multi_module')) {
             // 多模块部署
             $module    = strip_tags(strtolower($result[0] ?: $this->app->config('app.default_module')));
-            $bind      = $this->app['route']->getBind('module');
+            $bind      = $this->app['route']->getBind();
             $available = false;
 
-            if ($bind) {
+            if ($bind && preg_match('/^[a-z]/is', $bind)) {
                 // 绑定模块
                 list($bindModule) = explode('/', $bind);
                 if (empty($result[0])) {
@@ -55,7 +55,11 @@ class Module extends Dispatch
                 $this->app['lang']->load($this->app->getAppPath() . $module . '/lang/' . $this->app['request']->langset() . '.php');
 
                 // 模块请求缓存检查
-                $this->app['request']->cache($this->app->config('app.request_cache'), $this->app->config('app.request_cache_expire'), $this->app->config('app.request_cache_except'));
+                $this->app['request']->cache(
+                    $this->app->config('app.request_cache'),
+                    $this->app->config('app.request_cache_expire'),
+                    $this->app->config('app.request_cache_except')
+                );
 
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
@@ -65,11 +69,12 @@ class Module extends Dispatch
             $module = '';
             $this->app['request']->module($module);
         }
+
         // 当前模块路径
         $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . '/' : ''));
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($this->caseUrl) ? $caseUrl : $this->app->config('app.url_convert');
+        $convert = is_bool($this->caseUrl) ? $this->caseUrl : $this->app->config('app.url_convert');
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $this->app->config('app.default_controller'));
         $controller = $convert ? strtolower($controller) : $controller;
@@ -82,9 +87,14 @@ class Module extends Dispatch
         $this->app['request']->controller(Loader::parseName($controller, 1))->action($actionName);
 
         // 监听module_init
-        $this->app['hook']->listen('module_init', $this->request);
+        $this->app['hook']->listen('module_init', $this->app['request']);
 
-        $instance = $this->app->controller($controller, $this->app->config('app.url_controller_layer'), $this->app->config('app.controller_suffix'), $this->app->config('app.empty_controller'));
+        // 实例化控制器
+        $instance = $this->app->controller($controller,
+            $this->app->config('app.url_controller_layer'),
+            $this->app->config('app.controller_suffix'),
+            $this->app->config('app.empty_controller'),
+            false);
 
         if (is_null($instance)) {
             throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));

@@ -19,19 +19,12 @@ class Lang
     private $range = 'zh-cn';
     // 语言自动侦测的变量
     protected $langDetectVar = 'lang';
-    // 语言Cookie变量
-    protected $langCookieVar = 'think_var';
-    // 语言Cookie的过期时间
-    protected $langCookieExpire = 3600;
     // 允许语言列表
     protected $allowLangList = [];
-
-    protected $app;
-
-    public function __construct(App $app)
-    {
-        $this->app = $app;
-    }
+    // Accept-Language转义为对应语言包名称 系统默认配置
+    protected $acceptLanguage = [
+        'zh-hans-cn' => 'zh-cn',
+    ];
 
     // 设定当前的语言
     public function range($range = '')
@@ -87,7 +80,7 @@ class Lang
         foreach ($file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
-                $this->app->log('[ LANG ] ' . $_file);
+                Facade::make('app')->log('[ LANG ] ' . $_file);
                 $_lang = include $_file;
                 if (is_array($_lang)) {
                     $lang = array_change_key_case($_lang) + $lang;
@@ -167,29 +160,25 @@ class Lang
     {
         // 自动侦测设置获取语言选择
         $langSet = '';
-        $cookie  = $this->app['cookie'];
 
         if (isset($_GET[$this->langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[$this->langDetectVar]);
-            $cookie->set($this->langCookieVar, $langSet, $this->langCookieExpire);
-        } elseif ($cookie->get($this->langCookieVar)) {
-            // 获取上次用户的选择
-            $langSet = strtolower($cookie->get($this->langCookieVar));
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
-            $langSet = strtolower($matches[1]);
-            $cookie->set($this->langCookieVar, $langSet, $this->langCookieExpire);
+            $langSet     = strtolower($matches[1]);
+            $acceptLangs = Facade::make('config')->get('header_accept_lang');
+            if (isset($acceptLangs[$langSet])) {
+                $langSet = $acceptLangs[$langSet];
+            } elseif (isset($this->acceptLanguage[$langSet])) {
+                $langSet = $this->acceptLanguage[$langSet];
+            }
         }
 
         if (empty($this->allowLangList) || in_array($langSet, $this->allowLangList)) {
             // 合法的语言
             $this->range = $langSet ?: $this->range;
-        }
-
-        if ('zh-hans-cn' == $this->range) {
-            $this->range = 'zh-cn';
         }
 
         return $this->range;
@@ -203,26 +192,6 @@ class Lang
     public function setLangDetectVar($var)
     {
         $this->langDetectVar = $var;
-    }
-
-    /**
-     * 设置语言的cookie保存变量
-     * @param string $var 变量名称
-     * @return void
-     */
-    public function setLangCookieVar($var)
-    {
-        $this->langCookieVar = $var;
-    }
-
-    /**
-     * 设置语言的cookie的过期时间
-     * @param string $expire 过期时间
-     * @return void
-     */
-    public function setLangCookieExpire($expire)
-    {
-        $this->langCookieExpire = $expire;
     }
 
     /**

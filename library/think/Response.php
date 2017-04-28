@@ -91,7 +91,7 @@ class Response
         $data = $this->getContent();
 
         // Trace调试注入
-        if (Env::get('app_trace', Facade::make('app')->config('app.app_trace'))) {
+        if (Facade::make('env')->get('app_trace', Facade::make('app')->config('app.app_trace'))) {
             Facade::make('debug')->inject($this, $data);
         }
 
@@ -110,7 +110,7 @@ class Response
             http_response_code($this->code);
             // 发送头部信息
             foreach ($this->header as $name => $val) {
-                header($name . ':' . $val);
+                header($name . (!is_null($val) ? ':' . $val : ''));
             }
         }
 

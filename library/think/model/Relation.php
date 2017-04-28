@@ -33,8 +33,6 @@ abstract class Relation
     protected $foreignKey;
     // 关联表主键
     protected $localKey;
-    // 关联查询参数
-    protected $option;
     // 基础查询
     protected $baseQuery;
 
@@ -59,16 +57,6 @@ abstract class Relation
     }
 
     /**
-     * 获取关联的查询对象
-     * @access public
-     * @return Query
-     */
-    public function getQuery()
-    {
-        return $this->query;
-    }
-
-    /**
      * 封装关联数据集
      * @access public
      * @param array $resultSet 数据集
@@ -77,18 +65,6 @@ abstract class Relation
     protected function resultSetBuild($resultSet)
     {
         return (new $this->model)->toCollection($resultSet);
-    }
-
-    /**
-     * 移除关联查询参数
-     * @access public
-     * @return $this
-     */
-    public function removeOption()
-    {
-        $this->query->removeOption();
-
-        return $this;
     }
 
     /**
@@ -107,11 +83,8 @@ abstract class Relation
             $result = call_user_func_array([$this->query, $method], $args);
 
             if ($result instanceof Query) {
-                $this->option = $result->getOptions();
-
                 return $this;
             } else {
-                $this->option    = [];
                 $this->baseQuery = false;
 
                 return $result;
