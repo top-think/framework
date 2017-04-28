@@ -113,8 +113,14 @@ class App implements \ArrayAccess
         $this->runtimePath = $this->rootPath . 'runtime/';
         $this->routePath   = $this->rootPath . 'route/';
         $this->configPath  = $this->rootPath . 'config/';
-        $this->configExt   = $this->config('app.config_ext') ?: '.php';
 
+    }
+
+    /**
+     * 初始化应用
+     */
+    public function initialize()
+    {
         // 设置路径环境变量
         $this->env->set([
             'think_path'   => $this->thinkPath,
@@ -123,21 +129,22 @@ class App implements \ArrayAccess
             'config_path'  => $this->configPath,
             'route_path'   => $this->routePath,
             'runtime_path' => $this->runtimePath,
-        ]);
-    }
+            'extend_path'  => $this->rootPath . 'extend/',
+            'vendor_path'  => $this->rootPath . 'vendor/',
 
-    /**
-     * 初始化应用
-     */
-    public function initialize()
-    {
-        // 注册应用命名空间
-        Loader::addNamespace($this->namespace, $this->appPath);
+        ]);
 
         // 加载环境变量配置文件
         if (is_file($this->rootPath . '.env')) {
             $this->env->load($this->rootPath . '.env');
         }
+
+        $this->namespace = $this->env->get('app_namespace', $this->namespace);
+
+        // 注册应用命名空间
+        Loader::addNamespace($this->namespace, $this->appPath);
+
+        $this->configExt = $this->env->get('config_ext', '.php');
 
         // 初始化应用
         $this->init();
