@@ -1144,7 +1144,7 @@ class Template
                 $template = str_replace(['/', ':'], $this->config['view_depr'], substr($template, 1));
             }
             if ($this->config['view_base']) {
-                $module = isset($module) ? $module : Request::instance()->module();
+                $module = isset($module) ? $module : Facade::make('request')->module();
                 $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
             } else {
                 $path = isset($module) ? Facade::make('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . basename($this->config['view_path']) . DIRECTORY_SEPARATOR : $this->config['view_path'];
