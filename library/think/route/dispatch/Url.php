@@ -68,7 +68,7 @@ class Url extends Dispatch
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
                     $var[$match[1]] = strip_tags($match[2]);
-                }, $path);
+                }, implode('|', $path));
             }
         }
 
