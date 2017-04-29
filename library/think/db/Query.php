@@ -419,6 +419,8 @@ class Query
      */
     public function value($field, $default = null, $force = false)
     {
+        $this->parseOptions();
+
         $result = $this->connection->value($this, $field, $force);
 
         return false !== $result ? $result : $default;
@@ -433,6 +435,8 @@ class Query
      */
     public function column($field, $key = '')
     {
+        $this->parseOptions();
+
         return $this->connection->column($this, $field, $key);
     }
 
@@ -449,7 +453,7 @@ class Query
             $options = $this->getOptions();
             $subSql  = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
 
-            return $this->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0, true);
+            return $this->newQuery()->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0, true);
         }
 
         return $this->value('COUNT(' . $field . ') AS tp_count', 0, true);
@@ -1340,11 +1344,13 @@ class Query
             $simple = false;
         }
 
+        $paginate = Facade::make('config')->pull('paginate');
+
         if (is_array($listRows)) {
-            $config   = array_merge(Facade::make('app')->config('paginate'), $listRows);
+            $config   = array_merge($paginate, $listRows);
             $listRows = $config['list_rows'];
         } else {
-            $config   = array_merge(Facade::make('app')->config('paginate'), $config);
+            $config   = array_merge($paginate, $config);
             $listRows = $listRows ?: $config['list_rows'];
         }
 
