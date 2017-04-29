@@ -115,9 +115,9 @@ class Config
             $name = $this->prefix . '.' . $name;
         }
 
-        $name = explode('.', $name);
+        $name = explode('.', strtolower($name));
 
-        return isset($this->config[$range][strtolower($name[0])][strtolower($name[1])]);
+        return isset($this->config[$range][$name[0]][$name[1]]);
 
     }
 
@@ -188,12 +188,13 @@ class Config
             if (!strpos($name, '.')) {
                 $name = $this->prefix . '.' . $name;
             }
-            $name = explode('.', $name);
+            $name = explode('.', strtolower($name));
 
-            $this->config[$range][strtolower($name[0])][$name[1]] = $value;
+            $this->config[$range][$name[0]][$name[1]] = $value;
             return $value;
         } elseif (is_array($name)) {
             // 批量设置
+            $name = array_change_key_case($name);
             if (!empty($value)) {
                 if (isset($this->config[$range][$value])) {
                     $result = array_merge($this->config[$range][$value], $name);
@@ -202,7 +203,7 @@ class Config
                 }
                 $this->config[$range][$value] = $result;
             } else {
-                $result = $this->config[$range] = array_merge($this->config[$range], array_change_key_case($name));
+                $result = $this->config[$range] = array_merge($this->config[$range], $name);
             }
         } else {
             // 为空直接返回 已有配置

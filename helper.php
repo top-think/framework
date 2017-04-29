@@ -139,6 +139,10 @@ if (!function_exists('config')) {
     function config($name = '', $value = null, $range = '')
     {
         if (is_null($value) && is_string($name)) {
+            if ('.' == substr($name, -1)) {
+                return Config::pull(substr($name, 0, -1));
+            }
+
             return 0 === strpos($name, '?') ? Config::has(substr($name, 1), $range) : Config::get($name, $range);
         } else {
             return Config::set($name, $value, $range);
