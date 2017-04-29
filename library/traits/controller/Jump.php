@@ -14,6 +14,7 @@
 namespace traits\controller;
 
 use think\exception\HttpResponseException;
+use think\Facade;
 use think\Response;
 use think\response\Redirect;
 
