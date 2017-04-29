@@ -115,10 +115,7 @@ class Config
             $name = $this->prefix . '.' . $name;
         }
 
-        $name = explode('.', strtolower($name));
-
-        return isset($this->config[$range][$name[0]][$name[1]]);
-
+        return $this->get($name, $range) ? true : false;
     }
 
     /**
@@ -162,10 +159,19 @@ class Config
             $name = $this->prefix . '.' . $name;
         }
 
-        $name = explode('.', strtolower($name));
+        $name   = explode('.', strtolower($name));
+        $config = $this->config[$range];
 
-        return isset($this->config[$range][$name[0]][$name[1]]) ? $this->config[$range][$name[0]][$name[1]] : null;
+        // 按.拆分成多维数组进行判断
+        foreach ($name as $val) {
+            if (isset($config[$val])) {
+                $config = $config[$val];
+            } else {
+                return;
+            }
+        }
 
+        return $config;
     }
 
     /**
