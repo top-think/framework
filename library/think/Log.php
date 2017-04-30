@@ -195,6 +195,8 @@ class Log implements LoggerInterface
     public function write($msg, $type = 'info', $force = false)
     {
         // 封装日志信息
+        $log = $this->log;
+
         if (true === $force || empty($this->config['level'])) {
             $log[$type][] = $msg;
         } elseif (in_array($level, $this->config['level'])) {
