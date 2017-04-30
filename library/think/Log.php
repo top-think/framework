@@ -91,6 +91,7 @@ class Log implements LoggerInterface
             foreach ($context as $key => $val) {
                 $replace['{' . $key . '}'] = $val;
             }
+
             $msg = strtr($msg, $replace);
         }
 
@@ -187,11 +188,11 @@ class Log implements LoggerInterface
     /**
      * 实时写入日志信息 并支持行为
      * @param mixed  $msg   调试信息
-     * @param string $level 日志级别
+     * @param string $type  日志级别
      * @param bool   $force 是否强制写入
      * @return bool
      */
-    public function write($msg, $level = 'info', $force = false)
+    public function write($msg, $type = 'info', $force = false)
     {
         // 封装日志信息
         if (true === $force || empty($this->config['level'])) {
@@ -210,10 +211,10 @@ class Log implements LoggerInterface
         }
 
         // 写入日志
-        $result = self::$driver->save($log);
+        $result = $this->driver->save($log);
 
         if ($result) {
-            self::$log = [];
+            $this->log = [];
         }
 
         return $result;
