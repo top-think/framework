@@ -115,10 +115,7 @@ class Config
             $name = $this->prefix . '.' . $name;
         }
 
-        $name = explode('.', $name);
-
-        return isset($this->config[$range][strtolower($name[0])][strtolower($name[1])]);
-
+        return $this->get($name, $range) ? true : false;
     }
 
     /**
@@ -162,10 +159,19 @@ class Config
             $name = $this->prefix . '.' . $name;
         }
 
-        $name = explode('.', strtolower($name));
+        $name   = explode('.', strtolower($name));
+        $config = $this->config[$range];
 
-        return isset($this->config[$range][$name[0]][$name[1]]) ? $this->config[$range][$name[0]][$name[1]] : null;
+        // 按.拆分成多维数组进行判断
+        foreach ($name as $val) {
+            if (isset($config[$val])) {
+                $config = $config[$val];
+            } else {
+                return;
+            }
+        }
 
+        return $config;
     }
 
     /**
@@ -188,12 +194,13 @@ class Config
             if (!strpos($name, '.')) {
                 $name = $this->prefix . '.' . $name;
             }
-            $name = explode('.', $name);
+            $name = explode('.', strtolower($name));
 
-            $this->config[$range][strtolower($name[0])][$name[1]] = $value;
+            $this->config[$range][$name[0]][$name[1]] = $value;
             return $value;
         } elseif (is_array($name)) {
             // 批量设置
+            $name = array_change_key_case($name);
             if (!empty($value)) {
                 if (isset($this->config[$range][$value])) {
                     $result = array_merge($this->config[$range][$value], $name);
@@ -202,7 +209,7 @@ class Config
                 }
                 $this->config[$range][$value] = $result;
             } else {
-                $result = $this->config[$range] = array_merge($this->config[$range], array_change_key_case($name));
+                $result = $this->config[$range] = array_merge($this->config[$range], $name);
             }
         } else {
             // 为空直接返回 已有配置

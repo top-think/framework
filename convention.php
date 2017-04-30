@@ -5,8 +5,6 @@ return [
     // | 应用设置
     // +----------------------------------------------------------------------
     'app'      => [
-        // 应用命名空间
-        'app_namespace'          => 'app',
         // 应用调试模式
         'app_debug'              => true,
         // 应用Trace
@@ -19,8 +17,6 @@ return [
         'auto_bind_module'       => false,
         // 注册的根命名空间
         'root_namespace'         => [],
-        // 扩展函数文件
-        'extra_file_list'        => [__DIR__ . '/helper.php'],
         // 默认输出类型
         'default_return_type'    => 'html',
         // 默认AJAX 数据返回格式,可选json xml ...

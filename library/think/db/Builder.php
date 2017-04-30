@@ -768,7 +768,7 @@ abstract class Builder
         $options = $query->getOptions();
 
         // 分析并处理数据
-        $data = $this->parseData($query, $query->getOptions['data']);
+        $data = $this->parseData($query, $options['data']);
         if (empty($data)) {
             return 0;
         }

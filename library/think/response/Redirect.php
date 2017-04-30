@@ -12,6 +12,7 @@
 namespace think\response;
 
 use think\Facade;
+use think\Response;
 
 class Redirect extends Response
 {
