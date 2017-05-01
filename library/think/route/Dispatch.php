@@ -23,8 +23,8 @@ abstract class Dispatch
     protected $param;
     // 状态码
     protected $code;
-    // 是否区分大小写
-    protected $caseUrl = true;
+    // 是否进行大小写转换
+    protected $convert;
 
     public function __construct($action, $param = [], $code = null)
     {
@@ -34,9 +34,9 @@ abstract class Dispatch
         $this->code   = $code;
     }
 
-    public function caseUrl($case)
+    public function convert($convert)
     {
-        $this->caseUrl = $case;
+        $this->convert = $convert;
 
         return $this;
     }

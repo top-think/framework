@@ -74,7 +74,7 @@ class Module extends Dispatch
         $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . '/' : ''));
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($this->caseUrl) ? $this->caseUrl : $this->app->config('app.url_convert');
+        $convert = is_bool($this->convert) ? $this->convert : $this->app->config('app.url_convert');
         // 获取控制器名
         $controller = strip_tags($result[1] ?: $this->app->config('app.default_controller'));
         $controller = $convert ? strtolower($controller) : $controller;
