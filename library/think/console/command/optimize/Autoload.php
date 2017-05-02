@@ -10,11 +10,10 @@
 // +----------------------------------------------------------------------
 namespace think\console\command\optimize;
 
-use think\App;
-use think\Facade;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
+use think\Facade;
 
 class Autoload extends Command
 {
@@ -33,17 +32,16 @@ class Autoload extends Command
 /**
  * 类库映射
  */
- 
+
 return [
 
 EOF;
 
         $namespacesToScan = [
             Facade::make('app')->getNamespace() . '\\' => realpath(rtrim(Facade::make('app')->getAppPath())),
-            'think\\'              => Facade::make('app')->getAppPath() . 'library/think',
-            'behavior\\'           => Facade::make('app')->getAppPath() . 'library/behavior',
-            'traits\\'             => Facade::make('app')->getAppPath() . 'library/traits',
-            ''                     => realpath(rtrim(Facade::make('app')->getRootPath().'extend'))
+            'think\\'                                  => Facade::make('app')->getAppPath() . 'library/think',
+            'traits\\'                                 => Facade::make('app')->getAppPath() . 'library/traits',
+            ''                                         => realpath(rtrim(Facade::make('app')->getRootPath() . 'extend')),
         ];
 
         krsort($namespacesToScan);
@@ -54,7 +52,7 @@ EOF;
                 continue;
             }
 
-            $namespaceFilter = $namespace === '' ? null : $namespace;
+            $namespaceFilter = '' === $namespace ? null : $namespace;
             $classMap        = $this->addClassMapCode($dir, $namespaceFilter, $classMap);
         }
 
@@ -85,7 +83,7 @@ EOF;
                 $this->output->writeln(
                     '<warning>Warning: Ambiguous class resolution, "' . $class . '"' .
                     ' was found in both "' . str_replace(["',\n"], [
-                        ''
+                        '',
                     ], $classMap[$class]) . '" and "' . $path . '", the first will be used.</warning>'
                 );
             }
@@ -98,12 +96,12 @@ EOF;
 
         $baseDir    = '';
         $appPath    = $this->normalizePath(realpath(Facade::make('app')->getAppPath()));
-        $libPath    = $this->normalizePath(realpath(Facade::make('app')->getThinkPath().'library'));
-        $extendPath = $this->normalizePath(realpath(Facade::make('app')->getRootPath().'extend'));
+        $libPath    = $this->normalizePath(realpath(Facade::make('app')->getThinkPath() . 'library'));
+        $extendPath = $this->normalizePath(realpath(Facade::make('app')->getRootPath() . 'extend'));
         $path       = $this->normalizePath($path);
 
         if (strpos($path, $libPath . '/') === 0) {
-            $path    = substr($path, strlen(Facade::make('app')->getThinkPath().'library'));
+            $path    = substr($path, strlen(Facade::make('app')->getThinkPath() . 'library'));
             $baseDir = 'LIB_PATH';
         } elseif (strpos($path, $appPath . '/') === 0) {
             $path    = substr($path, strlen($appPath) + 1);
@@ -113,11 +111,11 @@ EOF;
             $baseDir = 'EXTEND_PATH';
         }
 
-        if ($path !== false) {
+        if (false !== $path) {
             $baseDir .= " . ";
         }
 
-        return $baseDir . (($path !== false) ? var_export($path, true) : "");
+        return $baseDir . ((false !== $path) ? var_export($path, true) : "");
     }
 
     protected function normalizePath($path)
@@ -240,7 +238,7 @@ EOF;
         // strip leading non-php code if needed
         if (substr($contents, 0, 2) !== '<?') {
             $contents = preg_replace('{^.+?<\?}s', '<?', $contents, 1, $replacements);
-            if ($replacements === 0) {
+            if (0 === $replacements) {
                 return [];
             }
         }
@@ -267,9 +265,9 @@ EOF;
                 $namespace = str_replace([' ', "\t", "\r", "\n"], '', $matches['nsname'][$i]) . '\\';
             } else {
                 $name = $matches['name'][$i];
-                if ($name[0] === ':') {
+                if (':' === $name[0]) {
                     $name = 'xhp' . substr(str_replace(['-', ':'], ['_', '__'], $name), 1);
-                } elseif ($matches['type'][$i] === 'enum') {
+                } elseif ('enum' === $matches['type'][$i]) {
                     $name = rtrim($name, ':');
                 }
                 $classes[] = ltrim($namespace . $name, '\\');
