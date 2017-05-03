@@ -20,7 +20,7 @@ class Url extends Dispatch
     public function run()
     {
         // 解析默认的URL规则
-        $url    = str_replace($this->param['depr'], '|', $this->action);
+        $url    = str_replace($this->param['depr'], '|', $this->dispatch);
         $result = $this->parseUrl($url);
 
         return (new Module($result))->run();

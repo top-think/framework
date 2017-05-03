@@ -20,7 +20,7 @@ class Module extends Dispatch
 {
     public function run()
     {
-        $result = $this->action;
+        $result = $this->dispatch;
 
         if (is_string($result)) {
             $result = explode('/', $result);

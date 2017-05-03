@@ -21,7 +21,7 @@ class Controller extends Dispatch
         $vars = array_merge($this->app['request']->param(), $this->param);
 
         return $this->app->action(
-            $this->action, $vars,
+            $this->dispatch, $vars,
             $this->app->config('app.url_controller_layer'),
             $this->app->config('app.controller_suffix')
         );

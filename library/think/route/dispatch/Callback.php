@@ -21,7 +21,7 @@ class Callback extends Dispatch
         // 执行回调方法
         $vars = array_merge($this->app['request']->param(), $this->param);
 
-        return Container::getInstance()->invoke($this->action, $vars);
+        return Container::getInstance()->invoke($this->dispatch, $vars);
     }
 
 }

@@ -17,7 +17,7 @@ class Response extends Dispatch
 {
     public function run()
     {
-        return $this->action;
+        return $this->dispatch;
     }
 
 }

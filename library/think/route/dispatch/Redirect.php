@@ -18,6 +18,6 @@ class Redirect extends Dispatch
 {
     public function run()
     {
-        return Response::create($this->action, 'redirect')->code($this->code);
+        return Response::create($this->dispatch, 'redirect')->code($this->code);
     }
 }

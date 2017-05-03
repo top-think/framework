@@ -17,8 +17,8 @@ abstract class Dispatch
 {
     // 应用实例
     protected $app;
-    // 调度操作
-    protected $action;
+    // 调度信息
+    protected $dispatch;
     // 调度参数
     protected $param;
     // 状态码
@@ -26,12 +26,12 @@ abstract class Dispatch
     // 是否进行大小写转换
     protected $convert;
 
-    public function __construct($action, $param = [], $code = null)
+    public function __construct($dispatch, $param = [], $code = null)
     {
-        $this->app    = Facade::make('app');
-        $this->action = $action;
-        $this->param  = $param;
-        $this->code   = $code;
+        $this->app      = Facade::make('app');
+        $this->dispatch = $dispatch;
+        $this->param    = $param;
+        $this->code     = $code;
     }
 
     public function convert($convert)
