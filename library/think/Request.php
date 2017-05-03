@@ -1034,7 +1034,11 @@ class Request
             $filter = [];
         } else {
             $filter = $filter ?: $this->filter;
-            $filter = (array) $filter;
+            if (is_string($filter) && false === strpos($filter, '/')) {
+                $filter = explode(',', $filter);
+            } else {
+                $filter = (array) $filter;
+            }
         }
 
         $filter[] = $default;
