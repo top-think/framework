@@ -123,16 +123,11 @@ class Config
      * @access public
      * @param string    $name 一级配置名
      * @param string    $range  作用域
-     * @return mixed
+     * @return array
      */
-    public function pull($name = null, $range = '')
+    public function pull($name, $range = '')
     {
         $range = $range ?: $this->range;
-
-        // 无参数时获取所有
-        if (empty($name) && isset($this->config[$range])) {
-            return $this->config[$range];
-        }
 
         $name = strtolower($name);
 
@@ -201,12 +196,14 @@ class Config
         } elseif (is_array($name)) {
             // 批量设置
             $name = array_change_key_case($name);
+
             if (!empty($value)) {
                 if (isset($this->config[$range][$value])) {
                     $result = array_merge($this->config[$range][$value], $name);
                 } else {
                     $result = $name;
                 }
+
                 $this->config[$range][$value] = $result;
             } else {
                 $result = $this->config[$range] = array_merge($this->config[$range], $name);
