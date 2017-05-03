@@ -130,22 +130,4 @@ class Mysql extends Connection
         return true;
     }
 
-    /**
-     * 是否断线
-     * @access protected
-     * @param \PDOException  $e 异常对象
-     * @return bool
-     */
-    protected function isBreak($e)
-    {
-        $info  = ['server has gone away', 'Error while sending STMT_'];
-        $error = $e->getMessage();
-
-        foreach ($info as $msg) {
-            if (false !== stripos($error, $msg)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
