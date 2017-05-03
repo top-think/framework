@@ -52,10 +52,9 @@ class RuleItem extends Rule
      * 路由规则预处理
      * @access public
      * @param string      $rule     路由规则
-     * @param array       $option   路由参数
      * @return void
      */
-    public function setRule($rule, $option = [])
+    public function setRule($rule)
     {
         if ('$' == substr($rule, -1, 1)) {
             // 是否完整匹配
