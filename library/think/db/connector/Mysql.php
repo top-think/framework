@@ -138,8 +138,13 @@ class Mysql extends Connection
      */
     protected function isBreak($e)
     {
-        if (false !== stripos($e->getMessage(), 'server has gone away')) {
-            return true;
+        $info  = ['server has gone away', 'Error while sending STMT_'];
+        $error = $e->getMessage();
+
+        foreach ($info as $msg) {
+            if (false !== stripos($error, $msg)) {
+                return true;
+            }
         }
         return false;
     }
