@@ -43,7 +43,12 @@ class Loader
             'traits' => __DIR__ . '/../traits/',
         ]);
 
-        $rootPath = realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../') . '/';
+        $path = dirname($_SERVER['SCRIPT_FILENAME']);
+        if (PHP_SAPI == 'cli') {
+            $rootPath = realpath($path) . '/';
+        } else {
+            $rootPath = realpath($path . '/../') . '/';
+        }
 
         // 加载类库映射文件
         if (is_file($rootPath . 'runtime/classmap.php')) {
