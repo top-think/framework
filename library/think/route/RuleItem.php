@@ -42,9 +42,9 @@ class RuleItem extends Rule
         $this->route  = $route;
         $this->method = $method;
 
-        $this->setRule($name, $option);
+        $this->setRule($name);
 
-        $this->option  = array_merge($group->getOption(), $option);
+        $this->option  = array_merge($group->getOption(), $this->option);
         $this->pattern = $pattern;
     }
 
