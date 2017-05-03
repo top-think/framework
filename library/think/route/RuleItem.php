@@ -37,15 +37,14 @@ class RuleItem extends Rule
      */
     public function __construct(Route $router, RuleGroup $group, $name, $route, $method = '*', $option = [], $pattern = [])
     {
-        $this->router = $router;
-        $this->group  = $group;
-        $this->route  = $route;
-        $this->method = $method;
-
-        $this->setRule($name);
-
+        $this->router  = $router;
+        $this->group   = $group;
+        $this->route   = $route;
+        $this->method  = $method;
         $this->option  = array_merge($group->getOption(), $this->option);
         $this->pattern = $pattern;
+
+        $this->setRule($name);
     }
 
     /**
