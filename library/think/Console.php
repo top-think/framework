@@ -63,12 +63,15 @@ class Console
     public static function init($run = true)
     {
         static $console;
+
         if (!$console) {
             // 实例化console
             $console = new self('Think Console', '0.1');
+
             // 读取指令集
-            if (is_file(Facade::make('app')->getConfigPath() . 'command.php')) {
-                $commands = include Facade::make('app')->getConfigPath() . 'command.php';
+            if (is_file(Facade::make('env')->get('config_path') . 'command.php')) {
+                $commands = include Facade::make('env')->get('config_path') . 'command.php';
+
                 if (is_array($commands)) {
                     foreach ($commands as $command) {
                         if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
@@ -79,6 +82,7 @@ class Console
                 }
             }
         }
+
         if ($run) {
             // 运行
             return $console->run();
@@ -436,9 +440,11 @@ class Console
     public function find($name)
     {
         $allCommands = array_keys($this->commands);
-        $expr        = preg_replace_callback('{([^:]+|)}', function ($matches) {
+
+        $expr = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $name);
+
         $commands = preg_grep('{^' . $expr . '}', $allCommands);
 
         if (empty($commands) || count(preg_grep('{^' . $expr . '$}', $commands)) < 1) {
@@ -462,7 +468,8 @@ class Console
 
         if (count($commands) > 1) {
             $commandList = $this->commands;
-            $commands    = array_filter($commands, function ($nameOrAlias) use ($commandList, $commands) {
+
+            $commands = array_filter($commands, function ($nameOrAlias) use ($commandList, $commands) {
                 $commandName = $commandList[$nameOrAlias]->getName();
 
                 return $commandName === $nameOrAlias || !in_array($commandName, $commands);

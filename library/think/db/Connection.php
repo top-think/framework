@@ -123,10 +123,10 @@ abstract class Connection
 
     /**
      * 架构函数 读取数据库配置信息
-     * @access public
+     * @access protected
      * @param array $config 数据库配置数组
      */
-    public function __construct(array $config = [])
+    protected function __construct(array $config = [])
     {
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
@@ -543,9 +543,7 @@ abstract class Connection
         // 记录SQL语句
         $this->queryStr = $sql;
 
-        if ($bind) {
-            $this->bind = $bind;
-        }
+        $this->bind = $bind;
 
         // 释放前次的查询结果
         if (!empty($this->PDOStatement)) {
@@ -609,9 +607,8 @@ abstract class Connection
 
         // 记录SQL语句
         $this->queryStr = $sql;
-        if ($bind) {
-            $this->bind = $bind;
-        }
+
+        $this->bind = $bind;
 
         //释放前次的查询结果
         if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
@@ -670,11 +667,13 @@ abstract class Connection
         // 分析查询表达式
         $options = $query->getOptions();
         $pk      = $query->getPk($options);
-        $data    = $options['data'];
+        $bind    = $query->getBind();
+
         if (!empty($options['cache']) && true === $options['cache']['key'] && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options, $bind);
         }
 
+        $data   = $options['data'];
         $result = false;
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
@@ -686,7 +685,7 @@ abstract class Connection
             } elseif (is_string($cache['key'])) {
                 $key = $cache['key'];
             } elseif (!isset($key)) {
-                $key = md5(serialize($options));
+                $key = md5(serialize($options) . serialize($bind));
             }
 
             $result = Facade::make('cache')->get($key);
@@ -708,7 +707,7 @@ abstract class Connection
             $query->setOption('limit', 1);
 
             // 生成查询SQL
-            list($sql, $bind) = $this->builder->select($query);
+            $sql = $this->builder->select($query);
 
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
@@ -750,21 +749,20 @@ abstract class Connection
     public function select(Query $query)
     {
         // 分析查询表达式
-        $options = $query->getOptions();
-
+        $options   = $query->getOptions();
+        $bind      = $query->getBind();
         $resultSet = false;
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
             $cache     = $options['cache'];
-            $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options));
+            $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options) . serialize($bind));
             $resultSet = Facade::make('cache')->get($key);
         }
 
         if (!$resultSet) {
-
             // 生成查询SQL
-            list($sql, $bind) = $this->builder->select($query);
+            $sql = $this->builder->select($query);
 
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
@@ -804,9 +802,10 @@ abstract class Connection
     {
         // 分析查询表达式
         $options = $query->getOptions();
+        $bind    = $query->getBind();
 
         // 生成SQL语句
-        list($sql, $bind) = $this->builder->insert($query, $replace);
+        $sql = $this->builder->insert($query, $replace);
 
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
@@ -819,7 +818,8 @@ abstract class Connection
         if ($result) {
             $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             $lastInsId = $this->getLastInsID($sequence);
-            $data      = $options['data'];
+
+            $data = $options['data'];
 
             if ($lastInsId) {
                 $pk = $query->getPk($options);
@@ -854,8 +854,10 @@ abstract class Connection
         }
 
         $options = $query->getOptions();
+        $bind    = $query->getBind();
+
         // 生成SQL语句
-        list($sql, $bind) = $this->builder->insertAll($query, $dataSet);
+        $sql = $this->builder->insertAll($query, $dataSet);
 
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
@@ -878,11 +880,13 @@ abstract class Connection
     public function selectInsert(Query $query, $fields, $table)
     {
         // 分析查询表达式
-        $options = $this->parseOptions($query);
+        $options = $query->getOptions();
+        $bind    = $query->getBind();
 
         // 生成SQL语句
-        $table            = $this->parseSqlTable($table);
-        list($sql, $bind) = $this->builder->selectInsert($query, $fields, $table, $options);
+        $table = $this->parseSqlTable($table);
+
+        $sql = $this->builder->selectInsert($query, $fields, $table);
 
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
@@ -904,12 +908,14 @@ abstract class Connection
     public function update(Query $query)
     {
         $options = $query->getOptions();
-        $pk      = $query->getPk($options);
-        $data    = $options['data'];
+        $bind    = $query->getBind();
 
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
         }
+
+        $pk   = $query->getPk($options);
+        $data = $options['data'];
 
         if (empty($options['where'])) {
             // 如果存在主键数据 则自动作为更新条件
@@ -940,11 +946,11 @@ abstract class Connection
                 $query->setOption('where', ['AND' => $where]);
             }
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options, $bind);
         }
 
         // 生成UPDATE SQL语句
-        list($sql, $bind) = $this->builder->update($query);
+        $sql = $this->builder->update($query);
 
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
@@ -992,6 +998,7 @@ abstract class Connection
         // 分析查询表达式
         $options = $query->getOptions();
         $pk      = $query->getPk($options);
+        $bind    = $query->getBind();
         $data    = $options['data'];
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
@@ -1006,7 +1013,7 @@ abstract class Connection
             // AR模式分析主键条件
             $query->parsePkWhere($data);
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options, $bind);
         }
 
         if (true !== $data && empty($options['where'])) {
@@ -1015,7 +1022,7 @@ abstract class Connection
         }
 
         // 生成删除SQL语句
-        list($sql, $bind) = $this->builder->delete($query);
+        $sql = $this->builder->delete($query);
 
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
@@ -1061,12 +1068,13 @@ abstract class Connection
     public function value(Query $query, $field, $force = false)
     {
         $options = $query->getOptions();
+        $bind    = $query->getBind();
         $result  = false;
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
             $cache = $options['cache'];
 
-            $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
+            $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($options) . serialize($bind));
             $result = Facade::make('cache')->get($key);
         }
 
@@ -1082,7 +1090,7 @@ abstract class Connection
             $query->setOption('field', $field);
             $query->setOption('limit', 1);
             // 生成查询SQL
-            list($sql, $bind) = $this->builder->select($query);
+            $sql = $this->builder->select($query);
 
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
@@ -1123,14 +1131,14 @@ abstract class Connection
     public function column(Query $query, $field, $key = '')
     {
         $options = $query->getOptions();
-
-        $result = false;
+        $bind    = $query->getBind();
+        $result  = false;
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
             $cache = $options['cache'];
 
-            $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($options));
+            $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($options) . serialize($bind));
             $result = Facade::make('cache')->get($guid);
         }
 
@@ -1152,7 +1160,7 @@ abstract class Connection
             $query->setOption('field', $field);
 
             // 生成查询SQL
-            list($sql, $bind) = $this->builder->select($query);
+            $sql = $this->builder->select($query);
 
             if ($options['fetch_sql']) {
                 // 获取实际执行的SQL语句
@@ -1211,10 +1219,11 @@ abstract class Connection
     public function pdo(Query $query)
     {
         // 分析查询表达式
-        $options = $this->parseOptions($query);
+        $options = $query->getOptions();
+        $bind    = $query->getBind();
 
         // 生成查询SQL
-        list($sql, $bind) = $this->builder->select($query, $options);
+        $sql = $this->builder->select($query);
 
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
@@ -1848,8 +1857,9 @@ abstract class Connection
      * @access public
      * @param mixed     $value   缓存数据
      * @param array     $options 缓存参数
+     * @param array     $bind    绑定参数
      */
-    protected function getCacheKey($value, $options)
+    protected function getCacheKey($value, $options, $bind = [])
     {
         if (is_scalar($value)) {
             $data = $value;
@@ -1860,7 +1870,7 @@ abstract class Connection
         if (isset($data)) {
             return 'think:' . $options['table'] . '|' . $data;
         } else {
-            return md5(serialize($options));
+            return md5(serialize($options) . serialize($bind));
         }
     }
 
