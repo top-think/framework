@@ -2366,12 +2366,15 @@ class Query
     /**
      * 获取绑定的参数 并清空
      * @access public
+     * @param bool $clear
      * @return array
      */
-    public function getBind()
+    public function getBind($clear = true)
     {
-        $bind       = $this->bind;
-        $this->bind = [];
+        $bind = $this->bind;
+        if ($clear) {
+            $this->bind = [];
+        }
 
         return $bind;
     }
