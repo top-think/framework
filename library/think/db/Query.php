@@ -2159,6 +2159,10 @@ class Query
 
         $resultSet = $this->connection->select($this);
 
+        if ($this->options['fetch_sql']) {
+            return $resultSet;
+        }
+
         // 数据列表读取后的处理
         if (!empty($this->model)) {
             // 生成模型对象
@@ -2217,6 +2221,10 @@ class Query
         $this->options['data'] = $data;
 
         $result = $this->connection->find($this);
+
+        if ($this->options['fetch_sql']) {
+            return $result;
+        }
 
         // 数据处理
         if (!empty($result)) {
