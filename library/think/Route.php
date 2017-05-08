@@ -59,7 +59,7 @@ class Route
     // 当前路由标识
     protected $ruleName;
     // 别名路由
-    protected $alias;
+    protected $alias = [];
 
     public function __construct(App $app, Request $request)
     {
