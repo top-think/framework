@@ -449,7 +449,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $result = [];
 
-        $db = $this->db();
+        $db = $this->db(false);
         $db->startTrans();
 
         try {
