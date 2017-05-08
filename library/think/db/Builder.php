@@ -723,16 +723,16 @@ abstract class Builder
     }
 
     /**
-     * 生成查询SQL和参数绑定
+     * 生成查询SQL
      * @access public
-     * @param Query  $query        查询对象
-     * @return array
+     * @param Query  $query  查询对象
+     * @return string
      */
     public function select(Query $query)
     {
         $options = $query->getOptions();
 
-        $sql = str_replace(
+        return str_replace(
             ['%TABLE%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
             [
                 $this->parseTable($query, $options['table']),
@@ -748,17 +748,16 @@ abstract class Builder
                 $this->parseLock($query, $options['lock']),
                 $this->parseComment($query, $options['comment']),
                 $this->parseForce($query, $options['force']),
-            ], $this->selectSql);
-
-        return [$sql, $query->getBind()];
+            ],
+            $this->selectSql);
     }
 
     /**
-     * 生成Insert SQL和参数绑定
+     * 生成Insert SQL
      * @access public
-     * @param Query     $query        查询对象
+     * @param Query     $query   查询对象
      * @param bool      $replace 是否replace
-     * @return array
+     * @return string
      */
     public function insert(Query $query, $replace = false)
     {
@@ -773,7 +772,7 @@ abstract class Builder
         $fields = array_keys($data);
         $values = array_values($data);
 
-        $sql = str_replace(
+        return str_replace(
             ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
@@ -781,17 +780,16 @@ abstract class Builder
                 implode(' , ', $fields),
                 implode(' , ', $values),
                 $this->parseComment($query, $options['comment']),
-            ], $this->insertSql);
-
-        return [$sql, $query->getBind()];
+            ],
+            $this->insertSql);
     }
 
     /**
-     * 生成insertall SQL和参数绑定
+     * 生成insertall SQL
      * @access public
-     * @param Query     $query        查询对象
+     * @param Query     $query   查询对象
      * @param array     $dataSet 数据集
-     * @return array
+     * @return string
      */
     public function insertAll(Query $query, $dataSet)
     {
@@ -832,25 +830,24 @@ abstract class Builder
             $fields[] = $this->parseKey($query, $field);
         }
 
-        $sql = str_replace(
+        return str_replace(
             ['%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
                 implode(' , ', $fields),
                 implode(' UNION ALL ', $values),
                 $this->parseComment($query, $options['comment']),
-            ], $this->insertAllSql);
-
-        return [$sql, $query->getBind()];
+            ],
+            $this->insertAllSql);
     }
 
     /**
-     * 生成slectinsert SQL 和参数绑定
+     * 生成slectinsert SQL
      * @access public
-     * @param Query     $query        查询对象
+     * @param Query     $query  查询对象
      * @param array     $fields 数据
-     * @param string    $table 数据表
-     * @return array
+     * @param string    $table  数据表
+     * @return string
      */
     public function selectInsert(Query $query, $fields, $table)
     {
@@ -864,17 +861,15 @@ abstract class Builder
             $field = $this->parseKey($query, $field);
         }
 
-        $sql = 'INSERT INTO ' . $this->parseTable($query, $table, $options) . ' (' . implode(',', $fields) . ') ' . $this->select($options);
-
-        return [$sql, $query->getBind()];
+        return 'INSERT INTO ' . $this->parseTable($query, $table, $options) . ' (' . implode(',', $fields) . ') ' . $this->select($options);
     }
 
     /**
-     * 生成update SQL和参数绑定
+     * 生成update SQL
      * @access public
-     * @param Query     $query        查询对象
+     * @param Query     $query  查询对象
      * @param array     $fields 数据
-     * @return array
+     * @return string
      */
     public function update(Query $query)
     {
@@ -891,7 +886,7 @@ abstract class Builder
             $set[] = $key . '=' . $val;
         }
 
-        $sql = str_replace(
+        return str_replace(
             ['%TABLE%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
@@ -902,22 +897,21 @@ abstract class Builder
                 $this->parseLimit($query, $options['limit']),
                 $this->parseLock($query, $options['lock']),
                 $this->parseComment($query, $options['comment']),
-            ], $this->updateSql);
-
-        return [$sql, $query->getBind()];
+            ],
+            $this->updateSql);
     }
 
     /**
-     * 生成delete SQL和参数绑定
+     * 生成delete SQL
      * @access public
-     * @param Query  $query        查询对象
-     * @return array
+     * @param Query  $query  查询对象
+     * @return string
      */
     public function delete(Query $query)
     {
         $options = $query->getOptions();
 
-        $sql = str_replace(
+        return str_replace(
             ['%TABLE%', '%USING%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
@@ -928,8 +922,7 @@ abstract class Builder
                 $this->parseLimit($query, $options['limit']),
                 $this->parseLock($query, $options['lock']),
                 $this->parseComment($query, $options['comment']),
-            ], $this->deleteSql);
-
-        return [$sql, $query->getBind()];
+            ],
+            $this->deleteSql);
     }
 }

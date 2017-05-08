@@ -2159,6 +2159,10 @@ class Query
 
         $resultSet = $this->connection->select($this);
 
+        if ($this->options['fetch_sql']) {
+            return $resultSet;
+        }
+
         // 数据列表读取后的处理
         if (!empty($this->model)) {
             // 生成模型对象
@@ -2217,6 +2221,10 @@ class Query
         $this->options['data'] = $data;
 
         $result = $this->connection->find($this);
+
+        if ($this->options['fetch_sql']) {
+            return $result;
+        }
 
         // 数据处理
         if (!empty($result)) {
@@ -2366,12 +2374,15 @@ class Query
     /**
      * 获取绑定的参数 并清空
      * @access public
+     * @param bool $clear
      * @return array
      */
-    public function getBind()
+    public function getBind($clear = true)
     {
-        $bind       = $this->bind;
-        $this->bind = [];
+        $bind = $this->bind;
+        if ($clear) {
+            $this->bind = [];
+        }
 
         return $bind;
     }
