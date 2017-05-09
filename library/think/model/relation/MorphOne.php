@@ -81,10 +81,11 @@ class MorphOne extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param mixed $where 查询条件（数组或者闭包）
+     * @param mixed     $where 查询条件（数组或者闭包）
+     * @param mixed     $fields 字段
      * @return Query
      */
-    public function hasWhere($where = [])
+    public function hasWhere($where = [], $fields = null)
     {
         throw new Exception('relation not support: hasWhere');
     }
@@ -104,6 +105,7 @@ class MorphOne extends Relation
         $morphKey  = $this->morphKey;
         $type      = $this->type;
         $range     = [];
+
         foreach ($resultSet as $result) {
             $pk = $result->getPk();
             // 获取关联外键列表
@@ -148,6 +150,7 @@ class MorphOne extends Relation
     public function eagerlyResult(&$result, $relation, $subRelation, $closure)
     {
         $pk = $result->getPk();
+
         if (isset($result->$pk)) {
             $pk   = $result->$pk;
             $data = $this->eagerlyMorphToOne([
@@ -210,7 +213,8 @@ class MorphOne extends Relation
         // 保存关联表数据
         $pk = $this->parent->getPk();
 
-        $model                  = new $this->model;
+        $model = new $this->model;
+
         $data[$this->morphKey]  = $this->parent->$pk;
         $data[$this->morphType] = $this->type;
         return $model->save($data) ? $model : false;

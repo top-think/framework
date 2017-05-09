@@ -218,11 +218,12 @@ class BelongsToMany extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param mixed $where 查询条件（数组或者闭包）
+     * @param mixed     $where 查询条件（数组或者闭包）
+     * @param mixed     $fields 字段
      * @return Query
      * @throws Exception
      */
-    public function hasWhere($where = [])
+    public function hasWhere($where = [], $fields = null)
     {
         throw new Exception('relation not support: hasWhere');
     }
@@ -273,8 +274,10 @@ class BelongsToMany extends Relation
                     $range,
                 ],
             ], $relation, $subRelation);
+
             // 关联属性名
             $attr = Loader::parseName($relation);
+
             // 关联数据封装
             foreach ($resultSet as $result) {
                 if (!isset($data[$result->$pk])) {
@@ -360,7 +363,9 @@ class BelongsToMany extends Relation
     protected function eagerlyManyToMany($where, $relation, $subRelation = '')
     {
         // 预载入关联查询 支持嵌套预载入
-        $list = $this->belongsToManyQuery($this->foreignKey, $this->localKey, $where)->with($subRelation)->select();
+        $list = $this->belongsToManyQuery($this->foreignKey, $this->localKey, $where)
+            ->with($subRelation)
+            ->select();
 
         // 组装模型数据
         $data = [];
@@ -398,7 +403,8 @@ class BelongsToMany extends Relation
         $tableName = $this->query->getTable();
         $table     = $this->pivot->getTable();
         $fields    = $this->getQueryFields($tableName);
-        $query     = $this->query
+
+        $query = $this->query
             ->field($fields)
             ->field(true, false, $table, 'pivot', 'pivot__');
 
@@ -442,6 +448,7 @@ class BelongsToMany extends Relation
             } else {
                 $pivotData = $pivot;
             }
+
             $result = $this->attach($data, $pivotData);
         }
 
@@ -550,7 +557,8 @@ class BelongsToMany extends Relation
             'updated'  => [],
         ];
 
-        $pk      = $this->parent->getPk();
+        $pk = $this->parent->getPk();
+
         $current = $this->pivot
             ->where($this->localKey, $this->parent->$pk)
             ->column($this->foreignKey);

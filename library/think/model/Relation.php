@@ -69,9 +69,13 @@ abstract class Relation
 
     protected function getQueryFields($model)
     {
-        if ($this->query->getOptions('field')) {
+        $fields = $this->query->getOptions('field');
+        return $this->getRelationQueryFields($fields, $model);
+    }
 
-            $fields = $this->query->getOptions('field');
+    protected function getRelationQueryFields($fields, $model)
+    {
+        if ($fields) {
 
             if (is_string($fields)) {
                 $fields = explode(',', $fields);
@@ -87,6 +91,16 @@ abstract class Relation
         }
 
         return $fields;
+    }
+
+    protected function getQueryWhere(&$where, $relation)
+    {
+        foreach ($where as $key => $val) {
+            if (false === strpos($key, '.')) {
+                $where[$relation . '.' . $key] = $val;
+                unset($where[$key]);
+            }
+        }
     }
 
     /**

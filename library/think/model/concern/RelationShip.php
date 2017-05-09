@@ -131,7 +131,7 @@ trait RelationShip
         $relation = (new static())->$relation();
 
         if (is_array($operator) || $operator instanceof \Closure) {
-            return $relation->hasWhere($operator);
+            return $relation->hasWhere($operator, $count);
         }
 
         return $relation->has($operator, $count, $id);
@@ -142,11 +142,12 @@ trait RelationShip
      * @access public
      * @param string $relation 关联方法名
      * @param mixed  $where    查询条件（数组或者闭包）
+     * @param mixed  $fields   字段
      * @return Relation|Query
      */
-    public static function hasWhere($relation, $where = [])
+    public static function hasWhere($relation, $where = [], $fields = '*')
     {
-        return (new static())->$relation()->hasWhere($where);
+        return (new static())->$relation()->hasWhere($where, $fields);
     }
 
     /**

@@ -86,24 +86,22 @@ class HasOne extends OneToOne
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param mixed $where 查询条件（数组或者闭包）
+     * @param mixed     $where 查询条件（数组或者闭包）
+     * @param mixed     $fields   字段
      * @return Query
      */
-    public function hasWhere($where = [])
+    public function hasWhere($where = [], $fields = null)
     {
         $table    = $this->query->getTable();
         $model    = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
-        $fields   = $this->getQueryFields($model);
 
         if (is_array($where)) {
-            foreach ($where as $key => $val) {
-                if (false === strpos($key, '.')) {
-                    $where[$relation . '.' . $key] = $val;
-                    unset($where[$key]);
-                }
-            }
+            $this->getQueryWhere($where, $relation);
         }
+
+        $fields = $this->getRelationQueryFields($fields, $model);
+
         return $this->parent->db()
             ->alias($model)
             ->field($fields)
