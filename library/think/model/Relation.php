@@ -67,6 +67,28 @@ abstract class Relation
         return (new $this->model)->toCollection($resultSet);
     }
 
+    protected function getQueryFields($model)
+    {
+        if ($this->query->getOptions('field')) {
+
+            $fields = $this->query->getOptions('field');
+
+            if (is_string($fields)) {
+                $fields = explode(',', $fields);
+            }
+
+            foreach ($fields as &$field) {
+                if (false === strpos($field, '.')) {
+                    $field = $model . '.' . $field;
+                }
+            }
+        } else {
+            $fields = $model . '.*';
+        }
+
+        return $fields;
+    }
+
     /**
      * 执行基础查询（仅执行一次）
      * @access protected

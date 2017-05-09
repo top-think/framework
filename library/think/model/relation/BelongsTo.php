@@ -90,6 +90,8 @@ class BelongsTo extends OneToOne
         $model    = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
 
+        $fields = $this->getQueryFields($model);
+
         if (is_array($where)) {
             foreach ($where as $key => $val) {
                 if (false === strpos($key, '.')) {
@@ -101,7 +103,7 @@ class BelongsTo extends OneToOne
 
         return $this->parent->db()
             ->alias($model)
-            ->field($model . '.*')
+            ->field($fields)
             ->join($table . ' ' . $relation, $model . '.' . $this->foreignKey . '=' . $relation . '.' . $this->localKey, $this->joinType)
             ->where($where);
     }

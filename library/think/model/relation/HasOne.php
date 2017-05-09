@@ -94,6 +94,7 @@ class HasOne extends OneToOne
         $table    = $this->query->getTable();
         $model    = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
+        $fields   = $this->getQueryFields($model);
 
         if (is_array($where)) {
             foreach ($where as $key => $val) {
@@ -105,7 +106,7 @@ class HasOne extends OneToOne
         }
         return $this->parent->db()
             ->alias($model)
-            ->field($model . '.*')
+            ->field($fields)
             ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $this->joinType)
             ->where($where);
     }

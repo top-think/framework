@@ -136,9 +136,10 @@ class HasManyThrough extends Relation
             $pk           = (new $this->model)->getPk();
             $throughKey   = $this->throughKey;
             $modelTable   = $this->parent->getTable();
+            $fields       = $this->getQueryFields($alias);
 
             $this->query
-                ->field($alias . '.*')
+                ->field($fields)
                 ->alias($alias)
                 ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
                 ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
