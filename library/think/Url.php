@@ -220,7 +220,7 @@ class Url
             // 自动判断域名
             $domain = $host;
 
-            $domains = $this->app['route']->getDomain();
+            $domains = $this->app['route']->getDomains();
             if ($domains) {
                 $route_domain = array_keys($domains);
                 foreach ($route_domain as $domain_prefix) {
