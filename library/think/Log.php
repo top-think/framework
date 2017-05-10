@@ -199,7 +199,7 @@ class Log implements LoggerInterface
 
         if (true === $force || empty($this->config['level'])) {
             $log[$type][] = $msg;
-        } elseif (in_array($level, $this->config['level'])) {
+        } elseif (in_array($type, $this->config['level'])) {
             $log[$type][] = $msg;
         } else {
             return false;
