@@ -39,7 +39,7 @@ class HasMany extends Relation
      * 延迟获取关联数据
      * @param string   $subRelation 子关联名
      * @param \Closure $closure     闭包查询条件
-     * @return false|\PDOStatement|string|\think\Collection
+     * @return \think\Collection
      */
     public function getRelation($subRelation = '', $closure = null)
     {

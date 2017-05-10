@@ -124,7 +124,7 @@ class BelongsToMany extends Relation
      * 延迟获取关联数据
      * @param string   $subRelation 子关联名
      * @param \Closure $closure     闭包查询条件
-     * @return false|\PDOStatement|string|\think\Collection
+     * @return Collection
      */
     public function getRelation($subRelation = '', $closure = null)
     {
@@ -141,7 +141,7 @@ class BelongsToMany extends Relation
     /**
      * 重载select方法
      * @param null $data
-     * @return false|\PDOStatement|string|Collection
+     * @return Collection
      */
     public function select($data = null)
     {
@@ -169,7 +169,7 @@ class BelongsToMany extends Relation
     /**
      * 重载find方法
      * @param null $data
-     * @return array|false|\PDOStatement|string|Model
+     * @return Model
      */
     public function find($data = null)
     {
@@ -183,7 +183,7 @@ class BelongsToMany extends Relation
      * 查找多条记录 如果不存在则抛出异常
      * @access public
      * @param array|string|Query|\Closure $data
-     * @return array|\PDOStatement|string|Model
+     * @return Collection
      */
     public function selectOrFail($data = null)
     {
@@ -194,7 +194,7 @@ class BelongsToMany extends Relation
      * 查找单条记录 如果不存在则抛出异常
      * @access public
      * @param array|string|Query|\Closure $data
-     * @return array|\PDOStatement|string|Model
+     * @return Model
      */
     public function findOrFail($data = null)
     {
@@ -230,9 +230,9 @@ class BelongsToMany extends Relation
 
     /**
      * 设置中间表的查询条件
-     * @param      $field
-     * @param null $op
-     * @param null $condition
+     * @param string    $field
+     * @param null      $op
+     * @param null      $condition
      * @return $this
      */
     public function wherePivot($field, $op = null, $condition = null)

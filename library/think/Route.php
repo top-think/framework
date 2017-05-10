@@ -476,9 +476,6 @@ class Route
         // 还原当前分组
         $this->group = $parentGroup;
 
-        // 注册分组到当前域名
-        $this->domains[$this->domain]->addRule($group);
-
         if (!empty($option['cross_domain'])) {
             $this->setCrossDomainRule($group);
         }
@@ -583,8 +580,8 @@ class Route
     {
         $resource = new Resource($this, $rule, $route, $option, $pattern, $this->rest);
 
-        // 注册分组到当前域名
-        $this->domains[$this->domain]->addRule($resource);
+        // 添加到当前分组
+        $this->group->addRule($resource);
 
         return $resource;
     }
