@@ -12,6 +12,7 @@
 namespace think\db\builder;
 
 use think\db\Builder;
+use think\db\Query;
 
 /**
  * Sqlite数据库驱动

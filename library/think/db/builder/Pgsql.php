@@ -12,6 +12,7 @@
 namespace think\db\builder;
 
 use think\db\Builder;
+use think\db\Query;
 
 /**
  * Pgsql数据库驱动
