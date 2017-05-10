@@ -26,11 +26,11 @@ class Sqlsrv extends Builder
     /**
      * order分析
      * @access protected
-     * @param mixed $order
-     * @param array $options
+     * @param Query     $query        查询对象
+     * @param mixed     $order
      * @return string
      */
-    protected function parseOrder($query, $order)
+    protected function parseOrder(Query $query, $order)
     {
         if (is_array($order)) {
             $array = [];
@@ -57,9 +57,10 @@ class Sqlsrv extends Builder
     /**
      * 随机排序
      * @access protected
+     * @param Query     $query        查询对象
      * @return string
      */
-    protected function parseRand($query)
+    protected function parseRand(Query $query)
     {
         return 'rand()';
     }
@@ -67,11 +68,11 @@ class Sqlsrv extends Builder
     /**
      * 字段和表名处理
      * @access protected
-     * @param string $key
-     * @param array  $options
+     * @param Query     $query        查询对象
+     * @param string    $key
      * @return string
      */
-    protected function parseKey($query, $key)
+    protected function parseKey(Query $query, $key)
     {
         $key = trim($key);
 
@@ -99,10 +100,11 @@ class Sqlsrv extends Builder
     /**
      * limit
      * @access protected
-     * @param mixed $limit
+     * @param Query     $query        查询对象
+     * @param mixed     $limit
      * @return string
      */
-    protected function parseLimit($query, $limit)
+    protected function parseLimit(Query $query, $limit)
     {
         if (empty($limit)) {
             return '';
@@ -119,7 +121,7 @@ class Sqlsrv extends Builder
         return 'WHERE ' . $limitStr;
     }
 
-    public function selectInsert($query, $fields, $table)
+    public function selectInsert(Query $query, $fields, $table)
     {
         $this->selectSql = $this->selectInsertSql;
 

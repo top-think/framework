@@ -23,11 +23,11 @@ class Mysql extends Builder
     /**
      * 字段和表名处理
      * @access protected
-     * @param string $key
-     * @param array  $options
+     * @param Query     $query        查询对象
+     * @param string    $key
      * @return string
      */
-    protected function parseKey($query, $key)
+    protected function parseKey(Query $query, $key)
     {
         $key = trim($key);
 
@@ -63,11 +63,11 @@ class Mysql extends Builder
     /**
      * field分析
      * @access protected
+     * @param Query     $query        查询对象
      * @param mixed     $fields
-     * @param array     $options
      * @return string
      */
-    protected function parseField($query, $fields)
+    protected function parseField(Query $query, $fields)
     {
         $fieldsStr = parent::parseField($query, $fields);
         $options   = $query->getOptions();
@@ -116,9 +116,10 @@ class Mysql extends Builder
     /**
      * 随机排序
      * @access protected
+     * @param Query     $query        查询对象
      * @return string
      */
-    protected function parseRand($query)
+    protected function parseRand(Query $query)
     {
         return 'rand()';
     }

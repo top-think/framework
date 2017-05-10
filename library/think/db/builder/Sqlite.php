@@ -22,9 +22,11 @@ class Sqlite extends Builder
     /**
      * limit
      * @access public
+     * @param Query     $query        查询对象
+     * @param mixed     $limit
      * @return string
      */
-    public function parseLimit($query, $limit)
+    public function parseLimit(Query $query, $limit)
     {
         $limitStr = '';
 
@@ -43,9 +45,10 @@ class Sqlite extends Builder
     /**
      * 随机排序
      * @access protected
+     * @param Query     $query        查询对象
      * @return string
      */
-    protected function parseRand($query)
+    protected function parseRand(Query $query)
     {
         return 'RANDOM()';
     }
@@ -53,11 +56,11 @@ class Sqlite extends Builder
     /**
      * 字段和表名处理
      * @access protected
-     * @param string $key
-     * @param array  $options
+     * @param Query     $query        查询对象
+     * @param string    $key
      * @return string
      */
-    protected function parseKey($query, $key)
+    protected function parseKey(Query $query, $key)
     {
         $key = trim($key);
         if (strpos($key, '.')) {
