@@ -192,7 +192,7 @@ if (!function_exists('db')) {
      * @param bool          $force 是否强制重新连接
      * @return \think\db\Query
      */
-    function db($name = '', $config = [], $force = true)
+    function db($name = '', $config = [], $force = false)
     {
         return Db::connect($config, $force)->name($name);
     }
