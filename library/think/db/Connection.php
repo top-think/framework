@@ -56,8 +56,6 @@ abstract class Connection
     protected $attrCase = PDO::CASE_LOWER;
     // 监听回调
     protected static $event = [];
-    // 查询对象
-    protected $query = [];
     // 使用Builder类
     protected $builder;
     // 数据库连接参数配置
@@ -137,32 +135,14 @@ abstract class Connection
     }
 
     /**
-     * 指定当前使用的查询对象
-     * @access public
-     * @param Query $query 查询对象
-     * @return $this
-     */
-    public function setQuery($query, $model = 'db')
-    {
-        $this->query[$model] = $query;
-
-        return $this;
-    }
-
-    /**
-     * 创建指定模型的查询对象
-     * @access public
+     * 获取新的查询对象
+     * @access protected
      * @return Query
      */
-    public function getQuery($model = 'db')
+    protected function getQuery()
     {
-        if (!isset($this->query[$model])) {
-            $class = $this->config['query'];
-
-            $this->query[$model] = new $class($this, 'db' == $model ? '' : $model);
-        }
-
-        return $this->query[$model];
+        $class = $this->config['query'];
+        return new $class($this);
     }
 
     /**
