@@ -1134,6 +1134,7 @@ class Query
         if ($field) {
             $this->options['soft_delete'] = [$field, $condition ?: ['null', '']];
         }
+        return $this;
     }
 
     /**
