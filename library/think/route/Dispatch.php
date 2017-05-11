@@ -41,6 +41,16 @@ abstract class Dispatch
         return $this;
     }
 
+    public function getDispatch()
+    {
+        return $this->dispatch;
+    }
+
+    public function getParam()
+    {
+        return $this->param;
+    }
+
     abstract public function run();
 
 }
