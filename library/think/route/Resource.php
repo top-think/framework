@@ -103,7 +103,7 @@ class Resource extends RuleGroup
                 $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
             }
 
-            $item = ltrim(ltrim($rule . $val[1], '/'), $this->name . '/');
+            $item = trim(substr(trim($rule . $val[1], '/'), strlen($this->name)), '/');
 
             $option['rest'] = $key;
 
