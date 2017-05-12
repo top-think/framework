@@ -842,7 +842,7 @@ class Route
         }
         $method = strtolower($request->method());
         // 获取当前请求类型的路由规则
-        $rules = self::$rules[$method];
+        $rules = isset(self::$rules[$method]) ? self::$rules[$method] : [];
         // 检测域名部署
         if ($checkDomain) {
             self::checkDomain($request, $rules, $method);
@@ -924,7 +924,7 @@ class Route
                 } else {
                     $str = $key;
                 }
-                if (is_string($str) && $str && 0 !== strpos(str_replace('|', '/', $url), $str)) {
+                if (is_string($str) && $str && 0 !== stripos(str_replace('|', '/', $url), $str)) {
                     continue;
                 }
                 self::setOption($option);
@@ -1057,7 +1057,7 @@ class Route
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'method', 'method' => [$class, $action]];
+        return ['type' => 'method', 'method' => [$class, $action], 'var' => []];
     }
 
     /**
@@ -1077,7 +1077,7 @@ class Route
         if (!empty($array[2])) {
             self::parseUrlParams($array[2]);
         }
-        return ['type' => 'method', 'method' => [$namespace . '\\' . Loader::parseName($class, 1), $method]];
+        return ['type' => 'method', 'method' => [$namespace . '\\' . Loader::parseName($class, 1), $method], 'var' => []];
     }
 
     /**
@@ -1096,7 +1096,7 @@ class Route
         if (!empty($array[1])) {
             self::parseUrlParams($array[1]);
         }
-        return ['type' => 'controller', 'controller' => $controller . '/' . $action];
+        return ['type' => 'controller', 'controller' => $controller . '/' . $action, 'var' => []];
     }
 
     /**
@@ -1184,9 +1184,9 @@ class Route
                 }
             }
             $pattern = array_merge(self::$rules['pattern'], $pattern);
-            if (false !== $match = self::match($url, $rule, $pattern, $merge)) {
+            if (false !== $match = self::match($url, $rule, $pattern)) {
                 // 匹配到路由规则
-                return self::parseRule($rule, $route, $url, $option, $match, $merge);
+                return self::parseRule($rule, $route, $url, $option, $match);
             }
         }
         return false;

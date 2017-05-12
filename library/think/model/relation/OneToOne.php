@@ -30,6 +30,8 @@ abstract class OneToOne extends Relation
     protected $joinType;
     // 要绑定的属性
     protected $bindAttr = [];
+    // 关联方法名
+    protected $relation;
 
     /**
      * 设置join类型
@@ -162,17 +164,17 @@ abstract class OneToOne extends Relation
      * 保存（新增）当前关联数据对象
      * @access public
      * @param mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
-     * @return integer
+     * @return Model|false
      */
     public function save($data)
     {
         if ($data instanceof Model) {
             $data = $data->getData();
         }
+        $model = new $this->model;
         // 保存关联表数据
         $data[$this->foreignKey] = $this->parent->{$this->localKey};
-        $model                   = new $this->model;
-        return $model->save($data);
+        return $model->save($data) ? $model : false;
     }
 
     /**
@@ -243,13 +245,19 @@ abstract class OneToOne extends Relation
                 }
             }
         }
+
         if (isset($list[$relation])) {
             $relationModel = new $model($list[$relation]);
+            $relationModel->setParent(clone $result);
+            $relationModel->isUpdate(true);
+
             if (!empty($this->bindAttr)) {
                 $this->bindAttr($relationModel, $result, $this->bindAttr);
             }
+        } else {
+            $relationModel = null;
         }
-        $result->setAttr(Loader::parseName($relation), !isset($relationModel) ? null : $relationModel->isUpdate(true));
+        $result->setRelation(Loader::parseName($relation), $relationModel);
     }
 
     /**
@@ -309,6 +317,5 @@ abstract class OneToOne extends Relation
      * @return void
      */
     protected function baseQuery()
-    {
-    }
+    {}
 }

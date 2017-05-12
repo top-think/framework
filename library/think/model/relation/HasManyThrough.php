@@ -11,7 +11,6 @@
 
 namespace think\model\relation;
 
-use think\Db;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -57,6 +56,7 @@ class HasManyThrough extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
+
         return $this->relation($subRelation)->select();
     }
 
@@ -96,8 +96,7 @@ class HasManyThrough extends Relation
      * @return void
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $class)
-    {
-    }
+    {}
 
     /**
      * 预载入关联查询 返回模型对象
@@ -110,8 +109,7 @@ class HasManyThrough extends Relation
      * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure, $class)
-    {
-    }
+    {}
 
     /**
      * 关联统计
@@ -121,8 +119,7 @@ class HasManyThrough extends Relation
      * @return integer
      */
     public function relationCount($result, $closure)
-    {
-    }
+    {}
 
     /**
      * 执行基础查询（进执行一次）
@@ -131,7 +128,7 @@ class HasManyThrough extends Relation
      */
     protected function baseQuery()
     {
-        if (empty($this->baseQuery)) {
+        if (empty($this->baseQuery) && $this->parent->getData()) {
             $through      = $this->through;
             $model        = $this->model;
             $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));

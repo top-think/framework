@@ -30,7 +30,7 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false)->removeWhereField($field);
+        return $model->getQuery();
     }
 
     /**
@@ -42,7 +42,8 @@ trait SoftDelete
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
-        return $model->db(false)->whereNotNull($field);
+        return $model->getQuery()
+            ->useSoftDelete($field, ['not null', '']);
     }
 
     /**
@@ -59,11 +60,10 @@ trait SoftDelete
         $name = $this->getDeleteTimeField();
         if (!$force) {
             // 软删除
-            $this->change[]    = $name;
             $this->data[$name] = $this->autoWriteTimestamp($name);
             $result            = $this->isUpdate()->save();
         } else {
-            $result = $this->db(false)->delete($this->data);
+            $result = $this->getQuery()->delete($this->data);
         }
 
         $this->trigger('after_delete', $this);
@@ -112,12 +112,14 @@ trait SoftDelete
     {
         $name = $this->getDeleteTimeField();
         if (empty($where)) {
-            $pk           = $this->getPk();
-            $where[$pk]   = $this->getData($pk);
-            $where[$name] = ['not null', ''];
+            $pk         = $this->getPk();
+            $where[$pk] = $this->getData($pk);
         }
         // 恢复删除
-        return $this->db(false)->removeWhereField($this->getDeleteTimeField(true))->where($where)->update([$name => null]);
+        return $this->getQuery()
+            ->useSoftDelete($name, ['not null', ''])
+            ->where($where)
+            ->update([$name => null]);
     }
 
     /**
@@ -129,7 +131,7 @@ trait SoftDelete
     protected function base($query)
     {
         $field = $this->getDeleteTimeField(true);
-        $query->whereNull($field);
+        $query->useSoftDelete($field);
     }
 
     /**
@@ -140,7 +142,7 @@ trait SoftDelete
      */
     protected function getDeleteTimeField($read = false)
     {
-        $field = isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
+        $field = property_exists($this, 'deleteTime') && isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
         if (!strpos($field, '.')) {
             $field = '__TABLE__.' . $field;
         }

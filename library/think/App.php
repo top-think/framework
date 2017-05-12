@@ -85,14 +85,14 @@ class App
 
             $request->filter($config['default_filter']);
 
+            // 默认语言
+            Lang::range($config['default_lang']);
             if ($config['lang_switch_on']) {
                 // 开启多语言机制 检测当前语言
                 Lang::detect();
-            } else {
-                // 读取默认语言
-                Lang::range($config['default_lang']);
             }
             $request->langset(Lang::range());
+
             // 加载系统语言包
             Lang::load([
                 THINK_PATH . 'lang' . DS . $request->langset() . EXT,
@@ -414,6 +414,11 @@ class App
     public static function initCommon()
     {
         if (empty(self::$init)) {
+            if (defined('APP_NAMESPACE')) {
+                self::$namespace = APP_NAMESPACE;
+            }
+            Loader::addNamespace(self::$namespace, APP_PATH);
+
             // 初始化应用
             $config       = self::init();
             self::$suffix = $config['class_suffix'];
@@ -433,9 +438,6 @@ class App
                 }
             }
 
-            // 注册应用命名空间
-            self::$namespace = $config['app_namespace'];
-            Loader::addNamespace($config['app_namespace'], APP_PATH);
             if (!empty($config['root_namespace'])) {
                 Loader::addNamespace($config['root_namespace']);
             }
