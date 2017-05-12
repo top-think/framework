@@ -19,7 +19,6 @@ use think\response\Xml as XmlResponse;
 
 class Response
 {
-
     // 原始数据
     protected $data;
 
@@ -50,12 +49,12 @@ class Response
     public function __construct($data = '', $code = 200, array $header = [], $options = [])
     {
         $this->data($data);
-        $this->header = $header;
-        $this->code   = $code;
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
         $this->contentType($this->contentType, $this->charset);
+        $this->header = $header;
+        $this->code   = $code;
     }
 
     /**
@@ -197,9 +196,9 @@ class Response
     public function content($content)
     {
         if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-                $content,
-                '__toString',
-            ])
+            $content,
+            '__toString',
+        ])
         ) {
             throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
         }
@@ -309,9 +308,9 @@ class Response
             $content = $this->output($this->data);
 
             if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-                    $content,
-                    '__toString',
-                ])
+                $content,
+                '__toString',
+            ])
             ) {
                 throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
             }
