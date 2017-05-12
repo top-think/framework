@@ -46,14 +46,15 @@ class Response
     public function __construct($data = '', $code = 200, array $header = [], $options = [])
     {
         $this->data($data);
-        $this->header = $header;
-        $this->code   = $code;
 
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
 
         $this->contentType($this->contentType, $this->charset);
+
+        $this->code   = $code;
+        $this->header = $header;
     }
 
     /**
