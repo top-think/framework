@@ -53,7 +53,7 @@ class Response
             $this->options = array_merge($this->options, $options);
         }
         $this->contentType($this->contentType, $this->charset);
-        $this->header = $header;
+        $this->header = array_merge($this->header, $header);
         $this->code   = $code;
     }
 
