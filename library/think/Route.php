@@ -426,6 +426,7 @@ class Route
             if (is_numeric($key)) {
                 $key = array_shift($val);
             }
+
             if (is_array($val)) {
                 $route   = array_shift($val);
                 $option  = $val ? array_shift($val) : [];
@@ -433,6 +434,7 @@ class Route
             } else {
                 $route = $val;
             }
+
             $this->rule($key, $route, $method, $option, $pattern);
         }
     }

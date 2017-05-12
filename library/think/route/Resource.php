@@ -114,6 +114,24 @@ class Resource extends RuleGroup
     }
 
     /**
+     * rest方法定义和修改
+     * @access public
+     * @param string        $name 方法名称
+     * @param array|bool    $resource 资源
+     * @return $this
+     */
+    public function rest($name, $resource = [])
+    {
+        if (is_array($name)) {
+            $this->rest = $resource ? $name : array_merge($this->rest, $name);
+        } else {
+            $this->rest[$name] = $resource;
+        }
+
+        return $this;
+    }
+
+    /**
      * 设置资源允许
      * @access public
      * @param array     $only
