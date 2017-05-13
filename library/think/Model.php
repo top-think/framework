@@ -927,6 +927,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     }
                 } elseif (isset($this->relation[$name])) {
                     $relation[$name] = $this->relation[$name];
+                } elseif (isset($this->data[$name])) {
+                    $relation[$name] = $this->data[$name];
+                    unset($this->data[$name]);
                 }
             }
         }
