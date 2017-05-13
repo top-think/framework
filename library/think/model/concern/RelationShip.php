@@ -566,6 +566,9 @@ trait RelationShip
                 }
             } elseif (isset($this->relation[$name])) {
                 $this->relationWrite[$name] = $this->relation[$name];
+            } elseif (isset($this->data[$name])) {
+                $this->relationWrite[$name] = $this->data[$name];
+                unset($this->data[$name]);
             }
         }
     }
