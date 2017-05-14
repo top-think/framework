@@ -661,10 +661,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $relation = Loader::parseName($relation, 1, false);
 
+        // 获取关联数据
         if (isset($this->relation[$relation])) {
             $model = $this->relation[$relation];
         } else {
-            $model = $this->getAttr($relation);
+            $model = $this->getRelationData($this->$relation());
         }
 
         if ($model instanceof Model) {
