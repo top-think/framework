@@ -658,14 +658,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_string($append)) {
             $append = explode(',', $append);
         }
-        $model = $this->getAttr($relation);
+
+        $relation = Loader::parseName($relation, 1, false);
+
+        if (isset($this->relation[$relation])) {
+            $model = $this->relation[$relation];
+        } else {
+            $model = $this->getAttr($relation);
+        }
+
         if ($model instanceof Model) {
             foreach ($append as $key => $attr) {
                 $key = is_numeric($key) ? $attr : $key;
-                if ($this->__isset($key)) {
+                if (isset($this->data[$key])) {
                     throw new Exception('bind attr has exists:' . $key);
                 } else {
-                    $this->setAttr($key, $model->$attr);
+                    $this->data[$key] = $model->$attr;
                 }
             }
         }
@@ -778,7 +786,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 // 关联模型数据集
                 $arr = [];
                 foreach ($val as $k => $value) {
-                    $arr[$k] = $this->subToArray($value, $visible, $hidden, $k);
+                    $arr[$k] = $this->subToArray($value, $visible, $hidden, $key);
                 }
                 $item[$key] = $arr;
             } else {
