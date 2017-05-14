@@ -1515,7 +1515,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $query]);
             $data = null;
-        } elseif (is_null($data)) {
+        } elseif (empty($data) && 0 !== $data) {
             return 0;
         }
         $resultSet = $query->select($data);
