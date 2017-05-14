@@ -12,6 +12,8 @@
 namespace think\model\concern;
 
 use think\Collection;
+use think\Loader;
+use think\Model;
 
 /**
  * 模型数据转换处理
@@ -56,15 +58,19 @@ trait Conversion
         }
 
         $relation = Loader::parseName($attr, 1, false);
-        $model    = $this->getRelation($relation);
+        if (isset($this->relation[$relation])) {
+            $model = $this->relation[$relation];
+        } else {
+            $model = $this->getRelationData($this->$relation());
+        }
 
         if ($model instanceof Model) {
             foreach ($append as $key => $attr) {
                 $key = is_numeric($key) ? $attr : $key;
-                if ($this->__isset($key)) {
+                if (isset($this->data[$key])) {
                     throw new Exception('bind attr has exists:' . $key);
                 } else {
-                    $this->setAttr($key, $model->$attr);
+                    $this->data[$key] = $model->$attr;
                 }
             }
         }
