@@ -12,6 +12,9 @@
 namespace think\model\concern;
 
 use think\Collection;
+use think\Loader;
+use think\Model;
+use think\Exception;
 
 /**
  * 模型数据转换处理
