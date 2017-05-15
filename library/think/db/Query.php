@@ -1336,7 +1336,8 @@ class Query
             unset($this->options['order'], $this->options['limit'], $this->options['page'], $this->options['field']);
 
             $bind    = $this->bind;
-            $total   = $this->count();
+            $cache   = !empty($config['total_cache']) ? $config['total_cache'] : false;
+            $total   = $this->cache($cache)->count();
             $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
         } elseif ($simple) {
             $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
