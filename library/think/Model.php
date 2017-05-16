@@ -749,8 +749,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (array_key_exists($name, $this->data) || array_key_exists($name, $this->relation)) {
                 return true;
             } else {
-                $this->getAttr($name);
-                return true;
+                return false;
             }
         } catch (InvalidArgumentException $e) {
             return false;
