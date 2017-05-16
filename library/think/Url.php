@@ -119,7 +119,11 @@ class Url
             if ($type) {
                 $bind = Route::getBind($type);
                 if (0 === strpos($url, $bind)) {
-                    $url = substr($url, strlen($bind) + 1);
+                    //是否存在路由规则
+	                $result = Route::check(Request::instance(), $url);
+	                if (false === $result) {
+	                    $url = substr($url, strlen($bind) + 1);
+	                }
                 }
             }
         }
