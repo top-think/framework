@@ -44,7 +44,7 @@ class Pgsql extends Connection
      */
     public function getFields($tableName)
     {
-        $this->initConnect(true);
+        $this->initConnect(false);
         list($tableName) = explode(' ', $tableName);
         $sql             = 'select fields_name as "field",fields_type as "type",fields_not_null as "null",fields_key_name as "key",fields_default as "default",fields_default as "extra" from table_msg(\'' . $tableName . '\');';
         // 调试开始
@@ -78,7 +78,7 @@ class Pgsql extends Connection
      */
     public function getTables($dbName = '')
     {
-        $this->initConnect(true);
+        $this->initConnect(false);
         $sql = "select tablename as Tables_in_test from pg_tables where  schemaname ='public'";
         // 调试开始
         $this->debug(true);

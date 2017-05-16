@@ -51,7 +51,7 @@ class Mysql extends Connection
      */
     public function getFields($tableName)
     {
-        $this->initConnect(true);
+        $this->initConnect(false);
         list($tableName) = explode(' ', $tableName);
         if (false === strpos($tableName, '`')) {
             if (strpos($tableName, '.')) {
@@ -91,7 +91,7 @@ class Mysql extends Connection
      */
     public function getTables($dbName = '')
     {
-        $this->initConnect(true);
+        $this->initConnect(false);
         $sql = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
         // 调试开始
         $this->debug(true);
