@@ -518,7 +518,7 @@ trait RelationShip
     {
         $relation = Loader::parseName($attr, 1, false);
 
-        if (method_exists($this, $relation) && $this->$relation() instanceof Relation) {
+        if (method_exists($this, $relation)) {
             return $relation;
         }
 
