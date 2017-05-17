@@ -194,7 +194,11 @@ if (!function_exists('db')) {
      */
     function db($name = '', $config = [], $force = false)
     {
-        return Db::connect($config, $force)->name($name);
+        if ($config) {
+            return Db::connect($config, $force)->name($name);
+        }else{
+            return Db::name($name);
+        }
     }
 }
 
