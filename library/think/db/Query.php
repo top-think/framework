@@ -768,7 +768,12 @@ class Query
             return $this;
         }
         if (is_string($field)) {
+            //正则表达式临时替换函数内的逗号
+            for($i=0;$i<5;$i++)
+                $field=preg_replace("/(\()([^\(]*?)(,)([^\),\(]*?)([\),])/",'$1$2##$4$5',$field);
             $field = array_map('trim', explode(',', $field));
+            //将临时替换的逗号转换回来
+            $field=preg_replace("/##/",',',$field);
         }
         if (true === $field) {
             // 获取全部字段
