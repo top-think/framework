@@ -585,6 +585,12 @@ abstract class Connection
             }
 
             throw new PDOException($e, $this->config, $this->getLastsql());
+        } catch (\ErrorException $e) {
+            if ($this->config['break_reconnect'] && $this->isBreak($e)) {
+                return $this->close()->query($sql, $bind, $master, $pdo);
+            }
+
+            throw $e;
         }
     }
 
@@ -650,6 +656,12 @@ abstract class Connection
             }
 
             throw new PDOException($e, $this->config, $this->getLastsql());
+        } catch (\ErrorException $e) {
+            if ($this->config['break_reconnect'] && $this->isBreak($e)) {
+                return $this->close()->execute($sql, $bind);
+            }
+
+            throw $e;
         }
     }
 
