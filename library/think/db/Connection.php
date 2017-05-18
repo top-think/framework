@@ -1707,7 +1707,6 @@ abstract class Connection
                 $debug->remark('queryEndTime', 'time');
                 $runtime = $debug->getRangeTime('queryStartTime', 'queryEndTime');
                 $sql     = $sql ?: $this->getLastsql();
-                $log     = $sql . ' [ RunTime:' . $runtime . 's ]';
                 $result  = [];
 
                 // SQL性能分析
