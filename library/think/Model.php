@@ -943,18 +943,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        // 检测字段
-        if (!empty($this->field)) {
-            if (true === $this->field) {
-                $this->field = $this->getQuery()->getTableInfo('', 'fields');
-            }
-            foreach ($this->data as $key => $val) {
-                if (!in_array($key, $this->field)) {
-                    unset($this->data[$key]);
-                }
-            }
-        }
-
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
@@ -989,6 +977,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (empty($where) && !empty($this->updateWhere)) {
                 $where = $this->updateWhere;
             }
+
+            // 检测字段
+            $this->checkAllowField($data);
 
             // 保留主键数据
             foreach ($this->data as $key => $val) {
@@ -1033,6 +1024,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
+            // 检测字段
+            $this->checkAllowField($this->data);
+
             $result = $this->getQuery()->insert($this->data);
 
             // 获取自动增长主键
@@ -1064,6 +1058,20 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->origin = $this->data;
 
         return $result;
+    }
+
+    protected function checkAllowField(&$data)
+    {
+        if (!empty($this->field)) {
+            if (true === $this->field) {
+                $this->field = $this->getQuery()->getTableInfo('', 'fields');
+            }
+            foreach ($data as $key => $val) {
+                if (!in_array($key, $this->field)) {
+                    unset($data[$key]);
+                }
+            }
+        }
     }
 
     protected function autoRelationUpdate($relation)
