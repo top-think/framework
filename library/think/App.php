@@ -97,6 +97,7 @@ class App
             Lang::load([
                 THINK_PATH . 'lang' . DS . $request->langset() . EXT,
                 APP_PATH . 'lang' . DS . $request->langset() . EXT,
+                LANG_PATH . 'lang' . DS . $request->langset() . EXT,
             ]);
 
             // 获取应用调度信息
