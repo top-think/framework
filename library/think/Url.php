@@ -156,8 +156,10 @@ class Url
         // 检测域名
         $domain = self::parseDomain($url, $domain);
         // URL组装
-        $url = $domain . rtrim(self::$root ?: Request::instance()->root(), '/') . '/' . ltrim($url, '/');
-
+        $var_pathinfo = Config::get('var_pathinfo');
+        $url = $domain . rtrim(self::$root ?: Request::instance()->root(), '/')
+            . (isset($_REQUEST[$var_pathinfo]) ? "?{$var_pathinfo}=" : "/")
+            . ltrim($url, '/');
         self::$bindCheck = false;
         return $url;
     }
@@ -262,7 +264,6 @@ class Url
                     }
                 }
             }
-
         } else {
             if (empty($rootDomain)) {
                 $host       = $request->host();
