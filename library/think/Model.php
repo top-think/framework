@@ -952,6 +952,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         $pk = $this->getPk();
         if ($this->isUpdate) {
+            // 获取有更新的数据
+            $data = $this->getChangedData();
+
+            // 检测字段
+            $this->checkAllowField($data);
+
             // 自动更新
             $this->autoCompleteData($this->update);
 
@@ -959,9 +965,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
-
-            // 获取有更新的数据
-            $data = $this->getChangedData();
 
             if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
                 // 关联更新
@@ -977,9 +980,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (empty($where) && !empty($this->updateWhere)) {
                 $where = $this->updateWhere;
             }
-
-            // 检测字段
-            $this->checkAllowField($data);
 
             // 保留主键数据
             foreach ($this->data as $key => $val) {
@@ -1008,8 +1008,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->trigger('after_update', $this);
 
         } else {
+            // 检测字段
+            $this->checkAllowField($this->data);
+
             // 自动写入
             $this->autoCompleteData($this->insert);
+
             // 自动写入创建时间和更新时间
             if ($this->autoWriteTimestamp) {
                 if ($this->createTime && !isset($this->data[$this->createTime])) {
@@ -1023,9 +1027,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if (false === $this->trigger('before_insert', $this)) {
                 return false;
             }
-
-            // 检测字段
-            $this->checkAllowField($this->data);
 
             $result = $this->getQuery()->insert($this->data);
 
