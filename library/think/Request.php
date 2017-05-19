@@ -226,7 +226,7 @@ class Request
             parse_str(html_entity_decode($info['query']), $query);
             if (!empty($params)) {
                 $params      = array_replace($query, $params);
-                $queryString = http_build_query($query, '', '&');
+                $queryString = http_build_query($params, '', '&');
             } else {
                 $params      = $query;
                 $queryString = $info['query'];
