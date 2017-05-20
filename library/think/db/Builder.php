@@ -88,7 +88,7 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $this->query->getFieldsBind($options);
+        $bind = $this->query->getFieldsBind($options['table']);
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
         } else {
@@ -226,7 +226,7 @@ abstract class Builder
             // 附加软删除条件
             list($field, $condition) = $options['soft_delete'];
 
-            $binds    = $this->query->getFieldsBind($options);
+            $binds    = $this->query->getFieldsBind($options['table']);
             $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
             $whereStr = $whereStr . $this->parseWhereItem($field, $condition, '', $options, $binds);
         }
@@ -251,7 +251,7 @@ abstract class Builder
         }
 
         $whereStr = '';
-        $binds    = $this->query->getFieldsBind($options);
+        $binds    = $this->query->getFieldsBind($options['table']);
         foreach ($where as $key => $val) {
             $str = [];
             foreach ($val as $field => $value) {
@@ -725,7 +725,7 @@ abstract class Builder
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $fields = array_keys($this->query->getFieldsType($options));
+            $fields = array_keys($this->query->getFieldsType($options['table']));
         } else {
             $fields = $options['field'];
         }

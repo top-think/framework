@@ -1776,21 +1776,21 @@ class Query
     }
 
     // 获取当前数据表字段信息
-    public function getTableFields($options)
+    public function getTableFields($table = '')
     {
-        return $this->getTableInfo($options['table'], 'fields');
+        return $this->getTableInfo($table ?: $this->getOptions('table'), 'fields');
     }
 
     // 获取当前数据表字段类型
-    public function getFieldsType($options)
+    public function getFieldsType($table = '')
     {
-        return $this->getTableInfo($options['table'], 'type');
+        return $this->getTableInfo($table ?: $this->getOptions('table'), 'type');
     }
 
     // 获取当前数据表绑定信息
-    public function getFieldsBind($options)
+    public function getFieldsBind($table = '')
     {
-        $types = $this->getFieldsType($options);
+        $types = $this->getFieldsType($table);
         $bind  = [];
         if ($types) {
             foreach ($types as $key => $type) {
