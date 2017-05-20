@@ -38,7 +38,7 @@ class Debug
     }
 
     /**
-     * 统计某个区间的时间（微秒）使用情况
+     * 统计某个区间的时间（微秒）使用情况 返回值以秒为单位
      * @param string            $start 开始标签
      * @param string            $end 结束标签
      * @param integer|string    $dec 小数位
@@ -53,7 +53,7 @@ class Debug
     }
 
     /**
-     * 统计从开始到统计时的时间（微秒）使用情况
+     * 统计从开始到统计时的时间（微秒）使用情况 返回值以秒为单位
      * @param integer|string $dec 小数位
      * @return integer
      */
