@@ -952,14 +952,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         $pk = $this->getPk();
         if ($this->isUpdate) {
-            // 获取有更新的数据
-            $data = $this->getChangedData();
-
             // 检测字段
-            $this->checkAllowField($data);
+            $this->checkAllowField($this->data, array_merge($this->auto, $this->update));
 
             // 自动更新
             $this->autoCompleteData($this->update);
+
+            // 获取有更新的数据
+            $data = $this->getChangedData();
 
             // 事件回调
             if (false === $this->trigger('before_update', $this)) {
@@ -1009,7 +1009,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         } else {
             // 检测字段
-            $this->checkAllowField($this->data);
+            $this->checkAllowField($this->data, array_merge($this->auto, $this->insert));
 
             // 自动写入
             $this->autoCompleteData($this->insert);
@@ -1061,14 +1061,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $result;
     }
 
-    protected function checkAllowField(&$data)
+    protected function checkAllowField(&$data, $auto = [])
     {
         if (!empty($this->field)) {
             if (true === $this->field) {
                 $this->field = $this->getQuery()->getTableInfo('', 'fields');
+                $field       = $this->field;
+            } else {
+                $field = array_merge($this->field, $auto);
             }
+
             foreach ($data as $key => $val) {
-                if (!in_array($key, $this->field)) {
+                if (!in_array($key, $field)) {
                     unset($data[$key]);
                 }
             }
