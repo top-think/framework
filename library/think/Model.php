@@ -272,6 +272,25 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->checkAutoRelationWrite();
         }
 
+        // 数据自动完成
+        $this->autoCompleteData($this->auto);
+
+        // 事件回调
+        if (false === $this->trigger('before_write')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查数据是否允许写入
+     * @access protected
+     * @param array   $data 写入数据
+     * @return void
+     */
+    protected function checkAllowFields(&$data)
+    {
         // 检测字段
         if (empty($this->field) || true === $this->field) {
             if (!empty($this->origin)) {
@@ -285,21 +304,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 去除非法数据
-        foreach ($this->data as $key => $val) {
+        foreach ($data as $key => $val) {
             if (!in_array($key, $this->field)) {
-                unset($this->data[$key]);
+                unset($data[$key]);
             }
         }
-
-        // 数据自动完成
-        $this->autoCompleteData($this->auto);
-
-        // 事件回调
-        if (false === $this->trigger('before_write')) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -338,6 +347,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (empty($where) && !empty($this->updateWhere)) {
             $where = $this->updateWhere;
         }
+
+        // 检查允许字段
+        $this->checkAllowFields($data);
 
         // 保留主键数据
         foreach ($this->data as $key => $val) {
@@ -399,6 +411,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (false === $this->trigger('before_insert')) {
             return false;
         }
+
+        // 检查允许字段
+        $this->checkAllowFields($this->data);
 
         $result = $this->db(false)->insert($this->data);
 
