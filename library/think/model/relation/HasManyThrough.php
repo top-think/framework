@@ -131,10 +131,9 @@ class HasManyThrough extends Relation
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
             $through      = $this->through;
-            $model        = $this->model;
-            $alias        = Loader::parseName(basename(str_replace('\\', '/', $model)));
+            $alias        = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
             $throughTable = $through::getTable();
-            $pk           = (new $this->model)->getPk();
+            $pk           = (new $through)->getPk();
             $throughKey   = $this->throughKey;
             $modelTable   = $this->parent->getTable();
             $fields       = $this->getQueryFields($alias);
