@@ -213,7 +213,7 @@ class Url
             return '';
         }
 
-        $host       = $this->app['request']->host();
+        $host       = $this->app['config']->get('app_host') ?: $this->app['request']->host();
         $rootDomain = $this->app['config']->get('url_domain_root');
 
         if (true === $domain) {
@@ -256,7 +256,7 @@ class Url
             }
         }
 
-        return ($this->app['request']->isSsl() ? 'https://' : 'http://') . $domain;
+        return ($this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://') . $domain;
     }
 
     // 解析URL后缀
