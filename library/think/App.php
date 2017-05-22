@@ -108,6 +108,12 @@ class App
             // 记录当前调度信息
             $request->dispatch($dispatch);
 
+            // 设置当前模块路径信息
+            if(empty(self::$modulePath)) {
+                $module = explode('/', isset($dispatch['controller']) ? $dispatch['controller'] : '');
+                self::$modulePath = isset($module[0]) ? APP_PATH . $module[0] . DS : null;
+            }
+
             // 记录路由和请求信息
             if (self::$debug) {
                 Log::record('[ ROUTE ] ' . var_export($dispatch, true), 'info');

@@ -1427,7 +1427,11 @@ class Request
             $this->module = $module;
             return $this;
         } else {
-            return $this->module ?: '';
+            if(empty($this->module)) {
+                $module = explode('/', isset($this->dispatch['controller']) ? $this->dispatch['controller'] : '');
+                $this->module = isset($module[0]) ? $module[0] : '';
+            }
+            return $this->module;
         }
     }
 
@@ -1443,7 +1447,11 @@ class Request
             $this->controller = $controller;
             return $this;
         } else {
-            return $this->controller ?: '';
+            if(empty($this->controller)) {
+                $controller = explode('/', isset($this->dispatch['controller']) ? $this->dispatch['controller'] : '');
+                $this->controller = isset($controller[1]) ? $controller[1] : '';
+            }
+            return $this->controller;
         }
     }
 
@@ -1459,6 +1467,10 @@ class Request
             $this->action = $action;
             return $this;
         } else {
+            if(empty($this->action)){
+                $action = explode('/', isset($this->dispatch['controller']) ? $this->dispatch['controller'] : '');
+                $this->action = isset($action[2]) ? $action[2] : '';
+            }
             return $this->action ?: '';
         }
     }
