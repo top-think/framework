@@ -2117,9 +2117,10 @@ class Query
      * 批量插入记录
      * @access public
      * @param mixed $dataSet 数据集
+     * @param boolean $replace  是否replace
      * @return integer|string
      */
-    public function insertAll(array $dataSet)
+    public function insertAll(array $dataSet, $replace = false)
     {
         // 分析查询表达式
         $options = $this->parseExpress();
@@ -2127,7 +2128,7 @@ class Query
             return false;
         }
         // 生成SQL语句
-        $sql = $this->builder->insertAll($dataSet, $options);
+        $sql = $this->builder->insertAll($dataSet, $options, $replace);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
