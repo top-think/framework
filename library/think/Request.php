@@ -132,9 +132,7 @@ class Request
         if (is_null($this->filter)) {
             $this->filter = Config::get('default_filter');
         }
-        if (Config::get('default_url_root')) {
-            $this->root(Config::get('default_url_root'));
-        }
+
         // 保存 php://input
         $this->input = file_get_contents('php://input');
     }
