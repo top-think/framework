@@ -235,7 +235,7 @@ class Url
         $rootDomain = Config::get('url_domain_root');
         if (true === $domain) {
             // 自动判断域名
-            $domain = Config::get('default_host') ?: $request->host();
+            $domain = Config::get('app_host') ?: $request->host();
 
             $domains = Route::rules('domain');
             if ($domains) {
@@ -265,7 +265,7 @@ class Url
 
         } else {
             if (empty($rootDomain)) {
-                $host       = Config::get('default_host') ?: $request->host();
+                $host       = Config::get('app_host') ?: $request->host();
                 $rootDomain = substr_count($host, '.') > 1 ? substr(strstr($host, '.'), 1) : $host;
             }
             if (substr_count($domain, '.') < 2 && !strpos($domain, $rootDomain)) {
