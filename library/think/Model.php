@@ -958,13 +958,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 自动更新
             $this->autoCompleteData($this->update);
 
-            // 获取有更新的数据
-            $data = $this->getChangedData();
-
             // 事件回调
             if (false === $this->trigger('before_update', $this)) {
                 return false;
             }
+
+            // 获取有更新的数据
+            $data = $this->getChangedData();
 
             if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
                 // 关联更新
