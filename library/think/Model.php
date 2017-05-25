@@ -612,7 +612,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
                 break;
             case 'json':
-                $value = json_decode($value, true);
+                $value = $value ? json_decode($value, true) : null;
                 break;
             case 'array':
                 $value = empty($value) ? [] : json_decode($value, true);
