@@ -286,10 +286,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 检查数据是否允许写入
      * @access protected
-     * @param array   $data 写入数据
+     * @param array   $data       写入数据
+     * @param array   $autoFields 自动完成的字段列表
      * @return void
      */
-    protected function checkAllowFields(&$data)
+    protected function checkAllowFields(&$data, $autoFields = [])
     {
         // 检测字段
         if (empty($this->field) || true === $this->field) {
@@ -301,11 +302,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
                 $this->field = $query->getConnection()->getTableFields($table);
             }
+            $field = $this->field;
+        } else {
+            $field = array_merge($this->field, $autoFields);
         }
 
         // 去除非法数据
         foreach ($data as $key => $val) {
-            if (!in_array($key, $this->field)) {
+            if (!in_array($key, $field)) {
                 unset($data[$key]);
             }
         }
@@ -349,7 +353,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 检查允许字段
-        $this->checkAllowFields($data);
+        $this->checkAllowFields($data, array_merge($this->auto, $this->update));
 
         // 保留主键数据
         foreach ($this->data as $key => $val) {
@@ -413,7 +417,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 检查允许字段
-        $this->checkAllowFields($this->data);
+        $this->checkAllowFields($this->data, array_merge($this->auto, $this->insert));
 
         $result = $this->db(false)->insert($this->data);
 
