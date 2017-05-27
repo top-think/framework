@@ -411,7 +411,7 @@ abstract class Builder
             if ($value instanceof \Closure) {
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($query, $value);
             } else {
-                $value = is_array($value) ? $value : explode(',', $value);
+                $value = array_unique(is_array($value) ? $value : explode(',', $value));
                 if (array_key_exists($field, $binds)) {
                     $bind  = [];
                     $array = [];
