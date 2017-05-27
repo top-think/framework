@@ -151,7 +151,7 @@ class Validate
     }
 
     /**
-     * 注册验证（类型）规则
+     * 注册扩展验证（类型）规则
      * @access public
      * @param string    $type  验证规则类型
      * @param mixed     $callback callback方法(或闭包)
@@ -167,7 +167,7 @@ class Validate
     }
 
     /**
-     * 获取验证规则的默认提示信息
+     * 设置验证规则的默认提示信息
      * @access protected
      * @param string|array  $type  验证规则类型名称或者数组
      * @param string        $msg  验证提示信息
