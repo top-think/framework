@@ -395,7 +395,7 @@ class Query
     public function value($field, $default = null, $force = false)
     {
         $result = false;
-        if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
+        if (empty($this->options['fetch_sql']) && !empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
@@ -438,7 +438,7 @@ class Query
     public function column($field, $key = '')
     {
         $result = false;
-        if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
+        if (empty($this->options['fetch_sql']) && !empty($this->options['cache'])) {
             // 判断查询缓存
             $cache = $this->options['cache'];
             if (empty($this->options['table'])) {
