@@ -1098,6 +1098,27 @@ class Query
     }
 
     /**
+     * 比较两个字段
+     * @access public
+     * @param string    $field1     查询字段
+     * @param string    $operator   比较操作符
+     * @param string    $field2     比较字段
+     * @param string    $logic      查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereColumn($field1, $operator, $field2 = null, $logic = 'AND')
+    {
+        if (is_null($field2)) {
+            $field2   = $operator;
+            $operator = '=';
+        }
+
+        $this->whereExp($field1, $operator . ' ' . $field2, $logic);
+
+        return $this;
+    }
+
+    /**
      * 设置软删除字段及条件
      * @access public
      * @param false|string  $field     查询字段
