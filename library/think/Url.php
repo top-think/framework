@@ -256,7 +256,13 @@ class Url
             }
         }
 
-        return ($this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://') . $domain;
+        if (false !== strpos($domain, ':')) {
+            $scheme = '';
+        } else {
+            $scheme = $this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://';
+        }
+
+        return $scheme . $domain;
     }
 
     // 解析URL后缀
