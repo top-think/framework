@@ -11,7 +11,7 @@
 
 namespace think\model\concern;
 
-use think\Exception\ValidateException;
+use think\exception\ValidateException;
 use think\Facade;
 
 /**
