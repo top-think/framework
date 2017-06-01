@@ -174,7 +174,9 @@ class BelongsToMany extends Relation
     public function find($data = null)
     {
         $result = $this->buildQuery()->find($data);
-        $this->hydratePivot([$result]);
+        if ($result) {
+            $this->hydratePivot([$result]);
+        }
 
         return $result;
     }
