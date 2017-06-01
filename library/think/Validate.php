@@ -165,7 +165,7 @@ class Validate
     }
 
     /**
-     * 获取验证规则的默认提示信息
+     * 设置验证规则的默认提示信息
      * @access protected
      * @param string|array  $type  验证规则类型名称或者数组
      * @param string        $msg  验证提示信息
