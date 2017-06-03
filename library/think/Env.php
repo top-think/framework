@@ -23,6 +23,11 @@ class Env
     {
         $result = getenv(ENV_PREFIX . strtoupper(str_replace('.', '_', $name)));
         if (false !== $result) {
+            if ('false' === $result) {
+                $result = false;
+            } elseif ('true' === $result) {
+                $result = true;
+            }
             return $result;
         } else {
             return $default;
