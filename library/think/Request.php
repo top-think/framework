@@ -602,7 +602,7 @@ class Request
     }
 
     /**
-     * 获取获取当前请求的参数
+     * 获取当前请求的参数
      * @access public
      * @param string|array  $name 变量名
      * @param mixed         $default 默认值
@@ -639,7 +639,7 @@ class Request
     }
 
     /**
-     * 设置获取获取路由参数
+     * 设置获取路由参数
      * @access public
      * @param string|array  $name 变量名
      * @param mixed         $default 默认值
@@ -656,7 +656,7 @@ class Request
     }
 
     /**
-     * 设置获取获取GET参数
+     * 设置获取GET参数
      * @access public
      * @param string|array  $name 变量名
      * @param mixed         $default 默认值
@@ -676,7 +676,7 @@ class Request
     }
 
     /**
-     * 设置获取获取POST参数
+     * 设置获取POST参数
      * @access public
      * @param string        $name 变量名
      * @param mixed         $default 默认值
@@ -701,7 +701,7 @@ class Request
     }
 
     /**
-     * 设置获取获取PUT参数
+     * 设置获取PUT参数
      * @access public
      * @param string|array      $name 变量名
      * @param mixed             $default 默认值
@@ -727,7 +727,7 @@ class Request
     }
 
     /**
-     * 设置获取获取DELETE参数
+     * 设置获取DELETE参数
      * @access public
      * @param string|array      $name 变量名
      * @param mixed             $default 默认值
@@ -740,7 +740,7 @@ class Request
     }
 
     /**
-     * 设置获取获取PATCH参数
+     * 设置获取PATCH参数
      * @access public
      * @param string|array      $name 变量名
      * @param mixed             $default 默认值
