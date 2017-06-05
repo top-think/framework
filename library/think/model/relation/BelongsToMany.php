@@ -93,7 +93,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $model->pivot = $this->newPivot($pivot);
+            $model->setRelation('pivot', $this->newPivot($pivot));
         }
     }
 
@@ -359,7 +359,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $set->pivot                      = $this->newPivot($pivot);
+            $set->setRelation('pivot', $this->newPivot($pivot));
             $data[$pivot[$this->localKey]][] = $set;
         }
         return $data;
