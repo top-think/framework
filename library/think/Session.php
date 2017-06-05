@@ -137,19 +137,25 @@ class Session
         empty(self::$init) && self::boot();
 
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
-        if (strpos($name, '.')) {
-            // 二维数组赋值
-            list($name1, $name2) = explode('.', $name);
-            if ($prefix) {
-                $_SESSION[$prefix][$name1][$name2] = $value;
-            } else {
-                $_SESSION[$name1][$name2] = $value;
-            }
-        } elseif ($prefix) {
-            $_SESSION[$prefix][$name] = $value;
+        if ($prefix) {
+            $session = &$_SESSION[$prefix];
         } else {
-            $_SESSION[$name] = $value;
+            $session = &$_SESSION;
         }
+
+        // 点号分隔的多维数组
+        $keys = explode('.', $name);
+        while (count($keys) > 1) {
+            $key = array_shift($keys);
+            // 如果key在这个维度不存在，创建一个key为$key的空数组
+            // 如果存在则继续查看下一个key是否存在
+            if (! isset($session[$key]) || ! is_array($session[$key])) {
+                $session[$key] = [];
+            }
+            $session = &$session[$key];
+        }
+        
+        $session[array_shift($keys)] = $value;
     }
 
     /**
@@ -162,26 +168,29 @@ class Session
     {
         empty(self::$init) && self::boot();
         $prefix = !is_null($prefix) ? $prefix : self::$prefix;
-        if ('' == $name) {
-            // 获取全部的session
-            $value = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
-        } elseif ($prefix) {
-            // 获取session
-            if (strpos($name, '.')) {
-                list($name1, $name2) = explode('.', $name);
-                $value               = isset($_SESSION[$prefix][$name1][$name2]) ? $_SESSION[$prefix][$name1][$name2] : null;
-            } else {
-                $value = isset($_SESSION[$prefix][$name]) ? $_SESSION[$prefix][$name] : null;
-            }
+        if ($prefix) {
+            $session = $_SESSION[$prefix];
         } else {
-            if (strpos($name, '.')) {
-                list($name1, $name2) = explode('.', $name);
-                $value               = isset($_SESSION[$name1][$name2]) ? $_SESSION[$name1][$name2] : null;
-            } else {
-                $value = isset($_SESSION[$name]) ? $_SESSION[$name] : null;
-            }
+            $session = $_SESSION;
         }
-        return $value;
+
+        if ('' === $name) {
+            // 获取全部的session
+            return $session;
+        }
+
+        // 点号分隔的多维数组
+        $keys = explode('.', $name);
+        while (count($keys) > 1) {
+            $key = array_shift($keys);
+            if (! isset($session[$key])) {
+                break;
+            }
+            $session = $session[$key];
+        }
+
+        $key = array_shift($keys);
+        return isset($session[$key]) ? $session[$key] : null;
     }
 
     /**
