@@ -11,7 +11,9 @@
 
 namespace think\exception;
 
+use think\App;
 use think\Exception;
+use think\Log;
 
 /**
  * Database相关异常处理类
@@ -35,6 +37,8 @@ class DbException extends Exception
             'Error Message' => $message,
             'Error SQL'     => $sql,
         ]);
+
+        App::$debug && Log::record('[ SQL ] ' . $sql, 'sql');
 
         $this->setData('Database Config', $config);
     }
