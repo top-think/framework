@@ -53,8 +53,6 @@ class Sqlsrv extends Connection
      */
     public function getFields($tableName)
     {
-        $this->initConnect(false);
-
         list($tableName) = explode(' ', $tableName);
 
         $sql = "SELECT   column_name,   data_type,   column_default,   is_nullable
@@ -65,14 +63,7 @@ class Sqlsrv extends Connection
         AND t.table_name    = c.table_name
         WHERE   t.table_name = '$tableName'";
 
-        // 调试开始
-        $this->debug(true);
-
-        $pdo = $this->linkID->query($sql);
-
-        // 调试结束
-        $this->debug(false, $sql);
-
+        $pdo    = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
@@ -117,21 +108,12 @@ class Sqlsrv extends Connection
      */
     public function getTables($dbName = '')
     {
-        $this->initConnect(false);
-
         $sql = "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_TYPE = 'BASE TABLE'
             ";
 
-        // 调试开始
-        $this->debug(true);
-
-        $pdo = $this->linkID->query($sql);
-
-        // 调试结束
-        $this->debug(false, $sql);
-
+        $pdo    = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 

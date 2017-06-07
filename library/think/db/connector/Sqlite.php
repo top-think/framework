@@ -43,19 +43,10 @@ class Sqlite extends Connection
      */
     public function getFields($tableName)
     {
-        $this->initConnect(false);
-
         list($tableName) = explode(' ', $tableName);
         $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
 
-        // 调试开始
-        $this->debug(true);
-
-        $pdo = $this->linkID->query($sql);
-
-        // 调试结束
-        $this->debug(false, $sql);
-
+        $pdo    = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
@@ -84,20 +75,11 @@ class Sqlite extends Connection
      */
     public function getTables($dbName = '')
     {
-        $this->initConnect(false);
-
         $sql = "SELECT name FROM sqlite_master WHERE type='table' "
             . "UNION ALL SELECT name FROM sqlite_temp_master "
             . "WHERE type='table' ORDER BY name";
 
-        // 调试开始
-        $this->debug(true);
-
-        $pdo = $this->linkID->query($sql);
-
-        // 调试结束
-        $this->debug(false, $sql);
-
+        $pdo    = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
