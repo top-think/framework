@@ -327,10 +327,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否需要自动写入时间字段
      * @access public
-     * @param bool $auto 
+     * @param bool $auto
      * @return $this
      */
-    public function autoWriteTimestamp($auto){
+    public function isAutoWriteTimestamp($auto)
+    {
         $this->autoWriteTimestamp = $auto;
         return $this;
     }
