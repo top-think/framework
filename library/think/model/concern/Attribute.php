@@ -245,6 +245,19 @@ trait Attribute
     }
 
     /**
+     * 是否需要自动写入时间字段
+     * @access public
+     * @param bool $auto
+     * @return $this
+     */
+    public function isAutoWriteTimestamp($auto)
+    {
+        $this->autoWriteTimestamp = $auto;
+
+        return $this;
+    }
+
+    /**
      * 自动写入时间戳
      * @access public
      * @param string $name 时间戳字段
