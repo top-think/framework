@@ -19,6 +19,7 @@ use think\db\Builder;
 class Mysql extends Builder
 {
     protected $updateSql = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
 
     /**
      * 字段和表名处理

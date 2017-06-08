@@ -751,16 +751,25 @@ abstract class Builder
                 }
             }
             $value    = array_values($data);
-            $values[] = 'SELECT ' . implode(',', $value);
+            if($this->connection->getConfig('type') === 'mysql'){
+                $values[] = '(' . implode(',', $value).')';
+            }else{
+                $values[] = 'SELECT ' . implode(',', $value);
+            }
         }
         $fields = array_map([$this, 'parseKey'], array_keys(reset($dataSet)));
+        if($this->connection->getConfig('type') === 'mysql'){
+            $sqldata = implode(',', $values);
+        }else{
+            $sqldata = implode(' UNION ALL ', $values);
+        }
         $sql    = str_replace(
             ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($options['table'], $options),
                 implode(' , ', $fields),
-                implode(' UNION ALL ', $values),
+                $sqldata,
                 $this->parseComment($options['comment']),
             ], $this->insertAllSql);
 
