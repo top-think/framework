@@ -209,7 +209,7 @@ class App implements \ArrayAccess
             if (is_dir($dir)) {
                 $files = scandir($dir);
                 foreach ($files as $file) {
-                    if (strpos($file, $this->configExt)) {
+                    if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
                         $filename = $dir . DIRECTORY_SEPARATOR . $file;
                         $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
                     }
