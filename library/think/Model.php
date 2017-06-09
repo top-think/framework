@@ -446,6 +446,66 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 字段值(延迟)增长
+     * @access public
+     * @param string  $field    字段名
+     * @param integer $step     增长值
+     * @param integer $lazyTime 延时时间(s)
+     * @return integer|true
+     * @throws Exception
+     */
+    public function setInc($field, $step = 1, $lazyTime = 0)
+    {
+        // 删除条件
+        $pk = $this->getPk();
+
+        if (is_string($pk) && isset($this->data[$pk])) {
+            $where = [$pk => $this->data[$pk]];
+        } elseif (!empty($this->updateWhere)) {
+            $where = $this->updateWhere;
+        } else {
+            $where = null;
+        }
+
+        $result = $this->db(false)->where($where)->setInc($field, $step, $lazyTime);
+        if (true !== $result) {
+            $this->data[$field] += $step;
+        }
+
+        return $result;
+    }
+
+    /**
+     * 字段值(延迟)增长
+     * @access public
+     * @param string  $field    字段名
+     * @param integer $step     增长值
+     * @param integer $lazyTime 延时时间(s)
+     * @return integer|true
+     * @throws Exception
+     */
+    public function setDec($field, $step = 1, $lazyTime = 0)
+    {
+        // 删除条件
+        $pk = $this->getPk();
+
+        if (is_string($pk) && isset($this->data[$pk])) {
+            $where = [$pk => $this->data[$pk]];
+        } elseif (!empty($this->updateWhere)) {
+            $where = $this->updateWhere;
+        } else {
+            $where = null;
+        }
+
+        $result = $this->db(false)->where($where)->setDec($field, $step, $lazyTime);
+        if (true !== $result) {
+            $this->data[$field] -= $step;
+        }
+
+        return $result;
+    }
+
+    /**
      * 保存多个数据到当前数据对象
      * @access public
      * @param array   $dataSet 数据
