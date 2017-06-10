@@ -193,6 +193,10 @@ class Build
     protected static function buildCommon($module)
     {
         $filename = CONF_PATH . ($module ? $module . DS : '') . 'config.php';
+
+        if (!is_dir(dirname($filename))) {
+            mkdir(dirname($filename, 0755, true));
+        }
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
         }
