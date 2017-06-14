@@ -70,7 +70,7 @@ class Redirect extends Response
      */
     public function getTargetUrl()
     {
-        return (strpos($this->data, '://') || 0 === strpos($this->data, '/')) ? $this->data : Facade::make('url')->build($this->data, $this->params);
+        return Facade::make('url')->build($this->data, $this->params);
     }
 
     public function params($params = [])
