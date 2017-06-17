@@ -205,8 +205,13 @@ class App implements \ArrayAccess
             include $this->runtimePath . $module . 'init.php';
         } else {
             // 自动读取配置文件
-            $dir = $this->configPath . $module;
-            if (is_dir($dir)) {
+            if (is_dir($path . 'config')) {
+                $dir = $path . 'config';
+            } elseif (is_dir($this->configPath . $module)) {
+                $dir = $this->configPath . $module;
+            }
+
+            if (isset($dir)) {
                 $files = scandir($dir);
                 foreach ($files as $file) {
                     if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
