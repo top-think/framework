@@ -627,6 +627,7 @@ class App implements \ArrayAccess
     public function setModulePath($path)
     {
         $this->modulePath = $path;
+        $this->env->set('module_path', $path);
     }
 
     /**

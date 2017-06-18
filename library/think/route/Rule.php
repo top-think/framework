@@ -30,9 +30,6 @@ abstract class Rule
     // 路由变量规则
     protected $pattern = [];
 
-    // 路由匹配模式
-    private $completeMatch = false;
-
     abstract public function check($request, $url, $depr = '/');
 
     /**
