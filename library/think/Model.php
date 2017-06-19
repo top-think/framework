@@ -839,6 +839,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 移除当前模型的关联属性
+     * @access public
+     * @return $this
+     */
+    public function removeRelation()
+    {
+        $this->relation = [];
+        return $this;
+    }
+
+    /**
      * 转换当前模型数据集为数据集对象
      * @access public
      * @param array|\think\Collection $collection 数据集
