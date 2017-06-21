@@ -178,6 +178,17 @@ trait Conversion
         return json_encode($this->toArray(), $options);
     }
 
+    /**
+     * 移除当前模型的关联属性
+     * @access public
+     * @return $this
+     */
+    public function removeRelation()
+    {
+        $this->relation = [];
+        return $this;
+    }
+
     public function __toString()
     {
         return $this->toJson();
