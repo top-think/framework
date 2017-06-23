@@ -199,6 +199,17 @@ abstract class Rule
     }
 
     /**
+     * 绑定Response对象
+     * @access public
+     * @param array|string     $response
+     * @return $this
+     */
+    public function response($response)
+    {
+        return $this->option('response', $response);
+    }
+
+    /**
      * 设置路由缓存
      * @access public
      * @param array|string     $cache
@@ -416,6 +427,11 @@ abstract class Rule
         // 绑定模型数据
         if (isset($option['bind_model'])) {
             $this->createBindModel($option['bind_model'], $matches);
+        }
+
+        // 指定Response响应数据
+        if (!empty($option['response'])) {
+            Facade::make('Hook')->add('response_send', $option['response']);
         }
 
         // 开启请求缓存
