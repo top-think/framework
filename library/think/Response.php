@@ -89,11 +89,11 @@ class Response
      */
     public function send()
     {
+        // 监听response_start
+        Hook::listen('response_send', $this);
+
         // 处理输出数据
         $data = $this->getContent();
-
-        // 监听response_start
-        Hook::listen('response_start', $this);
 
         // Trace调试注入
         if (Env::get('app_trace', Config::get('app_trace'))) {

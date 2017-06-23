@@ -1450,7 +1450,7 @@ class Route
         }
 
         if (!empty($option['response'])) {
-            Hook::add('response_start', $option['response']);
+            Hook::add('response_send', $option['response']);
         }
 
         // 解析额外参数
