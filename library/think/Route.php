@@ -1449,6 +1449,10 @@ class Route
             $request->bind($bind);
         }
 
+        if (!empty($option['response'])) {
+            Hook::add('response_start', $option['response']);
+        }
+
         // 解析额外参数
         self::parseUrlParams(empty($paths) ? '' : implode('|', $paths), $matches);
         // 记录匹配的路由信息
