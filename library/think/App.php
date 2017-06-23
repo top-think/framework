@@ -296,7 +296,7 @@ class App implements \ArrayAccess
             }
 
             // 监听app_begin
-            $this->hook->listen('app_begin', $dispatch);
+            $this->hook->listen('app_begin', $this->request);
 
             // 请求缓存检查
             $this->request->cache(
