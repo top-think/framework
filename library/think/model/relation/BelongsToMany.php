@@ -105,9 +105,8 @@ class BelongsToMany extends Relation
     {
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
-        $middle     = $this->middle;
+        $pk         = $this->parent->getPk();
         // 关联查询
-        $pk                              = $this->parent->getPk();
         $condition['pivot.' . $localKey] = $this->parent->$pk;
         return $this->belongsToManyQuery($foreignKey, $localKey, $condition);
     }
