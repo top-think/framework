@@ -363,7 +363,7 @@ if (!function_exists('cache')) {
         }
 
         if (is_null($name)) {
-            return $cache->clear($value);
+            return $cache->clear($tag);
         } elseif ('' === $value) {
             // 获取缓存
             return 0 === strpos($name, '?') ? $cache->has(substr($name, 1)) : $cache->get($name);
