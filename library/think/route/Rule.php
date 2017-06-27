@@ -431,7 +431,7 @@ abstract class Rule
 
         // 指定Response响应数据
         if (!empty($option['response'])) {
-            Facade::make('Hook')->add('response_send', $option['response']);
+            Facade::make('hook')->add('response_send', $option['response']);
         }
 
         // 开启请求缓存
