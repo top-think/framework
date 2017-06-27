@@ -975,9 +975,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
         $pk = $this->getPk();
         if ($this->isUpdate) {
-            // 检测字段
-            $this->checkAllowField($this->data, array_merge($this->auto, $this->update));
-
             // 自动更新
             $this->autoCompleteData($this->update);
 
@@ -988,6 +985,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 获取有更新的数据
             $data = $this->getChangedData();
+            // 检测字段
+            $this->checkAllowField($data, array_merge($this->auto, $this->update));
 
             if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
                 // 关联更新
