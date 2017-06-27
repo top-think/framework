@@ -1622,7 +1622,7 @@ class Request
                 $key = call_user_func_array($key, [$this]);
             } elseif (true === $key) {
                 foreach ($except as $rule) {
-                    if (0 === strpos($this->url(), $rule)) {
+                    if (0 === stripos($this->url(), $rule)) {
                         return;
                     }
                 }
