@@ -133,19 +133,18 @@ if (!function_exists('config')) {
      * 获取和设置配置参数
      * @param string|array  $name 参数名
      * @param mixed         $value 参数值
-     * @param string        $range 作用域
      * @return mixed
      */
-    function config($name = '', $value = null, $range = '')
+    function config($name = '', $value = null)
     {
         if (is_null($value) && is_string($name)) {
             if ('.' == substr($name, -1)) {
                 return Config::pull(substr($name, 0, -1));
             }
 
-            return 0 === strpos($name, '?') ? Config::has(substr($name, 1), $range) : Config::get($name, $range);
+            return 0 === strpos($name, '?') ? Config::has(substr($name, 1)) : Config::get($name);
         } else {
-            return Config::set($name, $value, $range);
+            return Config::set($name, $value);
         }
     }
 }
