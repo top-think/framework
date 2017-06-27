@@ -14,6 +14,7 @@ namespace think\route;
 use think\Container;
 use think\Facade;
 use think\Request;
+use think\Response;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
 use think\route\dispatch\Module as ModuleDispatch;

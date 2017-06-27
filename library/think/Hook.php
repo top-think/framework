@@ -131,13 +131,12 @@ class Hook
      */
     public function exec($class, $params = [])
     {
-        if (isset($this->bind[$class])) {
-            $class = $this->bind[$class];
-        }
-
         if ($class instanceof \Closure || is_array($class)) {
             $method = $class;
         } else {
+            if (isset($this->bind[$class])) {
+                $class = $this->bind[$class];
+            }
             $method = [$class, 'run'];
         }
 
