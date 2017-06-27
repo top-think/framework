@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\Container;
 use think\exception\RouteNotFoundException;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
@@ -180,7 +181,7 @@ class Route
 
         // 执行域名路由
         if ($rule instanceof \Closure) {
-            call_user_func($rule);
+            Container::getInstance()->invokeFunction($rule);
         } elseif (is_array($rule)) {
             $this->rules($rule);
         } elseif ($rule) {
@@ -470,7 +471,7 @@ class Route
 
         // 注册分组路由
         if ($route instanceof \Closure) {
-            call_user_func($route);
+            Container::getInstance()->invokeFunction($route);
         } else {
             $this->rules($route);
         }
