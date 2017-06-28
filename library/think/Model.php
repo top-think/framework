@@ -286,11 +286,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 检查数据是否允许写入
      * @access protected
-     * @param array   $data       写入数据
      * @param array   $autoFields 自动完成的字段列表
-     * @return void
+     * @return array
      */
-    protected function checkAllowFields(&$data, $autoFields = [])
+    protected function checkAllowFields($append = [])
     {
         // 检测字段
         if (empty($this->field) || true === $this->field) {
@@ -302,17 +301,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
                 $this->field = $query->getConnection()->getTableFields($table);
             }
+
             $field = $this->field;
         } else {
-            $field = array_merge($this->field, $autoFields);
+            $field = array_merge($this->field, $append);
         }
 
-        // 去除非法数据
-        foreach ($data as $key => $val) {
-            if (!in_array($key, $field)) {
-                unset($data[$key]);
-            }
-        }
+        return $field;
     }
 
     /**
@@ -353,7 +348,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 检查允许字段
-        $this->checkAllowFields($data, array_merge($this->auto, $this->update));
+        $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->update));
 
         // 保留主键数据
         foreach ($this->data as $key => $val) {
@@ -385,7 +380,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 模型更新
-        $result = $this->db(false)->where($where)->update($data);
+        $result = $this->db(false)->where($where)->strict(false)->field($allowFields)->update($data);
 
         // 关联更新
         if (isset($this->relationWrite)) {
@@ -417,9 +412,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 检查允许字段
-        $this->checkAllowFields($this->data, array_merge($this->auto, $this->insert));
+        $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->insert));
 
-        $result = $this->db(false)->insert($this->data);
+        $result = $this->db(false)->strict(false)->field($allowFields)->insert($this->data);
 
         $pk = $this->getPk();
 
