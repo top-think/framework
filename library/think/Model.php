@@ -985,8 +985,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 获取有更新的数据
             $data = $this->getChangedData();
-            // 检测字段
-            $this->checkAllowField($data, array_merge($this->auto, $this->update));
 
             if (empty($data) || (count($data) == 1 && is_string($pk) && isset($data[$pk]))) {
                 // 关联更新
@@ -1019,8 +1017,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 unset($data[$pk]);
             }
 
+            // 检测字段
+            $allowFields = $this->checkAllowField(array_merge($this->auto, $this->update));
+
             // 模型更新
-            $result = $this->getQuery()->where($where)->update($data);
+            if (!empty($allowFields)) {
+                $result = $this->getQuery()->where($where)->strict(false)->field($allowFields)->update($data);
+            } else {
+                $result = $this->getQuery()->where($where)->update($data);
+            }
 
             // 关联更新
             if (isset($relation)) {
@@ -1031,9 +1036,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->trigger('after_update', $this);
 
         } else {
-            // 检测字段
-            $this->checkAllowField($this->data, array_merge($this->auto, $this->insert));
-
             // 自动写入
             $this->autoCompleteData($this->insert);
 
@@ -1051,7 +1053,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 return false;
             }
 
-            $result = $this->getQuery()->insert($this->data);
+            // 检测字段
+            $allowFields = $this->checkAllowField(array_merge($this->auto, $this->insert));
+            if (!empty($allowFields)) {
+                $result = $this->getQuery()->strict(false)->field($allowFields)->insert($this->data);
+            } else {
+                $result = $this->getQuery()->insert($this->data);
+            }
 
             // 获取自动增长主键
             if ($result && is_string($pk) && (!isset($this->data[$pk]) || '' == $this->data[$pk])) {
@@ -1084,22 +1092,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $result;
     }
 
-    protected function checkAllowField(&$data, $auto = [])
+    protected function checkAllowField($auto = [])
     {
         if (!empty($this->field)) {
-            if (true === $this->field) {
+            if (!empty($this->origin)) {
+                $this->field = array_keys($this->origin);
+                $field       = $this->field;
+            } elseif (true === $this->field) {
                 $this->field = $this->getQuery()->getTableInfo('', 'fields');
                 $field       = $this->field;
             } else {
                 $field = array_merge($this->field, $auto);
             }
-
-            foreach ($data as $key => $val) {
-                if (!in_array($key, $field)) {
-                    unset($data[$key]);
-                }
-            }
+        } else {
+            $field = [];
         }
+        return $field;
     }
 
     protected function autoRelationUpdate($relation)
