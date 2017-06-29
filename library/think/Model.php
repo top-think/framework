@@ -1646,6 +1646,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model  = new static();
         $query  = $model->db();
         $params = func_get_args();
+        array_shift($params);
         array_unshift($params, $query);
         if ($name instanceof \Closure) {
             call_user_func_array($name, $params);
