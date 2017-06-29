@@ -1722,7 +1722,7 @@ class Query
      * @param array                   $args  参数
      * @return $this
      */
-    public function scope($scope, $args = [])
+    public function scope($scope, ...$args)
     {
         // 查询范围的第一个参数始终是当前查询对象
         array_unshift($args, $this);
