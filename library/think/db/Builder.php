@@ -199,7 +199,7 @@ abstract class Builder
                     $key = strstr($key, '@think', true);
                 }
                 $key    = $this->parseSqlTable($key);
-                $item[] = $this->parseKey($key) . ' ' . $this->parseKey($table);
+                $item[] = $this->parseKey($key) . ' ' . (isset($options['alias'][$table]) ? $this->parseKey($options['alias'][$table]) : $this->parseKey($table));
             } else {
                 $table = $this->parseSqlTable($table);
                 if (isset($options['alias'][$table])) {
