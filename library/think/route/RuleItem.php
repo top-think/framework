@@ -132,7 +132,7 @@ class RuleItem extends Rule
     private function checkRule($request, $url, $depr)
     {
         // 检查完整规则定义
-        if (isset($this->pattern['__url__']) && !preg_match('/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
+        if (isset($this->pattern['__url__']) && !preg_match(0 === strpos($this->pattern['__url__'], '/') ? $this->pattern['__url__'] : '/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
             return false;
         }
 
@@ -239,7 +239,7 @@ class RuleItem extends Rule
                         if (false === $result) {
                             return false;
                         }
-                    } elseif (!preg_match('/^' . $pattern[$name] . '$/', $m1[$key])) {
+                    } elseif (!preg_match(0 === strpos($pattern[$name], '/') ? $pattern[$name] : '/^' . $pattern[$name] . '$/', $m1[$key])) {
                         return false;
                     }
                 }
