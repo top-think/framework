@@ -67,10 +67,7 @@ class Build
     protected function buildDir($list)
     {
         foreach ($list as $dir) {
-            if (!is_dir($this->basePath . $dir)) {
-                // 创建目录
-                mkdir($this->basePath . $dir, 0755, true);
-            }
+            $this->checkDirBuild($this->basePath . $dir);
         }
     }
 
@@ -133,10 +130,7 @@ class Build
             if ('__dir__' == $path) {
                 // 生成子目录
                 foreach ($file as $dir) {
-                    if (!is_dir($modulePath . $dir)) {
-                        // 创建目录
-                        mkdir($modulePath . $dir, 0755, true);
-                    }
+                    $this->checkDirBuild($modulePath . $dir);
                 }
             } elseif ('__file__' == $path) {
                 // 生成（空白）文件
@@ -161,10 +155,7 @@ class Build
                             break;
                         case 'view': // 视图
                             $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $val . '.html';
-                            if (!is_dir(dirname($filename))) {
-                                // 创建目录
-                                mkdir(dirname($filename), 0755, true);
-                            }
+                            $this->checkDirBuild(dirname($filename));
                             $content = '';
                             break;
                         default:
@@ -194,10 +185,7 @@ class Build
         if (!is_file($filename)) {
             $content = file_get_contents($this->app->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
             $content = str_replace(['{$app}', '{$module}', '{layer}', '{$suffix}'], [$namespace, $module ? $module . '\\' : '', 'controller', $suffix ? 'Controller' : ''], $content);
-
-            if (!is_dir(dirname($filename))) {
-                mkdir(dirname($filename), 0755, true);
-            }
+            $this->checkDirBuild(dirname($filename));
 
             file_put_contents($filename, $content);
         }
@@ -212,9 +200,7 @@ class Build
     protected function buildCommon($module)
     {
         $filename = $this->app->getConfigPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'config.php';
-        if (!is_dir(dirname($filename))) {
-            mkdir(dirname($filename), 0755, true);
-        }
+        $this->checkDirBuild(dirname($filename));
 
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
@@ -224,6 +210,13 @@ class Build
 
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n");
+        }
+    }
+
+    protected function checkDirBuild($dirname)
+    {
+        if (!is_dir($dirname)) {
+            mkdir($dirname, 0755, true);
         }
     }
 }
