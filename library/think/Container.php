@@ -35,7 +35,7 @@ class Container
     }
 
     /**
-     * 绑定一个类到容器
+     * 绑定一个类、闭包、实例、接口实现到容器
      * @access public
      * @param string  $abstract    类标识、接口
      * @param mixed   $concrete    要绑定的类、闭包或者实例
@@ -45,6 +45,8 @@ class Container
     {
         if (is_array($abstract)) {
             $this->bind = array_merge($this->bind, $abstract);
+        } elseif ($concrete instanceof \Closure) {
+            $this->bind[$abstract] = $concrete;
         } elseif (is_object($concrete)) {
             $this->instances[$abstract] = $concrete;
         } else {
