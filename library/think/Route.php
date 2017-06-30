@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\Container;
 use think\exception\RouteNotFoundException;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
