@@ -1215,6 +1215,8 @@ class Request
             return true;
         } elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']) {
             return true;
+        } elseif (Config::get('https_agent_name') && isset($server[Config::get('https_agent_name')])) {
+            return true;
         }
         return false;
     }
