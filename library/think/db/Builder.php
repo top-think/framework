@@ -380,11 +380,13 @@ abstract class Builder
                 if (array_key_exists($field, $binds)) {
                     $bind  = [];
                     $array = [];
-                    foreach ($value as $k => $v) {
-                        if ($this->query->isBind($bindName . '_in_' . $k)) {
-                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $k;
+                    $i     = 0;
+                    foreach ($value as $v) {
+                        $i++;
+                        if ($this->query->isBind($bindName . '_in_' . $i)) {
+                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $i;
                         } else {
-                            $bindKey = $bindName . '_in_' . $k;
+                            $bindKey = $bindName . '_in_' . $i;
                         }
                         $bind[$bindKey] = [$v, $bindType];
                         $array[]        = ':' . $bindKey;
