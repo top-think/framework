@@ -155,6 +155,8 @@ return [
     'show_error_msg'         => false,
     // 异常处理handle类 留空使用 \think\exception\Handle
     'exception_handle'       => '',
+    // 是否记录trace信息到日志
+    'record_trace'           => false,
 
     // +----------------------------------------------------------------------
     // | 日志设置
