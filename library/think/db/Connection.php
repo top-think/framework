@@ -741,7 +741,7 @@ abstract class Connection
                 $result = isset($resultSet[0]) ? $resultSet[0] : null;
             }
 
-            if (isset($cache) && $result) {
+            if (isset($cache) && false !== $result) {
                 // 缓存数据
                 $this->cacheData($key, $result, $cache);
             }
@@ -772,7 +772,7 @@ abstract class Connection
             $resultSet = Facade::make('cache')->get($key);
         }
 
-        if (!$resultSet) {
+        if (false === $resultSet) {
             // 生成查询SQL
             $sql = $this->builder->select($query);
 
@@ -794,7 +794,7 @@ abstract class Connection
                 }
             }
 
-            if (isset($cache) && $resultSet) {
+            if (isset($cache) && false !== $resultSet) {
                 // 缓存数据集
                 $this->cacheData($key, $resultSet, $cache);
             }
