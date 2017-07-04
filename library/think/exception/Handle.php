@@ -49,6 +49,10 @@ class Handle
                 $log = "[{$data['code']}]{$data['message']}";
             }
 
+            if (Facade::make('app')->config('log.record_trace')) {
+                $log .= "\r\n" . $exception->getTraceAsString();
+            }
+
             Facade::make('log')->record($log, 'error');
         }
     }
