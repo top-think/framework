@@ -293,20 +293,19 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         // 检测字段
         if (empty($this->field) || true === $this->field) {
-            if (!empty($this->origin)) {
-                $this->field = array_keys($this->origin);
-            } else {
-                $query = $this->db(false);
-                $table = $query->getTable();
+            $query = $this->db(false);
+            $table = $query->getTable();
 
-                $this->field = $query->getConnection()->getTableFields($table);
-            }
+            $this->field = $query->getConnection()->getTableFields($table);
 
             $field = $this->field;
         } else {
             $field = array_merge($this->field, $append);
-        }
 
+            if ($this->autoWriteTimestamp) {
+                array_push($field, $this->createTime, $this->updateTime);
+            }
+        }
         return $field;
     }
 
