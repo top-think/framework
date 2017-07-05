@@ -2080,7 +2080,7 @@ class Query
         }
 
         // 执行操作
-        $result = $this->execute($sql, $bind);
+        $result = 0 === $sql ? 0 : $this->execute($sql, $bind);
         if ($result) {
             $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             $lastInsId = $this->getLastInsID($sequence);
