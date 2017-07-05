@@ -1094,19 +1094,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     protected function checkAllowField($auto = [])
     {
-        if (!empty($this->field)) {
-            if (!empty($this->origin)) {
-                $this->field = array_keys($this->origin);
-                $field       = $this->field;
-            } elseif (true === $this->field) {
-                $this->field = $this->getQuery()->getTableInfo('', 'fields');
-                $field       = $this->field;
-            } else {
-                $field = array_merge($this->field, $auto);
-            }
+        if (true === $this->field) {
+            $this->field = $this->getQuery()->getTableInfo('', 'fields');
+            $field       = $this->field;
+        } elseif (!empty($this->field)) {
+            $field = array_merge($this->field, $auto);
         } else {
             $field = [];
+
         }
+
         return $field;
     }
 
