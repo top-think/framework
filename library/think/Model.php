@@ -1101,7 +1101,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $field = array_merge($this->field, $auto);
         } else {
             $field = [];
-
         }
 
         return $field;
