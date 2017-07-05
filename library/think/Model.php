@@ -1099,6 +1099,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $field       = $this->field;
         } elseif (!empty($this->field)) {
             $field = array_merge($this->field, $auto);
+            if ($this->autoWriteTimestamp) {
+                array_push($field, $this->createTime, $this->updateTime);
+            }
         } else {
             $field = [];
         }
