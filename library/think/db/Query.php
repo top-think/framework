@@ -421,9 +421,13 @@ class Query
     {
         $this->parseOptions();
 
-        $result = $this->connection->value($this, $field, $force);
+        $result = $this->connection->value($this, $field, $default);
 
-        return false !== $result ? $result : $default;
+        if ($force) {
+            $result += 0;
+        }
+
+        return $result;
     }
 
     /**

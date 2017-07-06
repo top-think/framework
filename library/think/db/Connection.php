@@ -1082,10 +1082,10 @@ abstract class Connection
      * @access public
      * @param Query     $query 查询对象
      * @param string    $field   字段名
-     * @param bool      $force   强制转为数字类型
+     * @param bool      $default   默认值
      * @return mixed
      */
-    public function value(Query $query, $field, $force = false)
+    public function value(Query $query, $field, $default = null)
     {
         $options = $query->getOptions();
 
@@ -1129,17 +1129,13 @@ abstract class Connection
 
             $result = $pdo->fetchColumn();
 
-            if ($force) {
-                $result = is_numeric($result) ? $result + 0 : $result;
-            }
-
-            if (isset($cache)) {
+            if (isset($cache) && false !== $result) {
                 // 缓存数据
                 $this->cacheData($key, $result, $cache);
             }
         }
 
-        return $result;
+        return false !== $result ? $result : $default;
     }
 
     /**
