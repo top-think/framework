@@ -24,15 +24,14 @@ class HasOne extends OneToOne
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey   关联主键
-     * @param string $joinType   JOIN类型
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER')
+    public function __construct(Model $parent, $model, $foreignKey, $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        $this->joinType   = $joinType;
+        $this->joinType   = 'INNER';
         $this->query      = (new $model)->db();
     }
 

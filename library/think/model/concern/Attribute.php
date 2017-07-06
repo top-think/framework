@@ -192,7 +192,7 @@ trait Attribute
     public function getChangedData()
     {
         $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-            if ((empty($b) || empty($b)) && $a !== $b) {
+            if ((empty($a) || empty($b)) && $a !== $b) {
                 return 1;
             }
 

@@ -293,17 +293,16 @@ trait RelationShip
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey   关联主键
-     * @param string $joinType   JOIN类型
      * @return HasOne
      */
-    public function hasOne($model, $foreignKey = '', $localKey = '', $joinType = 'INNER')
+    public function hasOne($model, $foreignKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
 
-        return new HasOne($this, $model, $foreignKey, $localKey, $joinType);
+        return new HasOne($this, $model, $foreignKey, $localKey);
     }
 
     /**
@@ -312,10 +311,9 @@ trait RelationShip
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey   关联主键
-     * @param string $joinType   JOIN类型
      * @return BelongsTo
      */
-    public function belongsTo($model, $foreignKey = '', $localKey = '', $joinType = 'INNER')
+    public function belongsTo($model, $foreignKey = '', $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -324,7 +322,7 @@ trait RelationShip
         $trace      = debug_backtrace(false, 2);
         $relation   = Loader::parseName($trace[1]['function']);
 
-        return new BelongsTo($this, $model, $foreignKey, $localKey, $joinType, $relation);
+        return new BelongsTo($this, $model, $foreignKey, $localKey, $relation);
     }
 
     /**

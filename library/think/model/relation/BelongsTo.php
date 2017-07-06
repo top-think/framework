@@ -23,16 +23,15 @@ class BelongsTo extends OneToOne
      * @param string $model 模型名
      * @param string $foreignKey 关联外键
      * @param string $localKey 关联主键
-     * @param string $joinType JOIN类型
      * @param string $relation  关联名
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER', $relation = null)
+    public function __construct(Model $parent, $model, $foreignKey, $localKey, $relation = null)
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        $this->joinType   = $joinType;
+        $this->joinType   = 'INNER';
         $this->query      = (new $model)->db();
         $this->relation   = $relation;
     }
@@ -70,7 +69,6 @@ class BelongsTo extends OneToOne
      * @param string  $operator 比较操作符
      * @param integer $count    个数
      * @param string  $id       关联表的统计字段
-     * @param string  $joinType JOIN类型
      * @return Query
      */
     public function has($operator = '>=', $count = 1, $id = '*')
