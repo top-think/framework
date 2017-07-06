@@ -415,8 +415,9 @@ class Query
             }
             $result = $pdo->fetchColumn();
             if ($force) {
-                $result = is_numeric($result) ? $result + 0 : $result;
+                $result += 0;
             }
+
             if (isset($cache)) {
                 // 缓存数据
                 $this->cacheData($key, $result, $cache);
