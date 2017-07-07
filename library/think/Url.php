@@ -256,7 +256,7 @@ class Url
             }
         }
 
-        if (false !== strpos($domain, ':')) {
+        if (false !== strpos($domain, '://')) {
             $scheme = '';
         } else {
             $scheme = $this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://';
