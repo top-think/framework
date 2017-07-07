@@ -272,7 +272,7 @@ class Url
                 $domain .= '.' . $rootDomain;
             }
         }
-        if (false !== strpos($domain, ':')) {
+        if (false !== strpos($domain, '://')) {
             $scheme = '';
         } else {
             $scheme = $request->isSsl() || Config::get('is_https') ? 'https://' : 'http://';
