@@ -32,13 +32,6 @@ trait Jump
      */
     protected function success($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
     {
-        $code = 1;
-
-        if (is_numeric($msg)) {
-            $code = $msg;
-            $msg  = '';
-        }
-
         if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
             $url = $_SERVER["HTTP_REFERER"];
         } elseif ('' !== $url) {
@@ -46,7 +39,7 @@ trait Jump
         }
 
         $result = [
-            'code' => $code,
+            'code' => 1,
             'msg'  => $msg,
             'data' => $data,
             'url'  => $url,
@@ -79,13 +72,6 @@ trait Jump
      */
     protected function error($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
     {
-        $code = 0;
-
-        if (is_numeric($msg)) {
-            $code = $msg;
-            $msg  = '';
-        }
-
         if (is_null($url)) {
             $url = Facade::make('request')->isAjax() ? '' : 'javascript:history.back(-1);';
         } elseif ('' !== $url) {
@@ -93,7 +79,7 @@ trait Jump
         }
 
         $result = [
-            'code' => $code,
+            'code' => 0,
             'msg'  => $msg,
             'data' => $data,
             'url'  => $url,
