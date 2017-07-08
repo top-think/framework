@@ -428,7 +428,8 @@ class Route
                     self::$rules['*'][$name]['pattern'] = $pattern;
                 }
             } else {
-                $item = [];
+                $item          = [];
+                $completeMatch = Config::get('route_complete_match');
                 foreach ($routes as $key => $val) {
                     if (is_numeric($key)) {
                         $key = array_shift($val);
@@ -447,6 +448,8 @@ class Route
                         // 是否完整匹配
                         $options['complete_match'] = true;
                         $key                       = substr($key, 0, -1);
+                    } elseif ($completeMatch) {
+                        $options['complete_match'] = true;
                     }
                     $key    = trim($key, '/');
                     $vars   = self::parseVar($key);
