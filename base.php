@@ -45,6 +45,7 @@ Container::getInstance()->bind([
     'route'                 => Route::class,
     'session'               => Session::class,
     'url'                   => Url::class,
+    'validate'              => Validate::class,
     'view'                  => View::class,
 
     // 接口依赖注入
@@ -68,6 +69,7 @@ Facade::bind([
     facade\Route::class    => Route::class,
     facade\Session::class  => Session::class,
     facade\Url::class      => Url::class,
+    facade\Validate::class => Validate::class,
     facade\View::class     => View::class,
 ]);
 
@@ -90,6 +92,7 @@ Loader::addClassAlias([
     'Route'    => facade\Route::class,
     'Session'  => facade\Session::class,
     'Url'      => facade\Url::class,
+    'Validate' => facade\Validate::class,
     'View'     => facade\View::class,
 ]);
 
