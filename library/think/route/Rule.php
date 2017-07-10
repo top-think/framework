@@ -191,12 +191,22 @@ abstract class Rule
     /**
      * 绑定模型
      * @access public
-     * @param array     $model
+     * @param array|string      $var  路由变量名 多个使用 & 分割
+     * @param string|\Closure   $model 绑定模型类
+     * @param bool              $exception 是否抛出异常
      * @return $this
      */
-    public function bindModel($model)
+    public function model($var, $model = null, $exception = true)
     {
-        return $this->option('bind_model', $model);
+        if (is_array($var)) {
+            $this->option['model'] = $var;
+        } elseif (is_null($model)) {
+            $this->option['model']['id'] = [$var, true];
+        } else {
+            $this->option['model'][$var] = [$model, $exception];
+        }
+
+        return $this;
     }
 
     /**
@@ -329,16 +339,15 @@ abstract class Rule
      */
     protected function createBindModel($bindModel, $matches)
     {
-        foreach ((array) $bindModel as $val) {
+        foreach ($bindModel as $key => $val) {
             if ($val instanceof \Closure) {
-                $result = call_user_func_array($val, [$matches]);
+                $result = Container::getInstance()->invokeFunction($val, $matches);
             } else {
+                $fields = explode('&', $key);
+
                 if (is_array($val)) {
-                    $fields    = explode('&', $val[1]);
-                    $model     = $val[0];
-                    $exception = isset($val[2]) ? $val[2] : true;
+                    list($model, $exception) = $val;
                 } else {
-                    $fields    = ['id'];
                     $model     = $val;
                     $exception = true;
                 }
@@ -426,8 +435,8 @@ abstract class Rule
         }
 
         // 绑定模型数据
-        if (isset($option['bind_model'])) {
-            $this->createBindModel($option['bind_model'], $matches);
+        if (isset($option['model'])) {
+            $this->createBindModel($option['model'], $matches);
         }
 
         // 指定Response响应数据
