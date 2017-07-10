@@ -111,6 +111,13 @@ class Validate
         $this->field   = array_merge($this->field, $field);
     }
 
+    /**
+     * 创建一个验证器类
+     * @access public
+     * @param array $rules 验证规则
+     * @param array $message 验证提示信息
+     * @param array $field 验证字段描述信息
+     */
     public static function make($rules, $message = [], $field = [])
     {
         return new self($rules, $message, $field);

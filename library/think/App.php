@@ -252,12 +252,12 @@ class App implements \ArrayAccess
         try {
             if (defined('BIND_MODULE')) {
                 // 模块/控制器绑定
-                BIND_MODULE && $this->route->bindTo(BIND_MODULE);
+                BIND_MODULE && $this->route->bind(BIND_MODULE);
             } elseif ($this->config('app.auto_bind_module')) {
                 // 入口自动绑定
                 $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
                 if ($name && 'index' != $name && is_dir($this->appPath . $name)) {
-                    $this->route->bindTo($name);
+                    $this->route->bind($name);
                 }
             }
 

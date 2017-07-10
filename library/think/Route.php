@@ -184,7 +184,7 @@ class Route
         } elseif (is_array($rule)) {
             $this->rules($rule);
         } elseif ($rule) {
-            $this->bindTo($rule);
+            $this->bind($rule);
         }
 
         // 还原默认域名
@@ -218,7 +218,7 @@ class Route
      * @param string     $bind 绑定信息
      * @return $this
      */
-    public function bindTo($bind)
+    public function bind($bind)
     {
         $this->bind[$this->domain] = $bind;
 
