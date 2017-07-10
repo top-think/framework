@@ -26,6 +26,10 @@ class Facade
      */
     public static function bind($name, $class = null)
     {
+        if (__CLASS__ != static::class) {
+            return self::__callStatic('bind', func_get_args());
+        }
+
         if (is_array($name)) {
             self::$bind = array_merge(self::$bind, $name);
         } else {
@@ -79,6 +83,10 @@ class Facade
      */
     public static function make($class, $args = [], $newInstance = false)
     {
+        if (__CLASS__ != static::class) {
+            return self::__callStatic('make', func_get_args());
+        }
+
         if (true === $args) {
             // 总是创建新的实例化对象
             $newInstance = true;

@@ -16,7 +16,7 @@ use think\exception\ClassNotFoundException;
 class Validate
 {
     // 自定义的验证类型
-    protected $type = [];
+    protected static $type = [];
 
     // 验证类型别名
     protected $alias = [
@@ -32,7 +32,7 @@ class Validate
     protected $field = [];
 
     // 验证规则默认提示信息
-    protected $typeMsg = [
+    protected static $typeMsg = [
         'require'     => ':attribute不能为空',
         'number'      => ':attribute必须是数字',
         'float'       => ':attribute必须是浮点数',
@@ -111,6 +111,11 @@ class Validate
         $this->field   = array_merge($this->field, $field);
     }
 
+    public static function make($rules, $message = [], $field = [])
+    {
+        return new self($rules, $message, $field);
+    }
+
     /**
      * 添加字段验证规则
      * @access protected
@@ -137,17 +142,15 @@ class Validate
      * @access public
      * @param string    $type  验证规则类型
      * @param mixed     $callback callback方法(或闭包)
-     * @return $this
+     * @return void
      */
-    public function extend($type, $callback = null)
+    public static function extend($type, $callback = null)
     {
         if (is_array($type)) {
-            $this->type = array_merge($this->type, $type);
+            self::$type = array_merge(self::$type, $type);
         } else {
-            $this->type[$type] = $callback;
+            self::$type[$type] = $callback;
         }
-
-        return $this;
     }
 
     /**
@@ -157,15 +160,13 @@ class Validate
      * @param string        $msg  验证提示信息
      * @return void
      */
-    public function setTypeMsg($type, $msg = null)
+    public static function setTypeMsg($type, $msg = null)
     {
         if (is_array($type)) {
-            $this->typeMsg = array_merge($this->typeMsg, $type);
+            self::$typeMsg = array_merge(self::$typeMsg, $type);
         } else {
-            $this->typeMsg[$type] = $msg;
+            self::$typeMsg[$type] = $msg;
         }
-
-        return $this;
     }
 
     /**
@@ -379,7 +380,7 @@ class Validate
                 // 如果不是require 有数据才会行验证
                 if (0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                     // 验证类型
-                    $callback = isset($this->type[$type]) ? $this->type[$type] : [$this, $type];
+                    $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                     // 验证数据
                     $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
                 } else {
@@ -606,9 +607,9 @@ class Validate
                 $result = $this->token($value, '__token__', $data);
                 break;
             default:
-                if (isset($this->type[$rule])) {
+                if (isset(self::$type[$rule])) {
                     // 注册的验证规则
-                    $result = call_user_func_array($this->type[$rule], [$value]);
+                    $result = call_user_func_array(self::$type[$rule], [$value]);
                 } else {
                     // 正则验证
                     $result = $this->regex($value, $rule);
@@ -1249,8 +1250,8 @@ class Validate
             $msg = $this->message[$attribute][$type];
         } elseif (isset($this->message[$attribute])) {
             $msg = $this->message[$attribute];
-        } elseif (isset($this->typeMsg[$type])) {
-            $msg = $this->typeMsg[$type];
+        } elseif (isset(self::$typeMsg[$type])) {
+            $msg = self::$typeMsg[$type];
         } else {
             $msg = $title . '规则错误';
         }
