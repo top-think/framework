@@ -260,7 +260,9 @@ class Validate
     public function remove($field, $rule = true)
     {
         if (is_array($field)) {
-            $this->remove = array_merge($this->remove, $field);
+            foreach ($field as $key => $rule) {
+                $this->remove($key, $rule);
+            }
         } else {
             if (is_string($rule)) {
                 $rule = explode('|', $rule);
@@ -282,7 +284,9 @@ class Validate
     public function append($field, $rule = null)
     {
         if (is_array($field)) {
-            $this->append = array_merge($this->append, $field);
+            foreach ($field as $key => $rule) {
+                $this->append($key, $rule);
+            }
         } else {
             if (is_string($rule)) {
                 $rule = explode('|', $rule);
@@ -314,12 +318,9 @@ class Validate
         // 获取场景定义
         $this->getScene($scene);
 
-        if (!empty($this->append)) {
-            foreach ($this->append as $key => $rule) {
-                if (!isset($rules[$key])) {
-                    $rules[$key] = $rule;
-                    unset($this->append[$key]);
-                }
+        foreach ($this->append as $key => $rule) {
+            if (!isset($rules[$key])) {
+                $rules[$key] = $rule;
             }
         }
 
@@ -383,6 +384,7 @@ class Validate
     protected function checkItem($field, $value, $rules, $data, $title = '', $msg = [])
     {
         if (isset($this->remove[$field]) && true === $this->remove[$field] && empty($this->append[$field])) {
+            // 字段已经移除 无需验证
             return true;
         }
 
