@@ -25,7 +25,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     use model\concern\ModelEvent;
     use model\concern\TimeStamp;
     use model\concern\Conversion;
-    use model\concern\DataValidate;
 
     // 是否为更新数据
     private $isUpdate = false;
@@ -252,10 +251,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function checkBeforeSave($data, $where)
     {
         if (!empty($data)) {
-            // 数据自动验证
-            if (!$this->validateData($data)) {
-                return false;
-            }
 
             // 数据对象赋值
             foreach ($data as $key => $value) {
@@ -514,17 +509,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function saveAll($dataSet, $replace = true)
     {
-        if ($this->validate) {
-            // 数据批量验证
-            $validate = $this->validate;
-
-            foreach ($dataSet as $data) {
-                if (!$this->validateData($data, $validate)) {
-                    return false;
-                }
-            }
-        }
-
         $result = [];
 
         $db = $this->db(false);
