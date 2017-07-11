@@ -12,6 +12,7 @@
 namespace think\route;
 
 use think\Container;
+use think\exception\ValidateException;
 use think\Facade;
 use think\Request;
 use think\Response;
@@ -205,6 +206,22 @@ abstract class Rule
         } else {
             $this->option['model'][$var] = [$model, $exception];
         }
+
+        return $this;
+    }
+
+    /**
+     * 绑定验证
+     * @access public
+     * @param string   $validate 验证器类
+     * @param string   $scene 验证场景
+     * @param array    $message 验证提示
+     * @param bool     $batch 批量验证
+     * @return $this
+     */
+    public function validate($validate, $scene = null, $message = [], $batch = false)
+    {
+        $this->option['validate'] = [$validate, $scene, $message, $batch];
 
         return $this;
     }
@@ -464,8 +481,51 @@ abstract class Rule
             }
         }
 
+        // 数据自动验证
+        if (isset($option['validate'])) {
+            $this->autoValidate($option['validate'], $request);
+        }
+
         // 发起路由调度
         return $this->dispatch($request, $route, $option);
+    }
+
+    /**
+     * 验证数据
+     * @access protected
+     * @param array             $option
+     * @param \think\Request    $request
+     * @return void
+     * @throws ValidateException
+     */
+    protected function autoValidate($option, $request)
+    {
+        list($validate, $scene, $message, $batch) = $option;
+
+        if (is_array($validate)) {
+            // 指定验证规则
+            $v = Facade::make('app')->validate();
+            $v->rule($validate);
+        } else {
+            // 调用验证器
+            $v = Facade::make('app')->validate($validate);
+            if (!empty($scene)) {
+                $v->scene($scene);
+            }
+        }
+
+        if (!empty($message)) {
+            $v->message($message);
+        }
+
+        // 批量验证
+        if ($batch) {
+            $v->batch(true);
+        }
+
+        if (!$v->check($request->param())) {
+            throw new ValidateException($v->getError());
+        }
     }
 
     /**
