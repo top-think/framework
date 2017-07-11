@@ -97,6 +97,11 @@ class Validate
     // 批量验证
     protected $batch = false;
 
+    // 验证参数
+    protected $only   = [];
+    protected $remove = [];
+    protected $append = [];
+
     /**
      * 架构函数
      * @access public
@@ -197,21 +202,13 @@ class Validate
     /**
      * 设置验证场景
      * @access public
-     * @param string|array  $name  场景名或者场景设置数组
-     * @param mixed         $fields 要验证的字段
-     * @return Validate
+     * @param string  $name  场景名
+     * @return $this
      */
-    public function scene($name, $fields = null)
+    public function scene($name)
     {
-        if (is_array($name)) {
-            $this->scene = array_merge($this->scene, $name);
-        }if (is_null($fields)) {
-            // 设置当前场景
-            $this->currentScene = $name;
-        } else {
-            // 设置验证场景
-            $this->scene[$name] = $fields;
-        }
+        // 设置当前场景
+        $this->currentScene = $name;
 
         return $this;
     }
@@ -224,18 +221,75 @@ class Validate
      */
     public function hasScene($name)
     {
-        return isset($this->scene[$name]);
+        return isset($this->scene[$name]) || method_exists($this, 'scene' . $name);
     }
 
     /**
      * 设置批量验证
      * @access public
      * @param bool $batch  是否批量验证
-     * @return Validate
+     * @return $this
      */
     public function batch($batch = true)
     {
         $this->batch = $batch;
+
+        return $this;
+    }
+
+    /**
+     * 指定需要验证的字段列表
+     * @access public
+     * @param array $fields  字段名
+     * @return $this
+     */
+    public function only($fields)
+    {
+        $this->only = $fields;
+
+        return $this;
+    }
+
+    /**
+     * 移除某个字段的验证规则
+     * @access public
+     * @param string|array  $field  字段名
+     * @param mixed         $rule   验证规则 true 移除所有规则
+     * @return $this
+     */
+    public function remove($field, $rule = true)
+    {
+        if (is_array($field)) {
+            $this->remove = array_merge($this->remove, $field);
+        } else {
+            if (is_string($rule)) {
+                $rule = explode('|', $rule);
+            }
+
+            $this->remove[$field] = $rule;
+        }
+
+        return $this;
+    }
+
+    /**
+     * 追加某个字段的验证规则
+     * @access public
+     * @param string|array  $field  字段名
+     * @param mixed         $rule   验证规则
+     * @return $this
+     */
+    public function append($field, $rule = null)
+    {
+        if (is_array($field)) {
+            $this->append = array_merge($this->append, $field);
+        } else {
+            if (is_string($rule)) {
+                $rule = explode('|', $rule);
+            }
+
+            $this->append[$field] = $rule;
+        }
 
         return $this;
     }
@@ -257,37 +311,22 @@ class Validate
             $rules = $this->rule;
         }
 
-        // 分析验证规则
-        $scene = $this->getScene($scene);
-        if (is_array($scene)) {
-            // 处理场景验证字段
-            $change = [];
-            $array  = [];
-            foreach ($scene as $k => $val) {
-                if (is_numeric($k)) {
-                    $array[] = $val;
-                } else {
-                    $array[]    = $k;
-                    $change[$k] = $val;
+        // 获取场景定义
+        $this->getScene($scene);
+
+        if (!empty($this->append)) {
+            foreach ($this->append as $key => $rule) {
+                if (!isset($rules[$key])) {
+                    $rules[$key] = $rule;
+                    unset($this->append[$key]);
                 }
             }
         }
 
-        foreach ($rules as $key => $item) {
-            // field => rule1|rule2... field=>['rule1','rule2',...]
-            if (is_numeric($key)) {
-                // [field,rule1|rule2,msg1|msg2]
-                $key  = $item[0];
-                $rule = $item[1];
-                if (isset($item[2])) {
-                    $msg = is_string($item[2]) ? explode('|', $item[2]) : $item[2];
-                } else {
-                    $msg = [];
-                }
-            } else {
-                $rule = $item;
-                $msg  = [];
-            }
+        foreach ($rules as $key => $rule) {
+            // field => 'rule1|rule2...' field => ['rule1','rule2',...]
+            $msg = [];
+
             if (strpos($key, '|')) {
                 // 字段|描述 用于指定属性名称
                 list($key, $title) = explode('|', $key);
@@ -296,17 +335,8 @@ class Validate
             }
 
             // 场景检测
-            if (!empty($scene)) {
-                if ($scene instanceof \Closure && !call_user_func_array($scene, [$key, $data])) {
-                    continue;
-                } elseif (is_array($scene)) {
-                    if (!in_array($key, $array)) {
-                        continue;
-                    } elseif (isset($change[$key])) {
-                        // 重载某个验证规则
-                        $rule = $change[$key];
-                    }
-                }
+            if (!empty($this->only) && !in_array($key, $this->only)) {
+                continue;
             }
 
             // 获取数据 支持二维数组
@@ -352,9 +382,18 @@ class Validate
      */
     protected function checkItem($field, $value, $rules, $data, $title = '', $msg = [])
     {
+        if (isset($this->remove[$field]) && true === $this->remove[$field] && empty($this->append[$field])) {
+            return true;
+        }
+
         // 支持多规则验证 require|in:a,b,c|... 或者 ['require','in'=>'a,b,c',...]
         if (is_string($rules)) {
             $rules = explode('|', $rules);
+        }
+
+        if (isset($this->append[$field])) {
+            // 追加额外的验证规则
+            $rules = array_merge($rules, $this->append[$field]);
         }
 
         $i = 0;
@@ -382,6 +421,13 @@ class Validate
                     }
                 } else {
                     $info = $type = $key;
+                }
+
+                if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
+
+                } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
+                    // 规则已经移除
+                    continue;
                 }
 
                 // 如果不是require 有数据才会行验证
@@ -1296,17 +1342,24 @@ class Validate
             $scene = $this->currentScene;
         }
 
-        if (!empty($scene) && isset($this->scene[$scene])) {
+        $this->only = $this->append = $this->remove = [];
+
+        if (empty($scene)) {
+            return;
+        }
+
+        if (method_exists($this, 'scene' . $scene)) {
+            call_user_func([$this, 'scene' . $scene]);
+        } elseif (isset($this->scene[$scene])) {
             // 如果设置了验证适用场景
             $scene = $this->scene[$scene];
+
             if (is_string($scene)) {
                 $scene = explode(',', $scene);
             }
-        } else {
-            $scene = [];
-        }
 
-        return $scene;
+            $this->only = $scene;
+        }
     }
 
 }
