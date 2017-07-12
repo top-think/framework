@@ -617,6 +617,10 @@ class Validate
                 // 只允许汉字、字母、数字和下划线_及破折号-
                 $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u');
                 break;
+            case 'mobile':
+                // 国内手机号码
+                $result = $this->regex($value, '/^1[3|4|5|7|8][0-9]\d{8}$/');
+                break;
             case 'activeUrl':
                 // 是否为有效的网址
                 $result = checkdnsrr($value);
@@ -928,7 +932,7 @@ class Validate
      */
     protected function behavior($value, $rule, $data)
     {
-        return Hook::exec($rule, '', $data);
+        return Facade::make('hook')->exec($rule, $data);
     }
 
     /**
