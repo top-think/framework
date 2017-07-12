@@ -21,6 +21,14 @@ class Pgsql extends Connection
 {
     protected $builder = '\\think\\db\\builder\\Pgsql';
 
+    // PDO连接参数
+    protected $params = [
+        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
+        PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_ORACLE_NULLS      => PDO::NULL_NATURAL,
+        PDO::ATTR_STRINGIFY_FETCHES => false,
+    ];
+
     /**
      * 解析pdo连接的dsn信息
      * @access protected
