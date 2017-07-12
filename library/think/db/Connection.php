@@ -166,6 +166,7 @@ abstract class Connection
         if (true === $name || !isset(self::$instance[$name])) {
             // 解析连接参数 支持数组和字符串
             $options = self::parseConfig($config);
+
             if (empty($options['type'])) {
                 throw new \InvalidArgumentException('Undefined db type');
             }
@@ -175,10 +176,10 @@ abstract class Connection
             Facade::make('app')->log('[ DB ] INIT ' . $options['type']);
 
             if (true === $name) {
-                return new $class($options);
-            } else {
-                self::$instance[$name] = new $class($options);
+                $name = md5(serialize($config));
             }
+
+            self::$instance[$name] = new $class($options);
         }
 
         return self::$instance[$name];
