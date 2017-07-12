@@ -724,7 +724,7 @@ abstract class Builder
      * @param bool      $replace 是否replace
      * @return string
      */
-    public function insertAll($dataSet, $options, $replace = false)
+    public function insertAll($dataSet, $options = [], $replace = false)
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
