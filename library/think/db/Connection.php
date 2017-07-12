@@ -861,9 +861,10 @@ abstract class Connection
      * @access public
      * @param Query     $query      查询对象
      * @param mixed     $dataSet    数据集
+     * @param bool      $replace    是否replace
      * @return integer|string
      */
-    public function insertAll(Query $query, $dataSet = [])
+    public function insertAll(Query $query, $dataSet = [], $replace = false)
     {
         if (!is_array(reset($dataSet))) {
             return false;
@@ -872,7 +873,7 @@ abstract class Connection
         $options = $query->getOptions();
 
         // 生成SQL语句
-        $sql = $this->builder->insertAll($query, $dataSet);
+        $sql = $this->builder->insertAll($query, $dataSet, $replace);
 
         $bind = $query->getBind();
 

@@ -27,7 +27,7 @@ abstract class Builder
 
     protected $insertSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
 
-    protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
+    protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
 
     protected $updateSql = 'UPDATE %TABLE% SET %SET% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
@@ -797,9 +797,10 @@ abstract class Builder
      * @access public
      * @param Query     $query   查询对象
      * @param array     $dataSet 数据集
+     * @param bool      $replace 是否replace
      * @return string
      */
-    public function insertAll(Query $query, $dataSet)
+    public function insertAll(Query $query, $dataSet, $replace = false)
     {
         $options = $query->getOptions();
 
@@ -839,8 +840,9 @@ abstract class Builder
         }
 
         return str_replace(
-            ['%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
+                $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($query, $options['table']),
                 implode(' , ', $fields),
                 implode(' UNION ALL ', $values),
