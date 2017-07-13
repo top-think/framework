@@ -832,7 +832,7 @@ class Template
                             $name  = $array[0];
 
                             $this->parseVar($name);
-                            $this->parseVarFunction($name);
+                            //$this->parseVarFunction($name);
 
                             $str = trim(substr($str, $pos + 1));
                             $this->parseVar($str);
