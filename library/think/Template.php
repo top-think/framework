@@ -50,6 +50,7 @@ class Template
         'cache_id'           => '', // 模板缓存ID
         'tpl_replace_string' => [],
         'tpl_var_identify'   => 'array', // .语法变量识别，array|object|'', 为空时自动识别
+        'default_filter'     => 'htmlentities', // 默认过滤方法 用于普通标签输出
     ];
 
     private $literal     = [];
@@ -1017,7 +1018,7 @@ class Template
         if (!$autoescape && false === strpos($varStr, '|')) {
             return $varStr;
         } elseif ($autoescape && false === strpos($varStr, '|raw')) {
-            $varStr .= '|htmlentities';
+            $varStr .= '|' . $this->config['default_filter'];
         }
 
         static $_varFunctionList = [];
