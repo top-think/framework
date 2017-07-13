@@ -1000,12 +1000,15 @@ class Template
      * 对模板中使用了函数的变量进行解析
      * 格式 {$varname|function1|function2=arg1,arg2}
      * @access public
-     * @param  string $varStr 变量字符串
+     * @param string    $varStr     变量字符串
+     * @param bool      $autoescape 自动转义
      * @return void
      */
-    public function parseVarFunction(&$varStr)
+    public function parseVarFunction(&$varStr, $autoescape = true)
     {
-        if (false === strpos($varStr, '|raw')) {
+        if (!$autoescape && false === strpos($varStr, '|')) {
+            return;
+        } elseif ($autoescape && false === strpos($varStr, '|raw')) {
             $varStr .= '|htmlentities';
         }
 
@@ -1020,7 +1023,7 @@ class Template
             $varArray = explode('|', $varStr);
 
             // 取得变量名称
-            $name = array_shift($varArray);
+            $name = trim(array_shift($varArray));
 
             // 对变量使用函数
             $length = count($varArray);
@@ -1030,12 +1033,34 @@ class Template
 
             for ($i = 0; $i < $length; $i++) {
                 $args = explode('=', $varArray[$i], 2);
+
                 // 模板函数过滤
                 $fun = trim($args[0]);
+                if (in_array($fun, $template_deny_funs)) {
+                    continue;
+                }
 
                 switch ($fun) {
                     case 'raw':
                         continue;
+                    case 'date':
+                        $name = 'date_format(date_create(' . $name . '),' . $args[1] . ')';
+                        break;
+                    case 'first':
+                        $name = 'current(' . $name . ')';
+                        break;
+                    case 'last':
+                        $name = 'end(' . $name . ')';
+                        break;
+                    case 'upper':
+                        $name = 'strtoupper(' . $name . ')';
+                        break;
+                    case 'lower':
+                        $name = 'strtolower(' . $name . ')';
+                        break;
+                    case 'format':
+                        $name = 'sprintf(' . $args[1] . ',' . $name . ')';
+                        break;
                     case 'default': // 特殊模板函数
                         if (false === strpos($name, '(')) {
                             $name = '(isset(' . $name . ') && (' . $name . ' !== \'\')?' . $name . ':' . $args[1] . ')';
@@ -1044,18 +1069,16 @@ class Template
                         }
                         break;
                     default: // 通用模板函数
-                        if (!in_array($fun, $template_deny_funs)) {
-                            if (isset($args[1])) {
-                                if (strstr($args[1], '###')) {
-                                    $args[1] = str_replace('###', $name, $args[1]);
-                                    $name    = "$fun($args[1])";
-                                } else {
-                                    $name = "$fun($name,$args[1])";
-                                }
+                        if (isset($args[1])) {
+                            if (strstr($args[1], '###')) {
+                                $args[1] = str_replace('###', $name, $args[1]);
+                                $name    = "$fun($args[1])";
                             } else {
-                                if (!empty($args[0])) {
-                                    $name = "$fun($name)";
-                                }
+                                $name = "$fun($name,$args[1])";
+                            }
+                        } else {
+                            if (!empty($args[0])) {
+                                $name = "$fun($name)";
                             }
                         }
                 }

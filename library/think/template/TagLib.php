@@ -312,7 +312,7 @@ class TagLib
     /**
      * 自动识别构建变量
      * @access public
-     * @param string $name 变量描述
+     * @param string    $name       变量描述
      * @return string
      */
     public function autoBuildVar(&$name)
@@ -334,7 +334,7 @@ class TagLib
         }
 
         $this->tpl->parseVar($name);
-        $this->tpl->parseVarFunction($name);
+        $this->tpl->parseVarFunction($name, false);
 
         return $name;
     }
