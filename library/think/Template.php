@@ -865,19 +865,26 @@ class Template
                                     $_name = '';
                                 }
 
+                                if (in_array($first, ['?', '=', ':'])) {
+                                    $str = trim(substr($str, 1));
+                                    if ('$' == substr($str, 0, 1)) {
+                                        $str = $this->parseVarFunction($str);
+                                    }
+                                }
+
                                 // $name为数组
                                 switch ($first) {
                                     case '?':
                                         // {$varname??'xxx'} $varname有定义则输出$varname,否则输出xxx
-                                        $str = '<?php echo isset(' . $name . ')' . $_name . ' ? ' . $this->parseVarFunction($name) . ' : ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php echo isset(' . $name . ')' . $_name . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
                                         break;
                                     case '=':
                                         // {$varname?='xxx'} $varname为真时才输出xxx
-                                        $str = '<?php if(!empty(' . $name . ')' . $_name . ') echo ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php if(!empty(' . $name . ')' . $_name . ') echo ' . $str . '; ?>';
                                         break;
                                     case ':':
                                         // {$varname?:'xxx'} $varname为真时输出$varname,否则输出xxx
-                                        $str = '<?php echo !empty(' . $name . ')' . $_name . '?' . $name . $str . '; ?>';
+                                        $str = '<?php echo !empty(' . $name . ')' . $_name . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
                                         break;
                                     default:
                                         if (strpos($str, ':')) {
@@ -891,7 +898,7 @@ class Template
                                             $str = '<?php echo !empty(' . $name . ')' . $_name . ' ? ' . $str . '; ?>';
 
                                         } else {
-                                            $str = '<?php echo ' . $_name . '?' . $str . '; ?>';
+                                            $str = '<?php echo ' . $_name . ' ? ' . $str . '; ?>';
                                         }
                                 }
                             }
