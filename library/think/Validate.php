@@ -261,7 +261,11 @@ class Validate
     {
         if (is_array($field)) {
             foreach ($field as $key => $rule) {
-                $this->remove($key, $rule);
+                if (is_int($key)) {
+                    $this->remove($rule);
+                } else {
+                    $this->remove($key, $rule);
+                }
             }
         } else {
             if (is_string($rule)) {
