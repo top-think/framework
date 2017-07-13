@@ -1005,8 +1005,8 @@ class Template
      */
     public function parseVarFunction(&$varStr)
     {
-        if (false == strpos($varStr, '|')) {
-            return;
+        if (false === strpos($varStr, '|raw')) {
+            $varStr .= '|htmlentities';
         }
 
         static $_varFunctionList = [];
@@ -1034,6 +1034,8 @@ class Template
                 $fun = trim($args[0]);
 
                 switch ($fun) {
+                    case 'raw':
+                        continue;
                     case 'default': // 特殊模板函数
                         if (false === strpos($name, '(')) {
                             $name = '(isset(' . $name . ') && (' . $name . ' !== \'\')?' . $name . ':' . $args[1] . ')';
