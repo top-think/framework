@@ -847,6 +847,7 @@ class Template
 
                                 switch ($first) {
                                     case '?':
+                                        $this->parseVarFunction($name);
                                         $str = '<?php echo (' . $name . ') ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
                                         break;
                                     case '=':
@@ -867,7 +868,7 @@ class Template
                                 switch ($first) {
                                     case '?':
                                         // {$varname??'xxx'} $varname有定义则输出$varname,否则输出xxx
-                                        $str = '<?php echo isset(' . $name . ')' . $_name . ' ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php echo isset(' . $name . ')' . $_name . ' ? ' . $this->parseVarFunction($name) . ' : ' . substr($str, 1) . '; ?>';
                                         break;
                                     case '=':
                                         // {$varname?='xxx'} $varname为真时才输出xxx
@@ -880,7 +881,14 @@ class Template
                                     default:
                                         if (strpos($str, ':')) {
                                             // {$varname ? 'a' : 'b'} $varname为真时输出a,否则输出b
-                                            $str = '<?php echo !empty(' . $name . ')' . $_name . '?' . $str . '; ?>';
+                                            $array = explode(':', $str, 2);
+
+                                            $array[0] = '$' == substr(trim($array[0]), 0, 1) ? $this->parseVarFunction($array[0]) : $array[0];
+                                            $array[1] = '$' == substr(trim($array[1]), 0, 1) ? $this->parseVarFunction($array[1]) : $array[1];
+
+                                            $str = implode(' : ', $array);
+                                            $str = '<?php echo !empty(' . $name . ')' . $_name . ' ? ' . $str . '; ?>';
+
                                         } else {
                                             $str = '<?php echo ' . $_name . '?' . $str . '; ?>';
                                         }
@@ -1007,7 +1015,7 @@ class Template
     public function parseVarFunction(&$varStr, $autoescape = true)
     {
         if (!$autoescape && false === strpos($varStr, '|')) {
-            return;
+            return $varStr;
         } elseif ($autoescape && false === strpos($varStr, '|raw')) {
             $varStr .= '|htmlentities';
         }
@@ -1087,6 +1095,7 @@ class Template
             $_varFunctionList[$_key] = $name;
             $varStr                  = $name;
         }
+        return $varStr;
     }
 
     /**
