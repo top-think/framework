@@ -1024,7 +1024,7 @@ class Template
     {
         if (!$autoescape && false === strpos($varStr, '|')) {
             return $varStr;
-        } elseif ($autoescape && false === strpos($varStr, '|raw')) {
+        } elseif ($autoescape && !preg_match('/\|(\s)?raw(\||\s)?/i', $varStr)) {
             $varStr .= '|' . $this->config['default_filter'];
         }
 
@@ -1056,7 +1056,7 @@ class Template
                     continue;
                 }
 
-                switch ($fun) {
+                switch (strtolower($fun)) {
                     case 'raw':
                         continue;
                     case 'date':
