@@ -732,6 +732,15 @@ class App implements \ArrayAccess
         return $this->beginMem;
     }
 
+    /**
+     * 获取容器实例
+     * @return Container
+     */
+    public function container()
+    {
+        return $this->container;
+    }
+
     public function __set($name, $value)
     {
         $this->container->bind($name, $value);

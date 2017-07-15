@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -42,7 +42,7 @@ class Collection extends \think\Collection
     {
         return new static($items, $paginator);
     }
-    
+
     public function toArray()
     {
         if ($this->paginator) {
@@ -56,7 +56,7 @@ class Collection extends \think\Collection
                 'total'        => $total,
                 'per_page'     => $this->listRows(),
                 'current_page' => $this->currentPage(),
-                'data'         => parent::toArray()
+                'data'         => parent::toArray(),
             ];
         } else {
             return parent::toArray();
