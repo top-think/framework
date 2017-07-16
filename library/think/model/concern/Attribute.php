@@ -16,7 +16,7 @@ use think\Loader;
 
 trait Attribute
 {
-    // 数据表主键 复合主键使用数组定义 不设置则自动获取
+    // 数据表主键 复合主键使用数组定义
     protected $pk = 'id';
     // 数据表字段信息 留空则自动获取
     protected $field = [];

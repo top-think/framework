@@ -740,20 +740,10 @@ class Route
      */
     public function check($url, $depr = '/', $must = false)
     {
-        $url    = str_replace($depr, '|', $url);
-        $method = strtolower($this->request->method());
+        // 自动检测域名路由
         $host   = $this->request->host();
-        $domain = false;
-
-        if (count($this->domains) > 1) {
-            // 自动检测域名路由
-            $domain = $this->checkDomain($host);
-        }
-
-        if (false === $domain) {
-            // 检测当前完整域名
-            $domain = $this->domains[$host];
-        }
+        $domain = $this->checkDomain($host);
+        $url    = str_replace($depr, '|', $url);
 
         $result = $domain->check($this->request, $url, $depr);
 
@@ -778,7 +768,7 @@ class Route
      * 检测域名的路由规则
      * @access public
      * @param string    $host 当前主机地址
-     * @return Domain|false
+     * @return Domain
      */
     protected function checkDomain($host)
     {
@@ -795,7 +785,7 @@ class Route
         // 子域名配置
         $item = false;
 
-        if (!empty($domain)) {
+        if (!empty($domain) && count($domains) > 1) {
             // 当前子域名
             $subDomain = implode('.', $domain);
             $domain2   = array_pop($domain);
@@ -824,6 +814,11 @@ class Route
                 // 保存当前泛域名
                 $this->request->route(['__domain__' => $panDomain]);
             }
+        }
+
+        if (false === $item) {
+            // 检测当前完整域名
+            $item = $domains[$host];
         }
 
         return $item;

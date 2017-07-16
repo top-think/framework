@@ -32,7 +32,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $updateWhere;
 
     // 数据库配置
-    protected $connection;
+    protected $connection = [];
     // 数据库查询类
     protected $query;
     // 当前模型名称
@@ -70,11 +70,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录原始数据
         $this->origin = $this->data;
 
+        $config = Facade::make('config');
+
         if (empty($this->name)) {
             // 当前模型名
             $name       = str_replace('\\', '/', static::class);
             $this->name = basename($name);
-            if (Facade::make('config')->get('class_suffix')) {
+            if ($config->get('class_suffix')) {
                 $suffix     = basename(dirname($name));
                 $this->name = substr($this->name, 0, -strlen($suffix));
             }
@@ -82,16 +84,26 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
-            $this->autoWriteTimestamp = Facade::make('config')->get('database.auto_timestamp');
+            $this->autoWriteTimestamp = $config->get('database.auto_timestamp');
         }
 
         if (is_null($this->dateFormat)) {
             // 设置时间戳格式
-            $this->dateFormat = Facade::make('config')->get('database.datetime_format');
+            $this->dateFormat = $config->get('database.datetime_format');
         }
 
         if (is_null($this->resultSetType)) {
-            $this->resultSetType = Facade::make('config')->get('database.resultset_type');
+            $this->resultSetType = $config->get('database.resultset_type');
+        }
+
+        if (is_null($this->query)) {
+            // 设置查询对象
+            $this->query = $config->get('database.query');
+        }
+
+        if (!empty($this->connection) && is_array($this->connection)) {
+            // 设置模型的数据库连接
+            $this->connection = array_merge($config->pull('database'), $this->connection);
         }
 
         // 执行初始化操作
@@ -118,21 +130,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function buildQuery()
     {
-        // 合并数据库配置
-        if (!empty($this->connection)) {
-            if (is_array($this->connection)) {
-                $connection = array_merge(Facade::make('config')->pull('database'), $this->connection);
-            } else {
-                $connection = $this->connection;
-            }
-        } else {
-            $connection = [];
-        }
-
         // 设置当前模型 确保查询返回模型对象
-        $class = $this->query ?: Facade::make('config')->get('database.query');
+        $class = $this->query;
         $query = new $class();
-        $query->connect($connection)->model($this);
+        $query->connect($this->connection)->model($this);
 
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
@@ -449,6 +450,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $where = $this->getWhere();
 
         $result = $this->db(false)->where($where)->setInc($field, $step, $lazyTime);
+
         if (true !== $result) {
             $this->data[$field] += $step;
         }
@@ -471,6 +473,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $where = $this->getWhere();
 
         $result = $this->db(false)->where($where)->setDec($field, $step, $lazyTime);
+
         if (true !== $result) {
             $this->data[$field] -= $step;
         }
