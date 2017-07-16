@@ -87,6 +87,7 @@ class Cookie
             } elseif (is_string($option)) {
                 parse_str($option, $option);
             }
+
             $config = array_merge($this->config, array_change_key_case($option));
         } else {
             $config = $this->config;
@@ -169,6 +170,7 @@ class Cookie
             }
         } elseif (isset($_COOKIE[$key])) {
             $value = $_COOKIE[$key];
+
             if (0 === strpos($value, 'think:')) {
                 $value = substr($value, 6);
                 $value = json_decode($value, true);

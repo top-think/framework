@@ -40,6 +40,7 @@ class Cache
     public function connect(array $options = [], $name = false)
     {
         $type = !empty($options['type']) ? $options['type'] : 'File';
+
         if (false === $name) {
             $name = md5(serialize($options));
         }
@@ -49,11 +50,12 @@ class Cache
 
             // 记录初始化信息
             $this->app->log('[ CACHE ] INIT ' . $type);
+
             if (true === $name) {
-                return new $class($options);
-            } else {
-                $this->instance[$name] = new $class($options);
+                $name = md5(serialize($options));
             }
+
+            $this->instance[$name] = new $class($options);
         }
 
         return $this->instance[$name];
