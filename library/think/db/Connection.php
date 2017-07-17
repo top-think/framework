@@ -91,8 +91,6 @@ abstract class Connection
         'slave_no'        => '',
         // 是否严格检查字段是否存在
         'fields_strict'   => true,
-        // 数据返回类型
-        'result_type'     => PDO::FETCH_ASSOC,
         // 数据集返回类型
         'resultset_type'  => '',
         // 自动写入时间戳字段
@@ -466,11 +464,6 @@ abstract class Connection
             // 记录当前字段属性大小写设置
             $this->attrCase = $params[PDO::ATTR_CASE];
 
-            // 数据返回类型
-            if (isset($config['result_type'])) {
-                $this->fetchType = $config['result_type'];
-            }
-
             try {
                 if (empty($config['dsn'])) {
                     $config['dsn'] = $this->parseDsn($config);
@@ -529,7 +522,7 @@ abstract class Connection
      * @param array     $bind 参数绑定
      * @param bool      $master 是否在主服务器读操作
      * @param bool      $pdo 是否返回PDO对象
-     * @return mixed
+     * @return array
      * @throws BindParamException
      * @throws PDOException
      */
@@ -669,8 +662,8 @@ abstract class Connection
     /**
      * 查找单条记录
      * @access public
-     * @param Query                         $query        查询对象
-     * @return array|null|\PDOStatement|string|Model
+     * @param Query  $query        查询对象
+     * @return array|null|\PDOStatement|string
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -754,8 +747,8 @@ abstract class Connection
     /**
      * 查找记录
      * @access public
-     * @param Query                         $query        查询对象
-     * @return Collection|false|\PDOStatement|string
+     * @param Query   $query        查询对象
+     * @return array|\PDOStatement|string
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException

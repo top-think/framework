@@ -2198,7 +2198,7 @@ class Query
      * 查找记录
      * @access public
      * @param array|string|Query|\Closure $data
-     * @return Collection|false|\PDOStatement|string
+     * @return Collection|array|\PDOStatement|string
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
