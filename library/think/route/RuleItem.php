@@ -101,9 +101,10 @@ class RuleItem extends Rule
      * @param Request      $request  请求对象
      * @param string       $url      访问地址
      * @param string       $depr     路径分隔符
+     * @param bool         $completeMatch   路由是否完全匹配
      * @return Dispatch
      */
-    public function check($request, $url, $depr = '/')
+    public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
@@ -115,21 +116,19 @@ class RuleItem extends Rule
             $url = preg_replace('/\.' . $request->ext() . '$/i', '', $url);
         }
 
-        return $this->checkRule($request, $url, $depr);
+        return $this->checkRule($request, $url, $depr, $completeMatch);
     }
 
     /**
      * 检测路由规则
      * @access private
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
+     * @param Request   $request 请求对象
      * @param string    $url URL地址
-     * @param array     $pattern 变量规则
-     * @param array     $option 路由参数
      * @param string    $depr URL分隔符（全局）
+     * @param bool      $completeMatch   路由是否完全匹配
      * @return array|false
      */
-    private function checkRule($request, $url, $depr)
+    private function checkRule($request, $url, $depr, $completeMatch = false)
     {
         // 检查完整规则定义
         if (isset($this->pattern['__url__']) && !preg_match(0 === strpos($this->pattern['__url__'], '/') ? $this->pattern['__url__'] : '/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
@@ -152,12 +151,14 @@ class RuleItem extends Rule
             $url = implode('|', explode($depr, $url, $len2 + 1));
         }
 
+        if (isset($this->option['complete_match'])) {
+            $completeMatch = $this->option['complete_match'];
+        }
+
         if ($len1 >= $len2 || strpos($this->name, '[')) {
-            if (!empty($this->option['complete_match'])) {
-                // 完整匹配
-                if (!$merge && $len1 != $len2 && (false === strpos($this->name, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->name, '['))) {
-                    return false;
-                }
+            // 完整匹配
+            if ($completeMatch && (!$merge && $len1 != $len2 && (false === strpos($this->name, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->name, '[')))) {
+                return false;
             }
 
             $pattern = array_merge($this->group->getPattern(), $this->pattern);

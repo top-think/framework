@@ -304,6 +304,17 @@ abstract class Rule
     }
 
     /**
+     * 设置路由完整匹配
+     * @access public
+     * @param bool     $match
+     * @return $this
+     */
+    public function completeMatch($match = true)
+    {
+        return $this->option('complete_match', $match);
+    }
+
+    /**
      * 设置路由规则全局有效
      * @access public
      * @return $this

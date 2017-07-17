@@ -392,7 +392,7 @@ class App implements \ArrayAccess
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
 
         // 路由检测（根据路由定义返回不同的URL调度）
-        return $this->route->check($path, $depr, $must);
+        return $this->route->check($path, $depr, $must, $this->config('app.route_complete_match'));
     }
 
     /**

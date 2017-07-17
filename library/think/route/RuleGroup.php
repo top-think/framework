@@ -57,9 +57,10 @@ class RuleGroup extends Rule
      * @param Request      $request  请求对象
      * @param string       $url      访问地址
      * @param string       $depr     路径分隔符
+     * @param bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/')
+    public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
@@ -73,7 +74,7 @@ class RuleGroup extends Rule
         if (isset($rules[$url])) {
             // 快速定位
             $item   = $rules[$url];
-            $result = $item->check($request, $url, $depr);
+            $result = $item->check($request, $url, $depr, $completeMatch);
 
             if (false !== $result) {
                 return $result;
@@ -82,7 +83,7 @@ class RuleGroup extends Rule
 
         // 遍历分组路由
         foreach ($rules as $key => $item) {
-            $result = $item->check($request, $url, $depr);
+            $result = $item->check($request, $url, $depr, $completeMatch);
 
             if (false !== $result) {
                 return $result;

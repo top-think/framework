@@ -25,9 +25,10 @@ class Domain extends RuleGroup
      * @param Request      $request  请求对象
      * @param string       $url      访问地址
      * @param string       $depr     路径分隔符
+     * @param bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/')
+    public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         // 检测别名路由
         if ($this->router->getAlias($url) || $this->router->getAlias(strstr($url, '|', true))) {
@@ -45,7 +46,7 @@ class Domain extends RuleGroup
             return $result;
         }
 
-        return parent::check($request, $url, $depr);
+        return parent::check($request, $url, $depr, $completeMatch);
     }
 
     /**
