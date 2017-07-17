@@ -1820,6 +1820,26 @@ class Query
     }
 
     /**
+     * 查询日期或者时间范围
+     * @access public
+     * @param string    $field 日期字段名
+     * @param string    $startTime    开始时间
+     * @param string    $endTime 结束时间
+     * @return $this
+     */
+    public function whereBetweenTime($field, $startTime, $endTime = null)
+    {
+        if (is_null($endTime)) {
+            $time    = is_string($startTime) ? strtotime($startTime) : $startTime;
+            $endTime = strtotime('+1 day', $time);
+        }
+
+        $this->where($field, 'between time', [$startTime, $endTime]);
+
+        return $this;
+    }
+
+    /**
      * 获取当前数据表的主键
      * @access public
      * @param string|array $options 数据表名或者查询参数
