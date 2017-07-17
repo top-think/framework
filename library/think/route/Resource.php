@@ -53,14 +53,15 @@ class Resource extends RuleGroup
      * @param Request      $request  请求对象
      * @param string       $url      访问地址
      * @param string       $depr     路径分隔符
+     * @param bool         $completeMatch   路由是否完全匹配
      * @return Dispatch
      */
-    public function check($request, $url, $depr = '/')
+    public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         // 生成资源路由的路由规则
         $this->buildResourceRule($this->rule, $this->option);
 
-        return parent::check($request, $url, $depr);
+        return parent::check($request, $url, $depr, $completeMatch);
     }
 
     /**
