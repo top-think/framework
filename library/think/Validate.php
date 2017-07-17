@@ -38,6 +38,7 @@ class Validate
     protected static $typeMsg = [
         'require'     => ':attribute不能为空',
         'number'      => ':attribute必须是数字',
+        'integer'     => ':attribute必须是整数',
         'float'       => ':attribute必须是浮点数',
         'boolean'     => ':attribute必须是布尔值',
         'email'       => ':attribute格式不符',
