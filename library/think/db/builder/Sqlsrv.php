@@ -22,6 +22,8 @@ class Sqlsrv extends Builder
     protected $selectInsertSql = 'SELECT %DISTINCT% %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%';
     protected $updateSql       = 'UPDATE %TABLE% SET %SET% FROM %TABLE% %JOIN% %WHERE% %LIMIT% %LOCK%%COMMENT%';
     protected $deleteSql       = 'DELETE FROM %TABLE%  %USING% FROM %TABLE%  %JOIN% %WHERE% %LIMIT% %LOCK%%COMMENT%';
+    protected $insertSql       = 'INSERT INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
+    protected $insertAllSql    = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
 
     /**
      * order分析

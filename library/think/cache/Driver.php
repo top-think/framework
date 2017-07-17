@@ -170,8 +170,9 @@ abstract class Driver
             $key       = 'tag_' . md5($this->tag);
             $this->tag = null;
             if ($this->has($key)) {
-                $value = $this->get($key);
-                $value .= ',' . $name;
+                $value   = explode(',', $this->get($key));
+                $value[] = $name;
+                $value   = implode(',', array_unique($value));
             } else {
                 $value = $name;
             }

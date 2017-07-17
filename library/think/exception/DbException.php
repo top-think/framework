@@ -36,6 +36,7 @@ class DbException extends Exception
             'Error SQL'     => $sql,
         ]);
 
+        unset($config['username'], $config['password']);
         $this->setData('Database Config', $config);
     }
 

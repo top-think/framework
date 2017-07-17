@@ -1215,6 +1215,8 @@ class Request
             return true;
         } elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']) {
             return true;
+        } elseif (Config::get('https_agent_name') && isset($server[Config::get('https_agent_name')])) {
+            return true;
         }
         return false;
     }
@@ -1542,7 +1544,7 @@ class Request
                 $key = call_user_func_array($key, [$this]);
             } elseif (true === $key) {
                 foreach ($except as $rule) {
-                    if (0 === strpos($this->url(), $rule)) {
+                    if (0 === stripos($this->url(), $rule)) {
                         return;
                     }
                 }

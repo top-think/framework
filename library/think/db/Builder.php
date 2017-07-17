@@ -22,7 +22,7 @@ abstract class Builder
     protected $query;
 
     // 数据库表达式
-    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', '>= time' => '>= TIME', '<= time' => '<= TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
+    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'not like' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', '>= time' => '>= TIME', '<= time' => '<= TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
 
     // SQL表达式
     protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
@@ -199,7 +199,7 @@ abstract class Builder
                     $key = strstr($key, '@think', true);
                 }
                 $key    = $this->parseSqlTable($key);
-                $item[] = $this->parseKey($key) . ' ' . $this->parseKey($table);
+                $item[] = $this->parseKey($key) . ' ' . (isset($options['alias'][$table]) ? $this->parseKey($options['alias'][$table]) : $this->parseKey($table));
             } else {
                 $table = $this->parseSqlTable($table);
                 if (isset($options['alias'][$table])) {
@@ -380,11 +380,13 @@ abstract class Builder
                 if (array_key_exists($field, $binds)) {
                     $bind  = [];
                     $array = [];
-                    foreach ($value as $k => $v) {
-                        if ($this->query->isBind($bindName . '_in_' . $k)) {
-                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $k;
+                    $i     = 0;
+                    foreach ($value as $v) {
+                        $i++;
+                        if ($this->query->isBind($bindName . '_in_' . $i)) {
+                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $i;
                         } else {
-                            $bindKey = $bindName . '_in_' . $k;
+                            $bindKey = $bindName . '_in_' . $i;
                         }
                         $bind[$bindKey] = [$v, $bindType];
                         $array[]        = ':' . $bindKey;
@@ -722,7 +724,7 @@ abstract class Builder
      * @param bool      $replace 是否replace
      * @return string
      */
-    public function insertAll($dataSet, $options, $replace = false)
+    public function insertAll($dataSet, $options = [], $replace = false)
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
