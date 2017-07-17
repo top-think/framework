@@ -735,21 +735,22 @@ class Route
      * @param string    $url URL地址
      * @param string    $depr URL分隔符
      * @param bool      $must 是否强制路由
+     * @param bool      $completeMatch   路由是否完全匹配
      * @return Dispatch
      * @throws RouteNotFoundException
      */
-    public function check($url, $depr = '/', $must = false)
+    public function check($url, $depr = '/', $must = false, $completeMatch = false)
     {
         // 自动检测域名路由
         $host   = $this->request->host();
         $domain = $this->checkDomain($host);
         $url    = str_replace($depr, '|', $url);
 
-        $result = $domain->check($this->request, $url, $depr);
+        $result = $domain->check($this->request, $url, $depr, $completeMatch);
 
         if (false === $result && !empty($this->cross)) {
             // 检测跨越路由
-            $result = $this->cross->check($this->request, $url, $depr);
+            $result = $this->cross->check($this->request, $url, $depr, $completeMatch);
         }
 
         if (false !== $result) {
