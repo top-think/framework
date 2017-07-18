@@ -64,14 +64,8 @@ class RuleGroup extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
-        if ($this->parent) {
-            $option = array_merge($this->parent->getOption(), $this->option);
-        } else {
-            $option = $this->option;
-        }
-
         // 检查参数有效性
-        if (!$this->checkOption($option, $request)) {
+        if (!$this->checkOption($this->option, $request)) {
             return false;
         }
 
@@ -100,11 +94,13 @@ class RuleGroup extends Rule
         $method = strtolower($request->method());
         $rules  = array_merge($this->rules['*'], $this->rules[$method]);
 
+        if ($this->parent) {
+            $this->option = array_merge($this->parent->getOption(), $this->option);
+        }
+
         if (isset($this->option['complete_match'])) {
             $completeMatch = $this->option['complete_match'];
         }
-
-        $this->option = $option;
 
         if (isset($rules[$url])) {
             // 快速定位
