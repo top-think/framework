@@ -11,6 +11,8 @@
 
 namespace think\response;
 
+use think\Collection;
+use think\Model;
 use think\Response;
 
 class Xml extends Response
@@ -81,6 +83,11 @@ class Xml extends Response
     protected function dataToXml($data, $item, $id)
     {
         $xml = $attr = '';
+
+        if ($data instanceof Collection || $data instanceof Model) {
+            $data = $data->toArray();
+        }
+
         foreach ($data as $key => $val) {
             if (is_numeric($key)) {
                 $id && $attr = " {$id}=\"{$key}\"";
