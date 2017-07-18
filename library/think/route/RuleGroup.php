@@ -71,6 +71,10 @@ class RuleGroup extends Rule
         $method = strtolower($request->method());
         $rules  = array_merge($this->rules['*'], $this->rules[$method]);
 
+        if (isset($this->option['complete_match'])) {
+            $completeMatch = $this->option['complete_match'];
+        }
+
         if (isset($rules[$url])) {
             // 快速定位
             $item   = $rules[$url];
