@@ -12,7 +12,7 @@
 namespace think;
 
 use think\exception\ClassNotFoundException;
-use think\model\Collection;
+use think\model\Collection as ModelCollection;
 use think\response\Redirect;
 
 class Debug
@@ -182,7 +182,7 @@ class Debug
     public function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
-        if ($var instanceof Model || $var instanceof Collection) {
+        if ($var instanceof Model || $var instanceof ModelCollection) {
             $var = $var->toArray();
         }
 
@@ -201,7 +201,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         } else {
             return $output;
