@@ -27,6 +27,8 @@ abstract class Rule
     protected $name;
     // 路由对象实例
     protected $router;
+    // 路由父对象
+    protected $parent;
     // 路由参数
     protected $option = [];
     // 路由变量规则
@@ -473,7 +475,7 @@ abstract class Rule
         }
 
         // 开启请求缓存
-        if ($request->isGet() && isset($option['cache'])) {
+        if (isset($option['cache']) && $request->isGet()) {
             $this->parseRequestCache($request, $option['cache']);
         }
 

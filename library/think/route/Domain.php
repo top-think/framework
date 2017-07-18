@@ -13,12 +13,29 @@ namespace think\route;
 
 use think\Facade;
 use think\Loader;
+use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
 use think\route\dispatch\Module as ModuleDispatch;
 
 class Domain extends RuleGroup
 {
+    /**
+     * 架构函数
+     * @access public
+     * @param Route       $router   路由对象
+     * @param string      $name     分组名称
+     * @param array       $option   路由参数
+     * @param array       $pattern  变量规则
+     */
+    public function __construct(Route $router, $name = '', $option = [], $pattern = [])
+    {
+        $this->router  = $router;
+        $this->name    = trim($name, '/');
+        $this->option  = $option;
+        $this->pattern = $pattern;
+    }
+
     /**
      * 检测域名路由
      * @access public

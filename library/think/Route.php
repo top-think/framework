@@ -459,8 +459,7 @@ class Route
         $parentGroup = $this->group;
 
         // 创建分组实例
-        $option = array_merge($this->group->getOption(), $option);
-        $group  = new RuleGroup($this, $name, $option, $pattern);
+        $group = new RuleGroup($this, $this->group, $name, $option, $pattern);
 
         // 注册子分组
         $parentGroup->addRule($group);
@@ -580,7 +579,7 @@ class Route
      */
     public function resource($rule, $route = '', $option = [], $pattern = [])
     {
-        $resource = new Resource($this, $rule, $route, $option, $pattern, $this->rest);
+        $resource = new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest);
 
         // 添加到当前分组
         $this->group->addRule($resource);

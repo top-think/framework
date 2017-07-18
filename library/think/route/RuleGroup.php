@@ -39,13 +39,15 @@ class RuleGroup extends Rule
      * 架构函数
      * @access public
      * @param Route       $router   路由对象
+     * @param RuleGroup   $group    路由所属分组对象
      * @param string      $name     分组名称
      * @param array       $option   路由参数
      * @param array       $pattern  变量规则
      */
-    public function __construct(Route $router, $name = '', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $group = null, $name = '', $option = [], $pattern = [])
     {
         $this->router  = $router;
+        $this->parent  = $group;
         $this->name    = trim($name, '/');
         $this->option  = $option;
         $this->pattern = $pattern;
@@ -62,9 +64,36 @@ class RuleGroup extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
+        if ($this->parent) {
+            $option = array_merge($this->parent->getOption(), $this->option);
+        } else {
+            $option = $this->option;
+        }
+
         // 检查参数有效性
-        if (!$this->checkOption($this->option, $request)) {
+        if (!$this->checkOption($option, $request)) {
             return false;
+        }
+
+        // 分组匹配后执行的行为
+
+        // 指定Response响应数据
+        if (!empty($this->option['response'])) {
+            Facade::make('hook')->add('response_send', $this->option['response']);
+        }
+
+        // 开启请求缓存
+        if (isset($this->option['cache']) && $request->isGet()) {
+            $this->parseRequestCache($request, $this->option['cache']);
+        }
+
+        // 检测路由after行为
+        if (!empty($this->option['after'])) {
+            $dispatch = $this->checkAfter($this->option['after']);
+
+            if (false !== $dispatch) {
+                return $dispatch;
+            }
         }
 
         // 获取当前路由规则
@@ -74,6 +103,8 @@ class RuleGroup extends Rule
         if (isset($this->option['complete_match'])) {
             $completeMatch = $this->option['complete_match'];
         }
+
+        $this->option = $option;
 
         if (isset($rules[$url])) {
             // 快速定位
