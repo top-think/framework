@@ -25,7 +25,8 @@ class Validate
 
     // 当前验证的规则
     protected $rule = [];
-
+    // 验证规则
+    protected $item = [];
     // 验证提示信息
     protected $message = [];
     // 验证字段描述
@@ -139,15 +140,30 @@ class Validate
     public function rule($name, $rule = '')
     {
         if (is_array($name)) {
-            $this->rule = array_merge($this->rule, $name);
+            foreach ($name as $key => $val) {
+                $this->rule($key, $val);
+            }
+
             if (is_array($rule)) {
                 $this->field = array_merge($this->field, $rule);
             }
+        } elseif ($rule instanceof Validate) {
+            $this->rule[$name] = $rule->getItem();
         } else {
             $this->rule[$name] = $rule;
         }
 
         return $this;
+    }
+
+    /**
+     * 获取验证因子
+     * @access public
+     * @return array
+     */
+    public function getItem()
+    {
+        return $this->item;
     }
 
     /**
@@ -442,7 +458,7 @@ class Validate
                     // 验证类型
                     $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                     // 验证数据
-                    $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
+                    $result = call_user_func_array($callback, [$rule, $value, $data, $field, $title]);
                 } else {
                     $result = true;
                 }
@@ -475,14 +491,18 @@ class Validate
     /**
      * 验证是否和某个字段的值一致
      * @access public
-     * @param mixed     $value 字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value 字段值
      * @param array     $data  数据
      * @param string    $field 字段名
      * @return bool
      */
-    public function confirm($value, $rule, $data = [], $field = '')
+    public function confirm($rule = '', $value = null, $data = [], $field = '')
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if ('' == $rule) {
             if (strpos($field, '_confirm')) {
                 $rule = strstr($field, '_confirm', true);
@@ -497,90 +517,120 @@ class Validate
     /**
      * 验证是否和某个字段的值是否不同
      * @access public
-     * @param mixed $value 字段值
      * @param mixed $rule  验证规则
+     * @param mixed $value 字段值
      * @param array $data  数据
      * @return bool
      */
-    public function different($value, $rule, $data = [])
+    public function different($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return $this->getDataValue($data, $rule) != $value;
     }
 
     /**
      * 验证是否大于等于某个值
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value 字段值
      * @param array     $data  数据
      * @return bool
      */
-    public function egt($value, $rule, $data = [])
+    public function egt($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return $value >= $this->getDataValue($data, $rule);
     }
 
     /**
      * 验证是否大于某个值
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value 字段值
      * @param array     $data  数据
      * @return bool
      */
-    public function gt($value, $rule, $data)
+    public function gt($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return $value > $this->getDataValue($data, $rule);
     }
 
     /**
      * 验证是否小于等于某个值
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value 字段值
      * @param array     $data  数据
      * @return bool
      */
-    public function elt($value, $rule, $data = [])
+    public function elt($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return $value <= $this->getDataValue($data, $rule);
     }
 
     /**
      * 验证是否小于某个值
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value 字段值
      * @param array     $data  数据
      * @return bool
      */
-    public function lt($value, $rule, $data = [])
+    public function lt($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return $value < $this->getDataValue($data, $rule);
     }
 
     /**
      * 验证是否等于某个值
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value 字段值
      * @return bool
      */
-    public function eq($value, $rule)
+    public function eq($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return $value == $rule;
     }
 
     /**
      * 验证字段值是否为有效格式
      * @access public
-     * @param mixed     $value  字段值
      * @param string    $rule  验证规则
+     * @param mixed     $value 字段值
      * @param array     $data  验证数据
      * @return bool
      */
-    public function is($value, $rule, $data = [])
+    public function is($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            // 设置验证规则
+            $this->item[] = $rule;
+            return $this;
+        }
+
         switch ($rule) {
             case 'require':
                 // 必须
@@ -596,35 +646,35 @@ class Validate
                 break;
             case 'alpha':
                 // 只允许字母
-                $result = $this->regex($value, '/^[A-Za-z]+$/');
+                $result = $this->regex('/^[A-Za-z]+$/', $value);
                 break;
             case 'alphaNum':
                 // 只允许字母和数字
-                $result = $this->regex($value, '/^[A-Za-z0-9]+$/');
+                $result = $this->regex('/^[A-Za-z0-9]+$/', $value);
                 break;
             case 'alphaDash':
                 // 只允许字母、数字和下划线 破折号
-                $result = $this->regex($value, '/^[A-Za-z0-9\-\_]+$/');
+                $result = $this->regex('/^[A-Za-z0-9\-\_]+$/', $value);
                 break;
             case 'chs':
                 // 只允许汉字
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}]+$/u');
+                $result = $this->regex('/^[\x{4e00}-\x{9fa5}]+$/u', $value);
                 break;
             case 'chsAlpha':
                 // 只允许汉字、字母
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u');
+                $result = $this->regex('/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u', $value);
                 break;
             case 'chsAlphaNum':
                 // 只允许汉字、字母和数字
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u');
+                $result = $this->regex('/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u', $value);
                 break;
             case 'chsDash':
                 // 只允许汉字、字母、数字和下划线_及破折号-
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u');
+                $result = $this->regex('/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u', $value);
                 break;
             case 'mobile':
                 // 国内手机号码
-                $result = $this->regex($value, '/^1[3|4|5|7|8][0-9]\d{8}$/');
+                $result = $this->regex('/^1[3|4|5|7|8][0-9]\d{8}$/', $value);
                 break;
             case 'activeUrl':
                 // 是否为有效的网址
@@ -632,26 +682,26 @@ class Validate
                 break;
             case 'ip':
                 // 是否为IP地址
-                $result = $this->filter($value, [FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6]);
+                $result = $this->filter([FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6], $value);
                 break;
             case 'url':
                 // 是否为一个URL地址
-                $result = $this->filter($value, FILTER_VALIDATE_URL);
+                $result = $this->filter(FILTER_VALIDATE_URL, $value);
                 break;
             case 'float':
                 // 是否为float
-                $result = $this->filter($value, FILTER_VALIDATE_FLOAT);
+                $result = $this->filter(FILTER_VALIDATE_FLOAT, $value);
                 break;
             case 'number':
                 $result = is_numeric($value);
                 break;
             case 'integer':
                 // 是否为整型
-                $result = $this->filter($value, FILTER_VALIDATE_INT);
+                $result = $this->filter(FILTER_VALIDATE_INT, $value);
                 break;
             case 'email':
                 // 是否为邮箱地址
-                $result = $this->filter($value, FILTER_VALIDATE_EMAIL);
+                $result = $this->filter(FILTER_VALIDATE_EMAIL, $value);
                 break;
             case 'boolean':
                 // 是否为布尔值
@@ -668,7 +718,7 @@ class Validate
                 $result = $value instanceof File && in_array($this->getImageType($value->getRealPath()), [1, 2, 3, 6]);
                 break;
             case 'token':
-                $result = $this->token($value, '__token__', $data);
+                $result = $this->token('__token__', $value, $data);
                 break;
             default:
                 if (isset(self::$type[$rule])) {
@@ -676,7 +726,7 @@ class Validate
                     $result = call_user_func_array(self::$type[$rule], [$value]);
                 } else {
                     // 正则验证
-                    $result = $this->regex($value, $rule);
+                    $result = $this->regex($rule, $value);
                 }
         }
 
@@ -697,12 +747,16 @@ class Validate
     /**
      * 验证是否为合格的域名或者IP 支持A，MX，NS，SOA，PTR，CNAME，AAAA，A6， SRV，NAPTR，TXT 或者 ANY类型
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value 字段值
      * @return bool
      */
-    public function activeUrl($value, $rule = 'MX')
+    public function activeUrl($rule = 'MX', $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (!in_array($rule, ['A', 'MX', 'NS', 'SOA', 'PTR', 'CNAME', 'AAAA', 'A6', 'SRV', 'NAPTR', 'TXT', 'ANY'])) {
             $rule = 'MX';
         }
@@ -713,28 +767,37 @@ class Validate
     /**
      * 验证是否有效IP
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则 ipv4 ipv6
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function ip($value, $rule = 'ipv4')
+    public function ip($rule = 'ipv4', $value = null)
     {
+
         if (!in_array($rule, ['ipv4', 'ipv6'])) {
             $rule = 'ipv4';
         }
 
-        return $this->filter($value, [FILTER_VALIDATE_IP, 'ipv6' == $rule ? FILTER_FLAG_IPV6 : FILTER_FLAG_IPV4]);
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
+        return $this->filter([FILTER_VALIDATE_IP, 'ipv6' == $rule ? FILTER_FLAG_IPV6 : FILTER_FLAG_IPV4], $value);
     }
 
     /**
      * 验证上传文件后缀
      * @access public
-     * @param mixed     $file  上传文件
      * @param mixed     $rule  验证规则
+     * @param mixed     $file  上传文件
      * @return bool
      */
-    public function fileExt($file, $rule)
+    public function fileExt($rule, $file = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (!($file instanceof File)) {
             return false;
         }
@@ -758,12 +821,16 @@ class Validate
     /**
      * 验证上传文件类型
      * @access public
-     * @param mixed     $file  上传文件
      * @param mixed     $rule  验证规则
+     * @param mixed     $file  上传文件
      * @return bool
      */
-    public function fileMime($file, $rule)
+    public function fileMime($rule, $file = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (!($file instanceof File)) {
             return false;
         }
@@ -787,12 +854,16 @@ class Validate
     /**
      * 验证上传文件大小
      * @access public
-     * @param mixed     $file  上传文件
      * @param mixed     $rule  验证规则
+     * @param mixed     $file  上传文件
      * @return bool
      */
-    public function fileSize($file, $rule)
+    public function fileSize($rule, $file = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (!($file instanceof File)) {
             return false;
         }
@@ -812,12 +883,16 @@ class Validate
     /**
      * 验证图片的宽高及类型
      * @access public
-     * @param mixed     $file  上传文件
      * @param mixed     $rule  验证规则
+     * @param mixed     $file  上传文件
      * @return bool
      */
-    public function image($file, $rule)
+    public function image($rule, $file = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (!($file instanceof File)) {
             return false;
         }
@@ -850,12 +925,16 @@ class Validate
     /**
      * 验证请求类型
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function method($value, $rule)
+    public function method($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         $method = Facade::make('request')->method();
         return strtoupper($rule) == $method;
     }
@@ -863,27 +942,35 @@ class Validate
     /**
      * 验证时间和日期是否符合指定格式
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function dateFormat($value, $rule)
+    public function dateFormat($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         $info = date_parse_from_format($rule, $value);
         return 0 == $info['warning_count'] && 0 == $info['error_count'];
     }
 
     /**
      * 验证是否唯一
-     * @access protected
-     * @param mixed     $value  字段值
+     * @access public
      * @param mixed     $rule  验证规则 格式：数据表,字段名,排除ID,主键名
+     * @param mixed     $value  字段值
      * @param array     $data  数据
      * @param string    $field  验证字段名
      * @return bool
      */
-    protected function unique($value, $rule, $data, $field)
+    public function unique($rule, $value = null, $data = [], $field = '')
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
@@ -929,26 +1016,34 @@ class Validate
 
     /**
      * 使用行为类验证
-     * @access protected
-     * @param mixed     $value  字段值
+     * @access public
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @param array     $data  数据
      * @return mixed
      */
-    protected function behavior($value, $rule, $data)
+    public function behavior($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return Facade::make('hook')->exec($rule, $data);
     }
 
     /**
      * 使用filter_var方式验证
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function filter($value, $rule)
+    public function filter($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_string($rule) && strpos($rule, ',')) {
             list($rule, $param) = explode(',', $rule);
         } elseif (is_array($rule)) {
@@ -963,14 +1058,18 @@ class Validate
 
     /**
      * 验证某个字段等于某个值的时候必须
-     * @access protected
-     * @param mixed     $value  字段值
+     * @access public
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @param array     $data  数据
      * @return bool
      */
-    protected function requireIf($value, $rule, $data)
+    public function requireIf($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         list($field, $val) = explode(',', $rule);
 
         if ($this->getDataValue($data, $field) == $val) {
@@ -982,14 +1081,18 @@ class Validate
 
     /**
      * 通过回调方法验证某个字段是否必须
-     * @access protected
-     * @param mixed     $value  字段值
+     * @access public
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @param array     $data  数据
      * @return bool
      */
-    protected function requireCallback($value, $rule, $data)
+    public function requireCallback($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         $result = call_user_func_array($rule, [$value, $data]);
 
         if ($result) {
@@ -1001,14 +1104,18 @@ class Validate
 
     /**
      * 验证某个字段有值的情况下必须
-     * @access protected
-     * @param mixed     $value  字段值
+     * @access public
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @param array     $data  数据
      * @return bool
      */
-    protected function requireWith($value, $rule, $data)
+    public function requireWith($rule, $value = null, $data = [])
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         $val = $this->getDataValue($data, $rule);
 
         if (!empty($val)) {
@@ -1021,36 +1128,48 @@ class Validate
     /**
      * 验证是否在范围内
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function in($value, $rule)
+    public function in($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return in_array($value, is_array($rule) ? $rule : explode(',', $rule));
     }
 
     /**
      * 验证是否不在某个范围
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function notIn($value, $rule)
+    public function notIn($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return !in_array($value, is_array($rule) ? $rule : explode(',', $rule));
     }
 
     /**
      * between验证数据
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function between($value, $rule)
+    public function between($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
@@ -1062,12 +1181,16 @@ class Validate
     /**
      * 使用notbetween验证数据
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function notBetween($value, $rule)
+    public function notBetween($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
@@ -1079,12 +1202,16 @@ class Validate
     /**
      * 验证数据长度
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function length($value, $rule)
+    public function length($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_array($value)) {
             $length = count($value);
         } elseif ($value instanceof File) {
@@ -1106,12 +1233,16 @@ class Validate
     /**
      * 验证数据最大长度
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function max($value, $rule)
+    public function max($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_array($value)) {
             $length = count($value);
         } elseif ($value instanceof File) {
@@ -1126,12 +1257,16 @@ class Validate
     /**
      * 验证数据最小长度
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function min($value, $rule)
+    public function min($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_array($value)) {
             $length = count($value);
         } elseif ($value instanceof File) {
@@ -1146,36 +1281,48 @@ class Validate
     /**
      * 验证日期
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function after($value, $rule)
+    public function after($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return strtotime($value) >= strtotime($rule);
     }
 
     /**
      * 验证日期
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function before($value, $rule)
+    public function before($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return strtotime($value) <= strtotime($rule);
     }
 
     /**
      * 验证有效期
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @return bool
      */
-    public function expire($value, $rule)
+    public function expire($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
@@ -1196,36 +1343,48 @@ class Validate
     /**
      * 验证IP许可
      * @access public
-     * @param string    $value  字段值
      * @param mixed     $rule  验证规则
+     * @param string    $value  字段值
      * @return mixed
      */
-    public function allowIp($value, $rule)
+    public function allowIp($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return in_array($_SERVER['REMOTE_ADDR'], is_array($rule) ? $rule : explode(',', $rule));
     }
 
     /**
      * 验证IP禁用
      * @access public
-     * @param string    $value  字段值
      * @param mixed     $rule  验证规则
+     * @param string    $value  字段值
      * @return mixed
      */
-    public function denyIp($value, $rule)
+    public function denyIp($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         return !in_array($_SERVER['REMOTE_ADDR'], is_array($rule) ? $rule : explode(',', $rule));
     }
 
     /**
      * 使用正则验证数据
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则 正则规则或者预定义正则名
+     * @param mixed     $value  字段值
      * @return mixed
      */
-    public function regex($value, $rule)
+    public function regex($rule, $value = null)
     {
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         if (isset($this->regex[$rule])) {
             $rule = $this->regex[$rule];
         }
@@ -1241,14 +1400,17 @@ class Validate
     /**
      * 验证表单令牌
      * @access public
-     * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param mixed     $value  字段值
      * @param array     $data  数据
      * @return bool
      */
-    public function token($value, $rule, $data)
+    public function token($rule = '__token__', $value = null, $data = [])
     {
-        $rule    = !empty($rule) ? $rule : '__token__';
+        if (is_null($value)) {
+            return $this->addValidateItem(__FUNCTION__, $rule);
+        }
+
         $session = Facade::make('session');
 
         if (!isset($data[$rule]) || !$session->has($rule)) {
@@ -1338,6 +1500,17 @@ class Validate
         }
 
         return $msg;
+    }
+
+    protected function addValidateItem($name, $rule)
+    {
+        if (is_array($rule)) {
+            $this->item[] = [$name => $rule];
+        } else {
+            $this->item[] = $name . ':' . $rule;
+        }
+
+        return $this;
     }
 
     /**
