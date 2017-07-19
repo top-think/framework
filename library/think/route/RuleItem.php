@@ -104,12 +104,12 @@ class RuleItem extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
-        $option = array_merge($this->parent->getOption(), $this->option);
-
         // 检查参数有效性
-        if (!$this->checkOption($option, $request)) {
+        if (!$this->checkOption($this->option, $request)) {
             return false;
         }
+
+        $option = array_merge($this->parent->getOption(), $this->option);
 
         if (isset($option['ext'])) {
             // 路由ext参数 优先于系统配置的URL伪静态后缀参数
