@@ -113,7 +113,7 @@ class RuleItem extends Rule
 
         if (isset($option['ext'])) {
             // 路由ext参数 优先于系统配置的URL伪静态后缀参数
-            $url = preg_replace('/\.' . $request->ext() . '$/i', '', $url);
+            $url = preg_replace('/\.(' . $request->ext() . ')$/i', '', $url);
         }
 
         return $this->checkRule($request, $url, $depr, $completeMatch, $option);
