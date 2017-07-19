@@ -138,19 +138,6 @@ trait SoftDelete
     }
 
     /**
-     * 查询默认不包含软删除数据
-     * @access protected
-     * @param Query $query 查询对象
-     * @return void
-     */
-    protected function base($query)
-    {
-        $field = $this->getDeleteTimeField(true);
-
-        $query->useSoftDelete($field);
-    }
-
-    /**
      * 获取软删除字段
      * @access public
      * @param bool  $read 是否查询操作 写操作的时候会自动去掉表别名

@@ -159,9 +159,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $query = $this->buildQuery();
 
-        // 全局作用域
-        if ($useBaseQuery && method_exists($this, 'base')) {
-            call_user_func_array([$this, 'base'], [ & $query]);
+        if ($useBaseQuery) {
+            // 软删除
+            if (method_exists($this, 'getDeleteTimeField')) {
+                $field = $this->getDeleteTimeField(true);
+                $query->useSoftDelete($field);
+            }
+
+            // 全局作用域
+            if (method_exists($this, 'base')) {
+                call_user_func_array([$this, 'base'], [ & $query]);
+            }
         }
 
         // 返回当前模型的数据库查询对象
