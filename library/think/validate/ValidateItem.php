@@ -11,8 +11,6 @@
 
 namespace think\validate;
 
-use think\Validate;
-
 /**
  * Class ValidateItem
  * @package think\validate
