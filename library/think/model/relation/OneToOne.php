@@ -287,7 +287,7 @@ abstract class OneToOne extends Relation
             if (isset($result->$key)) {
                 throw new Exception('bind attr has exists:' . $key);
             } else {
-                $result->setAttr($key, $model->$attr);
+                $result->setAttr($key, $model ? $model->$attr : null);
             }
         }
     }
