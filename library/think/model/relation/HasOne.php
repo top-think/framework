@@ -140,10 +140,10 @@ class HasOne extends OneToOne
                     $relationModel = $data[$result->$localKey];
                     $relationModel->setParent(clone $result);
                     $relationModel->isUpdate(true);
-                    if (!empty($this->bindAttr)) {
-                        // 绑定关联属性
-                        $this->bindAttr($relationModel, $result, $this->bindAttr);
-                    }
+                }
+                if (!empty($this->bindAttr)) {
+                    // 绑定关联属性
+                    $this->bindAttr($relationModel, $result, $this->bindAttr);
                 }
                 // 设置关联属性
                 $result->setRelation($attr, $relationModel);
@@ -173,10 +173,10 @@ class HasOne extends OneToOne
             $relationModel = $data[$result->$localKey];
             $relationModel->setParent(clone $result);
             $relationModel->isUpdate(true);
-            if (!empty($this->bindAttr)) {
-                // 绑定关联属性
-                $this->bindAttr($relationModel, $result, $this->bindAttr);
-            }
+        }
+        if (!empty($this->bindAttr)) {
+            // 绑定关联属性
+            $this->bindAttr($relationModel, $result, $this->bindAttr);
         }
 
         $result->setRelation(Loader::parseName($relation), $relationModel);
