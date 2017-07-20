@@ -38,6 +38,18 @@ use think\Validate;
  * @method ValidateRule regex(mixed $rule, string $msg = '') static 使用正则验证数据
  * @method ValidateRule token(mixed $rule='__token__', string $msg = '') static 验证表单令牌
  * @method ValidateRule is(mixed $rule, string $msg = '') static 验证字段值是否为有效格式
+ * @method ValidateRule isNumber(mixed $rule, string $msg = '') static 验证字段值是否为数字
+ * @method ValidateRule isChs(mixed $rule, string $msg = '') static 验证字段值是否为中文
+ * @method ValidateRule isChsDash(mixed $rule, string $msg = '') static 验证字段值是否为中文字母及下划线
+ * @method ValidateRule isChsAlpha(mixed $rule, string $msg = '') static 验证字段值是否为中文和字母
+ * @method ValidateRule isChsAlphaNum(mixed $rule, string $msg = '') static 验证字段值是否为中文字母和数字
+ * @method ValidateRule isDate(mixed $rule, string $msg = '') static 验证字段值是否为有效格式
+ * @method ValidateRule isBool(mixed $rule, string $msg = '') static 验证字段值是否为布尔值
+ * @method ValidateRule isAlpha(mixed $rule, string $msg = '') static 验证字段值是否为字母
+ * @method ValidateRule isAlphaDash(mixed $rule, string $msg = '') static 验证字段值是否为字母和下划线
+ * @method ValidateRule isAlphaNum(mixed $rule, string $msg = '') static 验证字段值是否为字母和数字
+ * @method ValidateRule isAccepted(mixed $rule, string $msg = '') static 验证字段值是否为yes, on, 或是 1
+ * @method ValidateRule isEmail(mixed $rule, string $msg = '') static 验证字段值是否为有效邮箱格式
  * @method ValidateRule activeUrl(mixed $rule, string $msg = '') static 验证是否为合格的域名或者IP
  * @method ValidateRule ip(mixed $rule, string $msg = '') static 验证是否有效IP
  * @method ValidateRule fileExt(mixed $rule, string $msg = '') static 验证文件后缀
