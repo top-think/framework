@@ -12,7 +12,7 @@
 namespace think;
 
 use think\exception\ClassNotFoundException;
-use think\validate\ValidateItem;
+use think\validate\ValidateRule;
 
 class Validate
 {
@@ -351,7 +351,7 @@ class Validate
             if ($rule instanceof \Closure) {
                 // 匿名函数验证 支持传入当前字段和所有字段两个数据
                 $result = call_user_func_array($rule, [$value, $data]);
-            } elseif ($rule instanceof ValidateItem) {
+            } elseif ($rule instanceof ValidateRule) {
                 //  验证因子
                 $result = $this->checkItem($key, $value, $rule->getRule(), $data, $rule->getTitle() ?: $title, $rule->getMsg());
             } else {
