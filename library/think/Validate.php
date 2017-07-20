@@ -643,6 +643,9 @@ class Validate
                 // 国内手机号码
                 $result = $this->regex($value, '/^1[3|4|5|7|8][0-9]\d{8}$/');
                 break;
+            case 'idCard':
+                $result = $this->regex($value, '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/');
+                break;
             case 'activeUrl':
                 // 是否为有效的网址
                 $result = checkdnsrr($value);
@@ -671,6 +674,7 @@ class Validate
                 $result = $this->filter($value, FILTER_VALIDATE_EMAIL);
                 break;
             case 'boolean':
+            case 'bool':
                 // 是否为布尔值
                 $result = in_array($value, [true, false, 0, 1, '0', '1'], true);
                 break;
