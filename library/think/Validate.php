@@ -1407,7 +1407,7 @@ class Validate
             $method = substr($method, 2);
         }
 
-        array_push($args, $method);
+        array_push($args, lcfirst($method));
 
         return call_user_func_array([$this, 'is'], $args);
     }

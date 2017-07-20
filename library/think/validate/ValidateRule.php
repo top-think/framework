@@ -87,10 +87,10 @@ class ValidateRule
      */
     protected function addItem($name, $rule = null, $msg = '')
     {
-        if (is_array($rule)) {
-            $this->rule[] = $name . ':' . implode(',', $rule);
+        if ($rule || 0 === $rule) {
+            $this->rule[$name] = $rule;
         } else {
-            $this->rule[] = $name . ($rule ? ':' . $rule : '');
+            $this->rule[] = $name;
         }
 
         $this->message[] = $msg;
@@ -142,7 +142,11 @@ class ValidateRule
 
     public function __call($method, $args)
     {
-        array_unshift($args, $method);
+        if ('is' == strtolower(substr($method, 0, 2))) {
+            $method = substr($method, 2);
+        }
+
+        array_unshift($args, lcfirst($method));
 
         return call_user_func_array([$this, 'addItem'], $args);
     }
@@ -151,7 +155,11 @@ class ValidateRule
     {
         $rule = new static();
 
-        array_unshift($args, $method);
+        if ('is' == strtolower(substr($method, 0, 2))) {
+            $method = substr($method, 2);
+        }
+
+        array_unshift($args, lcfirst($method));
 
         return call_user_func_array([$rule, 'addItem'], $args);
     }
