@@ -52,6 +52,7 @@ use think\Validate;
  * @method ValidateRule requireIf(mixed $rule, string $msg = '') static 验证某个字段等于某个值的时候必须
  * @method ValidateRule requireCallback(mixed $rule, string $msg = '') static 通过回调方法验证某个字段是否必须
  * @method ValidateRule requireWith(mixed $rule, string $msg = '') static 验证某个字段有值的情况下必须
+ * @method ValidateRule must(mixed $rule=null, string $msg = '') static 必须验证
  */
 class ValidateRule
 {
@@ -66,18 +67,18 @@ class ValidateRule
 
     /**
      * 添加验证因子
-     * @access public
+     * @access protected
      * @param string    $name  验证名称
      * @param mixed     $rule  验证规则
      * @param string    $msg   提示信息
      * @return $this
      */
-    public function addItem($name, $rule = '', $msg = '')
+    protected function addItem($name, $rule = null, $msg = '')
     {
         if (is_array($rule)) {
-            $this->rule[] = [$name => $rule];
+            $this->rule[] = $name . ':' . implode(',', $rule);
         } else {
-            $this->rule[] = $name . ':' . $rule;
+            $this->rule[] = $name . (is_null($rule) ? '' : ':' . $rule);
         }
 
         $this->message[] = $msg;
@@ -125,20 +126,6 @@ class ValidateRule
         $this->title = $title;
 
         return $this;
-    }
-
-    /**
-     * 验证字段值是否为有效格式
-     * @access public
-     * @param string    $rule  验证规则
-     * @param string    $msg   提示信息
-     * @return bool
-     */
-    public static function is($rule, $msg = '')
-    {
-        $rule = new static;
-
-        return $rule->addItem($rule, '', $msg);
     }
 
     public function __call($method, $args)

@@ -215,7 +215,7 @@ abstract class Rule
     /**
      * 绑定验证
      * @access public
-     * @param string   $validate 验证器类
+     * @param mixed    $validate 验证器类
      * @param string   $scene 验证场景
      * @param array    $message 验证提示
      * @param bool     $batch 批量验证

@@ -35,6 +35,7 @@ class Validate
     // 验证规则默认提示信息
     protected static $typeMsg = [
         'require'     => ':attribute不能为空',
+        'must'        => ':attribute必须',
         'number'      => ':attribute必须是数字',
         'integer'     => ':attribute必须是整数',
         'float'       => ':attribute必须是浮点数',
@@ -440,7 +441,8 @@ class Validate
                 }
 
                 // 如果不是require 有数据才会行验证
-                if (0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
+
+                if ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                     // 验证类型
                     $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                     // 验证数据
@@ -452,7 +454,7 @@ class Validate
 
             if (false === $result) {
                 // 验证失败 返回错误信息
-                if (isset($msg[$i])) {
+                if (!empty($msg[$i])) {
                     $message = $msg[$i];
                     if (is_string($message) && strpos($message, '{%') === 0) {
                         $message = Lang::get(substr($message, 2, -1));
@@ -571,6 +573,18 @@ class Validate
     public function eq($value, $rule)
     {
         return $value == $rule;
+    }
+
+    /**
+     * 必须验证
+     * @access public
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @return bool
+     */
+    public function must($value, $rule = null)
+    {
+        return !empty($value) || '0' == $value;
     }
 
     /**
@@ -1375,4 +1389,17 @@ class Validate
         }
     }
 
+    /**
+     * 动态方法 直接调用is方法进行验证
+     * @access protected
+     * @param string $method  方法名
+     * @param array $args  调用参数
+     * @return bool
+     */
+    public function __call($method, $args)
+    {
+        array_push($args, $method);
+
+        return call_user_func_array([$this, 'is'], $args);
+    }
 }
