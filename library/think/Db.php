@@ -89,7 +89,7 @@ class Db
         return self::$instance[$name];
     }
     
-    public static function clear(){
+    public static function clear() {
         self::$instance = null;
     }
 
