@@ -88,6 +88,10 @@ class Db
         }
         return self::$instance[$name];
     }
+    
+    public static function clear(){
+        self::$instance = null;
+    }
 
     /**
      * 数据库连接参数解析
