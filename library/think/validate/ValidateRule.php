@@ -78,7 +78,7 @@ class ValidateRule
         if (is_array($rule)) {
             $this->rule[] = $name . ':' . implode(',', $rule);
         } else {
-            $this->rule[] = $name . (is_null($rule) ? '' : ':' . $rule);
+            $this->rule[] = $name . ($rule ? ':' . $rule : '');
         }
 
         $this->message[] = $msg;

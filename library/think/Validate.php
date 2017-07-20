@@ -41,6 +41,7 @@ class Validate
         'float'       => ':attribute必须是浮点数',
         'boolean'     => ':attribute必须是布尔值',
         'email'       => ':attribute格式不符',
+        'mobile'      => ':attribute格式不符',
         'array'       => ':attribute必须是数组',
         'accepted'    => ':attribute必须是yes、on或者1',
         'date'        => ':attribute不是一个有效的日期或时间格式',
@@ -1398,6 +1399,10 @@ class Validate
      */
     public function __call($method, $args)
     {
+        if ('is' == strtolower(substr($method, 0, 2))) {
+            $method = substr($method, 2);
+        }
+
         array_push($args, $method);
 
         return call_user_func_array([$this, 'is'], $args);
