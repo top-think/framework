@@ -15,6 +15,7 @@ class Facade
 {
 
     protected static $bind = [];
+    protected static $alwaysNewInstance;
 
     /**
      * 绑定类的静态代理
@@ -55,6 +56,10 @@ class Facade
             $class = $facadeClass;
         } elseif (isset(self::$bind[$class])) {
             $class = self::$bind[$class];
+        }
+
+        if (static::$alwaysNewInstance) {
+            $newInstance = true;
         }
 
         return Container::getInstance()->make($class, $args, $newInstance);
