@@ -438,6 +438,7 @@ class Validate
 
                 } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
                     // 规则已经移除
+                    $i++;
                     continue;
                 }
 
@@ -467,8 +468,12 @@ class Validate
             } elseif (true !== $result) {
                 // 返回自定义错误信息
                 if (is_string($result) && false !== strpos($result, ':')) {
-                    $result = str_replace([':attribute', ':rule'], [$title, (string) $rule], $result);
+                    $result = str_replace(
+                        [':attribute', ':rule'],
+                        [$title, (string) $rule],
+                        $result);
                 }
+
                 return $result;
             }
             $i++;
@@ -598,7 +603,7 @@ class Validate
      */
     public function is($value, $rule, $data = [])
     {
-        switch ($rule) {
+        switch (Loader::parseName($rule, 1, false)) {
             case 'require':
                 // 必须
                 $result = !empty($value) || '0' == $value;
@@ -896,14 +901,14 @@ class Validate
 
     /**
      * 验证是否唯一
-     * @access protected
+     * @access public
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则 格式：数据表,字段名,排除ID,主键名
      * @param array     $data  数据
      * @param string    $field  验证字段名
      * @return bool
      */
-    protected function unique($value, $rule, $data, $field)
+    public function unique($value, $rule, $data, $field)
     {
         if (is_string($rule)) {
             $rule = explode(',', $rule);
@@ -950,13 +955,13 @@ class Validate
 
     /**
      * 使用行为类验证
-     * @access protected
+     * @access public
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
      * @param array     $data  数据
      * @return mixed
      */
-    protected function behavior($value, $rule, $data)
+    public function behavior($value, $rule, $data)
     {
         return Facade::make('hook')->exec($rule, $data);
     }
@@ -984,13 +989,13 @@ class Validate
 
     /**
      * 验证某个字段等于某个值的时候必须
-     * @access protected
+     * @access public
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
      * @param array     $data  数据
      * @return bool
      */
-    protected function requireIf($value, $rule, $data)
+    public function requireIf($value, $rule, $data)
     {
         list($field, $val) = explode(',', $rule);
 
@@ -1003,13 +1008,13 @@ class Validate
 
     /**
      * 通过回调方法验证某个字段是否必须
-     * @access protected
+     * @access public
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
      * @param array     $data  数据
      * @return bool
      */
-    protected function requireCallback($value, $rule, $data)
+    public function requireCallback($value, $rule, $data)
     {
         $result = call_user_func_array($rule, [$value, $data]);
 
@@ -1022,13 +1027,13 @@ class Validate
 
     /**
      * 验证某个字段有值的情况下必须
-     * @access protected
+     * @access public
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
      * @param array     $data  数据
      * @return bool
      */
-    protected function requireWith($value, $rule, $data)
+    public function requireWith($value, $rule, $data)
     {
         $val = $this->getDataValue($data, $rule);
 
