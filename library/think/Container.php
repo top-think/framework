@@ -35,6 +35,31 @@ class Container
     }
 
     /**
+     * 获取容器中的对象实例
+     * @access public
+     * @param string        $abstract       类名或者标识
+     * @param array|true    $args           变量
+     * @param bool          $newInstance    是否每次创建新的实例
+     * @return object
+     */
+    public static function get($abstract, $vars = [], $newInstance = false)
+    {
+        return static::getInstance()->make($abstract, $vars, $newInstance);
+    }
+
+    /**
+     * 绑定一个类、闭包、实例、接口实现到容器
+     * @access public
+     * @param string  $abstract    类标识、接口
+     * @param mixed   $concrete    要绑定的类、闭包或者实例
+     * @return Container
+     */
+    public static function set($abstract, $concrete = null)
+    {
+        return static::getInstance()->bind($abstract, $concrete);
+    }
+
+    /**
      * 绑定一个类、闭包、实例、接口实现到容器
      * @access public
      * @param string  $abstract    类标识、接口
@@ -84,7 +109,7 @@ class Container
     /**
      * 创建类的实例
      * @access public
-     * @param string        $class          类名或者标识
+     * @param string        $abstract       类名或者标识
      * @param array|true    $args           变量
      * @param bool          $newInstance    是否每次创建新的实例
      * @return object
