@@ -70,7 +70,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 记录原始数据
         $this->origin = $this->data;
 
-        $config = Facade::make('config');
+        $config = Container::get('config');
 
         if (empty($this->name)) {
             // 当前模型名

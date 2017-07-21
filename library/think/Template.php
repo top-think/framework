@@ -63,7 +63,7 @@ class Template
      */
     public function __construct(array $config = [])
     {
-        $this->config['cache_path']   = Facade::make('app')->getRuntimePath() . 'temp/';
+        $this->config['cache_path']   = Container::get('app')->getRuntimePath() . 'temp/';
         $this->config                 = array_merge($this->config, $config);
         $this->config['taglib_begin'] = $this->stripPreg($this->config['taglib_begin']);
         $this->config['taglib_end']   = $this->stripPreg($this->config['taglib_end']);
@@ -178,7 +178,7 @@ class Template
             $this->config($config);
         }
 
-        $cache = Facade::make('cache');
+        $cache = Container::get('cache');
 
         if (!empty($this->config['cache_id']) && $this->config['display_cache']) {
             // 读取渲染缓存
@@ -337,7 +337,7 @@ class Template
     {
         if ($cacheId && $this->config['display_cache']) {
             // 缓存页面输出
-            return Facade::make('cache')->has($cacheId);
+            return Container::get('cache')->has($cacheId);
         }
 
         return false;
@@ -1232,10 +1232,10 @@ class Template
             }
 
             if ($this->config['view_base']) {
-                $module = isset($module) ? $module : Facade::make('request')->module();
+                $module = isset($module) ? $module : Container::get('request')->module();
                 $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
             } else {
-                $path = isset($module) ? Facade::make('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . basename($this->config['view_path']) . DIRECTORY_SEPARATOR : $this->config['view_path'];
+                $path = isset($module) ? Container::get('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . basename($this->config['view_path']) . DIRECTORY_SEPARATOR : $this->config['view_path'];
             }
 
             $template = $path . $template . '.' . ltrim($this->config['view_suffix'], '.');

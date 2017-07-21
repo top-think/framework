@@ -82,7 +82,7 @@ class Error
         }
 
         // 写入日志
-        Facade::make('log')->save();
+        Container::get('log')->save();
     }
 
     /**
@@ -107,7 +107,7 @@ class Error
 
         if (!$handle) {
             // 异常处理handle
-            $class = Facade::make('app')->config('exception_handle');
+            $class = Container::get('app')->config('exception_handle');
             if ($class && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
                 $handle = new $class;
             } else {

@@ -20,7 +20,7 @@ class Db
 
     public static function __callStatic($method, $args)
     {
-        $class = Facade::make('config')->get('database.query') ?: '\\think\\db\\Query';
+        $class = Container::get('config')->get('database.query') ?: '\\think\\db\\Query';
 
         $query = new $class();
 

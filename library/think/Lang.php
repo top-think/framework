@@ -80,7 +80,7 @@ class Lang
         foreach ($file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
-                Facade::make('app')->log('[ LANG ] ' . $_file);
+                Container::get('app')->log('[ LANG ] ' . $_file);
                 $_lang = include $_file;
                 if (is_array($_lang)) {
                     $lang = array_change_key_case($_lang) + $lang;
@@ -168,7 +168,7 @@ class Lang
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
             $langSet     = strtolower($matches[1]);
-            $acceptLangs = Facade::make('config')->get('header_accept_lang');
+            $acceptLangs = Container::get('config')->get('header_accept_lang');
             if (isset($acceptLangs[$langSet])) {
                 $langSet = $acceptLangs[$langSet];
             } elseif (isset($this->acceptLanguage[$langSet])) {

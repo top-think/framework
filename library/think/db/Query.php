@@ -20,7 +20,6 @@ use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
 use think\exception\PDOException;
-use think\Facade;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -603,7 +602,7 @@ class Query
      */
     protected function lazyWrite($type, $guid, $step, $lazyTime)
     {
-        $cache = Facade::make('cache');
+        $cache = Container::get('cache');
 
         if (!$cache->has($guid . '_time')) {
             // 计时开始
@@ -1371,7 +1370,7 @@ class Query
             $simple = false;
         }
 
-        $paginate = Facade::make('config')->pull('paginate');
+        $paginate = Container::get('config')->pull('paginate');
 
         if (is_array($listRows)) {
             $config   = array_merge($paginate, $listRows);

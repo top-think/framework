@@ -13,12 +13,12 @@ namespace think\db;
 
 use PDO;
 use PDOStatement;
+use think\Container;
 use think\Db;
 use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
-use think\Facade;
 
 abstract class Connection
 {
@@ -171,7 +171,7 @@ abstract class Connection
 
             $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
-            Facade::make('app')->log('[ DB ] INIT ' . $options['type']);
+            Container::get('app')->log('[ DB ] INIT ' . $options['type']);
 
             if (true === $name) {
                 $name = md5(serialize($config));
@@ -348,7 +348,7 @@ abstract class Connection
 
         if (!isset(self::$info[$schema])) {
             // 读取缓存
-            $cacheFile = Facade::make('app')->getRuntimePath() . 'schema/' . $schema . '.php';
+            $cacheFile = Container::get('app')->getRuntimePath() . 'schema/' . $schema . '.php';
             if (is_file($cacheFile)) {
                 $info = include $cacheFile;
             } else {
@@ -693,7 +693,7 @@ abstract class Connection
                 $key = md5(serialize($options) . serialize($query->getBind(false)));
             }
 
-            $result = Facade::make('cache')->get($key);
+            $result = Container::get('cache')->get($key);
         }
 
         if (false === $result) {
@@ -763,7 +763,7 @@ abstract class Connection
             // 判断查询缓存
             $cache     = $options['cache'];
             $key       = is_string($cache['key']) ? $cache['key'] : md5(serialize($options) . serialize($query->getBind(false)));
-            $resultSet = Facade::make('cache')->get($key);
+            $resultSet = Container::get('cache')->get($key);
         }
 
         if (false === $resultSet) {
@@ -970,7 +970,7 @@ abstract class Connection
             return $this->getRealSql($sql, $bind);
         } else {
             // 检测缓存
-            $cache = Facade::make('cache');
+            $cache = Container::get('cache');
 
             if (isset($key) && $cache->get($key)) {
                 // 删除缓存
@@ -1045,7 +1045,7 @@ abstract class Connection
         }
 
         // 检测缓存
-        $cache = Facade::make('cache');
+        $cache = Container::get('cache');
 
         if (isset($key) && $cache->get($key)) {
             // 删除缓存
@@ -1090,7 +1090,7 @@ abstract class Connection
             $cache = $options['cache'];
 
             $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($options) . serialize($query->getBind(false)));
-            $result = Facade::make('cache')->get($key);
+            $result = Container::get('cache')->get($key);
         }
 
         if (false === $result) {
@@ -1152,7 +1152,7 @@ abstract class Connection
             $cache = $options['cache'];
 
             $guid   = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($options) . serialize($query->getBind(false)));
-            $result = Facade::make('cache')->get($guid);
+            $result = Container::get('cache')->get($guid);
         }
 
         if (false === $result) {
@@ -1705,7 +1705,7 @@ abstract class Connection
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
-            $debug = Facade::make('debug');
+            $debug = Container::get('debug');
 
             if ($start) {
                 $debug->remark('queryStartTime', 'time');
@@ -1766,7 +1766,7 @@ abstract class Connection
 
     public function log($log, $type = 'sql')
     {
-        $this->config['debug'] && Facade::make('log')->record($log, $type);
+        $this->config['debug'] && Container::get('log')->record($log, $type);
     }
 
     /**
@@ -1874,7 +1874,7 @@ abstract class Connection
      */
     protected function cacheData($key, $data, $config = [])
     {
-        $cache = Facade::make('cache');
+        $cache = Container::get('cache');
 
         if (isset($config['tag'])) {
             $cache->tag($config['tag'])->set($key, $data, $config['expire']);
@@ -1914,10 +1914,10 @@ abstract class Connection
     private static function parseConfig($config)
     {
         if (empty($config)) {
-            $config = Facade::make('config')->pull('database');
+            $config = Container::get('config')->pull('database');
         } elseif (is_string($config) && false === strpos($config, '/')) {
             // 支持读取配置参数
-            $config = Facade::make('config')->get('database.' . $config);
+            $config = Container::get('config')->get('database.' . $config);
         }
 
         if (is_string($config)) {

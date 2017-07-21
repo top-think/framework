@@ -40,7 +40,7 @@ class Cookie
     public function init(array $config = [])
     {
         if (empty($config)) {
-            $config = Facade::make('config')->pull('cookie');
+            $config = Container::get('config')->pull('cookie');
         }
 
         $this->config = array_merge($this->config, array_change_key_case($config));

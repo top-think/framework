@@ -14,7 +14,7 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
-use think\Facade;
+use think\Container;
 use think\facade\App;
 
 class Config extends Command
@@ -54,7 +54,7 @@ class Config extends Command
         $path       = realpath(App::getAppPath() . $module) . DIRECTORY_SEPARATOR;
         $configPath = App::getConfigPath();
         $ext        = App::getConfigExt();
-        $con        = Facade::make('config');
+        $con        = Container::get('config');
 
         if ($module) {
             // 加载模块配置

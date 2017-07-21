@@ -11,6 +11,7 @@
 
 namespace think\route;
 
+use think\Container;
 use think\Request;
 use think\Route;
 use think\route\dispatch\Url as UrlDispatch;
@@ -73,7 +74,7 @@ class RuleGroup extends Rule
 
         // 指定Response响应数据
         if (!empty($this->option['response'])) {
-            Facade::make('hook')->add('response_send', $this->option['response']);
+            Container::get('hook')->add('response_send', $this->option['response']);
         }
 
         // 开启请求缓存

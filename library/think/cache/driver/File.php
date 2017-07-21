@@ -12,7 +12,7 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
-use think\Facade;
+use think\Container;
 
 /**
  * 文件类型缓存类
@@ -39,7 +39,7 @@ class File extends Driver
         }
 
         if (empty($this->options['path'])) {
-            $this->options['path'] = Facade::make('app')->getRuntimePath() . 'cache/';
+            $this->options['path'] = Container::get('app')->getRuntimePath() . 'cache/';
         } elseif (substr($this->options['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->options['path'] .= DIRECTORY_SEPARATOR;
         }

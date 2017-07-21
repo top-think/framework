@@ -818,7 +818,7 @@ class Request
     public function session($name = '', $default = null, $filter = '')
     {
         if (empty($this->session)) {
-            $this->session = Facade::make('session')->get();
+            $this->session = Container::get('session')->get();
         }
 
         if (is_array($name)) {
@@ -838,7 +838,7 @@ class Request
      */
     public function cookie($name = '', $default = null, $filter = '')
     {
-        $cookie = Facade::make('cookie');
+        $cookie = Container::get('cookie');
 
         if (empty($this->cookie)) {
             $this->cookie = $cookie->get();
@@ -959,7 +959,7 @@ class Request
     public function env($name = '', $default = null, $filter = '')
     {
         if (empty($this->env)) {
-            $this->env = Facade::make('env')->get();
+            $this->env = Container::get('env')->get();
         }
 
         if (is_array($name)) {
@@ -1597,7 +1597,7 @@ class Request
             header($name . ': ' . $token);
         }
 
-        Facade::make('session')->set($name, $token);
+        Container::get('session')->set($name, $token);
 
         return $token;
     }
@@ -1658,7 +1658,7 @@ class Request
             if (isset($fun)) {
                 $key = $fun($key);
             }
-            $cache = Facade::make('cache');
+            $cache = Container::get('cache');
             if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
                 // 读取缓存
                 $response = Response::create()->code(304);

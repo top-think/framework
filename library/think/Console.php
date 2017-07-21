@@ -69,8 +69,8 @@ class Console
             $console = new self('Think Console', '0.1');
 
             // 读取指令集
-            if (is_file(Facade::make('env')->get('config_path') . 'command.php')) {
-                $commands = include Facade::make('env')->get('config_path') . 'command.php';
+            if (is_file(Container::get('env')->get('config_path') . 'command.php')) {
+                $commands = include Container::get('env')->get('config_path') . 'command.php';
 
                 if (is_array($commands)) {
                     foreach ($commands as $command) {

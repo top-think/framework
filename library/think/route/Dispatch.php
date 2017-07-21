@@ -11,7 +11,7 @@
 
 namespace think\route;
 
-use think\Facade;
+use think\Container;
 
 abstract class Dispatch
 {
@@ -28,7 +28,7 @@ abstract class Dispatch
 
     public function __construct($dispatch, $param = [], $code = null)
     {
-        $this->app      = Facade::make('app');
+        $this->app      = Container::get('app');
         $this->dispatch = $dispatch;
         $this->param    = $param;
         $this->code     = $code;

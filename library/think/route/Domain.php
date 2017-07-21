@@ -11,7 +11,7 @@
 
 namespace think\route;
 
-use think\Facade;
+use think\Container;
 use think\Loader;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
@@ -130,7 +130,7 @@ class Domain extends RuleGroup
 
         if (!empty($bind)) {
             // 记录绑定信息
-            Facade::make('app')->log('[ BIND ] ' . var_export($bind, true));
+            Container::get('app')->log('[ BIND ] ' . var_export($bind, true));
 
             // 如果有URL绑定 则进行绑定检测
             if (0 === strpos($bind, '\\')) {
@@ -160,7 +160,7 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
@@ -181,8 +181,8 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_controller');
-        $method = !empty($array[1]) ? $array[1] : Facade::make('config')->get('default_action');
+        $class  = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_controller');
+        $method = !empty($array[1]) ? $array[1] : Container::get('config')->get('default_action');
 
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2]);
@@ -203,7 +203,7 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);
@@ -224,7 +224,7 @@ class Domain extends RuleGroup
     {
         $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Facade::make('config')->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1]);

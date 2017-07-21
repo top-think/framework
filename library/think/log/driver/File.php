@@ -11,7 +11,7 @@
 
 namespace think\log\driver;
 
-use think\Facade;
+use think\Container;
 
 /**
  * 本地化调试输出到文件
@@ -35,7 +35,7 @@ class File
         }
 
         if (empty($this->config['path'])) {
-            $this->config['path'] = Facade::make('app')->getRuntimePath() . 'log/';
+            $this->config['path'] = Container::get('app')->getRuntimePath() . 'log/';
         }
     }
 
@@ -97,13 +97,13 @@ class File
         }
 
         if (empty($this->writed[$destination]) && PHP_SAPI != 'cli') {
-            if (Facade::make('app')->isDebug() && !$apart) {
+            if (Container::get('app')->isDebug() && !$apart) {
                 // 获取基本信息
                 $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-                $runtime     = round(microtime(true) - Facade::make('app')->getBeginTime(), 10);
+                $runtime     = round(microtime(true) - Container::get('app')->getBeginTime(), 10);
                 $reqs        = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
                 $time_str    = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
-                $memory_use  = number_format((memory_get_usage() - Facade::make('app')->getBeginMem()) / 1024, 2);
+                $memory_use  = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
                 $memory_str  = ' [内存消耗：' . $memory_use . 'kb]';
                 $file_load   = ' [文件加载：' . count(get_included_files()) . ']';
                 $message     = '[ info ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n" . $message;

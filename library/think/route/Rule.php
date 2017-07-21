@@ -13,7 +13,6 @@ namespace think\route;
 
 use think\Container;
 use think\exception\ValidateException;
-use think\Facade;
 use think\Request;
 use think\Response;
 use think\route\dispatch\Callback as CallbackDispatch;
@@ -395,7 +394,7 @@ abstract class Rule
                 }
 
                 if ($match) {
-                    $query  = strpos($model, '\\') ? $model::where($where) : Facade::make('app')->model($model)->where($where);
+                    $query  = strpos($model, '\\') ? $model::where($where) : Container::get('app')->model($model)->where($where);
                     $result = $query->failException($exception)->find();
                 }
             }
@@ -471,7 +470,7 @@ abstract class Rule
 
         // 指定Response响应数据
         if (!empty($option['response'])) {
-            Facade::make('hook')->add('response_send', $option['response']);
+            Container::get('hook')->add('response_send', $option['response']);
         }
 
         // 开启请求缓存
@@ -517,11 +516,11 @@ abstract class Rule
 
         if (is_array($validate)) {
             // 指定验证规则
-            $v = Facade::make('app')->validate();
+            $v = Container::get('app')->validate();
             $v->rule($validate);
         } else {
             // 调用验证器
-            $v = Facade::make('app')->validate($validate);
+            $v = Container::get('app')->validate($validate);
             if (!empty($scene)) {
                 $v->scene($scene);
             }
@@ -549,7 +548,7 @@ abstract class Rule
      */
     protected function checkAfter($after)
     {
-        $hook = Facade::make('hook');
+        $hook = Container::get('hook');
 
         foreach ((array) $after as $behavior) {
             $result = $hook->exec($behavior);
@@ -598,7 +597,7 @@ abstract class Rule
             $result            = new ControllerDispatch(implode('/', $route), $var);
 
             $request->action(array_pop($route));
-            $app = Facade::make('app');
+            $app = Container::get('app');
             $request->controller($route ? array_pop($route) : $app->config('default_controller'));
             $request->module($route ? array_pop($route) : $app->config('default_module'));
             $app->setModulePath($app->getAppPath() . ($app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
@@ -619,8 +618,8 @@ abstract class Rule
     protected function parseModule($url)
     {
         list($path, $var) = $this->parseUrlPath($url);
-        $config           = Facade::make('config');
-        $request          = Facade::make('request');
+        $config           = Container::get('config');
+        $request          = Container::get('request');
         $action           = array_pop($path);
         $controller       = !empty($path) ? array_pop($path) : null;
         $module           = $config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
@@ -651,7 +650,7 @@ abstract class Rule
         if (!empty($option['before'])) {
             // 路由前置检查
             $before = $option['before'];
-            $hook   = Facade::make('hook');
+            $hook   = Container::get('hook');
 
             foreach ((array) $before as $behavior) {
                 $result = $hook->exec($behavior);
@@ -709,7 +708,7 @@ abstract class Rule
     protected function parseUrlParams($url, &$var = [])
     {
         if ($url) {
-            if (Facade::make('config')->get('url_param_type')) {
+            if (Container::get('config')->get('url_param_type')) {
                 $var += explode('|', $url);
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -719,7 +718,7 @@ abstract class Rule
         }
 
         // 设置当前请求的参数
-        Facade::make('request')->route($var);
+        Container::get('request')->route($var);
     }
 
     /**

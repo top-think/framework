@@ -882,7 +882,7 @@ class Validate
      */
     public function method($value, $rule)
     {
-        $method = Facade::make('request')->method();
+        $method = Container::get('request')->method();
         return strtoupper($rule) == $method;
     }
 
@@ -919,7 +919,7 @@ class Validate
             $db = new $rule[0];
         } else {
             try {
-                $db = Facade::make('app')->model($rule[0]);
+                $db = Container::get('app')->model($rule[0]);
             } catch (ClassNotFoundException $e) {
                 $db = Db::name($rule[0]);
             }
@@ -963,7 +963,7 @@ class Validate
      */
     public function behavior($value, $rule, $data)
     {
-        return Facade::make('hook')->exec($rule, $data);
+        return Container::get('hook')->exec($rule, $data);
     }
 
     /**
@@ -1275,7 +1275,7 @@ class Validate
     public function token($value, $rule, $data)
     {
         $rule    = !empty($rule) ? $rule : '__token__';
-        $session = Facade::make('session');
+        $session = Container::get('session');
 
         if (!isset($data[$rule]) || !$session->has($rule)) {
             // 令牌数据无效
@@ -1347,7 +1347,7 @@ class Validate
         }
 
         if (is_string($msg) && 0 === strpos($msg, '{%')) {
-            $msg = Facade::make('lang')->get(substr($msg, 2, -1));
+            $msg = Container::get('lang')->get(substr($msg, 2, -1));
         }
 
         if (is_string($msg) && is_scalar($rule) && false !== strpos($msg, ':')) {

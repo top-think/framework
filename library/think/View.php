@@ -35,7 +35,7 @@ class View
         $this->engine($engine);
 
         // 基础替换字符串
-        $request = Facade::make('request');
+        $request = Container::get('request');
         $root    = $request->rootUrl();
 
         $baseReplace = [
@@ -155,7 +155,7 @@ class View
         $content = ob_get_clean();
 
         // 内容过滤标签
-        Facade::make('hook')->listen('view_filter', $content);
+        Container::get('hook')->listen('view_filter', $content);
 
         // 允许用户自定义模板的字符串替换
         $replace = array_merge($this->replace, $replace);

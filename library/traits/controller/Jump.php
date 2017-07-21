@@ -13,8 +13,8 @@
  */
 namespace traits\controller;
 
+use think\Container;
 use think\exception\HttpResponseException;
-use think\Facade;
 use think\Response;
 use think\response\Redirect;
 
@@ -35,7 +35,7 @@ trait Jump
         if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
             $url = $_SERVER["HTTP_REFERER"];
         } elseif ('' !== $url) {
-            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Facade::make('url')->build($url);
+            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::get('url')->build($url);
         }
 
         $result = [
@@ -49,8 +49,8 @@ trait Jump
         $type = $this->getResponseType();
 
         if ('html' == strtolower($type)) {
-            $config = Facade::make('config');
-            $result = Facade::make('view')
+            $config = Container::get('config');
+            $result = Container::get('view')
                 ->init($config->get('template'), $config->get('view_replace_str'))
                 ->fetch($config->get('dispatch_success_tmpl'), $result);
         }
@@ -73,9 +73,9 @@ trait Jump
     protected function error($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
     {
         if (is_null($url)) {
-            $url = Facade::make('request')->isAjax() ? '' : 'javascript:history.back(-1);';
+            $url = Container::get('request')->isAjax() ? '' : 'javascript:history.back(-1);';
         } elseif ('' !== $url) {
-            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Facade::make('url')->build($url);
+            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::get('url')->build($url);
         }
 
         $result = [
@@ -89,8 +89,8 @@ trait Jump
         $type = $this->getResponseType();
 
         if ('html' == strtolower($type)) {
-            $config = Facade::make('config');
-            $result = Facade::make('view')
+            $config = Container::get('config');
+            $result = Container::get('view')
                 ->init($config->get('template'), $config->get('view_replace_str'))
                 ->fetch($config->get('dispatch_error_tmpl'), $result);
         }
@@ -155,8 +155,8 @@ trait Jump
      */
     protected function getResponseType()
     {
-        $isAjax = Facade::make('request')->isAjax();
-        $config = Facade::make('config');
+        $isAjax = Container::get('request')->isAjax();
+        $config = Container::get('config');
 
         return $isAjax
         ? $config->get('default_ajax_return')

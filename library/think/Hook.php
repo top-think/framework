@@ -154,7 +154,7 @@ class Hook
      */
     protected function execTag($class, $tag = '', $params = null, $extra = null)
     {
-        $app = Facade::make('app');
+        $app = Container::get('app');
 
         $app->isDebug() && $app['debug']->remark('behavior_start', 'time');
 
@@ -166,7 +166,7 @@ class Hook
         } elseif (strpos($class, '::')) {
             $call = $class;
         } else {
-            $obj = Facade::make($class);
+            $obj = Container::get($class);
 
             if (!is_callable([$obj, $method])) {
                 $method = 'run';
