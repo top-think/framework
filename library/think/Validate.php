@@ -90,7 +90,28 @@ class Validate
     protected $currentScene = null;
 
     // 正则表达式 regex = ['zip'=>'\d{6}',...]
-    protected $regex = [];
+    protected $regex = [
+        'alpha'       => '/^[A-Za-z]+$/',
+        'alphaNum'    => '/^[A-Za-z0-9]+$/',
+        'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
+        'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
+        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
+        'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u',
+        'chsDash'     => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u',
+        'mobile'      => '/^1[3|4|5|7|8][0-9]\d{8}$/',
+        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/',
+        'zip'         => '/\d{6}/',
+    ];
+
+    // Filter_var 验证规则
+    protected $filter = [
+        'email'   => FILTER_VALIDATE_EMAIL,
+        'ip'      => [FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6],
+        'integer' => FILTER_VALIDATE_INT,
+        'url'     => FILTER_VALIDATE_URL,
+        'macAddr' => FILTER_VALIDATE_MAC,
+        'float'   => FILTER_VALIDATE_FLOAT,
+    ];
 
     // 验证场景 scene = ['edit'=>'name1,name2,...']
     protected $scene = [];
@@ -616,72 +637,17 @@ class Validate
                 // 是否是一个有效日期
                 $result = false !== strtotime($value);
                 break;
-            case 'alpha':
-                // 只允许字母
-                $result = $this->regex($value, '/^[A-Za-z]+$/');
-                break;
-            case 'alphaNum':
-                // 只允许字母和数字
-                $result = $this->regex($value, '/^[A-Za-z0-9]+$/');
-                break;
-            case 'alphaDash':
-                // 只允许字母、数字和下划线 破折号
-                $result = $this->regex($value, '/^[A-Za-z0-9\-\_]+$/');
-                break;
-            case 'chs':
-                // 只允许汉字
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}]+$/u');
-                break;
-            case 'chsAlpha':
-                // 只允许汉字、字母
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u');
-                break;
-            case 'chsAlphaNum':
-                // 只允许汉字、字母和数字
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u');
-                break;
-            case 'chsDash':
-                // 只允许汉字、字母、数字和下划线_及破折号-
-                $result = $this->regex($value, '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u');
-                break;
-            case 'mobile':
-                // 国内手机号码
-                $result = $this->regex($value, '/^1[3|4|5|7|8][0-9]\d{8}$/');
-                break;
-            case 'idCard':
-                $result = $this->regex($value, '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/');
-                break;
             case 'activeUrl':
                 // 是否为有效的网址
                 $result = checkdnsrr($value);
-                break;
-            case 'ip':
-                // 是否为IP地址
-                $result = $this->filter($value, [FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6]);
-                break;
-            case 'url':
-                // 是否为一个URL地址
-                $result = $this->filter($value, FILTER_VALIDATE_URL);
-                break;
-            case 'float':
-                // 是否为float
-                $result = $this->filter($value, FILTER_VALIDATE_FLOAT);
-                break;
-            case 'number':
-                $result = is_numeric($value);
-                break;
-            case 'integer':
-                // 是否为整型
-                $result = $this->filter($value, FILTER_VALIDATE_INT);
-                break;
-            case 'email':
-                // 是否为邮箱地址
-                $result = $this->filter($value, FILTER_VALIDATE_EMAIL);
                 break;
             case 'boolean':
             case 'bool':
                 // 是否为布尔值
                 $result = in_array($value, [true, false, 0, 1, '0', '1'], true);
+                break;
+            case 'number':
+                $result = is_numeric($value);
                 break;
             case 'array':
                 // 是否为数组
@@ -700,6 +666,9 @@ class Validate
                 if (isset(self::$type[$rule])) {
                     // 注册的验证规则
                     $result = call_user_func_array(self::$type[$rule], [$value]);
+                } elseif (isset($this->filter[$rule])) {
+                    // Filter_var验证规则
+                    $result = $this->filter($value, $this->filter[$rule]);
                 } else {
                     // 正则验证
                     $result = $this->regex($value, $rule);
