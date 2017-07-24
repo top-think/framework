@@ -271,6 +271,17 @@ class Route
     }
 
     /**
+     * 批量导入路由标识
+     * @access public
+     * @param array    $name 路由标识
+     * @return void
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
      * 导入配置文件的路由规则
      * @access public
      * @param array     $rules 路由规则
@@ -456,7 +467,23 @@ class Route
         }
 
         // 创建分组实例
-        $group = new RuleGroup($this, $this->group, $name, $route, $option, $pattern);
+        $rule  = 1 == $this->config->get('url_route_parse') ? $route : null;
+        $group = new RuleGroup($this, $this->group, $name, $rule, $option, $pattern);
+
+        if (is_null($rule)) {
+            // 解析分组路由
+            $parent = $this->getGroup();
+
+            $this->group = $group;
+
+            if ($route instanceof \Closure) {
+                Container::getInstance()->invokeFunction($route);
+            } else {
+                $this->rules($route);
+            }
+
+            $this->group = $parent;
+        }
 
         // 注册子分组
         $this->group->addRule($group);
@@ -849,4 +876,5 @@ class Route
 
         return $var;
     }
+
 }

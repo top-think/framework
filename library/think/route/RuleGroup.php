@@ -69,6 +69,11 @@ class RuleGroup extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
+        // 检查参数有效性
+        if (!$this->checkOption($this->option, $request)) {
+            return false;
+        }
+
         if ($this->rule) {
             // 解析分组路由
             $group = $this->router->getGroup();
@@ -83,11 +88,6 @@ class RuleGroup extends Rule
 
             $this->router->setGroup($group);
             $this->rule = null;
-        }
-
-        // 检查参数有效性
-        if (!$this->checkOption($this->option, $request)) {
-            return false;
         }
 
         // 分组匹配后执行的行为
