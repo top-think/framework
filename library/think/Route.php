@@ -40,8 +40,8 @@ class Route
         'patch'  => 'patch',
     ];
 
-    // 当前应用实例
-    protected $app;
+    // 当前配置实例
+    protected $config;
     // 当前请求对象
     protected $request;
     // 当前域名
@@ -61,11 +61,11 @@ class Route
     // 别名路由
     protected $alias = [];
 
-    public function __construct(App $app, Request $request)
+    public function __construct(Request $request, Config $config)
     {
-        $this->app     = $app;
+        $this->config  = $config;
         $this->request = $request;
-        $this->host    = $this->app['request']->host();
+        $this->host    = $this->request->host();
 
         $this->setDefaultDomain();
     }
@@ -455,27 +455,11 @@ class Route
             $name   = isset($option['name']) ? $option['name'] : '';
         }
 
-        // 上级分组
-        $parentGroup = $this->group;
-
         // 创建分组实例
-        $group = new RuleGroup($this, $this->group, $name, $option, $pattern);
+        $group = new RuleGroup($this, $this->group, $name, $route, $option, $pattern);
 
         // 注册子分组
-        $parentGroup->addRule($group);
-
-        // 设置当前分组
-        $this->group = $group;
-
-        // 注册分组路由
-        if ($route instanceof \Closure) {
-            Container::getInstance()->invokeFunction($route);
-        } else {
-            $this->rules($route);
-        }
-
-        // 还原当前分组
-        $this->group = $parentGroup;
+        $this->group->addRule($group);
 
         if (!empty($option['cross_domain'])) {
             $this->setCrossDomainRule($group);
@@ -760,7 +744,7 @@ class Route
             throw new RouteNotFoundException();
         } else {
             // 默认路由解析
-            return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->app->config('app.controller_auto_search')]);
+            return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->config->get('app.controller_auto_search')]);
         }
     }
 
@@ -772,7 +756,7 @@ class Route
      */
     protected function checkDomain($host)
     {
-        $rootDomain = $this->app['config']->get('url_domain_root');
+        $rootDomain = $this->config->get('app.url_domain_root');
         $domains    = $this->domains;
 
         if ($rootDomain) {

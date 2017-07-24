@@ -30,6 +30,8 @@ class RuleGroup extends Rule
         'options' => [],
     ];
 
+    protected $rule;
+
     // MISS路由
     protected $miss;
 
@@ -42,13 +44,15 @@ class RuleGroup extends Rule
      * @param Route       $router   路由对象
      * @param RuleGroup   $group    路由所属分组对象
      * @param string      $name     分组名称
+     * @param mixed       $rule     分组路由
      * @param array       $option   路由参数
      * @param array       $pattern  变量规则
      */
-    public function __construct(Route $router, RuleGroup $group = null, $name = '', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $group = null, $name = '', $rule = [], $option = [], $pattern = [])
     {
         $this->router  = $router;
         $this->parent  = $group;
+        $this->rule    = $rule;
         $this->name    = trim($name, '/');
         $this->option  = $option;
         $this->pattern = $pattern;
@@ -65,6 +69,22 @@ class RuleGroup extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
+        if ($this->rule) {
+            // 解析分组路由
+            $group = $this->router->getGroup();
+
+            $this->router->setGroup($this);
+
+            if ($this->rule instanceof \Closure) {
+                Container::getInstance()->invokeFunction($this->rule);
+            } else {
+                $this->router->rules($this->rule);
+            }
+
+            $this->router->setGroup($group);
+            $this->rule = null;
+        }
+
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
             return false;

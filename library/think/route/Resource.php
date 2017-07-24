@@ -16,7 +16,7 @@ use think\Route;
 class Resource extends RuleGroup
 {
     // 资源路由名称
-    protected $rule;
+    protected $resource;
     // 资源路由地址
     protected $route;
     // REST路由方法定义
@@ -27,19 +27,19 @@ class Resource extends RuleGroup
      * @access public
      * @param Route         $router     路由对象
      * @param RuleGroup     $group      路由所属分组对象
-     * @param string        $rule       资源名称
+     * @param string        $name       资源名称
      * @param string        $route      路由地址
      * @param array         $option     路由参数
      * @param array         $pattern    变量规则
      * @param array         $rest       资源定义
      */
-    public function __construct(Route $router, RuleGroup $group = null, $rule = '', $route = '', $option = [], $pattern = [], $rest = [])
+    public function __construct(Route $router, RuleGroup $group = null, $name = '', $route = '', $option = [], $pattern = [], $rest = [])
     {
-        $this->router = $router;
-        $this->parent = $group;
-        $this->rule   = $rule;
-        $this->route  = $route;
-        $this->name   = strpos($rule, '.') ? strstr($rule, '.', true) : $rule;
+        $this->router   = $router;
+        $this->parent   = $group;
+        $this->resource = $name;
+        $this->route    = $route;
+        $this->name     = strpos($rule, '.') ? strstr($rule, '.', true) : $rule;
 
         // 资源路由默认为完整匹配
         $option['complete_match'] = true;
@@ -61,7 +61,7 @@ class Resource extends RuleGroup
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         // 生成资源路由的路由规则
-        $this->buildResourceRule($this->rule, $this->option);
+        $this->buildResourceRule($this->resource, $this->option);
 
         return parent::check($request, $url, $depr, $completeMatch);
     }
