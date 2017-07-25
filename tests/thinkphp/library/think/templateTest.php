@@ -38,7 +38,7 @@ EOF;
 {\$name.a??'test'}
 EOF;
         $data = <<<EOF
-<?php echo isset(\$name['a']) ? \$name['a'] : 'test'; ?>
+<?php echo isset(\$name['a'])?\$name['a']:'test'; ?>
 EOF;
 
         $template->parse($content);
