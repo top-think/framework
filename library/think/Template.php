@@ -771,7 +771,7 @@ class Template
                                 switch ($first) {
                                     case '?':
                                         // {$varname??'xxx'} $varname有定义则输出$varname,否则输出xxx
-                                        $str = '<?php echo ' . ($express ?: 'isset(' . $name . ') ') . ' ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: 'isset(' . $name . ') ') . '? ' . $name . ' : ' . substr($str, 1) . '; ?>';
                                         break;
                                     case '=':
                                         // {$varname?='xxx'} $varname为真时才输出xxx
