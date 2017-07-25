@@ -785,6 +785,8 @@ class Template
                                         if (isset($array[1])) {
                                             $this->parseVar($array[2]);
                                             $name = $name . $array[1] . $array[2];
+                                        } else {
+                                            $name = '!empty(' . $name . ')';
                                         }
                                         $str = '<?php echo ' . $name . '?' . $str . '; ?>';
                                 }
