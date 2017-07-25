@@ -877,15 +877,15 @@ class Template
                                 switch ($first) {
                                     case '?':
                                         // {$varname??'xxx'} $varname有定义则输出$varname,否则输出xxx
-                                        $str = '<?php echo ' . ($express ?: 'isset(' . $name . ') ') . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: 'isset(' . $name . ')') . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
                                         break;
                                     case '=':
                                         // {$varname?='xxx'} $varname为真时才输出xxx
-                                        $str = '<?php if(' . ($express ?: '!empty(' . $name . ') ') . ') echo ' . $str . '; ?>';
+                                        $str = '<?php if(' . ($express ?: '!empty(' . $name . ')') . ') echo ' . $str . '; ?>';
                                         break;
                                     case ':':
                                         // {$varname?:'xxx'} $varname为真时输出$varname,否则输出xxx
-                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ') ') . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ')') . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
                                         break;
                                     default:
                                         if (strpos($str, ':')) {
@@ -897,7 +897,7 @@ class Template
 
                                             $str = implode(' : ', $array);
                                         }
-                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ') ') . ' ? ' . $str . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ')') . ' ? ' . $str . '; ?>';
                                 }
                             }
                         } else {
