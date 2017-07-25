@@ -782,12 +782,11 @@ class Template
                                         $str = '<?php echo !empty(' . $name . ')' . $_name . '?' . $name . $str . '; ?>';
                                         break;
                                     default:
-                                        if (strpos($str, ':')) {
-                                            // {$varname ? 'a' : 'b'} $varname为真时输出a,否则输出b
-                                            $str = '<?php echo !empty(' . $name . ')' . $_name . '?' . $str . '; ?>';
-                                        } else {
-                                            $str = '<?php echo ' . $_name . '?' . $str . '; ?>';
+                                        if (isset($array[1])) {
+                                            $this->parseVar($array[2]);
+                                            $name = $name . $array[1] . $array[2];
                                         }
+                                        $str = '<?php echo ' . $name . '?' . $str . '; ?>';
                                 }
                             }
                         } else {
