@@ -763,32 +763,26 @@ class Template
                             } else {
                                 if (isset($array[1])) {
                                     $this->parseVar($array[2]);
-                                    $_name = ' && ' . $name . $array[1] . $array[2];
+                                    $express = $name . $array[1] . $array[2];
                                 } else {
-                                    $_name = '';
+                                    $express = false;
                                 }
                                 // $name为数组
                                 switch ($first) {
                                     case '?':
                                         // {$varname??'xxx'} $varname有定义则输出$varname,否则输出xxx
-                                        $str = '<?php echo isset(' . $name . ')' . $_name . ' ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: 'isset(' . $name . ') ') . ' ? ' . $name . ' : ' . substr($str, 1) . '; ?>';
                                         break;
                                     case '=':
                                         // {$varname?='xxx'} $varname为真时才输出xxx
-                                        $str = '<?php if(!empty(' . $name . ')' . $_name . ') echo ' . substr($str, 1) . '; ?>';
+                                        $str = '<?php if(' . ($express ?: '!empty(' . $name . ') ') . ') echo ' . substr($str, 1) . '; ?>';
                                         break;
                                     case ':':
                                         // {$varname?:'xxx'} $varname为真时输出$varname,否则输出xxx
-                                        $str = '<?php echo !empty(' . $name . ')' . $_name . '?' . $name . $str . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ') ') . '?' . $name . $str . '; ?>';
                                         break;
                                     default:
-                                        if (isset($array[1])) {
-                                            $this->parseVar($array[2]);
-                                            $name = $name . $array[1] . $array[2];
-                                        } else {
-                                            $name = '!empty(' . $name . ')';
-                                        }
-                                        $str = '<?php echo ' . $name . '?' . $str . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ') ') . '?' . $str . '; ?>';
                                 }
                             }
                         } else {
