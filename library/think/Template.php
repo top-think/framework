@@ -859,10 +859,11 @@ class Template
                                 }
                             } else {
                                 if (isset($array[1])) {
+                                    $express = true;
                                     $this->parseVar($array[2]);
-                                    $_name = ' && ' . $name . $array[1] . $array[2];
+                                    $express = $name . $array[1] . $array[2];
                                 } else {
-                                    $_name = '';
+                                    $express = false;
                                 }
 
                                 if (in_array($first, ['?', '=', ':'])) {
@@ -876,15 +877,15 @@ class Template
                                 switch ($first) {
                                     case '?':
                                         // {$varname??'xxx'} $varname有定义则输出$varname,否则输出xxx
-                                        $str = '<?php echo isset(' . $name . ')' . $_name . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: 'isset(' . $name . ') ') . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
                                         break;
                                     case '=':
                                         // {$varname?='xxx'} $varname为真时才输出xxx
-                                        $str = '<?php if(!empty(' . $name . ')' . $_name . ') echo ' . $str . '; ?>';
+                                        $str = '<?php if(' . ($express ?: '!empty(' . $name . ') ') . ') echo ' . $str . '; ?>';
                                         break;
                                     case ':':
                                         // {$varname?:'xxx'} $varname为真时输出$varname,否则输出xxx
-                                        $str = '<?php echo !empty(' . $name . ')' . $_name . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
+                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ') ') . ' ? ' . $this->parseVarFunction($name) . ' : ' . $str . '; ?>';
                                         break;
                                     default:
                                         if (strpos($str, ':')) {
@@ -895,11 +896,8 @@ class Template
                                             $array[1] = '$' == substr(trim($array[1]), 0, 1) ? $this->parseVarFunction($array[1]) : $array[1];
 
                                             $str = implode(' : ', $array);
-                                            $str = '<?php echo !empty(' . $name . ')' . $_name . ' ? ' . $str . '; ?>';
-
-                                        } else {
-                                            $str = '<?php echo ' . $_name . ' ? ' . $str . '; ?>';
                                         }
+                                        $str = '<?php echo ' . ($express ?: '!empty(' . $name . ') ') . ' ? ' . $str . '; ?>';
                                 }
                             }
                         } else {
