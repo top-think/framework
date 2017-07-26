@@ -642,7 +642,12 @@ abstract class Connection
                 return $this->close()->startTrans();
             }
             throw $e;
-        } catch (\Exception $e){
+        } catch (\ErrorException $e) {
+            if ($this->isBreak($e)) {
+                return $this->close()->startTrans();
+            }
+            throw $e;
+        }catch (\Exception $e){
             if ($this->isBreak($e)) {
                 return $this->close()->startTrans();
             }
