@@ -637,16 +637,6 @@ abstract class Connection
                 );
             }
 
-        } catch (\PDOException $e) {
-            if ($this->isBreak($e)) {
-                return $this->close()->startTrans();
-            }
-            throw $e;
-        } catch (\ErrorException $e) {
-            if ($this->isBreak($e)) {
-                return $this->close()->startTrans();
-            }
-            throw $e;
         } catch (\Exception $e){
             if ($this->isBreak($e)) {
                 return $this->close()->startTrans();
