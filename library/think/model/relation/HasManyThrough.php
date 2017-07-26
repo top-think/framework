@@ -32,7 +32,7 @@ class HasManyThrough extends Relation
      * @param string $through    中间模型名
      * @param string $foreignKey 关联外键
      * @param string $throughKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前主键
      */
     public function __construct(Model $parent, $model, $through, $foreignKey, $throughKey, $localKey)
     {

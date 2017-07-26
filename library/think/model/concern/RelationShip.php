@@ -292,7 +292,7 @@ trait RelationShip
      * @access public
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前主键
      * @return HasOne
      */
     public function hasOne($model, $foreignKey = '', $localKey = '')
@@ -330,7 +330,7 @@ trait RelationShip
      * @access public
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前主键
      * @return HasMany
      */
     public function hasMany($model, $foreignKey = '', $localKey = '')
@@ -350,7 +350,7 @@ trait RelationShip
      * @param string $through    中间模型名
      * @param string $foreignKey 关联外键
      * @param string $throughKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前主键
      * @return HasManyThrough
      */
     public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '')
