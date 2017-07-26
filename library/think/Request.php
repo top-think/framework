@@ -687,7 +687,7 @@ class Request
     /**
      * 设置获取GET参数
      * @access public
-     * @param string|array  $name 变量名
+     * @param mixed         $name 变量名
      * @param mixed         $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
@@ -709,7 +709,7 @@ class Request
     /**
      * 设置获取POST参数
      * @access public
-     * @param string        $name 变量名
+     * @param mixed         $name 变量名
      * @param mixed         $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
@@ -736,7 +736,7 @@ class Request
     /**
      * 设置获取PUT参数
      * @access public
-     * @param string|array      $name 变量名
+     * @param mixed             $name 变量名
      * @param mixed             $default 默认值
      * @param string|array      $filter 过滤方法
      * @return mixed
@@ -763,7 +763,7 @@ class Request
     /**
      * 设置获取DELETE参数
      * @access public
-     * @param string|array      $name 变量名
+     * @param mixed             $name 变量名
      * @param mixed             $default 默认值
      * @param string|array      $filter 过滤方法
      * @return mixed
@@ -776,7 +776,7 @@ class Request
     /**
      * 设置获取PATCH参数
      * @access public
-     * @param string|array      $name 变量名
+     * @param mixed             $name 变量名
      * @param mixed             $default 默认值
      * @param string|array      $filter 过滤方法
      * @return mixed
@@ -788,7 +788,7 @@ class Request
 
     /**
      * 获取request变量
-     * @param string        $name 数据名称
+     * @param mixed         $name 数据名称
      * @param string        $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
@@ -810,7 +810,7 @@ class Request
     /**
      * 获取session数据
      * @access public
-     * @param string|array  $name 数据名称
+     * @param mixed         $name 数据名称
      * @param string        $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
@@ -831,7 +831,7 @@ class Request
     /**
      * 获取cookie参数
      * @access public
-     * @param string|array  $name 数据名称
+     * @param mixed         $name 数据名称
      * @param string        $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
@@ -868,7 +868,7 @@ class Request
     /**
      * 获取server参数
      * @access public
-     * @param string|array  $name 数据名称
+     * @param mixed         $name 数据名称
      * @param string        $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
@@ -951,7 +951,7 @@ class Request
 
     /**
      * 获取环境变量
-     * @param string|array  $name 数据名称
+     * @param mixed         $name 数据名称
      * @param string        $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
