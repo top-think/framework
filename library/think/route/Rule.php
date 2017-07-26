@@ -581,6 +581,8 @@ abstract class Rule
         if ($route instanceof \Closure) {
             // 执行闭包
             $result = new CallbackDispatch($route);
+        } elseif ($route instanceof Response) {
+            $result = new ResponseDispatch($route);
         } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
             $result = new RedirectDispatch($route, [], isset($option['status']) ? $option['status'] : 301);

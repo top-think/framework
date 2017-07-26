@@ -13,7 +13,9 @@ namespace think\route;
 
 use think\Container;
 use think\Request;
+use think\Response;
 use think\Route;
+use think\route\dispatch\Response as ResponseDispatch;
 use think\route\dispatch\Url as UrlDispatch;
 
 class RuleGroup extends Rule
@@ -75,6 +77,10 @@ class RuleGroup extends Rule
         }
 
         if ($this->rule) {
+            if ($this->rule instanceof Response) {
+                return new ResponseDispatch($this->rule);
+            }
+
             // 解析分组路由
             $group = $this->router->getGroup();
 
