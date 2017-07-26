@@ -877,4 +877,15 @@ class Route
         return $var;
     }
 
+    /**
+     * 设置全局的路由分组参数
+     * @access protected
+     * @param string    $method     方法名
+     * @param array     $args       调用参数
+     * @return RuleGroup
+     */
+    public function __call($method, $args)
+    {
+        return call_user_func_array([$this->group, $method], $args);
+    }
 }

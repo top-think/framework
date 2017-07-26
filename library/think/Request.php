@@ -628,7 +628,7 @@ class Request
     /**
      * 获取当前请求的参数
      * @access public
-     * @param string|array  $name 变量名
+     * @param mixed         $name 变量名
      * @param mixed         $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
@@ -669,7 +669,7 @@ class Request
     /**
      * 设置获取路由参数
      * @access public
-     * @param string|array  $name 变量名
+     * @param mixed         $name 变量名
      * @param mixed         $default 默认值
      * @param string|array  $filter 过滤方法
      * @return mixed
