@@ -169,7 +169,13 @@ class Route
         $domain = is_array($name) ? array_shift($name) : $name;
 
         if (!strpos($domain, '.')) {
-            $domain .= '.' . $this->config->get('app.url_domain_root');
+            $root = $this->config->get('app.url_domain_root');
+            if (!$root) {
+                $item  = explode('.', $this->host);
+                $count = count($item);
+                $root  = $item[$count - 2] . '.' . $item[$count - 1];
+            }
+            $domain .= '.' . $root;
         }
 
         // 获取原始分组
@@ -199,7 +205,7 @@ class Route
         if (is_array($name) && !empty($name)) {
             foreach ($name as $item) {
                 if (!strpos($item, '.')) {
-                    $item .= '.' . implode('.', $this->getMasterDomain());
+                    $item .= '.' . $root;
                 }
 
                 $this->domains[$item] = $this->domains[$domain];
@@ -486,6 +492,8 @@ class Route
 
             if ($route instanceof \Closure) {
                 Container::getInstance()->invokeFunction($route);
+            } elseif ($route instanceof Response) {
+                $group->setRule($route);
             } else {
                 $this->rules($route);
             }

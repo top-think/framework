@@ -61,6 +61,18 @@ class RuleGroup extends Rule
     }
 
     /**
+     * 设置分组的路由规则
+     * @access public
+     * @param mixed      $rule     路由规则
+     * @return $this
+     */
+    public function setRule($rule)
+    {
+        $this->rule = $rule;
+        return $this;
+    }
+
+    /**
      * 检测分组路由
      * @access public
      * @param Request      $request  请求对象
