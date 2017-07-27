@@ -12,6 +12,7 @@
 namespace think\route\dispatch;
 
 use think\Container;
+use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\Loader;
 use think\route\Dispatch;
@@ -90,14 +91,13 @@ class Module extends Dispatch
         $this->app['hook']->listen('module_init', $this->app['request']);
 
         // 实例化控制器
-        $instance = $this->app->controller($controller,
-            $this->app->config('app.url_controller_layer'),
-            $this->app->config('app.controller_suffix'),
-            $this->app->config('app.empty_controller'),
-            false);
-
-        if (is_null($instance)) {
-            throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
+        try {
+            $instance = $this->app->controller($controller,
+                $this->app->config('app.url_controller_layer'),
+                $this->app->config('app.controller_suffix'),
+                $this->app->config('app.empty_controller'));
+        } catch (ClassNotFoundException $e) {
+            throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
 
         // 获取当前操作名

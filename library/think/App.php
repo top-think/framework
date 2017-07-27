@@ -459,11 +459,10 @@ class App implements \ArrayAccess
      * @param string $layer             控制层名称
      * @param bool   $appendSuffix      是否添加类名后缀
      * @param string $empty             空控制器名称
-     * @param bool   $throwException    是否抛异常
      * @return Object|null
      * @throws ClassNotFoundException
      */
-    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '', $throwException = true)
+    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
         if (false !== strpos($name, '\\')) {
             $class  = $name;
@@ -481,7 +480,7 @@ class App implements \ArrayAccess
             return $this->__get($class);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
             return $this->__get($emptyClass);
-        } elseif ($throwException) {
+        } else {
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
     }
