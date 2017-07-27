@@ -1855,7 +1855,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前模型主键
      * @param array  $alias      别名定义（已经废弃）
      * @param string $joinType   JOIN类型
      * @return HasOne
@@ -1895,7 +1895,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前模型主键
      * @return HasMany
      */
     public function hasMany($model, $foreignKey = '', $localKey = '')
@@ -1914,7 +1914,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param string $through    中间模型名
      * @param string $foreignKey 关联外键
      * @param string $throughKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前模型主键
      * @return HasManyThrough
      */
     public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '')

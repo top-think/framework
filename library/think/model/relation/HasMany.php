@@ -24,7 +24,7 @@ class HasMany extends Relation
      * @param Model  $parent     上级模型对象
      * @param string $model      模型名
      * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
+     * @param string $localKey   当前模型主键
      */
     public function __construct(Model $parent, $model, $foreignKey, $localKey)
     {
