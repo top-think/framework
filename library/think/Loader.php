@@ -400,7 +400,7 @@ class Loader
      * @param string $layer        控制层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $empty        空控制器名称
-     * @return Object|false
+     * @return Object
      * @throws ClassNotFoundException
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
@@ -420,6 +420,8 @@ class Loader
             return App::invokeClass($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
             return new $emptyClass(Request::instance());
+        } else {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
     }
 

@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\exception\RouteNotFoundException;
@@ -383,10 +384,12 @@ class App
         // 监听module_init
         Hook::listen('module_init', $request);
 
-        $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
-        if (is_null($instance)) {
-            throw new HttpException(404, 'controller not exists:' . Loader::parseName($controller, 1));
+        try {
+            $instance = Loader::controller($controller, $config['url_controller_layer'], $config['controller_suffix'], $config['empty_controller']);
+        } catch (ClassNotFoundException $e) {
+            throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
+
         // 获取当前操作名
         $action = $actionName . $config['action_suffix'];
 
