@@ -318,8 +318,8 @@ class App implements \ArrayAccess
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
             $isAjax = $this->request->isAjax();
+            $type   = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
 
-            $type     = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
             $response = Response::create($data, $type);
         } else {
             $response = Response::create();
@@ -368,7 +368,7 @@ class App implements \ArrayAccess
     /**
      * URL路由检测（根据PATH_INFO)
      * @access public
-     * @return array
+     * @return Dispatch
      * @throws \think\Exception
      */
     public function routeCheck()
@@ -389,9 +389,10 @@ class App implements \ArrayAccess
             }
         }
 
+        // 是否强制路由模式
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
 
-        // 路由检测（根据路由定义返回不同的URL调度）
+        // 路由检测 返回一个Dispatch对象
         return $this->route->check($path, $depr, $must, $this->config('app.route_complete_match'));
     }
 
