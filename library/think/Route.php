@@ -208,7 +208,7 @@ class Route
                     $item .= '.' . $root;
                 }
 
-                $this->domains[$item] = $this->domains[$domain];
+                $this->domains[$item] = $domain;
             }
         }
 
@@ -807,10 +807,10 @@ class Route
         } else {
             $domain = explode('.', $this->host, -2);
         }
-        $domains = $this->domains;
-        $item    = false;
 
-        if (!empty($domain) && count($domains) > 1) {
+        $item = false;
+
+        if (!empty($domain) && count($this->domains) > 1) {
             // 当前子域名
             $subDomain = implode('.', $domain);
             $domain2   = array_pop($domain);
@@ -820,17 +820,17 @@ class Route
                 $domain3 = array_pop($domain);
             }
 
-            if ($subDomain && isset($domains[$subDomain])) {
+            if ($subDomain && isset($this->domains[$subDomain])) {
                 // 子域名配置
-                $item = $domains[$subDomain];
-            } elseif (isset($domains['*.' . $domain2]) && !empty($domain3)) {
+                $item = $this->domains[$subDomain];
+            } elseif (isset($this->domains['*.' . $domain2]) && !empty($domain3)) {
                 // 泛三级域名
-                $item      = $domains['*.' . $domain2];
+                $item      = $this->domains['*.' . $domain2];
                 $panDomain = $domain3;
-            } elseif (isset($domains['*']) && !empty($domain2)) {
+            } elseif (isset($this->domains['*']) && !empty($domain2)) {
                 // 泛二级域名
                 if ('www' != $domain2) {
-                    $item      = $domains['*'];
+                    $item      = $this->domains['*'];
                     $panDomain = $domain2;
                 }
             }
@@ -843,7 +843,9 @@ class Route
 
         if (false === $item) {
             // 检测当前完整域名
-            $item = $domains[$this->host];
+            $item = $this->domains[$this->host];
+        } elseif (is_string($item)) {
+            $item = $this->domains[$item];
         }
 
         return $item;
