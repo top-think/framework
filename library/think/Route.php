@@ -168,6 +168,10 @@ class Route
         // 支持多个域名使用相同路由规则
         $domain = is_array($name) ? array_shift($name) : $name;
 
+        if (!strpos($domain, '.')) {
+            $domain .= '.' . $this->config->get('app.url_domain_root');
+        }
+
         // 获取原始分组
         $originGroup = $this->group;
 
@@ -194,6 +198,10 @@ class Route
 
         if (is_array($name) && !empty($name)) {
             foreach ($name as $item) {
+                if (!strpos($item, '.')) {
+                    $item .= '.' . implode('.', $this->getMasterDomain());
+                }
+
                 $this->domains[$item] = $this->domains[$domain];
             }
         }
@@ -752,8 +760,7 @@ class Route
     public function check($url, $depr = '/', $must = false, $completeMatch = false)
     {
         // 自动检测域名路由
-        $host   = $this->request->host();
-        $domain = $this->checkDomain($host);
+        $domain = $this->checkDomain();
         $url    = str_replace($depr, '|', $url);
 
         $result = $domain->check($this->request, $url, $depr, $completeMatch);
@@ -781,20 +788,19 @@ class Route
      * @param string    $host 当前主机地址
      * @return Domain
      */
-    protected function checkDomain($host)
+    protected function checkDomain()
     {
+        // 获取当前主域名
         $rootDomain = $this->config->get('app.url_domain_root');
-        $domains    = $this->domains;
 
         if ($rootDomain) {
             // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-            $domain = explode('.', rtrim(stristr($host, $rootDomain, true), '.'));
+            $domain = explode('.', rtrim(stristr($this->host, $rootDomain, true), '.'));
         } else {
-            $domain = explode('.', $host, -2);
+            $domain = explode('.', $this->host, -2);
         }
-
-        // 子域名配置
-        $item = false;
+        $domains = $this->domains;
+        $item    = false;
 
         if (!empty($domain) && count($domains) > 1) {
             // 当前子域名
@@ -829,7 +835,7 @@ class Route
 
         if (false === $item) {
             // 检测当前完整域名
-            $item = $domains[$host];
+            $item = $domains[$this->host];
         }
 
         return $item;
