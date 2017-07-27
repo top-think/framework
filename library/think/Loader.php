@@ -365,6 +365,9 @@ class Loader
      */
     public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
+        if (defined('IS_CLI') && IS_CLI) {
+            $name = $common.'/'.$name;
+        }
         $guid = $name . $layer;
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
