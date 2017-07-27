@@ -16,3 +16,4 @@ if [ $(phpenv version-name) != "hhvm" ]; then
 fi
 
 composer install --no-interaction --ignore-platform-reqs
+composer update
