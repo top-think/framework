@@ -126,10 +126,10 @@ class Hook
      * 执行行为
      * @access public
      * @param mixed     $class  行为
-     * @param array     $params 参数
+     * @param mixed     $params 参数
      * @return mixed
      */
-    public function exec($class, $params = [])
+    public function exec($class, $params = null)
     {
         if ($class instanceof \Closure || is_array($class)) {
             $method = $class;
@@ -140,7 +140,7 @@ class Hook
             $method = [$class, 'run'];
         }
 
-        return Container::getInstance()->invoke($method, $params);
+        return Container::getInstance()->invoke($method, [$params]);
     }
 
     /**
