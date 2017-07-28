@@ -21,6 +21,7 @@ use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Debug;
+use think\facade\Hook;
 use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
@@ -76,6 +77,19 @@ if (!function_exists('call')) {
     function call($callable, $args = [])
     {
         return Container::getInstance()->invoke($callable, $args);
+    }
+}
+
+if (!function_exists('behavior')) {
+    /**
+     * 执行某个行为（run方法） 支持依赖注入
+     * @param mixed $behavior   行为类名或者别名
+     * @param mixed $args       参数
+     * @return mixed
+     */
+    function behavior($behavior, $args = null)
+    {
+        return Hook::exec($behavior, $args);
     }
 }
 
