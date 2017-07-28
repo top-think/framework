@@ -99,17 +99,16 @@ class Hook
      * @access public
      * @param string $tag    标签名称
      * @param mixed  $params 传入参数
-     * @param mixed  $extra  额外参数
      * @param bool   $once   只获取一个有效返回值
      * @return mixed
      */
-    public function listen($tag, $params = null, $extra = null, $once = false)
+    public function listen($tag, $params = null, $once = false)
     {
         $results = [];
         $tags    = $this->get($tag);
 
         foreach ($tags as $key => $name) {
-            $results[$key] = $this->execTag($name, $tag, $params, $extra);
+            $results[$key] = $this->execTag($name, $tag, $params);
 
             if (false === $results[$key]) {
                 // 如果返回false 则中断行为执行
@@ -149,10 +148,9 @@ class Hook
      * @param mixed     $class  要执行的行为
      * @param string    $tag    方法名（标签名）
      * @param mixed     $params 参数
-     * @param mixed     $extra  额外参数
      * @return mixed
      */
-    protected function execTag($class, $tag = '', $params = null, $extra = null)
+    protected function execTag($class, $tag = '', $params = null)
     {
         $app = Container::get('app');
 
@@ -176,7 +174,7 @@ class Hook
             $class = $class . '->' . $method;
         }
 
-        $result = Container::getInstance()->invoke($call, [$params, $extra]);
+        $result = Container::getInstance()->invoke($call, [$params]);
 
         if ($app->isDebug()) {
             $debug = $app['debug'];
