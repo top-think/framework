@@ -36,12 +36,12 @@ class Autoload extends Command
 return [
 
 EOF;
-
+        $app              = Container::get('app');
         $namespacesToScan = [
-            Container::get('app')->getNamespace() . '\\' => realpath(rtrim(Container::get('app')->getAppPath())),
-            'think\\'                                    => Container::get('app')->getAppPath() . 'library/think',
-            'traits\\'                                   => Container::get('app')->getAppPath() . 'library/traits',
-            ''                                           => realpath(rtrim(Container::get('app')->getRootPath() . 'extend')),
+            $app->getNamespace() . '\\' => realpath(rtrim($app->getAppPath())),
+            'think\\'                   => $app->getAppPath() . 'library/think',
+            'traits\\'                  => $app->getAppPath() . 'library/traits',
+            ''                          => realpath(rtrim($app->getRootPath() . 'extend')),
         ];
 
         krsort($namespacesToScan);
@@ -61,7 +61,7 @@ EOF;
             $classmapFile .= '    ' . var_export($class, true) . ' => ' . $code;
         }
         $classmapFile .= "];\n";
-        $runtimePath = Container::get('app')->getRuntimePath();
+        $runtimePath = $app->getRuntimePath();
         if (!is_dir($runtimePath)) {
             @mkdir($runtimePath, 0755, true);
         }
@@ -93,22 +93,22 @@ EOF;
 
     protected function getPathCode($path)
     {
-
         $baseDir    = '';
-        $appPath    = $this->normalizePath(realpath(Container::get('app')->getAppPath()));
-        $libPath    = $this->normalizePath(realpath(Container::get('app')->getThinkPath() . 'library'));
-        $extendPath = $this->normalizePath(realpath(Container::get('app')->getRootPath() . 'extend'));
+        $app        = Container::get('app');
+        $appPath    = $this->normalizePath(realpath($app->getAppPath()));
+        $libPath    = $this->normalizePath(realpath($app->getThinkPath() . 'library'));
+        $extendPath = $this->normalizePath(realpath($app->getRootPath() . 'extend'));
         $path       = $this->normalizePath($path);
 
         if (strpos($path, $libPath . '/') === 0) {
-            $path    = substr($path, strlen(Container::get('app')->getThinkPath() . 'library'));
-            $baseDir = 'LIB_PATH';
+            $path    = substr($path, strlen($app->getThinkPath() . 'library'));
+            $baseDir = "'" . $libPath . "/'";
         } elseif (strpos($path, $appPath . '/') === 0) {
             $path    = substr($path, strlen($appPath) + 1);
-            $baseDir = 'APP_PATH';
+            $baseDir = "'" . $appPath . "/'";
         } elseif (strpos($path, $extendPath . '/') === 0) {
             $path    = substr($path, strlen($extendPath) + 1);
-            $baseDir = 'EXTEND_PATH';
+            $baseDir = "'" . $extendPath . "/'";
         }
 
         if (false !== $path) {
