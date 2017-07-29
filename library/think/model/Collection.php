@@ -85,7 +85,7 @@ class Collection extends BaseCollection
     {
         $this->each(function ($model) use ($append, $override) {
             /** @var Model $model */
-            $model->append($append, $override);
+            $model && $model->append($append, $override);
         });
         return $this;
     }
