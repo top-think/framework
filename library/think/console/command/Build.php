@@ -47,10 +47,12 @@ class Build extends Command
         } else {
             $build = include App::getAppPath() . 'build.php';
         }
+
         if (empty($build)) {
             $output->writeln("Build Config Is Empty");
             return;
         }
+
         AppBuild::run($build);
         $output->writeln("Successed");
 
