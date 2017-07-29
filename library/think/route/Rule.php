@@ -316,6 +316,31 @@ abstract class Rule
     }
 
     /**
+     * 设置是否允许OPTIONS嗅探
+     * @access public
+     * @param bool     $allow
+     * @return $this
+     */
+    public function allowOptions($allow = true)
+    {
+        return $this->option('allow_options', $allow);
+    }
+
+    /**
+     * 检查OPTIONS请求
+     * @access public
+     * @param Request     $request
+     * @return Dispatch|void
+     */
+    protected function checkAllowOptions($request)
+    {
+        if (!empty($this->option['allow_options']) && $request->method(true) == 'OPTIONS') {
+            // 允许OPTIONS嗅探
+            return new ResponseDispatch(Response::create()->code(200));
+        }
+    }
+
+    /**
      * 设置路由规则全局有效
      * @access public
      * @return $this

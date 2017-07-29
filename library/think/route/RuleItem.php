@@ -104,6 +104,11 @@ class RuleItem extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
+        if ($dispatch = $this->checkAllowOptions($request)) {
+            // 允许OPTIONS嗅探
+            return $dispatch;
+        }
+
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
             return false;
