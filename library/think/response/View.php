@@ -71,6 +71,19 @@ class View extends Response
     }
 
     /**
+     * 检查模板是否存在
+     * @access private
+     * @param string|array  $name 参数名
+     * @return bool
+     */
+    public function exists($name)
+    {
+        return Container::get('view')
+            ->init(Container::get('app')->config('template'))
+            ->exists($name);
+    }
+
+    /**
      * 视图内容替换
      * @access public
      * @param string|array $content 被替换内容（支持批量替换）

@@ -128,6 +128,17 @@ class View
     }
 
     /**
+     * 检查模板是否存在
+     * @access private
+     * @param string|array  $name 参数名
+     * @return bool
+     */
+    public function exists($name)
+    {
+        return $this->engine->exists($name);
+    }
+
+    /**
      * 解析和获取模板内容 用于输出
      * @param string    $template 模板文件名或者内容
      * @param array     $vars     模板输出变量
