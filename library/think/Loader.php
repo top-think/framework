@@ -360,7 +360,7 @@ class Loader
      * @param string $layer        业务层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $common       公共模块名
-     * @return Object
+     * @return object
      * @throws ClassNotFoundException
      */
     public static function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
@@ -400,7 +400,7 @@ class Loader
      * @param string $layer        控制层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $empty        空控制器名称
-     * @return Object
+     * @return object
      * @throws ClassNotFoundException
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
