@@ -11,6 +11,7 @@
 
 namespace think;
 
+use BadMethodCallException;
 use InvalidArgumentException;
 use think\db\Query;
 use think\exception\ValidateException;
@@ -567,6 +568,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param Relation        $modelRelation 模型关联对象
      * @return mixed
+     * @throws BadMethodCallException
      */
     protected function getRelationData(Relation $modelRelation)
     {
@@ -574,7 +576,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $value = $this->parent;
         } else {
             // 首先获取关联数据
-            $value = $modelRelation->getRelation();
+            if (method_exists($modelRelation, 'getRelation')) {
+                $value = $modelRelation->getRelation();
+            } else {
+                throw new BadMethodCallException('method not exists:' . get_class($modelRelation) . '-> getRelation');
+            }
         }
         return $value;
     }
