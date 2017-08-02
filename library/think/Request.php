@@ -60,6 +60,11 @@ class Request
     protected $routeInfo = [];
 
     /**
+     * @var array 环境变量
+     */
+    protected $env;
+
+    /**
      * @var array 当前调度信息
      */
     protected $dispatch = [];
