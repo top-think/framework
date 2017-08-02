@@ -49,6 +49,9 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         'fragment' => '',
     ];
 
+    /** @var mixed simple模式下的下个元素 */
+    protected $nextItem;
+
     public function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
     {
         $this->options = array_merge($this->options, $options);
@@ -65,7 +68,10 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         if ($simple) {
             $this->currentPage = $this->setCurrentPage($currentPage);
             $this->hasMore     = count($items) > ($this->listRows);
-            $items             = $items->slice(0, $this->listRows);
+            if ($this->hasMore) {
+                $this->nextItem = $items->slice($this->listRows, 1);
+            }
+            $items = $items->slice(0, $this->listRows);
         } else {
             $this->total       = $total;
             $this->lastPage    = (int) ceil($total / $listRows);
@@ -135,9 +141,9 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      */
     public static function getCurrentPage($varPage = 'page', $default = 1)
     {
-        $page = Request::instance()->request($varPage);
+        $page = (int) Request::instance()->request($varPage);
 
-        if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int) $page >= 1) {
+        if (filter_var($page, FILTER_VALIDATE_INT) !== false && $page >= 1) {
             return $page;
         }
 
@@ -356,19 +362,24 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     public function toArray()
     {
-        try {
-            $total = $this->total();
-        } catch (\DomainException $e) {
-            $total = null;
+        if ($this->simple) {
+            return [
+                'per_page'     => $this->listRows,
+                'current_page' => $this->currentPage,
+                'has_more'     => $this->hasMore,
+                'next_item'    => $this->nextItem,
+                'data'         => $this->items->toArray(),
+            ];
+        } else {
+            return [
+                'total'        => $this->total,
+                'per_page'     => $this->listRows,
+                'current_page' => $this->currentPage,
+                'last_page'    => $this->lastPage,
+                'data'         => $this->items->toArray(),
+            ];
         }
 
-        return [
-            'total'        => $total,
-            'per_page'     => $this->listRows(),
-            'current_page' => $this->currentPage(),
-            'last_page'    => $this->lastPage,
-            'data'         => $this->items->toArray(),
-        ];
     }
 
     /**
