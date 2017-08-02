@@ -121,6 +121,22 @@ class Config
         $name   = explode('.', strtolower($name));
         $config = $this->config;
 
+        if (!isset($config[$name[0]])) {
+            // 如果尚未载入 则动态加载配置文件
+            $module = Container::get('request')->module();
+            $module = $module ? $module . '/' : '';
+            $path   = Container::get('app')->getAppPath() . $module;
+            if (is_dir($path . 'config')) {
+                $file = $path . 'config/' . $name[0] . Container::get('app')->getConfigExt();
+            } elseif (is_dir(Container::get('app')->getConfigPath() . $module)) {
+                $file = Container::get('app')->getConfigPath() . $module . $name[0] . Container::get('app')->getConfigExt();
+            }
+
+            if (isset($file) && is_file($file)) {
+                $this->load($file);
+            }
+        }
+
         // 按.拆分成多维数组进行判断
         foreach ($name as $val) {
             if (isset($config[$val])) {
