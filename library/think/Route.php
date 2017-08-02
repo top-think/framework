@@ -1546,7 +1546,7 @@ class Route
     /**
      * 解析URL地址中的参数Request对象
      * @access private
-     * @param string    $rule 路由规则
+     * @param string    $url 路由规则
      * @param array     $var 变量
      * @return void
      */
