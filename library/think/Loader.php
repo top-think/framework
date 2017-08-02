@@ -431,7 +431,7 @@ class Loader
      * @param string $layer        验证层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $common       公共模块名
-     * @return Object|false
+     * @return object|false
      * @throws ClassNotFoundException
      */
     public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
