@@ -117,7 +117,9 @@ class Config
             if (!isset(self::$config[$range][$name[0]])) {
                 // 动态载入额外配置
                 $module = Request::instance()->module();
-                self::load(CONF_PATH . ($module ? $module . DS : '') . 'extra' . DS . strtolower($name[0]) . CONF_EXT);
+                $file   = CONF_PATH . ($module ? $module . DS : '') . 'extra' . DS . $name[0] . CONF_EXT;
+
+                is_file($file) && self::load($file, $name[0]);
             }
 
             return isset(self::$config[$range][$name[0]][$name[1]]) ? self::$config[$range][$name[0]][$name[1]] : null;
