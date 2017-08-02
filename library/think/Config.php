@@ -133,7 +133,7 @@ class Config
             }
 
             if (isset($file) && is_file($file)) {
-                $this->load($file);
+                $this->load($file, $name[0]);
             }
         }
 
