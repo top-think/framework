@@ -113,6 +113,13 @@ class Config
             // 二维数组设置和获取支持
             $name    = explode('.', $name, 2);
             $name[0] = strtolower($name[0]);
+
+            if (!isset(self::$config[$range][$name[0]])) {
+                // 动态载入额外配置
+                $module = Request::instance()->module();
+                self::load(CONF_PATH . ($module ? $module . DS : '') . 'extra' . DS . strtolower($name[0]) . CONF_EXT);
+            }
+
             return isset(self::$config[$range][$name[0]][$name[1]]) ? self::$config[$range][$name[0]][$name[1]] : null;
         }
     }
