@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use think\db\Query;
 use think\Loader;
 use think\Model;
 
@@ -68,7 +69,6 @@ class BelongsTo extends OneToOne
      * @param string  $operator 比较操作符
      * @param integer $count    个数
      * @param string  $id       关联表的统计字段
-     * @param string  $joinType JOIN类型
      * @return Query
      */
     public function has($operator = '>=', $count = 1, $id = '*')

@@ -2336,7 +2336,7 @@ class Query
             $modelName = $this->model;
             if (count($resultSet) > 0) {
                 foreach ($resultSet as $key => $result) {
-                    /** @var Model $result */
+                    /** @var Model $model */
                     $model = new $modelName($result);
                     $model->isUpdate(true);
 
@@ -2392,6 +2392,7 @@ class Query
      * @param mixed     $value   缓存数据
      * @param array     $options 缓存参数
      * @param array     $bind    绑定参数
+     * @return string
      */
     protected function getCacheKey($value, $options, $bind = [])
     {
