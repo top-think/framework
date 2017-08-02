@@ -11,6 +11,7 @@
 
 namespace think\db;
 
+use BadMethodCallException;
 use PDO;
 use think\Exception;
 
@@ -46,7 +47,7 @@ abstract class Builder
     /**
      * 获取当前的连接对象实例
      * @access public
-     * @return void
+     * @return Connection
      */
     public function getConnection()
     {
@@ -56,7 +57,7 @@ abstract class Builder
     /**
      * 获取当前的Query对象实例
      * @access public
-     * @return void
+     * @return Query
      */
     public function getQuery()
     {
@@ -80,6 +81,7 @@ abstract class Builder
      * @param array     $data 数据
      * @param array     $options 查询参数
      * @return array
+     * @throws Exception
      */
     protected function parseData($data, $options)
     {
@@ -497,7 +499,7 @@ abstract class Builder
     /**
      * limit分析
      * @access protected
-     * @param mixed $lmit
+     * @param mixed $limit
      * @return string
      */
     protected function parseLimit($limit)
@@ -549,7 +551,11 @@ abstract class Builder
             foreach ($order as $key => $val) {
                 if (is_numeric($key)) {
                     if ('[rand]' == $val) {
-                        $array[] = $this->parseRand();
+                        if (method_exists($this, 'parseRand')) {
+                            $array[] = $this->parseRand();
+                        } else {
+                            throw new BadMethodCallException('method not exists:' . get_class($this) . '-> parseRand');
+                        }
                     } elseif (false === strpos($val, '(')) {
                         $array[] = $this->parseKey($val, $options);
                     } else {
@@ -654,7 +660,7 @@ abstract class Builder
     /**
      * 设置锁机制
      * @access protected
-     * @param bool $locl
+     * @param bool $lock
      * @return string
      */
     protected function parseLock($lock = false)
@@ -728,6 +734,7 @@ abstract class Builder
      * @param array     $options 表达式
      * @param bool      $replace 是否replace
      * @return string
+     * @throws Exception
      */
     public function insertAll($dataSet, $options = [], $replace = false)
     {
@@ -775,7 +782,7 @@ abstract class Builder
     }
 
     /**
-     * 生成slectinsert SQL
+     * 生成select insert SQL
      * @access public
      * @param array     $fields 数据
      * @param string    $table 数据表
@@ -796,7 +803,7 @@ abstract class Builder
     /**
      * 生成update SQL
      * @access public
-     * @param array     $fields 数据
+     * @param array     $data 数据
      * @param array     $options 表达式
      * @return string
      */
