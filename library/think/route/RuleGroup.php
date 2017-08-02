@@ -218,6 +218,10 @@ class RuleGroup extends Rule
      */
     public function prefix($prefix)
     {
+        if ($this->parent->getOption('prefix')) {
+            $prefix = $this->parent->getOption('prefix') . $prefix;
+        }
+
         return $this->option('prefix', $prefix);
     }
 
