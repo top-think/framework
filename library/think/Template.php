@@ -59,6 +59,7 @@ class Template
     /**
      * 构造函数
      * @access public
+     * @param array $config
      */
     public function __construct(array $config = [])
     {
