@@ -127,7 +127,7 @@ class View
      * @access private
      * @param string|array  $name 参数名
      * @param mixed         $value 参数值
-     * @return void
+     * @return $this
      */
     public function config($name, $value = null)
     {
