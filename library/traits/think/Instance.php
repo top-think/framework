@@ -24,7 +24,7 @@ trait Instance
     public static function instance($options = [])
     {
         if (is_null(self::$instance)) {
-            self::$instance = new self($options);
+            self::$instance = new static($options);
         }
         return self::$instance;
     }
