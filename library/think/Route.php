@@ -178,7 +178,7 @@ class Route
             $domain .= '.' . $root;
         }
 
-        $route = 1 == $this->config->get('url_route_parse') ? $rule : null;
+        $route = $this->config->get('url_lazy_route') ? $rule : null;
 
         $this->domains[$domain] = new Domain($this, $domain, $route, $option, $pattern);
 
@@ -483,7 +483,7 @@ class Route
         }
 
         // 创建分组实例
-        $rule  = 1 == $this->config->get('url_route_parse') ? $route : null;
+        $rule  = $this->config->get('url_lazy_route') ? $route : null;
         $group = new RuleGroup($this, $this->group, $name, $rule, $option, $pattern);
 
         if (is_null($rule)) {
