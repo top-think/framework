@@ -94,11 +94,11 @@ class RuleGroup extends Rule
         }
 
         if ($this->rule) {
+            // 延迟解析分组路由
             if ($this->rule instanceof Response) {
                 return new ResponseDispatch($this->rule);
             }
 
-            // 解析分组路由
             $group = $this->router->getGroup();
 
             $this->router->setGroup($this);

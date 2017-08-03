@@ -178,29 +178,31 @@ class Route
             $domain .= '.' . $root;
         }
 
-        // 获取原始分组
-        $originGroup = $this->group;
+        $route = 1 == $this->config->get('url_route_parse') ? $rule : null;
 
-        // 设置当前域名
-        $this->domain = $domain;
+        $this->domains[$domain] = new Domain($this, $domain, $route, $option, $pattern);
 
-        $this->domains[$domain] = new Domain($this, $domain, $option, $pattern);
+        if (is_null($route)) {
+            // 获取原始分组
+            $originGroup = $this->group;
+            // 设置当前域名
+            $this->domain = $domain;
+            $this->group  = $this->createTopGroup($this->domains[$domain]);
 
-        $this->group = $this->createTopGroup($this->domains[$domain]);
+            // 执行域名路由
+            if ($rule instanceof \Closure) {
+                Container::getInstance()->invokeFunction($rule);
+            } elseif (is_array($rule)) {
+                $this->rules($rule);
+            } elseif ($rule) {
+                $this->bind($rule);
+            }
 
-        // 执行域名路由
-        if ($rule instanceof \Closure) {
-            Container::getInstance()->invokeFunction($rule);
-        } elseif (is_array($rule)) {
-            $this->rules($rule);
-        } elseif ($rule) {
-            $this->bind($rule);
+            // 还原默认域名
+            $this->domain = $this->host;
+            // 还原默认分组
+            $this->group = $originGroup;
         }
-
-        // 还原默认域名
-        $this->domain = $this->host;
-        // 还原默认分组
-        $this->group = $originGroup;
 
         if (is_array($name) && !empty($name)) {
             foreach ($name as $item) {

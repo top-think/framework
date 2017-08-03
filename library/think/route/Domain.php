@@ -13,10 +13,12 @@ namespace think\route;
 
 use think\Container;
 use think\Loader;
+use think\Response;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
 use think\route\dispatch\Module as ModuleDispatch;
+use think\route\dispatch\Response as ResponseDispatch;
 
 class Domain extends RuleGroup
 {
@@ -25,14 +27,16 @@ class Domain extends RuleGroup
      * @access public
      * @param Route       $router   路由对象
      * @param string      $name     分组名称
+     * @param mixed       $rule     域名路由
      * @param array       $option   路由参数
      * @param array       $pattern  变量规则
      */
-    public function __construct(Route $router, $name = '', $option = [], $pattern = [])
+    public function __construct(Route $router, $name = '', $rule = null, $option = [], $pattern = [])
     {
         $this->router  = $router;
         $this->name    = trim($name, '/');
         $this->option  = $option;
+        $this->rule    = $rule;
         $this->pattern = $pattern;
     }
 
@@ -47,6 +51,27 @@ class Domain extends RuleGroup
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
+        if ($this->rule) {
+            // 延迟解析域名路由
+            if ($this->rule instanceof Response) {
+                return new ResponseDispatch($this->rule);
+            }
+
+            $group = new RuleGroup($this->router);
+            $this->addRule($group);
+            $this->router->setGroup($group);
+
+            if ($this->rule instanceof \Closure) {
+                Container::getInstance()->invokeFunction($this->rule);
+            } elseif (is_array($this->rule)) {
+                $this->router->rules($this->rule);
+            } else {
+                $this->router->bind($this->rule);
+            }
+
+            $this->rule = null;
+        }
+
         // 检测别名路由
         if ($this->router->getAlias($url) || $this->router->getAlias(strstr($url, '|', true))) {
             // 检测路由别名
