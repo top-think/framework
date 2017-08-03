@@ -415,7 +415,7 @@ class App implements \ArrayAccess
      * @param string $layer        业务层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $common       公共模块名
-     * @return Object
+     * @return Model
      * @throws ClassNotFoundException
      */
     public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
@@ -460,7 +460,7 @@ class App implements \ArrayAccess
      * @param string $layer             控制层名称
      * @param bool   $appendSuffix      是否添加类名后缀
      * @param string $empty             空控制器名称
-     * @return Object|null
+     * @return object
      * @throws ClassNotFoundException
      */
     public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
@@ -492,7 +492,7 @@ class App implements \ArrayAccess
      * @param string $layer        验证层名称
      * @param bool   $appendSuffix 是否添加类名后缀
      * @param string $common       公共模块名
-     * @return Object
+     * @return Validate
      * @throws ClassNotFoundException
      */
     public function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')

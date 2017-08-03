@@ -50,6 +50,7 @@ class Lang
         if (!isset($this->lang[$range])) {
             $this->lang[$range] = [];
         }
+
         if (is_array($name)) {
             return $this->lang[$range] = array_change_key_case($name) + $this->lang[$range];
         } else {
@@ -59,8 +60,8 @@ class Lang
 
     /**
      * 加载语言定义(不区分大小写)
-     * @param string $file 语言文件
-     * @param string $range 语言作用域
+     * @param string|array  $file   语言文件
+     * @param string        $range  语言作用域
      * @return mixed
      */
     public function load($file, $range = '')

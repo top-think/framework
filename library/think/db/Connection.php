@@ -524,7 +524,8 @@ abstract class Connection
      * @param bool      $pdo 是否返回PDO对象
      * @return array
      * @throws BindParamException
-     * @throws PDOException
+     * @throws \PDOException
+     * @throws \Exception
      */
     public function query($sql, $bind = [], $master = false, $pdo = false)
     {
@@ -595,7 +596,8 @@ abstract class Connection
      * @param array         $bind 参数绑定
      * @return int
      * @throws BindParamException
-     * @throws PDOException
+     * @throws \PDOException
+     * @throws \Exception
      */
     public function execute($sql, $bind = [])
     {
@@ -1429,6 +1431,8 @@ abstract class Connection
      * 启动事务
      * @access public
      * @return void
+     * @throws \PDOException
+     * @throws \Exception
      */
     public function startTrans()
     {
@@ -1596,7 +1600,7 @@ abstract class Connection
     /**
      * 是否断线
      * @access protected
-     * @param \PDOException  $e 异常对象
+     * @param \PDOException|\Exception  $e 异常对象
      * @return bool
      */
     protected function isBreak($e)
@@ -1889,6 +1893,7 @@ abstract class Connection
      * @param mixed     $value   缓存数据
      * @param array     $options 缓存参数
      * @param array     $bind    绑定参数
+     * @return string
      */
     protected function getCacheKey($value, $options, $bind = [])
     {

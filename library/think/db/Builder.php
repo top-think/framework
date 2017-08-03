@@ -37,7 +37,6 @@ abstract class Builder
      * 架构函数
      * @access public
      * @param Connection    $connection 数据库连接对象实例
-     * @param Query         $query      数据库查询对象实例
      */
     public function __construct(Connection $connection)
     {
@@ -47,7 +46,7 @@ abstract class Builder
     /**
      * 获取当前的连接对象实例
      * @access public
-     * @return void
+     * @return Connection
      */
     public function getConnection()
     {
@@ -547,7 +546,7 @@ abstract class Builder
      * limit分析
      * @access protected
      * @param Query     $query        查询对象
-     * @param mixed     $lmit
+     * @param mixed     $limit
      * @return string
      */
     protected function parseLimit(Query $query, $limit)
@@ -722,7 +721,7 @@ abstract class Builder
      * 设置锁机制
      * @access protected
      * @param Query     $query        查询对象
-     * @param bool      $locl
+     * @param bool      $lock
      * @return string
      */
     protected function parseLock(Query $query, $lock = false)
@@ -852,7 +851,7 @@ abstract class Builder
     }
 
     /**
-     * 生成slectinsert SQL
+     * 生成slect insert SQL
      * @access public
      * @param Query     $query  查询对象
      * @param array     $fields 数据
@@ -878,7 +877,6 @@ abstract class Builder
      * 生成update SQL
      * @access public
      * @param Query     $query  查询对象
-     * @param array     $fields 数据
      * @return string
      */
     public function update(Query $query)

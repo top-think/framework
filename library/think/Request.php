@@ -85,6 +85,7 @@ class Request
     protected $file    = [];
     protected $cookie  = [];
     protected $server  = [];
+    protected $env     = [];
     protected $header  = [];
 
     /**
