@@ -44,6 +44,9 @@ class Module extends Dispatch
                 }
             } elseif (!in_array($module, $this->app->config('app.deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
                 $available = true;
+            } elseif ($this->app->config('app.empty_module')) {
+                $module    = $this->app->config('app.empty_module');
+                $available = true;
             }
 
             // 模块初始化
@@ -61,7 +64,6 @@ class Module extends Dispatch
                     $this->app->config('app.request_cache_expire'),
                     $this->app->config('app.request_cache_except')
                 );
-
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
             }

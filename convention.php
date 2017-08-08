@@ -56,6 +56,8 @@ return [
         'default_action'         => 'index',
         // 默认验证器
         'default_validate'       => '',
+        // 默认的空模块名
+        'empty_module'           => '',
         // 默认的空控制器名
         'empty_controller'       => 'Error',
         // 操作方法前缀
