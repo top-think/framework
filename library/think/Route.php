@@ -72,8 +72,7 @@ class Route
 
     /**
      * 初始化默认域名
-     * @access public
-     * @param RuleGroup    $group 域名
+     * @access protected
      * @return void
      */
     protected function setDefaultDomain()
@@ -88,15 +87,15 @@ class Route
 
         // 默认分组
         $this->group = $this->createTopGroup($domain);
-
     }
 
     /**
      * 创建一个域名下的顶级路由分组
      * @access protected
+     * @param Domain    $domain 域名
      * @return RuleGroup
      */
-    protected function createTopGroup($domain)
+    protected function createTopGroup(Domain $domain)
     {
         $group = new RuleGroup($this);
         // 注册分组到当前域名
@@ -173,7 +172,7 @@ class Route
             if (!$root) {
                 $item  = explode('.', $this->host);
                 $count = count($item);
-                $root  = $item[$count - 2] . '.' . $item[$count - 1];
+                $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
             }
             $domain .= '.' . $root;
         }
@@ -887,7 +886,11 @@ class Route
 
             if (0 === strpos($val, ':')) {
                 // URL变量
-                $name       = substr($val, 1);
+                $name = substr($val, 1);
+                if ('$' == substr($name, -1)) {
+                    $name = substr($name, 0, -1);
+                }
+
                 $var[$name] = $optional ? 2 : 1;
             }
         }

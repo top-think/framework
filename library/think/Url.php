@@ -22,6 +22,11 @@ class Url
     public function __construct(App $app)
     {
         $this->app = $app;
+
+        if (is_file($app->getRuntimePath() . 'route.php')) {
+            // 读取路由映射文件
+            $app['route']->setName(include $app->getRuntimePath() . 'route.php');
+        }
     }
 
     /**
@@ -296,11 +301,11 @@ class Url
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
-                    $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key . '', '<' . $key . '>'], urlencode($vars[$key]), $url);
+                    $url = str_replace(['[:' . $key . ']', '[:' . $key . '$]', '<' . $key . '?>', ':' . $key . '', ':' . $key . '$', '<' . $key . '>'], urlencode($vars[$key]), $url);
                     unset($vars[$key]);
                     $result = [$url, $domain, $suffix];
                 } elseif (2 == $val) {
-                    $url    = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                    $url    = str_replace(['/[:' . $key . ']', '/[:' . $key . '$]', '[:' . $key . ']', '[:' . $key . '$]', '<' . $key . '?>'], '', $url);
                     $result = [$url, $domain, $suffix];
                 } else {
                     break;

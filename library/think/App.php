@@ -667,6 +667,15 @@ class App implements \ArrayAccess
     }
 
     /**
+     * 获取路由目录
+     * @return string
+     */
+    public function getRoutePath()
+    {
+        return $this->routePath;
+    }
+
+    /**
      * 获取应用配置目录
      * @return string
      */
