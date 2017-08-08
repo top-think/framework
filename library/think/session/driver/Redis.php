@@ -11,10 +11,10 @@
 
 namespace think\session\driver;
 
-use SessionHandler;
+use SessionHandlerInterface;
 use think\Exception;
 
-class Redis extends SessionHandler
+class Redis implements SessionHandlerInterface
 {
     /** @var \Redis */
     protected $handler = null;

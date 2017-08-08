@@ -11,10 +11,10 @@
 
 namespace think\session\driver;
 
-use SessionHandler;
+use SessionHandlerInterface;
 use think\Exception;
 
-class Memcache extends SessionHandler
+class Memcache implements SessionHandlerInterface
 {
     protected $handler = null;
     protected $config  = [
