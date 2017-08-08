@@ -160,6 +160,9 @@ class Lang
         if (isset($_GET[self::$langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[self::$langDetectVar]);
+        } elseif (isset($_COOKIE[self::$langCookieVar])) {
+            // Cookie中设置了语言变量
+            $langSet = strtolower($_COOKIE[self::$langCookieVar]);
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
