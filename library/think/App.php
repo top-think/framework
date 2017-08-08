@@ -282,7 +282,7 @@ class App implements \ArrayAccess
             $dispatch = $this->dispatch;
             if (empty($dispatch)) {
                 // 进行URL路由检测
-                $dispatch = $this->routeCheck($this->request);
+                $dispatch = $this->routeCheck();
             }
 
             // 记录当前调度信息
@@ -369,7 +369,6 @@ class App implements \ArrayAccess
      * URL路由检测（根据PATH_INFO)
      * @access public
      * @return Dispatch
-     * @throws \think\Exception
      */
     public function routeCheck()
     {
