@@ -193,7 +193,7 @@ abstract class Driver
         $key   = 'tag_' . md5($tag);
         $value = $this->get($key);
         if ($value) {
-            return explode(',', $value);
+            return array_filter(explode(',', $value));
         } else {
             return [];
         }
