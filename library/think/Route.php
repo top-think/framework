@@ -255,9 +255,11 @@ class Route
                     $option1  = array_merge($option, $val[1]);
                     $pattern1 = array_merge($pattern, isset($val[2]) ? $val[2] : []);
                 } else {
-                    $route = $val;
+                    $option1  = null;
+                    $pattern1 = null;
+                    $route    = $val;
                 }
-                self::setRule($key, $route, $type, isset($option1) ? $option1 : $option, isset($pattern1) ? $pattern1 : $pattern, $group);
+                self::setRule($key, $route, $type, !is_null($option1) ? $option1 : $option, !is_null($pattern1) ? $pattern1 : $pattern, $group);
             }
         } else {
             self::setRule($rule, $route, $type, $option, $pattern, $group);
