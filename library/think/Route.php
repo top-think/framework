@@ -244,7 +244,7 @@ class Route
      * 读取路由绑定
      * @access public
      * @param string    $domain 域名
-     * @return string
+     * @return string|null
      */
     public function getBind($domain = null)
     {
@@ -403,9 +403,16 @@ class Route
         return $rule;
     }
 
+    /**
+     * 设置路由标识 用于URL反解生成
+     * @access public
+     * @param string    $rule      路由规则
+     * @param string    $name      路由标识
+     * @param array     $option    路由参数
+     * @return void
+     */
     protected function setRuleName($rule, $name, $option = [])
     {
-        // 设置路由标识 用于URL快速生成
         $vars = $this->parseVar($rule);
 
         if (isset($option['ext'])) {
@@ -424,7 +431,7 @@ class Route
      * @access public
      * @param Rule      $rule      路由规则
      * @param string    $method    请求类型
-     * @return void
+     * @return $this
      */
     public function setCrossDomainRule($rule, $method = '*')
     {
@@ -656,7 +663,7 @@ class Route
      * 获取别名路由定义
      * @access public
      * @param string    $name 路由别名
-     * @return string|array
+     * @return string|array|null
      */
     public function getAlias($name = null)
     {
