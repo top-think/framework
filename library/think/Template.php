@@ -1059,7 +1059,7 @@ class Template
                     case 'raw':
                         continue;
                     case 'date':
-                        $name = 'date_format(date_create(' . $name . '),' . $args[1] . ')';
+                        $name = 'date(' . $args[1] . ',strtotime(' . $name . ') ?: ' . $name . ')';
                         break;
                     case 'first':
                         $name = 'current(' . $name . ')';
