@@ -13,6 +13,7 @@ namespace think\model\concern;
 
 use InvalidArgumentException;
 use think\Loader;
+use think\model\Relation;
 
 trait Attribute
 {
@@ -404,13 +405,16 @@ trait Attribute
 
             if ($relation) {
                 $modelRelation = $this->$relation();
-                $value         = $this->getRelationData($modelRelation);
+                if ($modelRelation instanceof Relation) {
+                    $value = $this->getRelationData($modelRelation);
 
-                // 保存关联对象值
-                $this->relation[$name] = $value;
-            } else {
-                throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
+                    // 保存关联对象值
+                    $this->relation[$name] = $value;
+                    return $value;
+                }
             }
+
+            throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
         }
 
         return $value;

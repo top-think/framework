@@ -11,6 +11,7 @@
 
 namespace think;
 
+use InvalidArgumentException;
 use think\db\Query;
 
 /**
