@@ -112,6 +112,9 @@ class Error
                 $handle = new $class;
             } else {
                 $handle = new Handle;
+                if ($class instanceof \Closure) {
+                    $handle->setRender($class);
+                }
             }
         }
 
