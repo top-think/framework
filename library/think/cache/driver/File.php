@@ -25,6 +25,7 @@ class File extends Driver
         'cache_subdir'  => true,
         'prefix'        => '',
         'path'          => '',
+        'hash_type'     => 'md5',
         'data_compress' => false,
     ];
 
@@ -72,7 +73,8 @@ class File extends Driver
      */
     protected function getCacheKey($name)
     {
-        $name = md5($name);
+        $name = hash($this->options['hash_type'], $name);
+
         if ($this->options['cache_subdir']) {
             // 使用子目录
             $name = substr($name, 0, 2) . DIRECTORY_SEPARATOR . substr($name, 2);
