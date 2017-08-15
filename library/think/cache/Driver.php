@@ -122,6 +122,9 @@ abstract class Driver
         if (!$this->has($name)) {
             if ($value instanceof \Closure) {
                 $value = call_user_func($value);
+            }elseif(is_array($value) && $value[0] instanceof \Closure){
+                $parameter = !is_array($value[1])? (array)$value[1] : $value[1];
+                $value = call_user_func_array($value[0],$parameter);
             }
             $this->set($name, $value, $expire);
         } else {
