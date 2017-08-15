@@ -112,8 +112,6 @@ class File extends Driver
             if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire && !is_file($filename . '.lock')) {
                 // 生成过期锁定文件
                 touch($filename . '.lock');
-                // 缓存过期删除缓存文件
-                $this->unlink($filename);
                 return $default;
             }
             $content = substr($content, 20, -3);
@@ -207,7 +205,12 @@ class File extends Driver
      */
     public function rm($name)
     {
-        return $this->unlink($this->getCacheKey($name));
+        $filename = $this->getCacheKey($name);
+        if (is_file($filename . '.lock')) {
+            // 解除过期锁定文件
+            unlink($filename . '.lock');
+        }
+        return $this->unlink($filename);
     }
 
     /**
