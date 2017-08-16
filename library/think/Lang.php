@@ -19,6 +19,8 @@ class Lang
     private $range = 'zh-cn';
     // 语言自动侦测的变量
     protected $langDetectVar = 'lang';
+    // 语言Cookie变量
+    protected $langCookieVar = 'think_var';
     // 允许语言列表
     protected $allowLangList = [];
     // Accept-Language转义为对应语言包名称 系统默认配置
@@ -165,6 +167,9 @@ class Lang
         if (isset($_GET[$this->langDetectVar])) {
             // url中设置了语言变量
             $langSet = strtolower($_GET[$this->langDetectVar]);
+        } elseif (isset($_COOKIE[$this->langCookieVar])) {
+            // Cookie中设置了语言变量
+            $langSet = strtolower($_COOKIE[$this->langCookieVar]);
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
@@ -186,6 +191,18 @@ class Lang
     }
 
     /**
+     * 设置当前语言到Cookie
+     * @param string $lang 语言
+     * @return void
+     */
+    public function saveToCookie($lang = null)
+    {
+        $range = $lang ?: $this->range;
+
+        $_COOKIE[$this->langCookieVar] = $range;
+    }
+
+    /**
      * 设置语言自动侦测的变量
      * @param string $var 变量名称
      * @return void
@@ -193,6 +210,16 @@ class Lang
     public function setLangDetectVar($var)
     {
         $this->langDetectVar = $var;
+    }
+
+    /**
+     * 设置语言的cookie保存变量
+     * @param string $var 变量名称
+     * @return void
+     */
+    public static function setLangCookieVar($var)
+    {
+        $this->langCookieVar = $var;
     }
 
     /**
