@@ -142,21 +142,28 @@ abstract class Driver
      */
     public function tag($name, $keys = null, $overlay = false)
     {
-        if (is_null($keys)) {
+        if (is_null($name)) {
+
+        } elseif (is_null($keys)) {
             $this->tag = $name;
         } else {
             $key = 'tag_' . md5($name);
+
             if (is_string($keys)) {
                 $keys = explode(',', $keys);
             }
+
             $keys = array_map([$this, 'getCacheKey'], $keys);
+
             if ($overlay) {
                 $value = $keys;
             } else {
                 $value = array_unique(array_merge($this->getTagItem($name), $keys));
             }
+
             $this->set($key, implode(',', $value));
         }
+
         return $this;
     }
 

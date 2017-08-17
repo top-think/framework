@@ -441,13 +441,14 @@ abstract class Rule
     protected function parseRequestCache($request, $cache)
     {
         if (is_array($cache)) {
-            list($key, $expire) = $cache;
+            list($key, $expire, $tag) = array_pad($cache, 3, null);
         } else {
             $key    = str_replace('|', '/', $url);
             $expire = $cache;
+            $tag    = null;
         }
 
-        $request->cache($key, $expire);
+        $request->cache($key, $expire, $tag);
     }
 
     /**

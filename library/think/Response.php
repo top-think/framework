@@ -105,7 +105,8 @@ class Response
                 $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
                 $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
                 $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
-                Container::get('cache')->set($cache[0], [$data, $this->header], $cache[1]);
+
+                Container::get('cache')->tag($cache[2])->set($cache[0], [$data, $this->header], $cache[1]);
             }
         }
 
