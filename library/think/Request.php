@@ -1534,10 +1534,16 @@ class Request
      * @param string $key 缓存标识，支持变量规则 ，例如 item/:name/:id
      * @param mixed  $expire 缓存有效期
      * @param array  $except 缓存排除
+     * @param string $tag    缓存标签
      * @return void
      */
-    public function cache($key, $expire = null, $except = [])
+    public function cache($key, $expire = null, $except = [], $tag = null)
     {
+        if (!is_array($except)) {
+            $tag    = $except;
+            $except = [];
+        }
+
         if (false !== $key && $this->isGet() && !$this->isCheckCache) {
             // 标记请求缓存检查
             $this->isCheckCache = true;
@@ -1591,7 +1597,7 @@ class Request
                 $response               = Response::create($content)->header($header);
                 throw new \think\exception\HttpResponseException($response);
             } else {
-                $this->cache = [$key, $expire];
+                $this->cache = [$key, $expire, $tag];
             }
         }
     }

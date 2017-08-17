@@ -140,7 +140,9 @@ abstract class Driver
      */
     public function tag($name, $keys = null, $overlay = false)
     {
-        if (is_null($keys)) {
+        if (is_null($name)) {
+
+        } elseif (is_null($keys)) {
             $this->tag = $name;
         } else {
             $key = 'tag_' . md5($name);

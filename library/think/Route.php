@@ -1512,12 +1512,13 @@ class Route
         if ($request->isGet() && isset($option['cache'])) {
             $cache = $option['cache'];
             if (is_array($cache)) {
-                list($key, $expire) = $cache;
+                list($key, $expire, $tag) = array_pad($cache, 3, null);
             } else {
                 $key    = str_replace('|', '/', $pathinfo);
                 $expire = $cache;
+                $tag    = null;
             }
-            $request->cache($key, $expire);
+            $request->cache($key, $expire, $tag);
         }
         return $result;
     }
