@@ -120,10 +120,23 @@ abstract class Driver
     public function remember($name, $value, $expire = null)
     {
         if (!$this->has($name)) {
-            if ($value instanceof \Closure) {
-                $value = call_user_func($value);
+            while ($this->has($name . '.lock')) {
+                // 存在锁定则等待
             }
-            $this->set($name, $value, $expire);
+
+            try {
+                // 锁定
+                $this->set($name . '.lock', true);
+                if ($value instanceof \Closure) {
+                    $value = call_user_func($value);
+                }
+                $this->set($name, $value, $expire);
+                // 解锁
+                $this->rm($name . '.lock');
+            } catch (\Exception $e) {
+                // 解锁
+                $this->rm($name . '.lock');
+            }
         } else {
             $value = $this->get($name);
         }
