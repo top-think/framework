@@ -2566,9 +2566,10 @@ class Query
      * @param integer  $count    每次处理的数据数量
      * @param callable $callback 处理回调方法
      * @param string   $column   分批处理的字段名
+     * @param string   $order    排序规则
      * @return boolean
      */
-    public function chunk($count, $callback, $column = null)
+    public function chunk($count, $callback, $column = null, $order = 'asc')
     {
         $options = $this->getOptions();
         if (isset($options['table'])) {
@@ -2576,9 +2577,12 @@ class Query
         } else {
             $table = '';
         }
-        $column    = $column ?: $this->getPk($table);
+        $column = $column ?: $this->getPk($table);
+        if (is_array($column)) {
+            $column = $column[0];
+        }
         $bind      = $this->bind;
-        $resultSet = $this->limit($count)->order($column, 'asc')->select();
+        $resultSet = $this->limit($count)->order($column, $order)->select();
         if (strpos($column, '.')) {
             list($alias, $key) = explode('.', $column);
         } else {
@@ -2597,8 +2601,8 @@ class Query
             $resultSet = $this->options($options)
                 ->limit($count)
                 ->bind($bind)
-                ->where($column, '>', $lastId)
-                ->order($column, 'asc')
+                ->where($column, 'asc' == $order ? '>' : '<', $lastId)
+                ->order($column, $order)
                 ->select();
             if ($resultSet instanceof Collection) {
                 $resultSet = $resultSet->all();
