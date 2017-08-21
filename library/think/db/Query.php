@@ -2428,7 +2428,7 @@ class Query
             $resultSet = $this->options($options)
                 ->limit($count)
                 ->bind($bind)
-                ->where($column, 'asc' == $order ? '>' : '<', $lastId)
+                ->where($column, 'asc' == strtolower($order) ? '>' : '<', $lastId)
                 ->order($column, $order)
                 ->select();
 
