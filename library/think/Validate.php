@@ -1323,7 +1323,7 @@ class Validate
        
         foreach ($this->rule as $key=>$value){
             if( strpos($key, '|') ){
-                list($_f, $_t) = explode('|',$key);
+                list($_f, $_t) = explode('|', $key);
                 if( $_f == $rule ){
                     $rule = $_t;
                     break;
