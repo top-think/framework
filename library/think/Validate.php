@@ -1320,6 +1320,16 @@ class Validate
         if (is_string($msg) && 0 === strpos($msg, '{%')) {
             $msg = Container::get('lang')->get(substr($msg, 2, -1));
         }
+       
+        foreach ($this->rule as $key=>$value){
+            if( strpos($key, '|') ){
+                list($_f, $_t) = explode('|',$key);
+                if( $_f == $rule ){
+                    $rule = $_t;
+                    break;
+                }
+            }
+        }
 
         if (is_string($msg) && is_scalar($rule) && false !== strpos($msg, ':')) {
             // 变量替换
