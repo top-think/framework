@@ -152,8 +152,7 @@ class Config
             // 批量设置
             if (!empty($value)) {
                 self::$config[$range][$value] = isset(self::$config[$range][$value]) ?
-                array_merge(self::$config[$range][$value], $name) :
-                self::$config[$range][$value] = $name;
+                array_merge(self::$config[$range][$value], $name) : $name;
                 return self::$config[$range][$value];
             } else {
                 return self::$config[$range] = array_merge(self::$config[$range], array_change_key_case($name));
