@@ -454,7 +454,7 @@ class Request
     }
 
     /**
-     * 当前请求的资源类型
+     * 客户端期望接受的数据类型
      * @access public
      * @return false|string
      */
