@@ -114,7 +114,7 @@ class File extends Driver
                 $this->unlink($filename);
                 return $default;
             }
-            $content = substr($content, 20, -3);
+            $content = substr($content, 32);
             if ($this->options['data_compress'] && function_exists('gzcompress')) {
                 //启用数据压缩
                 $content = gzuncompress($content);
@@ -148,7 +148,7 @@ class File extends Driver
             //数据压缩
             $data = gzcompress($data, 3);
         }
-        $data   = "<?php\n//" . sprintf('%012d', $expire) . $data . "\n?>";
+        $data   = "<?php\n//" . sprintf('%012d', $expire) . "\n exit();?>\n". $data;
         $result = file_put_contents($filename, $data);
         if ($result) {
             isset($first) && $this->setTagItem($filename);
