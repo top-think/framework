@@ -943,7 +943,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->setAttr($key, $value, $data);
             }
             if (!empty($where)) {
-                $this->isUpdate = true;
+                $this->isUpdate    = true;
+                $this->updateWhere = $where;
             }
         }
 
