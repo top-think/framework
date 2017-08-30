@@ -200,10 +200,6 @@ class File extends Driver
     public function rm($name)
     {
         $filename = $this->getCacheKey($name);
-        if (is_file($filename . '.lock')) {
-            // 解除过期锁定文件
-            unlink($filename . '.lock');
-        }
         return $this->unlink($filename);
     }
 
