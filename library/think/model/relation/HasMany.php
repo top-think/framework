@@ -159,11 +159,11 @@ class HasMany extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
-
+        $localKey = $this->localKey ?: $this->parent->getPk();
         return $this->query->where([
             $this->foreignKey => [
                 'exp',
-                '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
+                '=' . $this->parent->getTable() . '.' . $localKey,
             ],
         ])->fetchSql()->count();
     }
