@@ -118,8 +118,8 @@ abstract class Builder
                     $result[$item] = $val;
                 } else {
                     $key = str_replace('.', '_', $key);
-                    $this->query->bind('__data__' . $key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
-                    $result[$item] = ':__data__' . $key;
+                    $this->query->bind('data__' . $key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
+                    $result[$item] = ':data__' . $key;
                 }
             }
         }
