@@ -105,9 +105,9 @@ class Memcached extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string    $name 缓存变量名
-     * @param mixed     $value  存储数据
-     * @param integer   $expire  有效时间（秒）
+     * @param string            $name 缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|DateTime  $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -118,13 +118,15 @@ class Memcached extends Driver
             $expire = $this->options['expire'];
         }
 
+        if ($expire instanceof \DateTime) {
+            $expire = $expire->getTimestamp() - time();
+        }
+
         if ($this->tag && !$this->has($name)) {
             $first = true;
         }
 
         $key = $this->getCacheKey($name);
-
-        $expire = 0 == $expire ? 0 : $_SERVER['REQUEST_TIME'] + $expire;
 
         if ($this->handler->set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);

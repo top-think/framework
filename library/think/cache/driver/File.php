@@ -126,7 +126,7 @@ class File extends Driver
 
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
-            if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire) {
+            if (0 != $expire && time() > filemtime($filename) + $expire) {
                 //缓存过期删除缓存文件
                 $this->unlink($filename);
                 return $default;
@@ -149,9 +149,9 @@ class File extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string    $name 缓存变量名
-     * @param mixed     $value  存储数据
-     * @param int       $expire  有效时间 0为永久
+     * @param string        $name 缓存变量名
+     * @param mixed         $value  存储数据
+     * @param int|DateTime  $expire  有效时间 0为永久
      * @return boolean
      */
     public function set($name, $value, $expire = null)
@@ -160,6 +160,10 @@ class File extends Driver
 
         if (is_null($expire)) {
             $expire = $this->options['expire'];
+        }
+
+        if ($expire instanceof \DateTime) {
+            $expire = $expire->getTimestamp() - time();
         }
 
         $filename = $this->getCacheKey($name);

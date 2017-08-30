@@ -108,9 +108,9 @@ class Sqlite extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string    $name 缓存变量名
-     * @param mixed     $value  存储数据
-     * @param integer   $expire  有效时间（秒）
+     * @param string            $name 缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|DateTime  $expire  有效时间（秒）
      * @return boolean
      */
     public function set($name, $value, $expire = null)
@@ -125,7 +125,11 @@ class Sqlite extends Driver
             $expire = $this->options['expire'];
         }
 
-        $expire = (0 == $expire) ? 0 : ($_SERVER['REQUEST_TIME'] + $expire); //缓存有效期为0表示永久缓存
+        if ($expire instanceof \DateTime) {
+            $expire = $expire->getTimestamp();
+        } else {
+            $expire = (0 == $expire) ? 0 : (time() + $expire); //缓存有效期为0表示永久缓存
+        }
 
         if (function_exists('gzcompress')) {
             //数据压缩
