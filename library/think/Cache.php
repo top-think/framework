@@ -219,4 +219,13 @@ class Cache
         return self::init()->tag($name, $keys, $overlay);
     }
 
+    /**
+     * 返回句柄对象，可执行其它高级方法
+     * @return object
+     */
+    public static function handler()
+    {
+        self::init();
+        return self::$handler->handler();
+    }
 }
