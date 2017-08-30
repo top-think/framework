@@ -271,7 +271,12 @@ class Url
             }
         }
 
-        $scheme = $this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://';
+        if (false !== strpos($domain, '://')) {
+            $scheme = '';
+        } else {
+            $scheme = $this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://';
+
+        }
 
         return $scheme . $domain;
     }

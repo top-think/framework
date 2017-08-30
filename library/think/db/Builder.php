@@ -365,6 +365,11 @@ abstract class Builder
             $bindName = md5($bindName);
         }
 
+        if (is_object($value) && method_exists($value, '__toString')) {
+            // 对象数据写入
+            $value = $value->__toString();
+        }
+
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
 
         if (is_scalar($value) && array_key_exists($field, $binds) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
