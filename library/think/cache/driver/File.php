@@ -109,12 +109,10 @@ class File extends Driver
         $content = file_get_contents($filename);
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
-            if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire && !is_file($filename . '.lock')) {
-                // 生成过期锁定文件
-                touch($filename . '.lock');
+            if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire) {
                 return $default;
             }
-            $content = substr($content, 20, -3);
+            $content = substr($content, 32);
             if ($this->options['data_compress'] && function_exists('gzcompress')) {
                 //启用数据压缩
                 $content = gzuncompress($content);
@@ -148,14 +146,10 @@ class File extends Driver
             //数据压缩
             $data = gzcompress($data, 3);
         }
-        $data   = "<?php\n//" . sprintf('%012d', $expire) . $data . "\n?>";
+        $data   = "<?php\n//" . sprintf('%012d', $expire) . "\n exit();?>\n" . $data;
         $result = file_put_contents($filename, $data);
         if ($result) {
             isset($first) && $this->setTagItem($filename);
-            if (is_file($filename . '.lock')) {
-                // 解除过期锁定文件
-                unlink($filename . '.lock');
-            }
             clearstatcache();
             return true;
         } else {
