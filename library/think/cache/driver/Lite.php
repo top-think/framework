@@ -77,7 +77,7 @@ class Lite extends Driver
         if (is_file($filename)) {
             // 判断是否过期
             $mtime = filemtime($filename);
-            if ($mtime < $_SERVER['REQUEST_TIME']) {
+            if ($mtime < time()) {
                 // 清除已经过期的文件
                 unlink($filename);
                 return $default;
@@ -91,9 +91,9 @@ class Lite extends Driver
     /**
      * 写入缓存
      * @access   public
-     * @param string    $name  缓存变量名
-     * @param mixed     $value 存储数据
-     * @param int       $expire 有效时间 0为永久
+     * @param string            $name 缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|DateTime  $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -101,9 +101,11 @@ class Lite extends Driver
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
-        // 模拟永久
-        if (0 === $expire) {
-            $expire = 10 * 365 * 24 * 3600;
+        if ($expire instanceof \DateTime) {
+            $expire = $expire->getTimestamp();
+        } else {
+            $expire = 0 === $expire ? 10 * 365 * 24 * 3600 : $expire;
+            $expire = time() + $expire;
         }
         $filename = $this->getCacheKey($name);
         if ($this->tag && !is_file($filename)) {
@@ -113,7 +115,7 @@ class Lite extends Driver
         // 通过设置修改时间实现有效期
         if ($ret) {
             isset($first) && $this->setTagItem($filename);
-            touch($filename, $_SERVER['REQUEST_TIME'] + $expire);
+            touch($filename, $expire);
         }
         return $ret;
     }
