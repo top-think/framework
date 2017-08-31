@@ -28,7 +28,7 @@ class Pivot extends Model
      * @param array|object  $data 数据
      * @param string        $table 中间数据表名
      */
-    public function __construct(Model $parent, $data = [], $table = '')
+    public function __construct(Model $parent = null, $data = [], $table = '')
     {
         $this->parent = $parent;
 
