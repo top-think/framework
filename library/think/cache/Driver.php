@@ -124,13 +124,13 @@ abstract class Driver
     public function remember($name, $value, $expire = null)
     {
         if (!$this->has($name)) {
-            while ($this->has($name . '.lock')) {
+            while ($this->has($name . '_lock')) {
                 // 存在锁定则等待
             }
 
             try {
                 // 锁定
-                $this->set($name . '.lock', true);
+                $this->set($name . '_lock', true);
 
                 if ($value instanceof \Closure) {
                     // 获取缓存数据
@@ -141,10 +141,10 @@ abstract class Driver
                 $this->set($name, $value, $expire);
 
                 // 解锁
-                $this->rm($name . '.lock');
+                $this->rm($name . '_lock');
             } catch (\Exception $e) {
                 // 解锁
-                $this->rm($name . '.lock');
+                $this->rm($name . '_lock');
             }
         } else {
             $value = $this->get($name);
