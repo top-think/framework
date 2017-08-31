@@ -25,6 +25,8 @@ class Session
      */
     public function prefix($prefix = '')
     {
+        empty($this->init) && $this->boot();
+
         if (empty($prefix) && null !== $prefix) {
             return $this->prefix;
         } else {
