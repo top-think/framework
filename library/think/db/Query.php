@@ -2388,6 +2388,7 @@ class Query
      * @param string   $column   分批处理的字段名
      * @param string   $order    字段排序
      * @return boolean
+     * @throws DbException
      */
     public function chunk($count, $callback, $column = null, $order = 'asc')
     {
@@ -2405,6 +2406,7 @@ class Query
         }
 
         if (isset($options['order'])) {
+            Container::get('app')->isDebug() && throw new DbException('chunk not support call order');
             unset($options['order']);
         }
 

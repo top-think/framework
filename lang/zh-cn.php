@@ -62,4 +62,8 @@ return [
     'sae mc write error'        => 'SAE mc 写入错误',
     'route name not exists'     => '路由标识不存在（或参数不够）',
     'invalid request'           => '非法请求',
+    'bind attr has exists'      => '模型的属性已经存在',
+    'relation data not exists'  => '关联数据不存在',
+    'relation not support'      => '关联不支持',
+    'chunk not support order'   => 'Chunk不支持调用order方法',
 ];
