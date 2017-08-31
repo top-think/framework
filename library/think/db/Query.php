@@ -12,11 +12,11 @@
 namespace think\db;
 
 use PDO;
+use think\App;
 use think\Cache;
 use think\Collection;
 use think\Config;
 use think\Db;
-use think\App;
 use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
@@ -2584,7 +2584,9 @@ class Query
             $column = $column[0];
         }
         if (isset($options['order'])) {
-            App::$debug && throw new DbException('chunk not support call order');
+            if (App::$debug) {
+                throw new DbException('chunk not support call order');
+            }
             unset($options['order']);
         }
         $bind      = $this->bind;
