@@ -2406,7 +2406,9 @@ class Query
         }
 
         if (isset($options['order'])) {
-            Container::get('app')->isDebug() && throw new DbException('chunk not support call order');
+            if (Container::get('app')->isDebug()) {
+                throw new DbException('chunk not support call order');
+            }
             unset($options['order']);
         }
 
