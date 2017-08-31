@@ -148,7 +148,6 @@ class Container
             }
         }
 
-
         return $object;
     }
 
