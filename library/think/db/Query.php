@@ -2404,8 +2404,12 @@ class Query
             $column = $column[0];
         }
 
+        if (isset($options['order'])) {
+            unset($options['order']);
+        }
+
         $bind      = $this->bind;
-        $resultSet = $this->limit($count)->order($column, $order)->select();
+        $resultSet = $this->options($options)->limit($count)->order($column, $order)->select();
 
         if (strpos($column, '.')) {
             list($alias, $key) = explode('.', $column);
