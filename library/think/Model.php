@@ -933,6 +933,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function save($data = [], $where = [], $sequence = null)
     {
+        if (is_string($data)) {
+            $sequence = $data;
+            $data     = [];
+        }
+
         if (!empty($data)) {
             // 数据自动验证
             if (!$this->validateData($data)) {
