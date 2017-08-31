@@ -16,6 +16,7 @@ use think\Cache;
 use think\Collection;
 use think\Config;
 use think\Db;
+use think\App;
 use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
@@ -2568,6 +2569,7 @@ class Query
      * @param string   $column   分批处理的字段名
      * @param string   $order    排序规则
      * @return boolean
+     * @throws DbException
      */
     public function chunk($count, $callback, $column = null, $order = 'asc')
     {
@@ -2582,6 +2584,7 @@ class Query
             $column = $column[0];
         }
         if (isset($options['order'])) {
+            App::$debug && throw new DbException('chunk not support call order');
             unset($options['order']);
         }
         $bind      = $this->bind;
