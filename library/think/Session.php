@@ -25,6 +25,7 @@ class Session
      */
     public static function prefix($prefix = '')
     {
+        empty(self::$init) && self::boot();
         if (empty($prefix) && null !== $prefix) {
             return self::$prefix;
         } else {
@@ -56,7 +57,7 @@ class Session
             $isDoStart = true;
         }
 
-        if (isset($config['prefix']) && (self::$prefix === '' || self::$prefix === null)) {
+        if (isset($config['prefix']) && ('' === self::$prefix || null === self::$prefix)) {
             self::$prefix = $config['prefix'];
         }
         if (isset($config['var_session_id']) && isset($_REQUEST[$config['var_session_id']])) {
