@@ -75,7 +75,7 @@ class Xcache extends Driver
      * @access public
      * @param string            $name 缓存变量名
      * @param mixed             $value  存储数据
-     * @param integer|DateTime  $expire  有效时间（秒）
+     * @param integer|\DateTime $expire  有效时间（秒）
      * @return boolean
      */
     public function set($name, $value, $expire = null)

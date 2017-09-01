@@ -1514,15 +1514,15 @@ class Query
     /**
      * 查询缓存
      * @access public
-     * @param mixed   $key    缓存key
-     * @param integer $expire 缓存有效期
-     * @param string  $tag    缓存标签
+     * @param mixed             $key    缓存key
+     * @param integer|\DateTime $expire 缓存有效期
+     * @param string            $tag    缓存标签
      * @return $this
      */
     public function cache($key = true, $expire = null, $tag = null)
     {
         // 增加快捷调用方式 cache(10) 等同于 cache(true, 10)
-        if (is_numeric($key) && is_null($expire)) {
+        if ($key instanceof \DateTime || (is_numeric($key) && is_null($expire))) {
             $expire = $key;
             $key    = true;
         }
