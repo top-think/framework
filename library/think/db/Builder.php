@@ -838,9 +838,8 @@ abstract class Builder
             $value    = array_values($data);
             $values[] = 'SELECT ' . implode(',', $value);
         }
-        //上面使用的同名变量，这里先释放掉
-        unset($fields);
 
+        $fields = [];
         foreach (array_keys(reset($dataSet)) as $field) {
             $fields[] = $this->parseKey($query, $field);
         }
