@@ -61,7 +61,7 @@ class Controller
         $this->app     = $app;
 
         // 控制器初始化
-        $this->_initialize();
+        $this->initialize();
 
         // 前置操作方法
         if ($this->beforeActionList) {
@@ -74,7 +74,7 @@ class Controller
     }
 
     // 初始化
-    protected function _initialize()
+    protected function initialize()
     {}
 
     /**
