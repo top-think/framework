@@ -2196,6 +2196,33 @@ class Query
     }
 
     /**
+     * 使用游标查找记录
+     * @access public
+     * @param array|string|Query|\Closure $data
+     * @return \Generator
+     */
+    public function cursor($data = null)
+    {
+        if ($data instanceof \Closure) {
+            $data($this);
+            $data = null;
+        }
+
+        $this->parseOptions();
+
+        if (!is_null($data)) {
+            // 主键条件分析
+            $this->parsePkWhere($data);
+        }
+
+        $this->options['data'] = $data;
+
+        $connection = clone $this->connection;
+
+        return $connection->cursor($this);
+    }
+
+    /**
      * 查找记录
      * @access public
      * @param array|string|Query|\Closure $data
@@ -2213,10 +2240,7 @@ class Query
 
         $this->parseOptions();
 
-        if (false === $data) {
-            // 用于子查询 不查询只返回SQL
-            $this->options['fetch_sql'] = true;
-        } elseif (!is_null($data)) {
+        if (!is_null($data)) {
             // 主键条件分析
             $this->parsePkWhere($data);
         }

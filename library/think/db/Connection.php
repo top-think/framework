@@ -516,6 +516,73 @@ abstract class Connection
     }
 
     /**
+     * 执行查询 使用生成器返回数据
+     * @access public
+     * @param string    $sql sql指令
+     * @param array     $bind 参数绑定
+     * @param bool      $master 是否在主服务器读操作
+     * @param Model     $model 模型对象实例
+     * @param array     $condition 查询条件
+     * @param mixed     $relation 关联查询
+     * @return \Generator
+     */
+    public function getCursor($sql, $bind = [], $master = false, $model = null, $condition = null, $relation = null)
+    {
+        $this->initConnect($master);
+
+        // 记录SQL语句
+        $this->queryStr = $sql;
+
+        $this->bind = $bind;
+
+        // 释放前次的查询结果
+        if (!empty($this->PDOStatement)) {
+            $this->free();
+        }
+
+        Db::$queryTimes++;
+
+        // 调试开始
+        $this->debug(true);
+
+        // 预处理
+        if (empty($this->PDOStatement)) {
+            $this->PDOStatement = $this->linkID->prepare($sql);
+        }
+
+        // 是否为存储过程调用
+        $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
+
+        // 参数绑定
+        if ($procedure) {
+            $this->bindParam($bind);
+        } else {
+            $this->bindValue($bind);
+        }
+
+        // 执行查询
+        $this->PDOStatement->execute();
+
+        // 调试结束
+        $this->debug(false);
+
+        // 返回结果集
+        while ($result = $this->PDOStatement->fetch($this->fetchType)) {
+            if ($model) {
+                $instance = $model->newInstance($result, $condition);
+
+                if ($relation) {
+                    $instance->relationQuery($relation);
+                }
+
+                yield $instance;
+            } else {
+                yield $result;
+            }
+        }
+    }
+
+    /**
      * 执行查询 返回数据集
      * @access public
      * @param string    $sql sql指令
@@ -744,6 +811,29 @@ abstract class Connection
         }
 
         return $result;
+    }
+
+    /**
+     * 使用游标查询记录
+     * @access public
+     * @param Query   $query        查询对象
+     * @return \Generator
+     */
+    public function cursor(Query $query)
+    {
+        // 分析查询表达式
+        $options = $query->getOptions();
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        $bind = $query->getBind();
+
+        $condition = isset($options['where']['AND']) ? $options['where']['AND'] : null;
+        $relation  = isset($options['relaltion']) ? $options['relation'] : null;
+
+        // 执行查询操作
+        return $this->getCursor($sql, $bind, $options['master'], $query->getModel(), $condition, $relation);
     }
 
     /**
