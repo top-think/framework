@@ -369,10 +369,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $pk = $this->getPk();
 
         if (is_string($pk) && isset($data[$pk])) {
-            if (!isset($where[$pk])) {
-                unset($where);
-                $where[$pk] = $data[$pk];
-            }
+            unset($where);
+            $where[] = [$pk, '=', $data[$pk]];
             unset($data[$pk]);
         }
 
@@ -506,7 +504,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $pk = $this->getPk();
 
         if (is_string($pk) && isset($this->data[$pk])) {
-            $where = [$pk => $this->data[$pk]];
+            $where[] = [$pk, '=', $this->data[$pk]];
         } elseif (!empty($this->updateWhere)) {
             $where = $this->updateWhere;
         } else {
@@ -721,10 +719,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $result = self::with($with)->cache($cache);
 
-        if (is_array($data) && key($data) !== 0) {
-            $result = $result->where($data);
-            $data   = null;
-        } elseif ($data instanceof \Closure) {
+        if ($data instanceof \Closure) {
             $data($result);
             $data = null;
         } elseif ($data instanceof Query) {
@@ -746,10 +741,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $model = new static();
 
         $query = $model->db();
-        if (is_array($data) && key($data) !== 0) {
-            $query->where($data);
-            $data = null;
-        } elseif ($data instanceof \Closure) {
+
+        if ($data instanceof \Closure) {
             $data($query);
             $data = null;
         } elseif (empty($data) && 0 !== $data) {
