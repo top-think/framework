@@ -70,12 +70,26 @@ trait SoftDelete
         if (!$force) {
             // 软删除
             $this->data($name, $this->autoWriteTimestamp($name));
+
             $result = $this->isUpdate()->save();
         } else {
-            $result = $this->db(false)->delete($this->getData());
+            // 读取更新条件
+            $where = $this->getWhere();
+
+            // 删除当前模型数据
+            $result = $this->db(false)->where($where)->delete();
+        }
+
+        // 关联删除
+        if (!empty($this->relationWrite)) {
+            $this->autoRelationDelete();
         }
 
         $this->trigger('after_delete', $this);
+
+        // 清空数据
+        $this->data   = [];
+        $this->origin = [];
 
         return $result;
     }
