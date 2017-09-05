@@ -2240,7 +2240,10 @@ class Query
 
         $this->parseOptions();
 
-        if (!is_null($data)) {
+        if (false === $data) {
+            // 用于子查询 不查询只返回SQL
+            $this->options['fetch_sql'] = true;
+        } elseif (!is_null($data)) {
             // 主键条件分析
             $this->parsePkWhere($data);
         }
