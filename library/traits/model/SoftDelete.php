@@ -65,7 +65,6 @@ trait SoftDelete
         } else {
             // 删除条件
             $where = $this->getWhere();
-
             // 删除当前模型数据
             $result = $this->getQuery()->where($where)->delete();
         }
@@ -76,7 +75,7 @@ trait SoftDelete
                 $name  = is_numeric($key) ? $name : $key;
                 $model = $this->getAttr($name);
                 if ($model instanceof Model) {
-                    $model->delete();
+                    $model->delete($force);
                 }
             }
         }
