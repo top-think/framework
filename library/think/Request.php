@@ -1136,21 +1136,7 @@ class Request
             }
         }
 
-        return $this->filterExp($value);
-    }
-
-    /**
-     * 过滤表单中的表达式
-     * @param string $value
-     * @return void
-     */
-    public function filterExp(&$value)
-    {
-        // 过滤查询特殊字符
-        if (is_string($value) && preg_match('/^(EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT LIKE|NOT BETWEEN|NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN)$/i', $value)) {
-            $value .= ' ';
-        }
-        // TODO 其他安全过滤
+        return $value;
     }
 
     /**

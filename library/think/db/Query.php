@@ -1168,17 +1168,14 @@ class Query
     {
         $logic = strtoupper($logic);
 
-        if ($field instanceof \Closure) {
-            $this->options['where'][$logic][] = is_string($op) ? [$op, $field] : $field;
-            return;
-        }
-
         if (is_string($field) && !empty($this->options['via']) && !strpos($field, '.')) {
             $field = $this->options['via'] . '.' . $field;
         }
 
-        if (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
-            $where[] = ['exp', $field];
+        if ($field instanceof \Closure) {
+            $where = is_string($op) ? [$op, $field] : $field;
+        } elseif (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
+            $where = ['', 'exp', $field];
             if (is_array($op)) {
                 // 参数绑定
                 $this->bind($op);
@@ -1187,67 +1184,37 @@ class Query
             if (is_array($field)) {
                 // 数组批量查询
                 $where = $field;
-                foreach ($where as $k => $val) {
-                    $this->options['multi'][$logic][$k][] = $val;
+                if (isset($this->options['where'][$logic])) {
+                    $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
+                } else {
+                    $this->options['where'][$logic] = $where;
                 }
+                return;
             } elseif ($field && is_string($field)) {
                 // 字符串查询
-                $where[$field]                            = ['null', ''];
-                $this->options['multi'][$logic][$field][] = $where[$field];
+                $where = [$field, 'null', ''];
             }
         } elseif (is_array($op)) {
-            $where[$field] = $param;
+            array_unshift($param, $field);
+            $where = $param;
         } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
             // null查询
-            $where[$field] = [$op, ''];
-
-            $this->options['multi'][$logic][$field][] = $where[$field];
+            $where = [$field, $op, ''];
         } elseif (is_null($condition)) {
             // 字段相等查询
-            $where[$field] = ['eq', $op];
-
-            $this->options['multi'][$logic][$field][] = $where[$field];
+            $where = [$field, 'eq', $op];
         } else {
-            $where[$field] = [$op, $condition, isset($param[2]) ? $param[2] : null];
+            $where = [$field, $op, $condition, isset($param[2]) ? $param[2] : null];
 
             if ('exp' == strtolower($op) && isset($param[2]) && is_array($param[2])) {
                 // 参数绑定
                 $this->bind($param[2]);
             }
-
-            // 记录一个字段多次查询条件
-            $this->options['multi'][$logic][$field][] = $where[$field];
         }
 
         if (!empty($where)) {
-            if (!isset($this->options['where'][$logic])) {
-                $this->options['where'][$logic] = [];
-            }
-
-            if (is_string($field) && $this->checkMultiField($field, $logic)) {
-                $where[$field] = $this->options['multi'][$logic][$field];
-            } elseif (is_array($field)) {
-                foreach ($field as $key => $val) {
-                    if ($this->checkMultiField($key, $logic)) {
-                        $where[$key] = $this->options['multi'][$logic][$key];
-                    }
-                }
-            }
-
-            $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
+            $this->options['where'][$logic][] = $where;
         }
-    }
-
-    /**
-     * 检查是否存在一个字段多次查询条件
-     * @access public
-     * @param string $field 查询字段
-     * @param string $logic 查询逻辑 and or xor
-     * @return bool
-     */
-    private function checkMultiField($field, $logic)
-    {
-        return isset($this->options['multi'][$logic][$field]) && count($this->options['multi'][$logic][$field]) > 1;
     }
 
     /**

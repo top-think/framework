@@ -263,16 +263,20 @@ abstract class Builder
             $where = [];
         }
 
-        if ($where instanceof Query) {
-            return $this->buildWhere($query, $where->getOptions('where'));
-        }
-
         $whereStr = '';
         $binds    = $this->connection->getFieldsBind($query->getOptions('table'));
 
         foreach ($where as $key => $val) {
             $str = [];
-            foreach ($val as $field => $value) {
+
+            foreach ($val as $value) {
+                if (is_array($value)) {
+                    if (key($value) !== 0) {
+                        throw new Exception('where express error:' . var_export($value, true));
+                    }
+                    $field = array_shift($value);
+                }
+
                 if ($value instanceof \Closure) {
                     // 使用闭包查询
                     $newQuery = $query->newQuery()->setConnection($this->connection);
