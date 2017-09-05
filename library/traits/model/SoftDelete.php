@@ -63,10 +63,27 @@ trait SoftDelete
             $this->data[$name] = $this->autoWriteTimestamp($name);
             $result            = $this->isUpdate()->save();
         } else {
-            $result = $this->getQuery()->delete($this->data);
+            // 删除条件
+            $where = $this->getWhere();
+
+            // 删除当前模型数据
+            $result = $this->getQuery()->where($where)->delete();
+        }
+
+        // 关联删除
+        if (!empty($this->relationWrite)) {
+            foreach ($this->relationWrite as $key => $name) {
+                $name  = is_numeric($key) ? $name : $key;
+                $model = $this->getAttr($name);
+                if ($model instanceof Model) {
+                    $model->delete();
+                }
+            }
         }
 
         $this->trigger('after_delete', $this);
+        // 清空原始数据
+        $this->origin = [];
         return $result;
     }
 
