@@ -32,9 +32,9 @@ class Mysql extends Builder
     {
         $key = trim($key);
 
-        if (strpos($key, '$.') && false === strpos($key, '(')) {
+        if (strpos($key, '->') && false === strpos($key, '(')) {
             // JSON字段支持
-            list($field, $name) = explode('$.', $key);
+            list($field, $name) = explode('->', $key);
             $key                = 'json_extract(' . $field . ', \'$.' . $name . '\')';
         } elseif (strpos($key, '.') && !preg_match('/[,\'\"\(\)`\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
