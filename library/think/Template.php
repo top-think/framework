@@ -1059,7 +1059,8 @@ class Template
                     case 'raw':
                         continue;
                     case 'date':
-                        $name = 'date(' . $args[1] . ',strtotime(' . $name . ') ?: ' . $name . ')';
+                        $date = 'is_numeric(' . $name . ')?' . $name . ':(strtotime(' . $name . '))';
+                        $name = 'date(' . $args[1] . ',' . $date . ')';
                         break;
                     case 'first':
                         $name = 'current(' . $name . ')';
