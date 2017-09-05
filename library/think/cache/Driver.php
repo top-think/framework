@@ -182,7 +182,7 @@ abstract class Driver
                 $value = array_unique(array_merge($this->getTagItem($name), $keys));
             }
 
-            $this->set($key, implode(',', $value));
+            $this->set($key, implode(',', $value), 0);
         }
 
         return $this;
@@ -206,7 +206,7 @@ abstract class Driver
             } else {
                 $value = $name;
             }
-            $this->set($key, $value);
+            $this->set($key, $value, 0);
         }
     }
 
