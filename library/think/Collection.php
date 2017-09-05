@@ -189,8 +189,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function each(callable $callback)
     {
         foreach ($this->items as $key => $item) {
-            if ($callback($item, $key) === false) {
+            $result = $callback($item, $key);
+            if (false === $result) {
                 break;
+            } elseif (!is_object($item)) {
+                $this->items[$key] = $result;
             }
         }
 
