@@ -923,23 +923,6 @@ class Query
     }
 
     /**
-     * 指定AND查询条件
-     * @access public
-     * @param mixed $field     查询字段
-     * @param mixed $op        查询表达式
-     * @param mixed $condition 查询条件
-     * @return $this
-     */
-    public function where($field, $op = null, $condition = null)
-    {
-        $param = func_get_args();
-        array_shift($param);
-        $this->parseWhereExp('AND', $field, $op, $condition, $param);
-
-        return $this;
-    }
-
-    /**
      * 指定OR查询条件
      * @access public
      * @param mixed $field     查询字段
@@ -1216,20 +1199,22 @@ class Query
             $where[$field] = $param;
         } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
             // null查询
-            $where[$field]                            = [$op, ''];
+            $where[$field] = [$op, ''];
+
             $this->options['multi'][$logic][$field][] = $where[$field];
         } elseif (is_null($condition)) {
             // 字段相等查询
             $where[$field] = ['eq', $op];
-            if ('AND' != $logic) {
-                $this->options['multi'][$logic][$field][] = $where[$field];
-            }
+
+            $this->options['multi'][$logic][$field][] = $where[$field];
         } else {
             $where[$field] = [$op, $condition, isset($param[2]) ? $param[2] : null];
+
             if ('exp' == strtolower($op) && isset($param[2]) && is_array($param[2])) {
                 // 参数绑定
                 $this->bind($param[2]);
             }
+
             // 记录一个字段多次查询条件
             $this->options['multi'][$logic][$field][] = $where[$field];
         }
