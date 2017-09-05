@@ -660,12 +660,16 @@ abstract class Builder
     /**
      * 设置锁机制
      * @access protected
-     * @param bool $lock
+     * @param bool|string $lock
      * @return string
      */
     protected function parseLock($lock = false)
     {
-        return $lock ? ' FOR UPDATE ' : '';
+        if (is_bool($lock)) {
+            return $lock ? ' FOR UPDATE ' : '';
+        } elseif (is_string($lock)) {
+            return ' ' . trim($lock) . ' ';
+        }
     }
 
     /**
