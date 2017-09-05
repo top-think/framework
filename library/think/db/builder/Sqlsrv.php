@@ -44,6 +44,8 @@ class Sqlsrv extends Builder
                         $array[] = $this->parseKey($query, $val);
                     } elseif ('[rand]' == $val) {
                         $array[] = $this->parseRand($query);
+                    } else {
+                        $array[] = $val;
                     }
                 } else {
                     $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
