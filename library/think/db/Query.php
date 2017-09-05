@@ -923,6 +923,23 @@ class Query
     }
 
     /**
+     * 指定AND查询条件
+     * @access public
+     * @param mixed $field     查询字段
+     * @param mixed $op        查询表达式
+     * @param mixed $condition 查询条件
+     * @return $this
+     */
+    public function where($field, $op = null, $condition = null)
+    {
+        $param = func_get_args();
+        array_shift($param);
+        $this->parseWhereExp('AND', $field, $op, $condition, $param);
+
+        return $this;
+    }
+
+    /**
      * 指定OR查询条件
      * @access public
      * @param mixed $field     查询字段
@@ -1565,7 +1582,7 @@ class Query
     /**
      * 指定查询lock
      * @access public
-     * @param boolean $lock 是否lock
+     * @param bool|string $lock 是否lock
      * @return $this
      */
     public function lock($lock = false)
