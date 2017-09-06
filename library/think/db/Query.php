@@ -93,16 +93,12 @@ class Query
             return Container::getInstance()->invoke(self::$extend[strtolower($method)], $args);
         } elseif (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
-            $field         = Loader::parseName(substr($method, 5));
-            $where[$field] = $args[0];
-
-            return $this->where($where)->find();
+            $field = Loader::parseName(substr($method, 5));
+            return $this->where($field, '=', $args[0])->find();
         } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
             // 根据某个字段获取记录的某个值
-            $name         = Loader::parseName(substr($method, 10));
-            $where[$name] = $args[0];
-
-            return $this->where($where)->value($args[1]);
+            $name = Loader::parseName(substr($method, 10));
+            return $this->where($name, '=', $args[0])->value($args[1]);
         } elseif ($this->model && method_exists($this->model, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
@@ -2486,7 +2482,7 @@ class Query
             if (isset($options['where'][$logic])) {
                 foreach ($options['where'][$logic] as $key => $val) {
                     if (array_key_exists($key, $options['map'])) {
-                        $options['where'][$logic][$options['map'][$key]] = $val;
+                        $options['where'][$logic][] = [$options['map'][$key], '=', $val];
                         unset($options['where'][$logic][$key]);
                     }
                 }
@@ -2540,16 +2536,17 @@ class Query
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
             if (is_array($data)) {
-                $where[$key] = isset($data[$pk]) ? $data[$pk] : ['in', $data];
+
+                $where[] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
             } else {
-                $where[$key] = strpos($data, ',') ? ['IN', $data] : $data;
+                $where[] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
             }
         } elseif (is_array($pk) && is_array($data) && !empty($data)) {
             // 根据复合主键查询
             foreach ($pk as $key) {
                 if (isset($data[$key])) {
-                    $attr         = isset($alias) ? $alias . '.' . $key : $key;
-                    $where[$attr] = $data[$key];
+                    $attr    = isset($alias) ? $alias . '.' . $key : $key;
+                    $where[] = [$attr, '=', $data[$key]];
                 } else {
                     throw new Exception('miss complex primary data');
                 }
