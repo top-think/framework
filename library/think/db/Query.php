@@ -578,6 +578,7 @@ class Query
             // 延迟写入
             $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
             $step = $this->lazyWrite('dec', $guid, $step, $lazyTime);
+
             if (false === $step) {
                 // 清空查询条件
                 $this->options = [];
@@ -2536,7 +2537,6 @@ class Query
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
             if (is_array($data)) {
-
                 $where[] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
             } else {
                 $where[] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];

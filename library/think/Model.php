@@ -264,6 +264,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function parseWhere($where)
     {
         if (is_array($where) && key($where) !== 0) {
+            $item = [];
             foreach ($where as $key => $val) {
                 $item[] = [$key, '=', $val];
             }
