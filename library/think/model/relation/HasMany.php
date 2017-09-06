@@ -80,10 +80,7 @@ class HasMany extends Relation
 
         if (!empty($range)) {
             $data = $this->eagerlyOneToMany($this, [
-                $this->foreignKey => [
-                    'in',
-                    $range,
-                ],
+                [$this->foreignKey, 'in', $range],
             ], $relation, $subRelation, $closure);
 
             // 关联属性名
@@ -120,7 +117,9 @@ class HasMany extends Relation
 
         if (isset($result->$localKey)) {
             $pk   = $result->$localKey;
-            $data = $this->eagerlyOneToMany($this, [$this->foreignKey => $pk], $relation, $subRelation, $closure);
+            $data = $this->eagerlyOneToMany($this, [
+                [$this->foreignKey, '=', $pk],
+            ], $relation, $subRelation, $closure);
 
             // 关联数据封装
             if (!isset($data[$pk])) {
@@ -152,7 +151,7 @@ class HasMany extends Relation
                 call_user_func_array($closure, [ & $this->query]);
             }
 
-            $count = $this->query->where([$this->foreignKey => $result->$localKey])->count();
+            $count = $this->query->where($this->foreignKey, '=', $result->$localKey)->count();
         }
 
         return $count;
@@ -171,12 +170,7 @@ class HasMany extends Relation
         }
 
         return $this->query
-            ->where([
-                $this->foreignKey => [
-                    'exp',
-                    '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
-                ],
-            ])
+            ->where($this->foreignKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk())
             ->fetchSql()
             ->count();
     }
@@ -305,7 +299,7 @@ class HasMany extends Relation
         if (empty($this->baseQuery)) {
             if (isset($this->parent->{$this->localKey})) {
                 // 关联查询带入关联条件
-                $this->query->where($this->foreignKey, $this->parent->{$this->localKey});
+                $this->query->where($this->foreignKey, '=', $this->parent->{$this->localKey});
             }
 
             $this->baseQuery = true;

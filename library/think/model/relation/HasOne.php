@@ -132,10 +132,7 @@ class HasOne extends OneToOne
 
         if (!empty($range)) {
             $data = $this->eagerlyWhere($this, [
-                $foreignKey => [
-                    'in',
-                    $range,
-                ],
+                [$foreignKey, 'in', $range],
             ], $foreignKey, $relation, $subRelation, $closure);
 
             // 关联属性名
@@ -176,7 +173,9 @@ class HasOne extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere($this, [$foreignKey => $result->$localKey], $foreignKey, $relation, $subRelation, $closure);
+        $data       = $this->eagerlyWhere($this, [
+            [$foreignKey, '=', $result->$localKey],
+        ], $foreignKey, $relation, $subRelation, $closure);
 
         // 关联模型
         if (!isset($data[$result->$localKey])) {

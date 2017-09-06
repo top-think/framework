@@ -118,8 +118,8 @@ class MorphMany extends Relation
 
         if (!empty($range)) {
             $data = $this->eagerlyMorphToMany([
-                $morphKey  => ['in', $range],
-                $morphType => $type,
+                [$morphKey, 'in', $range],
+                [$morphType, '=', $type],
             ], $relation, $subRelation, $closure);
 
             // 关联属性名
@@ -157,8 +157,8 @@ class MorphMany extends Relation
         if (isset($result->$pk)) {
             $key  = $result->$pk;
             $data = $this->eagerlyMorphToMany([
-                $this->morphKey  => $key,
-                $this->morphType => $this->type,
+                [$this->morphKey, '=', $key],
+                [$this->morphType, '=', $this->type],
             ], $relation, $subRelation, $closure);
 
             if (!isset($data[$key])) {
@@ -192,7 +192,10 @@ class MorphMany extends Relation
             }
 
             $count = $this->query
-                ->where([$this->morphKey => $result->$pk, $this->morphType => $this->type])
+                ->where([
+                    [$this->morphKey, '=', $result->$pk],
+                    [$this->morphType, '=', $this->type],
+                ])
                 ->count();
         }
 
@@ -213,11 +216,8 @@ class MorphMany extends Relation
 
         return $this->query
             ->where([
-                $this->morphKey  => [
-                    'exp',
-                    '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
-                ],
-                $this->morphType => $this->type,
+                [$this->morphKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk()],
+                [$this->morphType, '=', $this->type],
             ])
             ->fetchSql()
             ->count();
@@ -299,10 +299,10 @@ class MorphMany extends Relation
         if (empty($this->baseQuery) && $this->parent->getData()) {
             $pk = $this->parent->getPk();
 
-            $map[$this->morphKey]  = $this->parent->$pk;
-            $map[$this->morphType] = $this->type;
-
-            $this->query->where($map);
+            $this->query->where([
+                [$this->morphKey, '=', $this->parent->$pk],
+                [$this->morphType, '=', $this->type],
+            ]);
 
             $this->baseQuery = true;
         }

@@ -96,8 +96,8 @@ abstract class Relation
     protected function getQueryWhere(&$where, $relation)
     {
         foreach ($where as $key => $val) {
-            if (false === strpos($key, '.')) {
-                $where[$relation . '.' . $key] = $val;
+            if (is_string($key) && false === strpos($key, '.')) {
+                $where[] = [$relation . '.' . $key, '=', $val];
                 unset($where[$key]);
             }
         }

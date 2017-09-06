@@ -126,10 +126,7 @@ class BelongsTo extends OneToOne
 
         if (!empty($range)) {
             $data = $this->eagerlyWhere($this, [
-                $localKey => [
-                    'in',
-                    $range,
-                ],
+                [$localKey, 'in', $range],
             ], $localKey, $relation, $subRelation, $closure);
 
             // 关联属性名
@@ -170,7 +167,9 @@ class BelongsTo extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere($this, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
+        $data       = $this->eagerlyWhere($this, [
+            [$localKey, '=', $result->$foreignKey],
+        ], $localKey, $relation, $subRelation, $closure);
 
         // 关联模型
         if (!isset($data[$result->$foreignKey])) {

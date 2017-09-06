@@ -115,7 +115,7 @@ class BelongsToMany extends Relation
         // 关联查询
         $pk = $this->parent->getPk();
 
-        $condition['pivot.' . $localKey] = $this->parent->$pk;
+        $condition[] = ['pivot.' . $localKey, '=', $this->parent->$pk];
 
         return $this->belongsToManyQuery($foreignKey, $localKey, $condition);
     }
@@ -271,10 +271,7 @@ class BelongsToMany extends Relation
         if (!empty($range)) {
             // 查询关联数据
             $data = $this->eagerlyManyToMany([
-                'pivot.' . $localKey => [
-                    'in',
-                    $range,
-                ],
+                ['pivot.' . $localKey, 'in', $range],
             ], $relation, $subRelation);
 
             // 关联属性名
@@ -307,7 +304,9 @@ class BelongsToMany extends Relation
         if (isset($result->$pk)) {
             $pk = $result->$pk;
             // 查询管理数据
-            $data = $this->eagerlyManyToMany(['pivot.' . $this->localKey => $pk], $relation, $subRelation);
+            $data = $this->eagerlyManyToMany([
+                ['pivot.' . $this->localKey, '=', $pk],
+            ], $relation, $subRelation);
 
             // 关联数据封装
             if (!isset($data[$pk])) {
@@ -332,7 +331,9 @@ class BelongsToMany extends Relation
 
         if (isset($result->$pk)) {
             $pk    = $result->$pk;
-            $count = $this->belongsToManyQuery($this->foreignKey, $this->localKey, ['pivot.' . $this->localKey => $pk])->count();
+            $count = $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
+                ['pivot.' . $this->localKey, '=', $pk],
+            ])->count();
         }
 
         return $count;
@@ -347,9 +348,8 @@ class BelongsToMany extends Relation
     public function getRelationCountQuery($closure)
     {
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
-            'pivot.' . $this->localKey => [
-                'exp',
-                '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
+            [
+                'pivot.' . $this->localKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
             ],
         ])->fetchSql()->count();
     }

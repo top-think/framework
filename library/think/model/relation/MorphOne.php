@@ -116,8 +116,8 @@ class MorphOne extends Relation
 
         if (!empty($range)) {
             $data = $this->eagerlyMorphToOne([
-                $morphKey  => ['in', $range],
-                $morphType => $type,
+                [$morphKey, 'in', $range],
+                [$morphType, '=', $type],
             ], $relation, $subRelation, $closure);
 
             // 关联属性名
@@ -154,8 +154,8 @@ class MorphOne extends Relation
         if (isset($result->$pk)) {
             $pk   = $result->$pk;
             $data = $this->eagerlyMorphToOne([
-                $this->morphKey  => $pk,
-                $this->morphType => $this->type,
+                [$this->morphKey, '=', $pk],
+                [$this->morphType, '=', $this->type],
             ], $relation, $subRelation, $closure);
 
             if (isset($data[$pk])) {
@@ -228,10 +228,12 @@ class MorphOne extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
-            $pk                    = $this->parent->getPk();
-            $map[$this->morphKey]  = $this->parent->$pk;
-            $map[$this->morphType] = $this->type;
-            $this->query->where($map);
+            $pk = $this->parent->getPk();
+
+            $this->query->where([
+                [$this->morphKey, '=', $this->parent->$pk],
+                [$this->morphType, '=', $this->type],
+            ]);
             $this->baseQuery = true;
         }
     }
