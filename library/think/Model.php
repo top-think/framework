@@ -258,12 +258,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 解析查询条件
      * @access protected
-     * @param array   $where 保存条件
-     * @return array
+     * @param array|null   $where 保存条件
+     * @return array|null
      */
     protected function parseWhere($where)
     {
-        if (key($where) !== 0) {
+        if (is_array($where) && key($where) !== 0) {
             foreach ($where as $key => $val) {
                 $item[] = [$key, '=', $val];
             }
