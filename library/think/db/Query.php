@@ -1215,24 +1215,6 @@ class Query
     }
 
     /**
-     * 去除某个查询条件
-     * @access public
-     * @param string $field 查询字段
-     * @param string $logic 查询逻辑 and or xor
-     * @return $this
-     */
-    public function removeWhereField($field, $logic = 'AND')
-    {
-        $logic = strtoupper($logic);
-
-        if (isset($this->options['where'][$logic][$field])) {
-            unset($this->options['where'][$logic][$field]);
-        }
-
-        return $this;
-    }
-
-    /**
      * 去除查询参数
      * @access public
      * @param string|bool $option 参数名 true 表示去除所有参数

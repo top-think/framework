@@ -422,26 +422,24 @@ abstract class Builder
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($query, $value);
             } else {
                 $value = array_unique(is_array($value) ? $value : explode(',', $value));
-                if (array_key_exists($field, $binds)) {
-                    $bind  = [];
-                    $array = [];
-                    $i     = 0;
-                    foreach ($value as $k => $v) {
-                        $i++;
-                        if ($query->isBind($bindName . '_in_' . $i)) {
-                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $i;
-                        } else {
-                            $bindKey = $bindName . '_in_' . $i;
-                        }
-                        $bind[$bindKey] = [$v, $bindType];
-                        $array[]        = ':' . $bindKey;
-                    }
 
-                    $query->bind($bind);
-                    $zone = implode(',', $array);
-                } else {
-                    $zone = implode(',', $this->parseValue($query, $value, $field));
+                $bind  = [];
+                $array = [];
+                $i     = 0;
+
+                foreach ($value as $k => $v) {
+                    $i++;
+                    if ($query->isBind($bindName . '_in_' . $i)) {
+                        $bindKey = $bindName . '_in_' . uniqid() . '_' . $i;
+                    } else {
+                        $bindKey = $bindName . '_in_' . $i;
+                    }
+                    $bind[$bindKey] = [$v, $bindType];
+                    $array[]        = ':' . $bindKey;
                 }
+
+                $zone = implode(',', $array);
+                $query->bind($bind);
 
                 $whereStr .= $key . ' ' . $exp . ' (' . (empty($zone) ? "''" : $zone) . ')';
             }
@@ -449,26 +447,22 @@ abstract class Builder
             // BETWEEN 查询
             $data = is_array($value) ? $value : explode(',', $value);
 
-            if (array_key_exists($field, $binds)) {
-                if ($query->isBind($bindName . '_between_1')) {
-                    $bindKey1 = $bindName . '_between_1' . uniqid();
-                    $bindKey2 = $bindName . '_between_2' . uniqid();
-                } else {
-                    $bindKey1 = $bindName . '_between_1';
-                    $bindKey2 = $bindName . '_between_2';
-                }
-
-                $bind = [
-                    $bindKey1 => [$data[0], $bindType],
-                    $bindKey2 => [$data[1], $bindType],
-                ];
-
-                $query->bind($bind);
-
-                $between = ':' . $bindKey1 . ' AND :' . $bindKey2;
+            if ($query->isBind($bindName . '_between_1')) {
+                $bindKey1 = $bindName . '_between_1' . uniqid();
+                $bindKey2 = $bindName . '_between_2' . uniqid();
             } else {
-                $between = $this->parseValue($query, $data[0], $field) . ' AND ' . $this->parseValue($query, $data[1], $field);
+                $bindKey1 = $bindName . '_between_1';
+                $bindKey2 = $bindName . '_between_2';
             }
+
+            $bind = [
+                $bindKey1 => [$data[0], $bindType],
+                $bindKey2 => [$data[1], $bindType],
+            ];
+
+            $query->bind($bind);
+
+            $between = ':' . $bindKey1 . ' AND :' . $bindKey2;
 
             $whereStr .= $key . ' ' . $exp . ' ' . $between;
         } elseif (in_array($exp, ['NOT EXISTS', 'EXISTS'])) {
