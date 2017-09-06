@@ -266,7 +266,7 @@ abstract class Builder
         $whereStr = '';
         $binds    = $this->connection->getFieldsBind($query->getOptions('table'));
 
-        foreach ($where as $key => $val) {
+        foreach ($where as $logic => $val) {
             $str = [];
 
             foreach ($val as $value) {
@@ -275,6 +275,8 @@ abstract class Builder
                         throw new Exception('where express error:' . var_export($value, true));
                     }
                     $field = array_shift($value);
+                } elseif (!($value instanceof \Closure)) {
+                    throw new Exception('where express error:' . var_export($value, true));
                 }
 
                 if ($value instanceof \Closure) {
@@ -284,7 +286,7 @@ abstract class Builder
                     $whereClause = $this->buildWhere($query, $newQuery->getOptions('where'));
 
                     if (!empty($whereClause)) {
-                        $str[] = ' ' . $key . ' ( ' . $whereClause . ' )';
+                        $str[] = ' ' . $logic . ' ( ' . $whereClause . ' )';
                     }
                 } elseif (strpos($field, '|')) {
                     // 不同字段使用相同查询条件（OR）
@@ -295,7 +297,7 @@ abstract class Builder
                         $item[] = $this->parseWhereItem($query, $k, $value, '', $binds);
                     }
 
-                    $str[] = ' ' . $key . ' ( ' . implode(' OR ', $item) . ' )';
+                    $str[] = ' ' . $logic . ' ( ' . implode(' OR ', $item) . ' )';
                 } elseif (strpos($field, '&')) {
                     // 不同字段使用相同查询条件（AND）
                     $array = explode('&', $field);
@@ -305,15 +307,15 @@ abstract class Builder
                         $item[] = $this->parseWhereItem($query, $k, $value, '', $binds);
                     }
 
-                    $str[] = ' ' . $key . ' ( ' . implode(' AND ', $item) . ' )';
+                    $str[] = ' ' . $logic . ' ( ' . implode(' AND ', $item) . ' )';
                 } else {
                     // 对字段使用表达式查询
                     $field = is_string($field) ? $field : '';
-                    $str[] = ' ' . $key . ' ' . $this->parseWhereItem($query, $field, $value, $key, $binds);
+                    $str[] = ' ' . $logic . ' ' . $this->parseWhereItem($query, $field, $value, $logic, $binds);
                 }
             }
 
-            $whereStr .= empty($whereStr) ? substr(implode(' ', $str), strlen($key) + 1) : implode(' ', $str);
+            $whereStr .= empty($whereStr) ? substr(implode(' ', $str), strlen($logic) + 1) : implode(' ', $str);
         }
 
         return $whereStr;
