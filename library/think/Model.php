@@ -256,6 +256,23 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 解析查询条件
+     * @access protected
+     * @param array   $where 保存条件
+     * @return array
+     */
+    protected function parseWhere($where)
+    {
+        if (key($where) !== 0) {
+            foreach ($where as $key => $val) {
+                $item[] = [$key, '=', $val];
+            }
+            return $item;
+        }
+        return $where;
+    }
+
+    /**
      * 写入之前检查数据
      * @access protected
      * @param array   $data  数据
@@ -273,7 +290,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (!empty($where)) {
                 $this->isUpdate    = true;
-                $this->updateWhere = $where;
+                $this->updateWhere = $this->parseWhere($where);
             }
         }
 
@@ -556,8 +573,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否为更新数据
      * @access public
-     * @param bool  $update
-     * @param mixed $where
+     * @param mixed  $update
+     * @param mixed  $where
      * @return $this
      */
     public function isUpdate($update = true, $where = null)
@@ -566,11 +583,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->isUpdate = $update;
 
             if (!empty($where)) {
-                $this->updateWhere = $where;
+                $this->updateWhere = $this->parseWhere($where);
             }
         } else {
             $this->isUpdate    = true;
-            $this->updateWhere = $update;
+            $this->updateWhere = $this->parseWhere($update);
         }
 
         return $this;
@@ -719,7 +736,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $result = self::with($with)->cache($cache);
 
-        if ($data instanceof \Closure) {
+        if (is_array($data) && key($data) !== 0) {
+            $result = $result->where($this->parseWhere($data));
+            $data   = null;
+        } elseif ($data instanceof \Closure) {
             $data($result);
             $data = null;
         } elseif ($data instanceof Query) {
@@ -742,7 +762,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $query = $model->db();
 
-        if ($data instanceof \Closure) {
+        if (is_array($data) && key($data) !== 0) {
+            $query->where($this->parseWhere($data));
+            $data = null;
+        } elseif ($data instanceof \Closure) {
             $data($query);
             $data = null;
         } elseif (empty($data) && 0 !== $data) {
