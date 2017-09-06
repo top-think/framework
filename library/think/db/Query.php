@@ -1179,8 +1179,16 @@ class Query
             }
         } elseif (is_null($op) && is_null($condition)) {
             if (is_array($field)) {
-                // 数组批量查询
-                $where = $field;
+                if (key($field) !== 0) {
+                    $where = [];
+                    foreach ($field as $key => $val) {
+                        $where[] = [$key, '=', (string) $val];
+                    }
+                } else {
+                    // 数组批量查询
+                    $where = $field;
+                }
+
                 if (isset($this->options['where'][$logic])) {
                     $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
                 } else {

@@ -266,7 +266,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_array($where) && key($where) !== 0) {
             $item = [];
             foreach ($where as $key => $val) {
-                $item[] = [$key, '=', $val];
+                $item[] = [$key, '=', (string) $val];
             }
             return $item;
         }
