@@ -1182,7 +1182,7 @@ class Query
                 if (key($field) !== 0) {
                     $where = [];
                     foreach ($field as $key => $val) {
-                        $where[] = [$key, '=', (string) $val];
+                        $where[] = [$key, '=', $val];
                     }
                 } else {
                     // 数组批量查询

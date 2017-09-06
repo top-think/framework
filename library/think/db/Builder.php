@@ -392,6 +392,10 @@ abstract class Builder
         $whereStr = '';
 
         if (in_array($exp, ['=', '<>', '>', '>=', '<', '<='])) {
+            if (is_array($value)) {
+                throw new Exception('where express error:' . $exp . var_export($value, true));
+            }
+
             // 比较运算
             if ($value instanceof \Closure) {
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($query, $value);
