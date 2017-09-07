@@ -11,6 +11,7 @@
 
 namespace think\db;
 
+use InvalidArgumentException;
 use PDO;
 use PDOStatement;
 use think\Container;
@@ -166,7 +167,7 @@ abstract class Connection
             $options = self::parseConfig($config);
 
             if (empty($options['type'])) {
-                throw new \InvalidArgumentException('Undefined db type');
+                throw new InvalidArgumentException('Undefined db type');
             }
 
             $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
@@ -1023,7 +1024,7 @@ abstract class Connection
         if (empty($options['where'])) {
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
-                $where[$pk] = $data[$pk];
+                $where[$pk] = [$pk, '=', $data[$pk]];
                 if (!isset($key)) {
                     $key = 'think:' . $options['table'] . '|' . $data[$pk];
                 }
@@ -1032,7 +1033,7 @@ abstract class Connection
                 // 增加复合主键支持
                 foreach ($pk as $field) {
                     if (isset($data[$field])) {
-                        $where[$field] = $data[$field];
+                        $where[$field] = [$field, '=', $data[$field]];
                     } else {
                         // 如果缺少复合主键数据则不执行
                         throw new Exception('miss complex primary data');
@@ -1052,9 +1053,11 @@ abstract class Connection
             $key = $this->getCacheKey($options['where']['AND'][$pk], $options, $query->getBind(false));
         }
 
-        // 生成UPDATE SQL语句
-        $sql = $this->builder->update($query);
+        // 更新数据
+        $query->setOption('data', $data);
 
+        // 生成UPDATE SQL语句
+        $sql  = $this->builder->update($query);
         $bind = $query->getBind();
 
         if ($options['fetch_sql']) {
