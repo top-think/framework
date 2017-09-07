@@ -16,27 +16,23 @@
 
 namespace tests\thinkphp\library\think;
 
-use ReflectionClass;
+use tests\thinkphp\library\think\config\ConfigInitTrait;
 use think\Config;
 
 class configTest extends \PHPUnit_Framework_TestCase
 {
+    use ConfigInitTrait;
+
     public function testRange()
     {
-        $reflectedClass         = new ReflectionClass('\think\Config');
-        $reflectedPropertyRange = $reflectedClass->getProperty('range');
-        $reflectedPropertyRange->setAccessible(true);
-        $reflectedPropertyConfig = $reflectedClass->getProperty('config');
-        $reflectedPropertyConfig->setAccessible(true);
         // test default range
-        $this->assertEquals('_sys_', $reflectedPropertyRange->getValue());
-        $config = $reflectedPropertyConfig->getValue();
-        $this->assertTrue(is_array($config));
+        $this->assertEquals('_sys_', call_user_func(self::$internalRangeFoo));
+
+        $this->assertTrue(is_array(call_user_func(self::$internalConfigFoo)));
         // test range initialization
         Config::range('_test_');
-        $this->assertEquals('_test_', $reflectedPropertyRange->getValue());
-        $config = $reflectedPropertyConfig->getValue();
-        $this->assertEquals([], $config['_test_']);
+        $this->assertEquals('_test_', call_user_func(self::$internalRangeFoo));
+        $this->assertEquals([], call_user_func(self::$internalConfigFoo)['_test_']);
     }
 
     // public function testParse()
@@ -51,11 +47,6 @@ class configTest extends \PHPUnit_Framework_TestCase
         $name   = '_name_';
         $range  = '_test_';
 
-        $reflectedClass          = new ReflectionClass('\think\Config');
-        $reflectedPropertyConfig = $reflectedClass->getProperty('config');
-        $reflectedPropertyConfig->setAccessible(true);
-        $reflectedPropertyConfig->setValue([]);
-
         $this->assertEquals($config, Config::load($file, $name, $range));
         $this->assertNotEquals(null, Config::load($file, $name, $range));
     }
@@ -64,12 +55,8 @@ class configTest extends \PHPUnit_Framework_TestCase
     {
         $range = '_test_';
         $this->assertFalse(Config::has('abcd', $range));
-        $reflectedClass          = new ReflectionClass('\think\Config');
-        $reflectedPropertyConfig = $reflectedClass->getProperty('config');
-        $reflectedPropertyConfig->setAccessible(true);
 
-        // if (!strpos($name, '.')):
-        $reflectedPropertyConfig->setValue([
+        call_user_func(self::$internalConfigFoo, [
             $range => ['abcd' => 'value'],
         ]);
         $this->assertTrue(Config::has('abcd', $range));
@@ -77,7 +64,7 @@ class configTest extends \PHPUnit_Framework_TestCase
         // else ...
         $this->assertFalse(Config::has('abcd.efg', $range));
 
-        $reflectedPropertyConfig->setValue([
+        call_user_func(self::$internalConfigFoo, [
             $range => ['abcd' => ['efg' => 'value']],
         ]);
         $this->assertTrue(Config::has('abcd.efg', $range));
@@ -85,24 +72,24 @@ class configTest extends \PHPUnit_Framework_TestCase
 
     public function testGet()
     {
-        $range                   = '_test_';
-        $reflectedClass          = new ReflectionClass('\think\Config');
-        $reflectedPropertyConfig = $reflectedClass->getProperty('config');
-        $reflectedPropertyConfig->setAccessible(true);
-        // test all configurations
-        $reflectedPropertyConfig->setValue([$range => []]);
+        $range = '_test_';
+        call_user_func(self::$internalConfigFoo, [
+            $range => []
+        ]);
         $this->assertEquals([], Config::get(null, $range));
         $this->assertEquals(null, Config::get(null, 'does_not_exist'));
         $value = 'value';
         // test getting configuration
-        $reflectedPropertyConfig->setValue([$range => ['abcd' => 'efg']]);
+        call_user_func(self::$internalConfigFoo, [
+            $range => ['abcd' => 'efg']
+        ]);
         $this->assertEquals('efg', Config::get('abcd', $range));
         $this->assertEquals(null, Config::get('does_not_exist', $range));
         $this->assertEquals(null, Config::get('abcd', 'does_not_exist'));
         // test getting configuration with dot syntax
-        $reflectedPropertyConfig->setValue([$range => [
-            'one' => ['two' => $value],
-        ]]);
+        call_user_func(self::$internalConfigFoo, [
+            $range => ['one' => ['two' => $value]]
+        ]);
         $this->assertEquals($value, Config::get('one.two', $range));
         $this->assertEquals(null, Config::get('one.does_not_exist', $range));
         $this->assertEquals(null, Config::get('one.two', 'does_not_exist'));
@@ -110,23 +97,19 @@ class configTest extends \PHPUnit_Framework_TestCase
 
     public function testSet()
     {
-        $range                   = '_test_';
-        $reflectedClass          = new ReflectionClass('\think\Config');
-        $reflectedPropertyConfig = $reflectedClass->getProperty('config');
-        $reflectedPropertyConfig->setAccessible(true);
-        $reflectedPropertyConfig->setValue([]);
-        // if (is_string($name)):
+        $range = '_test_';
+
         // without dot syntax
         $name  = 'name';
         $value = 'value';
         Config::set($name, $value, $range);
-        $config = $reflectedPropertyConfig->getValue();
+        $config = call_user_func(self::$internalConfigFoo);
         $this->assertEquals($value, $config[$range][$name]);
         // with dot syntax
         $name  = 'one.two';
         $value = 'dot value';
         Config::set($name, $value, $range);
-        $config = $reflectedPropertyConfig->getValue();
+        $config = call_user_func(self::$internalConfigFoo);
         $this->assertEquals($value, $config[$range]['one']['two']);
         // if (is_array($name)):
         // see testLoad()
@@ -134,25 +117,22 @@ class configTest extends \PHPUnit_Framework_TestCase
         // test getting all configurations...?
         // return self::$config[$range]; ??
         $value = ['all' => 'configuration'];
-        $reflectedPropertyConfig->setValue([$range => $value]);
+        call_user_func(self::$internalConfigFoo, [$range => $value]);
         $this->assertEquals($value, Config::set(null, null, $range));
         $this->assertNotEquals(null, Config::set(null, null, $range));
     }
 
     public function testReset()
     {
-        $range                   = '_test_';
-        $reflectedClass          = new ReflectionClass('\think\Config');
-        $reflectedPropertyConfig = $reflectedClass->getProperty('config');
-        $reflectedPropertyConfig->setAccessible(true);
-        $reflectedPropertyConfig->setValue([$range => ['abcd' => 'efg']]);
+        $range = '_test_';
+        call_user_func(self::$internalConfigFoo, [$range => ['abcd' => 'efg']]);
 
         // clear all configurations
         Config::reset(true);
-        $config = $reflectedPropertyConfig->getValue();
+        $config = call_user_func(self::$internalConfigFoo);
         $this->assertEquals([], $config);
         // clear the configuration in range of parameter.
-        $reflectedPropertyConfig->setValue([
+        call_user_func(self::$internalConfigFoo, [
             $range => [
                 'abcd' => 'efg',
                 'hijk' => 'lmn',
@@ -160,7 +140,7 @@ class configTest extends \PHPUnit_Framework_TestCase
             'a'    => 'b',
         ]);
         Config::reset($range);
-        $config = $reflectedPropertyConfig->getValue();
+        $config = call_user_func(self::$internalConfigFoo);
         $this->assertEquals([
             $range => [],
             'a'    => 'b',
