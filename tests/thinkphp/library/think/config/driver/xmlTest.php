@@ -16,10 +16,13 @@
 
 namespace tests\thinkphp\library\think\config\driver;
 
+use tests\thinkphp\library\think\config\ConfigInitTrait;
 use think\config;
 
 class xmlTest extends \PHPUnit_Framework_TestCase
 {
+    use ConfigInitTrait;
+
     public function testParse()
     {
         Config::parse('<?xml version="1.0"?><document><xmlstring>1</xmlstring></document>', 'xml');

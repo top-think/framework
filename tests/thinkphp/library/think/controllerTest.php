@@ -17,6 +17,7 @@
 namespace tests\thinkphp\library\think;
 
 use ReflectionClass;
+use think\Config;
 use think\Controller;
 use think\Request;
 use think\View;
