@@ -579,7 +579,7 @@ abstract class Builder
      */
     protected function parseGroup($group)
     {
-        return !empty($group) ? ' GROUP BY ' . $group : '';
+        return !empty($group) ? ' GROUP BY ' . $this->parseKey($group) : '';
     }
 
     /**
