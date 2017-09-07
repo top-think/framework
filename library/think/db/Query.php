@@ -990,7 +990,7 @@ class Query
      */
     public function whereExists($condition, $logic = 'AND')
     {
-        $this->options['where'][strtoupper($logic)][] = ['exists', $condition];
+        $this->options['where'][strtoupper($logic)][] = ['', 'exists', $condition];
 
         return $this;
     }
@@ -1004,7 +1004,7 @@ class Query
      */
     public function whereNotExists($condition, $logic = 'AND')
     {
-        $this->options['where'][strtoupper($logic)][] = ['not exists', $condition];
+        $this->options['where'][strtoupper($logic)][] = ['', 'not exists', $condition];
 
         return $this;
     }
