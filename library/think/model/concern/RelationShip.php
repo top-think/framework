@@ -124,14 +124,14 @@ trait RelationShip
      * @param mixed   $operator 比较操作符
      * @param integer $count    个数
      * @param string  $id       关联表的统计字段
-     * @return Relation|Query
+     * @return Query
      */
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
     {
         $relation = (new static())->$relation();
 
         if (is_array($operator) || $operator instanceof \Closure) {
-            return $relation->hasWhere($operator, $count);
+            return $relation->hasWhere($operator);
         }
 
         return $relation->has($operator, $count, $id);
@@ -143,7 +143,7 @@ trait RelationShip
      * @param string $relation 关联方法名
      * @param mixed  $where    查询条件（数组或者闭包）
      * @param mixed  $fields   字段
-     * @return Relation|Query
+     * @return Query
      */
     public static function hasWhere($relation, $where = [], $fields = '*')
     {
