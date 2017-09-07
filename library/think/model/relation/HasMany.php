@@ -260,7 +260,6 @@ class HasMany extends Relation
 
         return $this->parent->db()
             ->alias($model)
-            ->field($model . '.*')
             ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $joinType)
             ->group($relation . '.' . $this->foreignKey)
             ->having('count(' . $id . ')' . $operator . $count);
