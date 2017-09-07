@@ -254,12 +254,15 @@ class HasMany extends Relation
      */
     public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
-        $table = $this->query->getTable();
+        $table    = $this->query->getTable();
+        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
+        $relation = basename(str_replace('\\', '/', $this->model));
 
         return $this->parent->db()
-            ->alias('a')
-            ->join($table . ' b', 'a.' . $this->localKey . '=b.' . $this->foreignKey, $joinType)
-            ->group('b.' . $this->foreignKey)
+            ->alias($model)
+            ->field($model . '.*')
+            ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $joinType)
+            ->group($relation . '.' . $this->foreignKey)
             ->having('count(' . $id . ')' . $operator . $count);
     }
 
