@@ -67,11 +67,14 @@ class HasOne extends OneToOne
     public function has()
     {
         $table      = $this->query->getTable();
+        $model      = basename(str_replace('\\', '/', get_class($this->parent)));
+        $relation   = basename(str_replace('\\', '/', $this->model));
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        return $this->parent->db()->alias('a')
-            ->whereExists(function ($query) use ($table, $localKey, $foreignKey) {
-                $query->table([$table => 'b'])->field('b.' . $foreignKey)->whereExp('a.' . $localKey, '=b.' . $foreignKey);
+        return $this->parent->db()
+            ->alias($model)
+            ->whereExists(function ($query) use ($table, $model, $relation, $localKey, $foreignKey) {
+                $query->table([$table => $relation])->field($relation . '.' . $foreignKey)->whereExp($model . '.' . $localKey, '=' . $relatoin . '.' . $foreignKey);
             });
     }
 
