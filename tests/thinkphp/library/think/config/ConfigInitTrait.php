@@ -32,11 +32,11 @@ trait ConfigInitTrait
 
     public static function setUpBeforeClass()
     {
-        self::$internalConfigFoo = \Closure::bind(function($value = null) {
+        self::$internalConfigFoo = \Closure::bind(function ($value = null) {
             return !is_null($value) ? Config::$config = $value : Config::$config;
         }, null, '\\Think\\Config');
 
-        self::$internalRangeFoo  = \Closure::bind(function($value = null) {
+        self::$internalRangeFoo  = \Closure::bind(function ($value = null) {
             return !is_null($value) ? Config::$range = $value : Config::$range;
         }, null, '\\Think\\Config');
 
