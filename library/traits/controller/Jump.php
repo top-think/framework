@@ -36,8 +36,8 @@ trait Jump
      */
     protected function success($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
     {
-        if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
-            $url = $_SERVER["HTTP_REFERER"];
+        if (is_null($url) && !is_null(Request::instance()->server('HTTP_REFERER'))) {
+            $url = Request::instance()->server('HTTP_REFERER');
         } elseif ('' !== $url) {
             $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Url::build($url);
         }
@@ -107,7 +107,7 @@ trait Jump
         $result = [
             'code' => $code,
             'msg'  => $msg,
-            'time' => $_SERVER['REQUEST_TIME'],
+            'time' => Request::instance()->server('REQUEST_TIME'),
             'data' => $data,
         ];
         $type     = $type ?: $this->getResponseType();
