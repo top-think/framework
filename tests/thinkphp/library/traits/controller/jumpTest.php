@@ -52,13 +52,14 @@ class jumpTest extends \PHPUnit_Framework_TestCase
 
         try {
             call_user_func_array([$mock, 'success'], $arguments);
+            $this->setExpectedException('\think\exception\HttpResponseException');
         } catch (\Exception $e) {
-            $this->assertInstanceOf('\\think\\exception\\HttpResponseException', $e);
+            $this->assertInstanceOf('\think\exception\HttpResponseException', $e);
 
             /** @var Response $response */
             $response = $e->getResponse();
 
-            $this->assertInstanceOf('\\Think\\Response', $response);
+            $this->assertInstanceOf('\Think\Response', $response);
             $this->assertEquals($expected['header'], $response->getHeader());
             $this->assertEquals($expected['data'], $response->getData());
         }
@@ -78,13 +79,14 @@ class jumpTest extends \PHPUnit_Framework_TestCase
 
         try {
             call_user_func_array([$mock, 'error'], $arguments);
+            $this->setExpectedException('\think\exception\HttpResponseException');
         } catch (\Exception $e) {
-            $this->assertInstanceOf('\\think\\exception\\HttpResponseException', $e);
+            $this->assertInstanceOf('\think\exception\HttpResponseException', $e);
 
             /** @var Response $response */
             $response = $e->getResponse();
 
-            $this->assertInstanceOf('\\Think\\Response', $response);
+            $this->assertInstanceOf('\Think\Response', $response);
             $this->assertEquals($expected['header'], $response->getHeader());
             $this->assertEquals($expected['data'], $response->getData());
         }
@@ -104,13 +106,14 @@ class jumpTest extends \PHPUnit_Framework_TestCase
 
         try {
             call_user_func_array([$mock, 'result'], $arguments);
+            $this->setExpectedException('\think\exception\HttpResponseException');
         } catch (\Exception $e) {
-            $this->assertInstanceOf('\\think\\exception\\HttpResponseException', $e);
+            $this->assertInstanceOf('\think\exception\HttpResponseException', $e);
 
             /** @var Response $response */
             $response = $e->getResponse();
 
-            $this->assertInstanceOf('\\Think\\Response', $response);
+            $this->assertInstanceOf('\Think\Response', $response);
             $this->assertEquals($expected['header'], $response->getHeader());
             $this->assertEquals($expected['data'], $response->getData());
         }
@@ -123,13 +126,14 @@ class jumpTest extends \PHPUnit_Framework_TestCase
     {
         try {
             call_user_func_array([$this->testClass, 'redirect'], $arguments);
+            $this->setExpectedException('\think\exception\HttpResponseException');
         } catch (\Exception $e) {
-            $this->assertInstanceOf('\\think\\exception\\HttpResponseException', $e);
+            $this->assertInstanceOf('\think\exception\HttpResponseException', $e);
 
             /** @var Redirect $response */
             $response = $e->getResponse();
 
-            $this->assertInstanceOf('\\think\\response\\Redirect', $response);
+            $this->assertInstanceOf('\think\response\Redirect', $response);
             $this->assertEquals($expected['url'], $response->getTargetUrl());
             $this->assertEquals($expected['code'], $response->getCode());
         }
