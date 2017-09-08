@@ -261,7 +261,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array|null   $where 保存条件
      * @return array|null
      */
-    protected function parseWhere($where)
+    protected static function parseWhere($where)
     {
         if (is_array($where) && key($where) !== 0) {
             $item = [];
@@ -291,7 +291,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             if (!empty($where)) {
                 $this->isUpdate    = true;
-                $this->updateWhere = $this->parseWhere($where);
+                $this->updateWhere = self::parseWhere($where);
             }
         }
 
@@ -584,11 +584,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->isUpdate = $update;
 
             if (!empty($where)) {
-                $this->updateWhere = $this->parseWhere($where);
+                $this->updateWhere = self::parseWhere($where);
             }
         } else {
             $this->isUpdate    = true;
-            $this->updateWhere = $this->parseWhere($update);
+            $this->updateWhere = self::parseWhere($update);
         }
 
         return $this;
@@ -738,7 +738,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $result = self::with($with)->cache($cache);
 
         if (is_array($data) && key($data) !== 0) {
-            $result = $result->where($this->parseWhere($data));
+            $result = $result->where(self::parseWhere($data));
             $data   = null;
         } elseif ($data instanceof \Closure) {
             $data($result);
@@ -764,7 +764,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $query = $model->db();
 
         if (is_array($data) && key($data) !== 0) {
-            $query->where($this->parseWhere($data));
+            $query->where(self::parseWhere($data));
             $data = null;
         } elseif ($data instanceof \Closure) {
             $data($query);
