@@ -157,15 +157,31 @@ class requestTest extends \PHPUnit_Framework_TestCase
 
     public function testIsAjax()
     {
-        $request                          = Request::create('');
+        $request = Request::create('');
+
+        $this->assertFalse($request->isAjax());
+
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+        $this->assertFalse($request->isAjax());
+        $this->assertFalse($request->isAjax(true));
+
+        $request->server(['HTTP_X_REQUESTED_WITH' => 'xmlhttprequest']);
         $this->assertTrue($request->isAjax());
     }
 
     public function testIsPjax()
     {
-        $request                = Request::create('');
+        $request = Request::create('');
+
+        $this->assertFalse($request->isPjax());
+
         $_SERVER['HTTP_X_PJAX'] = true;
+        $this->assertFalse($request->isPjax());
+        $this->assertFalse($request->isPjax(true));
+
+        $request->server(['HTTP_X_PJAX' => true]);
+        $this->assertTrue($request->isPjax());
+        $request->server(['HTTP_X_PJAX' => false]);
         $this->assertTrue($request->isPjax());
     }
 

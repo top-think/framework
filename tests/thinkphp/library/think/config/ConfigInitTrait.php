@@ -34,11 +34,11 @@ trait ConfigInitTrait
     {
         self::$internalConfigFoo = \Closure::bind(function($value = null) {
             return !is_null($value) ? Config::$config = $value : Config::$config;
-        }, null, Config::class);
+        }, null, '\\Think\\Config');
 
         self::$internalRangeFoo  = \Closure::bind(function($value = null) {
             return !is_null($value) ? Config::$range = $value : Config::$range;
-        }, null, Config::class);
+        }, null, '\\Think\\Config');
 
         self::$originConfig = call_user_func(self::$internalConfigFoo);
         self::$originRange  = call_user_func(self::$internalRangeFoo);
