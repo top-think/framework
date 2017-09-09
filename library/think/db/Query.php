@@ -1210,7 +1210,7 @@ class Query
             $where = [$field, $op, ''];
         } elseif (is_null($condition)) {
             // 字段相等查询
-            $where = [$field, 'eq', $op];
+            $where = [$field, '=', $op];
         } else {
             $where = [$field, $op, $condition, isset($param[2]) ? $param[2] : null];
 
@@ -2498,7 +2498,9 @@ class Query
             if (isset($options['where'][$logic])) {
                 foreach ($options['where'][$logic] as $key => $val) {
                     if (array_key_exists($key, $options['map'])) {
-                        $options['where'][$logic][] = [$options['map'][$key], '=', $val];
+                        array_shift($val);
+                        array_unshift($val, $options['map'][$key]);
+                        $options['where'][$logic][$options['map'][$key]] = $val;
                         unset($options['where'][$logic][$key]);
                     }
                 }
