@@ -1189,11 +1189,14 @@ class Query
                     $where = $field;
                 }
 
-                if (isset($this->options['where'][$logic])) {
-                    $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
-                } else {
-                    $this->options['where'][$logic] = $where;
+                if (!empty($where)) {
+                    if (isset($this->options['where'][$logic])) {
+                        $this->options['where'][$logic] = array_merge($this->options['where'][$logic], $where);
+                    } else {
+                        $this->options['where'][$logic] = $where;
+                    }
                 }
+
                 return;
             } elseif ($field && is_string($field)) {
                 // 字符串查询
