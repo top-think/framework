@@ -39,7 +39,7 @@ class Resource extends RuleGroup
         $this->parent   = $group;
         $this->resource = $name;
         $this->route    = $route;
-        $this->name     = strpos($rule, '.') ? strstr($rule, '.', true) : $rule;
+        $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
 
         // 资源路由默认为完整匹配
         $option['complete_match'] = true;
