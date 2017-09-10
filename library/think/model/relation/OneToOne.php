@@ -276,13 +276,12 @@ abstract class OneToOne extends Relation
      * @access protected
      * @param Model $model    关联模型对象
      * @param Model $result   父模型对象
-     * @param array $bindAttr 绑定属性
      * @return void
      * @throws Exception
      */
-    protected function bindAttr($model, &$result, $bindAttr)
+    protected function bindAttr($model, &$result)
     {
-        foreach ($bindAttr as $key => $attr) {
+        foreach ($this->bindAttr as $key => $attr) {
             $key = is_numeric($key) ? $attr : $key;
             if (isset($result->$key)) {
                 throw new Exception('bind attr has exists:' . $key);
