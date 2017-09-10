@@ -56,7 +56,7 @@ class MorphMany extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        $list   = $this->query->relation($subRelation)->select();
+        $list   = $this->relation($subRelation)->select();
         $parent = clone $this->parent;
 
         foreach ($list as &$model) {

@@ -57,7 +57,7 @@ class HasManyThrough extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
 
-        return $this->query->relation($subRelation)->select();
+        return $this->relation($subRelation)->select();
     }
 
     /**

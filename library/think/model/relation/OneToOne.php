@@ -325,11 +325,4 @@ abstract class OneToOne extends Relation
         return $data;
     }
 
-    /**
-     * 执行基础查询（仅执行一次）
-     * @access protected
-     * @return void
-     */
-    protected function baseQuery()
-    {}
 }
