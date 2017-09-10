@@ -271,11 +271,4 @@ class MorphTo extends Relation
         return $this->parent->setRelation($this->relation, null);
     }
 
-    /**
-     * 执行基础查询（进执行一次）
-     * @access protected
-     * @return void
-     */
-    protected function baseQuery()
-    {}
 }
