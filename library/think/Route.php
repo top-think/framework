@@ -368,7 +368,8 @@ class Route
     {
         // 读取路由标识
         if (is_array($rule)) {
-            list($name, $rule) = $rule;
+            $name = $rule[0];
+            $rule = $rule[1];
         } elseif ($this->ruleName) {
             $name = $this->ruleName;
 
