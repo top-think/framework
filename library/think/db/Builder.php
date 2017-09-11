@@ -288,6 +288,14 @@ abstract class Builder
                     if (!empty($whereClause)) {
                         $str[] = ' ' . $logic . ' ( ' . $whereClause . ' )';
                     }
+                } elseif (is_array($field)) {
+                    array_unshift($value, $field);
+                    $str2 = [];
+                    foreach ($value as $item) {
+                        $str2[] = $this->parseWhereItem($query, array_shift($item), $item, $logic, $binds);
+                    }
+
+                    $str[] = ' ' . $logic . ' ( ' . implode(' AND ', $str2) . ' )';
                 } elseif (strpos($field, '|')) {
                     // 不同字段使用相同查询条件（OR）
                     $array = explode('|', $field);
