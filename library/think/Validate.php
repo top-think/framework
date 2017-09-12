@@ -906,18 +906,18 @@ class Validate
             foreach ($fields as $key) {
                 $map[] = [$key, '=', $data[$key]];
             }
-        } elseif (strpos($key, '=')) {
-            parse_str($key, $map);
         } else {
             $map[] = [$key, '=', $data[$field]];
         }
 
-        $pk = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
+        $pk = strval(!empty($rule[3]) ? $rule[3] : $db->getPk());
 
-        if (isset($rule[2])) {
-            $map[] = [$pk, '<>', $rule[2]];
-        } elseif (isset($data[$pk])) {
-            $map[] = [$pk, '<>', $data[$pk]];
+        if (is_string($pk)) {
+            if (isset($rule[2])) {
+                $map[] = [$pk, '<>', $rule[2]];
+            } elseif (isset($data[$pk])) {
+                $map[] = [$pk, '<>', $data[$pk]];
+            }
         }
 
         if ($db->where($map)->field($pk)->find()) {
