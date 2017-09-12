@@ -904,20 +904,20 @@ class Validate
             // 支持多个字段验证
             $fields = explode('^', $key);
             foreach ($fields as $key) {
-                $map[$key] = [$key, '=', $data[$key]];
+                $map[] = [$key, '=', $data[$key]];
             }
         } elseif (strpos($key, '=')) {
             parse_str($key, $map);
         } else {
-            $map[$key] = [$key, '=', $data[$field]];
+            $map[] = [$key, '=', $data[$field]];
         }
 
         $pk = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
 
         if (isset($rule[2])) {
-            $map[$pk] = [$pk, '<>', $rule[2]];
+            $map[] = [$pk, '<>', $rule[2]];
         } elseif (isset($data[$pk])) {
-            $map[$pk] = [$pk, '<>', $data[$pk]];
+            $map[] = [$pk, '<>', $data[$pk]];
         }
 
         if ($db->where($map)->field($pk)->find()) {
