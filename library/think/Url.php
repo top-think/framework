@@ -184,7 +184,7 @@ class Url
                 $match   = [];
                 $pos     = [];
                 foreach ($domains as $key => $item) {
-                    if (isset($item['[bind]']) && 0 === strpos($url, $item['[bind]'][0])) {
+                    if (isset($item['[bind]']) && 0 === strpos($url, explode($item['[bind]'][0], '?')[0])) {
                         $pos[$key] = strlen($item['[bind]'][0]) + 1;
                         $match[]   = $key;
                         $module    = '';
