@@ -242,8 +242,12 @@ class File extends SplFileObject
         if (function_exists('exif_imagetype')) {
             return exif_imagetype($image);
         } else {
-            $info = getimagesize($image);
-            return $info[2];
+            try {
+                $info = getimagesize($image);
+                return $info ? $info[2] : false;
+            } catch (\Exception $e) {
+                return false;
+            }
         }
     }
 
