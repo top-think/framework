@@ -116,6 +116,8 @@ class Config
 
         if (!strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
+        } elseif ('.' == substr($name, -1)) {
+            return $this->pull(substr($name, 0, -1));
         }
 
         $name   = explode('.', strtolower($name));
