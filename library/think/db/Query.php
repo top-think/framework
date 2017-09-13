@@ -420,7 +420,9 @@ class Query
 
         $result = $this->connection->value($this, $field, $default);
 
-        if ($force) {
+        if (!empty($this->options['fetch_sql'])) {
+            return $result;
+        } elseif ($force) {
             $result += 0;
         }
 
@@ -454,7 +456,13 @@ class Query
             $options = $this->getOptions();
             $subSql  = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
 
-            return $this->newQuery()->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0, true);
+            $query = $this->newQuery()->table([$subSql => '_group_count_']);
+
+            if (!empty($options['fetch_sql'])) {
+                $query->fetchSql(true);
+            }
+
+            return $query->value('COUNT(*) AS tp_count', 0, true);
         }
 
         return $this->value('COUNT(' . $field . ') AS tp_count', 0, true);
