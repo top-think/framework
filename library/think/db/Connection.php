@@ -1368,8 +1368,8 @@ abstract class Connection
             $sql = is_numeric($key) ?
             substr_replace($sql, $value, strpos($sql, '?'), 1) :
             str_replace(
-                [':' . $key . ')', ':' . $key . ',', ':' . $key . ' '],
-                [$value . ')', $value . ',', $value . ' '],
+                [':' . $key . ')', ':' . $key . ',', ':' . $key . ' ', ':' . $key . PHP_EOL],
+                [$value . ')', $value . ',', $value . ' ', $value . PHP_EOL],
                 $sql . ' ');
         }
 
