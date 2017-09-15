@@ -32,7 +32,7 @@ class View extends Response
     {
         // 渲染模板输出
         return Container::get('view')
-            ->init(Container::get('app')->pull('template'), Container::get('app')->config('view_replace_str'))
+            ->init(Container::get('config')->pull('template'), Container::get('app')->config('view_replace_str'))
             ->fetch($data, $this->vars, $this->replace);
     }
 
