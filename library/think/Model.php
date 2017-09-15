@@ -842,7 +842,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                                         $item[$key] = $value ? $value->$attr : null;
                                     }
                                 }
-                                break;
+                                continue;
                             }
                         }
                         $item[$name] = $value;
