@@ -364,10 +364,11 @@ trait Attribute
      * 获取器 获取数据对象的值
      * @access public
      * @param string $name 名称
+     * @param array  $item 数据
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function getAttr($name)
+    public function getAttr($name, &$item = null)
     {
         try {
             $notFound = false;
@@ -408,15 +409,28 @@ trait Attribute
                 if ($modelRelation instanceof Relation) {
                     $value = $this->getRelationData($modelRelation);
 
+                    if ($item && method_exists($modelRelation, 'getBindAttr') && $bindAttr = $modelRelation->getBindAttr()) {
+
+                        foreach ($bindAttr as $key => $attr) {
+                            $key = is_numeric($key) ? $attr : $key;
+
+                            if (isset($item[$key])) {
+                                throw new Exception('bind attr has exists:' . $key);
+                            } else {
+                                $item[$key] = $value ? $value->$attr : null;
+                            }
+                        }
+                        return false;
+                    }
+
                     // 保存关联对象值
                     $this->relation[$name] = $value;
+
                     return $value;
                 }
             }
-
             throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
         }
-
         return $value;
     }
 
