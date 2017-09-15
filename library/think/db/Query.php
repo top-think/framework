@@ -656,6 +656,42 @@ class Query
     }
 
     /**
+     * LEFT JOIN
+     * @access public
+     * @param mixed  $join      关联的表名
+     * @param mixed  $condition 条件
+     * @return $this
+     */
+    public function leftJoin($join, $condition = null)
+    {
+        return $this->join($join, $condition, 'LEFT');
+    }
+
+    /**
+     * RIGHT JOIN
+     * @access public
+     * @param mixed  $join      关联的表名
+     * @param mixed  $condition 条件
+     * @return $this
+     */
+    public function rightJoin($join, $condition = null)
+    {
+        return $this->join($join, $condition, 'RIGHT');
+    }
+
+    /**
+     * FULL JOIN
+     * @access public
+     * @param mixed  $join      关联的表名
+     * @param mixed  $condition 条件
+     * @return $this
+     */
+    public function fullJoin($join, $condition = null)
+    {
+        return $this->join($join, $condition, 'FULL');
+    }
+
+    /**
      * 获取Join表名及别名 支持
      * ['prefix_table或者子查询'=>'alias'] 'prefix_table alias' 'table alias'
      * @access public
