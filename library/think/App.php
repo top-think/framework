@@ -140,6 +140,7 @@ class App implements \ArrayAccess
         }
 
         $this->namespace = $this->env->get('app_namespace', $this->namespace);
+        $this->env->set('app_namespace', $this->namespace);
 
         // 注册应用命名空间
         Loader::addNamespace($this->namespace, $this->appPath);
