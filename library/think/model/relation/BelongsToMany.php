@@ -424,7 +424,7 @@ class BelongsToMany extends Relation
      * @access public
      * @param mixed $data  数据 可以使用数组 关联模型对象 和 关联对象的主键
      * @param array $pivot 中间表额外数据
-     * @return integer
+     * @return array|Pivot
      */
     public function save($data, array $pivot = [])
     {
@@ -438,11 +438,11 @@ class BelongsToMany extends Relation
      * @param array $dataSet   数据集
      * @param array $pivot     中间表额外数据
      * @param bool  $samePivot 额外数据是否相同
-     * @return integer
+     * @return array|false
      */
     public function saveAll(array $dataSet, array $pivot = [], $samePivot = false)
     {
-        $result = false;
+        $result = [];
 
         foreach ($dataSet as $key => $data) {
             if (!$samePivot) {
@@ -451,10 +451,10 @@ class BelongsToMany extends Relation
                 $pivotData = $pivot;
             }
 
-            $result = $this->attach($data, $pivotData);
+            $result[] = $this->attach($data, $pivotData);
         }
 
-        return $result;
+        return empty($result) ? false : $result;
     }
 
     /**

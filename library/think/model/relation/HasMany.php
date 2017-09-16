@@ -234,17 +234,17 @@ class HasMany extends Relation
      * 批量保存当前关联数据对象
      * @access public
      * @param array $dataSet 数据集
-     * @return integer
+     * @return array|false
      */
     public function saveAll(array $dataSet)
     {
-        $result = false;
+        $result = [];
 
         foreach ($dataSet as $key => $data) {
-            $result = $this->save($data);
+            $result[] = $this->save($data);
         }
 
-        return $result;
+        return empty($result) ? false : $result;
     }
 
     /**
