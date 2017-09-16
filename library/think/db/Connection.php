@@ -855,6 +855,9 @@ abstract class Connection
     {
         if ($this->PDOStatement) {
             $error = $this->PDOStatement->errorInfo();
+            if ($error[0] == '00000') {
+                return '';
+            }
             $error = $error[1] . ':' . $error[2];
         } else {
             $error = '';
