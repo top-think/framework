@@ -826,7 +826,29 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                     $relation   = $this->getAttr($key);
                     $item[$key] = $relation->append([$attr])->toArray();
                 } else {
-                    $item[$name] = $this->getAttr($name);
+                    $relation = Loader::parseName($name, 1, false);
+                    if (method_exists($this, $relation)) {
+                        $modelRelation = $this->$relation();
+                        $value         = $this->getRelationData($modelRelation);
+
+                        if (method_exists($modelRelation, 'getBindAttr')) {
+                            $bindAttr = $modelRelation->getBindAttr();
+                            if ($bindAttr) {
+                                foreach ($bindAttr as $key => $attr) {
+                                    $key = is_numeric($key) ? $attr : $key;
+                                    if (isset($this->data[$key])) {
+                                        throw new Exception('bind attr has exists:' . $key);
+                                    } else {
+                                        $item[$key] = $value ? $value->$attr : null;
+                                    }
+                                }
+                                continue;
+                            }
+                        }
+                        $item[$name] = $value;
+                    } else {
+                        $item[$name] = $this->getAttr($name);
+                    }
                 }
             }
         }
