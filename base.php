@@ -98,3 +98,6 @@ Loader::addClassAlias([
 
 // 加载惯例配置文件
 facade\Config::set(include __DIR__ . '/convention.php');
+
+// 加载composer autofile文件
+Loader::loadComposerAutoloadFiles();

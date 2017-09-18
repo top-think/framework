@@ -31,6 +31,8 @@ class Loader
     // 自动加载的文件
     private static $autoloadFiles = [];
 
+    private static $composerPath;
+
     // 注册自动加载机制
     public static function register($autoload = '')
     {
@@ -55,9 +57,11 @@ class Loader
             self::addClassMap(__include_file($rootPath . 'runtime/classmap.php'));
         }
 
+        self::$composerPath = $rootPath . 'vendor/composer/';
+
         // Composer自动加载支持
-        if (is_dir($rootPath . 'vendor/composer')) {
-            self::registerComposerLoader($rootPath . 'vendor/composer/');
+        if (is_dir(self::$composerPath)) {
+            self::registerComposerLoader(self::$composerPath);
         }
 
         // 自动加载extend目录
@@ -290,9 +294,13 @@ class Loader
                 self::addClassMap($classMap);
             }
         }
+    }
 
-        if (is_file($composerPath . 'autoload_files.php')) {
-            $includeFiles = require $composerPath . 'autoload_files.php';
+    // 加载composer autofile文件
+    public static function loadComposerAutoloadFiles()
+    {
+        if (is_file(self::$composerPath . 'autoload_files.php')) {
+            $includeFiles = require self::$composerPath . 'autoload_files.php';
             foreach ($includeFiles as $fileIdentifier => $file) {
                 if (empty(self::$autoloadFiles[$fileIdentifier])) {
                     __require_file($file);
