@@ -70,7 +70,7 @@ class Sqlite extends Builder
             if (isset($alias[$table])) {
                 $table = $alias[$table];
             } elseif ('__TABLE__' == $table) {
-                $table = $query->getTable();
+                $table = $query->getOptions('table');
             }
         }
 

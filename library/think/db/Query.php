@@ -198,6 +198,10 @@ class Query
      */
     public function getTable($name = '')
     {
+        if (empty($name) && isset($this->options['table'])) {
+            return $this->options['table'];
+        }
+
         $name = $name ?: $this->name;
 
         return $this->prefix . Loader::parseName($name);

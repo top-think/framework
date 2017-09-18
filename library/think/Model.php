@@ -322,7 +322,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检测字段
         if (empty($this->field) || true === $this->field) {
             $query = $this->db(false);
-            $table = $query->getTable();
+            $table = $this->table ?: $query->getTable();
 
             $this->field = $query->getConnection()->getTableFields($table);
 
