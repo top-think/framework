@@ -107,7 +107,7 @@ class Error
 
         if (!$handle) {
             // 异常处理handle
-            $class = Container::get('app')->config('exception_handle');
+            $class = Container::get('config')->get('exception_handle');
             if ($class && is_string($class) && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
                 $handle = new $class;
             } else {
