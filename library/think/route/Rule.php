@@ -359,32 +359,6 @@ abstract class Rule
     }
 
     /**
-     * 解析路由变量
-     * @access public
-     * @param array    $rule 路由规则
-     * @param array    $paths URL
-     * @return array
-     */
-    protected function parseRuleVars($rule, &$paths)
-    {
-        $matches = [];
-        foreach ($rule as $item) {
-            $fun = '';
-            if (0 === strpos($item, '[:')) {
-                $item = substr($item, 1, -1);
-            }
-            if (0 === strpos($item, ':')) {
-                $var           = substr($item, 1);
-                $matches[$var] = array_shift($paths);
-            } else {
-                // 过滤URL中的静态变量
-                array_shift($paths);
-            }
-        }
-        return $matches;
-    }
-
-    /**
      * 路由绑定模型实例
      * @access public
      * @param array|\Clousre    $bindModel 绑定模型
@@ -468,11 +442,9 @@ abstract class Rule
         if ($rule) {
             $rule = explode('/', $rule);
             // 获取URL地址中的参数
-            $paths   = explode('|', $url);
-            $matches = $this->parseRuleVars($rule, $paths);
+            $paths = explode('|', $url);
         } else {
-            $paths   = explode('|', $url);
-            $matches = [];
+            $paths = explode('|', $url);
         }
 
         if (is_string($route) && isset($option['prefix'])) {
