@@ -47,7 +47,8 @@ class Controller
 
     /**
      * 构造方法
-     * @param Request $request Request对象
+     * @param Request $request  Request对象
+     * @param App     $app      App
      * @access public
      */
     public function __construct(Request $request, App $app)
