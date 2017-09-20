@@ -438,15 +438,6 @@ abstract class Rule
      */
     public function parseRule($request, $rule, $route, $url, $option = [], $matches = [])
     {
-        // 解析路由规则
-        if ($rule) {
-            $rule = explode('/', $rule);
-            // 获取URL地址中的参数
-            $paths = explode('|', $url);
-        } else {
-            $paths = explode('|', $url);
-        }
-
         if (is_string($route) && isset($option['prefix'])) {
             // 路由地址前缀
             $route = $option['prefix'] . $route;
@@ -477,7 +468,7 @@ abstract class Rule
         }
 
         // 解析额外参数
-        $this->parseUrlParams(empty($paths) ? '' : implode('|', $paths), $matches);
+        $this->parseUrlParams($url, $matches);
 
         // 记录匹配的路由信息
         $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
