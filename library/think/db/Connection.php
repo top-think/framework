@@ -745,7 +745,7 @@ abstract class Connection
         $pk      = $query->getPk($options);
 
         if (!empty($options['cache']) && true === $options['cache']['key'] && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options, $query->getBind(false));
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
         }
 
         $data   = $options['data'];
@@ -755,12 +755,10 @@ abstract class Connection
             // 判断查询缓存
             $cache = $options['cache'];
 
-            if (true === $cache['key'] && !is_null($data) && !is_array($data)) {
-                $key = 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
-            } elseif (is_string($cache['key'])) {
+            if (is_string($cache['key'])) {
                 $key = $cache['key'];
             } elseif (!isset($key)) {
-                $key = md5(serialize($options) . serialize($query->getBind(false)));
+                $key = $this->getCacheKey($data, $options, $query->getBind(false));
             }
 
             $result = Container::get('cache')->get($key);
@@ -1026,7 +1024,7 @@ abstract class Connection
             if (is_string($pk) && isset($data[$pk])) {
                 $where[$pk] = [$pk, '=', $data[$pk]];
                 if (!isset($key)) {
-                    $key = 'think:' . $options['table'] . '|' . $data[$pk];
+                    $key = $this->getCacheKey($data[$pk], $options);
                 }
                 unset($data[$pk]);
             } elseif (is_array($pk)) {
@@ -1050,7 +1048,7 @@ abstract class Connection
                 $query->setOption('where', ['AND' => $where]);
             }
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options, $query->getBind(false));
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
         }
 
         // 更新数据
@@ -1106,8 +1104,8 @@ abstract class Connection
         // 分析查询表达式
         $options = $query->getOptions();
         $pk      = $query->getPk($options);
+        $data    = $options['data'];
 
-        $data = $options['data'];
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
         }
@@ -1115,13 +1113,13 @@ abstract class Connection
         if (!is_null($data) && true !== $data) {
             if (!isset($key) && !is_array($data)) {
                 // 缓存标识
-                $key = 'think:' . $options['table'] . '|' . $data;
+                $key = $this->getCacheKey($data, $options);
             }
 
             // AR模式分析主键条件
             $query->parsePkWhere($data);
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options, $query->getBind(false));
+            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
         }
 
         if (true !== $data && empty($options['where'])) {
@@ -1992,12 +1990,10 @@ abstract class Connection
     {
         if (is_scalar($value)) {
             $data = $value;
-        } elseif (is_array($value) && is_string($value[0]) && 'eq' == strtolower($value[0])) {
-            $data = $value[1];
         }
 
         if (isset($data)) {
-            return 'think:' . $options['table'] . '|' . $data;
+            return 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
         } else {
             return md5(serialize($options) . serialize($bind));
         }
