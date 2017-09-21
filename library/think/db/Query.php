@@ -1802,49 +1802,54 @@ class Query
      * 查询日期或者时间
      * @access public
      * @param string       $field 日期字段名
-     * @param string       $op    比较运算符或者表达式
+     * @param string|array $op    比较运算符或者表达式
      * @param string|array $range 比较范围
      * @return $this
      */
     public function whereTime($field, $op, $range = null)
     {
         if (is_null($range)) {
-            // 使用日期表达式
-            $date = getdate();
-            switch (strtolower($op)) {
-                case 'today':
-                case 'd':
-                    $range = ['today', 'tomorrow'];
-                    break;
-                case 'week':
-                case 'w':
-                    $range = 'this week 00:00:00';
-                    break;
-                case 'month':
-                case 'm':
-                    $range = mktime(0, 0, 0, $date['mon'], 1, $date['year']);
-                    break;
-                case 'year':
-                case 'y':
-                    $range = mktime(0, 0, 0, 1, 1, $date['year']);
-                    break;
-                case 'yesterday':
-                    $range = ['yesterday', 'today'];
-                    break;
-                case 'last week':
-                    $range = ['last week 00:00:00', 'this week 00:00:00'];
-                    break;
-                case 'last month':
-                    $range = [date('y-m-01', strtotime('-1 month')), mktime(0, 0, 0, $date['mon'], 1, $date['year'])];
-                    break;
-                case 'last year':
-                    $range = [mktime(0, 0, 0, 1, 1, $date['year'] - 1), mktime(0, 0, 0, 1, 1, $date['year'])];
-                    break;
-                default:
-                    $range = $op;
+            if (is_array($op)) {
+                $range = $op;
+            } else {
+                // 使用日期表达式
+                switch (strtolower($op)) {
+                    case 'today':
+                    case 'd':
+                        $range = ['today', 'tomorrow'];
+                        break;
+                    case 'week':
+                    case 'w':
+                        $range = ['this week 00:00:00', 'next week 00:00:00'];
+                        break;
+                    case 'month':
+                    case 'm':
+                        $range = ['first Day of this month 00:00:00', 'first Day of next month 00:00:00'];
+                        break;
+                    case 'year':
+                    case 'y':
+                        $range = ['this year 1/1', 'next year 1/1'];
+                        break;
+                    case 'yesterday':
+                        $range = ['yesterday', 'today'];
+                        break;
+                    case 'last week':
+                        $range = ['last week 00:00:00', 'this week 00:00:00'];
+                        break;
+                    case 'last month':
+                        $range = ['first Day of last month 00:00:00', 'first Day of this month 00:00:00'];
+                        break;
+                    case 'last year':
+                        $range = ['last year 1/1', 'this year 1/1'];
+                        break;
+                    default:
+                        $range = $op;
+                }
             }
+
             $op = is_array($range) ? 'between' : '>';
         }
+
         $this->where($field, strtolower($op) . ' time', $range);
 
         return $this;
