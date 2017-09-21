@@ -584,11 +584,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->isUpdate = $update;
 
             if (!empty($where)) {
-                $this->updateWhere = self::parseWhere($where);
+                $this->updateWhere = $where;
             }
         } else {
             $this->isUpdate    = true;
-            $this->updateWhere = self::parseWhere($update);
+            $this->updateWhere = $update;
         }
 
         return $this;
