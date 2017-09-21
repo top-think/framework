@@ -50,6 +50,20 @@ class Query
     // 扩展查询方法
     private static $extend = [];
 
+    // 日期查询快捷方式
+    protected $timeExp = ['d' => 'today', 'w' => 'week', 'm' => 'month', 'y' => 'year'];
+    // 日期查询表达式
+    protected $timeRule = [
+        'today'      => ['today', 'tomorrow'],
+        'yesterday'  => ['yesterday', 'today'],
+        'week'       => ['this week 00:00:00', 'next week 00:00:00'],
+        'last week'  => ['last week 00:00:00', 'this week 00:00:00'],
+        'month'      => ['first Day of this month 00:00:00', 'first Day of next month 00:00:00'],
+        'last month' => ['first Day of last month 00:00:00', 'first Day of this month 00:00:00'],
+        'year'       => ['this year 1/1', 'next year 1/1'],
+        'last year'  => ['last year 1/1', 'this year 1/1'],
+    ];
+
     /**
      * 架构函数
      * @access public
@@ -876,7 +890,6 @@ class Query
     public function exp($field, $value)
     {
         $this->data($field, ['exp', $value]);
-
         return $this;
     }
 
@@ -1011,7 +1024,6 @@ class Query
     public function whereNull($field, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'null', null);
-
         return $this;
     }
 
@@ -1025,7 +1037,6 @@ class Query
     public function whereNotNull($field, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'notnull', null);
-
         return $this;
     }
 
@@ -1039,7 +1050,6 @@ class Query
     public function whereExists($condition, $logic = 'AND')
     {
         $this->options['where'][strtoupper($logic)][] = ['', 'exists', $condition];
-
         return $this;
     }
 
@@ -1053,7 +1063,6 @@ class Query
     public function whereNotExists($condition, $logic = 'AND')
     {
         $this->options['where'][strtoupper($logic)][] = ['', 'not exists', $condition];
-
         return $this;
     }
 
@@ -1068,7 +1077,6 @@ class Query
     public function whereIn($field, $condition, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'in', $condition);
-
         return $this;
     }
 
@@ -1083,7 +1091,6 @@ class Query
     public function whereNotIn($field, $condition, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'not in', $condition);
-
         return $this;
     }
 
@@ -1098,7 +1105,6 @@ class Query
     public function whereLike($field, $condition, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'like', $condition);
-
         return $this;
     }
 
@@ -1113,7 +1119,6 @@ class Query
     public function whereNotLike($field, $condition, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'not like', $condition);
-
         return $this;
     }
 
@@ -1128,7 +1133,6 @@ class Query
     public function whereBetween($field, $condition, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'between', $condition);
-
         return $this;
     }
 
@@ -1143,7 +1147,6 @@ class Query
     public function whereNotBetween($field, $condition, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'not between', $condition);
-
         return $this;
     }
 
@@ -1195,7 +1198,6 @@ class Query
     public function whereExp($field, $condition, $logic = 'AND')
     {
         $this->parseWhereExp($logic, $field, 'exp', $condition);
-
         return $this;
     }
 
@@ -1498,7 +1500,6 @@ class Query
     public function using($using)
     {
         $this->options['using'] = $using;
-
         return $this;
     }
 
@@ -1575,7 +1576,6 @@ class Query
     public function group($group)
     {
         $this->options['group'] = $group;
-
         return $this;
     }
 
@@ -1588,7 +1588,6 @@ class Query
     public function having($having)
     {
         $this->options['having'] = $having;
-
         return $this;
     }
 
@@ -1615,7 +1614,6 @@ class Query
     public function distinct($distinct)
     {
         $this->options['distinct'] = $distinct;
-
         return $this;
     }
 
@@ -1656,7 +1654,6 @@ class Query
     public function force($force)
     {
         $this->options['force'] = $force;
-
         return $this;
     }
 
@@ -1669,7 +1666,6 @@ class Query
     public function comment($comment)
     {
         $this->options['comment'] = $comment;
-
         return $this;
     }
 
@@ -1682,7 +1678,6 @@ class Query
     public function fetchSql($fetch = true)
     {
         $this->options['fetch_sql'] = $fetch;
-
         return $this;
     }
 
@@ -1695,7 +1690,6 @@ class Query
     public function fetchPdo($pdo = true)
     {
         $this->options['fetch_pdo'] = $pdo;
-
         return $this;
     }
 
@@ -1707,7 +1701,6 @@ class Query
     public function master()
     {
         $this->options['master'] = true;
-
         return $this;
     }
 
@@ -1720,7 +1713,6 @@ class Query
     public function strict($strict = true)
     {
         $this->options['strict'] = $strict;
-
         return $this;
     }
 
@@ -1733,7 +1725,6 @@ class Query
     public function failException($fail = true)
     {
         $this->options['fail'] = $fail;
-
         return $this;
     }
 
@@ -1746,7 +1737,6 @@ class Query
     public function sequence($sequence = null)
     {
         $this->options['sequence'] = $sequence;
-
         return $this;
     }
 
@@ -1794,7 +1784,19 @@ class Query
     public function pk($pk)
     {
         $this->pk = $pk;
+        return $this;
+    }
 
+    /**
+     * 查询日期或者时间
+     * @access public
+     * @param string       $name  时间表达式
+     * @param string|array $rule  时间范围
+     * @return $this
+     */
+    public function timeRule($name, $rule)
+    {
+        $this->timeRule[$name] = $rule;
         return $this;
     }
 
@@ -1812,38 +1814,14 @@ class Query
             if (is_array($op)) {
                 $range = $op;
             } else {
-                // 使用日期表达式
-                switch (strtolower($op)) {
-                    case 'today':
-                    case 'd':
-                        $range = ['today', 'tomorrow'];
-                        break;
-                    case 'week':
-                    case 'w':
-                        $range = ['this week 00:00:00', 'next week 00:00:00'];
-                        break;
-                    case 'month':
-                    case 'm':
-                        $range = ['first Day of this month 00:00:00', 'first Day of next month 00:00:00'];
-                        break;
-                    case 'year':
-                    case 'y':
-                        $range = ['this year 1/1', 'next year 1/1'];
-                        break;
-                    case 'yesterday':
-                        $range = ['yesterday', 'today'];
-                        break;
-                    case 'last week':
-                        $range = ['last week 00:00:00', 'this week 00:00:00'];
-                        break;
-                    case 'last month':
-                        $range = ['first Day of last month 00:00:00', 'first Day of this month 00:00:00'];
-                        break;
-                    case 'last year':
-                        $range = ['last year 1/1', 'this year 1/1'];
-                        break;
-                    default:
-                        $range = $op;
+                if (isset($this->timeExp[strtolower($op)])) {
+                    $op = $this->timeExp[strtolower($op)];
+                }
+
+                if (isset($this->timeRule[strtolower($op)])) {
+                    $range = $this->timeRule[strtolower($op)];
+                } else {
+                    $range = $op;
                 }
             }
 
@@ -1931,7 +1909,6 @@ class Query
     protected function options(array $options)
     {
         $this->options = $options;
-
         return $this;
     }
 
@@ -1960,7 +1937,6 @@ class Query
     public function setOption($option, $value)
     {
         $this->options[$option] = $value;
-
         return $this;
     }
 
