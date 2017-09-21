@@ -382,7 +382,7 @@ class File extends SplFileObject
                         }
                 }
             }
-        } elseif ('' === $savename) {
+        } elseif ('' === $savename || false === $savename) {
             $savename = $this->getInfo('name');
         }
 
