@@ -53,7 +53,7 @@ class MorphOne extends Relation
     public function getRelation($subRelation = '', $closure = null)
     {
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
 
         $this->baseQuery();
@@ -186,7 +186,7 @@ class MorphOne extends Relation
     {
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
-            call_user_func_array($closure, [ & $this]);
+            $closure($this->query);
         }
 
         $list     = $this->query->where($where)->with($subRelation)->find();

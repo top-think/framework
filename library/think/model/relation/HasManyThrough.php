@@ -54,7 +54,7 @@ class HasManyThrough extends Relation
     public function getRelation($subRelation = '', $closure = null)
     {
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
 
         $this->baseQuery();

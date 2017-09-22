@@ -53,7 +53,7 @@ class MorphMany extends Relation
     public function getRelation($subRelation = '', $closure = null)
     {
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
 
         $this->baseQuery();
@@ -119,10 +119,11 @@ class MorphMany extends Relation
         }
 
         if (!empty($range)) {
-            $data = $this->eagerlyMorphToMany([
+            $where = [
                 [$morphKey, 'in', $range],
                 [$morphType, '=', $type],
-            ], $relation, $subRelation, $closure);
+            ];
+            $data = $this->eagerlyMorphToMany($where, $relation, $subRelation, $closure);
 
             // 关联属性名
             $attr = Loader::parseName($relation);
@@ -157,11 +158,12 @@ class MorphMany extends Relation
         $pk = $result->getPk();
 
         if (isset($result->$pk)) {
-            $key  = $result->$pk;
-            $data = $this->eagerlyMorphToMany([
+            $key   = $result->$pk;
+            $where = [
                 [$this->morphKey, '=', $key],
                 [$this->morphType, '=', $this->type],
-            ], $relation, $subRelation, $closure);
+            ];
+            $data = $this->eagerlyMorphToMany($where, $relation, $subRelation, $closure);
 
             if (!isset($data[$key])) {
                 $data[$key] = [];
@@ -190,7 +192,7 @@ class MorphMany extends Relation
 
         if (isset($result->$pk)) {
             if ($closure) {
-                call_user_func_array($closure, [ & $this->query]);
+                $closur($this->query);
             }
 
             $count = $this->query
@@ -213,7 +215,7 @@ class MorphMany extends Relation
     public function getRelationCountQuery($closure)
     {
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
 
         return $this->query
@@ -237,9 +239,12 @@ class MorphMany extends Relation
     protected function eagerlyMorphToMany($where, $relation, $subRelation = '', $closure = false)
     {
         // 预载入关联查询 支持嵌套预载入
+        $this->query->removeOptions('where');
+
         if ($closure) {
-            call_user_func_array($closure, [ & $this]);
+            $closure($this->query);
         }
+
         $list     = $this->query->where($where)->with($subRelation)->select();
         $morphKey = $this->morphKey;
 

@@ -188,7 +188,7 @@ class Query
      */
     public function getModel()
     {
-        return $this->model;
+        return $this->model->setQuery($this);
     }
 
     /**

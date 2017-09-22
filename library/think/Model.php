@@ -54,6 +54,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected static $initialized = [];
 
+    protected $queryInstance;
+
     /**
      * 架构函数
      * @access public
@@ -152,11 +154,27 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
+     * @param Query $query 查询对象实例
+     * @return $this
+     */
+    public function setQuery($query)
+    {
+        $this->queryInstance = $query;
+        return $this;
+    }
+
+    /**
+     * 获取当前模型的数据库查询对象
+     * @access public
      * @param bool $useBaseQuery 是否调用全局查询范围
      * @return Query
      */
     public function db($useBaseQuery = true)
     {
+        if ($this->queryInstance) {
+            return $this->queryInstance;
+        }
+
         $query = $this->buildQuery();
 
         if ($useBaseQuery) {

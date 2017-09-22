@@ -44,7 +44,7 @@ class HasMany extends Relation
     public function getRelation($subRelation = '', $closure = null)
     {
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
 
         $list = $this->query
@@ -83,9 +83,10 @@ class HasMany extends Relation
         }
 
         if (!empty($range)) {
-            $data = $this->eagerlyOneToMany($this, [
+            $where = [
                 [$this->foreignKey, 'in', $range],
-            ], $relation, $subRelation, $closure);
+            ];
+            $data = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
 
             // 关联属性名
             $attr = Loader::parseName($relation);
@@ -120,10 +121,11 @@ class HasMany extends Relation
         $localKey = $this->localKey;
 
         if (isset($result->$localKey)) {
-            $pk   = $result->$localKey;
-            $data = $this->eagerlyOneToMany($this, [
+            $pk    = $result->$localKey;
+            $where = [
                 [$this->foreignKey, '=', $pk],
-            ], $relation, $subRelation, $closure);
+            ];
+            $data = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
 
             // 关联数据封装
             if (!isset($data[$pk])) {
@@ -152,7 +154,7 @@ class HasMany extends Relation
 
         if (isset($result->$localKey)) {
             if ($closure) {
-                call_user_func_array($closure, [ & $this->query]);
+                $closure($this->query);
             }
 
             $count = $this->query->where($this->foreignKey, '=', $result->$localKey)->count();
@@ -170,7 +172,7 @@ class HasMany extends Relation
     public function getRelationCountQuery($closure)
     {
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
 
         return $this->query
@@ -182,23 +184,24 @@ class HasMany extends Relation
     /**
      * 一对多 关联模型预查询
      * @access public
-     * @param object $model       关联模型对象
      * @param array  $where       关联预查询条件
      * @param string $relation    关联名
      * @param string $subRelation 子关联
      * @param bool   $closure
      * @return array
      */
-    protected function eagerlyOneToMany($model, $where, $relation, $subRelation = '', $closure = false)
+    protected function eagerlyOneToMany($where, $relation, $subRelation = '', $closure = false)
     {
         $foreignKey = $this->foreignKey;
 
+        $this->query->removeWhereField($this->foreignKey);
+
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
-            call_user_func_array($closure, [ & $model]);
+            $closure($this->query);
         }
 
-        $list = $model->where($where)->with($subRelation)->select();
+        $list = $this->query->where($where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];

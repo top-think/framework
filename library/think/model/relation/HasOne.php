@@ -46,7 +46,7 @@ class HasOne extends OneToOne
         $localKey = $this->localKey;
 
         if ($closure) {
-            call_user_func_array($closure, [ & $this->query]);
+            $closure($this->query);
         }
 
         // 判断关联类型执行查询
@@ -133,7 +133,7 @@ class HasOne extends OneToOne
         }
 
         if (!empty($range)) {
-            $data = $this->eagerlyWhere($this, [
+            $data = $this->eagerlyWhere([
                 [$foreignKey, 'in', $range],
             ], $foreignKey, $relation, $subRelation, $closure);
 
@@ -175,7 +175,7 @@ class HasOne extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere($this, [
+        $data       = $this->eagerlyWhere([
             [$foreignKey, '=', $result->$localKey],
         ], $foreignKey, $relation, $subRelation, $closure);
 

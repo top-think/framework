@@ -63,7 +63,6 @@ class BelongsToMany extends Relation
     public function pivot($pivot)
     {
         $this->pivotName = $pivot;
-
         return $this;
     }
 
@@ -239,9 +238,7 @@ class BelongsToMany extends Relation
      */
     public function wherePivot($field, $op = null, $condition = null)
     {
-        $field = 'pivot.' . $field;
-        $this->query->where($field, $op, $condition);
-
+        $this->query->where('pivot.' . $field, $op, $condition);
         return $this;
     }
 
