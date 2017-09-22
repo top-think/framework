@@ -177,7 +177,7 @@ class Request
     public static function instance($options = [])
     {
         if (is_null(self::$instance)) {
-            self::$instance = new static($options);
+            self::$instance = new self($options);
         }
         return self::$instance;
     }
