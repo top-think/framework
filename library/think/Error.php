@@ -106,7 +106,7 @@ class Error
         if (!$handle) {
             // 异常处理handle
             $class = Config::get('exception_handle');
-            if ($class && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
+            if ($class && is_string($class) && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
                 $handle = new $class;
             } else {
                 $handle = new Handle;
