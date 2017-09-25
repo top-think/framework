@@ -135,7 +135,7 @@ class Url
         if (!empty($vars)) {
             // 添加参数
             if (Config::get('url_common_param')) {
-                $vars = urldecode(http_build_query($vars));
+                $vars = http_build_query($vars);
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
                 $paramType = Config::get('url_param_type');
