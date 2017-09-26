@@ -160,7 +160,7 @@ class Url
         if (!empty($vars)) {
             // 添加参数
             if ($this->app['config']->get('url_common_param')) {
-                $vars = urldecode(http_build_query($vars));
+                $vars = http_build_query($vars);
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
                 $paramType = $this->app['config']->get('url_param_type');
@@ -304,10 +304,13 @@ class Url
                 return [$url, $domain, $suffix];
             }
 
+            $type = $this->app['config']->get('url_common_param');
+
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
-                    $url = str_replace(['[:' . $key . ']', '[:' . $key . '$]', '<' . $key . '?>$', '<' . $key . '?>', ':' . $key . '$', ':' . $key . '', '<' . $key . '>$', '<' . $key . '>'], urlencode($vars[$key]), $url);
+                    $url = str_replace(['[:' . $key . ']', '[:' . $key . '$]', '<' . $key . '?>$', '<' . $key . '?>', ':' . $key . '$', ':' . $key . '', '<' . $key . '>$', '<' . $key . '>'], $type ? $vars[$key] : urlencode($vars[$key]), $url);
                     unset($vars[$key]);
+
                     $result = [$url, $domain, $suffix];
                 } elseif (2 == $val) {
                     $url    = str_replace(['/[:' . $key . ']', '/[:' . $key . '$]', '[:' . $key . ']', '[:' . $key . '$]', '<' . $key . '?>$', '<' . $key . '?>'], '', $url);

@@ -89,6 +89,8 @@ return [
         'url_lazy_route'         => false,
         // 是否强制使用路由
         'url_route_must'         => false,
+        // 路由是否完全匹配
+        'route_complete_match'   => false,
         // 域名根，如thinkphp.cn
         'url_domain_root'        => '',
         // 是否自动转换URL中的控制器和操作名
