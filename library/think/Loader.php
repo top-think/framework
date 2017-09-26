@@ -45,15 +45,11 @@ class Loader
             'traits' => __DIR__ . '/../traits/',
         ]);
 
-        if (defined('ROOT_PATH')) {
-            $rootPath = ROOT_PATH;
+        $path = dirname($_SERVER['SCRIPT_FILENAME']);
+        if (PHP_SAPI == 'cli' || is_file('./think')) {
+            $rootPath = realpath($path) . '/';
         } else {
-            $path = dirname($_SERVER['SCRIPT_FILENAME']);
-            if (PHP_SAPI == 'cli' || is_file('./think')) {
-                $rootPath = realpath($path) . '/';
-            } else {
-                $rootPath = realpath($path . '/../') . '/';
-            }
+            $rootPath = realpath($path . '/../') . '/';
         }
 
         // 加载类库映射文件

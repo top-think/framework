@@ -109,7 +109,7 @@ class App implements \ArrayAccess
         $this->beginMem    = memory_get_usage();
         $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
         $this->appPath     = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
-        $this->rootPath    = defined('ROOT_PATH') ? ROOT_PATH : dirname(realpath($this->appPath)) . '/';
+        $this->rootPath    = dirname(realpath($this->appPath)) . '/';
         $this->runtimePath = $this->rootPath . 'runtime/';
         $this->routePath   = $this->rootPath . 'route/';
         $this->configPath  = $this->rootPath . 'config/';
