@@ -4,6 +4,9 @@ namespace traits\model;
 
 use think\db\Query;
 
+/**
+ * @mixin \Think\Model
+ */
 trait SoftDelete
 {
 
