@@ -183,8 +183,9 @@ class Url
                 $current = $request->host();
                 $match   = [];
                 $pos     = [];
+                $urlParams = explode('/', $url);
                 foreach ($domains as $key => $item) {
-                    if (isset($item['[bind]']) && 0 === strpos($url, explode($item['[bind]'][0], '?')[0])) {
+                    if (isset($item['[bind]']) && $urlParams[0] == explode('?', $item['[bind]'][0])[0]) {
                         $pos[$key] = strlen($item['[bind]'][0]) + 1;
                         $match[]   = $key;
                         $module    = '';
@@ -193,12 +194,17 @@ class Url
                 if ($match) {
                     $domain = current($match);
                     foreach ($match as $item) {
-                        if (0 === strpos($current, $item)) {
+                        if (0 === strpos($item, '*.')) {
+                            $domain = true;
+                        } else if (0 === strpos($current, $item)) {
                             $domain = $item;
                         }
                     }
-                    self::$bindCheck = true;
-                    $url             = substr($url, $pos[$domain]);
+                    
+                    if ($domain !== true) {
+                        self::$bindCheck = true;
+                        $url = substr($url, $pos[$domain]);
+                    }
                 }
             } elseif ($domain) {
                 if (isset($domains[$domain]['[bind]'][0])) {
