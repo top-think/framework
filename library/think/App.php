@@ -155,6 +155,7 @@ class App implements \ArrayAccess
 
         // 应用调试模式
         $this->debug = $this->env->get('app_debug', $this->config('app.app_debug'));
+        $this->env->set('app_debug', $this->debug);
 
         if (!$this->debug) {
             ini_set('display_errors', 'Off');
