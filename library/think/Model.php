@@ -102,6 +102,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $resultSetType;
     // 关联自动写入
     protected $relationWrite;
+    // 返回
+    protected $result;
 
     /**
      * 初始化过的模型.
@@ -1563,7 +1565,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (!empty($field)) {
             $model->allowField($field);
         }
-        $result = $model->isUpdate(true)->save($data, $where);
+        $model->result = $model->isUpdate(true)->save($data, $where);
         return $model;
     }
 
