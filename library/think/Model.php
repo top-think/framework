@@ -781,14 +781,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $query = $model->db();
 
-        if (is_array($data) && key($data) !== 0) {
+        if (empty($data) && 0 !== $data) {
+            return 0;
+        } elseif (is_array($data) && key($data) !== 0) {
             $query->where(self::parseWhere($data));
             $data = null;
         } elseif ($data instanceof \Closure) {
             $data($query);
             $data = null;
-        } elseif (empty($data) && 0 !== $data) {
-            return 0;
         }
 
         $resultSet = $query->select($data);
