@@ -167,7 +167,7 @@ class Route
         // 支持多个域名使用相同路由规则
         $domain = is_array($name) ? array_shift($name) : $name;
 
-        if (!strpos($domain, '.')) {
+        if ('*' != $domain && !strpos($domain, '.')) {
             $root = $this->config->get('app.url_domain_root');
             if (!$root) {
                 $item  = explode('.', $this->host);
