@@ -418,14 +418,16 @@ abstract class Builder
             }
         }
 
-        $whereStr = '';
-
         // 解析查询表达式
         foreach ($this->parser as $fun => $val) {
             if (in_array($exp, $val)) {
                 $whereStr = $this->$fun($query, $key, $exp, $value, $field, $bindName, $bindType);
                 break;
             }
+        }
+
+        if (!isset($whereStr)) {
+            throw new Exception('where express error:' . $exp);
         }
 
         return $whereStr;
