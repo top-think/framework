@@ -1643,14 +1643,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = new static();
         $query = $model->db();
-        if (is_array($data) && key($data) !== 0) {
+        if (empty($data) && 0 !== $data) {
+            return 0;
+        } elseif (is_array($data) && key($data) !== 0) {
             $query->where($data);
             $data = null;
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $query]);
             $data = null;
-        } elseif (empty($data) && 0 !== $data) {
-            return 0;
         }
         $resultSet = $query->select($data);
         $count     = 0;
