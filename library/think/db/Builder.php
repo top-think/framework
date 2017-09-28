@@ -122,17 +122,34 @@ abstract class Builder
                 $result[$item] = $val;
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
-                if (0 === strpos($val, ':') && $query->isBind(substr($val, 1))) {
-                    $result[$item] = $val;
-                } else {
-                    $key = str_replace('.', '_', $key);
-                    $query->bind('data__' . $key, $val, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
-                    $result[$item] = ':data__' . $key;
-                }
+                $result[$item] = $this->parseDataBind($query, $key, $val, $bind);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * 数据绑定处理
+     * @access protected
+     * @param Query     $query        查询对象
+     * @param string    $key
+     * @param mixed     $data 数据
+     * @param array     $bind 绑定数据
+     * @param string    $suffix
+     * @return string
+     */
+    protected function parseDataBind(Query $query, $key, $data, $bind = [], $suffix = '')
+    {
+        // 过滤非标量数据
+        if (0 === strpos($data, ':') && $query->isBind(substr($data, 1))) {
+            return $data;
+        } else {
+            $key  = str_replace('.', '_', $key);
+            $name = 'data__' . $key . $suffix;
+            $query->bind($name, $data, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
+            return ':' . $name;
+        }
     }
 
     /**
@@ -166,27 +183,6 @@ abstract class Builder
     protected function parseKey(Query $query, $key)
     {
         return $key;
-    }
-
-    /**
-     * value分析
-     * @access protected
-     * @param Query     $query        查询对象
-     * @param mixed     $value
-     * @param string    $field
-     * @return string|array
-     */
-    protected function parseValue(Query $query, $value, $field = '')
-    {
-        if (is_string($value)) {
-            $value = strpos($value, ':') === 0 && $query->isBind(substr($value, 1)) ? $value : $this->connection->quote($value);
-        } elseif (is_bool($value)) {
-            $value = $value ? '1' : '0';
-        } elseif (is_null($value)) {
-            $value = 'null';
-        }
-
-        return $value;
     }
 
     /**
@@ -1008,8 +1004,10 @@ abstract class Builder
         } else {
             $fields = $options['field'];
         }
+        // 获取绑定信息
+        $bind = $this->connection->getFieldsBind($options['table']);
 
-        foreach ($dataSet as &$data) {
+        foreach ($dataSet as $k => &$data) {
             foreach ($data as $key => $val) {
                 if (!in_array($key, $fields, true)) {
                     if ($options['strict']) {
@@ -1019,7 +1017,7 @@ abstract class Builder
                 } elseif (is_null($val)) {
                     $data[$key] = 'NULL';
                 } elseif (is_scalar($val)) {
-                    $data[$key] = $this->parseValue($query, $val, $key);
+                    $data[$key] = $this->parseDataBind($query, $key, $val, $bind, '_' . $k);
                 } elseif (is_object($val) && method_exists($val, '__toString')) {
                     // 对象数据写入
                     $data[$key] = $val->__toString();
