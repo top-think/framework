@@ -415,9 +415,9 @@ abstract class Builder
         }
 
         // 解析查询表达式
-        foreach ($this->parser as $fun => $val) {
-            if (in_array($exp, $val)) {
-                $whereStr = $this->$fun($query, $key, $exp, $value, $field, $bindName, $bindType);
+        foreach ($this->parser as $fun => $parse) {
+            if (in_array($exp, $parse)) {
+                $whereStr = $this->$fun($query, $key, $exp, $value, $field, $bindName, $bindType, isset($val[2]) ? $val[2] : 'AND');
                 break;
             }
         }
@@ -439,9 +439,10 @@ abstract class Builder
      * @param string    $field
      * @param string    $bindName
      * @param integer   $bindType
+     * @param string    $logic
      * @return string
      */
-    protected function parseLike(Query $query, $key, $exp, $value, $field, $bindName, $bindType)
+    protected function parseLike(Query $query, $key, $exp, $value, $field, $bindName, $bindType, $logic)
     {
         // 模糊匹配
         if (is_array($value)) {
@@ -453,7 +454,6 @@ abstract class Builder
 
             $query->bind($bind);
 
-            $logic    = isset($val[2]) ? $val[2] : 'AND';
             $whereStr = '(' . implode($array, ' ' . strtoupper($logic) . ' ') . ')';
         } else {
             $whereStr = $key . ' ' . $exp . ' ' . $value;
