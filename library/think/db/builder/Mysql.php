@@ -19,7 +19,36 @@ use think\db\Query;
  */
 class Mysql extends Builder
 {
+    // 查询表达式解析
+    protected $parser = [
+        'parseCompare'     => ['=', '<>', '>', '>=', '<', '<='],
+        'parseLike'        => ['LIKE', 'NOT LIKE'],
+        'parseBetween'     => ['NOT BETWEEN', 'BETWEEN'],
+        'parseIn'          => ['NOT IN', 'IN'],
+        'parseExp'         => ['EXP'],
+        'parseRegexp'      => ['REGEXP', 'NOT REGEXP'],
+        'parseNull'        => ['NOT NULL', 'NULL'],
+        'parseBetweenTime' => ['BETWEEN TIME', 'NOT BETWEEN TIME'],
+        'parseTime'        => ['< TIME', '> TIME', '<= TIME', '>= TIME'],
+        'parseExists'      => ['NOT EXISTS', 'EXISTS'],
+    ];
+
     protected $updateSql = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    /**
+     * 正则查询
+     * @access protected
+     * @param Query     $query        查询对象
+     * @param string    $key
+     * @param string    $exp
+     * @param mixed     $value
+     * @param string    $field
+     * @return string
+     */
+    protected function parseRegexp(Query $query, $key, $exp, $value, $field)
+    {
+        return $key . ' ' . $exp . ' ' . $value;
+    }
 
     /**
      * 字段和表名处理
