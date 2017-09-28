@@ -16,5 +16,5 @@ namespace think;
 require __DIR__ . '/base.php';
 
 // 执行应用
-Container::get('app')->initialize();
+Container::get('app', [__DIR__ . '/../application/'])->initialize();
 Console::init();
