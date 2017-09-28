@@ -445,15 +445,20 @@ abstract class Builder
     {
         // 模糊匹配
         if (is_array($value)) {
-            foreach ($value as $item) {
-                $array[] = $key . ' ' . $exp . ' ' . $item;
+            foreach ($value as $k => $item) {
+                $bindKey        = $bindName . '_' . $k;
+                $bind[$bindKey] = [$item, $bindType];
+                $array[]        = $key . ' ' . $exp . ' :' . $bindKey;
             }
+
+            $query->bind($bind);
 
             $logic    = isset($val[2]) ? $val[2] : 'AND';
             $whereStr = '(' . implode($array, ' ' . strtoupper($logic) . ' ') . ')';
         } else {
             $whereStr = $key . ' ' . $exp . ' ' . $value;
         }
+
         return $whereStr;
     }
 
