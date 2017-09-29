@@ -1108,17 +1108,9 @@ abstract class Connection
 
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
-        }
-
-        if (!is_null($data) && true !== $data) {
-            if (!isset($key) && !is_array($data)) {
-                // 缓存标识
-                $key = $this->getCacheKey($data, $options);
-            }
-
-            // AR模式分析主键条件
-            $query->parsePkWhere($data);
-        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
+        } elseif (!is_null($data) && true !== $data && !is_array($data)) {
+            $key = $this->getCacheKey($data, $options);
+        } elseif (is_string($pk) && isset($options['where']['AND'][$pk])) {
             $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
         }
 

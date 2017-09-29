@@ -2175,13 +2175,13 @@ class Query
     {
         $this->parseOptions();
 
+        if (!is_null($data) && true !== $data) {
+            // AR模式分析主键条件
+            $this->parsePkWhere($data);
+        }
+
         if (!empty($this->options['soft_delete'])) {
             // 软删除
-            if (!is_null($data) && true !== $data) {
-                // AR模式分析主键条件
-                $this->parsePkWhere($data);
-            }
-
             list($field, $condition) = $this->options['soft_delete'];
             unset($this->options['soft_delete']);
             $this->options['data'] = [$field => $condition];
