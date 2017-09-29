@@ -102,6 +102,11 @@ class App implements \ArrayAccess
      */
     protected $container;
 
+    /**
+     * @var string 绑定模块（控制器）
+     */
+    protected $bind;
+
     public function __construct($appPath = '')
     {
         $this->container   = Container::getInstance();
@@ -117,7 +122,21 @@ class App implements \ArrayAccess
     }
 
     /**
+     * 绑定模块或者控制器
+     * @access public
+     * @param string $bind
+     * @return $this
+     */
+    public function bind($bind)
+    {
+        $this->bind = $bind;
+        return $this;
+    }
+
+    /**
      * 初始化应用
+     * @access public
+     * @return void
      */
     public function initialize()
     {
@@ -252,9 +271,9 @@ class App implements \ArrayAccess
         $this->initialize();
 
         try {
-            if (defined('BIND_MODULE')) {
+            if ($this->bind) {
                 // 模块/控制器绑定
-                BIND_MODULE && $this->route->bind(BIND_MODULE);
+                $this->route->bind($this->bind);
             } elseif ($this->config('app.auto_bind_module')) {
                 // 入口自动绑定
                 $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
@@ -342,7 +361,6 @@ class App implements \ArrayAccess
     public function dispatch(Dispatch $dispatch)
     {
         $this->dispatch = $dispatch;
-
         return $this;
     }
 
@@ -406,7 +424,6 @@ class App implements \ArrayAccess
     public function routeMust($must = false)
     {
         $this->routeMust = $must;
-
         return $this;
     }
 
@@ -451,7 +468,6 @@ class App implements \ArrayAccess
         }
 
         $this->__set($guid, $class);
-
         return $model;
     }
 
@@ -711,7 +727,6 @@ class App implements \ArrayAccess
     public function setNamespace($namespace)
     {
         $this->namespace = $namespace;
-
         return $this;
     }
 
