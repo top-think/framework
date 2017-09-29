@@ -159,7 +159,7 @@ class View
             $method = $renderContent ? 'display' : 'fetch';
             $this->engine->$method($template, $vars, $config);
         } catch (\Exception $e) {
-            ob_clean();
+            ob_end_clean();
             throw $e;
         }
 
