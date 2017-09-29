@@ -251,7 +251,11 @@ class Route
         if (is_null($domain)) {
             $domain = $this->domain;
         }
-
+        if(isset($this->bind[$domain])){
+            return $this->bind[$domain];
+        }
+        $domain=explode(".",$domain,-2);
+        $domain=implode(".",$domain);
         return isset($this->bind[$domain]) ? $this->bind[$domain] : null;
     }
 
