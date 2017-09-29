@@ -47,19 +47,16 @@ class Controller
 
     /**
      * 构造方法
-     * @param Request $request  Request对象
-     * @param App     $app      App
      * @access public
      */
-    public function __construct(Request $request, App $app)
+    public function __construct()
     {
-        $this->view = Container::get('view')->init(
-            $app['config']->pull('template'),
-            $app['config']->get('view_replace_str')
+        $this->request = Container::get('request');
+        $this->app     = Container::get('app');
+        $this->view    = Container::get('view')->init(
+            $this->app['config']->pull('template'),
+            $this->app['config']->get('view_replace_str')
         );
-
-        $this->request = $request;
-        $this->app     = $app;
 
         // 控制器初始化
         $this->initialize();
