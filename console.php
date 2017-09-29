@@ -16,5 +16,5 @@ namespace think;
 require __DIR__ . '/base.php';
 
 // 执行应用
-Container::get('app', [__DIR__ . '/../application/'])->initialize();
+Container::get('app', [__DIR__ . (strpos(__DIR__, 'vendor/topthink/framework') === false ? '/../' : '/../../../') . 'application/'])->initialize();
 Console::init();
