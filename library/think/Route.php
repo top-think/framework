@@ -154,6 +154,22 @@ class Route
     }
 
     /**
+     * 获取当前根域名
+     * @access protected
+     * @return string
+     */
+    protected function getRootDomain()
+    {
+        $root = $this->config->get('app.url_domain_root');
+        if (!$root) {
+            $item  = explode('.', $this->host);
+            $count = count($item);
+            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+        }
+        return $root;
+    }
+
+    /**
      * 注册域名路由
      * @access public
      * @param string|array  $name 子域名
@@ -168,13 +184,7 @@ class Route
         $domain = is_array($name) ? array_shift($name) : $name;
 
         if ('*' != $domain && !strpos($domain, '.')) {
-            $root = $this->config->get('app.url_domain_root');
-            if (!$root) {
-                $item  = explode('.', $this->host);
-                $count = count($item);
-                $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
-            }
-            $domain .= '.' . $root;
+            $domain .= '.' . $this->getRootDomain();
         }
 
         $route = $this->config->get('url_lazy_route') ? $rule : null;
@@ -252,7 +262,17 @@ class Route
             $domain = $this->domain;
         }
 
-        return isset($this->bind[$domain]) ? $this->bind[$domain] : null;
+        // TODO 泛三级域名支持
+
+        if (isset($this->bind[$domain])) {
+            $result = $this->bind[$domain];
+        } elseif (isset($this->bind['*'])) {
+            $result = $this->bind['*'];
+        } else {
+            $result = null;
+        }
+
+        return $result;
     }
 
     /**
