@@ -158,9 +158,13 @@ class View
         ob_implicit_flush(0);
 
         // 渲染输出
-        $method = $renderContent ? 'display' : 'fetch';
-
-        $this->engine->$method($template, $vars, $config);
+        try {
+            $method = $renderContent ? 'display' : 'fetch';
+            $this->engine->$method($template, $vars, $config);
+        } catch (\Exception $e) {
+            ob_end_clean();
+            throw $e;
+        }
 
         // 获取并清空缓存
         $content = ob_get_clean();
