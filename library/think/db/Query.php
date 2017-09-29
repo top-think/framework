@@ -1230,15 +1230,7 @@ class Query
             }
         } elseif (is_null($op) && is_null($condition)) {
             if (is_array($field)) {
-                if (key($field) !== 0) {
-                    $where = [];
-                    foreach ($field as $key => $val) {
-                        $where[$key] = [$key, '=', $val];
-                    }
-                } else {
-                    // 数组批量查询
-                    $where = $field;
-                }
+                $where = $field;
 
                 if (!empty($where)) {
                     if (isset($this->options['where'][$logic])) {
