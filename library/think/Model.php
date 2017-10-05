@@ -1028,7 +1028,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $data     = [];
         }
 
-        if (!empty($data)) {
             // 数据自动验证
             if (!$this->validateData($data)) {
                 return false;
@@ -1041,7 +1040,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->isUpdate    = true;
                 $this->updateWhere = $where;
             }
-        }
+        
 
         // 自动关联写入
         if (!empty($this->relationWrite)) {
