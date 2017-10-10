@@ -51,7 +51,7 @@ trait Jump
         if ('html' == strtolower($type)) {
             $config = Container::get('config');
             $result = Container::get('view')
-                ->init($config->get('template'), $config->get('view_replace_str'))
+                ->init($config->pull('template'), $config->get('view_replace_str'))
                 ->fetch($config->get('dispatch_success_tmpl'), $result);
         }
 
@@ -91,7 +91,7 @@ trait Jump
         if ('html' == strtolower($type)) {
             $config = Container::get('config');
             $result = Container::get('view')
-                ->init($config->get('template'), $config->get('view_replace_str'))
+                ->init($config->pull('template'), $config->get('view_replace_str'))
                 ->fetch($config->get('dispatch_error_tmpl'), $result);
         }
 
@@ -115,7 +115,7 @@ trait Jump
         $result = [
             'code' => $code,
             'msg'  => $msg,
-            'time' => $_SERVER['REQUEST_TIME'],
+            'time' => time(),
             'data' => $data,
         ];
 
