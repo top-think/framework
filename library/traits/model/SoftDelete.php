@@ -3,6 +3,7 @@
 namespace traits\model;
 
 use think\db\Query;
+use think\Model;
 
 /**
  * @mixin \Think\Model
