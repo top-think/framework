@@ -11,6 +11,7 @@
 
 namespace think\model\concern;
 
+use think\Collection;
 use think\db\Query;
 use think\Loader;
 use think\Model;
