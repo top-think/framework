@@ -16,10 +16,15 @@
 
 namespace tests\thinkphp\library\think;
 
+use tests\thinkphp\library\think\config\ConfigInitTrait;
+use think\Config;
 use think\Debug;
+use think\Response;
+use think\response\Redirect;
 
 class debugTest extends \PHPUnit_Framework_TestCase
 {
+    use ConfigInitTrait;
 
     /**
      *
@@ -44,7 +49,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     {}
 
     /**
-     * @covers think\Debug::remark
+     * @covers \think\Debug::remark
      * @todo Implement testRemark().
      */
     public function testRemark()
@@ -54,7 +59,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::getRangeTime
+     * @covers \think\Debug::getRangeTime
      * @todo Implement testGetRangeTime().
      */
     public function testGetRangeTime()
@@ -71,7 +76,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::getUseTime
+     * @covers \think\Debug::getUseTime
      * @todo Implement testGetUseTime().
      */
     public function testGetUseTime()
@@ -81,7 +86,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::getThroughputRate
+     * @covers \think\Debug::getThroughputRate
      * @todo Implement testGetThroughputRate().
      */
     public function testGetThroughputRate()
@@ -92,7 +97,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::getRangeMem
+     * @covers \think\Debug::getRangeMem
      * @todo Implement testGetRangeMem().
      */
     public function testGetRangeMem()
@@ -111,7 +116,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::getUseMem
+     * @covers \think\Debug::getUseMem
      * @todo Implement testGetUseMem().
      */
     public function testGetUseMem()
@@ -122,7 +127,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::getMemPeak
+     * @covers \think\Debug::getMemPeak
      * @todo Implement testGetMemPeak().
      */
     public function testGetMemPeak()
@@ -139,7 +144,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::getFile
+     * @covers \think\Debug::getFile
      * @todo Implement testGetFile().
      */
     public function testGetFile()
@@ -155,7 +160,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers think\Debug::dump
+     * @covers \think\Debug::dump
      * @todo Implement testDump().
      */
     public function testDump()
@@ -175,5 +180,41 @@ class debugTest extends \PHPUnit_Framework_TestCase
         } else {
             $this->assertEquals("(1) {\\n  'key' =>\\n  string(3) \\\"val\\\"\\n}\\n\\n\"", end($array));
         }
+    }
+
+    /**
+     * @expectedException \think\exception\ClassNotFoundException
+     */
+    public function testInjectWithErrorType()
+    {
+        Config::set('trace', ['type' => 'NullDebug']);
+
+        $response = new Response();
+        $context  = 'TestWithErrorType';
+
+        Debug::inject($response, $context);
+    }
+
+    public function testInject()
+    {
+        Config::set('trace', ['type' => 'Console']);
+
+        $response = new Response();
+        $context  = 'TestWithoutBodyTag';
+        Debug::inject($response, $context);
+        $this->assertNotEquals('TestWithoutBodyTag', $context);
+        $this->assertStringStartsWith('TestWithoutBodyTag', $context);
+
+        $response = new Response();
+        $context  = '<body></body>';
+        Debug::inject($response, $context);
+        $this->assertNotEquals('<body></body>', $context);
+        $this->assertStringStartsWith('<body>', $context);
+        $this->assertStringEndsWith('</body>', $context);
+
+        $response = new Redirect();
+        $context  = '<body></body>';
+        Debug::inject($response, $context);
+        $this->assertEquals('<body></body>', $context);
     }
 }
