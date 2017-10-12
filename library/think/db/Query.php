@@ -2463,7 +2463,7 @@ class Query
             }
 
             $end    = end($resultSet);
-            $lastId = is_array($end) ? $end[$key] : $end->$key;
+            $lastId = is_array($end) ? $end[$key] : $end->getData($key);
 
             $resultSet = $this->options($options)
                 ->limit($count)
