@@ -2608,7 +2608,7 @@ class Query
                 return false;
             }
             $end       = end($resultSet);
-            $lastId    = is_array($end) ? $end[$key] : $end->$key;
+            $lastId    = is_array($end) ? $end[$key] : $end->getData($key);
             $resultSet = $this->options($options)
                 ->limit($count)
                 ->bind($bind)
