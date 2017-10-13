@@ -177,18 +177,17 @@ class Query
     public function model($model)
     {
         $this->model = $model;
-
         return $this;
     }
 
     /**
      * 获取当前的模型对象
      * @access public
-     * @return Model
+     * @return Model|null
      */
     public function getModel()
     {
-        return $this->model->setQuery($this);
+        return $this->model ? $this->model->setQuery($this) : null;
     }
 
     /**
@@ -200,7 +199,6 @@ class Query
     public function name($name)
     {
         $this->name = $name;
-
         return $this;
     }
 
