@@ -127,4 +127,43 @@ class Redis extends SessionHandler
     {
         return true;
     }
+
+    /**
+     * Redis Session 驱动的加锁机制
+     * @access public
+     * @param  string  $sessID   用于加锁的sessID
+     * @param  integer $timeout 默认过期时间
+     * @return bool
+     */
+    public function lock($sessID, $timeout = 10)
+    {
+        if ($this->handler == null) {
+            $this->open('', '');
+        }
+
+        $lockKey = 'LOCK_PREFIX_' . $sessID;
+        // 使用setnx操作加锁
+        $isLock = $this->handler->setnx($lockKey, 1);
+        if ($isLock) {
+            // 设置过期时间，防止死任务的出现
+            $this->handler->expire($lockKey, $timeout);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Redis Session 驱动的解锁机制
+     * @access public
+     * @param  string  $sessID   用于解锁的sessID
+     */
+    public function unlock($sessID)
+    {
+        if ($this->handler == null) {
+            $this->open('', '');
+        }
+
+        $this->handler->del('LOCK_PREFIX_' . $sessID);
+    }
 }
