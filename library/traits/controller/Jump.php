@@ -47,17 +47,10 @@ trait Jump
         ];
 
         $type = $this->getResponseType();
-
         // 把跳转模板的渲染下沉，这样在 response_send 行为里通过getData()获得的数据是一致性的格式
-        // 这个修改不会对原框架产生任何影响，希望合并
-        $type = 'html' == strtolower($type) ? 'jump' : $type;
-
-        // if ('html' == strtolower($type)) {
-        //     $config = Container::get('config');
-        //     $result = Container::get('view')
-        //         ->init($config->pull('template'), $config->get('view_replace_str'))
-        //         ->fetch($config->get('dispatch_success_tmpl'), $result);
-        // }
+        if ('html' == strtolower($type)) {
+            $type = 'jump';
+        }
 
         $response = Response::create($result, $type)->header($header);
 
@@ -91,17 +84,9 @@ trait Jump
         ];
 
         $type = $this->getResponseType();
-
-        // 把跳转模板的渲染下沉，这样在 response_send 行为里通过getData()获得的数据是一致性的格式
-        // 这个修改不会对原框架产生任何影响，希望合并
-        $type = 'html' == strtolower($type) ? 'jump' : $type;
-
-        // if ('html' == strtolower($type)) {
-        //     $config = Container::get('config');
-        //     $result = Container::get('view')
-        //         ->init($config->pull('template'), $config->get('view_replace_str'))
-        //         ->fetch($config->get('dispatch_error_tmpl'), $result);
-        // }
+        if ('html' == strtolower($type)) {
+            $type = 'jump';
+        }
 
         $response = Response::create($result, $type)->header($header);
 
