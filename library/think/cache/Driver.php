@@ -138,8 +138,10 @@ abstract class Driver
             } catch (\Exception $e) {
                 // 解锁
                 $this->rm($name . '_lock');
+                throw $e;
             } catch (\throwable $e) {
                 $this->rm($name . '_lock');
+                throw $e;
             }
         } else {
             $value = $this->get($name);
