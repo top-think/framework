@@ -80,7 +80,7 @@ class Redis extends Driver
     public function get($name, $default = false)
     {
         $value = $this->handler->get($this->getCacheKey($name));
-        if (is_null($value)) {
+        if (is_null($value) || false === $value) {
             return $default;
         }
         $jsonData = json_decode($value, true);
