@@ -1618,7 +1618,7 @@ class Query
         if (is_array($alias)) {
             foreach ($alias as $key => $val) {
                 if (false !== strpos($key, '__')) {
-                    $table = $this->parseSqlTable($key);
+                    $table = $this->connection->parseSqlTable($key);
                 } else {
                     $table = $key;
                 }
