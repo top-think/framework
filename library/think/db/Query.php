@@ -1815,7 +1815,7 @@ class Query
                 }
             }
 
-            $op = is_array($range) ? 'between' : '>';
+            $op = is_array($range) ? 'between' : '>=';
         }
 
         $this->where($field, strtolower($op) . ' time', $range);

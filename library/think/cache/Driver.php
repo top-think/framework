@@ -127,7 +127,7 @@ abstract class Driver
             $time = time();
             while ($time + 5 > time() && $this->has($name . '_lock')) {
                 // 存在锁定则等待
-                usleep(100000);
+                usleep(200000);
             }
 
             try {
