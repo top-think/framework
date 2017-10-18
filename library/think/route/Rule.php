@@ -468,7 +468,9 @@ abstract class Rule
         }
 
         // 解析额外参数
-        $this->parseUrlParams($url, $matches);
+        $count = substr_count($rule, '/');
+        $url   = array_slice(explode('|', $url), $count + 1);
+        $this->parseUrlParams(implode('|', $url), $matches);
 
         // 记录匹配的路由信息
         $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
