@@ -839,7 +839,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                                     if (isset($this->data[$key])) {
                                         throw new Exception('bind attr has exists:' . $key);
                                     } else {
-                                        $item[$key] = $value ? $value->$attr : null;
+                                        $item[$key] = $value ? $value->getAttr($attr) : null;
                                     }
                                 }
                                 continue;
