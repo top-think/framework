@@ -146,8 +146,10 @@ abstract class Driver
                 $this->rm($name . '_lock');
             } catch (\Exception $e) {
                 $this->rm($name . '_lock');
+                throw $e;
             } catch (\throwable $e) {
                 $this->rm($name . '_lock');
+                throw $e;
             }
         } else {
             $value = $this->get($name);

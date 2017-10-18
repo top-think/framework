@@ -125,7 +125,7 @@ class File extends SplFileObject
         if (mkdir($path, 0755, true)) {
             return true;
         } else {
-            $this->error = "目录 {$path} 创建失败！";
+            $this->error = ['directory {:path} creation failed', ['path' => $path]];
             return false;
         }
     }
@@ -189,25 +189,25 @@ class File extends SplFileObject
 
         /* 检查文件大小 */
         if (isset($rule['size']) && !$this->checkSize($rule['size'])) {
-            $this->error = '上传文件大小不符！';
+            $this->error = 'filesize not match';
             return false;
         }
 
         /* 检查文件Mime类型 */
         if (isset($rule['type']) && !$this->checkMime($rule['type'])) {
-            $this->error = '上传文件MIME类型不允许！';
+            $this->error = 'mimetype to upload is not allowed';
             return false;
         }
 
         /* 检查文件后缀 */
         if (isset($rule['ext']) && !$this->checkExt($rule['ext'])) {
-            $this->error = '上传文件后缀不允许';
+            $this->error = 'extensions to upload is not allowed';
             return false;
         }
 
         /* 检查图像文件 */
         if (!$this->checkImg()) {
-            $this->error = '非法图像文件！';
+            $this->error = 'illegal image files';
             return false;
         }
 
@@ -314,7 +314,7 @@ class File extends SplFileObject
 
         // 检测合法性
         if (!$this->isValid()) {
-            $this->error = '非法上传文件';
+            $this->error = 'upload illegal files';
             return false;
         }
 
@@ -335,7 +335,7 @@ class File extends SplFileObject
 
         /* 不覆盖同名文件 */
         if (!$replace && is_file($filename)) {
-            $this->error = '存在同名文件' . $filename;
+            $this->error = ['has the same filename: {:filename}', ['filename' => $filename]];
             return false;
         }
 
@@ -343,7 +343,7 @@ class File extends SplFileObject
         if ($this->isTest) {
             rename($this->filename, $filename);
         } elseif (!move_uploaded_file($this->filename, $filename)) {
-            $this->error = '文件上传保存错误！';
+            $this->error = 'upload write error';
             return false;
         }
 
@@ -402,32 +402,41 @@ class File extends SplFileObject
         switch ($errorNo) {
             case 1:
             case 2:
-                $this->error = '上传文件大小超过了最大值！';
+                $this->error = 'upload File size exceeds the maximum value';
                 break;
             case 3:
-                $this->error = '文件只有部分被上传！';
+                $this->error = 'only the portion of file is uploaded';
                 break;
             case 4:
-                $this->error = '没有文件被上传！';
+                $this->error = 'no file to uploaded';
                 break;
             case 6:
-                $this->error = '找不到临时文件夹！';
+                $this->error = 'upload temp dir not found';
                 break;
             case 7:
-                $this->error = '文件写入失败！';
+                $this->error = 'file write error';
                 break;
             default:
-                $this->error = '未知上传错误！';
+                $this->error = 'unknown upload error';
         }
     }
 
     /**
-     * 获取错误信息
-     * @return mixed
+     * 获取错误信息（支持多语言）
+     * @return string
      */
     public function getError()
     {
-        return $this->error;
+        $lang = Container::get('lang');
+
+        if (is_array($this->error)) {
+            list($msg, $vars) = $this->error;
+        } else {
+            $msg  = $this->error;
+            $vars = [];
+        }
+
+        return $lang->has($msg) ? $lang->get($msg, $vars) : $msg;
     }
 
     public function __call($method, $args)

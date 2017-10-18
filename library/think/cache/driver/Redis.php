@@ -86,7 +86,7 @@ class Redis extends Driver
 
         $value = $this->handler->get($this->getCacheKey($name));
 
-        if (is_null($value)) {
+        if (is_null($value) || false === $value) {
             return $default;
         }
 
