@@ -417,7 +417,7 @@ trait Attribute
                             if (isset($item[$key])) {
                                 throw new Exception('bind attr has exists:' . $key);
                             } else {
-                                $item[$key] = $value ? $value->$attr : null;
+                                $item[$key] = $value ? $value->getAttr($attr) : null;
                             }
                         }
                         return false;
