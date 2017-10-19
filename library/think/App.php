@@ -13,6 +13,7 @@ namespace think;
 
 use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
+use think\route\Dispatch;
 
 /**
  * App 应用管理
