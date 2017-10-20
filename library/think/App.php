@@ -429,6 +429,29 @@ class App implements \ArrayAccess
     }
 
     /**
+     * 解析模块和类名
+     * @param string $name         资源地址
+     * @param string $layer        验证层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @return array
+     */
+    protected function parseModuleAndClass()
+    {
+        if (false !== strpos($name, '\\')) {
+            $class  = $name;
+            $module = $this->request->module();
+        } else {
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name, 2);
+            } else {
+                $module = $this->request->module();
+            }
+            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
+        }
+        return [$module, $class];
+    }
+
+    /**
      * 实例化（分层）模型
      * @param string $name         Model名称
      * @param string $layer        业务层名称
@@ -445,17 +468,7 @@ class App implements \ArrayAccess
             return $this->__get($guid);
         }
 
-        if (false !== strpos($name, '\\')) {
-            $class  = $name;
-            $module = $this->request->module();
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name, 2);
-            } else {
-                $module = $this->request->module();
-            }
-            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
-        }
+        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
         if (class_exists($class)) {
             $model = $this->__get($class);
@@ -483,17 +496,7 @@ class App implements \ArrayAccess
      */
     public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
-        if (false !== strpos($name, '\\')) {
-            $class  = $name;
-            $module = $this->request->module();
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name);
-            } else {
-                $module = $this->request->module();
-            }
-            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
-        }
+        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
         if (class_exists($class)) {
             return $this->__get($class);
@@ -526,17 +529,7 @@ class App implements \ArrayAccess
             return $this->__get($guid);
         }
 
-        if (false !== strpos($name, '\\')) {
-            $class  = $name;
-            $module = $this->request->module();
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name);
-            } else {
-                $module = $this->request->module();
-            }
-            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
-        }
+        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
         if (class_exists($class)) {
             $validate = $this->__get($class);
