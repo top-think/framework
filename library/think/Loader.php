@@ -369,7 +369,7 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        list($module, $class) = $this->getModuleAndClass($name, $layer, $appendSuffix);
+        list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
         if (class_exists($class)) {
             $model = new $class();
         } else {
@@ -395,7 +395,7 @@ class Loader
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
-        list($module, $class) = $this->getModuleAndClass($name, $layer, $appendSuffix);
+        list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
         if (class_exists($class)) {
             return App::invokeClass($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
@@ -424,7 +424,7 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        list($module, $class) = $this->getModuleAndClass($name, $layer, $appendSuffix);
+        list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
         if (class_exists($class)) {
             $validate = new $class;
         } else {
@@ -446,7 +446,7 @@ class Loader
      * @param bool   $appendSuffix 是否添加类名后缀
      * @return array
      */
-    protected function getModuleAndClass($name, $layer, $appendSuffix)
+    protected static function getModuleAndClass($name, $layer, $appendSuffix)
     {
         if (false !== strpos($name, '\\')) {
             $module = Request::instance()->module();
