@@ -435,7 +435,7 @@ class App implements \ArrayAccess
      * @param bool   $appendSuffix 是否添加类名后缀
      * @return array
      */
-    protected function parseModuleAndClass()
+    protected function parseModuleAndClass($name, $layer, $appendSuffix)
     {
         if (false !== strpos($name, '\\')) {
             $class  = $name;
