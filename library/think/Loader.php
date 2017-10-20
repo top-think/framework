@@ -369,17 +369,7 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        if (false !== strpos($name, '\\')) {
-            $class  = $name;
-            $module = Request::instance()->module();
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name, 2);
-            } else {
-                $module = Request::instance()->module();
-            }
-            $class = self::parseClass($module, $layer, $name, $appendSuffix);
-        }
+        list($module, $class) = $this->getModuleAndClass($name, $layer, $appendSuffix);
         if (class_exists($class)) {
             $model = new $class();
         } else {
@@ -405,17 +395,7 @@ class Loader
      */
     public static function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
     {
-        if (false !== strpos($name, '\\')) {
-            $class  = $name;
-            $module = Request::instance()->module();
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name);
-            } else {
-                $module = Request::instance()->module();
-            }
-            $class = self::parseClass($module, $layer, $name, $appendSuffix);
-        }
+        list($module, $class) = $this->getModuleAndClass($name, $layer, $appendSuffix);
         if (class_exists($class)) {
             return App::invokeClass($class);
         } elseif ($empty && class_exists($emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix))) {
@@ -444,17 +424,7 @@ class Loader
         if (isset(self::$instance[$guid])) {
             return self::$instance[$guid];
         }
-        if (false !== strpos($name, '\\')) {
-            $class  = $name;
-            $module = Request::instance()->module();
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name);
-            } else {
-                $module = Request::instance()->module();
-            }
-            $class = self::parseClass($module, $layer, $name, $appendSuffix);
-        }
+        list($module, $class) = $this->getModuleAndClass($name, $layer, $appendSuffix);
         if (class_exists($class)) {
             $validate = new $class;
         } else {
@@ -467,6 +437,29 @@ class Loader
         }
         self::$instance[$guid] = $validate;
         return $validate;
+    }
+
+    /**
+     * 解析模块和类名
+     * @param string $name         资源地址
+     * @param string $layer        验证层名称
+     * @param bool   $appendSuffix 是否添加类名后缀
+     * @return array
+     */
+    protected function getModuleAndClass($name, $layer, $appendSuffix)
+    {
+        if (false !== strpos($name, '\\')) {
+            $module = Request::instance()->module();
+            $class  = $name;
+        } else {
+            if (strpos($name, '/')) {
+                list($module, $name) = explode('/', $name, 2);
+            } else {
+                $module = Request::instance()->module();
+            }
+            $class = self::parseClass($module, $layer, $name, $appendSuffix);
+        }
+        return [$module, $class];
     }
 
     /**
