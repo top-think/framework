@@ -59,6 +59,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $field = [];
     // 数据排除字段
     protected $except = [];
+    // 数据废弃字段
+    protected $disuse = [];
     // 只读字段
     protected $readonly = [];
     // 显示属性
@@ -124,6 +126,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $this->data = $data;
         }
+
+        if ($this->disuse) {
+            // 废弃字段
+            foreach ((array) $this->disuse as $key) {
+                if (isset($this->data[$key])) {
+                    unset($this->data[$key]);
+                }
+            }
+        }
+
         // 记录原始数据
         $this->origin = $this->data;
 
@@ -1137,12 +1149,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if ($this->autoWriteTimestamp) {
                 array_push($field, $this->createTime, $this->updateTime);
             }
+        } elseif (!empty($this->except)) {
+            $fields      = $this->getQuery()->getTableInfo('', 'fields');
+            $field       = array_diff($fields, (array) $this->except);
+            $this->field = $field;
         } else {
             $field = [];
         }
-        if ($this->except) {
-            // 排除字段
-            $field = array_diff($field, (array) $this->except);
+
+        if ($this->disuse) {
+            // 废弃字段
+            $field = array_diff($field, (array) $this->disuse);
         }
         return $field;
     }
@@ -1297,7 +1314,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 设置允许写入的字段
      * @access public
-     * @param mixed $field 允许写入的字段 如果为true只允许写入数据表字段
+     * @param string|array $field 允许写入的字段 如果为true只允许写入数据表字段
      * @return $this
      */
     public function allowField($field)
@@ -1306,6 +1323,21 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $field = explode(',', $field);
         }
         $this->field = $field;
+        return $this;
+    }
+
+    /**
+     * 设置排除写入的字段
+     * @access public
+     * @param string|array $field 排除允许写入的字段
+     * @return $this
+     */
+    public function except($field)
+    {
+        if (is_string($field)) {
+            $field = explode(',', $field);
+        }
+        $this->except = $field;
         return $this;
     }
 
@@ -2066,9 +2098,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __call($method, $args)
     {
         $query = $this->db(true, false);
-        if ($this->except) {
-            $query->field($this->except, true);
-        }
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
@@ -2084,10 +2113,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = new static();
         $query = $model->db();
-        if ($model->except) {
-            $query->field($model->except, true);
-        }
-
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
