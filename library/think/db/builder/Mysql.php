@@ -67,11 +67,15 @@ class Mysql extends Builder
             $key                = 'json_extract(' . $field . ', \'$.' . $name . '\')';
         } elseif (strpos($key, '.') && !preg_match('/[,\'\"\(\)`\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
-            $alias             = $query->getOptions('alias');
+
+            $alias = $query->getOptions('alias');
+
+            if ('__TABLE__' == $table) {
+                $table = $query->getOptions('table');
+            }
+
             if (isset($alias[$table])) {
                 $table = $alias[$table];
-            } elseif ('__TABLE__' == $table) {
-                $table = $query->getOptions('table');
             }
         }
 
