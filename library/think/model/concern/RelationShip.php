@@ -412,7 +412,7 @@ trait RelationShip
             $foreignKey = $morph . '_id';
         }
 
-        $type = $type ?: Loader::parseName($this->name);
+        $type = $type ?: get_class($this);
 
         return new MorphOne($this, $model, $foreignKey, $morphType, $type);
     }
@@ -435,7 +435,7 @@ trait RelationShip
             $morph = Loader::parseName($trace[1]['function']);
         }
 
-        $type = $type ?: Loader::parseName($this->name);
+        $type = $type ?: get_class($this);
 
         if (is_array($morph)) {
             list($morphType, $foreignKey) = $morph;
