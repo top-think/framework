@@ -238,17 +238,18 @@ class MorphTo extends Relation
     /**
      * 添加关联数据
      * @access public
-     * @param Model $model       关联模型对象
+     * @param Model     $model  关联模型对象
+     * @param string    $type   多态类型
      * @return Model
      */
-    public function associate($model)
+    public function associate($model, $type = '')
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
         $pk        = $model->getPk();
 
         $this->parent->setAttr($morphKey, $model->$pk);
-        $this->parent->setAttr($morphType, get_class($model));
+        $this->parent->setAttr($morphType, $type ?: get_class($model));
         $this->parent->save();
 
         return $this->parent->setRelation($this->relation, $model);
