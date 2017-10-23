@@ -57,6 +57,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $pk;
     // 数据表字段信息 留空则自动获取
     protected $field = [];
+    // 数据排除字段
+    protected $except = [];
     // 只读字段
     protected $readonly = [];
     // 显示属性
@@ -262,7 +264,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function setParent($model)
     {
         $this->parent = $model;
-
         return $this;
     }
 
@@ -1139,7 +1140,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         } else {
             $field = [];
         }
-
+        if ($this->except) {
+            // 排除字段
+            $field = array_diff($field, (array) $this->except);
+        }
         return $field;
     }
 
@@ -2062,7 +2066,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __call($method, $args)
     {
         $query = $this->db(true, false);
-
+        if ($this->except) {
+            $query->field($this->except, true);
+        }
         if (method_exists($this, 'scope' . $method)) {
             // 动态调用命名范围
             $method = 'scope' . $method;
@@ -2078,6 +2084,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         $model = new static();
         $query = $model->db();
+        if ($model->except) {
+            $query->field($model->except, true);
+        }
 
         if (method_exists($model, 'scope' . $method)) {
             // 动态调用命名范围
