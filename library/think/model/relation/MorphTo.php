@@ -248,7 +248,7 @@ class MorphTo extends Relation
         $pk        = $model->getPk();
 
         $this->parent->setAttr($morphKey, $model->$pk);
-        $this->parent->setAttr($morphType, get_class($model));
+        $this->parent->setAttr($morphType, basename(get_class($model)));
         $this->parent->save();
 
         return $this->parent->setRelation($this->relation, $model);
