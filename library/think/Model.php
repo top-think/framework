@@ -1998,7 +1998,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $trace = debug_backtrace(false, 2);
             $morph = Loader::parseName($trace[1]['function']);
         }
-        $type = $type ?: Loader::parseName($this->name);
+        $type = $type ?: get_class($this);
         if (is_array($morph)) {
             list($morphType, $foreignKey) = $morph;
         } else {
@@ -2024,7 +2024,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $trace = debug_backtrace(false, 2);
             $morph = Loader::parseName($trace[1]['function']);
         }
-        $type = $type ?: Loader::parseName($this->name);
+        $type = $type ?: get_class($this);
         if (is_array($morph)) {
             list($morphType, $foreignKey) = $morph;
         } else {
