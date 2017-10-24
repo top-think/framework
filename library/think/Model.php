@@ -69,6 +69,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->data = $data;
         }
 
+        if ($this->disuse) {
+            // 废弃字段
+            foreach ((array) $this->disuse as $key) {
+                if (isset($this->data[$key])) {
+                    unset($this->data[$key]);
+                }
+            }
+        }
+
         // 记录原始数据
         $this->origin = $this->data;
 
@@ -351,6 +360,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             if ($this->autoWriteTimestamp) {
                 array_push($field, $this->createTime, $this->updateTime);
             }
+        }
+
+        if ($this->disuse) {
+            // 废弃字段
+            $field = array_diff($field, (array) $this->disuse);
         }
         return $field;
     }

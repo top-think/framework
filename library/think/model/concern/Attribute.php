@@ -21,6 +21,8 @@ trait Attribute
     protected $pk = 'id';
     // 数据表字段信息 留空则自动获取
     protected $field = [];
+    // 数据废弃字段
+    protected $disuse = [];
     // 只读字段
     protected $readonly = [];
     // 字段类型或者格式转换
