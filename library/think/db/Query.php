@@ -1223,7 +1223,7 @@ class Query
         if ($field instanceof \Closure) {
             $where = is_string($op) ? [$op, $field] : $field;
             $field = '';
-        } elseif (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
+        } elseif (is_string($field) && preg_match('/[,=\<\'\"\(\s]/', $field)) {
             $where = ['', 'exp', $field];
             if (is_array($op)) {
                 // 参数绑定
