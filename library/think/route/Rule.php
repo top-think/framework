@@ -564,6 +564,27 @@ abstract class Rule
     }
 
     /**
+     * 检查路由前置行为
+     * @access protected
+     * @param mixed   $before 前置行为
+     * @return mixed
+     */
+    protected function checkBefore($before)
+    {
+
+        $hook = Container::get('hook');
+
+        foreach ((array) $before as $behavior) {
+            $result = $hook->exec($behavior);
+
+            if (false === $result) {
+                return false;
+            }
+        }
+
+    }
+
+    /**
      * 检查路由后置行为
      * @access protected
      * @param mixed   $after 后置行为
@@ -672,20 +693,6 @@ abstract class Rule
      */
     protected function checkOption($option, Request $request)
     {
-        if (!empty($option['before'])) {
-            // 路由前置检查
-            $before = $option['before'];
-            $hook   = Container::get('hook');
-
-            foreach ((array) $before as $behavior) {
-                $result = $hook->exec($behavior);
-
-                if (false === $result) {
-                    return false;
-                }
-            }
-        }
-
         // 请求类型检测
         if (!empty($option['method'])) {
             if (is_string($option['method']) && false === stripos($option['method'], $request->method())) {

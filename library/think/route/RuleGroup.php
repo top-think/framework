@@ -17,6 +17,7 @@ use think\Response;
 use think\Route;
 use think\route\dispatch\Response as ResponseDispatch;
 use think\route\dispatch\Url as UrlDispatch;
+use think\route\Domain;
 
 class RuleGroup extends Rule
 {
@@ -91,6 +92,20 @@ class RuleGroup extends Rule
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
             return false;
+        }
+
+        if ($this->name && !($this instanceof Domain)) {
+            // 分组URL匹配检查
+            $pos = strpos(str_replace('<', ':', $this->name), ':');
+            if (false !== $pos) {
+                $str = substr($this->name, 0, $pos);
+            } else {
+                $str = $this->name;
+            }
+
+            if (0 !== stripos(str_replace('|', '/', $url), $str)) {
+                return false;
+            }
         }
 
         if ($this->rule) {
