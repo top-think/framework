@@ -17,7 +17,6 @@ use think\Response;
 use think\Route;
 use think\route\dispatch\Response as ResponseDispatch;
 use think\route\dispatch\Url as UrlDispatch;
-use think\route\Domain;
 
 class RuleGroup extends Rule
 {
