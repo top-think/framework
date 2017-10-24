@@ -125,21 +125,13 @@ class RuleGroup extends Rule
             $this->parseRequestCache($request, $this->option['cache']);
         }
 
-        // 检测路由after行为
-        if (!empty($this->option['after'])) {
-            $dispatch = $this->checkAfter($this->option['after']);
-
-            if (false !== $dispatch) {
-                return $dispatch;
-            }
-        }
-
         // 获取当前路由规则
         $method = strtolower($request->method());
         $rules  = array_merge($this->rules['*'], $this->rules[$method]);
 
         if ($this->parent) {
-            $this->option = array_merge($this->parent->getOption(), $this->option);
+            // 合并分组参数
+            $this->mergeGroupOptions();
         }
 
         if (isset($this->option['complete_match'])) {

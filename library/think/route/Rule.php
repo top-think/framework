@@ -32,6 +32,8 @@ abstract class Rule
     protected $option = [];
     // 路由变量规则
     protected $pattern = [];
+    // 需要合并的路由参数
+    protected $mergeOptions = ['after', 'before', 'model'];
 
     abstract public function check($request, $url, $depr = '/');
 
@@ -272,6 +274,18 @@ abstract class Rule
     }
 
     /**
+     * 设置需要合并的路由参数
+     * @access public
+     * @param array     $option
+     * @return $this
+     */
+    public function mergeOptions($option = [])
+    {
+        $this->mergeOptions = array_merge($this->mergeOptions, $option);
+        return $this;
+    }
+
+    /**
      * 检查是否为HTTPS请求
      * @access public
      * @param bool     $https
@@ -356,6 +370,24 @@ abstract class Rule
         $this->router->setCrossDomainRule($this, $method);
 
         return $this;
+    }
+
+    /**
+     * 合并分组参数
+     * @access protected
+     * @return void
+     */
+    protected function mergeGroupOptions()
+    {
+        $parentOption = $this->parent->getOption();
+        // 合并分组参数
+        foreach ($this->mergeOptions as $item) {
+            if (isset($parentOption[$item]) && isset($this->option[$item])) {
+                $this->option[$item] = array_merge($parentOption[$item], $this->option[$item]);
+            }
+        }
+
+        $this->option = array_merge($parentOption, $this->option);
     }
 
     /**

@@ -114,7 +114,10 @@ class RuleItem extends Rule
             return false;
         }
 
-        $option = array_merge($this->parent->getOption(), $this->option);
+        // 合并分组参数
+        $this->mergeGroupOptions();
+
+        $option = $this->option;
 
         if (isset($option['ext'])) {
             // 路由ext参数 优先于系统配置的URL伪静态后缀参数
