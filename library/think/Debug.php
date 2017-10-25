@@ -33,7 +33,7 @@ class Debug
      * 记录时间（微秒）和内存使用情况
      * @param string    $name 标记位置
      * @param mixed     $value 标记值 留空则取当前 time 表示仅记录时间 否则同时记录时间和内存
-     * @return mixed
+     * @return void
      */
     public function remark($name, $value = '')
     {
@@ -130,7 +130,7 @@ class Debug
      * @param string            $start 开始标签
      * @param string            $end 结束标签
      * @param integer|string    $dec 小数位
-     * @return mixed
+     * @return string
      */
     public function getMemPeak($start, $end, $dec = 2)
     {
@@ -201,7 +201,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         } else {
             return $output;

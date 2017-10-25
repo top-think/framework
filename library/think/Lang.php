@@ -64,7 +64,7 @@ class Lang
      * 加载语言定义(不区分大小写)
      * @param string|array  $file   语言文件
      * @param string        $range  语言作用域
-     * @return mixed
+     * @return array
      */
     public function load($file, $range = '')
     {

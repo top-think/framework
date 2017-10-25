@@ -21,7 +21,7 @@ class Hook
      * @access public
      * @param string|array  $name     行为标识
      * @param mixed         $behavior 行为
-     * @return void
+     * @return $this
      */
     public function alias($name, $behavior = null)
     {
@@ -66,6 +66,7 @@ class Hook
      * @access public
      * @param array     $tags 插件信息
      * @param bool      $recursive 是否递归合并
+     * @return void
      */
     public function import(array $tags, $recursive = true)
     {
