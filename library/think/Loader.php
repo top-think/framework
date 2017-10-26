@@ -46,7 +46,7 @@ class Loader
         ]);
 
         $path = dirname($_SERVER['SCRIPT_FILENAME']);
-        if (PHP_SAPI == 'cli' || is_file('./think')) {
+        if (is_file('./think')) {
             $rootPath = realpath($path) . '/';
         } else {
             $rootPath = realpath($path . '/../') . '/';
