@@ -551,11 +551,10 @@ abstract class Builder
     {
         // EXISTS 查询
         if ($value instanceof \Closure) {
-            $whereStr = $exp . ' ' . $this->parseClosure($query, $value);
-        } else {
-            $whereStr = $exp . ' (' . $value . ')';
+            $value = $this->parseClosure($query, $value, false);
         }
-        return $whereStr;
+
+        return $exp . ' (' . $value . ')';
     }
 
     /**
@@ -595,12 +594,10 @@ abstract class Builder
 
         // 比较运算
         if ($value instanceof \Closure) {
-            $whereStr = $key . ' ' . $exp . ' ' . $this->parseClosure($query, $value);
-        } else {
-            $whereStr = $key . ' ' . $exp . ' ' . $value;
+            $value = $this->parseClosure($query, $value);
         }
 
-        return $whereStr;
+        return $key . ' ' . $exp . ' ' . $value;
     }
 
     /**
@@ -621,7 +618,10 @@ abstract class Builder
             $value = explode(',', $value);
         }
 
-        return $key . ' ' . substr($exp, 0, -4) . $this->parseDateTime($query, $value[0], $field, $bindName . '_between_1', $bindType) . ' AND ' . $this->parseDateTime($query, $value[1], $field, $bindName . '_between_2', $bindType);
+        return $key . ' ' . substr($exp, 0, -4)
+        . $this->parseDateTime($query, $value[0], $field, $bindName . '_between_1', $bindType)
+        . ' AND '
+        . $this->parseDateTime($query, $value[1], $field, $bindName . '_between_2', $bindType);
 
     }
 
@@ -641,7 +641,7 @@ abstract class Builder
     {
         // IN 查询
         if ($value instanceof \Closure) {
-            $whereStr = $key . ' ' . $exp . ' ' . $this->parseClosure($query, $value);
+            $value = $this->parseClosure($query, $value, false);
         } else {
             $value = array_unique(is_array($value) ? $value : explode(',', $value));
 
@@ -663,10 +663,10 @@ abstract class Builder
             $zone = implode(',', $array);
             $query->bind($bind);
 
-            $whereStr = $key . ' ' . $exp . ' (' . (empty($zone) ? "''" : $zone) . ')';
+            $value = empty($zone) ? "''" : $zone;
         }
 
-        return $whereStr;
+        return $key . ' ' . $exp . ' (' . $value . ')';
     }
 
     /**
