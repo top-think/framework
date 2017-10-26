@@ -42,7 +42,6 @@ namespace think;
  * @method void commit() static 用于非自动提交状态下面的查询提交
  * @method void rollback() static 事务回滚
  * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
- * @method string quote(string $str) static SQL指令安全过滤
  * @method string getLastInsID($sequence = null) static 获取最近插入的ID
  */
 class Db

@@ -1349,7 +1349,7 @@ abstract class Connection
             $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
 
             if (PDO::PARAM_STR == $type) {
-                $value = $this->quote($value);
+                $value = '\'' . addslashes($value) . '\'';
             } elseif (PDO::PARAM_INT == $type) {
                 $value = (float) $value;
             }
@@ -1765,20 +1765,6 @@ abstract class Connection
         }
 
         return $error;
-    }
-
-    /**
-     * SQL指令安全过滤
-     * @access public
-     * @param string $str SQL字符串
-     * @param bool   $master 是否主库查询
-     * @return string
-     */
-    public function quote($str, $master = true)
-    {
-        $this->initConnect($master);
-
-        return $this->linkID ? $this->linkID->quote($str) : $str;
     }
 
     /**
