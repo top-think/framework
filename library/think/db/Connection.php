@@ -872,7 +872,7 @@ abstract class Connection
      * @param bool   $master 是否主库查询
      * @return string
      */
-    public function quote($str, $master = true)
+    public function quote($str, $master = false)
     {
         $this->initConnect($master);
         return $this->linkID ? $this->linkID->quote($str) : $str;
