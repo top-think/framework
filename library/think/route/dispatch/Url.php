@@ -41,7 +41,7 @@ class Url extends Dispatch
         if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
             // 如果有模块/控制器绑定
-            $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
+            $url = $bind . '|' . ltrim($url, $depr);
         }
 
         list($path, $var) = $this->parseUrlPath($url);
