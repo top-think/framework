@@ -81,9 +81,9 @@ class Validate
         'regex'       => ':attribute not conform to the rules',
         'method'      => 'invalid Request method',
         'token'       => 'invalid token',
-        'fileSize'    => 'fileSize not match',
-        'fileExt'     => 'fileExt not match',
-        'fileMime'    => 'fileMime not match',
+        'fileSize'    => 'filesize not match',
+        'fileExt'     => 'extensions to upload is not allowed',
+        'fileMime'    => 'mimetype to upload is not allowed',
     ];
 
     // 当前验证场景

@@ -131,8 +131,5 @@ return [
     ':attribute not conform to the rules'                       => ':attribute不符合指定规则',
     'invalid Request method'                                    => '无效的请求类型',
     'invalid token'                                             => '令牌数据无效',
-    'fileSize not match'                                        => '上传文件大小不符',
-    'fileExt not match'                                         => '上传文件后缀不符',
-    'fileMime not match'                                        => '上传文件类型不符',
     'not conform to the rules'                                  => '规则错误',
 ];
