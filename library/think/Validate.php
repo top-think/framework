@@ -847,11 +847,7 @@ class Validate
         }
 
         $pk = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
-        if(is_array($pk)){
-            foreach($pk as $key){
-                $map[$key] = ['neq',]
-            }
-        }elseif (isset($rule[2])) {
+        if (isset($rule[2])) {
             $map[$pk] = ['neq', $rule[2]];
         } elseif (isset($data[$pk])) {
             $map[$pk] = ['neq', $data[$pk]];
@@ -1242,7 +1238,7 @@ class Validate
 
         if (is_string($msg) && 0 === strpos($msg, '{%')) {
             $msg = Lang::get(substr($msg, 2, -1));
-        }elseif(Lang::has($msg)){
+        } elseif (Lang::has($msg)) {
             $msg = Lang::get($msg);
         }
 
