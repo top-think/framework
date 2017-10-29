@@ -420,7 +420,7 @@ abstract class Rule
                         $match = false;
                         break;
                     } else {
-                        $where[$field] = $matches[$field];
+                        $where[] = [$field, '=', $matches[$field]];
                     }
                 }
 
