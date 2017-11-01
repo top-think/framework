@@ -466,6 +466,10 @@ abstract class Connection
      */
     public function getRealSql($sql, array $bind = [])
     {
+        if (is_array($sql)) {
+            $sql = implode(';', $sql);
+        }
+
         foreach ($bind as $key => $val) {
             $value = is_array($val) ? $val[0] : $val;
             $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
@@ -725,7 +729,7 @@ abstract class Connection
      * @param array $sqlArray SQL批处理指令
      * @return boolean
      */
-    public function batchQuery($sqlArray = [])
+    public function batchQuery($sqlArray = [], $bind = [])
     {
         if (!is_array($sqlArray)) {
             return false;
@@ -734,7 +738,7 @@ abstract class Connection
         $this->startTrans();
         try {
             foreach ($sqlArray as $sql) {
-                $this->execute($sql);
+                $this->execute($sql, $bind);
             }
             // 提交事务
             $this->commit();
@@ -742,6 +746,7 @@ abstract class Connection
             $this->rollback();
             throw $e;
         }
+
         return true;
     }
 

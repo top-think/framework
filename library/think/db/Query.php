@@ -312,9 +312,9 @@ class Query
      * @param array $sql SQL批处理指令
      * @return boolean
      */
-    public function batchQuery($sql = [])
+    public function batchQuery($sql = [], $bind = [])
     {
-        return $this->connection->batchQuery($sql);
+        return $this->connection->batchQuery($sql, $bind);
     }
 
     /**
@@ -2128,24 +2128,37 @@ class Query
     /**
      * 批量插入记录
      * @access public
-     * @param mixed $dataSet 数据集
-     * @param boolean $replace  是否replace
+     * @param mixed     $dataSet 数据集
+     * @param boolean   $replace  是否replace
+     * @param integer   $limit   每次写入数据限制
      * @return integer|string
      */
-    public function insertAll(array $dataSet, $replace = false)
+    public function insertAll(array $dataSet, $replace = false, $limit = null)
     {
         // 分析查询表达式
         $options = $this->parseExpress();
         if (!is_array(reset($dataSet))) {
             return false;
         }
+
         // 生成SQL语句
-        $sql = $this->builder->insertAll($dataSet, $options, $replace);
+        if (is_null($limit)) {
+            $sql = $this->builder->insertAll($dataSet, $options, $replace);
+        } else {
+            $array = array_chunk($dataSet, $limit, true);
+            foreach ($array as $item) {
+                $sql[] = $this->builder->insertAll($item, $options, $replace);
+            }
+        }
+
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
             return $this->connection->getRealSql($sql, $bind);
+        } elseif (is_array($sql)) {
+            // 执行操作
+            return $this->batchQuery($sql, $bind);
         } else {
             // 执行操作
             return $this->execute($sql, $bind);
