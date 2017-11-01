@@ -2119,14 +2119,16 @@ class Query
     /**
      * 批量插入记录
      * @access public
-     * @param mixed $dataSet 数据集
+     * @param mixed     $dataSet 数据集
+     * @param boolean   $replace 是否replace
+     * @param integer   $limit   每次写入数据限制
      * @return integer|string
      */
-    public function insertAll(array $dataSet)
+    public function insertAll(array $dataSet, $replace = false, $limit = null)
     {
         $this->parseOptions();
 
-        return $this->connection->insertAll($this, $dataSet);
+        return $this->connection->insertAll($this, $dataSet, $replace, $limit);
     }
 
     /**
