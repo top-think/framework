@@ -68,12 +68,18 @@ class BelongsToMany extends Relation
     /**
      * 实例化中间表模型
      * @param $data
-     * @return mixed
+     * @return Pivot
+     * @throws Exception
      */
     protected function newPivot($data = [])
     {
-        $pivot = $this->pivotName ?: '\\think\\model\\Pivot';
-        return new $pivot($this->parent, $data, $this->middle);
+        $class = $this->pivotName ?: '\\think\\model\\Pivot';
+        $pivot = new $class($this->parent, $data, $this->middle);
+        if ($pivot instanceof Pivot) {
+            return $pivot;
+        } else {
+            throw new Exception('pivot model must extends: \think\model\Pivot');
+        }
     }
 
     /**
