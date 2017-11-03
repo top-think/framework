@@ -15,10 +15,34 @@ use think\exception\ClassNotFoundException;
 
 class Session
 {
-    protected $prefix      = '';
-    protected $init        = null;
-    protected $lockDriver  = null;
-    protected $sessKey     = 'PHPSESSID';
+    /**
+     * 前缀
+     * @var string
+     */
+    protected $prefix = '';
+
+    /**
+     * 是否初始化
+     * @var bool
+     */
+    protected $init = null;
+
+    /**
+     * 锁驱动
+     * @var object
+     */
+    protected $lockDriver = null;
+
+    /**
+     * 锁key
+     * @var string
+     */
+    protected $sessKey = 'PHPSESSID';
+
+    /**
+     * 锁超时时间
+     * @var integer
+     */
     protected $lockTimeout = 3;
 
     /**
@@ -248,7 +272,7 @@ class Session
     {
         $this->initDriver();
 
-        if ($this->lockDriver !== null && method_exists($this->lockDriver, 'lock')) {
+        if (null !== $this->lockDriver && method_exists($this->lockDriver, 'lock')) {
             $t = time();
             // 使用 session_id 作为互斥条件，即只对同一 session_id 的会话互斥。第一次请求没有 session_id
             $sessID = isset($_COOKIE[$this->sessKey]) ? $_COOKIE[$this->sessKey] : '';

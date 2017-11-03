@@ -16,23 +16,43 @@ use think\validate\ValidateRule;
 
 class Validate
 {
-    // 自定义的验证类型
+
+    /**
+     * 自定义验证类型
+     * @var array
+     */
     protected static $type = [];
 
-    // 验证类型别名
+    /**
+     * 验证类型别名
+     * @var array
+     */
     protected $alias = [
         '>' => 'gt', '>=' => 'egt', '<' => 'lt', '<=' => 'elt', '=' => 'eq', 'same' => 'eq',
     ];
 
-    // 当前验证的规则
+    /**
+     * 当前验证规则
+     * @var array
+     */
     protected $rule = [];
 
-    // 验证提示信息
+    /**
+     * 验证提示信息
+     * @var array
+     */
     protected $message = [];
-    // 验证字段描述
+
+    /**
+     * 验证字段描述
+     * @var array
+     */
     protected $field = [];
 
-    // 验证规则默认提示信息
+    /**
+     * 默认规则提示
+     * @var array
+     */
     protected static $typeMsg = [
         'require'     => ':attribute require',
         'must'        => ':attribute must',
@@ -86,10 +106,16 @@ class Validate
         'fileMime'    => 'mimetype to upload is not allowed',
     ];
 
-    // 当前验证场景
+    /**
+     * 当前验证场景
+     * @var array
+     */
     protected $currentScene = null;
 
-    // 正则表达式 regex = ['zip'=>'\d{6}',...]
+    /**
+     * 内置正则验证规则
+     * @var array
+     */
     protected $regex = [
         'alpha'       => '/^[A-Za-z]+$/',
         'alphaNum'    => '/^[A-Za-z0-9]+$/',
@@ -103,7 +129,10 @@ class Validate
         'zip'         => '/\d{6}/',
     ];
 
-    // Filter_var 验证规则
+    /**
+     * Filter_var 规则
+     * @var array
+     */
     protected $filter = [
         'email'   => FILTER_VALIDATE_EMAIL,
         'ip'      => [FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6],
@@ -113,18 +142,40 @@ class Validate
         'float'   => FILTER_VALIDATE_FLOAT,
     ];
 
-    // 验证场景 scene = ['edit'=>'name1,name2,...']
+    /**
+     * 验证场景定义
+     * @var array
+     */
     protected $scene = [];
 
-    // 验证失败错误信息
+    /**
+     * 验证失败错误信息
+     * @var array
+     */
     protected $error = [];
 
-    // 批量验证
+    /**
+     * 是否批量验证
+     * @var bool
+     */
     protected $batch = false;
 
-    // 验证参数
-    protected $only   = [];
+    /**
+     * 场景需要验证的规则
+     * @var array
+     */
+    protected $only = [];
+
+    /**
+     * 场景需要移除的验证规则
+     * @var array
+     */
     protected $remove = [];
+
+    /**
+     * 场景需要追加的验证规则
+     * @var array
+     */
     protected $append = [];
 
     /**

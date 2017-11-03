@@ -30,13 +30,28 @@ use think\model\relation\MorphTo;
  */
 trait RelationShip
 {
-    // 父关联模型对象
+    /**
+     * 父关联模型对象
+     * @var object
+     */
     private $parent;
-    // 关联模型
+
+    /**
+     * 模型关联数据
+     * @var array
+     */
     private $relation = [];
-    // 关联写入
+
+    /**
+     * 关联写入定义信息
+     * @var array
+     */
     private $together;
-    // 关联自动写入
+
+    /**
+     * 关联自动写入信息
+     * @var array
+     */
     private $relationWrite;
 
     /**

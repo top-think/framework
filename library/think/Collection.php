@@ -19,6 +19,10 @@ use JsonSerializable;
 
 class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
+    /**
+     * 数据集数据
+     * @var array
+     */
     protected $items = [];
 
     public function __construct($items = [])

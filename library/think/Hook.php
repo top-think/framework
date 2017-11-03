@@ -13,7 +13,16 @@ namespace think;
 
 class Hook
 {
-    private $tags   = [];
+    /**
+     * 钩子行为定义
+     * @var array
+     */
+    private $tags = [];
+
+    /**
+     * 绑定行为列表
+     * @var array
+     */
     protected $bind = [];
 
     /**

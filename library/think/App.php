@@ -17,94 +17,110 @@ use think\route\Dispatch;
 
 /**
  * App 应用管理
- * @author  liu21st <liu21st@gmail.com>
  */
 class App implements \ArrayAccess
 {
-    const VERSION = '5.1.0RC2';
+    const VERSION = '5.1.0RC3';
 
     /**
-     * @var string 当前模块路径
+     * 当前模块路径
+     * @var string
      */
     protected $modulePath;
 
     /**
-     * @var bool 应用调试模式
+     * 应用调试模式
+     * @var bool
      */
     protected $debug = true;
 
     /**
-     * @var float 应用开始时间
+     * 应用开始时间
+     * @var float
      */
     protected $beginTime;
 
     /**
-     * @var integer 应用内存初始占用
+     * 应用内存初始占用
+     * @var integer
      */
     protected $beginMem;
 
     /**
-     * @var string 应用类库命名空间
+     * 应用类库命名空间
+     * @var string
      */
     protected $namespace = 'app';
 
     /**
-     * @var bool 应用类库后缀
+     * 应用类库后缀
+     * @var bool
      */
     protected $suffix = false;
 
     /**
-     * @var bool 严格路由检测
+     * 严格路由检测
+     * @var bool
      */
     protected $routeMust;
 
     /**
-     * @var string 应用类库目录
+     * 应用类库目录
+     * @var string
      */
     protected $appPath;
 
     /**
-     * @var string 框架目录
+     * 框架目录
+     * @var string
      */
     protected $thinkPath;
 
     /**
-     * @var string 应用根目录
+     * 应用根目录
+     * @var string
      */
     protected $rootPath;
 
     /**
-     * @var string 运行时目录
+     * 运行时目录
+     * @var string
      */
     protected $runtimePath;
 
     /**
-     * @var string 配置目录
+     * 配置目录
+     * @var string
      */
     protected $configPath;
 
     /**
-     * @var string 路由目录
+     * 路由目录
+     * @var string
      */
     protected $routePath;
 
     /**
-     * @var string 配置后缀
+     * 配置后缀
+     * @var string
      */
     protected $configExt;
 
     /**
-     * @var Dispatch 应用调度实例
+     * 应用调度实例
+     * @var Dispatch
      */
     protected $dispatch;
 
     /**
-     * @var Container 容器对象实例
+     * 容器对象实例
+     * @var Container
      */
     protected $container;
 
     /**
-     * @var string 绑定模块（控制器）
+     * 绑定模块（控制器）
+     * @var string
      */
     protected $bind;
 

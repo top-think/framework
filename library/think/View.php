@@ -13,13 +13,28 @@ namespace think;
 
 class View
 {
-    // 模板引擎实例
+    /**
+     * 模板引擎实例
+     * @var object
+     */
     public $engine;
-    // 模板变量
+
+    /**
+     * 模板变量
+     * @var array
+     */
     protected $data = [];
-    // 用于静态赋值的模板变量
+
+    /**
+     * 全局模板变量
+     * @var array
+     */
     protected static $var = [];
-    // 视图输出替换
+
+    /**
+     * 模板输出替换
+     * @var array
+     */
     protected $replace = [];
 
     /**

@@ -17,20 +17,46 @@ use think\model\Relation;
 
 trait Attribute
 {
-    // 数据表主键 复合主键使用数组定义
+    /**
+     * 数据表主键 复合主键使用数组定义
+     * @var string|array
+     */
     protected $pk = 'id';
-    // 数据表字段信息 留空则自动获取
+
+    /**
+     * 数据表字段信息 留空则自动获取
+     * @var array
+     */
     protected $field = [];
-    // 数据废弃字段
+
+    /**
+     * 数据表废弃字段
+     * @var array
+     */
     protected $disuse = [];
-    // 只读字段
+
+    /**
+     * 数据表只读字段
+     * @var array
+     */
     protected $readonly = [];
-    // 字段类型或者格式转换
+
+    /**
+     * 数据表字段类型
+     * @var array
+     */
     protected $type = [];
 
-    // 当前数据
+    /**
+     * 当前模型数据
+     * @var array
+     */
     private $data = [];
-    // 原始数据
+
+    /**
+     * 原始数据
+     * @var array
+     */
     private $origin = [];
 
     /**

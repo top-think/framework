@@ -13,24 +13,43 @@ namespace think;
 
 class Loader
 {
-    // 类名映射
+    /**
+     * 类名映射信息
+     * @var array
+     */
     protected static $map = [];
 
-    // 类库别名
+    /**
+     * 类库别名
+     * @var array
+     */
     protected static $classAlias = [];
 
-    // PSR-4
+    /**
+     * PSR-4
+     * @var array
+     */
     private static $prefixLengthsPsr4 = [];
     private static $prefixDirsPsr4    = [];
     private static $fallbackDirsPsr4  = [];
 
-    // PSR-0
+    /**
+     * PSR-0
+     * @var array
+     */
     private static $prefixesPsr0     = [];
     private static $fallbackDirsPsr0 = [];
 
-    // 自动加载的文件
+    /**
+     * 自动加载的文件列表
+     * @var array
+     */
     private static $autoloadFiles = [];
 
+    /**
+     * Composer安装路径
+     * @var string
+     */
     private static $composerPath;
 
     // 注册自动加载机制

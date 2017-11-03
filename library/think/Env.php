@@ -13,6 +13,10 @@ namespace think;
 
 class Env
 {
+    /**
+     * 环境变量数据
+     * @var array
+     */
     protected $data = [];
 
     public function __construct()

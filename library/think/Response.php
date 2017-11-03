@@ -15,24 +15,46 @@ use think\response\Redirect as RedirectResponse;
 
 class Response
 {
-
-    // 原始数据
+    /**
+     * 原始数据
+     * @var mixed
+     */
     protected $data;
 
-    // 当前的contentType
+    /**
+     * 当前contentType
+     * @var string
+     */
     protected $contentType = 'text/html';
 
-    // 字符集
+    /**
+     * 字符集
+     * @var string
+     */
     protected $charset = 'utf-8';
 
-    //状态
+    /**
+     * 状态码
+     * @var integer
+     */
     protected $code = 200;
 
-    // 输出参数
+    /**
+     * 输出参数
+     * @var array
+     */
     protected $options = [];
-    // header参数
+
+    /**
+     * header参数
+     * @var array
+     */
     protected $header = [];
 
+    /**
+     * 输出内容
+     * @var string
+     */
     protected $content = null;
 
     /**

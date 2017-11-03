@@ -13,9 +13,16 @@ namespace think;
 
 class Config
 {
-    // 配置参数
+    /**
+     * 配置参数
+     * @var array
+     */
     private $config = [];
-    // 当前参数前缀（一级配置名）
+
+    /**
+     * 缓存前缀
+     * @var string
+     */
     private $prefix = 'app';
 
     /**

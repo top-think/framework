@@ -20,19 +20,47 @@ class File extends SplFileObject
      * @var string
      */
     private $error = '';
-    // 当前完整文件名
+
+    /**
+     * 当前完整文件名
+     * @var string
+     */
     protected $filename;
-    // 上传文件名
+
+    /**
+     * 上传文件名
+     * @var string
+     */
     protected $saveName;
-    // 文件上传命名规则
+
+    /**
+     * 上传文件命名规则
+     * @var string
+     */
     protected $rule = 'date';
-    // 文件上传验证规则
+
+    /**
+     * 上传文件验证规则
+     * @var array
+     */
     protected $validate = [];
-    // 单元测试
+
+    /**
+     * 是否单元测试
+     * @var bool
+     */
     protected $isTest;
-    // 上传文件信息
-    protected $info;
-    // 文件hash信息
+
+    /**
+     * 上传文件信息
+     * @var array
+     */
+    protected $info = [];
+
+    /**
+     * 文件hash规则
+     * @var array
+     */
     protected $hash = [];
 
     public function __construct($filename, $mode = 'r')

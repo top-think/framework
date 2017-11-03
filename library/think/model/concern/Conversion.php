@@ -21,13 +21,28 @@ use think\Model;
  */
 trait Conversion
 {
-    // 显示属性
+    /**
+     * 数据输出显示的属性
+     * @var array
+     */
     protected $visible = [];
-    // 隐藏属性
+
+    /**
+     * 数据输出隐藏的属性
+     * @var array
+     */
     protected $hidden = [];
-    // 附加属性
+
+    /**
+     * 数据输出需要追加的属性
+     * @var array
+     */
     protected $append = [];
-    // 查询数据集对象
+
+    /**
+     * 数据集对象名
+     * @var string
+     */
     protected $resultSetType;
 
     /**

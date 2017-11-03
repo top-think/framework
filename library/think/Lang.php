@@ -13,17 +13,40 @@ namespace think;
 
 class Lang
 {
-    // 语言数据
+    /**
+     * 多语言信息
+     * @var array
+     */
     private $lang = [];
-    // 语言作用域
+
+    /**
+     * 当前语言
+     * @var string
+     */
     private $range = 'zh-cn';
-    // 语言自动侦测的变量
+
+    /**
+     * 多语言自动侦测变量名
+     * @var string
+     */
     protected $langDetectVar = 'lang';
-    // 语言Cookie变量
+
+    /**
+     * 多语言cookie变量
+     * @var string
+     */
     protected $langCookieVar = 'think_var';
-    // 允许语言列表
+
+    /**
+     * 允许的多语言列表
+     * @var array
+     */
     protected $allowLangList = [];
-    // Accept-Language转义为对应语言包名称 系统默认配置
+
+    /**
+     * Accept-Language转义为对应语言包名称 系统默认配置
+     * @var string
+     */
     protected $acceptLanguage = [
         'zh-hans-cn' => 'zh-cn',
     ];

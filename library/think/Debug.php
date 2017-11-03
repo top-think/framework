@@ -17,11 +17,22 @@ use think\response\Redirect;
 
 class Debug
 {
-    // 区间时间信息
+    /**
+     * 区间时间信息
+     * @var array
+     */
     protected $info = [];
-    // 区间内存信息
+
+    /**
+     * 区间内存信息
+     * @var array
+     */
     protected $mem = [];
 
+    /**
+     * 应用对象
+     * @var App
+     */
     protected $app;
 
     public function __construct(App $app)

@@ -16,13 +16,28 @@ namespace think\model\concern;
  */
 trait TimeStamp
 {
-    // 是否需要自动写入时间戳 如果设置为字符串 则表示时间字段的类型
+    /**
+     * 是否需要自动写入时间戳 如果设置为字符串 则表示时间字段的类型
+     * @var bool|string
+     */
     protected $autoWriteTimestamp;
-    // 创建时间字段
+
+    /**
+     * 创建时间字段 false表示关闭
+     * @var false|string
+     */
     protected $createTime = 'create_time';
-    // 更新时间字段
+
+    /**
+     * 更新时间字段 false表示关闭
+     * @var false|string
+     */
     protected $updateTime = 'update_time';
-    // 时间字段取出后的默认时间格式
+
+    /**
+     * 时间字段显示格式
+     * @var string
+     */
     protected $dateFormat;
 
     /**

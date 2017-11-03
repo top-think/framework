@@ -18,10 +18,34 @@ use think\Container;
  */
 abstract class Driver
 {
-    protected $handler    = null;
-    protected $readTimes  = 0;
+    /**
+     * 驱动句柄
+     * @var object
+     */
+    protected $handler = null;
+
+    /**
+     * 缓存读取次数
+     * @var integer
+     */
+    protected $readTimes = 0;
+
+    /**
+     * 缓存写入次数
+     * @var integer
+     */
     protected $writeTimes = 0;
-    protected $options    = [];
+
+    /**
+     * 缓存参数
+     * @var array
+     */
+    protected $options = [];
+
+    /**
+     * 缓存标签
+     * @var string
+     */
     protected $tag;
 
     /**

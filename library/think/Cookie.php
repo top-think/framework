@@ -13,6 +13,10 @@ namespace think;
 
 class Cookie
 {
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $config = [
         // cookie 名称前缀
         'prefix'    => '',
@@ -30,6 +34,10 @@ class Cookie
         'setcookie' => true,
     ];
 
+    /**
+     * 是否初始化
+     * @var bool
+     */
     protected $init;
 
     /**

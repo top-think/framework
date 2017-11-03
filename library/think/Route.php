@@ -20,7 +20,10 @@ use think\route\RuleItem;
 
 class Route
 {
-    // REST路由操作方法定义
+    /**
+     * REST定义
+     * @var array
+     */
     protected $rest = [
         'index'  => ['get', '', 'index'],
         'create' => ['get', '/create', 'create'],
@@ -31,7 +34,10 @@ class Route
         'delete' => ['delete', '/:id', 'delete'],
     ];
 
-    // 不同请求类型的方法前缀
+    /**
+     * 请求方法前缀定义
+     * @var array
+     */
     protected $methodPrefix = [
         'get'    => 'get',
         'post'   => 'post',
@@ -40,25 +46,64 @@ class Route
         'patch'  => 'patch',
     ];
 
-    // 当前配置实例
+    /**
+     * 配置对象
+     * @var Config
+     */
     protected $config;
-    // 当前请求对象
+
+    /**
+     * 请求对象
+     * @var Request
+     */
     protected $request;
-    // 当前域名
+
+    /**
+     * 当前域名
+     * @var string
+     */
     protected $domain;
-    // 当前分组
+
+    /**
+     * 当前分组
+     * @var string
+     */
     protected $group;
-    // 路由标识
+
+    /**
+     * 路由标识
+     * @var array
+     */
     protected $name = [];
-    // 路由绑定
+
+    /**
+     * 路由绑定
+     * @var array
+     */
     protected $bind = [];
-    // 域名对象
+
+    /**
+     * 域名对象
+     * @var array
+     */
     protected $domains = [];
-    // 跨域路由规则
+
+    /**
+     * 跨域路由规则
+     * @var RuleGroup
+     */
     protected $cross;
-    // 当前路由标识
+
+    /**
+     * 当前路由标识
+     * @var string
+     */
     protected $ruleName;
-    // 别名路由
+
+    /**
+     * 路由别名
+     * @var array
+     */
     protected $alias = [];
 
     public function __construct(Request $request, Config $config)

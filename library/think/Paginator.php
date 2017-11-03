@@ -20,28 +20,52 @@ use Traversable;
 
 abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
-    /** @var bool 是否为简洁模式 */
+    /**
+     * 是否简洁模式
+     * @var bool
+     */
     protected $simple = false;
 
-    /** @var Collection 数据集 */
+    /**
+     * 数据集
+     * @var Collection
+     */
     protected $items;
 
-    /** @var integer 当前页 */
+    /**
+     * 当前页
+     * @var integer
+     */
     protected $currentPage;
 
-    /** @var  integer 最后一页 */
+    /**
+     * 最后一页
+     * @var integer
+     */
     protected $lastPage;
 
-    /** @var integer|null 数据总数 */
+    /**
+     * 数据总数
+     * @var integer|null
+     */
     protected $total;
 
-    /** @var  integer 每页的数量 */
+    /**
+     * 每页数量
+     * @var integer
+     */
     protected $listRows;
 
-    /** @var bool 是否有下一页 */
+    /**
+     * 是否有下一页
+     * @var bool
+     */
     protected $hasMore;
 
-    /** @var array 一些配置 */
+    /**
+     * 分页配置
+     * @var array
+     */
     protected $options = [
         'var_page' => 'page',
         'path'     => '/',

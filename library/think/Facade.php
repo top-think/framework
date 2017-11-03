@@ -13,8 +13,16 @@ namespace think;
 
 class Facade
 {
-
+    /**
+     * 绑定对象
+     * @var array
+     */
     protected static $bind = [];
+
+    /**
+     * 始终创建新的对象实例
+     * @var bool
+     */
     protected static $alwaysNewInstance;
 
     /**

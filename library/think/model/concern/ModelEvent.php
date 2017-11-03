@@ -18,7 +18,10 @@ use think\Container;
  */
 trait ModelEvent
 {
-    // 回调事件
+    /**
+     * 模型回调
+     * @var array
+     */
     private static $event = [];
 
     /**

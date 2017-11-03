@@ -13,7 +13,16 @@ namespace think;
 
 class Build
 {
+    /**
+     * 应用对象
+     * @var App
+     */
     protected $app;
+
+    /**
+     * 应用目录
+     * @var string
+     */
     protected $basePath;
 
     public function __construct(App $app)

@@ -13,10 +13,22 @@ namespace think;
 
 class Url
 {
-    // 生成URL地址的root
+    /**
+     * ROOT地址
+     * @var string
+     */
     protected $root;
+
+    /**
+     * 绑定检查
+     * @var bool
+     */
     protected $bindCheck;
 
+    /**
+     * 应用对象
+     * @var App
+     */
     protected $app;
 
     public function __construct(App $app)

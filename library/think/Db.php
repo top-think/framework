@@ -46,9 +46,16 @@ namespace think;
  */
 class Db
 {
-    // 查询次数
+    /**
+     * 查询次数
+     * @var integer
+     */
     public static $queryTimes = 0;
-    // 执行次数
+
+    /**
+     * 执行次数
+     * @var integer
+     */
     public static $executeTimes = 0;
 
     public static function __callStatic($method, $args)

@@ -15,13 +15,21 @@ use think\cache\Driver;
 
 class Cache
 {
+    /**
+     * 缓存实例
+     * @var array
+     */
     protected $instance = [];
+
+    /**
+     * 应用对象
+     * @var App
+     */
     protected $app;
 
     /**
      * 操作句柄
      * @var object
-     * @access protected
      */
     protected $handler;
 

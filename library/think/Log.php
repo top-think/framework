@@ -25,15 +25,34 @@ class Log implements LoggerInterface
     const DEBUG     = 'debug';
     const SQL       = 'sql';
 
-    // 日志信息
+    /**
+     * 日志信息
+     * @var array
+     */
     protected $log = [];
-    // 配置参数
+
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $config = [];
-    // 日志写入驱动
+
+    /**
+     * 日志写入驱动
+     * @var log\Driver
+     */
     protected $driver;
-    // 当前日志授权key
+
+    /**
+     * 日志授权key
+     * @var string
+     */
     protected $key;
 
+    /**
+     * 应用对象
+     * @var App
+     */
     protected $app;
 
     public function __construct(App $app)
