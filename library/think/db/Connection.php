@@ -285,7 +285,9 @@ abstract class Connection
      */
     public function getFieldBindType($type)
     {
-        if (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
+        if (0 === strpos($type, 'set') || 0 === strpos($type, 'enum')) {
+            $bind = PDO::PARAM_STR;
+        } elseif (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
             $bind = PDO::PARAM_INT;
         } elseif (preg_match('/bool/is', $type)) {
             $bind = PDO::PARAM_BOOL;
@@ -946,9 +948,10 @@ abstract class Connection
      * @param Query     $query      查询对象
      * @param mixed     $dataSet    数据集
      * @param bool      $replace    是否replace
+     * @param integer   $limit      每次写入数据限制
      * @return integer|string
      */
-    public function insertAll(Query $query, $dataSet = [], $replace = false)
+    public function insertAll(Query $query, $dataSet = [], $replace = false, $limit = null)
     {
         if (!is_array(reset($dataSet))) {
             return false;
@@ -957,13 +960,23 @@ abstract class Connection
         $options = $query->getOptions();
 
         // 生成SQL语句
-        $sql = $this->builder->insertAll($query, $dataSet, $replace);
+        if (is_null($limit)) {
+            $sql = $this->builder->insertAll($query, $dataSet, $replace);
+        } else {
+            $array = array_chunk($dataSet, $limit, true);
+            foreach ($array as $item) {
+                $sql[] = $this->builder->insertAll($query, $item, $replace);
+            }
+        }
 
         $bind = $query->getBind();
 
         if ($options['fetch_sql']) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
+        } elseif (is_array($sql)) {
+            // 执行操作
+            return $this->batchQuery($sql, $bind);
         } else {
             // 执行操作
             return $this->execute($sql, $bind);
@@ -1344,6 +1357,10 @@ abstract class Connection
      */
     public function getRealSql($sql, array $bind = [])
     {
+        if (is_array($sql)) {
+            $sql = implode(';', $sql);
+        }
+
         foreach ($bind as $key => $val) {
             $value = is_array($val) ? $val[0] : $val;
             $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
@@ -1618,10 +1635,11 @@ abstract class Connection
      * 批处理执行SQL语句
      * 批处理的指令都认为是execute操作
      * @access public
-     * @param array $sqlArray SQL批处理指令
+     * @param array $sqlArray   SQL批处理指令
+     * @param array $bind       参数绑定
      * @return boolean
      */
-    public function batchQuery($sqlArray = [])
+    public function batchQuery($sqlArray = [], $bind = [])
     {
         if (!is_array($sqlArray)) {
             return false;
@@ -1632,7 +1650,7 @@ abstract class Connection
 
         try {
             foreach ($sqlArray as $sql) {
-                $this->execute($sql);
+                $this->execute($sql, $bind);
             }
             // 提交事务
             $this->commit();

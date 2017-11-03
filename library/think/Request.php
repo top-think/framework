@@ -1396,6 +1396,10 @@ class Request
      */
     public function host()
     {
+        if (isset($_SERVER['HTTP_X_REAL_HOST'])) {
+            return $_SERVER['HTTP_X_REAL_HOST'];
+        }
+
         return $this->server('HTTP_HOST');
     }
 
