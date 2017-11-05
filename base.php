@@ -40,8 +40,10 @@ require CORE_PATH . 'Loader.php';
 // 加载环境变量配置文件
 if (is_file(ROOT_PATH . '.env')) {
     $env = parse_ini_file(ROOT_PATH . '.env', true);
+
     foreach ($env as $key => $val) {
         $name = ENV_PREFIX . strtoupper($key);
+
         if (is_array($val)) {
             foreach ($val as $k => $v) {
                 $item = $name . '_' . strtoupper($k);
