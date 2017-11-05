@@ -883,6 +883,17 @@ class Query
     }
 
     /**
+     * 设置数据排除字段
+     * @access public
+     * @param mixed $field 字段名或者数据
+     * @return $this
+     */
+    public function hidden($field)
+    {
+        return $this->field($field, true);
+    }
+
+    /**
      * 设置数据
      * @access public
      * @param mixed $field 字段名或者数据
