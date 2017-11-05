@@ -57,12 +57,11 @@ abstract class OneToOne extends Relation
      */
     public function eagerly(Query $query, $relation, $subRelation, $closure, $first)
     {
-        $name  = Loader::parseName(basename(str_replace('\\', '/', $query->getModel())));
-        $alias = $name;
+        $name = Loader::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
 
         if ($first) {
             $table = $query->getTable();
-            $query->table([$table => $alias]);
+            $query->table([$table => $name]);
 
             if ($query->getOptions('field')) {
                 $field = $query->getOptions('field');
@@ -71,7 +70,7 @@ abstract class OneToOne extends Relation
                 $field = true;
             }
 
-            $query->field($field, false, $table, $alias);
+            $query->field($field, false, $table, $name);
         }
 
         // 预载入封装
@@ -80,9 +79,9 @@ abstract class OneToOne extends Relation
         $query->via($joinAlias);
 
         if ($this instanceof BelongsTo) {
-            $query->join($joinTable . ' ' . $joinAlias, $alias . '.' . $this->foreignKey . '=' . $joinAlias . '.' . $this->localKey, $this->joinType);
+            $query->join($joinTable . ' ' . $joinAlias, $name . '.' . $this->foreignKey . '=' . $joinAlias . '.' . $this->localKey, $this->joinType);
         } else {
-            $query->join($joinTable . ' ' . $joinAlias, $alias . '.' . $this->localKey . '=' . $joinAlias . '.' . $this->foreignKey, $this->joinType);
+            $query->join($joinTable . ' ' . $joinAlias, $name . '.' . $this->localKey . '=' . $joinAlias . '.' . $this->foreignKey, $this->joinType);
         }
 
         if ($closure) {
