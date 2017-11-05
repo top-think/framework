@@ -251,6 +251,16 @@ class Query
     }
 
     /**
+     * 获取当前的数据表名称
+     * @access public
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name ?: $this->model->getName();
+    }
+
+    /**
      * 得到当前或者指定名称的数据表
      * @access public
      * @param string $name

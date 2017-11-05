@@ -158,6 +158,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 获取当前模型名称
+     * @access public
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
      * 创建新的模型实例
      * @access public
      * @param array|object $data 数据
