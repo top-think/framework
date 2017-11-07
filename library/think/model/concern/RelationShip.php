@@ -333,7 +333,7 @@ trait RelationShip
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $foreignKey = $foreignKey ?: $this->getForeignKey($model);
+        $foreignKey = $foreignKey ?: $this->getForeignKey((new $model)->getName());
         $localKey   = $localKey ?: (new $model)->getPk();
         $trace      = debug_backtrace(false, 2);
         $relation   = Loader::parseName($trace[1]['function']);
@@ -376,7 +376,7 @@ trait RelationShip
         $through    = $this->parseModel($through);
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
-        $throughKey = $throughKey ?: $this->getForeignKey($through);
+        $throughKey = $throughKey ?: $this->getForeignKey((new $through)->getName());
 
         return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey);
     }

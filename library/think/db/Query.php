@@ -251,6 +251,16 @@ class Query
     }
 
     /**
+     * 获取当前的数据表名称
+     * @access public
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name ?: $this->model->getName();
+    }
+
+    /**
      * 得到当前或者指定名称的数据表
      * @access public
      * @param string $name
@@ -870,6 +880,17 @@ class Query
         $this->options['field'] = array_unique($field);
 
         return $this;
+    }
+
+    /**
+     * 设置数据排除字段
+     * @access public
+     * @param mixed $field 字段名或者数据
+     * @return $this
+     */
+    public function hidden($field)
+    {
+        return $this->field($field, true);
     }
 
     /**
