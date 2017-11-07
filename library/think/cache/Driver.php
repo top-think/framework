@@ -129,6 +129,7 @@ abstract class Driver
     public function pull($name)
     {
         $result = $this->get($name, false);
+
         if ($result) {
             $this->rm($name);
             return $result;
@@ -227,7 +228,9 @@ abstract class Driver
     {
         if ($this->tag) {
             $key       = 'tag_' . md5($this->tag);
+            $prev      = $this->tag;
             $this->tag = null;
+
             if ($this->has($key)) {
                 $value   = explode(',', $this->get($key));
                 $value[] = $name;
@@ -235,7 +238,9 @@ abstract class Driver
             } else {
                 $value = $name;
             }
+
             $this->set($key, $value, 0);
+            $this->tag = $prev;
         }
     }
 
@@ -249,6 +254,7 @@ abstract class Driver
     {
         $key   = 'tag_' . md5($tag);
         $value = $this->get($key);
+
         if ($value) {
             return array_filter(explode(',', $value));
         } else {
