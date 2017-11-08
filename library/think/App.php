@@ -316,6 +316,9 @@ class App implements \ArrayAccess
                 $this->appPath . 'lang/' . $this->request->langset() . '.php',
             ]);
 
+            // 监听app_dispatch
+            $this->hook->listen('app_dispatch');
+
             // 获取应用调度信息
             $dispatch = $this->dispatch;
             if (empty($dispatch)) {
