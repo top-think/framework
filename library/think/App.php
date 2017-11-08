@@ -108,6 +108,9 @@ class App
 
             // 获取应用调度信息
             $dispatch = self::$dispatch;
+            // 监听 app_dispatch
+            Hook::listen('app_dispatch', $dispatch);
+
             // 未设置调度信息则进行 URL 路由检测
             if (empty($dispatch)) {
                 $dispatch = self::routeCheck($request, $config);
@@ -147,8 +150,8 @@ class App
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
             $type = $request->isAjax() ?
-                Config::get('default_ajax_return') :
-                Config::get('default_return_type');
+            Config::get('default_ajax_return') :
+            Config::get('default_return_type');
 
             $response = Response::create($data, $type);
         } else {
@@ -169,7 +172,9 @@ class App
     public static function initCommon()
     {
         if (empty(self::$init)) {
-            if (defined('APP_NAMESPACE')) self::$namespace = APP_NAMESPACE;
+            if (defined('APP_NAMESPACE')) {
+                self::$namespace = APP_NAMESPACE;
+            }
 
             Loader::addNamespace(self::$namespace, APP_PATH);
 
@@ -184,11 +189,16 @@ class App
                 ini_set('display_errors', 'Off');
             } elseif (!IS_CLI) {
                 // 重新申请一块比较大的 buffer
-                if (ob_get_level() > 0) $output = ob_get_clean();
+                if (ob_get_level() > 0) {
+                    $output = ob_get_clean();
+                }
 
                 ob_start();
 
-                if (!empty($output)) echo $output;
+                if (!empty($output)) {
+                    echo $output;
+                }
+
             }
 
             if (!empty($config['root_namespace'])) {
@@ -342,9 +352,9 @@ class App
      */
     public static function invokeClass($class, $vars = [])
     {
-        $reflect = new \ReflectionClass($class);
+        $reflect     = new \ReflectionClass($class);
         $constructor = $reflect->getConstructor();
-        $args = $constructor ? self::bindParams($constructor, $vars) : [];
+        $args        = $constructor ? self::bindParams($constructor, $vars) : [];
 
         return $reflect->newInstanceArgs($args);
     }
@@ -361,15 +371,15 @@ class App
         // 自动获取请求变量
         if (empty($vars)) {
             $vars = Config::get('url_param_type') ?
-                Request::instance()->route() :
-                Request::instance()->param();
+            Request::instance()->route() :
+            Request::instance()->param();
         }
 
         $args = [];
         if ($reflect->getNumberOfParameters() > 0) {
             // 判断数组类型 数字数组时按顺序绑定参数
             reset($vars);
-            $type   = key($vars) === 0 ? 1 : 0;
+            $type = key($vars) === 0 ? 1 : 0;
 
             foreach ($reflect->getParameters() as $param) {
                 $args[] = self::getParamValue($param, $vars, $type);
@@ -408,8 +418,8 @@ class App
                 }
 
                 $result = method_exists($className, 'instance') ?
-                    $className::instance() :
-                    new $className;
+                $className::instance() :
+                new $className;
             }
         } elseif (1 == $type && !empty($vars)) {
             $result = array_shift($vars);
@@ -435,11 +445,11 @@ class App
     protected static function exec($dispatch, $config)
     {
         switch ($dispatch['type']) {
-            case 'redirect':   // 重定向跳转
+            case 'redirect': // 重定向跳转
                 $data = Response::create($dispatch['url'], 'redirect')
                     ->code($dispatch['status']);
                 break;
-            case 'module':     // 模块/控制器/操作
+            case 'module': // 模块/控制器/操作
                 $data = self::module(
                     $dispatch['module'],
                     $config,
@@ -455,14 +465,14 @@ class App
                     $config['controller_suffix']
                 );
                 break;
-            case 'method':     // 回调方法
+            case 'method': // 回调方法
                 $vars = array_merge(Request::instance()->param(), $dispatch['var']);
                 $data = self::invokeMethod($dispatch['method'], $vars);
                 break;
-            case 'function':   // 闭包
+            case 'function': // 闭包
                 $data = self::invokeFunction($dispatch['function']);
                 break;
-            case 'response':   // Response 实例
+            case 'response': // Response 实例
                 $data = $dispatch['response'];
                 break;
             default:
@@ -483,14 +493,16 @@ class App
      */
     public static function module($result, $config, $convert = null)
     {
-        if (is_string($result)) $result = explode('/', $result);
+        if (is_string($result)) {
+            $result = explode('/', $result);
+        }
 
         $request = Request::instance();
 
         if ($config['app_multi_module']) {
             // 多模块部署
-            $module = strip_tags(strtolower($result[0] ?: $config['default_module']));
-            $bind   = Route::getBind('module');
+            $module    = strip_tags(strtolower($result[0] ?: $config['default_module']));
+            $bind      = Route::getBind('module');
             $available = false;
 
             if ($bind) {
@@ -615,7 +627,7 @@ class App
 
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = Route::check($request, $path, $depr, $config['url_domain_deploy']);
-            $must = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
+            $must   = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
 
             if ($must && false === $result) {
                 // 路由无效
