@@ -100,6 +100,9 @@ class App
                 APP_PATH . 'lang' . DS . $request->langset() . EXT,
             ]);
 
+            // 监听app_dispatch
+            Hook::listen('app_dispatch');
+
             // 获取应用调度信息
             $dispatch = self::$dispatch;
             if (empty($dispatch)) {
