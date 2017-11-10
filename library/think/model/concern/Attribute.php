@@ -145,6 +145,12 @@ trait Attribute
                 foreach ($data as $key => $value) {
                     $this->setAttr($key, $value, $data);
                 }
+            } elseif (is_array($value)) {
+                foreach ($value as $name) {
+                    if (isset($data[$name])) {
+                        $this->data[$name] = $data[$name];
+                    }
+                }
             } else {
                 $this->data = $data;
             }

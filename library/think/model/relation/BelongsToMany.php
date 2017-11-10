@@ -531,11 +531,11 @@ class BelongsToMany extends Relation
         }
 
         // 删除中间表数据
-        $pk                     = $this->parent->getPk();
-        $pivot[$this->localKey] = $this->parent->$pk;
+        $pk      = $this->parent->getPk();
+        $pivot[] = [$this->localKey, '=', $this->parent->$pk];
 
         if (isset($id)) {
-            $pivot[$this->foreignKey] = is_array($id) ? [$this->foreignKey, 'in', $id] : [$this->foreignKey, '=', $id];
+            $pivot[] = is_array($id) ? [$this->foreignKey, 'in', $id] : [$this->foreignKey, '=', $id];
         }
 
         $this->pivot->where($pivot)->delete();
