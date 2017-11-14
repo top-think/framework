@@ -17,13 +17,13 @@ class Cookie
      * @var array cookie 设置参数
      */
     protected static $config = [
-        'prefix'    => '',    // cookie 名称前缀
-        'expire'    => 0,     // cookie 保存时间
-        'path'      => '/',   // cookie 保存路径
-        'domain'    => '',    // cookie 有效域名
+        'prefix'    => '', // cookie 名称前缀
+        'expire'    => 0, // cookie 保存时间
+        'path'      => '/', // cookie 保存路径
+        'domain'    => '', // cookie 有效域名
         'secure'    => false, //  cookie 启用安全传输
-        'httponly'  => '',    // httponly 设置
-        'setcookie' => true,  // 是否使用 setcookie
+        'httponly'  => false, // httponly 设置
+        'setcookie' => true, // 是否使用 setcookie
     ];
 
     /**
@@ -39,7 +39,9 @@ class Cookie
      */
     public static function init(array $config = [])
     {
-        if (empty($config)) $config = Config::get('cookie');
+        if (empty($config)) {
+            $config = Config::get('cookie');
+        }
 
         self::$config = array_merge(self::$config, array_change_key_case($config));
 
@@ -58,7 +60,9 @@ class Cookie
      */
     public static function prefix($prefix = '')
     {
-        if (empty($prefix)) return self::$config['prefix'];
+        if (empty($prefix)) {
+            return self::$config['prefix'];
+        }
 
         return self::$config['prefix'] = $prefix;
     }
@@ -97,8 +101,8 @@ class Cookie
         }
 
         $expire = !empty($config['expire']) ?
-            $_SERVER['REQUEST_TIME'] + intval($config['expire']) :
-            0;
+        $_SERVER['REQUEST_TIME'] + intval($config['expire']) :
+        0;
 
         if ($config['setcookie']) {
             setcookie(
@@ -120,7 +124,9 @@ class Cookie
      */
     public static function forever($name, $value = '', $option = null)
     {
-        if (is_null($option) || is_numeric($option)) $option = [];
+        if (is_null($option) || is_numeric($option)) {
+            $option = [];
+        }
 
         $option['expire'] = 315360000;
 
@@ -155,7 +161,7 @@ class Cookie
         !isset(self::$init) && self::init();
 
         $prefix = !is_null($prefix) ? $prefix : self::$config['prefix'];
-        $key = $prefix . $name;
+        $key    = $prefix . $name;
 
         if ('' == $name) {
             // 获取全部
@@ -163,7 +169,10 @@ class Cookie
                 $value = [];
 
                 foreach ($_COOKIE as $k => $val) {
-                    if (0 === strpos($k, $prefix)) $value[$k] = $val;
+                    if (0 === strpos($k, $prefix)) {
+                        $value[$k] = $val;
+                    }
+
                 }
             } else {
                 $value = $_COOKIE;
@@ -216,7 +225,9 @@ class Cookie
      */
     public static function clear($prefix = null)
     {
-        if (empty($_COOKIE)) return;
+        if (empty($_COOKIE)) {
+            return;
+        }
 
         !isset(self::$init) && self::init();
 
