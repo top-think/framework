@@ -425,10 +425,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             switch ($type) {
                 case 'datetime':
                 case 'date':
-                    $format = !empty($param) ? $param : $this->dateFormat;
+                case 'timestamp':
+                     $format = !empty($param) ? $param : $this->dateFormat;
                     $value  = $this->formatDateTime(time(), $format);
                     break;
-                case 'timestamp':
                 case 'integer':
                 default:
                     $value = time();
