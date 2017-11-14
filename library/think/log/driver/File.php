@@ -47,7 +47,6 @@ class File
         if ($this->config['single']) {
             $destination = $this->config['path'] . 'single.log';
         } else {
-
             $cli         = IS_CLI ? '_cli' : '';
             $destination = $this->config['path'] . date('Ym') . DS . date('d') . $cli . '.log';
         }
