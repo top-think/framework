@@ -23,6 +23,7 @@ class File
         'file_size'   => 2097152,
         'path'        => LOG_PATH,
         'apart_level' => [],
+        'single'      => false,
     ];
 
     protected $writed = [];
@@ -43,8 +44,13 @@ class File
      */
     public function save(array $log = [])
     {
-        $cli         = IS_CLI ? '_cli' : '';
-        $destination = $this->config['path'] . date('Ym') . DS . date('d') . $cli . '.log';
+        if ($this->config['single']) {
+            $destination = $this->config['path'] . 'single.log';
+        } else {
+
+            $cli         = IS_CLI ? '_cli' : '';
+            $destination = $this->config['path'] . date('Ym') . DS . date('d') . $cli . '.log';
+        }
 
         $path = dirname($destination);
         !is_dir($path) && mkdir($path, 0755, true);
@@ -60,7 +66,11 @@ class File
             }
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
-                $filename = $path . DS . date('d') . '_' . $type . $cli . '.log';
+                if ($this->config['single']) {
+                    $filename = $path . $type . '.log';
+                } else {
+                    $filename = $path . DS . date('d') . '_' . $type . $cli . '.log';
+                }
                 $this->write($level, $filename, true);
             } else {
                 $info .= $level;
@@ -75,7 +85,7 @@ class File
     protected function write($message, $destination, $apart = false)
     {
         //检测日志文件大小，超过配置大小则备份日志文件重新生成
-        if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
+        if (!$this->config['single'] && is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
             rename($destination, dirname($destination) . DS . time() . '-' . basename($destination));
             $this->writed[$destination] = false;
         }
