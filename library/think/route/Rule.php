@@ -165,7 +165,7 @@ abstract class Rule
      * @param string     $ext
      * @return $this
      */
-    public function ext($ext)
+    public function ext($ext = '')
     {
         return $this->option('ext', $ext);
     }
@@ -176,7 +176,7 @@ abstract class Rule
      * @param string     $ext
      * @return $this
      */
-    public function denyExt($ext)
+    public function denyExt($ext = '')
     {
         return $this->option('deny_ext', $ext);
     }
