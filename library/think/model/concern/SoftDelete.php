@@ -107,7 +107,7 @@ trait SoftDelete
         $query = self::withTrashed();
 
         if (is_array($data) && key($data) !== 0) {
-            $query->where(self::parseWhere($data));
+            $query->where($data);
             $data = null;
         } elseif ($data instanceof \Closure) {
             call_user_func_array($data, [ & $query]);

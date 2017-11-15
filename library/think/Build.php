@@ -33,7 +33,7 @@ class Build
 
     /**
      * 根据传入的build资料创建目录和文件
-     * @access protected
+     * @access public
      * @param  array  $build build列表
      * @param  string $namespace 应用类库命名空间
      * @param  bool   $suffix 类库后缀
@@ -182,7 +182,7 @@ class Build
 
     /**
      * 创建模块的欢迎页面
-     * @access public
+     * @access protected
      * @param  string $module 模块名
      * @param  string $namespace 应用类库命名空间
      * @param  bool   $suffix 类库后缀
@@ -202,7 +202,7 @@ class Build
 
     /**
      * 创建模块的公共文件
-     * @access public
+     * @access protected
      * @param  string $module 模块名
      * @return void
      */
@@ -222,6 +222,12 @@ class Build
         }
     }
 
+    /**
+     * 创建目录
+     * @access protected
+     * @param  string $dirname 目录名称
+     * @return void
+     */
     protected function checkDirBuild($dirname)
     {
         if (!is_dir($dirname)) {
