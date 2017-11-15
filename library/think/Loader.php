@@ -55,8 +55,8 @@ class Loader
             }
         }
 
-        $file = self::findFile($class);
-        $path = pathinfo($file, PATHINFO_FILENAME);
+        $file     = self::findFile($class);
+        $path     = pathinfo($file, PATHINFO_FILENAME);
         $realPath = pathinfo(realpath($file), PATHINFO_FILENAME);
 
         // 非 Win 环境不严格区分大小写
@@ -77,11 +77,13 @@ class Loader
     private static function findFile($class)
     {
         // 类库映射
-        if (!empty(self::$map[$class])) return self::$map[$class];
+        if (!empty(self::$map[$class])) {
+            return self::$map[$class];
+        }
 
         // 查找 PSR-4
         $logicalPathPsr4 = strtr($class, '\\', DS) . EXT;
-        $first = $class[0];
+        $first           = $class[0];
 
         if (isset(self::$prefixLengthsPsr4[$first])) {
             foreach (self::$prefixLengthsPsr4[$first] as $prefix => $length) {
@@ -106,7 +108,7 @@ class Loader
         if (false !== $pos = strrpos($class, '\\')) {
             // namespace class name
             $logicalPathPsr0 = substr($logicalPathPsr4, 0, $pos + 1)
-                . strtr(substr($logicalPathPsr4, $pos + 1), '_', DS);
+            . strtr(substr($logicalPathPsr4, $pos + 1), '_', DS);
         } else {
             // PEAR-like class name
             $logicalPathPsr0 = strtr($class, '_', DS) . EXT;
@@ -180,8 +182,8 @@ class Loader
     {
         if (!$prefix) {
             self::$fallbackDirsPsr0 = $prepend ?
-                array_merge((array) $paths, self::$fallbackDirsPsr0) :
-                array_merge(self::$fallbackDirsPsr0, (array) $paths);
+            array_merge((array) $paths, self::$fallbackDirsPsr0) :
+            array_merge(self::$fallbackDirsPsr0, (array) $paths);
         } else {
             $first = $prefix[0];
 
@@ -189,8 +191,8 @@ class Loader
                 self::$prefixesPsr0[$first][$prefix] = (array) $paths;
             } else {
                 self::$prefixesPsr0[$first][$prefix] = $prepend ?
-                    array_merge((array) $paths, self::$prefixesPsr0[$first][$prefix]) :
-                    array_merge(self::$prefixesPsr0[$first][$prefix], (array) $paths);
+                array_merge((array) $paths, self::$prefixesPsr0[$first][$prefix]) :
+                array_merge(self::$prefixesPsr0[$first][$prefix], (array) $paths);
             }
         }
     }
@@ -208,8 +210,8 @@ class Loader
         if (!$prefix) {
             // Register directories for the root namespace.
             self::$fallbackDirsPsr4 = $prepend ?
-                array_merge((array) $paths, self::$fallbackDirsPsr4) :
-                array_merge(self::$fallbackDirsPsr4, (array) $paths);
+            array_merge((array) $paths, self::$fallbackDirsPsr4) :
+            array_merge(self::$fallbackDirsPsr4, (array) $paths);
 
         } elseif (!isset(self::$prefixDirsPsr4[$prefix])) {
             // Register directories for a new namespace.
@@ -225,10 +227,10 @@ class Loader
 
         } else {
             self::$prefixDirsPsr4[$prefix] = $prepend ?
-                // Prepend directories for an already registered namespace.
-                array_merge((array) $paths, self::$prefixDirsPsr4[$prefix]) :
-                // Append directories for an already registered namespace.
-                array_merge(self::$prefixDirsPsr4[$prefix], (array) $paths);
+            // Prepend directories for an already registered namespace.
+            array_merge((array) $paths, self::$prefixDirsPsr4[$prefix]) :
+            // Append directories for an already registered namespace.
+            array_merge(self::$prefixDirsPsr4[$prefix], (array) $paths);
         }
     }
 
@@ -259,20 +261,22 @@ class Loader
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
 
-        // 加载类库映射文件
-        if (is_file(RUNTIME_PATH . 'classmap' . EXT)) {
-            self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
-        }
-
-        // Composer 自动加载支持
-        if (is_dir(VENDOR_PATH . 'composer')) self::registerComposerLoader();
-
         // 注册命名空间定义
         self::addNamespace([
             'think'    => LIB_PATH . 'think' . DS,
             'behavior' => LIB_PATH . 'behavior' . DS,
             'traits'   => LIB_PATH . 'traits' . DS,
         ]);
+
+        // 加载类库映射文件
+        if (is_file(RUNTIME_PATH . 'classmap' . EXT)) {
+            self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
+        }
+
+        // Composer 自动加载支持
+        if (is_dir(VENDOR_PATH . 'composer')) {
+            self::registerComposerLoader();
+        }
 
         // 自动加载 extend 目录
         self::$fallbackDirsPsr4[] = rtrim(EXTEND_PATH, DS);
@@ -301,7 +305,10 @@ class Loader
 
         if (is_file(VENDOR_PATH . 'composer/autoload_classmap.php')) {
             $classMap = require VENDOR_PATH . 'composer/autoload_classmap.php';
-            if ($classMap) self::addClassMap($classMap);
+            if ($classMap) {
+                self::addClassMap($classMap);
+            }
+
         }
 
         if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
@@ -326,10 +333,12 @@ class Loader
     public static function import($class, $baseUrl = '', $ext = EXT)
     {
         static $_file = [];
-        $key    = $class . $baseUrl;
-        $class  = str_replace(['.', '#'], [DS, '.'], $class);
+        $key          = $class . $baseUrl;
+        $class        = str_replace(['.', '#'], [DS, '.'], $class);
 
-        if (isset($_file[$key])) return true;
+        if (isset($_file[$key])) {
+            return true;
+        }
 
         if (empty($baseUrl)) {
             list($name, $class) = explode(DS, $class, 2);
@@ -355,7 +364,10 @@ class Loader
             foreach ($baseUrl as $path) {
                 $filename = $path . DS . $class . $ext;
 
-                if (is_file($filename)) break;
+                if (is_file($filename)) {
+                    break;
+                }
+
             }
         } else {
             $filename = $baseUrl . $class . $ext;
@@ -388,7 +400,9 @@ class Loader
     {
         $uid = $name . $layer;
 
-        if (isset(self::$instance[$uid])) return self::$instance[$uid];
+        if (isset(self::$instance[$uid])) {
+            return self::$instance[$uid];
+        }
 
         list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
 
@@ -421,7 +435,9 @@ class Loader
     {
         list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
 
-        if (class_exists($class)) return App::invokeClass($class);
+        if (class_exists($class)) {
+            return App::invokeClass($class);
+        }
 
         if ($empty) {
             $emptyClass = self::parseClass($module, $layer, $empty, $appendSuffix);
@@ -447,10 +463,14 @@ class Loader
     public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
         $name = $name ?: Config::get('default_validate');
-        if (empty($name)) return new Validate;
+        if (empty($name)) {
+            return new Validate;
+        }
 
         $uid = $name . $layer;
-        if (isset(self::$instance[$uid])) return self::$instance[$uid];
+        if (isset(self::$instance[$uid])) {
+            return self::$instance[$uid];
+        }
 
         list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
 
