@@ -2197,9 +2197,17 @@ class Query
      * @param integer   $limit   每次写入数据限制
      * @return integer|string
      */
-    public function insertAll(array $dataSet, $replace = false, $limit = null)
+    public function insertAll(array $dataSet = [], $replace = false, $limit = null)
     {
         $this->parseOptions();
+
+        if (empty($dataSet)) {
+            $dataSet = $this->options['data'];
+        }
+
+        if (empty($limit) && !empty($this->options['limit'])) {
+            $limit = $this->options['limit'];
+        }
 
         return $this->connection->insertAll($this, $dataSet, $replace, $limit);
     }
