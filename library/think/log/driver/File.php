@@ -66,7 +66,7 @@ class File
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 if ($this->config['single']) {
-                    $filename = $path . $type . '.log';
+                    $filename = $path . DS . $type . '.log';
                 } else {
                     $filename = $path . DS . date('d') . '_' . $type . $cli . '.log';
                 }
