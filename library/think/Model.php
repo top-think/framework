@@ -1103,9 +1103,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 检测字段
             $allowFields = $this->checkAllowField(array_merge($this->auto, $this->insert));
             if (!empty($allowFields)) {
-                $result = $this->getQuery()->strict(false)->field($allowFields)->insert($this->data);
+                $result = $this->getQuery()->strict(false)->field($allowFields)->insert($this->data, false, false, $sequence);
             } else {
-                $result = $this->getQuery()->insert($this->data);
+                $result = $this->getQuery()->insert($this->data, false, false, $sequence);
             }
 
             // 获取自动增长主键
