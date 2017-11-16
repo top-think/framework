@@ -158,6 +158,10 @@ class Query
             // 根据某个字段获取记录的某个值
             $name = Loader::parseName(substr($method, 10));
             return $this->where($name, '=', $args[0])->value($args[1]);
+        } elseif (strtolower(substr($method, 0, 7)) == 'whereor') {
+            $name = Loader::parseName(substr($method, 7));
+            array_unshift($args, $name);
+            return call_user_func_array([$this, 'whereOr'], $args);
         } elseif (strtolower(substr($method, 0, 5)) == 'where') {
             $name = Loader::parseName(substr($method, 5));
             array_unshift($args, $name);
