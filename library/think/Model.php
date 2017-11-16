@@ -499,7 +499,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检查允许字段
         $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->insert));
 
-        $result = $this->db(false)->strict(false)->field($allowFields)->insert($this->data);
+        $result = $this->db(false)->strict(false)->field($allowFields)->insert($this->data, false, false, $sequence);
 
         $pk = $this->getPk();
 
