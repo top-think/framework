@@ -84,7 +84,13 @@ class Redis extends Driver
             return $default;
         }
 
-        return unserialize($value);
+        try {
+            $result = unserialize($value);
+        } catch (\Exception $e) {
+            $result = $default;
+        }
+
+        return $result;
     }
 
     /**
