@@ -118,8 +118,8 @@ abstract class Builder
                 }
             } elseif (is_null($val)) {
                 $result[$item] = 'NULL';
-            } elseif (is_array($val) && $val = $this->parseArrayData($val)) {
-                $result[$item] = $val;
+            } elseif (is_array($val) && 'exp' == $val[0]) {
+                $result[$item] = $val[1];
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
                 $result[$item] = $this->parseDataBind($query, $key, $val, $bind);
@@ -150,27 +150,6 @@ abstract class Builder
             $query->bind($name, $data, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
             return ':' . $name;
         }
-    }
-
-    /**
-     * 数组数据解析
-     * @access protected
-     * @param array  $data
-     * @return mixed
-     */
-    protected function parseArrayData($data)
-    {
-        list($type, $value) = $data;
-
-        switch (strtolower($type)) {
-            case 'exp':
-                $result = $value;
-                break;
-            default:
-                $result = false;
-        }
-
-        return $result;
     }
 
     /**
