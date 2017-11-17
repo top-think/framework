@@ -83,9 +83,8 @@ class Redis extends Driver
         if (is_null($value) || false === $value) {
             return $default;
         }
-        $jsonData = json_decode($value, true);
-        // 检测是否为JSON数据 true 返回JSON解析数组, false返回源数据 byron sampson<xiaobo.sun@qq.com>
-        return (null === $jsonData) ? $value : $jsonData;
+
+        return unserialize($value);
     }
 
     /**
@@ -107,9 +106,8 @@ class Redis extends Driver
         if ($this->tag && !$this->has($name)) {
             $first = true;
         }
-        $key = $this->getCacheKey($name);
-        //对数组/对象数据进行缓存处理，保证数据完整性  byron sampson<xiaobo.sun@qq.com>
-        $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
+        $key   = $this->getCacheKey($name);
+        $value = serialize($value);
         if (is_int($expire) && $expire) {
             $result = $this->handler->setex($key, $expire, $value);
         } else {
