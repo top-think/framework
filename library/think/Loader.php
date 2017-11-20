@@ -15,31 +15,55 @@ use think\exception\ClassNotFoundException;
 
 class Loader
 {
-    // 实例
+    /**
+     * @var array 实例数组
+     */
     protected static $instance = [];
 
-    // 类名映射
+    /**
+     * @var array 类名映射
+     */
     protected static $map = [];
 
-    // 命名空间别名
+    /**
+     * @var array 命名空间别名
+     */
     protected static $namespaceAlias = [];
 
-    // PSR-4
+    /**
+     * @var array PSR-4 命名空间前缀长度映射
+     */
     private static $prefixLengthsPsr4 = [];
-    private static $prefixDirsPsr4    = [];
-    private static $fallbackDirsPsr4  = [];
 
-    // PSR-0
-    private static $prefixesPsr0     = [];
+    /**
+     * @var array PSR-4 的加载目录
+     */
+    private static $prefixDirsPsr4 = [];
+
+    /**
+     * @var array PSR-4 加载失败的回退目录
+     */
+    private static $fallbackDirsPsr4 = [];
+
+    /**
+     * @var array PSR-0 命名空间前缀映射
+     */
+    private static $prefixesPsr0 = [];
+
+    /**
+     * @var array PSR-0 加载失败的回退目录
+     */
     private static $fallbackDirsPsr0 = [];
 
-    // 自动加载的文件
+    /**
+     * @var array 自动加载的文件
+     */
     private static $autoloadFiles = [];
 
     /**
      * 自动加载
      * @access public
-     * @param string $class 类名
+     * @param  string $class 类名
      * @return bool
      */
     public static function autoload($class)
@@ -55,14 +79,12 @@ class Loader
             }
         }
 
-        $file     = self::findFile($class);
-        $path     = pathinfo($file, PATHINFO_FILENAME);
-        $realPath = pathinfo(realpath($file), PATHINFO_FILENAME);
-
-        // 非 Win 环境不严格区分大小写
-        if ($file && (!IS_WIN || $path == $realPath)) {
-            __include_file($file);
-            return true;
+        if ($file = self::findFile($class)) {
+            // 非 Win 环境不严格区分大小写
+            if (!IS_WIN || pathinfo($file, PATHINFO_FILENAME) == pathinfo(realpath($file), PATHINFO_FILENAME)) {
+                __include_file($file);
+                return true;
+            }
         }
 
         return false;
@@ -71,8 +93,8 @@ class Loader
     /**
      * 查找文件
      * @access private
-     * @param string $class 类名
-     * @return bool
+     * @param  string $class 类名
+     * @return bool|string
      */
     private static function findFile($class)
     {
@@ -133,14 +155,15 @@ class Loader
             }
         }
 
+        // 找不到则设置映射为 false 并返回
         return self::$map[$class] = false;
     }
 
     /**
      * 注册 classmap
      * @access public
-     * @param string|array $class 类名
-     * @param string       $map   映射
+     * @param  string|array $class 类名
+     * @param  string       $map   映射
      * @return void
      */
     public static function addClassMap($class, $map = '')
@@ -155,8 +178,8 @@ class Loader
     /**
      * 注册命名空间
      * @access public
-     * @param string|array $namespace 命名空间
-     * @param string       $path      路径
+     * @param  string|array $namespace 命名空间
+     * @param  string       $path      路径
      * @return void
      */
     public static function addNamespace($namespace, $path = '')
@@ -171,11 +194,11 @@ class Loader
     }
 
     /**
-     * 添加 Ps0 空间
+     * 添加 PSR-0 命名空间
      * @access private
-     * @param array|null $prefix  空间前缀
-     * @param array      $paths   路径
-     * @param bool       $prepend 预先设置的优先级更高
+     * @param  array|string $prefix  空间前缀
+     * @param  array        $paths   路径
+     * @param  bool         $prepend 预先设置的优先级更高
      * @return void
      */
     private static function addPsr0($prefix, $paths, $prepend = false)
@@ -198,11 +221,11 @@ class Loader
     }
 
     /**
-     * 添加 Ps4 空间
+     * 添加 PSR-4 空间
      * @access private
-     * @param array|string $prefix  空间前缀
-     * @param string       $paths   路径
-     * @param bool         $prepend 预先设置的优先级更高
+     * @param  array|string $prefix  空间前缀
+     * @param  string       $paths   路径
+     * @param  bool         $prepend 预先设置的优先级更高
      * @return void
      */
     private static function addPsr4($prefix, $paths, $prepend = false)
@@ -237,8 +260,8 @@ class Loader
     /**
      * 注册命名空间别名
      * @access public
-     * @param array|string $namespace 命名空间
-     * @param string       $original  源文件
+     * @param  array|string $namespace 命名空间
+     * @param  string       $original  源文件
      * @return void
      */
     public static function addNamespaceAlias($namespace, $original = '')
@@ -253,7 +276,7 @@ class Loader
     /**
      * 注册自动加载机制
      * @access public
-     * @param callable $autoload 自动加载处理方法
+     * @param  callable $autoload 自动加载处理方法
      * @return void
      */
     public static function register($autoload = null)
@@ -325,9 +348,9 @@ class Loader
     /**
      * 导入所需的类库 同 Java 的 Import 本函数有缓存功能
      * @access public
-     * @param string $class   类库命名空间字符串
-     * @param string $baseUrl 起始路径
-     * @param string $ext     导入的文件扩展名
+     * @param  string $class   类库命名空间字符串
+     * @param  string $baseUrl 起始路径
+     * @param  string $ext     导入的文件扩展名
      * @return bool
      */
     public static function import($class, $baseUrl = '', $ext = EXT)
@@ -362,12 +385,9 @@ class Loader
         // 如果类存在则导入类库文件
         if (is_array($baseUrl)) {
             foreach ($baseUrl as $path) {
-                $filename = $path . DS . $class . $ext;
-
-                if (is_file($filename)) {
+                if (is_file($filename = $path . DS . $class . $ext)) {
                     break;
                 }
-
             }
         } else {
             $filename = $baseUrl . $class . $ext;
@@ -389,10 +409,10 @@ class Loader
     /**
      * 实例化（分层）模型
      * @access public
-     * @param string $name         Model名称
-     * @param string $layer        业务层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
-     * @param string $common       公共模块名
+     * @param  string $name         Model名称
+     * @param  string $layer        业务层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
      * @return object
      * @throws ClassNotFoundException
      */
@@ -424,10 +444,10 @@ class Loader
     /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
      * @access public
-     * @param string $name         资源地址
-     * @param string $layer        控制层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
-     * @param string $empty        空控制器名称
+     * @param  string $name         资源地址
+     * @param  string $layer        控制层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $empty        空控制器名称
      * @return object
      * @throws ClassNotFoundException
      */
@@ -453,16 +473,17 @@ class Loader
     /**
      * 实例化验证类 格式：[模块名/]验证器名
      * @access public
-     * @param string $name         资源地址
-     * @param string $layer        验证层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
-     * @param string $common       公共模块名
+     * @param  string $name         资源地址
+     * @param  string $layer        验证层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
      * @return object|false
      * @throws ClassNotFoundException
      */
     public static function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
     {
         $name = $name ?: Config::get('default_validate');
+
         if (empty($name)) {
             return new Validate;
         }
@@ -492,9 +513,9 @@ class Loader
     /**
      * 解析模块和类名
      * @access protected
-     * @param string $name         资源地址
-     * @param string $layer        验证层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param  string $name         资源地址
+     * @param  string $layer        验证层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
      * @return array
      */
     protected static function getModuleAndClass($name, $layer, $appendSuffix)
@@ -518,8 +539,8 @@ class Loader
     /**
      * 数据库初始化 并取得数据库类实例
      * @access public
-     * @param mixed       $config 数据库配置
-     * @param bool|string $name   连接标识 true 强制重新连接
+     * @param  mixed       $config 数据库配置
+     * @param  bool|string $name   连接标识 true 强制重新连接
      * @return \think\db\Connection
      */
     public static function db($config = [], $name = false)
@@ -530,10 +551,10 @@ class Loader
     /**
      * 远程调用模块的操作方法 参数格式 [模块/控制器/]操作
      * @access public
-     * @param string       $url          调用地址
-     * @param string|array $vars         调用参数 支持字符串和数组
-     * @param string       $layer        要调用的控制层名称
-     * @param bool         $appendSuffix 是否添加类名后缀
+     * @param  string       $url          调用地址
+     * @param  string|array $vars         调用参数 支持字符串和数组
+     * @param  string       $layer        要调用的控制层名称
+     * @param  bool         $appendSuffix 是否添加类名后缀
      * @return mixed
      */
     public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
@@ -562,9 +583,9 @@ class Loader
      * 字符串命名风格转换
      * type 0 将 Java 风格转换为 C 的风格 1 将 C 风格转换为 Java 的风格
      * @access public
-     * @param string  $name    字符串
-     * @param integer $type    转换类型
-     * @param bool    $ucfirst 首字母是否大写（驼峰规则）
+     * @param  string  $name    字符串
+     * @param  integer $type    转换类型
+     * @param  bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
     public static function parseName($name, $type = 0, $ucfirst = true)
@@ -583,10 +604,10 @@ class Loader
     /**
      * 解析应用类的类名
      * @access public
-     * @param string $module       模块名
-     * @param string $layer        层名 controller model ...
-     * @param string $name         类名
-     * @param bool   $appendSuffix 是否添加类名后缀
+     * @param  string $module       模块名
+     * @param  string $layer        层名 controller model ...
+     * @param  string $name         类名
+     * @param  bool   $appendSuffix 是否添加类名后缀
      * @return string
      */
     public static function parseClass($module, $layer, $name, $appendSuffix = false)
@@ -617,7 +638,7 @@ class Loader
 
 /**
  * include
- * @param string $file 文件路径
+ * @param  string $file 文件路径
  * @return mixed
  */
 function __include_file($file)
@@ -627,7 +648,7 @@ function __include_file($file)
 
 /**
  * require
- * @param string $file 文件路径
+ * @param  string $file 文件路径
  * @return mixed
  */
 function __require_file($file)

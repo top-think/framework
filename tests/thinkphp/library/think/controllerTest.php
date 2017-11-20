@@ -40,13 +40,13 @@ class Foo extends Controller
 
     public function fetchTest()
     {
-        $template = dirname(__FILE__) . '/display.html';
+        $template = APP_PATH . 'views' . DS .'display.html';
         return $this->fetch($template, ['name' => 'ThinkPHP']);
     }
 
     public function displayTest()
     {
-        $template = dirname(__FILE__) . '/display.html';
+        $template = APP_PATH . 'views' . DS .'display.html';
         return $this->display($template, ['name' => 'ThinkPHP']);
     }
     public function test()
@@ -161,7 +161,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
     {
         $controller      = new Foo(Request::instance());
         $view            = $this->getView($controller);
-        $template        = dirname(__FILE__) . '/display.html';
+        $template        = APP_PATH . 'views' . DS .'display.html';
         $viewFetch       = $view->fetch($template, ['name' => 'ThinkPHP']);
         $this->assertEquals($controller->fetchTest(), $viewFetch);
     }
@@ -170,7 +170,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
     {
         $controller      = new Foo;
         $view            = $this->getView($controller);
-        $template        = dirname(__FILE__) . '/display.html';
+        $template        = APP_PATH . 'views' . DS .'display.html';
         $viewFetch       = $view->display($template, ['name' => 'ThinkPHP']);
 
         $this->assertEquals($controller->displayTest(), $viewFetch);
