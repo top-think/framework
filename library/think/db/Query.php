@@ -1342,7 +1342,9 @@ class Query
         }
 
         if (empty($where)) {
+            return;
         }
+
         if (isset($this->options['where'][$logic][$field])) {
             $this->options['where'][$logic][] = $where;
         } else {
