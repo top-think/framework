@@ -20,6 +20,7 @@ class Error
 {
     /**
      * 注册异常处理
+     * @access public
      * @return void
      */
     public static function register()
@@ -32,12 +33,15 @@ class Error
 
     /**
      * 异常处理
-     * @param \Exception|\Throwable $e 异常
+     * @access public
+     * @param  \Exception|\Throwable $e 异常
      * @return void
      */
     public static function appException($e)
     {
-        if (!$e instanceof \Exception) $e = new ThrowableError($e);
+        if (!$e instanceof \Exception) {
+            $e = new ThrowableError($e);
+        }
 
         $handler = self::getExceptionHandler();
         $handler->report($e);
@@ -51,11 +55,12 @@ class Error
 
     /**
      * 错误处理
+     * @access public
      * @param  integer $errno      错误编号
      * @param  integer $errstr     详细错误信息
      * @param  string  $errfile    出错的文件
      * @param  integer $errline    出错行号
-     * @param array    $errcontext 出错上下文
+     * @param  array   $errcontext 出错上下文
      * @return void
      * @throws ErrorException
      */
@@ -64,13 +69,16 @@ class Error
         $exception = new ErrorException($errno, $errstr, $errfile, $errline, $errcontext);
 
         // 符合异常处理的则将错误信息托管至 think\exception\ErrorException
-        if (error_reporting() & $errno) throw $exception;
+        if (error_reporting() & $errno) {
+            throw $exception;
+        }
 
         self::getExceptionHandler()->report($exception);
     }
 
     /**
      * 异常中止处理
+     * @access public
      * @return void
      */
     public static function appShutdown()
@@ -88,7 +96,8 @@ class Error
 
     /**
      * 确定错误类型是否致命
-     * @param int $type
+     * @access protected
+     * @param  int $type 错误类型
      * @return bool
      */
     protected static function isFatal($type)
@@ -98,6 +107,7 @@ class Error
 
     /**
      * 获取异常处理的实例
+     * @access public
      * @return Handle
      */
     public static function getExceptionHandler()
@@ -115,7 +125,10 @@ class Error
             } else {
                 $handle = new Handle;
 
-                if ($class instanceof \Closure) $handle->setRender($class);
+                if ($class instanceof \Closure) {
+                    $handle->setRender($class);
+                }
+
             }
         }
 
