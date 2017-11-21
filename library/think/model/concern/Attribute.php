@@ -235,13 +235,17 @@ trait Attribute
      */
     public function getChangedData()
     {
-        $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-            if ((empty($a) || empty($b)) && $a !== $b) {
-                return 1;
-            }
+        if ($this->force) {
+            $data = $this->data;
+        } else {
+            $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+                if ((empty($a) || empty($b)) && $a !== $b) {
+                    return 1;
+                }
 
-            return is_object($a) || $a != $b ? 1 : 0;
-        });
+                return is_object($a) || $a != $b ? 1 : 0;
+            });
+        }
 
         if (!empty($this->readonly)) {
             // 只读字段不允许更新

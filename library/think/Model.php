@@ -33,6 +33,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $isUpdate = false;
 
     /**
+     * 是否强制更新所有数据
+     * @var bool
+     */
+    private $force = false;
+
+    /**
      * 更新条件
      * @var array
      */
@@ -292,6 +298,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             $this->setAttr($field, !is_null($value) ? $value : $default);
         }
+    }
+
+    /**
+     * 更新是否强制写入数据 而不做比较
+     * @access public
+     * @param bool $force
+     * @return $this
+     */
+    public function force($force = true)
+    {
+        $this->force = $force;
+        return $this;
     }
 
     /**

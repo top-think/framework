@@ -90,10 +90,7 @@ class Redis extends Driver
             return $default;
         }
 
-        $jsonData = json_decode($value, true);
-
-        // 检测是否为JSON数据 true 返回JSON解析数组, false返回源数据 byron sampson<xiaobo.sun@qq.com>
-        return (null === $jsonData) ? $value : $jsonData;
+        return unserialize($value);
     }
 
     /**
@@ -122,8 +119,7 @@ class Redis extends Driver
 
         $key = $this->getCacheKey($name);
 
-        //对数组/对象数据进行缓存处理，保证数据完整性  byron sampson<xiaobo.sun@qq.com>
-        $value = (is_object($value) || is_array($value)) ? json_encode($value) : $value;
+        $value = serialize($value);
 
         if (is_int($expire) && $expire) {
             $result = $this->handler->setex($key, $expire, $value);
@@ -147,9 +143,13 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        $key = $this->getCacheKey($name);
+        if ($this->has($name)) {
+            $value = $this->get($name) + $step;
+        } else {
+            $value = $step;
+        }
 
-        return $this->handler->incrby($key, $step);
+        return $this->set($name, $value, 0) ? $value : false;
     }
 
     /**
@@ -163,9 +163,13 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        $key = $this->getCacheKey($name);
+        if ($this->has($name)) {
+            $value = $this->get($name) - $step;
+        } else {
+            $value = -$step;
+        }
 
-        return $this->handler->decrby($key, $step);
+        return $this->set($name, $value, 0) ? $value : false;
     }
 
     /**
