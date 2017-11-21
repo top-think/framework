@@ -2361,8 +2361,8 @@ class Query
             if (count($resultSet) > 0) {
                 foreach ($resultSet as $key => $result) {
                     /** @var Model $model */
-                    $model = new $modelName();
-                    $model->data($result)->isUpdate(true);
+                    $model = new $modelName($result);
+                    $model->isUpdate(true);
 
                     // 关联查询
                     if (!empty($options['relation'])) {
@@ -2518,8 +2518,8 @@ class Query
             if (!empty($this->model)) {
                 // 返回模型对象
                 $model  = $this->model;
-                $result = new $model();
-                $result->data($result)->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
+                $result = new $model($result);
+                $result->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
                 // 关联查询
                 if (!empty($options['relation'])) {
                     $result->relationQuery($options['relation']);
