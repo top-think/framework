@@ -177,7 +177,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function newInstance($data = [], $isUpdate = false, $where = null)
     {
-        return (new static($data))->isUpdate($isUpdate, $where);
+        return (new static())->data($data)->isUpdate($isUpdate, $where);
     }
 
     /**
