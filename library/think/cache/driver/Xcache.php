@@ -86,15 +86,12 @@ class Xcache extends Driver
             $expire = $this->options['expire'];
         }
 
-        if ($expire instanceof \DateTime) {
-            $expire = $expire->getTimestamp() - time();
-        }
-
         if ($this->tag && !$this->has($name)) {
             $first = true;
         }
 
-        $key = $this->getCacheKey($name);
+        $key    = $this->getCacheKey($name);
+        $expire = $this->getExpireTime($expire);
 
         if (xcache_set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);

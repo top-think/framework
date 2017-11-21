@@ -110,8 +110,23 @@ abstract class Driver
     abstract public function clear($tag = null);
 
     /**
+     * 获取有效期
+     * @access protected
+     * @param integer|\DateTime $expire 有效期
+     * @return integer
+     */
+    protected function getExpireTime($expire)
+    {
+        if ($expire instanceof \DateTime) {
+            $expire = $expire->getTimestamp() - time();
+        }
+
+        return $expire;
+    }
+
+    /**
      * 获取实际的缓存标识
-     * @access public
+     * @access protected
      * @param string $name 缓存名
      * @return string
      */

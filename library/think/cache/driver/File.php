@@ -162,10 +162,7 @@ class File extends Driver
             $expire = $this->options['expire'];
         }
 
-        if ($expire instanceof \DateTime) {
-            $expire = $expire->getTimestamp() - time();
-        }
-
+        $expire   = $this->getExpireTime($expire);
         $filename = $this->getCacheKey($name);
 
         if ($this->tag && !is_file($filename)) {

@@ -88,11 +88,8 @@ class Wincache extends Driver
             $expire = $this->options['expire'];
         }
 
-        if ($expire instanceof \DateTime) {
-            $expire = $expire->getTimestamp() - time();
-        }
-
-        $key = $this->getCacheKey($name);
+        $key    = $this->getCacheKey($name);
+        $expire = $this->getExpireTime($expire);
 
         if ($this->tag && !$this->has($name)) {
             $first = true;
