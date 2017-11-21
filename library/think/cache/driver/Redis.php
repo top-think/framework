@@ -90,7 +90,12 @@ class Redis extends Driver
             return $default;
         }
 
-        return unserialize($value);
+        if (0 === strpos($value, 'think_redis:')) {
+            $jsonData = json_decode(substr($value, 12), true);
+            return (null === $jsonData) ? $value : $jsonData;
+        } else {
+            return $value;
+        }
     }
 
     /**
@@ -119,7 +124,7 @@ class Redis extends Driver
 
         $key = $this->getCacheKey($name);
 
-        $value = serialize($value);
+        $value = is_scalar($value) ? 'think_redis:' . json_encode($value) : $value;
 
         if (is_int($expire) && $expire) {
             $result = $this->handler->setex($key, $expire, $value);
@@ -143,13 +148,9 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        if ($this->has($name)) {
-            $value = $this->get($name) + $step;
-        } else {
-            $value = $step;
-        }
+        $key = $this->getCacheKey($name);
 
-        return $this->set($name, $value, 0) ? $value : false;
+        return $this->handler->incrby($key, $step);
     }
 
     /**
@@ -163,13 +164,9 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        if ($this->has($name)) {
-            $value = $this->get($name) - $step;
-        } else {
-            $value = -$step;
-        }
+        $key = $this->getCacheKey($name);
 
-        return $this->set($name, $value, 0) ? $value : false;
+        return $this->handler->decrby($key, $step);
     }
 
     /**
