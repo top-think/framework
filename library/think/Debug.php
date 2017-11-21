@@ -212,7 +212,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo ($output);
+            echo($output);
             return;
         } else {
             return $output;
