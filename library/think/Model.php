@@ -94,6 +94,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $type = [];
     // 是否为更新数据
     protected $isUpdate = false;
+    // 是否强制更新所有数据
+    protected $force = false;
     // 更新条件
     protected $updateWhere;
     // 验证失败是否抛出异常
@@ -347,6 +349,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function isAutoWriteTimestamp($auto)
     {
         $this->autoWriteTimestamp = $auto;
+        return $this;
+    }
+
+    /**
+     * 更新是否强制写入数据 而不做比较
+     * @access public
+     * @param bool $force
+     * @return $this
+     */
+    public function force($force = true)
+    {
+        $this->force = $force;
         return $this;
     }
 
@@ -1186,12 +1200,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function getChangedData()
     {
-        $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-            if ((empty($a) || empty($b)) && $a !== $b) {
-                return 1;
-            }
-            return is_object($a) || $a != $b ? 1 : 0;
-        });
+        if ($this->force) {
+            $data = $this->data;
+        } else {
+            $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+                if ((empty($a) || empty($b)) && $a !== $b) {
+                    return 1;
+                }
+                return is_object($a) || $a != $b ? 1 : 0;
+            });
+        }
 
         if (!empty($this->readonly)) {
             // 只读字段不允许更新
