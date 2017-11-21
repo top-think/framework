@@ -283,7 +283,8 @@ class Template
         if (!isset($matches[1])) {
             return false;
         }
-        $includeFile = unserialize($matches[1]);
+        $out = preg_replace_callback('#s:(\d+):"(.*?)";#s',function($match){return 's:'.strlen($match[2]).':"'.$match[2].'";';},$matches[1]);
+        $includeFile = unserialize($out);
         if (!is_array($includeFile)) {
             return false;
         }
