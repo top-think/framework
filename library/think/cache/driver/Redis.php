@@ -132,8 +132,12 @@ class Redis extends Driver
      */
     public function inc($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
-        return $this->handler->incrby($key, $step);
+        if ($this->has($name)) {
+            $value = $this->get($name) + $step;
+        } else {
+            $value = $step;
+        }
+        return $this->set($name, $value, 0) ? $value : false;
     }
 
     /**
@@ -145,8 +149,12 @@ class Redis extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
-        return $this->handler->decrby($key, $step);
+        if ($this->has($name)) {
+            $value = $this->get($name) - $step;
+        } else {
+            $value = -$step;
+        }
+        return $this->set($name, $value, 0) ? $value : false;
     }
 
     /**
