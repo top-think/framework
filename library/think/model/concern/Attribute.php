@@ -140,6 +140,15 @@ trait Attribute
                 $data = get_object_vars($data);
             }
 
+            if ($this->disuse) {
+                // 废弃字段
+                foreach ((array) $this->disuse as $key) {
+                    if (isset($data[$key])) {
+                        unset($data[$key]);
+                    }
+                }
+            }
+
             if (true === $value) {
                 // 数据对象赋值
                 foreach ($data as $key => $value) {
