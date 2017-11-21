@@ -37,9 +37,6 @@ class Pivot extends Model
         }
 
         parent::__construct($data);
-
-        // 当前类名
-        $this->class = $this->name;
     }
 
 }
