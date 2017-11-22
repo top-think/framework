@@ -67,11 +67,11 @@ class Log
      */
     public static function init($config = [])
     {
-        self::$config = $config;
-        unset($config['type']);
-
         $type  = isset($config['type']) ? $config['type'] : 'File';
         $class = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
+
+        self::$config = $config;
+        unset($config['type']);
 
         if (class_exists($class)) {
             self::$driver = new $class($config);
