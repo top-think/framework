@@ -26,6 +26,24 @@ class Hook
     protected $bind = [];
 
     /**
+     * 入口方法名称
+     * @var string
+     */
+    private static $portal = 'run';
+
+    /**
+     * 指定入口方法名称
+     * @access public
+     * @param string  $name     方法名
+     * @return $this
+     */
+    public function portal($name)
+    {
+        self::$portal = $name;
+        return $this;
+    }
+
+    /**
      * 指定行为标识 便于调用
      * @access public
      * @param string|array  $name     行为标识
@@ -146,7 +164,7 @@ class Hook
             if (isset($this->bind[$class])) {
                 $class = $this->bind[$class];
             }
-            $method = [$class, 'run'];
+            $method = [$class, self::$portal];
         }
 
         return Container::getInstance()->invoke($method, [$params]);
@@ -177,7 +195,7 @@ class Hook
             $obj = Container::get($class);
 
             if (!is_callable([$obj, $method])) {
-                $method = 'run';
+                $method = self::$portal;
             }
 
             $call  = [$class, $method];
