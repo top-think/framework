@@ -785,23 +785,17 @@ class Validate
      */
     public function fileExt($file, $rule)
     {
-        if (!($file instanceof File)) {
-            return false;
-        }
-
-        if (is_string($rule)) {
-            $rule = explode(',', $rule);
-        }
-
         if (is_array($file)) {
             foreach ($file as $item) {
-                if (!$item->checkExt($rule)) {
+                if (!($item instanceof File) || !$item->checkExt($rule)) {
                     return false;
                 }
             }
             return true;
-        } else {
+        } elseif ($file instanceof File) {
             return $file->checkExt($rule);
+        } else {
+            return false;
         }
     }
 
@@ -814,23 +808,17 @@ class Validate
      */
     public function fileMime($file, $rule)
     {
-        if (!($file instanceof File)) {
-            return false;
-        }
-
-        if (is_string($rule)) {
-            $rule = explode(',', $rule);
-        }
-
         if (is_array($file)) {
             foreach ($file as $item) {
-                if (!$item->checkMime($rule)) {
+                if (!($item instanceof File) || !$item->checkMime($rule)) {
                     return false;
                 }
             }
             return true;
-        } else {
+        } elseif ($file instanceof File) {
             return $file->checkMime($rule);
+        } else {
+            return false;
         }
     }
 
@@ -843,19 +831,17 @@ class Validate
      */
     public function fileSize($file, $rule)
     {
-        if (!($file instanceof File)) {
-            return false;
-        }
-
         if (is_array($file)) {
             foreach ($file as $item) {
-                if (!$item->checkSize($rule)) {
+                if (!($item instanceof File) || !$item->checkSize($rule)) {
                     return false;
                 }
             }
             return true;
-        } else {
+        } elseif ($file instanceof File) {
             return $file->checkSize($rule);
+        } else {
+            return false;
         }
     }
 
