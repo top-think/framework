@@ -121,7 +121,7 @@ class Redis extends Driver
         $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
 
-        $value = is_scalar($value) ? 'think_redis:' . json_encode($value) : $value;
+        $value = !is_scalar($value) ? 'think_redis:' . json_encode($value) : $value;
 
         if (is_int($expire) && $expire) {
             $result = $this->handler->setex($key, $expire, $value);
