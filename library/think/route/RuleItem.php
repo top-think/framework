@@ -25,13 +25,13 @@ class RuleItem extends Rule
     /**
      * 架构函数
      * @access public
-     * @param Route             $router 路由实例
-     * @param RuleGroup         $group 路由所属分组对象
-     * @param string|array      $name 路由规则
-     * @param string            $method 请求类型
-     * @param string|\Closure   $route 路由地址
-     * @param array             $option 路由参数
-     * @param array             $pattern 变量规则
+     * @param  Route             $router 路由实例
+     * @param  RuleGroup         $group 路由所属分组对象
+     * @param  string|array      $name 路由规则
+     * @param  string            $method 请求类型
+     * @param  string|\Closure   $route 路由地址
+     * @param  array             $option 路由参数
+     * @param  array             $pattern 变量规则
      */
     public function __construct(Route $router, RuleGroup $group, $name, $route, $method = '*', $option = [], $pattern = [])
     {
@@ -48,7 +48,7 @@ class RuleItem extends Rule
     /**
      * 路由规则预处理
      * @access public
-     * @param string      $rule     路由规则
+     * @param  string      $rule     路由规则
      * @return void
      */
     public function setRule($rule)
@@ -96,10 +96,10 @@ class RuleItem extends Rule
     /**
      * 检测路由
      * @access public
-     * @param Request      $request  请求对象
-     * @param string       $url      访问地址
-     * @param string       $depr     路径分隔符
-     * @param bool         $completeMatch   路由是否完全匹配
+     * @param  Request      $request  请求对象
+     * @param  string       $url      访问地址
+     * @param  string       $depr     路径分隔符
+     * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
@@ -134,11 +134,11 @@ class RuleItem extends Rule
     /**
      * 检测路由规则
      * @access private
-     * @param Request   $request 请求对象
-     * @param string    $url URL地址
-     * @param string    $depr URL分隔符（全局）
-     * @param bool      $completeMatch   路由是否完全匹配
-     * @param array     $option   路由参数
+     * @param  Request   $request 请求对象
+     * @param  string    $url URL地址
+     * @param  string    $depr URL分隔符（全局）
+     * @param  bool      $completeMatch   路由是否完全匹配
+     * @param  array     $option   路由参数
      * @return array|false
      */
     private function checkRule($request, $url, $depr, $completeMatch = false, $option = [])
@@ -188,8 +188,8 @@ class RuleItem extends Rule
     /**
      * 检测URL和规则路由是否匹配
      * @access private
-     * @param string    $url URL地址
-     * @param array     $pattern 变量规则
+     * @param  string    $url URL地址
+     * @param  array     $pattern 变量规则
      * @return array|false
      */
     private function match($url, $pattern)

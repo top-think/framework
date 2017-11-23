@@ -56,7 +56,7 @@ trait SoftDelete
     /**
      * 删除当前的记录
      * @access public
-     * @param bool  $force 是否强制删除
+     * @param  bool  $force 是否强制删除
      * @return integer
      */
     public function delete($force = false)
@@ -97,8 +97,8 @@ trait SoftDelete
     /**
      * 删除记录
      * @access public
-     * @param mixed $data 主键列表 支持闭包查询条件
-     * @param bool  $force 是否强制删除
+     * @param  mixed $data 主键列表 支持闭包查询条件
+     * @param  bool  $force 是否强制删除
      * @return integer 成功删除的记录数
      */
     public static function destroy($data, $force = false)
@@ -132,7 +132,7 @@ trait SoftDelete
     /**
      * 恢复被软删除的记录
      * @access public
-     * @param array $where 更新条件
+     * @param  array $where 更新条件
      * @return integer
      */
     public function restore($where = [])
@@ -153,8 +153,8 @@ trait SoftDelete
 
     /**
      * 获取软删除字段
-     * @access public
-     * @param bool  $read 是否查询操作 写操作的时候会自动去掉表别名
+     * @access protected
+     * @param  bool  $read 是否查询操作 写操作的时候会自动去掉表别名
      * @return string
      */
     protected function getDeleteTimeField($read = false)

@@ -43,12 +43,12 @@ class RuleGroup extends Rule
     /**
      * 架构函数
      * @access public
-     * @param Route       $router   路由对象
-     * @param RuleGroup   $group    路由所属分组对象
-     * @param string      $name     分组名称
-     * @param mixed       $rule     分组路由
-     * @param array       $option   路由参数
-     * @param array       $pattern  变量规则
+     * @param  Route       $router   路由对象
+     * @param  RuleGroup   $group    路由所属分组对象
+     * @param  string      $name     分组名称
+     * @param  mixed       $rule     分组路由
+     * @param  array       $option   路由参数
+     * @param  array       $pattern  变量规则
      */
     public function __construct(Route $router, RuleGroup $group = null, $name = '', $rule = [], $option = [], $pattern = [])
     {
@@ -63,7 +63,7 @@ class RuleGroup extends Rule
     /**
      * 设置分组的路由规则
      * @access public
-     * @param mixed      $rule     路由规则
+     * @param  mixed      $rule     路由规则
      * @return $this
      */
     public function setRule($rule)
@@ -75,10 +75,10 @@ class RuleGroup extends Rule
     /**
      * 检测分组路由
      * @access public
-     * @param Request      $request  请求对象
-     * @param string       $url      访问地址
-     * @param string       $depr     路径分隔符
-     * @param bool         $completeMatch   路由是否完全匹配
+     * @param  Request      $request  请求对象
+     * @param  string       $url      访问地址
+     * @param  string       $depr     路径分隔符
+     * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
@@ -187,8 +187,8 @@ class RuleGroup extends Rule
     /**
      * 添加分组下的路由规则或者子分组
      * @access public
-     * @param Rule     $rule   路由规则
-     * @param string   $method 请求类型
+     * @param  Rule     $rule   路由规则
+     * @param  string   $method 请求类型
      * @return $this
      */
     public function addRule($rule, $method = '*')
@@ -219,7 +219,7 @@ class RuleGroup extends Rule
     /**
      * 设置分组的路由前缀
      * @access public
-     * @param string     $prefix
+     * @param  string     $prefix
      * @return $this
      */
     public function prefix($prefix)
@@ -234,7 +234,7 @@ class RuleGroup extends Rule
     /**
      * 获取分组的路由规则
      * @access public
-     * @param string     $method
+     * @param  string     $method
      * @return array
      */
     public function getRules($method = '')

@@ -42,7 +42,8 @@ class Cookie
 
     /**
      * Cookie初始化
-     * @param array $config
+     * @access public
+     * @param  array $config
      * @return void
      */
     public function init(array $config = [])
@@ -62,7 +63,8 @@ class Cookie
 
     /**
      * 设置或者获取cookie作用域（前缀）
-     * @param string $prefix
+     * @access public
+     * @param  string $prefix
      * @return string|void
      */
     public function prefix($prefix = '')
@@ -77,12 +79,11 @@ class Cookie
     /**
      * Cookie 设置、获取、删除
      *
-     * @param string $name  cookie名称
-     * @param mixed  $value cookie值
-     * @param mixed  $option 可选参数 可能会是 null|integer|string
-     *
+     * @access public
+     * @param  string $name  cookie名称
+     * @param  mixed  $value cookie值
+     * @param  mixed  $option 可选参数 可能会是 null|integer|string
      * @return void
-     * @internal param mixed $options cookie参数
      */
     public function set($name, $value = '', $option = null)
     {
@@ -120,9 +121,10 @@ class Cookie
 
     /**
      * 永久保存Cookie数据
-     * @param string $name  cookie名称
-     * @param mixed  $value cookie值
-     * @param mixed  $option 可选参数 可能会是 null|integer|string
+     * @access public
+     * @param  string $name  cookie名称
+     * @param  mixed  $value cookie值
+     * @param  mixed  $option 可选参数 可能会是 null|integer|string
      * @return void
      */
     public function forever($name, $value = '', $option = null)
@@ -138,8 +140,9 @@ class Cookie
 
     /**
      * 判断Cookie数据
-     * @param string        $name cookie名称
-     * @param string|null   $prefix cookie前缀
+     * @access public
+     * @param  string        $name cookie名称
+     * @param  string|null   $prefix cookie前缀
      * @return bool
      */
     public function has($name, $prefix = null)
@@ -154,8 +157,9 @@ class Cookie
 
     /**
      * Cookie获取
-     * @param string        $name cookie名称 留空获取全部
-     * @param string|null   $prefix cookie前缀
+     * @access public
+     * @param  string        $name cookie名称 留空获取全部
+     * @param  string|null   $prefix cookie前缀
      * @return mixed
      */
     public function get($name = '', $prefix = null)
@@ -193,8 +197,9 @@ class Cookie
 
     /**
      * Cookie删除
-     * @param string        $name cookie名称
-     * @param string|null   $prefix cookie前缀
+     * @access public
+     * @param  string        $name cookie名称
+     * @param  string|null   $prefix cookie前缀
      * @return void
      */
     public function delete($name, $prefix = null)
@@ -215,7 +220,8 @@ class Cookie
 
     /**
      * Cookie清空
-     * @param string|null $prefix cookie前缀
+     * @access public
+     * @param  string|null $prefix cookie前缀
      * @return void
      */
     public function clear($prefix = null)

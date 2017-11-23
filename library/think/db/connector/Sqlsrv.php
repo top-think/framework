@@ -32,7 +32,7 @@ class Sqlsrv extends Connection
     /**
      * 解析pdo连接的dsn信息
      * @access protected
-     * @param array $config 连接信息
+     * @param  array $config 连接信息
      * @return string
      */
     protected function parseDsn($config)
@@ -49,7 +49,7 @@ class Sqlsrv extends Connection
     /**
      * 取得数据表的字段信息
      * @access public
-     * @param string $tableName
+     * @param  string $tableName
      * @return array
      */
     public function getFields($tableName)
@@ -104,7 +104,7 @@ class Sqlsrv extends Connection
     /**
      * 取得数据表的字段信息
      * @access public
-     * @param string $dbName
+     * @param  string $dbName
      * @return array
      */
     public function getTables($dbName = '')
@@ -128,7 +128,7 @@ class Sqlsrv extends Connection
     /**
      * SQL性能分析
      * @access protected
-     * @param string $sql
+     * @param  string $sql
      * @return array
      */
     protected function getExplain($sql)

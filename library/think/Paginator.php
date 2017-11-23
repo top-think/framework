@@ -100,6 +100,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     }
 
     /**
+     * @access public
      * @param       $items
      * @param       $listRows
      * @param null  $currentPage
@@ -125,7 +126,8 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * 获取页码对应的链接
      *
-     * @param $page
+     * @access protected
+     * @param  $page
      * @return string
      */
     protected function url($page)
@@ -156,8 +158,9 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * 自动获取当前页码
-     * @param string $varPage
-     * @param int    $default
+     * @access public
+     * @param  string $varPage
+     * @param  int    $default
      * @return int
      */
     public static function getCurrentPage($varPage = 'page', $default = 1)
@@ -173,6 +176,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * 自动获取当前的path
+     * @access public
      * @return string
      */
     public static function getCurrentPath()
@@ -210,6 +214,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * 数据是否足够分页
+     * @access public
      * @return boolean
      */
     public function hasPages()
@@ -220,6 +225,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * 创建一组分页链接
      *
+     * @access public
      * @param  int $start
      * @param  int $end
      * @return array
@@ -238,6 +244,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * 设置URL锚点
      *
+     * @access public
      * @param  string|null $fragment
      * @return $this
      */
@@ -251,6 +258,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * 添加URL参数
      *
+     * @access public
      * @param  array|string $key
      * @param  string|null  $value
      * @return $this
@@ -275,6 +283,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * 构造锚点字符串
      *
+     * @access public
      * @return string
      */
     protected function buildFragment()
@@ -284,6 +293,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * 渲染分页html
+     * @access public
      * @return mixed
      */
     abstract public function render();
@@ -306,6 +316,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * 给每个元素执行个回调
      *
+     * @access public
      * @param  callable $callback
      * @return $this
      */
@@ -326,6 +337,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * Retrieve an external iterator
+     * @access public
      * @return Traversable An instance of an object implementing <b>Iterator</b> or
      * <b>Traversable</b>
      */
@@ -336,7 +348,8 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * Whether a offset exists
-     * @param mixed $offset
+     * @access public
+     * @param  mixed $offset
      * @return bool
      */
     public function offsetExists($offset)
@@ -346,7 +359,8 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * Offset to retrieve
-     * @param mixed $offset
+     * @access public
+     * @param  mixed $offset
      * @return mixed
      */
     public function offsetGet($offset)
@@ -356,8 +370,9 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * Offset to set
-     * @param mixed $offset
-     * @param mixed $value
+     * @access public
+     * @param  mixed $offset
+     * @param  mixed $value
      */
     public function offsetSet($offset, $value)
     {
@@ -366,9 +381,10 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * Offset to unset
-     * @param mixed $offset
+     * @access public
+     * @param  mixed $offset
      * @return void
-     * @since 5.0.0
+     * @since  5.0.0
      */
     public function offsetUnset($offset)
     {

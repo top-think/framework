@@ -40,8 +40,8 @@ abstract class Rule
     /**
      * 注册路由参数
      * @access public
-     * @param string|array  $name  参数名
-     * @param mixed         $value 值
+     * @param  string|array  $name  参数名
+     * @param  mixed         $value 值
      * @return $this
      */
     public function option($name, $value = '')
@@ -58,8 +58,8 @@ abstract class Rule
     /**
      * 注册变量规则
      * @access public
-     * @param string|array  $name 变量名
-     * @param string        $rule 变量规则
+     * @param  string|array  $name 变量名
+     * @param  string        $rule 变量规则
      * @return $this
      */
     public function pattern($name, $rule = '')
@@ -76,7 +76,7 @@ abstract class Rule
     /**
      * 设置Name
      * @access public
-     * @param string|array  $name 变量名
+     * @param  string|array  $name 变量名
      * @return $this
      */
     public function name($name)
@@ -99,7 +99,7 @@ abstract class Rule
     /**
      * 获取变量规则定义
      * @access public
-     * @param string  $name 变量名
+     * @param  string  $name 变量名
      * @return mixed
      */
     public function getPattern($name = '')
@@ -114,7 +114,7 @@ abstract class Rule
     /**
      * 获取路由参数定义
      * @access public
-     * @param string  $name 参数名
+     * @param  string  $name 参数名
      * @return mixed
      */
     public function getOption($name = '')
@@ -129,7 +129,7 @@ abstract class Rule
     /**
      * 设置路由请求类型
      * @access public
-     * @param string     $method
+     * @param  string     $method
      * @return $this
      */
     public function method($method)
@@ -140,7 +140,7 @@ abstract class Rule
     /**
      * 设置路由前置行为
      * @access public
-     * @param array|\Closure    $before
+     * @param  array|\Closure    $before
      * @return $this
      */
     public function before($before)
@@ -151,7 +151,7 @@ abstract class Rule
     /**
      * 设置路由后置行为
      * @access public
-     * @param array|\Closure     $after
+     * @param  array|\Closure     $after
      * @return $this
      */
     public function after($after)
@@ -162,7 +162,7 @@ abstract class Rule
     /**
      * 检查后缀
      * @access public
-     * @param string     $ext
+     * @param  string     $ext
      * @return $this
      */
     public function ext($ext = '')
@@ -173,7 +173,7 @@ abstract class Rule
     /**
      * 检查禁止后缀
      * @access public
-     * @param string     $ext
+     * @param  string     $ext
      * @return $this
      */
     public function denyExt($ext = '')
@@ -184,7 +184,7 @@ abstract class Rule
     /**
      * 检查域名
      * @access public
-     * @param string     $domain
+     * @param  string     $domain
      * @return $this
      */
     public function domain($domain)
@@ -195,9 +195,9 @@ abstract class Rule
     /**
      * 绑定模型
      * @access public
-     * @param array|string      $var  路由变量名 多个使用 & 分割
-     * @param string|\Closure   $model 绑定模型类
-     * @param bool              $exception 是否抛出异常
+     * @param  array|string      $var  路由变量名 多个使用 & 分割
+     * @param  string|\Closure   $model 绑定模型类
+     * @param  bool              $exception 是否抛出异常
      * @return $this
      */
     public function model($var, $model = null, $exception = true)
@@ -216,10 +216,10 @@ abstract class Rule
     /**
      * 绑定验证
      * @access public
-     * @param mixed    $validate 验证器类
-     * @param string   $scene 验证场景
-     * @param array    $message 验证提示
-     * @param bool     $batch 批量验证
+     * @param  mixed    $validate 验证器类
+     * @param  string   $scene 验证场景
+     * @param  array    $message 验证提示
+     * @param  bool     $batch 批量验证
      * @return $this
      */
     public function validate($validate, $scene = null, $message = [], $batch = false)
@@ -232,7 +232,7 @@ abstract class Rule
     /**
      * 绑定Response对象
      * @access public
-     * @param array|string     $response
+     * @param  array|string     $response
      * @return $this
      */
     public function response($response)
@@ -243,7 +243,7 @@ abstract class Rule
     /**
      * 设置路由缓存
      * @access public
-     * @param array|string     $cache
+     * @param  array|string     $cache
      * @return $this
      */
     public function cache($cache)
@@ -254,7 +254,7 @@ abstract class Rule
     /**
      * 检查URL分隔符
      * @access public
-     * @param bool     $depr
+     * @param  bool     $depr
      * @return $this
      */
     public function depr($depr)
@@ -265,7 +265,7 @@ abstract class Rule
     /**
      * 是否合并额外参数
      * @access public
-     * @param bool     $merge
+     * @param  bool     $merge
      * @return $this
      */
     public function mergeExtraVars($merge = true)
@@ -276,7 +276,7 @@ abstract class Rule
     /**
      * 设置需要合并的路由参数
      * @access public
-     * @param array     $option
+     * @param  array     $option
      * @return $this
      */
     public function mergeOptions($option = [])
@@ -288,7 +288,7 @@ abstract class Rule
     /**
      * 检查是否为HTTPS请求
      * @access public
-     * @param bool     $https
+     * @param  bool     $https
      * @return $this
      */
     public function https($https = true)
@@ -299,7 +299,7 @@ abstract class Rule
     /**
      * 检查是否为AJAX请求
      * @access public
-     * @param bool     $ajax
+     * @param  bool     $ajax
      * @return $this
      */
     public function ajax($ajax = true)
@@ -310,7 +310,7 @@ abstract class Rule
     /**
      * 检查是否为PJAX请求
      * @access public
-     * @param bool     $pjax
+     * @param  bool     $pjax
      * @return $this
      */
     public function pjax($pjax = true)
@@ -321,7 +321,7 @@ abstract class Rule
     /**
      * 设置路由完整匹配
      * @access public
-     * @param bool     $match
+     * @param  bool     $match
      * @return $this
      */
     public function completeMatch($match = true)
@@ -332,7 +332,7 @@ abstract class Rule
     /**
      * 设置是否允许OPTIONS嗅探
      * @access public
-     * @param bool     $allow
+     * @param  bool     $allow
      * @return $this
      */
     public function allowOptions($allow = true)
@@ -343,7 +343,7 @@ abstract class Rule
     /**
      * 检查OPTIONS请求
      * @access public
-     * @param Request     $request
+     * @param  Request     $request
      * @return Dispatch|void
      */
     protected function checkAllowOptions($request)
@@ -392,9 +392,9 @@ abstract class Rule
 
     /**
      * 路由绑定模型实例
-     * @access public
-     * @param array|\Clousre    $bindModel 绑定模型
-     * @param array             $matches   路由变量
+     * @access protected
+     * @param  array|\Clousre    $bindModel 绑定模型
+     * @param  array             $matches   路由变量
      * @return void
      */
     protected function createBindModel($bindModel, $matches)
@@ -439,9 +439,9 @@ abstract class Rule
 
     /**
      * 处理路由请求缓存
-     * @access public
-     * @param Request       $request 请求对象
-     * @param string|array  $cache  路由缓存
+     * @access protected
+     * @param  Request       $request 请求对象
+     * @param  string|array  $cache  路由缓存
      * @return void
      */
     protected function parseRequestCache($request, $cache)
@@ -460,12 +460,12 @@ abstract class Rule
     /**
      * 解析匹配到的规则路由
      * @access public
-     * @param Request   $request 请求对象
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param string    $url URL地址
-     * @param array     $option 路由参数
-     * @param array     $matches 匹配的变量
+     * @param  Request   $request 请求对象
+     * @param  string    $rule 路由规则
+     * @param  string    $route 路由地址
+     * @param  string    $url URL地址
+     * @param  array     $option 路由参数
+     * @param  array     $matches 匹配的变量
      * @return Dispatch
      */
     public function parseRule($request, $rule, $route, $url, $option = [], $matches = [])
@@ -528,8 +528,8 @@ abstract class Rule
     /**
      * 验证数据
      * @access protected
-     * @param array             $option
-     * @param \think\Request    $request
+     * @param  array             $option
+     * @param  \think\Request    $request
      * @return void
      * @throws ValidateException
      */
@@ -566,7 +566,7 @@ abstract class Rule
     /**
      * 检查路由前置行为
      * @access protected
-     * @param mixed   $before 前置行为
+     * @param  mixed   $before 前置行为
      * @return mixed
      */
     protected function checkBefore($before)
@@ -587,7 +587,7 @@ abstract class Rule
     /**
      * 检查路由后置行为
      * @access protected
-     * @param mixed   $after 后置行为
+     * @param  mixed   $after 后置行为
      * @return mixed
      */
     protected function checkAfter($after)
@@ -617,9 +617,9 @@ abstract class Rule
     /**
      * 发起路由调度
      * @access protected
-     * @param Request   $request Request对象
-     * @param mixed     $route  路由地址
-     * @param array     $option 路由参数
+     * @param  Request   $request Request对象
+     * @param  mixed     $route  路由地址
+     * @param  array     $option 路由参数
      * @return Dispatch
      */
     protected function dispatch($request, $route, $option)
@@ -660,7 +660,7 @@ abstract class Rule
     /**
      * 解析URL地址为 模块/控制器/操作
      * @access protected
-     * @param string    $url URL地址
+     * @param  string    $url URL地址
      * @return array
      */
     protected function parseModule($url)
@@ -689,8 +689,8 @@ abstract class Rule
     /**
      * 路由检查
      * @access protected
-     * @param array     $option 路由参数
-     * @param Request   $request Request对象
+     * @param  array     $option 路由参数
+     * @param  Request   $request Request对象
      * @return bool
      */
     protected function checkOption($option, Request $request)
@@ -735,8 +735,8 @@ abstract class Rule
     /**
      * 解析URL地址中的参数Request对象
      * @access protected
-     * @param string    $rule 路由规则
-     * @param array     $var 变量
+     * @param  string    $rule 路由规则
+     * @param  array     $var 变量
      * @return void
      */
     protected function parseUrlParams($url, &$var = [])
@@ -758,7 +758,7 @@ abstract class Rule
     /**
      * 解析URL的pathinfo参数和变量
      * @access protected
-     * @param string    $url URL地址
+     * @param  string    $url URL地址
      * @return array
      */
     protected function parseUrlPath($url)
@@ -788,9 +788,9 @@ abstract class Rule
 
     /**
      * 设置路由参数
-     * @access protected
-     * @param string    $method     方法名
-     * @param array     $args       调用参数
+     * @access public
+     * @param  string    $method     方法名
+     * @param  array     $args       调用参数
      * @return $this
      */
     public function __call($method, $args)

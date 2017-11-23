@@ -47,7 +47,7 @@ class Think
     /**
      * 检测是否存在模板文件
      * @access public
-     * @param string $template 模板文件或者模板规则
+     * @param  string $template 模板文件或者模板规则
      * @return bool
      */
     public function exists($template)
@@ -63,9 +63,9 @@ class Think
     /**
      * 渲染模板文件
      * @access public
-     * @param string    $template 模板文件
-     * @param array     $data 模板变量
-     * @param array     $config 模板参数
+     * @param  string    $template 模板文件
+     * @param  array     $data 模板变量
+     * @param  array     $config 模板参数
      * @return void
      */
     public function fetch($template, $data = [], $config = [])
@@ -90,9 +90,9 @@ class Think
     /**
      * 渲染模板内容
      * @access public
-     * @param string    $template 模板内容
-     * @param array     $data 模板变量
-     * @param array     $config 模板参数
+     * @param  string    $template 模板内容
+     * @param  array     $data 模板变量
+     * @param  array     $config 模板参数
      * @return void
      */
     public function display($template, $data = [], $config = [])
@@ -103,7 +103,7 @@ class Think
     /**
      * 自动定位模板文件
      * @access private
-     * @param string $template 模板文件规则
+     * @param  string $template 模板文件规则
      * @return string
      */
     private function parseTemplate($template)
@@ -148,8 +148,8 @@ class Think
     /**
      * 配置或者获取模板引擎参数
      * @access private
-     * @param string|array  $name 参数名
-     * @param mixed         $value 参数值
+     * @param  string|array  $name 参数名
+     * @param  mixed         $value 参数值
      * @return mixed
      */
     public function config($name, $value = null)

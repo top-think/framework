@@ -29,8 +29,8 @@ class Sqlsrv extends Builder
     /**
      * order分析
      * @access protected
-     * @param Query     $query        查询对象
-     * @param mixed     $order
+     * @param  Query     $query        查询对象
+     * @param  mixed     $order
      * @return string
      */
     protected function parseOrder(Query $query, $order)
@@ -62,7 +62,7 @@ class Sqlsrv extends Builder
     /**
      * 随机排序
      * @access protected
-     * @param Query     $query        查询对象
+     * @param  Query     $query        查询对象
      * @return string
      */
     protected function parseRand(Query $query)
@@ -73,8 +73,8 @@ class Sqlsrv extends Builder
     /**
      * 字段和表名处理
      * @access protected
-     * @param Query     $query        查询对象
-     * @param string    $key
+     * @param  Query     $query        查询对象
+     * @param  string    $key
      * @return string
      */
     protected function parseKey(Query $query, $key)
@@ -109,8 +109,8 @@ class Sqlsrv extends Builder
     /**
      * limit
      * @access protected
-     * @param Query     $query        查询对象
-     * @param mixed     $limit
+     * @param  Query     $query        查询对象
+     * @param  mixed     $limit
      * @return string
      */
     protected function parseLimit(Query $query, $limit)

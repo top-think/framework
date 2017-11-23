@@ -34,7 +34,7 @@ class Hook
     /**
      * 指定入口方法名称
      * @access public
-     * @param string  $name     方法名
+     * @param  string  $name     方法名
      * @return $this
      */
     public function portal($name)
@@ -46,8 +46,8 @@ class Hook
     /**
      * 指定行为标识 便于调用
      * @access public
-     * @param string|array  $name     行为标识
-     * @param mixed         $behavior 行为
+     * @param  string|array  $name     行为标识
+     * @param  mixed         $behavior 行为
      * @return $this
      */
     public function alias($name, $behavior = null)
@@ -64,9 +64,9 @@ class Hook
     /**
      * 动态添加行为扩展到某个标签
      * @access public
-     * @param string    $tag 标签名称
-     * @param mixed     $behavior 行为名称
-     * @param bool      $first 是否放到开头执行
+     * @param  string    $tag 标签名称
+     * @param  mixed     $behavior 行为名称
+     * @param  bool      $first 是否放到开头执行
      * @return void
      */
     public function add($tag, $behavior, $first = false)
@@ -91,8 +91,8 @@ class Hook
     /**
      * 批量导入插件
      * @access public
-     * @param array     $tags 插件信息
-     * @param bool      $recursive 是否递归合并
+     * @param  array     $tags 插件信息
+     * @param  bool      $recursive 是否递归合并
      * @return void
      */
     public function import(array $tags, $recursive = true)
@@ -109,7 +109,7 @@ class Hook
     /**
      * 获取插件信息
      * @access public
-     * @param string $tag 插件位置 留空获取全部
+     * @param  string $tag 插件位置 留空获取全部
      * @return array
      */
     public function get($tag = '')
@@ -125,9 +125,9 @@ class Hook
     /**
      * 监听标签的行为
      * @access public
-     * @param string $tag    标签名称
-     * @param mixed  $params 传入参数
-     * @param bool   $once   只获取一个有效返回值
+     * @param  string $tag    标签名称
+     * @param  mixed  $params 传入参数
+     * @param  bool   $once   只获取一个有效返回值
      * @return mixed
      */
     public function listen($tag, $params = null, $once = false)
@@ -152,8 +152,8 @@ class Hook
     /**
      * 执行行为
      * @access public
-     * @param mixed     $class  行为
-     * @param mixed     $params 参数
+     * @param  mixed     $class  行为
+     * @param  mixed     $params 参数
      * @return mixed
      */
     public function exec($class, $params = null)
@@ -173,9 +173,9 @@ class Hook
     /**
      * 执行某个标签的行为
      * @access protected
-     * @param mixed     $class  要执行的行为
-     * @param string    $tag    方法名（标签名）
-     * @param mixed     $params 参数
+     * @param  mixed     $class  要执行的行为
+     * @param  string    $tag    方法名（标签名）
+     * @param  mixed     $params 参数
      * @return mixed
      */
     protected function execTag($class, $tag = '', $params = null)

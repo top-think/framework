@@ -12,9 +12,9 @@
 namespace think\model\concern;
 
 use InvalidArgumentException;
+use think\Exception;
 use think\Loader;
 use think\model\Relation;
-use think\Exception;
 
 trait Attribute
 {
@@ -73,7 +73,7 @@ trait Attribute
     /**
      * 判断一个字段名是否为主键字段
      * @access public
-     * @param string $key 名称
+     * @param  string $key 名称
      * @return bool
      */
     protected function isPk($key)
@@ -91,7 +91,7 @@ trait Attribute
     /**
      * 设置允许写入的字段
      * @access public
-     * @param mixed $field 允许写入的字段 如果为true只允许写入数据表字段
+     * @param  array|string|true $field 允许写入的字段 如果为true只允许写入数据表字段
      * @return $this
      */
     public function allowField($field)
@@ -108,7 +108,7 @@ trait Attribute
     /**
      * 设置只读字段
      * @access public
-     * @param mixed $field 只读字段
+     * @param  array|string $field 只读字段
      * @return $this
      */
     public function readonly($field)
@@ -125,8 +125,8 @@ trait Attribute
     /**
      * 设置数据对象值
      * @access public
-     * @param mixed $data  数据或者属性名
-     * @param mixed $value 值
+     * @param  mixed $data  数据或者属性名
+     * @param  mixed $value 值
      * @return $this
      */
     public function data($data, $value = null)
@@ -172,8 +172,8 @@ trait Attribute
     /**
      * 批量设置数据对象值
      * @access public
-     * @param mixed $data  数据
-     * @param bool  $set   是否需要进行数据处理
+     * @param  mixed $data  数据
+     * @param  bool  $set   是否需要进行数据处理
      * @return $this
      */
     public function appendData($data, $set = false)
@@ -197,7 +197,7 @@ trait Attribute
     /**
      * 获取对象原始数据 如果不存在指定字段返回null
      * @access public
-     * @param string $name 字段名 留空获取全部
+     * @param  string $name 字段名 留空获取全部
      * @return mixed
      */
     public function getOrigin($name = null)
@@ -212,7 +212,7 @@ trait Attribute
     /**
      * 获取对象原始数据 如果不存在指定字段返回false
      * @access public
-     * @param string $name 字段名 留空获取全部
+     * @param  string $name 字段名 留空获取全部
      * @return mixed
      * @throws InvalidArgumentException
      */
@@ -263,9 +263,9 @@ trait Attribute
     /**
      * 修改器 设置数据对象值
      * @access public
-     * @param string $name  属性名
-     * @param mixed  $value 属性值
-     * @param array  $data  数据
+     * @param  string $name  属性名
+     * @param  mixed  $value 属性值
+     * @param  array  $data  数据
      * @return $this
      */
     public function setAttr($name, $value, $data = [])
@@ -294,7 +294,7 @@ trait Attribute
     /**
      * 是否需要自动写入时间字段
      * @access public
-     * @param bool $auto
+     * @param  bool $auto
      * @return $this
      */
     public function isAutoWriteTimestamp($auto)
@@ -306,8 +306,8 @@ trait Attribute
 
     /**
      * 自动写入时间戳
-     * @access public
-     * @param string $name 时间戳字段
+     * @access protected
+     * @param  string $name 时间戳字段
      * @return mixed
      */
     protected function autoWriteTimestamp($name)
@@ -346,9 +346,9 @@ trait Attribute
 
     /**
      * 数据写入 类型转换
-     * @access public
-     * @param mixed        $value 值
-     * @param string|array $type  要转换的类型
+     * @access protected
+     * @param  mixed        $value 值
+     * @param  string|array $type  要转换的类型
      * @return mixed
      */
     protected function writeTransform($value, $type)
@@ -409,8 +409,8 @@ trait Attribute
     /**
      * 获取器 获取数据对象的值
      * @access public
-     * @param string $name 名称
-     * @param array  $item 数据
+     * @param  string $name 名称
+     * @param  array  $item 数据
      * @return mixed
      * @throws InvalidArgumentException
      */
@@ -482,9 +482,9 @@ trait Attribute
 
     /**
      * 数据读取 类型转换
-     * @access public
-     * @param mixed        $value 值
-     * @param string|array $type  要转换的类型
+     * @access protected
+     * @param  mixed        $value 值
+     * @param  string|array $type  要转换的类型
      * @return mixed
      */
     protected function readTransform($value, $type)

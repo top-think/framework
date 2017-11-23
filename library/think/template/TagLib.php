@@ -70,7 +70,7 @@ class TagLib
     /**
      * 架构函数
      * @access public
-     * @param \stdClass $template 模板引擎对象
+     * @param  \stdClass $template 模板引擎对象
      */
     public function __construct($template)
     {
@@ -225,9 +225,9 @@ class TagLib
     /**
      * 分析标签属性 正则方式
      * @access public
-     * @param string $str 标签属性字符串
-     * @param string $name 标签名
-     * @param string $alias 别名
+     * @param  string $str 标签属性字符串
+     * @param  string $name 标签名
+     * @param  string $alias 别名
      * @return array
      */
     public function parseAttr($str, $name, $alias = '')
@@ -312,7 +312,7 @@ class TagLib
     /**
      * 自动识别构建变量
      * @access public
-     * @param string    $name       变量描述
+     * @param  string    $name       变量描述
      * @return string
      */
     public function autoBuildVar(&$name)
@@ -344,7 +344,6 @@ class TagLib
      * @access public
      * @return array
      */
-    // 获取标签定义
     public function getTags()
     {
         return $this->tags;

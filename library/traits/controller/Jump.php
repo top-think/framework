@@ -23,11 +23,11 @@ trait Jump
     /**
      * 操作成功跳转的快捷方法
      * @access protected
-     * @param mixed     $msg 提示信息
-     * @param string    $url 跳转的URL地址
-     * @param mixed     $data 返回的数据
-     * @param integer   $wait 跳转等待时间
-     * @param array     $header 发送的Header信息
+     * @param  mixed     $msg 提示信息
+     * @param  string    $url 跳转的URL地址
+     * @param  mixed     $data 返回的数据
+     * @param  integer   $wait 跳转等待时间
+     * @param  array     $header 发送的Header信息
      * @return void
      */
     protected function success($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
@@ -60,11 +60,11 @@ trait Jump
     /**
      * 操作错误跳转的快捷方法
      * @access protected
-     * @param mixed     $msg 提示信息
-     * @param string    $url 跳转的URL地址
-     * @param mixed     $data 返回的数据
-     * @param integer   $wait 跳转等待时间
-     * @param array     $header 发送的Header信息
+     * @param  mixed     $msg 提示信息
+     * @param  string    $url 跳转的URL地址
+     * @param  mixed     $data 返回的数据
+     * @param  integer   $wait 跳转等待时间
+     * @param  array     $header 发送的Header信息
      * @return void
      */
     protected function error($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
@@ -96,11 +96,11 @@ trait Jump
     /**
      * 返回封装后的API数据到客户端
      * @access protected
-     * @param mixed     $data 要返回的数据
-     * @param integer   $code 返回的code
-     * @param mixed     $msg 提示信息
-     * @param string    $type 返回数据格式
-     * @param array     $header 发送的Header信息
+     * @param  mixed     $data 要返回的数据
+     * @param  integer   $code 返回的code
+     * @param  mixed     $msg 提示信息
+     * @param  string    $type 返回数据格式
+     * @param  array     $header 发送的Header信息
      * @return void
      */
     protected function result($data, $code = 0, $msg = '', $type = '', array $header = [])
@@ -121,10 +121,10 @@ trait Jump
     /**
      * URL重定向
      * @access protected
-     * @param string         $url 跳转的URL表达式
-     * @param array|integer  $params 其它URL参数
-     * @param integer        $code http code
-     * @param array          $with 隐式传参
+     * @param  string         $url 跳转的URL表达式
+     * @param  array|integer  $params 其它URL参数
+     * @param  integer        $code http code
+     * @param  array          $with 隐式传参
      * @return void
      */
     protected function redirect($url, $params = [], $code = 302, $with = [])

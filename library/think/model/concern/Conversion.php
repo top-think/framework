@@ -48,8 +48,8 @@ trait Conversion
     /**
      * 设置需要附加的输出属性
      * @access public
-     * @param array $append   属性列表
-     * @param bool  $override 是否覆盖
+     * @param  array $append   属性列表
+     * @param  bool  $override 是否覆盖
      * @return $this
      */
     public function append($append = [], $override = false)
@@ -62,8 +62,8 @@ trait Conversion
     /**
      * 设置附加关联对象的属性
      * @access public
-     * @param string       $attr    关联属性
-     * @param string|array $append  追加属性名
+     * @param  string       $attr    关联属性
+     * @param  string|array $append  追加属性名
      * @return $this
      * @throws Exception
      */
@@ -97,8 +97,8 @@ trait Conversion
     /**
      * 设置需要隐藏的输出属性
      * @access public
-     * @param array $hidden   属性列表
-     * @param bool  $override 是否覆盖
+     * @param  array $hidden   属性列表
+     * @param  bool  $override 是否覆盖
      * @return $this
      */
     public function hidden($hidden = [], $override = false)
@@ -111,8 +111,8 @@ trait Conversion
     /**
      * 设置需要输出的属性
      * @access public
-     * @param array $visible
-     * @param bool  $override 是否覆盖
+     * @param  array $visible
+     * @param  bool  $override 是否覆盖
      * @return $this
      */
     public function visible($visible = [], $override = false)
@@ -188,7 +188,7 @@ trait Conversion
     /**
      * 转换当前模型对象为JSON字符串
      * @access public
-     * @param integer $options json参数
+     * @param  integer $options json参数
      * @return string
      */
     public function toJson($options = JSON_UNESCAPED_UNICODE)
@@ -221,7 +221,7 @@ trait Conversion
     /**
      * 转换数据集为数据集对象
      * @access public
-     * @param array|Collection $collection 数据集
+     * @param  array|Collection $collection 数据集
      * @return Collection
      */
     public function toCollection($collection)
@@ -239,9 +239,9 @@ trait Conversion
     /**
      * 解析隐藏及显示属性
      * @access protected
-     * @param array $attrs  属性
-     * @param array $result 结果集
-     * @param bool  $visible
+     * @param  array $attrs  属性
+     * @param  array $result 结果集
+     * @param  bool  $visible
      * @return array
      */
     protected function parseAttr($attrs, &$result, $visible = true)

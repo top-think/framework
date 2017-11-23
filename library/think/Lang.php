@@ -63,9 +63,10 @@ class Lang
 
     /**
      * 设置语言定义(不区分大小写)
-     * @param string|array  $name 语言变量
-     * @param string        $value 语言值
-     * @param string        $range 语言作用域
+     * @access public
+     * @param  string|array  $name 语言变量
+     * @param  string        $value 语言值
+     * @param  string        $range 语言作用域
      * @return mixed
      */
     public function set($name, $value = null, $range = '')
@@ -85,8 +86,9 @@ class Lang
 
     /**
      * 加载语言定义(不区分大小写)
-     * @param string|array  $file   语言文件
-     * @param string        $range  语言作用域
+     * @access public
+     * @param  string|array  $file   语言文件
+     * @param  string        $range  语言作用域
      * @return array
      */
     public function load($file, $range = '')
@@ -123,8 +125,9 @@ class Lang
 
     /**
      * 获取语言定义(不区分大小写)
-     * @param string|null   $name 语言变量
-     * @param string        $range 语言作用域
+     * @access public
+     * @param  string|null   $name 语言变量
+     * @param  string        $range 语言作用域
      * @return bool
      */
     public function has($name, $range = '')
@@ -136,9 +139,10 @@ class Lang
 
     /**
      * 获取语言定义(不区分大小写)
-     * @param string|null   $name 语言变量
-     * @param array         $vars 变量替换
-     * @param string        $range 语言作用域
+     * @access public
+     * @param  string|null   $name 语言变量
+     * @param  array         $vars 变量替换
+     * @param  string        $range 语言作用域
      * @return mixed
      */
     public function get($name = null, $vars = [], $range = '')
@@ -179,6 +183,7 @@ class Lang
 
     /**
      * 自动侦测设置获取语言选择
+     * @access public
      * @return string
      */
     public function detect()
@@ -214,7 +219,8 @@ class Lang
 
     /**
      * 设置当前语言到Cookie
-     * @param string $lang 语言
+     * @access public
+     * @param  string $lang 语言
      * @return void
      */
     public function saveToCookie($lang = null)
@@ -226,7 +232,8 @@ class Lang
 
     /**
      * 设置语言自动侦测的变量
-     * @param string $var 变量名称
+     * @access public
+     * @param  string $var 变量名称
      * @return void
      */
     public function setLangDetectVar($var)
@@ -236,7 +243,8 @@ class Lang
 
     /**
      * 设置语言的cookie保存变量
-     * @param string $var 变量名称
+     * @access public
+     * @param  string $var 变量名称
      * @return void
      */
     public function setLangCookieVar($var)
@@ -246,7 +254,8 @@ class Lang
 
     /**
      * 设置允许的语言列表
-     * @param array $list 语言列表
+     * @access public
+     * @param  array $list 语言列表
      * @return void
      */
     public function setAllowLangList($list)

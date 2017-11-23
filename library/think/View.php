@@ -40,8 +40,8 @@ class View
     /**
      * 初始化
      * @access public
-     * @param mixed $engine  模板引擎参数
-     * @param array $replace  字符串替换参数
+     * @param  mixed $engine  模板引擎参数
+     * @param  array $replace  字符串替换参数
      * @return $this
      */
     public function init($engine = [], $replace = [])
@@ -69,8 +69,8 @@ class View
     /**
      * 模板变量静态赋值
      * @access public
-     * @param mixed $name  变量名
-     * @param mixed $value 变量值
+     * @param  mixed $name  变量名
+     * @param  mixed $value 变量值
      * @return $this
      */
     public function share($name, $value = '')
@@ -87,8 +87,8 @@ class View
     /**
      * 模板变量赋值
      * @access public
-     * @param mixed $name  变量名
-     * @param mixed $value 变量值
+     * @param  mixed $name  变量名
+     * @param  mixed $value 变量值
      * @return $this
      */
     public function assign($name, $value = '')
@@ -105,7 +105,7 @@ class View
     /**
      * 设置当前模板解析的引擎
      * @access public
-     * @param array|string $options 引擎参数
+     * @param  array|string $options 引擎参数
      * @return $this
      */
     public function engine($options = [])
@@ -130,9 +130,9 @@ class View
 
     /**
      * 配置模板引擎
-     * @access private
-     * @param string|array  $name 参数名
-     * @param mixed         $value 参数值
+     * @access public
+     * @param  string|array  $name 参数名
+     * @param  mixed         $value 参数值
      * @return $this
      */
     public function config($name, $value = null)
@@ -144,8 +144,8 @@ class View
 
     /**
      * 检查模板是否存在
-     * @access private
-     * @param string|array  $name 参数名
+     * @access public
+     * @param  string|array  $name 参数名
      * @return bool
      */
     public function exists($name)
@@ -155,11 +155,12 @@ class View
 
     /**
      * 解析和获取模板内容 用于输出
-     * @param string    $template 模板文件名或者内容
-     * @param array     $vars     模板输出变量
-     * @param array     $replace 替换内容
-     * @param array     $config     模板参数
-     * @param bool      $renderContent     是否渲染内容
+     * @access public
+     * @param  string    $template 模板文件名或者内容
+     * @param  array     $vars     模板输出变量
+     * @param  array     $replace 替换内容
+     * @param  array     $config     模板参数
+     * @param  bool      $renderContent     是否渲染内容
      * @return string
      * @throws \Exception
      */
@@ -200,8 +201,8 @@ class View
     /**
      * 视图内容替换
      * @access public
-     * @param string|array  $content 被替换内容（支持批量替换）
-     * @param string        $replace    替换内容
+     * @param  string|array  $content 被替换内容（支持批量替换）
+     * @param  string        $replace    替换内容
      * @return $this
      */
     public function replace($content, $replace = '')
@@ -218,10 +219,10 @@ class View
     /**
      * 渲染内容输出
      * @access public
-     * @param string $content 内容
-     * @param array  $vars    模板输出变量
-     * @param array  $replace 替换内容
-     * @param array  $config     模板参数
+     * @param  string $content 内容
+     * @param  array  $vars    模板输出变量
+     * @param  array  $replace 替换内容
+     * @param  array  $config     模板参数
      * @return mixed
      */
     public function display($content, $vars = [], $replace = [], $config = [])
@@ -232,8 +233,8 @@ class View
     /**
      * 模板变量赋值
      * @access public
-     * @param string    $name  变量名
-     * @param mixed     $value 变量值
+     * @param  string    $name  变量名
+     * @param  mixed     $value 变量值
      */
     public function __set($name, $value)
     {
@@ -243,7 +244,7 @@ class View
     /**
      * 取得模板显示变量的值
      * @access protected
-     * @param string $name 模板变量
+     * @param  string $name 模板变量
      * @return mixed
      */
     public function __get($name)
@@ -254,7 +255,7 @@ class View
     /**
      * 检测模板变量是否设置
      * @access public
-     * @param string $name 模板变量名
+     * @param  string $name 模板变量名
      * @return bool
      */
     public function __isset($name)

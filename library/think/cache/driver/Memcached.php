@@ -28,8 +28,8 @@ class Memcached extends Driver
 
     /**
      * 架构函数
-     * @param array $options 缓存参数
      * @access public
+     * @param  array $options 缓存参数
      */
     public function __construct($options = [])
     {
@@ -76,7 +76,7 @@ class Memcached extends Driver
     /**
      * 判断缓存
      * @access public
-     * @param string $name 缓存变量名
+     * @param  string $name 缓存变量名
      * @return bool
      */
     public function has($name)
@@ -89,8 +89,8 @@ class Memcached extends Driver
     /**
      * 读取缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed  $default 默认值
+     * @param  string $name 缓存变量名
+     * @param  mixed  $default 默认值
      * @return mixed
      */
     public function get($name, $default = false)
@@ -105,9 +105,9 @@ class Memcached extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string            $name 缓存变量名
-     * @param mixed             $value  存储数据
-     * @param integer|\DateTime $expire  有效时间（秒）
+     * @param  string            $name 缓存变量名
+     * @param  mixed             $value  存储数据
+     * @param  integer|\DateTime $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -136,8 +136,8 @@ class Memcached extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
      * @return false|int
      */
     public function inc($name, $step = 1)
@@ -156,8 +156,8 @@ class Memcached extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
      * @return false|int
      */
     public function dec($name, $step = 1)
@@ -177,8 +177,9 @@ class Memcached extends Driver
 
     /**
      * 删除缓存
-     * @param    string  $name 缓存变量名
-     * @param bool|false $ttl
+     * @access public
+     * @param  string       $name 缓存变量名
+     * @param  bool|false   $ttl
      * @return bool
      */
     public function rm($name, $ttl = false)
@@ -195,7 +196,7 @@ class Memcached extends Driver
     /**
      * 清除缓存
      * @access public
-     * @param string $tag 标签名
+     * @param  string $tag 标签名
      * @return bool
      */
     public function clear($tag = null)

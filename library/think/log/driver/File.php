@@ -43,7 +43,7 @@ class File
     /**
      * 日志写入接口
      * @access public
-     * @param array $log 日志信息
+     * @param  array $log 日志信息
      * @return bool
      */
     public function save(array $log = [])
@@ -91,10 +91,10 @@ class File
 
     /**
      * 日志写入
-     * @access public
-     * @param array     $message 日志信息
-     * @param string    $destination 日志文件
-     * @param bool      $apart 是否独立文件写入
+     * @access protected
+     * @param  array     $message 日志信息
+     * @param  string    $destination 日志文件
+     * @param  bool      $apart 是否独立文件写入
      * @return bool
      */
     protected function write($message, $destination, $apart = false)

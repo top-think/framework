@@ -25,11 +25,11 @@ class Domain extends RuleGroup
     /**
      * 架构函数
      * @access public
-     * @param Route       $router   路由对象
-     * @param string      $name     分组名称
-     * @param mixed       $rule     域名路由
-     * @param array       $option   路由参数
-     * @param array       $pattern  变量规则
+     * @param  Route       $router   路由对象
+     * @param  string      $name     分组名称
+     * @param  mixed       $rule     域名路由
+     * @param  array       $option   路由参数
+     * @param  array       $pattern  变量规则
      */
     public function __construct(Route $router, $name = '', $rule = null, $option = [], $pattern = [])
     {
@@ -43,10 +43,10 @@ class Domain extends RuleGroup
     /**
      * 检测域名路由
      * @access public
-     * @param Request      $request  请求对象
-     * @param string       $url      访问地址
-     * @param string       $depr     路径分隔符
-     * @param bool         $completeMatch   路由是否完全匹配
+     * @param  Request      $request  请求对象
+     * @param  string       $url      访问地址
+     * @param  string       $depr     路径分隔符
+     * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
@@ -94,9 +94,9 @@ class Domain extends RuleGroup
     /**
      * 检测路由别名
      * @access private
-     * @param Request   $request
-     * @param string    $url URL地址
-     * @param string    $depr URL分隔符
+     * @param  Request   $request
+     * @param  string    $url URL地址
+     * @param  string    $depr URL分隔符
      * @return Dispatch|false
      */
     private function checkRouteAlias($request, $url, $depr)
@@ -145,8 +145,8 @@ class Domain extends RuleGroup
     /**
      * 检测URL绑定
      * @access private
-     * @param string    $url URL地址
-     * @param string    $depr URL分隔符
+     * @param  string    $url URL地址
+     * @param  string    $depr URL分隔符
      * @return Dispatch|false
      */
     private function checkUrlBind(&$url, $depr = '/')
@@ -176,9 +176,9 @@ class Domain extends RuleGroup
     /**
      * 绑定到类
      * @access public
-     * @param string    $url URL地址
-     * @param string    $class 类名（带命名空间）
-     * @param string    $depr URL分隔符
+     * @param  string    $url URL地址
+     * @param  string    $class 类名（带命名空间）
+     * @param  string    $depr URL分隔符
      * @return CallbackDispatch
      */
     public function bindToClass($url, $class, $depr = '/')
@@ -197,9 +197,9 @@ class Domain extends RuleGroup
     /**
      * 绑定到命名空间
      * @access public
-     * @param string    $url URL地址
-     * @param string    $namespace 命名空间
-     * @param string    $depr URL分隔符
+     * @param  string    $url URL地址
+     * @param  string    $namespace 命名空间
+     * @param  string    $depr URL分隔符
      * @return CallbackDispatch
      */
     public function bindToNamespace($url, $namespace, $depr = '/')
@@ -219,9 +219,9 @@ class Domain extends RuleGroup
     /**
      * 绑定到控制器类
      * @access public
-     * @param string    $url URL地址
-     * @param string    $controller 控制器名 （支持带模块名 index/user ）
-     * @param string    $depr URL分隔符
+     * @param  string    $url URL地址
+     * @param  string    $controller 控制器名 （支持带模块名 index/user ）
+     * @param  string    $depr URL分隔符
      * @return ControllerDispatch
      */
     public function bindToController($url, $controller, $depr = '/')
@@ -240,9 +240,9 @@ class Domain extends RuleGroup
     /**
      * 绑定到模块/控制器
      * @access public
-     * @param string    $url URL地址
-     * @param string    $controller 控制器类名（带命名空间）
-     * @param string    $depr URL分隔符
+     * @param  string    $url URL地址
+     * @param  string    $controller 控制器类名（带命名空间）
+     * @param  string    $depr URL分隔符
      * @return ModuleDispatch
      */
     public function bindToModule($url, $controller, $depr = '/')

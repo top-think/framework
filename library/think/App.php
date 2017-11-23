@@ -141,7 +141,7 @@ class App implements \ArrayAccess
     /**
      * 绑定模块或者控制器
      * @access public
-     * @param string $bind
+     * @param  string $bind
      * @return $this
      */
     public function bind($bind)
@@ -227,7 +227,7 @@ class App implements \ArrayAccess
     /**
      * 初始化应用或模块
      * @access public
-     * @param string $module 模块名
+     * @param  string $module 模块名
      * @return void
      */
     public function init($module = '')
@@ -375,7 +375,7 @@ class App implements \ArrayAccess
     /**
      * 设置当前请求的调度信息
      * @access public
-     * @param Dispatch  $dispatch 调度信息
+     * @param  Dispatch  $dispatch 调度信息
      * @return $this
      */
     public function dispatch(Dispatch $dispatch)
@@ -386,8 +386,9 @@ class App implements \ArrayAccess
 
     /**
      * 记录调试信息
-     * @param mixed  $msg  调试信息
-     * @param string $type 信息类型
+     * @access public
+     * @param  mixed  $msg  调试信息
+     * @param  string $type 信息类型
      * @return void
      */
     public function log($log, $type = 'info')
@@ -397,7 +398,8 @@ class App implements \ArrayAccess
 
     /**
      * 获取配置参数 为空则获取所有配置
-     * @param string    $name 配置参数名（支持二级配置 .号分割）
+     * @access public
+     * @param  string    $name 配置参数名（支持二级配置 .号分割）
      * @return mixed
      */
     public function config($name = '')
@@ -449,9 +451,10 @@ class App implements \ArrayAccess
 
     /**
      * 解析模块和类名
-     * @param string $name         资源地址
-     * @param string $layer        验证层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
+     * @access protected
+     * @param  string $name         资源地址
+     * @param  string $layer        验证层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
      * @return array
      */
     protected function parseModuleAndClass($name, $layer, $appendSuffix)
@@ -465,17 +468,20 @@ class App implements \ArrayAccess
             } else {
                 $module = $this->request->module();
             }
+
             $class = $this->parseClass($module, $layer, $name, $appendSuffix);
         }
+
         return [$module, $class];
     }
 
     /**
      * 实例化（分层）模型
-     * @param string $name         Model名称
-     * @param string $layer        业务层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
-     * @param string $common       公共模块名
+     * @access public
+     * @param  string $name         Model名称
+     * @param  string $layer        业务层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
      * @return Model
      * @throws ClassNotFoundException
      */
@@ -501,15 +507,17 @@ class App implements \ArrayAccess
         }
 
         $this->__set($guid, $class);
+
         return $model;
     }
 
     /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
-     * @param string $name              资源地址
-     * @param string $layer             控制层名称
-     * @param bool   $appendSuffix      是否添加类名后缀
-     * @param string $empty             空控制器名称
+     * @access public
+     * @param  string $name              资源地址
+     * @param  string $layer             控制层名称
+     * @param  bool   $appendSuffix      是否添加类名后缀
+     * @param  string $empty             空控制器名称
      * @return object
      * @throws ClassNotFoundException
      */
@@ -528,10 +536,11 @@ class App implements \ArrayAccess
 
     /**
      * 实例化验证类 格式：[模块名/]验证器名
-     * @param string $name         资源地址
-     * @param string $layer        验证层名称
-     * @param bool   $appendSuffix 是否添加类名后缀
-     * @param string $common       公共模块名
+     * @access public
+     * @param  string $name         资源地址
+     * @param  string $layer        验证层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
      * @return Validate
      * @throws ClassNotFoundException
      */
@@ -568,8 +577,9 @@ class App implements \ArrayAccess
 
     /**
      * 数据库初始化
-     * @param mixed         $config 数据库配置
-     * @param bool|string   $name 连接标识 true 强制重新连接
+     * @access public
+     * @param  mixed         $config 数据库配置
+     * @param  bool|string   $name 连接标识 true 强制重新连接
      * @return \think\db\Query
      */
     public function db($config = [], $name = false)
@@ -579,10 +589,11 @@ class App implements \ArrayAccess
 
     /**
      * 远程调用模块的操作方法 参数格式 [模块/控制器/]操作
-     * @param string       $url          调用地址
-     * @param string|array $vars         调用参数 支持字符串和数组
-     * @param string       $layer        要调用的控制层名称
-     * @param bool         $appendSuffix 是否添加类名后缀
+     * @access public
+     * @param  string       $url          调用地址
+     * @param  string|array $vars         调用参数 支持字符串和数组
+     * @param  string       $layer        要调用的控制层名称
+     * @param  bool         $appendSuffix 是否添加类名后缀
      * @return mixed
      * @throws ClassNotFoundException
      */
@@ -606,10 +617,11 @@ class App implements \ArrayAccess
 
     /**
      * 解析应用类的类名
-     * @param string $module 模块名
-     * @param string $layer  层名 controller model ...
-     * @param string $name   类名
-     * @param bool   $appendSuffix
+     * @access public
+     * @param  string $module 模块名
+     * @param  string $layer  层名 controller model ...
+     * @param  string $name   类名
+     * @param  bool   $appendSuffix
      * @return string
      */
     public function parseClass($module, $layer, $name, $appendSuffix = false)
@@ -624,6 +636,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取框架版本
+     * @access public
      * @return string
      */
     public function version()
@@ -633,6 +646,7 @@ class App implements \ArrayAccess
 
     /**
      * 是否为调试模式
+     * @access public
      * @return bool
      */
     public function isDebug()
@@ -642,6 +656,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取模块路径
+     * @access public
      * @return string
      */
     public function getModulePath()
@@ -651,7 +666,8 @@ class App implements \ArrayAccess
 
     /**
      * 设置模块路径
-     * @param string $path 路径
+     * @access public
+     * @param  string $path 路径
      * @return void
      */
     public function setModulePath($path)
@@ -662,6 +678,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取应用根目录
+     * @access public
      * @return string
      */
     public function getRootPath()
@@ -671,6 +688,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取应用类库目录
+     * @access public
      * @return string
      */
     public function getAppPath()
@@ -680,6 +698,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取应用运行时目录
+     * @access public
      * @return string
      */
     public function getRuntimePath()
@@ -689,6 +708,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取核心框架目录
+     * @access public
      * @return string
      */
     public function getThinkPath()
@@ -698,6 +718,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取路由目录
+     * @access public
      * @return string
      */
     public function getRoutePath()
@@ -707,6 +728,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取应用配置目录
+     * @access public
      * @return string
      */
     public function getConfigPath()
@@ -716,6 +738,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取配置后缀
+     * @access public
      * @return string
      */
     public function getConfigExt()
@@ -725,6 +748,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取应用类库命名空间
+     * @access public
      * @return string
      */
     public function getNamespace()
@@ -734,7 +758,8 @@ class App implements \ArrayAccess
 
     /**
      * 设置应用类库命名空间
-     * @param string $namespace 命名空间名称
+     * @access public
+     * @param  string $namespace 命名空间名称
      * @return $this
      */
     public function setNamespace($namespace)
@@ -745,6 +770,7 @@ class App implements \ArrayAccess
 
     /**
      * 是否启用类库后缀
+     * @access public
      * @return bool
      */
     public function getSuffix()
@@ -754,6 +780,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取应用开启时间
+     * @access public
      * @return float
      */
     public function getBeginTime()
@@ -763,6 +790,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取应用初始内存占用
+     * @access public
      * @return integer
      */
     public function getBeginMem()
@@ -772,6 +800,7 @@ class App implements \ArrayAccess
 
     /**
      * 获取容器实例
+     * @access public
      * @return Container
      */
     public function container()

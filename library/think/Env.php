@@ -26,7 +26,8 @@ class Env
 
     /**
      * 读取环境变量定义文件
-     * @param string    $file  环境变量定义文件
+     * @access public
+     * @param  string    $file  环境变量定义文件
      * @return void
      */
     public function load($file)
@@ -37,8 +38,9 @@ class Env
 
     /**
      * 获取环境变量值
-     * @param string    $name 环境变量名（支持二级 .号分割）
-     * @param string    $default  默认值
+     * @access public
+     * @param  string    $name 环境变量名（支持二级 .号分割）
+     * @param  string    $default  默认值
      * @return mixed
      */
     public function get($name = null, $default = null)
@@ -74,8 +76,9 @@ class Env
 
     /**
      * 设置环境变量值
-     * @param string|array  $env   环境变量
-     * @param string        $value  值
+     * @access public
+     * @param  string|array  $env   环境变量
+     * @param  string        $value  值
      * @return void
      */
     public function set($env, $value = null)

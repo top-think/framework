@@ -41,8 +41,8 @@ class Cache
     /**
      * 连接缓存
      * @access public
-     * @param array         $options  配置数组
-     * @param bool|string   $name 缓存连接标识 true 强制重新连接
+     * @param  array         $options  配置数组
+     * @param  bool|string   $name 缓存连接标识 true 强制重新连接
      * @return Driver
      */
     public function connect(array $options = [], $name = false)
@@ -72,7 +72,7 @@ class Cache
     /**
      * 自动初始化缓存
      * @access public
-     * @param array         $options  配置数组
+     * @param  array         $options  配置数组
      * @return Driver
      */
     public function init(array $options = [])
@@ -96,7 +96,7 @@ class Cache
     /**
      * 切换缓存类型 需要配置 cache.type 为 complex
      * @access public
-     * @param string $name 缓存标识
+     * @param  string $name 缓存标识
      * @return Driver
      */
     public function store($name = '')

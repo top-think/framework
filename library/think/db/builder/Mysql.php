@@ -38,11 +38,11 @@ class Mysql extends Builder
     /**
      * 正则查询
      * @access protected
-     * @param Query     $query        查询对象
-     * @param string    $key
-     * @param string    $exp
-     * @param mixed     $value
-     * @param string    $field
+     * @param  Query     $query        查询对象
+     * @param  string    $key
+     * @param  string    $exp
+     * @param  mixed     $value
+     * @param  string    $field
      * @return string
      */
     protected function parseRegexp(Query $query, $key, $exp, $value, $field)
@@ -53,8 +53,8 @@ class Mysql extends Builder
     /**
      * 字段和表名处理
      * @access protected
-     * @param Query     $query        查询对象
-     * @param string    $key
+     * @param  Query     $query        查询对象
+     * @param  string    $key
      * @return string
      */
     protected function parseKey(Query $query, $key)
@@ -97,8 +97,8 @@ class Mysql extends Builder
     /**
      * field分析
      * @access protected
-     * @param Query     $query        查询对象
-     * @param mixed     $fields
+     * @param  Query     $query        查询对象
+     * @param  mixed     $fields
      * @return string
      */
     protected function parseField(Query $query, $fields)
@@ -121,7 +121,7 @@ class Mysql extends Builder
     /**
      * 数组数据解析
      * @access protected
-     * @param array  $data
+     * @param  array  $data
      * @return mixed
      */
     protected function parseArrayData($data)
@@ -150,7 +150,7 @@ class Mysql extends Builder
     /**
      * 随机排序
      * @access protected
-     * @param Query     $query        查询对象
+     * @param  Query     $query        查询对象
      * @return string
      */
     protected function parseRand(Query $query)

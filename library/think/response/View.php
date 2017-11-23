@@ -25,7 +25,7 @@ class View extends Response
     /**
      * 处理数据
      * @access protected
-     * @param mixed $data 要处理的数据
+     * @param  mixed $data 要处理的数据
      * @return mixed
      */
     protected function output($data)
@@ -40,7 +40,7 @@ class View extends Response
     /**
      * 获取视图变量
      * @access public
-     * @param string $name 模板变量
+     * @param  string $name 模板变量
      * @return mixed
      */
     public function getVars($name = null)
@@ -55,8 +55,8 @@ class View extends Response
     /**
      * 模板变量赋值
      * @access public
-     * @param mixed $name  变量名
-     * @param mixed $value 变量值
+     * @param  mixed $name  变量名
+     * @param  mixed $value 变量值
      * @return $this
      */
     public function assign($name, $value = '')
@@ -74,7 +74,7 @@ class View extends Response
     /**
      * 检查模板是否存在
      * @access private
-     * @param string|array  $name 参数名
+     * @param  string|array  $name 参数名
      * @return bool
      */
     public function exists($name)
@@ -87,8 +87,8 @@ class View extends Response
     /**
      * 视图内容替换
      * @access public
-     * @param string|array $content 被替换内容（支持批量替换）
-     * @param string  $replace    替换内容
+     * @param  string|array $content 被替换内容（支持批量替换）
+     * @param  string  $replace    替换内容
      * @return $this
      */
     public function replace($content, $replace = '')

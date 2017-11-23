@@ -42,10 +42,10 @@ trait TimeStamp
 
     /**
      * 时间日期字段格式化处理
-     * @access public
-     * @param mixed $time      时间日期表达式
-     * @param mixed $format    日期格式
-     * @param bool  $timestamp 是否进行时间戳转换
+     * @access protected
+     * @param  mixed $time      时间日期表达式
+     * @param  mixed $format    日期格式
+     * @param  bool  $timestamp 是否进行时间戳转换
      * @return mixed
      */
     protected function formatDateTime($time, $format, $timestamp = false)
@@ -59,6 +59,11 @@ trait TimeStamp
         return $time;
     }
 
+    /**
+     * 检查时间字段写入
+     * @access protected
+     * @return void
+     */
     protected function checkTimeStampWrite()
     {
         // 自动写入创建时间和更新时间

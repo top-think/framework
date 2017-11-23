@@ -39,9 +39,9 @@ class Config
     /**
      * 解析配置文件或内容
      * @access public
-     * @param string    $config 配置文件路径或内容
-     * @param string    $type 配置解析类型
-     * @param string    $name 配置名（如设置即表示二级配置）
+     * @param  string    $config 配置文件路径或内容
+     * @param  string    $type 配置解析类型
+     * @param  string    $name 配置名（如设置即表示二级配置）
      * @return mixed
      */
     public function parse($config, $type = '', $name = '')
@@ -58,8 +58,8 @@ class Config
     /**
      * 加载配置文件（多种格式）
      * @access public
-     * @param string    $file 配置文件名
-     * @param string    $name 配置名（如设置即表示二级配置）
+     * @param  string    $file 配置文件名
+     * @param  string    $name 配置名（如设置即表示二级配置）
      * @return mixed
      */
     public function load($file, $name = '')
@@ -83,7 +83,7 @@ class Config
     /**
      * 自动加载配置文件（PHP格式）
      * @access public
-     * @param string    $name 配置名
+     * @param  string    $name 配置名
      * @return void
      */
     protected function autoLoad($name)
@@ -108,7 +108,7 @@ class Config
     /**
      * 检测配置是否存在
      * @access public
-     * @param string    $name 配置参数名（支持多级配置 .号分割）
+     * @param  string    $name 配置参数名（支持多级配置 .号分割）
      * @return bool
      */
     public function has($name)
@@ -123,7 +123,7 @@ class Config
     /**
      * 获取一级配置
      * @access public
-     * @param string    $name 一级配置名
+     * @param  string    $name 一级配置名
      * @return array
      */
     public function pull($name)
@@ -141,7 +141,7 @@ class Config
     /**
      * 获取配置参数 为空则获取所有配置
      * @access public
-     * @param string    $name 配置参数名（支持多级配置 .号分割）
+     * @param  string    $name 配置参数名（支持多级配置 .号分割）
      * @return mixed
      */
     public function get($name = null)
@@ -180,8 +180,8 @@ class Config
     /**
      * 设置配置参数 name为数组则为批量设置
      * @access public
-     * @param string|array  $name 配置参数名（支持二级配置 .号分割）
-     * @param mixed         $value 配置值
+     * @param  string|array  $name 配置参数名（支持二级配置 .号分割）
+     * @param  mixed         $value 配置值
      * @return mixed
      */
     public function set($name, $value = null)
@@ -220,7 +220,8 @@ class Config
     /**
      * 重置配置参数
      * @access public
-     * @param string    $prefix  配置前缀名
+     * @param  string    $prefix  配置前缀名
+     * @return void
      */
     public function reset($prefix = '')
     {
@@ -234,8 +235,8 @@ class Config
     /**
      * 设置配置
      * @access public
-     * @param string    $name  参数名
-     * @param mixed     $value 值
+     * @param  string    $name  参数名
+     * @param  mixed     $value 值
      */
     public function __set($name, $value)
     {
@@ -245,7 +246,7 @@ class Config
     /**
      * 获取配置参数
      * @access public
-     * @param string $name 参数名
+     * @param  string $name 参数名
      * @return mixed
      */
     public function __get($name)
@@ -256,7 +257,7 @@ class Config
     /**
      * 检测是否存在参数
      * @access public
-     * @param string $name 参数名
+     * @param  string $name 参数名
      * @return bool
      */
     public function __isset($name)

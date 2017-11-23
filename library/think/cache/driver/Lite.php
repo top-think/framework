@@ -29,7 +29,7 @@ class Lite extends Driver
      * 架构函数
      * @access public
      *
-     * @param array $options
+     * @param  array $options
      */
     public function __construct($options = [])
     {
@@ -46,7 +46,7 @@ class Lite extends Driver
     /**
      * 取得变量的存储文件名
      * @access protected
-     * @param string $name 缓存变量名
+     * @param  string $name 缓存变量名
      * @return string
      */
     protected function getCacheKey($name)
@@ -57,7 +57,7 @@ class Lite extends Driver
     /**
      * 判断缓存是否存在
      * @access public
-     * @param string $name 缓存变量名
+     * @param  string $name 缓存变量名
      * @return mixed
      */
     public function has($name)
@@ -68,8 +68,8 @@ class Lite extends Driver
     /**
      * 读取缓存
      * @access public
-     * @param string $name 缓存变量名
-     * @param mixed  $default 默认值
+     * @param  string $name 缓存变量名
+     * @param  mixed  $default 默认值
      * @return mixed
      */
     public function get($name, $default = false)
@@ -96,10 +96,10 @@ class Lite extends Driver
 
     /**
      * 写入缓存
-     * @access   public
-     * @param string        $name  缓存变量名
-     * @param mixed         $value 存储数据
-     * @param int|\DateTime $expire 有效时间 0为永久
+     * @access public
+     * @param  string        $name  缓存变量名
+     * @param  mixed         $value 存储数据
+     * @param  int|\DateTime $expire 有效时间 0为永久
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -137,8 +137,8 @@ class Lite extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
      * @return false|int
      */
     public function inc($name, $step = 1)
@@ -155,8 +155,8 @@ class Lite extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
      * @return false|int
      */
     public function dec($name, $step = 1)
@@ -173,7 +173,7 @@ class Lite extends Driver
     /**
      * 删除缓存
      * @access public
-     * @param string $name 缓存变量名
+     * @param  string $name 缓存变量名
      * @return boolean
      */
     public function rm($name)
@@ -185,8 +185,8 @@ class Lite extends Driver
 
     /**
      * 清除缓存
-     * @access   public
-     * @param string $tag 标签名
+     * @access public
+     * @param  string $tag 标签名
      * @return bool
      */
     public function clear($tag = null)

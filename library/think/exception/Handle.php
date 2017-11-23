@@ -31,6 +31,7 @@ class Handle
     /**
      * Report or log an exception.
      *
+     * @access public
      * @param  \Exception $exception
      * @return void
      */
@@ -75,6 +76,7 @@ class Handle
     /**
      * Render an exception into an HTTP response.
      *
+     * @access public
      * @param  \Exception $e
      * @return Response
      */
@@ -95,8 +97,9 @@ class Handle
     }
 
     /**
-     * @param Output    $output
-     * @param Exception $e
+     * @access public
+     * @param  Output    $output
+     * @param  Exception $e
      */
     public function renderForConsole(Output $output, Exception $e)
     {
@@ -107,7 +110,8 @@ class Handle
     }
 
     /**
-     * @param HttpException $e
+     * @access protected
+     * @param  HttpException $e
      * @return Response
      */
     protected function renderHttpException(HttpException $e)
@@ -122,7 +126,8 @@ class Handle
     }
 
     /**
-     * @param Exception $exception
+     * @access protected
+     * @param  Exception $exception
      * @return Response
      */
     protected function convertExceptionToResponse(Exception $exception)
@@ -192,6 +197,7 @@ class Handle
     /**
      * 获取错误编码
      * ErrorException则使用错误级别作为错误编码
+     * @access protected
      * @param  \Exception $exception
      * @return integer                错误编码
      */
@@ -207,6 +213,7 @@ class Handle
     /**
      * 获取错误信息
      * ErrorException则使用错误级别作为错误编码
+     * @access protected
      * @param  \Exception $exception
      * @return string                错误信息
      */
@@ -232,6 +239,7 @@ class Handle
     /**
      * 获取出错文件内容
      * 获取错误的前9行和后9行
+     * @access protected
      * @param  \Exception $exception
      * @return array                 错误文件内容
      */
@@ -256,6 +264,7 @@ class Handle
     /**
      * 获取异常扩展信息
      * 用于非调试模式html返回类型显示
+     * @access protected
      * @param  \Exception $exception
      * @return array                 异常类定义的扩展数据
      */
@@ -270,6 +279,7 @@ class Handle
 
     /**
      * 获取常量列表
+     * @access private
      * @return array 常量列表
      */
     private static function getConst()

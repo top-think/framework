@@ -57,7 +57,7 @@ trait RelationShip
     /**
      * 设置父关联对象
      * @access public
-     * @param Model $model  模型对象
+     * @param  Model $model  模型对象
      * @return $this
      */
     public function setParent($model)
@@ -80,7 +80,7 @@ trait RelationShip
     /**
      * 获取当前模型的关联模型数据
      * @access public
-     * @param string $name 关联方法名
+     * @param  string $name 关联方法名
      * @return mixed
      */
     public function getRelation($name = null)
@@ -97,9 +97,9 @@ trait RelationShip
     /**
      * 设置关联数据对象值
      * @access public
-     * @param string $name  属性名
-     * @param mixed  $value 属性值
-     * @param array  $data  数据
+     * @param  string $name  属性名
+     * @param  mixed  $value 属性值
+     * @param  array  $data  数据
      * @return $this
      */
     public function setRelation($name, $value, $data = [])
@@ -119,7 +119,7 @@ trait RelationShip
     /**
      * 关联数据一起更新
      * @access public
-     * @param mixed $relation 关联
+     * @param  mixed $relation 关联
      * @return $this
      */
     public function together($relation)
@@ -136,10 +136,10 @@ trait RelationShip
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param string  $relation 关联方法名
-     * @param mixed   $operator 比较操作符
-     * @param integer $count    个数
-     * @param string  $id       关联表的统计字段
+     * @param  string  $relation 关联方法名
+     * @param  mixed   $operator 比较操作符
+     * @param  integer $count    个数
+     * @param  string  $id       关联表的统计字段
      * @return Query
      */
     public static function has($relation, $operator = '>=', $count = 1, $id = '*')
@@ -156,9 +156,9 @@ trait RelationShip
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param string $relation 关联方法名
-     * @param mixed  $where    查询条件（数组或者闭包）
-     * @param mixed  $fields   字段
+     * @param  string $relation 关联方法名
+     * @param  mixed  $where    查询条件（数组或者闭包）
+     * @param  mixed  $fields   字段
      * @return Query
      */
     public static function hasWhere($relation, $where = [], $fields = '*')
@@ -169,7 +169,7 @@ trait RelationShip
     /**
      * 查询当前模型的关联数据
      * @access public
-     * @param string|array $relations 关联名
+     * @param  string|array $relations 关联名
      * @return $this
      */
     public function relationQuery($relations)
@@ -206,8 +206,8 @@ trait RelationShip
     /**
      * 预载入关联查询 返回数据集
      * @access public
-     * @param array  $resultSet 数据集
-     * @param string $relation  关联名
+     * @param  array  $resultSet 数据集
+     * @param  string $relation  关联名
      * @return array
      */
     public function eagerlyResultSet(&$resultSet, $relation)
@@ -239,8 +239,8 @@ trait RelationShip
     /**
      * 预载入关联查询 返回模型对象
      * @access public
-     * @param Model  $result   数据对象
-     * @param string $relation 关联名
+     * @param  Model  $result   数据对象
+     * @param  string $relation 关联名
      * @return Model
      */
     public function eagerlyResult(&$result, $relation)
@@ -272,8 +272,8 @@ trait RelationShip
     /**
      * 关联统计
      * @access public
-     * @param Model        $result   数据对象
-     * @param string|array $relation 关联名
+     * @param  Model        $result   数据对象
+     * @param  string|array $relation 关联名
      * @return void
      */
     public function relationCount(&$result, $relation)
@@ -306,9 +306,9 @@ trait RelationShip
     /**
      * HAS ONE 关联定义
      * @access public
-     * @param string $model      模型名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   当前主键
+     * @param  string $model      模型名
+     * @param  string $foreignKey 关联外键
+     * @param  string $localKey   当前主键
      * @return HasOne
      */
     public function hasOne($model, $foreignKey = '', $localKey = '')
@@ -324,9 +324,9 @@ trait RelationShip
     /**
      * BELONGS TO 关联定义
      * @access public
-     * @param string $model      模型名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   关联主键
+     * @param  string $model      模型名
+     * @param  string $foreignKey 关联外键
+     * @param  string $localKey   关联主键
      * @return BelongsTo
      */
     public function belongsTo($model, $foreignKey = '', $localKey = '')
@@ -344,9 +344,9 @@ trait RelationShip
     /**
      * HAS MANY 关联定义
      * @access public
-     * @param string $model      模型名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   当前主键
+     * @param  string $model      模型名
+     * @param  string $foreignKey 关联外键
+     * @param  string $localKey   当前主键
      * @return HasMany
      */
     public function hasMany($model, $foreignKey = '', $localKey = '')
@@ -362,11 +362,11 @@ trait RelationShip
     /**
      * HAS MANY 远程关联定义
      * @access public
-     * @param string $model      模型名
-     * @param string $through    中间模型名
-     * @param string $foreignKey 关联外键
-     * @param string $throughKey 关联外键
-     * @param string $localKey   当前主键
+     * @param  string $model      模型名
+     * @param  string $through    中间模型名
+     * @param  string $foreignKey 关联外键
+     * @param  string $throughKey 关联外键
+     * @param  string $localKey   当前主键
      * @return HasManyThrough
      */
     public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '')
@@ -384,10 +384,10 @@ trait RelationShip
     /**
      * BELONGS TO MANY 关联定义
      * @access public
-     * @param string $model      模型名
-     * @param string $table      中间表名
-     * @param string $foreignKey 关联外键
-     * @param string $localKey   当前模型关联键
+     * @param  string $model      模型名
+     * @param  string $table      中间表名
+     * @param  string $foreignKey 关联外键
+     * @param  string $localKey   当前模型关联键
      * @return BelongsToMany
      */
     public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '')
@@ -405,9 +405,9 @@ trait RelationShip
     /**
      * MORPH  One 关联定义
      * @access public
-     * @param string       $model 模型名
-     * @param string|array $morph 多态字段信息
-     * @param string       $type  多态类型
+     * @param  string       $model 模型名
+     * @param  string|array $morph 多态字段信息
+     * @param  string       $type  多态类型
      * @return MorphOne
      */
     public function morphOne($model, $morph = null, $type = '')
@@ -435,9 +435,9 @@ trait RelationShip
     /**
      * MORPH  MANY 关联定义
      * @access public
-     * @param string       $model 模型名
-     * @param string|array $morph 多态字段信息
-     * @param string       $type  多态类型
+     * @param  string       $model 模型名
+     * @param  string|array $morph 多态字段信息
+     * @param  string       $type  多态类型
      * @return MorphMany
      */
     public function morphMany($model, $morph = null, $type = '')
@@ -465,8 +465,8 @@ trait RelationShip
     /**
      * MORPH TO 关联定义
      * @access public
-     * @param string|array $morph 多态字段信息
-     * @param array        $alias 多态别名定义
+     * @param  string|array $morph 多态字段信息
+     * @param  array        $alias 多态别名定义
      * @return MorphTo
      */
     public function morphTo($morph = null, $alias = [])
@@ -491,8 +491,8 @@ trait RelationShip
 
     /**
      * 解析模型的完整命名空间
-     * @access public
-     * @param string $model 模型名（或者完整类名）
+     * @access protected
+     * @param  string $model 模型名（或者完整类名）
      * @return string
      */
     protected function parseModel($model)
@@ -509,8 +509,8 @@ trait RelationShip
 
     /**
      * 获取模型的默认外键名
-     * @access public
-     * @param string $name 模型名
+     * @access protected
+     * @param  string $name 模型名
      * @return string
      */
     protected function getForeignKey($name)
@@ -524,8 +524,8 @@ trait RelationShip
 
     /**
      * 检查属性是否为关联属性 如果是则返回关联方法名
-     * @access public
-     * @param string $attr 关联属性名
+     * @access protected
+     * @param  string $attr 关联属性名
      * @return string|false
      */
     protected function isRelationAttr($attr)
@@ -541,8 +541,8 @@ trait RelationShip
 
     /**
      * 智能获取关联模型数据
-     * @access public
-     * @param Relation  $modelRelation 模型关联对象
+     * @access protected
+     * @param  Relation  $modelRelation 模型关联对象
      * @return mixed
      */
     protected function getRelationData(Relation $modelRelation)
@@ -559,7 +559,7 @@ trait RelationShip
 
     /**
      * 关联数据自动写入检查
-     * @access public
+     * @access protected
      * @return void
      */
     protected function checkAutoRelationWrite()
@@ -589,7 +589,7 @@ trait RelationShip
 
     /**
      * 自动关联数据更新（针对一对一关联）
-     * @access public
+     * @access protected
      * @return void
      */
     protected function autoRelationUpdate()
@@ -608,7 +608,7 @@ trait RelationShip
 
     /**
      * 自动关联数据写入（针对一对一关联）
-     * @access public
+     * @access protected
      * @return void
      */
     protected function autoRelationInsert()
@@ -621,7 +621,7 @@ trait RelationShip
 
     /**
      * 自动关联数据删除（支持一对一及一对多关联）
-     * @access public
+     * @access protected
      * @return void
      */
     protected function autoRelationDelete()

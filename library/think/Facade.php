@@ -29,8 +29,8 @@ class Facade
      * 绑定类的静态代理
      * @static
      * @access public
-     * @param string|array  $name    类标识
-     * @param string        $class   类名
+     * @param  string|array  $name    类标识
+     * @param  string        $class   类名
      * @return object
      */
     public static function bind($name, $class = null)
@@ -50,9 +50,9 @@ class Facade
      * 创建Facade实例
      * @static
      * @access protected
-     * @param string    $class          类名或标识
-     * @param array     $args           变量
-     * @param bool      $newInstance    是否每次创建新的实例
+     * @param  string    $class          类名或标识
+     * @param  array     $args           变量
+     * @param  bool      $newInstance    是否每次创建新的实例
      * @return object
      */
     protected static function createFacade($class = '', $args = [], $newInstance = false)
@@ -94,9 +94,9 @@ class Facade
     /**
      * 调用类的实例
      * @access public
-     * @param string        $class          类名或者标识
-     * @param array|true    $args           变量
-     * @param bool          $newInstance    是否每次创建新的实例
+     * @param  string        $class          类名或者标识
+     * @param  array|true    $args           变量
+     * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
     public static function make($class, $args = [], $newInstance = false)

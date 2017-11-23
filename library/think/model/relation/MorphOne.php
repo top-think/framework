@@ -28,11 +28,11 @@ class MorphOne extends Relation
     /**
      * 构造函数
      * @access public
-     * @param Model  $parent    上级模型对象
-     * @param string $model     模型名
-     * @param string $morphKey  关联外键
-     * @param string $morphType 多态字段名
-     * @param string $type      多态类型
+     * @param  Model  $parent    上级模型对象
+     * @param  string $model     模型名
+     * @param  string $morphKey  关联外键
+     * @param  string $morphType 多态字段名
+     * @param  string $type      多态类型
      */
     public function __construct(Model $parent, $model, $morphKey, $morphType, $type)
     {
@@ -46,8 +46,9 @@ class MorphOne extends Relation
 
     /**
      * 延迟获取关联数据
-     * @param string   $subRelation 子关联名
-     * @param \Closure $closure     闭包查询条件
+     * @access public
+     * @param  string   $subRelation 子关联名
+     * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
     public function getRelation($subRelation = '', $closure = null)
@@ -70,10 +71,10 @@ class MorphOne extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param string  $operator 比较操作符
-     * @param integer $count    个数
-     * @param string  $id       关联表的统计字段
-     * @param string  $joinType JOIN类型
+     * @param  string  $operator 比较操作符
+     * @param  integer $count    个数
+     * @param  string  $id       关联表的统计字段
+     * @param  string  $joinType JOIN类型
      * @return Query
      */
     public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
@@ -84,8 +85,8 @@ class MorphOne extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param mixed     $where 查询条件（数组或者闭包）
-     * @param mixed     $fields 字段
+     * @param  mixed     $where 查询条件（数组或者闭包）
+     * @param  mixed     $fields 字段
      * @return Query
      */
     public function hasWhere($where = [], $fields = null)
@@ -96,10 +97,10 @@ class MorphOne extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param array    $resultSet   数据集
-     * @param string   $relation    当前关联名
-     * @param string   $subRelation 子关联名
-     * @param \Closure $closure     闭包
+     * @param  array    $resultSet   数据集
+     * @param  string   $relation    当前关联名
+     * @param  string   $subRelation 子关联名
+     * @param  \Closure $closure     闭包
      * @return void
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
@@ -144,10 +145,10 @@ class MorphOne extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param Model    $result      数据对象
-     * @param string   $relation    当前关联名
-     * @param string   $subRelation 子关联名
-     * @param \Closure $closure     闭包
+     * @param  Model    $result      数据对象
+     * @param  string   $relation    当前关联名
+     * @param  string   $subRelation 子关联名
+     * @param  \Closure $closure     闭包
      * @return void
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure)
@@ -175,11 +176,11 @@ class MorphOne extends Relation
 
     /**
      * 多态一对一 关联模型预查询
-     * @access   public
-     * @param array         $where       关联预查询条件
-     * @param string        $relation    关联名
-     * @param string        $subRelation 子关联
-     * @param bool|\Closure $closure     闭包
+     * @access protected
+     * @param  array         $where       关联预查询条件
+     * @param  string        $relation    关联名
+     * @param  string        $subRelation 子关联
+     * @param  bool|\Closure $closure     闭包
      * @return array
      */
     protected function eagerlyMorphToOne($where, $relation, $subRelation = '', $closure = false)
@@ -205,7 +206,7 @@ class MorphOne extends Relation
     /**
      * 保存（新增）当前关联数据对象
      * @access public
-     * @param mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
+     * @param  mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
      * @return Model|false
      */
     public function save($data)

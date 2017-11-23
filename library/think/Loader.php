@@ -108,8 +108,9 @@ class Loader
 
     /**
      * 查找文件
-     * @param $class
-     * @return bool
+     * @access private
+     * @param  string $class
+     * @return string|false
      */
     private static function findFile($class)
     {
@@ -332,9 +333,10 @@ class Loader
     /**
      * 字符串命名风格转换
      * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
-     * @param string  $name 字符串
-     * @param integer $type 转换类型
-     * @param bool    $ucfirst 首字母是否大写（驼峰规则）
+     * @access public
+     * @param  string  $name 字符串
+     * @param  integer $type 转换类型
+     * @param  bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
     public static function parseName($name, $type = 0, $ucfirst = true)

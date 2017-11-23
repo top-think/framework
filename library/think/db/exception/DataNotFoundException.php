@@ -19,9 +19,10 @@ class DataNotFoundException extends DbException
 
     /**
      * DbException constructor.
-     * @param string $message
-     * @param string $table
-     * @param array $config
+     * @access public
+     * @param  string $message
+     * @param  string $table
+     * @param  array $config
      */
     public function __construct($message, $table = '', array $config = [])
     {
