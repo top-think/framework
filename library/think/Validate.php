@@ -199,7 +199,7 @@ class Validate
      * @param array $message 验证提示信息
      * @param array $field 验证字段描述信息
      */
-    public static function make($rules = [], $message = [], $field = [])
+    public static function make(array $rules = [], array $message = [], array $field = [])
     {
         return new self($rules, $message, $field);
     }

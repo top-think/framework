@@ -124,9 +124,8 @@ class Lang
     /**
      * 获取语言定义(不区分大小写)
      * @param string|null   $name 语言变量
-     * @param array         $vars 变量替换
      * @param string        $range 语言作用域
-     * @return mixed
+     * @return bool
      */
     public function has($name, $range = '')
     {
@@ -240,7 +239,7 @@ class Lang
      * @param string $var 变量名称
      * @return void
      */
-    public static function setLangCookieVar($var)
+    public function setLangCookieVar($var)
     {
         $this->langCookieVar = $var;
     }

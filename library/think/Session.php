@@ -266,7 +266,7 @@ class Session
 
     /**
      * session 读写加锁
-     * @return null
+     * @return void
      */
     protected function lock()
     {
@@ -286,7 +286,7 @@ class Session
 
     /**
      * session 读写解锁
-     * @return null
+     * @return void
      */
     protected function unlock()
     {

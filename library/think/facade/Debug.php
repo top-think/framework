@@ -20,7 +20,7 @@ use think\Facade;
  * @method int getRangeTime(string $start, string $end, mixed $dec = 6) static 统计某个区间的时间（微秒）使用情况
  * @method int getUseTime(int $dec = 6) static 统计从开始到统计时的时间（微秒）使用情况
  * @method string getThroughputRate(string $start, string $end, mixed $dec = 6) static 获取当前访问的吞吐率情况
- * @method string getRangeTime(string $start, string $end, mixed $dec = 2) static 记录区间的内存使用情况
+ * @method string getRangeMem(string $start, string $end, mixed $dec = 2) static 记录区间的内存使用情况
  * @method int getUseMem(int $dec = 2) static 统计从开始到统计时的内存使用情况
  * @method string getMemPeak(string $start, string $end, mixed $dec = 2) static 统计区间的内存峰值情况
  * @method mixed getFile(bool $detail = false) static 获取文件加载信息

@@ -449,7 +449,7 @@ abstract class Rule
         if (is_array($cache)) {
             list($key, $expire, $tag) = array_pad($cache, 3, null);
         } else {
-            $key    = str_replace('|', '/', $url);
+            $key    = str_replace('|', '/', $request->url());
             $expire = $cache;
             $tag    = null;
         }
@@ -593,6 +593,8 @@ abstract class Rule
     protected function checkAfter($after)
     {
         $hook = Container::get('hook');
+
+        $result = null;
 
         foreach ((array) $after as $behavior) {
             $result = $hook->exec($behavior);

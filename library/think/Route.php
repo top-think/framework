@@ -59,6 +59,12 @@ class Route
     protected $request;
 
     /**
+     * 当前HOST
+     * @var string
+     */
+    protected $host;
+
+    /**
      * 当前域名
      * @var string
      */
@@ -259,6 +265,7 @@ class Route
         }
 
         if (is_array($name) && !empty($name)) {
+            $root = $this->getRootDomain();
             foreach ($name as $item) {
                 if (!strpos($item, '.')) {
                     $item .= '.' . $root;

@@ -161,7 +161,7 @@ class View
      * @param array     $config     模板参数
      * @param bool      $renderContent     是否渲染内容
      * @return string
-     * @throws Exception
+     * @throws \Exception
      */
     public function fetch($template = '', $vars = [], $replace = [], $config = [], $renderContent = false)
     {

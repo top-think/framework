@@ -39,7 +39,7 @@ class Log implements LoggerInterface
 
     /**
      * 日志写入驱动
-     * @var log\Driver
+     * @var object
      */
     protected $driver;
 

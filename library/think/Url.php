@@ -139,7 +139,7 @@ class Url
 
             if (!$matchAlias) {
                 // 路由标识不存在 直接解析
-                $url = $this->parseUrl($url, $domain);
+                $url = $this->parseUrl($url);
             }
 
             if (isset($info['query'])) {
@@ -205,7 +205,7 @@ class Url
     }
 
     // 直接解析URL地址
-    protected function parseUrl($url, &$domain)
+    protected function parseUrl($url)
     {
         $request = $this->app['request'];
 

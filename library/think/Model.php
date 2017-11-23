@@ -390,7 +390,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param array   $autoFields 自动完成的字段列表
      * @return array
      */
-    protected function checkAllowFields($append = [])
+    protected function checkAllowFields(array $append = [])
     {
         // 检测字段
         if (empty($this->field) || true === $this->field) {
@@ -752,7 +752,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $model->allowField($field);
         }
 
-        $result = $model->isUpdate(true)->save($data, $where);
+        $model->isUpdate(true)->save($data, $where);
 
         return $model;
     }
@@ -763,7 +763,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param mixed     $data  主键值或者查询条件（闭包）
      * @param mixed     $with  关联预查询
      * @param bool      $cache 是否缓存
-     * @return static
+     * @return Model|null
      * @throws exception\DbException
      */
     public static function get($data, $with = [], $cache = false)

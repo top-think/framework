@@ -73,6 +73,11 @@ class Facade
         return Container::getInstance()->make($class, $args, $newInstance);
     }
 
+    /**
+     * 获取当前Facade对应类名
+     * @access protected
+     * @return string
+     */
     protected static function getFacadeClass()
     {}
 

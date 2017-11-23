@@ -83,7 +83,7 @@ class Request
 
     /**
      * 当前调度信息
-     * @var string
+     * @var array
      */
     protected $dispatch = [];
 
@@ -218,7 +218,7 @@ class Request
      * 扩展方法
      * @var array
      */
-    protected static $hook = [];
+    protected $hook = [];
 
     /**
      * php://input内容

@@ -14,6 +14,7 @@ namespace think\model\concern;
 use InvalidArgumentException;
 use think\Loader;
 use think\model\Relation;
+use think\Exception;
 
 trait Attribute
 {
@@ -269,8 +270,6 @@ trait Attribute
      */
     public function setAttr($name, $value, $data = [])
     {
-        $isRelationData = false;
-
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
             $value = $this->autoWriteTimestamp($name);

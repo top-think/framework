@@ -87,7 +87,7 @@ class Response
      * @param int    $code
      * @param array  $header
      * @param array  $options 输出参数
-     * @return Response|JsonResponse|ViewResponse|XmlResponse|RedirectResponse|JsonpResponse
+     * @return Response
      */
     public static function create($data = '', $type = '', $code = 200, array $header = [], $options = [])
     {

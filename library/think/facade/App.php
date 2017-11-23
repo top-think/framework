@@ -28,7 +28,7 @@ use think\Facade;
  * @method \think\Model model(string $name = '', string $layer = 'model', bool $appendSuffix = false, string $common = 'common') static 实例化模型
  * @method object controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '') static 实例化控制器
  * @method \think\Validate validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common') static 实例化验证器类
- * @method \think\Validate db(mixed $config = [], mixed $name = false) static 数据库初始化
+ * @method \think\db\Query db(mixed $config = [], mixed $name = false) static 数据库初始化
  * @method mixed action(string $url, $vars = [], $layer = 'controller', $appendSuffix = false) static 调用模块的操作方法
  * @method string parseClass(string $module, string $layer, string $name, bool $appendSuffix = false) static 解析应用类的类名
  * @method string version() static 获取框架版本
