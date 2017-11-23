@@ -1950,9 +1950,7 @@ abstract class Connection
     public function __destruct()
     {
         // 释放查询
-        if ($this->PDOStatement) {
-            $this->free();
-        }
+        $this->free();
 
         // 关闭连接
         $this->close();
@@ -1960,7 +1958,7 @@ abstract class Connection
 
     /**
      * 缓存数据
-     * @access public
+     * @access protected
      * @param  string    $key    缓存标识
      * @param  mixed     $data   缓存数据
      * @param  array     $config 缓存参数
