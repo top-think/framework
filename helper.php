@@ -556,7 +556,7 @@ if (!function_exists('trace')) {
      * 记录日志信息
      * @param mixed     $log log信息 支持字符串和数组
      * @param string    $level 日志级别
-     * @return void|array
+     * @return array|void
      */
     function trace($log = '[think]', $level = 'log')
     {

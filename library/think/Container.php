@@ -73,8 +73,8 @@ class Container
     /**
      * 绑定一个类、闭包、实例、接口实现到容器
      * @access public
-     * @param string  $abstract    类标识、接口
-     * @param mixed   $concrete    要绑定的类、闭包或者实例
+     * @param string|array  $abstract    类标识、接口
+     * @param mixed         $concrete    要绑定的类、闭包或者实例
      * @return $this
      */
     public function bind($abstract, $concrete = null)

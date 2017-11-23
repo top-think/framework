@@ -29,8 +29,8 @@ class Facade
      * 绑定类的静态代理
      * @static
      * @access public
-     * @param string    $name    类标识
-     * @param string    $class   类名
+     * @param string|array  $name    类标识
+     * @param string        $class   类名
      * @return object
      */
     public static function bind($name, $class = null)
