@@ -67,6 +67,11 @@ trait SoftDelete
 
         $name = $this->getDeleteTimeField();
 
+        // 关联写入检查
+        if ($this->together) {
+            $this->checkAutoRelationWrite();
+        }
+
         if (!$force) {
             // 软删除
             $this->data($name, $this->autoWriteTimestamp($name));

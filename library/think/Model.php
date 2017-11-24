@@ -686,6 +686,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 读取更新条件
         $where = $this->getWhere();
 
+        // 关联写入检查
+        if ($this->together) {
+            $this->checkAutoRelationWrite();
+        }
+
         // 删除当前模型数据
         $result = $this->db(false)->where($where)->delete();
 

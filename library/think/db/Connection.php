@@ -786,7 +786,7 @@ abstract class Connection
 
             $bind = $query->getBind();
 
-            if ($options['fetch_sql']) {
+            if (!empty($options['fetch_sql'])) {
                 // 获取实际执行的SQL语句
                 return $this->getRealSql($sql, $bind);
             }
@@ -865,7 +865,7 @@ abstract class Connection
 
             $bind = $query->getBind();
 
-            if ($options['fetch_sql']) {
+            if (!empty($options['fetch_sql'])) {
                 // 获取实际执行的SQL语句
                 return $this->getRealSql($sql, $bind);
             }
@@ -909,7 +909,7 @@ abstract class Connection
 
         $bind = $query->getBind();
 
-        if ($options['fetch_sql']) {
+        if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
         }
@@ -971,7 +971,7 @@ abstract class Connection
 
         $bind = $query->getBind();
 
-        if ($options['fetch_sql']) {
+        if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
         } elseif (is_array($sql)) {
@@ -1004,7 +1004,7 @@ abstract class Connection
 
         $bind = $query->getBind();
 
-        if ($options['fetch_sql']) {
+        if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
         } else {
@@ -1071,7 +1071,7 @@ abstract class Connection
         $sql  = $this->builder->update($query);
         $bind = $query->getBind();
 
-        if ($options['fetch_sql']) {
+        if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
         } else {
@@ -1137,7 +1137,7 @@ abstract class Connection
 
         $bind = $query->getBind();
 
-        if ($options['fetch_sql']) {
+        if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
         }
@@ -1207,7 +1207,7 @@ abstract class Connection
 
             $bind = $query->getBind();
 
-            if ($options['fetch_sql']) {
+            if (!empty($options['fetch_sql'])) {
                 // 获取实际执行的SQL语句
                 return $this->getRealSql($sql, $bind);
             }
@@ -1275,7 +1275,7 @@ abstract class Connection
 
             $bind = $query->getBind();
 
-            if ($options['fetch_sql']) {
+            if (!empty($options['fetch_sql'])) {
                 // 获取实际执行的SQL语句
                 return $this->getRealSql($sql, $bind);
             }
@@ -1339,7 +1339,7 @@ abstract class Connection
 
         $bind = $query->getBind();
 
-        if ($options['fetch_sql']) {
+        if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
         }

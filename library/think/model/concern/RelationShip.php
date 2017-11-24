@@ -46,7 +46,7 @@ trait RelationShip
      * 关联写入定义信息
      * @var array
      */
-    private $together;
+    protected $together;
 
     /**
      * 关联自动写入信息
