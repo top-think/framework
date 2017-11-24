@@ -77,7 +77,7 @@ class HasMany extends Relation
         }
 
         if (!empty($range)) {
-            $data = $this->eagerlyOneToMany(new $this->model, [
+            $data = $this->eagerlyOneToMany($this->query, [
                 $this->foreignKey => [
                     'in',
                     $range,
@@ -114,7 +114,7 @@ class HasMany extends Relation
         $localKey = $this->localKey;
 
         if (isset($result->$localKey)) {
-            $data = $this->eagerlyOneToMany(new $this->model, [$this->foreignKey => $result->$localKey], $relation, $subRelation, $closure);
+            $data = $this->eagerlyOneToMany($this->query, [$this->foreignKey => $result->$localKey], $relation, $subRelation, $closure);
             // 关联数据封装
             if (!isset($data[$result->$localKey])) {
                 $data[$result->$localKey] = [];
