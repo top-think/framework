@@ -368,11 +368,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        // 关联写入检查
-        if ($this->together) {
-            $this->checkAutoRelationWrite();
-        }
-
         // 数据自动完成
         $this->autoCompleteData($this->auto);
 
@@ -436,7 +431,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (empty($data)) {
             // 关联更新
-            if (isset($this->relationWrite)) {
+            if (!empty($this->relationWrite)) {
                 $this->autoRelationUpdate();
             }
 
@@ -470,7 +465,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             unset($data[$pk]);
         }
 
-        if ($this->relationWrite) {
+        if (!empty($this->relationWrite)) {
             foreach ($this->relationWrite as $name => $val) {
                 if (is_array($val)) {
                     foreach ($val as $key) {
@@ -486,7 +481,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $result = $this->db(false)->where($where)->strict(false)->field($allowFields)->update($data);
 
         // 关联更新
-        if (isset($this->relationWrite)) {
+        if (!empty($this->relationWrite)) {
             $this->autoRelationUpdate();
         }
 
@@ -530,7 +525,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 关联写入
-        if (isset($this->relationWrite)) {
+        if (!empty($this->relationWrite)) {
             $this->autoRelationInsert();
         }
 
@@ -685,11 +680,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 读取更新条件
         $where = $this->getWhere();
-
-        // 关联写入检查
-        if ($this->together) {
-            $this->checkAutoRelationWrite();
-        }
 
         // 删除当前模型数据
         $result = $this->db(false)->where($where)->delete();

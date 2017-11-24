@@ -46,13 +46,13 @@ trait RelationShip
      * 关联写入定义信息
      * @var array
      */
-    protected $together;
+    private $together;
 
     /**
      * 关联自动写入信息
      * @var array
      */
-    private $relationWrite;
+    protected $relationWrite;
 
     /**
      * 设置父关联对象
@@ -117,9 +117,9 @@ trait RelationShip
     }
 
     /**
-     * 关联数据一起更新
+     * 关联数据写入
      * @access public
-     * @param  mixed $relation 关联
+     * @param  array|string $relation 关联
      * @return $this
      */
     public function together($relation)
@@ -129,6 +129,8 @@ trait RelationShip
         }
 
         $this->together = $relation;
+
+        $this->checkAutoRelationWrite();
 
         return $this;
     }
