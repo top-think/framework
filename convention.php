@@ -268,6 +268,8 @@ return [
         'master_num'      => 1,
         // 指定从服务器序号
         'slave_no'        => '',
+        // 是否严格检查字段的值
+        'strict'          => true,
         // 是否严格检查字段是否存在
         'fields_strict'   => true,
         // 数据集返回类型

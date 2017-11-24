@@ -130,10 +130,10 @@ class App implements \ArrayAccess
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
         $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
-        $this->appPath     = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
+        $this->appPath     = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../app') . '/';
         $this->rootPath    = dirname(realpath($this->appPath)) . '/';
-        $this->runtimePath = $this->rootPath . 'runtime/';
-        $this->routePath   = $this->rootPath . 'route/';
+        $this->runtimePath = $this->rootPath . 'storage/framework/';
+        $this->routePath   = $this->rootPath . 'routes/';
         $this->configPath  = $this->rootPath . 'config/';
 
     }
@@ -165,7 +165,7 @@ class App implements \ArrayAccess
             'config_path'  => $this->configPath,
             'route_path'   => $this->routePath,
             'runtime_path' => $this->runtimePath,
-            'extend_path'  => $this->rootPath . 'extend/',
+            'extend_path'  => $this->appPath . 'extensions/',
             'vendor_path'  => $this->rootPath . 'vendor/',
 
         ]);
