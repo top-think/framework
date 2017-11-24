@@ -596,11 +596,11 @@ trait RelationShip
     {
         foreach ($this->relationWrite as $name => $val) {
             if ($val instanceof Model) {
-                $val->save();
+                $val->isUpdate()->save();
             } else {
-                $model = $this->getAttr($name);
+                $model = $this->getRelation($name);
                 if ($model instanceof Model) {
-                    $model->save($val);
+                    $model->isUpdate()->save($val);
                 }
             }
         }
