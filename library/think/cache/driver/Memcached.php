@@ -110,7 +110,7 @@ class Memcached extends Driver
             $first = true;
         }
         $key    = $this->getCacheKey($name);
-        $expire = 0 == $expire ? 0 : $_SERVER['REQUEST_TIME'] + $expire;
+        $expire = 0 == $expire ? 0 : time() + $expire;
         if ($this->handler->set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);
             return true;
