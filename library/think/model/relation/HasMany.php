@@ -185,7 +185,7 @@ class HasMany extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $model]);
         }
-        $list = $model->where($where)->with($subRelation)->select();
+        $list = $model->removeWhereField($foreignKey)->where($where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
