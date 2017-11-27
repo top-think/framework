@@ -261,7 +261,10 @@ class File extends Driver
 
         foreach ($files as $path) {
             if (is_dir($path)) {
-                array_map('unlink', glob($path . '/*.php'));
+                $matches = glob($path . '/*.php');
+                if (is_array($matches)) {
+                    array_map('unlink', $matches);
+                }
                 rmdir($path);
             } else {
                 unlink($path);
