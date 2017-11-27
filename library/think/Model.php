@@ -610,7 +610,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param  array   $dataSet 数据
      * @param  boolean $replace 是否自动识别更新和写入
-     * @return array
+     * @return Collection
      * @throws \Exception
      */
     public function saveAll($dataSet, $replace = true)
@@ -637,7 +637,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             $db->commit();
 
-            return $result;
+            return $this->toCollection($result);
         } catch (\Exception $e) {
             $db->rollback();
             throw $e;
