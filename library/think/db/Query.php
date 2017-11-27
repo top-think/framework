@@ -1239,6 +1239,7 @@ class Query
         $logic = strtoupper($logic);
         if (isset($this->options['where'][$logic][$field])) {
             unset($this->options['where'][$logic][$field]);
+            unset($this->options['multi'][$logic][$field]);
         }
         return $this;
     }
