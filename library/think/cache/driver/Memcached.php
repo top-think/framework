@@ -99,7 +99,7 @@ class Memcached extends Driver
 
         $result = $this->handler->get($this->getCacheKey($name));
 
-        return false !== $result ? $result : $default;
+        return false !== $result ? $this->unserialize($result) : $default;
     }
 
     /**
@@ -124,6 +124,7 @@ class Memcached extends Driver
 
         $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
+        $value  = $this->serialize($value);
 
         if ($this->handler->set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);

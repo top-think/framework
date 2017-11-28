@@ -67,7 +67,7 @@ class Xcache extends Driver
 
         $key = $this->getCacheKey($name);
 
-        return xcache_isset($key) ? xcache_get($key) : $default;
+        return xcache_isset($key) ? $this->unserialize(xcache_get($key)) : $default;
     }
 
     /**
@@ -92,6 +92,7 @@ class Xcache extends Driver
 
         $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
+        $value  = $this->serialize($value);
 
         if (xcache_set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);

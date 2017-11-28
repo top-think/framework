@@ -69,7 +69,7 @@ class Wincache extends Driver
 
         $key = $this->getCacheKey($name);
 
-        return wincache_ucache_exists($key) ? wincache_ucache_get($key) : $default;
+        return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $default;
     }
 
     /**
@@ -90,6 +90,7 @@ class Wincache extends Driver
 
         $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
+        $value  = $this->serialize($value);
 
         if ($this->tag && !$this->has($name)) {
             $first = true;

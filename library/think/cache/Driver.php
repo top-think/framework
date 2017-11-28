@@ -319,7 +319,7 @@ abstract class Driver
 
     /**
      * 注册序列化机制
-     * @access protected
+     * @access public
      * @param  callable $serialize      序列化方法
      * @param  callable $unserialize    反序列化方法
      * @return $this
