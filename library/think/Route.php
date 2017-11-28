@@ -322,7 +322,7 @@ class Route
 
         if (isset($this->bind[$domain])) {
             $result = $this->bind[$domain];
-        } elseif (isset($this->bind[$name])) {
+        } elseif (isset($name) && isset($this->bind[$name])) {
             $result = $this->bind[$name];
         } elseif (isset($this->bind['*'])) {
             $result = $this->bind['*'];

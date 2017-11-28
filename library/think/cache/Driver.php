@@ -52,7 +52,7 @@ abstract class Driver
      * 序列化方法
      * @var array
      */
-    protected static $serialize = ['serialize', 'unserialize'];
+    protected static $serialize = ['serialize', 'unserialize', 'think_serialize:', 16];
 
     /**
      * 判断缓存是否存在
@@ -297,7 +297,7 @@ abstract class Driver
 
         $serialize = self::$serialize[0];
 
-        return 'think_serialize:' . $serialize($data);
+        return self::$serialize[2] . $serialize($data);
     }
 
     /**
@@ -308,10 +308,10 @@ abstract class Driver
      */
     protected function unserialize($data)
     {
-        if (0 === strpos($data, 'think_serialize:')) {
+        if (0 === strpos($data, self::$serialize[2])) {
             $unserialize = self::$serialize[1];
 
-            return $unserialize(substr($data, 16));
+            return $unserialize(substr($data, self::$serialize[3]));
         } else {
             return $data;
         }
@@ -322,11 +322,12 @@ abstract class Driver
      * @access public
      * @param  callable $serialize      序列化方法
      * @param  callable $unserialize    反序列化方法
+     * @param  string   $prefix         序列化前缀标识
      * @return $this
      */
-    public static function registerSerialize($serialize, $unserialize)
+    public static function registerSerialize($serialize, $unserialize, $prefix = 'think_serialize:')
     {
-        self::$serialize = [$serialize, $unserialize];
+        self::$serialize = [$serialize, $unserialize, $prefix, strlen($prefix)];
     }
 
     /**
