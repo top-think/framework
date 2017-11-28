@@ -314,10 +314,16 @@ class Route
             $domain = $this->domain;
         }
 
-        // TODO 泛三级域名支持
+        $subDomain = implode('.', $this->getSubDomain());
+
+        if (strpos($subDomain, '.')) {
+            $name = '*' . strstr($subDomain, '.');
+        }
 
         if (isset($this->bind[$domain])) {
             $result = $this->bind[$domain];
+        } elseif (isset($this->bind[$name])) {
+            $result = $this->bind[$name];
         } elseif (isset($this->bind['*'])) {
             $result = $this->bind['*'];
         } else {
@@ -873,12 +879,11 @@ class Route
     }
 
     /**
-     * 检测域名的路由规则
+     * 获取当前子域名
      * @access protected
-     * @param  string    $host 当前主机地址
-     * @return Domain
+     * @return array
      */
-    protected function checkDomain()
+    protected function getSubDomain()
     {
         // 获取当前主域名
         $rootDomain = $this->config->get('app.url_domain_root');
@@ -889,6 +894,20 @@ class Route
         } else {
             $domain = explode('.', $this->host, -2);
         }
+
+        return $domain;
+    }
+
+    /**
+     * 检测域名的路由规则
+     * @access protected
+     * @param  string    $host 当前主机地址
+     * @return Domain
+     */
+    protected function checkDomain()
+    {
+        // 获取当前子域名
+        $domain = $this->getSubDomain();
 
         $item = false;
 
