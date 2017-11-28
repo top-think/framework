@@ -337,7 +337,7 @@ class App implements \ArrayAccess
             }
 
             // 监听app_begin
-            $this->hook->listen('app_begin', $this->request);
+            $this->hook->listen('app_begin');
 
             // 请求缓存检查
             $this->request->cache(

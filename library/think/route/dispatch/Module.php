@@ -90,7 +90,7 @@ class Module extends Dispatch
         $this->app['request']->controller(Loader::parseName($controller, 1))->action($actionName);
 
         // 监听module_init
-        $this->app['hook']->listen('module_init', $this->app['request']);
+        $this->app['hook']->listen('module_init');
 
         // 实例化控制器
         try {

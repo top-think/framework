@@ -144,7 +144,7 @@ trait Attribute
             if ($this->disuse) {
                 // 废弃字段
                 foreach ((array) $this->disuse as $key) {
-                    if (isset($data[$key])) {
+                    if (array_key_exists($key, $data)) {
                         unset($data[$key]);
                     }
                 }

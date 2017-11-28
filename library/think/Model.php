@@ -114,7 +114,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if ($this->disuse) {
             // 废弃字段
             foreach ((array) $this->disuse as $key) {
-                if (isset($this->data[$key])) {
+                if (array_key_exists($key, $this->data)) {
                     unset($this->data[$key]);
                 }
             }
