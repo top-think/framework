@@ -49,6 +49,12 @@ abstract class Driver
     protected $tag;
 
     /**
+     * 序列化方法
+     * @var array
+     */
+    protected static $serialize = ['serialize', 'unserialize'];
+
+    /**
      * 判断缓存是否存在
      * @access public
      * @param  string $name 缓存变量名
@@ -275,6 +281,52 @@ abstract class Driver
         } else {
             return [];
         }
+    }
+
+    /**
+     * 序列化数据
+     * @access protected
+     * @param  mixed $data
+     * @return string
+     */
+    protected function serialize($data)
+    {
+        if (is_scalar($data)) {
+            return $data;
+        }
+
+        $serialize = self::$serialize[0];
+
+        return 'think_serialize:' . $serialize($data);
+    }
+
+    /**
+     * 反序列化数据
+     * @access protected
+     * @param  string $data
+     * @return mixed
+     */
+    protected function unserialize($data)
+    {
+        if (0 === strpos($data, 'think_serialize:')) {
+            $unserialize = self::$serialize[1];
+
+            return $unserialize(substr($data, 16));
+        } else {
+            return $data;
+        }
+    }
+
+    /**
+     * 注册序列化机制
+     * @access protected
+     * @param  callable $serialize      序列化方法
+     * @param  callable $unserialize    反序列化方法
+     * @return $this
+     */
+    public static function registerSerialize($serialize, $unserialize)
+    {
+        self::$serialize = [$serialize, $unserialize];
     }
 
     /**

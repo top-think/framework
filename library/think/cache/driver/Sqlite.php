@@ -99,7 +99,7 @@ class Sqlite extends Driver
                 $content = gzuncompress($content);
             }
 
-            return unserialize($content);
+            return $this->unserialize($content);
         }
 
         return $default;
@@ -119,7 +119,7 @@ class Sqlite extends Driver
 
         $name = $this->getCacheKey($name);
 
-        $value = sqlite_escape_string(serialize($value));
+        $value = sqlite_escape_string($this->serialize($value));
 
         if (is_null($expire)) {
             $expire = $this->options['expire'];

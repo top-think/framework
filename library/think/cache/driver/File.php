@@ -137,10 +137,7 @@ class File extends Driver
                 //启用数据压缩
                 $content = gzuncompress($content);
             }
-
-            $content = unserialize($content);
-
-            return $content;
+            return $this->unserialize($content);
         } else {
             return $default;
         }
@@ -169,7 +166,7 @@ class File extends Driver
             $first = true;
         }
 
-        $data = serialize($value);
+        $data = $this->serialize($value);
 
         if ($this->options['data_compress'] && function_exists('gzcompress')) {
             //数据压缩
