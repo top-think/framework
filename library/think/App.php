@@ -70,7 +70,7 @@ class App
     /**
      * 执行应用程序
      * @access public
-     * @param Request $request 请求对象
+     * @param  Request $request 请求对象
      * @return Response
      * @throws Exception
      */
@@ -106,10 +106,10 @@ class App
                 APP_PATH . 'lang' . DS . $request->langset() . EXT,
             ]);
 
+            // 监听 app_dispatch
+            Hook::listen('app_dispatch', self::$dispatch);
             // 获取应用调度信息
             $dispatch = self::$dispatch;
-            // 监听 app_dispatch
-            Hook::listen('app_dispatch', $dispatch);
 
             // 未设置调度信息则进行 URL 路由检测
             if (empty($dispatch)) {
@@ -167,7 +167,7 @@ class App
     /**
      * 初始化应用，并返回配置信息
      * @access public
-     * @return mixed
+     * @return array
      */
     public static function initCommon()
     {
