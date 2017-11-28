@@ -72,6 +72,12 @@ class Url extends Dispatch
             }
         }
 
+        $panDomain = $this->app['request']->panDomain();
+        if ($panDomain && $key = array_search('*', $var)) {
+            // 泛域名赋值
+            $var[$key] = $panDomain;
+        }
+
         // 设置当前请求的参数
         $this->app['request']->route($var);
 

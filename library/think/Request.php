@@ -40,6 +40,12 @@ class Request
     protected $domain;
 
     /**
+     * 泛域名
+     * @var string
+     */
+    protected $panDomain;
+
+    /**
      * 当前URL地址
      * @var string
      */
@@ -389,6 +395,21 @@ class Request
         }
 
         return $this->domain;
+    }
+
+    /**
+     * 设置或获取当前泛域名的值
+     * @access public
+     * @return string|$this
+     */
+    public function panDomain($domain = null)
+    {
+        if (is_null($domain)) {
+            return $this->panDomain;
+        } else {
+            $this->panDomain = $domain;
+            return $this;
+        }
     }
 
     /**

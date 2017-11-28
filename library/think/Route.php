@@ -938,7 +938,7 @@ class Route
 
             if (isset($panDomain)) {
                 // 保存当前泛域名
-                $this->request->route(['__domain__' => $panDomain]);
+                $this->request->panDomain($panDomain);
             }
         }
 
