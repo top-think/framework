@@ -1322,7 +1322,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
             $db->commit();
-            return $result;
+            return $this->toCollection($result);
         } catch (\Exception $e) {
             $db->rollback();
             throw $e;
