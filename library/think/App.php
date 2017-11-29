@@ -476,6 +476,42 @@ class App implements \ArrayAccess
     }
 
     /**
+     * 实例化应用类库
+     * @access public
+     * @param  string $name         类名称
+     * @param  string $layer        业务层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
+     * @return object
+     * @throws ClassNotFoundException
+     */
+    public function create($name, $layer, $appendSuffix = false, $common = 'common')
+    {
+        $guid = $name . $layer;
+
+        if ($this->__isset($guid)) {
+            return $this->__get($guid);
+        }
+
+        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
+
+        if (class_exists($class)) {
+            $object = $this->__get($class);
+        } else {
+            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
+            if (class_exists($class)) {
+                $object = $this->__get($class);
+            } else {
+                throw new ClassNotFoundException('class not exists:' . $class, $class);
+            }
+        }
+
+        $this->__set($guid, $class);
+
+        return $object;
+    }
+
+    /**
      * 实例化（分层）模型
      * @access public
      * @param  string $name         Model名称
@@ -487,28 +523,7 @@ class App implements \ArrayAccess
      */
     public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
-        $guid = $name . $layer;
-
-        if ($this->__isset($guid)) {
-            return $this->__get($guid);
-        }
-
-        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
-
-        if (class_exists($class)) {
-            $model = $this->__get($class);
-        } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
-            if (class_exists($class)) {
-                $model = $this->__get($class);
-            } else {
-                throw new ClassNotFoundException('class not exists:' . $class, $class);
-            }
-        }
-
-        $this->__set($guid, $class);
-
-        return $model;
+        return $this->create($name, $layer, $appendSuffix, $common);
     }
 
     /**
@@ -552,27 +567,7 @@ class App implements \ArrayAccess
             return new Validate;
         }
 
-        $guid = $name . $layer;
-        if ($this->__isset($guid)) {
-            return $this->__get($guid);
-        }
-
-        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
-
-        if (class_exists($class)) {
-            $validate = $this->__get($class);
-        } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
-            if (class_exists($class)) {
-                $validate = $this->__get($class);
-            } else {
-                throw new ClassNotFoundException('class not exists:' . $class, $class);
-            }
-        }
-
-        $this->__set($guid, $class);
-
-        return $validate;
+        return $this->create($name, $layer, $appendSuffix, $common);
     }
 
     /**
