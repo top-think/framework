@@ -354,15 +354,15 @@ abstract class Connection
             $this->bind = $bind;
         }
 
-        // 释放前次的查询结果
-        if (!empty($this->PDOStatement)) {
-            $this->free();
-        }
-
         Db::$queryTimes++;
         try {
             // 调试开始
             $this->debug(true);
+
+            // 释放前次的查询结果
+            if (!empty($this->PDOStatement)) {
+                $this->free();
+            }
             // 预处理
             if (empty($this->PDOStatement)) {
                 $this->PDOStatement = $this->linkID->prepare($sql);
@@ -386,6 +386,11 @@ abstract class Connection
                 return $this->close()->query($sql, $bind, $master, $pdo);
             }
             throw new PDOException($e, $this->config, $this->getLastsql());
+        } catch (\Throwable $e) {
+            if ($this->isBreak($e)) {
+                return $this->close()->query($sql, $bind, $master, $pdo);
+            }
+            throw $e;
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->query($sql, $bind, $master, $pdo);
@@ -416,15 +421,15 @@ abstract class Connection
             $this->bind = $bind;
         }
 
-        //释放前次的查询结果
-        if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
-            $this->free();
-        }
-
         Db::$executeTimes++;
         try {
             // 调试开始
             $this->debug(true);
+
+            //释放前次的查询结果
+            if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
+                $this->free();
+            }
             // 预处理
             if (empty($this->PDOStatement)) {
                 $this->PDOStatement = $this->linkID->prepare($sql);
@@ -449,6 +454,11 @@ abstract class Connection
                 return $this->close()->execute($sql, $bind);
             }
             throw new PDOException($e, $this->config, $this->getLastsql());
+        } catch (\Throwable $e) {
+            if ($this->isBreak($e)) {
+                return $this->close()->execute($sql, $bind);
+            }
+            throw $e;
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->execute($sql, $bind);
@@ -648,6 +658,11 @@ abstract class Connection
             }
             throw $e;
         } catch (\Exception $e) {
+            if ($this->isBreak($e)) {
+                return $this->close()->startTrans();
+            }
+            throw $e;
+        } catch (\Error $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->startTrans();
             }
