@@ -11,6 +11,12 @@
 
 namespace think;
 
+use Closure;
+use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionMethod;
+
 class Container
 {
     /**
@@ -81,7 +87,7 @@ class Container
     {
         if (is_array($abstract)) {
             $this->bind = array_merge($this->bind, $abstract);
-        } elseif ($concrete instanceof \Closure) {
+        } elseif ($concrete instanceof Closure) {
             $this->bind[$abstract] = $concrete;
         } elseif (is_object($concrete)) {
             $this->instances[$abstract] = $concrete;
@@ -122,6 +128,17 @@ class Container
     }
 
     /**
+     * 判断容器中是否存在类及标识
+     * @access public
+     * @param  string    $name    类名或者标识
+     * @return bool
+     */
+    public function has($name)
+    {
+        return $this->bound($name);
+    }
+
+    /**
      * 创建类的实例
      * @access public
      * @param  string        $abstract       类名或者标识
@@ -143,7 +160,7 @@ class Container
             if (isset($this->bind[$abstract])) {
                 $concrete = $this->bind[$abstract];
 
-                if ($concrete instanceof \Closure) {
+                if ($concrete instanceof Closure) {
                     $object = $this->invokeFunction($concrete, $vars);
                 } else {
                     $object = $this->make($concrete, $vars, $newInstance);
@@ -169,7 +186,7 @@ class Container
      */
     public function invokeFunction($function, $vars = [])
     {
-        $reflect = new \ReflectionFunction($function);
+        $reflect = new ReflectionFunction($function);
         $args    = $this->bindParams($reflect, $vars);
 
         return $reflect->invokeArgs($args);
@@ -186,10 +203,10 @@ class Container
     {
         if (is_array($method)) {
             $class   = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
-            $reflect = new \ReflectionMethod($class, $method[1]);
+            $reflect = new ReflectionMethod($class, $method[1]);
         } else {
             // 静态方法
-            $reflect = new \ReflectionMethod($method);
+            $reflect = new ReflectionMethod($method);
         }
 
         $args = $this->bindParams($reflect, $vars);
@@ -206,7 +223,7 @@ class Container
      */
     public function invoke($callable, $vars = [])
     {
-        if ($callable instanceof \Closure) {
+        if ($callable instanceof Closure) {
             $result = $this->invokeFunction($callable, $vars);
         } else {
             $result = $this->invokeMethod($callable, $vars);
@@ -224,7 +241,7 @@ class Container
      */
     public function invokeClass($class, $vars = [])
     {
-        $reflect     = new \ReflectionClass($class);
+        $reflect     = new ReflectionClass($class);
         $constructor = $reflect->getConstructor();
 
         if ($constructor) {
@@ -267,7 +284,7 @@ class Container
                 } elseif ($param->isDefaultValueAvailable()) {
                     $args[] = $param->getDefaultValue();
                 } else {
-                    throw new \InvalidArgumentException('method param miss:' . $name);
+                    throw new InvalidArgumentException('method param miss:' . $name);
                 }
             }
         }
