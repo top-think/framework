@@ -1780,13 +1780,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param string $relation 关联方法名
-     * @param mixed  $where    查询条件（数组或者闭包）
+     * @param  string $relation 关联方法名
+     * @param  mixed  $where    查询条件（数组或者闭包）
+     * @param  mixed  $fields   字段
      * @return Relation|Query
      */
-    public static function hasWhere($relation, $where = [])
+    public static function hasWhere($relation, $where = [], $fields = null)
     {
-        return (new static())->$relation()->hasWhere($where);
+        return (new static())->$relation()->hasWhere($where, $fields);
     }
 
     /**

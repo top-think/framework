@@ -253,14 +253,16 @@ class HasMany extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param mixed $where 查询条件（数组或者闭包）
+     * @param  mixed     $where  查询条件（数组或者闭包）
+     * @param  mixed     $fields 字段
      * @return Query
      */
-    public function hasWhere($where = [])
+    public function hasWhere($where = [], $fields = null)
     {
         $table    = $this->query->getTable();
         $model    = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
+
         if (is_array($where)) {
             foreach ($where as $key => $val) {
                 if (false === strpos($key, '.')) {
@@ -269,8 +271,11 @@ class HasMany extends Relation
                 }
             }
         }
+
+        $fields = $this->getRelationQueryFields($fields, $model);
+
         return $this->parent->db()->alias($model)
-            ->field($model . '.*')
+            ->field($fields)
             ->group($model . '.' . $this->localKey)
             ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey)
             ->where($where);

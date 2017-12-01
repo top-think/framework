@@ -79,14 +79,16 @@ class BelongsTo extends OneToOne
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param mixed $where 查询条件（数组或者闭包）
+     * @param  mixed  $where 查询条件（数组或者闭包）
+     * @param  mixed  $fields   字段
      * @return Query
      */
-    public function hasWhere($where = [])
+    public function hasWhere($where = [], $fields = null)
     {
         $table    = $this->query->getTable();
         $model    = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
+
         if (is_array($where)) {
             foreach ($where as $key => $val) {
                 if (false === strpos($key, '.')) {
@@ -95,8 +97,10 @@ class BelongsTo extends OneToOne
                 }
             }
         }
+        $fields = $this->getRelationQueryFields($fields, $model);
+
         return $this->parent->db()->alias($model)
-            ->field($model . '.*')
+            ->field($fields)
             ->group($model . '.' . $this->foreignKey)
             ->join($table . ' ' . $relation, $model . '.' . $this->foreignKey . '=' . $relation . '.' . $this->localKey, $this->joinType)
             ->where($where);
@@ -125,7 +129,7 @@ class BelongsTo extends OneToOne
         }
 
         if (!empty($range)) {
-            $data = $this->eagerlyWhere($this, [
+            $data = $this->eagerlyWhere($this->query, [
                 $localKey => [
                     'in',
                     $range,
@@ -168,7 +172,7 @@ class BelongsTo extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere($this, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
+        $data       = $this->eagerlyWhere($this->query, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
         // 关联模型
         if (!isset($data[$result->$foreignKey])) {
             $relationModel = null;
