@@ -286,13 +286,19 @@ class Query
      * @access public
      * @param  mixed         $config 连接配置
      * @param  bool|string   $name 连接标识 true 强制重新连接
-     * @return $this
+     * @return $this|object
      * @throws Exception
      */
     public function connect($config = [], $name = false)
     {
         $this->connection = Connection::instance($config, $name);
-        $this->prefix     = $this->connection->getConfig('prefix');
+        $query            = $this->connection->getConfig('query');
+
+        if (__CLASS__ != $query) {
+            return new $query($this->connection);
+        }
+
+        $this->prefix = $this->connection->getConfig('prefix');
 
         return $this;
     }
@@ -1307,8 +1313,7 @@ class Query
                 if (key($field) !== 0) {
                     $where = [];
                     foreach ($field as $key => $val) {
-                        $where[$key] = is_array($val) && $val[0] == $key ?
-                        $val : [$key, '=', $val];
+                        $where[$key] = !is_scalar($val) ? $val : [$key, '=', $val];
                     }
                 } else {
                     // 数组批量查询
