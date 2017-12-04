@@ -294,7 +294,7 @@ class Query
         $this->connection = Connection::instance($config, $name);
         $query            = $this->connection->getConfig('query');
 
-        if (__CLASS__ != $query) {
+        if (__CLASS__ != trim($query, '\\')) {
             return new $query($this->connection);
         }
 
@@ -843,6 +843,17 @@ class Query
         }
 
         return $this;
+    }
+
+    /**
+     * 查询SQL组装 union all
+     * @access public
+     * @param  mixed   $union
+     * @return $this
+     */
+    public function unionAll($union)
+    {
+        return $this->union($union, true);
     }
 
     /**
