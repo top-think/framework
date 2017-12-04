@@ -235,9 +235,13 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         foreach ($this->items as $key => $item) {
             $result = $callback($item, $key);
 
-            if (false === $result) break;
+            if (false === $result) {
+                break;
+            }
 
-            if (!is_object($item)) $this->items[$key] = $result;
+            if (!is_object($item)) {
+                $this->items[$key] = $result;
+            }
         }
 
         return $this;
@@ -257,14 +261,14 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 返回数据中指定的一列
      * @access public
-     * @param mixed $column_key 键名
-     * @param null  $index_key  作为索引值的列
+     * @param mixed $columnKey 键名
+     * @param null  $indexKey  作为索引值的列
      * @return array
      */
-    public function column($column_key, $index_key = null)
+    public function column($columnKey, $indexKey = null)
     {
         if (function_exists('array_column')) {
-            return array_column($this->items, $column_key, $index_key);
+            return array_column($this->items, $columnKey, $indexKey);
         }
 
         $result = [];
@@ -272,17 +276,17 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
             $key    = $value    = null;
             $keySet = $valueSet = false;
 
-            if (null !== $index_key && array_key_exists($index_key, $row)) {
-                $key    = (string) $row[$index_key];
+            if (null !== $indexKey && array_key_exists($indexKey, $row)) {
+                $key    = (string) $row[$indexKey];
                 $keySet = true;
             }
 
-            if (null === $column_key) {
+            if (null === $columnKey) {
                 $valueSet = true;
                 $value    = $row;
-            } elseif (is_array($row) && array_key_exists($column_key, $row)) {
+            } elseif (is_array($row) && array_key_exists($columnKey, $row)) {
                 $valueSet = true;
-                $value    = $row[$column_key];
+                $value    = $row[$columnKey];
             }
 
             if ($valueSet) {
@@ -310,7 +314,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
             return $a == $b ? 0 : (($a < $b) ? -1 : 1);
         };
 
-        return new static(uasort($items, $callback));
+        uasort($items, $callback);
+        return new static($items);
     }
 
     /**
@@ -322,7 +327,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     {
         $items = $this->items;
 
-        return new static(shuffle($items));
+        shuffle($items);
+        return new static($items);
     }
 
     /**
