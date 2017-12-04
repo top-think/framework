@@ -274,6 +274,8 @@ class App implements \ArrayAccess
                 $this->container->bind(include $path . 'provider.php');
             }
         }
+
+        $this->request->filter($this->config('app.default_filter'));
     }
 
     /**
@@ -298,8 +300,6 @@ class App implements \ArrayAccess
                     $this->route->bind($name);
                 }
             }
-
-            $this->request->filter($this->config('app.default_filter'));
 
             // 读取默认语言
             $this->lang->range($this->config('app.default_lang'));
