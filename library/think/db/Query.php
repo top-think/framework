@@ -846,6 +846,17 @@ class Query
     }
 
     /**
+     * 查询SQL组装 union all
+     * @access public
+     * @param  mixed   $union
+     * @return $this
+     */
+    public function unionAll($union)
+    {
+        return $this->union($union, true);
+    }
+
+    /**
      * 指定查询字段 支持字段排除和指定数据表
      * @access public
      * @param  mixed   $field
