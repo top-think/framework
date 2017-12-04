@@ -540,6 +540,9 @@ class App
             $request->module($module);
         }
 
+        // 设置默认过滤机制
+        $request->filter($config['default_filter']);
+
         // 当前模块路径
         App::$modulePath = APP_PATH . ($module ? $module . DS : '');
 
