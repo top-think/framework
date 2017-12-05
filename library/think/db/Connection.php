@@ -352,7 +352,7 @@ abstract class Connection
         if (!isset(self::$info[$schema])) {
             // 读取缓存
             $cacheFile = Container::get('app')->getRuntimePath() . 'schema/' . $schema . '.php';
-            if (is_file($cacheFile)) {
+            if (!$this->config['debug'] && is_file($cacheFile)) {
                 $info = include $cacheFile;
             } else {
                 $info = $this->getFields($tableName);
