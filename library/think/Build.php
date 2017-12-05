@@ -188,20 +188,19 @@ class Build
      */
     public function buildRoute($alias = false)
     {
-        $namespace = app()->getNameSpace();
-        $path      = app()->getAppPath();
-        $modules   = glob($path . '*', GLOB_ONLYDIR);
-        $content   = '<?php ' . PHP_EOL . '//根据 DocComment 自动生成的路由规则';
+        $namespace = $this->app->getNameSpace();
+        $modules   = glob($this->basePath . '*', GLOB_ONLYDIR);
+        $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
 
         foreach ($modules as $module) {
-            $controllers = glob($path . basename($module) . '/controller/*.php');
+            $controllers = glob($this->basePath . basename($module) . '/controller/*.php');
 
             foreach ($controllers as $controller) {
                 $content .= $this->getControllerRoute($namespace, basename($module), basename($controller, '.php'), $alias);
             }
         }
 
-        $filename = app()->getRuntimePath() . 'build_route.php';
+        $filename = $this->app->getRuntimePath() . 'build_route.php';
         file_put_contents($filename, $content);
 
         return $filename;
