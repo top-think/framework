@@ -285,7 +285,13 @@ class Build
 
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);
-            $route   = $module . '/' . $controller . '/' . $reflectMethod->getName();
+            $action  = $reflectMethod->getName();
+
+            if ($suffix = $this->app->config('app.action_suffix')) {
+                $action = substr($action, 0, -strlen($suffix));
+            }
+
+            $route   = $module . '/' . $controller . '/' . $action;
             $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\,?\s?[\'\"]?(\w+?)[\'\"]?\s?\)/is', 'Route::\2(\1,\'' . $route . '\')', $comment);
             $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::rule(\1,\'' . $route . '\')', $comment);
 
