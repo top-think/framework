@@ -430,14 +430,17 @@ class App implements \ArrayAccess
             }
         }
 
-        if ($this->debug) {
+        if ($this->config('app.route_annotation')) {
             // 自动生成路由定义
-            $this->build->buildRoute($this->config('app.controller_suffix'));
-        }
+            if ($this->debug) {
+                $this->build->buildRoute($this->config('app.controller_suffix'));
+            }
 
-        $buildRoute = $this->runtimePath . 'build_route.php';
-        if (is_file($buildRoute)) {
-            include $filename;
+            $buildRoute = $this->runtimePath . 'build_route.php';
+
+            if (is_file($buildRoute)) {
+                include $filename;
+            }
         }
 
         // 是否强制路由模式
