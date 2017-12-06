@@ -79,15 +79,16 @@ class Cache
     {
         if (is_null($this->handler)) {
             // 自动初始化缓存
-            if (!empty($options)) {
-                $connect = $this->connect($options);
-            } elseif ('complex' == $this->app['config']->get('cache.type')) {
-                $connect = $this->connect($this->app['config']->get('cache.default'));
+            $config = $this->app['config'];
+
+            if (empty($options) && 'complex' == $config->get('cache.type')) {
+                $default = $config->get('cache.default');
+                $options = $config->get('cache.' . $default['type']) ?: $config->get('cache.default');
             } else {
-                $connect = $this->connect($this->app['config']->pull('cache'));
+                $options = !empty($options) ? $options : $config->pull('cache');
             }
 
-            $this->handler = $connect;
+            $this->handler = $this->connect($options);
         }
 
         return $this->handler;
