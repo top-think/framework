@@ -84,8 +84,8 @@ class Cache
             if (empty($options) && 'complex' == $config->get('cache.type')) {
                 $default = $config->get('cache.default');
                 $options = $config->get('cache.' . $default['type']) ?: $config->get('cache.default');
-            } else {
-                $options = !empty($options) ? $options : $config->pull('cache');
+            } elseif (empty($options)) {
+                $options = $config->pull('cache');
             }
 
             $this->handler = $this->connect($options);
