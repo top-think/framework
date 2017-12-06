@@ -193,10 +193,16 @@ class Build
         $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
 
         foreach ($modules as $module) {
-            $controllers = glob($this->basePath . basename($module) . '/controller/*.php');
+            $module = basename($module);
+
+            if (in_array($module, $this->app->config('app.deny_module_list'))) {
+                continue;
+            }
+
+            $controllers = glob($this->basePath . $module . '/controller/*.php');
 
             foreach ($controllers as $controller) {
-                $content .= $this->getControllerRoute($namespace, basename($module), basename($controller, '.php'), $alias);
+                $content .= $this->getControllerRoute($namespace, $module, basename($controller, '.php'), $alias);
             }
         }
 
