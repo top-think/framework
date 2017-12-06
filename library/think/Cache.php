@@ -81,8 +81,8 @@ class Cache
                 $default = Config::get('cache.default');
                 // 获取默认缓存配置，并连接
                 $options = Config::get('cache.' . $default['type']) ?: Config::get('cache.default');
-            } else {
-                $options = !empty($options) ? $options : Config::get('cache');
+            } elseif (empty($options)) {
+                $options = Config::get('cache');
             }
 
             self::$handler = self::connect($options);
