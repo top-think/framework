@@ -704,7 +704,7 @@ class Query
     {
         // 传入的表名为数组
         if (is_array($join)) {
-            list($table, $alias) = each($join);
+            list($table, $alias) = $join;
         } else {
             $join = trim($join);
             if (false !== strpos($join, '(')) {
