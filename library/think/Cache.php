@@ -80,7 +80,7 @@ class Cache
             if (empty($options) && 'complex' == Config::get('cache.type')) {
                 $default = Config::get('cache.default');
                 // 获取默认缓存配置，并连接
-                $options = Config::get('cache.' . $default['type']) ?: Config::get('cache.default');
+                $options = Config::get('cache.' . $default['type']) ?: $default;
             } elseif (empty($options)) {
                 $options = Config::get('cache');
             }
