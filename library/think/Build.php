@@ -184,13 +184,18 @@ class Build
      * 根据注释自动生成路由规则
      * @access public
      * @param  bool   $suffix 类库后缀
+     * @param  string $layer  控制器层目录名
      * @return string
      */
-    public function buildRoute($alias = false)
+    public function buildRoute($alias = false, $layer = '')
     {
         $namespace = $this->app->getNameSpace();
         $modules   = glob($this->basePath . '*', GLOB_ONLYDIR);
         $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
+
+        if (!$layer) {
+            $layer = $this->app->config('app.url_controller_layer');
+        }
 
         foreach ($modules as $module) {
             $module = basename($module);
@@ -199,10 +204,10 @@ class Build
                 continue;
             }
 
-            $controllers = glob($this->basePath . $module . '/controller/*.php');
+            $controllers = glob($this->basePath . $module . '/' . $layer . '/*.php');
 
             foreach ($controllers as $controller) {
-                $content .= $this->getControllerRoute($namespace, $module, basename($controller, '.php'), $alias);
+                $content .= $this->getControllerRoute($namespace, $module, basename($controller, '.php'), $alias, $layer);
             }
         }
 
@@ -219,11 +224,12 @@ class Build
      * @param  string $module 模块
      * @param  string $controller 控制器名
      * @param  bool   $suffix 类库后缀
+     * @param  string $layer 控制器层目录名
      * @return string
      */
-    protected function getControllerRoute($namespace, $module, $controller, $alias = false)
+    protected function getControllerRoute($namespace, $module, $controller, $alias = false, $layer = '')
     {
-        $class   = new \ReflectionClass($namespace . '\\' . $module . '\\controller\\' . $controller);
+        $class   = new \ReflectionClass($namespace . '\\' . $module . '\\' . $layer . '\\' . $controller);
         $content = '';
         $comment = $class->getDocComment();
 
