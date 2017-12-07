@@ -727,7 +727,7 @@ class Query
                 }
             }
         }
-        if (isset($alias)) {
+        if (isset($alias) && $table != $alias) {
             if (isset($this->options['alias'][$table])) {
                 $table = $table . '@think' . uniqid();
             }
