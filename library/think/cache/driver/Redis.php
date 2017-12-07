@@ -85,7 +85,7 @@ class Redis extends Driver
         }
 
         try {
-            $result = unserialize($value);
+            $result = 0 === strpos($value, 'think_serialize:') ? unserialize(substr($value, 16)) : $value;
         } catch (\Exception $e) {
             $result = $default;
         }
@@ -113,7 +113,7 @@ class Redis extends Driver
             $first = true;
         }
         $key   = $this->getCacheKey($name);
-        $value = serialize($value);
+        $value = is_scalar($value) ? $value : 'think_serialize:' . serialize($value);
         if (is_int($expire) && $expire) {
             $result = $this->handler->setex($key, $expire, $value);
         } else {
@@ -126,35 +126,29 @@ class Redis extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
      * @return false|int
      */
     public function inc($name, $step = 1)
     {
-        if ($this->has($name)) {
-            $value = $this->get($name) + $step;
-        } else {
-            $value = $step;
-        }
-        return $this->set($name, $value, 0) ? $value : false;
+        $key = $this->getCacheKey($name);
+
+        return $this->handler->incrby($key, $step);
     }
 
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
      * @return false|int
      */
     public function dec($name, $step = 1)
     {
-        if ($this->has($name)) {
-            $value = $this->get($name) - $step;
-        } else {
-            $value = -$step;
-        }
-        return $this->set($name, $value, 0) ? $value : false;
+        $key = $this->getCacheKey($name);
+
+        return $this->handler->decrby($key, $step);
     }
 
     /**
