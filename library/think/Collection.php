@@ -250,15 +250,15 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
-     * 返回数组中指定的一列
+     * 返回数据中指定的一列
      * @access public
-     * @param  mixed     $column_key
-     * @param  mixed     $index_key
+     * @param mixed $columnKey 键名
+     * @param mixed $indexKey  作为索引值的列
      * @return array
      */
-    public function column($column_key, $index_key = null)
+    public function column($columnKey, $indexKey = null)
     {
-        return array_column($this->items, $column_key, $index_key);
+        return array_column($this->items, $columnKey, $indexKey);
     }
 
     /**
@@ -272,14 +272,12 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     {
         $items = $this->items;
 
-        $callback ? uasort($items, $callback) : uasort($items, function ($a, $b) {
+        $callback = $callback ?: function ($a, $b) {
+            return $a == $b ? 0 : (($a < $b) ? -1 : 1);
 
-            if ($a == $b) {
-                return 0;
-            }
+        };
 
-            return ($a < $b) ? -1 : 1;
-        });
+        uasort($items, $callback);
 
         return new static($items);
     }
