@@ -126,6 +126,7 @@ class File extends Driver
 
         $content      = file_get_contents($filename);
         $this->expire = null;
+
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
             if (0 != $expire && time() > filemtime($filename) + $expire) {
@@ -133,8 +134,10 @@ class File extends Driver
                 $this->unlink($filename);
                 return $default;
             }
+
             $this->expire = $expire;
             $content      = substr($content, 32);
+
             if ($this->options['data_compress'] && function_exists('gzcompress')) {
                 //启用数据压缩
                 $content = gzuncompress($content);

@@ -132,6 +132,7 @@ class Memcache extends Driver
         $this->writeTimes++;
 
         $key = $this->getCacheKey($name);
+
         if ($this->handler->get($key)) {
             return $this->handler->increment($key, $step);
         }
@@ -154,11 +155,7 @@ class Memcache extends Driver
         $value = $this->handler->get($key) - $step;
         $res   = $this->handler->set($key, $value);
 
-        if (!$res) {
-            return false;
-        } else {
-            return $value;
-        }
+        return !$res ? false : $value;
     }
 
     /**

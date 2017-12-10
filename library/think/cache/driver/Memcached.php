@@ -169,11 +169,7 @@ class Memcached extends Driver
         $value = $this->handler->get($key) - $step;
         $res   = $this->handler->set($key, $value);
 
-        if (!$res) {
-            return false;
-        } else {
-            return $value;
-        }
+        return !$res ? false : $value;
     }
 
     /**
