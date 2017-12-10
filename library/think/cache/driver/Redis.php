@@ -114,7 +114,7 @@ class Redis extends Driver
         }
         $key   = $this->getCacheKey($name);
         $value = is_scalar($value) ? $value : 'think_serialize:' . serialize($value);
-        if (is_int($expire) && $expire) {
+        if ($expire) {
             $result = $this->handler->setex($key, $expire, $value);
         } else {
             $result = $this->handler->set($key, $value);
