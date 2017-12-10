@@ -53,7 +53,7 @@ class redisTest extends cacheTestCase
 
         $redis->handler()->setnx('key', 'value');
         $value = $redis->handler()->get('key');
-        $this->assertEquals('s:5:"value";', $value);
+        $this->assertEquals('value', $value);
 
         $redis->handler()->hset('hash', 'key', 'value');
         $value = $redis->handler()->hget('hash', 'key');
