@@ -118,7 +118,7 @@ class Redis extends Driver
 
         $value = $this->serialize($value);
 
-        if (is_int($expire) && $expire) {
+        if ($expire) {
             $result = $this->handler->setex($key, $expire, $value);
         } else {
             $result = $this->handler->set($key, $value);
