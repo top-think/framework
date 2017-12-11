@@ -110,8 +110,18 @@ abstract class Builder
                 }
             } elseif (is_null($val)) {
                 $result[$item] = 'NULL';
-            } elseif (isset($val[0]) && 'exp' == $val[0]) {
-                $result[$item] = $val[1];
+            } elseif (is_array($val)) {
+                switch ($val[0]) {
+                    case 'exp':
+                        $result[$item] = $val[1];
+                        break;
+                    case 'inc':
+                        $result[$item] = $this->parseKey($val[1]) . '+' . $val[2];
+                        break;
+                    case 'dec':
+                        $result[$item] = $this->parseKey($val[1]) . '-' . $val[2];
+                        break;
+                }
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
                 if (0 === strpos($val, ':') && $this->query->isBind(substr($val, 1))) {
