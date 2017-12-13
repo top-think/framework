@@ -947,7 +947,7 @@ class Validate
             $map[] = [$key, '=', $data[$field]];
         }
 
-        $pk = strval(!empty($rule[3]) ? $rule[3] : $db->getPk());
+        $pk = !empty($rule[3]) ? $rule[3] : $db->getPk();
 
         if (is_string($pk)) {
             if (isset($rule[2])) {
