@@ -647,7 +647,7 @@ class Query
             }
         }
 
-        return $this->setField($field, ['exp', $field . '+' . $step]);
+        return $this->setField($field, ['inc', $field, $step]);
     }
 
     /**
@@ -680,7 +680,7 @@ class Query
             }
         }
 
-        return $this->setField($field, ['exp', $field . '-' . $step]);
+        return $this->setField($field, ['dec', $field, $step]);
     }
 
     /**
@@ -948,7 +948,7 @@ class Query
         $fields = is_string($field) ? explode(',', $field) : $field;
 
         foreach ($fields as $field) {
-            $this->data($field, ['exp', $field . '+' . $step]);
+            $this->data($field, ['inc', $field, $step]);
         }
 
         return $this;
@@ -966,7 +966,7 @@ class Query
         $fields = is_string($field) ? explode(',', $field) : $field;
 
         foreach ($fields as $field) {
-            $this->data($field, ['exp', $field . '-' . $step]);
+            $this->data($field, ['dec', $field, $step]);
         }
 
         return $this;
