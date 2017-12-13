@@ -678,6 +678,8 @@ class Query
                 $this->options = [];
                 return true;
             }
+
+            return $this->setField($field, ['inc', $field, $step]);
         }
 
         return $this->setField($field, ['dec', $field, $step]);
