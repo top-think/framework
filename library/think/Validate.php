@@ -423,7 +423,6 @@ class Validate
 
             // 字段验证
             if ($rule instanceof \Closure) {
-                // 匿名函数验证 支持传入当前字段和所有字段两个数据
                 $result = call_user_func_array($rule, [$value, $data]);
             } elseif ($rule instanceof ValidateRule) {
                 //  验证因子
@@ -461,7 +460,6 @@ class Validate
     public function checkRule($value, $rules)
     {
         if ($rules instanceof \Closure) {
-            // 匿名函数验证 支持传入当前字段和所有字段两个数据
             return call_user_func_array($rules, [$value]);
         } elseif ($rules instanceof ValidateRule) {
             $rules = $rules->getRule();
@@ -533,8 +531,6 @@ class Validate
                     $i++;
                     continue;
                 }
-
-                // 如果不是require 有数据才会行验证
 
                 if ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                     // 验证类型
