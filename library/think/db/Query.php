@@ -679,10 +679,12 @@ class Query
                 return true;
             }
 
-            return $this->setField($field, ['inc', $field, $step]);
+            $value = ['inc', $field, $step];
+        } else {
+            $value = ['dec', $field, $step];
         }
 
-        return $this->setField($field, ['dec', $field, $step]);
+        return $this->setField($field, $value);
     }
 
     /**
