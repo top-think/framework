@@ -467,7 +467,7 @@ class BelongsToMany extends Relation
             $ids                    = (array) $id;
             foreach ($ids as $id) {
                 $pivot[$this->foreignKey] = $id;
-                $this->pivot->insert($pivot, true);
+                $this->pivot->name($this->middle)->insert($pivot, true);
                 $result[] = $this->newPivot($pivot);
             }
             if (count($result) == 1) {
@@ -505,7 +505,7 @@ class BelongsToMany extends Relation
         if (isset($id)) {
             $pivot[$this->foreignKey] = is_array($id) ? ['in', $id] : $id;
         }
-        $this->pivot->where($pivot)->delete();
+        $this->pivot->name($this->middle)->where($pivot)->delete();
         // 删除关联表数据
         if (isset($id) && $relationDel) {
             $model = $this->model;
@@ -527,7 +527,7 @@ class BelongsToMany extends Relation
             'updated'  => [],
         ];
         $pk      = $this->parent->getPk();
-        $current = $this->pivot->where($this->localKey, $this->parent->$pk)
+        $current = $this->pivot->name($this->middle)->where($this->localKey, $this->parent->$pk)
             ->column($this->foreignKey);
         $records = [];
 
@@ -571,7 +571,7 @@ class BelongsToMany extends Relation
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
             $pk    = $this->parent->getPk();
-            $table = $this->pivot->getTable();
+            $table = $this->pivot->getTable($this->middle);
             $this->query->join($table . ' pivot', 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())->where('pivot.' . $this->localKey, $this->parent->$pk);
             $this->baseQuery = true;
         }
