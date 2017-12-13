@@ -53,7 +53,7 @@ class BelongsToMany extends Relation
         $this->query = (new $model)->db();
         $this->pivot = $this->newPivot();
 
-        if (!is_subclass_of($this->pivot, '\\think\\model\\Pivot')) {
+        if ('think\model\Pivot' == get_class($this->pivot)) {
             $this->pivot->name($this->middle);
         }
     }
