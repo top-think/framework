@@ -837,13 +837,14 @@ class Validate
             $map[$key] = $data[$field];
         }
 
-        $pk = strval(isset($rule[3]) ? $rule[3] : $db->getPk());
-        if (isset($rule[2])) {
-            $map[$pk] = ['neq', $rule[2]];
-        } elseif (isset($data[$pk])) {
-            $map[$pk] = ['neq', $data[$pk]];
+        $pk = isset($rule[3]) ? $rule[3] : $db->getPk();
+        if (is_string($pk)) {
+            if (isset($rule[2])) {
+                $map[$pk] = ['neq', $rule[2]];
+            } elseif (isset($data[$pk])) {
+                $map[$pk] = ['neq', $data[$pk]];
+            }
         }
-
         if ($db->where($map)->field($pk)->find()) {
             return false;
         }
