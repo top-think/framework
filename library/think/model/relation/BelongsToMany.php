@@ -383,7 +383,7 @@ class BelongsToMany extends Relation
     {
         // 关联查询封装
         $tableName = $this->query->getTable();
-        $table     = $this->pivot->getTable();
+        $table     = $this->pivot->getTable($this->middle);
         $fields    = $this->getQueryFields($tableName);
 
         $query = $this->query->field($fields)
