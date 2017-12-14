@@ -534,22 +534,24 @@ class Query
      * MIN查询
      * @access public
      * @param string $field 字段名
+     * @param bool   $force   强制转为数字类型
      * @return mixed
      */
-    public function min($field)
+    public function min($field, $force = true)
     {
-        return $this->value('MIN(' . $field . ') AS tp_min', 0, true);
+        return $this->value('MIN(' . $field . ') AS tp_min', 0, $force);
     }
 
     /**
      * MAX查询
      * @access public
      * @param string $field 字段名
+     * @param bool   $force   强制转为数字类型
      * @return mixed
      */
-    public function max($field)
+    public function max($field, $force = true)
     {
-        return $this->value('MAX(' . $field . ') AS tp_max', 0, true);
+        return $this->value('MAX(' . $field . ') AS tp_max', 0, $force);
     }
 
     /**
