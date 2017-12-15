@@ -59,7 +59,7 @@ class Config
      * 加载配置文件（多种格式）
      * @access public
      * @param  string    $file 配置文件名
-     * @param  string    $name 配置名（如设置即表示二级配置）
+     * @param  string    $name 一级配置名
      * @return mixed
      */
     public function load($file, $name = '')
@@ -157,8 +157,9 @@ class Config
             return $this->pull(substr($name, 0, -1));
         }
 
-        $name   = explode('.', strtolower($name));
-        $config = $this->config;
+        $name    = explode('.', $name);
+        $name[0] = strtolower($name[0]);
+        $config  = $this->config;
 
         if (!isset($config[$name[0]])) {
             // 如果尚未载入 则动态加载配置文件
@@ -190,14 +191,13 @@ class Config
             if (!strpos($name, '.')) {
                 $name = $this->prefix . '.' . $name;
             }
-            $name = explode('.', strtolower($name));
 
-            $this->config[$name[0]][$name[1]] = $value;
+            $name = explode('.', $name);
+
+            $this->config[strtolower($name[0])][$name[1]] = $value;
             return $value;
         } elseif (is_array($name)) {
             // 批量设置
-            $name = array_change_key_case($name);
-
             if (!empty($value)) {
                 if (isset($this->config[$value])) {
                     $result = array_merge($this->config[$value], $name);
