@@ -824,7 +824,10 @@ class Query
         if (isset($alias) && $table != $alias) {
             if (isset($this->options['alias'][$table])) {
                 $table = $table . '@think' . uniqid();
+            } elseif ($this->gettable() == $table) {
+                $table = $table . '@think' . uniqid();
             }
+
             $table = [$table => $alias];
             $this->alias($table);
         }
