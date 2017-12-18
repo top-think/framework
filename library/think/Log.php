@@ -233,5 +233,4 @@ class Log
             call_user_func_array('\\think\\Log::record', $args);
         }
     }
-
 }
