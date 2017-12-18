@@ -33,7 +33,7 @@ class View
     public function __construct($engine = [], $replace = [])
     {
         // 初始化模板引擎
-        $this->engine((array) $engine);
+        $this->engine($engine);
         // 基础替换字符串
         $request = Request::instance();
         $base    = $request->root();
