@@ -436,9 +436,9 @@ class App implements \ArrayAccess
                 $this->build->buildRoute($this->config('app.controller_suffix'));
             }
 
-            $buildRoute = $this->runtimePath . 'build_route.php';
+            $filename = $this->runtimePath . 'build_route.php';
 
-            if (is_file($buildRoute)) {
+            if (is_file($filename)) {
                 include $filename;
             }
         }
