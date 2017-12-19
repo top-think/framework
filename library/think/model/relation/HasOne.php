@@ -107,7 +107,7 @@ class HasOne extends OneToOne
         return $this->parent->db()
             ->alias($model)
             ->field($fields)
-            ->join($table . ' ' . $relation, $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $this->joinType)
+            ->join([$table => $relation], $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $this->joinType)
             ->where($where);
     }
 

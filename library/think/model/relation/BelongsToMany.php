@@ -423,7 +423,7 @@ class BelongsToMany extends Relation
 
         if (empty($this->baseQuery)) {
             $relationFk = $this->query->getPk();
-            $query->join($table . ' pivot', 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
+            $query->join([$table => 'pivot'], 'pivot.' . $foreignKey . '=' . $tableName . '.' . $relationFk)
                 ->where($condition);
         }
 
@@ -618,7 +618,7 @@ class BelongsToMany extends Relation
             $table = $this->pivot->getTable();
 
             $this->query
-                ->join($table . ' pivot', 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())
+                ->join([$table => 'pivot'], 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())
                 ->where('pivot.' . $this->localKey, $this->parent->$pk);
             $this->baseQuery = true;
         }
