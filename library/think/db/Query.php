@@ -431,6 +431,18 @@ class Query
         return $this->connection->getConfig($name);
     }
 
+    // 获取数据表字段信息
+    public function getTableFields($tableName)
+    {
+        return $this->connection->getTableInfo($tableName, 'fields');
+    }
+
+    // 获取数据表字段类型
+    public function getFieldsType($tableName)
+    {
+        return $this->connection->getTableInfo($tableName, 'type');
+    }
+
     /**
      * 得到分表的的数据表名
      * @access public
@@ -540,7 +552,7 @@ class Query
         if (isset($this->options['group'])) {
             // 支持GROUP
             $options = $this->getOptions();
-            $subSql  = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
+            $subSql  = $this->options($options)->field('count(' . $field . ') AS think_count')->bind($this->bind)->buildSql();
 
             $query = $this->newQuery()->table([$subSql => '_group_count_']);
 
@@ -888,11 +900,11 @@ class Query
 
         if (true === $field) {
             // 获取全部字段
-            $fields = $this->connection->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
+            $fields = $this->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
             $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
-            $fields = $this->connection->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
+            $fields = $this->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
 
