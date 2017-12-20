@@ -15,7 +15,7 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
-use think\Container;
+use think\facade\App;
 use think\facade\Config;
 use think\facade\Env;
 
@@ -66,21 +66,21 @@ abstract class Make extends Command
         return str_replace(['{%className%}', '{%namespace%}', '{%app_namespace%}'], [
             $class,
             $namespace,
-            Container::get('app')->getNamespace(),
+            App::getNamespace(),
         ], $stub);
 
     }
 
     protected function getPathName($name)
     {
-        $name = str_replace(Container::get('app')->getNamespace() . '\\', '', $name);
+        $name = str_replace(App::getNamespace() . '\\', '', $name);
 
         return Env::get('app_path') . ltrim(str_replace('\\', '/', $name), '/') . '.php';
     }
 
     protected function getClassName($name)
     {
-        $appNamespace = Container::get('app')->getNamespace();
+        $appNamespace = App::getNamespace();
 
         if (strpos($name, $appNamespace . '\\') !== false) {
             return $name;
