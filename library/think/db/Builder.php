@@ -642,7 +642,7 @@ abstract class Builder
             if ($u instanceof \Closure) {
                 $sql[] = $type . ' ' . $this->parseClosure($u);
             } elseif (is_string($u)) {
-                $sql[] = $type . ' (' . $this->parseSqlTable($u) . ')';
+                $sql[] = $type . ' ( ' . $this->parseSqlTable($u) . ' )';
             }
         }
         return ' ' . implode(' ', $sql);
