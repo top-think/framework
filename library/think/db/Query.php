@@ -431,16 +431,26 @@ class Query
         return $this->connection->getConfig($name);
     }
 
-    // 获取数据表字段信息
+    /**
+     * 获取数据表字段信息
+     * @access public
+     * @param  string $tableName 数据表名
+     * @return array
+     */
     public function getTableFields($tableName)
     {
-        return $this->connection->getTableInfo($tableName, 'fields');
+        return $this->connection->getTableFields($tableName);
     }
 
-    // 获取数据表字段类型
+    /**
+     * 获取数据表字段类型
+     * @access public
+     * @param  string $tableName 数据表名
+     * @return array
+     */
     public function getFieldsType($tableName)
     {
-        return $this->connection->getTableInfo($tableName, 'type');
+        return $this->connection->getFieldsType($tableName);
     }
 
     /**

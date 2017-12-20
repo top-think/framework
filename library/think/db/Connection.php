@@ -394,19 +394,34 @@ abstract class Connection
         return $this->getTableInfo($tableName, 'pk');
     }
 
-    // 获取当前数据表字段信息
+    /**
+     * 获取数据表字段信息
+     * @access public
+     * @param  string $tableName 数据表名
+     * @return array
+     */
     public function getTableFields($tableName)
     {
         return $this->getTableInfo($tableName, 'fields');
     }
 
-    // 获取当前数据表字段类型
+    /**
+     * 获取数据表字段类型
+     * @access public
+     * @param  string $tableName 数据表名
+     * @return array
+     */
     public function getFieldsType($tableName)
     {
         return $this->getTableInfo($tableName, 'type');
     }
 
-    // 获取当前数据表绑定信息
+    /**
+     * 获取数据表绑定信息
+     * @access public
+     * @param  string $tableName 数据表名
+     * @return array
+     */
     public function getFieldsBind($tableName)
     {
         return $this->getTableInfo($tableName, 'bind');
