@@ -118,7 +118,7 @@ class Url
             $type = Route::getBind('type');
             if ($type) {
                 $bind = Route::getBind($type);
-                if (0 === strpos($url, $bind)) {
+                if ($bind && 0 === strpos($url, $bind)) {
                     $url = substr($url, strlen($bind) + 1);
                 }
             }
