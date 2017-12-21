@@ -154,7 +154,7 @@ class Url
         if (!$this->bindCheck) {
             $bind = $this->app['route']->getBind();
 
-            if (0 === strpos($url, $bind)) {
+            if ($bind && 0 === strpos($url, $bind)) {
                 $url = substr($url, strlen($bind) + 1);
             }
 
