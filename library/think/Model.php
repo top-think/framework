@@ -1071,7 +1071,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             if (is_string($pk) && isset($data[$pk])) {
-                if (!isset($where[$pk])) {
+                if (!isset($where[$pk]) && empty($where)) {
                     unset($where);
                     $where[$pk] = $data[$pk];
                 }
