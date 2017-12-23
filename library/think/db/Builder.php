@@ -118,7 +118,7 @@ abstract class Builder
                 }
             } elseif (is_null($val)) {
                 $result[$item] = 'NULL';
-            } elseif (is_array($val)) {
+            } elseif (is_array($val) && !empty($val)) {
                 switch ($val[0]) {
                     case 'exp':
                         $result[$item] = $val[1];
