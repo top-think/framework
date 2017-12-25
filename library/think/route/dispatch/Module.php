@@ -37,11 +37,9 @@ class Module extends Dispatch
                 // 绑定模块
                 list($bindModule) = explode('/', $bind);
                 if (empty($result[0])) {
-                    $module    = $bindModule;
-                    $available = true;
-                } elseif ($module == $bindModule) {
-                    $available = true;
+                    $module = $bindModule;
                 }
+                $available = true;
             } elseif (!in_array($module, $this->app->config('app.deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
                 $available = true;
             } elseif ($this->app->config('app.empty_module')) {

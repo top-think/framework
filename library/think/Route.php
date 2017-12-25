@@ -945,7 +945,9 @@ class Route
         if (false === $item) {
             // 检测当前完整域名
             $item = $this->domains[$this->host];
-        } elseif (is_string($item)) {
+        }
+
+        if (is_string($item)) {
             $item = $this->domains[$item];
         }
 
