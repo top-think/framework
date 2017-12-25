@@ -124,10 +124,10 @@ abstract class Builder
                         $result[$item] = $val[1];
                         break;
                     case 'inc':
-                        $result[$item] = $this->parseKey($query, $val[1]) . '+' . $val[2];
+                        $result[$item] = $this->parseKey($query, $val[1]) . '+' . floatval($val[2]);
                         break;
                     case 'dec':
-                        $result[$item] = $this->parseKey($query, $val[1]) . '-' . $val[2];
+                        $result[$item] = $this->parseKey($query, $val[1]) . '-' . floatval($val[2]);
                         break;
                 }
             } elseif (is_scalar($val)) {
