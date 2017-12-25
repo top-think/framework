@@ -112,8 +112,6 @@ return [
         // 全局请求缓存排除规则
         'request_cache_except'   => [],
 
-        // 视图输出字符串内容替换
-        'view_replace_str'       => [],
         // 默认跳转页面对应的模板文件
         'dispatch_success_tmpl'  => __DIR__ . '/tpl/dispatch_jump.tpl',
         'dispatch_error_tmpl'    => __DIR__ . '/tpl/dispatch_jump.tpl',

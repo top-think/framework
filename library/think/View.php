@@ -32,36 +32,15 @@ class View
     protected static $var = [];
 
     /**
-     * 模板输出替换
-     * @var array
-     */
-    protected $replace = [];
-
-    /**
      * 初始化
      * @access public
      * @param  mixed $engine  模板引擎参数
-     * @param  array $replace  字符串替换参数
      * @return $this
      */
-    public function init($engine = [], $replace = [])
+    public function init($engine = [])
     {
         // 初始化模板引擎
         $this->engine($engine);
-
-        // 基础替换字符串
-        $request = Container::get('request');
-        $root    = $request->rootUrl();
-
-        $baseReplace = [
-            '__URL__'    => $request->root() . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
-            '__ROOT__'   => $root,
-            '__STATIC__' => $root . '/static',
-            '__CSS__'    => $root . '/static/css',
-            '__JS__'     => $root . '/static/js',
-        ];
-
-        $this->replace = array_merge($baseReplace, (array) $replace);
 
         return $this;
     }
@@ -158,13 +137,12 @@ class View
      * @access public
      * @param  string    $template 模板文件名或者内容
      * @param  array     $vars     模板输出变量
-     * @param  array     $replace 替换内容
      * @param  array     $config     模板参数
      * @param  bool      $renderContent     是否渲染内容
      * @return string
      * @throws \Exception
      */
-    public function fetch($template = '', $vars = [], $replace = [], $config = [], $renderContent = false)
+    public function fetch($template = '', $vars = [], $config = [], $renderContent = false)
     {
         // 模板变量
         $vars = array_merge(self::$var, $this->data, $vars);
@@ -188,32 +166,7 @@ class View
         // 内容过滤标签
         Container::get('hook')->listen('view_filter', $content);
 
-        // 允许用户自定义模板的字符串替换
-        $replace = array_merge($this->replace, $replace);
-
-        if (!empty($replace)) {
-            $content = strtr($content, $replace);
-        }
-
         return $content;
-    }
-
-    /**
-     * 视图内容替换
-     * @access public
-     * @param  string|array  $content 被替换内容（支持批量替换）
-     * @param  string        $replace    替换内容
-     * @return $this
-     */
-    public function replace($content, $replace = '')
-    {
-        if (is_array($content)) {
-            $this->replace = array_merge($this->replace, $content);
-        } else {
-            $this->replace[$content] = $replace;
-        }
-
-        return $this;
     }
 
     /**
@@ -221,13 +174,12 @@ class View
      * @access public
      * @param  string $content 内容
      * @param  array  $vars    模板输出变量
-     * @param  array  $replace 替换内容
-     * @param  array  $config     模板参数
+     * @param  array  $config  模板参数
      * @return mixed
      */
-    public function display($content, $vars = [], $replace = [], $config = [])
+    public function display($content, $vars = [], $config = [])
     {
-        return $this->fetch($content, $vars, $replace, $config, true);
+        return $this->fetch($content, $vars, $config, true);
     }
 
     /**

@@ -63,8 +63,7 @@ class Controller
         $this->request = Container::get('request');
         $this->app     = Container::get('app');
         $this->view    = Container::get('view')->init(
-            $this->app['config']->pull('template'),
-            $this->app['config']->get('view_replace_str')
+            $this->app['config']->pull('template')
         );
 
         // 控制器初始化

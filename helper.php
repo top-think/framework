@@ -620,13 +620,12 @@ if (!function_exists('view')) {
      * 渲染模板输出
      * @param string    $template 模板文件
      * @param array     $vars 模板变量
-     * @param array     $replace 模板替换
      * @param integer   $code 状态码
      * @return \think\response\View
      */
-    function view($template = '', $vars = [], $replace = [], $code = 200)
+    function view($template = '', $vars = [], $code = 200)
     {
-        return Response::create($template, 'view', $code)->replace($replace)->assign($vars);
+        return Response::create($template, 'view', $code)->assign($vars);
     }
 }
 
