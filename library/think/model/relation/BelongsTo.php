@@ -97,7 +97,6 @@ class BelongsTo extends OneToOne
 
         return $this->parent->db()
             ->alias($model)
-            ->group($model . '.' . $this->foreignKey)
             ->field($fields)
             ->join([$table => $relation], $model . '.' . $this->foreignKey . '=' . $relation . '.' . $this->localKey, $this->joinType)
             ->where($where);
