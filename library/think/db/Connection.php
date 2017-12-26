@@ -2015,7 +2015,7 @@ abstract class Connection
     {
         if (is_scalar($value)) {
             $data = $value;
-        } elseif (is_array($value) && isset($value[1]) && isset($value[2]) && in_array($value[1], ['=', 'eq'])) {
+        } elseif (is_array($value) && isset($value[1], $value[2]) && in_array($value[1], ['=', 'eq'])) {
             $data = $value[2];
         }
 
