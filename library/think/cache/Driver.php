@@ -291,7 +291,7 @@ abstract class Driver
      */
     protected function serialize($data)
     {
-        if (is_scalar($data)) {
+        if (is_scalar($data) || !$this->options['serialize']) {
             return $data;
         }
 
@@ -308,7 +308,7 @@ abstract class Driver
      */
     protected function unserialize($data)
     {
-        if (0 === strpos($data, self::$serialize[2])) {
+        if ($this->options['serialize'] && 0 === strpos($data, self::$serialize[2])) {
             $unserialize = self::$serialize[1];
 
             return $unserialize(substr($data, self::$serialize[3]));

@@ -27,6 +27,7 @@ class File extends Driver
         'path'          => '',
         'hash_type'     => 'md5',
         'data_compress' => false,
+        'serialize'     => true,
     ];
 
     protected $expire;

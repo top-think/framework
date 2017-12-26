@@ -20,8 +20,9 @@ use think\cache\Driver;
 class Wincache extends Driver
 {
     protected $options = [
-        'prefix' => '',
-        'expire' => 0,
+        'prefix'    => '',
+        'expire'    => 0,
+        'serialize' => true,
     ];
 
     /**

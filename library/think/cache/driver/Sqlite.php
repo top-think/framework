@@ -25,6 +25,7 @@ class Sqlite extends Driver
         'prefix'     => '',
         'expire'     => 0,
         'persistent' => false,
+        'serialize'  => true,
     ];
 
     /**

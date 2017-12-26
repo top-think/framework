@@ -22,6 +22,7 @@ class Memcache extends Driver
         'timeout'    => 0, // 超时时间（单位：毫秒）
         'persistent' => true,
         'prefix'     => '',
+        'serialize'  => true,
     ];
 
     /**

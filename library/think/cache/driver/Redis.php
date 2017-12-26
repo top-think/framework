@@ -31,6 +31,7 @@ class Redis extends Driver
         'expire'     => 0,
         'persistent' => false,
         'prefix'     => '',
+        'serialize'  => true,
     ];
 
     /**

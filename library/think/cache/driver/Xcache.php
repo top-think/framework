@@ -20,8 +20,9 @@ use think\cache\Driver;
 class Xcache extends Driver
 {
     protected $options = [
-        'prefix' => '',
-        'expire' => 0,
+        'prefix'    => '',
+        'expire'    => 0,
+        'serialize' => true,
     ];
 
     /**
