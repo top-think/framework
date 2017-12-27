@@ -29,7 +29,7 @@ class Jump extends Response
     {
         $config = Container::get('config');
         $data   = Container::get('view')
-            ->init($config->pull('template'), $config->get('view_replace_str'))
+            ->init($config->pull('template'))
             ->fetch($this->options['jump_template'], $data);
         return $data;
     }
