@@ -350,7 +350,7 @@ abstract class Rule
     {
         if (!empty($this->option['allow_options']) && $request->method(true) == 'OPTIONS') {
             // 允许OPTIONS嗅探
-            return new ResponseDispatch(Response::create()->code(200));
+            return new ResponseDispatch(Response::create()->code(204));
         }
     }
 
@@ -629,6 +629,8 @@ abstract class Rule
             $result = new CallbackDispatch($route);
         } elseif ($route instanceof Response) {
             $result = new ResponseDispatch($route);
+        } elseif ($route instanceof Dispatch) {
+            $result = $route;
         } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
             $result = new RedirectDispatch($route, [], isset($option['status']) ? $option['status'] : 301);
