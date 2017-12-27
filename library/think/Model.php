@@ -1070,12 +1070,17 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 }
             }
 
-            if (is_string($pk) && isset($data[$pk])) {
-                if (!isset($where[$pk])) {
-                    unset($where);
-                    $where[$pk] = $data[$pk];
+            $array = [];
+
+            foreach ((array) $pk as $key) {
+                if (isset($data[$key])) {
+                    $array[] = [$key, '=', $data[$key]];
+                    unset($data[$key]);
                 }
-                unset($data[$pk]);
+            }
+
+            if (!empty($array)) {
+                $where = $array;
             }
 
             // 检测字段
