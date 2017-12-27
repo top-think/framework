@@ -1124,10 +1124,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
             // 获取自动增长主键
             if ($result && $insertId = $this->getQuery()->getLastInsID($sequence)) {
-                $pks = (array) $pk;
-                foreach ($pks as $pk) {
-                    if (!isset($this->data[$pk]) || '' == $this->data[$pk]) {
-                        $this->data[$pk] = $insertId;
+                foreach ((array) $pk as $key) {
+                    if (!isset($this->data[$key]) || '' == $this->data[$key]) {
+                        $this->data[$key] = $insertId;
                     }
                 }
             }
