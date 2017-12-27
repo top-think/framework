@@ -2561,27 +2561,17 @@ class Query
     /**
      * 分批数据返回处理
      * @access public
-     * @param  integer  $count    每次处理的数据数量
-     * @param  callable $callback 处理回调方法
-     * @param  string   $column   分批处理的字段名
-     * @param  string   $order    字段排序
+     * @param  integer      $count    每次处理的数据数量
+     * @param  callable     $callback 处理回调方法
+     * @param  string|array $column   分批处理的字段名
+     * @param  string       $order    字段排序
      * @return boolean
      * @throws DbException
      */
     public function chunk($count, $callback, $column = null, $order = 'asc')
     {
         $options = $this->getOptions();
-
-        if (isset($options['table'])) {
-            $table = is_array($options['table']) ? key($options['table']) : $options['table'];
-        } else {
-            $table = '';
-        }
-
-        $column = $column ?: $this->getPk($table);
-        if (is_array($column)) {
-            $column = $column[0];
-        }
+        $column  = $column ?: $this->getPk($options);
 
         if (isset($options['order'])) {
             if (Container::get('app')->isDebug()) {
@@ -2590,37 +2580,45 @@ class Query
             unset($options['order']);
         }
 
-        $bind      = $this->bind;
-        $resultSet = $this->options($options)->limit($count)->order($column, $order)->select();
+        $bind = $this->bind;
 
-        if (strpos($column, '.')) {
-            list($alias, $key) = explode('.', $column);
+        if (is_array($column)) {
+            $times = 1;
+            $query = $this->options($options)->page($times, $count);
         } else {
-            $key = $column;
+            $query = $this->options($options)->limit($count);
+
+            if (strpos($column, '.')) {
+                list($alias, $key) = explode('.', $column);
+            } else {
+                $key = $column;
+            }
         }
 
-        if ($resultSet instanceof Collection) {
-            $resultSet = $resultSet->all();
-        }
+        $resultSet = $query->order($column, $order)->select();
 
         while (!empty($resultSet)) {
+            if ($resultSet instanceof Collection) {
+                $resultSet = $resultSet->all();
+            }
+
             if (false === call_user_func($callback, $resultSet)) {
                 return false;
             }
 
-            $end    = end($resultSet);
-            $lastId = is_array($end) ? $end[$key] : $end->getData($key);
+            if (isset($times)) {
+                $times++;
+                $query = $this->options($options)->page($times, $count);
+            } else {
+                $end    = end($resultSet);
+                $lastId = is_array($end) ? $end[$key] : $end->getData($key);
 
-            $resultSet = $this->options($options)
-                ->limit($count)
-                ->bind($bind)
-                ->where($column, 'asc' == strtolower($order) ? '>' : '<', $lastId)
-                ->order($column, $order)
-                ->select();
-
-            if ($resultSet instanceof Collection) {
-                $resultSet = $resultSet->all();
+                $query = $this->options($options)
+                    ->limit($count)
+                    ->where($column, 'asc' == strtolower($order) ? '>' : '<', $lastId);
             }
+
+            $resultSet = $query->bind($bind)->order($column, $order)->select();
         }
 
         return true;
