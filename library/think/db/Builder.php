@@ -759,7 +759,7 @@ abstract class Builder
             $fields = $options['field'];
         }
 
-        foreach ($dataSet as &$data) {
+        foreach ($dataSet as $data) {
             foreach ($data as $key => $val) {
                 if (!in_array($key, $fields, true)) {
                     if ($options['strict']) {
@@ -780,19 +780,21 @@ abstract class Builder
             }
             $value    = array_values($data);
             $values[] = 'SELECT ' . implode(',', $value);
+
+            if (!isset($insertFields)) {
+                $insertFields = array_map([$this, 'parseKey'], array_keys($data));
+            }
         }
-        $fields = array_map([$this, 'parseKey'], array_keys(reset($dataSet)));
-        $sql    = str_replace(
+
+        return str_replace(
             ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($options['table'], $options),
-                implode(' , ', $fields),
+                implode(' , ', $insertFields),
                 implode(' UNION ALL ', $values),
                 $this->parseComment($options['comment']),
             ], $this->insertAllSql);
-
-        return $sql;
     }
 
     /**
