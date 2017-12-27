@@ -241,6 +241,28 @@ abstract class Rule
     }
 
     /**
+     * 设置Response Header信息
+     * @access public
+     * @param  string|array $name  参数名
+     * @param  string       $value 参数值
+     * @return $this
+     */
+    public function header($header, $value = null)
+    {
+        if (empty($this->option['header'])) {
+            $this->option['header'] = [];
+        }
+
+        if (is_array($header)) {
+            $this->option['header'] = array_merge($this->option['header'], $header);
+        } else {
+            $this->option['header'][$header] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * 设置路由缓存
      * @access public
      * @param  array|string     $cache
@@ -333,10 +355,15 @@ abstract class Rule
      * 设置是否允许OPTIONS嗅探
      * @access public
      * @param  bool     $allow
+     * @param  array    $header
      * @return $this
      */
-    public function allowOptions($allow = true)
+    public function allowOptions($allow = true, $header = [])
     {
+        if (!empty($header)) {
+            $this->header($header);
+        }
+
         return $this->option('allow_options', $allow);
     }
 
@@ -350,7 +377,19 @@ abstract class Rule
     {
         if (!empty($this->option['allow_options']) && $request->method(true) == 'OPTIONS') {
             // 允许OPTIONS嗅探
-            return new ResponseDispatch(Response::create()->code(204));
+            $response = Response::create()->code(204);
+
+            $header = [
+                'Access-Control-Allow-Origin'  => '*',
+                'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
+                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
+            ];
+
+            if (!empty($this->option['header'])) {
+                $header = array_merge($header, $this->option['header']);
+            }
+
+            return new ResponseDispatch($response->header($header));
         }
     }
 
