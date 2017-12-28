@@ -13,6 +13,7 @@ namespace think\db\builder;
 
 use think\db\Builder;
 use think\db\Query;
+use think\Exception;
 
 /**
  * mysql数据库驱动
@@ -33,7 +34,73 @@ class Mysql extends Builder
         'parseExists'      => ['NOT EXISTS', 'EXISTS'],
     ];
 
-    protected $updateSql = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
+    protected $updateSql    = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    /**
+     * 生成insertall SQL
+     * @access public
+     * @param  Query     $query   查询对象
+     * @param  array     $dataSet 数据集
+     * @param  bool      $replace 是否replace
+     * @return string
+     */
+    public function insertAll(Query $query, $dataSet, $replace = false)
+    {
+        $options = $query->getOptions();
+
+        // 获取合法的字段
+        if ('*' == $options['field']) {
+            $fields = $this->connection->getTableFields($options['table']);
+        } else {
+            $fields = $options['field'];
+        }
+        // 获取绑定信息
+        $bind = $this->connection->getFieldsBind($options['table']);
+
+        foreach ($dataSet as $k => $data) {
+            foreach ($data as $key => $val) {
+                if (!in_array($key, $fields, true)) {
+                    if ($options['strict']) {
+                        throw new Exception('fields not exists:[' . $key . ']');
+                    }
+                    unset($data[$key]);
+                } elseif (is_null($val)) {
+                    $data[$key] = 'NULL';
+                } elseif (is_scalar($val)) {
+                    $data[$key] = $this->parseDataBind($query, $key, $val, $bind, '_' . $k);
+                } elseif (is_object($val) && method_exists($val, '__toString')) {
+                    // 对象数据写入
+                    $data[$key] = $val->__toString();
+                } else {
+                    // 过滤掉非标量数据
+                    unset($data[$key]);
+                }
+            }
+
+            $value    = array_values($data);
+            $values[] = '( ' . implode(',', $value) . ' )';
+            if (!isset($insertFields)) {
+                $insertFields = array_keys($data);
+            }
+        }
+
+        $fields = [];
+        foreach ($insertFields as $field) {
+            $fields[] = $this->parseKey($query, $field);
+        }
+
+        return str_replace(
+            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            [
+                $replace ? 'REPLACE' : 'INSERT',
+                $this->parseTable($query, $options['table']),
+                implode(' , ', $fields),
+                implode(' , ', $values),
+                $this->parseComment($query, $options['comment']),
+            ],
+            $this->insertAllSql);
+    }
 
     /**
      * 正则查询
