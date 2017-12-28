@@ -81,7 +81,7 @@ abstract class Rule
      */
     public function name($name)
     {
-        $this->name = trim($name, '/');
+        $this->name = '/' != $name ? trim($name, '/') : '/';
 
         return $this;
     }
@@ -610,7 +610,6 @@ abstract class Rule
      */
     protected function checkBefore($before)
     {
-
         $hook = Container::get('hook');
 
         foreach ((array) $before as $behavior) {
@@ -620,7 +619,6 @@ abstract class Rule
                 return false;
             }
         }
-
     }
 
     /**
