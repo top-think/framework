@@ -146,9 +146,11 @@ class HasMany extends Relation
      * @access public
      * @param  Model    $result  数据对象
      * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure)
+    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
     {
         $localKey = $this->localKey;
         $count    = 0;
@@ -158,7 +160,7 @@ class HasMany extends Relation
                 $closure($this->query);
             }
 
-            $count = $this->query->where($this->foreignKey, '=', $result->$localKey)->count();
+            $count = $this->query->where($this->foreignKey, '=', $result->$localKey)->$aggregate($field);
         }
 
         return $count;
@@ -168,9 +170,11 @@ class HasMany extends Relation
      * 创建关联统计子查询
      * @access public
      * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
      * @return string
      */
-    public function getRelationCountQuery($closure)
+    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
     {
         if ($closure) {
             $closure($this->query);
@@ -179,7 +183,7 @@ class HasMany extends Relation
         return $this->query
             ->where($this->foreignKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk())
             ->fetchSql()
-            ->count();
+            ->$aggregate($field);
     }
 
     /**

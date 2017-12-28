@@ -184,9 +184,11 @@ class MorphMany extends Relation
      * @access public
      * @param  Model    $result  数据对象
      * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure)
+    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
     {
         $pk    = $result->getPk();
         $count = 0;
@@ -201,7 +203,7 @@ class MorphMany extends Relation
                     [$this->morphKey, '=', $result->$pk],
                     [$this->morphType, '=', $this->type],
                 ])
-                ->count();
+                ->$aggregate($field);
         }
 
         return $count;
@@ -211,9 +213,11 @@ class MorphMany extends Relation
      * 获取关联统计子查询
      * @access public
      * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
      * @return string
      */
-    public function getRelationCountQuery($closure)
+    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
     {
         if ($closure) {
             $closure($this->query);
@@ -225,7 +229,7 @@ class MorphMany extends Relation
                 [$this->morphType, '=', $this->type],
             ])
             ->fetchSql()
-            ->count();
+            ->$aggregate($field);
     }
 
     /**

@@ -2129,17 +2129,20 @@ class Query
 
     /**
      * 关联统计
-     * @access public
+     * @access protected
      * @param  string|array $relation 关联方法名
+     * @param  string       $aggregate 聚合查询方法
+     * @param  string       $field 字段
      * @param  bool         $subQuery 是否使用子查询
      * @return $this
      */
-    public function withCount($relation, $subQuery = true)
+    protected function withAggregate($relation, $aggregate = 'count', $field = '*', $subQuery = true)
     {
+        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+
         if (!$subQuery) {
-            $this->options['with_count'] = $relation;
+            $this->options['with_count'][] = [$relations, $aggregate, $field];
         } else {
-            $relations = is_string($relation) ? explode(',', $relation) : $relation;
             if (!isset($this->options['field'])) {
                 $this->field('*');
             }
@@ -2151,12 +2154,76 @@ class Query
                     $relation = $key;
                 }
                 $relation = Loader::parseName($relation, 1, false);
-                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure) . ')';
-                $this->field([$count => Loader::parseName($relation) . '_count']);
+                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure, $aggregate, $field) . ')';
+                $this->field([$count => Loader::parseName($relation) . '_' . $aggregate]);
             }
         }
 
         return $this;
+    }
+
+    /**
+     * 关联统计
+     * @access public
+     * @param  string|array $relation 关联方法名
+     * @param  bool         $subQuery 是否使用子查询
+     * @return $this
+     */
+    public function withCount($relation, $subQuery = true)
+    {
+        return $this->withAggregate($relation, 'count', '*', $subQuery);
+    }
+
+    /**
+     * 关联统计Sum
+     * @access public
+     * @param  string|array $relation 关联方法名
+     * @param  string       $field 字段
+     * @param  bool         $subQuery 是否使用子查询
+     * @return $this
+     */
+    public function withSum($relation, $field, $subQuery = true)
+    {
+        return $this->withAggregate($relation, 'sum', $field, $subQuery);
+    }
+
+    /**
+     * 关联统计Max
+     * @access public
+     * @param  string|array $relation 关联方法名
+     * @param  string       $field 字段
+     * @param  bool         $subQuery 是否使用子查询
+     * @return $this
+     */
+    public function withMax($relation, $field, $subQuery = true)
+    {
+        return $this->withAggregate($relation, 'max', $field, $subQuery);
+    }
+
+    /**
+     * 关联统计Min
+     * @access public
+     * @param  string|array $relation 关联方法名
+     * @param  string       $field 字段
+     * @param  bool         $subQuery 是否使用子查询
+     * @return $this
+     */
+    public function withMin($relation, $field, $subQuery = true)
+    {
+        return $this->withAggregate($relation, 'min', $field, $subQuery);
+    }
+
+    /**
+     * 关联统计Avg
+     * @access public
+     * @param  string|array $relation 关联方法名
+     * @param  string       $field 字段
+     * @param  bool         $subQuery 是否使用子查询
+     * @return $this
+     */
+    public function withAvg($relation, $field, $subQuery = true)
+    {
+        return $this->withAggregate($relation, 'avg', $field, $subQuery);
     }
 
     /**
@@ -2507,9 +2574,10 @@ class Query
 
         // 关联统计
         if (!empty($options['with_count'])) {
-            $result->relationCount($result, $options['with_count']);
+            foreach ($options['with_count'] as $val) {
+                $result->relationCount($result, $val[0], $val[1], $val[2]);
+            }
         }
-
     }
 
     /**

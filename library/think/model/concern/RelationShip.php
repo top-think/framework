@@ -274,14 +274,14 @@ trait RelationShip
     /**
      * 关联统计
      * @access public
-     * @param  Model        $result   数据对象
-     * @param  string|array $relation 关联名
+     * @param  Model    $result     数据对象
+     * @param  array    $relations  关联名
+     * @param  string   $aggregate  聚合查询方法
+     * @param  string   $field      字段
      * @return void
      */
-    public function relationCount(&$result, $relation)
+    public function relationCount(&$result, $relations, $aggregate = 'sum', $field = '*')
     {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
-
         foreach ($relations as $key => $relation) {
             $closure = false;
 
@@ -294,11 +294,10 @@ trait RelationShip
             }
 
             $relation = Loader::parseName($relation, 1, false);
-
-            $count = $this->$relation()->relationCount($result, $closure);
+            $count    = $this->$relation()->relationCount($result, $closure, $aggregate, $field);
 
             if (!isset($name)) {
-                $name = Loader::parseName($relation) . '_count';
+                $name = Loader::parseName($relation) . '_' . $aggregate;
             }
 
             $result->setAttr($name, $count);

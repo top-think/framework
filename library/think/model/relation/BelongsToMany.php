@@ -333,9 +333,11 @@ class BelongsToMany extends Relation
      * @access public
      * @param  Model    $result  数据对象
      * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure)
+    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
     {
         $pk    = $result->getPk();
         $count = 0;
@@ -344,7 +346,7 @@ class BelongsToMany extends Relation
             $pk    = $result->$pk;
             $count = $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
                 ['pivot.' . $this->localKey, '=', $pk],
-            ])->count();
+            ])->$aggregate($field);
         }
 
         return $count;
@@ -354,15 +356,17 @@ class BelongsToMany extends Relation
      * 获取关联统计子查询
      * @access public
      * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
      * @return string
      */
-    public function getRelationCountQuery($closure)
+    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
     {
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             [
                 'pivot.' . $this->localKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
             ],
-        ])->fetchSql()->count();
+        ])->fetchSql()->$aggregate($field);
     }
 
     /**

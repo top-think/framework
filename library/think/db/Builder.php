@@ -1001,7 +1001,7 @@ abstract class Builder
         // 获取绑定信息
         $bind = $this->connection->getFieldsBind($options['table']);
 
-        foreach ($dataSet as $k => &$data) {
+        foreach ($dataSet as $k => $data) {
             foreach ($data as $key => $val) {
                 if (!in_array($key, $fields, true)) {
                     if ($options['strict']) {
@@ -1023,10 +1023,13 @@ abstract class Builder
 
             $value    = array_values($data);
             $values[] = 'SELECT ' . implode(',', $value);
+            if (!isset($insertFields)) {
+                $insertFields = array_keys($data);
+            }
         }
 
         $fields = [];
-        foreach (array_keys(reset($dataSet)) as $field) {
+        foreach ($insertFields as $field) {
             $fields[] = $this->parseKey($query, $field);
         }
 
