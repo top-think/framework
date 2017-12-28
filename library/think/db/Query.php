@@ -446,11 +446,12 @@ class Query
      * 获取数据表字段类型
      * @access public
      * @param  string $tableName 数据表名
-     * @return array
+     * @param  string $field    字段名
+     * @return array|string
      */
-    public function getFieldsType($tableName)
+    public function getFieldsType($tableName, $field = null)
     {
-        return $this->connection->getFieldsType($tableName);
+        return $this->connection->getFieldsType($tableName, $field);
     }
 
     /**
