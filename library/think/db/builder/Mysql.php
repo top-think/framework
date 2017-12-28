@@ -12,13 +12,72 @@
 namespace think\db\builder;
 
 use think\db\Builder;
+use think\Exception;
 
 /**
  * mysql数据库驱动
  */
 class Mysql extends Builder
 {
-    protected $updateSql = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
+    protected $updateSql    = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    /**
+     * 生成insertall SQL
+     * @access public
+     * @param array     $dataSet 数据集
+     * @param array     $options 表达式
+     * @param bool      $replace 是否replace
+     * @return string
+     * @throws Exception
+     */
+    public function insertAll($dataSet, $options = [], $replace = false)
+    {
+        // 获取合法的字段
+        if ('*' == $options['field']) {
+            $fields = array_keys($this->query->getFieldsType($options['table']));
+        } else {
+            $fields = $options['field'];
+        }
+
+        foreach ($dataSet as $data) {
+            foreach ($data as $key => $val) {
+                if (!in_array($key, $fields, true)) {
+                    if ($options['strict']) {
+                        throw new Exception('fields not exists:[' . $key . ']');
+                    }
+                    unset($data[$key]);
+                } elseif (is_null($val)) {
+                    $data[$key] = 'NULL';
+                } elseif (is_scalar($val)) {
+                    $data[$key] = $this->parseValue($val, $key);
+                } elseif (is_object($val) && method_exists($val, '__toString')) {
+                    // 对象数据写入
+                    $data[$key] = $val->__toString();
+                } else {
+                    // 过滤掉非标量数据
+                    unset($data[$key]);
+                }
+            }
+            $value    = array_values($data);
+            $values[] = '( ' . implode(',', $value) . ' )';
+
+            if (!isset($insertFields)) {
+                $insertFields = array_map([$this, 'parseKey'], array_keys($data));
+            }
+        }
+
+        return str_replace(
+            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            [
+                $replace ? 'REPLACE' : 'INSERT',
+                $this->parseTable($options['table'], $options),
+                implode(' , ', $insertFields),
+                implode(' , ', $values),
+                $this->parseComment($options['comment']),
+            ], $this->insertAllSql);
+    }
 
     /**
      * 字段和表名处理
