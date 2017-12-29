@@ -461,7 +461,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         foreach ((array) $pk as $key) {
             if (isset($data[$key])) {
-                $array[] = [$key, '=', $data[$key]];
+                $array[$key] = [$key, '=', $data[$key]];
                 unset($data[$key]);
             }
         }
