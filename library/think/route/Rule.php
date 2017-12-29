@@ -364,6 +364,10 @@ abstract class Rule
             $this->header($header);
         }
 
+        if ($allow && $this->parent) {
+            $this->parent->addRule($this, 'options');
+        }
+
         return $this->option('allow_options', $allow);
     }
 
