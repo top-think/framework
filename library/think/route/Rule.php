@@ -352,13 +352,13 @@ abstract class Rule
     }
 
     /**
-     * 设置是否允许OPTIONS嗅探
+     * 设置是否允许跨域
      * @access public
      * @param  bool     $allow
      * @param  array    $header
      * @return $this
      */
-    public function allowOptions($allow = true, $header = [])
+    public function allowCrossDomain($allow = true, $header = [])
     {
         if (!empty($header)) {
             $this->header($header);
@@ -368,7 +368,7 @@ abstract class Rule
             $this->parent->addRule($this, 'options');
         }
 
-        return $this->option('allow_options', $allow);
+        return $this->option('cross_domain', $allow);
     }
 
     /**
@@ -377,11 +377,13 @@ abstract class Rule
      * @param  Request     $request
      * @return Dispatch|void
      */
-    protected function checkAllowOptions($request)
+    protected function checkCrossDomain($request)
     {
-        if (!empty($this->option['allow_options']) && $request->method(true) == 'OPTIONS') {
-            // 允许OPTIONS嗅探
-            $response = Response::create()->code(204);
+        if (!empty($this->option['cross_domain'])) {
+
+            if ($request->method(true) == 'OPTIONS') {
+                return new ResponseDispatch(Response::create()->code(204));
+            }
 
             $header = [
                 'Access-Control-Allow-Origin'  => '*',
@@ -393,7 +395,7 @@ abstract class Rule
                 $header = array_merge($header, $this->option['header']);
             }
 
-            return new ResponseDispatch($response->header($header));
+            Container::get('hook')->add('response_send', $header);
         }
     }
 

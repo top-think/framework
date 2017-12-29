@@ -104,8 +104,8 @@ class RuleItem extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
-        if ($dispatch = $this->checkAllowOptions($request)) {
-            // 允许OPTIONS嗅探
+        if ($dispatch = $this->checkCrossDomain($request)) {
+            // 允许跨域
             return $dispatch;
         }
 
