@@ -199,11 +199,7 @@ class RuleGroup extends Rule
             $rule->name($this->name . '/' . $name);
         }
 
-        if ($name) {
-            $this->rules[$method][$name] = $rule;
-        } else {
-            $this->rules[$method][] = $rule;
-        }
+        $this->rules[$method][] = $rule;
 
         if ($rule instanceof RuleItem) {
             if ($rule->isMiss()) {
