@@ -117,7 +117,7 @@ abstract class Builder
             if (is_object($val) && method_exists($val, '__toString')) {
                 // 对象数据写入
                 $val = $val->__toString();
-            } elseif ('json' == $this->connection->getFieldsType($options['table'], $key)) {
+            } elseif (is_array($val) && 'json' == $this->connection->getFieldsType($options['table'], $key)) {
                 $val = json_encode($val);
             }
 
