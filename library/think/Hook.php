@@ -74,8 +74,7 @@ class Hook
         isset($this->tags[$tag]) || $this->tags[$tag] = [];
 
         if (is_array($behavior) && !is_callable($behavior)) {
-            if (!array_key_exists('_overlay', $behavior) || !$behavior['_overlay']) {
-                unset($behavior['_overlay']);
+            if (!array_key_exists('_overlay', $behavior)) {
                 $this->tags[$tag] = array_merge($this->tags[$tag], $behavior);
             } else {
                 unset($behavior['_overlay']);

@@ -232,7 +232,7 @@ abstract class Rule
     /**
      * 绑定Response对象
      * @access public
-     * @param  array|string     $response
+     * @param  mixed     $response
      * @return $this
      */
     public function response($response)
@@ -395,7 +395,7 @@ abstract class Rule
                 $header = array_merge($header, $this->option['header']);
             }
 
-            Container::get('hook')->add('response_send', $header);
+            $this->option['header'] = $header;
         }
     }
 
@@ -532,6 +532,14 @@ abstract class Rule
         // 绑定模型数据
         if (isset($option['model'])) {
             $this->createBindModel($option['model'], $matches);
+        }
+
+        // 指定Header数据
+        if (!empty($option['header'])) {
+            $header = $option['header'];
+            Container::get('hook')->add('response_send', function ($response) use ($header) {
+                $response->header($header);
+            });
         }
 
         // 指定Response响应数据
