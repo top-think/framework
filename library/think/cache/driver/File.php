@@ -109,7 +109,7 @@ class File extends Driver
         $content = file_get_contents($filename);
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
-            if (0 != $expire && $_SERVER['REQUEST_TIME'] > filemtime($filename) + $expire) {
+            if (0 != $expire && time() > filemtime($filename) + $expire) {
                 return $default;
             }
             $content = substr($content, 32);
