@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -221,7 +221,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         } else {
             return $output;

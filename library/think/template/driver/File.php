@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -69,7 +69,7 @@ class File
             return false;
         }
 
-        if (0 != $cacheTime && $_SERVER['REQUEST_TIME'] > filemtime($cacheFile) + $cacheTime) {
+        if (0 != $cacheTime && time() > filemtime($cacheFile) + $cacheTime) {
             // 缓存是否在有效期
             return false;
         }
