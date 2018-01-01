@@ -351,8 +351,6 @@ class Validate
     {
         if ($rules instanceof \Closure) {
             return call_user_func_array($rules, [$value]);
-        } elseif ($rules instanceof ValidateRule) {
-            $rules = $rules->getRule();
         } elseif (is_string($rules)) {
             $rules = explode('|', $rules);
         }
