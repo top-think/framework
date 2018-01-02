@@ -2628,7 +2628,7 @@ class Query
         }
         $resultSet = $query->order($column, $order)->select();
 
-        while (!empty($resultSet)) {
+        while (count($resultSet) > 0) {
             if ($resultSet instanceof Collection) {
                 $resultSet = $resultSet->all();
             }
@@ -2649,8 +2649,8 @@ class Query
             }
 
             $resultSet = $query->bind($bind)->order($column, $order)->select();
-
         }
+
         return true;
     }
 
