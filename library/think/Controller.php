@@ -115,13 +115,12 @@ class Controller
      * @access protected
      * @param  string $template 模板文件名
      * @param  array  $vars     模板输出变量
-     * @param  array  $replace  模板替换
      * @param  array  $config   模板参数
      * @return mixed
      */
-    protected function fetch($template = '', $vars = [], $replace = [], $config = [])
+    protected function fetch($template = '', $vars = [], $config = [])
     {
-        return $this->view->fetch($template, $vars, $replace, $config);
+        return $this->view->fetch($template, $vars, $config);
     }
 
     /**
@@ -129,13 +128,12 @@ class Controller
      * @access protected
      * @param  string $content 模板内容
      * @param  array  $vars    模板输出变量
-     * @param  array  $replace 替换内容
      * @param  array  $config  模板参数
      * @return mixed
      */
-    protected function display($content = '', $vars = [], $replace = [], $config = [])
+    protected function display($content = '', $vars = [], $config = [])
     {
-        return $this->view->display($content, $vars, $replace, $config);
+        return $this->view->display($content, $vars, $config);
     }
 
     /**
