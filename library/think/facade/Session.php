@@ -22,7 +22,7 @@ use think\Facade;
  * @method mixed get(string $name,string $prefix = null) static session获取
  * @method mixed pull(string $name,string $prefix = null) static session获取并删除
  * @method void push(string $key, mixed $value) static 添加数据到一个session数组
- * @method void set(string $name, mixed $value = '', string $prefix = null) static 设置session数据
+ * @method void set(string $name, mixed $value , string $prefix = null) static 设置session数据
  * @method void flash(string $name, mixed $value = null) static session设置 下一次请求有效
  * @method void flush() static 清空当前请求的session数据
  * @method void delete(string $name, string $prefix = null) static 删除session数据

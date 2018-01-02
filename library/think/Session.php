@@ -178,7 +178,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function set($name, $value = '', $prefix = null)
+    public function set($name, $value, $prefix = null)
     {
         $this->lock(); // lock必须先于 $this->boot()
 
