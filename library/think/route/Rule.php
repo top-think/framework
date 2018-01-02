@@ -381,10 +381,6 @@ abstract class Rule
     {
         if (!empty($this->option['cross_domain'])) {
 
-            if ($request->method(true) == 'OPTIONS') {
-                return new ResponseDispatch(Response::create()->code(204));
-            }
-
             $header = [
                 'Access-Control-Allow-Origin'  => '*',
                 'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
@@ -396,6 +392,10 @@ abstract class Rule
             }
 
             $this->option['header'] = $header;
+
+            if ($request->method(true) == 'OPTIONS') {
+                return new ResponseDispatch(Response::create()->code(204)->header($header));
+            }
         }
     }
 
