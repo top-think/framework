@@ -59,7 +59,7 @@ class Mysql extends Builder
         $bind = $this->connection->getFieldsBind($options['table']);
 
         foreach ($dataSet as $k => $data) {
-            $data = $this->parseData($query, $data, $allowFields, $bind);
+            $data = $this->parseData($query, $data, $allowFields, $bind, '_' . $k);
 
             $values[] = '( ' . implode(',', array_values($data)) . ' )';
 

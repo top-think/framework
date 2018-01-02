@@ -86,9 +86,10 @@ abstract class Builder
      * @param  array     $data      数据
      * @param  array     $fields    字段信息
      * @param  array     $bind      参数绑定
+     * @param  string    $suffix    参数绑定后缀
      * @return array
      */
-    protected function parseData(Query $query, $data = [], $fields = [], $bind = [])
+    protected function parseData(Query $query, $data = [], $fields = [], $bind = [], $suffix = '')
     {
         if (empty($data)) {
             return [];
@@ -141,7 +142,7 @@ abstract class Builder
                 }
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
-                $result[$item] = $this->parseDataBind($query, $key, $val, $bind);
+                $result[$item] = $this->parseDataBind($query, $key, $val, $bind, $suffix);
             }
         }
 
@@ -1012,7 +1013,7 @@ abstract class Builder
         $bind = $this->connection->getFieldsBind($options['table']);
 
         foreach ($dataSet as $k => $data) {
-            $data = $this->parseData($query, $data, $allowFields, $bind);
+            $data = $this->parseData($query, $data, $allowFields, $bind, '_' . $k);
 
             $values[] = 'SELECT ' . implode(',', array_values($data));
 
