@@ -20,7 +20,7 @@ use think\route\Dispatch;
  */
 class App implements \ArrayAccess
 {
-    const VERSION = '5.1.0';
+    const VERSION = '5.1.1';
 
     /**
      * 当前模块路径
