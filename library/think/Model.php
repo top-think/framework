@@ -764,7 +764,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  mixed     $data  主键值或者查询条件（闭包）
      * @param  mixed     $with  关联预查询
      * @param  bool      $cache 是否缓存
-     * @return Model|null
+     * @return static|null
      * @throws exception\DbException
      */
     public static function get($data, $with = [], $cache = false)
