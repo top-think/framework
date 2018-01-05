@@ -35,6 +35,8 @@ abstract class Relation
     protected $localKey;
     // 基础查询
     protected $baseQuery;
+    // 是否为自关联
+    protected $selfRelation;
 
     /**
      * 获取关联的所属模型
@@ -54,6 +56,28 @@ abstract class Relation
     public function getModel()
     {
         return $this->query->getModel();
+    }
+
+    /**
+     * 设置当前关联为自关联
+     * @access public
+     * @param  bool $self 是否自关联
+     * @return $this
+     */
+    public function selfRelation($self = true)
+    {
+        $this->selfRelation = $self;
+        return $this;
+    }
+
+    /**
+     * 当前关联是否为自关联
+     * @access public
+     * @return bool
+     */
+    public function isSelfRelation()
+    {
+        return $this->selfRelation;
     }
 
     /**
