@@ -612,7 +612,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     protected function getRelationData(Relation $modelRelation)
     {
-        if ($this->parent && $modelRelation->getModel() == $this->parent) {
+        if ($this->parent && !$modelRelation->isSelfRelation() && get_class($modelRelation->getModel()) == get_class($this->parent)) {
             $value = $this->parent;
         } else {
             // 首先获取关联数据
