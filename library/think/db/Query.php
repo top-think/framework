@@ -2605,7 +2605,9 @@ class Query
     public function chunk($count, $callback, $column = null, $order = 'asc')
     {
         $options = $this->getOptions();
-
+        if (empty($options['table'])) {
+            $options['table'] = $this->getTable();
+        }
         $column = $column ?: $this->getPk($options);
 
         if (isset($options['order'])) {
