@@ -548,7 +548,7 @@ trait RelationShip
      */
     protected function getRelationData(Relation $modelRelation)
     {
-        if ($this->parent && get_class($this->parent) == $modelRelation->getModel()) {
+        if ($this->parent && $modelRelation->getModel() == $this->parent) {
             $value = $this->parent;
         } else {
             // 获取关联数据
