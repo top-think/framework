@@ -58,9 +58,9 @@ class Query
      * 构造函数
      * @access public
      * @param Connection $connection 数据库对象实例
-     * @param string     $model      模型名
+     * @param Model      $model      模型对象
      */
-    public function __construct(Connection $connection = null, $model = '')
+    public function __construct(Connection $connection = null, $model = null)
     {
         $this->connection = $connection ?: Db::connect([], true);
         $this->prefix     = $this->connection->getConfig('prefix');
@@ -133,7 +133,7 @@ class Query
     /**
      * 获取当前的模型对象名
      * @access public
-     * @return string
+     * @return Model|null
      */
     public function getModel()
     {
@@ -1910,11 +1910,10 @@ class Query
             $with = explode(',', $with);
         }
 
-        $first        = true;
-        $currentModel = $this->model;
+        $first = true;
 
         /** @var Model $class */
-        $class = new $currentModel;
+        $class = $this->model;
         foreach ($with as $key => $relation) {
             $subRelation = '';
             $closure     = false;
@@ -1973,7 +1972,7 @@ class Query
                     $relation = $key;
                 }
                 $relation = Loader::parseName($relation, 1, false);
-                $count    = '(' . (new $this->model)->$relation()->getRelationCountQuery($closure) . ')';
+                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure) . ')';
                 $this->field([$count => Loader::parseName($relation) . '_count']);
             }
         }
@@ -2365,11 +2364,10 @@ class Query
         // 数据列表读取后的处理
         if (!empty($this->model)) {
             // 生成模型对象
-            $modelName = $this->model;
             if (count($resultSet) > 0) {
                 foreach ($resultSet as $key => $result) {
                     /** @var Model $model */
-                    $model = new $modelName($result);
+                    $model = $this->model->newInstance($result);
                     $model->isUpdate(true);
 
                     // 关联查询
@@ -2389,7 +2387,7 @@ class Query
                 // 模型数据集转换
                 $resultSet = $model->toCollection($resultSet);
             } else {
-                $resultSet = (new $modelName)->toCollection($resultSet);
+                $resultSet = $this->model->toCollection($resultSet);
             }
         } elseif ('collection' == $this->connection->getConfig('resultset_type')) {
             // 返回Collection对象
@@ -2525,8 +2523,7 @@ class Query
         if (!empty($result)) {
             if (!empty($this->model)) {
                 // 返回模型对象
-                $model  = $this->model;
-                $result = new $model($result);
+                $result = $this->model->newInstance($result);
                 $result->isUpdate(true, isset($options['where']['AND']) ? $options['where']['AND'] : null);
                 // 关联查询
                 if (!empty($options['relation'])) {
@@ -2557,7 +2554,8 @@ class Query
     protected function throwNotFound($options = [])
     {
         if (!empty($this->model)) {
-            throw new ModelNotFoundException('model data Not Found:' . $this->model, $this->model, $options);
+            $class = get_class($this->model);
+            throw new ModelNotFoundException('model data Not Found:' . $class, $class, $options);
         } else {
             $table = is_array($options['table']) ? key($options['table']) : $options['table'];
             throw new DataNotFoundException('table data not Found:' . $table, $table, $options);
