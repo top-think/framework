@@ -459,28 +459,28 @@ class Route
 
         $method = strtolower($method);
 
-        // 当前分组名
-        $group = $this->group->getName();
-        if ($group) {
-            $rule = $group . '/' . $rule;
-        }
+        // 创建路由规则实例
+        $ruleItem = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
 
         if (isset($name)) {
+            // 当前分组名
+            $group = $this->group->getName();
+
+            if ($group) {
+                $rule = $group . '/' . $rule;
+            }
             // 设置路由标识 用于URL快速生成
             $this->setRuleName($rule, $name, $option);
         }
 
-        // 创建路由规则实例
-        $rule = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
-
         // 添加到当前分组
-        $this->group->addRule($rule, $method);
+        $this->group->addRule($ruleItem, $method);
 
         if (!empty($option['cross_domain'])) {
-            $this->setCrossDomainRule($rule, $method);
+            $this->setCrossDomainRule($ruleItem, $method);
         }
 
-        return $rule;
+        return $ruleItem;
     }
 
     /**

@@ -104,6 +104,10 @@ class RuleItem extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
+        if ($this->parent && $groupName = $this->parent->getName()) {
+            $this->name = $groupName . '/' . $this->name;
+        }
+
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
             return $dispatch;
