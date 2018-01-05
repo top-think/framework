@@ -153,7 +153,16 @@ class Query
         } elseif (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
             $field = Loader::parseName(substr($method, 5));
-            return $this->where($field, '=', $args[0])->cache($args[1])->find();
+
+            $with = $args[1];
+            $cache = $args[2];
+
+            if (true === $with || is_int($with)) {
+                $cache = $with;
+                $with  = [];
+            }
+
+            return $this->where($field, '=', $args[0])->with($with)->cache($cache)->find();
         } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
             // 根据某个字段获取记录的某个值
             $name = Loader::parseName(substr($method, 10));
