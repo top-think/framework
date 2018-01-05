@@ -264,8 +264,8 @@ class TagLib
             if (!empty($this->tags[$name]['expression'])) {
                 static $_taglibs;
                 if (!isset($_taglibs[$name])) {
-                    $_taglibs[$name][0] = strlen(ltrim($this->tpl->config('taglib_begin'), '\\') . $name);
-                    $_taglibs[$name][1] = strlen(ltrim($this->tpl->config('taglib_end'), '\\'));
+                    $_taglibs[$name][0] = strlen($this->tpl->config('taglib_begin_origin') . $name);
+                    $_taglibs[$name][1] = strlen($this->tpl->config('taglib_end_origin'));
                 }
                 $result['expression'] = substr($str, $_taglibs[$name][0], -$_taglibs[$name][1]);
                 // 清除自闭合标签尾部/
