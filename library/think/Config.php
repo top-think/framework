@@ -11,7 +11,7 @@
 
 namespace think;
 
-class Config
+class Config implements \ArrayAccess
 {
     /**
      * 配置参数
@@ -181,7 +181,7 @@ class Config
     /**
      * 设置配置参数 name为数组则为批量设置
      * @access public
-     * @param  string|array  $name 配置参数名（支持二级配置 .号分割）
+     * @param  string|array  $name 配置参数名（支持三级配置 .号分割）
      * @param  mixed         $value 配置值
      * @return mixed
      */
@@ -192,9 +192,14 @@ class Config
                 $name = $this->prefix . '.' . $name;
             }
 
-            $name = explode('.', $name);
+            $name = explode('.', $name, 3);
 
-            $this->config[strtolower($name[0])][$name[1]] = $value;
+            if (count($name) == 2) {
+                $this->config[strtolower($name[0])][$name[1]] = $value;
+            } else {
+                $this->config[strtolower($name[0])][$name[1]][$name[2]] = $value;
+            }
+
             return $value;
         } elseif (is_array($name)) {
             // 批量设置
@@ -215,6 +220,29 @@ class Config
         }
 
         return $result;
+    }
+
+    /**
+     * 重置配置参数
+     * @access public
+     * @param  string  $name 配置参数名（支持三级配置 .号分割）
+     * @return true
+     */
+    public function remove($name)
+    {
+        if (!strpos($name, '.')) {
+            $name = $this->prefix . '.' . $name;
+        }
+
+        $name = explode('.', $name, 3);
+
+        if (count($name) == 2) {
+            unset($this->config[strtolower($name[0])][$name[1]]);
+        } else {
+            unset($this->config[strtolower($name[0])][$name[1]][$name[2]]);
+        }
+
+        return true;
     }
 
     /**
@@ -265,4 +293,24 @@ class Config
         return $this->has($name);
     }
 
+    // ArrayAccess
+    public function offsetSet($name, $value)
+    {
+        $this->set($name, $value);
+    }
+
+    public function offsetExists($name)
+    {
+        return $this->has($name);
+    }
+
+    public function offsetUnset($name)
+    {
+        $this->remove($name);
+    }
+
+    public function offsetGet($name)
+    {
+        return $this->get($name);
+    }
 }
