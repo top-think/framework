@@ -1357,7 +1357,11 @@ class Query
                 if (key($field) !== 0) {
                     $where = [];
                     foreach ($field as $key => $val) {
-                        $where[$key] = !is_scalar($val) ? $val : [$key, '=', $val];
+                        if (is_null($val)) {
+                            $where[$key] = [$key, 'null', ''];
+                        } else {
+                            $where[$key] = !is_scalar($val) ? $val : [$key, '=', $val];
+                        }
                     }
                 } else {
                     // 数组批量查询
