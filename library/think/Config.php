@@ -223,7 +223,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * 重置配置参数
+     * 移除配置
      * @access public
      * @param  string  $name 配置参数名（支持三级配置 .号分割）
      * @return true
