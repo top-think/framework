@@ -226,7 +226,7 @@ class Config implements \ArrayAccess
      * 移除配置
      * @access public
      * @param  string  $name 配置参数名（支持三级配置 .号分割）
-     * @return true
+     * @return void
      */
     public function remove($name)
     {
@@ -241,8 +241,6 @@ class Config implements \ArrayAccess
         } else {
             unset($this->config[strtolower($name[0])][$name[1]][$name[2]]);
         }
-
-        return true;
     }
 
     /**
