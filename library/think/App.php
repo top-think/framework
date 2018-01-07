@@ -126,16 +126,7 @@ class App implements \ArrayAccess
 
     public function __construct($appPath = '')
     {
-        $this->container   = Container::getInstance();
-        $this->beginTime   = microtime(true);
-        $this->beginMem    = memory_get_usage();
-        $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
-        $this->appPath     = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
-        $this->rootPath    = dirname(realpath($this->appPath)) . '/';
-        $this->runtimePath = $this->rootPath . 'runtime/';
-        $this->routePath   = $this->rootPath . 'route/';
-        $this->configPath  = $this->rootPath . 'config/';
-
+        $this->appPath = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
     }
 
     /**
@@ -151,12 +142,33 @@ class App implements \ArrayAccess
     }
 
     /**
+     * 设置应用类库目录
+     * @access public
+     * @param  string $path 路径
+     * @return $this
+     */
+    public function path($path)
+    {
+        $this->appPath = $path;
+        return $this;
+    }
+
+    /**
      * 初始化应用
      * @access public
      * @return void
      */
     public function initialize()
     {
+        $this->beginTime   = microtime(true);
+        $this->beginMem    = memory_get_usage();
+        $this->container   = Container::getInstance();
+        $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
+        $this->rootPath    = dirname(realpath($this->appPath)) . '/';
+        $this->runtimePath = $this->rootPath . 'runtime/';
+        $this->routePath   = $this->rootPath . 'route/';
+        $this->configPath  = $this->rootPath . 'config/';
+
         // 设置路径环境变量
         $this->env->set([
             'think_path'   => $this->thinkPath,
@@ -167,7 +179,6 @@ class App implements \ArrayAccess
             'runtime_path' => $this->runtimePath,
             'extend_path'  => $this->rootPath . 'extend/',
             'vendor_path'  => $this->rootPath . 'vendor/',
-
         ]);
 
         // 加载环境变量配置文件
