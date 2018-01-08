@@ -931,7 +931,7 @@ class Query
         }
 
         if (isset($this->options['field'])) {
-            $field = array_merge($this->options['field'], $field);
+            $field = array_merge((array) $this->options['field'], $field);
         }
 
         $this->options['field'] = array_unique($field);
@@ -2845,8 +2845,10 @@ class Query
             $options['field'] = '*';
         }
 
-        if (!isset($options['data'])) {
-            $options['data'] = [];
+        foreach (['data', 'order'] as $name) {
+            if (!isset($options[$name])) {
+                $options[$name] = [];
+            }
         }
 
         if (!isset($options['strict'])) {
@@ -2859,7 +2861,7 @@ class Query
             }
         }
 
-        foreach (['join', 'union', 'group', 'having', 'limit', 'order', 'force', 'comment'] as $name) {
+        foreach (['join', 'union', 'group', 'having', 'limit', 'force', 'comment'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = '';
             }
