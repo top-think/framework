@@ -793,6 +793,10 @@ abstract class Builder
      */
     protected function parseOrder(Query $query, $order)
     {
+        if (empty($order)) {
+            return '';
+        }
+
         if (is_array($order)) {
             $array = [];
 
@@ -814,7 +818,7 @@ abstract class Builder
             $order = implode(',', $array);
         }
 
-        return !empty($order) ? ' ORDER BY ' . $order : '';
+        return ' ORDER BY ' . $order;
     }
 
     /**
