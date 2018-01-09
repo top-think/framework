@@ -21,6 +21,7 @@ use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Debug;
+use think\facade\Env;
 use think\facade\Hook;
 use think\facade\Lang;
 use think\facade\Log;
@@ -312,6 +313,20 @@ if (!function_exists('dump')) {
     function dump($var, $echo = true, $label = null)
     {
         return Debug::dump($var, $echo, $label);
+    }
+}
+
+if (!function_exists('env')) {
+    /**
+     * 获取环境变量值
+     * @access public
+     * @param  string    $name 环境变量名（支持二级 .号分割）
+     * @param  string    $default  默认值
+     * @return mixed
+     */
+    function env($name = null, $default = null)
+    {
+        return Env::get($name, $default);
     }
 }
 
