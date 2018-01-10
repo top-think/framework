@@ -1366,9 +1366,19 @@ class Request
         }
 
         $item = [];
-        foreach ($name as $key) {
+        foreach ($name as $key => $item) {
+            $default = null;
+
+            if (is_int($key)) {
+                $key = $item;
+            } else {
+                $default = $item;
+            }
+
             if (isset($param[$key])) {
                 $item[$key] = $param[$key];
+            } elseif (!is_null($default)) {
+                $item[$key] = $default;
             }
         }
 
