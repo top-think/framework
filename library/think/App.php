@@ -225,9 +225,6 @@ class App implements \ArrayAccess
         // 注册类库别名
         Loader::addClassAlias($this->config->pull('alias'));
 
-        // 加载系统助手函数
-        include $this->thinkPath . 'helper.php';
-
         // 设置系统时区
         date_default_timezone_set($this->config('app.default_timezone'));
 
@@ -253,23 +250,6 @@ class App implements \ArrayAccess
         } elseif (is_file($this->runtimePath . $module . 'init.php')) {
             include $this->runtimePath . $module . 'init.php';
         } else {
-            // 自动读取配置文件
-            if (is_dir($path . 'config')) {
-                $dir = $path . 'config';
-            } elseif (is_dir($this->configPath . $module)) {
-                $dir = $this->configPath . $module;
-            }
-
-            if (isset($dir)) {
-                $files = scandir($dir);
-                foreach ($files as $file) {
-                    if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
-                        $filename = $dir . DIRECTORY_SEPARATOR . $file;
-                        $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
-                    }
-                }
-            }
-
             // 加载行为扩展文件
             if (is_file($path . 'tags.php')) {
                 $this->hook->import(include $path . 'tags.php');
@@ -280,9 +260,30 @@ class App implements \ArrayAccess
                 include $path . 'common.php';
             }
 
-            // 注册服务和容器对象实例
+            if ('' == $module) {
+                // 加载系统助手函数
+                include $this->thinkPath . 'helper.php';
+            }
+
+            // 注册服务的容器对象实例
             if (is_file($path . 'provider.php')) {
                 $this->container->bind(include $path . 'provider.php');
+            }
+
+            // 自动读取配置文件
+            if (is_dir($path . 'config')) {
+                $dir = $path . 'config';
+            } elseif (is_dir($this->configPath . $module)) {
+                $dir = $this->configPath . $module;
+            }
+
+            $files = isset($dir) ? scandir($dir) : [];
+
+            foreach ($files as $file) {
+                if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
+                    $filename = $dir . DIRECTORY_SEPARATOR . $file;
+                    $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
+                }
             }
         }
 

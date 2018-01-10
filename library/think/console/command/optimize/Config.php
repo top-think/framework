@@ -31,7 +31,7 @@ class Config extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        if ($input->hasArgument('module')) {
+        if ($input->getArgument('module')) {
             $module = $input->getArgument('module') . DIRECTORY_SEPARATOR;
         } else {
             $module = '';
@@ -60,7 +60,8 @@ class Config extends Command
         $ext    = App::getConfigExt();
         $config = Container::get('config');
 
-        $files = scandir($configPath);
+        $files = is_dir($configPath) ? scandir($configPath) : [];
+
         foreach ($files as $file) {
             if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $ext) {
                 $filename = $configPath . DIRECTORY_SEPARATOR . $file;
@@ -79,6 +80,10 @@ class Config extends Command
             if ($common) {
                 $content .= PHP_EOL . $common . PHP_EOL;
             }
+        }
+
+        if ('' == $module) {
+            $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
         }
 
         if (is_file($path . 'provider.php')) {
