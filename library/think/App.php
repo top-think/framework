@@ -126,7 +126,8 @@ class App implements \ArrayAccess
 
     public function __construct($appPath = '')
     {
-        $this->appPath = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
+        $this->appPath   = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
+        $this->container = Container::getInstance();
     }
 
     /**
@@ -162,7 +163,6 @@ class App implements \ArrayAccess
     {
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
-        $this->container   = Container::getInstance();
         $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
         $this->rootPath    = dirname(realpath($this->appPath)) . '/';
         $this->runtimePath = $this->rootPath . 'runtime/';
