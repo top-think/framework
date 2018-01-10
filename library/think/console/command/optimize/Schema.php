@@ -40,7 +40,8 @@ class Schema extends Command
         if ($input->hasOption('module')) {
             $module = $input->getOption('module');
             // 读取模型
-            $list      = scandir(App::getAppPath() . $module . DIRECTORY_SEPARATOR . 'model');
+            $path      = App::getAppPath() . $module . DIRECTORY_SEPARATOR . 'model';
+            $list      = is_dir($path) ? scandir($path) : [];
             $namespace = App::getNamespace();
 
             foreach ($list as $file) {
@@ -65,7 +66,8 @@ class Schema extends Command
             $tables = Db::getConnection()->getTables($dbName);
         } elseif (!\think\facade\Config::get('app_multi_module')) {
             $namespace = App::getNamespace();
-            $list      = scandir(App::getAppPath() . 'model');
+            $path      = App::getAppPath() . 'model';
+            $list      = is_dir($path) ? scandir($path) : [];
 
             foreach ($list as $file) {
                 if (0 === strpos($file, '.')) {
