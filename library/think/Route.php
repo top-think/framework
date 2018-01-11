@@ -721,6 +721,21 @@ class Route
     }
 
     /**
+     * 注册视图路由
+     * @access public
+     * @param  string|array $rule 路由规则
+     * @param  string       $template 路由模板地址
+     * @param  array        $vars 模板变量
+     * @param  array        $option 路由参数
+     * @param  array        $pattern 变量规则
+     * @return $this
+     */
+    public function view($rule, $template = '', $vars = [], $option = [], $pattern = [])
+    {
+        return $this->rule($rule, $template, 'GET', $option, $pattern)->view($vars);
+    }
+
+    /**
      * 注册别名路由
      * @access public
      * @param  string|array  $rule 路由别名

@@ -20,6 +20,7 @@ use think\route\dispatch\Controller as ControllerDispatch;
 use think\route\dispatch\Module as ModuleDispatch;
 use think\route\dispatch\Redirect as RedirectDispatch;
 use think\route\dispatch\Response as ResponseDispatch;
+use think\route\dispatch\View as ViewDispatch;
 
 abstract class Rule
 {
@@ -338,6 +339,17 @@ abstract class Rule
     public function pjax($pjax = true)
     {
         return $this->option('pjax', $pjax);
+    }
+
+    /**
+     * 当前路由到一个模板地址 当使用数组的时候可以传入模板变量
+     * @access public
+     * @param  bool|array     $view
+     * @return $this
+     */
+    public function view($view = true)
+    {
+        return $this->option('view', $view);
     }
 
     /**
@@ -691,6 +703,8 @@ abstract class Rule
             $result = new CallbackDispatch($route);
         } elseif ($route instanceof Response) {
             $result = new ResponseDispatch($route);
+        } elseif (isset($option['view']) && false !== $option['view']) {
+            $result = new ViewDispatch($route, is_array($option['view']) ? $option['view'] : []);
         } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
             $result = new RedirectDispatch($route, [], isset($option['status']) ? $option['status'] : 301);
