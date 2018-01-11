@@ -45,7 +45,7 @@ class Build extends Command
         if ($input->hasOption('config')) {
             $build = include $input->getOption('config');
         } else {
-            $build = include App::getAppPath() . 'build.php';
+            $build = include App::getRootPath() . 'build.php';
         }
 
         if (empty($build)) {
