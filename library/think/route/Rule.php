@@ -81,7 +81,7 @@ abstract class Rule
      */
     public function name($name)
     {
-        $this->name = '/' != $name ? trim($name, '/') : '/';
+        $this->name = '/' != $name ? ltrim($name, '/') : '/';
 
         return $this;
     }
@@ -349,6 +349,17 @@ abstract class Rule
     public function completeMatch($match = true)
     {
         return $this->option('complete_match', $match);
+    }
+
+    /**
+     * 是否去除URL最后的斜线
+     * @access public
+     * @param  bool     $remove
+     * @return $this
+     */
+    public function removeSlash($remove = true)
+    {
+        return $this->option('remove_slash', $remove);
     }
 
     /**

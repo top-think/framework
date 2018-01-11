@@ -122,6 +122,11 @@ class RuleItem extends Rule
         $this->mergeGroupOptions();
         $option = $this->option;
 
+        // 是否区分 / 地址访问
+        if (!empty($option['remove_slash']) && '/' != $this->name) {
+            $this->name = rtrim($this->name, '/');
+        }
+
         // 检查前置行为
         if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
             return false;
