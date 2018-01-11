@@ -2029,7 +2029,11 @@ abstract class Connection
         if (isset($data)) {
             return 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
         } else {
-            return md5(serialize($options) . serialize($bind));
+            try {
+                return md5(serialize($options) . serialize($bind));
+            } catch (\Exception $e) {
+                return;
+            }
         }
     }
 
