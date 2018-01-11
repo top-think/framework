@@ -17,8 +17,9 @@ use think\Response;
 class View extends Response
 {
     // 输出参数
-    protected $options     = [];
-    protected $vars        = [];
+    protected $options = [];
+    protected $vars    = [];
+    protected $filter;
     protected $contentType = 'text/html';
 
     /**
@@ -33,6 +34,7 @@ class View extends Response
         $config = Container::get('config');
         return Container::get('view')
             ->init($config->pull('template'))
+            ->filter($this->filter)
             ->fetch($data, $this->vars);
     }
 
@@ -67,6 +69,18 @@ class View extends Response
             $this->vars[$name] = $value;
         }
 
+        return $this;
+    }
+
+    /**
+     * 视图内容过滤
+     * @access public
+     * @param callable $filter
+     * @return $this
+     */
+    public function filter($filter)
+    {
+        $this->filter = $filer;
         return $this;
     }
 

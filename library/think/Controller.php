@@ -151,6 +151,19 @@ class Controller
     }
 
     /**
+     * 视图过滤
+     * @access protected
+     * @param  Callable $filter 过滤方法或闭包
+     * @return $this
+     */
+    protected function filter($filter)
+    {
+        $this->view->filter($filter);
+
+        return $this;
+    }
+
+    /**
      * 初始化模板引擎
      * @access protected
      * @param  array|string $engine 引擎参数

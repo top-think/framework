@@ -26,6 +26,12 @@ class View
     protected $data = [];
 
     /**
+     * 内容过滤
+     * @var mixed
+     */
+    protected $filer;
+
+    /**
      * 全局模板变量
      * @var array
      */
@@ -133,6 +139,18 @@ class View
     }
 
     /**
+     * 视图过滤
+     * @access public
+     * @param Callable  $filter 过滤方法或闭包
+     * @return $this
+     */
+    public function filter($filter)
+    {
+        $this->filter = $filter;
+        return $this;
+    }
+
+    /**
      * 解析和获取模板内容 用于输出
      * @access public
      * @param  string    $template 模板文件名或者内容
@@ -163,8 +181,9 @@ class View
         // 获取并清空缓存
         $content = ob_get_clean();
 
-        // 内容过滤标签
-        Container::get('hook')->listen('view_filter', $content);
+        if ($this->filter) {
+            $content = call_user_func_array($this->filter, [$content]);
+        }
 
         return $content;
     }
