@@ -353,6 +353,17 @@ abstract class Rule
     }
 
     /**
+     * 当前路由为重定向
+     * @access public
+     * @param  bool   $redirect 是否为重定向
+     * @return $this
+     */
+    public function redirect($redirect = true)
+    {
+        return $this->option('redirect', $redirect);
+    }
+
+    /**
      * 设置路由完整匹配
      * @access public
      * @param  bool     $match
@@ -705,7 +716,7 @@ abstract class Rule
             $result = new ResponseDispatch($route);
         } elseif (isset($option['view']) && false !== $option['view']) {
             $result = new ViewDispatch($route, is_array($option['view']) ? $option['view'] : []);
-        } elseif (0 === strpos($route, '/') || strpos($route, '://')) {
+        } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
             $result = new RedirectDispatch($route, [], isset($option['status']) ? $option['status'] : 301);
         } elseif (false !== strpos($route, '\\')) {
