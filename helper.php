@@ -26,9 +26,11 @@ use think\facade\Hook;
 use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
+use think\facade\Route;
 use think\facade\Session;
 use think\facade\Url;
 use think\Response;
+use think\route\RuleItem;
 
 if (!function_exists('abort')) {
     /**
@@ -519,6 +521,21 @@ if (!function_exists('response')) {
     function response($data = [], $code = 200, $header = [], $type = 'html')
     {
         return Response::create($data, $type, $code, $header);
+    }
+}
+
+if (!function_exists('route')) {
+    /**
+     * 路由注册
+     * @param  string    $rule       路由规则
+     * @param  mixed     $route      路由地址
+     * @param  array     $option     路由参数
+     * @param  array     $pattern    变量规则
+     * @return RuleItem
+     */
+    function route($rule, $route, $option = [], $pattern = [])
+    {
+        return Route::rule($rule, $route, '*', $option, $pattern);
     }
 }
 
