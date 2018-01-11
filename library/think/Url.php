@@ -164,7 +164,11 @@ class Url
         $url  = str_replace('/', $depr, $url);
 
         // URL后缀
-        $suffix = in_array($url, ['/', '']) ? '' : $this->parseSuffix($suffix);
+        if ('/' == substr($url, -1) || '' == $url) {
+            $suffix = '';
+        } else {
+            $suffix = $this->parseSuffix($suffix);
+        }
 
         // 锚点
         $anchor = !empty($anchor) ? '#' . $anchor : '';
