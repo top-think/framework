@@ -273,8 +273,14 @@ class Build
         $comment = substr($comment, 3, -2);
         $comment = explode(PHP_EOL, substr(strstr(trim($comment), $tag), 1));
         $comment = array_map(function ($item) {return trim(trim($item), ' \t*');}, $comment);
-        $key     = array_search('', $comment);
-        $comment = implode(PHP_EOL . "\t", array_slice($comment, 0, $key)) . ';';
+
+        if (count($comment) > 1) {
+            $key     = array_search('', $comment);
+            $comment = array_slice($comment, 0, false === $key ? 1 : $key);
+        }
+
+        $comment = implode(PHP_EOL . "\t", $comment) . ';';
+
         if (strpos($comment, '{')) {
             $comment = preg_replace_callback('/\{\s?.*?\s?\}/s', function ($matches) {
                 return false !== strpos($matches[0], '"') ? '[' . substr(var_export(json_decode($matches[0], true), true), 7, -1) . ']' : $matches[0];
