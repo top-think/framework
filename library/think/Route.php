@@ -728,7 +728,7 @@ class Route
      * @param  array        $vars 模板变量
      * @param  array        $option 路由参数
      * @param  array        $pattern 变量规则
-     * @return $this
+     * @return RuleItem
      */
     public function view($rule, $template = '', $vars = [], $option = [], $pattern = [])
     {
