@@ -80,7 +80,7 @@ class View extends Response
      */
     public function filter($filter)
     {
-        $this->filter = $filer;
+        $this->filter = $filter;
         return $this;
     }
 
