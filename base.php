@@ -47,7 +47,7 @@ Container::getInstance()->bind([
     'url'                   => Url::class,
     'validate'              => Validate::class,
     'view'                  => View::class,
-
+    'middlewareDispatcher'  => http\middleware\Dispatcher::class,
     // 接口依赖注入
     'think\LoggerInterface' => Log::class,
 ]);
