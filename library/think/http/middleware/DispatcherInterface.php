@@ -31,6 +31,12 @@ interface DispatcherInterface
     public function insert($middleware);
 
     /**
+     * 获取所有的middleware
+     * @return array
+     */
+    public function all();
+
+    /**
      * 处理 request 并返回 response
      * @param Request $request
      * @return Response
