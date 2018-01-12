@@ -1,5 +1,8 @@
-ThinkPHP 5.1
-===============
+<p align="center">
+  <a href="http://www.thinkphp.cn/" target="_blank" >
+    <img alt="ThinkPHP" src="https://avatars0.githubusercontent.com/u/16305258" width="120" /> ThinkPHP
+  </a>
+</p>
 
 ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特性包括：
 
