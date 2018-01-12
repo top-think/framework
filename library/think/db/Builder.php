@@ -134,10 +134,10 @@ abstract class Builder
                         $result[$item] = $val[1];
                         break;
                     case 'inc':
-                        $result[$item] = $this->parseKey($query, $val[1]) . '+' . floatval($val[2]);
+                        $result[$item] = $this->parseKey($query, $val[1]) . ' + ' . floatval($val[2]);
                         break;
                     case 'dec':
-                        $result[$item] = $this->parseKey($query, $val[1]) . '-' . floatval($val[2]);
+                        $result[$item] = $this->parseKey($query, $val[1]) . ' - ' . floatval($val[2]);
                         break;
                 }
             } elseif (is_scalar($val)) {
@@ -1085,14 +1085,14 @@ abstract class Builder
         }
 
         foreach ($data as $key => $val) {
-            $set[] = $key . '=' . $val;
+            $set[] = $key . ' = ' . $val;
         }
 
         return str_replace(
             ['%TABLE%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
-                implode(',', $set),
+                implode(' , ', $set),
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
                 $this->parseOrder($query, $options['order']),
