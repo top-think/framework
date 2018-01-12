@@ -18,6 +18,11 @@ class Dispatcher implements DispatcherInterface
 {
     protected $queue;
 
+    public function __construct($middlewares = [])
+    {
+        $this->queue = (array)$middlewares;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -39,6 +44,14 @@ class Dispatcher implements DispatcherInterface
     /**
      * {@inheritdoc}
      */
+    public function all()
+    {
+        return $this->queue;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function dispatch(Request $request)
     {
         $requestHandler = $this->resolve();
@@ -51,7 +64,7 @@ class Dispatcher implements DispatcherInterface
             $middleware = array_shift($this->queue);
             if ($middleware !== null) {
                 $response = call_user_func($middleware, $request, $this->resolve());
-                if ($response instanceof Response) {
+                if (!$response instanceof Response) {
                     throw new \LogicException('The middleware must return Response instance');
                 }
                 return $response;

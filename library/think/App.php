@@ -365,18 +365,22 @@ class App implements \ArrayAccess
             $data = $exception->getResponse();
         }
 
-        // 输出数据到客户端
-        if ($data instanceof Response) {
-            $response = $data;
-        } elseif (!is_null($data)) {
-            // 默认自动识别响应输出类型
-            $isAjax = $this->request->isAjax();
-            $type   = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
+        $this->middlewareDispatcher->add(function(Request $request, $next) use ($data){
+            // 输出数据到客户端
+            if ($data instanceof Response) {
+                $response = $data;
+            } elseif (!is_null($data)) {
+                // 默认自动识别响应输出类型
+                $isAjax = $request->isAjax();
+                $type   = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
 
-            $response = Response::create($data, $type);
-        } else {
-            $response = Response::create();
-        }
+                $response = Response::create($data, $type);
+            } else {
+                $response = Response::create();
+            }
+            return $response;
+        });
+        $response = $this->middlewareDispatcher->dispatch($this->request);
 
         // 监听app_end
         $this->hook->listen('app_end', $response);
