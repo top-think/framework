@@ -29,7 +29,7 @@ class View
      * 内容过滤
      * @var mixed
      */
-    protected $filer;
+    protected $filter;
 
     /**
      * 全局模板变量
