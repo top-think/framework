@@ -365,7 +365,7 @@ class App implements \ArrayAccess
             $data = $exception->getResponse();
         }
 
-        $this->middlewareDispatcher->add(function(Request $request, $next) use ($data){
+        $this->middlewareDispatcher->add(function (Request $request, $next) use ($data) {
             // 输出数据到客户端
             if ($data instanceof Response) {
                 $response = $data;

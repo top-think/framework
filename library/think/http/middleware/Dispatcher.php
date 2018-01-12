@@ -20,7 +20,7 @@ class Dispatcher implements DispatcherInterface
 
     public function __construct($middlewares = [])
     {
-        $this->queue = (array)$middlewares;
+        $this->queue = (array) $middlewares;
     }
 
     /**
@@ -60,7 +60,7 @@ class Dispatcher implements DispatcherInterface
 
     protected function resolve()
     {
-        return function(Request $request){
+        return function (Request $request) {
             $middleware = array_shift($this->queue);
             if ($middleware !== null) {
                 $response = call_user_func($middleware, $request, $this->resolve());
