@@ -438,7 +438,7 @@ abstract class Rule
      * @access public
      * @return $this
      */
-    public function crossDomain()
+    public function crossDomainRule()
     {
         if ($this instanceof RuleGroup) {
             $method = '*';
