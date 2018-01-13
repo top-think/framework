@@ -27,6 +27,8 @@ class File extends Driver
         'data_compress' => false,
     ];
 
+    protected $expire;
+
     /**
      * 构造函数
      * @param array $options
@@ -106,13 +108,15 @@ class File extends Driver
         if (!is_file($filename)) {
             return $default;
         }
-        $content = file_get_contents($filename);
+        $content      = file_get_contents($filename);
+        $this->expire = null;
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
             if (0 != $expire && time() > filemtime($filename) + $expire) {
                 return $default;
             }
-            $content = substr($content, 32);
+            $this->expire = $expire;
+            $content      = substr($content, 32);
             if ($this->options['data_compress'] && function_exists('gzcompress')) {
                 //启用数据压缩
                 $content = gzuncompress($content);
