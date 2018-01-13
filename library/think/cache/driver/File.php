@@ -170,11 +170,14 @@ class File extends Driver
     public function inc($name, $step = 1)
     {
         if ($this->has($name)) {
-            $value = $this->get($name) + $step;
+            $value  = $this->get($name) + $step;
+            $expire = $this->expire;
         } else {
-            $value = $step;
+            $value  = $step;
+            $expire = 0;
         }
-        return $this->set($name, $value, 0) ? $value : false;
+
+        return $this->set($name, $value, $expire) ? $value : false;
     }
 
     /**
@@ -187,11 +190,14 @@ class File extends Driver
     public function dec($name, $step = 1)
     {
         if ($this->has($name)) {
-            $value = $this->get($name) - $step;
+            $value  = $this->get($name) - $step;
+            $expire = $this->expire;
         } else {
-            $value = -$step;
+            $value  = -$step;
+            $expire = 0;
         }
-        return $this->set($name, $value, 0) ? $value : false;
+
+        return $this->set($name, $value, $expire) ? $value : false;
     }
 
     /**
