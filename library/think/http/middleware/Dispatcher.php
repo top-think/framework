@@ -20,7 +20,7 @@ class Dispatcher implements DispatcherInterface
 
     public function __construct($middlewares = [])
     {
-        $this->queue = (array)$middlewares;
+        $this->queue = (array) $middlewares;
     }
 
     /**
@@ -60,13 +60,16 @@ class Dispatcher implements DispatcherInterface
 
     protected function resolve()
     {
-        return function(Request $request){
+        return function (Request $request) {
             $middleware = array_shift($this->queue);
-            if ($middleware !== null) {
+
+            if (null !== $middleware) {
                 $response = call_user_func($middleware, $request, $this->resolve());
+
                 if (!$response instanceof Response) {
                     throw new \LogicException('The middleware must return Response instance');
                 }
+
                 return $response;
             } else {
                 throw new MissingResponseException('The queue was exhausted, with no response returned');

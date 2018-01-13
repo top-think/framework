@@ -12,6 +12,4 @@
 namespace think\http\middleware;
 
 class MissingResponseException extends \InvalidArgumentException
-{
-
-}
+{}
