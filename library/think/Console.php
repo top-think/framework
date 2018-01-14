@@ -9,6 +9,7 @@
 
 namespace think;
 
+use think\console\AppAwareInterface;
 use think\console\Command;
 use think\console\command\Help as HelpCommand;
 use think\console\Input;
@@ -39,6 +40,7 @@ class Console
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
         "think\\console\\command\\Clear",
+        "think\\console\\command\\RunServer",
         "think\\console\\command\\make\\Controller",
         "think\\console\\command\\make\\Model",
         "think\\console\\command\\optimize\\Autoload",
@@ -337,7 +339,10 @@ class Console
     public function add(Command $command)
     {
         $command->setConsole($this);
-
+        //如果该command需要获取应用消息则注入app对象
+        if ($command instanceof AppAwareInterface) {
+            $command->setApp(Container::get('app'));
+        }
         if (!$command->isEnabled()) {
             $command->setConsole(null);
             return;

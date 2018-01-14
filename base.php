@@ -30,7 +30,7 @@ if (interface_exists('Psr\Log\LoggerInterface')) {
 
 // 注册核心类到容器
 Container::getInstance()->bind([
-    'app'                   => App::class,
+    'app'                   => kernel\Application::class,
     'build'                 => Build::class,
     'cache'                 => Cache::class,
     'config'                => Config::class,
