@@ -199,6 +199,11 @@ class RuleGroup extends Rule
             $rule->name($this->name . '/' . $name);
         }
 
+        if (strpos($method, '|')) {
+            $rule->method($method);
+            $method = '*';
+        }
+
         $this->rules[$method][] = $rule;
 
         if ($rule instanceof RuleItem) {
