@@ -241,7 +241,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             // 软删除
             if (method_exists($this, 'getDeleteTimeField')) {
                 $field = $this->getDeleteTimeField(true);
-                $query->useSoftDelete($field);
+                if ($field) {
+                    $query->useSoftDelete($field);
+                }
             }
 
             // 全局作用域
