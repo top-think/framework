@@ -118,9 +118,10 @@ class HasOne extends OneToOne
      * @param  string   $relation    当前关联名
      * @param  string   $subRelation 子关联名
      * @param  \Closure $closure     闭包
+     * @param  mixed    $cache       缓存
      * @return void
      */
-    protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure)
+    protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure, $cache = false)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -136,7 +137,7 @@ class HasOne extends OneToOne
         if (!empty($range)) {
             $data = $this->eagerlyWhere([
                 [$foreignKey, 'in', $range],
-            ], $foreignKey, $relation, $subRelation, $closure);
+            ], $foreignKey, $relation, $subRelation, $closure, $cache);
 
             // 关联属性名
             $attr = Loader::parseName($relation);
@@ -170,15 +171,16 @@ class HasOne extends OneToOne
      * @param  string   $relation    当前关联名
      * @param  string   $subRelation 子关联名
      * @param  \Closure $closure     闭包
+     * @param  mixed    $cache       缓存
      * @return void
      */
-    protected function eagerlyOne(&$result, $relation, $subRelation, $closure)
+    protected function eagerlyOne(&$result, $relation, $subRelation, $closure, $cache = false)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
         $data       = $this->eagerlyWhere([
             [$foreignKey, '=', $result->$localKey],
-        ], $foreignKey, $relation, $subRelation, $closure);
+        ], $foreignKey, $relation, $subRelation, $closure, $cache);
 
         // 关联模型
         if (!isset($data[$result->$localKey])) {

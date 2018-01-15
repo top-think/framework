@@ -149,10 +149,11 @@ class MorphTo extends Relation
      * @param  string   $relation    当前关联名
      * @param  string   $subRelation 子关联名
      * @param  \Closure $closure     闭包
+     * @param  mixed    $cache       缓存
      * @return void
      * @throws Exception
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
+    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure, $cache = false)
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
@@ -206,16 +207,17 @@ class MorphTo extends Relation
      * @param  string   $relation    当前关联名
      * @param  string   $subRelation 子关联名
      * @param  \Closure $closure     闭包
+     * @param  mixed    $cache       缓存
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
+    public function eagerlyResult(&$result, $relation, $subRelation, $closure, $cache = false)
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
         // 多态类型映射
         $model = $this->parseModel($result->{$this->morphType});
 
-        $this->eagerlyMorphToOne($model, $relation, $result, $subRelation);
+        $this->eagerlyMorphToOne($model, $relation, $result, $subRelation, $cache);
     }
 
     /**
@@ -237,13 +239,14 @@ class MorphTo extends Relation
      * @param  string $relation    关联名
      * @param  Model  $result
      * @param  string $subRelation 子关联
+     * @param  mixed  $cache       缓存
      * @return void
      */
-    protected function eagerlyMorphToOne($model, $relation, &$result, $subRelation = '')
+    protected function eagerlyMorphToOne($model, $relation, &$result, $subRelation = '', $cache = false)
     {
         // 预载入关联查询 支持嵌套预载入
         $pk   = $this->parent->{$this->morphKey};
-        $data = (new $model)->with($subRelation)->find($pk);
+        $data = (new $model)->with($subRelation)->cache($cache)->find($pk);
 
         if ($data) {
             $data->setParent(clone $result);
