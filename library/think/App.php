@@ -343,7 +343,7 @@ class App implements \ArrayAccess
 
             // 记录路由和请求信息
             if ($this->debug) {
-                $this->log('[ ROUTE ] ' . var_export($this->request->routeinfo(), true));
+                $this->log('[ ROUTE ] ' . var_export($this->request->routeInfo(), true));
                 $this->log('[ HEADER ] ' . var_export($this->request->header(), true));
                 $this->log('[ PARAM ] ' . var_export($this->request->param(), true));
             }
