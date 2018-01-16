@@ -986,6 +986,8 @@ abstract class Connection
      * @param  bool      $replace    是否replace
      * @param  integer   $limit      每次写入数据限制
      * @return integer|string
+     * @throws \Exception
+     * @throws \Throwable
      */
     public function insertAll(Query $query, $dataSet = [], $replace = false, $limit = null)
     {
@@ -995,24 +997,43 @@ abstract class Connection
 
         $options = $query->getOptions();
 
-        // 生成SQL语句
-        if (is_null($limit)) {
-            $sql = $this->builder->insertAll($query, $dataSet, $replace);
-        } else {
-            $array = array_chunk($dataSet, $limit, true);
-            foreach ($array as $item) {
-                $sql[] = $this->builder->insertAll($query, $item, $replace);
+        if ($limit) {
+            // 分批写入 自动启动事务支持
+            $this->startTrans();
+
+            try {
+                $array = array_chunk($dataSet, $limit, true);
+                $count = 0;
+
+                foreach ($array as $item) {
+                    $sql  = $this->builder->insertAll($query, $item, $replace);
+                    $bind = $query->getBind();
+                    if (!empty($options['fetch_sql'])) {
+                        $fetchSql[] = $this->getRealSql($sql, $bind);
+                    } else {
+                        $count += $this->execute($sql, $bind);
+                    }
+                }
+
+                // 提交事务
+                $this->commit();
+            } catch (\Exception $e) {
+                $this->rollback();
+                throw $e;
+            } catch (\Throwable $e) {
+                $this->rollback();
+                throw $e;
             }
+
+            return isset($fetchSql) ? implode(';', $fetchSql) : $count;
         }
 
+        $sql  = $this->builder->insertAll($query, $dataSet, $replace);
         $bind = $query->getBind();
 
         if (!empty($options['fetch_sql'])) {
             // 获取实际执行的SQL语句
             return $this->getRealSql($sql, $bind);
-        } elseif (is_array($sql)) {
-            // 执行操作
-            return $this->batchQuery($sql, $bind);
         } else {
             // 执行操作
             return $this->execute($sql, $bind);
