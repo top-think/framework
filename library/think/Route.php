@@ -527,7 +527,7 @@ class Route
     /**
      * 批量注册路由规则
      * @access public
-     * @param  string    $rules      路由规则
+     * @param  array     $rules      路由规则
      * @param  string    $method     请求类型
      * @param  array     $option     路由参数
      * @param  array     $pattern    变量规则
