@@ -1672,6 +1672,33 @@ class Query
     }
 
     /**
+     * 指定Field排序 order('id',[1,2,3],'desc')
+     * @access public
+     * @param  string|array $field 排序字段
+     * @param  string       $values 排序值
+     * @param  string       $order
+     * @return $this
+     */
+    public function orderField($field, array $values = [], $order = '')
+    {
+        $values['sort'] = $order;
+
+        $this->options['order'][$field] = $values;
+        return $this;
+    }
+
+    /**
+     * 随机排序
+     * @access public
+     * @return $this
+     */
+    public function orderRand()
+    {
+        $this->options['order'][] = '[rand]';
+        return $this;
+    }
+
+    /**
      * 查询缓存
      * @access public
      * @param  mixed             $key    缓存key

@@ -801,7 +801,23 @@ abstract class Builder
             $array = [];
 
             foreach ($order as $key => $val) {
-                if (is_numeric($key)) {
+                if (is_array($val)) {
+                    if (isset($val['sort'])) {
+                        $sort = ' ' . $val['sort'];
+                        unset($val['sort']);
+                    } else {
+                        $sort = '';
+                    }
+
+                    $options = $query->getOptions();
+                    $bind    = $this->connection->getFieldsBind($options['table']);
+
+                    foreach ($val as $k => $item) {
+                        $val[$k] = $this->parseDataBind($query, $key, $item, $bind, $k);
+                    }
+
+                    $array[] = 'field(' . $this->parseKey($query, $key) . ',' . implode(',', $val) . ')' . $sort;
+                } elseif (is_numeric($key)) {
                     if ('[rand]' == $val) {
                         $array[] = $this->parseRand($query);
                     } elseif (false === strpos($val, '(')) {
