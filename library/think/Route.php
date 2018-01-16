@@ -222,11 +222,11 @@ class Route
     /**
      * 注册路由规则
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param string    $type 请求类型
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param string        $type 请求类型
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function rule($rule, $route = '', $type = '*', $option = [], $pattern = [])
@@ -270,12 +270,12 @@ class Route
     /**
      * 设置路由规则
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param string    $type 请求类型
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
-     * @param string    $group 所属分组
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param string        $type 请求类型
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
+     * @param string        $group 所属分组
      * @return void
      */
     protected static function setRule($rule, $route, $type = '*', $option = [], $pattern = [], $group = '')
@@ -487,10 +487,10 @@ class Route
     /**
      * 注册路由
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function any($rule, $route = '', $option = [], $pattern = [])
@@ -501,10 +501,10 @@ class Route
     /**
      * 注册GET路由
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function get($rule, $route = '', $option = [], $pattern = [])
@@ -515,10 +515,10 @@ class Route
     /**
      * 注册POST路由
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function post($rule, $route = '', $option = [], $pattern = [])
@@ -529,10 +529,10 @@ class Route
     /**
      * 注册PUT路由
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function put($rule, $route = '', $option = [], $pattern = [])
@@ -543,10 +543,10 @@ class Route
     /**
      * 注册DELETE路由
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function delete($rule, $route = '', $option = [], $pattern = [])
@@ -557,10 +557,10 @@ class Route
     /**
      * 注册PATCH路由
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function patch($rule, $route = '', $option = [], $pattern = [])
@@ -571,10 +571,10 @@ class Route
     /**
      * 注册资源路由
      * @access public
-     * @param string    $rule 路由规则
-     * @param string    $route 路由地址
-     * @param array     $option 路由参数
-     * @param array     $pattern 变量规则
+     * @param string|array  $rule 路由规则
+     * @param string        $route 路由地址
+     * @param array         $option 路由参数
+     * @param array         $pattern 变量规则
      * @return void
      */
     public static function resource($rule, $route = '', $option = [], $pattern = [])
@@ -667,7 +667,7 @@ class Route
     /**
      * rest方法定义和修改
      * @access public
-     * @param string        $name 方法名称
+     * @param string|array  $name 方法名称
      * @param array|bool    $resource 资源
      * @return void
      */
