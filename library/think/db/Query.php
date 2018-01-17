@@ -1900,6 +1900,18 @@ class Query
     }
 
     /**
+     * 设置JSON字段信息
+     * @access public
+     * @param  array $json JSON字段
+     * @return $this
+     */
+    public function json($json = [])
+    {
+        $this->options['json'] = $json;
+        return $this;
+    }
+
+    /**
      * 添加查询范围
      * @access public
      * @param  array|string|\Closure   $scope 查询范围定义
@@ -2584,6 +2596,24 @@ class Query
     }
 
     /**
+     * JSON字段数据转换
+     * @access protected
+     * @param  array $result     查询数据
+     * @param  array $json       JSON字段
+     * @return void
+     */
+    protected function jsonResult(&$result, $json = [])
+    {
+        foreach ($json as $key => $val) {
+            if (is_int($key)) {
+                $result[$val] = json_decode($result[$val]);
+            } else {
+                $result[$key] = new $val($result[$key]);
+            }
+        }
+    }
+
+    /**
      * 查询数据转换为模型对象
      * @access protected
      * @param  array $result     查询数据
@@ -2593,6 +2623,10 @@ class Query
      */
     protected function resultToModel(&$result, $options = [], $resultSet = false)
     {
+
+        if (!empty($options['json'])) {
+            $this->jsonResult($result, $options['json']);
+        }
 
         $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;
         $result    = $this->model->newInstance($result, $condition);

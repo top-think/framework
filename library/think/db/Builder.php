@@ -118,11 +118,15 @@ abstract class Builder
             if (is_object($val) && method_exists($val, '__toString')) {
                 // 对象数据写入
                 $val = $val->__toString();
-            } elseif (is_array($val) && 'json' == $this->connection->getFieldsType($options['table'], $key)) {
+            } elseif (!is_scalar($val) && 'json' == $this->connection->getFieldsType($options['table'], $key)) {
                 $val = json_encode($val);
             }
 
-            if (false === strpos($key, '.') && !in_array($key, $fields, true)) {
+            if (false !== strpos($key, '->')) {
+                list($key, $name) = explode('->', $key);
+                $item             = $this->parseKey($query, $key);
+                $result[$item]    = 'json_set(' . $item . ', \'$.' . $name . '\', ' . $this->parseDataBind($query, $key, $val, $bind, $suffix) . ')';
+            } elseif (false === strpos($key, '.') && !in_array($key, $fields, true)) {
                 if ($options['strict']) {
                     throw new Exception('fields not exists:[' . $key . ']');
                 }
@@ -165,7 +169,7 @@ abstract class Builder
         if (0 === strpos($data, ':') && $query->isBind(substr($data, 1))) {
             return $data;
         } else {
-            $key  = str_replace('.', '_', $key);
+            $key  = str_replace(['.', '->'], '_', $key);
             $name = 'data__' . $key . $suffix;
             $query->bind($name, $data, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
             return ':' . $name;

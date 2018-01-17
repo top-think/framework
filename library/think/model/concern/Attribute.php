@@ -31,6 +31,12 @@ trait Attribute
     protected $field = [];
 
     /**
+     * JSON数据表字段
+     * @var array
+     */
+    protected $json = [];
+
+    /**
      * 数据表废弃字段
      * @var array
      */
