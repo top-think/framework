@@ -2541,6 +2541,10 @@ class Query
         } elseif ('collection' == $this->connection->getConfig('resultset_type')) {
             // 返回Collection对象
             $resultSet = new Collection($resultSet);
+        } elseif (!empty($this->options['json'])) {
+            foreach ($resultSet as &$result) {
+                $this->jsonResult($result, $this->options['json'], true);
+            }
         }
 
         // 返回结果处理
@@ -2587,6 +2591,8 @@ class Query
             if (!empty($this->model)) {
                 // 返回模型对象
                 $this->resultToModel($result, $this->options);
+            } elseif (!empty($this->options['json'])) {
+                $this->jsonResult($result, $this->options['json'], true);
             }
         } elseif (!empty($this->options['fail'])) {
             $this->throwNotFound($this->options);
@@ -2600,13 +2606,14 @@ class Query
      * @access protected
      * @param  array $result     查询数据
      * @param  array $json       JSON字段
+     * @param  bool  $assoc      是否转换为数组
      * @return void
      */
-    protected function jsonResult(&$result, $json = [])
+    protected function jsonResult(&$result, $json = [], $assoc = false)
     {
         foreach ($json as $name) {
             if (isset($result[$name])) {
-                $result[$name] = json_decode($result[$name]);
+                $result[$name] = json_decode($result[$name], $assoc);
             }
         }
     }
