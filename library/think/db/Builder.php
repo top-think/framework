@@ -115,11 +115,11 @@ abstract class Builder
         foreach ($data as $key => $val) {
             $item = $this->parseKey($query, $key);
 
-            if (is_object($val) && method_exists($val, '__toString')) {
+            if (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $this->connection->getFieldsType($options['table'], $key))) {
+                $val = json_encode($val);
+            } elseif (is_object($val) && method_exists($val, '__toString')) {
                 // 对象数据写入
                 $val = $val->__toString();
-            } elseif (!is_scalar($val) && 'json' == $this->connection->getFieldsType($options['table'], $key)) {
-                $val = json_encode($val);
             }
 
             if (false !== strpos($key, '->')) {

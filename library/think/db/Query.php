@@ -1905,7 +1905,7 @@ class Query
      * @param  array $json JSON字段
      * @return $this
      */
-    public function json($json = [])
+    public function json(array $json = [])
     {
         $this->options['json'] = $json;
         return $this;
@@ -2604,11 +2604,9 @@ class Query
      */
     protected function jsonResult(&$result, $json = [])
     {
-        foreach ($json as $key => $val) {
-            if (is_int($key)) {
-                $result[$val] = json_decode($result[$val]);
-            } else {
-                $result[$key] = new $val($result[$key]);
+        foreach ($json as $name) {
+            if (isset($result[$name])) {
+                $result[$name] = json_decode($result[$name]);
             }
         }
     }
@@ -2623,7 +2621,6 @@ class Query
      */
     protected function resultToModel(&$result, $options = [], $resultSet = false)
     {
-
         if (!empty($options['json'])) {
             $this->jsonResult($result, $options['json']);
         }
