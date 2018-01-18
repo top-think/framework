@@ -99,6 +99,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $queryInstance;
 
     /**
+     * 错误信息
+     * @var mixed
+     */
+    protected $error;
+
+    /**
      * 架构函数
      * @access public
      * @param  array|object $data 数据
@@ -865,6 +871,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         return $count;
+    }
+
+    /**
+     * 获取错误信息
+     * @access public
+     * @return mixed
+     */
+    public function getError()
+    {
+        return $this->error;
     }
 
     /**
