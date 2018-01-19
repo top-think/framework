@@ -16,14 +16,17 @@ use think\cache\Driver;
 class Memcached extends Driver
 {
     protected $options = [
-        'host'     => '127.0.0.1',
-        'port'     => 11211,
-        'expire'   => 0,
-        'timeout'  => 0, // 超时时间（单位：毫秒）
-        'prefix'   => '',
-        'username' => '', //账号
-        'password' => '', //密码
-        'option'   => [],
+        'host'          => '127.0.0.1',
+        'port'          => 11211,
+        'expire'        => 0,
+        'timeout'       => 0,             // 超时时间（单位：毫秒）
+        'prefix'        => '',
+        'username'      => '',            //账号
+        'password'      => '',            //密码
+        'option'        => [],
+        'pconnect'      => false,        //是否开启长连接
+        'max_pool_size' => 0,             //连接池数量
+        'name'          => '',            //项目名称
     ];
 
     /**
@@ -96,7 +99,7 @@ class Memcached extends Driver
      * 读取缓存
      * @access public
      * @param string $name 缓存变量名
-     * @param mixed  $default 默认值
+     * @param mixed $default 默认值
      * @return mixed
      */
     public function get($name, $default = false)
@@ -108,9 +111,9 @@ class Memcached extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string            $name 缓存变量名
-     * @param mixed             $value  存储数据
-     * @param integer|\DateTime $expire  有效时间（秒）
+     * @param string $name 缓存变量名
+     * @param mixed $value 存储数据
+     * @param integer|\DateTime $expire 有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null)
@@ -136,8 +139,8 @@ class Memcached extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param string $name 缓存变量名
+     * @param int $step 步长
      * @return false|int
      */
     public function inc($name, $step = 1)
@@ -152,8 +155,8 @@ class Memcached extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param string    $name 缓存变量名
-     * @param int       $step 步长
+     * @param string $name 缓存变量名
+     * @param int $step 步长
      * @return false|int
      */
     public function dec($name, $step = 1)
@@ -170,7 +173,7 @@ class Memcached extends Driver
 
     /**
      * 删除缓存
-     * @param    string  $name 缓存变量名
+     * @param    string $name 缓存变量名
      * @param bool|false $ttl
      * @return bool
      */
@@ -178,8 +181,8 @@ class Memcached extends Driver
     {
         $key = $this->getCacheKey($name);
         return false === $ttl ?
-        $this->handler->delete($key) :
-        $this->handler->delete($key, $ttl);
+            $this->handler->delete($key) :
+            $this->handler->delete($key, $ttl);
     }
 
     /**
