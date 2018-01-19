@@ -36,32 +36,47 @@ class Memcached extends Driver
         if (!extension_loaded('memcached')) {
             throw new \BadFunctionCallException('not support: memcached');
         }
+
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        $this->handler = new \Memcached;
-        if (!empty($this->options['option'])) {
-            $this->handler->setOptions($this->options['option']);
+
+        if ($this->options['pconnect']) {
+            $nameSub       = !empty($this->options['max_pool_size']) ? '_' . rand(1, $this->options['max_pool_size']) : '';
+            $this->handler = new \Memcached($this->options['name'] . $nameSub);
+        } else {
+            $this->handler = new \Memcached;
         }
-        // 设置连接超时时间（单位：毫秒）
-        if ($this->options['timeout'] > 0) {
-            $this->handler->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $this->options['timeout']);
-        }
-        // 支持集群
-        $hosts = explode(',', $this->options['host']);
-        $ports = explode(',', $this->options['port']);
-        if (empty($ports[0])) {
-            $ports[0] = 11211;
-        }
-        // 建立连接
-        $servers = [];
-        foreach ((array) $hosts as $i => $host) {
-            $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
-        }
-        $this->handler->addServers($servers);
-        if ('' != $this->options['username']) {
-            $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
-            $this->handler->setSaslAuthData($this->options['username'], $this->options['password']);
+
+        if (!count($this->handler->getServerList())) {
+            if (!empty($this->options['option'])) {
+                $this->handler->setOptions($this->options['option']);
+            }
+
+            // 设置连接超时时间（单位：毫秒）
+            if ($this->options['timeout'] > 0) {
+                $this->handler->setOption(\Memcached::OPT_CONNECT_TIMEOUT, $this->options['timeout']);
+            }
+
+            // 支持集群
+            $hosts = explode(',', $this->options['host']);
+            $ports = explode(',', $this->options['port']);
+            if (empty($ports[0])) {
+                $ports[0] = 11211;
+            }
+
+            // 建立连接
+            $servers = [];
+            foreach ((array)$hosts as $i => $host) {
+                $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
+            }
+
+            $this->handler->addServers($servers);
+
+            if ('' != $this->options['username']) {
+                $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
+                $this->handler->setSaslAuthData($this->options['username'], $this->options['password']);
+            }
         }
     }
 
