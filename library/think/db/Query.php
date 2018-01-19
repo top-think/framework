@@ -437,8 +437,12 @@ class Query
      * @param  string $tableName 数据表名
      * @return array
      */
-    public function getTableFields($tableName)
+    public function getTableFields($tableName = '')
     {
+        if ('' == $tableName) {
+            $tableName = isset($this->options['table']) ? $this->options['table'] : $this->getTable();
+        }
+
         return $this->connection->getTableFields($tableName);
     }
 
@@ -449,8 +453,12 @@ class Query
      * @param  string $field    字段名
      * @return array|string
      */
-    public function getFieldsType($tableName, $field = null)
+    public function getFieldsType($tableName = '', $field = null)
     {
+        if ('' == $tableName) {
+            $tableName = isset($this->options['table']) ? $this->options['table'] : $this->getTable();
+        }
+
         return $this->connection->getFieldsType($tableName, $field);
     }
 
@@ -911,11 +919,11 @@ class Query
 
         if (true === $field) {
             // 获取全部字段
-            $fields = $this->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
+            $fields = $this->getTableFields($tableName);
             $field  = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
-            $fields = $this->getTableFields($tableName ?: (isset($this->options['table']) ? $this->options['table'] : $this->getTable()));
+            $fields = $this->getTableFields($tableName);
             $field  = $fields ? array_diff($fields, $field) : $field;
         }
 
