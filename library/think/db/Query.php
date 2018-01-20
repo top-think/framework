@@ -2355,7 +2355,7 @@ class Query
                 }
             }
 
-            if (isset($cache) && $resultSet) {
+            if (isset($cache) && false !== $resultSet) {
                 // 缓存数据集
                 $this->cacheData($key, $resultSet, $cache);
             }
