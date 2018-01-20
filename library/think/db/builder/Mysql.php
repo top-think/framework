@@ -122,6 +122,7 @@ class Mysql extends Builder
 
             if ('__TABLE__' == $table) {
                 $table = $query->getOptions('table');
+                $table = is_array($table) ? array_shift($table) : $table;
             }
 
             if (isset($alias[$table])) {
