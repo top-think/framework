@@ -243,10 +243,14 @@ abstract class OneToOne extends Relation
      * @access public
      * @param  Model    $result  数据对象
      * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure)
-    {}
+    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
+    {
+        throw new Exception('relation not support: ' . $aggregate);
+    }
 
     /**
      * 一对一 关联模型预查询拼装
