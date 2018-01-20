@@ -2546,12 +2546,16 @@ class Query
             } else {
                 $resultSet = $this->model->toCollection($resultSet);
             }
-        } elseif ('collection' == $this->connection->getConfig('resultset_type')) {
-            // 返回Collection对象
-            $resultSet = new Collection($resultSet);
-        } elseif (!empty($this->options['json'])) {
-            foreach ($resultSet as &$result) {
-                $this->jsonResult($result, $this->options['json'], true);
+        } else {
+            if (!empty($this->options['json'])) {
+                foreach ($resultSet as &$result) {
+                    $this->jsonResult($result, $this->options['json'], true);
+                }
+            }
+
+            if ('collection' == $this->connection->getConfig('resultset_type')) {
+                // 返回Collection对象
+                $resultSet = new Collection($resultSet);
             }
         }
 
