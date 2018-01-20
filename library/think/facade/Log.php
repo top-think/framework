@@ -24,7 +24,7 @@ use think\Facade;
  * @method bool check(array $config) static 检查日志写入权限
  * @method bool save() static 保存调试信息
  * @method void write(mixed $msg, string $type = 'info', bool $force = false) static 实时写入日志信息
- * @method void log(mixed $message, array $context = []) static 记录日志信息
+ * @method void log(string $level,mixed $message, array $context = []) static 记录日志信息
  * @method void emergency(mixed $message, array $context = []) static 记录emergency信息
  * @method void alert(mixed $message, array $context = []) static 记录alert信息
  * @method void critical(mixed $message, array $context = []) static 记录critical信息
