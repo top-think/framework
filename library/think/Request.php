@@ -546,6 +546,8 @@ class Request
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
                 $_SERVER['PATH_INFO'] = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+            } elseif ('cli-server' == PHP_SAPI) {
+                $_SERVER['PATH_INFO'] = strpos($_SERVER['REQUEST_URI'], '?') ? strstr($_SERVER['REQUEST_URI'], '?', true) : $_SERVER['REQUEST_URI'];
             }
 
             // 分析PATHINFO信息

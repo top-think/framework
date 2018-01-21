@@ -45,6 +45,7 @@ class Console
         "think\\console\\command\\optimize\\Config",
         "think\\console\\command\\optimize\\Schema",
         "think\\console\\command\\optimize\\Route",
+        "think\\console\\command\\RunServer",
     ];
 
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
