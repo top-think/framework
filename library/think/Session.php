@@ -344,17 +344,15 @@ class Session
      */
     public function flush()
     {
-        if ($this->init) {
-            $item = $this->get('__flash__');
+        $item = $this->get('__flash__');
 
-            if (!empty($item)) {
-                $time = $item['__time__'];
+        if (!empty($item)) {
+            $time = $item['__time__'];
 
-                if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
-                    unset($item['__time__']);
-                    $this->delete($item);
-                    $this->set('__flash__', []);
-                }
+            if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
+                unset($item['__time__']);
+                $this->delete($item);
+                $this->set('__flash__', []);
             }
         }
     }
