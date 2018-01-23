@@ -40,6 +40,12 @@ class Request
     protected $domain;
 
     /**
+     * 子域名
+     * @var string
+     */
+    protected $subDomain;
+
+    /**
      * 泛域名
      * @var string
      */
@@ -398,8 +404,33 @@ class Request
     }
 
     /**
+     * 获取当前子域名
+     * @access public
+     * @return string|$this
+     */
+    public function subDomain()
+    {
+        if (is_null($this->subDomain)) {
+            // 获取当前主域名
+            $rootDomain = $this->config->get('app.url_domain_root');
+
+            if ($rootDomain) {
+                // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
+                $domain = explode('.', rtrim(stristr($this->host(), $rootDomain, true), '.'));
+            } else {
+                $domain = explode('.', $this->host(), -2);
+            }
+
+            $this->subDomain = implode('.', $domain);
+        }
+
+        return $this->subDomain;
+    }
+
+    /**
      * 设置或获取当前泛域名的值
      * @access public
+     * @param  string $domain 域名
      * @return string|$this
      */
     public function panDomain($domain = null)

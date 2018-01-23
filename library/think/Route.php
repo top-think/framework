@@ -336,7 +336,7 @@ class Route
             $domain = $this->domain;
         }
 
-        $subDomain = implode('.', $this->getSubDomain());
+        $subDomain = $this->request->subDomain();
 
         if (strpos($subDomain, '.')) {
             $name = '*' . strstr($subDomain, '.');
@@ -926,26 +926,6 @@ class Route
     }
 
     /**
-     * 获取当前子域名
-     * @access protected
-     * @return array
-     */
-    protected function getSubDomain()
-    {
-        // 获取当前主域名
-        $rootDomain = $this->config->get('app.url_domain_root');
-
-        if ($rootDomain) {
-            // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-            $domain = explode('.', rtrim(stristr($this->host, $rootDomain, true), '.'));
-        } else {
-            $domain = explode('.', $this->host, -2);
-        }
-
-        return $domain;
-    }
-
-    /**
      * 检测域名的路由规则
      * @access protected
      * @param  string    $host 当前主机地址
@@ -954,14 +934,13 @@ class Route
     protected function checkDomain()
     {
         // 获取当前子域名
-        $domain = $this->getSubDomain();
+        $subDomain = $this->request->subDomain();
 
         $item = false;
 
-        if (!empty($domain) && count($this->domains) > 1) {
-            // 当前子域名
-            $subDomain = implode('.', $domain);
-            $domain2   = array_pop($domain);
+        if ($subDomain && count($this->domains) > 1) {
+            $domain  = explode('.', $subDomain);
+            $domain2 = array_pop($domain);
 
             if ($domain) {
                 // 存在三级域名

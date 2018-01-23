@@ -823,7 +823,7 @@ abstract class Rule
         }
 
         // 域名检查
-        if ((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $this->subDomain]))) {
+        if ((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $request->subDomain()]))) {
             return false;
         }
 
