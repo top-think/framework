@@ -49,7 +49,8 @@ class File
     public function save(array $log = [])
     {
         if ($this->config['single']) {
-            $destination = $this->config['path'] . 'single.log';
+            $name        = is_string($single) ? $single : 'single';
+            $destination = $this->config['path'] . $name . '.log';
         } else {
             $cli         = PHP_SAPI == 'cli' ? '_cli' : '';
             $destination = $this->config['path'] . date('Ym') . '/' . date('d') . $cli . '.log';
@@ -71,7 +72,7 @@ class File
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 if ($this->config['single']) {
-                    $filename = $path . '/' . $type . '.log';
+                    $filename = $path . '/' . $name . '_' . $type . '.log';
                 } else {
                     $filename = $path . '/' . date('d') . '_' . $type . $cli . '.log';
                 }
