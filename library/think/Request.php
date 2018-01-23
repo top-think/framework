@@ -1777,14 +1777,15 @@ class Request
                 return;
             }
 
+            foreach ($except as $rule) {
+                if (0 === stripos($this->url(), $rule)) {
+                    return;
+                }
+            }
+
             if ($key instanceof \Closure) {
                 $key = call_user_func_array($key, [$this]);
             } elseif (true === $key) {
-                foreach ($except as $rule) {
-                    if (0 === stripos($this->url(), $rule)) {
-                        return;
-                    }
-                }
                 // 自动缓存功能
                 $key = '__URL__';
             } elseif (strpos($key, '|')) {
@@ -1793,7 +1794,7 @@ class Request
 
             // 特殊规则替换
             if (false !== strpos($key, '__')) {
-                $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__', ''], [$this->module, $this->controller, $this->action, md5($this->url(true))], $key);
+                $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$this->module, $this->controller, $this->action, md5($this->url(true))], $key);
             }
 
             if (false !== strpos($key, ':')) {
