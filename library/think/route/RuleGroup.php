@@ -117,13 +117,10 @@ class RuleGroup extends Rule
 
             $this->router->setGroup($this);
 
-            if ($this->rule instanceof \Closure) {
-                Container::getInstance()->invokeFunction($this->rule);
-            } else {
-                $this->router->rules($this->rule);
-            }
+            $this->router->parseGroupRule($this, $this->rule);
 
             $this->router->setGroup($group);
+
             $this->rule = null;
         }
 
@@ -150,6 +147,10 @@ class RuleGroup extends Rule
 
         if (isset($this->option['complete_match'])) {
             $completeMatch = $this->option['complete_match'];
+        }
+
+        if (!empty($this->option['append'])) {
+            $request->route($this->option['append']);
         }
 
         if (isset($rules[$url])) {
@@ -246,4 +247,5 @@ class RuleGroup extends Rule
             return isset($this->rules[strtolower($method)]) ? $this->rules[strtolower($method)] : [];
         }
     }
+
 }

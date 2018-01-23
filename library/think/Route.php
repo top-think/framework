@@ -232,37 +232,33 @@ class Route
     public function domain($name, $rule = '', $option = [], $pattern = [])
     {
         // 支持多个域名使用相同路由规则
-        $domain = is_array($name) ? array_shift($name) : $name;
+        $domainName = is_array($name) ? array_shift($name) : $name;
 
-        if ('*' != $domain && !strpos($domain, '.')) {
-            $domain .= '.' . $this->getRootDomain();
+        if ('*' != $domainName && !strpos($domainName, '.')) {
+            $domainName .= '.' . $this->getRootDomain();
         }
 
         $route = $this->config->get('url_lazy_route') ? $rule : null;
 
-        $this->domains[$domain] = new Domain($this, $domain, $route, $option, $pattern);
+        $domain = new Domain($this, $domainName, $route, $option, $pattern);
 
         if (is_null($route)) {
             // 获取原始分组
             $originGroup = $this->group;
             // 设置当前域名
-            $this->domain = $domain;
-            $this->group  = $this->createTopGroup($this->domains[$domain]);
+            $this->domain = $domainName;
+            $this->group  = $this->createTopGroup($domain);
 
-            // 执行域名路由
-            if ($rule instanceof \Closure) {
-                Container::getInstance()->invokeFunction($rule);
-            } elseif (is_array($rule)) {
-                $this->rules($rule);
-            } elseif ($rule) {
-                $this->bind($rule);
-            }
+            // 解析域名路由规则
+            $this->parseGroupRule($domain, $rule);
 
             // 还原默认域名
             $this->domain = $this->host;
             // 还原默认分组
             $this->group = $originGroup;
         }
+
+        $this->domains[$domainName] = $domain;
 
         if (is_array($name) && !empty($name)) {
             $root = $this->getRootDomain();
@@ -271,12 +267,38 @@ class Route
                     $item .= '.' . $root;
                 }
 
-                $this->domains[$item] = $domain;
+                $this->domains[$item] = $domainName;
             }
         }
 
         // 返回域名对象
-        return $this->domains[$domain];
+        return $domain;
+    }
+
+    /**
+     * 解析分组和域名的路由规则及绑定
+     * @access public
+     * @param  RuleGroup    $group 分组路由对象
+     * @param  mixed        $rule 路由规则
+     * @return void
+     */
+    public function parseGroupRule($group, $rule)
+    {
+        if ($rule instanceof \Closure) {
+            Container::getInstance()->invokeFunction($rule);
+        } elseif ($rule instanceof Response) {
+            $group->setRule($rule);
+        } elseif (is_array($rule)) {
+            $this->rules($rule);
+        } elseif ($rule) {
+            if (false !== strpos($rule, '?')) {
+                list($rule, $query) = explode('?', $rule);
+                parse_str($query, $vars);
+                $group->append($vars);
+            }
+
+            $this->bind($rule);
+        }
     }
 
     /**
@@ -578,13 +600,8 @@ class Route
 
             $this->group = $group;
 
-            if ($route instanceof \Closure) {
-                Container::getInstance()->invokeFunction($route);
-            } elseif ($route instanceof Response) {
-                $group->setRule($route);
-            } else {
-                $this->rules($route);
-            }
+            // 解析分组路由规则
+            $this->parseGroupRule($group, $route);
 
             $this->group = $parent;
         }
