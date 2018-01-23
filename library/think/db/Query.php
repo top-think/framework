@@ -1107,9 +1107,7 @@ class Query
     {
         $param = func_get_args();
         array_shift($param);
-        $this->parseWhereExp('AND', $field, $op, $condition, $param);
-
-        return $this;
+        return $this->parseWhereExp('AND', $field, $op, $condition, $param);
     }
 
     /**
@@ -1124,9 +1122,7 @@ class Query
     {
         $param = func_get_args();
         array_shift($param);
-        $this->parseWhereExp('OR', $field, $op, $condition, $param);
-
-        return $this;
+        return $this->parseWhereExp('OR', $field, $op, $condition, $param);
     }
 
     /**
@@ -1141,9 +1137,7 @@ class Query
     {
         $param = func_get_args();
         array_shift($param);
-        $this->parseWhereExp('XOR', $field, $op, $condition, $param);
-
-        return $this;
+        return $this->parseWhereExp('XOR', $field, $op, $condition, $param);
     }
 
     /**
@@ -1155,8 +1149,7 @@ class Query
      */
     public function whereNull($field, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'null', null);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'null', null);
     }
 
     /**
@@ -1168,8 +1161,7 @@ class Query
      */
     public function whereNotNull($field, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'notnull', null);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'notnull', null);
     }
 
     /**
@@ -1208,8 +1200,7 @@ class Query
      */
     public function whereIn($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'in', $condition);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'in', $condition);
     }
 
     /**
@@ -1222,8 +1213,7 @@ class Query
      */
     public function whereNotIn($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'not in', $condition);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'not in', $condition);
     }
 
     /**
@@ -1236,8 +1226,7 @@ class Query
      */
     public function whereLike($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'like', $condition);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'like', $condition);
     }
 
     /**
@@ -1250,8 +1239,7 @@ class Query
      */
     public function whereNotLike($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'not like', $condition);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'not like', $condition);
     }
 
     /**
@@ -1264,8 +1252,7 @@ class Query
      */
     public function whereBetween($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'between', $condition);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'between', $condition);
     }
 
     /**
@@ -1278,8 +1265,7 @@ class Query
      */
     public function whereNotBetween($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'not between', $condition);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'not between', $condition);
     }
 
     /**
@@ -1298,9 +1284,7 @@ class Query
             $operator = '=';
         }
 
-        $this->whereExp($field1, $operator . ' ' . $field2, $logic);
-
-        return $this;
+        return $this->whereExp($field1, $operator . ' ' . $field2, $logic);
     }
 
     /**
@@ -1329,22 +1313,26 @@ class Query
      */
     public function whereExp($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'exp', $condition);
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'exp', $condition);
     }
 
     /**
      * 分析查询表达式
      * @access public
-     * @param  string                $logic     查询逻辑 and or xor
-     * @param  string|array|\Closure $field     查询字段
-     * @param  mixed                 $op        查询表达式
-     * @param  mixed                 $condition 查询条件
-     * @param  array                 $param     查询参数
-     * @return void
+     * @param  string   $logic     查询逻辑 and or xor
+     * @param  mixed    $field     查询字段
+     * @param  mixed    $op        查询表达式
+     * @param  mixed    $condition 查询条件
+     * @param  array    $param     查询参数
+     * @return $this
      */
     protected function parseWhereExp($logic, $field, $op, $condition, $param = [])
     {
+        if ($field instanceof $this) {
+            $this->options['where'] = $field->getOptions('where');
+            return $this;
+        }
+
         $logic = strtoupper($logic);
 
         if (is_string($field) && !empty($this->options['via']) && !strpos($field, '.')) {
@@ -1380,7 +1368,7 @@ class Query
                     $this->options['where'][$logic] = isset($this->options['where'][$logic]) ? array_merge($this->options['where'][$logic], $where) : $where;
                 }
 
-                return;
+                return $this;
             } elseif ($field && is_string($field)) {
                 // 字符串查询
                 $where = [$field, 'null', ''];
@@ -1403,15 +1391,15 @@ class Query
             }
         }
 
-        if (empty($where)) {
-            return;
+        if (!empty($where)) {
+            if (isset($this->options['where'][$logic][$field])) {
+                $this->options['where'][$logic][] = $where;
+            } else {
+                $this->options['where'][$logic][$field] = $where;
+            }
         }
 
-        if (isset($this->options['where'][$logic][$field])) {
-            $this->options['where'][$logic][] = $where;
-        } else {
-            $this->options['where'][$logic][$field] = $where;
-        }
+        return $this;
     }
 
     /**
@@ -2504,7 +2492,9 @@ class Query
      */
     public function select($data = null)
     {
-        if ($data instanceof \Closure) {
+        if ($data instanceof Query) {
+            return $data->select();
+        } elseif ($data instanceof \Closure) {
             $data($this);
             $data = null;
         }
@@ -2578,7 +2568,9 @@ class Query
      */
     public function find($data = null)
     {
-        if ($data instanceof \Closure) {
+        if ($data instanceof Query) {
+            return $data->find();
+        } elseif ($data instanceof \Closure) {
             $data($this);
             $data = null;
         }
