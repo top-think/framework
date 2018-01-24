@@ -133,12 +133,12 @@ JS;
                     }
                     break;
                 case '错误':
-                    $msg    = str_replace("\n", '\n', json_encode($m));
+                    $msg    = str_replace("\n", '\n', addslashes(is_scalar($m) ? $m : json_encode($m)));
                     $style  = 'color:#F4006B;font-size:14px;';
                     $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
                     break;
                 case 'sql':
-                    $msg    = str_replace("\n", '\n', $m);
+                    $msg    = str_replace("\n", '\n', addslashes($m));
                     $style  = "color:#009bb4;";
                     $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
                     break;
