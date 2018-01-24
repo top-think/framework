@@ -44,6 +44,18 @@ class MorphTo extends Relation
     }
 
     /**
+     * 获取当前的关联模型类的实例
+     * @access public
+     * @return Model
+     */
+    public function getModel()
+    {
+        $morphKey = $this->morphKey;
+        $model    = $this->parseModel($this->parent->$morphType);
+        return (new $model)->db()->getModel();
+    }
+
+    /**
      * 延迟获取关联数据
      * @param string   $subRelation 子关联名
      * @param \Closure $closure     闭包查询条件
