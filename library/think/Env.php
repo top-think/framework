@@ -55,23 +55,7 @@ class Env
             return $this->data[$name];
         }
 
-        $result = getenv('PHP_' . $name);
-
-        if (false !== $result) {
-            if ('false' === $result) {
-                $result = false;
-            } elseif ('true' === $result) {
-                $result = true;
-            }
-
-            if (!isset($this->data[$name])) {
-                $this->data[$name] = $result;
-            }
-
-            return $result;
-        } else {
-            return $default;
-        }
+        return $default;
     }
 
     /**
@@ -87,23 +71,9 @@ class Env
             $env = array_change_key_case($env, CASE_UPPER);
 
             $this->data = array_merge($this->data, $env);
-
-            foreach ($env as $key => $val) {
-                $name = 'PHP_' . $key;
-                if (is_array($val)) {
-                    foreach ($val as $k => $v) {
-                        $item = $name . '_' . strtoupper($k);
-                        putenv("$item=$v");
-                    }
-                } else {
-                    putenv("$name=$val");
-                }
-            }
         } else {
-            $key  = strtoupper($env);
-            $name = 'PHP_' . $key;
-            putenv("$name=$value");
-            $this->data[$key] = $value;
+            $name              = strtoupper(str_replace('.', '_', $env));
+            $this->data[$name] = $value;
         }
     }
 }

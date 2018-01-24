@@ -177,7 +177,7 @@ class Response
     /**
      * 输出数据
      * @access protected
-     * @param mixed $data 要处理的数据
+     * @param string $data 要处理的数据
      * @return void
      */
     protected function sendData($data)
