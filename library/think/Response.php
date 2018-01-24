@@ -40,6 +40,12 @@ class Response
     protected $code = 200;
 
     /**
+     * 是否允许请求缓存
+     * @var bool
+     */
+    protected $allowCache = true;
+
+    /**
      * 输出参数
      * @var array
      */
@@ -121,7 +127,7 @@ class Response
             Container::get('debug')->inject($this, $data);
         }
 
-        if (200 == $this->code) {
+        if (200 == $this->code && $this->allowCache) {
             $cache = Container::get('request')->getCache();
             if ($cache) {
                 $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
@@ -141,7 +147,7 @@ class Response
             }
         }
 
-        echo $data;
+        $this->sendData($data);
 
         if (function_exists('fastcgi_finish_request')) {
             // 提高页面响应
@@ -169,6 +175,17 @@ class Response
     }
 
     /**
+     * 输出数据
+     * @access protected
+     * @param mixed $data 要处理的数据
+     * @return void
+     */
+    protected function sendData($data)
+    {
+        echo $data;
+    }
+
+    /**
      * 输出的参数
      * @access public
      * @param  mixed $options 输出参数
@@ -190,6 +207,19 @@ class Response
     public function data($data)
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    /**
+     * 是否允许请求缓存
+     * @access public
+     * @param  bool $cache 允许请求缓存
+     * @return $this
+     */
+    public function allowCache($cache)
+    {
+        $this->allowCache = $cache;
 
         return $this;
     }
