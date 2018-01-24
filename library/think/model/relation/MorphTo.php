@@ -52,7 +52,7 @@ class MorphTo extends Relation
     {
         $morphType = $this->morphType;
         $model     = $this->parseModel($this->parent->$morphType);
-        return (new $model)->db()->getModel();
+        return (new $model);
     }
 
     /**
