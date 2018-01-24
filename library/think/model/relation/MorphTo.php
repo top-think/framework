@@ -50,8 +50,8 @@ class MorphTo extends Relation
      */
     public function getModel()
     {
-        $morphKey = $this->morphKey;
-        $model    = $this->parseModel($this->parent->$morphType);
+        $morphType = $this->morphType;
+        $model     = $this->parseModel($this->parent->$morphType);
         return (new $model)->db()->getModel();
     }
 
