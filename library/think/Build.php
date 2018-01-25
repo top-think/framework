@@ -345,7 +345,7 @@ class Build
      */
     protected function buildCommon($module)
     {
-        $filename = $this->app->getConfigPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'config.php';
+        $filename = $this->app->getConfigPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'app.php';
         $this->checkDirBuild(dirname($filename));
 
         if (!is_file($filename)) {
