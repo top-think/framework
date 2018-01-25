@@ -129,6 +129,7 @@ class RuleItem extends Rule
         // 是否区分 / 地址访问
         if (!empty($option['remove_slash']) && '/' != $this->name) {
             $this->name = rtrim($this->name, '/');
+            $url        = rtrim($url, '|');
         }
 
         // 检查前置行为
