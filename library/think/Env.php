@@ -40,7 +40,7 @@ class Env
      * 获取环境变量值
      * @access public
      * @param  string    $name 环境变量名（支持二级 .号分割）
-     * @param  string    $default  默认值
+     * @param  mixed     $default  默认值
      * @return mixed
      */
     public function get($name = null, $default = null)
@@ -54,18 +54,16 @@ class Env
         if (strpos($name, '.')) {
             list($item1, $item2) = explode('.', $name, 2);
             return isset($this->data[$item1][$item2]) ? $this->data[$item1][$item2] : $default;
-        } elseif (isset($this->data[$name])) {
-            return $this->data[$name];
+        } else {
+            return isset($this->data[$name]) ? $this->data[$name] : $default;
         }
-
-        return $default;
     }
 
     /**
      * 设置环境变量值
      * @access public
      * @param  string|array  $env   环境变量
-     * @param  string        $value  值
+     * @param  mixed         $value  值
      * @return void
      */
     public function set($env, $value = null)
