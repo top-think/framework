@@ -49,9 +49,12 @@ class Env
             return $this->data;
         }
 
-        $name = strtoupper(str_replace('.', '_', $name));
+        $name = strtoupper($name);
 
-        if (isset($this->data[$name])) {
+        if (strpos($name, '.')) {
+            list($item1, $item2) = explode('.', $name, 2);
+            return isset($this->data[$item1][$item2]) ? $this->data[$item1][$item2] : $default;
+        } elseif (isset($this->data[$name])) {
             return $this->data[$name];
         }
 
@@ -70,10 +73,20 @@ class Env
         if (is_array($env)) {
             $env = array_change_key_case($env, CASE_UPPER);
 
-            $this->data = array_merge($this->data, $env);
+            foreach ($env as $key => $val) {
+                if (is_array($val)) {
+                    foreach ($val as $k => $v) {
+                        $this->data[$key][strtoupper($k)] = $v;
+                    }
+                } else {
+                    $this->data[$key] = $val;
+                }
+            }
+        } elseif (strpos($env, '.')) {
+            list($item1, $item2)        = explode('.', strtoupper($env), 2);
+            $this->data[$item1][$item2] = $value;
         } else {
-            $name              = strtoupper(str_replace('.', '_', $env));
-            $this->data[$name] = $value;
+            $this->data[strtoupper($env)] = $value;
         }
     }
 }
