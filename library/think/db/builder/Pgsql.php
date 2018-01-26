@@ -57,9 +57,9 @@ class Pgsql extends Builder
     {
         $key = trim($key);
 
-        if (strpos($key, '$.') && false === strpos($key, '(')) {
+        if (strpos($key, '->') && false === strpos($key, '(')) {
             // JSON字段支持
-            list($field, $name) = explode('$.', $key);
+            list($field, $name) = explode('->', $key);
             $key                = $field . '->>\'' . $name . '\'';
         } elseif (strpos($key, '.')) {
             list($table, $key) = explode('.', $key, 2);
