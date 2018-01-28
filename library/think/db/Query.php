@@ -816,7 +816,7 @@ class Query
 
     /**
      * 获取Join表名及别名 支持
-     * ['prefix_table或者子查询'=>'alias'] 'prefix_table alias' 'table alias'
+     * ['prefix_table或者子查询'=>'alias'] 'table alias'
      * @access protected
      * @param  array|string $join
      * @param  string       $alias
@@ -824,10 +824,8 @@ class Query
      */
     protected function getJoinTable($join, &$alias = null)
     {
-        // 传入的表名为数组
         if (is_array($join)) {
-            $table = key($join);
-            $alias = current($join);
+            $table = $join;
         } else {
             $join = trim($join);
 
@@ -850,17 +848,10 @@ class Query
                     $table = $this->getTable($table);
                 }
             }
-        }
 
-        if (isset($alias) && $table != $alias) {
-            if (isset($this->options['alias'][$table])) {
-                $table = $table . '@think' . uniqid();
-            } elseif ($this->gettable() == $table) {
-                $table = $table . '@think' . uniqid();
+            if (isset($alias) && $table != $alias) {
+                $table = [$table => $alias];
             }
-
-            $table = [$table => $alias];
-            $this->alias($table);
         }
 
         return $table;
