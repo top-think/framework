@@ -707,8 +707,7 @@ class Query
     {
         // 传入的表名为数组
         if (is_array($join)) {
-            $table = key($join);
-            $alias = current($join);
+            $table = $join;
         } else {
             $join = trim($join);
             if (false !== strpos($join, '(')) {
@@ -729,16 +728,9 @@ class Query
                     $table = $this->getTable($table);
                 }
             }
-        }
-        if (isset($alias) && $table != $alias) {
-            if (isset($this->options['alias'][$table])) {
-                $table = $table . '@think' . uniqid();
-            } elseif ($this->gettable() == $table) {
-                $table = $table . '@think' . uniqid();
+            if (isset($alias) && $table != $alias) {
+                $table = [$table => $alias];
             }
-
-            $table = [$table => $alias];
-            $this->alias($table);
         }
         return $table;
     }

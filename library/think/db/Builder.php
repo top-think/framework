@@ -207,9 +207,6 @@ abstract class Builder
         $item = [];
         foreach ((array) $tables as $key => $table) {
             if (!is_numeric($key)) {
-                if (strpos($key, '@think')) {
-                    $key = strstr($key, '@think', true);
-                }
                 $key    = $this->parseSqlTable($key);
                 $item[] = $this->parseKey($key) . ' ' . (isset($options['alias'][$table]) ? $this->parseKey($options['alias'][$table]) : $this->parseKey($table));
             } else {
