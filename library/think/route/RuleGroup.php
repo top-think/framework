@@ -201,7 +201,7 @@ class RuleGroup extends Rule
      * @param  RuleItem     $rule   路由规则
      * @return $this
      */
-    public function setAutoRule($rule)
+    public function setAutoRule(RuleItem $rule)
     {
         $this->auto = $rule;
         return $this;
@@ -213,7 +213,7 @@ class RuleGroup extends Rule
      * @param  RuleItem     $rule   路由规则
      * @return $this
      */
-    public function setMissRule($rule)
+    public function setMissRule(RuleItem $rule)
     {
         $this->miss = $rule;
         return $this;
