@@ -196,6 +196,30 @@ class RuleGroup extends Rule
     }
 
     /**
+     * 设置自动路由
+     * @access public
+     * @param  RuleItem     $rule   路由规则
+     * @return $this
+     */
+    public function setAutoRule($rule)
+    {
+        $this->auto = $rule;
+        return $this;
+    }
+
+    /**
+     * 设置为MISS路由
+     * @access public
+     * @param  RuleItem     $rule   路由规则
+     * @return $this
+     */
+    public function setMissRule($rule)
+    {
+        $this->miss = $rule;
+        return $this;
+    }
+
+    /**
      * 添加分组下的路由规则或者子分组
      * @access public
      * @param  Rule     $rule   路由规则
@@ -210,14 +234,6 @@ class RuleGroup extends Rule
         }
 
         $this->rules[$method][] = $rule;
-
-        if ($rule instanceof RuleItem) {
-            if ($rule->isMiss()) {
-                $this->miss = $rule;
-            } elseif ($rule->isAuto()) {
-                $this->auto = $rule;
-            }
-        }
 
         return $this;
     }

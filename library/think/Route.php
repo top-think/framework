@@ -877,7 +877,7 @@ class Route
      */
     public function miss($route, $method = '*', $option = [])
     {
-        return $this->rule('__miss__', $route, $method, $option);
+        return $this->rule('', $route, $method, $option)->isMiss();
     }
 
     /**
@@ -888,7 +888,7 @@ class Route
      */
     public function auto($route)
     {
-        return $this->rule('__auto__', $route);
+        return $this->rule('', $route)->isAuto();
     }
 
     /**
