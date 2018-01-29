@@ -571,9 +571,7 @@ class Query
 
         if (!empty($this->options['fetch_sql'])) {
             return $result;
-        }
-
-        if ($force) {
+        } elseif ($force) {
             $result += 0;
         }
 
@@ -599,10 +597,10 @@ class Query
                 $query->fetchSql(true);
             }
 
-            return $query->aggregate('COUNT', '*', 0, true);
+            return $query->aggregate('COUNT', '*', true);
         }
 
-        return $this->aggregate('COUNT', $field, 0, true);
+        return $this->aggregate('COUNT', $field, true);
     }
 
     /**
@@ -613,7 +611,7 @@ class Query
      */
     public function sum($field)
     {
-        return $this->aggregate('SUM', $field, 0, true);
+        return $this->aggregate('SUM', $field, true);
     }
 
     /**
@@ -625,7 +623,7 @@ class Query
      */
     public function min($field, $force = true)
     {
-        return $this->aggregate('MIN', $field, 0, $force);
+        return $this->aggregate('MIN', $field, $force);
     }
 
     /**
@@ -637,7 +635,7 @@ class Query
      */
     public function max($field, $force = true)
     {
-        return $this->aggregate('MAX', $field, 0, $force);
+        return $this->aggregate('MAX', $field, $force);
     }
 
     /**
@@ -648,7 +646,7 @@ class Query
      */
     public function avg($field)
     {
-        return $this->aggregate('AVG', $field, 0, true);
+        return $this->aggregate('AVG', $field, true);
     }
 
     /**
