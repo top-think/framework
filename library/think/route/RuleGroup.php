@@ -62,8 +62,8 @@ class RuleGroup extends Rule
         $this->option  = $option;
         $this->pattern = $pattern;
 
-        if ($group && $group->getName() && $this->name) {
-            $this->fullName = $group->getName() . '/' . $this->name;
+        if ($group && $group->getFullName()) {
+            $this->fullName = $group->getFullName() . ($this->name ? '/' . $this->name : '');
         } else {
             $this->fullName = $this->name;
         }
@@ -102,13 +102,14 @@ class RuleGroup extends Rule
             return false;
         }
 
-        if ($this->name && !($this instanceof Domain)) {
+        if ($this->fullName) {
             // 分组URL匹配检查
-            $pos = strpos(str_replace('<', ':', $this->name), ':');
+            $pos = strpos(str_replace('<', ':', $this->fullName), ':');
+
             if (false !== $pos) {
-                $str = substr($this->name, 0, $pos);
+                $str = substr($this->fullName, 0, $pos);
             } else {
-                $str = $this->name;
+                $str = $this->fullName;
             }
 
             if (0 !== stripos(str_replace('|', '/', $url), $str)) {
@@ -203,12 +204,6 @@ class RuleGroup extends Rule
      */
     public function addRule($rule, $method = '*')
     {
-        $name = $rule->getName();
-
-        if ($this->name && $rule instanceof RuleGroup && !($this instanceof Domain)) {
-            $rule->name($this->name . '/' . $name);
-        }
-
         if (strpos($method, '|')) {
             $rule->method($method);
             $method = '*';

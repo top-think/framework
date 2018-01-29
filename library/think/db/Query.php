@@ -1061,9 +1061,11 @@ class Query
                 if (is_string($field)) {
                     $field = explode(',', $field);
                 }
+
                 foreach ($field as $key => $val) {
                     if (is_numeric($key)) {
-                        $fields[]                   = $alias . '.' . $val;
+                        $fields[] = $alias . '.' . $val;
+
                         $this->options['map'][$val] = $alias . '.' . $val;
                     } else {
                         if (preg_match('/[,=\.\'\"\(\s]/', $key)) {
@@ -1071,7 +1073,9 @@ class Query
                         } else {
                             $name = $alias . '.' . $key;
                         }
-                        $fields[]                   = $name . ' AS ' . $val;
+
+                        $fields[] = $name . ' AS ' . $val;
+
                         $this->options['map'][$val] = $name;
                     }
                 }
