@@ -40,6 +40,9 @@ class RuleGroup extends Rule
     // 自动路由
     protected $auto;
 
+    // 完整名称
+    protected $fullName;
+
     /**
      * 架构函数
      * @access public
@@ -58,6 +61,12 @@ class RuleGroup extends Rule
         $this->name    = trim($name, '/');
         $this->option  = $option;
         $this->pattern = $pattern;
+
+        if ($group && $group->getName() && $this->name) {
+            $this->fullName = $group->getName() . '/' . $this->name;
+        } else {
+            $this->fullName = $this->name;
+        }
     }
 
     /**
@@ -231,6 +240,16 @@ class RuleGroup extends Rule
         }
 
         return $this->option('prefix', $prefix);
+    }
+
+    /**
+     * 获取完整分组Name
+     * @access public
+     * @return string
+     */
+    public function getFullName()
+    {
+        return $this->fullName;
     }
 
     /**

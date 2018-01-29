@@ -485,12 +485,13 @@ class Route
         $ruleItem = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
 
         if (isset($name)) {
-            // 当前分组名
-            $group = $this->group->getName();
+            // 上级完整分组名
+            $group = $this->group->getFullName();
 
             if ($group) {
                 $rule = $group . '/' . $rule;
             }
+
             // 设置路由标识 用于URL快速生成
             $this->setRuleName($rule, $name, $option);
         }
@@ -507,13 +508,13 @@ class Route
 
     /**
      * 设置路由标识 用于URL反解生成
-     * @access protected
+     * @access public
      * @param  string    $rule      路由规则
      * @param  string    $name      路由标识
      * @param  array     $option    路由参数
      * @return void
      */
-    protected function setRuleName($rule, $name, $option = [])
+    public function setRuleName($rule, $name, $option = [])
     {
         $vars = $this->parseVar($rule);
 
