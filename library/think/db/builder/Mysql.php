@@ -102,12 +102,12 @@ class Mysql extends Builder
 
     /**
      * 字段和表名处理
-     * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
+     * @access public
+     * @param  Query     $query 查询对象
+     * @param  string    $key   字段名
      * @return string
      */
-    protected function parseKey(Query $query, $key)
+    public function parseKey(Query $query, $key)
     {
         $key = trim($key);
 
@@ -149,8 +149,8 @@ class Mysql extends Builder
     /**
      * field分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  mixed     $fields
+     * @param  Query     $query     查询对象
+     * @param  mixed     $fields    字段名
      * @return string
      */
     protected function parseField(Query $query, $fields)
