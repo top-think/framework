@@ -210,17 +210,21 @@ class Url
             }
             $module = $module ? $module . '/' : '';
 
-            $controller = Loader::parseName($request->controller());
+            $controller = $request->controller();
             if ('' == $url) {
                 // 空字符串输出当前的 模块/控制器/操作
-                $url = $module . $controller . '/' . $request->action();
+                $action = $request->action();
             } else {
                 $path       = explode('/', $url);
-                $action     = Config::get('url_convert') ? strtolower(array_pop($path)) : array_pop($path);
-                $controller = empty($path) ? $controller : (Config::get('url_convert') ? Loader::parseName(array_pop($path)) : array_pop($path));
+                $action     = array_pop($path);
+                $controller = empty($path) ? $controller : array_pop($path);
                 $module     = empty($path) ? $module : array_pop($path) . '/';
-                $url        = $module . $controller . '/' . $action;
             }
+            if (Config::get('url_convert')) {
+                $action     = strtolower($action);
+                $controller = Loader::parseName($controller);
+            }
+            $url = $module . $controller . '/' . $action;
         }
         return $url;
     }
