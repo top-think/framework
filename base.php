@@ -9,7 +9,7 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-define('THINK_VERSION', '5.0.14');
+define('THINK_VERSION', '5.0.15');
 define('THINK_START_TIME', microtime(true));
 define('THINK_START_MEM', memory_get_usage());
 define('EXT', '.php');
