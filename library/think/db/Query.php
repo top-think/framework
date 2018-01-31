@@ -2124,10 +2124,9 @@ class Query
      * 设置关联查询JOIN预查询
      * @access public
      * @param  string|array $with 关联方法名称
-     * @param  bool|array   $cache 设置关联缓存
      * @return $this
      */
-    public function with($with, $cache = false)
+    public function with($with)
     {
         if (empty($with)) {
             return $this;
@@ -2177,8 +2176,6 @@ class Query
         } else {
             $this->options['with'] = $with;
         }
-
-        $this->options['relation_cache'] = $cache;
 
         return $this;
     }
@@ -2541,7 +2538,7 @@ class Query
 
                 if (!empty($this->options['with'])) {
                     // 预载入
-                    $result->eagerlyResultSet($resultSet, $this->options['with'], $this->options['relation_cache']);
+                    $result->eagerlyResultSet($resultSet, $this->options['with']);
                 }
 
                 // 模型数据集转换
@@ -2659,7 +2656,7 @@ class Query
 
         // 预载入查询
         if (!$resultSet && !empty($options['with'])) {
-            $result->eagerlyResult($result, $options['with'], $options['relation_cache']);
+            $result->eagerlyResult($result, $options['with']);
         }
 
         // 关联统计
