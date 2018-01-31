@@ -793,7 +793,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 查找单条记录
+     * 查找单条记录 如果不存在直接抛出异常
      * @access public
      * @param  mixed     $data  主键值或者查询条件（闭包）
      * @param  mixed     $with  关联预查询
