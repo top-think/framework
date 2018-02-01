@@ -103,8 +103,6 @@ class Url
         if (!empty($rule) && $match = $this->getRuleUrl($rule, $vars)) {
             // 匹配路由命名标识
             $url = $match[0];
-            // 替换可选分隔符
-            $url = preg_replace(['/(\W)\?$/', '/(\W)\?/'], ['', '\1'], $url);
 
             if (!empty($match[1])) {
                 $host = $this->app['config']->get('app_host') ?: $this->app['request']->host();
@@ -322,7 +320,7 @@ class Url
         foreach ($rule as $item) {
             list($url, $pattern, $domain, $suffix) = $item;
             if (empty($pattern)) {
-                return [$url, $domain, $suffix];
+                return [rtrim($url, '$'), $domain, $suffix];
             }
 
             $type = $this->app['config']->get('url_common_param');
