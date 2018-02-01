@@ -62,8 +62,18 @@ class RuleGroup extends Rule
         $this->option  = $option;
         $this->pattern = $pattern;
 
-        if ($group && $group->getFullName()) {
-            $this->fullName = $group->getFullName() . ($this->name ? '/' . $this->name : '');
+        $this->setFullName();
+    }
+
+    /**
+     * 设置分组的路由规则
+     * @access public
+     * @return $this
+     */
+    protected function setFullName()
+    {
+        if ($this->parent && $this->parent->getFullName()) {
+            $this->fullName = $this->parent->getFullName() . ($this->name ? '/' . $this->name : '');
         } else {
             $this->fullName = $this->name;
         }

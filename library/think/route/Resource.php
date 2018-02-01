@@ -41,6 +41,8 @@ class Resource extends RuleGroup
         $this->route    = $route;
         $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
 
+        $this->setFullName();
+
         // 资源路由默认为完整匹配
         $option['complete_match'] = true;
 
