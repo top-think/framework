@@ -118,7 +118,7 @@ class RuleItem extends Rule
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         if ($this->parent && $prefix = $this->parent->getFullName()) {
-            $this->name = $prefix . ($this->name ? '/' . $this->name : '');
+            $this->name = $prefix . ($this->name ? '/' . ltrim($this->name, '/') : '');
         }
 
         if ($dispatch = $this->checkCrossDomain($request)) {
