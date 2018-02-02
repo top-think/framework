@@ -284,6 +284,25 @@ class Loader
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
 
+        // Composer 自动加载支持
+        if (is_dir(VENDOR_PATH . 'composer')) {
+            if (PHP_VERSION_ID >= 50600 && is_file(VENDOR_PATH . 'composer' . DS . 'autoload_static.php')) {
+                require VENDOR_PATH . 'composer' . DS . 'autoload_static.php';
+
+                $declaredClass = get_declared_classes();
+                $composerClass = array_pop($declaredClass);
+
+                self::$prefixLengthsPsr4 = $composerClass::$prefixLengthsPsr4;
+
+                self::$prefixDirsPsr4 = property_exists($composerClass, 'prefixDirsPsr4') ? $composerClass::$prefixDirsPsr4 : [];
+
+                self::$prefixesPsr0 = property_exists($composerClass, 'prefixesPsr0') ? $composerClass::$prefixesPsr0 : [];
+                self::$map          = property_exists($composerClass, 'classMap') ? $composerClass::$classMap : [];
+            } else {
+                self::registerComposerLoader();
+            }
+        }
+
         // 注册命名空间定义
         self::addNamespace([
             'think'    => LIB_PATH . 'think' . DS,
@@ -294,11 +313,6 @@ class Loader
         // 加载类库映射文件
         if (is_file(RUNTIME_PATH . 'classmap' . EXT)) {
             self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
-        }
-
-        // Composer 自动加载支持
-        if (is_dir(VENDOR_PATH . 'composer')) {
-            self::registerComposerLoader();
         }
 
         // 自动加载 extend 目录
