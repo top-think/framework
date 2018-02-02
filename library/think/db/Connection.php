@@ -783,7 +783,7 @@ abstract class Connection
         $pk      = $query->getPk($options);
 
         if (!empty($options['cache']) && true === $options['cache']['key'] && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+            $key = $this->getCacheKey($query, $options['where']['AND'][$pk], $options);
         }
 
         $data   = $options['data'];
@@ -796,7 +796,7 @@ abstract class Connection
             if (is_string($cache['key'])) {
                 $key = $cache['key'];
             } elseif (!isset($key)) {
-                $key = $this->getCacheKey($data, $options, $query->getBind(false));
+                $key = $this->getCacheKey($query, $data, $options, $query->getBind(false));
             }
 
             $result = Container::get('cache')->get($key);
@@ -1094,7 +1094,7 @@ abstract class Connection
             if (is_string($pk) && isset($data[$pk])) {
                 $where[$pk] = [$pk, '=', $data[$pk]];
                 if (!isset($key)) {
-                    $key = $this->getCacheKey($data[$pk], $options);
+                    $key = $this->getCacheKey($query, $data[$pk], $options);
                 }
                 unset($data[$pk]);
             } elseif (is_array($pk)) {
@@ -1118,7 +1118,7 @@ abstract class Connection
                 $query->setOption('where', ['AND' => $where]);
             }
         } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+            $key = $this->getCacheKey($query, $options['where']['AND'][$pk], $options);
         }
 
         // 更新数据
@@ -1179,9 +1179,9 @@ abstract class Connection
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
         } elseif (!is_null($data) && true !== $data && !is_array($data)) {
-            $key = $this->getCacheKey($data, $options);
+            $key = $this->getCacheKey($query, $data, $options);
         } elseif (is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($options['where']['AND'][$pk], $options);
+            $key = $this->getCacheKey($query, $options['where']['AND'][$pk], $options);
         }
 
         if (true !== $data && empty($options['where'])) {
@@ -2049,12 +2049,13 @@ abstract class Connection
     /**
      * 生成缓存标识
      * @access protected
+     * @param  Query     $query   查询对象
      * @param  mixed     $value   缓存数据
      * @param  array     $options 缓存参数
      * @param  array     $bind    绑定参数
      * @return string
      */
-    protected function getCacheKey($value, $options, $bind = [])
+    protected function getCacheKey(Query $query, $value, $options, $bind = [])
     {
         if (is_scalar($value)) {
             $data = $value;
@@ -2063,7 +2064,7 @@ abstract class Connection
         }
 
         if (isset($data)) {
-            return 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
+            return 'think:' . $this->getConfig('database') . '.' . $query->getTable() . '|' . $data;
         } else {
             try {
                 return md5(serialize($options) . serialize($bind));

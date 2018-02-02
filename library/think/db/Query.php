@@ -1622,6 +1622,7 @@ class Query
                 }
             }
         }
+
         $this->options['table'] = $table;
 
         return $this;
