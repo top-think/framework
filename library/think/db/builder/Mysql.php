@@ -109,6 +109,9 @@ class Mysql extends Builder
      */
     public function parseKey(Query $query, $key)
     {
+        if (is_int($key)) {
+            return $key;
+        }
         $key = trim($key);
 
         if (strpos($key, '->') && false === strpos($key, '(')) {
