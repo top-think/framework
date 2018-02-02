@@ -77,9 +77,11 @@ class Loader
                 $composerClass = array_pop($declaredClass);
 
                 self::$prefixLengthsPsr4 = $composerClass::$prefixLengthsPsr4;
-                self::$prefixDirsPsr4    = $composerClass::$prefixDirsPsr4;
-                self::$prefixesPsr0      = $composerClass::$prefixesPsr0;
-                self::$map               = $composerClass::$classMap;
+
+                self::$prefixDirsPsr4 = property_exists($composerClass, 'prefixDirsPsr4') ? $composerClass::$prefixDirsPsr4 : [];
+
+                self::$prefixesPsr0 = property_exists($composerClass, 'prefixesPsr0') ? $composerClass::$prefixesPsr0 : [];
+                self::$map          = property_exists($composerClass, 'classMap') ? $composerClass::$classMap : [];
             } else {
                 self::registerComposerLoader(self::$composerPath);
             }
