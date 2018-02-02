@@ -477,24 +477,14 @@ class Route
             $this->ruleName = null;
         } elseif (is_string($route)) {
             $name = $route;
+        } else {
+            $name = null;
         }
 
         $method = strtolower($method);
 
         // 创建路由规则实例
-        $ruleItem = new RuleItem($this, $this->group, $rule, $route, $method, $option, $pattern);
-
-        if (isset($name)) {
-            // 上级完整分组名
-            $group = $this->group->getFullName();
-
-            if ($group) {
-                $rule = $group . '/' . $rule;
-            }
-
-            // 设置路由标识 用于URL快速生成
-            $this->setRuleName($rule, $name, $option);
-        }
+        $ruleItem = new RuleItem($this, $this->group, $name, $rule, $route, $method, $option, $pattern);
 
         // 添加到当前分组
         $this->group->addRule($ruleItem, $method);
@@ -512,11 +502,13 @@ class Route
      * @param  string    $rule      路由规则
      * @param  string    $name      路由标识
      * @param  array     $option    路由参数
+     * @param  bool      $first     是否插入开头
      * @return void
      */
-    public function setRuleName($rule, $name, $option = [])
+    public function setRuleName($rule, $name, $option = [], $first = false)
     {
         $vars = $this->parseVar($rule);
+        $name = strtolower($name);
 
         if (isset($option['ext'])) {
             $suffix = $option['ext'];
@@ -526,7 +518,13 @@ class Route
             $suffix = null;
         }
 
-        $this->name[strtolower($name)][] = [$rule, $vars, $this->domain, $suffix];
+        $item = [$rule, $vars, $this->domain, $suffix];
+
+        if ($first) {
+            array_unshift($this->name[$name], $item);
+        } else {
+            $this->name[$name][] = $item;
+        }
     }
 
     /**

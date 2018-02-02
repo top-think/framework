@@ -19,7 +19,7 @@ class RuleItem extends Rule
      * 路由规则
      * @var string
      */
-    protected $name;
+    protected $rule;
 
     /**
      * 路由地址
@@ -38,22 +38,24 @@ class RuleItem extends Rule
      * @access public
      * @param  Route             $router 路由实例
      * @param  RuleGroup         $group 路由所属分组对象
-     * @param  string|array      $name 路由规则
+     * @param  string            $name 路由标识
+     * @param  string|array      $rule 路由规则
      * @param  string            $method 请求类型
      * @param  string|\Closure   $route 路由地址
      * @param  array             $option 路由参数
      * @param  array             $pattern 变量规则
      */
-    public function __construct(Route $router, RuleGroup $group, $name, $route, $method = '*', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $group, $name, $rule, $route, $method = '*', $option = [], $pattern = [])
     {
         $this->router  = $router;
         $this->parent  = $group;
+        $this->name    = $name;
         $this->route   = $route;
         $this->method  = $method;
         $this->option  = $option;
         $this->pattern = $pattern;
 
-        $this->setRule($name);
+        $this->setRule($rule);
     }
 
     /**
@@ -71,7 +73,30 @@ class RuleItem extends Rule
             $this->option['complete_match'] = true;
         }
 
-        $this->name($rule);
+        $rule = '/' != $rule ? ltrim($rule, '/') : '/';
+
+        if ($this->parent && $prefix = $this->parent->getFullName()) {
+            $rule = $prefix . ($rule ? '/' . ltrim($rule, '/') : '');
+        }
+
+        $this->rule = $rule;
+
+        // 生成路由标识的快捷访问
+        $this->setRuleName();
+    }
+
+    /**
+     * 检查后缀
+     * @access public
+     * @param  string     $ext
+     * @return $this
+     */
+    public function ext($ext = '')
+    {
+        $this->option('ext', $ext);
+        $this->setRuleName(true);
+
+        return $this;
     }
 
     /**
@@ -107,6 +132,19 @@ class RuleItem extends Rule
     }
 
     /**
+     * 设置路由标识 用于URL反解生成
+     * @access protected
+     * @param  bool     $first   是否插入开头
+     * @return void
+     */
+    protected function setRuleName($first = false)
+    {
+        if ($this->name) {
+            $this->router->setRuleName($this->rule, $this->name, $this->option, $first);
+        }
+    }
+
+    /**
      * 检测路由
      * @access public
      * @param  Request      $request  请求对象
@@ -117,10 +155,6 @@ class RuleItem extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
-        if ($this->parent && $prefix = $this->parent->getFullName()) {
-            $this->name = $prefix . ($this->name ? '/' . ltrim($this->name, '/') : '');
-        }
-
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
             return $dispatch;
@@ -132,16 +166,15 @@ class RuleItem extends Rule
         }
 
         // 合并分组参数
-        $this->mergeGroupOptions();
-        $option = $this->option;
+        $option = $this->mergeGroupOptions();
 
         if (!empty($option['append'])) {
             $request->route($option['append']);
         }
 
         // 是否区分 / 地址访问
-        if (!empty($option['remove_slash']) && '/' != $this->name) {
-            $this->name = rtrim($this->name, '/');
+        if (!empty($option['remove_slash']) && '/' != $this->rule) {
+            $this->rule = rtrim($this->rule, '/');
             $url        = rtrim($url, '|');
         }
 
@@ -181,7 +214,7 @@ class RuleItem extends Rule
         }
 
         $len1 = substr_count($url, '|');
-        $len2 = substr_count($this->name, '/');
+        $len2 = substr_count($this->rule, '/');
 
         // 多余参数是否合并
         $merge = !empty($option['merge_extra_vars']) ? true : false;
@@ -195,9 +228,9 @@ class RuleItem extends Rule
             $completeMatch = $option['complete_match'];
         }
 
-        if ($len1 >= $len2 || strpos($this->name, '[')) {
+        if ($len1 >= $len2 || strpos($this->rule, '[')) {
             // 完整匹配
-            if ($completeMatch && (!$merge && $len1 != $len2 && (false === strpos($this->name, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->name, '[')))) {
+            if ($completeMatch && (!$merge && $len1 != $len2 && (false === strpos($this->rule, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->rule, '[')))) {
                 return false;
             }
 
@@ -205,7 +238,7 @@ class RuleItem extends Rule
 
             if (false !== $match = $this->match($url, $pattern)) {
                 // 匹配到路由规则
-                return $this->parseRule($request, $this->name, $this->route, $url, $option, $match);
+                return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
             }
         }
 
@@ -221,7 +254,7 @@ class RuleItem extends Rule
      */
     private function match($url, $pattern)
     {
-        $m2 = explode('/', $this->name);
+        $m2 = explode('/', $this->rule);
         $m1 = explode('|', $url);
 
         $var = [];

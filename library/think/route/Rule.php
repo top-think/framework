@@ -75,14 +75,14 @@ abstract class Rule
     }
 
     /**
-     * 设置Name
+     * 设置标识
      * @access public
-     * @param  string|array  $name 变量名
+     * @param  string  $name 标识名
      * @return $this
      */
     public function name($name)
     {
-        $this->name = '/' != $name ? ltrim($name, '/') : '/';
+        $this->name = $name;
 
         return $this;
     }
@@ -484,6 +484,8 @@ abstract class Rule
         }
 
         $this->option = array_merge($parentOption, $this->option);
+
+        return $this->option;
     }
 
     /**
