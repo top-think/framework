@@ -1,4 +1,4 @@
-ThinkPHP 5.1
+ThinkPHP 5.1 —— 12载初心，你值得信赖的PHP框架
 ===============
 
 [![Build Status](https://travis-ci.org/top-think/framework.svg?branch=master)](https://travis-ci.org/top-think/framework)
