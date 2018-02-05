@@ -301,6 +301,16 @@ class Loader
             } else {
                 self::registerComposerLoader();
             }
+
+            if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
+                $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
+                foreach ($includeFiles as $fileIdentifier => $file) {
+                    if (empty(self::$autoloadFiles[$fileIdentifier])) {
+                        __require_file($file);
+                        self::$autoloadFiles[$fileIdentifier] = true;
+                    }
+                }
+            }
         }
 
         // 注册命名空间定义
@@ -344,17 +354,6 @@ class Loader
             $classMap = require VENDOR_PATH . 'composer/autoload_classmap.php';
             if ($classMap) {
                 self::addClassMap($classMap);
-            }
-
-        }
-
-        if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
-            $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
-            foreach ($includeFiles as $fileIdentifier => $file) {
-                if (empty(self::$autoloadFiles[$fileIdentifier])) {
-                    __require_file($file);
-                    self::$autoloadFiles[$fileIdentifier] = true;
-                }
             }
         }
     }
