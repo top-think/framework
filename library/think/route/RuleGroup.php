@@ -68,11 +68,11 @@ class RuleGroup extends Rule
     /**
      * 设置分组的路由规则
      * @access public
-     * @return $this
+     * @return void
      */
     protected function setFullName()
     {
-        if ($this->parent && $this->parent->getFullName()) {
+        if ($this->parent) {
             $this->fullName = $this->parent->getFullName() . ($this->name ? '/' . $this->name : '');
         } else {
             $this->fullName = $this->name;
