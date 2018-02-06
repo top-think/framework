@@ -1,12 +1,11 @@
-ThinkPHP 5.1
+![](http://www.thinkphp.cn/Uploads/editor/2016-06-23/576b4732a6e04.png) 
+
+ThinkPHP 5.1 —— 12载初心，你值得信赖的PHP框架
 ===============
 
-[![StyleCI](https://styleci.io/repos/48530411/shield?style=flat&branch=master)](https://styleci.io/repos/48530411)
 [![Build Status](https://travis-ci.org/top-think/framework.svg?branch=master)](https://travis-ci.org/top-think/framework)
-[![codecov.io](http://codecov.io/github/top-think/framework/coverage.svg?branch=master)](http://codecov.io/github/github/top-think/framework?branch=master)
 [![Total Downloads](https://poser.pugx.org/topthink/framework/downloads)](https://packagist.org/packages/topthink/framework)
 [![Latest Stable Version](https://poser.pugx.org/topthink/framework/v/stable)](https://packagist.org/packages/topthink/framework)
-[![Latest Unstable Version](https://poser.pugx.org/topthink/framework/v/unstable)](https://packagist.org/packages/topthink/framework)
 [![License](https://poser.pugx.org/topthink/framework/license)](https://packagist.org/packages/topthink/framework)
 
 ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特性包括：
@@ -30,12 +29,12 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
  + 内置控制器扩展类
  + 模型自动验证
 
-> ThinkPHP5的运行环境要求PHP5.6以上。
+> ThinkPHP5.1的运行环境要求PHP5.6+。
 
 
 ## 在线手册
 
-+ [完全开发手册](https://www.kancloud.cn/manual/thinkphp5_1)
++ [完全开发手册](https://www.kancloud.cn/manual/thinkphp5_1/content)
 + [升级指导](https://www.kancloud.cn/manual/thinkphp5_1/354155) 
 
 ## 命名规范
