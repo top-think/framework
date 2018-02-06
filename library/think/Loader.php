@@ -301,16 +301,6 @@ class Loader
             } else {
                 self::registerComposerLoader();
             }
-
-            if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
-                $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
-                foreach ($includeFiles as $fileIdentifier => $file) {
-                    if (empty(self::$autoloadFiles[$fileIdentifier])) {
-                        __require_file($file);
-                        self::$autoloadFiles[$fileIdentifier] = true;
-                    }
-                }
-            }
         }
 
         // 注册命名空间定义
@@ -324,6 +314,8 @@ class Loader
         if (is_file(RUNTIME_PATH . 'classmap' . EXT)) {
             self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
         }
+
+        self::loadComposerAutoloadFiles();
 
         // 自动加载 extend 目录
         self::$fallbackDirsPsr4[] = rtrim(EXTEND_PATH, DS);
@@ -354,6 +346,20 @@ class Loader
             $classMap = require VENDOR_PATH . 'composer/autoload_classmap.php';
             if ($classMap) {
                 self::addClassMap($classMap);
+            }
+        }
+    }
+
+    // 加载composer autofile文件
+    public static function loadComposerAutoloadFiles()
+    {
+        if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
+            $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
+            foreach ($includeFiles as $fileIdentifier => $file) {
+                if (empty(self::$autoloadFiles[$fileIdentifier])) {
+                    __require_file($file);
+                    self::$autoloadFiles[$fileIdentifier] = true;
+                }
             }
         }
     }
