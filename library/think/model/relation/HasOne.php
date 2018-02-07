@@ -197,4 +197,20 @@ class HasOne extends OneToOne
         }
     }
 
+    /**
+     * 执行基础查询（仅执行一次）
+     * @access protected
+     * @return void
+     */
+    protected function baseQuery()
+    {
+        if (empty($this->baseQuery)) {
+            if (isset($this->parent->{$this->localKey})) {
+                // 关联查询带入关联条件
+                $this->query->where($this->foreignKey, '=', $this->parent->{$this->localKey});
+            }
+
+            $this->baseQuery = true;
+        }
+    }
 }

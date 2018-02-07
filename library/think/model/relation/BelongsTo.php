@@ -221,4 +221,21 @@ class BelongsTo extends OneToOne
 
         return $this->parent->setRelation($this->relation, null);
     }
+
+    /**
+     * 执行基础查询（仅执行一次）
+     * @access protected
+     * @return void
+     */
+    protected function baseQuery()
+    {
+        if (empty($this->baseQuery)) {
+            if (isset($this->parent->{$this->foreignKey})) {
+                // 关联查询带入关联条件
+                $this->query->where($this->localKey, '=', $this->parent->{$this->foreignKey});
+            }
+
+            $this->baseQuery = true;
+        }
+    }
 }
