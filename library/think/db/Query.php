@@ -2423,10 +2423,12 @@ class Query
         } elseif (is_array($value) && is_string($value[0]) && 'eq' == strtolower($value[0])) {
             $data = $value[1];
         }
+        $prefix = $this->connection->getConfig('database') . '.';
+
         if (isset($data)) {
-            return 'think:' . $this->connection->getConfig('database') . '.' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
+            return 'think:' . $prefix . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
         } else {
-            return md5(serialize($options) . serialize($bind));
+            return md5($prefix . serialize($options) . serialize($bind));
         }
     }
 
