@@ -72,7 +72,7 @@ class RuleGroup extends Rule
      */
     protected function setFullName()
     {
-        if ($this->parent) {
+        if ($this->parent && $this->parent->getFullName()) {
             $this->fullName = $this->parent->getFullName() . ($this->name ? '/' . $this->name : '');
         } else {
             $this->fullName = $this->name;

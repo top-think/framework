@@ -2083,6 +2083,19 @@ class Query
 
     /**
      * 查询参数赋值
+     * @access public
+     * @param  string $name     参数名
+     * @param  mixed  $value    值
+     * @return $this
+     */
+    public function option($name, $value)
+    {
+        $this->options[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * 查询参数赋值
      * @access protected
      * @param  array $options 表达式参数
      * @return $this
