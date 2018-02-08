@@ -2424,7 +2424,7 @@ class Query
             $data = $value[1];
         }
         if (isset($data)) {
-            return 'think:' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
+            return 'think:' . $this->connection->getConfig('database') . '.' . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
         } else {
             return md5(serialize($options) . serialize($bind));
         }
