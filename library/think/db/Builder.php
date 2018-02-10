@@ -528,17 +528,22 @@ abstract class Builder
             foreach ($join as $item) {
                 list($table, $type, $on) = $item;
                 $condition               = [];
-                foreach ((array) $on as $val) {
-                    if (strpos($val, '=')) {
-                        list($val1, $val2) = explode('=', $val, 2);
-                        $condition[]       = $this->parseKey($val1, $options) . '=' . $this->parseKey($val2, $options);
-                    } else {
-                        $condition[] = $val;
-                    }
-                }
-
                 $table = $this->parseTable($table, $options);
-                $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
+
+                if( is_string($on) && !strpos($on, '=') ) {
+                    $joinStr .= ' ' . $type . ' JOIN ' . $table . ' USING(' . $this->parseKey($on, $options) . ')';
+                } else {
+                    foreach ((array) $on as $val) {
+                        if (strpos($val, '=')) {
+                            list($val1, $val2) = explode('=', $val, 2);
+                            $condition[]       = $this->parseKey($val1, $options) . '=' . $this->parseKey($val2, $options);
+                        } else {
+                            $condition[] = $val;
+                        }
+                    }
+
+                    $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
+                }
             }
         }
         return $joinStr;
