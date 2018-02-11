@@ -52,9 +52,8 @@ trait SoftDelete
             return $model
                 ->db(false)
                 ->useSoftDelete($field, ['not null', '']);
-        } else {
-            return $model->db(false);
         }
+        return $model->db(false);
     }
 
     /**
@@ -154,9 +153,9 @@ trait SoftDelete
                 ->where($where)
                 ->useSoftDelete($name, ['not null', ''])
                 ->update([$name => null]);
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 
     /**

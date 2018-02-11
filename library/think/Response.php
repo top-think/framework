@@ -103,9 +103,9 @@ class Response
 
         if (class_exists($class)) {
             return new $class($data, $code, $header, $options);
-        } else {
-            return new static($data, $code, $header, $options);
         }
+
+        return new static($data, $code, $header, $options);
     }
 
     /**
@@ -352,9 +352,9 @@ class Response
     {
         if (!empty($name)) {
             return isset($this->header[$name]) ? $this->header[$name] : null;
-        } else {
-            return $this->header;
         }
+
+        return $this->header;
     }
 
     /**

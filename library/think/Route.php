@@ -918,10 +918,10 @@ class Route
         } elseif ($must) {
             // 强制路由不匹配则抛出异常
             throw new RouteNotFoundException();
-        } else {
-            // 默认路由解析
-            return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->config->get('app.controller_auto_search')]);
         }
+
+        // 默认路由解析
+        return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->config->get('app.controller_auto_search')]);
     }
 
     /**

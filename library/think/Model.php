@@ -861,13 +861,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public static function destroy($data)
     {
+        if (empty($data) && 0 !== $data) {
+            return 0;
+        }
+
         $model = new static();
 
         $query = $model->db();
 
-        if (empty($data) && 0 !== $data) {
-            return 0;
-        } elseif (is_array($data) && key($data) !== 0) {
+        if (is_array($data) && key($data) !== 0) {
             $query->where($data);
             $data = null;
         } elseif ($data instanceof \Closure) {
@@ -947,9 +949,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (array_key_exists($name, $this->data) || array_key_exists($name, $this->relation)) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
