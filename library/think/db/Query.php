@@ -292,7 +292,8 @@ class Query
     public function connect($config = [], $name = false)
     {
         $this->connection = Connection::instance($config, $name);
-        $query            = $this->connection->getConfig('query');
+
+        $query = $this->connection->getConfig('query');
 
         if (__CLASS__ != trim($query, '\\')) {
             return new $query($this->connection);
@@ -507,18 +508,17 @@ class Query
                     }
             }
             return $this->getTable() . '_' . $seq;
-        } else {
-            // 当设置的分表字段不在查询条件或者数据中
-            // 进行联合查询，必须设定 partition['num']
-            $tableName = [];
-            for ($i = 0; $i < $rule['num']; $i++) {
-                $tableName[] = 'SELECT * FROM ' . $this->getTable() . '_' . ($i + 1);
-            }
-
-            $tableName = '( ' . implode(" UNION ", $tableName) . ') AS ' . $this->name;
-
-            return $tableName;
         }
+        // 当设置的分表字段不在查询条件或者数据中
+        // 进行联合查询，必须设定 partition['num']
+        $tableName = [];
+        for ($i = 0; $i < $rule['num']; $i++) {
+            $tableName[] = 'SELECT * FROM ' . $this->getTable() . '_' . ($i + 1);
+        }
+
+        $tableName = '( ' . implode(" UNION ", $tableName) . ') AS ' . $this->name;
+
+        return $tableName;
     }
 
     /**
@@ -1649,33 +1649,35 @@ class Query
      */
     public function order($field, $order = null)
     {
-        if (!empty($field)) {
-            if (is_string($field)) {
-                if (!empty($this->options['via'])) {
-                    $field = $this->options['via'] . '.' . $field;
+        if (empty($field)) {
+            return $this;
+        }
+
+        if (is_string($field)) {
+            if (!empty($this->options['via'])) {
+                $field = $this->options['via'] . '.' . $field;
+            }
+
+            $field = empty($order) ? $field : [$field => $order];
+        } elseif (!empty($this->options['via'])) {
+            foreach ($field as $key => $val) {
+                if (is_numeric($key)) {
+                    $field[$key] = $this->options['via'] . '.' . $val;
+                } else {
+                    $field[$this->options['via'] . '.' . $key] = $val;
+                    unset($field[$key]);
                 }
-
-                $field = empty($order) ? $field : [$field => $order];
-            } elseif (!empty($this->options['via'])) {
-                foreach ($field as $key => $val) {
-                    if (is_numeric($key)) {
-                        $field[$key] = $this->options['via'] . '.' . $val;
-                    } else {
-                        $field[$this->options['via'] . '.' . $key] = $val;
-                        unset($field[$key]);
-                    }
-                }
             }
+        }
 
-            if (!isset($this->options['order'])) {
-                $this->options['order'] = [];
-            }
+        if (!isset($this->options['order'])) {
+            $this->options['order'] = [];
+        }
 
-            if (is_array($field)) {
-                $this->options['order'] = array_merge($this->options['order'], $field);
-            } else {
-                $this->options['order'][] = $field;
-            }
+        if (is_array($field)) {
+            $this->options['order'] = array_merge($this->options['order'], $field);
+        } else {
+            $this->options['order'][] = $field;
         }
 
         return $this;
@@ -2116,9 +2118,8 @@ class Query
     {
         if ('' === $name) {
             return $this->options;
-        } else {
-            return isset($this->options[$name]) ? $this->options[$name] : null;
         }
+        return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
     /**
@@ -2693,10 +2694,9 @@ class Query
         if (!empty($this->model)) {
             $class = get_class($this->model);
             throw new ModelNotFoundException('model data Not Found:' . $class, $class, $options);
-        } else {
-            $table = is_array($options['table']) ? key($options['table']) : $options['table'];
-            throw new DataNotFoundException('table data not Found:' . $table, $table, $options);
         }
+        $table = is_array($options['table']) ? key($options['table']) : $options['table'];
+        throw new DataNotFoundException('table data not Found:' . $table, $table, $options);
     }
 
     /**
