@@ -187,7 +187,7 @@ class Validate
      */
     public function __construct(array $rules = [], array $message = [], array $field = [])
     {
-        $this->rule    = array_merge($this->rule, $rules);
+        $this->rule    = $rules + $this->rule;
         $this->message = array_merge($this->message, $message);
         $this->field   = array_merge($this->field, $field);
     }
@@ -214,7 +214,7 @@ class Validate
     public function rule($name, $rule = '')
     {
         if (is_array($name)) {
-            $this->rule = array_merge($this->rule, $name);
+            $this->rule = $name + $this->rule;
             if (is_array($rule)) {
                 $this->field = array_merge($this->field, $rule);
             }
