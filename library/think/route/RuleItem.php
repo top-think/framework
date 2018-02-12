@@ -188,6 +188,10 @@ class RuleItem extends Rule
             $url = preg_replace('/\.(' . $request->ext() . ')$/i', '', $url);
         }
 
+        if (isset($option['complete_match'])) {
+            $completeMatch = $option['complete_match'];
+        }
+
         return $this->checkRule($request, $url, $depr, $completeMatch, $option);
     }
 
@@ -208,38 +212,11 @@ class RuleItem extends Rule
             return false;
         }
 
-        // 检查路由的参数分隔符
-        if (isset($option['param_depr'])) {
-            $url = str_replace(['|', $option['param_depr']], [$depr, '|'], $url);
-        }
+        $pattern = array_merge($this->parent->getPattern(), $this->pattern);
 
-        $len1 = substr_count($url, '|');
-        $len2 = substr_count($this->rule, '/');
-
-        // 多余参数是否合并
-        $merge = !empty($option['merge_extra_vars']) ? true : false;
-
-        if ($merge && $len1 > $len2) {
-            $url = str_replace('|', $depr, $url);
-            $url = implode('|', explode($depr, $url, $len2 + 1));
-        }
-
-        if (isset($option['complete_match'])) {
-            $completeMatch = $option['complete_match'];
-        }
-
-        if ($len1 >= $len2 || strpos($this->rule, '[')) {
-            // 完整匹配
-            if ($completeMatch && (!$merge && $len1 != $len2 && (false === strpos($this->rule, '[') || $len1 > $len2 || $len1 < $len2 - substr_count($this->rule, '[')))) {
-                return false;
-            }
-
-            $pattern = array_merge($this->parent->getPattern(), $this->pattern);
-
-            if (false !== $match = $this->match($url, $pattern)) {
-                // 匹配到路由规则
-                return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
-            }
+        if (false !== $match = $this->match($url, $pattern, $depr, $completeMatch)) {
+            // 匹配到路由规则
+            return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
         }
 
         return false;
@@ -250,80 +227,51 @@ class RuleItem extends Rule
      * @access private
      * @param  string    $url URL地址
      * @param  array     $pattern 变量规则
+     * @param  string    $depr URL分隔符（全局）
+     * @param  bool      $completeMatch   路由是否完全匹配
      * @return array|false
      */
-    private function match($url, $pattern)
+    private function match($url, $pattern, $depr, $completeMatch)
     {
-        $m2 = explode('/', $this->rule);
-        $m1 = explode('|', $url);
+        $var  = [];
+        $url  = str_replace('|', $depr, $url);
+        $rule = str_replace('/', $depr, $this->rule);
 
-        $var = [];
-
-        foreach ($m2 as $key => $val) {
-            // val中定义了多个变量 <id><name>
-            if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
-                $value   = [];
-                $replace = [];
-
-                foreach ($matches[1] as $name) {
-                    if (strpos($name, '?')) {
-                        $name      = substr($name, 0, -1);
-                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')?';
-                    } else {
-                        $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')';
-                    }
-                    $value[] = $name;
-                }
-
-                $val = str_replace($matches[0], $replace, $val);
-
-                if (preg_match('/^' . $val . '$/', isset($m1[$key]) ? $m1[$key] : '', $match)) {
-                    array_shift($match);
-                    foreach ($value as $k => $name) {
-                        if (isset($match[$k])) {
-                            $var[$name] = $match[$k];
-                        }
-                    }
-                    continue;
+        if (preg_match_all('/(?:<\w+\??>|\[?\:\w+\]?)/', $rule, $matches)) {
+            foreach ($matches[0] as $name) {
+                $optional = '';
+                if (strpos($name, ']')) {
+                    $name     = substr($name, 2, -1);
+                    $optional = '?';
+                } elseif (strpos($name, '?')) {
+                    $name     = substr($name, 1, -2);
+                    $optional = '?';
+                } elseif (strpos($name, '>')) {
+                    $name = substr($name, 1, -1);
                 } else {
-                    return false;
+                    $name = substr($name, 1);
                 }
+
+                $value[]   = $name;
+                $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')' . $optional;
             }
 
-            if (0 === strpos($val, '[:')) {
-                // 可选参数
-                $val      = substr($val, 1, -1);
-                $optional = true;
-            } else {
-                $optional = false;
-            }
+            $rule  = str_replace(['/', '-'], ['\/', '\-'], $rule);
+            $regex = str_replace($matches[0], $replace, $rule);
+            $regex = str_replace([')?\/', ')?\-'], [')?\/?', ')?\-?'], $regex);
 
-            if (0 === strpos($val, ':')) {
-                // URL变量
-                $name = substr($val, 1);
-
-                if (!$optional && !isset($m1[$key])) {
-                    return false;
-                }
-
-                if (isset($m1[$key]) && isset($pattern[$name])) {
-                    // 检查变量规则
-                    if ($pattern[$name] instanceof \Closure) {
-                        $result = call_user_func_array($pattern[$name], [$m1[$key]]);
-                        if (false === $result) {
-                            return false;
-                        }
-                    } elseif (!preg_match(0 === strpos($pattern[$name], '/') ? $pattern[$name] : '/^' . $pattern[$name] . '$/', $m1[$key])) {
-                        return false;
-                    }
-                }
-
-                if (isset($m1[$key])) {
-                    $var[$name] = $m1[$key];
-                }
-            } elseif (!isset($m1[$key]) || 0 !== strcasecmp($val, $m1[$key])) {
+            if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
                 return false;
             }
+
+            array_shift($match);
+            foreach ($value as $k => $name) {
+                if (isset($match[$k])) {
+                    $var[$name] = $match[$k];
+                }
+            }
+        } elseif (0 !== strcasecmp($this->rule, $url)) {
+            return false;
         }
 
         // 成功匹配后返回URL中的动态变量数组
