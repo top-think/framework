@@ -320,7 +320,7 @@ class Url
         foreach ($rule as $item) {
             list($url, $pattern, $domain, $suffix) = $item;
             if (empty($pattern)) {
-                return [rtrim($url, '/-'), $domain, $suffix];
+                return [rtrim($url, '?/-'), $domain, $suffix];
             }
 
             $type = $this->app['config']->get('url_common_param');
@@ -329,11 +329,12 @@ class Url
                 if (isset($vars[$key])) {
                     $url = str_replace(['[:' . $key . ']', '[:' . $key . '$]', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? $vars[$key] : urlencode($vars[$key]), $url);
                     unset($vars[$key]);
-
-                    $result = [rtrim($url, '/-'), $domain, $suffix];
+                    $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
+                    $result = [rtrim($url, '?/-'), $domain, $suffix];
                 } elseif (2 == $val) {
                     $url    = str_replace(['/[:' . $key . ']', '/[:' . $key . '$]', '[:' . $key . ']', '[:' . $key . '$]', '<' . $key . '?>'], '', $url);
-                    $result = [rtrim($url, '/-'), $domain, $suffix];
+                    $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
+                    $result = [rtrim($url, '?/-'), $domain, $suffix];
                 } else {
                     break;
                 }
