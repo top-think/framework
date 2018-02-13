@@ -116,9 +116,9 @@ class Hook
         if (empty($tag)) {
             //获取全部的插件信息
             return $this->tags;
-        } else {
-            return array_key_exists($tag, $this->tags) ? $this->tags[$tag] : [];
         }
+
+        return array_key_exists($tag, $this->tags) ? $this->tags[$tag] : [];
     }
 
     /**
@@ -137,10 +137,7 @@ class Hook
         foreach ($tags as $key => $name) {
             $results[$key] = $this->execTag($name, $tag, $params);
 
-            if (false === $results[$key]) {
-                // 如果返回false 则中断行为执行
-                break;
-            } elseif (!is_null($results[$key]) && $once) {
+            if (false === $results[$key] || (!is_null($results[$key]) && $once)) {
                 break;
             }
         }

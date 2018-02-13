@@ -719,21 +719,24 @@ class Route
     }
 
     /**
-     * 注册控制器路由 操作方法对应不同的请求后缀
+     * 注册控制器路由 操作方法对应不同的请求前缀
      * @access public
      * @param  string    $rule 路由规则
      * @param  string    $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
-     * @return $this
+     * @return RuleGroup
      */
     public function controller($rule, $route = '', $option = [], $pattern = [])
     {
+        $group = new RuleGroup($this, $this->group, $rule, null, $option, $pattern);
+
         foreach ($this->methodPrefix as $type => $val) {
-            $this->$type($rule . '/:action', $route . '/' . $val . ':action', $option, $pattern);
+            $item = $this->$type(':action', $val . ':action');
+            $group->addRule($item, $type);
         }
 
-        return $this;
+        return $group->prefix($route . '/');
     }
 
     /**

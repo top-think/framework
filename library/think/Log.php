@@ -174,41 +174,41 @@ class Log implements LoggerInterface
      */
     public function save()
     {
-        if (!empty($this->log)) {
-            if (is_null($this->driver)) {
-                $this->init($this->app['config']->pull('log'));
-            }
-
-            if (!$this->check($this->config)) {
-                // 检测日志写入权限
-                return false;
-            }
-
-            if (empty($this->config['level'])) {
-                // 获取全部日志
-                $log = $this->log;
-                if (!$this->app->isDebug() && isset($log['debug'])) {
-                    unset($log['debug']);
-                }
-            } else {
-                // 记录允许级别
-                $log = [];
-                foreach ($this->config['level'] as $level) {
-                    if (isset($this->log[$level])) {
-                        $log[$level] = $this->log[$level];
-                    }
-                }
-            }
-
-            $result = $this->driver->save($log);
-            if ($result) {
-                $this->log = [];
-            }
-
-            return $result;
+        if (empty($this->log)) {
+            return true;
         }
 
-        return true;
+        if (is_null($this->driver)) {
+            $this->init($this->app['config']->pull('log'));
+        }
+
+        if (!$this->check($this->config)) {
+            // 检测日志写入权限
+            return false;
+        }
+
+        if (empty($this->config['level'])) {
+            // 获取全部日志
+            $log = $this->log;
+            if (!$this->app->isDebug() && isset($log['debug'])) {
+                unset($log['debug']);
+            }
+        } else {
+            // 记录允许级别
+            $log = [];
+            foreach ($this->config['level'] as $level) {
+                if (isset($this->log[$level])) {
+                    $log[$level] = $this->log[$level];
+                }
+            }
+        }
+
+        $result = $this->driver->save($log);
+        if ($result) {
+            $this->log = [];
+        }
+
+        return $result;
     }
 
     /**

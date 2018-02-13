@@ -147,7 +147,7 @@ class File extends SplFileObject
 
     /**
      * 检查目录是否可写
-     * @access public
+     * @access protected
      * @param  string   $path    目录
      * @return boolean
      */
@@ -159,10 +159,10 @@ class File extends SplFileObject
 
         if (mkdir($path, 0755, true)) {
             return true;
-        } else {
-            $this->error = ['directory {:path} creation failed', ['path' => $path]];
-            return false;
         }
+
+        $this->error = ['directory {:path} creation failed', ['path' => $path]];
+        return false;
     }
 
     /**
@@ -227,27 +227,10 @@ class File extends SplFileObject
     {
         $rule = $rule ?: $this->validate;
 
-        /* 检查文件大小 */
-        if (isset($rule['size']) && !$this->checkSize($rule['size'])) {
-            $this->error = 'filesize not match';
-            return false;
-        }
-
-        /* 检查文件Mime类型 */
-        if (isset($rule['type']) && !$this->checkMime($rule['type'])) {
-            $this->error = 'mimetype to upload is not allowed';
-            return false;
-        }
-
-        /* 检查文件后缀 */
-        if (isset($rule['ext']) && !$this->checkExt($rule['ext'])) {
-            $this->error = 'extensions to upload is not allowed';
-            return false;
-        }
-
-        /* 检查图像文件 */
-        if (!$this->checkImg()) {
-            $this->error = 'illegal image files';
+        if ((isset($rule['size']) && !$this->checkSize($rule['size']))
+            || (isset($rule['type']) && !$this->checkMime($rule['type']))
+            || (isset($rule['ext']) && !$this->checkExt($rule['ext']))
+            || !$this->checkImg()) {
             return false;
         }
 
@@ -269,6 +252,7 @@ class File extends SplFileObject
         $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
 
         if (!in_array($extension, $ext)) {
+            $this->error = 'extensions to upload is not allowed';
             return false;
         }
 
@@ -286,6 +270,7 @@ class File extends SplFileObject
 
         /* 对图像文件进行严格检测 */
         if (in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf']) && !in_array($this->getImageType($this->filename), [1, 2, 3, 4, 6, 13])) {
+            $this->error = 'illegal image files';
             return false;
         }
 
@@ -297,13 +282,13 @@ class File extends SplFileObject
     {
         if (function_exists('exif_imagetype')) {
             return exif_imagetype($image);
-        } else {
-            try {
-                $info = getimagesize($image);
-                return $info ? $info[2] : false;
-            } catch (\Exception $e) {
-                return false;
-            }
+        }
+
+        try {
+            $info = getimagesize($image);
+            return $info ? $info[2] : false;
+        } catch (\Exception $e) {
+            return false;
         }
     }
 
@@ -316,6 +301,7 @@ class File extends SplFileObject
     public function checkSize($size)
     {
         if ($this->getSize() > $size) {
+            $this->error = 'filesize not match';
             return false;
         }
 
@@ -335,6 +321,7 @@ class File extends SplFileObject
         }
 
         if (!in_array(strtolower($this->getMime()), $mime)) {
+            $this->error = 'mimetype to upload is not allowed';
             return false;
         }
 
@@ -402,7 +389,7 @@ class File extends SplFileObject
 
     /**
      * 获取保存文件名
-     * @access public
+     * @access protected
      * @param  string|bool   $savename    保存的文件名 默认自动生成
      * @return string
      */
@@ -410,25 +397,9 @@ class File extends SplFileObject
     {
         if (true === $savename) {
             // 自动生成文件名
-            if ($this->rule instanceof \Closure) {
-                $savename = call_user_func_array($this->rule, [$this]);
-            } else {
-                switch ($this->rule) {
-                    case 'date':
-                        $savename = date('Ymd') . '/' . md5(microtime(true));
-                        break;
-                    default:
-                        if (in_array($this->rule, hash_algos())) {
-                            $hash     = $this->hash($this->rule);
-                            $savename = substr($hash, 0, 2) . '/' . substr($hash, 2);
-                        } elseif (is_callable($this->rule)) {
-                            $savename = call_user_func($this->rule);
-                        } else {
-                            $savename = date('Ymd') . '/' . md5(microtime(true));
-                        }
-                }
-            }
+            $savename = $this->autoBuildName();
         } elseif ('' === $savename || false === $savename) {
+            // 保留原文件名
             $savename = $this->getInfo('name');
         }
 
@@ -440,8 +411,37 @@ class File extends SplFileObject
     }
 
     /**
+     * 自动生成文件名
+     * @access protected
+     * @return string
+     */
+    protected function autoBuildName()
+    {
+        if ($this->rule instanceof \Closure) {
+            $savename = call_user_func_array($this->rule, [$this]);
+        } else {
+            switch ($this->rule) {
+                case 'date':
+                    $savename = date('Ymd') . '/' . md5(microtime(true));
+                    break;
+                default:
+                    if (in_array($this->rule, hash_algos())) {
+                        $hash     = $this->hash($this->rule);
+                        $savename = substr($hash, 0, 2) . '/' . substr($hash, 2);
+                    } elseif (is_callable($this->rule)) {
+                        $savename = call_user_func($this->rule);
+                    } else {
+                        $savename = date('Ymd') . '/' . md5(microtime(true));
+                    }
+            }
+        }
+
+        return $savename;
+    }
+
+    /**
      * 获取错误代码信息
-     * @access public
+     * @access private
      * @param  int $errorNo  错误号
      */
     private function error($errorNo)

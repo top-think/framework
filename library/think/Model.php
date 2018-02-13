@@ -478,13 +478,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $where = $array;
         }
 
-        if (!empty($this->relationWrite)) {
-            foreach ($this->relationWrite as $name => $val) {
-                if (is_array($val)) {
-                    foreach ($val as $key) {
-                        if (isset($data[$key])) {
-                            unset($data[$key]);
-                        }
+        foreach ((array) $this->relationWrite as $name => $val) {
+            if (is_array($val)) {
+                foreach ($val as $key) {
+                    if (isset($data[$key])) {
+                        unset($data[$key]);
                     }
                 }
             }

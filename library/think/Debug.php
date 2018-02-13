@@ -221,11 +221,10 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
-        } else {
-            return $output;
         }
+        return $output;
     }
 
     public function inject(Response $response, &$content)

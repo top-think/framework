@@ -62,21 +62,21 @@ class Env
     {
         $result = getenv('PHP_' . $name);
 
-        if (false !== $result) {
-            if ('false' === $result) {
-                $result = false;
-            } elseif ('true' === $result) {
-                $result = true;
-            }
-
-            if (!isset($this->data[$name])) {
-                $this->data[$name] = $result;
-            }
-
-            return $result;
-        } else {
+        if (false === $result) {
             return $default;
         }
+
+        if ('false' === $result) {
+            $result = false;
+        } elseif ('true' === $result) {
+            $result = true;
+        }
+
+        if (!isset($this->data[$name])) {
+            $this->data[$name] = $result;
+        }
+
+        return $result;
     }
 
     /**

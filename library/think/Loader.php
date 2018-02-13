@@ -361,9 +361,9 @@ class Loader
                 return strtoupper($match[1]);
             }, $name);
             return $ucfirst ? ucfirst($name) : lcfirst($name);
-        } else {
-            return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
         }
+
+        return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
     }
 }
 
