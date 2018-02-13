@@ -993,32 +993,20 @@ class Route
         // 提取路由规则中的变量
         $var = [];
 
-        foreach (explode('/', $rule) as $val) {
-            $optional = false;
+        if (preg_match_all('/(?:<\w+\??>|\[?\:\w+\]?)/', $rule, $matches)) {
+            foreach ($matches[0] as $name) {
+                $optional = false;
 
-            if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
-                foreach ($matches[1] as $name) {
-                    if (strpos($name, '?')) {
-                        $name     = substr($name, 0, -1);
-                        $optional = true;
-                    } else {
-                        $optional = false;
-                    }
-                    $var[$name] = $optional ? 2 : 1;
-                }
-            }
-
-            if (0 === strpos($val, '[:')) {
-                // 可选参数
-                $optional = true;
-                $val      = substr($val, 1, -1);
-            }
-
-            if (0 === strpos($val, ':')) {
-                // URL变量
-                $name = substr($val, 1);
-                if ('$' == substr($name, -1)) {
-                    $name = substr($name, 0, -1);
+                if (strpos($name, ']')) {
+                    $name     = substr($name, 2, -1);
+                    $optional = true;
+                } elseif (strpos($name, '?')) {
+                    $name     = substr($name, 1, -2);
+                    $optional = true;
+                } elseif (strpos($name, '>')) {
+                    $name = substr($name, 1, -1);
+                } else {
+                    $name = substr($name, 1);
                 }
 
                 $var[$name] = $optional ? 2 : 1;
