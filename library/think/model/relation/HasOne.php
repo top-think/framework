@@ -173,7 +173,8 @@ class HasOne extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere($this, [$foreignKey => $result->$localKey], $foreignKey, $relation, $subRelation, $closure);
+        $this->query->removeWhereField($foreignKey);
+        $data = $this->eagerlyWhere($this->query, [$foreignKey => $result->$localKey], $foreignKey, $relation, $subRelation, $closure);
 
         // 关联模型
         if (!isset($data[$result->$localKey])) {

@@ -172,7 +172,8 @@ class BelongsTo extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere($this->query, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
+        $this->query->removeWhereField($localKey);
+        $data = $this->eagerlyWhere($this->query, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
         // 关联模型
         if (!isset($data[$result->$foreignKey])) {
             $relationModel = null;
