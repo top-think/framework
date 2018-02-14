@@ -130,7 +130,8 @@ class HasOne extends OneToOne
         }
 
         if (!empty($range)) {
-            $data = $this->eagerlyWhere($this, [
+            $this->query->removeWhereField($foreignKey);
+            $data = $this->eagerlyWhere($this->query, [
                 $foreignKey => [
                     'in',
                     $range,

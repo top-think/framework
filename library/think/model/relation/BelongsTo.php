@@ -128,6 +128,7 @@ class BelongsTo extends OneToOne
         }
 
         if (!empty($range)) {
+            $this->query->removeWhereField($localKey);
             $data = $this->eagerlyWhere($this->query, [
                 $localKey => [
                     'in',
