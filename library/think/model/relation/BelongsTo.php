@@ -125,6 +125,8 @@ class BelongsTo extends OneToOne
         }
 
         if (!empty($range)) {
+            $this->query->removeWhereField($localKey);
+
             $data = $this->eagerlyWhere([
                 [$localKey, 'in', $range],
             ], $localKey, $relation, $subRelation, $closure);
@@ -167,6 +169,8 @@ class BelongsTo extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
+
+        $this->query->removeWhereField($localKey);
 
         $data = $this->eagerlyWhere([
             [$localKey, '=', $result->$foreignKey],
