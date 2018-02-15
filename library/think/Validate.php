@@ -784,13 +784,13 @@ class Validate
     {
         if (function_exists('exif_imagetype')) {
             return exif_imagetype($image);
-        } else {
-            try {
-                $info = getimagesize($image);
-                return $info ? $info[2] : false;
-            } catch (\Exception $e) {
-                return false;
-            }
+        }
+
+        try {
+            $info = getimagesize($image);
+            return $info ? $info[2] : false;
+        } catch (\Exception $e) {
+            return false;
         }
     }
 
@@ -844,9 +844,9 @@ class Validate
             return true;
         } elseif ($file instanceof File) {
             return $file->checkExt($rule);
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -867,9 +867,9 @@ class Validate
             return true;
         } elseif ($file instanceof File) {
             return $file->checkMime($rule);
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -890,9 +890,9 @@ class Validate
             return true;
         } elseif ($file instanceof File) {
             return $file->checkSize($rule);
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -928,9 +928,9 @@ class Validate
             list($w, $h) = $rule;
 
             return $w == $width && $h == $height;
-        } else {
-            return in_array($this->getImageType($file->getRealPath()), [1, 2, 3, 6]);
         }
+
+        return in_array($this->getImageType($file->getRealPath()), [1, 2, 3, 6]);
     }
 
     /**
@@ -1010,6 +1010,7 @@ class Validate
         if ($db->where($map)->field($pk)->find()) {
             return false;
         }
+
         return true;
     }
 
@@ -1061,9 +1062,9 @@ class Validate
 
         if ($this->getDataValue($data, $field) == $val) {
             return !empty($value) || '0' == $value;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -1080,9 +1081,9 @@ class Validate
 
         if ($result) {
             return !empty($value) || '0' == $value;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -1099,9 +1100,9 @@ class Validate
 
         if (!empty($val)) {
             return !empty($value) || '0' == $value;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -1183,10 +1184,10 @@ class Validate
             // 长度区间
             list($min, $max) = explode(',', $rule);
             return $length >= $min && $length <= $max;
-        } else {
-            // 指定长度
-            return $length == $rule;
         }
+
+        // 指定长度
+        return $length == $rule;
     }
 
     /**

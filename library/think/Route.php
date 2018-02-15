@@ -205,22 +205,6 @@ class Route
     }
 
     /**
-     * 获取当前根域名
-     * @access protected
-     * @return string
-     */
-    protected function getRootDomain()
-    {
-        $root = $this->config->get('app.url_domain_root');
-        if (!$root) {
-            $item  = explode('.', $this->host);
-            $count = count($item);
-            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
-        }
-        return $root;
-    }
-
-    /**
      * 注册域名路由
      * @access public
      * @param  string|array  $name 子域名
@@ -235,7 +219,7 @@ class Route
         $domainName = is_array($name) ? array_shift($name) : $name;
 
         if ('*' != $domainName && !strpos($domainName, '.')) {
-            $domainName .= '.' . $this->getRootDomain();
+            $domainName .= '.' . $this->request->rootDomain();
         }
 
         $route = $this->config->get('url_lazy_route') ? $rule : null;
@@ -261,7 +245,7 @@ class Route
         $this->domains[$domainName] = $domain;
 
         if (is_array($name) && !empty($name)) {
-            $root = $this->getRootDomain();
+            $root = $this->request->rootDomain();
             foreach ($name as $item) {
                 if (!strpos($item, '.')) {
                     $item .= '.' . $root;

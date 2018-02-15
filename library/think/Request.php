@@ -404,9 +404,27 @@ class Request
     }
 
     /**
+     * 获取当前根域名
+     * @access public
+     * @return string
+     */
+    public function rootDomain()
+    {
+        $root = $this->config->get('app.url_domain_root');
+
+        if (!$root) {
+            $item  = explode('.', $this->host());
+            $count = count($item);
+            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+        }
+
+        return $root;
+    }
+
+    /**
      * 获取当前子域名
      * @access public
-     * @return string|$this
+     * @return string
      */
     public function subDomain()
     {
