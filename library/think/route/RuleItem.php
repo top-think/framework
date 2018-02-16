@@ -237,38 +237,36 @@ class RuleItem extends Rule
         $url  = str_replace('|', $depr, $url);
         $rule = str_replace('/', $depr, $this->rule);
 
-        if (preg_match_all('/(?:<\w+\??>|\[?\:\w+\]?)/', $rule, $matches)) {
+        if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, $matches)) {
             foreach ($matches[0] as $name) {
                 $optional = '';
+                $slash    = substr($name, 0, 1);
+
                 if (strpos($name, ']')) {
-                    $name     = substr($name, 2, -1);
+                    $name     = substr($name, 3, -1);
                     $optional = '?';
                 } elseif (strpos($name, '?')) {
-                    $name     = substr($name, 1, -2);
+                    $name     = substr($name, 2, -2);
                     $optional = '?';
                 } elseif (strpos($name, '>')) {
-                    $name = substr($name, 1, -1);
+                    $name = substr($name, 2, -1);
                 } else {
-                    $name = substr($name, 1);
+                    $name = substr($name, 2);
                 }
 
-                $value[]   = $name;
-                $replace[] = '(' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . ')' . $optional;
+                $replace[] = '([$\\' . $slash . '](?<' . $name . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
             }
 
-            $rule  = str_replace(['/', '-'], ['\/', '\-'], $rule);
             $regex = str_replace($matches[0], $replace, $rule);
-            $regex = str_replace([')?\/(', ')?\-('], [')?\/?(', ')?\-?('], $regex);
-            $regex = substr_replace($regex, '\/?(', strrpos($regex, '\/('), 3);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
                 return false;
             }
 
             array_shift($match);
-            foreach ($value as $k => $name) {
-                if (isset($match[$k])) {
-                    $var[$name] = $match[$k];
+            foreach ($match as $key => $val) {
+                if (is_string($key)) {
+                    $var[$key] = $val;
                 }
             }
         } elseif (0 !== strcasecmp($this->rule, $url)) {
