@@ -233,6 +233,13 @@ class RuleItem extends Rule
      */
     private function match($url, $pattern, $depr, $completeMatch)
     {
+        $ruleItem = explode('/', $this->rule);
+        $urlItem  = explode('|', $url);
+
+        if (false === strpos($ruleItem[0], ':') && false === strpos($ruleItem[0], '<') && $ruleItem[0] != $urlItem[0]) {
+            return false;
+        }
+
         $var  = [];
         $url  = str_replace('|', $depr, $url);
         $rule = str_replace('/', $depr, $this->rule);
