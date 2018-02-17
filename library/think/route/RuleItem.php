@@ -258,6 +258,7 @@ class RuleItem extends Rule
             }
 
             $regex = str_replace($matches[0], $replace, $rule);
+            $regex = str_replace([')/', ')-'], [')\/', ')\-'], $regex);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
                 return false;
