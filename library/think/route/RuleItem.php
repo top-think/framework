@@ -207,11 +207,6 @@ class RuleItem extends Rule
      */
     private function checkRule($request, $url, $depr, $completeMatch = false, $option = [])
     {
-        // 检查完整规则定义
-        if (isset($this->pattern['__url__']) && !preg_match(0 === strpos($this->pattern['__url__'], '/') ? $this->pattern['__url__'] : '/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
-            return false;
-        }
-
         $pattern = array_merge($this->parent->getPattern(), $this->pattern);
 
         if (false !== $match = $this->match($url, $pattern, $depr, $completeMatch)) {
@@ -233,9 +228,20 @@ class RuleItem extends Rule
      */
     private function match($url, $pattern, $depr, $completeMatch)
     {
+        // 检查完整规则定义
+        if (isset($this->pattern['__url__']) && !preg_match(0 === strpos($this->pattern['__url__'], '/') ? $this->pattern['__url__'] : '/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
+            return false;
+        }
+
         $ruleItem = explode('/', $this->rule);
         $urlItem  = explode('|', $url);
 
+        // 检查URL长度
+        if (count($urlItem) < count($ruleItem) && false === strpos($this->rule, '[') && false === strpos($this->rule, '?')) {
+            return false;
+        }
+
+        // 检查第一个元素
         if (false === strpos($ruleItem[0], ':') && false === strpos($ruleItem[0], '<') && $ruleItem[0] != $urlItem[0]) {
             return false;
         }
