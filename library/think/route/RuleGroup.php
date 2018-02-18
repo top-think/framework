@@ -183,7 +183,16 @@ class RuleGroup extends Rule
             }
         }
 
-        // 遍历分组路由
+        if (!empty($this->option['merge_rule_regex'])) {
+            // 合并路由正则规则进行路由匹配检查
+            $result = $this->checkMergeRuleRegex($request, $rules, $url, $depr, $completeMatch);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
+
+        // 检查分组路由
         foreach ($rules as $key => $item) {
             $result = $item->check($request, $url, $depr, $completeMatch);
 
@@ -203,6 +212,56 @@ class RuleGroup extends Rule
         }
 
         return $result;
+    }
+
+    /**
+     * 检测分组路由
+     * @access public
+     * @param  Request      $request  请求对象
+     * @param  array        $rules    路由规则
+     * @param  string       $url      访问地址
+     * @param  string       $depr     路径分隔符
+     * @param  bool         $completeMatch   路由是否完全匹配
+     * @return Dispatch|false
+     */
+    protected function checkMergeRuleRegex($request, &$rules, $url, $depr, $completeMatch)
+    {
+        foreach ($rules as $key => $item) {
+            if ($item instanceof RuleItem) {
+                $items[$key] = $item;
+                unset($rules[$key]);
+                $rule = str_replace('/', $depr, $item->getRule());
+
+                if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, $matches)) {
+                    $pattern  = array_merge($this->getPattern(), $item->getPattern());
+                    $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
+                    $regex[]  = $this->buildRuleRegex($rule, $matches[0], $pattern, $complete, '_THINK_' . $key);
+                }
+            }
+        }
+
+        $url = str_replace('|', $depr, $url);
+
+        if (!empty($regex) && preg_match('/^(?:' . implode('|', $regex) . ')/', $url, $match)) {
+
+            foreach ($match as $key => $val) {
+                if (is_string($key) && '' !== $val) {
+                    list($name, $pos) = explode('_THINK_', $key);
+
+                    $var[$name] = $val;
+                }
+            }
+
+            if (isset($pos)) {
+                $result = $items[$pos]->checkHasMatchRule($request, $url, $var);
+
+                if (false !== $result) {
+                    return $result;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -261,6 +320,17 @@ class RuleGroup extends Rule
         }
 
         return $this->option('prefix', $prefix);
+    }
+
+    /**
+     * 合并分组的路由规则正则
+     * @access public
+     * @param  bool     $merge
+     * @return $this
+     */
+    public function mergeRuleRegex($merge = true)
+    {
+        return $this->option('merge_rule_regex', $merge);
     }
 
     /**

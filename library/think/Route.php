@@ -895,7 +895,7 @@ class Route
         $result = $domain->check($this->request, $url, $depr, $completeMatch);
 
         if (false === $result && !empty($this->cross)) {
-            // 检测跨越路由
+            // 检测跨域路由
             $result = $this->cross->check($this->request, $url, $depr, $completeMatch);
         }
 
@@ -914,7 +914,6 @@ class Route
     /**
      * 检测域名的路由规则
      * @access protected
-     * @param  string    $host 当前主机地址
      * @return Domain
      */
     protected function checkDomain()

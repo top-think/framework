@@ -86,6 +86,16 @@ class RuleItem extends Rule
     }
 
     /**
+     * 获取当前路由规则
+     * @access public
+     * @return string
+     */
+    public function getRule()
+    {
+        return $this->rule;
+    }
+
+    /**
      * 检查后缀
      * @access public
      * @param  string     $ext
@@ -151,7 +161,7 @@ class RuleItem extends Rule
      * @param  string       $url      访问地址
      * @param  string       $depr     路径分隔符
      * @param  bool         $completeMatch   路由是否完全匹配
-     * @return Dispatch
+     * @return Dispatch|false
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
@@ -172,24 +182,9 @@ class RuleItem extends Rule
             $request->route($option['append']);
         }
 
-        // 是否区分 / 地址访问
-        if (!empty($option['remove_slash']) && '/' != $this->rule) {
-            $this->rule = rtrim($this->rule, '/');
-            $url        = rtrim($url, '|');
-        }
-
         // 检查前置行为
         if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
             return false;
-        }
-
-        if (isset($option['ext'])) {
-            // 路由ext参数 优先于系统配置的URL伪静态后缀参数
-            $url = preg_replace('/\.(' . $request->ext() . ')$/i', '', $url);
-        }
-
-        if (isset($option['complete_match'])) {
-            $completeMatch = $option['complete_match'];
         }
 
         return $this->checkRule($request, $url, $depr, $completeMatch, $option);
@@ -209,12 +204,74 @@ class RuleItem extends Rule
     {
         $pattern = array_merge($this->parent->getPattern(), $this->pattern);
 
+        // 是否区分 / 地址访问
+        if (!empty($option['remove_slash']) && '/' != $this->rule) {
+            $this->rule = rtrim($this->rule, '/');
+            $url        = rtrim($url, '|');
+        }
+
+        if (isset($option['ext'])) {
+            // 路由ext参数 优先于系统配置的URL伪静态后缀参数
+            $url = preg_replace('/\.(' . $request->ext() . ')$/i', '', $url);
+        }
+
+        if (isset($option['complete_match'])) {
+            $completeMatch = $option['complete_match'];
+        }
+
         if (false !== $match = $this->match($url, $pattern, $depr, $completeMatch)) {
             // 匹配到路由规则
             return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
         }
 
         return false;
+    }
+
+    /**
+     * 检测已经匹配的路由
+     * @access public
+     * @param  Request      $request  请求对象
+     * @param  string       $url      访问地址
+     * @param  array        $var      路由变量
+     * @return Dispatch|false
+     */
+    public function checkHasMatchRule($request, $url, $var = [])
+    {
+        if ($dispatch = $this->checkCrossDomain($request)) {
+            // 允许跨域
+            return $dispatch;
+        }
+
+        // 检查参数有效性
+        if (!$this->checkOption($this->option, $request)) {
+            return false;
+        }
+
+        // 合并分组参数
+        $option = $this->mergeGroupOptions();
+
+        if (!empty($option['append'])) {
+            $request->route($option['append']);
+        }
+
+        // 检查前置行为
+        if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
+            return false;
+        }
+
+        // 是否区分 / 地址访问
+        if (!empty($option['remove_slash']) && '/' != $this->rule) {
+            $this->rule = rtrim($this->rule, '/');
+            $url        = rtrim($url, '|');
+        }
+
+        if (isset($option['ext'])) {
+            // 路由ext参数 优先于系统配置的URL伪静态后缀参数
+            $url = preg_replace('/\.(' . $request->ext() . ')$/i', '', $url);
+        }
+
+        // 匹配到路由规则
+        return $this->parseRule($request, $this->rule, $this->route, $url, $option, $var);
     }
 
     /**
@@ -251,33 +308,12 @@ class RuleItem extends Rule
         $rule = str_replace('/', $depr, $this->rule);
 
         if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, $matches)) {
-            foreach ($matches[0] as $name) {
-                $optional = '';
-                $slash    = substr($name, 0, 1);
-
-                if (strpos($name, ']')) {
-                    $name     = substr($name, 3, -1);
-                    $optional = '?';
-                } elseif (strpos($name, '?')) {
-                    $name     = substr($name, 2, -2);
-                    $optional = '?';
-                } elseif (strpos($name, '>')) {
-                    $name = substr($name, 2, -1);
-                } else {
-                    $name = substr($name, 2);
-                }
-
-                $replace[] = '([$\\' . $slash . '](?<' . $name . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
-            }
-
-            $regex = str_replace($matches[0], $replace, $rule);
-            $regex = str_replace([')/', ')-'], [')\/', ')\-'], $regex);
+            $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $completeMatch);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
                 return false;
             }
 
-            array_shift($match);
             foreach ($match as $key => $val) {
                 if (is_string($key)) {
                     $var[$key] = $val;

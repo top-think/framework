@@ -920,6 +920,43 @@ abstract class Rule
     }
 
     /**
+     * 生成路由的正则规则
+     * @access protected
+     * @param  string    $rule 路由规则
+     * @param  array     $match 匹配的变量
+     * @param  array     $pattern   路由变量规则
+     * @param  bool      $completeMatch   路由是否完全匹配
+     * @param  string    $suffix   路由正则变量后缀
+     * @return string
+     */
+    protected function buildRuleRegex($rule, $match, $pattern = [], $completeMatch = false, $suffix = '')
+    {
+        foreach ($match as $name) {
+            $optional = '';
+            $slash    = substr($name, 0, 1);
+
+            if (strpos($name, ']')) {
+                $name     = substr($name, 3, -1);
+                $optional = '?';
+            } elseif (strpos($name, '?')) {
+                $name     = substr($name, 2, -2);
+                $optional = '?';
+            } elseif (strpos($name, '>')) {
+                $name = substr($name, 2, -1);
+            } else {
+                $name = substr($name, 2);
+            }
+
+            $replace[] = '([$\\' . $slash . '](?<' . $name . $suffix . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
+        }
+
+        $regex = str_replace($match, $replace, $rule);
+        $regex = str_replace([')?/', ')/', ')?-', ')-'], [')\/', ')\/', ')\-', ')\-'], $regex);
+
+        return $regex . ($completeMatch ? '$' : '');
+    }
+
+    /**
      * 设置路由参数
      * @access public
      * @param  string    $method     方法名
