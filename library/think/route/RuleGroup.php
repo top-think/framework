@@ -233,9 +233,11 @@ class RuleGroup extends Rule
                 $rule = str_replace('/', $depr, $item->getRule());
 
                 if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, $matches)) {
-                    $pattern  = array_merge($this->getPattern(), $item->getPattern());
+                    $pattern = array_merge($this->getPattern(), $item->getPattern());
+                    $option  = array_merge($this->getOption(), $item->getOption());
+
                     $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
-                    $regex[]  = $this->buildRuleRegex($rule, $matches[0], $pattern, $complete, '_THINK_' . $key);
+                    $regex[]  = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $complete, '_THINK_' . $key);
                 }
             }
         }

@@ -219,7 +219,7 @@ class RuleItem extends Rule
             $completeMatch = $option['complete_match'];
         }
 
-        if (false !== $match = $this->match($url, $pattern, $depr, $completeMatch)) {
+        if (false !== $match = $this->match($url, $pattern, $option, $depr, $completeMatch)) {
             // 匹配到路由规则
             return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
         }
@@ -279,11 +279,12 @@ class RuleItem extends Rule
      * @access private
      * @param  string    $url URL地址
      * @param  array     $pattern 变量规则
+     * @param  array     $option    路由参数
      * @param  string    $depr URL分隔符（全局）
      * @param  bool      $completeMatch   路由是否完全匹配
      * @return array|false
      */
-    private function match($url, $pattern, $depr, $completeMatch)
+    private function match($url, $pattern, $option, $depr, $completeMatch)
     {
         // 检查完整规则定义
         if (isset($this->pattern['__url__']) && !preg_match(0 === strpos($this->pattern['__url__'], '/') ? $this->pattern['__url__'] : '/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
@@ -308,7 +309,7 @@ class RuleItem extends Rule
         $rule = str_replace('/', $depr, $this->rule);
 
         if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, $matches)) {
-            $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $completeMatch);
+            $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
                 return false;

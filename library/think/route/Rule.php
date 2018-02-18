@@ -925,11 +925,12 @@ abstract class Rule
      * @param  string    $rule 路由规则
      * @param  array     $match 匹配的变量
      * @param  array     $pattern   路由变量规则
+     * @param  array     $option    路由参数
      * @param  bool      $completeMatch   路由是否完全匹配
      * @param  string    $suffix   路由正则变量后缀
      * @return string
      */
-    protected function buildRuleRegex($rule, $match, $pattern = [], $completeMatch = false, $suffix = '')
+    protected function buildRuleRegex($rule, $match, $pattern = [], $option = [], $completeMatch = false, $suffix = '')
     {
         foreach ($match as $name) {
             $optional = '';
@@ -948,6 +949,11 @@ abstract class Rule
             }
 
             $replace[] = '([$\\' . $slash . '](?<' . $name . $suffix . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
+        }
+
+        // 是否区分 / 地址访问
+        if (!empty($option['remove_slash']) && '/' != $rule) {
+            $rule = rtrim($rule, '/');
         }
 
         $regex = str_replace($match, $replace, $rule);
