@@ -64,7 +64,6 @@ class View extends Response
     {
         if (is_array($name)) {
             $this->vars = array_merge($this->vars, $name);
-            return $this;
         } else {
             $this->vars[$name] = $value;
         }

@@ -73,7 +73,7 @@ class RuleItem extends Rule
             $this->option['complete_match'] = true;
         }
 
-        $rule = '/' != $rule ? ltrim($rule, '/') : '/';
+        $rule = ('' != $rule && '/' != $rule) ? ltrim($rule, '/') : '/';
 
         if ($this->parent && $prefix = $this->parent->getFullName()) {
             $rule = $prefix . ($rule ? '/' . ltrim($rule, '/') : '');
@@ -175,19 +175,7 @@ class RuleItem extends Rule
             return false;
         }
 
-        // 合并分组参数
-        $option = $this->mergeGroupOptions();
-
-        if (!empty($option['append'])) {
-            $request->route($option['append']);
-        }
-
-        // 检查前置行为
-        if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
-            return false;
-        }
-
-        return $this->checkRule($request, $url, $depr, $completeMatch, $option);
+        return $this->checkRule($request, $url, $depr, $completeMatch);
     }
 
     /**
@@ -197,11 +185,18 @@ class RuleItem extends Rule
      * @param  string    $url URL地址
      * @param  string    $depr URL分隔符（全局）
      * @param  bool      $completeMatch   路由是否完全匹配
-     * @param  array     $option   路由参数
      * @return array|false
      */
-    private function checkRule($request, $url, $depr, $completeMatch = false, $option = [])
+    private function checkRule($request, $url, $depr, $completeMatch = false)
     {
+        // 合并分组参数
+        $option = $this->mergeGroupOptions();
+
+        // 检查前置行为
+        if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
+            return false;
+        }
+
         $pattern = array_merge($this->parent->getPattern(), $this->pattern);
 
         // 是否区分 / 地址访问
@@ -221,6 +216,10 @@ class RuleItem extends Rule
 
         if (false !== $match = $this->match($url, $pattern, $option, $depr, $completeMatch)) {
             // 匹配到路由规则
+            if (!empty($option['append'])) {
+                $request->route($option['append']);
+            }
+
             return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
         }
 
@@ -250,13 +249,13 @@ class RuleItem extends Rule
         // 合并分组参数
         $option = $this->mergeGroupOptions();
 
-        if (!empty($option['append'])) {
-            $request->route($option['append']);
-        }
-
         // 检查前置行为
         if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
             return false;
+        }
+
+        if (!empty($option['append'])) {
+            $request->route($option['append']);
         }
 
         // 是否区分 / 地址访问

@@ -610,7 +610,7 @@ class Request
                 }
             }
 
-            $this->pathinfo = empty($_SERVER['PATH_INFO']) ? '/' : ltrim($_SERVER['PATH_INFO'], '/');
+            $this->pathinfo = empty($_SERVER['PATH_INFO']) || '/' == $_SERVER['PATH_INFO'] ? '/' : ltrim($_SERVER['PATH_INFO'], '/');
         }
 
         return $this->pathinfo;
