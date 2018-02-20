@@ -37,7 +37,7 @@ class RuleItem extends Rule
      * 架构函数
      * @access public
      * @param  Route             $router 路由实例
-     * @param  RuleGroup         $group 路由所属分组对象
+     * @param  RuleGroup         $parent 上级对象
      * @param  string            $name 路由标识
      * @param  string|array      $rule 路由规则
      * @param  string            $method 请求类型
@@ -45,10 +45,10 @@ class RuleItem extends Rule
      * @param  array             $option 路由参数
      * @param  array             $pattern 变量规则
      */
-    public function __construct(Route $router, RuleGroup $group, $name, $rule, $route, $method = '*', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $parent, $name, $rule, $route, $method = '*', $option = [], $pattern = [])
     {
         $this->router  = $router;
-        $this->parent  = $group;
+        $this->parent  = $parent;
         $this->name    = $name;
         $this->route   = $route;
         $this->method  = $method;
@@ -56,6 +56,8 @@ class RuleItem extends Rule
         $this->pattern = $pattern;
 
         $this->setRule($rule);
+
+        $this->parent->addRule($this, $method);
     }
 
     /**
@@ -290,22 +292,22 @@ class RuleItem extends Rule
             return false;
         }
 
-        $ruleItem = explode('/', $this->rule);
-        $urlItem  = explode('|', $url);
+        $var  = [];
+        $url  = str_replace('|', $depr, $url);
+        $rule = str_replace('/', $depr, $this->rule);
 
-        // 检查URL长度
-        if (count($urlItem) < count($ruleItem) && false === strpos($this->rule, '[') && false === strpos($this->rule, '?')) {
+        if (false === strpos($rule, ':') && false === strpos($rule, '<')) {
+            if (($completeMatch && 0 === strcasecmp($rule, $url)) || (!$completeMatch && 0 === strncasecmp($rule, $url, strlen($rule)))) {
+                return $var;
+            }
             return false;
         }
 
         // 检查第一个元素
-        if (false === strpos($ruleItem[0], ':') && false === strpos($ruleItem[0], '<') && $ruleItem[0] != $urlItem[0]) {
+        $pos = strpos($rule, $depr);
+        if ($pos && 0 !== strncasecmp($rule, $url, $pos)) {
             return false;
         }
-
-        $var  = [];
-        $url  = str_replace('|', $depr, $url);
-        $rule = str_replace('/', $depr, $this->rule);
 
         if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
@@ -319,8 +321,6 @@ class RuleItem extends Rule
                     $var[$key] = $val;
                 }
             }
-        } elseif (0 !== strcasecmp($this->rule, $url)) {
-            return false;
         }
 
         // 成功匹配后返回URL中的动态变量数组

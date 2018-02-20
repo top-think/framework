@@ -148,11 +148,7 @@ class Route
      */
     protected function createTopGroup(Domain $domain)
     {
-        $group = new RuleGroup($this);
-        // 注册分组到当前域名
-        $domain->addRule($group);
-
-        return $group;
+        return new RuleGroup($this, $domain);
     }
 
     /**
@@ -470,9 +466,6 @@ class Route
         // 创建路由规则实例
         $ruleItem = new RuleItem($this, $this->group, $name, $rule, $route, $method, $option, $pattern);
 
-        // 添加到当前分组
-        $this->group->addRule($ruleItem, $method);
-
         if (!empty($option['cross_domain'])) {
             $this->setCrossDomainRule($ruleItem, $method);
         }
@@ -589,9 +582,6 @@ class Route
             $this->group = $parent;
         }
 
-        // 注册子分组
-        $this->group->addRule($group);
-
         if (!empty($option['cross_domain'])) {
             $this->setCrossDomainRule($group);
         }
@@ -694,12 +684,7 @@ class Route
      */
     public function resource($rule, $route = '', $option = [], $pattern = [])
     {
-        $resource = new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest);
-
-        // 添加到当前分组
-        $this->group->addRule($resource);
-
-        return $resource;
+        return new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest);
     }
 
     /**

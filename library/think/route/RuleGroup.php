@@ -47,22 +47,26 @@ class RuleGroup extends Rule
      * 架构函数
      * @access public
      * @param  Route       $router   路由对象
-     * @param  RuleGroup   $group    路由所属分组对象
+     * @param  RuleGroup   $parent   上级对象
      * @param  string      $name     分组名称
      * @param  mixed       $rule     分组路由
      * @param  array       $option   路由参数
      * @param  array       $pattern  变量规则
      */
-    public function __construct(Route $router, RuleGroup $group = null, $name = '', $rule = [], $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $parent = null, $name = '', $rule = [], $option = [], $pattern = [])
     {
         $this->router  = $router;
-        $this->parent  = $group;
+        $this->parent  = $parent;
         $this->rule    = $rule;
         $this->name    = trim($name, '/');
         $this->option  = $option;
         $this->pattern = $pattern;
 
         $this->setFullName();
+
+        if ($this->parent) {
+            $this->parent->addRule($this);
+        }
     }
 
     /**
@@ -222,19 +226,31 @@ class RuleGroup extends Rule
             if ($item instanceof RuleItem) {
                 $rule = str_replace('/', $depr, $item->getRule());
 
-                if (false === strpos($rule, ':') && false === strpos($rule, '<') && 0 === strcasecmp($rule, $url)) {
-                    return $item->checkHasMatchRule($request, $url);
+                $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
+
+                if (false === strpos($rule, ':') && false === strpos($rule, '<')) {
+                    if (($complete && 0 === strcasecmp($rule, $url)) || (!$complete && 0 === strncasecmp($rule, $url, strlen($rule)))) {
+                        return $item->checkHasMatchRule($request, $url);
+                    }
+
+                    unset($rules[$key]);
+                    continue;
+                }
+
+                // 检查第一个元素
+                $pos = strpos($rule, $depr);
+                if ($pos && 0 !== strncasecmp($rule, $url, $pos)) {
+                    unset($rules[$key]);
+                    continue;
                 }
 
                 if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
                     unset($rules[$key]);
-                    $items[$key] = $item;
-                    $pattern     = array_merge($this->getPattern(), $item->getPattern());
-                    $option      = array_merge($this->getOption(), $item->getOption());
-
-                    $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
+                    $pattern = array_merge($this->getPattern(), $item->getPattern());
+                    $option  = array_merge($this->getOption(), $item->getOption());
 
                     $regex[$key] = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $complete, '_THINK_' . $key);
+                    $items[$key] = $item;
                 }
             }
         }
