@@ -960,7 +960,7 @@ abstract class Rule
         }
 
         $regex = str_replace($match, $replace, $rule);
-        $regex = str_replace([')?/', ')/', ')?-', ')-'], [')\/', ')\/', ')\-', ')\-'], $regex);
+        $regex = str_replace([')?/', ')/', ')?-', ')-', '\\\\/'], [')\/', ')\/', ')\-', ')\-', '\/'], $regex);
 
         return $regex . ($completeMatch ? '$' : '');
     }
