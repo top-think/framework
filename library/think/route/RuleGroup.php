@@ -237,11 +237,11 @@ class RuleGroup extends Rule
                     continue;
                 }
 
-                // 检查第一个元素
-                $pos = strpos($rule, $depr);
-                if ($pos && 0 !== strncasecmp($rule, $url, $pos)) {
-                    unset($rules[$key]);
-                    continue;
+                if ($matchRule = preg_split('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, 2)) {
+                    if ($matchRule[0] && 0 !== strncasecmp($rule, $url, strlen($matchRule[0]))) {
+                        unset($rules[$key]);
+                        continue;
+                    }
                 }
 
                 if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {

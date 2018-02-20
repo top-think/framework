@@ -304,8 +304,7 @@ class RuleItem extends Rule
         }
 
         // 检查第一个元素
-        $pos = strpos($rule, $depr);
-        if ($pos && 0 !== strncasecmp($rule, $url, $pos)) {
+        if ($pos = strpos($rule, $depr) && 0 !== strncasecmp($rule, $url, $pos)) {
             return false;
         }
 
