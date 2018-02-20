@@ -173,16 +173,6 @@ class RuleGroup extends Rule
             $request->route($this->option['append']);
         }
 
-        if (isset($rules[$url])) {
-            // 快速定位
-            $item   = $rules[$url];
-            $result = $item->check($request, $url, $depr, $completeMatch);
-
-            if (false !== $result) {
-                return $result;
-            }
-        }
-
         if (!empty($this->option['merge_rule_regex'])) {
             // 合并路由正则规则进行路由匹配检查
             $result = $this->checkMergeRuleRegex($request, $rules, $url, $depr, $completeMatch);
@@ -232,6 +222,10 @@ class RuleGroup extends Rule
             if ($item instanceof RuleItem) {
                 $rule = str_replace('/', $depr, $item->getRule());
 
+                if (false === strpos($rule, ':') && false === strpos($rule, '<') && 0 === strcasecmp($rule, $url)) {
+                    return $item->checkHasMatchRule($request, $url);
+                }
+
                 if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
                     unset($rules[$key]);
                     $items[$key] = $item;
@@ -241,8 +235,6 @@ class RuleGroup extends Rule
                     $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
 
                     $regex[$key] = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $complete, '_THINK_' . $key);
-                } elseif (0 === strcasecmp($rule, $url)) {
-                    return $item->checkHasMatchRule($request, $url);
                 }
             }
         }
