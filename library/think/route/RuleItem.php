@@ -73,7 +73,7 @@ class RuleItem extends Rule
             $this->option['complete_match'] = true;
         }
 
-        $rule = ('' != $rule && '/' != $rule) ? ltrim($rule, '/') : '/';
+        $rule = '/' != $rule ? ltrim($rule, '/') : '/';
 
         if ($this->parent && $prefix = $this->parent->getFullName()) {
             $rule = $prefix . ($rule ? '/' . ltrim($rule, '/') : '');
@@ -307,7 +307,7 @@ class RuleItem extends Rule
         $url  = str_replace('|', $depr, $url);
         $rule = str_replace('/', $depr, $this->rule);
 
-        if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, $matches)) {
+        if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {

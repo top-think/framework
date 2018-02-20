@@ -944,11 +944,14 @@ abstract class Rule
                 $optional = '?';
             } elseif (strpos($name, '>')) {
                 $name = substr($name, 2, -1);
-            } else {
+            } elseif (strpos($name, ':')) {
                 $name = substr($name, 2);
+            } else {
+                $replace[] = '\\' . $name;
+                continue;
             }
 
-            $replace[] = '([$\\' . $slash . '](?<' . $name . $suffix . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
+            $replace[] = '(\\' . $slash . '(?<' . $name . $suffix . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
         }
 
         // 是否区分 / 地址访问

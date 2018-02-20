@@ -226,26 +226,29 @@ class RuleGroup extends Rule
      */
     protected function checkMergeRuleRegex($request, &$rules, $url, $depr, $completeMatch)
     {
+        $url = str_replace('|', $depr, $url);
+
         foreach ($rules as $key => $item) {
             if ($item instanceof RuleItem) {
-                $items[$key] = $item;
-                unset($rules[$key]);
                 $rule = str_replace('/', $depr, $item->getRule());
 
-                if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, $matches)) {
-                    $pattern = array_merge($this->getPattern(), $item->getPattern());
-                    $option  = array_merge($this->getOption(), $item->getOption());
+                if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
+                    unset($rules[$key]);
+                    $items[$key] = $item;
+                    $pattern     = array_merge($this->getPattern(), $item->getPattern());
+                    $option      = array_merge($this->getOption(), $item->getOption());
 
                     $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
-                    $regex[]  = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $complete, '_THINK_' . $key);
+
+                    $regex[$key] = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $complete, '_THINK_' . $key);
+                } elseif (0 === strcasecmp($rule, $url)) {
+                    return $item->checkHasMatchRule($request, $url);
                 }
             }
         }
 
-        $url = str_replace('|', $depr, $url);
-
         if (!empty($regex) && preg_match('/^(?:' . implode('|', $regex) . ')/', $url, $match)) {
-
+            $var = [];
             foreach ($match as $key => $val) {
                 if (is_string($key) && '' !== $val) {
                     list($name, $pos) = explode('_THINK_', $key);
@@ -254,13 +257,16 @@ class RuleGroup extends Rule
                 }
             }
 
-            if (isset($pos)) {
-                $result = $items[$pos]->checkHasMatchRule($request, $url, $var);
-
-                if (false !== $result) {
-                    return $result;
+            if (!isset($pos)) {
+                foreach ($regex as $key => $item) {
+                    if (0 === strpos(str_replace(['\/', '\-'], ['/', '-'], $item), $match[0])) {
+                        $pos = $key;
+                        break;
+                    }
                 }
             }
+
+            return $items[$pos]->checkHasMatchRule($request, $url, $var);
         }
 
         return false;
