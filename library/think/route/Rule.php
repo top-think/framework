@@ -959,7 +959,7 @@ abstract class Rule
             $rule = rtrim($rule, '/');
         }
 
-        $regex = str_replace($match, $replace, $rule);
+        $regex = str_replace($match, $replace, '/' . ltrim($rule, '/'));
         $regex = str_replace([')?/', ')/', ')?-', ')-', '\\\\/'], [')\/', ')\/', ')\-', ')\-', '\/'], $regex);
 
         return $regex . ($completeMatch ? '$' : '');

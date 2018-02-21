@@ -220,11 +220,11 @@ class RuleGroup extends Rule
      */
     protected function checkMergeRuleRegex($request, &$rules, $url, $depr, $completeMatch)
     {
-        $url = str_replace('|', $depr, $url);
+        $url = $depr . str_replace('|', $depr, $url);
 
         foreach ($rules as $key => $item) {
             if ($item instanceof RuleItem) {
-                $rule = str_replace('/', $depr, $item->getRule());
+                $rule = $depr . str_replace('/', $depr, $item->getRule());
 
                 $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
 

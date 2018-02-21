@@ -293,8 +293,8 @@ class RuleItem extends Rule
         }
 
         $var  = [];
-        $url  = str_replace('|', $depr, $url);
-        $rule = str_replace('/', $depr, $this->rule);
+        $url  = $depr . str_replace('|', $depr, $url);
+        $rule = $depr . str_replace('/', $depr, $this->rule);
 
         if (false === strpos($rule, ':') && false === strpos($rule, '<')) {
             if (($completeMatch && 0 === strcasecmp($rule, $url)) || (!$completeMatch && 0 === strncasecmp($rule, $url, strlen($rule)))) {
@@ -303,9 +303,10 @@ class RuleItem extends Rule
             return false;
         }
 
-        // 检查第一个元素
-        if ($pos = strpos($rule, $depr) && 0 !== strncasecmp($rule, $url, $pos)) {
-            return false;
+        if ($matchRule = preg_split('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, 2)) {
+            if ($matchRule[0] && 0 !== strncasecmp($rule, $url, strlen($matchRule[0]))) {
+                return false;
+            }
         }
 
         if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
