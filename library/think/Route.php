@@ -148,11 +148,7 @@ class Route
      */
     protected function createTopGroup(Domain $domain)
     {
-        $group = new RuleGroup($this);
-        // 注册分组到当前域名
-        $domain->addRule($group);
-
-        return $group;
+        return new RuleGroup($this, $domain);
     }
 
     /**
@@ -205,22 +201,6 @@ class Route
     }
 
     /**
-     * 获取当前根域名
-     * @access protected
-     * @return string
-     */
-    protected function getRootDomain()
-    {
-        $root = $this->config->get('app.url_domain_root');
-        if (!$root) {
-            $item  = explode('.', $this->host);
-            $count = count($item);
-            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
-        }
-        return $root;
-    }
-
-    /**
      * 注册域名路由
      * @access public
      * @param  string|array  $name 子域名
@@ -235,7 +215,7 @@ class Route
         $domainName = is_array($name) ? array_shift($name) : $name;
 
         if ('*' != $domainName && !strpos($domainName, '.')) {
-            $domainName .= '.' . $this->getRootDomain();
+            $domainName .= '.' . $this->request->rootDomain();
         }
 
         $route = $this->config->get('url_lazy_route') ? $rule : null;
@@ -261,7 +241,7 @@ class Route
         $this->domains[$domainName] = $domain;
 
         if (is_array($name) && !empty($name)) {
-            $root = $this->getRootDomain();
+            $root = $this->request->rootDomain();
             foreach ($name as $item) {
                 if (!strpos($item, '.')) {
                     $item .= '.' . $root;
@@ -486,9 +466,6 @@ class Route
         // 创建路由规则实例
         $ruleItem = new RuleItem($this, $this->group, $name, $rule, $route, $method, $option, $pattern);
 
-        // 添加到当前分组
-        $this->group->addRule($ruleItem, $method);
-
         if (!empty($option['cross_domain'])) {
             $this->setCrossDomainRule($ruleItem, $method);
         }
@@ -605,9 +582,6 @@ class Route
             $this->group = $parent;
         }
 
-        // 注册子分组
-        $this->group->addRule($group);
-
         if (!empty($option['cross_domain'])) {
             $this->setCrossDomainRule($group);
         }
@@ -710,30 +684,28 @@ class Route
      */
     public function resource($rule, $route = '', $option = [], $pattern = [])
     {
-        $resource = new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest);
-
-        // 添加到当前分组
-        $this->group->addRule($resource);
-
-        return $resource;
+        return new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest);
     }
 
     /**
-     * 注册控制器路由 操作方法对应不同的请求后缀
+     * 注册控制器路由 操作方法对应不同的请求前缀
      * @access public
      * @param  string    $rule 路由规则
      * @param  string    $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
-     * @return $this
+     * @return RuleGroup
      */
     public function controller($rule, $route = '', $option = [], $pattern = [])
     {
+        $group = new RuleGroup($this, $this->group, $rule, null, $option, $pattern);
+
         foreach ($this->methodPrefix as $type => $val) {
-            $this->$type($rule . '/:action', $route . '/' . $val . ':action', $option, $pattern);
+            $item = $this->$type(':action', $val . ':action');
+            $group->addRule($item, $type);
         }
 
-        return $this;
+        return $group->prefix($route . '/');
     }
 
     /**
@@ -908,7 +880,7 @@ class Route
         $result = $domain->check($this->request, $url, $depr, $completeMatch);
 
         if (false === $result && !empty($this->cross)) {
-            // 检测跨越路由
+            // 检测跨域路由
             $result = $this->cross->check($this->request, $url, $depr, $completeMatch);
         }
 
@@ -927,7 +899,6 @@ class Route
     /**
      * 检测域名的路由规则
      * @access protected
-     * @param  string    $host 当前主机地址
      * @return Domain
      */
     protected function checkDomain()
@@ -990,32 +961,20 @@ class Route
         // 提取路由规则中的变量
         $var = [];
 
-        foreach (explode('/', $rule) as $val) {
-            $optional = false;
+        if (preg_match_all('/(?:<\w+\??>|\[?\:\w+\]?)/', $rule, $matches)) {
+            foreach ($matches[0] as $name) {
+                $optional = false;
 
-            if (false !== strpos($val, '<') && preg_match_all('/<(\w+(\??))>/', $val, $matches)) {
-                foreach ($matches[1] as $name) {
-                    if (strpos($name, '?')) {
-                        $name     = substr($name, 0, -1);
-                        $optional = true;
-                    } else {
-                        $optional = false;
-                    }
-                    $var[$name] = $optional ? 2 : 1;
-                }
-            }
-
-            if (0 === strpos($val, '[:')) {
-                // 可选参数
-                $optional = true;
-                $val      = substr($val, 1, -1);
-            }
-
-            if (0 === strpos($val, ':')) {
-                // URL变量
-                $name = substr($val, 1);
-                if ('$' == substr($name, -1)) {
-                    $name = substr($name, 0, -1);
+                if (strpos($name, ']')) {
+                    $name     = substr($name, 2, -1);
+                    $optional = true;
+                } elseif (strpos($name, '?')) {
+                    $name     = substr($name, 1, -2);
+                    $optional = true;
+                } elseif (strpos($name, '>')) {
+                    $name = substr($name, 1, -1);
+                } else {
+                    $name = substr($name, 1);
                 }
 
                 $var[$name] = $optional ? 2 : 1;

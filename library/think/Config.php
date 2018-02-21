@@ -72,12 +72,11 @@ class Config implements \ArrayAccess
                 return $this->set(include $file, $name);
             } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
                 return $this->set(yaml_parse_file($file), $name);
-            } else {
-                return $this->parse($file, $type, $name);
             }
-        } else {
-            return $this->config;
+            return $this->parse($file, $type, $name);
         }
+
+        return $this->config;
     }
 
     /**

@@ -134,6 +134,8 @@ class HasOne extends OneToOne
         }
 
         if (!empty($range)) {
+            $this->query->removeWhereField($foreignKey);
+
             $data = $this->eagerlyWhere([
                 [$foreignKey, 'in', $range],
             ], $foreignKey, $relation, $subRelation, $closure);
@@ -176,7 +178,10 @@ class HasOne extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere([
+
+        $this->query->removeWhereField($foreignKey);
+
+        $data = $this->eagerlyWhere([
             [$foreignKey, '=', $result->$localKey],
         ], $foreignKey, $relation, $subRelation, $closure);
 

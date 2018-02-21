@@ -279,9 +279,9 @@ class Request
         if (array_key_exists($method, $this->hook)) {
             array_unshift($args, $this);
             return call_user_func_array($this->hook[$method], $args);
-        } else {
-            throw new Exception('method not exists:' . static::class . '->' . $method);
         }
+
+        throw new Exception('method not exists:' . static::class . '->' . $method);
     }
 
     /**
@@ -404,9 +404,27 @@ class Request
     }
 
     /**
+     * 获取当前根域名
+     * @access public
+     * @return string
+     */
+    public function rootDomain()
+    {
+        $root = $this->config->get('app.url_domain_root');
+
+        if (!$root) {
+            $item  = explode('.', $this->host());
+            $count = count($item);
+            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+        }
+
+        return $root;
+    }
+
+    /**
      * 获取当前子域名
      * @access public
-     * @return string|$this
+     * @return string
      */
     public function subDomain()
     {
@@ -437,10 +455,10 @@ class Request
     {
         if (is_null($domain)) {
             return $this->panDomain;
-        } else {
-            $this->panDomain = $domain;
-            return $this;
         }
+
+        $this->panDomain = $domain;
+        return $this;
     }
 
     /**
@@ -592,7 +610,7 @@ class Request
                 }
             }
 
-            $this->pathinfo = empty($_SERVER['PATH_INFO']) ? '/' : ltrim($_SERVER['PATH_INFO'], '/');
+            $this->pathinfo = empty($_SERVER['PATH_INFO']) || '/' == $_SERVER['PATH_INFO'] ? '/' : ltrim($_SERVER['PATH_INFO'], '/');
         }
 
         return $this->pathinfo;
@@ -1256,9 +1274,9 @@ class Request
     {
         if (is_null($filter)) {
             return $this->filter;
-        } else {
-            $this->filter = $filter;
         }
+
+        $this->filter = $filter;
     }
 
     protected function getFilter($filter, $default)
@@ -1478,9 +1496,9 @@ class Request
 
         if (true === $ajax) {
             return $result;
-        } else {
-            return $this->param($this->config->get('var_ajax')) ? true : $result;
         }
+
+        return $this->param($this->config->get('var_ajax')) ? true : $result;
     }
 
     /**
@@ -1495,9 +1513,9 @@ class Request
 
         if (true === $pjax) {
             return $result;
-        } else {
-            return $this->param($this->config->get('var_pjax')) ? true : $result;
         }
+
+        return $this->param($this->config->get('var_pjax')) ? true : $result;
     }
 
     /**
@@ -1555,9 +1573,9 @@ class Request
             return true;
         } elseif (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $_SERVER['HTTP_USER_AGENT'])) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -1655,9 +1673,9 @@ class Request
     {
         if (!empty($route)) {
             $this->routeInfo = $route;
-        } else {
-            return $this->routeInfo;
         }
+
+        return $this->routeInfo;
     }
 
     /**
@@ -1686,9 +1704,9 @@ class Request
         if (!is_null($module)) {
             $this->module = $module;
             return $this;
-        } else {
-            return $this->module ?: '';
         }
+
+        return $this->module ?: '';
     }
 
     /**
@@ -1702,9 +1720,9 @@ class Request
         if (!is_null($controller)) {
             $this->controller = $controller;
             return $this;
-        } else {
-            return $this->controller ?: '';
         }
+
+        return $this->controller ?: '';
     }
 
     /**
@@ -1718,9 +1736,9 @@ class Request
         if (!is_null($action)) {
             $this->action = $action;
             return $this;
-        } else {
-            return $this->action ?: '';
         }
+
+        return $this->action ?: '';
     }
 
     /**
@@ -1734,9 +1752,9 @@ class Request
         if (!is_null($lang)) {
             $this->langset = $lang;
             return $this;
-        } else {
-            return $this->langset ?: '';
         }
+
+        return $this->langset ?: '';
     }
 
     /**
@@ -1800,66 +1818,67 @@ class Request
             $except = [];
         }
 
-        if (false !== $key && $this->isGet() && !$this->isCheckCache) {
-            // 标记请求缓存检查
-            $this->isCheckCache = true;
-            if (false === $expire) {
-                // 关闭当前缓存
+        if (false === $key || !$this->isGet() || $this->isCheckCache || false === $expire) {
+            // 关闭当前缓存
+            return;
+        }
+
+        // 标记请求缓存检查
+        $this->isCheckCache = true;
+
+        foreach ($except as $rule) {
+            if (0 === stripos($this->url(), $rule)) {
                 return;
             }
+        }
 
-            foreach ($except as $rule) {
-                if (0 === stripos($this->url(), $rule)) {
-                    return;
+        if ($key instanceof \Closure) {
+            $key = call_user_func_array($key, [$this]);
+        } elseif (true === $key) {
+            // 自动缓存功能
+            $key = '__URL__';
+        } elseif (strpos($key, '|')) {
+            list($key, $fun) = explode('|', $key);
+        }
+
+        // 特殊规则替换
+        if (false !== strpos($key, '__')) {
+            $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$this->module, $this->controller, $this->action, md5($this->url(true))], $key);
+        }
+
+        if (false !== strpos($key, ':')) {
+            $param = $this->param();
+            foreach ($param as $item => $val) {
+                if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                    $key = str_replace(':' . $item, $val, $key);
                 }
             }
-
-            if ($key instanceof \Closure) {
-                $key = call_user_func_array($key, [$this]);
-            } elseif (true === $key) {
-                // 自动缓存功能
-                $key = '__URL__';
-            } elseif (strpos($key, '|')) {
-                list($key, $fun) = explode('|', $key);
-            }
-
-            // 特殊规则替换
-            if (false !== strpos($key, '__')) {
-                $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$this->module, $this->controller, $this->action, md5($this->url(true))], $key);
-            }
-
-            if (false !== strpos($key, ':')) {
-                $param = $this->param();
-                foreach ($param as $item => $val) {
-                    if (is_string($val) && false !== strpos($key, ':' . $item)) {
-                        $key = str_replace(':' . $item, $val, $key);
-                    }
-                }
-            } elseif (strpos($key, ']')) {
-                if ('[' . $this->ext() . ']' == $key) {
-                    // 缓存某个后缀的请求
-                    $key = md5($this->url());
-                } else {
-                    return;
-                }
-            }
-
-            if (isset($fun)) {
-                $key = $fun($key);
-            }
-            $cache = Container::get('cache');
-            if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
-                // 读取缓存
-                $response = Response::create()->code(304);
-                throw new HttpResponseException($response);
-            } elseif ($cache->has($key)) {
-                list($content, $header) = $cache->get($key);
-                $response               = Response::create($content)->header($header);
-                throw new HttpResponseException($response);
+        } elseif (strpos($key, ']')) {
+            if ('[' . $this->ext() . ']' == $key) {
+                // 缓存某个后缀的请求
+                $key = md5($this->url());
             } else {
-                $this->cache = [$key, $expire, $tag];
+                return;
             }
         }
+
+        if (isset($fun)) {
+            $key = $fun($key);
+        }
+        $cache = Container::get('cache');
+
+        if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
+            // 读取缓存
+            $response = Response::create()->code(304);
+            throw new HttpResponseException($response);
+        } elseif ($cache->has($key)) {
+            list($content, $header) = $cache->get($key);
+
+            $response = Response::create($content)->header($header);
+            throw new HttpResponseException($response);
+        }
+
+        $this->cache = [$key, $expire, $tag];
     }
 
     /**

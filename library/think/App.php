@@ -574,9 +574,9 @@ class App implements \ArrayAccess
             return $this->__get($class);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
             return $this->__get($emptyClass);
-        } else {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
+
+        throw new ClassNotFoundException('class not exists:' . $class, $class);
     }
 
     /**

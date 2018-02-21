@@ -26,17 +26,17 @@ class Resource extends RuleGroup
      * 架构函数
      * @access public
      * @param  Route         $router     路由对象
-     * @param  RuleGroup     $group      路由所属分组对象
+     * @param  RuleGroup     $parent     上级对象
      * @param  string        $name       资源名称
      * @param  string        $route      路由地址
      * @param  array         $option     路由参数
      * @param  array         $pattern    变量规则
      * @param  array         $rest       资源定义
      */
-    public function __construct(Route $router, RuleGroup $group = null, $name = '', $route = '', $option = [], $pattern = [], $rest = [])
+    public function __construct(Route $router, RuleGroup $parent = null, $name = '', $route = '', $option = [], $pattern = [], $rest = [])
     {
         $this->router   = $router;
-        $this->parent   = $group;
+        $this->parent   = $parent;
         $this->resource = $name;
         $this->route    = $route;
         $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
@@ -49,6 +49,10 @@ class Resource extends RuleGroup
         $this->pattern = $pattern;
         $this->option  = $option;
         $this->rest    = $rest;
+
+        if ($this->parent) {
+            $this->parent->addRule($this);
+        }
     }
 
     /**

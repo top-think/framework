@@ -155,23 +155,23 @@ class Container
         }
 
         if (isset($this->instances[$abstract]) && !$newInstance) {
-            $object = $this->instances[$abstract];
-        } else {
-            if (isset($this->bind[$abstract])) {
-                $concrete = $this->bind[$abstract];
+            return $this->instances[$abstract];
+        }
 
-                if ($concrete instanceof Closure) {
-                    $object = $this->invokeFunction($concrete, $vars);
-                } else {
-                    $object = $this->make($concrete, $vars, $newInstance);
-                }
+        if (isset($this->bind[$abstract])) {
+            $concrete = $this->bind[$abstract];
+
+            if ($concrete instanceof Closure) {
+                $object = $this->invokeFunction($concrete, $vars);
             } else {
-                $object = $this->invokeClass($abstract, $vars);
+                $object = $this->make($concrete, $vars, $newInstance);
             }
+        } else {
+            $object = $this->invokeClass($abstract, $vars);
+        }
 
-            if (!$newInstance) {
-                $this->instances[$abstract] = $object;
-            }
+        if (!$newInstance) {
+            $this->instances[$abstract] = $object;
         }
 
         return $object;
@@ -262,30 +262,30 @@ class Container
      */
     protected function bindParams($reflect, $vars = [])
     {
-        $args = [];
+        if ($reflect->getNumberOfParameters() == 0) {
+            return [];
+        }
 
-        if ($reflect->getNumberOfParameters() > 0) {
-            // 判断数组类型 数字数组时按顺序绑定参数
-            reset($vars);
-            $type   = key($vars) === 0 ? 1 : 0;
-            $params = $reflect->getParameters();
+        // 判断数组类型 数字数组时按顺序绑定参数
+        reset($vars);
+        $type   = key($vars) === 0 ? 1 : 0;
+        $params = $reflect->getParameters();
 
-            foreach ($params as $param) {
-                $name  = $param->getName();
-                $class = $param->getClass();
+        foreach ($params as $param) {
+            $name  = $param->getName();
+            $class = $param->getClass();
 
-                if ($class) {
-                    $className = $class->getName();
-                    $args[]    = $this->make($className);
-                } elseif (1 == $type && !empty($vars)) {
-                    $args[] = array_shift($vars);
-                } elseif (0 == $type && isset($vars[$name])) {
-                    $args[] = $vars[$name];
-                } elseif ($param->isDefaultValueAvailable()) {
-                    $args[] = $param->getDefaultValue();
-                } else {
-                    throw new InvalidArgumentException('method param miss:' . $name);
-                }
+            if ($class) {
+                $className = $class->getName();
+                $args[]    = $this->make($className);
+            } elseif (1 == $type && !empty($vars)) {
+                $args[] = array_shift($vars);
+            } elseif (0 == $type && isset($vars[$name])) {
+                $args[] = $vars[$name];
+            } elseif ($param->isDefaultValueAvailable()) {
+                $args[] = $param->getDefaultValue();
+            } else {
+                throw new InvalidArgumentException('method param miss:' . $name);
             }
         }
 
