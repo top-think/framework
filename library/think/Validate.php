@@ -1367,11 +1367,12 @@ class Validate
      * @access protected
      * @param  array     $data  数据
      * @param  string    $key  数据标识 支持二维
+     * @param  bool      $isNumericKey  是否是数字键名
      * @return mixed
      */
-    protected function getDataValue($data, $key)
+    protected function getDataValue($data, $key, $isNumericKey = true)
     {
-        if (is_numeric($key)) {
+        if (is_numeric($key) && !$isNumericKey) {
             $value = $key;
         } elseif (strpos($key, '.')) {
             // 支持二维数组验证
