@@ -743,10 +743,10 @@ abstract class Rule
             $result = $this->dispatchMethod($route);
         } elseif (0 === strpos($route, '@')) {
             // 路由到控制器
-            $result = $this->dispatchController(substr($route, 1));
+            $result = $this->dispatchController($request, substr($route, 1));
         } else {
             // 路由到模块/控制器/操作
-            $result = $this->dispatchModule($route);
+            $result = $this->dispatchModule($request, $route);
         }
 
         return $result;
@@ -771,10 +771,11 @@ abstract class Rule
     /**
      * 解析URL地址为 模块/控制器/操作
      * @access protected
+     * @param  Request   $request Request对象
      * @param  string    $route 路由地址
      * @return ControllerDispatch
      */
-    protected function dispatchController($route)
+    protected function dispatchController($request, $route)
     {
         list($route, $var) = $this->parseUrlPath($route);
 
@@ -792,15 +793,15 @@ abstract class Rule
     /**
      * 解析URL地址为 模块/控制器/操作
      * @access protected
+     * @param  Request   $request Request对象
      * @param  string    $route 路由地址
      * @return ModuleDispatch
      */
-    protected function dispatchModule($route)
+    protected function dispatchModule($request, $route)
     {
         list($path, $var) = $this->parseUrlPath($route);
 
         $config     = Container::get('config');
-        $request    = Container::get('request');
         $action     = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
         $module     = $config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
