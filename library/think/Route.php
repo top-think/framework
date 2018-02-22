@@ -137,18 +137,7 @@ class Route
         $this->domains[$this->host] = $domain;
 
         // 默认分组
-        $this->group = $this->createTopGroup($domain);
-    }
-
-    /**
-     * 创建一个域名下的顶级路由分组
-     * @access protected
-     * @param  Domain    $domain 域名
-     * @return RuleGroup
-     */
-    protected function createTopGroup(Domain $domain)
-    {
-        return new RuleGroup($this, $domain);
+        $this->group = $domain;
     }
 
     /**
@@ -227,7 +216,7 @@ class Route
             $originGroup = $this->group;
             // 设置当前域名
             $this->domain = $domainName;
-            $this->group  = $this->createTopGroup($domain);
+            $this->group  = $domain;
 
             // 解析域名路由规则
             $this->parseGroupRule($domain, $rule);

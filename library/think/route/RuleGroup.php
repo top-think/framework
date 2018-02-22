@@ -331,7 +331,7 @@ class RuleGroup extends Rule
      */
     public function prefix($prefix)
     {
-        if ($this->parent->getOption('prefix')) {
+        if ($this->parent && $this->parent->getOption('prefix')) {
             $prefix = $this->parent->getOption('prefix') . $prefix;
         }
 
