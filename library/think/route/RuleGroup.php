@@ -278,14 +278,16 @@ class RuleGroup extends Rule
                     continue;
                 }
 
-                if ($matchRule = preg_split('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, 2)) {
+                $slash = implode('', array_unique(['\/', '\-', '\\' . $depr]));
+
+                if ($matchRule = preg_split('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:\w+\]?)/', $rule, 2)) {
                     if ($matchRule[0] && 0 !== strncasecmp($rule, $url, strlen($matchRule[0]))) {
                         unset($rules[$key]);
                         continue;
                     }
                 }
 
-                if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
+                if (preg_match_all('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:?\w+\]?)/', $rule, $matches)) {
                     unset($rules[$key]);
                     $pattern = array_merge($this->getPattern(), $item->getPattern());
                     $option  = array_merge($this->getOption(), $item->getOption());
@@ -308,7 +310,7 @@ class RuleGroup extends Rule
 
             if (!isset($pos)) {
                 foreach ($regex as $key => $item) {
-                    if (0 === strpos(str_replace(['\/', '\-'], ['/', '-'], $item), $match[0])) {
+                    if (0 === strpos(str_replace(['\/', '\-', '\\' . $depr], ['/', '-', $depr], $item), $match[0])) {
                         $pos = $key;
                         break;
                     }

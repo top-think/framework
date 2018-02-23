@@ -320,13 +320,15 @@ class RuleItem extends Rule
             return false;
         }
 
-        if ($matchRule = preg_split('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:\w+\]?)/', $rule, 2)) {
+        $slash = implode('', array_unique(['\/', '\-', '\\' . $depr]));
+
+        if ($matchRule = preg_split('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:\w+\]?)/', $rule, 2)) {
             if ($matchRule[0] && 0 !== strncasecmp($rule, $url, strlen($matchRule[0]))) {
                 return false;
             }
         }
 
-        if (preg_match_all('/(?:[\/\-]<\w+\??>|[\/\-]\[?\:?\w+\]?)/', $rule, $matches)) {
+        if (preg_match_all('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:?\w+\]?)/', $rule, $matches)) {
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
