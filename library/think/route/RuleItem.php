@@ -79,7 +79,7 @@ class RuleItem extends Rule
             $this->option['complete_match'] = true;
         }
 
-        $rule = '/' != $rule ? ltrim($rule, '/') : '/';
+        $rule = '/' != $rule ? ltrim($rule, '/') : '';
 
         if ($this->parent && $prefix = $this->parent->getFullName()) {
             $rule = $prefix . ($rule ? '/' . ltrim($rule, '/') : '');
