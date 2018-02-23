@@ -26,7 +26,7 @@ class Domain extends RuleGroup
      * 架构函数
      * @access public
      * @param  Route       $router   路由对象
-     * @param  string      $name     分组名称
+     * @param  string      $name     路由域名
      * @param  mixed       $rule     域名路由
      * @param  array       $option   路由参数
      * @param  array       $pattern  变量规则
@@ -34,7 +34,7 @@ class Domain extends RuleGroup
     public function __construct(Route $router, $name = '', $rule = null, $option = [], $pattern = [])
     {
         $this->router  = $router;
-        $this->name    = trim($name, '/');
+        $this->domain  = $name;
         $this->option  = $option;
         $this->rule    = $rule;
         $this->pattern = $pattern;
@@ -52,18 +52,12 @@ class Domain extends RuleGroup
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         if ($this->rule) {
-            // 延迟解析域名路由
+            // 解析域名路由
             if ($this->rule instanceof Response) {
                 return new ResponseDispatch($this->rule);
             }
 
-            $group = new RuleGroup($this->router);
-
-            $this->addRule($group);
-
-            $this->router->setGroup($group);
-
-            $this->router->parseGroupRule($this, $this->rule);
+            $this->parseGroupRule();
 
             $this->rule = null;
         }

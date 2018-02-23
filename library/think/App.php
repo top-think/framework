@@ -335,6 +335,7 @@ class App implements \ArrayAccess
             $dispatch = $this->dispatch;
             if (empty($dispatch)) {
                 // 进行URL路由检测
+                $this->route->lazy($this->config('app.url_lazy_route'));
                 $dispatch = $this->routeCheck();
             }
 

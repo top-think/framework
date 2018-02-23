@@ -11,6 +11,7 @@
 
 namespace think\route;
 
+use think\Container;
 use think\Route;
 
 class RuleItem extends Rule
@@ -57,7 +58,10 @@ class RuleItem extends Rule
 
         $this->setRule($rule);
 
-        $this->parent->addRule($this, $method);
+        if (!empty($option['cross_domain'])) {
+            $this->router->setCrossDomainRule($this, $method);
+        }
+
     }
 
     /**
@@ -152,7 +156,20 @@ class RuleItem extends Rule
     protected function setRuleName($first = false)
     {
         if ($this->name) {
-            $this->router->setRuleName($this->rule, $this->name, $this->option, $first);
+            $vars = $this->parseVar($this->rule);
+            $name = strtolower($this->name);
+
+            if (isset($this->option['ext'])) {
+                $suffix = $this->option['ext'];
+            } elseif ($this->parent->getOption('ext')) {
+                $suffix = $this->parent->getOption('ext');
+            } else {
+                $suffix = null;
+            }
+
+            $value = [$this->rule, $vars, $this->parent->getDomain(), $suffix];
+
+            Container::get('rule_name')->set($name, $value, $first);
         }
     }
 

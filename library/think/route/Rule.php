@@ -416,7 +416,7 @@ abstract class Rule
         }
 
         if ($allow && $this->parent) {
-            $this->parent->addRule($this, 'options');
+            $this->parent->addRuleItem($this, 'options');
         }
 
         return $this->option('cross_domain', $allow);
@@ -964,6 +964,40 @@ abstract class Rule
         $regex = str_replace([')?/', ')/', ')?-', ')-', '\\\\/'], [')\/', ')\/', ')\-', ')\-', '\/'], $regex);
 
         return $regex . ($completeMatch ? '$' : '');
+    }
+
+    /**
+     * 分析路由规则中的变量
+     * @access protected
+     * @param  string    $rule 路由规则
+     * @return array
+     */
+    protected function parseVar($rule)
+    {
+        // 提取路由规则中的变量
+        $var = [];
+
+        if (preg_match_all('/(?:<\w+\??>|\[?\:\w+\]?)/', $rule, $matches)) {
+            foreach ($matches[0] as $name) {
+                $optional = false;
+
+                if (strpos($name, ']')) {
+                    $name     = substr($name, 2, -1);
+                    $optional = true;
+                } elseif (strpos($name, '?')) {
+                    $name     = substr($name, 1, -2);
+                    $optional = true;
+                } elseif (strpos($name, '>')) {
+                    $name = substr($name, 1, -1);
+                } else {
+                    $name = substr($name, 1);
+                }
+
+                $var[$name] = $optional ? 2 : 1;
+            }
+        }
+
+        return $var;
     }
 
     /**

@@ -51,25 +51,24 @@ class Resource extends RuleGroup
         $this->rest    = $rest;
 
         if ($this->parent) {
-            $this->parent->addRule($this);
+            $this->parent->addRuleItem($this);
         }
     }
 
     /**
-     * 检测分组路由
-     * @access public
-     * @param  Request      $request  请求对象
-     * @param  string       $url      访问地址
-     * @param  string       $depr     路径分隔符
-     * @param  bool         $completeMatch   路由是否完全匹配
-     * @return Dispatch
+     * 解析资源路由规则
+     * @access protected
+     * @return void
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    protected function parseGroupRule()
     {
+        $origin = $this->router->getGroup();
+        $this->router->setGroup($this);
+
         // 生成资源路由的路由规则
         $this->buildResourceRule($this->resource, $this->option);
 
-        return parent::check($request, $url, $depr, $completeMatch);
+        $this->router->setGroup($origin);
     }
 
     /**
@@ -94,11 +93,6 @@ class Resource extends RuleGroup
             $rule = implode('/', $item) . '/' . $last;
         }
 
-        // 注册分组
-        $group = $this->router->getGroup();
-
-        $this->router->setGroup($this);
-
         // 注册资源路由
         foreach ($this->rest as $key => $val) {
             if ((isset($option['only']) && !in_array($key, $option['only']))
@@ -114,10 +108,8 @@ class Resource extends RuleGroup
 
             $option['rest'] = $key;
 
-            $this->router->rule(trim($val[1], '/'), $this->route . '/' . $val[2], $val[0], $option);
+            $this->addRule(trim($val[1], '/'), $this->route . '/' . $val[2], $val[0], $option);
         }
-
-        $this->router->setGroup($group);
     }
 
     /**

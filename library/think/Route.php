@@ -77,12 +77,6 @@ class Route
     protected $group;
 
     /**
-     * 路由标识
-     * @var array
-     */
-    protected $name = [];
-
-    /**
      * 路由绑定
      * @var array
      */
@@ -101,16 +95,16 @@ class Route
     protected $cross;
 
     /**
-     * 当前路由标识
-     * @var string
-     */
-    protected $ruleName;
-
-    /**
      * 路由别名
      * @var array
      */
     protected $alias = [];
+
+    /**
+     * 路由是否延迟解析
+     * @var bool
+     */
+    protected $lazy = true;
 
     public function __construct(Request $request, Config $config)
     {
@@ -119,6 +113,18 @@ class Route
         $this->host    = $this->request->host();
 
         $this->setDefaultDomain();
+    }
+
+    /**
+     * 设置路由域名及分组（包括资源路由）是否延迟解析
+     * @access public
+     * @param  bool     $lazy   路由是否延迟解析
+     * @return $this
+     */
+    public function lazy($lazy = true)
+    {
+        $this->lazy = $lazy;
+        return $this;
     }
 
     /**
@@ -207,25 +213,8 @@ class Route
             $domainName .= '.' . $this->request->rootDomain();
         }
 
-        $route = $this->config->get('url_lazy_route') ? $rule : null;
-
-        $domain = new Domain($this, $domainName, $route, $option, $pattern);
-
-        if (is_null($route)) {
-            // 获取原始分组
-            $originGroup = $this->group;
-            // 设置当前域名
-            $this->domain = $domainName;
-            $this->group  = $domain;
-
-            // 解析域名路由规则
-            $this->parseGroupRule($domain, $rule);
-
-            // 还原默认域名
-            $this->domain = $this->host;
-            // 还原默认分组
-            $this->group = $originGroup;
-        }
+        $domain = (new Domain($this, $domainName, $rule, $option, $pattern))
+            ->lazy($this->lazy);
 
         $this->domains[$domainName] = $domain;
 
@@ -245,32 +234,6 @@ class Route
     }
 
     /**
-     * 解析分组和域名的路由规则及绑定
-     * @access public
-     * @param  RuleGroup    $group 分组路由对象
-     * @param  mixed        $rule 路由规则
-     * @return void
-     */
-    public function parseGroupRule($group, $rule)
-    {
-        if ($rule instanceof \Closure) {
-            Container::getInstance()->invokeFunction($rule);
-        } elseif ($rule instanceof Response) {
-            $group->setRule($rule);
-        } elseif (is_array($rule)) {
-            $this->rules($rule);
-        } elseif ($rule) {
-            if (false !== strpos($rule, '?')) {
-                list($rule, $query) = explode('?', $rule);
-                parse_str($query, $vars);
-                $group->append($vars);
-            }
-
-            $this->bind($rule);
-        }
-    }
-
-    /**
      * 获取域名
      * @access public
      * @return array
@@ -284,10 +247,13 @@ class Route
      * 设置路由绑定
      * @access public
      * @param  string     $bind 绑定信息
+     * @param  string     $domain 域名
      * @return $this
      */
-    public function bind($bind)
+    public function bind($bind, $domain = null)
     {
+        $domain = is_null($domain) ? $this->domain : $domain;
+
         $this->bind[$this->domain] = $bind;
 
         return $this;
@@ -325,19 +291,6 @@ class Route
     }
 
     /**
-     * 设置当前路由标识
-     * @access public
-     * @param  string     $name 路由命名标识
-     * @return $this
-     */
-    public function name($name)
-    {
-        $this->ruleName = $name;
-
-        return $this;
-    }
-
-    /**
      * 读取路由标识
      * @access public
      * @param  string    $name 路由标识
@@ -345,13 +298,7 @@ class Route
      */
     public function getName($name = null)
     {
-        if (is_null($name)) {
-            return $this->name;
-        }
-
-        $name = strtolower($name);
-
-        return isset($this->name[$name]) ? $this->name[$name] : null;
+        return Container::get('rule_name')->get($name);
     }
 
     /**
@@ -362,7 +309,7 @@ class Route
      */
     public function setName($name)
     {
-        $this->name = $name;
+        Container::get('rule_name')->import($name);
         return $this;
     }
 
@@ -436,61 +383,7 @@ class Route
      */
     public function rule($rule, $route, $method = '*', $option = [], $pattern = [])
     {
-        // 读取路由标识
-        if (is_array($rule)) {
-            $name = $rule[0];
-            $rule = $rule[1];
-        } elseif ($this->ruleName) {
-            $name = $this->ruleName;
-
-            $this->ruleName = null;
-        } elseif (is_string($route)) {
-            $name = $route;
-        } else {
-            $name = null;
-        }
-
-        $method = strtolower($method);
-
-        // 创建路由规则实例
-        $ruleItem = new RuleItem($this, $this->group, $name, $rule, $route, $method, $option, $pattern);
-
-        if (!empty($option['cross_domain'])) {
-            $this->setCrossDomainRule($ruleItem, $method);
-        }
-
-        return $ruleItem;
-    }
-
-    /**
-     * 设置路由标识 用于URL反解生成
-     * @access public
-     * @param  string    $rule      路由规则
-     * @param  string    $name      路由标识
-     * @param  array     $option    路由参数
-     * @param  bool      $first     是否插入开头
-     * @return void
-     */
-    public function setRuleName($rule, $name, $option = [], $first = false)
-    {
-        $vars = $this->parseVar($rule);
-        $name = strtolower($name);
-
-        if (isset($option['ext'])) {
-            $suffix = $option['ext'];
-        } elseif ($this->group->getOption('ext')) {
-            $suffix = $this->group->getOption('ext');
-        } else {
-            $suffix = null;
-        }
-
-        $item = [$rule, $vars, $this->domain, $suffix];
-
-        if ($first) {
-            array_unshift($this->name[$name], $item);
-        } else {
-            $this->name[$name][] = $item;
-        }
+        return $this->group->addRule($rule, $route, $method, $option, $pattern);
     }
 
     /**
@@ -506,7 +399,7 @@ class Route
             $this->cross = new RuleGroup($this);
         }
 
-        $this->cross->addRule($rule, $method);
+        $this->cross->addRuleItem($rule, $method);
 
         return $this;
     }
@@ -555,27 +448,8 @@ class Route
             $name   = isset($option['name']) ? $option['name'] : '';
         }
 
-        // 创建分组实例
-        $rule  = $this->config->get('url_lazy_route') ? $route : null;
-        $group = new RuleGroup($this, $this->group, $name, $rule, $option, $pattern);
-
-        if (is_null($rule)) {
-            // 解析分组路由
-            $parent = $this->getGroup();
-
-            $this->group = $group;
-
-            // 解析分组路由规则
-            $this->parseGroupRule($group, $route);
-
-            $this->group = $parent;
-        }
-
-        if (!empty($option['cross_domain'])) {
-            $this->setCrossDomainRule($group);
-        }
-
-        return $group;
+        return (new RuleGroup($this, $this->group, $name, $route, $option, $pattern))
+            ->lazy($this->lazy);
     }
 
     /**
@@ -673,7 +547,8 @@ class Route
      */
     public function resource($rule, $route = '', $option = [], $pattern = [])
     {
-        return new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest);
+        return (new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest))
+            ->lazy($this->lazy);
     }
 
     /**
@@ -691,7 +566,7 @@ class Route
 
         foreach ($this->methodPrefix as $type => $val) {
             $item = $this->$type(':action', $val . ':action');
-            $group->addRule($item, $type);
+            $group->addRuleItem($item, $type);
         }
 
         return $group->prefix($route . '/');
@@ -937,40 +812,6 @@ class Route
         }
 
         return $item;
-    }
-
-    /**
-     * 分析路由规则中的变量
-     * @access public
-     * @param  string    $rule 路由规则
-     * @return array
-     */
-    public function parseVar($rule)
-    {
-        // 提取路由规则中的变量
-        $var = [];
-
-        if (preg_match_all('/(?:<\w+\??>|\[?\:\w+\]?)/', $rule, $matches)) {
-            foreach ($matches[0] as $name) {
-                $optional = false;
-
-                if (strpos($name, ']')) {
-                    $name     = substr($name, 2, -1);
-                    $optional = true;
-                } elseif (strpos($name, '?')) {
-                    $name     = substr($name, 1, -2);
-                    $optional = true;
-                } elseif (strpos($name, '>')) {
-                    $name = substr($name, 1, -1);
-                } else {
-                    $name = substr($name, 1);
-                }
-
-                $var[$name] = $optional ? 2 : 1;
-            }
-        }
-
-        return $var;
     }
 
     /**

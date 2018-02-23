@@ -43,6 +43,9 @@ class RuleGroup extends Rule
     // 完整名称
     protected $fullName;
 
+    // 所在域名
+    protected $domain;
+
     /**
      * 架构函数
      * @access public
@@ -65,7 +68,12 @@ class RuleGroup extends Rule
         $this->setFullName();
 
         if ($this->parent) {
-            $this->parent->addRule($this);
+            $this->domain = $this->parent->getDomain();
+            $this->parent->addRuleItem($this);
+        }
+
+        if (!empty($option['cross_domain'])) {
+            $this->router->setCrossDomainRule($this);
         }
     }
 
@@ -84,15 +92,13 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 设置分组的路由规则
+     * 获取所属域名
      * @access public
-     * @param  mixed      $rule     路由规则
-     * @return $this
+     * @return string
      */
-    public function setRule($rule)
+    public function getDomain()
     {
-        $this->rule = $rule;
-        return $this;
+        return $this->domain;
     }
 
     /**
@@ -131,21 +137,13 @@ class RuleGroup extends Rule
             }
         }
 
+        // 解析分组路由
         if ($this->rule) {
-            // 延迟解析分组路由
             if ($this->rule instanceof Response) {
                 return new ResponseDispatch($this->rule);
             }
 
-            $group = $this->router->getGroup();
-
-            $this->router->setGroup($this);
-
-            $this->router->parseGroupRule($this, $this->rule);
-
-            $this->router->setGroup($group);
-
-            $this->rule = null;
+            $this->parseGroupRule();
         }
 
         // 分组匹配后执行的行为
@@ -206,6 +204,49 @@ class RuleGroup extends Rule
         }
 
         return $result;
+    }
+
+    /**
+     * 延迟解析分组的路由规则
+     * @access public
+     * @param  bool     $lazy   路由是否延迟解析
+     * @return $this
+     */
+    public function lazy($lazy = true)
+    {
+        if (!$lazy) {
+            $this->parseGroupRule();
+        }
+
+        return $this;
+    }
+
+    /**
+     * 解析分组和域名的路由规则及绑定
+     * @access protected
+     * @return void
+     */
+    protected function parseGroupRule()
+    {
+        $origin = $this->router->getGroup();
+        $this->router->setGroup($this);
+
+        if ($this->rule instanceof \Closure) {
+            Container::getInstance()->invokeFunction($this->rule);
+        } elseif (is_array($this->rule)) {
+            $this->router->rules($this->rule);
+        } elseif ($this->rule) {
+            if (false !== strpos($this->rule, '?')) {
+                list($rule, $query) = explode('?', $this->rule);
+                parse_str($query, $vars);
+                $this->append($vars);
+                $this->rule = $rule;
+            }
+
+            $this->router->bind($this->rule, $this->domain);
+        }
+
+        $this->router->setGroup($origin);
     }
 
     /**
@@ -311,7 +352,33 @@ class RuleGroup extends Rule
      * @param  string   $method 请求类型
      * @return $this
      */
-    public function addRule($rule, $method = '*')
+    public function addRule($rule, $route, $method = '*', $option = [], $pattern = [])
+    {
+        // 读取路由标识
+        if (is_array($rule)) {
+            $name = $rule[0];
+            $rule = $rule[1];
+        } elseif (is_string($route)) {
+            $name = $route;
+        } else {
+            $name = null;
+        }
+
+        $method = strtolower($method);
+
+        // 创建路由规则实例
+        $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method, $option, $pattern);
+
+        if (!empty($option['cross_domain'])) {
+            $this->router->setCrossDomainRule($ruleItem, $method);
+        }
+
+        $this->addRuleItem($ruleItem, $method);
+
+        return $ruleItem;
+    }
+
+    public function addRuleItem($rule, $method = '*')
     {
         if (strpos($method, '|')) {
             $rule->method($method);
