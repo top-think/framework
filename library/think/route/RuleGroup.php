@@ -234,7 +234,7 @@ class RuleGroup extends Rule
         if ($this->rule instanceof \Closure) {
             Container::getInstance()->invokeFunction($this->rule);
         } elseif (is_array($this->rule)) {
-            $this->router->rules($this->rule);
+            $this->addRules($this->rule);
         } elseif ($this->rule) {
             if (false !== strpos($this->rule, '?')) {
                 list($rule, $query) = explode('?', $this->rule);
@@ -378,6 +378,34 @@ class RuleGroup extends Rule
         $this->addRuleItem($ruleItem, $method);
 
         return $ruleItem;
+    }
+
+    /**
+     * 批量注册路由规则
+     * @access public
+     * @param  array     $rules      路由规则
+     * @param  string    $method     请求类型
+     * @param  array     $option     路由参数
+     * @param  array     $pattern    变量规则
+     * @return void
+     */
+    public function addRules($rules, $method = '*', $option = [], $pattern = [])
+    {
+        foreach ($rules as $key => $val) {
+            if (is_numeric($key)) {
+                $key = array_shift($val);
+            }
+
+            if (is_array($val)) {
+                $route   = array_shift($val);
+                $option  = $val ? array_shift($val) : [];
+                $pattern = $val ? array_shift($val) : [];
+            } else {
+                $route = $val;
+            }
+
+            $this->addRule($key, $route, $method, $option, $pattern);
+        }
     }
 
     public function addRuleItem($rule, $method = '*')

@@ -63,12 +63,10 @@ class Domain extends RuleGroup
         }
 
         // 检测别名路由
-        if ($this->router->getAlias($url) || $this->router->getAlias(strstr($url, '|', true))) {
-            // 检测路由别名
-            $result = $this->checkRouteAlias($request, $url, $depr);
-            if (false !== $result) {
-                return $result;
-            }
+        $result = $this->checkRouteAlias($request, $url, $depr);
+
+        if (false !== $result) {
+            return $result;
         }
 
         // 检测URL绑定
@@ -94,6 +92,10 @@ class Domain extends RuleGroup
         $array = explode('|', $url);
         $alias = array_shift($array);
         $item  = $this->router->getAlias($alias);
+
+        if (is_null($item)) {
+            return false;
+        }
 
         if (is_array($item)) {
             list($rule, $option) = $item;
