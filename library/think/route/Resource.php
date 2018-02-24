@@ -87,7 +87,7 @@ class Resource extends RuleGroup
             $item  = [];
 
             foreach ($array as $val) {
-                $item[] = $val . '/:' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id');
+                $item[] = $val . '/<' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id') . '>';
             }
 
             $rule = implode('/', $item) . '/' . $last;
@@ -100,10 +100,10 @@ class Resource extends RuleGroup
                 continue;
             }
 
-            if (isset($last) && strpos($val[1], ':id') && isset($option['var'][$last])) {
-                $val[1] = str_replace(':id', ':' . $option['var'][$last], $val[1]);
-            } elseif (strpos($val[1], ':id') && isset($option['var'][$rule])) {
-                $val[1] = str_replace(':id', ':' . $option['var'][$rule], $val[1]);
+            if (isset($last) && strpos($val[1], '<id>') && isset($option['var'][$last])) {
+                $val[1] = str_replace('<id>', '<' . $option['var'][$last] . '>', $val[1]);
+            } elseif (strpos($val[1], '<id>') && isset($option['var'][$rule])) {
+                $val[1] = str_replace('<id>', '<' . $option['var'][$rule] . '>', $val[1]);
             }
 
             $option['rest'] = $key;
