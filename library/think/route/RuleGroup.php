@@ -84,6 +84,10 @@ class RuleGroup extends Rule
      */
     protected function setFullName()
     {
+        if (false !== strpos($this->name, ':')) {
+            $this->name = preg_replace(['/\[\:(\w+)\]/', '/\:(\w+)/'], ['<\1?>', '<\1>'], $this->name);
+        }
+
         if ($this->parent && $this->parent->getFullName()) {
             $this->fullName = $this->parent->getFullName() . ($this->name ? '/' . $this->name : '');
         } else {
@@ -124,7 +128,7 @@ class RuleGroup extends Rule
 
         if ($this->fullName) {
             // 分组URL匹配检查
-            $pos = strpos(str_replace('<', ':', $this->fullName), ':');
+            $pos = strpos($this->fullName, '<');
 
             if (false !== $pos) {
                 $str = substr($this->fullName, 0, $pos);
@@ -270,7 +274,7 @@ class RuleGroup extends Rule
 
                 $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
 
-                if (false === strpos($rule, ':') && false === strpos($rule, '<')) {
+                if (false === strpos($rule, '<')) {
                     if (($complete && 0 === strcasecmp($rule, $url)) || (!$complete && 0 === strncasecmp($rule, $url, strlen($rule)))) {
                         return $item->checkHasMatchRule($request, $url);
                     }
@@ -279,16 +283,16 @@ class RuleGroup extends Rule
                     continue;
                 }
 
-                $slash = implode('', array_unique(['\/', '\-', '\\' . $depr]));
+                $slash = preg_quote('/-' . $depr, '/');
 
-                if ($matchRule = preg_split('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:\w+\]?)/', $rule, 2)) {
+                if ($matchRule = preg_split('/[' . $slash . ']<\w+\??>/', $rule, 2)) {
                     if ($matchRule[0] && 0 !== strncasecmp($rule, $url, strlen($matchRule[0]))) {
                         unset($rules[$key]);
                         continue;
                     }
                 }
 
-                if (preg_match_all('/(?:[' . $slash . ']?<\w+\??>|[' . $slash . ']?\[?\:?\w+\]?)/', $rule, $matches)) {
+                if (preg_match_all('/[' . $slash . ']?<?\w+\??>?/', $rule, $matches)) {
                     unset($rules[$key]);
                     $pattern = array_merge($this->getPattern(), $item->getPattern());
                     $option  = array_merge($this->getOption(), $item->getOption());

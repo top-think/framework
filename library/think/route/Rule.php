@@ -934,32 +934,7 @@ abstract class Rule
     protected function buildRuleRegex($rule, $match, $pattern = [], $option = [], $completeMatch = false, $suffix = '')
     {
         foreach ($match as $name) {
-            $optional = '';
-            $slash    = substr($name, 0, 1);
-            if (in_array($slash, ['/', '-'])) {
-                $prefix = '\\' . $slash;
-                $name   = substr($name, 1);
-                $slash  = substr($name, 0, 1);
-            } else {
-                $prefix = '';
-            }
-
-            if (!in_array($slash, [':', '[', '<'])) {
-                $replace[] = $prefix . preg_quote($name, '/');
-                continue;
-            } elseif (strpos($name, ']')) {
-                $name     = substr($name, 2, -1);
-                $optional = '?';
-            } elseif (strpos($name, '?')) {
-                $name     = substr($name, 1, -2);
-                $optional = '?';
-            } elseif (strpos($name, '>')) {
-                $name = substr($name, 1, -1);
-            } elseif (false !== strpos($name, ':')) {
-                $name = substr($name, 1);
-            }
-
-            $replace[] = '(' . $prefix . '(?<' . $name . $suffix . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
+            $replace[] = $this->buildNameRegex($name, $pattern, $suffix);
         }
 
         // 是否区分 / 地址访问
@@ -974,6 +949,43 @@ abstract class Rule
     }
 
     /**
+     * 生成路由变量的正则规则
+     * @access protected
+     * @param  string    $name      路由变量
+     * @param  string    $pattern   变量规则
+     * @param  string    $suffix    路由正则变量后缀
+     * @return string
+     */
+    protected function buildNameRegex($name, $pattern, $suffix)
+    {
+        $optional = '';
+        $slash    = substr($name, 0, 1);
+
+        if (in_array($slash, ['/', '-'])) {
+            $prefix = '\\' . $slash;
+            $name   = substr($name, 1);
+            $slash  = substr($name, 0, 1);
+        } else {
+            $prefix = '';
+        }
+
+        if ('<' != $slash) {
+            return $prefix . preg_quote($name, '/');
+        }
+
+        if (strpos($name, '?')) {
+            $name     = substr($name, 1, -2);
+            $optional = '?';
+        } elseif (strpos($name, '>')) {
+            $name = substr($name, 1, -1);
+        }
+
+        $nameRule = isset($pattern[$name]) ? $pattern[$name] : '\w+';
+
+        return '(' . $prefix . '(?<' . $name . $suffix . '>' . $nameRule . '))' . $optional;
+    }
+
+    /**
      * 分析路由规则中的变量
      * @access protected
      * @param  string    $rule 路由规则
@@ -984,20 +996,15 @@ abstract class Rule
         // 提取路由规则中的变量
         $var = [];
 
-        if (preg_match_all('/(?:<\w+\??>|\[?\:\w+\]?)/', $rule, $matches)) {
+        if (preg_match_all('/<\w+\??>/', $rule, $matches)) {
             foreach ($matches[0] as $name) {
                 $optional = false;
 
-                if (strpos($name, ']')) {
-                    $name     = substr($name, 2, -1);
-                    $optional = true;
-                } elseif (strpos($name, '?')) {
+                if (strpos($name, '?')) {
                     $name     = substr($name, 1, -2);
                     $optional = true;
-                } elseif (strpos($name, '>')) {
-                    $name = substr($name, 1, -1);
                 } else {
-                    $name = substr($name, 1);
+                    $name = substr($name, 1, -1);
                 }
 
                 $var[$name] = $optional ? 2 : 1;

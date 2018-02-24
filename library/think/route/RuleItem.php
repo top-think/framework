@@ -61,7 +61,6 @@ class RuleItem extends Rule
         if (!empty($option['cross_domain'])) {
             $this->router->setCrossDomainRule($this, $method);
         }
-
     }
 
     /**
@@ -85,7 +84,11 @@ class RuleItem extends Rule
             $rule = $prefix . ($rule ? '/' . ltrim($rule, '/') : '');
         }
 
-        $this->rule = $rule;
+        if (false !== strpos($rule, ':')) {
+            $this->rule = preg_replace(['/\[\:(\w+)\]/', '/\:(\w+)/'], ['<\1?>', '<\1>'], $rule);
+        } else {
+            $this->rule = $rule;
+        }
 
         // 生成路由标识的快捷访问
         $this->setRuleName();
@@ -313,22 +316,22 @@ class RuleItem extends Rule
         $url  = $depr . str_replace('|', $depr, $url);
         $rule = $depr . str_replace('/', $depr, $this->rule);
 
-        if (false === strpos($rule, ':') && false === strpos($rule, '<')) {
+        if (false === strpos($rule, '<')) {
             if (($completeMatch && 0 === strcasecmp($rule, $url)) || (!$completeMatch && 0 === strncasecmp($rule, $url, strlen($rule)))) {
                 return $var;
             }
             return false;
         }
 
-        $slash = implode('', array_unique(['\/', '\-', '\\' . $depr]));
-
-        if ($matchRule = preg_split('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:\w+\]?)/', $rule, 2)) {
+        if ($matchRule = preg_split('/<\w+\??>/', $rule, 2)) {
             if ($matchRule[0] && 0 !== strncasecmp($rule, $url, strlen($matchRule[0]))) {
                 return false;
             }
         }
 
-        if (preg_match_all('/(?:[' . $slash . ']?<\w+\??>|[' . $slash . ']?\[?\:?\w+\]?)/', $rule, $matches)) {
+        $slash = preg_quote('/-' . $depr, '/');
+
+        if (preg_match_all('/[' . $slash . ']?<?\w+\??>?/', $rule, $matches)) {
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
