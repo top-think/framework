@@ -11,6 +11,9 @@
 
 namespace think\route;
 
+use think\Container;
+use think\Route;
+
 class AliasRule extends Domain
 {
     /**
