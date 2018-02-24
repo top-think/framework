@@ -244,7 +244,7 @@ class MorphMany extends Relation
     protected function eagerlyMorphToMany($where, $relation, $subRelation = '', $closure = false)
     {
         // 预载入关联查询 支持嵌套预载入
-        $this->query->removeOptions('where');
+        $this->query->removeOption('where');
 
         if ($closure) {
             $closure($this->query);
