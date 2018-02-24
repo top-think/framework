@@ -89,49 +89,14 @@ class Domain extends RuleGroup
      */
     private function checkRouteAlias($request, $url, $depr)
     {
-        $array = explode('|', $url);
-        $alias = array_shift($array);
+        $alias = strpos($url, '|') ? strstr($url, '|', true) : $url;
         $item  = $this->router->getAlias($alias);
 
         if (is_null($item)) {
             return false;
         }
 
-        if (is_array($item)) {
-            list($rule, $option) = $item;
-            $action              = $array[0];
-
-            if (isset($option['allow']) && !in_array($action, explode(',', $option['allow']))) {
-                // 允许操作
-                return false;
-            } elseif (isset($option['except']) && in_array($action, explode(',', $option['except']))) {
-                // 排除操作
-                return false;
-            }
-
-            if (isset($option['method'][$action])) {
-                $option['method'] = $option['method'][$action];
-            }
-        } else {
-            $rule = $item;
-        }
-
-        $bind = implode('|', $array);
-
-        // 参数有效性检查
-        if (isset($option) && !$this->checkOption($option, $request)) {
-            // 路由不匹配
-            return false;
-        } elseif (0 === strpos($rule, '\\')) {
-            // 路由到类
-            return $this->bindToClass($bind, substr($rule, 1), $depr);
-        } elseif (0 === strpos($rule, '@')) {
-            // 路由到控制器类
-            return $this->bindToController($bind, substr($rule, 1), $depr);
-        } else {
-            // 路由到模块/控制器
-            return $this->bindToModule($bind, $rule, $depr);
-        }
+        return $item->check($request, $url, $depr);
     }
 
     /**

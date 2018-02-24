@@ -936,23 +936,30 @@ abstract class Rule
         foreach ($match as $name) {
             $optional = '';
             $slash    = substr($name, 0, 1);
-
-            if (strpos($name, ']')) {
-                $name     = substr($name, 3, -1);
-                $optional = '?';
-            } elseif (strpos($name, '?')) {
-                $name     = substr($name, 2, -2);
-                $optional = '?';
-            } elseif (strpos($name, '>')) {
-                $name = substr($name, 2, -1);
-            } elseif (strpos($name, ':')) {
-                $name = substr($name, 2);
+            if (in_array($slash, ['/', '-'])) {
+                $prefix = '\\' . $slash;
+                $name   = substr($name, 1);
+                $slash  = substr($name, 0, 1);
             } else {
-                $replace[] = '\\' . $name;
-                continue;
+                $prefix = '';
             }
 
-            $replace[] = '(\\' . $slash . '(?<' . $name . $suffix . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
+            if (!in_array($slash, [':', '[', '<'])) {
+                $replace[] = $prefix . preg_quote($name, '/');
+                continue;
+            } elseif (strpos($name, ']')) {
+                $name     = substr($name, 2, -1);
+                $optional = '?';
+            } elseif (strpos($name, '?')) {
+                $name     = substr($name, 1, -2);
+                $optional = '?';
+            } elseif (strpos($name, '>')) {
+                $name = substr($name, 1, -1);
+            } elseif (false !== strpos($name, ':')) {
+                $name = substr($name, 1);
+            }
+
+            $replace[] = '(' . $prefix . '(?<' . $name . $suffix . '>' . (isset($pattern[$name]) ? $pattern[$name] : '\w+') . '))' . $optional;
         }
 
         // 是否区分 / 地址访问

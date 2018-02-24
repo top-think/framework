@@ -216,6 +216,7 @@ class RuleGroup extends Rule
     {
         if (!$lazy) {
             $this->parseGroupRule();
+            $this->rule = null;
         }
 
         return $this;
@@ -287,7 +288,7 @@ class RuleGroup extends Rule
                     }
                 }
 
-                if (preg_match_all('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:?\w+\]?)/', $rule, $matches)) {
+                if (preg_match_all('/(?:[' . $slash . ']?<\w+\??>|[' . $slash . ']?\[?\:?\w+\]?)/', $rule, $matches)) {
                     unset($rules[$key]);
                     $pattern = array_merge($this->getPattern(), $item->getPattern());
                     $option  = array_merge($this->getOption(), $item->getOption());

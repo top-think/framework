@@ -328,7 +328,7 @@ class RuleItem extends Rule
             }
         }
 
-        if (preg_match_all('/(?:[' . $slash . ']<\w+\??>|[' . $slash . ']\[?\:?\w+\]?)/', $rule, $matches)) {
+        if (preg_match_all('/(?:[' . $slash . ']?<\w+\??>|[' . $slash . ']?\[?\:?\w+\]?)/', $rule, $matches)) {
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {

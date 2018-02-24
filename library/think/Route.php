@@ -12,6 +12,7 @@
 namespace think;
 
 use think\exception\RouteNotFoundException;
+use think\route\AliasRule;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
 use think\route\Resource;
@@ -71,8 +72,8 @@ class Route
     protected $domain;
 
     /**
-     * 当前分组
-     * @var string
+     * 当前分组对象
+     * @var RuleGroup
      */
     protected $group;
 
@@ -381,7 +382,7 @@ class Route
      * @param  array     $pattern    变量规则
      * @return RuleItem
      */
-    public function rule($rule, $route, $method = '*', $option = [], $pattern = [])
+    public function rule($rule, $route, $method = '*', array $option = [], array $pattern = [])
     {
         return $this->group->addRule($rule, $route, $method, $option, $pattern);
     }
@@ -413,7 +414,7 @@ class Route
      * @param  array     $pattern    变量规则
      * @return void
      */
-    public function rules($rules, $method = '*', $option = [], $pattern = [])
+    public function rules($rules, $method = '*', array $option = [], array $pattern = [])
     {
         $this->group->addRules($rules, $method, $option, $pattern);
     }
@@ -427,7 +428,7 @@ class Route
      * @param  array             $pattern    变量规则
      * @return RuleGroup
      */
-    public function group($name, $route, $option = [], $pattern = [])
+    public function group($name, $route, array $option = [], array $pattern = [])
     {
         if (is_array($name)) {
             $option = $name;
@@ -442,12 +443,12 @@ class Route
      * 注册路由
      * @access public
      * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  mixed     $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
      * @return RuleItem
      */
-    public function any($rule, $route = '', $option = [], $pattern = [])
+    public function any($rule, $route = '', array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $route, '*', $option, $pattern);
     }
@@ -456,12 +457,12 @@ class Route
      * 注册GET路由
      * @access public
      * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  mixed     $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
      * @return RuleItem
      */
-    public function get($rule, $route = '', $option = [], $pattern = [])
+    public function get($rule, $route = '', array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $route, 'GET', $option, $pattern);
     }
@@ -470,12 +471,12 @@ class Route
      * 注册POST路由
      * @access public
      * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  mixed     $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
      * @return RuleItem
      */
-    public function post($rule, $route = '', $option = [], $pattern = [])
+    public function post($rule, $route = '', array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $route, 'POST', $option, $pattern);
     }
@@ -484,12 +485,12 @@ class Route
      * 注册PUT路由
      * @access public
      * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  mixed     $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
      * @return RuleItem
      */
-    public function put($rule, $route = '', $option = [], $pattern = [])
+    public function put($rule, $route = '', array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $route, 'PUT', $option, $pattern);
     }
@@ -498,12 +499,12 @@ class Route
      * 注册DELETE路由
      * @access public
      * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  mixed     $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
      * @return RuleItem
      */
-    public function delete($rule, $route = '', $option = [], $pattern = [])
+    public function delete($rule, $route = '', array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $route, 'DELETE', $option, $pattern);
     }
@@ -512,12 +513,12 @@ class Route
      * 注册PATCH路由
      * @access public
      * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  mixed     $route 路由地址
      * @param  array     $option 路由参数
      * @param  array     $pattern 变量规则
      * @return RuleItem
      */
-    public function patch($rule, $route = '', $option = [], $pattern = [])
+    public function patch($rule, $route = '', array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $route, 'PATCH', $option, $pattern);
     }
@@ -531,7 +532,7 @@ class Route
      * @param  array     $pattern 变量规则
      * @return Resource
      */
-    public function resource($rule, $route = '', $option = [], $pattern = [])
+    public function resource($rule, $route = '', array $option = [], array $pattern = [])
     {
         return (new Resource($this, $this->group, $rule, $route, $option, $pattern, $this->rest))
             ->lazy($this->lazy);
@@ -546,7 +547,7 @@ class Route
      * @param  array     $pattern 变量规则
      * @return RuleGroup
      */
-    public function controller($rule, $route = '', $option = [], $pattern = [])
+    public function controller($rule, $route = '', array $option = [], array $pattern = [])
     {
         $group = new RuleGroup($this, $this->group, $rule, null, $option, $pattern);
 
@@ -568,7 +569,7 @@ class Route
      * @param  array        $pattern 变量规则
      * @return RuleItem
      */
-    public function view($rule, $template = '', $vars = [], $option = [], $pattern = [])
+    public function view($rule, $template = '', array $vars = [], array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $template, 'GET', $option, $pattern)->view($vars);
     }
@@ -583,7 +584,7 @@ class Route
      * @param  array        $pattern 变量规则
      * @return RuleItem
      */
-    public function redirect($rule, $route = '', $status = 301, $option = [], $pattern = [])
+    public function redirect($rule, $route = '', $status = 301, array $option = [], array $pattern = [])
     {
         return $this->rule($rule, $route, '*', $option, $pattern)->redirect()->status($status);
     }
@@ -591,20 +592,18 @@ class Route
     /**
      * 注册别名路由
      * @access public
-     * @param  string|array  $rule 路由别名
-     * @param  string        $route 路由地址
-     * @param  array         $option 路由参数
-     * @return $this
+     * @param  string  $rule 路由别名
+     * @param  string  $route 路由地址
+     * @param  array   $option 路由参数
+     * @return AliasRule
      */
-    public function alias($rule = null, $route = '', $option = [])
+    public function alias($rule, $route, array $option = [])
     {
-        if (is_array($rule)) {
-            $this->alias = array_merge($this->alias, $rule);
-        } else {
-            $this->alias[$rule] = $option ? [$route, $option] : $route;
-        }
+        $aliasRule = new AliasRule($this, $this->group, $rule, $route, $option);
 
-        return $this;
+        $this->alias[$rule] = $aliasRule;
+
+        return $aliasRule;
     }
 
     /**
@@ -695,7 +694,7 @@ class Route
      * @param  array     $option 路由参数
      * @return RuleItem
      */
-    public function miss($route, $method = '*', $option = [])
+    public function miss($route, $method = '*', array $option = [])
     {
         return $this->rule('', $route, $method, $option)->isMiss();
     }
