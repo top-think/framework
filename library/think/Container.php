@@ -77,6 +77,27 @@ class Container
     }
 
     /**
+     * 移除容器中的对象实例
+     * @access public
+     * @param  string  $abstract    类标识、接口
+     * @return void
+     */
+    public static function remove($abstract)
+    {
+        return static::getInstance()->delete($abstract);
+    }
+
+    /**
+     * 清除容器中的对象实例
+     * @access public
+     * @return void
+     */
+    public static function clear()
+    {
+        return static::getInstance()->flush();
+    }
+
+    /**
      * 绑定一个类、闭包、实例、接口实现到容器
      * @access public
      * @param  string|array  $abstract    类标识、接口
@@ -175,6 +196,30 @@ class Container
         }
 
         return $object;
+    }
+
+    /**
+     * 删除容器中的对象实例
+     * @access public
+     * @param  string    $abstract    类名或者标识
+     * @return void
+     */
+    public function delete($abstract)
+    {
+        if (isset($this->instances[$abstract])) {
+            unset($this->instances[$abstract]);
+        }
+    }
+
+    /**
+     * 清除容器中的对象实例
+     * @access public
+     * @return void
+     */
+    public function flush()
+    {
+        $this->instances = [];
+        $this->bind      = [];
     }
 
     /**
