@@ -36,6 +36,14 @@ class AliasRule extends Domain
         $this->option = $option;
     }
 
+    /**
+     * 检测域名路由
+     * @access public
+     * @param  Request      $request  请求对象
+     * @param  string       $url      访问地址
+     * @param  string       $depr     路径分隔符
+     * @return Dispatch|false
+     */
     public function check($request, $url, $depr = '/')
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
@@ -97,16 +105,33 @@ class AliasRule extends Domain
         }
     }
 
+    /**
+     * 设置允许的操作方法
+     * @access public
+     * @param  array      $action  操作方法
+     * @return $this
+     */
     public function allow($action = [])
     {
         return $this->option('allow', $action);
     }
 
+    /**
+     * 设置排除的操作方法
+     * @access public
+     * @param  array      $action  操作方法
+     * @return $this
+     */
     public function except($action = [])
     {
         return $this->option('except', $action);
     }
 
+    /**
+     * 获取当前的路由
+     * @access public
+     * @return string
+     */
     public function getRoute()
     {
         return $this->route;
