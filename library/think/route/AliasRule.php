@@ -16,6 +16,8 @@ use think\Route;
 
 class AliasRule extends Domain
 {
+    protected $route;
+
     /**
      * 架构函数
      * @access public
@@ -103,5 +105,10 @@ class AliasRule extends Domain
     public function except($action = [])
     {
         return $this->option('except', $action);
+    }
+
+    public function getRoute()
+    {
+        return $this->route;
     }
 }

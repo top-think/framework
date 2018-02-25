@@ -123,10 +123,8 @@ class Url
 
             if ($alias) {
                 // 别名路由解析
-                foreach ($alias as $key => $val) {
-                    if (is_array($val)) {
-                        $val = $val[0];
-                    }
+                foreach ($alias as $key => $item) {
+                    $val = $item->gerRoute();
 
                     if (0 === strpos($url, $val)) {
                         $url        = $key . substr($url, strlen($val));
