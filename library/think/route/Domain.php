@@ -80,6 +80,19 @@ class Domain extends RuleGroup
     }
 
     /**
+     * 设置路由绑定
+     * @access public
+     * @param  string     $bind 绑定信息
+     * @return $this
+     */
+    public function bind($bind)
+    {
+        $this->router->bind($bind, $this->domain);
+
+        return $this;
+    }
+
+    /**
      * 检测路由别名
      * @access private
      * @param  Request   $request
