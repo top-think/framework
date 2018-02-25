@@ -240,7 +240,7 @@ class Container
 
             return $reflect->invokeArgs($args);
         } catch (ReflectionException $e) {
-            throw new Exception('method not exists:' . $function);
+            throw new Exception('function not exists: ' . $function . '()');
         }
     }
 
@@ -266,7 +266,7 @@ class Container
 
             return $reflect->invokeArgs(isset($class) ? $class : null, $args);
         } catch (ReflectionException $e) {
-            throw new Exception('method not exists:' . $function);
+            throw new Exception('method not exists: ' . (is_array($method) ? $method[0] . '::' . $method[1] : $method) . '()');
         }
     }
 
@@ -304,7 +304,7 @@ class Container
 
             return $reflect->newInstanceArgs($args);
         } catch (ReflectionException $e) {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
+            throw new ClassNotFoundException('class not exists: ' . $class, $class);
         }
     }
 
