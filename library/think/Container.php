@@ -14,8 +14,10 @@ namespace think;
 use Closure;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
+use think\exception\ClassNotFoundException;
 
 class Container
 {
@@ -225,84 +227,92 @@ class Container
     /**
      * 执行函数或者闭包方法 支持参数调用
      * @access public
-     * @param  string|array|\Closure $function 函数或者闭包
-     * @param  array                 $vars     变量
+     * @param  mixed  $function 函数或者闭包
+     * @param  array  $vars     参数
      * @return mixed
      */
     public function invokeFunction($function, $vars = [])
     {
-        $reflect = new ReflectionFunction($function);
-        $args    = $this->bindParams($reflect, $vars);
+        try {
+            $reflect = new ReflectionFunction($function);
 
-        return $reflect->invokeArgs($args);
+            $args = $this->bindParams($reflect, $vars);
+
+            return $reflect->invokeArgs($args);
+        } catch (ReflectionException $e) {
+            throw new Exception('method not exists:' . $function);
+        }
     }
 
     /**
      * 调用反射执行类的方法 支持参数绑定
      * @access public
-     * @param  string|array $method 方法
-     * @param  array        $vars   变量
+     * @param  mixed   $method 方法
+     * @param  array   $vars   参数
      * @return mixed
      */
     public function invokeMethod($method, $vars = [])
     {
-        if (is_array($method)) {
-            $class   = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
-            $reflect = new ReflectionMethod($class, $method[1]);
-        } else {
-            // 静态方法
-            $reflect = new ReflectionMethod($method);
+        try {
+            if (is_array($method)) {
+                $class   = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
+                $reflect = new ReflectionMethod($class, $method[1]);
+            } else {
+                // 静态方法
+                $reflect = new ReflectionMethod($method);
+            }
+
+            $args = $this->bindParams($reflect, $vars);
+
+            return $reflect->invokeArgs(isset($class) ? $class : null, $args);
+        } catch (ReflectionException $e) {
+            throw new Exception('method not exists:' . $function);
         }
-
-        $args = $this->bindParams($reflect, $vars);
-
-        return $reflect->invokeArgs(isset($class) ? $class : null, $args);
     }
 
     /**
      * 调用反射执行callable 支持参数绑定
      * @access public
      * @param  mixed $callable
-     * @param  array $vars   变量
+     * @param  array $vars   参数
      * @return mixed
      */
     public function invoke($callable, $vars = [])
     {
         if ($callable instanceof Closure) {
-            $result = $this->invokeFunction($callable, $vars);
-        } else {
-            $result = $this->invokeMethod($callable, $vars);
+            return $this->invokeFunction($callable, $vars);
         }
 
-        return $result;
+        return $this->invokeMethod($callable, $vars);
     }
 
     /**
      * 调用反射执行类的实例化 支持依赖注入
      * @access public
      * @param  string    $class 类名
-     * @param  array     $vars  变量
+     * @param  array     $vars  参数
      * @return mixed
      */
     public function invokeClass($class, $vars = [])
     {
-        $reflect     = new ReflectionClass($class);
-        $constructor = $reflect->getConstructor();
+        try {
+            $reflect = new ReflectionClass($class);
 
-        if ($constructor) {
-            $args = $this->bindParams($constructor, $vars);
-        } else {
-            $args = [];
+            $constructor = $reflect->getConstructor();
+
+            $args = $constructor ? $this->bindParams($constructor, $vars) : [];
+
+            return $reflect->newInstanceArgs($args);
+        } catch (ReflectionException $e) {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
-
-        return $reflect->newInstanceArgs($args);
     }
 
     /**
      * 绑定参数
      * @access protected
      * @param  \ReflectionMethod|\ReflectionFunction $reflect 反射类
-     * @param  array                                 $vars    变量
+     * @param  array                                 $vars    参数
      * @return array
      */
     protected function bindParams($reflect, $vars = [])

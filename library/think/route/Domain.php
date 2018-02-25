@@ -90,13 +90,10 @@ class Domain extends RuleGroup
     private function checkRouteAlias($request, $url, $depr)
     {
         $alias = strpos($url, '|') ? strstr($url, '|', true) : $url;
-        $item  = $this->router->getAlias($alias);
 
-        if (is_null($item)) {
-            return false;
-        }
+        $item = $this->router->getAlias($alias);
 
-        return $item->check($request, $url, $depr);
+        return $item ? $item->check($request, $url, $depr) : false;
     }
 
     /**
@@ -106,24 +103,26 @@ class Domain extends RuleGroup
      * @param  string    $depr URL分隔符
      * @return Dispatch|false
      */
-    private function checkUrlBind(&$url, $depr = '/')
+    private function checkUrlBind($url, $depr = '/')
     {
-        $bind = $this->router->getBind($this->name);
+        $bind = $this->router->getBind($this->domain);
 
         if (!empty($bind)) {
             // 记录绑定信息
             Container::get('app')->log('[ BIND ] ' . var_export($bind, true));
 
             // 如果有URL绑定 则进行绑定检测
-            if (0 === strpos($bind, '\\')) {
-                // 绑定到类
-                return $this->bindToClass($url, substr($bind, 1), $depr);
-            } elseif (0 === strpos($bind, '@')) {
-                // 绑定到控制器类
-                return $this->bindToController($url, substr($bind, 1), $depr);
-            } elseif (0 === strpos($bind, ':')) {
-                // 绑定到命名空间
-                return $this->bindToNamespace($url, substr($bind, 1), $depr);
+            $type = substr($bind, 0, 1);
+            $bind = substr($bind, 1);
+
+            $bindTo = [
+                '\\' => 'bindToClass',
+                '@'  => 'bindToController',
+                ':'  => 'bindToNamespace',
+            ];
+
+            if (isset($bindTo[$type])) {
+                return $this->{$bindTo[$type]}($url, $bind, $depr);
             }
         }
 
@@ -132,15 +131,13 @@ class Domain extends RuleGroup
 
     /**
      * 绑定到类
-     * @access public
+     * @access protected
      * @param  string    $url URL地址
      * @param  string    $class 类名（带命名空间）
-     * @param  string    $depr URL分隔符
      * @return CallbackDispatch
      */
-    public function bindToClass($url, $class, $depr = '/')
+    protected function bindToClass($url, $class)
     {
-        $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
 
@@ -153,15 +150,13 @@ class Domain extends RuleGroup
 
     /**
      * 绑定到命名空间
-     * @access public
+     * @access protected
      * @param  string    $url URL地址
      * @param  string    $namespace 命名空间
-     * @param  string    $depr URL分隔符
      * @return CallbackDispatch
      */
-    public function bindToNamespace($url, $namespace, $depr = '/')
+    protected function bindToNamespace($url, $namespace)
     {
-        $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 3);
         $class  = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_controller');
         $method = !empty($array[1]) ? $array[1] : Container::get('config')->get('default_action');
@@ -175,15 +170,13 @@ class Domain extends RuleGroup
 
     /**
      * 绑定到控制器类
-     * @access public
+     * @access protected
      * @param  string    $url URL地址
      * @param  string    $controller 控制器名 （支持带模块名 index/user ）
-     * @param  string    $depr URL分隔符
      * @return ControllerDispatch
      */
-    public function bindToController($url, $controller, $depr = '/')
+    protected function bindToController($url, $controller)
     {
-        $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
 
@@ -196,15 +189,13 @@ class Domain extends RuleGroup
 
     /**
      * 绑定到模块/控制器
-     * @access public
+     * @access protected
      * @param  string    $url URL地址
      * @param  string    $controller 控制器类名（带命名空间）
-     * @param  string    $depr URL分隔符
      * @return ModuleDispatch
      */
-    public function bindToModule($url, $controller, $depr = '/')
+    protected function bindToModule($url, $controller)
     {
-        $url    = str_replace($depr, '|', $url);
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
 
