@@ -56,9 +56,7 @@ class AliasRule extends Domain
             return false;
         }
 
-        $array = explode('|', $url);
-        array_shift($array);
-        $action = $array[1];
+        list($action, $bind) = array_pad(explode('|', $url, 2), 2, '');
 
         if (isset($this->option['allow']) && !in_array($action, $this->option['allow'])) {
             // 允许操作
@@ -91,12 +89,10 @@ class AliasRule extends Domain
             $request->route($this->option['append']);
         }
 
-        $bind = implode('|', $array);
-
         if (0 === strpos($this->route, '\\')) {
             // 路由到类
             return $this->bindToClass($bind, substr($this->route, 1), $depr);
-        } elseif (0 === strpos($rule, '@')) {
+        } elseif (0 === strpos($this->route, '@')) {
             // 路由到控制器类
             return $this->bindToController($bind, substr($this->route, 1), $depr);
         } else {
