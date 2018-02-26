@@ -130,7 +130,8 @@ class HasOne extends OneToOne
         }
 
         if (!empty($range)) {
-            $data = $this->eagerlyWhere($this, [
+            $this->query->removeWhereField($foreignKey);
+            $data = $this->eagerlyWhere($this->query, [
                 $foreignKey => [
                     'in',
                     $range,
@@ -172,7 +173,8 @@ class HasOne extends OneToOne
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $data       = $this->eagerlyWhere($this, [$foreignKey => $result->$localKey], $foreignKey, $relation, $subRelation, $closure);
+        $this->query->removeWhereField($foreignKey);
+        $data = $this->eagerlyWhere($this->query, [$foreignKey => $result->$localKey], $foreignKey, $relation, $subRelation, $closure);
 
         // 关联模型
         if (!isset($data[$result->$localKey])) {
@@ -190,4 +192,20 @@ class HasOne extends OneToOne
         }
     }
 
+    /**
+     * 执行基础查询（仅执行一次）
+     * @access protected
+     * @return void
+     */
+    protected function baseQuery()
+    {
+        if (empty($this->baseQuery)) {
+            if (isset($this->parent->{$this->localKey})) {
+                // 关联查询带入关联条件
+                $this->query->where($this->foreignKey, '=', $this->parent->{$this->localKey});
+            }
+
+            $this->baseQuery = true;
+        }
+    }
 }

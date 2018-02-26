@@ -304,6 +304,8 @@ abstract class OneToOne extends Relation
      */
     protected function eagerlyWhere($model, $where, $key, $relation, $subRelation = '', $closure = false)
     {
+        $this->baseQuery = true;
+
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
             call_user_func_array($closure, [ & $model]);
