@@ -255,7 +255,7 @@ class Route
     {
         $domain = is_null($domain) ? $this->domain : $domain;
 
-        $this->bind[$this->domain] = $bind;
+        $this->bind[$domain] = $bind;
 
         return $this;
     }
