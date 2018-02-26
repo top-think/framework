@@ -11,7 +11,6 @@
 
 namespace think\route;
 
-use think\Container;
 use think\Route;
 
 class AliasRule extends Domain
@@ -23,8 +22,8 @@ class AliasRule extends Domain
      * @access public
      * @param  Route             $router 路由实例
      * @param  RuleGroup         $parent 上级对象
-     * @param  string|array      $rule 路由规则
-     * @param  string|\Closure   $route 路由地址
+     * @param  string            $name   路由别名
+     * @param  string            $route  路由绑定
      * @param  array             $option 路由参数
      */
     public function __construct(Route $router, RuleGroup $parent, $name, $route, $option = [])
@@ -70,34 +69,25 @@ class AliasRule extends Domain
             $this->option['method'] = $this->option['method'][$action];
         }
 
-        // 指定Response响应数据
-        if (!empty($this->option['response'])) {
-            Container::get('hook')->add('response_send', $this->option['response']);
-        }
-
-        // 开启请求缓存
-        if (isset($this->option['cache']) && $request->isGet()) {
-            $this->parseRequestCache($request, $this->option['cache']);
-        }
+        // 匹配后执行的行为
+        $this->matchGroupRequestCheck($request);
 
         if ($this->parent) {
             // 合并分组参数
             $this->mergeGroupOptions();
         }
 
-        if (!empty($this->option['append'])) {
-            $request->route($this->option['append']);
-        }
+        $this->parseBindAppendParam($this->route);
 
         if (0 === strpos($this->route, '\\')) {
             // 路由到类
-            return $this->bindToClass($bind, substr($this->route, 1), $depr);
+            return $this->bindToClass($bind, substr($this->route, 1));
         } elseif (0 === strpos($this->route, '@')) {
             // 路由到控制器类
-            return $this->bindToController($bind, substr($this->route, 1), $depr);
+            return $this->bindToController($bind, substr($this->route, 1));
         } else {
             // 路由到模块/控制器
-            return $this->bindToModule($bind, $this->route, $depr);
+            return $this->bindToModule($bind, $this->route);
         }
     }
 

@@ -121,6 +121,9 @@ class Domain extends RuleGroup
         $bind = $this->router->getBind($this->domain);
 
         if (!empty($bind)) {
+
+            $this->parseBindAppendParam($bind);
+
             // 记录绑定信息
             Container::get('app')->log('[ BIND ] ' . var_export($bind, true));
 
@@ -140,6 +143,15 @@ class Domain extends RuleGroup
         }
 
         return false;
+    }
+
+    protected function parseBindAppendParam(&$bind)
+    {
+        if (false !== strpos($bind, '?')) {
+            list($bind, $query) = explode('?', $bind);
+            parse_str($query, $vars);
+            $this->append($vars);
+        }
     }
 
     /**

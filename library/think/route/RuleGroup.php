@@ -151,16 +151,7 @@ class RuleGroup extends Rule
         }
 
         // 分组匹配后执行的行为
-
-        // 指定Response响应数据
-        if (!empty($this->option['response'])) {
-            Container::get('hook')->add('response_send', $this->option['response']);
-        }
-
-        // 开启请求缓存
-        if (isset($this->option['cache']) && $request->isGet()) {
-            $this->parseRequestCache($request, $this->option['cache']);
-        }
+        $this->matchGroupRequestCheck($request);
 
         // 获取当前路由规则
         $method = strtolower($request->method());
@@ -173,10 +164,6 @@ class RuleGroup extends Rule
 
         if (isset($this->option['complete_match'])) {
             $completeMatch = $this->option['complete_match'];
-        }
-
-        if (!empty($this->option['append'])) {
-            $request->route($this->option['append']);
         }
 
         if (!empty($this->option['merge_rule_regex'])) {
@@ -211,6 +198,28 @@ class RuleGroup extends Rule
     }
 
     /**
+     * 分组匹配后执行的行为
+     * @access protected
+     * @param  Request     $request
+     * @return void
+     */
+    protected function matchGroupRequestCheck($request)
+    {
+        if (!empty($this->option['response'])) {
+            Container::get('hook')->add('response_send', $this->option['response']);
+        }
+
+        // 开启请求缓存
+        if (isset($this->option['cache']) && $request->isGet()) {
+            $this->parseRequestCache($request, $this->option['cache']);
+        }
+
+        if (!empty($this->option['append'])) {
+            $request->route($this->option['append']);
+        }
+    }
+
+    /**
      * 延迟解析分组的路由规则
      * @access public
      * @param  bool     $lazy   路由是否延迟解析
@@ -240,14 +249,7 @@ class RuleGroup extends Rule
             Container::getInstance()->invokeFunction($this->rule);
         } elseif (is_array($this->rule)) {
             $this->addRules($this->rule);
-        } elseif ($this->rule) {
-            if (false !== strpos($this->rule, '?')) {
-                list($rule, $query) = explode('?', $this->rule);
-                parse_str($query, $vars);
-                $this->append($vars);
-                $this->rule = $rule;
-            }
-
+        } elseif (is_string($this->rule) && $this->rule) {
             $this->router->bind($this->rule, $this->domain);
         }
 
