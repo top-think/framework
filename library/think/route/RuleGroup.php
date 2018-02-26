@@ -218,7 +218,7 @@ class RuleGroup extends Rule
      */
     public function lazy($lazy = true)
     {
-        if (!$lazy) {
+        if (!$lazy && !is_object($this->rule)) {
             $this->parseGroupRule();
             $this->rule = null;
         }
