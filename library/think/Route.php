@@ -214,10 +214,14 @@ class Route
             $domainName .= '.' . $this->request->rootDomain();
         }
 
-        $domain = (new Domain($this, $domainName, $rule, $option, $pattern))
-            ->lazy($this->lazy);
-
-        $this->domains[$domainName] = $domain;
+        if (!isset($this->domains[$domainName])) {
+            $domain = (new Domain($this, $domainName, $rule, $option, $pattern))
+                ->lazy($this->lazy);
+            $this->domains[$domainName] = $domain;
+        } else {
+            $domain = $this->domains[$domainName];
+            $domain->parseGroupRule($rule);
+        }
 
         if (is_array($name) && !empty($name)) {
             $root = $this->request->rootDomain();

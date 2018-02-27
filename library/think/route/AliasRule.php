@@ -70,7 +70,7 @@ class AliasRule extends Domain
         }
 
         // 匹配后执行的行为
-        $this->matchGroupRequestCheck($request);
+        $this->afterMatchGroup($request);
 
         if ($this->parent) {
             // 合并分组参数

@@ -582,28 +582,7 @@ abstract class Rule
             }
         }
 
-        // 绑定模型数据
-        if (isset($option['model'])) {
-            $this->createBindModel($option['model'], $matches);
-        }
-
-        // 指定Header数据
-        if (!empty($option['header'])) {
-            $header = $option['header'];
-            Container::get('hook')->add('response_send', function ($response) use ($header) {
-                $response->header($header);
-            });
-        }
-
-        // 指定Response响应数据
-        if (!empty($option['response'])) {
-            Container::get('hook')->add('response_send', $option['response']);
-        }
-
-        // 开启请求缓存
-        if (isset($option['cache']) && $request->isGet()) {
-            $this->parseRequestCache($request, $option['cache']);
-        }
+        $this->afterMatchRule($request, $option, $matches);
 
         // 解析额外参数
         $count = substr_count($rule, '/');
@@ -629,6 +608,36 @@ abstract class Rule
 
         // 发起路由调度
         return $this->dispatch($request, $route, $option);
+    }
+
+    protected function afterMatchRule($request, $option = [], $matches = [])
+    {
+        // 绑定模型数据
+        if (isset($option['model'])) {
+            $this->createBindModel($option['model'], $matches);
+        }
+
+        // 指定Header数据
+        if (!empty($option['header'])) {
+            $header = $option['header'];
+            Container::get('hook')->add('response_send', function ($response) use ($header) {
+                $response->header($header);
+            });
+        }
+
+        // 指定Response响应数据
+        if (!empty($option['response'])) {
+            Container::get('hook')->add('response_send', $option['response']);
+        }
+
+        // 开启请求缓存
+        if (isset($option['cache']) && $request->isGet()) {
+            $this->parseRequestCache($request, $option['cache']);
+        }
+
+        if (!empty($option['append'])) {
+            $request->route($option['append']);
+        }
     }
 
     /**

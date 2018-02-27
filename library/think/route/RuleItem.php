@@ -237,11 +237,6 @@ class RuleItem extends Rule
         }
 
         if (false !== $match = $this->match($url, $pattern, $option, $depr, $completeMatch)) {
-            // 匹配到路由规则
-            if (!empty($option['append'])) {
-                $request->route($option['append']);
-            }
-
             return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
         }
 

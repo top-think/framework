@@ -117,28 +117,13 @@ class RuleGroup extends Rule
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
-            // 允许跨域
+            // 跨域OPTIONS请求
             return $dispatch;
         }
 
-        // 检查参数有效性
-        if (!$this->checkOption($this->option, $request)) {
+        // 检查分组有效性
+        if (!$this->checkOption($this->option, $request) || !$this->checkUrl()) {
             return false;
-        }
-
-        if ($this->fullName) {
-            // 分组URL匹配检查
-            $pos = strpos($this->fullName, '<');
-
-            if (false !== $pos) {
-                $str = substr($this->fullName, 0, $pos);
-            } else {
-                $str = $this->fullName;
-            }
-
-            if (0 !== stripos(str_replace('|', '/', $url), $str)) {
-                return false;
-            }
         }
 
         // 解析分组路由
@@ -147,15 +132,14 @@ class RuleGroup extends Rule
                 return new ResponseDispatch($this->rule);
             }
 
-            $this->parseGroupRule();
+            $this->parseGroupRule($this->rule);
         }
 
         // 分组匹配后执行的行为
-        $this->matchGroupRequestCheck($request);
+        $this->afterMatchGroup($request);
 
         // 获取当前路由规则
-        $method = strtolower($request->method());
-        $rules  = array_merge($this->rules['*'], $this->rules[$method]);
+        $rules = $this->getMethodRules($request);
 
         if ($this->parent) {
             // 合并分组参数
@@ -198,12 +182,49 @@ class RuleGroup extends Rule
     }
 
     /**
+     * 获取当前请求的路由规则（包括子分组、资源路由）
+     * @access protected
+     * @param  Request     $request
+     * @return array
+     */
+    protected function getMethodRules($request)
+    {
+        $method = strtolower($request->method());
+
+        return array_merge($this->rules['*'], $this->rules[$method]);
+    }
+
+    /**
+     * 分组URL匹配检查
+     * @access protected
+     * @return bool
+     */
+    protected function checkUrl()
+    {
+        if ($this->fullName) {
+            $pos = strpos($this->fullName, '<');
+
+            if (false !== $pos) {
+                $str = substr($this->fullName, 0, $pos);
+            } else {
+                $str = $this->fullName;
+            }
+
+            if (0 !== stripos(str_replace('|', '/', $url), $str)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * 分组匹配后执行的行为
      * @access protected
      * @param  Request     $request
      * @return void
      */
-    protected function matchGroupRequestCheck($request)
+    protected function afterMatchGroup($request)
     {
         if (!empty($this->option['response'])) {
             Container::get('hook')->add('response_send', $this->option['response']);
@@ -216,6 +237,7 @@ class RuleGroup extends Rule
 
         if (!empty($this->option['append'])) {
             $request->route($this->option['append']);
+            unset($this->option['append']);
         }
     }
 
@@ -228,7 +250,7 @@ class RuleGroup extends Rule
     public function lazy($lazy = true)
     {
         if (!$lazy && !is_object($this->rule)) {
-            $this->parseGroupRule();
+            $this->parseGroupRule($this->rule);
             $this->rule = null;
         }
 
@@ -237,20 +259,21 @@ class RuleGroup extends Rule
 
     /**
      * 解析分组和域名的路由规则及绑定
-     * @access protected
+     * @access public
+     * @param  mixed        $rule    路由规则
      * @return void
      */
-    protected function parseGroupRule()
+    public function parseGroupRule($rule)
     {
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
 
-        if ($this->rule instanceof \Closure) {
-            Container::getInstance()->invokeFunction($this->rule);
-        } elseif (is_array($this->rule)) {
-            $this->addRules($this->rule);
-        } elseif (is_string($this->rule) && $this->rule) {
-            $this->router->bind($this->rule, $this->domain);
+        if ($rule instanceof \Closure) {
+            Container::getInstance()->invokeFunction($rule);
+        } elseif (is_array($rule)) {
+            $this->addRules($rule);
+        } elseif (is_string($rule) && $rule) {
+            $this->router->bind($rule, $this->domain);
         }
 
         $this->router->setGroup($origin);
