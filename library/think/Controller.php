@@ -52,7 +52,7 @@ class Controller
      */
     public function __construct(Request $request = null)
     {
-        $this->view = View::instance(Config::get('template'), Config::get('view_replace_str'));
+        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
         $this->request = is_null($request) ? Request::instance() : $request;
 
         // 控制器初始化
@@ -117,6 +117,13 @@ class Controller
      */
     protected function fetch($template = '', $vars = [], $replace = [], $config = [])
     {
+        if ('' === $template) {
+            $trace    = debug_backtrace(false, 2);
+            $suffix   = Config::get('action_suffix');
+            $action   = $suffix ? substr($trace[1]['function'], 0, -strlen($suffix)) : $trace[1]['function'];
+            $template = Loader::parseName($action);
+        }
+
         return $this->view->fetch($template, $vars, $replace, $config);
     }
 
@@ -202,9 +209,15 @@ class Controller
         }
 
         // 批量验证
-        if ($batch || $this->batchValidate) $v->batch(true);
+        if ($batch || $this->batchValidate) {
+            $v->batch(true);
+        }
+
         // 设置错误信息
-        if (is_array($message)) $v->message($message);
+        if (is_array($message)) {
+            $v->message($message);
+        }
+
         // 使用回调验证
         if ($callback && is_callable($callback)) {
             call_user_func_array($callback, [$v, &$data]);
