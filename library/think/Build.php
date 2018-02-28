@@ -187,7 +187,7 @@ class Build
      * @param  string $layer  控制器层目录名
      * @return string
      */
-    public function buildRoute($alias = false, $layer = '')
+    public function buildRoute($suffix = false, $layer = '')
     {
         $namespace = $this->app->getNameSpace();
         $modules   = glob($this->basePath . '*', GLOB_ONLYDIR);
@@ -204,11 +204,8 @@ class Build
                 continue;
             }
 
-            $controllers = glob($this->basePath . $module . '/' . $layer . '/*.php');
-
-            foreach ($controllers as $controller) {
-                $content .= $this->getControllerRoute($namespace, $module, basename($controller, '.php'), $alias, $layer);
-            }
+            $path = $this->basePath . $module . '/' . $layer . '/';
+            $content .= $this->buildDirRoute($path, $namespace, $module, $suffix, $layer);
         }
 
         $filename = $this->app->getRuntimePath() . 'build_route.php';
@@ -218,8 +215,9 @@ class Build
     }
 
     /**
-     * 生成控制器类的路由规则
+     * 生成子目录控制器类的路由规则
      * @access protected
+     * @param  string $path  控制器目录
      * @param  string $namespace 应用命名空间
      * @param  string $module 模块
      * @param  string $controller 控制器名
@@ -227,15 +225,51 @@ class Build
      * @param  string $layer 控制器层目录名
      * @return string
      */
-    protected function getControllerRoute($namespace, $module, $controller, $alias = false, $layer = '')
+    protected function buildDirRoute($path, $namespace, $module, $suffix, $layer)
     {
-        $class   = new \ReflectionClass($namespace . '\\' . $module . '\\' . $layer . '\\' . $controller);
+        $content     = '';
+        $controllers = glob($path . '*.php');
+
+        foreach ($controllers as $controller) {
+            $controller = basename($controller, '.php');
+
+            if ($suffix) {
+                // 控制器后缀
+                $controller = substr($controller, 0, -10);
+            }
+
+            $class = new \ReflectionClass($namespace . '\\' . $module . '\\' . $layer . '\\' . $controller);
+
+            if (strpos($layer, DIRECTORY_SEPARATOR)) {
+                // 多级控制器
+                $level      = str_replace(DIRECTORY_SEPARATOR, '.', substr($layer, 11));
+                $controller = $level . '.' . $controller;
+            }
+
+            $content .= $this->getControllerRoute($class, $module, $controller);
+        }
+
+        $subDir = glob($path . '*', GLOB_ONLYDIR);
+
+        foreach ($subDir as $dir) {
+            $content .= $this->buildDirRoute($dir . '/', $namespace, $module, $suffix, $layer . '\\' . basename($dir));
+        }
+
+        return $content;
+    }
+
+    /**
+     * 生成控制器类的路由规则
+     * @access protected
+     * @param  string $class        控制器完整类名
+     * @param  string $module       模块名
+     * @param  string $controller   控制器名
+     * @return string
+     */
+    protected function getControllerRoute($class, $module, $controller)
+    {
         $content = '';
         $comment = $class->getDocComment();
-
-        if ($alias) {
-            $controller = substr($controller, 0, -10);
-        }
 
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);

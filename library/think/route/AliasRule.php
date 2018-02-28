@@ -41,9 +41,10 @@ class AliasRule extends Domain
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
      * @param  string       $depr     路径分隔符
+     * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/')
+    public function check($request, $url, $depr = '/', $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
