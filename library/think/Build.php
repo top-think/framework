@@ -220,7 +220,6 @@ class Build
      * @param  string $path  控制器目录
      * @param  string $namespace 应用命名空间
      * @param  string $module 模块
-     * @param  string $controller 控制器名
      * @param  bool   $suffix 类库后缀
      * @param  string $layer 控制器层目录名
      * @return string
