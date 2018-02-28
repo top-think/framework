@@ -12,7 +12,6 @@
 namespace think;
 
 use think\exception\ValidateException;
-use think\Loader;
 use traits\controller\Jump;
 
 class Controller
