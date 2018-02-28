@@ -29,6 +29,7 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use think\facade\Url;
+use think\Loader;
 use think\Response;
 use think\route\RuleItem;
 
@@ -658,6 +659,13 @@ if (!function_exists('view')) {
      */
     function view($template = '', $vars = [], $code = 200, $filter = null)
     {
+        if ('' === $template) {
+            $trace    = debug_backtrace(false, 2);
+            $suffix   = Container::get('config')->get('app.action_suffix');
+            $action   = $suffix ? substr($trace[1]['function'], 0, -strlen($suffix)) : $trace[1]['function'];
+            $template = Loader::parseName($action);
+        }
+
         return Response::create($template, 'view', $code)->assign($vars)->filter($filter);
     }
 }

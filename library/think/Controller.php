@@ -12,6 +12,7 @@
 namespace think;
 
 use think\exception\ValidateException;
+use think\Loader;
 use traits\controller\Jump;
 
 class Controller
@@ -118,6 +119,13 @@ class Controller
      */
     protected function fetch($template = '', $vars = [], $config = [])
     {
+        if ('' === $template) {
+            $trace    = debug_backtrace(false, 2);
+            $suffix   = $this->app['config']->get('app.action_suffix');
+            $action   = $suffix ? substr($trace[1]['function'], 0, -strlen($suffix)) : $trace[1]['function'];
+            $template = Loader::parseName($action);
+        }
+
         return $this->view->fetch($template, $vars, $config);
     }
 
