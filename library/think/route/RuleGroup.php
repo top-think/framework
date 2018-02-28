@@ -497,9 +497,9 @@ class RuleGroup extends Rule
     {
         if ('' === $method) {
             return $this->rules;
-        } else {
-            return isset($this->rules[strtolower($method)]) ? $this->rules[strtolower($method)] : [];
         }
+
+        return isset($this->rules[strtolower($method)]) ? $this->rules[strtolower($method)] : [];
     }
 
 }
