@@ -122,7 +122,7 @@ class RuleGroup extends Rule
         }
 
         // 检查分组有效性
-        if (!$this->checkOption($this->option, $request) || !$this->checkUrl()) {
+        if (!$this->checkOption($this->option, $request) || !$this->checkUrl($url)) {
             return false;
         }
 
@@ -197,9 +197,10 @@ class RuleGroup extends Rule
     /**
      * 分组URL匹配检查
      * @access protected
+     * @param  string     $url
      * @return bool
      */
-    protected function checkUrl()
+    protected function checkUrl($url)
     {
         if ($this->fullName) {
             $pos = strpos($this->fullName, '<');
