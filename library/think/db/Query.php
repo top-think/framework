@@ -1367,7 +1367,7 @@ class Query
         if ($strict) {
             // 使用严格模式查询
             $where = [$field, $op, $condition];
-            if ('exp' == $op && is_array($param)) {
+            if ('exp' == strtolower($op) && is_array($param)) {
                 // 参数绑定
                 $this->bind($param);
             }
