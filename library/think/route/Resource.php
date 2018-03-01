@@ -57,10 +57,11 @@ class Resource extends RuleGroup
 
     /**
      * 解析资源路由规则
-     * @access protected
+     * @access public
+     * @param  mixed        $rule    路由规则
      * @return void
      */
-    protected function parseGroupRule()
+    public function parseGroupRule($rule)
     {
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
