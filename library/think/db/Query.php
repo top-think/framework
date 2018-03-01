@@ -983,7 +983,7 @@ class Query
      */
     public function whereNull($field, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'null', null);
+        $this->parseWhereExp($logic, $field, 'null', null, [], true);
         return $this;
     }
 
@@ -996,7 +996,7 @@ class Query
      */
     public function whereNotNull($field, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'notnull', null);
+        $this->parseWhereExp($logic, $field, 'notnull', null, [], true);
         return $this;
     }
 
@@ -1036,7 +1036,7 @@ class Query
      */
     public function whereIn($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'in', $condition);
+        $this->parseWhereExp($logic, $field, 'in', $condition, [], true);
         return $this;
     }
 
@@ -1050,7 +1050,7 @@ class Query
      */
     public function whereNotIn($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'not in', $condition);
+        $this->parseWhereExp($logic, $field, 'not in', $condition, [], true);
         return $this;
     }
 
@@ -1064,7 +1064,7 @@ class Query
      */
     public function whereLike($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'like', $condition);
+        $this->parseWhereExp($logic, $field, 'like', $condition, [], true);
         return $this;
     }
 
@@ -1078,7 +1078,7 @@ class Query
      */
     public function whereNotLike($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'not like', $condition);
+        $this->parseWhereExp($logic, $field, 'not like', $condition, [], true);
         return $this;
     }
 
@@ -1092,7 +1092,7 @@ class Query
      */
     public function whereBetween($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'between', $condition);
+        $this->parseWhereExp($logic, $field, 'between', $condition, [], true);
         return $this;
     }
 
@@ -1106,7 +1106,7 @@ class Query
      */
     public function whereNotBetween($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'not between', $condition);
+        $this->parseWhereExp($logic, $field, 'not between', $condition, [], true);
         return $this;
     }
 
@@ -1120,7 +1120,7 @@ class Query
      */
     public function whereExp($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'exp', $condition);
+        $this->parseWhereExp($logic, $field, 'exp', $condition, [], true);
         return $this;
     }
 
@@ -1147,9 +1147,10 @@ class Query
      * @param mixed                 $op        查询表达式
      * @param mixed                 $condition 查询条件
      * @param array                 $param     查询参数
+     * @param  bool                 $strict    严格模式
      * @return void
      */
-    protected function parseWhereExp($logic, $field, $op, $condition, $param = [])
+    protected function parseWhereExp($logic, $field, $op, $condition, $param = [], $strict = false)
     {
         $logic = strtoupper($logic);
         if ($field instanceof \Closure) {
@@ -1160,7 +1161,14 @@ class Query
         if (is_string($field) && !empty($this->options['via']) && !strpos($field, '.')) {
             $field = $this->options['via'] . '.' . $field;
         }
-        if (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
+
+        if ($strict) {
+            // 使用严格模式查询
+            $where[$field] = [$op, $condition];
+
+            // 记录一个字段多次查询条件
+            $this->options['multi'][$logic][$field][] = $where[$field];
+        } elseif (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
             $where[] = ['exp', $field];
             if (is_array($op)) {
                 // 参数绑定
