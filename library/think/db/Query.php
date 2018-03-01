@@ -1331,17 +1331,18 @@ class Query
      * @access public
      * @param  mixed  $field     查询字段
      * @param  mixed  $condition 查询条件
+     * @param  array  $bind      参数绑定
      * @param  string $logic     查询逻辑 and or xor
      * @return $this
      */
-    public function whereExp($field, $condition, $logic = 'AND')
+    public function whereExp($field, $condition, $bind = [], $logic = 'AND')
     {
-        return $this->parseWhereExp($logic, $field, 'exp', $condition, [], true);
+        return $this->parseWhereExp($logic, $field, 'exp', $condition, $bind, true);
     }
 
     /**
      * 分析查询表达式
-     * @access public
+     * @access protected
      * @param  string   $logic     查询逻辑 and or xor
      * @param  mixed    $field     查询字段
      * @param  mixed    $op        查询表达式
@@ -1366,9 +1367,47 @@ class Query
         if ($strict) {
             // 使用严格模式查询
             $where = [$field, $op, $condition];
-        } elseif ($field instanceof \Closure) {
+            if ('exp' == $op && is_array($param)) {
+                // 参数绑定
+                $this->bind($param);
+            }
+        } elseif (is_array($field)) {
+            // 解析数组批量查询
+            return $this->parseArrayWhereItems($field, $logic);
+        } else {
+            // 解析条件单元
+            $where = $this->parseWhereItem($logic, $field, $op, $condition, $param);
+        }
+
+        if (!empty($where)) {
+            if ($field instanceof \Closure) {
+                $field = '';
+            }
+
+            if (isset($this->options['where'][$logic][$field])) {
+                $this->options['where'][$logic][] = $where;
+            } else {
+                $this->options['where'][$logic][$field] = $where;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * 分析查询表达式
+     * @access protected
+     * @param  string   $logic     查询逻辑 and or xor
+     * @param  mixed    $field     查询字段
+     * @param  mixed    $op        查询表达式
+     * @param  mixed    $condition 查询条件
+     * @param  array    $param     查询参数
+     * @return mixed
+     */
+    protected function parseWhereItem($logic, $field, $op, $condition, $param = [])
+    {
+        if ($field instanceof \Closure) {
             $where = is_string($op) ? [$op, $field] : $field;
-            $field = '';
         } elseif (is_string($field) && preg_match('/[,=\<\'\"\(\s]/', $field)) {
             $where = ['', 'exp', $field];
             if (is_array($op)) {
@@ -1376,31 +1415,10 @@ class Query
                 $this->bind($op);
             }
         } elseif (is_null($op) && is_null($condition)) {
-            if (is_array($field)) {
-                if (key($field) !== 0) {
-                    $where = [];
-                    foreach ($field as $key => $val) {
-                        if (is_null($val)) {
-                            $where[$key] = [$key, 'null', ''];
-                        } else {
-                            $where[$key] = !is_scalar($val) ? $val : [$key, '=', $val];
-                        }
-                    }
-                } else {
-                    // 数组批量查询
-                    $where = $field;
-                }
-
-                if (!empty($where)) {
-                    $this->options['where'][$logic] = isset($this->options['where'][$logic]) ? array_merge($this->options['where'][$logic], $where) : $where;
-                }
-
-                return $this;
-            } elseif ($field && is_string($field)) {
-                // 字符串查询
-                $where = [$field, 'null', ''];
-            }
+            // 字符串查询
+            $where = [$field, 'null', ''];
         } elseif (is_array($op)) {
+            // 同一字段多条件查询
             array_unshift($param, $field);
             $where = $param;
         } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
@@ -1418,12 +1436,34 @@ class Query
             }
         }
 
-        if (!empty($where)) {
-            if (isset($this->options['where'][$logic][$field])) {
-                $this->options['where'][$logic][] = $where;
-            } else {
-                $this->options['where'][$logic][$field] = $where;
+        return $where;
+    }
+
+    /**
+     * 数组批量查询
+     * @access protected
+     * @param  array    $field     批量查询
+     * @param  string   $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    protected function parseArrayWhereItems($field, $logic)
+    {
+        if (key($field) !== 0) {
+            $where = [];
+            foreach ($field as $key => $val) {
+                if (is_null($val)) {
+                    $where[$key] = [$key, 'null', ''];
+                } else {
+                    $where[$key] = !is_scalar($val) ? $val : [$key, '=', $val];
+                }
             }
+        } else {
+            // 数组批量查询
+            $where = $field;
+        }
+
+        if (!empty($where)) {
+            $this->options['where'][$logic] = isset($this->options['where'][$logic]) ? array_merge($this->options['where'][$logic], $where) : $where;
         }
 
         return $this;
@@ -2003,9 +2043,10 @@ class Query
      * @param  string       $field 日期字段名
      * @param  string|array $op    比较运算符或者表达式
      * @param  string|array $range 比较范围
+     * @param  string       $logic AND OR
      * @return $this
      */
-    public function whereTime($field, $op, $range = null)
+    public function whereTime($field, $op, $range = null, $logic = 'AND')
     {
         if (is_null($range)) {
             if (is_array($op)) {
@@ -2025,9 +2066,7 @@ class Query
             $op = is_array($range) ? 'between' : '>=';
         }
 
-        $this->where($field, strtolower($op) . ' time', $range);
-
-        return $this;
+        return $this->parseWhereExp($logic, $field, strtolower($op) . ' time', $range, [], true);
     }
 
     /**
@@ -2036,18 +2075,17 @@ class Query
      * @param  string    $field 日期字段名
      * @param  string    $startTime    开始时间
      * @param  string    $endTime 结束时间
+     * @param  string    $logic AND OR
      * @return $this
      */
-    public function whereBetweenTime($field, $startTime, $endTime = null)
+    public function whereBetweenTime($field, $startTime, $endTime = null, $logic = 'AND')
     {
         if (is_null($endTime)) {
             $time    = is_string($startTime) ? strtotime($startTime) : $startTime;
             $endTime = strtotime('+1 day', $time);
         }
 
-        $this->where($field, 'between time', [$startTime, $endTime]);
-
-        return $this;
+        return $this->parseWhereExp($logic, $field, 'between time', [$startTime, $endTime], [], true);
     }
 
     /**
