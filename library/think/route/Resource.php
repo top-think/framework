@@ -51,6 +51,7 @@ class Resource extends RuleGroup
         $this->rest    = $rest;
 
         if ($this->parent) {
+            $this->domain = $this->parent->getDomain();
             $this->parent->addRuleItem($this);
         }
     }
