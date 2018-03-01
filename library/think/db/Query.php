@@ -357,6 +357,16 @@ class Query
     }
 
     /**
+     * 获取返回或者影响的记录数
+     * @access public
+     * @return integer
+     */
+    public function getNumRows()
+    {
+        return $this->connection->getNumRows();
+    }
+
+    /**
      * 获取最近一次查询的sql语句
      * @access public
      * @return string
