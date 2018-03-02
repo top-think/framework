@@ -52,6 +52,7 @@ class BelongsTo extends OneToOne
             call_user_func_array($closure, [ & $this->query]);
         }
         $relationModel = $this->query
+            ->removeWhereField($this->localKey)
             ->where($this->localKey, $this->parent->$foreignKey)
             ->relation($subRelation)
             ->find();

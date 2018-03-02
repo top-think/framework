@@ -50,7 +50,11 @@ class HasOne extends OneToOne
             call_user_func_array($closure, [ & $this->query]);
         }
         // 判断关联类型执行查询
-        $relationModel = $this->query->where($this->foreignKey, $this->parent->$localKey)->relation($subRelation)->find();
+        $relationModel = $this->query
+            ->removeWhereField($this->foreignKey)
+            ->where($this->foreignKey, $this->parent->$localKey)
+            ->relation($subRelation)
+            ->find();
 
         if ($relationModel) {
             $relationModel->setParent(clone $this->parent);
