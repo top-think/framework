@@ -52,6 +52,7 @@ class BelongsTo extends OneToOne
         $foreignKey = $this->foreignKey;
 
         $relationModel = $this->query
+            ->removeWhereField($this->localKey)
             ->where($this->localKey, $this->parent->$foreignKey)
             ->relation($subRelation)
             ->find();

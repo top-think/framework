@@ -52,6 +52,7 @@ class HasOne extends OneToOne
 
         // 判断关联类型执行查询
         $relationModel = $this->query
+            ->removeWhereField($this->foreignKey)
             ->where($this->foreignKey, $this->parent->$localKey)
             ->relation($subRelation)
             ->find();
