@@ -24,6 +24,7 @@ class File
         'file_size'   => 2097152,
         'path'        => '',
         'apart_level' => [],
+        'max_files'   => 0,
     ];
 
     protected $writed = [];
@@ -49,11 +50,23 @@ class File
     public function save(array $log = [])
     {
         if ($this->config['single']) {
-            $name        = is_string($single) ? $single : 'single';
+            $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
             $destination = $this->config['path'] . $name . '.log';
         } else {
-            $cli         = PHP_SAPI == 'cli' ? '_cli' : '';
-            $destination = $this->config['path'] . date('Ym') . '/' . date('d') . $cli . '.log';
+            $cli = PHP_SAPI == 'cli' ? '_cli' : '';
+
+            if ($this->config['max_files']) {
+                $filename = date('Ymd') . $cli . '.log';
+                $files    = glob($this->config['path'] . '*.log');
+
+                if (count($files) > $this->config['max_files']) {
+                    unlink($files[0]);
+                }
+            } else {
+                $filename = date('Ym') . '/' . date('d') . $cli . '.log';
+            }
+
+            $destination = $this->config['path'] . $filename;
         }
 
         $path = dirname($destination);
