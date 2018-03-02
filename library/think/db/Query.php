@@ -1374,7 +1374,7 @@ class Query
         } elseif (is_array($field)) {
             // 解析数组批量查询
             return $this->parseArrayWhereItems($field, $logic);
-        } else {
+        } elseif (!empty($field)) {
             // 解析条件单元
             $where = $this->parseWhereItem($logic, $field, $op, $condition, $param);
         }
