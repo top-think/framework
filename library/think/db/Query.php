@@ -131,7 +131,7 @@ class Query
     }
 
     /**
-     * 获取当前的模型对象名
+     * 获取当前的模型对象实例
      * @access public
      * @return Model|null
      */
