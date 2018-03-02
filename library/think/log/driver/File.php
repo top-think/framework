@@ -81,6 +81,8 @@ class File
                 // 独立记录的日志级别
                 if ($this->config['single']) {
                     $filename = $path . DS . $type . '.log';
+                } elseif ($this->config['max_files']) {
+                    $filename = $path . DS . date('Ymd') . '_' . $type . $cli . '.log';
                 } else {
                     $filename = $path . DS . date('d') . '_' . $type . $cli . '.log';
                 }
