@@ -50,6 +50,12 @@ class Log implements LoggerInterface
     protected $key;
 
     /**
+     * 是否允许日志写入
+     * @var bool
+     */
+    protected $allowWrite = true;
+
+    /**
      * 应用对象
      * @var App
      */
@@ -108,6 +114,10 @@ class Log implements LoggerInterface
      */
     public function record($msg, $type = 'info', array $context = [])
     {
+        if (!$this->allowWrite) {
+            return;
+        }
+
         if (is_string($msg)) {
             $replace = [];
             foreach ($context as $key => $val) {
@@ -168,13 +178,26 @@ class Log implements LoggerInterface
     }
 
     /**
+     * 关闭本次请求日志写入
+     * @access public
+     * @return $this
+     */
+    public function close()
+    {
+        $this->allowWrite = false;
+        $this->log        = [];
+
+        return $this;
+    }
+
+    /**
      * 保存调试信息
      * @access public
      * @return bool
      */
     public function save()
     {
-        if (empty($this->log)) {
+        if (empty($this->log) || !$this->allowWrite) {
             return true;
         }
 
