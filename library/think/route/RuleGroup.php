@@ -140,7 +140,7 @@ class RuleGroup extends Rule
 
         // 获取当前路由规则
         $method = strtolower($request->method());
-        $rules  = $this->getMethodRules($request, $method);
+        $rules  = $this->getMethodRules($method);
 
         if ($this->parent) {
             // 合并分组参数
@@ -185,11 +185,10 @@ class RuleGroup extends Rule
     /**
      * 获取当前请求的路由规则（包括子分组、资源路由）
      * @access protected
-     * @param  Request     $request
      * @param  string      $method
      * @return array
      */
-    protected function getMethodRules($request, $method)
+    protected function getMethodRules($method)
     {
         return array_merge($this->rules['*'], $this->rules[$method]);
     }
