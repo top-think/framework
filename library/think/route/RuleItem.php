@@ -105,20 +105,6 @@ class RuleItem extends Rule
     }
 
     /**
-     * 检查后缀
-     * @access public
-     * @param  string     $ext
-     * @return $this
-     */
-    public function ext($ext = '')
-    {
-        $this->option('ext', $ext);
-        $this->setRuleName(true);
-
-        return $this;
-    }
-
-    /**
      * 获取当前路由地址
      * @access public
      * @return mixed
@@ -129,24 +115,26 @@ class RuleItem extends Rule
     }
 
     /**
-     * 设置为自动路由
+     * 获取当前路由的请求类型
      * @access public
-     * @return $this
+     * @return string
      */
-    public function isAuto()
+    public function getMethod()
     {
-        $this->parent->setAutoRule($this);
-        return $this;
+        return strtolower($this->method);
     }
 
     /**
-     * 设置为MISS路由
+     * 检查后缀
      * @access public
+     * @param  string     $ext
      * @return $this
      */
-    public function isMiss()
+    public function ext($ext = '')
     {
-        $this->parent->setMissRule($this);
+        $this->option('ext', $ext);
+        $this->setRuleName(true);
+
         return $this;
     }
 

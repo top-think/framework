@@ -139,7 +139,8 @@ class RuleGroup extends Rule
         $this->afterMatchGroup($request);
 
         // 获取当前路由规则
-        $rules = $this->getMethodRules($request);
+        $method = strtolower($request->method());
+        $rules  = $this->getMethodRules($request, $method);
 
         if ($this->parent) {
             // 合并分组参数
@@ -168,10 +169,10 @@ class RuleGroup extends Rule
             }
         }
 
-        if (isset($this->auto)) {
+        if ($this->auto) {
             // 自动解析URL地址
-            $result = new UrlDispatch($this->auto->getRoute() . '/' . $url, ['depr' => $depr, 'auto_search' => false]);
-        } elseif (isset($this->miss)) {
+            $result = new UrlDispatch($this->auto . '/' . $url, ['depr' => $depr, 'auto_search' => false]);
+        } elseif ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
             $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
         } else {
@@ -185,12 +186,11 @@ class RuleGroup extends Rule
      * 获取当前请求的路由规则（包括子分组、资源路由）
      * @access protected
      * @param  Request     $request
+     * @param  string      $method
      * @return array
      */
-    protected function getMethodRules($request)
+    protected function getMethodRules($request, $method)
     {
-        $method = strtolower($request->method());
-
         return array_merge($this->rules['*'], $this->rules[$method]);
     }
 
@@ -355,34 +355,62 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 设置自动路由
+     * 获取分组的MISS路由
      * @access public
-     * @param  RuleItem     $rule   路由规则
-     * @return $this
+     * @return RuleItem|null
      */
-    public function setAutoRule(RuleItem $rule)
+    public function getMissRule()
     {
-        $this->auto = $rule;
-        return $this;
+        return $this->miss;
     }
 
     /**
-     * 设置为MISS路由
+     * 获取分组的自动路由
      * @access public
-     * @param  RuleItem     $rule   路由规则
-     * @return $this
+     * @return string
      */
-    public function setMissRule(RuleItem $rule)
+    public function getAutoRule()
     {
-        $this->miss = $rule;
-        return $this;
+        return $this->auto;
+    }
+
+    /**
+     * 注册自动路由
+     * @access public
+     * @param  string     $route   路由规则
+     * @return void
+     */
+    public function addAutoRule($route)
+    {
+        $this->auto = $route;
+    }
+
+    /**
+     * 注册MISS路由
+     * @access public
+     * @param  string    $route      路由地址
+     * @param  string    $method     请求类型
+     * @param  array     $option     路由参数
+     * @return RuleItem
+     */
+    public function addMissRule($route, $method = '*', $option = [])
+    {
+        // 创建路由规则实例
+        $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method), $option);
+
+        $this->miss = $ruleItem;
+
+        return $ruleItem;
     }
 
     /**
      * 添加分组下的路由规则或者子分组
      * @access public
-     * @param  Rule     $rule   路由规则
-     * @param  string   $method 请求类型
+     * @param  string    $rule       路由规则
+     * @param  string    $route      路由地址
+     * @param  string    $method     请求类型
+     * @param  array     $option     路由参数
+     * @param  array     $pattern    变量规则
      * @return $this
      */
     public function addRule($rule, $route, $method = '*', $option = [], $pattern = [])

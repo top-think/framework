@@ -700,7 +700,7 @@ class Route
      */
     public function miss($route, $method = '*', array $option = [])
     {
-        return $this->rule('', $route, $method, $option)->isMiss();
+        return $this->group->addMissRule($route, $method, $option);
     }
 
     /**
@@ -711,7 +711,7 @@ class Route
      */
     public function auto($route)
     {
-        return $this->rule('', $route)->isAuto();
+        return $this->group->addAutoRule($route);
     }
 
     /**
