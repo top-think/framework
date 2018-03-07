@@ -922,9 +922,9 @@ abstract class Connection
             }
         }
 
-        if (isset($cache) && false !== $resultSet) {
+        if (!empty($options['cache']) && false !== $resultSet) {
             // 缓存数据集
-            $this->cacheData($key, $resultSet, $cache);
+            $this->cacheData($key, $resultSet, $options['cache']);
         }
 
         return $resultSet;
