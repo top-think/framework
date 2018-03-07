@@ -823,6 +823,7 @@ abstract class Connection
             'SSL connection has been closed unexpectedly',
             'Error writing data to the connection',
             'Resource deadlock avoided',
+            'failed with errno',
         ];
 
         $error = $e->getMessage();
