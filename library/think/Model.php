@@ -389,7 +389,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 检查数据是否允许写入
      * @access protected
-     * @param  array   $autoFields 自动完成的字段列表
+     * @param  array   $append 自动完成的字段列表
      * @return array
      */
     protected function checkAllowFields(array $append = [])
