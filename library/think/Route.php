@@ -582,7 +582,7 @@ class Route
      * 注册重定向路由
      * @access public
      * @param  string|array $rule 路由规则
-     * @param  string       $template 路由模板地址
+     * @param  string       $route 路由地址
      * @param  array        $status 状态码
      * @param  array        $option 路由参数
      * @param  array        $pattern 变量规则
