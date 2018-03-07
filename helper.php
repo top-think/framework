@@ -654,7 +654,7 @@ if (!function_exists('view')) {
      * @param string    $template 模板文件
      * @param array     $vars 模板变量
      * @param integer   $code 状态码
-     * @param callable  $filer 内容过滤
+     * @param callable  $filter 内容过滤
      * @return \think\response\View
      */
     function view($template = '', $vars = [], $code = 200, $filter = null)
