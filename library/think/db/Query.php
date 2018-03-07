@@ -1375,7 +1375,7 @@ class Query
             // 解析数组批量查询
             return $this->parseArrayWhereItems($field, $logic);
         } elseif ($field instanceof \Closure) {
-            $where = is_string($op) ? [$op, $field] : $field;
+            $where = $field;
             $field = '';
         } elseif (is_string($field)) {
             // 解析条件单元
