@@ -409,9 +409,9 @@ class App implements \ArrayAccess
      * @param  string $type 信息类型
      * @return void
      */
-    public function log($log, $type = 'info')
+    public function log($msg, $type = 'info')
     {
-        $this->debug && $this->log->record($log, $type);
+        $this->debug && $this->log->record($msg, $type);
     }
 
     /**
