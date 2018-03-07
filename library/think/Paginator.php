@@ -104,8 +104,8 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @param       $items
      * @param       $listRows
      * @param null  $currentPage
-     * @param bool  $simple
      * @param null  $total
+     * @param bool  $simple
      * @param array $options
      * @return Paginator
      */
