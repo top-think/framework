@@ -2099,7 +2099,7 @@ class Query
         if (!empty($this->pk)) {
             $pk = $this->pk;
         } else {
-            $pk = $this->connection->getPk(is_array($options) ? $options['table'] : $this->getTable());
+            $pk = $this->connection->getPk(is_array($options) && isset($options['table']) ? $options['table'] : $this->getTable());
         }
 
         return $pk;
