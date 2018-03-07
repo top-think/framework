@@ -17,7 +17,6 @@ namespace tests\thinkphp\library\think;
 
 use think\Config;
 use think\Request;
-use think\Route;
 
 class requestTest extends \PHPUnit_Framework_TestCase
 {
