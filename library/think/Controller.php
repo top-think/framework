@@ -116,7 +116,7 @@ class Controller
      * @param  array  $config   模板参数
      * @return mixed
      */
-    protected function fetch($template = '', $vars = [], $config = [])
+    final protected function fetch($template = '', $vars = [], $config = [])
     {
         if ('' === $template) {
             $trace    = debug_backtrace(false, 2);
