@@ -576,7 +576,9 @@ abstract class Rule
         // 替换路由地址中的变量
         if (is_string($route) && !empty($matches)) {
             foreach ($matches as $key => $val) {
-                if (false !== strpos($route, ':' . $key)) {
+                if (false !== strpos($route, '<' . $key . '>')) {
+                    $route = str_replace('<' . $key . '>', $val, $route);
+                } elseif (false !== strpos($route, ':' . $key)) {
                     $route = str_replace(':' . $key, $val, $route);
                 }
             }
