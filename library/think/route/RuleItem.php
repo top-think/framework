@@ -299,8 +299,12 @@ class RuleItem extends Rule
         $url  = $depr . str_replace('|', $depr, $url);
         $rule = $depr . str_replace('/', $depr, $this->rule);
 
+        if ($depr == $rule && $depr != $url) {
+            return false;
+        }
+
         if (false === strpos($rule, '<')) {
-            if (($completeMatch && 0 === strcasecmp($rule, $url)) || (!$completeMatch && 0 === strncasecmp($rule, $url, strlen($rule)))) {
+            if (0 === strcasecmp($rule, $url) || (!$completeMatch && 0 === strncasecmp($rule, $url, strlen($rule)))) {
                 return $var;
             }
             return false;
