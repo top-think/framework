@@ -210,7 +210,7 @@ class RuleGroup extends Rule
                 $str = $this->fullName;
             }
 
-            if (0 !== stripos(str_replace('|', '/', $url), $str)) {
+            if ($str && 0 !== stripos(str_replace('|', '/', $url), $str)) {
                 return false;
             }
         }
