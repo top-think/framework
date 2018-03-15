@@ -708,6 +708,7 @@ class Query
         // 传入的表名为数组
         if (is_array($join)) {
             $table = $join;
+            $alias = array_shift($join);
         } else {
             $join = trim($join);
             if (false !== strpos($join, '(')) {
