@@ -220,7 +220,9 @@ abstract class Rule
      */
     public function model($var, $model = null, $exception = true)
     {
-        if (is_array($var)) {
+        if ($var instanceof \Closure) {
+            $this->option['model'][] = $var;
+        } elseif (is_array($var)) {
             $this->option['model'] = $var;
         } elseif (is_null($model)) {
             $this->option['model']['id'] = [$var, true];
