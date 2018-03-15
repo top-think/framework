@@ -14,6 +14,7 @@ namespace think;
 /**
  * Class Db
  * @package think
+ * @method \think\db\Query connect(array $config =[], mixed $name = false) static 连接/切换数据库连接
  * @method \think\db\Query table(string $table) static 指定数据表（含前缀）
  * @method \think\db\Query name(string $name) static 指定数据表（不含前缀）
  * @method \think\db\Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
@@ -42,7 +43,8 @@ namespace think;
  * @method void commit() static 用于非自动提交状态下面的查询提交
  * @method void rollback() static 事务回滚
  * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
- * @method string getLastInsID($sequence = null) static 获取最近插入的ID
+ * @method string getLastInsID(string $sequence = null) static 获取最近插入的ID
+ * @method mixed getConfig(string $name = '') static 获取数据库的配置参数
  */
 class Db
 {
