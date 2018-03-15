@@ -145,6 +145,8 @@ class RuleGroup extends Rule
         if ($this->parent) {
             // 合并分组参数
             $this->mergeGroupOptions();
+            // 合并分组变量规则
+            $this->pattern = array_merge($this->parent->getPattern(), $this->pattern);
         }
 
         if (isset($this->option['complete_match'])) {
