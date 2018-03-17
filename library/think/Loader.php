@@ -60,10 +60,10 @@ class Loader
 
         $path = dirname($_SERVER['SCRIPT_FILENAME']);
 
-        if (is_file('./think')) {
-            $rootPath = realpath($path) . '/';
-        } else {
+        if ('cli-server' == PHP_SAPI || !is_file('./think')) {
             $rootPath = realpath($path . '/../') . '/';
+        } else {
+            $rootPath = realpath($path) . '/';
         }
 
         self::$composerPath = $rootPath . 'vendor/composer/';
