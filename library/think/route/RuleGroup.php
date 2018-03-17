@@ -334,29 +334,33 @@ class RuleGroup extends Rule
             }
         }
 
-        if (!empty($regex) && preg_match('/^(?:' . implode('|', $regex) . ')/', $url, $match)) {
-            $var = [];
-            foreach ($match as $key => $val) {
-                if (is_string($key) && '' !== $val) {
-                    list($name, $pos) = explode('_THINK_', $key);
+        try {
+            if (!empty($regex) && preg_match('/^(?:' . implode('|', $regex) . ')/', $url, $match)) {
+                $var = [];
+                foreach ($match as $key => $val) {
+                    if (is_string($key) && '' !== $val) {
+                        list($name, $pos) = explode('_THINK_', $key);
 
-                    $var[$name] = $val;
-                }
-            }
-
-            if (!isset($pos)) {
-                foreach ($regex as $key => $item) {
-                    if (0 === strpos(str_replace(['\/', '\-', '\\' . $depr], ['/', '-', $depr], $item), $match[0])) {
-                        $pos = $key;
-                        break;
+                        $var[$name] = $val;
                     }
                 }
+
+                if (!isset($pos)) {
+                    foreach ($regex as $key => $item) {
+                        if (0 === strpos(str_replace(['\/', '\-', '\\' . $depr], ['/', '-', $depr], $item), $match[0])) {
+                            $pos = $key;
+                            break;
+                        }
+                    }
+                }
+
+                return $items[$pos]->checkHasMatchRule($request, $url, $var);
             }
 
-            return $items[$pos]->checkHasMatchRule($request, $url, $var);
+            return false;
+        } catch (\Exception $e) {
+            throw new Exception('route pattern error');
         }
-
-        return false;
     }
 
     /**
