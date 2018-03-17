@@ -12,6 +12,7 @@
 namespace think\route;
 
 use think\Container;
+use think\Exception;
 use think\Route;
 
 class RuleItem extends Rule
@@ -321,8 +322,12 @@ class RuleItem extends Rule
         if (preg_match_all('/[' . $slash . ']?<?\w+\??>?/', $rule, $matches)) {
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
-            if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
-                return false;
+            try {
+                if (!preg_match('/^' . $regex . ($completeMatch ? '$' : '') . '/', $url, $match)) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                throw new Exception('route pattern error');
             }
 
             foreach ($match as $key => $val) {
