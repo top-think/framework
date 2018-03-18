@@ -41,6 +41,7 @@ class Console
         "think\\console\\command\\Clear",
         "think\\console\\command\\make\\Controller",
         "think\\console\\command\\make\\Model",
+        "think\\console\\command\\make\\Middleware",
         "think\\console\\command\\optimize\\Autoload",
         "think\\console\\command\\optimize\\Config",
         "think\\console\\command\\optimize\\Schema",

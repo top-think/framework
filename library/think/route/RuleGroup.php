@@ -241,6 +241,13 @@ class RuleGroup extends Rule
             $request->route($this->option['append']);
             unset($this->option['append']);
         }
+
+        if (!empty($this->option['middleware'])) {
+            foreach ($this->option['middleware'] as $middleware) {
+                Container::get('middlewareDispatcher')->add($middleware);
+            }
+            unset($this->option['middleware']);
+        }
     }
 
     /**

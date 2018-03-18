@@ -305,6 +305,27 @@ abstract class Rule
     }
 
     /**
+     * 制定路由中间件
+     * @access public
+     * @param  string|\Closure     $middleware
+     * @return $this
+     */
+    public function middleware($middleware)
+    {
+        if (empty($this->option['middleware'])) {
+            $this->option['middleware'] = [];
+        }
+
+        if (is_array($middleware)) {
+            $this->option['middleware'] = array_merge($this->option['middleware'], $middleware);
+        } else {
+            $this->option['middleware'][] = $middleware;
+        }
+
+        return $this;
+    }
+
+    /**
      * 是否合并额外参数
      * @access public
      * @param  bool     $merge
@@ -616,6 +637,13 @@ abstract class Rule
 
     protected function afterMatchRule($request, $option = [], $matches = [])
     {
+        // 添加中间件
+        if (!empty($option['middleware'])) {
+            foreach ($option['middleware'] as $middleware) {
+                Container::get('middlewareDispatcher')->add($middleware);
+            }
+        }
+
         // 绑定模型数据
         if (isset($option['model'])) {
             $this->createBindModel($option['model'], $matches);
