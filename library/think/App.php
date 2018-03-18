@@ -347,14 +347,22 @@ class App implements \ArrayAccess
                 $this->config('app.request_cache_except')
             );
 
-            // 执行调度
-            $data = $dispatch->run();
-
+            $data = null;
         } catch (HttpResponseException $exception) {
-            $data = $exception->getResponse();
+            $dispatch = null;
+            $data     = $exception->getResponse();
         }
 
-        $this->middlewareDispatcher->add(function (Request $request, $next) use ($data) {
+        $this->middlewareDispatcher->add(function (Request $request, $next) use ($dispatch, $data) {
+            if (is_null($data)) {
+                try {
+                    // 执行调度
+                    $data = $dispatch->run();
+                } catch (HttpResponseException $exception) {
+                    $data = $exception->getResponse();
+                }
+            }
+
             // 输出数据到客户端
             if ($data instanceof Response) {
                 $response = $data;
