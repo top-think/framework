@@ -305,12 +305,13 @@ abstract class Rule
     }
 
     /**
-     * 制定路由中间件
+     * 指定路由中间件
      * @access public
      * @param  string|\Closure     $middleware
+     * @param  bool                $first
      * @return $this
      */
-    public function middleware($middleware)
+    public function middleware($middleware, $first = false)
     {
         if (empty($this->option['middleware'])) {
             $this->option['middleware'] = [];
@@ -318,6 +319,8 @@ abstract class Rule
 
         if (is_array($middleware)) {
             $this->option['middleware'] = array_merge($this->option['middleware'], $middleware);
+        } elseif ($first) {
+            array_unshift($this->option['middleware'], $middleware);
         } else {
             $this->option['middleware'][] = $middleware;
         }
