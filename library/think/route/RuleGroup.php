@@ -307,7 +307,7 @@ class RuleGroup extends Rule
 
                 if (false === strpos($rule, '<')) {
                     if (0 === strcasecmp($rule, $url) || (!$complete && 0 === strncasecmp($rule, $url, strlen($rule)))) {
-                        return $item->checkHasMatchRule($request, $url);
+                        return $item->checkMatchRule($request, $url);
                     }
 
                     unset($rules[$key]);
@@ -354,7 +354,7 @@ class RuleGroup extends Rule
                     }
                 }
 
-                return $items[$pos]->checkHasMatchRule($request, $url, $var);
+                return $items[$pos]->checkMatchRule($request, $url, $var);
             }
 
             return false;

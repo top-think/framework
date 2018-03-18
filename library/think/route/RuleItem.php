@@ -167,6 +167,49 @@ class RuleItem extends Rule
 
     /**
      * 检测路由
+     * @access private
+     * @param  Request      $request  请求对象
+     * @param  string       $url      访问地址
+     * @param  array        $match    匹配路由变量
+     * @param  string       $depr     路径分隔符
+     * @param  bool         $completeMatch   路由是否完全匹配
+     * @return Dispatch|false
+     */
+    private function checkRule($request, $url, $match = null, $depr = '/', $completeMatch = false)
+    {
+        if ($dispatch = $this->checkCrossDomain($request)) {
+            // 允许跨域
+            return $dispatch;
+        }
+
+        // 检查参数有效性
+        if (!$this->checkOption($this->option, $request)) {
+            return false;
+        }
+
+        // 合并分组参数
+        $option = $this->mergeGroupOptions();
+
+        // 检查前置行为
+        if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
+            return false;
+        }
+
+        $url = $this->urlSuffixCheck($request, $url, $option);
+
+        if (is_null($match)) {
+            $match = $this->match($url, $option, $depr, $completeMatch);
+        }
+
+        if (false !== $match) {
+            return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
+        }
+
+        return false;
+    }
+
+    /**
+     * 检测路由（含路由匹配）
      * @access public
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
@@ -176,60 +219,7 @@ class RuleItem extends Rule
      */
     public function check($request, $url, $depr = '/', $completeMatch = false)
     {
-        if ($dispatch = $this->checkCrossDomain($request)) {
-            // 允许跨域
-            return $dispatch;
-        }
-
-        // 检查参数有效性
-        if (!$this->checkOption($this->option, $request)) {
-            return false;
-        }
-
-        return $this->checkRule($request, $url, $depr, $completeMatch);
-    }
-
-    /**
-     * 检测路由规则
-     * @access private
-     * @param  Request   $request 请求对象
-     * @param  string    $url URL地址
-     * @param  string    $depr URL分隔符（全局）
-     * @param  bool      $completeMatch   路由是否完全匹配
-     * @return array|false
-     */
-    private function checkRule($request, $url, $depr, $completeMatch = false)
-    {
-        // 合并分组参数
-        $option = $this->mergeGroupOptions();
-
-        // 检查前置行为
-        if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
-            return false;
-        }
-
-        $pattern = array_merge($this->parent->getPattern(), $this->pattern);
-
-        // 是否区分 / 地址访问
-        if (!empty($option['remove_slash']) && '/' != $this->rule) {
-            $this->rule = rtrim($this->rule, '/');
-            $url        = rtrim($url, '|');
-        }
-
-        if (isset($option['ext'])) {
-            // 路由ext参数 优先于系统配置的URL伪静态后缀参数
-            $url = preg_replace('/\.(' . $request->ext() . ')$/i', '', $url);
-        }
-
-        if (isset($option['complete_match'])) {
-            $completeMatch = $option['complete_match'];
-        }
-
-        if (false !== $match = $this->match($url, $pattern, $option, $depr, $completeMatch)) {
-            return $this->parseRule($request, $this->rule, $this->route, $url, $option, $match);
-        }
-
-        return false;
+        return $this->checkRule($request, $url, null, $depr, $completeMatch);
     }
 
     /**
@@ -237,33 +227,24 @@ class RuleItem extends Rule
      * @access public
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
-     * @param  array        $var      路由变量
+     * @param  array        $match    匹配路由变量
      * @return Dispatch|false
      */
-    public function checkHasMatchRule($request, $url, $var = [])
+    public function checkMatchRule($request, $url, $match = [])
     {
-        if ($dispatch = $this->checkCrossDomain($request)) {
-            // 允许跨域
-            return $dispatch;
-        }
+        return $this->checkRule($request, $url, $match);
+    }
 
-        // 检查参数有效性
-        if (!$this->checkOption($this->option, $request)) {
-            return false;
-        }
-
-        // 合并分组参数
-        $option = $this->mergeGroupOptions();
-
-        // 检查前置行为
-        if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
-            return false;
-        }
-
-        if (!empty($option['append'])) {
-            $request->route($option['append']);
-        }
-
+    /**
+     * 检测已经匹配的路由
+     * @access protected
+     * @param  Request      $request  请求对象
+     * @param  string       $url      访问地址
+     * @param  array        $option   路由参数
+     * @return string
+     */
+    protected function urlSuffixCheck($request, $url, $option = [])
+    {
         // 是否区分 / 地址访问
         if (!empty($option['remove_slash']) && '/' != $this->rule) {
             $this->rule = rtrim($this->rule, '/');
@@ -275,24 +256,28 @@ class RuleItem extends Rule
             $url = preg_replace('/\.(' . $request->ext() . ')$/i', '', $url);
         }
 
-        // 匹配到路由规则
-        return $this->parseRule($request, $this->rule, $this->route, $url, $option, $var);
+        return $url;
     }
 
     /**
      * 检测URL和规则路由是否匹配
      * @access private
      * @param  string    $url URL地址
-     * @param  array     $pattern 变量规则
      * @param  array     $option    路由参数
      * @param  string    $depr URL分隔符（全局）
      * @param  bool      $completeMatch   路由是否完全匹配
      * @return array|false
      */
-    private function match($url, $pattern, $option, $depr, $completeMatch)
+    private function match($url, $option, $depr, $completeMatch)
     {
+        if (isset($option['complete_match'])) {
+            $completeMatch = $option['complete_match'];
+        }
+
+        $pattern = array_merge($this->parent->getPattern(), $this->pattern);
+
         // 检查完整规则定义
-        if (isset($this->pattern['__url__']) && !preg_match(0 === strpos($this->pattern['__url__'], '/') ? $this->pattern['__url__'] : '/^' . $this->pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
+        if (isset($pattern['__url__']) && !preg_match(0 === strpos($pattern['__url__'], '/') ? $pattern['__url__'] : '/^' . $pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
             return false;
         }
 
