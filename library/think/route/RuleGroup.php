@@ -228,6 +228,13 @@ class RuleGroup extends Rule
      */
     protected function afterMatchGroup($request)
     {
+        if (!empty($this->option['middleware'])) {
+            foreach ($this->option['middleware'] as $middleware) {
+                Container::get('middlewareDispatcher')->add($middleware);
+            }
+            unset($this->option['middleware']);
+        }
+
         if (!empty($this->option['response'])) {
             Container::get('hook')->add('response_send', $this->option['response']);
         }
@@ -240,13 +247,6 @@ class RuleGroup extends Rule
         if (!empty($this->option['append'])) {
             $request->route($this->option['append']);
             unset($this->option['append']);
-        }
-
-        if (!empty($this->option['middleware'])) {
-            foreach ($this->option['middleware'] as $middleware) {
-                Container::get('middlewareDispatcher')->add($middleware);
-            }
-            unset($this->option['middleware']);
         }
     }
 

@@ -70,7 +70,9 @@ class Dispatcher implements DispatcherInterface
             throw new \InvalidArgumentException('The middleware is invalid');
         }
 
-        return false === strpos($middleware, '\\') ? Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware : $middleware;
+        $class = false === strpos($middleware, '\\') ? Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware : $middleware;
+
+        return [Container::get($class), 'handle'];
     }
 
     protected function resolve()
@@ -79,10 +81,6 @@ class Dispatcher implements DispatcherInterface
             $middleware = array_shift($this->queue);
 
             if (null !== $middleware) {
-                if (is_string($middleware)) {
-                    $middleware = [Container::get($middleware), 'handle'];
-                }
-
                 $response = call_user_func($middleware, $request, $this->resolve());
 
                 if (!$response instanceof Response) {
