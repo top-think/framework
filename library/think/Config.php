@@ -116,7 +116,7 @@ class Config implements \ArrayAccess
             $name = $this->prefix . '.' . $name;
         }
 
-        return $this->get($name) ? true : false;
+        return !is_null($this->get($name)) ? true : false;
     }
 
     /**
