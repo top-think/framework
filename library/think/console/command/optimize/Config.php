@@ -84,6 +84,10 @@ class Config extends Command
 
         if ('' == $module) {
             $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
+
+            if (is_file($path . 'middleware.php')) {
+                $content .= PHP_EOL . '\think\Container::get("middlewareDispatcher")->import(' . var_export(include $path . 'middleware.php' ?: [], true) . ');' . PHP_EOL;
+            }
         }
 
         if (is_file($path . 'provider.php')) {

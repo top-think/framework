@@ -255,7 +255,7 @@ class App implements \ArrayAccess
         } else {
             // 加载行为扩展文件
             if (is_file($path . 'tags.php')) {
-                $this->hook->import(include $path . 'tags.php');
+                $this->hook->import(include $path . 'tags.php' ?: []);
             }
 
             // 加载公共文件
@@ -268,13 +268,13 @@ class App implements \ArrayAccess
                 include $this->thinkPath . 'helper.php';
                 // 加载全局中间件
                 if (is_file($path . 'middleware.php')) {
-                    $this->middlewareDispatcher->import(include $path . 'middleware.php');
+                    $this->middlewareDispatcher->import(include $path . 'middleware.php' ?: []);
                 }
             }
 
             // 注册服务的容器对象实例
             if (is_file($path . 'provider.php')) {
-                $this->container->bind(include $path . 'provider.php');
+                $this->container->bind(include $path . 'provider.php' ?: []);
             }
 
             // 自动读取配置文件
