@@ -266,6 +266,10 @@ class App implements \ArrayAccess
             if ('' == $module) {
                 // 加载系统助手函数
                 include $this->thinkPath . 'helper.php';
+                // 加载全局中间件
+                if (is_file($path . 'middleware.php')) {
+                    $this->middlewareDispatcher->import(include $path . 'middleware.php');
+                }
             }
 
             // 注册服务的容器对象实例

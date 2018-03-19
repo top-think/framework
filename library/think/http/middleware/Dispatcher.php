@@ -17,11 +17,16 @@ use think\Response;
 
 class Dispatcher implements DispatcherInterface
 {
-    protected $queue;
+    protected $queue = [];
 
     public function __construct(array $middlewares = [])
     {
         $this->queue = $middlewares;
+    }
+
+    public function import(array $middlewares = [])
+    {
+        $this->queue = array_merge($this->queue, $middlewares);
     }
 
     /**
