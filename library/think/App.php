@@ -126,7 +126,7 @@ class App implements \ArrayAccess
 
     public function __construct($appPath = '')
     {
-        $this->appPath   = $appPath ?: realpath(dirname($_SERVER['SCRIPT_FILENAME']) . '/../application') . '/';
+        $this->appPath   = $appPath ?: realpath(dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . DIRECTORY_SEPARATOR . 'application') . DIRECTORY_SEPARATOR;
         $this->container = Container::getInstance();
     }
 
@@ -163,11 +163,11 @@ class App implements \ArrayAccess
     {
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
-        $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
-        $this->rootPath    = dirname(realpath($this->appPath)) . '/';
-        $this->runtimePath = $this->rootPath . 'runtime/';
-        $this->routePath   = $this->rootPath . 'route/';
-        $this->configPath  = $this->rootPath . 'config/';
+        $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
         // 设置路径环境变量
         $this->env->set([
@@ -177,8 +177,8 @@ class App implements \ArrayAccess
             'config_path'  => $this->configPath,
             'route_path'   => $this->routePath,
             'runtime_path' => $this->runtimePath,
-            'extend_path'  => $this->rootPath . 'extend/',
-            'vendor_path'  => $this->rootPath . 'vendor/',
+            'extend_path'  => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
+            'vendor_path'  => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
         ]);
 
         // 加载环境变量配置文件
@@ -403,8 +403,8 @@ class App implements \ArrayAccess
 
         // 加载系统语言包
         $this->lang->load([
-            $this->thinkPath . 'lang/' . $this->request->langset() . '.php',
-            $this->appPath . 'lang/' . $this->request->langset() . '.php',
+            $this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
+            $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
         ]);
     }
 

@@ -135,7 +135,7 @@ class Build
 
         // 创建子目录和文件
         foreach ($list as $path => $file) {
-            $modulePath = $this->basePath . $module . '/';
+            $modulePath = $this->basePath . $module . DIRECTORY_SEPARATOR;
             if ('__dir__' == $path) {
                 // 生成子目录
                 foreach ($file as $dir) {
@@ -204,7 +204,7 @@ class Build
                 continue;
             }
 
-            $path = $this->basePath . $module . '/' . $layer . '/';
+            $path = $this->basePath . $module . DIRECTORY_SEPARATOR . $layer . DIRECTORY_SEPARATOR;
             $content .= $this->buildDirRoute($path, $namespace, $module, $suffix, $layer);
         }
 
@@ -251,7 +251,7 @@ class Build
         $subDir = glob($path . '*', GLOB_ONLYDIR);
 
         foreach ($subDir as $dir) {
-            $content .= $this->buildDirRoute($dir . '/', $namespace, $module, $suffix, $layer . '\\' . basename($dir));
+            $content .= $this->buildDirRoute($dir . DIRECTORY_SEPARATOR, $namespace, $module, $suffix, $layer . '\\' . basename($dir));
         }
 
         return $content;

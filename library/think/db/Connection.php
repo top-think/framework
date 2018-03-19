@@ -351,7 +351,7 @@ abstract class Connection
 
         if (!isset(self::$info[$schema])) {
             // 读取缓存
-            $cacheFile = Container::get('app')->getRuntimePath() . 'schema/' . $schema . '.php';
+            $cacheFile = Container::get('app')->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $schema . '.php';
 
             if (!$this->config['debug'] && is_file($cacheFile)) {
                 $info = include $cacheFile;

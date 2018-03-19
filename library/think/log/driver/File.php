@@ -37,7 +37,9 @@ class File
         }
 
         if (empty($this->config['path'])) {
-            $this->config['path'] = Container::get('app')->getRuntimePath() . 'log/';
+            $this->config['path'] = Container::get('app')->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
+        } elseif (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
+            $this->config['path'] .= DIRECTORY_SEPARATOR;
         }
     }
 
@@ -63,7 +65,7 @@ class File
                     unlink($files[0]);
                 }
             } else {
-                $filename = date('Ym') . '/' . date('d') . $cli . '.log';
+                $filename = date('Ym') . DIRECTORY_SEPARATOR . date('d') . $cli . '.log';
             }
 
             $destination = $this->config['path'] . $filename;
@@ -85,11 +87,11 @@ class File
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 if ($this->config['single']) {
-                    $filename = $path . '/' . $name . '_' . $type . '.log';
+                    $filename = $path . DIRECTORY_SEPARATOR . $name . '_' . $type . '.log';
                 } elseif ($this->config['max_files']) {
-                    $filename = $path . '/' . date('Ymd') . '_' . $type . $cli . '.log';
+                    $filename = $path . DIRECTORY_SEPARATOR . date('Ymd') . '_' . $type . $cli . '.log';
                 } else {
-                    $filename = $path . '/' . date('d') . '_' . $type . $cli . '.log';
+                    $filename = $path . DIRECTORY_SEPARATOR . date('d') . '_' . $type . $cli . '.log';
                 }
 
                 $this->write($level, $filename, true);
@@ -118,7 +120,7 @@ class File
         // 检测日志文件大小，超过配置大小则备份日志文件重新生成
         if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
             try {
-                rename($destination, dirname($destination) . '/' . time() . '-' . basename($destination));
+                rename($destination, dirname($destination) . DIRECTORY_SEPARATOR . time() . '-' . basename($destination));
             } catch (\Exception $e) {
             }
 

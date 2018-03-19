@@ -89,12 +89,12 @@ class Config implements \ArrayAccess
     {
         // 如果尚未载入 则动态加载配置文件
         $module = Container::get('request')->module();
-        $module = $module ? $module . '/' : '';
+        $module = $module ? $module . DIRECTORY_SEPARATOR : '';
         $app    = Container::get('app');
         $path   = $app->getAppPath() . $module;
 
         if (is_dir($path . 'config')) {
-            $file = $path . 'config/' . $name . $app->getConfigExt();
+            $file = $path . 'config' . DIRECTORY_SEPARATOR . $name . $app->getConfigExt();
         } elseif (is_dir($app->getConfigPath() . $module)) {
             $file = $app->getConfigPath() . $module . $name . $app->getConfigExt();
         }

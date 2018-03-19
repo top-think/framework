@@ -58,15 +58,15 @@ class Loader
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
 
-        $path = dirname($_SERVER['SCRIPT_FILENAME']);
+        $path = realpath(dirname($_SERVER['SCRIPT_FILENAME']));
 
         if ('cli-server' == PHP_SAPI || !is_file('./think')) {
-            $rootPath = realpath($path . '/../') . '/';
+            $rootPath = dirname($path) . DIRECTORY_SEPARATOR;
         } else {
-            $rootPath = realpath($path) . '/';
+            $rootPath = $path . DIRECTORY_SEPARATOR;
         }
 
-        self::$composerPath = $rootPath . 'vendor/composer/';
+        self::$composerPath = $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
 
         // Composer自动加载支持
         if (is_dir(self::$composerPath)) {
@@ -89,13 +89,13 @@ class Loader
 
         // 注册命名空间定义
         self::addNamespace([
-            'think'  => __DIR__ . '/',
-            'traits' => __DIR__ . '/../traits/',
+            'think'  => __DIR__,
+            'traits' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'traits',
         ]);
 
         // 加载类库映射文件
-        if (is_file($rootPath . 'runtime/classmap.php')) {
-            self::addClassMap(__include_file($rootPath . 'runtime/classmap.php'));
+        if (is_file($rootPath . 'runtime' . DIRECTORY_SEPARATOR . 'classmap.php')) {
+            self::addClassMap(__include_file($rootPath . 'runtime' . DIRECTORY_SEPARATOR . 'classmap.php'));
         }
 
         // 自动加载extend目录

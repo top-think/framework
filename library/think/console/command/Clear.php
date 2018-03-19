@@ -34,7 +34,7 @@ class Clear extends Command
         if ($files) {
             foreach ($files as $file) {
                 if ('.' != $file && '..' != $file && is_dir($path . $file)) {
-                    array_map('unlink', glob($path . $file . '/*.*'));
+                    array_map('unlink', glob($path . $file . DIRECTORY_SEPARATOR . '*.*'));
                 } elseif ('.gitignore' != $file && is_file($path . $file)) {
                     unlink($path . $file);
                 }

@@ -43,7 +43,7 @@ class File extends Driver
         }
 
         if (empty($this->options['path'])) {
-            $this->options['path'] = Container::get('app')->getRuntimePath() . 'cache/';
+            $this->options['path'] = Container::get('app')->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR;
         } elseif (substr($this->options['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->options['path'] .= DIRECTORY_SEPARATOR;
         }
@@ -269,7 +269,7 @@ class File extends Driver
 
         foreach ($files as $path) {
             if (is_dir($path)) {
-                $matches = glob($path . '/*.php');
+                $matches = glob($path . DIRECTORY_SEPARATOR . '*.php');
                 if (is_array($matches)) {
                     array_map('unlink', $matches);
                 }

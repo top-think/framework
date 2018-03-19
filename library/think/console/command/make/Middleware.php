@@ -26,7 +26,7 @@ class Middleware extends Make
 
     protected function getStub()
     {
-        return __DIR__ . '/stubs/middleware.stub';
+        return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'middleware.stub';
     }
 
     protected function getNamespace($appNamespace, $module)
