@@ -19,14 +19,11 @@ class Dispatcher implements DispatcherInterface
 {
     protected $queue = [];
 
-    public function __construct(array $middlewares = [])
-    {
-        $this->queue = $middlewares;
-    }
-
     public function import(array $middlewares = [])
     {
-        $this->queue = array_merge($this->queue, $middlewares);
+        foreach ($middlewares as $middleware) {
+            $this->add($middleware);
+        }
     }
 
     /**
