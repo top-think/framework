@@ -11,7 +11,7 @@
 
 namespace think;
 
-class middleware
+class Middleware
 {
     protected $queue = [];
 
