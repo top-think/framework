@@ -9,13 +9,9 @@
 // | Author: Slince <taosikai@yeah.net>
 // +----------------------------------------------------------------------
 
-namespace think\http\middleware;
+namespace think;
 
-use think\Container;
-use think\Request;
-use think\Response;
-
-class Dispatcher implements DispatcherInterface
+class middleware
 {
     protected $queue = [];
 
@@ -31,6 +27,10 @@ class Dispatcher implements DispatcherInterface
      */
     public function add($middleware)
     {
+        if (is_null($middleware)) {
+            return;
+        }
+
         $middleware = $this->buildMiddleware($middleware);
 
         $this->queue[] = $middleware;
@@ -39,8 +39,12 @@ class Dispatcher implements DispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function insert($middleware)
+    public function unshift($middleware)
     {
+        if (is_null($middleware)) {
+            return;
+        }
+
         $middleware = $this->buildMiddleware($middleware);
 
         array_unshift($this->queue, $middleware);
@@ -101,7 +105,7 @@ class Dispatcher implements DispatcherInterface
 
                 return $response;
             } else {
-                throw new MissingResponseException('The queue was exhausted, with no response returned');
+                throw new \InvalidArgumentException('The queue was exhausted, with no response returned');
             }
         };
     }

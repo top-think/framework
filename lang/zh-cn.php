@@ -86,6 +86,8 @@ return [
     'filesize not match'                                        => '上传文件大小不符！',
     'directory {:path} creation failed'                         => '目录 {:path} 创建失败！',
 
+    'The middleware must return Response instance'              => '中间件方法必须返回Response对象实例',
+    'The queue was exhausted, with no response returned'        => '中间件队列为空',
     // Validate Error Message
     ':attribute require'                                        => ':attribute不能为空',
     ':attribute must'                                           => ':attribute必须',

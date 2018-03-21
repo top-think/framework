@@ -268,7 +268,7 @@ class App implements \ArrayAccess
                 include $this->thinkPath . 'helper.php';
                 // 加载全局中间件
                 if (is_file($path . 'middleware.php')) {
-                    $this->middlewareDispatcher->import(include $path . 'middleware.php' ?: []);
+                    $this->middleware->import(include $path . 'middleware.php' ?: []);
                 }
             }
 
@@ -357,7 +357,7 @@ class App implements \ArrayAccess
             $data     = $exception->getResponse();
         }
 
-        $this->middlewareDispatcher->add(function (Request $request, $next) use ($dispatch, $data) {
+        $this->middleware->add(function (Request $request, $next) use ($dispatch, $data) {
             if (is_null($data)) {
                 try {
                     // 执行调度
@@ -382,7 +382,7 @@ class App implements \ArrayAccess
             return $response;
         });
 
-        $response = $this->middlewareDispatcher->dispatch($this->request);
+        $response = $this->middleware->dispatch($this->request);
 
         // 监听app_end
         $this->hook->listen('app_end', $response);
