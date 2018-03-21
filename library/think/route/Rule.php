@@ -615,6 +615,7 @@ abstract class Rule
 
         // 检测路由after行为
         if (!empty($option['after'])) {
+            trigger_error('route behavior will not support');
             $dispatch = $this->checkAfter($option['after']);
 
             if (false !== $dispatch) {
@@ -714,6 +715,7 @@ abstract class Rule
      */
     protected function checkBefore($before)
     {
+        trigger_error('route behavior will not support');
         $hook = Container::get('hook');
 
         foreach ((array) $before as $behavior) {

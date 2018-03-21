@@ -68,6 +68,7 @@ return [
     'relation not support'                                      => '关联不支持',
     'chunk not support order'                                   => 'Chunk不支持调用order方法',
     'route pattern error'                                       => '路由变量规则定义错误',
+    'route behavior will not support'                           => '路由行为废弃（使用中间件替代）',
 
     // 上传错误信息
     'unknown upload error'                                      => '未知上传错误！',
