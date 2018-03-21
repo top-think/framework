@@ -282,18 +282,18 @@ abstract class Rule
     /**
      * 指定路由中间件
      * @access public
-     * @param  string|\Closure     $middleware
-     * @param  bool                $first
+     * @param  string|array|\Closure    $middleware
+     * @param  mixed                    $param
      * @return $this
      */
-    public function middleware($middleware, $first = false)
+    public function middleware($middleware, $param = null)
     {
-        if (is_array($middleware)) {
+        if (is_null($param) && is_array($middleware)) {
             $this->option['middleware'] = $middleware;
-        } elseif ($first && isset($this->option['middleware'])) {
-            array_unshift($this->option['middleware'], $middleware);
         } else {
-            $this->option['middleware'][] = $middleware;
+            foreach ((array) $middleware as $item) {
+                $this->option['middleware'][] = [$item, $param];
+            }
         }
 
         return $this;

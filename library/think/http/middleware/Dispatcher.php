@@ -34,7 +34,7 @@ class Dispatcher implements DispatcherInterface
      */
     public function add($middleware)
     {
-        $middleware = $this->makeInstance($middleware);
+        $middleware = $this->buildMiddleware($middleware);
 
         $this->queue[] = $middleware;
     }
@@ -44,7 +44,7 @@ class Dispatcher implements DispatcherInterface
      */
     public function insert($middleware)
     {
-        $middleware = $this->makeInstance($middleware);
+        $middleware = $this->buildMiddleware($middleware);
 
         array_unshift($this->queue, $middleware);
     }
@@ -65,10 +65,14 @@ class Dispatcher implements DispatcherInterface
         return call_user_func($this->resolve(), $request);
     }
 
-    protected function makeInstance($middleware)
+    protected function buildMiddleware($middleware)
     {
+        if (is_array($middleware)) {
+            list($middleware, $param) = $middleware;
+        }
+
         if ($middleware instanceof \Closure) {
-            return $middleware;
+            return [$middleware, null];
         }
 
         if (!is_string($middleware)) {
@@ -77,7 +81,11 @@ class Dispatcher implements DispatcherInterface
 
         $class = false === strpos($middleware, '\\') ? Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware : $middleware;
 
-        return [Container::get($class), 'handle'];
+        if (strpos($class, ':')) {
+            list($class, $param) = explode(':', $class, 2);
+        }
+
+        return [[Container::get($class), 'handle'], isset($param) ? $param : null];
     }
 
     protected function resolve()
@@ -86,7 +94,9 @@ class Dispatcher implements DispatcherInterface
             $middleware = array_shift($this->queue);
 
             if (null !== $middleware) {
-                $response = call_user_func($middleware, $request, $this->resolve());
+                list($call, $param) = $middleware;
+
+                $response = call_user_func_array($call, [$request, $this->resolve(), $param]);
 
                 if (!$response instanceof Response) {
                     throw new \LogicException('The middleware must return Response instance');
