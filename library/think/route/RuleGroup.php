@@ -135,9 +135,6 @@ class RuleGroup extends Rule
             $this->parseGroupRule($this->rule);
         }
 
-        // 分组匹配后执行的行为
-        $this->afterMatchGroup($request);
-
         // 获取当前路由规则
         $method = strtolower($request->method());
         $rules  = $this->getMethodRules($method);
@@ -218,36 +215,6 @@ class RuleGroup extends Rule
         }
 
         return true;
-    }
-
-    /**
-     * 分组匹配后执行的行为
-     * @access protected
-     * @param  Request     $request
-     * @return void
-     */
-    protected function afterMatchGroup($request)
-    {
-        if (!empty($this->option['middleware'])) {
-            foreach ($this->option['middleware'] as $middleware) {
-                Container::get('middlewareDispatcher')->add($middleware);
-            }
-            unset($this->option['middleware']);
-        }
-
-        if (!empty($this->option['response'])) {
-            Container::get('hook')->add('response_send', $this->option['response']);
-        }
-
-        // 开启请求缓存
-        if (isset($this->option['cache']) && $request->isGet()) {
-            $this->parseRequestCache($request, $this->option['cache']);
-        }
-
-        if (!empty($this->option['append'])) {
-            $request->route($this->option['append']);
-            unset($this->option['append']);
-        }
     }
 
     /**
