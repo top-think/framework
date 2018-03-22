@@ -845,7 +845,19 @@ abstract class Builder
      */
     protected function parseGroup(Query $query, $group)
     {
-        return !empty($group) ? ' GROUP BY ' . $this->parseKey($query, $group) : '';
+        if (empty($group)) {
+            return '';
+        }
+
+        if (is_string($group)) {
+            $group = explode(',', $group);
+        }
+
+        foreach ($group as $key) {
+            $val[] = $this->parseKey($query, $key);
+        }
+
+        return ' GROUP BY ' . implode(',', $val);
     }
 
     /**

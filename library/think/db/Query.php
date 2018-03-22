@@ -1789,7 +1789,7 @@ class Query
     /**
      * 指定group查询
      * @access public
-     * @param  string $group GROUP
+     * @param  string|array $group GROUP
      * @return $this
      */
     public function group($group)
