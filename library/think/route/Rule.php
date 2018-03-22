@@ -714,8 +714,6 @@ abstract class Rule
      */
     protected function checkBefore($before)
     {
-        Container::get('log')->notice('路由行为建议使用中间件替代！');
-
         $hook = Container::get('hook');
 
         foreach ((array) $before as $behavior) {
@@ -735,7 +733,7 @@ abstract class Rule
      */
     protected function checkAfter($after)
     {
-        Container::get('log')->notice('路由行为建议使用中间件替代！');
+        Container::get('log')->notice('路由后置行为建议使用中间件替代！');
 
         $hook = Container::get('hook');
 
