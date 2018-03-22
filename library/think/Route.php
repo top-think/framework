@@ -107,9 +107,20 @@ class Route
      */
     protected $lazy = true;
 
-    public function __construct(Request $request, Config $config)
+    /**
+     * （分组）路由规则是否合并解析
+     * @var bool
+     */
+    protected $mergeRuleRegex = true;
+
+    /**
+     * 路由解析自动搜索多级控制器
+     * @var bool
+     */
+    protected $autoSearchController = true;
+
+    public function __construct(Request $request)
     {
-        $this->config  = $config;
         $this->request = $request;
         $this->host    = $this->request->host();
 
@@ -125,6 +136,32 @@ class Route
     public function lazy($lazy = true)
     {
         $this->lazy = $lazy;
+        return $this;
+    }
+
+    /**
+     * 设置路由域名及分组（包括资源路由）是否合并解析
+     * @access public
+     * @param  bool     $merge   路由是否合并解析
+     * @return $this
+     */
+    public function mergeRuleRegex($merge = true)
+    {
+        $this->mergeRuleRegex = $merge;
+        $this->group->mergeRuleRegex($merge);
+
+        return $this;
+    }
+
+    /**
+     * 设置路由自动解析是否搜索多级控制器
+     * @access public
+     * @param  bool     $auto   是否自动搜索多级控制器
+     * @return $this
+     */
+    public function autoSearchController($auto = true)
+    {
+        $this->autoSearchController = $auto;
         return $this;
     }
 
@@ -216,7 +253,9 @@ class Route
 
         if (!isset($this->domains[$domainName])) {
             $domain = (new Domain($this, $domainName, $rule, $option, $pattern))
-                ->lazy($this->lazy);
+                ->lazy($this->lazy)
+                ->mergeRuleRegex($this->mergeRuleRegex);
+
             $this->domains[$domainName] = $domain;
         } else {
             $domain = $this->domains[$domainName];
@@ -401,7 +440,7 @@ class Route
     public function setCrossDomainRule($rule, $method = '*')
     {
         if (!isset($this->cross)) {
-            $this->cross = new RuleGroup($this);
+            $this->cross = (new RuleGroup($this))->mergeRuleRegex($this->mergeRuleRegex);
         }
 
         $this->cross->addRuleItem($rule, $method);
@@ -440,7 +479,8 @@ class Route
         }
 
         return (new RuleGroup($this, $this->group, $name, $route, $option, $pattern))
-            ->lazy($this->lazy);
+            ->lazy($this->lazy)
+            ->mergeRuleRegex($this->mergeRuleRegex);
     }
 
     /**
@@ -746,7 +786,7 @@ class Route
         }
 
         // 默认路由解析
-        return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->config->get('app.controller_auto_search')]);
+        return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->autoSearchController]);
     }
 
     /**

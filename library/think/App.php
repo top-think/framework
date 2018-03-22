@@ -326,8 +326,12 @@ class App implements \ArrayAccess
             // 获取应用调度信息
             $dispatch = $this->dispatch;
             if (empty($dispatch)) {
-                // 进行URL路由检测
-                $this->route->lazy($this->config('app.url_lazy_route'));
+                // 路由检测
+                $this->route
+                    ->lazy($this->config('app.url_lazy_route'))
+                    ->autoSearchController($this->config('app.controller_auto_search'))
+                    ->mergeRuleRegex($this->config('app.route_rule_merge'));
+
                 $dispatch = $this->routeCheck();
             }
 
