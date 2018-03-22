@@ -70,9 +70,10 @@ class BelongsTo extends OneToOne
      * @param  string  $operator 比较操作符
      * @param  integer $count    个数
      * @param  string  $id       关联表的统计字段
+     * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has($operator = '>=', $count = 1, $id = '*')
+    public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
         return $this->parent;
     }

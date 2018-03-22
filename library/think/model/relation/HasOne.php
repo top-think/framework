@@ -67,9 +67,13 @@ class HasOne extends OneToOne
     /**
      * 根据关联条件查询当前模型
      * @access public
+     * @param  string  $operator 比较操作符
+     * @param  integer $count    个数
+     * @param  string  $id       关联表的统计字段
+     * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has()
+    public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
         $table      = $this->query->getTable();
         $model      = basename(str_replace('\\', '/', get_class($this->parent)));

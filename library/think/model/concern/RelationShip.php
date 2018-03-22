@@ -141,9 +141,10 @@ trait RelationShip
      * @param  mixed   $operator 比较操作符
      * @param  integer $count    个数
      * @param  string  $id       关联表的统计字段
+     * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public static function has($relation, $operator = '>=', $count = 1, $id = '*')
+    public static function has($relation, $operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
         $relation = (new static())->$relation();
 
@@ -151,7 +152,7 @@ trait RelationShip
             return $relation->hasWhere($operator);
         }
 
-        return $relation->has($operator, $count, $id);
+        return $relation->has($operator, $count, $id, $joinType);
     }
 
     /**
