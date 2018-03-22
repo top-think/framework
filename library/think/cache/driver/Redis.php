@@ -74,7 +74,7 @@ class Redis extends Driver
      */
     public function has($name)
     {
-        return $this->handler->get($this->getCacheKey($name)) ? true : false;
+        return $this->handler->exists($this->getCacheKey($name));
     }
 
     /**
@@ -203,4 +203,39 @@ class Redis extends Driver
         return $this->handler->flushDB();
     }
 
+/**
+ * 如果不存在则写入缓存
+ * @access public
+ * @param string $name 缓存变量名
+ * @param mixed $value 存储数据
+ * @param int $expire  有效时间 0为永久
+ * @return mixed
+ */
+    public function remember($name, $value, $expire = null)
+    {
+        if (is_null($expire)) {
+            $expire = $this->options['expire'];
+        }
+
+        // 没有过期参数时，使用setnx
+        if (!$expire) {
+            $key = $this->getCacheKey($name);
+            $val = $this->serialize($value);
+            $res = $this->handler->setnx($key, $val);
+            if ($res) {
+                $this->writeTimes++;
+                return $value;
+            } else {
+                return $this->get($name);
+            }
+        }
+
+        if ($this->has($name)) {
+            return $this->get($name);
+        } else {
+            $this->set($name, $value, $expire);
+        }
+
+        return $value;
+    }
 }
