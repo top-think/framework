@@ -166,8 +166,8 @@ class RuleItem extends Rule
     }
 
     /**
-     * 检测路由
-     * @access private
+     * 检测匹配到的路由
+     * @access protected
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
      * @param  array        $match    匹配路由变量
@@ -175,7 +175,7 @@ class RuleItem extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    private function checkRule($request, $url, $match = null, $depr = '/', $completeMatch = false)
+    protected function checkRule($request, $url, $match = null, $depr = '/', $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
@@ -223,20 +223,7 @@ class RuleItem extends Rule
     }
 
     /**
-     * 检测已经匹配的路由
-     * @access public
-     * @param  Request      $request  请求对象
-     * @param  string       $url      访问地址
-     * @param  array        $match    匹配路由变量
-     * @return Dispatch|false
-     */
-    public function checkMatchRule($request, $url, $match = [])
-    {
-        return $this->checkRule($request, $url, $match);
-    }
-
-    /**
-     * 检测已经匹配的路由
+     * URL后缀及Slash检查
      * @access protected
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
