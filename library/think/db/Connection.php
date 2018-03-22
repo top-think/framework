@@ -106,6 +106,8 @@ abstract class Connection
         'query'           => '\\think\\db\\Query',
         // 是否需要断线重连
         'break_reconnect' => false,
+        // 断线标识字符串
+        'break_match_str' => [],
     ];
 
     // PDO连接参数
@@ -115,6 +117,21 @@ abstract class Connection
         PDO::ATTR_ORACLE_NULLS      => PDO::NULL_NATURAL,
         PDO::ATTR_STRINGIFY_FETCHES => false,
         PDO::ATTR_EMULATE_PREPARES  => false,
+    ];
+
+    // 服务器断线标识字符
+    protected $breakMatchStr = [
+        'server has gone away',
+        'no connection to the server',
+        'Lost connection',
+        'is dead or not enabled',
+        'Error while sending',
+        'decryption failed or bad record mac',
+        'server closed the connection unexpectedly',
+        'SSL connection has been closed unexpectedly',
+        'Error writing data to the connection',
+        'Resource deadlock avoided',
+        'failed with errno',
     ];
 
     // 绑定参数
@@ -493,6 +510,10 @@ abstract class Connection
 
         // 记录当前字段属性大小写设置
         $this->attrCase = $params[PDO::ATTR_CASE];
+
+        if (!empty($config['break_match_str'])) {
+            $this->breakMatchStr = array_merge($this->breakMatchStr, (array) $config['break_match_str']);
+        }
 
         try {
             if (empty($config['dsn'])) {
@@ -1779,23 +1800,9 @@ abstract class Connection
             return false;
         }
 
-        $info = [
-            'server has gone away',
-            'no connection to the server',
-            'Lost connection',
-            'is dead or not enabled',
-            'Error while sending',
-            'decryption failed or bad record mac',
-            'server closed the connection unexpectedly',
-            'SSL connection has been closed unexpectedly',
-            'Error writing data to the connection',
-            'Resource deadlock avoided',
-            'failed with errno',
-        ];
-
         $error = $e->getMessage();
 
-        foreach ($info as $msg) {
+        foreach ($this->breakMatchStr as $msg) {
             if (false !== stripos($error, $msg)) {
                 return true;
             }
