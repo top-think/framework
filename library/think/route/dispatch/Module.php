@@ -54,7 +54,7 @@ class Module extends Dispatch
                 $this->app->init($module);
 
                 // 加载当前模块语言包
-                $this->app['lang']->load($this->app->getAppPath() . $module . '/lang/' . $this->app['request']->langset() . '.php');
+                $this->app['lang']->load($this->app->getAppPath() . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->app['request']->langset() . '.php');
 
                 // 模块请求缓存检查
                 $this->app['request']->cache(
@@ -72,7 +72,7 @@ class Module extends Dispatch
         }
 
         // 当前模块路径
-        $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . '/' : ''));
+        $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : ''));
 
         // 是否自动转换控制器和操作名
         $convert = is_bool($this->convert) ? $this->convert : $this->app->config('app.url_convert');
