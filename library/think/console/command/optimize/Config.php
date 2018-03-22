@@ -71,7 +71,10 @@ class Config extends Command
 
         // 加载行为扩展文件
         if (is_file($path . 'tags.php')) {
-            $content .= PHP_EOL . '\think\facade\Hook::import(' . (var_export(include $path . 'tags.php' ?: [], true)) . ');' . PHP_EOL;
+            $tags = include $path . 'tags.php';
+            if (is_array($tags)) {
+                $content .= PHP_EOL . '\think\facade\Hook::import(' . (var_export($tags, true)) . ');' . PHP_EOL;
+            }
         }
 
         // 加载公共文件
@@ -86,12 +89,18 @@ class Config extends Command
             $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
 
             if (is_file($path . 'middleware.php')) {
-                $content .= PHP_EOL . '\think\Container::get("middlewareDispatcher")->import(' . var_export(include $path . 'middleware.php' ?: [], true) . ');' . PHP_EOL;
+                $middleware = include $path . 'middleware.php';
+                if (is_array($middleware)) {
+                    $content .= PHP_EOL . '\think\Container::get("middleware")->import(' . var_export($middleware, true) . ');' . PHP_EOL;
+                }
             }
         }
 
         if (is_file($path . 'provider.php')) {
-            $content .= PHP_EOL . '\think\Container::getInstance()->bind(' . var_export(include $path . 'provider.php' ?: [], true) . ');' . PHP_EOL;
+            $provider = include $path . 'provider.php';
+            if (is_array($provider)) {
+                $content .= PHP_EOL . '\think\Container::getInstance()->bind(' . var_export($provider, true) . ');' . PHP_EOL;
+            }
         }
 
         $content .= PHP_EOL . '\think\facade\Config::set(' . var_export($config->get(), true) . ');' . PHP_EOL;
