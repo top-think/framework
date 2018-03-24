@@ -1099,37 +1099,12 @@ class Request
         $files = $this->file;
         if (!empty($files)) {
             // 处理上传文件
-            $array = [];
-            foreach ($files as $key => $file) {
-                if (is_array($file['name'])) {
-                    $item  = [];
-                    $keys  = array_keys($file);
-                    $count = count($file['name']);
-                    for ($i = 0; $i < $count; $i++) {
-                        if (empty($file['tmp_name'][$i]) || !is_file($file['tmp_name'][$i])) {
-                            continue;
-                        }
-                        $temp['key'] = $key;
-                        foreach ($keys as $_key) {
-                            $temp[$_key] = $file[$_key][$i];
-                        }
-                        $item[] = (new File($temp['tmp_name']))->setUploadInfo($temp);
-                    }
-                    $array[$key] = $item;
-                } else {
-                    if ($file instanceof File) {
-                        $array[$key] = $file;
-                    } else {
-                        if (empty($file['tmp_name']) || !is_file($file['tmp_name'])) {
-                            continue;
-                        }
-                        $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
-                    }
-                }
-            }
+            $array = $this->dealUploadFile($files);
+
             if (strpos($name, '.')) {
                 list($name, $sub) = explode('.', $name);
             }
+
             if ('' === $name) {
                 // 获取全部文件
                 return $array;
@@ -1141,6 +1116,46 @@ class Request
         }
 
         return;
+    }
+
+    protected function dealUploadFile($files)
+    {
+        $array = [];
+        foreach ($files as $key => $file) {
+            if (is_array($file['name'])) {
+                $item  = [];
+                $keys  = array_keys($file);
+                $count = count($file['name']);
+
+                for ($i = 0; $i < $count; $i++) {
+                    if (empty($file['tmp_name'][$i]) || !is_file($file['tmp_name'][$i])) {
+                        continue;
+                    }
+
+                    $temp['key'] = $key;
+
+                    foreach ($keys as $_key) {
+                        $temp[$_key] = $file[$_key][$i];
+                    }
+
+                    $item[] = (new File($temp['tmp_name']))->setUploadInfo($temp);
+                }
+
+                $array[$key] = $item;
+            } else {
+                if ($file instanceof File) {
+                    $array[$key] = $file;
+                } else {
+                    if (empty($file['tmp_name']) || !is_file($file['tmp_name'])) {
+                        continue;
+                    }
+
+                    $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
+                }
+            }
+        }
+
+        return $array;
     }
 
     /**
@@ -1232,6 +1247,7 @@ class Request
             } else {
                 $type = 's';
             }
+
             // 按.拆分成多维数组进行判断
             foreach (explode('.', $name) as $val) {
                 if (isset($data[$val])) {
@@ -1241,6 +1257,7 @@ class Request
                     return $default;
                 }
             }
+
             if (is_object($data)) {
                 return $data;
             }
@@ -1889,6 +1906,17 @@ class Request
     public function getCache()
     {
         return $this->cache;
+    }
+
+    /**
+     * 获取请求数据的值
+     * @access public
+     * @param  string $name 名称
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->param($name);
     }
 
 }
