@@ -28,6 +28,8 @@ class Think
         'view_base'   => '',
         // 模板起始路径
         'view_path'   => '',
+        // 模板主题
+        'view_theme'   => '',
         // 模板文件后缀
         'view_suffix' => 'html',
         // 模板文件名分隔符
@@ -41,6 +43,9 @@ class Think
         $this->config = array_merge($this->config, $config);
         if (empty($this->config['view_path'])) {
             $this->config['view_path'] = App::$modulePath . 'view' . DS;
+            if (!empty($this->config['view_theme'])) {
+                $this->config['view_path'] .= $this->config['view_theme'] . DS;
+            }
         }
 
         $this->template = new Template($this->config);
