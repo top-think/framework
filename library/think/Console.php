@@ -49,10 +49,21 @@ class Console
         "think\\console\\command\\RunServer",
     ];
 
-    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
+    /**
+     * Console constructor.
+     * @access public
+     * @param  string     $name    名称
+     * @param  string     $version 版本
+     * @param null|string $user    执行用户
+     */
+    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $user = null)
     {
         $this->name    = $name;
         $this->version = $version;
+
+        if ($user) {
+            $this->setUser($user);
+        }
 
         $this->defaultCommand = 'list';
         $this->definition     = $this->getDefaultInputDefinition();
@@ -62,13 +73,33 @@ class Console
         }
     }
 
+    /**
+     * 设置执行用户
+     * @param $user
+     */
+    public function setUser($user)
+    {
+        $user = posix_getpwnam($user);
+        if ($user) {
+            posix_setuid($user['uid']);
+            posix_setgid($user['gid']);
+        }
+    }
+
+    /**
+     * 初始化 Console
+     * @access public
+     * @param  bool $run 是否运行 Console
+     * @return int|Console
+     */
     public static function init($run = true)
     {
         static $console;
 
         if (!$console) {
-            // 实例化console
-            $console = new self('Think Console', '0.1');
+            $config = Container::get('config')->pull('console');
+            // 实例化 console
+            $console = new self($config['name'], $config['version'], $config['user']);
 
             // 读取指令集
             $file = Container::get('env')->get('app_path') . 'command.php';
