@@ -660,10 +660,7 @@ if (!function_exists('view')) {
     function view($template = '', $vars = [], $code = 200, $filter = null)
     {
         if ('' === $template) {
-            $trace    = debug_backtrace(false, 2);
-            $suffix   = Container::get('config')->get('app.action_suffix');
-            $action   = $suffix ? substr($trace[1]['function'], 0, -strlen($suffix)) : $trace[1]['function'];
-            $template = Loader::parseName($action);
+            $template = Loader::parseName(request()->action(true));
         }
 
         return Response::create($template, 'view', $code)->assign($vars)->filter($filter);

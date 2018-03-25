@@ -11,6 +11,7 @@
 
 namespace think\route\dispatch;
 
+use ReflectionMethod;
 use think\Container;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
@@ -82,10 +83,9 @@ class Module extends Dispatch
 
         // 获取操作名
         $actionName = strip_tags($result[2] ?: $this->app->config('app.default_action'));
-        $actionName = $convert ? strtolower($actionName) : $actionName;
 
         // 设置当前请求的控制器、操作
-        $this->app['request']->controller(Loader::parseName($controller, 1))->action($actionName);
+        $this->app['request']->controller(Loader::parseName($controller, 1));
 
         // 监听module_init
         $this->app['hook']->listen('module_init');
@@ -106,14 +106,24 @@ class Module extends Dispatch
         if (is_callable([$instance, $action])) {
             // 执行操作方法
             $call = [$instance, $action];
+
+            // 严格获取当前操作方法名
+            $reflect    = new ReflectionMethod($instance, $action);
+            $methodName = $reflect->getName();
+            $suffix     = $this->app->config('app.action_suffix');
+            $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
+            $this->app['request']->action($actionName);
+
             // 自动获取请求变量
             $vars = $this->app->config('app.url_param_type')
             ? $this->app['request']->route()
             : $this->app['request']->param();
         } elseif (is_callable([$instance, '_empty'])) {
             // 空操作
-            $call = [$instance, '_empty'];
-            $vars = [$actionName];
+            $this->app['request']->action($actionName);
+            $call    = [$instance, '_empty'];
+            $vars    = [$actionName];
+            $reflect = new ReflectionMethod($instance, '_empty');
         } else {
             // 操作不存在
             throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
@@ -121,6 +131,6 @@ class Module extends Dispatch
 
         $this->app['hook']->listen('action_begin', $call);
 
-        return Container::getInstance()->invokeMethod($call, $vars);
+        return Container::getInstance()->invokeReflectMethod($instance, $reflect, $vars);
     }
 }
