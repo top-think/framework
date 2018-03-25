@@ -69,6 +69,11 @@ class App implements \ArrayAccess
      * @var string
      */
     protected $appPath;
+    /**
+     * 应用实例目录
+     * @var string
+     */
+    protected $appRoot;
 
     /**
      * 框架目录
@@ -148,9 +153,10 @@ class App implements \ArrayAccess
      * @param  string $path 路径
      * @return $this
      */
-    public function path($path)
+    public function path($path,$root='')
     {
         $this->appPath = $path;
+        $this->appRoot = $root;
         return $this;
     }
 
@@ -165,9 +171,10 @@ class App implements \ArrayAccess
         $this->beginMem    = memory_get_usage();
         $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
         $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
-        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
-        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        $this->appRoot     = $this->appRoot ? $this->appRoot : dirname($this->appPath).DIRECTORY_SEPARATOR;
+        $this->runtimePath = $this->appRoot . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->appRoot. 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath  = $this->appRoot. 'config' . DIRECTORY_SEPARATOR;
 
         // 设置路径环境变量
         $this->env->set([
