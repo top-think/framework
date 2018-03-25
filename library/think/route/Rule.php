@@ -1019,7 +1019,14 @@ abstract class Rule
             $name = substr($name, 1, -1);
         }
 
-        $nameRule = isset($pattern[$name]) ? $pattern[$name] : '\w+';
+        if (isset($pattern[$name])) {
+            $nameRule = $pattern[$name];
+            if (0 === strpos($nameRule, '/') && '/' == substr($nameRule, -1)) {
+                $nameRule = substr($nameRule, 1, -1);
+            }
+        } else {
+            $nameRule = '\w+';
+        }
 
         return '(' . $prefix . '(?<' . $name . $suffix . '>' . $nameRule . '))' . $optional;
     }
