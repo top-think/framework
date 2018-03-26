@@ -59,6 +59,11 @@ class Domain extends RuleGroup
         // 检测URL绑定
         $result = $this->checkUrlBind($url, $depr);
 
+        if (!empty($this->option['append'])) {
+            $request->route($this->option['append']);
+            unset($this->option['append']);
+        }
+
         if (false !== $result) {
             return $result;
         }
