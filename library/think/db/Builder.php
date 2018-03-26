@@ -135,13 +135,19 @@ abstract class Builder
             } elseif (is_array($val) && !empty($val)) {
                 switch ($val[0]) {
                     case 'exp':
-                        $result[$item] = $val[1];
+                        if (isset($val[2]) && $query->getSecureKey() == $val[2]) {
+                            $result[$item] = $val[1];
+                        }
                         break;
                     case 'inc':
-                        $result[$item] = $this->parseKey($query, $val[1]) . ' + ' . floatval($val[2]);
+                        if ($key == $val[1]) {
+                            $result[$item] = $this->parseKey($query, $val[1]) . ' + ' . floatval($val[2]);
+                        }
                         break;
                     case 'dec':
-                        $result[$item] = $this->parseKey($query, $val[1]) . ' - ' . floatval($val[2]);
+                        if ($key == $val[1]) {
+                            $result[$item] = $this->parseKey($query, $val[1]) . ' - ' . floatval($val[2]);
+                        }
                         break;
                 }
             } elseif (is_scalar($val)) {

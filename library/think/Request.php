@@ -252,6 +252,12 @@ class Request
     protected $isCheckCache;
 
     /**
+     * 请求安全Key
+     * @var string
+     */
+    protected $secureKey;
+
+    /**
      * 架构函数
      * @access public
      * @param  array  $options 参数
@@ -1708,6 +1714,20 @@ class Request
         }
 
         return $this->dispatch;
+    }
+
+    /**
+     * 获取当前请求的安全Key
+     * @access public
+     * @return string
+     */
+    public function secureKey()
+    {
+        if (is_null($this->secureKey)) {
+            $this->secureKey = uniqid();
+        }
+
+        return $this->secureKey;
     }
 
     /**
