@@ -769,7 +769,7 @@ class App implements \ArrayAccess
      */
     public function getAppRoot()
     {
-		return $this->appRoot;
+        return $this->appRoot;
     }
 
     /**
