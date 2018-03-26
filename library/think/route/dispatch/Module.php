@@ -85,7 +85,7 @@ class Module extends Dispatch
         $actionName = strip_tags($result[2] ?: $this->app->config('app.default_action'));
 
         // 设置当前请求的控制器、操作
-        $this->app['request']->controller(Loader::parseName($controller, 1));
+        $this->app['request']->controller(Loader::parseName($controller, 1))->action($actionName);
 
         // 监听module_init
         $this->app['hook']->listen('module_init');
@@ -120,7 +120,6 @@ class Module extends Dispatch
             : $this->app['request']->param();
         } elseif (is_callable([$instance, '_empty'])) {
             // 空操作
-            $this->app['request']->action($actionName);
             $call    = [$instance, '_empty'];
             $vars    = [$actionName];
             $reflect = new ReflectionMethod($instance, '_empty');
