@@ -444,10 +444,7 @@ if (!function_exists('view')) {
     function view($template = '', $vars = [], $replace = [], $code = 200)
     {
         if ('' === $template) {
-            $trace    = debug_backtrace(false, 2);
-            $suffix   = Config::get('action_suffix');
-            $action   = $suffix ? substr($trace[1]['function'], 0, -strlen($suffix)) : $trace[1]['function'];
-            $template = Loader::parseName($action);
+            $template = Loader::parseName(request()->action(true));
         }
         return Response::create($template, 'view', $code)->replace($replace)->assign($vars);
     }

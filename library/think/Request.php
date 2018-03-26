@@ -1466,11 +1466,12 @@ class Request
      */
     public function action($action = null)
     {
-        if (!is_null($action)) {
+        if (!is_null($action) && !is_bool($action)) {
             $this->action = $action;
             return $this;
         } else {
-            return $this->action ?: '';
+            $name = $this->action ?: '';
+            return true === $action ? $name : strtolower($name);
         }
     }
 
