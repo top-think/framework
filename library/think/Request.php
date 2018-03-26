@@ -1724,7 +1724,7 @@ class Request
     public function secureKey()
     {
         if (is_null($this->secureKey)) {
-            $this->secureKey = uniqid();
+            $this->secureKey = uniqid('', true);
         }
 
         return $this->secureKey;
