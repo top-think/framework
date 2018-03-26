@@ -149,7 +149,7 @@ class App implements \ArrayAccess
     }
 
     /**
-     * 设置应用类库目录
+     * 设置应用目录
      * @access public
      * @param  string $path 应用类库路径
      * @param  string $root 应用实例路径
@@ -760,6 +760,16 @@ class App implements \ArrayAccess
     public function getAppPath()
     {
         return $this->appPath;
+    }
+    
+    /**
+     * 获取应用实例目录
+     * @access public
+     * @return string
+     */
+    public function getAppRoot()
+    {
+    	return $this->appRoot;
     }
 
     /**
