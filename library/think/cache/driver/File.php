@@ -242,7 +242,10 @@ class File extends Driver
     {
         $this->writeTimes++;
 
-        return $this->unlink($this->getCacheKey($name));
+        try {
+            return $this->unlink($this->getCacheKey($name));
+        } catch (\Exception $e) {
+        }
     }
 
     /**
