@@ -29,7 +29,9 @@ class Route extends Command
     protected function execute(Input $input, Output $output)
     {
         $filename = Container::get('app')->getRuntimePath() . 'route.php';
-        unlink($filename);
+        if (is_file($filename)) {
+            unlink($filename);
+        }
         file_put_contents($filename, $this->buildRouteCache());
         $output->writeln('<info>Succeed!</info>');
     }
