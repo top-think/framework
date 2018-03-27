@@ -12,7 +12,6 @@
 namespace think\db;
 
 use PDO;
-use think\db\Expression;
 use think\Exception;
 
 abstract class Builder
