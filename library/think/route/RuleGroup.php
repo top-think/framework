@@ -194,7 +194,7 @@ class RuleGroup extends Rule
      */
     protected function getMethodRules($method)
     {
-        return array_merge($this->rules['*'], $this->rules[$method]);
+        return $this->rules[$method] + $this->rules['*'];
     }
 
     /**
