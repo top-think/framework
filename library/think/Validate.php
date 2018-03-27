@@ -198,6 +198,7 @@ class Validate
      * @param  array $rules 验证规则
      * @param  array $message 验证提示信息
      * @param  array $field 验证字段描述信息
+     * @return Validate
      */
     public static function make(array $rules = [], array $message = [], array $field = [])
     {
@@ -1437,7 +1438,7 @@ class Validate
      * 获取数据验证的场景
      * @access protected
      * @param  string $scene  验证场景
-     * @return array
+     * @return void
      */
     protected function getScene($scene = '')
     {
