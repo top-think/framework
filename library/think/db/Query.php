@@ -828,7 +828,7 @@ class Query
     {
         $fields = is_string($field) ? explode(',', $field) : $field;
         foreach ($fields as $field) {
-            $this->data($field, ['inc', $field, $step]);
+            $this->data($field, ['inc', $step]);
         }
         return $this;
     }
@@ -844,7 +844,7 @@ class Query
     {
         $fields = is_string($field) ? explode(',', $field) : $field;
         foreach ($fields as $field) {
-            $this->data($field, ['dec', $field, $step]);
+            $this->data($field, ['dec', $step]);
         }
         return $this;
     }

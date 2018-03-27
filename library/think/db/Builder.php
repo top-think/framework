@@ -116,14 +116,10 @@ abstract class Builder
                         $result[$item] = $val[1];
                         break;
                     case 'inc':
-                        if ($key == $val[1]) {
-                            $result[$item] = $this->parseKey($val[1]) . '+' . floatval($val[2]);
-                        }
+                        $result[$item] = $item . '+' . floatval($val[2]);
                         break;
                     case 'dec':
-                        if ($key == $val[1]) {
-                            $result[$item] = $this->parseKey($val[1]) . '-' . floatval($val[2]);
-                        }
+                        $result[$item] = $item . '-' . floatval($val[2]);
                         break;
                 }
             } elseif (is_scalar($val)) {
