@@ -59,12 +59,6 @@ class Query
     protected $pk;
 
     /**
-     * 查询安全Key
-     * @var string
-     */
-    protected $secureKey;
-
-    /**
      * 当前数据表前缀
      * @var string
      */
@@ -127,8 +121,7 @@ class Query
             $this->connection = $connection;
         }
 
-        $this->prefix    = $this->connection->getConfig('prefix');
-        $this->secureKey = Container::get('request')->secureKey();
+        $this->prefix = $this->connection->getConfig('prefix');
     }
 
     /**
@@ -269,16 +262,6 @@ class Query
     public function getName()
     {
         return $this->name ?: $this->model->getName();
-    }
-
-    /**
-     * 获取查询安全Key
-     * @access public
-     * @return string
-     */
-    public function getSecureKey()
-    {
-        return $this->secureKey;
     }
 
     /**
