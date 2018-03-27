@@ -140,14 +140,10 @@ abstract class Builder
                         }
                         break;
                     case 'inc':
-                        if ($key == $val[1]) {
-                            $result[$item] = $this->parseKey($query, $val[1]) . ' + ' . floatval($val[2]);
-                        }
+                        $result[$item] = $item . ' + ' . floatval($val[1]);
                         break;
                     case 'dec':
-                        if ($key == $val[1]) {
-                            $result[$item] = $this->parseKey($query, $val[1]) . ' - ' . floatval($val[2]);
-                        }
+                        $result[$item] = $item . ' - ' . floatval($val[1]);
                         break;
                 }
             } elseif (is_scalar($val)) {

@@ -1031,7 +1031,7 @@ class Query
                 $step = $val;
             }
 
-            $this->data($field, [$op, $field, $step]);
+            $this->data($field, [$op, $step]);
         }
 
         return $this;
