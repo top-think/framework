@@ -1,4 +1,8 @@
-/composer.lock
 /vendor
-.idea
+composer.phar
+composer.lock
 .DS_Store
+Thumbs.db
+/phpunit.xml
+/.idea
+/.vscode
