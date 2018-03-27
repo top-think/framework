@@ -1020,12 +1020,18 @@ class Query
      * @param  integer      $step  增长值
      * @return $this
      */
-    public function inc($field, $step = 1)
+    public function inc($field, $step = 1, $op = 'inc')
     {
         $fields = is_string($field) ? explode(',', $field) : $field;
 
-        foreach ($fields as $field) {
-            $this->data($field, ['inc', $field, $step]);
+        foreach ($fields as $field => $val) {
+            if (is_numeric($field)) {
+                $field = $val;
+            } else {
+                $step = $val;
+            }
+
+            $this->data($field, [$op, $field, $step]);
         }
 
         return $this;
@@ -1040,13 +1046,7 @@ class Query
      */
     public function dec($field, $step = 1)
     {
-        $fields = is_string($field) ? explode(',', $field) : $field;
-
-        foreach ($fields as $field) {
-            $this->data($field, ['dec', $field, $step]);
-        }
-
-        return $this;
+        return $this->inc($field, $step, 'dec');
     }
 
     /**
