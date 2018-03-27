@@ -937,6 +937,10 @@ class Query
         }
 
         if (is_string($field)) {
+            if (preg_match('/[\<\'\"\(]/', $field)) {
+                return $this->fieldRaw($field);
+            }
+
             $field = array_map('trim', explode(',', $field));
         }
 
@@ -973,7 +977,8 @@ class Query
     /**
      * 表达式方式指定查询字段
      * @access public
-     * @param  string   $field
+     * @param  string $field    字段名
+     * @param  array  $bind     参数绑定
      * @return $this
      */
     public function fieldRaw($field, array $bind = [])
@@ -1812,11 +1817,17 @@ class Query
      * 表达式方式指定Field排序
      * @access public
      * @param  string $field 排序字段
+     * @param  array  $bind  参数绑定
      * @return $this
      */
-    public function orderRaw($field)
+    public function orderRaw($field, array $bind = [])
     {
         $this->options['order'][] = $this->raw($field);
+
+        if ($bind) {
+            $this->bind($bind);
+        }
+
         return $this;
     }
 
