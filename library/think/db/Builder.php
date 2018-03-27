@@ -12,6 +12,7 @@
 namespace think\db;
 
 use PDO;
+use think\db\Expression;
 use think\Exception;
 
 abstract class Builder
@@ -115,7 +116,10 @@ abstract class Builder
         foreach ($data as $key => $val) {
             $item = $this->parseKey($query, $key);
 
-            if (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $this->connection->getFieldsType($options['table'], $key))) {
+            if ($val instanceof Expression) {
+                $result[$item] = $val->getValue();
+                continue;
+            } elseif (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $this->connection->getFieldsType($options['table'], $key))) {
                 $val = json_encode($val);
             } elseif (is_object($val) && method_exists($val, '__toString')) {
                 // 对象数据写入
@@ -134,15 +138,10 @@ abstract class Builder
                 $result[$item] = 'NULL';
             } elseif (is_array($val) && !empty($val)) {
                 switch ($val[0]) {
-                    case 'exp':
-                        if (isset($val[2]) && $query->getSecureKey() == $val[2]) {
-                            $result[$item] = $val[1];
-                        }
-                        break;
-                    case 'inc':
+                    case 'INC':
                         $result[$item] = $item . ' + ' . floatval($val[1]);
                         break;
-                    case 'dec':
+                    case 'DEC':
                         $result[$item] = $item . ' - ' . floatval($val[1]);
                         break;
                 }
@@ -205,7 +204,9 @@ abstract class Builder
             $array = [];
 
             foreach ($fields as $key => $field) {
-                if (!is_numeric($key)) {
+                if ($field instanceof Expression) {
+                    $array[] = $field->getValue();
+                } elseif (!is_numeric($key)) {
                     $array[] = $this->parseKey($query, $key) . ' AS ' . $this->parseKey($query, $field);
                 } else {
                     $array[] = $this->parseKey($query, $field);
@@ -292,6 +293,11 @@ abstract class Builder
             $str = [];
 
             foreach ($val as $value) {
+                if ($value instanceof Expression) {
+                    $str[] = ' ' . $logic . ' ( ' . $value->getValue() . ' )';
+                    continue;
+                }
+
                 if (is_array($value)) {
                     if (key($value) !== 0) {
                         throw new Exception('where express error:' . var_export($value, true));
@@ -359,7 +365,7 @@ abstract class Builder
 
         // 查询规则和条件
         if (!is_array($val)) {
-            $val = is_null($val) ? ['null', ''] : ['=', $val];
+            $val = is_null($val) ? ['NULL', ''] : ['=', $val];
         }
 
         list($exp, $value) = $val;
@@ -396,7 +402,9 @@ abstract class Builder
             $bindName = md5($bindName);
         }
 
-        if (is_object($value) && method_exists($value, '__toString')) {
+        if ($value instanceof Expression) {
+
+        } elseif (is_object($value) && method_exists($value, '__toString')) {
             // 对象数据写入
             $value = $value->__toString();
         }
@@ -474,10 +482,10 @@ abstract class Builder
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseExp(Query $query, $key, $exp, $value, $field, $bindName, $bindType)
+    protected function parseExp(Query $query, $key, $exp, Expression $value, $field, $bindName, $bindType)
     {
         // 表达式查询
-        return '( ' . $key . ' ' . $value . ' )';
+        return '( ' . $key . ' ' . $value->getValue() . ' )';
     }
 
     /**
@@ -802,7 +810,9 @@ abstract class Builder
             $array = [];
 
             foreach ($order as $key => $val) {
-                if (is_array($val)) {
+                if ($val instanceof Expression) {
+                    $array[] = $val->getValue();
+                } elseif (is_array($val)) {
                     if (isset($val['sort'])) {
                         $sort = ' ' . $val['sort'];
                         unset($val['sort']);
