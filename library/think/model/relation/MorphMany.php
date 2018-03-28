@@ -224,10 +224,8 @@ class MorphMany extends Relation
         }
 
         return $this->query
-            ->where([
-                [$this->morphKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk()],
-                [$this->morphType, '=', $this->type],
-            ])
+            ->whereExp($this->morphKey, '=' . $this->parent->getTable() . '.' . $this->parent->getPk())
+            ->where($this->morphType, '=', $this->type)
             ->fetchSql()
             ->$aggregate($field);
     }

@@ -181,7 +181,7 @@ class HasMany extends Relation
         }
 
         return $this->query
-            ->where($this->foreignKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk())
+            ->whereExp($this->foreignKey, '=' . $this->parent->getTable() . '.' . $this->parent->getPk())
             ->fetchSql()
             ->$aggregate($field);
     }

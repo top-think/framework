@@ -364,7 +364,7 @@ class BelongsToMany extends Relation
     {
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             [
-                'pivot.' . $this->localKey, 'exp', '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
+                'pivot.' . $this->localKey, 'exp', $this->query->raw('=' . $this->parent->getTable() . '.' . $this->parent->getPk()),
             ],
         ])->fetchSql()->$aggregate($field);
     }
