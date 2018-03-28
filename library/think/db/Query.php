@@ -708,7 +708,7 @@ class Query
             }
         }
 
-        return $this->setField($field, ['inc', $field, $step]);
+        return $this->setField($field, ['INC', $step]);
     }
 
     /**
@@ -740,9 +740,9 @@ class Query
                 return true;
             }
 
-            $value = ['inc', $field, $step];
+            $value = ['INC', $step];
         } else {
-            $value = ['dec', $field, $step];
+            $value = ['DEC', $step];
         }
 
         return $this->setField($field, $value);
