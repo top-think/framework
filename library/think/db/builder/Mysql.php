@@ -176,17 +176,15 @@ class Mysql extends Builder
     /**
      * 数组数据解析
      * @access protected
-     * @param  array  $data
+     * @param  Query     $query     查询对象
+     * @param  array     $data
      * @return mixed
      */
-    protected function parseArrayData($data)
+    protected function parseArrayData(Query $query, $data)
     {
         list($type, $value) = $data;
 
         switch (strtolower($type)) {
-            case 'exp':
-                $result = $value;
-                break;
             case 'point':
                 $fun   = isset($data[2]) ? $data[2] : 'GeomFromText';
                 $point = isset($data[3]) ? $data[3] : 'POINT';

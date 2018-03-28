@@ -12,7 +12,6 @@
 namespace think\db;
 
 use PDO;
-use think\db\Expression;
 use think\Exception;
 
 abstract class Builder
@@ -144,6 +143,11 @@ abstract class Builder
                     case 'DEC':
                         $result[$item] = $item . ' - ' . floatval($val[1]);
                         break;
+                    default:
+                        $value = $this->parseArrayData($query, $val);
+                        if ($value) {
+                            $result[$item] = $value;
+                        }
                 }
             } elseif (is_scalar($val)) {
                 // 过滤非标量数据
@@ -152,6 +156,18 @@ abstract class Builder
         }
 
         return $result;
+    }
+
+    /**
+     * 数组数据解析
+     * @access protected
+     * @param  Query     $query     查询对象
+     * @param  array     $data
+     * @return mixed
+     */
+    protected function parseArrayData(Query $query, $data)
+    {
+        return false;
     }
 
     /**
