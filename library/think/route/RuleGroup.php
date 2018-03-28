@@ -128,7 +128,9 @@ class RuleGroup extends Rule
         }
 
         // 解析分组路由
-        if ($this->rule) {
+        if ($this instanceof Resource) {
+            $this->buildResourceRule($this->resource, $this->option);
+        } elseif ($this->rule) {
             if ($this->rule instanceof Response) {
                 return new ResponseDispatch($this->rule);
             }
