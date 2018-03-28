@@ -80,7 +80,12 @@ class Middleware
             throw new \InvalidArgumentException('The middleware is invalid');
         }
 
-        $class = false === strpos($middleware, '\\') ? Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware : $middleware;
+        if (false === strpos($middleware, '\\')) {
+            $value = Container::get('config')->get('middleware.' . $middleware);
+            $class = $value ?: Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware;
+        } else {
+            $class = $middleware;
+        }
 
         if (strpos($class, ':')) {
             list($class, $param) = explode(':', $class, 2);
