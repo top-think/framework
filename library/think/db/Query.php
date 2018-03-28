@@ -1497,7 +1497,7 @@ class Query
                 // 字段相等查询
                 $where = is_null($op) ? [$field, 'NULL', ''] : [$field, '=', $op];
             }
-        } elseif ('EXP' == $op) {
+        } elseif ('EXP' == strtoupper($op)) {
             $bind  = isset($param[2]) && is_array($param[2]) ? $param[2] : null;
             $where = [$field, 'EXP', $this->raw($condition), $bind];
             if ($bind) {
