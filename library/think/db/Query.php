@@ -1487,7 +1487,7 @@ class Query
             array_unshift($param, $field);
             $where = $param;
         } elseif ($field && is_null($condition)) {
-            if (in_array($op, ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
+            if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
                 $where = [$field, $op, ''];
             } else {
