@@ -1390,7 +1390,7 @@ class Query
      * @param  string $logic  查询逻辑 and or xor
      * @return $this
      */
-    public function whereRaw($where, array $bind = [], $logic = 'AND')
+    public function whereRaw($where, $bind = [], $logic = 'AND')
     {
         $this->options['where'][$logic][] = $this->raw($where);
 
@@ -1408,7 +1408,7 @@ class Query
      * @param  array  $bind   参数绑定
      * @return $this
      */
-    public function whereOrRaw($where, array $bind = [])
+    public function whereOrRaw($where, $bind = [])
     {
         return $this->whereRaw($where, $bind, 'OR');
     }
