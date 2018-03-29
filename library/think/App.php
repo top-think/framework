@@ -126,7 +126,7 @@ class App implements \ArrayAccess
 
     public function __construct($appPath = '')
     {
-        $this->appPath   = $appPath ?: realpath(dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . DIRECTORY_SEPARATOR . 'application') . DIRECTORY_SEPARATOR;
+        $this->appPath   = $appPath ?: $this->getAppPath();
         $this->container = Container::getInstance();
     }
 
@@ -750,6 +750,12 @@ class App implements \ArrayAccess
      */
     public function getAppPath()
     {
+        if (is_null($this->appPath)) {
+            $scriptName = 'cli' == PHP_SAPI ? getcwd() . DIRECTORY_SEPARATOR . $_SERVER['argv'][0] : $_SERVER['SCRIPT_FILENAME'];
+
+            $this->appPath = realpath(dirname(dirname($scriptName)) . DIRECTORY_SEPARATOR . 'application') . DIRECTORY_SEPARATOR;
+        }
+
         return $this->appPath;
     }
 

@@ -121,7 +121,7 @@ class Response
         $data = $this->getContent();
 
         // Trace调试注入
-        if (Container::get('env')->get('app_trace', Container::get('app')->config('app.app_trace'))) {
+        if ('cli' != PHP_SAPI && Container::get('env')->get('app_trace', Container::get('app')->config('app.app_trace'))) {
             Container::get('debug')->inject($this, $data);
         }
 
