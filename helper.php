@@ -443,9 +443,6 @@ if (!function_exists('view')) {
      */
     function view($template = '', $vars = [], $replace = [], $code = 200)
     {
-        if ('' === $template) {
-            $template = Loader::parseName(request()->action(true));
-        }
         return Response::create($template, 'view', $code)->replace($replace)->assign($vars);
     }
 }
