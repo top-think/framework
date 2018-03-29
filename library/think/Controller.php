@@ -118,10 +118,6 @@ class Controller
      */
     protected function fetch($template = '', $vars = [], $config = [])
     {
-        if ('' === $template) {
-            $template = Loader::parseName($this->request->action(true));
-        }
-
         return $this->view->fetch($template, $vars, $config);
     }
 
