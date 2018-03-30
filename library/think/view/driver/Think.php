@@ -22,6 +22,8 @@ class Think
     private $template;
     // 模板引擎参数
     protected $config = [
+        // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
+        'auto_rule'   => 1,
         // 视图基础目录（集中式）
         'view_base'   => '',
         // 模板起始路径
