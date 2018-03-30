@@ -596,8 +596,7 @@ class Route
         $group = new RuleGroup($this, $this->group, $rule, null, $option, $pattern);
 
         foreach ($this->methodPrefix as $type => $val) {
-            $item = $this->$type(':action', $val . ':action');
-            $group->addRuleItem($item, $type);
+            $group->addRule('<action>', $val . '<action>', $type);
         }
 
         return $group->prefix($route . '/');

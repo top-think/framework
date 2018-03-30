@@ -98,6 +98,16 @@ abstract class Rule
     }
 
     /**
+     * 获取Parent对象
+     * @access public
+     * @return $this|null
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
      * 获取变量规则定义
      * @access public
      * @param  string  $name 变量名
