@@ -25,7 +25,7 @@ class RuleName
      */
     public function set($name, $value, $first = false)
     {
-        if ($first) {
+        if ($first && isset($this->item[$name])) {
             array_unshift($this->item[$name], $value);
         } else {
             $this->item[$name][] = $value;
