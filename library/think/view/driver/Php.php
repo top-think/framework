@@ -29,6 +29,8 @@ class Php
         'view_suffix' => 'php',
         // 模板文件名分隔符
         'view_depr'   => DS,
+        // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
+        'auto_rule'   => 1,
     ];
 
     public function __construct($config = [])

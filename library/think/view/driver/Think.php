@@ -34,6 +34,8 @@ class Think
         'view_depr'   => DS,
         // 是否开启模板编译缓存,设为false则每次都会重新编译
         'tpl_cache'   => true,
+        // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
+        'auto_rule'   => 1,
     ];
 
     public function __construct($config = [])
