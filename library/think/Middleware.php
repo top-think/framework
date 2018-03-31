@@ -33,7 +33,9 @@ class Middleware
 
         $middleware = $this->buildMiddleware($middleware);
 
-        $this->queue[] = $middleware;
+        if ($middleware) {
+            $this->queue[] = $middleware;
+        }
     }
 
     /**
@@ -47,7 +49,9 @@ class Middleware
 
         $middleware = $this->buildMiddleware($middleware);
 
-        array_unshift($this->queue, $middleware);
+        if ($middleware) {
+            array_unshift($this->queue, $middleware);
+        }
     }
 
     /**
@@ -85,6 +89,10 @@ class Middleware
             $class = $value ?: Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware;
         } else {
             $class = $middleware;
+        }
+
+        if (is_array($class)) {
+            return $this->import($class);
         }
 
         if (strpos($class, ':')) {
