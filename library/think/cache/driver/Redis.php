@@ -220,6 +220,10 @@ class Redis extends Driver
         // 没有过期参数时，使用setnx
         if (!$expire) {
             $key = $this->getCacheKey($name);
+            if ($value instanceof \Closure) {
+                // 获取缓存数据
+                $value = Container::getInstance()->invokeFunction($value);
+            }
             $val = $this->serialize($value);
             $res = $this->handler->setnx($key, $val);
             if ($res) {
