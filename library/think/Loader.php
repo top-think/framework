@@ -58,7 +58,9 @@ class Loader
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
 
-        $path = realpath(dirname($_SERVER['SCRIPT_FILENAME']));
+        $scriptName = 'cli' == PHP_SAPI ? getcwd() . DIRECTORY_SEPARATOR . $_SERVER['argv'][0] : $_SERVER['SCRIPT_FILENAME'];
+
+        $path = realpath(dirname($scriptName));
 
         if ('cli-server' == PHP_SAPI || !is_file('./think')) {
             $rootPath = dirname($path) . DIRECTORY_SEPARATOR;
