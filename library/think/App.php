@@ -269,12 +269,13 @@ class App implements \ArrayAccess
             if ('' == $module) {
                 // 加载系统助手函数
                 include $this->thinkPath . 'helper.php';
-                // 加载全局中间件
-                if (is_file($path . 'middleware.php')) {
-                    $middleware = include $path . 'middleware.php';
-                    if (is_array($middleware)) {
-                        $this->middleware->import($middleware);
-                    }
+            }
+
+            // 加载中间件
+            if (is_file($path . 'middleware.php')) {
+                $middleware = include $path . 'middleware.php';
+                if (is_array($middleware)) {
+                    $this->middleware->import($middleware);
                 }
             }
 

@@ -20,7 +20,10 @@ use think\route\Dispatch;
 
 class Module extends Dispatch
 {
-    public function run()
+    protected $controller;
+    protected $actionName;
+
+    protected function init()
     {
         $result = $this->dispatch;
 
@@ -78,21 +81,25 @@ class Module extends Dispatch
         // 是否自动转换控制器和操作名
         $convert = is_bool($this->convert) ? $this->convert : $this->app->config('app.url_convert');
         // 获取控制器名
-        $controller = strip_tags($result[1] ?: $this->app->config('app.default_controller'));
-        $controller = $convert ? strtolower($controller) : $controller;
+        $controller       = strip_tags($result[1] ?: $this->app->config('app.default_controller'));
+        $this->controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
-        $actionName = strip_tags($result[2] ?: $this->app->config('app.default_action'));
+        $this->actionName = strip_tags($result[2] ?: $this->app->config('app.default_action'));
 
         // 设置当前请求的控制器、操作
-        $this->app['request']->controller(Loader::parseName($controller, 1))->action($actionName);
+        $this->app['request']->controller(Loader::parseName($this->controller, 1))->action($this->actionName);
 
         // 监听module_init
         $this->app['hook']->listen('module_init');
 
+    }
+
+    public function run()
+    {
         // 实例化控制器
         try {
-            $instance = $this->app->controller($controller,
+            $instance = $this->app->controller($this->controller,
                 $this->app->config('app.url_controller_layer'),
                 $this->app->config('app.controller_suffix'),
                 $this->app->config('app.empty_controller'));
@@ -101,7 +108,7 @@ class Module extends Dispatch
         }
 
         // 获取当前操作名
-        $action = $actionName . $this->app->config('app.action_suffix');
+        $action = $this->actionName . $this->app->config('app.action_suffix');
 
         if (is_callable([$instance, $action])) {
             // 执行操作方法
@@ -129,7 +136,6 @@ class Module extends Dispatch
         }
 
         $this->app['hook']->listen('action_begin', $call);
-
         return Container::getInstance()->invokeReflectMethod($instance, $reflect, $vars);
     }
 }

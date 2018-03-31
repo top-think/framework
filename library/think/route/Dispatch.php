@@ -32,7 +32,11 @@ abstract class Dispatch
         $this->dispatch = $dispatch;
         $this->param    = $param;
         $this->code     = $code;
+        $this->init();
     }
+
+    protected function init()
+    {}
 
     public function convert($convert)
     {
