@@ -641,13 +641,18 @@ abstract class Rule
         return $this->dispatch($request, $route, $option);
     }
 
+    protected function registerMiddleware(array $middlewares)
+    {
+        foreach ($middlewares as $middleware) {
+            Container::get('middleware')->add($middleware);
+        }
+    }
+
     protected function afterMatchRule($request, $option = [], $matches = [])
     {
         // 添加中间件
         if (!empty($option['middleware'])) {
-            foreach ($option['middleware'] as $middleware) {
-                Container::get('middleware')->add($middleware);
-            }
+            $this->registerMiddleware($option['middleware']);
         }
 
         // 绑定模型数据

@@ -68,6 +68,12 @@ class Domain extends RuleGroup
             return $result;
         }
 
+        // 添加域名中间件
+        if (!empty($this->option['middleware'])) {
+            $this->registerMiddleware($this->option['middleware']);
+            unset($this->option['middleware']);
+        }
+
         return parent::check($request, $url, $depr, $completeMatch);
     }
 
