@@ -12,7 +12,6 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
-use think\Container;
 
 /**
  * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
@@ -204,43 +203,4 @@ class Redis extends Driver
         return $this->handler->flushDB();
     }
 
-    /**
-     * 如果不存在则写入缓存
-     * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value 存储数据
-     * @param int $expire  有效时间 0为永久
-     * @return mixed
-     */
-    public function remember($name, $value, $expire = null)
-    {
-        if (is_null($expire)) {
-            $expire = $this->options['expire'];
-        }
-
-        // 没有过期参数时，使用setnx
-        if (!$expire) {
-            $key = $this->getCacheKey($name);
-            if ($value instanceof \Closure) {
-                // 获取缓存数据
-                $value = Container::getInstance()->invokeFunction($value);
-            }
-            $val = $this->serialize($value);
-            $res = $this->handler->setnx($key, $val);
-            if ($res) {
-                $this->writeTimes++;
-                return $value;
-            } else {
-                return $this->get($name);
-            }
-        }
-
-        if ($this->has($name)) {
-            return $this->get($name);
-        } else {
-            $this->set($name, $value, $expire);
-        }
-
-        return $value;
-    }
 }
