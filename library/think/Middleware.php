@@ -89,21 +89,19 @@ class Middleware
         }
 
         if (false === strpos($middleware, '\\')) {
-            $value = Container::get('config')->get('middleware.' . $middleware);
-            $class = $value ?: Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware;
-        } else {
-            $class = $middleware;
+            $value      = Container::get('config')->get('middleware.' . $middleware);
+            $middleware = $value ?: Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware;
         }
 
-        if (is_array($class)) {
-            return $this->import($class);
+        if (is_array($middleware)) {
+            return $this->import($middleware);
         }
 
-        if (strpos($class, ':')) {
-            list($class, $param) = explode(':', $class, 2);
+        if (strpos($middleware, ':')) {
+            list($middleware, $param) = explode(':', $middleware, 2);
         }
 
-        return [[Container::get($class), 'handle'], isset($param) ? $param : null];
+        return [[Container::get($middleware), 'handle'], isset($param) ? $param : null];
     }
 
     protected function resolve()
