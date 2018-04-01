@@ -81,7 +81,7 @@ class Middleware
         }
 
         if ($middleware instanceof \Closure) {
-            return [$middleware, null];
+            return [$middleware, isset($param) ? $param : null];
         }
 
         if (!is_string($middleware)) {
