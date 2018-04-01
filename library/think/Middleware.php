@@ -11,6 +11,10 @@
 
 namespace think;
 
+use InvalidArgumentException;
+use LogicException;
+use think\exception\HttpResponseException;
+
 class Middleware
 {
     protected $queue = [];
@@ -81,7 +85,7 @@ class Middleware
         }
 
         if (!is_string($middleware)) {
-            throw new \InvalidArgumentException('The middleware is invalid');
+            throw new InvalidArgumentException('The middleware is invalid');
         }
 
         if (false === strpos($middleware, '\\')) {
@@ -110,15 +114,19 @@ class Middleware
             if (null !== $middleware) {
                 list($call, $param) = $middleware;
 
-                $response = call_user_func_array($call, [$request, $this->resolve(), $param]);
+                try {
+                    $response = call_user_func_array($call, [$request, $this->resolve(), $param]);
+                } catch (HttpResponseException $exception) {
+                    $response = $exception->getResponse();
+                }
 
                 if (!$response instanceof Response) {
-                    throw new \LogicException('The middleware must return Response instance');
+                    throw new LogicException('The middleware must return Response instance');
                 }
 
                 return $response;
             } else {
-                throw new \InvalidArgumentException('The queue was exhausted, with no response returned');
+                throw new InvalidArgumentException('The queue was exhausted, with no response returned');
             }
         };
     }
