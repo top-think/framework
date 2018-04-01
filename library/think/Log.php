@@ -80,6 +80,9 @@ class Log implements LoggerInterface
         $this->config = $config;
 
         unset($config['type']);
+        if (!empty($config['close'])) {
+            $this->allowWrite = false;
+        }
 
         if (class_exists($class)) {
             $this->driver = new $class($config);
