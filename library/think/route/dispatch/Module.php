@@ -128,7 +128,7 @@ class Module extends Dispatch
         } elseif (is_callable([$instance, '_empty'])) {
             // 空操作
             $call    = [$instance, '_empty'];
-            $vars    = [$actionName];
+            $vars    = [$this->actionName];
             $reflect = new ReflectionMethod($instance, '_empty');
         } else {
             // 操作不存在
