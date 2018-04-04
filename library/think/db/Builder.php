@@ -492,13 +492,13 @@ abstract class Builder
     /**
      * 表达式查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  string    $bindName
-     * @param  integer   $bindType
+     * @param  Query        $query        查询对象
+     * @param  string       $key
+     * @param  string       $exp
+     * @param  Expression   $value
+     * @param  string       $field
+     * @param  string       $bindName
+     * @param  integer      $bindType
      * @return string
      */
     protected function parseExp(Query $query, $key, $exp, Expression $value, $field, $bindName, $bindType)
