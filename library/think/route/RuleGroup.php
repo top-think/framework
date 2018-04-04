@@ -232,7 +232,7 @@ class RuleGroup extends Rule
      */
     public function lazy($lazy = true)
     {
-        if (!$lazy && !is_object($this->rule)) {
+        if (!$lazy) {
             $this->parseGroupRule($this->rule);
             $this->rule = null;
         }
