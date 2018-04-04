@@ -59,7 +59,7 @@ class Handle
                 $log .= "\r\n" . $exception->getTraceAsString();
             }
 
-            Container::get('log')->write($log, 'error');
+            Container::get('log')->record($log, 'error');
         }
     }
 
