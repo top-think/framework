@@ -109,23 +109,23 @@ class Middleware
         return function (Request $request) {
             $middleware = array_shift($this->queue);
 
-            if (null !== $middleware) {
-                list($call, $param) = $middleware;
-
-                try {
-                    $response = call_user_func_array($call, [$request, $this->resolve(), $param]);
-                } catch (HttpResponseException $exception) {
-                    $response = $exception->getResponse();
-                }
-
-                if (!$response instanceof Response) {
-                    throw new LogicException('The middleware must return Response instance');
-                }
-
-                return $response;
-            } else {
+            if (null === $middleware) {
                 throw new InvalidArgumentException('The queue was exhausted, with no response returned');
             }
+
+            list($call, $param) = $middleware;
+
+            try {
+                $response = call_user_func_array($call, [$request, $this->resolve(), $param]);
+            } catch (HttpResponseException $exception) {
+                $response = $exception->getResponse();
+            }
+
+            if (!$response instanceof Response) {
+                throw new LogicException('The middleware must return Response instance');
+            }
+
+            return $response;
         };
     }
 
