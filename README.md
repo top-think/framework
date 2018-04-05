@@ -1,6 +1,6 @@
 ![](http://www.thinkphp.cn/Uploads/editor/2016-06-23/576b4732a6e04.png) 
 
-ThinkPHP 5.1 —— 12载初心，你值得信赖的PHP框架
+ThinkPHP 5.2
 ===============
 
 [![Build Status](https://travis-ci.org/top-think/framework.svg?branch=master)](https://travis-ci.org/top-think/framework)
@@ -8,34 +8,18 @@ ThinkPHP 5.1 —— 12载初心，你值得信赖的PHP框架
 [![Latest Stable Version](https://poser.pugx.org/topthink/framework/v/stable)](https://packagist.org/packages/topthink/framework)
 [![License](https://poser.pugx.org/topthink/framework/license)](https://packagist.org/packages/topthink/framework)
 
-ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特性包括：
+ThinkPHP5.2底层架构采用PHP7.1改写和进一步优化，其主要特性包括（待定）：
 
- + 采用容器统一管理对象
- + 支持Facade
- + 更易用的路由
- + 注解路由支持
- + 路由跨域请求支持
- + 验证类增强
- + 配置和路由目录独立
- + 取消系统常量
- + 类库别名机制
- + 模型和数据库增强
- + 依赖注入完善
- + 支持PSR-3日志规范
+ + 支持PSR-7
+ + 支持模块的动态扩展机制
 
-### 废除的功能：
+### 计划废除的功能（待定）：
 
- + 聚合模型
- + 内置控制器扩展类
- + 模型自动验证
+ + 路由的数组定义
+ + 路由行为
 
-> ThinkPHP5.1的运行环境要求PHP5.6+。
+> ThinkPHP5.2的运行环境要求PHP7.1+。
 
-
-## 在线手册
-
-+ [完全开发手册](https://www.kancloud.cn/manual/thinkphp5_1/content)
-+ [升级指导](https://www.kancloud.cn/manual/thinkphp5_1/354155) 
 
 ## 命名规范
 
