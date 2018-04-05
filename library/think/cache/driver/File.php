@@ -92,7 +92,10 @@ class File extends Driver
         $dir      = dirname($filename);
 
         if ($auto && !is_dir($dir)) {
-            mkdir($dir, 0755, true);
+            try {
+                mkdir($dir, 0755, true);
+            } catch (\Exception $e) {
+            }
         }
 
         return $filename;
