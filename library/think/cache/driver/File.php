@@ -59,10 +59,11 @@ class File extends Driver
     private function init()
     {
         // 创建项目缓存目录
-        if (!is_dir($this->options['path'])) {
-            if (mkdir($this->options['path'], 0755, true)) {
+        try {
+            if (!is_dir($this->options['path']) && mkdir($this->options['path'], 0755, true)) {
                 return true;
             }
+        } catch (\Exception $e) {
         }
 
         return false;

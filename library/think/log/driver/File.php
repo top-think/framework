@@ -61,8 +61,11 @@ class File
                 $filename = date('Ymd') . $cli . '.log';
                 $files    = glob($this->config['path'] . '*.log');
 
-                if (count($files) > $this->config['max_files']) {
-                    unlink($files[0]);
+                try {
+                    if (count($files) > $this->config['max_files']) {
+                        unlink($files[0]);
+                    }
+                } catch (\Exception $e) {
                 }
             } else {
                 $filename = date('Ym') . DIRECTORY_SEPARATOR . date('d') . $cli . '.log';
