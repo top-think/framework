@@ -124,7 +124,7 @@ class Url
             if ($alias) {
                 // 别名路由解析
                 foreach ($alias as $key => $item) {
-                    $val = $item->gerRoute();
+                    $val = $item->getRoute();
 
                     if (0 === strpos($url, $val)) {
                         $url        = $key . substr($url, strlen($val));
