@@ -323,10 +323,12 @@ class Request
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
         $info                     = parse_url($uri);
+
         if (isset($info['host'])) {
             $server['SERVER_NAME'] = $info['host'];
             $server['HTTP_HOST']   = $info['host'];
         }
+
         if (isset($info['scheme'])) {
             if ('https' === $info['scheme']) {
                 $server['HTTPS']       = 'on';
@@ -336,27 +338,34 @@ class Request
                 $server['SERVER_PORT'] = 80;
             }
         }
+
         if (isset($info['port'])) {
             $server['SERVER_PORT'] = $info['port'];
             $server['HTTP_HOST']   = $server['HTTP_HOST'] . ':' . $info['port'];
         }
+
         if (isset($info['user'])) {
             $server['PHP_AUTH_USER'] = $info['user'];
         }
+
         if (isset($info['pass'])) {
             $server['PHP_AUTH_PW'] = $info['pass'];
         }
+
         if (!isset($info['path'])) {
             $info['path'] = '/';
         }
-        $options                      = [];
+
+        $options     = [];
+        $queryString = '';
+
         $options[strtolower($method)] = $params;
-        $queryString                  = '';
+
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
             if (!empty($params)) {
                 $params      = array_replace($query, $params);
-                $queryString = http_build_query($query, '', '&');
+                $queryString = http_build_query($params, '', '&');
             } else {
                 $params      = $query;
                 $queryString = $info['query'];
@@ -364,6 +373,7 @@ class Request
         } elseif (!empty($params)) {
             $queryString = http_build_query($params, '', '&');
         }
+
         if ($queryString) {
             parse_str($queryString, $get);
             $options['get'] = isset($options['get']) ? array_merge($get, $options['get']) : $get;

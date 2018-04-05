@@ -20,7 +20,7 @@ use think\route\Dispatch;
  */
 class App implements \ArrayAccess
 {
-    const VERSION = '5.1.7';
+    const VERSION = '5.1.8';
 
     /**
      * 当前模块路径
@@ -491,6 +491,10 @@ class App implements \ArrayAccess
             if (is_file($filename)) {
                 include $filename;
             }
+        }
+
+        if (is_file($this->runtimePath . 'rule_regex.php')) {
+            $this->route->setRuleRegexs(include $this->runtimePath . 'rule_regex.php');
         }
 
         // 是否强制路由模式
