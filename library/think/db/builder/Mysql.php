@@ -174,33 +174,6 @@ class Mysql extends Builder
     }
 
     /**
-     * 数组数据解析
-     * @access protected
-     * @param  Query     $query     查询对象
-     * @param  array     $data
-     * @return mixed
-     */
-    protected function parseArrayData(Query $query, $data)
-    {
-        list($type, $value) = $data;
-
-        switch (strtolower($type)) {
-            case 'point':
-                $fun   = isset($data[2]) ? $data[2] : 'GeomFromText';
-                $point = isset($data[3]) ? $data[3] : 'POINT';
-                if (is_array($value)) {
-                    $value = implode(' ', $value);
-                }
-                $result = $fun . '(\'' . $point . '(' . $value . ')\')';
-                break;
-            default:
-                $result = false;
-        }
-
-        return $result;
-    }
-
-    /**
      * 随机排序
      * @access protected
      * @param  Query     $query        查询对象
