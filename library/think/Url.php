@@ -148,7 +148,7 @@ class Url
 
         // 检测URL绑定
         if (!$this->bindCheck) {
-            $bind = $this->app['route']->getBind($domain);
+            $bind = $this->app['route']->getBind($domain ?: null);
 
             if ($bind && 0 === strpos($url, $bind)) {
                 $url = substr($url, strlen($bind) + 1);
