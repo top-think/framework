@@ -1596,19 +1596,12 @@ class Request
             $ip = ($ip_mode === 'ipv4') ? '0.0.0.0' : '::';
         }
 
-        // 除非明确指定需要int类型ip，否则直接返回IP地址
-        if ($type !== 1) {
-            return $ip;
-        }
+        // 如果是ipv4地址，则直接使用ip2long返回int类型ip；如果是ipv6地址，暂时不支持，直接返回0
+        $long_ip = ($ip_mode === 'ipv4') ? sprintf("%u", ip2long($ip)) : 0;
 
-        // 如果是ipv4地址，则直接使用ip2long返回int类型ip
-        if ($ip_mode === 'ipv4') {
-            return sprintf("%u", ip2long($ip));
-        }
-        // 如果是ipv6地址，暂时不支持，直接返回0
-        else {
-            return 0;
-        }
+        $ip = [$ip, $long_ip];
+
+        return $ip[$type];
     }
 
     /**
