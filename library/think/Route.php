@@ -313,6 +313,8 @@ class Route
     {
         if (is_null($domain)) {
             $domain = $this->domain;
+        } elseif (!strpos($domain, '.')) {
+            $domain .= '.' . $this->request->rootDomain();
         }
 
         $subDomain = $this->request->subDomain();
