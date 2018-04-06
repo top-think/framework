@@ -1588,11 +1588,27 @@ class Request
             $ip = $_SERVER['REMOTE_ADDR'];
         }
 
-        // IP地址合法验证
-        $long = sprintf("%u", ip2long($ip));
-        $ip   = $long ? [$ip, $long] : ['0.0.0.0', 0];
+        // IP地址类型
+        $ip_mode = (strpos($ip, ':') === false) ? 'ipv4' : 'ipv6';
 
-        return $ip[$type];
+        // IP地址合法验证
+        if (filter_var($ip, FILTER_VALIDATE_IP) !== $ip) {
+            $ip = ($ip_mode === 'ipv4') ? '0.0.0.0' : '::';
+        }
+
+        // 除非明确指定需要int类型ip，否则直接返回IP地址
+        if ($type !== 1) {
+            return $ip;
+        }
+
+        // 如果是ipv4地址，则直接使用ip2long返回int类型ip
+        if ($ip_mode === 'ipv4') {
+            return sprintf("%u", ip2long($ip));
+        }
+        // 如果是ipv6地址，暂时不支持，直接返回0
+        else {
+            return 0;
+        }
     }
 
     /**
