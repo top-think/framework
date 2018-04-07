@@ -46,7 +46,7 @@ class RuleItem extends Rule
      * @param  string|\Closure   $route 路由地址
      * @param  string            $method 请求类型
      */
-    public function __construct(Route $router, RuleGroup $parent,  ? string $name, string $rule, $route, string $method = '*')
+    public function __construct(Route $router, RuleGroup $parent, ? string $name, string $rule, $route, string $method = '*')
     {
         $this->router = $router;
         $this->parent = $parent;

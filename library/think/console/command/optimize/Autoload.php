@@ -149,7 +149,7 @@ EOF;
         return $prefix . ($absolute ? '/' : '') . implode('/', $parts);
     }
 
-    protected function createMap(string $path,  ? string $namespace = null)
+    protected function createMap(string $path, ? string $namespace = null)
     {
         if (is_string($path)) {
             if (is_file($path)) {
