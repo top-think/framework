@@ -1357,7 +1357,7 @@ class Query
     public function useSoftDelete($field, $condition = null)
     {
         if ($field) {
-            $this->options['soft_delete'] = [$field, $condition ?: ['null', '']];
+            $this->options['soft_delete'] = [$field, $condition];
         }
 
         return $this;
@@ -1490,9 +1490,13 @@ class Query
             if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
                 $where = [$field, $op, ''];
+            } elseif (in_array($op, ['=', null])) {
+                $where = [$field, 'NULL', ''];
+            } elseif (in_array($op, ['<>', 'neq'])) {
+                $where = [$field, 'NOTNULL', ''];
             } else {
                 // 字段相等查询
-                $where = is_null($op) ? [$field, 'NULL', ''] : [$field, '=', $op];
+                $where = [$field, '=', $op];
             }
         } else {
             $where = $field ? [$field, $op, $condition] : null;

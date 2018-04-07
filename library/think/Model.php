@@ -105,6 +105,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $error;
 
     /**
+     * 软删除字段默认值
+     * @var mixed
+     */
+    protected $defaultSoftDelete;
+
+    /**
      * 架构函数
      * @access public
      * @param  array|object $data 数据
@@ -245,11 +251,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if ($useBaseQuery) {
             // 软删除
-            if (method_exists($this, 'getDeleteTimeField')) {
-                $field = $this->getDeleteTimeField(true);
-                if ($field) {
-                    $query->useSoftDelete($field);
-                }
+            if (method_exists($this, 'withNoTrashed')) {
+                $this->withNoTrashed($query);
             }
 
             // 全局作用域
