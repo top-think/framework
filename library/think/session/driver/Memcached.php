@@ -27,7 +27,7 @@ class Memcached implements SessionHandlerInterface
         'password'     => '', //密码
     ];
 
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, $config);
     }
@@ -37,8 +37,9 @@ class Memcached implements SessionHandlerInterface
      * @access public
      * @param  string    $savePath
      * @param  mixed     $sessName
+     * @return bool
      */
-    public function open($savePath, $sessName)
+    public function open(string $savePath, string $sessName): bool
     {
         // 检测php环境
         if (!extension_loaded('memcached')) {
@@ -79,8 +80,9 @@ class Memcached implements SessionHandlerInterface
     /**
      * 关闭Session
      * @access public
+     * @return bool
      */
-    public function close()
+    public function close(): bool
     {
         $this->gc(ini_get('session.gc_maxlifetime'));
         $this->handler->quit();
@@ -93,8 +95,9 @@ class Memcached implements SessionHandlerInterface
      * 读取Session
      * @access public
      * @param  string $sessID
+     * @return string
      */
-    public function read($sessID)
+    public function read(string $sessID): string
     {
         return (string) $this->handler->get($this->config['session_name'] . $sessID);
     }
@@ -106,7 +109,7 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessData
      * @return bool
      */
-    public function write($sessID, $sessData)
+    public function write(string $sessID, string $sessData): bool
     {
         return $this->handler->set($this->config['session_name'] . $sessID, $sessData, $this->config['expire']);
     }
@@ -117,7 +120,7 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessID
      * @return bool
      */
-    public function destroy($sessID)
+    public function destroy(string $sessID): bool
     {
         return $this->handler->delete($this->config['session_name'] . $sessID);
     }
@@ -128,7 +131,7 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessMaxLifeTime
      * @return true
      */
-    public function gc($sessMaxLifeTime)
+    public function gc(int $sessMaxLifeTime): bool
     {
         return true;
     }

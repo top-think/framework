@@ -29,7 +29,7 @@ class Model extends Make
         return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'model.stub';
     }
 
-    protected function getNamespace($appNamespace, $module)
+    protected function getNamespace(string $appNamespace, string $module)
     {
         return parent::getNamespace($appNamespace, $module) . '\model';
     }

@@ -30,10 +30,9 @@ class Resource extends RuleGroup
      * @param  string        $name       资源名称
      * @param  string        $route      路由地址
      * @param  array         $option     路由参数
-     * @param  array         $pattern    变量规则
      * @param  array         $rest       资源定义
      */
-    public function __construct(Route $router, RuleGroup $parent = null, $name = '', $route = '', $option = [], $pattern = [], $rest = [])
+    public function __construct(Route $router, RuleGroup $parent = null, $name = '', $route = '', $option = [], $rest = [])
     {
         $this->router   = $router;
         $this->parent   = $parent;
@@ -46,9 +45,8 @@ class Resource extends RuleGroup
         // 资源路由默认为完整匹配
         $option['complete_match'] = true;
 
-        $this->pattern = $pattern;
-        $this->option  = $option;
-        $this->rest    = $rest;
+        $this->option = $option;
+        $this->rest   = $rest;
 
         if ($this->parent) {
             $this->domain = $this->parent->getDomain();

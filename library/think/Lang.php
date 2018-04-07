@@ -52,7 +52,7 @@ class Lang
     ];
 
     // 设定当前的语言
-    public function range($range = '')
+    public function range(string $range = '')
     {
         if ('' == $range) {
             return $this->range;
@@ -130,7 +130,7 @@ class Lang
      * @param  string        $range 语言作用域
      * @return bool
      */
-    public function has($name, $range = '')
+    public function has(string $name, string $range = '')
     {
         $range = $range ?: $this->range;
 
@@ -145,7 +145,7 @@ class Lang
      * @param  string        $range 语言作用域
      * @return mixed
      */
-    public function get($name = null, $vars = [], $range = '')
+    public function get( ? string $name = null, array $vars = [], string $range = '')
     {
         $range = $range ?: $this->range;
 
@@ -155,7 +155,7 @@ class Lang
         }
 
         $key   = strtolower($name);
-        $value = isset($this->lang[$range][$key]) ? $this->lang[$range][$key] : $name;
+        $value = $this->lang[$range][$key] ?? $name;
 
         // 变量解析
         if (!empty($vars) && is_array($vars)) {
@@ -223,7 +223,7 @@ class Lang
      * @param  string $lang 语言
      * @return void
      */
-    public function saveToCookie($lang = null)
+    public function saveToCookie( ? string $lang = null)
     {
         $range = $lang ?: $this->range;
 
@@ -236,7 +236,7 @@ class Lang
      * @param  string $var 变量名称
      * @return void
      */
-    public function setLangDetectVar($var)
+    public function setLangDetectVar(string $var)
     {
         $this->langDetectVar = $var;
     }
@@ -247,7 +247,7 @@ class Lang
      * @param  string $var 变量名称
      * @return void
      */
-    public function setLangCookieVar($var)
+    public function setLangCookieVar(string $var)
     {
         $this->langCookieVar = $var;
     }
@@ -258,7 +258,7 @@ class Lang
      * @param  array $list 语言列表
      * @return void
      */
-    public function setAllowLangList($list)
+    public function setAllowLangList(array $list)
     {
         $this->allowLangList = $list;
     }

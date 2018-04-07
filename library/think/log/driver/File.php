@@ -30,7 +30,7 @@ class File
     protected $writed = [];
 
     // 实例化并传入参数
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         if (is_array($config)) {
             $this->config = array_merge($this->config, $config);
@@ -118,7 +118,7 @@ class File
      * @param  bool      $apart 是否独立文件写入
      * @return bool
      */
-    protected function write($message, $destination, $apart = false)
+    protected function write($message, string $destination, bool $apart = false)
     {
         // 检测日志文件大小，超过配置大小则备份日志文件重新生成
         if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {

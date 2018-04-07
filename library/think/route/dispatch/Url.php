@@ -37,7 +37,7 @@ class Url extends Dispatch
      * @param  string    $url URL
      * @return array
      */
-    protected function parseUrl($url)
+    protected function parseUrl(string $url)
     {
         $router = $this->app['route'];
         $bind   = $router->getBind();
@@ -99,13 +99,17 @@ class Url extends Dispatch
     /**
      * 检查URL是否已经定义过路由
      * @access protected
-     * @param  string    $route  路由信息
+     * @param  array     $route  路由信息
      * @param  string    $bind   绑定信息
      * @return bool
      */
-    protected function hasDefinedRoute($route, $bind)
+    protected function hasDefinedRoute(array $route,  ? string $bind = null)
     {
         list($module, $controller, $action) = $route;
+
+        if (is_null($controller)) {
+            return false;
+        }
 
         // 检查地址是否被定义过路由
         $name = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
@@ -132,7 +136,7 @@ class Url extends Dispatch
      * @param  array     $path   URL
      * @return string
      */
-    protected function autoFindController($module, &$path)
+    protected function autoFindController(string $module, array &$path)
     {
         $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->app->config('url_controller_layer');
         $suffix = $this->app->getSuffix() || $this->app->config('controller_suffix') ? ucfirst($this->app->config('url_controller_layer')) : '';
@@ -168,7 +172,7 @@ class Url extends Dispatch
      * @param  string    $url URL地址
      * @return array
      */
-    private function parseUrlPath($url)
+    private function parseUrlPath(string $url)
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);

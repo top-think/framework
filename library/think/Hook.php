@@ -37,7 +37,7 @@ class Hook
      * @param  string  $name     方法名
      * @return $this
      */
-    public function portal($name)
+    public function portal(string $name)
     {
         self::$portal = $name;
         return $this;
@@ -69,7 +69,7 @@ class Hook
      * @param  bool      $first 是否放到开头执行
      * @return void
      */
-    public function add($tag, $behavior, $first = false)
+    public function add(string $tag, $behavior, bool $first = false)
     {
         isset($this->tags[$tag]) || $this->tags[$tag] = [];
 
@@ -94,7 +94,7 @@ class Hook
      * @param  bool      $recursive 是否递归合并
      * @return void
      */
-    public function import(array $tags, $recursive = true)
+    public function import(array $tags, bool $recursive = true)
     {
         if ($recursive) {
             foreach ($tags as $tag => $behavior) {
@@ -111,7 +111,7 @@ class Hook
      * @param  string $tag 插件位置 留空获取全部
      * @return array
      */
-    public function get($tag = '')
+    public function get(string $tag = '')
     {
         if (empty($tag)) {
             //获取全部的插件信息
@@ -129,7 +129,7 @@ class Hook
      * @param  bool   $once   只获取一个有效返回值
      * @return mixed
      */
-    public function listen($tag, $params = null, $once = false)
+    public function listen(string $tag, $params = null, bool $once = false)
     {
         $results = [];
         $tags    = $this->get($tag);
@@ -174,7 +174,7 @@ class Hook
      * @param  mixed     $params 参数
      * @return mixed
      */
-    protected function execTag($class, $tag = '', $params = null)
+    protected function execTag($class, string $tag = '', $params = null)
     {
         $app = Container::get('app');
 

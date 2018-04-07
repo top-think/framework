@@ -61,7 +61,7 @@ class Container
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public static function get($abstract, $vars = [], $newInstance = false)
+    public static function get(string $abstract, $vars = [], bool $newInstance = false)
     {
         return static::getInstance()->make($abstract, $vars, $newInstance);
     }
@@ -73,7 +73,7 @@ class Container
      * @param  mixed   $concrete    要绑定的类、闭包或者实例
      * @return Container
      */
-    public static function set($abstract, $concrete = null)
+    public static function set(string $abstract, $concrete = null)
     {
         return static::getInstance()->bind($abstract, $concrete);
     }
@@ -84,7 +84,7 @@ class Container
      * @param  string  $abstract    类标识、接口
      * @return void
      */
-    public static function remove($abstract)
+    public static function remove(string $abstract)
     {
         return static::getInstance()->delete($abstract);
     }
@@ -128,7 +128,7 @@ class Container
      * @param  object    $instance    类的实例
      * @return $this
      */
-    public function instance($abstract, $instance)
+    public function instance(string $abstract, $instance)
     {
         if (isset($this->bind[$abstract])) {
             $abstract = $this->bind[$abstract];
@@ -145,7 +145,7 @@ class Container
      * @param  string    $abstract    类名或者标识
      * @return bool
      */
-    public function bound($abstract)
+    public function bound(string $abstract)
     {
         return isset($this->bind[$abstract]) || isset($this->instances[$abstract]);
     }
@@ -156,7 +156,7 @@ class Container
      * @param  string    $name    类名或者标识
      * @return bool
      */
-    public function has($name)
+    public function has(string $name)
     {
         return $this->bound($name);
     }
@@ -169,7 +169,7 @@ class Container
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public function make($abstract, $vars = [], $newInstance = false)
+    public function make(string $abstract, $vars = [], bool $newInstance = false)
     {
         if (true === $vars) {
             // 总是创建新的实例化对象
@@ -206,7 +206,7 @@ class Container
      * @param  string    $abstract    类名或者标识
      * @return void
      */
-    public function delete($abstract)
+    public function delete(string $abstract)
     {
         if (isset($this->instances[$abstract])) {
             unset($this->instances[$abstract]);
@@ -231,7 +231,7 @@ class Container
      * @param  array  $vars     参数
      * @return mixed
      */
-    public function invokeFunction($function, $vars = [])
+    public function invokeFunction(callable $function, array $vars = [])
     {
         try {
             $reflect = new ReflectionFunction($function);
@@ -251,7 +251,7 @@ class Container
      * @param  array   $vars   参数
      * @return mixed
      */
-    public function invokeMethod($method, $vars = [])
+    public function invokeMethod(callable $method, array $vars = [])
     {
         try {
             if (is_array($method)) {
@@ -278,7 +278,7 @@ class Container
      * @param  array   $vars   参数
      * @return mixed
      */
-    public function invokeReflectMethod($instance, $reflect, $vars = [])
+    public function invokeReflectMethod($instance, $reflect, array $vars = [])
     {
         $args = $this->bindParams($reflect, $vars);
 
@@ -292,7 +292,7 @@ class Container
      * @param  array $vars   参数
      * @return mixed
      */
-    public function invoke($callable, $vars = [])
+    public function invoke(callable $callable, array $vars = [])
     {
         if ($callable instanceof Closure) {
             return $this->invokeFunction($callable, $vars);
@@ -308,7 +308,7 @@ class Container
      * @param  array     $vars  参数
      * @return mixed
      */
-    public function invokeClass($class, $vars = [])
+    public function invokeClass(string $class, array $vars = [])
     {
         try {
             $reflect = new ReflectionClass($class);
@@ -330,7 +330,7 @@ class Container
      * @param  array                                 $vars    参数
      * @return array
      */
-    protected function bindParams($reflect, $vars = [])
+    protected function bindParams($reflect, array $vars = [])
     {
         if ($reflect->getNumberOfParameters() == 0) {
             return [];

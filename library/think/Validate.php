@@ -233,7 +233,7 @@ class Validate
      * @param  mixed     $callback callback方法(或闭包)
      * @return void
      */
-    public static function extend($type, $callback = null)
+    public static function extend(string $type, callable $callback = null)
     {
         if (is_array($type)) {
             self::$type = array_merge(self::$type, $type);
@@ -282,7 +282,7 @@ class Validate
      * @param  string  $name  场景名
      * @return $this
      */
-    public function scene($name)
+    public function scene(string $name)
     {
         // 设置当前场景
         $this->currentScene = $name;
@@ -296,7 +296,7 @@ class Validate
      * @param  string $name 场景名
      * @return bool
      */
-    public function hasScene($name)
+    public function hasScene(string $name)
     {
         return isset($this->scene[$name]) || method_exists($this, 'scene' . $name);
     }
@@ -307,7 +307,7 @@ class Validate
      * @param  bool $batch  是否批量验证
      * @return $this
      */
-    public function batch($batch = true)
+    public function batch(bool $batch = true)
     {
         $this->batch = $batch;
 
@@ -320,7 +320,7 @@ class Validate
      * @param  array $fields  字段名
      * @return $this
      */
-    public function only($fields)
+    public function only(array $fields)
     {
         $this->only = $fields;
 
@@ -387,7 +387,7 @@ class Validate
      * @param  string    $scene 验证场景
      * @return bool
      */
-    public function check($data, $rules = [], $scene = '')
+    public function check(array $data, array $rules = [], string $scene = '')
     {
         $this->error = [];
 

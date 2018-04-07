@@ -31,7 +31,7 @@ class Config implements \ArrayAccess
      * @param string    $prefix 前缀
      * @return void
      */
-    public function setDefaultPrefix($prefix)
+    public function setDefaultPrefix(string $prefix)
     {
         $this->prefix = $prefix;
     }
@@ -44,7 +44,7 @@ class Config implements \ArrayAccess
      * @param  string    $name 配置名（如设置即表示二级配置）
      * @return mixed
      */
-    public function parse($config, $type = '', $name = '')
+    public function parse(string $config, string $type = '', string $name = '')
     {
         if (empty($type)) {
             $type = pathinfo($config, PATHINFO_EXTENSION);
@@ -62,7 +62,7 @@ class Config implements \ArrayAccess
      * @param  string    $name 一级配置名
      * @return mixed
      */
-    public function load($file, $name = '')
+    public function load(string $file, string $name = '')
     {
         if (is_file($file)) {
             $name = strtolower($name);
@@ -85,7 +85,7 @@ class Config implements \ArrayAccess
      * @param  string    $name 配置名
      * @return void
      */
-    protected function autoLoad($name)
+    protected function autoLoad(string $name)
     {
         // 如果尚未载入 则动态加载配置文件
         $module = Container::get('request')->module();
@@ -110,7 +110,7 @@ class Config implements \ArrayAccess
      * @param  string    $name 配置参数名（支持多级配置 .号分割）
      * @return bool
      */
-    public function has($name)
+    public function has(string $name)
     {
         if (!strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
@@ -125,7 +125,7 @@ class Config implements \ArrayAccess
      * @param  string    $name 一级配置名
      * @return array
      */
-    public function pull($name)
+    public function pull(string $name)
     {
         $name = strtolower($name);
 
@@ -134,7 +134,7 @@ class Config implements \ArrayAccess
             $this->autoLoad($name);
         }
 
-        return isset($this->config[$name]) ? $this->config[$name] : [];
+        return $this->config[$name] ?? [];
     }
 
     /**

@@ -30,7 +30,7 @@ class Env
      * @param  string    $file  环境变量定义文件
      * @return void
      */
-    public function load($file)
+    public function load(string $file)
     {
         $env = parse_ini_file($file, true);
         $this->set($env);
@@ -43,7 +43,7 @@ class Env
      * @param  mixed     $default  默认值
      * @return mixed
      */
-    public function get($name = null, $default = null)
+    public function get(string $name = null, $default = null)
     {
         if (is_null($name)) {
             return $this->data;
@@ -58,7 +58,7 @@ class Env
         return $this->getEnv($name, $default);
     }
 
-    protected function getEnv($name, $default = null)
+    protected function getEnv(string $name, $default = null)
     {
         $result = getenv('PHP_' . $name);
 

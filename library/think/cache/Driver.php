@@ -60,7 +60,7 @@ abstract class Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    abstract public function has($name);
+    abstract public function has(string $name);
 
     /**
      * 读取缓存
@@ -69,7 +69,7 @@ abstract class Driver
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    abstract public function get($name, $default = false);
+    abstract public function get(string $name, $default = false);
 
     /**
      * 写入缓存
@@ -79,7 +79,7 @@ abstract class Driver
      * @param  int       $expire  有效时间 0为永久
      * @return boolean
      */
-    abstract public function set($name, $value, $expire = null);
+    abstract public function set(string $name, $value, $expire = null);
 
     /**
      * 自增缓存（针对数值缓存）
@@ -88,7 +88,7 @@ abstract class Driver
      * @param  int       $step 步长
      * @return false|int
      */
-    abstract public function inc($name, $step = 1);
+    abstract public function inc(string $name, int $step = 1);
 
     /**
      * 自减缓存（针对数值缓存）
@@ -97,7 +97,7 @@ abstract class Driver
      * @param  int       $step 步长
      * @return false|int
      */
-    abstract public function dec($name, $step = 1);
+    abstract public function dec(string $name, int $step = 1);
 
     /**
      * 删除缓存
@@ -105,7 +105,7 @@ abstract class Driver
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    abstract public function rm($name);
+    abstract public function rm(string $name);
 
     /**
      * 清除缓存
@@ -113,7 +113,7 @@ abstract class Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    abstract public function clear($tag = null);
+    abstract public function clear( ? string $tag = null);
 
     /**
      * 获取有效期
@@ -136,7 +136,7 @@ abstract class Driver
      * @param  string $name 缓存名
      * @return string
      */
-    protected function getCacheKey($name)
+    protected function getCacheKey(string $name)
     {
         return $this->options['prefix'] . $name;
     }
@@ -147,7 +147,7 @@ abstract class Driver
      * @param  string $name 缓存变量名
      * @return mixed
      */
-    public function pull($name)
+    public function pull(string $name)
     {
         $result = $this->get($name, false);
 
@@ -167,7 +167,7 @@ abstract class Driver
      * @param  int       $expire  有效时间 0为永久
      * @return mixed
      */
-    public function remember($name, $value, $expire = null)
+    public function remember(string $name, $value, $expire = null)
     {
         if (!$this->has($name)) {
             $time = time();
@@ -212,7 +212,7 @@ abstract class Driver
      * @param  bool          $overlay 是否覆盖
      * @return $this
      */
-    public function tag($name, $keys = null, $overlay = false)
+    public function tag(string $name, $keys = null, bool $overlay = false)
     {
         if (is_null($name)) {
 
@@ -245,7 +245,7 @@ abstract class Driver
      * @param  string $name 缓存标识
      * @return void
      */
-    protected function setTagItem($name)
+    protected function setTagItem(string $name)
     {
         if ($this->tag) {
             $key       = 'tag_' . md5($this->tag);
@@ -271,7 +271,7 @@ abstract class Driver
      * @param  string $tag 缓存标签
      * @return array
      */
-    protected function getTagItem($tag)
+    protected function getTagItem(string $tag)
     {
         $key   = 'tag_' . md5($tag);
         $value = $this->get($key);
@@ -306,7 +306,7 @@ abstract class Driver
      * @param  string $data
      * @return mixed
      */
-    protected function unserialize($data)
+    protected function unserialize(string $data)
     {
         if ($this->options['serialize'] && 0 === strpos($data, self::$serialize[2])) {
             $unserialize = self::$serialize[1];
@@ -325,7 +325,7 @@ abstract class Driver
      * @param  string   $prefix         序列化前缀标识
      * @return $this
      */
-    public static function registerSerialize($serialize, $unserialize, $prefix = 'think_serialize:')
+    public static function registerSerialize(callable $serialize, callable $unserialize, string $prefix = 'think_serialize:')
     {
         self::$serialize = [$serialize, $unserialize, $prefix, strlen($prefix)];
     }

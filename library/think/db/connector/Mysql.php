@@ -51,7 +51,7 @@ class Mysql extends Connection
      * @param  array $config 连接信息
      * @return string
      */
-    protected function parseDsn($config)
+    protected function parseDsn(array $config)
     {
         if (!empty($config['socket'])) {
             $dsn = 'mysql:unix_socket=' . $config['socket'];
@@ -75,7 +75,7 @@ class Mysql extends Connection
      * @param  string $tableName
      * @return array
      */
-    public function getFields($tableName)
+    public function getFields(string $tableName)
     {
         list($tableName) = explode(' ', $tableName);
 
@@ -114,7 +114,7 @@ class Mysql extends Connection
      * @param  string $dbName
      * @return array
      */
-    public function getTables($dbName = '')
+    public function getTables(string $dbName = '')
     {
         $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
         $pdo    = $this->query($sql, [], false, true);
@@ -134,7 +134,7 @@ class Mysql extends Connection
      * @param  string $sql
      * @return array
      */
-    protected function getExplain($sql)
+    protected function getExplain(string $sql)
     {
         $pdo    = $this->linkID->query("EXPLAIN " . $sql);
         $result = $pdo->fetch(PDO::FETCH_ASSOC);

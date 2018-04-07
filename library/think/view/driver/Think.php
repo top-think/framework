@@ -36,7 +36,7 @@ class Think
         'tpl_cache'   => true,
     ];
 
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, (array) $config);
         if (empty($this->config['view_path'])) {
@@ -52,7 +52,7 @@ class Think
      * @param  string $template 模板文件或者模板规则
      * @return bool
      */
-    public function exists($template)
+    public function exists(string $template)
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -70,7 +70,7 @@ class Think
      * @param  array     $config 模板参数
      * @return void
      */
-    public function fetch($template, $data = [], $config = [])
+    public function fetch(string $template, array $data = [], array $config = [])
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -97,7 +97,7 @@ class Think
      * @param  array     $config 模板参数
      * @return void
      */
-    public function display($template, $data = [], $config = [])
+    public function display(string $template, array $data = [], array $config = [])
     {
         $this->template->display($template, $data, $config);
     }
@@ -108,7 +108,7 @@ class Think
      * @param  string $template 模板文件规则
      * @return string
      */
-    private function parseTemplate($template)
+    private function parseTemplate(string $template)
     {
         // 分析模板文件规则
         $request = Container::get('request');

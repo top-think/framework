@@ -37,7 +37,7 @@ class Collection extends BaseCollection
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function hidden($hidden = [], $override = false)
+    public function hidden(array $hidden = [], bool $override = false)
     {
         $this->each(function ($model) use ($hidden, $override) {
             /** @var Model $model */
@@ -54,7 +54,7 @@ class Collection extends BaseCollection
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function visible($visible = [], $override = false)
+    public function visible(array $visible = [], bool $override = false)
     {
         $this->each(function ($model) use ($visible, $override) {
             /** @var Model $model */
@@ -71,7 +71,7 @@ class Collection extends BaseCollection
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function append($append = [], $override = false)
+    public function append(array $append = [], bool $override = false)
     {
         $this->each(function ($model) use ($append, $override) {
             /** @var Model $model */

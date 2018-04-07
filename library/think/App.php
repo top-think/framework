@@ -20,7 +20,7 @@ use think\route\Dispatch;
  */
 class App implements \ArrayAccess
 {
-    const VERSION = '5.1.8';
+    const VERSION = '5.2.0beta';
 
     /**
      * 当前模块路径
@@ -124,7 +124,7 @@ class App implements \ArrayAccess
      */
     protected $bind;
 
-    public function __construct($appPath = '')
+    public function __construct(string $appPath = '')
     {
         $this->appPath   = $appPath ?: $this->getAppPath();
         $this->container = Container::getInstance();
@@ -136,7 +136,7 @@ class App implements \ArrayAccess
      * @param  string $bind
      * @return $this
      */
-    public function bind($bind)
+    public function bind(string $bind)
     {
         $this->bind = $bind;
         return $this;
@@ -148,7 +148,7 @@ class App implements \ArrayAccess
      * @param  string $path 路径
      * @return $this
      */
-    public function path($path)
+    public function path(string $path)
     {
         $this->appPath = $path;
         return $this;
@@ -241,7 +241,7 @@ class App implements \ArrayAccess
      * @param  string $module 模块名
      * @return void
      */
-    public function init($module = '')
+    public function init(string $module = '')
     {
         // 定位模块目录
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';
@@ -441,7 +441,7 @@ class App implements \ArrayAccess
      * @param  string $type 信息类型
      * @return void
      */
-    public function log($msg, $type = 'info')
+    public function log($msg, string $type = 'info')
     {
         $this->debug && $this->log->record($msg, $type);
     }
@@ -452,7 +452,7 @@ class App implements \ArrayAccess
      * @param  string    $name 配置参数名（支持二级配置 .号分割）
      * @return mixed
      */
-    public function config($name = '')
+    public function config(string $name = '')
     {
         return $this->config->get($name);
     }
@@ -510,7 +510,7 @@ class App implements \ArrayAccess
      * @param  bool $must  是否强制检测路由
      * @return $this
      */
-    public function routeMust($must = false)
+    public function routeMust(bool $must = false)
     {
         $this->routeMust = $must;
         return $this;
@@ -524,7 +524,7 @@ class App implements \ArrayAccess
      * @param  bool   $appendSuffix 是否添加类名后缀
      * @return array
      */
-    protected function parseModuleAndClass($name, $layer, $appendSuffix)
+    protected function parseModuleAndClass(string $name, string $layer, bool $appendSuffix)
     {
         if (false !== strpos($name, '\\')) {
             $class  = $name;
@@ -552,7 +552,7 @@ class App implements \ArrayAccess
      * @return object
      * @throws ClassNotFoundException
      */
-    public function create($name, $layer, $appendSuffix = false, $common = 'common')
+    public function create(string $name, string $layer, bool $appendSuffix = false, string $common = 'common')
     {
         $guid = $name . $layer;
 
@@ -588,7 +588,7 @@ class App implements \ArrayAccess
      * @return Model
      * @throws ClassNotFoundException
      */
-    public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
+    public function model(string $name = '', string $layer = 'model', bool $appendSuffix = false, string $common = 'common')
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }
@@ -603,7 +603,7 @@ class App implements \ArrayAccess
      * @return object
      * @throws ClassNotFoundException
      */
-    public function controller($name, $layer = 'controller', $appendSuffix = false, $empty = '')
+    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '')
     {
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
@@ -626,7 +626,7 @@ class App implements \ArrayAccess
      * @return Validate
      * @throws ClassNotFoundException
      */
-    public function validate($name = '', $layer = 'validate', $appendSuffix = false, $common = 'common')
+    public function validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common')
     {
         $name = $name ?: $this->config('default_validate');
 
@@ -659,7 +659,7 @@ class App implements \ArrayAccess
      * @return mixed
      * @throws ClassNotFoundException
      */
-    public function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
+    public function action(string $url, $vars = [], string $layer = 'controller', bool $appendSuffix = false)
     {
         $info   = pathinfo($url);
         $action = $info['basename'];
@@ -686,7 +686,7 @@ class App implements \ArrayAccess
      * @param  bool   $appendSuffix
      * @return string
      */
-    public function parseClass($module, $layer, $name, $appendSuffix = false)
+    public function parseClass(string $module, string $layer, string $name, bool $appendSuffix = false)
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
@@ -732,7 +732,7 @@ class App implements \ArrayAccess
      * @param  string $path 路径
      * @return void
      */
-    public function setModulePath($path)
+    public function setModulePath(string $path)
     {
         $this->modulePath = $path;
         $this->env->set('module_path', $path);
@@ -830,7 +830,7 @@ class App implements \ArrayAccess
      * @param  string $namespace 命名空间名称
      * @return $this
      */
-    public function setNamespace($namespace)
+    public function setNamespace(string $namespace)
     {
         $this->namespace = $namespace;
         return $this;

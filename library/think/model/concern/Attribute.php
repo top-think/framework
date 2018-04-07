@@ -82,7 +82,7 @@ trait Attribute
      * @param  string $key 名称
      * @return bool
      */
-    protected function isPk($key)
+    protected function isPk(string $key)
     {
         $pk = $this->getPk();
         if (is_string($pk) && $pk == $key) {
@@ -117,12 +117,8 @@ trait Attribute
      * @param  array|string $field 只读字段
      * @return $this
      */
-    public function readonly($field)
+    public function readonly(array $field)
     {
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-
         $this->readonly = $field;
 
         return $this;
@@ -183,7 +179,7 @@ trait Attribute
      * @param  bool  $set   是否需要进行数据处理
      * @return $this
      */
-    public function appendData($data, $set = false)
+    public function appendData($data, bool $set = false)
     {
         if ($set) {
             // 进行数据处理
@@ -207,11 +203,12 @@ trait Attribute
      * @param  string $name 字段名 留空获取全部
      * @return mixed
      */
-    public function getOrigin($name = null)
+    public function getOrigin( ? string $name = null)
     {
         if (is_null($name)) {
             return $this->origin;
         }
+
         return array_key_exists($name, $this->origin) ? $this->origin[$name] : null;
     }
 
@@ -222,7 +219,7 @@ trait Attribute
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function getData($name = null)
+    public function getData( ? string $name = null)
     {
         if (is_null($name)) {
             return $this->data;
@@ -231,6 +228,7 @@ trait Attribute
         } elseif (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         }
+
         throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
     }
 
@@ -273,7 +271,7 @@ trait Attribute
      * @param  array  $data  数据
      * @return $this
      */
-    public function setAttr($name, $value, $data = [])
+    public function setAttr(string $name, $value, array $data = [])
     {
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
@@ -302,7 +300,7 @@ trait Attribute
      * @param  bool $auto
      * @return $this
      */
-    public function isAutoWriteTimestamp($auto)
+    public function isAutoWriteTimestamp(bool $auto)
     {
         $this->autoWriteTimestamp = $auto;
 
@@ -315,7 +313,7 @@ trait Attribute
      * @param  string $name 时间戳字段
      * @return mixed
      */
-    protected function autoWriteTimestamp($name)
+    protected function autoWriteTimestamp(string $name)
     {
         if (isset($this->type[$name])) {
             $type = $this->type[$name];
@@ -325,8 +323,8 @@ trait Attribute
             }
 
             switch ($type) {
-                case 'datetime':
-                case 'date':
+                case 'datetime' :
+                case 'date' :
                     $format = !empty($param) ? $param : $this->dateFormat;
                     $value  = $this->formatDateTime(time(), $format);
                     break;
@@ -419,7 +417,7 @@ trait Attribute
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function getAttr($name, &$item = null)
+    public function getAttr(string $name, &$item = null)
     {
         try {
             $notFound = false;
@@ -466,7 +464,7 @@ trait Attribute
      * @param  array    $item  数据
      * @return mixed
      */
-    protected function getRelationAttribute($name, &$item)
+    protected function getRelationAttribute(string $name, &$item)
     {
         $relation = $this->isRelationAttr($name);
 

@@ -13,7 +13,7 @@ namespace think\config\driver;
 
 class Json
 {
-    public function parse($config)
+    public function parse(string $config)
     {
         if (is_file($config)) {
             $config = file_get_contents($config);

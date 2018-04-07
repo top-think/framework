@@ -35,7 +35,7 @@ class MorphTo extends Relation
      * @param  array  $alias     多态别名定义
      * @param  string $relation  关联名
      */
-    public function __construct(Model $parent, $morphType, $morphKey, $alias = [], $relation = null)
+    public function __construct(Model $parent, string $morphType, string $morphKey, array $alias = [], string $relation = null)
     {
         $this->parent    = $parent;
         $this->morphType = $morphType;
@@ -64,7 +64,7 @@ class MorphTo extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation($subRelation = '', $closure = null)
+    public function getRelation(string $subRelation = '', \Closure $closure = null)
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
@@ -138,7 +138,7 @@ class MorphTo extends Relation
      * @param  array $alias 别名定义
      * @return $this
      */
-    public function setAlias($alias)
+    public function setAlias(array $alias)
     {
         $this->alias = $alias;
 

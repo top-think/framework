@@ -64,7 +64,7 @@ abstract class Relation
      * @param  bool $self 是否自关联
      * @return $this
      */
-    public function selfRelation($self = true)
+    public function selfRelation(bool $self = true)
     {
         $this->selfRelation = $self;
         return $this;
@@ -86,18 +86,18 @@ abstract class Relation
      * @param  array $resultSet 数据集
      * @return mixed
      */
-    protected function resultSetBuild($resultSet)
+    protected function resultSetBuild(array $resultSet)
     {
         return (new $this->model)->toCollection($resultSet);
     }
 
-    protected function getQueryFields($model)
+    protected function getQueryFields(string $model)
     {
         $fields = $this->query->getOptions('field');
         return $this->getRelationQueryFields($fields, $model);
     }
 
-    protected function getRelationQueryFields($fields, $model)
+    protected function getRelationQueryFields($fields, string $model)
     {
         if ($fields) {
 

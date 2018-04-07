@@ -50,7 +50,7 @@ class Url
      * @param  boolean|string    $domain 是否显示域名 或者直接传入域名
      * @return string
      */
-    public function build($url = '', $vars = '', $suffix = true, $domain = false)
+    public function build(string $url = '', $vars = '', $suffix = true, $domain = false)
     {
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
@@ -124,7 +124,7 @@ class Url
             if ($alias) {
                 // 别名路由解析
                 foreach ($alias as $key => $item) {
-                    $val = $item->gerRoute();
+                    $val = $item->getRoute();
 
                     if (0 === strpos($url, $val)) {
                         $url        = $key . substr($url, strlen($val));

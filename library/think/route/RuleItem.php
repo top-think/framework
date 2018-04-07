@@ -13,6 +13,7 @@ namespace think\route;
 
 use think\Container;
 use think\Exception;
+use think\Request;
 use think\Route;
 
 class RuleItem extends Rule
@@ -42,26 +43,18 @@ class RuleItem extends Rule
      * @param  RuleGroup         $parent 上级对象
      * @param  string            $name 路由标识
      * @param  string|array      $rule 路由规则
-     * @param  string            $method 请求类型
      * @param  string|\Closure   $route 路由地址
-     * @param  array             $option 路由参数
-     * @param  array             $pattern 变量规则
+     * @param  string            $method 请求类型
      */
-    public function __construct(Route $router, RuleGroup $parent, $name, $rule, $route, $method = '*', $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $parent,  ? string $name, string $rule, $route, string $method = '*')
     {
-        $this->router  = $router;
-        $this->parent  = $parent;
-        $this->name    = $name;
-        $this->route   = $route;
-        $this->method  = $method;
-        $this->option  = $option;
-        $this->pattern = $pattern;
+        $this->router = $router;
+        $this->parent = $parent;
+        $this->name   = $name;
+        $this->route  = $route;
+        $this->method = $method;
 
         $this->setRule($rule);
-
-        if (!empty($option['cross_domain'])) {
-            $this->router->setCrossDomainRule($this, $method);
-        }
     }
 
     /**
@@ -70,7 +63,7 @@ class RuleItem extends Rule
      * @param  string      $rule     路由规则
      * @return void
      */
-    public function setRule($rule)
+    public function setRule(string $rule)
     {
         if ('$' == substr($rule, -1, 1)) {
             // 是否完整匹配
@@ -131,7 +124,7 @@ class RuleItem extends Rule
      * @param  string     $ext
      * @return $this
      */
-    public function ext($ext = '')
+    public function ext(string $ext = '')
     {
         $this->option('ext', $ext);
         $this->setRuleName(true);
@@ -145,7 +138,7 @@ class RuleItem extends Rule
      * @param  string     $name
      * @return $this
      */
-    public function name($name)
+    public function name(string $name)
     {
         $this->name = $name;
         $this->setRuleName(true);
@@ -159,7 +152,7 @@ class RuleItem extends Rule
      * @param  bool     $first   是否插入开头
      * @return void
      */
-    protected function setRuleName($first = false)
+    protected function setRuleName(bool $first = false)
     {
         if ($this->name) {
             $vars = $this->parseVar($this->rule);
@@ -189,7 +182,7 @@ class RuleItem extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function checkRule($request, $url, $match = null, $depr = '/', $completeMatch = false)
+    public function checkRule(Request $request, string $url, $match = null, string $depr = '/', bool $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
@@ -231,7 +224,7 @@ class RuleItem extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    public function check(Request $request, string $url, string $depr = '/', bool $completeMatch = false)
     {
         return $this->checkRule($request, $url, null, $depr, $completeMatch);
     }
@@ -244,7 +237,7 @@ class RuleItem extends Rule
      * @param  array        $option   路由参数
      * @return string
      */
-    protected function urlSuffixCheck($request, $url, $option = [])
+    protected function urlSuffixCheck(Request $request, string $url, array $option = [])
     {
         // 是否区分 / 地址访问
         if (!empty($option['remove_slash']) && '/' != $this->rule) {
@@ -269,7 +262,7 @@ class RuleItem extends Rule
      * @param  bool      $completeMatch   路由是否完全匹配
      * @return array|false
      */
-    private function match($url, $option, $depr, $completeMatch)
+    private function match(string $url, array $option, string $depr, bool $completeMatch)
     {
         if (isset($option['complete_match'])) {
             $completeMatch = $option['complete_match'];

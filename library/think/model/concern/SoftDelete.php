@@ -62,7 +62,7 @@ trait SoftDelete
      * @param  bool  $force 是否强制删除
      * @return integer
      */
-    public function delete($force = false)
+    public function delete(bool $force = false)
     {
         if (false === $this->trigger('before_delete', $this)) {
             return false;
@@ -104,7 +104,7 @@ trait SoftDelete
      * @param  bool  $force 是否强制删除
      * @return integer 成功删除的记录数
      */
-    public static function destroy($data, $force = false)
+    public static function destroy($data, bool $force = false)
     {
         // 包含软删除数据
         $query = self::withTrashed();
@@ -164,7 +164,7 @@ trait SoftDelete
      * @param  bool  $read 是否查询操作 写操作的时候会自动去掉表别名
      * @return string|false
      */
-    protected function getDeleteTimeField($read = false)
+    protected function getDeleteTimeField(bool $read = false)
     {
         $field = property_exists($this, 'deleteTime') && isset($this->deleteTime) ? $this->deleteTime : 'delete_time';
 

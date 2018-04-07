@@ -58,7 +58,7 @@ if (!function_exists('action')) {
      * @param bool          $appendSuffix 是否添加类名后缀
      * @return mixed
      */
-    function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
+    function action(string $url, $vars = [], string $layer = 'controller', bool $appendSuffix = false)
     {
         return app()->action($url, $vars, $layer, $appendSuffix);
     }
@@ -72,7 +72,7 @@ if (!function_exists('app')) {
      * @param bool      $newInstance    是否每次创建新的实例
      * @return object
      */
-    function app($name = 'think\App', $args = [], $newInstance = false)
+    function app(string $name = 'think\App', $args = [], bool $newInstance = false)
     {
         return Container::get($name, $args, $newInstance);
     }
@@ -154,7 +154,7 @@ if (!function_exists('call')) {
      * @param array $args       参数
      * @return mixed
      */
-    function call($callable, $args = [])
+    function call(callable $callable, array $args = [])
     {
         return Container::getInstance()->invoke($callable, $args);
     }
@@ -237,7 +237,7 @@ if (!function_exists('controller')) {
      * @param bool      $appendSuffix 是否添加类名后缀
      * @return \think\Controller
      */
-    function controller($name, $layer = 'controller', $appendSuffix = false)
+    function controller(string $name, string $layer = 'controller', bool $appendSuffix = false)
     {
         return app()->controller($name, $layer, $appendSuffix);
     }
@@ -280,7 +280,7 @@ if (!function_exists('db')) {
      * @param bool          $force 是否强制重新连接
      * @return \think\db\Query
      */
-    function db($name = '', $config = [], $force = true)
+    function db(string $name = '', $config = [], $force = true)
     {
         return Db::connect($config, $force)->name($name);
     }
@@ -312,7 +312,7 @@ if (!function_exists('dump')) {
      * @param string    $label 标签 默认为空
      * @return void|string
      */
-    function dump($var, $echo = true, $label = null)
+    function dump($var, bool $echo = true, string $label = null)
     {
         return Debug::dump($var, $echo, $label);
     }
@@ -326,7 +326,7 @@ if (!function_exists('env')) {
      * @param  string    $default  默认值
      * @return mixed
      */
-    function env($name = null, $default = null)
+    function env(string $name = null, $default = null)
     {
         return Env::get($name, $default);
     }
@@ -342,7 +342,7 @@ if (!function_exists('exception')) {
      *
      * @throws Exception
      */
-    function exception($msg, $code = 0, $exception = '')
+    function exception(string $msg, int $code = 0, string $exception = '')
     {
         $e = $exception ?: '\think\Exception';
         throw new $e($msg, $code);
@@ -370,7 +370,7 @@ if (!function_exists('input')) {
      * @param string    $filter 过滤方法
      * @return mixed
      */
-    function input($key = '', $default = null, $filter = '')
+    function input(string $key = '', $default = null, $filter = '')
     {
         if (0 === strpos($key, '?')) {
             $key = substr($key, 1);
@@ -450,7 +450,7 @@ if (!function_exists('model')) {
      * @param bool      $appendSuffix 是否添加类名后缀
      * @return \think\Model
      */
-    function model($name = '', $layer = 'model', $appendSuffix = false)
+    function model(string $name = '', string $layer = 'model', bool $appendSuffix = false)
     {
         return app()->model($name, $layer, $appendSuffix);
     }
@@ -465,7 +465,7 @@ if (!function_exists('parse_name')) {
      * @param bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    function parse_name($name, $type = 0, $ucfirst = true)
+    function parse_name(string $name, int $type = 0, bool $ucfirst = true)
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -529,13 +529,11 @@ if (!function_exists('route')) {
      * 路由注册
      * @param  string    $rule       路由规则
      * @param  mixed     $route      路由地址
-     * @param  array     $option     路由参数
-     * @param  array     $pattern    变量规则
      * @return RuleItem
      */
-    function route($rule, $route, $option = [], $pattern = [])
+    function route(string $rule, $route)
     {
-        return Route::rule($rule, $route, '*', $option, $pattern);
+        return Route::rule($rule, $route, '*');
     }
 }
 
@@ -575,7 +573,7 @@ if (!function_exists('token')) {
      * @param mixed  $type 令牌生成方法
      * @return string
      */
-    function token($name = '__token__', $type = 'md5')
+    function token(string $name = '__token__', string $type = 'md5')
     {
         $token = Request::token($name, $type);
 
@@ -627,7 +625,7 @@ if (!function_exists('url')) {
      * @param bool|string   $domain 域名
      * @return string
      */
-    function url($url = '', $vars = '', $suffix = true, $domain = false)
+    function url(string $url = '', $vars = '', $suffix = true, $domain = false)
     {
         return Url::build($url, $vars, $suffix, $domain);
     }
@@ -656,7 +654,7 @@ if (!function_exists('view')) {
      * @param callable  $filter 内容过滤
      * @return \think\response\View
      */
-    function view($template = '', $vars = [], $code = 200, $filter = null)
+    function view(string $template = '', $vars = [], $code = 200, $filter = null)
     {
         return Response::create($template, 'view', $code)->assign($vars)->filter($filter);
     }
@@ -669,7 +667,7 @@ if (!function_exists('widget')) {
      * @param array     $data 传入的参数
      * @return mixed
      */
-    function widget($name, $data = [])
+    function widget(string $name, $data = [])
     {
         return app()->action($name, $data, 'widget');
     }

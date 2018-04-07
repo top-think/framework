@@ -67,7 +67,7 @@ class Cookie
      * @param  string $prefix
      * @return string|void
      */
-    public function prefix($prefix = '')
+    public function prefix(string $prefix = '')
     {
         if (empty($prefix)) {
             return $this->config['prefix'];
@@ -85,7 +85,7 @@ class Cookie
      * @param  mixed  $option 可选参数 可能会是 null|integer|string
      * @return void
      */
-    public function set($name, $value = '', $option = null)
+    public function set(string $name, $value = '', $option = null)
     {
         !isset($this->init) && $this->init();
 
@@ -127,7 +127,7 @@ class Cookie
      * @param  mixed  $option 可选参数 可能会是 null|integer|string
      * @return void
      */
-    public function forever($name, $value = '', $option = null)
+    public function forever(string $name, $value = '', $option = null)
     {
         if (is_null($option) || is_numeric($option)) {
             $option = [];
@@ -145,7 +145,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return bool
      */
-    public function has($name, $prefix = null)
+    public function has(string $name,  ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -162,7 +162,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return mixed
      */
-    public function get($name = '', $prefix = null)
+    public function get(string $name = '',  ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -202,7 +202,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return void
      */
-    public function delete($name, $prefix = null)
+    public function delete(string $name,  ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -224,7 +224,7 @@ class Cookie
      * @param  string|null $prefix cookie前缀
      * @return void
      */
-    public function clear($prefix = null)
+    public function clear( ? string $prefix = null)
     {
         // 清除指定前缀的所有cookie
         if (empty($_COOKIE)) {

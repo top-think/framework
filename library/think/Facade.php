@@ -55,7 +55,7 @@ class Facade
      * @param  bool      $newInstance    是否每次创建新的实例
      * @return object
      */
-    protected static function createFacade($class = '', $args = [], $newInstance = false)
+    protected static function createFacade(string $class = '', array $args = [], bool $newInstance = false)
     {
         $class       = $class ?: static::class;
         $facadeClass = static::getFacadeClass();
@@ -103,7 +103,7 @@ class Facade
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public static function make($class, $args = [], $newInstance = false)
+    public static function make(string $class, $args = [], $newInstance = false)
     {
         if (__CLASS__ != static::class) {
             return self::__callStatic('make', func_get_args());

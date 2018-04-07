@@ -81,7 +81,7 @@ class Middleware
         }
 
         if ($middleware instanceof \Closure) {
-            return [$middleware, isset($param) ? $param : null];
+            return [$middleware, $param ?? null];
         }
 
         if (!is_string($middleware)) {
@@ -101,7 +101,7 @@ class Middleware
             list($middleware, $param) = explode(':', $middleware, 2);
         }
 
-        return [[Container::get($middleware), 'handle'], isset($param) ? $param : null];
+        return [[Container::get($middleware), 'handle'], $param ?? null];
     }
 
     protected function resolve()

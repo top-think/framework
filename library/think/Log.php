@@ -72,9 +72,9 @@ class Log implements LoggerInterface
      * @param  array $config
      * @return $this
      */
-    public function init($config = [])
+    public function init(array $config = [])
     {
-        $type  = isset($config['type']) ? $config['type'] : 'File';
+        $type  = $config['type'] ?? 'File';
         $class = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
 
         $this->config = $config;
@@ -102,7 +102,7 @@ class Log implements LoggerInterface
      * @param  string $type 信息类型
      * @return array
      */
-    public function getLog($type = '')
+    public function getLog(string $type = '')
     {
         return $type ? $this->log[$type] : $this->log;
     }
@@ -115,7 +115,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return $this
      */
-    public function record($msg, $type = 'info', array $context = [])
+    public function record($msg, string $type = 'info', array $context = [])
     {
         if (!$this->allowWrite) {
             return;
@@ -158,7 +158,7 @@ class Log implements LoggerInterface
      * @param  string  $key  授权key
      * @return $this
      */
-    public function key($key)
+    public function key(string $key)
     {
         $this->key = $key;
 
@@ -171,7 +171,7 @@ class Log implements LoggerInterface
      * @param  array  $config  当前日志配置参数
      * @return bool
      */
-    public function check($config)
+    public function check(array $config)
     {
         if ($this->key && !empty($config['allow_key']) && !in_array($this->key, $config['allow_key'])) {
             return false;
@@ -245,7 +245,7 @@ class Log implements LoggerInterface
      * @param  bool   $force 是否强制写入
      * @return bool
      */
-    public function write($msg, $type = 'info', $force = false)
+    public function write($msg, string $type = 'info', bool $force = false)
     {
         // 封装日志信息
         $log = $this->log;
@@ -283,7 +283,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function log($level, $message, array $context = [])
+    public function log(string $level, $message, array $context = [])
     {
         $this->record($message, $level, $context);
     }

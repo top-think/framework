@@ -44,7 +44,7 @@ class Mysql extends Builder
      * @param  bool      $replace 是否replace
      * @return string
      */
-    public function insertAll(Query $query, $dataSet, $replace = false)
+    public function insertAll(Query $query, array $dataSet, bool $replace = false)
     {
         $options = $query->getOptions();
 
@@ -95,7 +95,7 @@ class Mysql extends Builder
      * @param  string    $field
      * @return string
      */
-    protected function parseRegexp(Query $query, $key, $exp, $value, $field)
+    protected function parseRegexp(Query $query, string $key, string $exp, $value, string $field)
     {
         return $key . ' ' . $exp . ' ' . $value;
     }
@@ -107,7 +107,7 @@ class Mysql extends Builder
      * @param  string    $key   字段名
      * @return string
      */
-    public function parseKey(Query $query, $key)
+    public function parseKey(Query $query, string $key)
     {
         if (is_int($key)) {
             return $key;
@@ -171,33 +171,6 @@ class Mysql extends Builder
         }
 
         return $fieldsStr;
-    }
-
-    /**
-     * 数组数据解析
-     * @access protected
-     * @param  Query     $query     查询对象
-     * @param  array     $data
-     * @return mixed
-     */
-    protected function parseArrayData(Query $query, $data)
-    {
-        list($type, $value) = $data;
-
-        switch (strtolower($type)) {
-            case 'point':
-                $fun   = isset($data[2]) ? $data[2] : 'GeomFromText';
-                $point = isset($data[3]) ? $data[3] : 'POINT';
-                if (is_array($value)) {
-                    $value = implode(' ', $value);
-                }
-                $result = $fun . '(\'' . $point . '(' . $value . ')\')';
-                break;
-            default:
-                $result = false;
-        }
-
-        return $result;
     }
 
     /**

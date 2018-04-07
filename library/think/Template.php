@@ -151,7 +151,7 @@ class Template
      * @param  string $name 变量名
      * @return mixed
      */
-    public function get($name = '')
+    public function get(string $name = '')
     {
         if ('' == $name) {
             return $this->data;
@@ -179,7 +179,7 @@ class Template
      * @param  array     $config 模板参数
      * @return void
      */
-    public function fetch($template, $vars = [], $config = [])
+    public function fetch(string $template, array $vars = [], array $config = [])
     {
         if ($vars) {
             $this->data = $vars;
@@ -239,7 +239,7 @@ class Template
      * @param  array     $config 模板参数
      * @return void
      */
-    public function display($content, $vars = [], $config = [])
+    public function display(string $content, array $vars = [], array $config = [])
     {
         if ($vars) {
             $this->data = $vars;
@@ -296,7 +296,7 @@ class Template
      * @param  string $cacheFile 缓存文件名
      * @return boolean
      */
-    private function checkCache($cacheFile)
+    private function checkCache(string $cacheFile)
     {
         if (!$this->config['tpl_cache'] || !is_file($cacheFile) || !$handle = @fopen($cacheFile, "r")) {
             return false;
@@ -333,7 +333,7 @@ class Template
      * @param  string $cacheId 缓存的id
      * @return boolean
      */
-    public function isCache($cacheId)
+    public function isCache(string $cacheId)
     {
         if ($cacheId && $this->config['display_cache']) {
             // 缓存页面输出
@@ -350,7 +350,7 @@ class Template
      * @param  string    $cacheFile 缓存文件名
      * @return void
      */
-    private function compiler(&$content, $cacheFile)
+    private function compiler(&$content, string $cacheFile)
     {
         // 判断是否启用布局
         if ($this->config['layout_on']) {

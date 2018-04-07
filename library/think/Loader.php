@@ -53,7 +53,7 @@ class Loader
     private static $composerPath;
 
     // 注册自动加载机制
-    public static function register($autoload = '')
+    public static function register( ? callable $autoload = null)
     {
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
@@ -72,19 +72,16 @@ class Loader
 
         // Composer自动加载支持
         if (is_dir(self::$composerPath)) {
-            if (is_file(self::$composerPath . 'autoload_static.php')) {
-                require self::$composerPath . 'autoload_static.php';
 
-                $declaredClass = get_declared_classes();
-                $composerClass = array_pop($declaredClass);
+            require self::$composerPath . 'autoload_static.php';
 
-                foreach (['prefixLengthsPsr4', 'prefixDirsPsr4', 'prefixesPsr0', 'classMap'] as $attr) {
-                    if (property_exists($composerClass, $attr)) {
-                        self::${$attr} = $composerClass::${$attr};
-                    }
+            $declaredClass = get_declared_classes();
+            $composerClass = array_pop($declaredClass);
+
+            foreach (['prefixLengthsPsr4', 'prefixDirsPsr4', 'prefixesPsr0', 'classMap'] as $attr) {
+                if (property_exists($composerClass, $attr)) {
+                    self::${$attr} = $composerClass::${$attr};
                 }
-            } else {
-                self::registerComposerLoader(self::$composerPath);
             }
         }
 
@@ -104,7 +101,7 @@ class Loader
     }
 
     // 自动加载
-    public static function autoload($class)
+    public static function autoload(string $class)
     {
         if (isset(self::$classAlias[$class])) {
             return class_alias(self::$classAlias[$class], $class);
@@ -128,7 +125,7 @@ class Loader
      * @param  string $class
      * @return string|false
      */
-    private static function findFile($class)
+    private static function findFile(string $class)
     {
         if (!empty(self::$classMap[$class])) {
             // 类库映射
@@ -212,45 +209,6 @@ class Loader
         }
     }
 
-    // 添加Ps0空间
-    private static function addPsr0($prefix, $paths, $prepend = false)
-    {
-        if (!$prefix) {
-            if ($prepend) {
-                self::$fallbackDirsPsr0 = array_merge(
-                    (array) $paths,
-                    self::$fallbackDirsPsr0
-                );
-            } else {
-                self::$fallbackDirsPsr0 = array_merge(
-                    self::$fallbackDirsPsr0,
-                    (array) $paths
-                );
-            }
-
-            return;
-        }
-
-        $first = $prefix[0];
-        if (!isset(self::$prefixesPsr0[$first][$prefix])) {
-            self::$prefixesPsr0[$first][$prefix] = (array) $paths;
-
-            return;
-        }
-
-        if ($prepend) {
-            self::$prefixesPsr0[$first][$prefix] = array_merge(
-                (array) $paths,
-                self::$prefixesPsr0[$first][$prefix]
-            );
-        } else {
-            self::$prefixesPsr0[$first][$prefix] = array_merge(
-                self::$prefixesPsr0[$first][$prefix],
-                (array) $paths
-            );
-        }
-    }
-
     // 添加Psr4空间
     private static function addPsr4($prefix, $paths, $prepend = false)
     {
@@ -292,7 +250,7 @@ class Loader
     }
 
     // 注册自动加载类库目录
-    public static function addAutoLoadDir($path)
+    public static function addAutoLoadDir(string $path)
     {
         self::$fallbackDirsPsr4[] = $path;
     }
@@ -304,31 +262,6 @@ class Loader
             self::$classAlias = array_merge(self::$classAlias, $alias);
         } else {
             self::$classAlias[$alias] = $class;
-        }
-    }
-
-    // 注册composer自动加载
-    public static function registerComposerLoader($composerPath)
-    {
-        if (is_file($composerPath . 'autoload_namespaces.php')) {
-            $map = require $composerPath . 'autoload_namespaces.php';
-            foreach ($map as $namespace => $path) {
-                self::addPsr0($namespace, $path);
-            }
-        }
-
-        if (is_file($composerPath . 'autoload_psr4.php')) {
-            $map = require $composerPath . 'autoload_psr4.php';
-            foreach ($map as $namespace => $path) {
-                self::addPsr4($namespace, $path);
-            }
-        }
-
-        if (is_file($composerPath . 'autoload_classmap.php')) {
-            $classMap = require $composerPath . 'autoload_classmap.php';
-            if ($classMap) {
-                self::addClassMap($classMap);
-            }
         }
     }
 
@@ -355,7 +288,7 @@ class Loader
      * @param  bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    public static function parseName($name, $type = 0, $ucfirst = true)
+    public static function parseName(string $name, int $type = 0, bool $ucfirst = true)
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -374,12 +307,12 @@ class Loader
  * @param $file
  * @return mixed
  */
-function __include_file($file)
+function __include_file(string $file)
 {
     return include $file;
 }
 
-function __require_file($file)
+function __require_file(string $file)
 {
     return require $file;
 }

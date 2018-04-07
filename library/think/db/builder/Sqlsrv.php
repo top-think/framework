@@ -77,7 +77,7 @@ class Sqlsrv extends Builder
      * @param  string    $key       字段名
      * @return string
      */
-    public function parseKey(Query $query, $key)
+    public function parseKey(Query $query, string $key)
     {
         $key = trim($key);
 

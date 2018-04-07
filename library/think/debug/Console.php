@@ -25,7 +25,7 @@ class Console
     ];
 
     // 实例化并传入参数
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         if (is_array($config)) {
             $this->config = array_merge($this->config, $config);
@@ -114,7 +114,7 @@ JS;
         return $js;
     }
 
-    protected function console($type, $msg)
+    protected function console(string $type, $msg)
     {
         $type       = strtolower($type);
         $trace_tabs = array_values($this->config['tabs']);

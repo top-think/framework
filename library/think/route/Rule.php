@@ -36,7 +36,7 @@ abstract class Rule
     // 需要合并的路由参数
     protected $mergeOptions = ['after', 'before', 'model', 'header', 'response', 'append', 'middleware'];
 
-    abstract public function check($request, $url, $depr = '/');
+    abstract public function check(Request $request, string $url, string $depr = '/');
 
     /**
      * 注册路由参数
@@ -80,7 +80,7 @@ abstract class Rule
      * @param  string  $name 标识名
      * @return $this
      */
-    public function name($name)
+    public function name(string $name)
     {
         $this->name = $name;
 
@@ -113,13 +113,13 @@ abstract class Rule
      * @param  string  $name 变量名
      * @return mixed
      */
-    public function getPattern($name = '')
+    public function getPattern(string $name = '')
     {
         if ('' === $name) {
             return $this->pattern;
         }
 
-        return isset($this->pattern[$name]) ? $this->pattern[$name] : null;
+        return $this->pattern[$name] ?? null;
     }
 
     /**
@@ -128,13 +128,13 @@ abstract class Rule
      * @param  string  $name 参数名
      * @return mixed
      */
-    public function getOption($name = '')
+    public function getOption(string $name = '')
     {
         if ('' === $name) {
             return $this->option;
         }
 
-        return isset($this->option[$name]) ? $this->option[$name] : null;
+        return $this->option[$name] ?? null;
     }
 
     /**
@@ -143,7 +143,7 @@ abstract class Rule
      * @param  string     $method
      * @return $this
      */
-    public function method($method)
+    public function method(string $method)
     {
         return $this->option('method', strtolower($method));
     }
@@ -176,7 +176,7 @@ abstract class Rule
      * @param  string     $ext
      * @return $this
      */
-    public function ext($ext = '')
+    public function ext(string $ext = '')
     {
         return $this->option('ext', $ext);
     }
@@ -187,7 +187,7 @@ abstract class Rule
      * @param  string     $ext
      * @return $this
      */
-    public function denyExt($ext = '')
+    public function denyExt(string $ext = '')
     {
         return $this->option('deny_ext', $ext);
     }
@@ -198,7 +198,7 @@ abstract class Rule
      * @param  string     $domain
      * @return $this
      */
-    public function domain($domain)
+    public function domain(string $domain)
     {
         return $this->option('domain', $domain);
     }
@@ -211,7 +211,7 @@ abstract class Rule
      * @param  bool              $exception 是否抛出异常
      * @return $this
      */
-    public function model($var, $model = null, $exception = true)
+    public function model($var, $model = null, bool $exception = true)
     {
         if ($var instanceof \Closure) {
             $this->option['model'][] = $var;
@@ -252,7 +252,7 @@ abstract class Rule
      * @param  bool     $batch 批量验证
      * @return $this
      */
-    public function validate($validate, $scene = null, $message = [], $batch = false)
+    public function validate($validate, string $scene = null, array $message = [], bool $batch = false)
     {
         $this->option['validate'] = [$validate, $scene, $message, $batch];
 
@@ -337,7 +337,7 @@ abstract class Rule
      * @param  bool     $merge
      * @return $this
      */
-    public function mergeExtraVars($merge = true)
+    public function mergeExtraVars(bool $merge = true)
     {
         return $this->option('merge_extra_vars', $merge);
     }
@@ -348,7 +348,7 @@ abstract class Rule
      * @param  array     $option
      * @return $this
      */
-    public function mergeOptions($option = [])
+    public function mergeOptions(array $option = [])
     {
         $this->mergeOptions = array_merge($this->mergeOptions, $option);
         return $this;
@@ -360,7 +360,7 @@ abstract class Rule
      * @param  bool     $https
      * @return $this
      */
-    public function https($https = true)
+    public function https(bool $https = true)
     {
         return $this->option('https', $https);
     }
@@ -371,7 +371,7 @@ abstract class Rule
      * @param  bool     $ajax
      * @return $this
      */
-    public function ajax($ajax = true)
+    public function ajax(bool $ajax = true)
     {
         return $this->option('ajax', $ajax);
     }
@@ -382,7 +382,7 @@ abstract class Rule
      * @param  bool     $pjax
      * @return $this
      */
-    public function pjax($pjax = true)
+    public function pjax(bool $pjax = true)
     {
         return $this->option('pjax', $pjax);
     }
@@ -404,7 +404,7 @@ abstract class Rule
      * @param  bool   $redirect 是否为重定向
      * @return $this
      */
-    public function redirect($redirect = true)
+    public function redirect(bool $redirect = true)
     {
         return $this->option('redirect', $redirect);
     }
@@ -415,7 +415,7 @@ abstract class Rule
      * @param  bool     $match
      * @return $this
      */
-    public function completeMatch($match = true)
+    public function completeMatch(bool $match = true)
     {
         return $this->option('complete_match', $match);
     }
@@ -426,7 +426,7 @@ abstract class Rule
      * @param  bool     $remove
      * @return $this
      */
-    public function removeSlash($remove = true)
+    public function removeSlash(bool $remove = true)
     {
         return $this->option('remove_slash', $remove);
     }
@@ -438,7 +438,7 @@ abstract class Rule
      * @param  array    $header
      * @return $this
      */
-    public function allowCrossDomain($allow = true, $header = [])
+    public function allowCrossDomain(bool $allow = true, array $header = [])
     {
         if (!empty($header)) {
             $this->header($header);
@@ -457,7 +457,7 @@ abstract class Rule
      * @param  Request     $request
      * @return Dispatch|void
      */
-    protected function checkCrossDomain($request)
+    protected function checkCrossDomain(Request $request)
     {
         if (!empty($this->option['cross_domain'])) {
 
@@ -524,7 +524,7 @@ abstract class Rule
      * @param  array             $matches   路由变量
      * @return void
      */
-    protected function createBindModel($bindModel, $matches)
+    protected function createBindModel($bindModel, array $matches)
     {
         foreach ($bindModel as $key => $val) {
             if ($val instanceof \Closure) {
@@ -571,7 +571,7 @@ abstract class Rule
      * @param  string|array  $cache  路由缓存
      * @return void
      */
-    protected function parseRequestCache($request, $cache)
+    protected function parseRequestCache(Request $request, $cache)
     {
         if (is_array($cache)) {
             list($key, $expire, $tag) = array_pad($cache, 3, null);
@@ -595,7 +595,7 @@ abstract class Rule
      * @param  array     $matches 匹配的变量
      * @return Dispatch
      */
-    public function parseRule($request, $rule, $route, $url, $option = [], $matches = [])
+    public function parseRule(Request $request, string $rule, $route, string $url, array $option = [], array $matches = [])
     {
         if (is_string($route) && isset($option['prefix'])) {
             // 路由地址前缀
@@ -641,7 +641,7 @@ abstract class Rule
         return $this->dispatch($request, $route, $option);
     }
 
-    protected function afterMatchRule($request, $option = [], $matches = [])
+    protected function afterMatchRule(Request $request, array $option = [], array $matches = [])
     {
         // 添加中间件
         if (!empty($option['middleware'])) {
@@ -684,7 +684,7 @@ abstract class Rule
      * @return void
      * @throws ValidateException
      */
-    protected function autoValidate($option, $request)
+    protected function autoValidate(array $option, Request $request)
     {
         list($validate, $scene, $message, $batch) = $option;
 
@@ -773,7 +773,7 @@ abstract class Rule
      * @param  array     $option 路由参数
      * @return Dispatch
      */
-    protected function dispatch($request, $route, $option)
+    protected function dispatch(Request $request, $route, array $option)
     {
         if ($route instanceof \Closure) {
             // 执行闭包
@@ -805,7 +805,7 @@ abstract class Rule
      * @param  string    $route 路由地址
      * @return CallbackDispatch
      */
-    protected function dispatchMethod($route)
+    protected function dispatchMethod(string $route)
     {
         list($path, $var) = $this->parseUrlPath($route);
 
@@ -822,7 +822,7 @@ abstract class Rule
      * @param  string    $route 路由地址
      * @return ControllerDispatch
      */
-    protected function dispatchController($request, $route)
+    protected function dispatchController(Request $request, string $route)
     {
         list($route, $var) = $this->parseUrlPath($route);
 
@@ -844,7 +844,7 @@ abstract class Rule
      * @param  string    $route 路由地址
      * @return ModuleDispatch
      */
-    protected function dispatchModule($request, $route)
+    protected function dispatchModule(Request $request, string $route)
     {
         list($path, $var) = $this->parseUrlPath($route);
 
@@ -874,7 +874,7 @@ abstract class Rule
      * @param  Request   $request Request对象
      * @return bool
      */
-    protected function checkOption($option, Request $request)
+    protected function checkOption(array $option, Request $request)
     {
         // 请求类型检测
         if (!empty($option['method'])) {
@@ -920,7 +920,7 @@ abstract class Rule
      * @param  array     $var 变量
      * @return void
      */
-    protected function parseUrlParams($url, &$var = [])
+    protected function parseUrlParams(string $url, array &$var = [])
     {
         if ($url) {
             if (Container::get('config')->get('url_param_type')) {
@@ -942,7 +942,7 @@ abstract class Rule
      * @param  string    $url URL地址
      * @return array
      */
-    protected function parseUrlPath($url)
+    protected function parseUrlPath(string $url)
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
@@ -978,7 +978,7 @@ abstract class Rule
      * @param  string    $suffix   路由正则变量后缀
      * @return string
      */
-    protected function buildRuleRegex($rule, $match, $pattern = [], $option = [], $completeMatch = false, $suffix = '')
+    protected function buildRuleRegex(string $rule, array $match, array $pattern = [], array $option = [], bool $completeMatch = false, string $suffix = '')
     {
         foreach ($match as $name) {
             $replace[] = $this->buildNameRegex($name, $pattern, $suffix);
@@ -1003,7 +1003,7 @@ abstract class Rule
      * @param  string    $suffix    路由正则变量后缀
      * @return string
      */
-    protected function buildNameRegex($name, $pattern, $suffix)
+    protected function buildNameRegex(string $name, string $pattern, string $suffix)
     {
         $optional = '';
         $slash    = substr($name, 0, 1);
@@ -1045,7 +1045,7 @@ abstract class Rule
      * @param  string    $rule 路由规则
      * @return array
      */
-    protected function parseVar($rule)
+    protected function parseVar(string $rule)
     {
         // 提取路由规则中的变量
         $var = [];

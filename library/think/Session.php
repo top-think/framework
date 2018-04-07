@@ -84,9 +84,6 @@ class Session
         // 记录初始化信息
         Container::get('app')->log('[ SESSION ] INIT ' . var_export($config, true));
         $isDoStart = false;
-        if (isset($config['use_trans_sid'])) {
-            ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);
-        }
 
         // 启动session
         if (!empty($config['auto_start']) && PHP_SESSION_ACTIVE != session_status()) {
@@ -108,43 +105,6 @@ class Session
             session_id($config['id']);
         }
 
-        if (isset($config['name'])) {
-            session_name($config['name']);
-        }
-
-        if (isset($config['path'])) {
-            session_save_path($config['path']);
-        }
-
-        if (isset($config['domain'])) {
-            ini_set('session.cookie_domain', $config['domain']);
-        }
-
-        if (isset($config['expire'])) {
-            ini_set('session.gc_maxlifetime', $config['expire']);
-            ini_set('session.cookie_lifetime', $config['expire']);
-        }
-
-        if (isset($config['secure'])) {
-            ini_set('session.cookie_secure', $config['secure']);
-        }
-
-        if (isset($config['httponly'])) {
-            ini_set('session.cookie_httponly', $config['httponly']);
-        }
-
-        if (isset($config['use_cookies'])) {
-            ini_set('session.use_cookies', $config['use_cookies'] ? 1 : 0);
-        }
-
-        if (isset($config['cache_limiter'])) {
-            session_cache_limiter($config['cache_limiter']);
-        }
-
-        if (isset($config['cache_expire'])) {
-            session_cache_expire($config['cache_expire']);
-        }
-
         if (!empty($config['type'])) {
             // 读取session驱动
             $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\session\\driver\\' . ucwords($config['type']);
@@ -156,7 +116,7 @@ class Session
         }
 
         if ($isDoStart) {
-            session_start();
+            session_start($config);
             $this->init = true;
         } else {
             $this->init = false;
@@ -188,7 +148,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function set($name, $value, $prefix = null)
+    public function set(string $name, $value,  ? string $prefix = null)
     {
         $this->lock();
 
@@ -220,7 +180,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function get($name = '', $prefix = null)
+    public function get(string $name = '',  ? string $prefix = null)
     {
         $this->lock();
 
@@ -328,7 +288,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function pull($name, $prefix = null)
+    public function pull(string $name,  ? string $prefix = null)
     {
         $result = $this->get($name, $prefix);
 
@@ -345,10 +305,9 @@ class Session
      * @access public
      * @param  string        $name session名称
      * @param  mixed         $value session值
-     * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function flash($name, $value)
+    public function flash(string $name, $value)
     {
         $this->set($name, $value);
 
@@ -390,7 +349,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function delete($name, $prefix = null)
+    public function delete($name,  ? string $prefix = null)
     {
         empty($this->init) && $this->boot();
 
@@ -422,7 +381,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function clear($prefix = null)
+    public function clear( ? string $prefix = null)
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
@@ -441,7 +400,7 @@ class Session
      * @param  string|null   $prefix
      * @return bool
      */
-    public function has($name, $prefix = null)
+    public function has(string $name,  ? string $prefix = null)
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
@@ -463,7 +422,7 @@ class Session
      * @param  mixed   $value
      * @return void
      */
-    public function push($key, $value)
+    public function push(string $key, $value)
     {
         $array = $this->get($key);
 
@@ -512,7 +471,7 @@ class Session
      * @param  bool $delete 是否删除关联会话文件
      * @return void
      */
-    public function regenerate($delete = false)
+    public function regenerate(bool $delete = false)
     {
         session_regenerate_id($delete);
     }

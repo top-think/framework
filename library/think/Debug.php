@@ -47,7 +47,7 @@ class Debug
      * @param  mixed     $value 标记值 留空则取当前 time 表示仅记录时间 否则同时记录时间和内存
      * @return void
      */
-    public function remark($name, $value = '')
+    public function remark(string $name, $value = '')
     {
         // 记录时间和内存使用
         $this->info[$name] = is_float($value) ? $value : microtime(true);
@@ -66,7 +66,7 @@ class Debug
      * @param  integer|string    $dec 小数位
      * @return integer
      */
-    public function getRangeTime($start, $end, $dec = 6)
+    public function getRangeTime(string $start, string $end, int $dec = 6)
     {
         if (!isset($this->info[$end])) {
             $this->info[$end] = microtime(true);
@@ -81,7 +81,7 @@ class Debug
      * @param  integer|string $dec 小数位
      * @return integer
      */
-    public function getUseTime($dec = 6)
+    public function getUseTime(int $dec = 6)
     {
         return number_format((microtime(true) - $this->app->getBeginTime()), $dec);
     }
@@ -104,7 +104,7 @@ class Debug
      * @param  integer|string    $dec 小数位
      * @return string
      */
-    public function getRangeMem($start, $end, $dec = 2)
+    public function getRangeMem(string $start, string $end, int $dec = 2)
     {
         if (!isset($this->mem['mem'][$end])) {
             $this->mem['mem'][$end] = memory_get_usage();
@@ -128,7 +128,7 @@ class Debug
      * @param  integer|string $dec 小数位
      * @return string
      */
-    public function getUseMem($dec = 2)
+    public function getUseMem(int $dec = 2)
     {
         $size = memory_get_usage() - $this->app->getBeginMem();
         $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -150,7 +150,7 @@ class Debug
      * @param  integer|string    $dec 小数位
      * @return string
      */
-    public function getMemPeak($start, $end, $dec = 2)
+    public function getMemPeak(string $start, string $end, int $dec = 2)
     {
         if (!isset($this->mem['peak'][$end])) {
             $this->mem['peak'][$end] = memory_get_peak_usage();
@@ -174,7 +174,7 @@ class Debug
      * @param  bool  $detail 是否显示详细
      * @return integer|array
      */
-    public function getFile($detail = false)
+    public function getFile(bool $detail = false)
     {
         if ($detail) {
             $files = get_included_files();
@@ -199,7 +199,7 @@ class Debug
      * @param  integer       $flags htmlspecialchars flags
      * @return void|string
      */
-    public function dump($var, $echo = true, $label = null, $flags = ENT_SUBSTITUTE)
+    public function dump($var, bool $echo = true,  ? string $label = null, int $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
         if ($var instanceof Model || $var instanceof ModelCollection) {
@@ -221,7 +221,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         }
         return $output;
@@ -230,7 +230,7 @@ class Debug
     public function inject(Response $response, &$content)
     {
         $config = $this->app['config']->pull('trace');
-        $type   = isset($config['type']) ? $config['type'] : 'Html';
+        $type   = $config['type'] ?? 'Html';
         $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
         unset($config['type']);
 

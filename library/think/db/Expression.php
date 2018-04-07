@@ -26,7 +26,7 @@ class Expression
      * @param  string  $value
      * @return void
      */
-    public function __construct($value)
+    public function __construct(string $value)
     {
         $this->value = $value;
     }
@@ -36,7 +36,7 @@ class Expression
      *
      * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }

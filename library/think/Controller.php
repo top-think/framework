@@ -87,7 +87,7 @@ class Controller
      * @param  string $method  前置操作方法名
      * @param  array  $options 调用参数 ['only'=>[...]] 或者['except'=>[...]]
      */
-    protected function beforeAction($method, $options = [])
+    protected function beforeAction(string $method, array $options = [])
     {
         if (isset($options['only'])) {
             if (is_string($options['only'])) {
@@ -116,7 +116,7 @@ class Controller
      * @param  array  $config   模板参数
      * @return mixed
      */
-    protected function fetch($template = '', $vars = [], $config = [])
+    protected function fetch(string $template = '', array $vars = [], array $config = [])
     {
         return $this->view->fetch($template, $vars, $config);
     }
@@ -129,7 +129,7 @@ class Controller
      * @param  array  $config  模板参数
      * @return mixed
      */
-    protected function display($content = '', $vars = [], $config = [])
+    protected function display(string $content = '', array $vars = [], array $config = [])
     {
         return $this->view->display($content, $vars, $config);
     }
@@ -154,7 +154,7 @@ class Controller
      * @param  Callable $filter 过滤方法或闭包
      * @return $this
      */
-    protected function filter($filter)
+    protected function filter(callable $filter)
     {
         $this->view->filter($filter);
 
@@ -180,7 +180,7 @@ class Controller
      * @param  bool $fail 是否抛出异常
      * @return $this
      */
-    protected function validateFailException($fail = true)
+    protected function validateFailException(bool $fail = true)
     {
         $this->failException = $fail;
 
@@ -198,7 +198,7 @@ class Controller
      * @return array|string|true
      * @throws ValidateException
      */
-    protected function validate($data, $validate, $message = [], $batch = false, $callback = null)
+    protected function validate(array $data, $validate, array $message = [], bool $batch = false, callable $callback = null)
     {
         if (is_array($validate)) {
             $v = $this->app->validate();

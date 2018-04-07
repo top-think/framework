@@ -53,7 +53,7 @@ trait Conversion
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function append($append = [], $override = false)
+    public function append(array $append = [], bool $override = false)
     {
         $this->append = $override ? $append : array_merge($this->append, $append);
 
@@ -68,7 +68,7 @@ trait Conversion
      * @return $this
      * @throws Exception
      */
-    public function appendRelationAttr($attr, $append)
+    public function appendRelationAttr(string $attr, $append)
     {
         if (is_string($append)) {
             $append = explode(',', $append);
@@ -102,7 +102,7 @@ trait Conversion
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function hidden($hidden = [], $override = false)
+    public function hidden(array $hidden = [], bool $override = false)
     {
         $this->hidden = $override ? $hidden : array_merge($this->hidden, $hidden);
 
@@ -116,7 +116,7 @@ trait Conversion
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function visible($visible = [], $override = false)
+    public function visible(array $visible = [], bool $override = false)
     {
         $this->visible = $override ? $visible : array_merge($this->visible, $visible);
 
@@ -192,7 +192,7 @@ trait Conversion
      * @param  integer $options json参数
      * @return string
      */
-    public function toJson($options = JSON_UNESCAPED_UNICODE)
+    public function toJson(int $options = JSON_UNESCAPED_UNICODE)
     {
         return json_encode($this->toArray(), $options);
     }
@@ -247,7 +247,7 @@ trait Conversion
      * @param  bool  $visible
      * @return array
      */
-    protected function parseAttr($attrs, &$result, $visible = true)
+    protected function parseAttr(array $attrs, &$result, bool $visible = true)
     {
         $array = [];
 

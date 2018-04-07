@@ -25,7 +25,7 @@ class BelongsTo extends OneToOne
      * @param  string $localKey 关联主键
      * @param  string $relation  关联名
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey, $relation = null)
+    public function __construct(Model $parent, string $model, string $foreignKey, string $localKey, string $relation = null)
     {
         $this->parent     = $parent;
         $this->model      = $model;
@@ -43,7 +43,7 @@ class BelongsTo extends OneToOne
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation($subRelation = '', $closure = null)
+    public function getRelation(string $subRelation = '', \Closure $closure = null)
     {
         if ($closure) {
             $closure($this->query);
@@ -73,7 +73,7 @@ class BelongsTo extends OneToOne
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
+    public function has(string $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER')
     {
         return $this->parent;
     }
@@ -202,7 +202,7 @@ class BelongsTo extends OneToOne
      * @param  Model $model       关联模型对象
      * @return Model
      */
-    public function associate($model)
+    public function associate(Model $model)
     {
         $foreignKey = $this->foreignKey;
         $pk         = $model->getPk();

@@ -71,7 +71,7 @@ EOF;
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function addClassMapCode($dir, $namespace, $classMap)
+    protected function addClassMapCode(string $dir, string $namespace, array $classMap)
     {
         foreach ($this->createMap($dir, $namespace) as $class => $path) {
 
@@ -91,7 +91,7 @@ EOF;
         return $classMap;
     }
 
-    protected function getPathCode($path)
+    protected function getPathCode(string $path)
     {
         $baseDir    = '';
         $app        = Container::get('app');
@@ -118,7 +118,7 @@ EOF;
         return $baseDir . ((false !== $path) ? var_export($path, true) : "");
     }
 
-    protected function normalizePath($path)
+    protected function normalizePath(string $path)
     {
         $parts    = [];
         $path     = strtr($path, '\\', '/');
@@ -149,7 +149,7 @@ EOF;
         return $prefix . ($absolute ? '/' : '') . implode('/', $parts);
     }
 
-    protected function createMap($path, $namespace = null)
+    protected function createMap(string $path,  ? string $namespace = null)
     {
         if (is_string($path)) {
             if (is_file($path)) {
@@ -205,7 +205,7 @@ EOF;
         return $map;
     }
 
-    protected function findClasses($path)
+    protected function findClasses(string $path)
     {
         $extraTypes = '|trait';
 

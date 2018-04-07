@@ -39,7 +39,7 @@ class Redis extends Driver
      * @access public
      * @param  array $options 缓存参数
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
         if (!extension_loaded('redis')) {
             throw new \BadFunctionCallException('not support: redis');
@@ -72,7 +72,7 @@ class Redis extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function has($name)
+    public function has(string $name)
     {
         return $this->handler->exists($this->getCacheKey($name));
     }
@@ -84,7 +84,7 @@ class Redis extends Driver
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = false)
+    public function get(string $name, $default = false)
     {
         $this->readTimes++;
 
@@ -105,7 +105,7 @@ class Redis extends Driver
      * @param  integer|\DateTime $expire  有效时间（秒）
      * @return boolean
      */
-    public function set($name, $value, $expire = null)
+    public function set(string $name, $value, $expire = null)
     {
         $this->writeTimes++;
 
@@ -140,7 +140,7 @@ class Redis extends Driver
      * @param  int       $step 步长
      * @return false|int
      */
-    public function inc($name, $step = 1)
+    public function inc(string $name, int $step = 1)
     {
         $this->writeTimes++;
 
@@ -156,7 +156,7 @@ class Redis extends Driver
      * @param  int       $step 步长
      * @return false|int
      */
-    public function dec($name, $step = 1)
+    public function dec(string $name, int $step = 1)
     {
         $this->writeTimes++;
 
@@ -171,7 +171,7 @@ class Redis extends Driver
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    public function rm($name)
+    public function rm(string $name)
     {
         $this->writeTimes++;
 
@@ -184,7 +184,7 @@ class Redis extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear($tag = null)
+    public function clear( ? string $tag = null)
     {
         if ($tag) {
             // 指定标签清除

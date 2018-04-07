@@ -37,7 +37,7 @@ class BelongsToMany extends Relation
      * @param  string $foreignKey 关联模型外键
      * @param  string $localKey   当前模型关联键
      */
-    public function __construct(Model $parent, $model, $table, $foreignKey, $localKey)
+    public function __construct(Model $parent, string $model, string $table, string $foreignKey, string $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
@@ -61,7 +61,7 @@ class BelongsToMany extends Relation
      * @param  $pivot
      * @return $this
      */
-    public function pivot($pivot)
+    public function pivot(string $pivot)
     {
         $this->pivotName = $pivot;
         return $this;
@@ -74,7 +74,7 @@ class BelongsToMany extends Relation
      * @return Pivot
      * @throws Exception
      */
-    protected function newPivot($data = [])
+    protected function newPivot(array $data = [])
     {
         $class = $this->pivotName ?: '\\think\\model\\Pivot';
         $pivot = new $class($data, $this->parent, $this->middle);
@@ -135,7 +135,7 @@ class BelongsToMany extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return Collection
      */
-    public function getRelation($subRelation = '', $closure = null)
+    public function getRelation(string $subRelation = '', \Closure $closure = null)
     {
         if ($closure) {
             $closure($this->query);
@@ -224,7 +224,7 @@ class BelongsToMany extends Relation
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
+    public function has(string $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER')
     {
         return $this->parent;
     }
@@ -455,7 +455,7 @@ class BelongsToMany extends Relation
      * @param  bool  $samePivot 额外数据是否相同
      * @return array|false
      */
-    public function saveAll(array $dataSet, array $pivot = [], $samePivot = false)
+    public function saveAll(array $dataSet, array $pivot = [], bool $samePivot = false)
     {
         $result = [];
 
@@ -480,7 +480,7 @@ class BelongsToMany extends Relation
      * @return array|Pivot
      * @throws Exception
      */
-    public function attach($data, $pivot = [])
+    public function attach($data, array $pivot = [])
     {
         if (is_array($data)) {
             if (key($data) === 0) {
@@ -530,7 +530,7 @@ class BelongsToMany extends Relation
      * @param  bool          $relationDel 是否同时删除关联表数据
      * @return integer
      */
-    public function detach($data = null, $relationDel = false)
+    public function detach($data = null, bool $relationDel = false)
     {
         if (is_array($data)) {
             $id = $data;
@@ -567,7 +567,7 @@ class BelongsToMany extends Relation
      * @param  bool  $detaching
      * @return array
      */
-    public function sync($ids, $detaching = true)
+    public function sync($ids, bool $detaching = true)
     {
         $changes = [
             'attached' => [],

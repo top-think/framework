@@ -13,7 +13,7 @@ namespace think\config\driver;
 
 class Ini
 {
-    public function parse($config)
+    public function parse(string $config)
     {
         if (is_file($config)) {
             return parse_ini_file($config, true);

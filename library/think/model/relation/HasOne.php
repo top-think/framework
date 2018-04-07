@@ -25,7 +25,7 @@ class HasOne extends OneToOne
      * @param  string $foreignKey 关联外键
      * @param  string $localKey   当前模型主键
      */
-    public function __construct(Model $parent, $model, $foreignKey, $localKey)
+    public function __construct(Model $parent, string $model, string $foreignKey, string $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
@@ -42,7 +42,7 @@ class HasOne extends OneToOne
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation($subRelation = '', $closure = null)
+    public function getRelation(string $subRelation = '', \Closure $closure = null)
     {
         $localKey = $this->localKey;
 

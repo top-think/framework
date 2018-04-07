@@ -34,7 +34,7 @@ class MorphMany extends Relation
      * @param  string $morphType 多态字段名
      * @param  string $type      多态类型
      */
-    public function __construct(Model $parent, $model, $morphKey, $morphType, $type)
+    public function __construct(Model $parent, string $model, string $morphKey, string $morphType, string $type)
     {
         $this->parent    = $parent;
         $this->model     = $model;
@@ -51,7 +51,7 @@ class MorphMany extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return \think\Collection
      */
-    public function getRelation($subRelation = '', $closure = null)
+    public function getRelation(string $subRelation = '', \Closure $closure = null)
     {
         if ($closure) {
             $closure($this->query);

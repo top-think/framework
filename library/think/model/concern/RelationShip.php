@@ -60,7 +60,7 @@ trait RelationShip
      * @param  Model $model  模型对象
      * @return $this
      */
-    public function setParent($model)
+    public function setParent(Model $model)
     {
         $this->parent = $model;
 
@@ -83,7 +83,7 @@ trait RelationShip
      * @param  string $name 关联方法名
      * @return mixed
      */
-    public function getRelation($name = null)
+    public function getRelation( ? string $name = null)
     {
         if (is_null($name)) {
             return $this->relation;
@@ -101,7 +101,7 @@ trait RelationShip
      * @param  array  $data  数据
      * @return $this
      */
-    public function setRelation($name, $value, $data = [])
+    public function setRelation(string $name, $value, array $data = [])
     {
         // 检测修改器
         $method = 'set' . Loader::parseName($name, 1) . 'Attr';
@@ -144,7 +144,7 @@ trait RelationShip
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public static function has($relation, $operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
+    public static function has(string $relation, $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER')
     {
         $relation = (new static())->$relation();
 
@@ -163,7 +163,7 @@ trait RelationShip
      * @param  mixed  $fields   字段
      * @return Query
      */
-    public static function hasWhere($relation, $where = [], $fields = '*')
+    public static function hasWhere(string $relation, $where = [], $fields = '*')
     {
         return (new static())->$relation()->hasWhere($where, $fields);
     }
@@ -312,7 +312,7 @@ trait RelationShip
      * @param  string $localKey   当前主键
      * @return HasOne
      */
-    public function hasOne($model, $foreignKey = '', $localKey = '')
+    public function hasOne(string $model, string $foreignKey = '', string $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -330,7 +330,7 @@ trait RelationShip
      * @param  string $localKey   关联主键
      * @return BelongsTo
      */
-    public function belongsTo($model, $foreignKey = '', $localKey = '')
+    public function belongsTo(string $model, string $foreignKey = '', string $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -350,7 +350,7 @@ trait RelationShip
      * @param  string $localKey   当前主键
      * @return HasMany
      */
-    public function hasMany($model, $foreignKey = '', $localKey = '')
+    public function hasMany(string $model, string $foreignKey = '', string $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -370,7 +370,7 @@ trait RelationShip
      * @param  string $localKey   当前主键
      * @return HasManyThrough
      */
-    public function hasManyThrough($model, $through, $foreignKey = '', $throughKey = '', $localKey = '')
+    public function hasManyThrough(string $model, string $through, string $foreignKey = '', string $throughKey = '', string $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -391,7 +391,7 @@ trait RelationShip
      * @param  string $localKey   当前模型关联键
      * @return BelongsToMany
      */
-    public function belongsToMany($model, $table = '', $foreignKey = '', $localKey = '')
+    public function belongsToMany(string $model, string $table = '', string $foreignKey = '', string $localKey = '')
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -411,7 +411,7 @@ trait RelationShip
      * @param  string       $type  多态类型
      * @return MorphOne
      */
-    public function morphOne($model, $morph = null, $type = '')
+    public function morphOne(string $model, $morph = null, string $type = '')
     {
         // 记录当前关联信息
         $model = $this->parseModel($model);
@@ -441,7 +441,7 @@ trait RelationShip
      * @param  string       $type  多态类型
      * @return MorphMany
      */
-    public function morphMany($model, $morph = null, $type = '')
+    public function morphMany(string $model, $morph = null, string $type = '')
     {
         // 记录当前关联信息
         $model = $this->parseModel($model);
@@ -470,7 +470,7 @@ trait RelationShip
      * @param  array        $alias 多态别名定义
      * @return MorphTo
      */
-    public function morphTo($morph = null, $alias = [])
+    public function morphTo($morph = null, array $alias = [])
     {
         $trace    = debug_backtrace(false, 2);
         $relation = Loader::parseName($trace[1]['function']);
@@ -496,7 +496,7 @@ trait RelationShip
      * @param  string $model 模型名（或者完整类名）
      * @return string
      */
-    protected function parseModel($model)
+    protected function parseModel(string $model)
     {
         if (false === strpos($model, '\\')) {
             $path = explode('\\', static::class);
@@ -514,7 +514,7 @@ trait RelationShip
      * @param  string $name 模型名
      * @return string
      */
-    protected function getForeignKey($name)
+    protected function getForeignKey(string $name)
     {
         if (strpos($name, '\\')) {
             $name = basename(str_replace('\\', '/', $name));
@@ -529,7 +529,7 @@ trait RelationShip
      * @param  string $attr 关联属性名
      * @return string|false
      */
-    protected function isRelationAttr($attr)
+    protected function isRelationAttr(string $attr)
     {
         $relation = Loader::parseName($attr, 1, false);
 

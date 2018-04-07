@@ -35,7 +35,7 @@ class Sqlsrv extends Connection
      * @param  array $config 连接信息
      * @return string
      */
-    protected function parseDsn($config)
+    protected function parseDsn(array $config)
     {
         $dsn = 'sqlsrv:Database=' . $config['database'] . ';Server=' . $config['hostname'];
 
@@ -52,7 +52,7 @@ class Sqlsrv extends Connection
      * @param  string $tableName
      * @return array
      */
-    public function getFields($tableName)
+    public function getFields(string $tableName)
     {
         list($tableName) = explode(' ', $tableName);
 
@@ -107,7 +107,7 @@ class Sqlsrv extends Connection
      * @param  string $dbName
      * @return array
      */
-    public function getTables($dbName = '')
+    public function getTables(string $dbName = '')
     {
         $sql = "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
@@ -131,7 +131,7 @@ class Sqlsrv extends Connection
      * @param  string $sql
      * @return array
      */
-    protected function getExplain($sql)
+    protected function getExplain(string $sql)
     {
         return [];
     }

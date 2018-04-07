@@ -90,7 +90,7 @@ class ValidateRule
      * @param  string    $msg   提示信息
      * @return $this
      */
-    protected function addItem($name, $rule = null, $msg = '')
+    protected function addItem(string $name, $rule = null, string $msg = '')
     {
         if ($rule || 0 === $rule) {
             $this->rule[$name] = $rule;

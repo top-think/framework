@@ -35,7 +35,7 @@ class ErrorException extends Exception
      * @param  string  $file     出错文件路径
      * @param  integer $line     出错行号
      */
-    public function __construct($severity, $message, $file, $line)
+    public function __construct(int $severity, string $message, string $file, int $line)
     {
         $this->severity = $severity;
         $this->message  = $message;

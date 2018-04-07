@@ -28,7 +28,7 @@ class BindParamException extends DbException
      * @param  array    $bind
      * @param  int    $code
      */
-    public function __construct($message, $config, $sql, $bind, $code = 10502)
+    public function __construct(string $message, array $config, string $sql, array $bind, int $code = 10502)
     {
         $this->setData('Bind Param', $bind);
         parent::__construct($message, $config, $sql, $code);

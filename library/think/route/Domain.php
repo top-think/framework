@@ -13,6 +13,7 @@ namespace think\route;
 
 use think\Container;
 use think\Loader;
+use think\Request;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
@@ -29,15 +30,13 @@ class Domain extends RuleGroup
      * @param  string      $name     路由域名
      * @param  mixed       $rule     域名路由
      * @param  array       $option   路由参数
-     * @param  array       $pattern  变量规则
      */
-    public function __construct(Route $router, $name = '', $rule = null, $option = [], $pattern = [])
+    public function __construct(Route $router, string $name = '', $rule = null, array $option = [])
     {
-        $this->router  = $router;
-        $this->domain  = $name;
-        $this->option  = $option;
-        $this->rule    = $rule;
-        $this->pattern = $pattern;
+        $this->router = $router;
+        $this->domain = $name;
+        $this->option = $option;
+        $this->rule   = $rule;
     }
 
     /**
@@ -49,7 +48,7 @@ class Domain extends RuleGroup
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    public function check(Request $request, string $url, string $depr = '/', bool $completeMatch = false)
     {
         // 检测别名路由
         $result = $this->checkRouteAlias($request, $url, $depr);
@@ -85,7 +84,7 @@ class Domain extends RuleGroup
      * @param  string     $bind 绑定信息
      * @return $this
      */
-    public function bind($bind)
+    public function bind(string $bind)
     {
         $this->bind = $bind;
         $this->router->bind($bind, $this->domain);
@@ -101,7 +100,7 @@ class Domain extends RuleGroup
      * @param  string    $depr URL分隔符
      * @return Dispatch|false
      */
-    private function checkRouteAlias($request, $url, $depr)
+    private function checkRouteAlias(Request $request, string $url, string $depr)
     {
         $alias = strpos($url, '|') ? strstr($url, '|', true) : $url;
 
@@ -117,7 +116,7 @@ class Domain extends RuleGroup
      * @param  string    $depr URL分隔符
      * @return Dispatch|false
      */
-    private function checkUrlBind($url, $depr = '/')
+    private function checkUrlBind(string $url, string $depr = '/')
     {
         if (!empty($this->bind)) {
             $bind = $this->bind;
@@ -144,7 +143,7 @@ class Domain extends RuleGroup
         return false;
     }
 
-    protected function parseBindAppendParam(&$bind)
+    protected function parseBindAppendParam(string &$bind)
     {
         if (false !== strpos($bind, '?')) {
             list($bind, $query) = explode('?', $bind);
@@ -160,7 +159,7 @@ class Domain extends RuleGroup
      * @param  string    $class 类名（带命名空间）
      * @return CallbackDispatch
      */
-    protected function bindToClass($url, $class)
+    protected function bindToClass(string $url, string $class)
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
@@ -179,7 +178,7 @@ class Domain extends RuleGroup
      * @param  string    $namespace 命名空间
      * @return CallbackDispatch
      */
-    protected function bindToNamespace($url, $namespace)
+    protected function bindToNamespace(string $url, string $namespace)
     {
         $array  = explode('|', $url, 3);
         $class  = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_controller');
@@ -199,7 +198,7 @@ class Domain extends RuleGroup
      * @param  string    $controller 控制器名 （支持带模块名 index/user ）
      * @return ControllerDispatch
      */
-    protected function bindToController($url, $controller)
+    protected function bindToController(string $url, string $controller)
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
@@ -218,7 +217,7 @@ class Domain extends RuleGroup
      * @param  string    $controller 控制器类名（带命名空间）
      * @return ModuleDispatch
      */
-    protected function bindToModule($url, $controller)
+    protected function bindToModule(string $url, string $controller)
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');

@@ -48,7 +48,7 @@ class Config extends Command
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildCacheContent($module)
+    protected function buildCacheContent(string $module)
     {
         $content = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL;
         $path    = realpath(App::getAppPath() . $module) . DIRECTORY_SEPARATOR;

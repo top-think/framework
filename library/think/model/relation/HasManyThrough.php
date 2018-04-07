@@ -34,7 +34,7 @@ class HasManyThrough extends Relation
      * @param  string $throughKey 关联外键
      * @param  string $localKey   当前主键
      */
-    public function __construct(Model $parent, $model, $through, $foreignKey, $throughKey, $localKey)
+    public function __construct(Model $parent, string $model, string $through, string $foreignKey, string $throughKey, string $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
@@ -52,7 +52,7 @@ class HasManyThrough extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return \think\Collection
      */
-    public function getRelation($subRelation = '', $closure = null)
+    public function getRelation(string $subRelation = '', \Closure $closure = null)
     {
         if ($closure) {
             $closure($this->query);

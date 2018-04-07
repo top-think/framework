@@ -44,12 +44,12 @@ class Controller extends Make
         return $stubPath . 'controller.stub';
     }
 
-    protected function getClassName($name)
+    protected function getClassName(string $name)
     {
         return parent::getClassName($name) . (Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '');
     }
 
-    protected function getNamespace($appNamespace, $module)
+    protected function getNamespace(string $appNamespace, string $module)
     {
         return parent::getNamespace($appNamespace, $module) . '\controller';
     }

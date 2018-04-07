@@ -19,11 +19,11 @@ class RuleName
      * 注册路由标识
      * @access public
      * @param  string   $name      路由标识
-     * @param  array    $value     路由规则
+     * @param  string   $value     路由规则
      * @param  bool     $first     是否置顶
      * @return void
      */
-    public function set($name, $value, $first = false)
+    public function set(string $name, $value, bool $first = false)
     {
         if ($first && isset($this->item[$name])) {
             array_unshift($this->item[$name], $value);
@@ -38,7 +38,7 @@ class RuleName
      * @param  array   $name      路由标识
      * @return void
      */
-    public function import($item)
+    public function import(array $item)
     {
         $this->item = $item;
     }
@@ -49,7 +49,7 @@ class RuleName
      * @param  string   $name      路由标识
      * @return array|null
      */
-    public function get($name = null)
+    public function get( ? string $name = null)
     {
         if (is_null($name)) {
             return $this->item;

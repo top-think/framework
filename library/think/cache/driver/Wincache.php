@@ -31,7 +31,7 @@ class Wincache extends Driver
      * @param  array $options 缓存参数
      * @throws \BadFunctionCallException
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
         if (!function_exists('wincache_ucache_info')) {
             throw new \BadFunctionCallException('not support: WinCache');
@@ -48,7 +48,7 @@ class Wincache extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function has($name)
+    public function has(string $name): bool
     {
         $this->readTimes++;
 
@@ -64,7 +64,7 @@ class Wincache extends Driver
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = false)
+    public function get(string $name, $default = false)
     {
         $this->readTimes++;
 
@@ -81,7 +81,7 @@ class Wincache extends Driver
      * @param  integer|\DateTime $expire  有效时间（秒）
      * @return boolean
      */
-    public function set($name, $value, $expire = null)
+    public function set(string $name, $value, $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -112,7 +112,7 @@ class Wincache extends Driver
      * @param  int       $step 步长
      * @return false|int
      */
-    public function inc($name, $step = 1)
+    public function inc(string $name, int $step = 1)
     {
         $this->writeTimes++;
 
@@ -128,7 +128,7 @@ class Wincache extends Driver
      * @param  int       $step 步长
      * @return false|int
      */
-    public function dec($name, $step = 1)
+    public function dec(string $name, int $step = 1)
     {
         $this->writeTimes++;
 
@@ -143,7 +143,7 @@ class Wincache extends Driver
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    public function rm($name)
+    public function rm(string $name): bool
     {
         $this->writeTimes++;
 
@@ -156,7 +156,7 @@ class Wincache extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear($tag = null)
+    public function clear( ? string $tag = null) : bool
     {
         if ($tag) {
             $keys = $this->getTagItem($tag);

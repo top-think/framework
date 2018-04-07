@@ -32,7 +32,7 @@ trait ModelEvent
      * @param  bool     $override 是否覆盖
      * @return void
      */
-    public static function event($event, $callback, $override = false)
+    public static function event(string $event, callable $callback, bool $override = false)
     {
         $class = static::class;
 
@@ -49,7 +49,7 @@ trait ModelEvent
      * @param  string $event  事件名
      * @return bool
      */
-    protected function trigger($event)
+    protected function trigger(string $event)
     {
         $class = static::class;
 
@@ -72,7 +72,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function beforeInsert($callback, $override = false)
+    protected static function beforeInsert(callable $callback, bool $override = false)
     {
         self::event('before_insert', $callback, $override);
     }
@@ -83,7 +83,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function afterInsert($callback, $override = false)
+    protected static function afterInsert(callable $callback, bool $override = false)
     {
         self::event('after_insert', $callback, $override);
     }
@@ -94,7 +94,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function beforeUpdate($callback, $override = false)
+    protected static function beforeUpdate(callable $callback, bool $override = false)
     {
         self::event('before_update', $callback, $override);
     }
@@ -105,7 +105,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function afterUpdate($callback, $override = false)
+    protected static function afterUpdate(callable $callback, bool $override = false)
     {
         self::event('after_update', $callback, $override);
     }
@@ -116,7 +116,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function beforeWrite($callback, $override = false)
+    protected static function beforeWrite(callable $callback, bool $override = false)
     {
         self::event('before_write', $callback, $override);
     }
@@ -127,7 +127,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function afterWrite($callback, $override = false)
+    protected static function afterWrite(callable $callback, bool $override = false)
     {
         self::event('after_write', $callback, $override);
     }
@@ -138,7 +138,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function beforeDelete($callback, $override = false)
+    protected static function beforeDelete(callable $callback, bool $override = false)
     {
         self::event('before_delete', $callback, $override);
     }
@@ -149,7 +149,7 @@ trait ModelEvent
      * @param callable  $callback
      * @param bool      $override
      */
-    protected static function afterDelete($callback, $override = false)
+    protected static function afterDelete(callable $callback, bool $override = false)
     {
         self::event('after_delete', $callback, $override);
     }

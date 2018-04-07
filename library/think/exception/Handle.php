@@ -15,6 +15,7 @@ use Exception;
 use think\console\Output;
 use think\Container;
 use think\Response;
+use Throwable;
 
 class Handle
 {
@@ -23,7 +24,7 @@ class Handle
         '\\think\\exception\\HttpException',
     ];
 
-    public function setRender($render)
+    public function setRender(\Closure $render)
     {
         $this->render = $render;
     }
@@ -32,10 +33,10 @@ class Handle
      * Report or log an exception.
      *
      * @access public
-     * @param  \Exception $exception
+     * @param  Throwable $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
@@ -63,7 +64,7 @@ class Handle
         }
     }
 
-    protected function isIgnoreReport(Exception $exception)
+    protected function isIgnoreReport(Throwable $exception)
     {
         foreach ($this->ignoreReport as $class) {
             if ($exception instanceof $class) {
@@ -78,10 +79,10 @@ class Handle
      * Render an exception into an HTTP response.
      *
      * @access public
-     * @param  \Exception $e
+     * @param  Throwable $e
      * @return Response
      */
-    public function render(Exception $e)
+    public function render(Throwable $e)
     {
         if ($this->render && $this->render instanceof \Closure) {
             $result = call_user_func_array($this->render, [$e]);
@@ -101,9 +102,9 @@ class Handle
     /**
      * @access public
      * @param  Output    $output
-     * @param  Exception $e
+     * @param  Throwable $e
      */
-    public function renderForConsole(Output $output, Exception $e)
+    public function renderForConsole(Output $output, Throwable $e)
     {
         if (Container::get('app')->isDebug()) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
@@ -131,10 +132,10 @@ class Handle
 
     /**
      * @access protected
-     * @param  Exception $exception
+     * @param  Throwable $exception
      * @return Response
      */
-    protected function convertExceptionToResponse(Exception $exception)
+    protected function convertExceptionToResponse(Throwable $exception)
     {
         // 收集异常数据
         if (Container::get('app')->isDebug()) {
@@ -204,10 +205,10 @@ class Handle
      * 获取错误编码
      * ErrorException则使用错误级别作为错误编码
      * @access protected
-     * @param  \Exception $exception
+     * @param  Throwable $exception
      * @return integer                错误编码
      */
-    protected function getCode(Exception $exception)
+    protected function getCode(Throwable $exception)
     {
         $code = $exception->getCode();
 
@@ -222,10 +223,10 @@ class Handle
      * 获取错误信息
      * ErrorException则使用错误级别作为错误编码
      * @access protected
-     * @param  \Exception $exception
+     * @param  Throwable $exception
      * @return string                错误信息
      */
-    protected function getMessage(Exception $exception)
+    protected function getMessage(Throwable $exception)
     {
         $message = $exception->getMessage();
 
@@ -252,10 +253,10 @@ class Handle
      * 获取出错文件内容
      * 获取错误的前9行和后9行
      * @access protected
-     * @param  \Exception $exception
+     * @param  Throwable $exception
      * @return array                 错误文件内容
      */
-    protected function getSourceCode(Exception $exception)
+    protected function getSourceCode(Throwable $exception)
     {
         // 读取前9行和后9行
         $line  = $exception->getLine();
@@ -278,10 +279,10 @@ class Handle
      * 获取异常扩展信息
      * 用于非调试模式html返回类型显示
      * @access protected
-     * @param  \Exception $exception
+     * @param  Throwable $exception
      * @return array                 异常类定义的扩展数据
      */
-    protected function getExtendData(Exception $exception)
+    protected function getExtendData(Throwable $exception)
     {
         $data = [];
 

@@ -71,7 +71,7 @@ class Response
      * @param  array $header
      * @param  array $options 输出参数
      */
-    public function __construct($data = '', $code = 200, array $header = [], $options = [])
+    public function __construct($data = '', int $code = 200, array $header = [], array $options = [])
     {
         $this->data($data);
 
@@ -95,7 +95,7 @@ class Response
      * @param  array  $options 输出参数
      * @return Response
      */
-    public static function create($data = '', $type = '', $code = 200, array $header = [], $options = [])
+    public static function create($data = '', string $type = '', int $code = 200, array $header = [], array $options = [])
     {
         $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst(strtolower($type));
 
@@ -189,7 +189,7 @@ class Response
      * @param  mixed $options 输出参数
      * @return $this
      */
-    public function options($options = [])
+    public function options(array $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
@@ -215,7 +215,7 @@ class Response
      * @param  bool $cache 允许请求缓存
      * @return $this
      */
-    public function allowCache($cache)
+    public function allowCache(bool $cache)
     {
         $this->allowCache = $cache;
 
@@ -267,7 +267,7 @@ class Response
      * @param  integer $code 状态码
      * @return $this
      */
-    public function code($code)
+    public function code(int $code)
     {
         $this->code = $code;
 
@@ -280,7 +280,7 @@ class Response
      * @param  string $time
      * @return $this
      */
-    public function lastModified($time)
+    public function lastModified(string $time)
     {
         $this->header['Last-Modified'] = $time;
 
@@ -293,7 +293,7 @@ class Response
      * @param  string $time
      * @return $this
      */
-    public function expires($time)
+    public function expires(string $time)
     {
         $this->header['Expires'] = $time;
 
@@ -306,7 +306,7 @@ class Response
      * @param  string $eTag
      * @return $this
      */
-    public function eTag($eTag)
+    public function eTag(string $eTag)
     {
         $this->header['ETag'] = $eTag;
 
@@ -319,7 +319,7 @@ class Response
      * @param  string $cache 状态码
      * @return $this
      */
-    public function cacheControl($cache)
+    public function cacheControl(string $cache)
     {
         $this->header['Cache-control'] = $cache;
 
@@ -333,7 +333,7 @@ class Response
      * @param  string $charset     输出编码
      * @return $this
      */
-    public function contentType($contentType, $charset = 'utf-8')
+    public function contentType(string $contentType, string $charset = 'utf-8')
     {
         $this->header['Content-Type'] = $contentType . '; charset=' . $charset;
 
@@ -346,7 +346,7 @@ class Response
      * @param  string $name 头部名称
      * @return mixed
      */
-    public function getHeader($name = '')
+    public function getHeader(string $name = '')
     {
         if (!empty($name)) {
             return isset($this->header[$name]) ? $this->header[$name] : null;

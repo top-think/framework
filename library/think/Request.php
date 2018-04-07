@@ -318,7 +318,7 @@ class Request
      * @param  string    $content
      * @return \think\Request
      */
-    public function create($uri, $method = 'GET', $params = [], $cookie = [], $files = [], $server = [], $content = null)
+    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [],  ? string $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -407,7 +407,7 @@ class Request
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function domain($domain = null)
+    public function domain( ? string $domain = null)
     {
         if (!is_null($domain)) {
             $this->domain = $domain;
@@ -442,7 +442,7 @@ class Request
      * @access public
      * @return string
      */
-    public function subDomain()
+    public function subDomain() : string
     {
         if (is_null($this->subDomain)) {
             // 获取当前主域名
@@ -467,7 +467,7 @@ class Request
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function panDomain($domain = null)
+    public function panDomain( ? string $domain = null)
     {
         if (is_null($domain)) {
             return $this->panDomain;
@@ -490,7 +490,7 @@ class Request
             return $this;
         } elseif (!$this->url) {
             if ($this->isCli()) {
-                $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+                $this->url = $_SERVER['argv'][1] ?? '';
             } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
                 $this->url = $_SERVER['HTTP_X_REWRITE_URL'];
             } elseif (isset($_SERVER['REQUEST_URI'])) {
@@ -511,7 +511,7 @@ class Request
      * @param  string $url URL地址
      * @return string|$this
      */
-    public function baseUrl($url = null)
+    public function baseUrl( ? string $url = null)
     {
         if (!is_null($url) && true !== $url) {
             $this->baseUrl = $url;
@@ -530,7 +530,7 @@ class Request
      * @param  string $file 当前执行的文件
      * @return string|$this
      */
-    public function baseFile($file = null)
+    public function baseFile( ? string $file = null)
     {
         if (!is_null($file) && true !== $file) {
             $this->baseFile = $file;
@@ -584,7 +584,7 @@ class Request
      * @access public
      * @return string
      */
-    public function rootUrl()
+    public function rootUrl() : string
     {
         $base = $this->root();
         $root = strpos($base, '.') ? ltrim(dirname($base), DIRECTORY_SEPARATOR) : $base;
@@ -601,7 +601,7 @@ class Request
      * @access public
      * @return string
      */
-    public function pathinfo()
+    public function pathinfo() : string
     {
         if (is_null($this->pathinfo)) {
             if (isset($_GET[$this->config->get('var_pathinfo')])) {
@@ -637,7 +637,7 @@ class Request
      * @access public
      * @return string
      */
-    public function path()
+    public function path() : string
     {
         if (is_null($this->path)) {
             $suffix   = $this->config->get('url_html_suffix');
@@ -662,7 +662,7 @@ class Request
      * @access public
      * @return string
      */
-    public function ext()
+    public function ext() : string
     {
         return pathinfo($this->pathinfo(), PATHINFO_EXTENSION);
     }
@@ -673,7 +673,7 @@ class Request
      * @param  bool $float 是否使用浮点类型
      * @return integer|float
      */
-    public function time($float = false)
+    public function time(bool $float = false)
     {
         return $float ? $_SERVER['REQUEST_TIME_FLOAT'] : $_SERVER['REQUEST_TIME'];
     }
@@ -710,7 +710,7 @@ class Request
      * @param  string        $val 资源类型
      * @return void
      */
-    public function mimeType($type, $val = '')
+    public function mimeType($type, $val = ''): void
     {
         if (is_array($type)) {
             $this->mimeType = array_merge($this->mimeType, $type);
@@ -725,11 +725,11 @@ class Request
      * @param  bool $method  true 获取原始请求类型
      * @return string
      */
-    public function method($method = false)
+    public function method(bool $method = false): string
     {
         if (true === $method) {
             // 获取原始请求类型
-            return $this->isCli() ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+            return $this->isCli() ? 'GET' : ($this->server['REQUEST_METHOD'] ?? $_SERVER['REQUEST_METHOD']);
         } elseif (!$this->method) {
             if (isset($_POST[$this->config->get('var_method')])) {
                 $this->method = strtoupper($_POST[$this->config->get('var_method')]);
@@ -737,7 +737,7 @@ class Request
             } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
                 $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
             } else {
-                $this->method = $this->isCli() ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+                $this->method = $this->isCli() ? 'GET' : ($this->server['REQUEST_METHOD'] ?? $_SERVER['REQUEST_METHOD']);
             }
         }
 
@@ -749,7 +749,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isGet()
+    public function isGet(): bool
     {
         return $this->method() == 'GET';
     }
@@ -759,7 +759,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isPost()
+    public function isPost(): bool
     {
         return $this->method() == 'POST';
     }
@@ -769,7 +769,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isPut()
+    public function isPut(): bool
     {
         return $this->method() == 'PUT';
     }
@@ -779,7 +779,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isDelete()
+    public function isDelete(): bool
     {
         return $this->method() == 'DELETE';
     }
@@ -789,7 +789,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isHead()
+    public function isHead(): bool
     {
         return $this->method() == 'HEAD';
     }
@@ -799,7 +799,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isPatch()
+    public function isPatch(): bool
     {
         return $this->method() == 'PATCH';
     }
@@ -809,7 +809,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isOptions()
+    public function isOptions(): bool
     {
         return $this->method() == 'OPTIONS';
     }
@@ -819,7 +819,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isCli()
+    public function isCli(): bool
     {
         return PHP_SAPI == 'cli';
     }
@@ -829,7 +829,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isCgi()
+    public function isCgi(): bool
     {
         return strpos(PHP_SAPI, 'cgi') === 0;
     }
@@ -1105,7 +1105,7 @@ class Request
     public function file($name = '')
     {
         if (empty($this->file)) {
-            $this->file = isset($_FILES) ? $_FILES : [];
+            $this->file = $_FILES ?? [];
         }
 
         if (is_array($name)) {
@@ -1248,7 +1248,7 @@ class Request
      * @param  string|array  $filter 过滤函数
      * @return mixed
      */
-    public function input($data = [], $name = '', $default = null, $filter = '')
+    public function input(array $data = [], $name = '', $default = null, $filter = '')
     {
         if (false === $name) {
             // 获取原始数据
@@ -1414,7 +1414,7 @@ class Request
      * @param  bool      $checkEmpty 是否检测空值
      * @return mixed
      */
-    public function has($name, $type = 'param', $checkEmpty = false)
+    public function has(string $name, string $type = 'param', bool $checkEmpty = false)
     {
         if (empty($this->$type)) {
             $param = $this->$type();
@@ -1437,17 +1437,13 @@ class Request
     /**
      * 获取指定的参数
      * @access public
-     * @param  string|array  $name 变量名
-     * @param  string        $type 变量类型
+     * @param  array    $name 变量名
+     * @param  string   $type 变量类型
      * @return mixed
      */
-    public function only($name, $type = 'param')
+    public function only(array $name, string $type = 'param')
     {
         $param = $this->$type();
-
-        if (is_string($name)) {
-            $name = explode(',', $name);
-        }
 
         $item = [];
         foreach ($name as $key => $val) {
@@ -1472,16 +1468,13 @@ class Request
     /**
      * 排除指定参数获取
      * @access public
-     * @param  string|array  $name 变量名
-     * @param  string        $type 变量类型
+     * @param  array  $name 变量名
+     * @param  string $type 变量类型
      * @return mixed
      */
-    public function except($name, $type = 'param')
+    public function except(array $name, string $type = 'param')
     {
         $param = $this->$type();
-        if (is_string($name)) {
-            $name = explode(',', $name);
-        }
 
         foreach ($name as $key) {
             if (isset($param[$key])) {
@@ -1497,7 +1490,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isSsl()
+    public function isSsl(): bool
     {
         $server = array_merge($_SERVER, $this->server);
 
@@ -1522,7 +1515,7 @@ class Request
      * @param  bool $ajax  true 获取原始ajax请求
      * @return bool
      */
-    public function isAjax($ajax = false)
+    public function isAjax(bool $ajax = false): bool
     {
         $value  = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
         $result = ('xmlhttprequest' == $value) ? true : false;
@@ -1540,7 +1533,7 @@ class Request
      * @param  bool $pjax  true 获取原始pjax请求
      * @return bool
      */
-    public function isPjax($pjax = false)
+    public function isPjax(bool $pjax = false): bool
     {
         $result = !is_null($this->server('HTTP_X_PJAX')) ? true : false;
 
@@ -1600,7 +1593,7 @@ class Request
      * @access public
      * @return bool
      */
-    public function isMobile()
+    public function isMobile(): bool
     {
         if (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], "wap")) {
             return true;
@@ -1620,7 +1613,7 @@ class Request
      * @access public
      * @return string
      */
-    public function scheme()
+    public function scheme(): string
     {
         return $this->isSsl() ? 'https' : 'http';
     }
@@ -1630,7 +1623,7 @@ class Request
      * @access public
      * @return string
      */
-    public function query()
+    public function query(): string
     {
         return $this->server('QUERY_STRING');
     }
@@ -1640,7 +1633,7 @@ class Request
      * @access public
      * @return string
      */
-    public function host()
+    public function host(): string
     {
         if (isset($_SERVER['HTTP_X_REAL_HOST'])) {
             return $_SERVER['HTTP_X_REAL_HOST'];
@@ -1654,7 +1647,7 @@ class Request
      * @access public
      * @return integer
      */
-    public function port()
+    public function port(): int
     {
         return $this->server('SERVER_PORT');
     }
@@ -1662,9 +1655,9 @@ class Request
     /**
      * 当前请求 SERVER_PROTOCOL
      * @access public
-     * @return integer
+     * @return string
      */
-    public function protocol()
+    public function protocol(): string
     {
         return $this->server('SERVER_PROTOCOL');
     }
@@ -1674,7 +1667,7 @@ class Request
      * @access public
      * @return integer
      */
-    public function remotePort()
+    public function remotePort(): int
     {
         return $this->server('REMOTE_PORT');
     }
@@ -1684,7 +1677,7 @@ class Request
      * @access public
      * @return string
      */
-    public function contentType()
+    public function contentType(): string
     {
         $contentType = $this->server('CONTENT_TYPE');
 
@@ -1706,7 +1699,7 @@ class Request
      * @param  array $route 路由名称
      * @return array
      */
-    public function routeInfo($route = [])
+    public function routeInfo(array $route = [])
     {
         if (!empty($route)) {
             $this->routeInfo = $route;

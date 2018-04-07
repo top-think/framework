@@ -31,7 +31,7 @@ class Php
         'view_depr'   => DIRECTORY_SEPARATOR,
     ];
 
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, (array) $config);
     }
@@ -42,7 +42,7 @@ class Php
      * @param  string $template 模板文件或者模板规则
      * @return bool
      */
-    public function exists($template)
+    public function exists(string $template)
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -59,7 +59,7 @@ class Php
      * @param  array     $data 模板变量
      * @return void
      */
-    public function fetch($template, $data = [])
+    public function fetch(string $template, array $data = [])
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -92,7 +92,7 @@ class Php
      * @param  array     $data 模板变量
      * @return void
      */
-    public function display($content, $data = [])
+    public function display(string $content, array $data = [])
     {
         if (isset($data['content'])) {
             $__content__ = $content;
@@ -110,7 +110,7 @@ class Php
      * @param  string $template 模板文件规则
      * @return string
      */
-    private function parseTemplate($template)
+    private function parseTemplate(string $template)
     {
         if (empty($this->config['view_path'])) {
             $this->config['view_path'] = Container::get('app')->getModulePath() . 'view' . DIRECTORY_SEPARATOR;

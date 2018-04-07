@@ -55,16 +55,14 @@ class RuleGroup extends Rule
      * @param  string      $name     分组名称
      * @param  mixed       $rule     分组路由
      * @param  array       $option   路由参数
-     * @param  array       $pattern  变量规则
      */
-    public function __construct(Route $router, RuleGroup $parent = null, $name = '', $rule = [], $option = [], $pattern = [])
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = [], array $option = [])
     {
-        $this->router  = $router;
-        $this->parent  = $parent;
-        $this->rule    = $rule;
-        $this->name    = trim($name, '/');
-        $this->option  = $option;
-        $this->pattern = $pattern;
+        $this->router = $router;
+        $this->parent = $parent;
+        $this->rule   = $rule;
+        $this->name   = trim($name, '/');
+        $this->option = $option;
 
         $this->setFullName();
 
@@ -115,7 +113,7 @@ class RuleGroup extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    public function check(Request $request, string $url, string $depr = '/', bool $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 跨域OPTIONS请求
@@ -194,7 +192,7 @@ class RuleGroup extends Rule
      * @param  string      $method
      * @return array
      */
-    protected function getMethodRules($method)
+    protected function getMethodRules(string $method)
     {
         return array_merge($this->rules[$method], $this->rules['*']);
     }
@@ -205,7 +203,7 @@ class RuleGroup extends Rule
      * @param  string     $url
      * @return bool
      */
-    protected function checkUrl($url)
+    protected function checkUrl(string $url)
     {
         if ($this->fullName) {
             $pos = strpos($this->fullName, '<');
@@ -230,7 +228,7 @@ class RuleGroup extends Rule
      * @param  bool     $lazy   路由是否延迟解析
      * @return $this
      */
-    public function lazy($lazy = true)
+    public function lazy(bool $lazy = true)
     {
         if (!$lazy) {
             $this->parseGroupRule($this->rule);
@@ -272,7 +270,7 @@ class RuleGroup extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    protected function checkMergeRuleRegex($request, &$rules, $url, $depr, $completeMatch)
+    protected function checkMergeRuleRegex(Request $request, array &$rules, string $url, string $depr, bool $completeMatch)
     {
         $url = $depr . str_replace('|', $depr, $url);
 
@@ -370,7 +368,7 @@ class RuleGroup extends Rule
      * @param  string     $route   路由规则
      * @return void
      */
-    public function addAutoRule($route)
+    public function addAutoRule(string $route)
     {
         $this->auto = $route;
     }
@@ -383,7 +381,7 @@ class RuleGroup extends Rule
      * @param  array     $option     路由参数
      * @return RuleItem
      */
-    public function addMissRule($route, $method = '*', $option = [])
+    public function addMissRule(string $route, string $method = '*', array $option = [])
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method), $option);
@@ -400,10 +398,9 @@ class RuleGroup extends Rule
      * @param  string    $route      路由地址
      * @param  string    $method     请求类型
      * @param  array     $option     路由参数
-     * @param  array     $pattern    变量规则
      * @return $this
      */
-    public function addRule($rule, $route, $method = '*', $option = [], $pattern = [])
+    public function addRule(string $rule, $route, string $method = '*', array $option = [])
     {
         // 读取路由标识
         if (is_array($rule)) {
@@ -418,7 +415,7 @@ class RuleGroup extends Rule
         $method = strtolower($method);
 
         // 创建路由规则实例
-        $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method, $option, $pattern);
+        $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method, $option);
 
         if (!empty($option['cross_domain'])) {
             $this->router->setCrossDomainRule($ruleItem, $method);
@@ -457,7 +454,7 @@ class RuleGroup extends Rule
         }
     }
 
-    public function addRuleItem($rule, $method = '*')
+    public function addRuleItem($rule, string $method = '*')
     {
         if (strpos($method, '|')) {
             $rule->method($method);
@@ -475,7 +472,7 @@ class RuleGroup extends Rule
      * @param  string     $prefix
      * @return $this
      */
-    public function prefix($prefix)
+    public function prefix(string $prefix)
     {
         if ($this->parent && $this->parent->getOption('prefix')) {
             $prefix = $this->parent->getOption('prefix') . $prefix;
@@ -490,7 +487,7 @@ class RuleGroup extends Rule
      * @param  bool     $merge
      * @return $this
      */
-    public function mergeRuleRegex($merge = true)
+    public function mergeRuleRegex(bool $merge = true)
     {
         return $this->option('merge_rule_regex', $merge);
     }
@@ -511,13 +508,13 @@ class RuleGroup extends Rule
      * @param  string     $method
      * @return array
      */
-    public function getRules($method = '')
+    public function getRules(string $method = '')
     {
         if ('' === $method) {
             return $this->rules;
         }
 
-        return isset($this->rules[strtolower($method)]) ? $this->rules[strtolower($method)] : [];
+        return $this->rules[strtolower($method)] ?? [];
     }
 
 }

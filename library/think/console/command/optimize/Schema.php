@@ -89,7 +89,7 @@ class Schema extends Command
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildModelSchema($class)
+    protected function buildModelSchema(string $class)
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
@@ -103,7 +103,7 @@ class Schema extends Command
         }
     }
 
-    protected function buildDataBaseSchema($tables, $db)
+    protected function buildDataBaseSchema(array $tables, string $db)
     {
         if ('' == $db) {
             $dbName = Db::getConfig('database') . '.';

@@ -100,7 +100,7 @@ class Cache
      * @param  string $name 缓存标识
      * @return Driver
      */
-    public function store($name = '')
+    public function store(string $name = '')
     {
         if ('' !== $name && 'complex' == $this->app['config']->get('cache.type')) {
             return $this->connect($this->app['config']->get('cache.' . $name), strtolower($name));

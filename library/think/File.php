@@ -63,7 +63,7 @@ class File extends SplFileObject
      */
     protected $hash = [];
 
-    public function __construct($filename, $mode = 'r')
+    public function __construct(string $filename, string $mode = 'r')
     {
         parent::__construct($filename, $mode);
 
@@ -76,7 +76,7 @@ class File extends SplFileObject
      * @param  bool   $test 是否测试
      * @return $this
      */
-    public function isTest($test = false)
+    public function isTest(bool $test = false)
     {
         $this->isTest = $test;
 
@@ -89,7 +89,7 @@ class File extends SplFileObject
      * @param  array   $info 上传文件信息
      * @return $this
      */
-    public function setUploadInfo($info)
+    public function setUploadInfo(array $info)
     {
         $this->info = $info;
 
@@ -102,9 +102,9 @@ class File extends SplFileObject
      * @param  string   $name
      * @return array|string
      */
-    public function getInfo($name = '')
+    public function getInfo(string $name = '')
     {
-        return isset($this->info[$name]) ? $this->info[$name] : $this->info;
+        return $this->info[$name] ?? $this->info;
     }
 
     /**
@@ -123,7 +123,7 @@ class File extends SplFileObject
      * @param  string   $saveName
      * @return $this
      */
-    public function setSaveName($saveName)
+    public function setSaveName(string $saveName)
     {
         $this->saveName = $saveName;
 
@@ -136,7 +136,7 @@ class File extends SplFileObject
      * @param  string $type
      * @return string
      */
-    public function hash($type = 'sha1')
+    public function hash(string $type = 'sha1')
     {
         if (!isset($this->hash[$type])) {
             $this->hash[$type] = hash_file($type, $this->filename);
@@ -151,7 +151,7 @@ class File extends SplFileObject
      * @param  string   $path    目录
      * @return boolean
      */
-    protected function checkPath($path)
+    protected function checkPath(string $path)
     {
         if (is_dir($path)) {
             return true;
@@ -180,7 +180,7 @@ class File extends SplFileObject
     /**
      * 设置文件的命名规则
      * @access public
-     * @param  string   $rule    文件命名规则
+     * @param  mixed   $rule    文件命名规则
      * @return $this
      */
     public function rule($rule)
@@ -196,7 +196,7 @@ class File extends SplFileObject
      * @param  array   $rule    验证规则
      * @return $this
      */
-    public function validate($rule = [])
+    public function validate(array $rule = [])
     {
         $this->validate = $rule;
 
@@ -223,7 +223,7 @@ class File extends SplFileObject
      * @param  array   $rule    验证规则
      * @return bool
      */
-    public function check($rule = [])
+    public function check(array $rule = [])
     {
         $rule = $rule ?: $this->validate;
 
@@ -278,7 +278,7 @@ class File extends SplFileObject
     }
 
     // 判断图像类型
-    protected function getImageType($image)
+    protected function getImageType(string $image)
     {
         if (function_exists('exif_imagetype')) {
             return exif_imagetype($image);
@@ -298,7 +298,7 @@ class File extends SplFileObject
      * @param  integer   $size    最大大小
      * @return bool
      */
-    public function checkSize($size)
+    public function checkSize(int $size)
     {
         if ($this->getSize() > $size) {
             $this->error = 'filesize not match';
@@ -336,7 +336,7 @@ class File extends SplFileObject
      * @param  boolean          $replace 同名文件是否覆盖
      * @return false|File       false-失败 否则返回File实例
      */
-    public function move($path, $savename = true, $replace = true)
+    public function move(string $path, $savename = true, bool $replace = true)
     {
         // 文件上传失败，捕获错误代码
         if (!empty($this->info['error'])) {
@@ -444,7 +444,7 @@ class File extends SplFileObject
      * @access private
      * @param  int $errorNo  错误号
      */
-    private function error($errorNo)
+    private function error(int $errorNo)
     {
         switch ($errorNo) {
             case 1:

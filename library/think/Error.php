@@ -14,7 +14,7 @@ namespace think;
 use think\console\Output as ConsoleOutput;
 use think\exception\ErrorException;
 use think\exception\Handle;
-use think\exception\ThrowableError;
+use Throwable;
 
 class Error
 {
@@ -34,14 +34,10 @@ class Error
     /**
      * Exception Handler
      * @access public
-     * @param  \Exception|\Throwable $e
+     * @param  \Throwable $e
      */
-    public static function appException($e)
+    public static function appException(Throwable $e)
     {
-        if (!$e instanceof \Exception) {
-            $e = new ThrowableError($e);
-        }
-
         self::getExceptionHandler()->report($e);
 
         if (PHP_SAPI == 'cli') {
@@ -60,7 +56,7 @@ class Error
      * @param  integer $errline 出错行号
      * @throws ErrorException
      */
-    public static function appError($errno, $errstr, $errfile = '', $errline = 0)
+    public static function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0)
     {
         $exception = new ErrorException($errno, $errstr, $errfile, $errline);
         if (error_reporting() & $errno) {
@@ -95,7 +91,7 @@ class Error
      * @param  int $type
      * @return bool
      */
-    protected static function isFatal($type)
+    protected static function isFatal(int $type)
     {
         return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
     }

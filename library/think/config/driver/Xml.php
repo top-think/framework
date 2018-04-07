@@ -13,7 +13,7 @@ namespace think\config\driver;
 
 class Xml
 {
-    public function parse($config)
+    public function parse(string $config)
     {
         if (is_file($config)) {
             $content = simplexml_load_file($config);

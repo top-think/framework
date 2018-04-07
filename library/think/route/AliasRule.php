@@ -11,6 +11,7 @@
 
 namespace think\route;
 
+use think\Request;
 use think\Route;
 
 class AliasRule extends Domain
@@ -26,7 +27,7 @@ class AliasRule extends Domain
      * @param  string            $route  路由绑定
      * @param  array             $option 路由参数
      */
-    public function __construct(Route $router, RuleGroup $parent, $name, $route, $option = [])
+    public function __construct(Route $router, RuleGroup $parent, string $name, string $route, array $option = [])
     {
         $this->router = $router;
         $this->parent = $parent;
@@ -44,7 +45,7 @@ class AliasRule extends Domain
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    public function check(Request $request, string $url, string $depr = '/', bool $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
@@ -98,7 +99,7 @@ class AliasRule extends Domain
      * @param  array      $action  操作方法
      * @return $this
      */
-    public function allow($action = [])
+    public function allow(array $action = [])
     {
         return $this->option('allow', $action);
     }
@@ -109,7 +110,7 @@ class AliasRule extends Domain
      * @param  array      $action  操作方法
      * @return $this
      */
-    public function except($action = [])
+    public function except(array $action = [])
     {
         return $this->option('except', $action);
     }

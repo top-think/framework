@@ -56,7 +56,7 @@ class Console
      * @param  string     $version 版本
      * @param null|string $user    执行用户
      */
-    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $user = null)
+    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN',  ? string $user = null)
     {
         $this->name    = $name;
         $this->version = $version;
@@ -77,7 +77,7 @@ class Console
      * 设置执行用户
      * @param $user
      */
-    public function setUser($user)
+    public function setUser(string $user)
     {
         $user = posix_getpwnam($user);
         if ($user) {
@@ -92,7 +92,7 @@ class Console
      * @param  bool $run 是否运行 Console
      * @return int|Console
      */
-    public static function init($run = true)
+    public static function init(bool $run = true)
     {
         static $console;
 
@@ -133,7 +133,7 @@ class Console
      * @param  string $driver
      * @return Output|Buffer
      */
-    public static function call($command, array $parameters = [], $driver = 'buffer')
+    public static function call(string $command, array $parameters = [], string $driver = 'buffer')
     {
         $console = self::init(false);
 
@@ -267,9 +267,9 @@ class Console
      * @param  bool $boolean
      * @api
      */
-    public function setCatchExceptions($boolean)
+    public function setCatchExceptions(bool $boolean)
     {
-        $this->catchExceptions = (bool) $boolean;
+        $this->catchExceptions = $boolean;
     }
 
     /**
@@ -278,9 +278,9 @@ class Console
      * @param  bool $boolean
      * @api
      */
-    public function setAutoExit($boolean)
+    public function setAutoExit(bool $boolean)
     {
-        $this->autoExit = (bool) $boolean;
+        $this->autoExit = $boolean;
     }
 
     /**
@@ -298,7 +298,7 @@ class Console
      * @access public
      * @param  string $name
      */
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
     }
@@ -319,7 +319,7 @@ class Console
      * @access public
      * @param  string $version
      */
-    public function setVersion($version)
+    public function setVersion(string $version)
     {
         $this->version = $version;
     }
@@ -344,7 +344,7 @@ class Console
      * @param  string $name
      * @return Command
      */
-    public function register($name)
+    public function register(string $name)
     {
         return $this->add(new Command($name));
     }
@@ -396,7 +396,7 @@ class Console
      * @return Command
      * @throws \InvalidArgumentException
      */
-    public function get($name)
+    public function get(string $name)
     {
         if (!isset($this->commands[$name])) {
             throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
@@ -423,7 +423,7 @@ class Console
      * @param  string $name 指令名称
      * @return bool
      */
-    public function has($name)
+    public function has(string $name)
     {
         return isset($this->commands[$name]);
     }
@@ -454,7 +454,7 @@ class Console
      * @return string
      * @throws \InvalidArgumentException
      */
-    public function findNamespace($namespace)
+    public function findNamespace(string $namespace)
     {
         $allNamespaces = $this->getNamespaces();
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
@@ -493,7 +493,7 @@ class Console
      * @return Command
      * @throws \InvalidArgumentException
      */
-    public function find($name)
+    public function find(string $name)
     {
         $allCommands = array_keys($this->commands);
 
@@ -549,7 +549,7 @@ class Console
      * @return Command[]
      * @api
      */
-    public function all($namespace = null)
+    public function all( ? string $namespace = null)
     {
         if (null === $namespace) {
             return $this->commands;
@@ -571,7 +571,7 @@ class Console
      * @param  array $names
      * @return array
      */
-    public static function getAbbreviations($names)
+    public static function getAbbreviations(array $names)
     {
         $abbrevs = [];
         foreach ($names as $name) {
@@ -688,7 +688,7 @@ class Console
      * @param  array $abbrevs
      * @return string
      */
-    private function getAbbreviationSuggestions($abbrevs)
+    private function getAbbreviationSuggestions(array $abbrevs)
     {
         return sprintf('%s, %s%s', $abbrevs[0], $abbrevs[1], count($abbrevs) > 2 ? sprintf(' and %d more', count($abbrevs) - 2) : '');
     }
@@ -700,7 +700,7 @@ class Console
      * @param  string $limit 部分的命名空间的最大数量
      * @return string
      */
-    public function extractNamespace($name, $limit = null)
+    public function extractNamespace(string $name, $limit = null)
     {
         $parts = explode(':', $name);
         array_pop($parts);
@@ -715,7 +715,7 @@ class Console
      * @param  array|\Traversable $collection
      * @return array
      */
-    private function findAlternatives($name, $collection)
+    private function findAlternatives(string $name, $collection)
     {
         $threshold    = 1e3;
         $alternatives = [];
@@ -764,7 +764,7 @@ class Console
      * @access public
      * @param  string $commandName The Command name
      */
-    public function setDefaultCommand($commandName)
+    public function setDefaultCommand(string $commandName)
     {
         $this->defaultCommand = $commandName;
     }
@@ -775,7 +775,7 @@ class Console
      * @param  string $name
      * @return array
      */
-    private function extractAllNamespaces($name)
+    private function extractAllNamespaces(string $name)
     {
         $parts      = explode(':', $name, -1);
         $namespaces = [];
