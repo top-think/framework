@@ -51,9 +51,21 @@ trait SoftDelete
         if ($field) {
             return $model
                 ->db(false)
-                ->useSoftDelete($field, is_null($this->defaultSoftDelete) ? ['notnull', ''] : ['<>', $this->defaultSoftDelete]);
+                ->useSoftDelete($field, $model->getWithTrashedExp());
         }
+
         return $model->db(false);
+    }
+
+    /**
+     * 获取软删除数据的查询条件
+     * @access protected
+     * @return array
+     */
+    protected function getWithTrashedExp()
+    {
+        return is_null($this->defaultSoftDelete) ?
+        ['notnull', ''] : ['<>', $this->defaultSoftDelete];
     }
 
     /**
@@ -151,7 +163,7 @@ trait SoftDelete
             // 恢复删除
             return $this->db(false)
                 ->where($where)
-                ->useSoftDelete($name, is_null($this->defaultSoftDelete) ? ['notnull', ''] : ['<>', $this->defaultSoftDelete])
+                ->useSoftDelete($name, $this->getWithTrashedExp())
                 ->update([$name => $this->defaultSoftDelete]);
         }
 
