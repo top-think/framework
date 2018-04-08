@@ -316,7 +316,7 @@ class RuleGroup extends Rule
         }
 
         try {
-            if (!empty($regex) && preg_match('/^(?:' . implode('|', $regex) . ')/', $url, $match)) {
+            if (!empty($regex) && preg_match('/^(?:' . implode('|', $regex) . ')/u', $url, $match)) {
                 $var = [];
                 foreach ($match as $key => $val) {
                     if (is_string($key) && '' !== $val) {
