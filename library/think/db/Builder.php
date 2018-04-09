@@ -183,9 +183,10 @@ abstract class Builder
      * @access public
      * @param  Query  $query    查询对象
      * @param  string $key      字段名
+     * @param  bool   $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, $key)
+    public function parseKey(Query $query, $key, $strict = false)
     {
         return $key;
     }
@@ -363,7 +364,7 @@ abstract class Builder
     protected function parseWhereItem(Query $query, $field, $val, $rule = '', $binds = [], $bindName = null)
     {
         // 字段分析
-        $key = $field ? $this->parseKey($query, $field) : '';
+        $key = $field ? $this->parseKey($query, $field, true) : '';
 
         // 查询规则和条件
         if (!is_array($val)) {
@@ -833,14 +834,12 @@ abstract class Builder
                 } elseif (is_numeric($key)) {
                     if ('[rand]' == $val) {
                         $array[] = $this->parseRand($query);
-                    } elseif (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($query, $val);
                     } else {
-                        $array[] = $val;
+                        $array[] = $this->parseKey($query, $val, true);
                     }
                 } else {
                     $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($query, $key) . ' ' . $sort;
+                    $array[] = $this->parseKey($query, $key, true) . ' ' . $sort;
                 }
             }
 

@@ -105,9 +105,10 @@ class Mysql extends Builder
      * @access public
      * @param  Query     $query 查询对象
      * @param  string    $key   字段名
+     * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, $key)
+    public function parseKey(Query $query, $key, $strict = false)
     {
         if (is_int($key)) {
             return $key;
@@ -118,7 +119,7 @@ class Mysql extends Builder
             // JSON字段支持
             list($field, $name) = explode('->', $key, 2);
 
-            $key = 'json_extract(' . $this->parseKey($query, $field) . ', \'$.' . str_replace('->', '.', $name) . '\')';
+            return 'json_extract(' . $this->parseKey($query, $field) . ', \'$.' . str_replace('->', '.', $name) . '\')';
         } elseif (strpos($key, '.') && !preg_match('/[,\'\"\(\)`\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
 
@@ -134,7 +135,7 @@ class Mysql extends Builder
             }
         }
 
-        if (!preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
+        if ($strict || !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
             $key = '`' . $key . '`';
         }
 

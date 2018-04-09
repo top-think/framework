@@ -75,10 +75,15 @@ class Sqlsrv extends Builder
      * @access public
      * @param  Query     $query     查询对象
      * @param  string    $key       字段名
+     * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, $key)
+    public function parseKey(Query $query, $key, $strict = false)
     {
+        if (is_int($key)) {
+            return $key;
+        }
+
         $key = trim($key);
 
         if (strpos($key, '.') && !preg_match('/[,\'\"\(\)\[\s]/', $key)) {
@@ -96,7 +101,7 @@ class Sqlsrv extends Builder
             }
         }
 
-        if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
+        if ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
             $key = '[' . $key . ']';
         }
 
