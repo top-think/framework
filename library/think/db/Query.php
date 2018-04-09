@@ -1490,9 +1490,9 @@ class Query
             if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
                 $where = [$field, $op, ''];
-            } elseif (in_array($op, ['=', null])) {
+            } elseif (in_array(strtolower($op), ['=', 'eq', null], true)) {
                 $where = [$field, 'NULL', ''];
-            } elseif (in_array($op, ['<>', 'neq'])) {
+            } elseif (in_array(strtolower($op), ['<>', 'neq'], true)) {
                 $where = [$field, 'NOTNULL', ''];
             } else {
                 // 字段相等查询
