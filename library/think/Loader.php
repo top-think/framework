@@ -356,6 +356,10 @@ class Loader
         if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
             $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
             foreach ($includeFiles as $fileIdentifier => $file) {
+                if (isset($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
+                    continue;
+                }
+
                 if (empty(self::$autoloadFiles[$fileIdentifier])) {
                     __require_file($file);
                     self::$autoloadFiles[$fileIdentifier] = true;
