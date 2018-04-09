@@ -2436,8 +2436,12 @@ class Query
 
         if (isset($data)) {
             return 'think:' . $prefix . (is_array($options['table']) ? key($options['table']) : $options['table']) . '|' . $data;
-        } else {
+        }
+
+        try {
             return md5($prefix . serialize($options) . serialize($bind));
+        } catch (\Exception $e) {
+            return;
         }
     }
 
