@@ -835,7 +835,10 @@ abstract class Builder
                     if ('[rand]' == $val) {
                         $array[] = $this->parseRand($query);
                     } else {
-                        $array[] = $this->parseKey($query, $val, true);
+                        list($field, $sort) = explode(' ', $val);
+
+                        $sort    = in_array(strtolower(trim($sort)), ['asc', 'desc']) ? ' ' . $sort : '';
+                        $array[] = $this->parseKey($query, $field, true) . ' ' . $sort;
                     }
                 } else {
                     $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
