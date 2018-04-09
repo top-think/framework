@@ -2441,7 +2441,7 @@ class Query
         try {
             return md5($prefix . serialize($options) . serialize($bind));
         } catch (\Exception $e) {
-            return;
+            throw new Exception('closure not support cache(true)');
         }
     }
 
