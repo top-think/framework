@@ -155,8 +155,9 @@ trait SoftDelete
         $name = $this->getDeleteTimeField();
 
         if (empty($where)) {
-            $pk         = $this->getPk();
-            $where[$pk] = [$pk, '=', $this->getData($pk)];
+            $pk = $this->getPk();
+
+            $where[] = [$pk, '=', $this->getData($pk)];
         }
 
         if ($name) {

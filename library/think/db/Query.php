@@ -1447,7 +1447,6 @@ class Query
             return $this->parseArrayWhereItems($field, $logic);
         } elseif ($field instanceof \Closure) {
             $where = $field;
-            $field = '';
         } elseif (is_string($field)) {
             if (preg_match('/[,=\<\'\"\(\s]/', $field)) {
                 return $this->whereRaw($field, $op);
@@ -1460,11 +1459,7 @@ class Query
         }
 
         if (!empty($where)) {
-            if (isset($this->options['where'][$logic][$field])) {
-                $this->options['where'][$logic][] = $where;
-            } else {
-                $this->options['where'][$logic][$field] = $where;
-            }
+            $this->options['where'][$logic][] = $where;
         }
 
         return $this;
@@ -1517,7 +1512,7 @@ class Query
         if (key($field) !== 0) {
             $where = [];
             foreach ($field as $key => $val) {
-                $where[$key] = is_null($val) ? [$key, 'NULL', ''] : [$key, '=', $val];
+                $where[] = is_null($val) ? [$key, 'NULL', ''] : [$key, '=', $val];
             }
         } else {
             // 数组批量查询

@@ -830,18 +830,17 @@ abstract class Builder
                 }
 
                 $array[] = 'field(' . $this->parseKey($query, $key) . ',' . implode(',', $val) . ')' . $sort;
-            } elseif (is_numeric($key)) {
-                if ('[rand]' == $val) {
-                    $array[] = $this->parseRand($query);
-                } else {
-                    list($field, $sort) = explode(' ', $val);
-
-                    $sort    = in_array(strtolower(trim($sort)), ['asc', 'desc']) ? ' ' . $sort : '';
-                    $array[] = $this->parseKey($query, $field, true) . ' ' . $sort;
-                }
+            } elseif ('[rand]' == $val) {
+                $array[] = $this->parseRand($query);
             } else {
-                $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                $array[] = $this->parseKey($query, $key, true) . ' ' . $sort;
+                if (is_numeric($key)) {
+                    list($key, $sort) = explode(' ', $val);
+                } else {
+                    $sort = $val;
+                }
+
+                $sort    = in_array(strtolower($sort), ['asc', 'desc'], true) ? ' ' . $sort : '';
+                $array[] = $this->parseKey($query, $key, true) . $sort;
             }
         }
 
