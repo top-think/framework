@@ -749,7 +749,7 @@ class Validate
                 $result = in_array($value, [true, false, 0, 1, '0', '1'], true);
                 break;
             case 'number':
-                $result = ctype_digit($value);
+                $result = ctype_digit((string) $value);
                 break;
             case 'array':
                 // 是否为数组
