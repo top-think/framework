@@ -864,7 +864,7 @@ abstract class Rule
         $request->route($var);
 
         // 路由到模块/控制器/操作
-        return (new ModuleDispatch([$module, $controller, $action]))->convert(false);
+        return new ModuleDispatch([$module, $controller, $action], [], false);
     }
 
     /**

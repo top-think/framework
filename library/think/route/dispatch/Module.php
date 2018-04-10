@@ -23,6 +23,15 @@ class Module extends Dispatch
     protected $controller;
     protected $actionName;
 
+    public function __construct($dispatch, $param = [], $convert = null)
+    {
+        $this->app      = Container::get('app');
+        $this->dispatch = $dispatch;
+        $this->param    = $param;
+        $this->convert  = $convert;
+        $this->init();
+    }
+
     protected function init()
     {
         $result = $this->dispatch;
@@ -90,13 +99,13 @@ class Module extends Dispatch
         // 设置当前请求的控制器、操作
         $this->app['request']->controller(Loader::parseName($this->controller, 1))->action($this->actionName);
 
-        // 监听module_init
-        $this->app['hook']->listen('module_init');
-
     }
 
     public function run()
     {
+        // 监听module_init
+        $this->app['hook']->listen('module_init');
+
         // 实例化控制器
         try {
             $instance = $this->app->controller($this->controller,
