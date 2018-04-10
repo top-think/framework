@@ -809,45 +809,43 @@ abstract class Builder
             return '';
         }
 
-        if (is_array($order)) {
-            $array = [];
+        $array = [];
 
-            foreach ($order as $key => $val) {
-                if ($val instanceof Expression) {
-                    $array[] = $val->getValue();
-                } elseif (is_array($val)) {
-                    if (isset($val['sort'])) {
-                        $sort = ' ' . $val['sort'];
-                        unset($val['sort']);
-                    } else {
-                        $sort = '';
-                    }
-
-                    $options = $query->getOptions();
-                    $bind    = $this->connection->getFieldsBind($options['table']);
-
-                    foreach ($val as $k => $item) {
-                        $val[$k] = $this->parseDataBind($query, $key, $item, $bind, $k);
-                    }
-
-                    $array[] = 'field(' . $this->parseKey($query, $key) . ',' . implode(',', $val) . ')' . $sort;
-                } elseif (is_numeric($key)) {
-                    if ('[rand]' == $val) {
-                        $array[] = $this->parseRand($query);
-                    } else {
-                        list($field, $sort) = explode(' ', $val);
-
-                        $sort    = in_array(strtolower(trim($sort)), ['asc', 'desc']) ? ' ' . $sort : '';
-                        $array[] = $this->parseKey($query, $field, true) . ' ' . $sort;
-                    }
+        foreach ($order as $key => $val) {
+            if ($val instanceof Expression) {
+                $array[] = $val->getValue();
+            } elseif (is_array($val)) {
+                if (isset($val['sort'])) {
+                    $sort = ' ' . $val['sort'];
+                    unset($val['sort']);
                 } else {
-                    $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($query, $key, true) . ' ' . $sort;
+                    $sort = '';
                 }
-            }
 
-            $order = implode(',', $array);
+                $options = $query->getOptions();
+                $bind    = $this->connection->getFieldsBind($options['table']);
+
+                foreach ($val as $k => $item) {
+                    $val[$k] = $this->parseDataBind($query, $key, $item, $bind, $k);
+                }
+
+                $array[] = 'field(' . $this->parseKey($query, $key) . ',' . implode(',', $val) . ')' . $sort;
+            } elseif (is_numeric($key)) {
+                if ('[rand]' == $val) {
+                    $array[] = $this->parseRand($query);
+                } else {
+                    list($field, $sort) = explode(' ', $val);
+
+                    $sort    = in_array(strtolower(trim($sort)), ['asc', 'desc']) ? ' ' . $sort : '';
+                    $array[] = $this->parseKey($query, $field, true) . ' ' . $sort;
+                }
+            } else {
+                $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
+                $array[] = $this->parseKey($query, $key, true) . ' ' . $sort;
+            }
         }
+
+        $order = implode(',', $array);
 
         return ' ORDER BY ' . $order;
     }
