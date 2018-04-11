@@ -113,7 +113,7 @@ abstract class Builder
         $result = [];
 
         foreach ($data as $key => $val) {
-            $item = $this->parseKey($query, $key);
+            $item = $this->parseKey($query, $key, true);
 
             if ($val instanceof Expression) {
                 $result[$item] = $val->getValue();
@@ -210,7 +210,7 @@ abstract class Builder
                 if ($field instanceof Expression) {
                     $array[] = $field->getValue();
                 } elseif (!is_numeric($key)) {
-                    $array[] = $this->parseKey($query, $key) . ' AS ' . $this->parseKey($query, $field);
+                    $array[] = $this->parseKey($query, $key) . ' AS ' . $this->parseKey($query, $field, true);
                 } else {
                     $array[] = $this->parseKey($query, $field);
                 }
@@ -1069,7 +1069,7 @@ abstract class Builder
         $fields = [];
 
         foreach ($insertFields as $field) {
-            $fields[] = $this->parseKey($query, $field);
+            $fields[] = $this->parseKey($query, $field, true);
         }
 
         return str_replace(
@@ -1101,7 +1101,7 @@ abstract class Builder
         }
 
         foreach ($fields as &$field) {
-            $field = $this->parseKey($query, $field);
+            $field = $this->parseKey($query, $field, true);
         }
 
         return 'INSERT INTO ' . $this->parseTable($query, $table, $options) . ' (' . implode(',', $fields) . ') ' . $this->select($options);
