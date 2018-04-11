@@ -113,7 +113,7 @@ abstract class Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    abstract public function clear( ? string $tag = null);
+    abstract public function clear(? string $tag = null);
 
     /**
      * 获取有效期

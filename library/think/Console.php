@@ -56,7 +56,7 @@ class Console
      * @param  string     $version 版本
      * @param null|string $user    执行用户
      */
-    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN',  ? string $user = null)
+    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN', ? string $user = null)
     {
         $this->name    = $name;
         $this->version = $version;
@@ -549,7 +549,7 @@ class Console
      * @return Command[]
      * @api
      */
-    public function all( ? string $namespace = null)
+    public function all(? string $namespace = null)
     {
         if (null === $namespace) {
             return $this->commands;
