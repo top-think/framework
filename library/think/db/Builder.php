@@ -833,7 +833,7 @@ abstract class Builder
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);
             } else {
-                if (is_numeric($key)) {
+                if (is_numeric($key) && strpos($val, ' ')) {
                     list($key, $sort) = explode(' ', $val);
                 } else {
                     $sort = $val;
