@@ -51,9 +51,10 @@ class Pgsql extends Builder
      * @access public
      * @param  Query     $query     查询对象
      * @param  string    $key       字段名
+     * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, string $key)
+    public function parseKey(Query $query, string $key, bool $strict = false)
     {
         $key = trim($key);
 

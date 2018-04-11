@@ -2069,7 +2069,7 @@ abstract class Connection
         try {
             return md5($prefix . serialize($query->getOptions()) . serialize($query->getBind(false)));
         } catch (\Exception $e) {
-            return;
+            throw new Exception('closure not support cache(true)');
         }
     }
 

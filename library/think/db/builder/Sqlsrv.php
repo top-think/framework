@@ -39,18 +39,19 @@ class Sqlsrv extends Builder
             $array = [];
 
             foreach ($order as $key => $val) {
+                if ($val instanceof Expression) {
+                $array[] = $val->getValue();
+            } elseif ('[rand]' == $val) {
+                $array[] = $this->parseRand($query);
+            } else {
                 if (is_numeric($key)) {
-                    if (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($query, $val);
-                    } elseif ('[rand]' == $val) {
-                        $array[] = $this->parseRand($query);
-                    } else {
-                        $array[] = $val;
-                    }
+                    list($key, $sort) = explode(' ', strpos($val, ' ') ? $val : $val . ' ');
                 } else {
-                    $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($query, $key) . ' ' . $sort;
+                    $sort = $val;
                 }
+
+                $sort    = in_array(strtolower($sort), ['asc', 'desc'], true) ? ' ' . $sort : '';
+                $array[] = $this->parseKey($query, $key, true) . $sort;
             }
 
             $order = implode(',', $array);
@@ -75,9 +76,10 @@ class Sqlsrv extends Builder
      * @access public
      * @param  Query     $query     查询对象
      * @param  string    $key       字段名
+     * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, string $key)
+    public function parseKey(Query $query, string $key, bool $strict = false)
     {
         $key = trim($key);
 
@@ -96,7 +98,7 @@ class Sqlsrv extends Builder
             }
         }
 
-        if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
+        if ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
             $key = '[' . $key . ']';
         }
 
