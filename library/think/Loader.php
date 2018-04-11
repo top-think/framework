@@ -53,7 +53,7 @@ class Loader
     private static $composerPath;
 
     // 注册自动加载机制
-    public static function register( ? callable $autoload = null)
+    public static function register(? callable $autoload = null)
     {
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
