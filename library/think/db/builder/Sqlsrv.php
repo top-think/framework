@@ -12,6 +12,7 @@
 namespace think\db\builder;
 
 use think\db\Builder;
+use think\db\Expression;
 use think\db\Query;
 
 /**
@@ -35,11 +36,14 @@ class Sqlsrv extends Builder
      */
     protected function parseOrder(Query $query, $order)
     {
-        if (is_array($order)) {
-            $array = [];
+        if (empty($order)) {
+            return '';
+        }
 
-            foreach ($order as $key => $val) {
-                if ($val instanceof Expression) {
+        $array = [];
+
+        foreach ($order as $key => $val) {
+            if ($val instanceof Expression) {
                 $array[] = $val->getValue();
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);
@@ -53,9 +57,9 @@ class Sqlsrv extends Builder
                 $sort    = in_array(strtolower($sort), ['asc', 'desc'], true) ? ' ' . $sort : '';
                 $array[] = $this->parseKey($query, $key, true) . $sort;
             }
-
-            $order = implode(',', $array);
         }
+
+        $order = implode(',', $array);
 
         return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
     }
