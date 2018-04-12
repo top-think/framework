@@ -35,26 +35,26 @@ class Sqlsrv extends Builder
      */
     protected function parseOrder($order, $options = [])
     {
-        if (is_array($order)) {
-            $array = [];
-            foreach ($order as $key => $val) {
-                if ($val instanceof Expression) {
-                    $array[] = $val->getValue();
-                } elseif (is_numeric($key)) {
-                    if (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($val, $options);
-                    } elseif ('[rand]' == $val) {
-                        $array[] = $this->parseRand();
-                    } else {
-                        $array[] = $val;
-                    }
+
+        $array = [];
+        foreach ($order as $key => $val) {
+            if ($val instanceof Expression) {
+                $array[] = $val->getValue();
+            } elseif (is_numeric($key)) {
+                if (false === strpos($val, '(')) {
+                    $array[] = $this->parseKey($val, $options);
+                } elseif ('[rand]' == $val) {
+                    $array[] = $this->parseRand();
                 } else {
-                    $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($key, $options) . ' ' . $sort;
+                    $array[] = $val;
                 }
+            } else {
+                $sort    = in_array(strtolower(trim($val)), ['asc', 'desc'], true) ? ' ' . $val : '';
+                $array[] = $this->parseKey($key, $options, true) . ' ' . $sort;
             }
-            $order = implode(',', $array);
         }
+        $order = implode(',', $array);
+
         return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
     }
 

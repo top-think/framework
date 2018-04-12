@@ -11,7 +11,6 @@
 
 namespace think\db;
 
-use BadMethodCallException;
 use PDO;
 use think\Exception;
 
@@ -564,30 +563,25 @@ abstract class Builder
      */
     protected function parseOrder($order, $options = [])
     {
-        if (is_array($order)) {
-            $array = [];
-            foreach ($order as $key => $val) {
-                if ($val instanceof Expression) {
-                    $array[] = $val->getValue();
-                } elseif (is_numeric($key)) {
-                    if ('[rand]' == $val) {
-                        if (method_exists($this, 'parseRand')) {
-                            $array[] = $this->parseRand();
-                        } else {
-                            throw new BadMethodCallException('method not exists:' . get_class($this) . '-> parseRand');
-                        }
-                    } elseif (false === strpos($val, '(')) {
-                        $array[] = $this->parseKey($val, $options);
-                    } else {
-                        $array[] = $val;
-                    }
+        $array = [];
+        foreach ($order as $key => $val) {
+            if ($val instanceof Expression) {
+                $array[] = $val->getValue();
+            } elseif ('[rand]' == $val) {
+                $array[] = $this->parseRand();
+            } else {
+                if (is_numeric($key)) {
+                    list($key, $sort) = explode(' ', strpos($val, ' ') ? $val : $val . ' ');
                 } else {
-                    $sort    = in_array(strtolower(trim($val)), ['asc', 'desc']) ? ' ' . $val : '';
-                    $array[] = $this->parseKey($key, $options) . ' ' . $sort;
+                    $sort = $val;
                 }
+
+                $sort    = in_array(strtolower($sort), ['asc', 'desc'], true) ? ' ' . $sort : '';
+                $array[] = $this->parseKey($key, $options, true) . $sort;
             }
-            $order = implode(',', $array);
         }
+        $order = implode(',', $array);
+
         return !empty($order) ? ' ORDER BY ' . $order : '';
     }
 
