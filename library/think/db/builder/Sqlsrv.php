@@ -12,6 +12,7 @@
 namespace think\db\builder;
 
 use think\db\Builder;
+use think\db\Expression;
 
 /**
  * Sqlsrv数据库驱动
@@ -37,7 +38,9 @@ class Sqlsrv extends Builder
         if (is_array($order)) {
             $array = [];
             foreach ($order as $key => $val) {
-                if (is_numeric($key)) {
+                if ($val instanceof Expression) {
+                    $array[] = $val->getValue();
+                } elseif (is_numeric($key)) {
                     if (false === strpos($val, '(')) {
                         $array[] = $this->parseKey($val, $options);
                     } elseif ('[rand]' == $val) {
@@ -72,8 +75,11 @@ class Sqlsrv extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($key, $options = [], $strict = false)
     {
+        if (is_int($key)) {
+            return $key;
+        }
         $key = trim($key);
         if (strpos($key, '.') && !preg_match('/[,\'\"\(\)\[\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
@@ -84,7 +90,7 @@ class Sqlsrv extends Builder
                 $table = $options['alias'][$table];
             }
         }
-        if (!is_numeric($key) && !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
+        if ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
             $key = '[' . $key . ']';
         }
         if (isset($table)) {

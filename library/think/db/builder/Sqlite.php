@@ -56,7 +56,7 @@ class Sqlite extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($key, $options = [], $strict = false)
     {
         $key = trim($key);
         if (strpos($key, '.')) {

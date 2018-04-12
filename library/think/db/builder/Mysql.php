@@ -86,13 +86,16 @@ class Mysql extends Builder
      * @param array  $options
      * @return string
      */
-    protected function parseKey($key, $options = [])
+    protected function parseKey($key, $options = [], $strict = false)
     {
+        if (is_int($key)) {
+            return $key;
+        }
         $key = trim($key);
         if (strpos($key, '$.') && false === strpos($key, '(')) {
             // JSON字段支持
             list($field, $name) = explode('$.', $key);
-            $key                = 'json_extract(' . $field . ', \'$.' . $name . '\')';
+            return 'json_extract(' . $field . ', \'$.' . $name . '\')';
         } elseif (strpos($key, '.') && !preg_match('/[,\'\"\(\)`\s]/', $key)) {
             list($table, $key) = explode('.', $key, 2);
             if ('__TABLE__' == $table) {
@@ -102,7 +105,7 @@ class Mysql extends Builder
                 $table = $options['alias'][$table];
             }
         }
-        if (!preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
+        if ($strict || !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
             $key = '`' . $key . '`';
         }
         if (isset($table)) {
