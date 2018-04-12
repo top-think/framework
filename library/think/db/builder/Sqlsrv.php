@@ -56,9 +56,8 @@ class Sqlsrv extends Builder
                 $array[] = $this->parseKey($key, $options, true) . ' ' . $sort;
             }
         }
-        $order = implode(',', $array);
 
-        return ' ORDER BY ' . $order;
+        return ' ORDER BY ' . implode(',', $array);
     }
 
     /**
