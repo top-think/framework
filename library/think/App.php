@@ -126,7 +126,7 @@ class App implements \ArrayAccess
 
     public function __construct($appPath = '')
     {
-        $this->appPath   = $appPath ?: $this->getAppPath();
+        $this->appPath   = $appPath ? realpath($appPath) : $this->getAppPath();
         $this->container = Container::getInstance();
     }
 
@@ -164,7 +164,7 @@ class App implements \ArrayAccess
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
         $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
-        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
+        $this->rootPath    = dirname($this->appPath) . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
         $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
         $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
@@ -756,9 +756,7 @@ class App implements \ArrayAccess
     public function getAppPath()
     {
         if (is_null($this->appPath)) {
-            $scriptName = 'cli' == PHP_SAPI ? getcwd() . DIRECTORY_SEPARATOR . $_SERVER['argv'][0] : $_SERVER['SCRIPT_FILENAME'];
-
-            $this->appPath = realpath(dirname(dirname($scriptName)) . DIRECTORY_SEPARATOR . 'application') . DIRECTORY_SEPARATOR;
+            $this->appPath = Loader::getRootPath() . 'application' . DIRECTORY_SEPARATOR;
         }
 
         return $this->appPath;
