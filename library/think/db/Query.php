@@ -775,6 +775,9 @@ class Query
         }
 
         if (is_string($field)) {
+            if (preg_match('/[\<\'\"\(]/', $field)) {
+                return $this->fieldRaw($field);
+            }
             $field = array_map('trim', explode(',', $field));
         }
         if (true === $field) {
