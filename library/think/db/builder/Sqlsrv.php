@@ -35,6 +35,9 @@ class Sqlsrv extends Builder
      */
     protected function parseOrder($order, $options = [])
     {
+        if (empty($order)) {
+            return ' ORDER BY rand()';
+        }
 
         $array = [];
         foreach ($order as $key => $val) {
@@ -55,7 +58,7 @@ class Sqlsrv extends Builder
         }
         $order = implode(',', $array);
 
-        return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
+        return ' ORDER BY ' . $order;
     }
 
     /**

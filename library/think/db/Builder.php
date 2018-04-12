@@ -563,6 +563,10 @@ abstract class Builder
      */
     protected function parseOrder($order, $options = [])
     {
+        if (empty($order)) {
+            return '';
+        }
+
         $array = [];
         foreach ($order as $key => $val) {
             if ($val instanceof Expression) {
