@@ -1503,7 +1503,11 @@ class Query
             if (!empty($this->options['via'])) {
                 $field = $this->options['via'] . '.' . $field;
             }
-            $field = empty($order) ? $field : [$field => $order];
+            if (strpos($field, ',')) {
+                $field = array_map('trim', explode(',', $field));
+            } else {
+                $field = empty($order) ? $field : [$field => $order];
+            }
         } elseif (!empty($this->options['via'])) {
             foreach ($field as $key => $val) {
                 if (is_numeric($key)) {
