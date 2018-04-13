@@ -104,7 +104,7 @@ class Sqlsrv extends Builder
             }
         }
 
-        if ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
+        if ('*' != $key && ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key))) {
             $key = '[' . $key . ']';
         }
 

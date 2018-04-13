@@ -70,7 +70,7 @@ class Mysql extends Builder
 
         $fields = [];
         foreach ($insertFields as $field) {
-            $fields[] = $this->parseKey($query, $field);
+            $fields[] = $this->parseKey($query, $field, true);
         }
 
         return str_replace(
@@ -135,7 +135,7 @@ class Mysql extends Builder
             }
         }
 
-        if ($strict || !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
+        if ('*' != $key && ($strict || !preg_match('/[,\'\"\*\(\)`.\s]/', $key))) {
             $key = '`' . $key . '`';
         }
 
@@ -148,30 +148,6 @@ class Mysql extends Builder
         }
 
         return $key;
-    }
-
-    /**
-     * field分析
-     * @access protected
-     * @param  Query     $query     查询对象
-     * @param  mixed     $fields    字段名
-     * @return string
-     */
-    protected function parseField(Query $query, $fields)
-    {
-        $fieldsStr = parent::parseField($query, $fields);
-        $options   = $query->getOptions();
-
-        if (!empty($options['point'])) {
-            $array = [];
-            foreach ($options['point'] as $key => $field) {
-                $key     = !is_numeric($key) ? $key : $field;
-                $array[] = 'AsText(' . $this->parseKey($query, $key) . ') AS ' . $this->parseKey($query, $field);
-            }
-            $fieldsStr .= ',' . implode(',', $array);
-        }
-
-        return $fieldsStr;
     }
 
     /**
