@@ -191,7 +191,7 @@ abstract class Builder
                 } elseif (!is_numeric($key)) {
                     $array[] = $this->parseKey($key, $options) . ' AS ' . $this->parseKey($field, $options, true);
                 } else {
-                    $array[] = $this->parseKey($field, $options, true);
+                    $array[] = $this->parseKey($field, $options);
                 }
             }
             $fieldsStr = implode(',', $array);
@@ -579,8 +579,8 @@ abstract class Builder
                 } else {
                     $sort = $val;
                 }
-
-                $sort    = in_array(strtolower($sort), ['asc', 'desc'], true) ? ' ' . $sort : '';
+                $sort    = strtoupper($sort);
+                $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
                 $array[] = $this->parseKey($key, $options, true) . $sort;
             }
         }
