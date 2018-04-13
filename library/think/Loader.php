@@ -56,13 +56,7 @@ class Loader
     public static function getRootPath()
     {
         if ('cli' == PHP_SAPI) {
-            $cwdPath = getcwd();
-
-            if (0 === strpos($_SERVER['argv'][0], $cwdPath)) {
-                $scriptName = $_SERVER['argv'][0];
-            } else {
-                $scriptName = $cwdPath . DIRECTORY_SEPARATOR . $_SERVER['argv'][0];
-            }
+            $scriptName = realpath($_SERVER['argv'][0]);
         } else {
             $scriptName = $_SERVER['SCRIPT_FILENAME'];
         }
