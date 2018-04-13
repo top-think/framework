@@ -1233,6 +1233,10 @@ class Query
      */
     public function whereExists($condition, $logic = 'AND')
     {
+        if (is_string($condition)) {
+            $condition = $this->raw($condition);
+        }
+
         $this->options['where'][strtoupper($logic)][] = ['', 'EXISTS', $condition];
         return $this;
     }
@@ -1246,6 +1250,10 @@ class Query
      */
     public function whereNotExists($condition, $logic = 'AND')
     {
+        if (is_string($condition)) {
+            $condition = $this->raw($condition);
+        }
+
         $this->options['where'][strtoupper($logic)][] = ['', 'NOT EXISTS', $condition];
         return $this;
     }
@@ -1493,6 +1501,8 @@ class Query
                 // 字段相等查询
                 $where = [$field, '=', $op];
             }
+        } elseif (in_array(strtoupper($op), ['EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
+            $where = [$field, $op, is_string($condition) ? $this->raw($condition) : $condition];
         } else {
             $where = $field ? [$field, $op, $condition] : null;
         }
@@ -1827,11 +1837,14 @@ class Query
      * @param  string       $order
      * @return $this
      */
-    public function orderField($field, array $values = [], $order = '')
+    public function orderField($field, array $values, $order = '')
     {
-        $values['sort'] = $order;
+        if (!empty($values)) {
+            $values['sort'] = $order;
 
-        $this->options['order'][$field] = $values;
+            $this->options['order'][$field] = $values;
+        }
+
         return $this;
     }
 
