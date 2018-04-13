@@ -748,6 +748,10 @@ abstract class Builder
 
         $bindName = $bindName ?: $key;
 
+        if ($query->isBind($bindName)) {
+            $bindName .= '_' . str_replace('.', '_', uniqid('', true));
+        }
+
         $query->bind($bindName, $value, $bindType);
 
         return ':' . $bindName;
