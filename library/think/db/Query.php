@@ -782,7 +782,11 @@ class Query
             $prefix = $prefix ?: $tableName;
             foreach ($field as $key => $val) {
                 if (is_numeric($key)) {
-                    $val = $prefix . '.' . $val . ($alias ? ' AS ' . $alias . $val : '');
+                    if (empty($alias)) {
+                        $val = $prefix . '.' . $val;
+                    }else {
+                        $val = $this->raw('`' . $prefix . '`.`' . $val . '` AS `' . $alias . $val . '`');
+                    }
                 }
                 $field[$key] = $val;
             }
