@@ -815,13 +815,6 @@ abstract class Builder
             if ($val instanceof Expression) {
                 $array[] = $val->getValue();
             } elseif (is_array($val)) {
-                if (isset($val['sort'])) {
-                    $sort = ' ' . $val['sort'];
-                    unset($val['sort']);
-                } else {
-                    $sort = '';
-                }
-
                 $options = $query->getOptions();
                 $bind    = $this->connection->getFieldsBind($options['table']);
 
@@ -829,7 +822,7 @@ abstract class Builder
                     $val[$k] = $this->parseDataBind($query, $key, $item, $bind, $k);
                 }
 
-                $array[] = 'field(' . $this->parseKey($query, $key, true) . ',' . implode(',', $val) . ')' . $sort;
+                $array[] = 'field(' . $this->parseKey($query, $key, true) . ',' . implode(',', $val) . ')';
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);
             } else {
@@ -839,7 +832,8 @@ abstract class Builder
                     $sort = $val;
                 }
 
-                $sort    = in_array(strtolower($sort), ['asc', 'desc'], true) ? ' ' . $sort : '';
+                $sort    = strtoupper($sort);
+                $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
                 $array[] = $this->parseKey($query, $key, true) . $sort;
             }
         }
