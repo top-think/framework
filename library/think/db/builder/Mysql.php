@@ -105,7 +105,8 @@ class Mysql extends Builder
                 $table = $options['alias'][$table];
             }
         }
-        if ($strict || !preg_match('/[,\'\"\*\(\)`.\s]/', $key)) {
+
+        if ('*' != $key && ($strict || !preg_match('/[,\'\"\*\(\)`.\s]/', $key))) {
             $key = '`' . $key . '`';
         }
         if (isset($table)) {
