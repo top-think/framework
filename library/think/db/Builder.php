@@ -114,14 +114,11 @@ abstract class Builder
                 $result[$item] = 'NULL';
             } elseif (is_array($val) && !empty($val)) {
                 switch ($val[0]) {
-                    case 'exp':
-                        $result[$item] = $val[1];
-                        break;
                     case 'inc':
-                        $result[$item] = $item . '+' . floatval($val[2]);
+                        $result[$item] = $item . '+' . floatval($val[1]);
                         break;
                     case 'dec':
-                        $result[$item] = $item . '-' . floatval($val[2]);
+                        $result[$item] = $item . '-' . floatval($val[1]);
                         break;
                 }
             } elseif (is_scalar($val)) {
