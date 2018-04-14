@@ -1547,8 +1547,12 @@ class Query
     {
         $logic = strtoupper($logic);
 
-        if (isset($this->options['where'][$logic][$field])) {
-            unset($this->options['where'][$logic][$field]);
+        if (isset($this->options['where'][$logic])) {
+            foreach ($this->options['where'][$logic] as $key => $val) {
+                if (is_array($val) && $val[0] == $field) {
+                    unset($this->options['where'][$logic][$key]);
+                }
+            }
         }
 
         return $this;
