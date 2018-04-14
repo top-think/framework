@@ -883,7 +883,7 @@ class Query
      */
     public function exp($field, $value)
     {
-        $this->data($field, ['exp', $value]);
+        $this->data($field, $this->raw($value));
         return $this;
     }
 
@@ -1188,7 +1188,7 @@ class Query
      */
     public function whereExp($field, $condition, $logic = 'AND')
     {
-        $this->parseWhereExp($logic, $field, 'exp', $condition, [], true);
+        $this->parseWhereExp($logic, $field, 'exp', $this->raw($condition), [], true);
         return $this;
     }
 

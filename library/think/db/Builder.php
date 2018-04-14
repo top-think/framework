@@ -391,7 +391,7 @@ abstract class Builder
             }
         } elseif ('EXP' == $exp) {
             // 表达式查询
-            $whereStr .= '( ' . $key . ' ' . $value . ' )';
+            $whereStr .= '( ' . $key . ' ' . ($value instanceof Expression ? $value->getValue() : $value) . ' )';
         } elseif (in_array($exp, ['NOT NULL', 'NULL'])) {
             // NULL 查询
             $whereStr .= $key . ' IS ' . $exp;
@@ -673,11 +673,7 @@ abstract class Builder
             return '';
         }
 
-        if (is_array($index)) {
-            $index = join(",", $index);
-        }
-
-        return sprintf(" FORCE INDEX ( %s ) ", $index);
+        return sprintf(" FORCE INDEX ( %s ) ", is_array($index) ? implode(',', $index) : $index);
     }
 
     /**
@@ -795,8 +791,12 @@ abstract class Builder
             $values[] = 'SELECT ' . implode(',', $value);
 
             if (!isset($insertFields)) {
-                $insertFields = array_map([$this, 'parseKey'], array_keys($data));
+                $insertFields = array_keys($data);
             }
+        }
+
+        foreach ($insertFields as $field) {
+            $fields[] = $this->parseKey($query, $field, true);
         }
 
         return str_replace(
