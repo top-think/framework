@@ -388,7 +388,11 @@ abstract class Builder
             }
         } elseif ('EXP' == $exp) {
             // 表达式查询
-            $whereStr .= '( ' . $key . ' ' . ($value instanceof Expression ? $value->getValue() : $value) . ' )';
+            if ($value instanceof Expression) {
+                $whereStr .= '( ' . $key . ' ' . $value->getValue() . ' )';
+            } else {
+                throw new Exception('where express error:' . $exp);
+            }
         } elseif (in_array($exp, ['NOT NULL', 'NULL'])) {
             // NULL 查询
             $whereStr .= $key . ' IS ' . $exp;

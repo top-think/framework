@@ -1239,7 +1239,7 @@ class Query
             // 记录一个字段多次查询条件
             $this->options['multi'][$logic][$field][] = $where[$field];
         } elseif (is_string($field) && preg_match('/[,=\>\<\'\"\(\s]/', $field)) {
-            $where[] = ['exp', $field];
+            $where[] = ['exp', $this->raw($field)];
             if (is_array($op)) {
                 // 参数绑定
                 $this->bind($op);
@@ -1260,21 +1260,28 @@ class Query
             $where[$field] = $param;
         } elseif (in_array(strtolower($op), ['null', 'notnull', 'not null'])) {
             // null查询
-            $where[$field]                            = [$op, ''];
+            $where[$field] = [$op, ''];
+
             $this->options['multi'][$logic][$field][] = $where[$field];
         } elseif (is_null($condition)) {
             // 字段相等查询
-            $where[$field]                            = ['eq', $op];
+            $where[$field] = ['eq', $op];
+
             $this->options['multi'][$logic][$field][] = $where[$field];
         } else {
-            $where[$field] = [$op, $condition, isset($param[2]) ? $param[2] : null];
-            if ('exp' == strtolower($op) && isset($param[2]) && is_array($param[2])) {
+            if ('exp' == strtolower($op)) {
+                $where[$field] = ['exp', $this->raw($condition)];
                 // 参数绑定
-                $this->bind($param[2]);
+                if (isset($param[2]) && is_array($param[2])) {
+                    $this->bind($param[2]);
+                }
+            } else {
+                $where[$field] = [$op, $condition];
             }
             // 记录一个字段多次查询条件
             $this->options['multi'][$logic][$field][] = $where[$field];
         }
+
         if (!empty($where)) {
             if (!isset($this->options['where'][$logic])) {
                 $this->options['where'][$logic] = [];
