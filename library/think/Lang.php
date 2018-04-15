@@ -145,7 +145,7 @@ class Lang
      * @param  string        $range 语言作用域
      * @return mixed
      */
-    public function get( ? string $name = null, array $vars = [], string $range = '')
+    public function get(? string $name = null, array $vars = [], string $range = '')
     {
         $range = $range ?: $this->range;
 
@@ -223,7 +223,7 @@ class Lang
      * @param  string $lang 语言
      * @return void
      */
-    public function saveToCookie( ? string $lang = null)
+    public function saveToCookie(? string $lang = null)
     {
         $range = $lang ?: $this->range;
 
