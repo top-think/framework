@@ -351,7 +351,7 @@ class Query
      * @param  string $sequence 自增序列名
      * @return string
      */
-    public function getLastInsID( ? string $sequence = null)
+    public function getLastInsID(? string $sequence = null)
     {
         return $this->connection->getLastInsID($sequence);
     }
@@ -464,7 +464,7 @@ class Query
      * @param  string $field    字段名
      * @return array|string
      */
-    public function getFieldsType(string $tableName = '',  ? string $field = null)
+    public function getFieldsType(string $tableName = '', ? string $field = null)
     {
         if ('' == $tableName) {
             $tableName = $this->options['table'] ?? $this->getTable();
@@ -488,12 +488,12 @@ class Query
             $value = $data[$field];
             $type  = $rule['type'];
             switch ($type) {
-                case 'id' :
+                case 'id':
                     // 按照id范围分表
                     $step = $rule['expr'];
                     $seq  = floor($value / $step) + 1;
                     break;
-                case 'year' :
+                case 'year':
                     // 按照年份分表
                     if (!is_numeric($value)) {
                         $value = strtotime($value);
@@ -1345,7 +1345,7 @@ class Query
      * @param  string    $logic      查询逻辑 and or xor
      * @return $this
      */
-    public function whereColumn(string $field1, string $operator,  ? string $field2 = null, string $logic = 'AND')
+    public function whereColumn(string $field1, string $operator, ? string $field2 = null, string $logic = 'AND')
     {
         if (is_null($field2)) {
             $field2   = $operator;
@@ -2057,7 +2057,7 @@ class Query
      * @param  string $sequence 自增序列名
      * @return $this
      */
-    public function sequence( ? string $sequence = null)
+    public function sequence(? string $sequence = null)
     {
         $this->options['sequence'] = $sequence;
         return $this;
@@ -2509,7 +2509,7 @@ class Query
      * @param  string  $sequence     自增序列名
      * @return integer|string
      */
-    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false,  ? string $sequence = null)
+    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, ? string $sequence = null)
     {
         $this->parseOptions();
 
@@ -2526,7 +2526,7 @@ class Query
      * @param  string  $sequence 自增序列名
      * @return integer|string
      */
-    public function insertGetId(array $data, bool $replace = false,  ? string $sequence = null)
+    public function insertGetId(array $data, bool $replace = false, ? string $sequence = null)
     {
         return $this->insert($data, $replace, true, $sequence);
     }
@@ -2539,7 +2539,7 @@ class Query
      * @param  integer   $limit   每次写入数据限制
      * @return integer|string
      */
-    public function insertAll(array $dataSet = [], bool $replace = false,  ? int $limit = null)
+    public function insertAll(array $dataSet = [], bool $replace = false, ? int $limit = null)
     {
         $this->parseOptions();
 
