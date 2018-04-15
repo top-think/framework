@@ -12,6 +12,7 @@
 namespace think\db\builder;
 
 use think\db\Builder;
+use think\db\Expression;
 use think\db\Query;
 
 /**
@@ -88,16 +89,16 @@ class Mysql extends Builder
     /**
      * 正则查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
+     * @param  Query        $query        查询对象
+     * @param  string       $key
+     * @param  string       $exp
+     * @param  Expression   $value
+     * @param  string       $field
      * @return string
      */
-    protected function parseRegexp(Query $query, $key, $exp, $value, $field)
+    protected function parseRegexp(Query $query, $key, $exp, Expression $value, $field)
     {
-        return $key . ' ' . $exp . ' ' . $value;
+        return $key . ' ' . $exp . ' ' . $value->getValue();
     }
 
     /**
