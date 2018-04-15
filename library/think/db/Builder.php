@@ -839,9 +839,7 @@ abstract class Builder
             }
         }
 
-        $order = implode(',', $array);
-
-        return ' ORDER BY ' . $order;
+        return ' ORDER BY ' . implode(',', $array);
     }
 
     /**
