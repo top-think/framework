@@ -563,6 +563,10 @@ abstract class Builder
         // EXISTS 查询
         if ($value instanceof \Closure) {
             $value = $this->parseClosure($query, $value, false);
+        } elseif ($value instanceof Expression) {
+            $value = $value->getValue();
+        } else {
+            throw new Exception('where express error:' . $value);
         }
 
         return $exp . ' (' . $value . ')';
@@ -744,6 +748,10 @@ abstract class Builder
 
         $bindName = $bindName ?: $key;
 
+        if ($query->isBind($bindName)) {
+            $bindName .= '_' . str_replace('.', '_', uniqid('', true));
+        }
+
         $query->bind($bindName, $value, $bindType);
 
         return ':' . $bindName;
@@ -800,10 +808,10 @@ abstract class Builder
      * order分析
      * @access protected
      * @param  Query     $query        查询对象
-     * @param  mixed     $order
+     * @param  array     $order
      * @return string
      */
-    protected function parseOrder(Query $query, $order)
+    protected function parseOrder(Query $query, array $order)
     {
         if (empty($order)) {
             return '';
@@ -815,21 +823,7 @@ abstract class Builder
             if ($val instanceof Expression) {
                 $array[] = $val->getValue();
             } elseif (is_array($val)) {
-                if (isset($val['sort'])) {
-                    $sort = ' ' . $val['sort'];
-                    unset($val['sort']);
-                } else {
-                    $sort = '';
-                }
-
-                $options = $query->getOptions();
-                $bind    = $this->connection->getFieldsBind($options['table']);
-
-                foreach ($val as $k => $item) {
-                    $val[$k] = $this->parseDataBind($query, $key, $item, $bind, $k);
-                }
-
-                $array[] = 'field(' . $this->parseKey($query, $key, true) . ',' . implode(',', $val) . ')' . $sort;
+                $array[] = $this->parseOrderField($query, $key, $val);
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);
             } else {
@@ -839,14 +833,43 @@ abstract class Builder
                     $sort = $val;
                 }
 
-                $sort    = in_array(strtolower($sort), ['asc', 'desc'], true) ? ' ' . $sort : '';
+                $sort    = strtoupper($sort);
+                $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
                 $array[] = $this->parseKey($query, $key, true) . $sort;
             }
         }
 
-        $order = implode(',', $array);
+        return ' ORDER BY ' . implode(',', $array);
+    }
 
-        return ' ORDER BY ' . $order;
+    /**
+     * group分析
+     * @access protected
+     * @param  Query     $query        查询对象
+     * @param  mixed     $key
+     * @param  array     $val
+     * @return string
+     */
+    protected function parseOrderField($query, $key, $val)
+    {
+        if (isset($val['sort'])) {
+            $sort = $val['sort'];
+            unset($val['sort']);
+        } else {
+            $sort = '';
+        }
+
+        $sort = strtoupper($sort);
+        $sort = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
+
+        $options = $query->getOptions();
+        $bind    = $this->connection->getFieldsBind($options['table']);
+
+        foreach ($val as $k => $item) {
+            $val[$k] = $this->parseDataBind($query, $key, $item, $bind, $k);
+        }
+
+        return 'field(' . $this->parseKey($query, $key, true) . ',' . implode(',', $val) . ')' . $sort;
     }
 
     /**

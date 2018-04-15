@@ -37,7 +37,7 @@ class Sqlsrv extends Builder
     protected function parseOrder(Query $query, $order)
     {
         if (empty($order)) {
-            return '';
+            return ' ORDER BY rand()';
         }
 
         $array = [];
@@ -59,9 +59,7 @@ class Sqlsrv extends Builder
             }
         }
 
-        $order = implode(',', $array);
-
-        return !empty($order) ? ' ORDER BY ' . $order : ' ORDER BY rand()';
+        return ' ORDER BY ' . implode(',', $array);
     }
 
     /**
@@ -102,7 +100,7 @@ class Sqlsrv extends Builder
             }
         }
 
-        if ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key)) {
+        if ('*' != $key && ($strict || !preg_match('/[,\'\"\*\(\)\[.\s]/', $key))) {
             $key = '[' . $key . ']';
         }
 

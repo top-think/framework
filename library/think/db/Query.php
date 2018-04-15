@@ -1233,6 +1233,10 @@ class Query
      */
     public function whereExists($condition, string $logic = 'AND')
     {
+        if (is_string($condition)) {
+            $condition = $this->raw($condition);
+        }
+
         $this->options['where'][strtoupper($logic)][] = ['', 'EXISTS', $condition];
         return $this;
     }
@@ -1246,6 +1250,10 @@ class Query
      */
     public function whereNotExists($condition, string $logic = 'AND')
     {
+        if (is_string($condition)) {
+            $condition = $this->raw($condition);
+        }
+
         $this->options['where'][strtoupper($logic)][] = ['', 'NOT EXISTS', $condition];
         return $this;
     }
@@ -1485,14 +1493,16 @@ class Query
             if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
                 $where = [$field, $op, ''];
-            } elseif (in_array(strtolower($op), ['=', 'eq', null], true)) {
+            } elseif (in_array($op, ['=', 'eq', 'EQ', null], true)) {
                 $where = [$field, 'NULL', ''];
-            } elseif (in_array(strtolower($op), ['<>', 'neq'], true)) {
+            } elseif (in_array($op, ['<>', 'neq', 'NEQ'], true)) {
                 $where = [$field, 'NOTNULL', ''];
             } else {
                 // 字段相等查询
                 $where = [$field, '=', $op];
             }
+        } elseif (in_array(strtoupper($op), ['REGEXP', 'NOT REGEXP', 'EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
+            $where = [$field, $op, is_string($condition) ? $this->raw($condition) : $condition];
         } else {
             $where = $field ? [$field, $op, $condition] : null;
         }
@@ -1537,8 +1547,12 @@ class Query
     {
         $logic = strtoupper($logic);
 
-        if (isset($this->options['where'][$logic][$field])) {
-            unset($this->options['where'][$logic][$field]);
+        if (isset($this->options['where'][$logic])) {
+            foreach ($this->options['where'][$logic] as $key => $val) {
+                if (is_array($val) && $val[0] == $field) {
+                    unset($this->options['where'][$logic][$key]);
+                }
+            }
         }
 
         return $this;
@@ -1826,11 +1840,14 @@ class Query
      * @param  string   $order
      * @return $this
      */
-    public function orderField(string $field, array $values = [], $order = '')
+    public function orderField(string $field, array $values, $order = '')
     {
-        $values['sort'] = $order;
+        if (!empty($values)) {
+            $values['sort'] = $order;
 
-        $this->options['order'][$field] = $values;
+            $this->options['order'][$field] = $values;
+        }
+
         return $this;
     }
 
