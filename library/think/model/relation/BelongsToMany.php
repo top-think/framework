@@ -12,6 +12,7 @@
 namespace think\model\relation;
 
 use think\Collection;
+use think\Db;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -338,7 +339,7 @@ class BelongsToMany extends Relation
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             'pivot.' . $this->localKey => [
                 'exp',
-                '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
+                Db::raw('=' . $this->parent->getTable() . '.' . $this->parent->getPk()),
             ],
         ])->fetchSql()->count();
     }

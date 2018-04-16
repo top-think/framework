@@ -143,7 +143,7 @@ class HasMany extends Relation
             if ($closure) {
                 call_user_func_array($closure, [ & $this->query]);
             }
-            $count = $this->query->where([$this->foreignKey => $result->$localKey])->count();
+            $count = $this->query->where($this->foreignKey, $result->$localKey)->count();
         }
         return $count;
     }
@@ -160,12 +160,7 @@ class HasMany extends Relation
             call_user_func_array($closure, [ & $this->query]);
         }
         $localKey = $this->localKey ?: $this->parent->getPk();
-        return $this->query->where([
-            $this->foreignKey => [
-                'exp',
-                '=' . $this->parent->getTable() . '.' . $localKey,
-            ],
-        ])->fetchSql()->count();
+        return $this->query->whereExp($this->foreignKey, '=' . $this->parent->getTable() . '.' . $localKey)->fetchSql()->count();
     }
 
     /**
