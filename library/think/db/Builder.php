@@ -415,7 +415,7 @@ abstract class Builder
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
 
         if (strpos($field, '->')) {
-            $jsonType = $query->getFieldType($field);
+            $jsonType = $query->getJsonFieldType($field);
             if ($jsonType) {
                 $bindType = $this->connection->getFieldBindType($jsonType);
             }
