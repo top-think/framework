@@ -71,7 +71,7 @@ class Mysql extends Builder
 
         $fields = [];
         foreach ($insertFields as $field) {
-            $fields[] = $this->parseKey($query, $field, true);
+            $fields[] = $this->parseKey($query, $field);
         }
 
         return str_replace(
