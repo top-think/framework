@@ -414,6 +414,13 @@ abstract class Builder
 
         $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
 
+        if (strpos($field, '->')) {
+            $jsonType = $query->getFieldType($field);
+            if ($jsonType) {
+                $bindType = $this->connection->getFieldBindType($jsonType);
+            }
+        }
+
         if (is_scalar($value) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (strpos($value, ':') !== 0 || !$query->isBind(substr($value, 1))) {
                 if ($query->isBind($bindName)) {

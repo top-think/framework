@@ -37,6 +37,12 @@ trait Attribute
     protected $json = [];
 
     /**
+     * JSON数据表字段类型
+     * @var array
+     */
+    protected $jsonType = [];
+
+    /**
      * 数据表废弃字段
      * @var array
      */

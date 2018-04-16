@@ -2077,6 +2077,29 @@ class Query
     }
 
     /**
+     * 设置字段类型信息
+     * @access public
+     * @param  array $type 字段类型信息
+     * @return $this
+     */
+    public function setJsonFieldType(array $type)
+    {
+        $this->options['field_type'] = $type;
+        return $this;
+    }
+
+    /**
+     * 获取字段类型信息
+     * @access public
+     * @param  string $field 字段名
+     * @return string|null
+     */
+    public function getJsonFieldType($field)
+    {
+        return isset($this->options['field_type'][$field]) ? $this->options['field_type'][$field] : null;
+    }
+
+    /**
      * 添加查询范围
      * @access public
      * @param  array|string|\Closure   $scope 查询范围定义
