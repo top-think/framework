@@ -266,7 +266,7 @@ abstract class Builder
             $str = [];
             foreach ($val as $field => $value) {
                 if ($value instanceof Expression) {
-                    $str[] = ' ' . $logic . ' ( ' . $value->getValue() . ' )';
+                    $str[] = ' ' . $key . ' ( ' . $value->getValue() . ' )';
                     continue;
                 }
                 if ($value instanceof \Closure) {
