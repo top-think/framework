@@ -412,13 +412,11 @@ abstract class Builder
             $value = $value->__toString();
         }
 
-        $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
-
         if (strpos($field, '->')) {
             $jsonType = $query->getJsonFieldType($field);
-            if ($jsonType) {
-                $bindType = $this->connection->getFieldBindType($jsonType);
-            }
+            $bindType = $this->connection->getFieldBindType($jsonType);
+        } else {
+            $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
         }
 
         if (is_scalar($value) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
