@@ -1118,8 +1118,6 @@ abstract class Builder
      */
     public function selectInsert(Query $query, $fields, $table)
     {
-        $options = $query->getOptions();
-
         if (is_string($fields)) {
             $fields = explode(',', $fields);
         }
@@ -1128,7 +1126,7 @@ abstract class Builder
             $field = $this->parseKey($query, $field, true);
         }
 
-        return 'INSERT INTO ' . $this->parseTable($query, $table, $options) . ' (' . implode(',', $fields) . ') ' . $this->select($options);
+        return 'INSERT INTO ' . $this->parseTable($query, $table) . ' (' . implode(',', $fields) . ') ' . $this->select($query);
     }
 
     /**
