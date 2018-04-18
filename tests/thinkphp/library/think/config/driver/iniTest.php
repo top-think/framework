@@ -16,10 +16,13 @@
 
 namespace tests\thinkphp\library\think\config\driver;
 
+use tests\thinkphp\library\think\config\ConfigInitTrait;
 use think\config;
 
 class iniTest extends \PHPUnit_Framework_TestCase
 {
+    use ConfigInitTrait;
+
     public function testParse()
     {
         Config::parse('inistring=1', 'ini');

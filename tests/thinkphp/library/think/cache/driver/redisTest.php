@@ -41,7 +41,7 @@ class redisTest extends cacheTestCase
         $cache = $this->prepare();
         $this->assertEquals('string_test', $cache->get('string_test'));
         $this->assertEquals(11, $cache->get('number_test'));
-        $result =  $cache->get('array_test');
+        $result = $cache->get('array_test');
         $this->assertEquals('array_test', $result['array_test']);
     }
 
@@ -54,7 +54,7 @@ class redisTest extends cacheTestCase
         $redis->handler()->setnx('key', 'value');
         $value = $redis->handler()->get('key');
         $this->assertEquals('value', $value);
-        
+
         $redis->handler()->hset('hash', 'key', 'value');
         $value = $redis->handler()->hget('hash', 'key');
         $this->assertEquals('value', $value);

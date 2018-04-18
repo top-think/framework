@@ -185,7 +185,7 @@ EOF;
         $config    = $this->getConfig();
         $tableName = 'user';
         $result    = Db::connect($config)->name($tableName);
-        $this->assertEquals($config['prefix'] . $tableName, $result->getOptions()['table']);
+        $this->assertEquals($config['prefix'] . $tableName, $result->getTable());
     }
 
     public function testInsert()

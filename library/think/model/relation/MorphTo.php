@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -23,6 +23,7 @@ class MorphTo extends Relation
     protected $morphType;
     // 多态别名
     protected $alias;
+    protected $relation;
 
     /**
      * 构造函数
@@ -31,13 +32,27 @@ class MorphTo extends Relation
      * @param string $morphType 多态字段名
      * @param string $morphKey  外键名
      * @param array  $alias     多态别名定义
+     * @param string $relation  关联名
      */
-    public function __construct(Model $parent, $morphType, $morphKey, $alias = [])
+    public function __construct(Model $parent, $morphType, $morphKey, $alias = [], $relation = null)
     {
         $this->parent    = $parent;
         $this->morphType = $morphType;
         $this->morphKey  = $morphKey;
         $this->alias     = $alias;
+        $this->relation  = $relation;
+    }
+
+    /**
+     * 获取当前的关联模型类的实例
+     * @access public
+     * @return Model
+     */
+    public function getModel()
+    {
+        $morphType = $this->morphType;
+        $model     = $this->parseModel($this->parent->$morphType);
+        return (new $model);
     }
 
     /**
@@ -53,8 +68,13 @@ class MorphTo extends Relation
         // 多态模型
         $model = $this->parseModel($this->parent->$morphType);
         // 主键数据
-        $pk = $this->parent->$morphKey;
-        return (new $model)->relation($subRelation)->find($pk);
+        $pk            = $this->parent->$morphKey;
+        $relationModel = (new $model)->relation($subRelation)->find($pk);
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
+        return $relationModel;
     }
 
     /**
@@ -74,10 +94,11 @@ class MorphTo extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param mixed $where 查询条件（数组或者闭包）
+     * @param  mixed  $where 查询条件（数组或者闭包）
+     * @param  mixed  $fields   字段
      * @return Query
      */
-    public function hasWhere($where = [])
+    public function hasWhere($where = [], $fields = null)
     {
         throw new Exception('relation not support: hasWhere');
     }
@@ -165,7 +186,11 @@ class MorphTo extends Relation
                         if (!isset($data[$result->$morphKey])) {
                             throw new Exception('relation data not exists :' . $this->model);
                         } else {
-                            $result->setAttr($attr, $data[$result->$morphKey]);
+                            $relationModel = $data[$result->$morphKey];
+                            $relationModel->setParent(clone $result);
+                            $relationModel->isUpdate(true);
+
+                            $result->setRelation($attr, $relationModel);
                         }
                     }
                 }
@@ -217,17 +242,47 @@ class MorphTo extends Relation
         $pk   = $this->parent->{$this->morphKey};
         $data = (new $model)->with($subRelation)->find($pk);
         if ($data) {
+            $data->setParent(clone $result);
             $data->isUpdate(true);
         }
-        $result->setAttr(Loader::parseName($relation), $data ?: null);
+        $result->setRelation(Loader::parseName($relation), $data ?: null);
     }
 
     /**
-     * 执行基础查询（进执行一次）
-     * @access protected
-     * @return void
+     * 添加关联数据
+     * @access public
+     * @param Model     $model  关联模型对象
+     * @param string    $type   多态类型
+     * @return Model
      */
-    protected function baseQuery()
+    public function associate($model, $type = '')
     {
+        $morphKey  = $this->morphKey;
+        $morphType = $this->morphType;
+        $pk        = $model->getPk();
+
+        $this->parent->setAttr($morphKey, $model->$pk);
+        $this->parent->setAttr($morphType, $type ?: get_class($model));
+        $this->parent->save();
+
+        return $this->parent->setRelation($this->relation, $model);
     }
+
+    /**
+     * 注销关联数据
+     * @access public
+     * @return Model
+     */
+    public function dissociate()
+    {
+        $morphKey  = $this->morphKey;
+        $morphType = $this->morphType;
+
+        $this->parent->setAttr($morphKey, null);
+        $this->parent->setAttr($morphType, null);
+        $this->parent->save();
+
+        return $this->parent->setRelation($this->relation, null);
+    }
+
 }
