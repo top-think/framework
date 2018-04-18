@@ -33,6 +33,7 @@ abstract class Builder
         'parseBetweenTime' => ['BETWEEN TIME', 'NOT BETWEEN TIME'],
         'parseTime'        => ['< TIME', '> TIME', '<= TIME', '>= TIME'],
         'parseExists'      => ['NOT EXISTS', 'EXISTS'],
+        'parseColumn'      => ['COLUMN'],
     ];
 
     // SQL表达式
@@ -182,13 +183,13 @@ abstract class Builder
      * 字段名分析
      * @access public
      * @param  Query  $query    查询对象
-     * @param  string $key      字段名
+     * @param  mixed  $key      字段名
      * @param  bool   $strict   严格检测
      * @return string
      */
     public function parseKey(Query $query, $key, $strict = false)
     {
-        return $key;
+        return $key instanceof Expression ? $key->getValue() : $key;
     }
 
     /**
@@ -207,9 +208,7 @@ abstract class Builder
             $array = [];
 
             foreach ($fields as $key => $field) {
-                if ($field instanceof Expression) {
-                    $array[] = $field->getValue();
-                } elseif (!is_numeric($key)) {
+                if (!is_numeric($key)) {
                     $array[] = $this->parseKey($query, $key) . ' AS ' . $this->parseKey($query, $field, true);
                 } else {
                     $array[] = $this->parseKey($query, $field);
@@ -476,6 +475,30 @@ abstract class Builder
         }
 
         return $whereStr;
+    }
+
+    /**
+     * 表达式查询
+     * @access protected
+     * @param  Query        $query        查询对象
+     * @param  string       $key
+     * @param  string       $exp
+     * @param  array        $value
+     * @param  string       $field
+     * @param  string       $bindName
+     * @param  integer      $bindType
+     * @return string
+     */
+    protected function parseColumn(Query $query, $key, $exp, array $value, $field, $bindName, $bindType)
+    {
+        // 字段比较查询
+        list($op, $field2) = $value;
+
+        if (!in_array($op, ['=', '<>', '>', '>=', '<', '<='])) {
+            throw new Exception('where express error:' . var_export($value, true));
+        }
+
+        return '( ' . $key . ' ' . $op . ' ' . $this->parseKey($query, $field2, true) . ' )';
     }
 
     /**
