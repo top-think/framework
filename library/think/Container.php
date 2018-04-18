@@ -40,6 +40,12 @@ class Container
     protected $bind = [];
 
     /**
+     * 容器标识别名
+     * @var array
+     */
+    protected $name = [];
+
+    /**
      * 获取当前容器的实例（单例）
      * @access public
      * @return static
@@ -177,6 +183,8 @@ class Container
             $vars        = [];
         }
 
+        $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
+
         if (isset($this->instances[$abstract]) && !$newInstance) {
             return $this->instances[$abstract];
         }
@@ -187,7 +195,8 @@ class Container
             if ($concrete instanceof Closure) {
                 $object = $this->invokeFunction($concrete, $vars);
             } else {
-                $object = $this->make($concrete, $vars, $newInstance);
+                $this->name[$abstract] = $concrete;
+                return $this->make($concrete, $vars, $newInstance);
             }
         } else {
             $object = $this->invokeClass($abstract, $vars);
@@ -208,6 +217,8 @@ class Container
      */
     public function delete($abstract)
     {
+        $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
+
         if (isset($this->instances[$abstract])) {
             unset($this->instances[$abstract]);
         }
@@ -222,6 +233,7 @@ class Container
     {
         $this->instances = [];
         $this->bind      = [];
+        $this->name      = [];
     }
 
     /**
