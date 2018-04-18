@@ -42,7 +42,7 @@ return [
         // 控制器类后缀
         'controller_suffix'      => false,
         // 需要自动清理的容器对象实例
-        'auto_clear_instance'    => ['request'],
+        'auto_clear_instance'    => ['think\Request'],
 
         // +----------------------------------------------------------------------
         // | 模块设置
