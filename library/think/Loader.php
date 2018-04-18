@@ -71,7 +71,7 @@ class Loader
     }
 
     // 注册自动加载机制
-    public static function register(? callable $autoload = null)
+    public static function register( ? callable $autoload = null)
     {
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
@@ -88,7 +88,7 @@ class Loader
             $declaredClass = get_declared_classes();
             $composerClass = array_pop($declaredClass);
 
-            foreach (['prefixLengthsPsr4', 'prefixDirsPsr4', 'prefixesPsr0', 'classMap'] as $attr) {
+            foreach (['prefixLengthsPsr4', 'prefixDirsPsr4', 'fallbackDirsPsr4', 'prefixesPsr0', 'fallbackDirsPsr0', 'classMap'] as $attr) {
                 if (property_exists($composerClass, $attr)) {
                     self::${$attr} = $composerClass::${$attr};
                 }
