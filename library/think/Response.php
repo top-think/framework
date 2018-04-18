@@ -159,6 +159,9 @@ class Response
         if (!($this instanceof RedirectResponse)) {
             Container::get('session')->flush();
         }
+
+        // 自动清理容器对象实例
+        Container::remove(Container::get('config')->get('app.auto_clear_instance'));
     }
 
     /**

@@ -212,15 +212,17 @@ class Container
     /**
      * 删除容器中的对象实例
      * @access public
-     * @param  string    $abstract    类名或者标识
+     * @param  string|array    $abstract    类名或者标识
      * @return void
      */
     public function delete($abstract)
     {
-        $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
+        foreach ((array) $abstract as $name) {
+            $name = isset($this->name[$name]) ? $this->name[$name] : $name;
 
-        if (isset($this->instances[$abstract])) {
-            unset($this->instances[$abstract]);
+            if (isset($this->instances[$name])) {
+                unset($this->instances[$name]);
+            }
         }
     }
 
