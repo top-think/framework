@@ -282,6 +282,94 @@ class Query
     }
 
     /**
+     * 获取数据库的配置参数
+     * @access public
+     * @param  string $name 参数名称
+     * @return mixed
+     */
+    public function getConfig(string $name = '')
+    {
+        return $this->connection->getConfig($name);
+    }
+
+    /**
+     * 获取数据表字段信息
+     * @access public
+     * @param  string $tableName 数据表名
+     * @return array
+     */
+    public function getTableFields(string $tableName = '')
+    {
+        if ('' == $tableName) {
+            $tableName = $this->options['table'] ?? $this->getTable();
+        }
+
+        return $this->connection->getTableFields($tableName);
+    }
+
+    /**
+     * 获取数据表字段类型
+     * @access protected
+     * @param  string $tableName 数据表名
+     * @param  string $field    字段名
+     * @return array|string
+     */
+    protected function getTableFieldsType(string $tableName = '',  ? string $field = null)
+    {
+        if ('' == $tableName) {
+            $tableName = $this->options['table'] ?? $this->getTable();
+        }
+
+        return $this->connection->getFieldsType($tableName, $field);
+    }
+
+    /**
+     * 设置字段类型信息
+     * @access public
+     * @param  array $type 字段类型信息
+     * @return $this
+     */
+    public function setFieldType(array $type)
+    {
+        $this->options['field_type'] = $type;
+        return $this;
+    }
+
+    /**
+     * 获取字段类型信息
+     * @access public
+     * @param  string $field 字段名
+     * @return string|null
+     */
+    public function getFieldType( ? string $field = null)
+    {
+        $fieldType = $this->options['field_type'] ?? $this->getTableFieldsType();
+
+        if (is_null($field)) {
+            return $fieldType;
+        }
+
+        return $fieldType[$field] ?? null;
+    }
+
+    /**
+     * 获取字段类型信息
+     * @access public
+     * @param  string $field 字段名
+     * @return string|null
+     */
+    public function getFieldBindType( ? string $field = null)
+    {
+        $fieldType = $this->getFieldType($field);
+
+        if (is_null($field)) {
+            return array_map([$this->connection, 'getFieldBindType'], $fieldType);
+        } else {
+            return $this->connection->getFieldBindType($fieldType);
+        }
+    }
+
+    /**
      * 切换数据库连接
      * @access public
      * @param  mixed         $config 连接配置
@@ -351,7 +439,7 @@ class Query
      * @param  string $sequence 自增序列名
      * @return string
      */
-    public function getLastInsID(? string $sequence = null)
+    public function getLastInsID( ? string $sequence = null)
     {
         return $this->connection->getLastInsID($sequence);
     }
@@ -432,48 +520,6 @@ class Query
     }
 
     /**
-     * 获取数据库的配置参数
-     * @access public
-     * @param  string $name 参数名称
-     * @return mixed
-     */
-    public function getConfig(string $name = '')
-    {
-        return $this->connection->getConfig($name);
-    }
-
-    /**
-     * 获取数据表字段信息
-     * @access public
-     * @param  string $tableName 数据表名
-     * @return array
-     */
-    public function getTableFields(string $tableName = '')
-    {
-        if ('' == $tableName) {
-            $tableName = $this->options['table'] ?? $this->getTable();
-        }
-
-        return $this->connection->getTableFields($tableName);
-    }
-
-    /**
-     * 获取数据表字段类型
-     * @access public
-     * @param  string $tableName 数据表名
-     * @param  string $field    字段名
-     * @return array|string
-     */
-    public function getFieldsType(string $tableName = '', ? string $field = null)
-    {
-        if ('' == $tableName) {
-            $tableName = $this->options['table'] ?? $this->getTable();
-        }
-
-        return $this->connection->getFieldsType($tableName, $field);
-    }
-
-    /**
      * 得到分表的的数据表名
      * @access public
      * @param  array  $data  操作的数据
@@ -488,23 +534,23 @@ class Query
             $value = $data[$field];
             $type  = $rule['type'];
             switch ($type) {
-                case 'id':
+                case 'id' :
                     // 按照id范围分表
                     $step = $rule['expr'];
                     $seq  = floor($value / $step) + 1;
                     break;
-                case 'year':
+                case 'year' :
                     // 按照年份分表
                     if (!is_numeric($value)) {
                         $value = strtotime($value);
                     }
                     $seq = date('Y', $value) - $rule['expr'] + 1;
                     break;
-                case 'mod':
+                case 'mod' :
                     // 按照id的模数分表
                     $seq = ($value % $rule['num']) + 1;
                     break;
-                case 'md5':
+                case 'md5' :
                     // 按照md5的序列分表
                     $seq = (ord(substr(md5($value), 0, 1)) % $rule['num']) + 1;
                     break;
@@ -1345,14 +1391,21 @@ class Query
      * @param  string    $logic      查询逻辑 and or xor
      * @return $this
      */
-    public function whereColumn(string $field1, string $operator, ? string $field2 = null, string $logic = 'AND')
+    public function whereColumn(string $field1, string $operator,  ? string $field2 = null, string $logic = 'AND')
     {
+        if (is_array($field1)) {
+            foreach ($field1 as $item) {
+                $this->whereColumn($item[0], $item[1], isset($item[2]) ? $item[2] : null);
+            }
+            return $this;
+        }
+
         if (is_null($field2)) {
             $field2   = $operator;
             $operator = '=';
         }
 
-        return $this->whereExp($field1, $operator . ' ' . $field2, [], $logic);
+        return $this->parseWhereExp($logic, $field1, 'COLUMN', [$operator, $field2], [], true);
     }
 
     /**
@@ -2057,7 +2110,7 @@ class Query
      * @param  string $sequence 自增序列名
      * @return $this
      */
-    public function sequence(? string $sequence = null)
+    public function sequence( ? string $sequence = null)
     {
         $this->options['sequence'] = $sequence;
         return $this;
@@ -2509,7 +2562,7 @@ class Query
      * @param  string  $sequence     自增序列名
      * @return integer|string
      */
-    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, ? string $sequence = null)
+    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false,  ? string $sequence = null)
     {
         $this->parseOptions();
 
@@ -2526,7 +2579,7 @@ class Query
      * @param  string  $sequence 自增序列名
      * @return integer|string
      */
-    public function insertGetId(array $data, bool $replace = false, ? string $sequence = null)
+    public function insertGetId(array $data, bool $replace = false,  ? string $sequence = null)
     {
         return $this->insert($data, $replace, true, $sequence);
     }
@@ -2539,7 +2592,7 @@ class Query
      * @param  integer   $limit   每次写入数据限制
      * @return integer|string
      */
-    public function insertAll(array $dataSet = [], bool $replace = false, ? int $limit = null)
+    public function insertAll(array $dataSet = [], bool $replace = false,  ? int $limit = null)
     {
         $this->parseOptions();
 

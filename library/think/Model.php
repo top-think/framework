@@ -207,7 +207,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         // 设置当前模型 确保查询返回模型对象
         $class = $this->query;
-        $query = (new $class())->connect($this->connection)->model($this)->json($this->json);
+
+        $query = (new $class())->connect($this->connection)
+            ->model($this)
+            ->json($this->json)
+            ->setFieldType($this->type);
 
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
@@ -330,7 +334,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  string $sequence 自增序列名
      * @return integer|false
      */
-    public function save(array $data = [], $where = [], ? string $sequence = null)
+    public function save(array $data = [], $where = [],  ? string $sequence = null)
     {
         if (is_string($data)) {
             $sequence = $data;

@@ -33,6 +33,7 @@ abstract class Builder
         'parseBetweenTime' => ['BETWEEN TIME', 'NOT BETWEEN TIME'],
         'parseTime'        => ['< TIME', '> TIME', '<= TIME', '>= TIME'],
         'parseExists'      => ['NOT EXISTS', 'EXISTS'],
+        'parseColumn'      => ['COLUMN'],
     ];
 
     // SQL表达式
@@ -99,7 +100,7 @@ abstract class Builder
 
         // 获取绑定信息
         if (empty($bind)) {
-            $bind = $this->connection->getFieldsBind($options['table']);
+            $bind = $query->getFieldBindType();
         }
 
         if (empty($fields)) {
@@ -136,7 +137,7 @@ abstract class Builder
             } elseif (is_null($val)) {
                 $result[$item] = 'NULL';
             } elseif (is_array($val) && !empty($val)) {
-                switch ($val[0]) {
+                switch (strtoupper($val[0])) {
                     case 'INC':
                         $result[$item] = $item . ' + ' . floatval($val[1]);
                         break;
@@ -268,7 +269,7 @@ abstract class Builder
             // 附加软删除条件
             list($field, $condition) = $options['soft_delete'];
 
-            $binds    = $this->connection->getFieldsBind($options['table']);
+            $binds    = $query->getFieldBindType();
             $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
             $whereStr = $whereStr . $this->parseWhereItem($query, $field, $condition, '', $binds);
         }
@@ -290,7 +291,8 @@ abstract class Builder
         }
 
         $whereStr = '';
-        $binds    = $this->connection->getFieldsBind($query->getOptions('table'));
+
+        $binds = $query->getFieldBindType();
 
         foreach ($where as $logic => $val) {
             $str = [];
@@ -489,6 +491,30 @@ abstract class Builder
     {
         // 表达式查询
         return '( ' . $key . ' ' . $value->getValue() . ' )';
+    }
+
+    /**
+     * 表达式查询
+     * @access protected
+     * @param  Query        $query        查询对象
+     * @param  string       $key
+     * @param  string       $exp
+     * @param  array        $value
+     * @param  string       $field
+     * @param  string       $bindName
+     * @param  integer      $bindType
+     * @return string
+     */
+    protected function parseColumn(Query $query, $key, $exp, array $value, $field, $bindName, $bindType)
+    {
+        // 字段比较查询
+        list($op, $field2) = $value;
+
+        if (!in_array(trim($op), ['=', '<>', '>', '>=', '<', '<='])) {
+            throw new Exception('where express error:' . var_export($value, true));
+        }
+
+        return '( ' . $key . ' ' . $op . ' ' . $this->parseKey($query, $field2, true) . ' )';
     }
 
     /**
@@ -862,8 +888,7 @@ abstract class Builder
         $sort = strtoupper($sort);
         $sort = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
 
-        $options = $query->getOptions();
-        $bind    = $this->connection->getFieldsBind($options['table']);
+        $bind = $query->getFieldBindType();
 
         foreach ($val as $k => $item) {
             $val[$k] = $this->parseDataBind($query, $key, $item, $bind, $k);
@@ -1077,7 +1102,7 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $this->connection->getFieldsBind($options['table']);
+        $bind = $query->getFieldBindType();
 
         foreach ($dataSet as $k => $data) {
             $data = $this->parseData($query, $data, $allowFields, $bind, '_' . $k);
@@ -1092,7 +1117,7 @@ abstract class Builder
         $fields = [];
 
         foreach ($insertFields as $field) {
-            $fields[] = $this->parseKey($query, $field, true);
+            $fields[] = $this->parseKey($query, $field);
         }
 
         return str_replace(
@@ -1117,8 +1142,6 @@ abstract class Builder
      */
     public function selectInsert(Query $query, $fields, string $table)
     {
-        $options = $query->getOptions();
-
         if (is_string($fields)) {
             $fields = explode(',', $fields);
         }
@@ -1127,7 +1150,7 @@ abstract class Builder
             $field = $this->parseKey($query, $field, true);
         }
 
-        return 'INSERT INTO ' . $this->parseTable($query, $table, $options) . ' (' . implode(',', $fields) . ') ' . $this->select($options);
+        return 'INSERT INTO ' . $this->parseTable($query, $table) . ' (' . implode(',', $fields) . ') ' . $this->select($query);
     }
 
     /**

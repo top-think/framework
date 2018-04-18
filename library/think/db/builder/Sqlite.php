@@ -12,6 +12,7 @@
 namespace think\db\builder;
 
 use think\db\Builder;
+use think\db\Expression;
 use think\db\Query;
 
 /**
@@ -62,9 +63,16 @@ class Sqlite extends Builder
      * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, string $key, bool $strict = false)
+    public function parseKey(Query $query, $key, bool $strict = false)
     {
+        if (is_int($key)) {
+            return $key;
+        } elseif ($key instanceof Expression) {
+            return $key->getValue();
+        }
+
         $key = trim($key);
+
         if (strpos($key, '.')) {
             list($table, $key) = explode('.', $key, 2);
 

@@ -32,6 +32,7 @@ class Mysql extends Builder
         'parseBetweenTime' => ['BETWEEN TIME', 'NOT BETWEEN TIME'],
         'parseTime'        => ['< TIME', '> TIME', '<= TIME', '>= TIME'],
         'parseExists'      => ['NOT EXISTS', 'EXISTS'],
+        'parseColumn'      => ['COLUMN'],
     ];
 
     protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
@@ -71,7 +72,7 @@ class Mysql extends Builder
 
         $fields = [];
         foreach ($insertFields as $field) {
-            $fields[] = $this->parseKey($query, $field, true);
+            $fields[] = $this->parseKey($query, $field);
         }
 
         return str_replace(
@@ -105,15 +106,18 @@ class Mysql extends Builder
      * 字段和表名处理
      * @access public
      * @param  Query     $query 查询对象
-     * @param  string    $key   字段名
+     * @param  mixed     $key   字段名
      * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, string $key, bool $strict = false)
+    public function parseKey(Query $query, $key, bool $strict = false)
     {
         if (is_int($key)) {
             return $key;
+        } elseif ($key instanceof Expression) {
+            return $key->getValue();
         }
+
         $key = trim($key);
 
         if (strpos($key, '->') && false === strpos($key, '(')) {

@@ -985,12 +985,21 @@ abstract class Rule
         }
 
         // 是否区分 / 地址访问
-        if (!empty($option['remove_slash']) && '/' != $rule) {
-            $rule = rtrim($rule, '/');
+        if ('/' != $rule) {
+            if (!empty($option['remove_slash'])) {
+                $rule = rtrim($rule, '/');
+            } elseif (substr($rule, -1) == '/') {
+                $rule     = rtrim($rule, '/');
+                $hasSlash = true;
+            }
         }
 
         $regex = str_replace($match, $replace, $rule);
         $regex = str_replace([')?/', ')/', ')?-', ')-', '\\\\/'], [')\/', ')\/', ')\-', ')\-', '\/'], $regex);
+
+        if (isset($hasSlash)) {
+            $regex .= '\/';
+        }
 
         return $regex . ($completeMatch ? '$' : '');
     }
