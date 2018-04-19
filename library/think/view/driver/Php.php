@@ -77,6 +77,8 @@ class Php
 
         if (isset($data['template'])) {
             $__template__ = $template;
+            $template     = $data['template'];
+            unset($data['template'], $data['__template__']);
             extract($data, EXTR_OVERWRITE);
             include $__template__;
         } else {
@@ -96,6 +98,8 @@ class Php
     {
         if (isset($data['content'])) {
             $__content__ = $content;
+            $content     = $data['content'];
+            unset($data['content'], $data['__content__']);
             extract($data, EXTR_OVERWRITE);
             eval('?>' . $__content__);
         } else {

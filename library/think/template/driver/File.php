@@ -48,7 +48,15 @@ class File
     {
         if (!empty($vars) && is_array($vars)) {
             // 模板阵列变量分解成为独立变量
-            extract($vars, EXTR_OVERWRITE);
+            if (isset($vars['cacheFile'])) {
+                $_think_cacheFile = $cacheFile;
+                $cacheFile        = $vars['cacheFile'];
+                unset($vars['cacheFile'], $vars['_think_cacheFile']);
+                extract($vars, EXTR_OVERWRITE);
+                include $_think_cacheFile;
+                return;
+            }
+            extract($vars);
         }
 
         //载入模版缓存文件

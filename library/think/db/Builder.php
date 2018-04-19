@@ -462,7 +462,7 @@ abstract class Builder
         // 模糊匹配
         if (is_array($value)) {
             foreach ($value as $k => $item) {
-                $bindKey        = $bindName . '_' . $k;
+                $bindKey        = $bindName . '_' . intval($k);
                 $bind[$bindKey] = [$item, $bindType];
                 $array[]        = $key . ' ' . $exp . ' :' . $bindKey;
             }
