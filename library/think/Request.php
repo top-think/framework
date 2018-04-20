@@ -318,7 +318,7 @@ class Request
      * @param  string    $content
      * @return \think\Request
      */
-    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], ? string $content = null)
+    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [],  ? string $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -407,7 +407,7 @@ class Request
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function domain(? string $domain = null)
+    public function domain( ? string $domain = null)
     {
         if (!is_null($domain)) {
             $this->domain = $domain;
@@ -467,7 +467,7 @@ class Request
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function panDomain(? string $domain = null)
+    public function panDomain( ? string $domain = null)
     {
         if (is_null($domain)) {
             return $this->panDomain;
@@ -511,7 +511,7 @@ class Request
      * @param  string $url URL地址
      * @return string|$this
      */
-    public function baseUrl(? string $url = null)
+    public function baseUrl( ? string $url = null)
     {
         if (!is_null($url) && true !== $url) {
             $this->baseUrl = $url;
@@ -530,7 +530,7 @@ class Request
      * @param  string $file 当前执行的文件
      * @return string|$this
      */
-    public function baseFile(? string $file = null)
+    public function baseFile( ? string $file = null)
     {
         if (!is_null($file) && true !== $file) {
             $this->baseFile = $file;
@@ -1934,6 +1934,17 @@ class Request
     public function getCache()
     {
         return $this->cache;
+    }
+
+    /**
+     * 设置请求数据
+     * @access public
+     * @param  string    $name  参数名
+     * @param  mixed     $value 值
+     */
+    public function __set($name, $value)
+    {
+        return $this->param[$name] = $value;
     }
 
     /**
