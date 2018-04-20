@@ -869,7 +869,7 @@ abstract class Builder
     }
 
     /**
-     * group分析
+     * orderField分析
      * @access protected
      * @param  Query     $query        查询对象
      * @param  mixed     $key
@@ -942,6 +942,10 @@ abstract class Builder
      */
     protected function parseComment(Query $query, string $comment)
     {
+        if (false !== strpos($comment, '*/')) {
+            $comment = strstr($coment, '*/', true);
+        }
+
         return !empty($comment) ? ' /* ' . $comment . ' */' : '';
     }
 
