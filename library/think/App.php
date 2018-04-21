@@ -891,7 +891,7 @@ class App implements \ArrayAccess
 
     public function __unset($name)
     {
-        $this->container->__unset($name);
+        $this->container->delete($name);
     }
 
     public function offsetExists($key)
