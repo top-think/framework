@@ -313,6 +313,8 @@ class Route
     {
         if (is_null($domain)) {
             $domain = $this->domain;
+        } elseif (true === $domain) {
+            return $this->bind;
         } elseif (!strpos($domain, '.')) {
             $domain .= '.' . $this->request->rootDomain();
         }

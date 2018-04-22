@@ -134,6 +134,24 @@ class Url
                 }
             }
 
+            // 检测URL绑定
+            if (!$this->bindCheck) {
+                $bind = $this->app['route']->getBind($domain ?: null);
+
+                if ($bind && 0 === strpos($url, $bind)) {
+                    $url = substr($url, strlen($bind) + 1);
+                } else {
+                    $binds = $this->app['route']->getBind(true);
+                    foreach ($binds as $key => $val) {
+                        if (is_string($val) && 0 === strpos($url, $val) && substr_count($val, '/') > 1) {
+                            $url    = substr($url, strlen($val) + 1);
+                            $domain = $key;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (!$matchAlias) {
                 // 路由标识不存在 直接解析
                 $url = $this->parseUrl($url);
@@ -146,15 +164,6 @@ class Url
             }
         }
 
-        // 检测URL绑定
-        if (!$this->bindCheck) {
-            $bind = $this->app['route']->getBind($domain ?: null);
-
-            if ($bind && 0 === strpos($url, $bind)) {
-                $url = substr($url, strlen($bind) + 1);
-            }
-
-        }
         // 还原URL分隔符
         $depr = $this->app['config']->get('pathinfo_depr');
         $url  = str_replace('/', $depr, $url);
