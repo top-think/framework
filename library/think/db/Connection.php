@@ -1268,8 +1268,8 @@ abstract class Connection
         $options = $query->getOptions();
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
-
-            $result = $this->getCacheData($query, $options['cache'], $field, $key);
+            $cache  = $options['cache'];
+            $result = $this->getCacheData($query, $cache, $field, $key);
 
             if (false !== $result) {
                 return $result;
