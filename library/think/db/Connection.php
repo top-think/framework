@@ -90,6 +90,8 @@ abstract class Connection
         'master_num'      => 1,
         // 指定从服务器序号
         'slave_no'        => '',
+        // 模型写入后自动读取主服务器
+        'read_master'     => false,
         // 是否严格检查字段是否存在
         'fields_strict'   => true,
         // 数据返回类型
@@ -402,13 +404,14 @@ abstract class Connection
     /**
      * 执行语句
      * @access public
-     * @param string        $sql sql指令
-     * @param array         $bind 参数绑定
+     * @param  string        $sql sql指令
+     * @param  array         $bind 参数绑定
+     * @param  Query         $query 查询对象
      * @return int
      * @throws PDOException
      * @throws \Exception
      */
-    public function execute($sql, $bind = [])
+    public function execute($sql, $bind = [], Query $query = null)
     {
         $this->initConnect(true);
         if (!$this->linkID) {
@@ -446,6 +449,10 @@ abstract class Connection
             $this->PDOStatement->execute();
             // 调试结束
             $this->debug(false);
+
+            if ($query && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
+                $query->setModelReadMaster(true);
+            }
 
             $this->numRows = $this->PDOStatement->rowCount();
             return $this->numRows;
@@ -744,7 +751,7 @@ abstract class Connection
      * @param array $sqlArray SQL批处理指令
      * @return boolean
      */
-    public function batchQuery($sqlArray = [], $bind = [])
+    public function batchQuery($sqlArray = [], $bind = [], Query $query = null)
     {
         if (!is_array($sqlArray)) {
             return false;
@@ -753,7 +760,7 @@ abstract class Connection
         $this->startTrans();
         try {
             foreach ($sqlArray as $sql) {
-                $this->execute($sql, $bind);
+                $this->execute($sql, $bind, $query);
             }
             // 提交事务
             $this->commit();

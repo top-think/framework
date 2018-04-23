@@ -141,6 +141,19 @@ class Query
     }
 
     /**
+     * 设置模型从主库读取数据
+     * @access public
+     * @param  bool $master
+     * @return void
+     */
+    public function setModelReadMaster($master = true)
+    {
+        if ($this->model) {
+            $this->model->readMaster($master);
+        }
+    }
+
+    /**
      * 获取当前的builder实例对象
      * @access public
      * @return Builder
@@ -238,7 +251,7 @@ class Query
      */
     public function execute($sql, $bind = [])
     {
-        return $this->connection->execute($sql, $bind);
+        return $this->connection->execute($sql, $bind, $this);
     }
 
     /**
@@ -2204,7 +2217,7 @@ class Query
         }
 
         // 执行操作
-        $result = 0 === $sql ? 0 : $this->execute($sql, $bind);
+        $result = 0 === $sql ? 0 : $this->execute($sql, $bind, $this);
         if ($result) {
             $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             $lastInsId = $this->getLastInsID($sequence);
@@ -2270,10 +2283,10 @@ class Query
             return $this->connection->getRealSql($sql, $bind);
         } elseif (is_array($sql)) {
             // 执行操作
-            return $this->batchQuery($sql, $bind);
+            return $this->batchQuery($sql, $bind, $this);
         } else {
             // 执行操作
-            return $this->execute($sql, $bind);
+            return $this->execute($sql, $bind, $this);
         }
     }
 
@@ -2299,7 +2312,7 @@ class Query
             return $this->connection->getRealSql($sql, $bind);
         } else {
             // 执行操作
-            return $this->execute($sql, $bind);
+            return $this->execute($sql, $bind, $this);
         }
     }
 
@@ -2366,7 +2379,7 @@ class Query
                 Cache::clear($options['cache']['tag']);
             }
             // 执行操作
-            $result = '' == $sql ? 0 : $this->execute($sql, $bind);
+            $result = '' == $sql ? 0 : $this->execute($sql, $bind, $this);
             if ($result) {
                 if (is_string($pk) && isset($where[$pk])) {
                     $data[$pk] = $where[$pk];
@@ -2838,7 +2851,7 @@ class Query
             Cache::clear($options['cache']['tag']);
         }
         // 执行操作
-        $result = $this->execute($sql, $bind);
+        $result = $this->execute($sql, $bind, $this);
         if ($result) {
             if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
                 list($a, $val) = explode('|', $key);
