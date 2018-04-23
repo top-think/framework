@@ -90,6 +90,8 @@ abstract class Connection
         'master_num'      => 1,
         // 指定从服务器序号
         'slave_no'        => '',
+        // 模型自动读取主服务器
+        'read_master'     => false,
         // 是否严格检查字段是否存在
         'fields_strict'   => true,
         // 数据集返回类型
@@ -718,13 +720,14 @@ abstract class Connection
      * @access public
      * @param  string        $sql sql指令
      * @param  array         $bind 参数绑定
+     * @param  Query         $query 查询对象
      * @return int
      * @throws BindParamException
      * @throws \PDOException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function execute($sql, $bind = [])
+    public function execute($sql, $bind = [], Query $query = null)
     {
         $this->initConnect(true);
 
@@ -767,6 +770,10 @@ abstract class Connection
 
             // 调试结束
             $this->debug(false);
+
+            if ($query && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
+                $query->setModelReadMaster(true);
+            }
 
             $this->numRows = $this->PDOStatement->rowCount();
 
@@ -976,7 +983,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = $this->execute($sql, $bind);
+        $result = $this->execute($sql, $bind, $query);
 
         if ($result) {
             $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
@@ -1037,7 +1044,7 @@ abstract class Connection
                     if (!empty($options['fetch_sql'])) {
                         $fetchSql[] = $this->getRealSql($sql, $bind);
                     } else {
-                        $count += $this->execute($sql, $bind);
+                        $count += $this->execute($sql, $bind, $query);
                     }
                 }
 
@@ -1061,7 +1068,7 @@ abstract class Connection
             return $this->getRealSql($sql, $bind);
         }
 
-        return $this->execute($sql, $bind);
+        return $this->execute($sql, $bind, $query);
     }
 
     /**
@@ -1088,7 +1095,7 @@ abstract class Connection
             return $this->getRealSql($sql, $bind);
         }
 
-        return $this->execute($sql, $bind);
+        return $this->execute($sql, $bind, $query);
     }
 
     /**
@@ -1165,7 +1172,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $bind);
+        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
 
         if ($result) {
             if (is_string($pk) && isset($where[$pk])) {
@@ -1177,6 +1184,7 @@ abstract class Connection
 
             $query->setOption('data', $data);
             $query->trigger('after_update');
+            $this->setModelReadMaster();
         }
 
         return $result;
@@ -1231,7 +1239,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = $this->execute($sql, $bind);
+        $result = $this->execute($sql, $bind, $query);
 
         if ($result) {
             if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
@@ -1243,6 +1251,7 @@ abstract class Connection
             $options['data'] = $data;
 
             $query->trigger('after_delete');
+            $this->setModelReadMaster();
         }
 
         return $result;

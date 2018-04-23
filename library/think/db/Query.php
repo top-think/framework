@@ -243,6 +243,18 @@ class Query
     }
 
     /**
+     * 获取当前的模型对象
+     * @access public
+     * @return Model|null
+     */
+    public function setModelReadMaster($master = true)
+    {
+        if ($this->model) {
+            $this->model->readMaster($master);
+        }
+    }
+
+    /**
      * 指定当前数据表名（不含前缀）
      * @access public
      * @param  string $name
