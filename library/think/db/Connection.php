@@ -90,7 +90,7 @@ abstract class Connection
         'master_num'      => 1,
         // 指定从服务器序号
         'slave_no'        => '',
-        // 模型自动读取主服务器
+        // 模型写入后自动读取主服务器
         'read_master'     => false,
         // 是否严格检查字段是否存在
         'fields_strict'   => true,

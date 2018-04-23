@@ -243,9 +243,10 @@ class Query
     }
 
     /**
-     * 获取当前的模型对象
+     * 设置模型从主库读取数据
      * @access public
-     * @return Model|null
+     * @param  bool $master
+     * @return void
      */
     public function setModelReadMaster($master = true)
     {
