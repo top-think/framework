@@ -1184,7 +1184,6 @@ abstract class Connection
 
             $query->setOption('data', $data);
             $query->trigger('after_update');
-            $this->setModelReadMaster();
         }
 
         return $result;
@@ -1251,7 +1250,6 @@ abstract class Connection
             $options['data'] = $data;
 
             $query->trigger('after_delete');
-            $this->setModelReadMaster();
         }
 
         return $result;
