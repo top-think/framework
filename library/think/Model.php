@@ -118,9 +118,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     /**
      * 是否从主库读取（主从分布式有效）
-     * @var bool
+     * @var array
      */
-    protected static $readMaster = false;
+    protected static $readMaster;
 
     /**
      * 构造方法
@@ -185,7 +185,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function readMaster($master)
     {
-        static::$readMaster = $master;
+        if ($master) {
+            static::$readMaster[$this->class] = true;
+        }
     }
 
     /**
@@ -211,7 +213,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $queryClass = $this->query ?: $con->getConfig('query');
         $query      = new $queryClass($con, $this);
 
-        if (static::$readMaster) {
+        if (isset(static::$readMaster[$this->class])) {
             $query->master(true);
         }
 
