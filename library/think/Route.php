@@ -1527,6 +1527,7 @@ class Route
      * 解析URL地址为 模块/控制器/操作
      * @access private
      * @param string    $url URL地址
+     * @param bool      $convert 是否自动转换URL地址
      * @return array
      */
     private static function parseModule($url, $convert = false)
