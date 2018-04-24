@@ -32,6 +32,8 @@ class Php
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
         'auto_rule'   => 1,
     ];
+    protected $template;
+    protected $content;
 
     public function __construct($config = [])
     {
@@ -70,18 +72,12 @@ class Php
         if (!is_file($template)) {
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
+        $this->template = $template;
         // 记录视图信息
         App::$debug && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
-        if (isset($data['template'])) {
-            $__template__ = $template;
-            $template     = $data['template'];
-            unset($data['template'], $data['__template__']);
-            extract($data, EXTR_OVERWRITE);
-            include $__template__;
-        } else {
-            extract($data, EXTR_OVERWRITE);
-            include $template;
-        }
+
+        extract($data, EXTR_OVERWRITE);
+        include $template;
     }
 
     /**
@@ -93,16 +89,10 @@ class Php
      */
     public function display($content, $data = [])
     {
-        if (isset($data['content'])) {
-            $__content__ = $content;
-            $content     = $data['content'];
-            unset($data['content'], $data['__content__']);
-            extract($data, EXTR_OVERWRITE);
-            eval('?>' . $__content__);
-        } else {
-            extract($data, EXTR_OVERWRITE);
-            eval('?>' . $content);
-        }
+        $this->content = $content;
+
+        extract($data, EXTR_OVERWRITE);
+        eval('?>' . $this->content);
     }
 
     /**
