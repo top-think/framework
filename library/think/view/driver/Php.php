@@ -77,7 +77,7 @@ class Php
         App::$debug && Log::record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]', 'info');
 
         extract($data, EXTR_OVERWRITE);
-        include $template;
+        include $this->template;
     }
 
     /**
