@@ -18,12 +18,19 @@ namespace think;
  * @method \think\db\Query master() static 从主服务器读取数据
  * @method \think\db\Query table(string $table) static 指定数据表（含前缀）
  * @method \think\db\Query name(string $name) static 指定数据表（不含前缀）
+ * @method \think\db\Expression raw(string $value) static 使用表达式设置数据
  * @method \think\db\Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
+ * @method \think\db\Query whereRaw(string $where, array $bind = []) static 表达式查询
+ * @method \think\db\Query whereExp(string $field, string $condition, array $bind = []) static 字段表达式查询
+ * @method \think\db\Query when(mixed $condition, mixed $query, mixed $otherwise = null) static 条件查询
  * @method \think\db\Query join(mixed $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
  * @method \think\db\Query view(mixed $join, mixed $field = null, mixed $on = null, string $type = 'INNER') static 视图查询
+ * @method \think\db\Query field(mixed $field, boolean $except = false) static 指定查询字段
+ * @method \think\db\Query fieldRaw(string $field, array $bind = []) static 指定查询字段
  * @method \think\db\Query union(mixed $union, boolean $all = false) static UNION查询
  * @method \think\db\Query limit(mixed $offset, integer $length = null) static 查询LIMIT
  * @method \think\db\Query order(mixed $field, string $order = null) static 查询ORDER
+ * @method \think\db\Query orderRaw(string $field, array $bind = []) static 查询ORDER
  * @method \think\db\Query cache(mixed $key = null , integer $expire = null) static 设置查询缓存
  * @method mixed value(string $field) static 获取某个字段的值
  * @method array column(string $field, string $key = '') static 获取某个列的值
