@@ -380,7 +380,7 @@ abstract class Connection
             // 执行查询
             $this->PDOStatement->execute();
             // 调试结束
-            $this->debug(false);
+            $this->debug(false, '', $master);
             // 返回结果集
             return $this->getResult($pdo, $procedure);
         } catch (\PDOException $e) {
@@ -448,7 +448,7 @@ abstract class Connection
             // 执行语句
             $this->PDOStatement->execute();
             // 调试结束
-            $this->debug(false);
+            $this->debug(false, '', true);
 
             if ($query && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
                 $query->readMaster(true);
@@ -911,9 +911,10 @@ abstract class Connection
      * @access protected
      * @param boolean $start 调试开始标记 true 开始 false 结束
      * @param string  $sql 执行的SQL语句 留空自动获取
+     * @param boolean $master 主从标记
      * @return void
      */
-    protected function debug($start, $sql = '')
+    protected function debug($start, $sql = '', $master = false)
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
@@ -930,7 +931,7 @@ abstract class Connection
                     $result = $this->getExplain($sql);
                 }
                 // SQL监听
-                $this->trigger($sql, $runtime, $result);
+                $this->trigger($sql, $runtime, $result, $master);
             }
         }
     }
@@ -954,7 +955,7 @@ abstract class Connection
      * @param mixed     $explain SQL分析
      * @return bool
      */
-    protected function trigger($sql, $runtime, $explain = [])
+    protected function trigger($sql, $runtime, $explain = [], $master = false)
     {
         if (!empty(self::$event)) {
             foreach (self::$event as $callback) {
@@ -964,7 +965,14 @@ abstract class Connection
             }
         } else {
             // 未注册监听则记录到日志中
-            Log::record('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]', 'sql');
+            if ($this->config['deploy']) {
+                // 分布式记录当前操作的主从
+                $master = $master ? 'master|' : 'slave|';
+            } else {
+                $master = '';
+            }
+
+            Log::record('[ SQL ] ' . $sql . ' [ ' . $master . 'RunTime:' . $runtime . 's ]', 'sql');
             if (!empty($explain)) {
                 Log::record('[ EXPLAIN : ' . var_export($explain, true) . ' ]', 'sql');
             }
