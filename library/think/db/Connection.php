@@ -953,14 +953,15 @@ abstract class Connection
      * @param string    $sql SQL语句
      * @param float     $runtime SQL运行时间
      * @param mixed     $explain SQL分析
-     * @return bool
+     * @param  bool     $master 主从标记
+     * @return void
      */
     protected function trigger($sql, $runtime, $explain = [], $master = false)
     {
         if (!empty(self::$event)) {
             foreach (self::$event as $callback) {
                 if (is_callable($callback)) {
-                    call_user_func_array($callback, [$sql, $runtime, $explain]);
+                    call_user_func_array($callback, [$sql, $runtime, $explain, $master]);
                 }
             }
         } else {
