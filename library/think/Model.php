@@ -180,14 +180,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否从主库读取数据（主从分布有效）
      * @access public
-     * @param  bool     $master 是否从主库读取
-     * @return void
+     * @param  bool     $all 是否所有模型生效
+     * @return $this
      */
-    public function readMaster($master = true)
+    public function readMaster($all = false)
     {
-        if ($master) {
-            static::$readMaster[$this->class] = true;
-        }
+        $model = $all ? '*' : $this->class;
+
+        static::$readMaster[$model] = true;
+        return $this;
     }
 
     /**
@@ -213,7 +214,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $queryClass = $this->query ?: $con->getConfig('query');
         $query      = new $queryClass($con, $this);
 
-        if (isset(static::$readMaster[$this->class])) {
+        if (isset(static::$readMaster['*']) || isset(static::$readMaster[$this->class])) {
             $query->master(true);
         }
 
