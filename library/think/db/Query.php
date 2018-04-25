@@ -251,14 +251,14 @@ class Query
     /**
      * 设置从主库读取数据
      * @access public
-     * @param  bool $master
-     * @return void
+     * @param  bool $all 是否所有表有效
+     * @return $this
      */
-    public function readMaster($master = true)
+    public function readMaster($all = false)
     {
-        if ($master) {
-            static::$readMaster[$this->getTable()] = true;
-        }
+        $table = $all ? '*' : $this->getTable();
+
+        static::$readMaster[$table] = true;
 
         return $this;
     }
@@ -3159,7 +3159,7 @@ class Query
             }
         }
 
-        if (isset(static::$readMaster[$options['table']])) {
+        if (isset(static::$readMaster['*']) || isset(static::$readMaster[$options['table']])) {
             $options['master'] = true;
         }
 

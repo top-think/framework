@@ -194,14 +194,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否从主库读取数据（主从分布有效）
      * @access public
-     * @param  bool     $master 是否从主库读取
-     * @return void
+     * @param  bool     $all 是否所有模型有效
+     * @return $this
      */
-    public function readMaster($master = true)
+    public function readMaster($all = false)
     {
-        if ($master) {
-            static::$readMaster[static::class] = true;
-        }
+        $model = $all ? '*' : static::class;
+
+        static::$readMaster[$model] = true;
+
+        return $this;
     }
 
     /**
@@ -231,7 +233,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             ->json($this->json)
             ->setJsonFieldType($this->jsonType);
 
-        if (isset(static::$readMaster[static::class])) {
+        if (isset(static::$readMaster['*']) || isset(static::$readMaster[static::class])) {
             $query->master(true);
         }
 
