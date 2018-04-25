@@ -197,7 +197,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  bool     $master 是否从主库读取
      * @return void
      */
-    public function readMaster($master)
+    public function readMaster($master = true)
     {
         if ($master) {
             static::$readMaster[static::class] = true;

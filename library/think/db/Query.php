@@ -89,6 +89,12 @@ class Query
     private static $extend = [];
 
     /**
+     * 读取主库的表
+     * @var array
+     */
+    private static $readMaster = [];
+
+    /**
      * 日期查询表达式
      * @var array
      */
@@ -243,16 +249,18 @@ class Query
     }
 
     /**
-     * 设置模型从主库读取数据
+     * 设置从主库读取数据
      * @access public
      * @param  bool $master
      * @return void
      */
-    public function setModelReadMaster($master = true)
+    public function readMaster($master = true)
     {
-        if ($this->model) {
-            $this->model->readMaster($master);
+        if ($master) {
+            static::$readMaster[$this->getTable()] = true;
         }
+
+        return $this;
     }
 
     /**
@@ -3149,6 +3157,10 @@ class Query
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
+        }
+
+        if (isset(static::$readMaster[$options['table']])) {
+            $options['master'] = true;
         }
 
         foreach (['join', 'union', 'group', 'having', 'limit', 'force', 'comment'] as $name) {

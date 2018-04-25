@@ -772,7 +772,7 @@ abstract class Connection
             $this->debug(false);
 
             if ($query && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
-                $query->setModelReadMaster(true);
+                $query->readMaster(true);
             }
 
             $this->numRows = $this->PDOStatement->rowCount();
@@ -780,19 +780,19 @@ abstract class Connection
             return $this->numRows;
         } catch (\PDOException $e) {
             if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind);
+                return $this->close()->execute($sql, $bind, $query);
             }
 
             throw new PDOException($e, $this->config, $this->getLastsql());
         } catch (\Throwable $e) {
             if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind);
+                return $this->close()->execute($sql, $bind, $query);
             }
 
             throw $e;
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind);
+                return $this->close()->execute($sql, $bind, $query);
             }
 
             throw $e;
