@@ -616,7 +616,7 @@ abstract class Connection
         $this->PDOStatement->execute();
 
         // 调试结束
-        $this->debug(false);
+        $this->debug(false, '', $master);
 
         // 返回结果集
         while ($result = $this->PDOStatement->fetch($this->fetchType)) {
@@ -690,7 +690,7 @@ abstract class Connection
             $this->PDOStatement->execute();
 
             // 调试结束
-            $this->debug(false);
+            $this->debug(false, '', $master);
 
             // 返回结果集
             return $this->getResult($pdo, $procedure);
@@ -769,7 +769,7 @@ abstract class Connection
             $this->PDOStatement->execute();
 
             // 调试结束
-            $this->debug(false);
+            $this->debug(false, '', true);
 
             if ($query && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
                 $query->readMaster(true);
@@ -1874,9 +1874,10 @@ abstract class Connection
      * @access protected
      * @param  boolean $start 调试开始标记 true 开始 false 结束
      * @param  string  $sql 执行的SQL语句 留空自动获取
+     * @param  bool    $master 主从标记
      * @return void
      */
-    protected function debug($start, $sql = '')
+    protected function debug($start, $sql = '', $master = false)
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
@@ -1897,7 +1898,7 @@ abstract class Connection
                 }
 
                 // SQL监听
-                $this->triggerSql($sql, $runtime, $result);
+                $this->triggerSql($sql, $runtime, $result, $master);
             }
         }
     }
@@ -1919,19 +1920,27 @@ abstract class Connection
      * @param  string    $sql SQL语句
      * @param  float     $runtime SQL运行时间
      * @param  mixed     $explain SQL分析
-     * @return bool
+     * @param  bool      $master 主从标记
+     * @return void
      */
-    protected function triggerSql($sql, $runtime, $explain = [])
+    protected function triggerSql($sql, $runtime, $explain = [], $master = false)
     {
         if (!empty(self::$event)) {
             foreach (self::$event as $callback) {
                 if (is_callable($callback)) {
-                    call_user_func_array($callback, [$sql, $runtime, $explain]);
+                    call_user_func_array($callback, [$sql, $runtime, $explain, $master]);
                 }
             }
         } else {
+            if ($this->config['deploy']) {
+                // 分布式记录当前操作的主从
+                $master = $master ? 'master|' : 'slave|';
+            } else {
+                $master = '';
+            }
+
             // 未注册监听则记录到日志中
-            $this->log('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]');
+            $this->log('[ SQL ] ' . $sql . ' [ ' . $master . 'RunTime:' . $runtime . 's ]');
 
             if (!empty($explain)) {
                 $this->log('[ EXPLAIN : ' . var_export($explain, true) . ' ]');
