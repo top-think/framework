@@ -2944,7 +2944,7 @@ class Query
             }
         }
 
-        if (isset(static::$readMaster['*']) || isset(static::$readMaster[$options['table']])) {
+        if (isset(static::$readMaster['*']) || (is_string($options['table']) && isset(static::$readMaster[$options['table']]))) {
             $options['master'] = true;
         }
 
