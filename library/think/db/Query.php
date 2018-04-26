@@ -3079,7 +3079,6 @@ class Query
     public function parsePkWhere($data)
     {
         $pk = $this->getPk($this->options);
-
         // 获取当前数据表
         $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
 
@@ -3091,16 +3090,16 @@ class Query
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
             if (is_array($data)) {
-                $where[] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
+                $where[$pk] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
             } else {
-                $where[] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
+                $where[$pk] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
             }
         } elseif (is_array($pk) && is_array($data) && !empty($data)) {
             // 根据复合主键查询
             foreach ($pk as $key) {
                 if (isset($data[$key])) {
-                    $attr    = isset($alias) ? $alias . '.' . $key : $key;
-                    $where[] = [$attr, '=', $data[$key]];
+                    $attr        = isset($alias) ? $alias . '.' . $key : $key;
+                    $where[$key] = [$attr, '=', $data[$key]];
                 } else {
                     throw new Exception('miss complex primary data');
                 }
