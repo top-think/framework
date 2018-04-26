@@ -18,7 +18,7 @@ use think\route\Dispatch;
 /**
  * App 应用管理
  */
-class App implements \ArrayAccess
+class App extends Container
 {
     const VERSION = '5.2.0beta';
 
@@ -113,21 +113,14 @@ class App implements \ArrayAccess
     protected $dispatch;
 
     /**
-     * 容器对象实例
-     * @var Container
-     */
-    protected $container;
-
-    /**
      * 绑定模块（控制器）
      * @var string
      */
-    protected $bind;
+    protected $bindModule;
 
     public function __construct(string $appPath = '')
     {
-        $this->appPath   = $appPath ?: $this->getAppPath();
-        $this->container = Container::getInstance();
+        $this->appPath = $appPath ?: $this->getAppPath();
     }
 
     /**
@@ -136,9 +129,9 @@ class App implements \ArrayAccess
      * @param  string $bind
      * @return $this
      */
-    public function bind(string $bind)
+    public function bindModule(string $bind)
     {
-        $this->bind = $bind;
+        $this->bindModule = $bind;
         return $this;
     }
 
@@ -239,13 +232,14 @@ class App implements \ArrayAccess
      * 初始化应用或模块
      * @access public
      * @param  string $module 模块名
+     * @param  string $path   模块路径
      * @return void
      */
-    public function init(string $module = '')
+    public function init(string $module = '', string $path = '')
     {
         // 定位模块目录
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';
-        $path   = $this->appPath . $module;
+        $path   = $path ?: $this->appPath . $module;
 
         // 加载初始化文件
         if (is_file($path . 'init.php')) {
@@ -283,7 +277,7 @@ class App implements \ArrayAccess
             if (is_file($path . 'provider.php')) {
                 $provider = include $path . 'provider.php';
                 if (is_array($provider)) {
-                    $this->container->bind($provider);
+                    $this->bind($provider);
                 }
             }
 
@@ -302,6 +296,11 @@ class App implements \ArrayAccess
                     $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
                 }
             }
+
+            // 加载当前模块语言包
+            if ($module) {
+                $this->lang->load($path . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
+            }
         }
 
         $this->request->filter($this->config('app.default_filter'));
@@ -319,9 +318,9 @@ class App implements \ArrayAccess
             // 初始化应用
             $this->initialize();
 
-            if ($this->bind) {
+            if ($this->bindModule) {
                 // 模块/控制器绑定
-                $this->route->bind($this->bind);
+                $this->route->bind($this->bindModule);
             } elseif ($this->config('app.auto_bind_module')) {
                 // 入口自动绑定
                 $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
@@ -674,7 +673,7 @@ class App implements \ArrayAccess
             }
         }
 
-        return $this->container->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
+        return $this->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
     }
 
     /**
@@ -864,53 +863,4 @@ class App implements \ArrayAccess
         return $this->beginMem;
     }
 
-    /**
-     * 获取容器实例
-     * @access public
-     * @return Container
-     */
-    public function container()
-    {
-        return $this->container;
-    }
-
-    public function __set($name, $value)
-    {
-        $this->container->bind($name, $value);
-    }
-
-    public function __get($name)
-    {
-        return $this->container->make($name);
-    }
-
-    public function __isset($name)
-    {
-        return $this->container->bound($name);
-    }
-
-    public function __unset($name)
-    {
-        $this->container->__unset($name);
-    }
-
-    public function offsetExists($key)
-    {
-        return $this->__isset($key);
-    }
-
-    public function offsetGet($key)
-    {
-        return $this->__get($key);
-    }
-
-    public function offsetSet($key, $value)
-    {
-        $this->__set($key, $value);
-    }
-
-    public function offsetUnset($key)
-    {
-        $this->__unset($key);
-    }
 }

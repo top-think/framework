@@ -89,6 +89,12 @@ class Query
     private static $extend = [];
 
     /**
+     * 读取主库的表
+     * @var array
+     */
+    private static $readMaster = [];
+
+    /**
      * 日期查询表达式
      * @var array
      */
@@ -240,6 +246,21 @@ class Query
     public function getModel()
     {
         return $this->model ? $this->model->setQuery($this) : null;
+    }
+
+    /**
+     * 设置从主库读取数据
+     * @access public
+     * @param  bool $all 是否所有表有效
+     * @return $this
+     */
+    public function readMaster($all = false)
+    {
+        $table = $all ? '*' : $this->getTable();
+
+        static::$readMaster[$table] = true;
+
+        return $this;
     }
 
     /**
@@ -1557,7 +1578,7 @@ class Query
         } elseif (in_array(strtoupper($op), ['REGEXP', 'NOT REGEXP', 'EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
             $where = [$field, $op, is_string($condition) ? $this->raw($condition) : $condition];
         } else {
-            $where = $field ? [$field, $op, $condition] : null;
+            $where = $field ? [$field, $op, $condition, isset($param[2]) ? $param[2] : null] : null;
         }
 
         return $where;
@@ -3092,16 +3113,16 @@ class Query
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
             if (is_array($data)) {
-                $where[$pk] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
+                $where[] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
             } else {
-                $where[$pk] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
+                $where[] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
             }
         } elseif (is_array($pk) && is_array($data) && !empty($data)) {
             // 根据复合主键查询
             foreach ($pk as $key) {
                 if (isset($data[$key])) {
-                    $attr        = isset($alias) ? $alias . '.' . $key : $key;
-                    $where[$key] = [$attr, '=', $data[$key]];
+                    $attr    = isset($alias) ? $alias . '.' . $key : $key;
+                    $where[] = [$attr, '=', $data[$key]];
                 } else {
                     throw new Exception('miss complex primary data');
                 }
@@ -3158,6 +3179,10 @@ class Query
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
+        }
+
+        if (isset(static::$readMaster['*']) || (is_string($options['table']) && isset(static::$readMaster[$options['table']]))) {
+            $options['master'] = true;
         }
 
         foreach (['join', 'union', 'group', 'having', 'limit', 'force', 'comment'] as $name) {

@@ -90,6 +90,8 @@ abstract class Connection
         'master_num'      => 1,
         // 指定从服务器序号
         'slave_no'        => '',
+        // 模型写入后自动读取主服务器
+        'read_master'     => false,
         // 是否严格检查字段是否存在
         'fields_strict'   => true,
         // 数据集返回类型
@@ -688,7 +690,7 @@ abstract class Connection
             $this->PDOStatement->execute();
 
             // 调试结束
-            $this->debug(false);
+            $this->debug(false, '', $master);
 
             // 返回结果集
             return $this->getResult($pdo, $procedure);
@@ -712,13 +714,14 @@ abstract class Connection
      * @access public
      * @param  string        $sql sql指令
      * @param  array         $bind 参数绑定
+     * @param  Query         $query 查询对象
      * @return int
      * @throws BindParamException
      * @throws \PDOException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function execute(string $sql, array $bind = [])
+    public function execute(string $sql, array $bind = [], Query $query)
     {
         $this->initConnect(true);
 
@@ -760,20 +763,24 @@ abstract class Connection
             $this->PDOStatement->execute();
 
             // 调试结束
-            $this->debug(false);
+            $this->debug(false, '', true);
+
+            if ($query && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
+                $query->readMaster();
+            }
 
             $this->numRows = $this->PDOStatement->rowCount();
 
             return $this->numRows;
         } catch (\PDOException $e) {
             if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind);
+                return $this->close()->execute($sql, $bind, $query);
             }
 
             throw new PDOException($e, $this->config, $this->getLastsql());
         } catch (\Throwable | \Exception $e) {
             if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind);
+                return $this->close()->execute($sql, $bind, $query);
             }
 
             throw $e;
@@ -1847,9 +1854,10 @@ abstract class Connection
      * @access protected
      * @param  boolean $start 调试开始标记 true 开始 false 结束
      * @param  string  $sql 执行的SQL语句 留空自动获取
+     * @param  bool    $master 主从标记
      * @return void
      */
-    protected function debug(bool $start, string $sql = '')
+    protected function debug(bool $start, string $sql = '', bool $master = false)
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
@@ -1870,7 +1878,7 @@ abstract class Connection
                 }
 
                 // SQL监听
-                $this->triggerSql($sql, $runtime, $result);
+                $this->triggerSql($sql, $runtime, $result, $master);
             }
         }
     }
@@ -1892,19 +1900,27 @@ abstract class Connection
      * @param  string    $sql SQL语句
      * @param  float     $runtime SQL运行时间
      * @param  mixed     $explain SQL分析
-     * @return bool
+     * @param  bool      $master 主从标记
+     * @return void
      */
-    protected function triggerSql(string $sql, float $runtime, array $explain = [])
+    protected function triggerSql(string $sql, float $runtime, array $explain = [], bool $master = false)
     {
         if (!empty(self::$event)) {
             foreach (self::$event as $callback) {
                 if (is_callable($callback)) {
-                    call_user_func_array($callback, [$sql, $runtime, $explain]);
+                    call_user_func_array($callback, [$sql, $runtime, $explain, $master]);
                 }
             }
         } else {
+            if ($this->config['deploy']) {
+                // 分布式记录当前操作的主从
+                $master = $master ? 'master|' : 'slave|';
+            } else {
+                $master = '';
+            }
+
             // 未注册监听则记录到日志中
-            $this->log('[ SQL ] ' . $sql . ' [ RunTime:' . $runtime . 's ]');
+            $this->log('[ SQL ] ' . $sql . ' [ ' . $master . 'RunTime:' . $runtime . 's ]');
 
             if (!empty($explain)) {
                 $this->log('[ EXPLAIN : ' . var_export($explain, true) . ' ]');

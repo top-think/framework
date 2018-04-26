@@ -17,6 +17,18 @@ use think\Model;
 class Collection extends BaseCollection
 {
     /**
+     * 返回数组中指定的一列
+     * @access public
+     * @param  string        $column_key
+     * @param  string|null   $index_key
+     * @return array
+     */
+    public function column($column_key, $index_key = null)
+    {
+        return array_column($this->toArray(), $column_key, $index_key);
+    }
+
+    /**
      * 延迟预载入关联查询
      * @access public
      * @param  mixed $relation 关联
@@ -37,10 +49,9 @@ class Collection extends BaseCollection
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function hidden(array $hidden = [], bool $override = false)
+    public function hidden(array $hidden, bool $override = false)
     {
-        $this->each(function ($model) use ($hidden, $override) {
-            /** @var Model $model */
+        $this->each(function (Model $model) use ($hidden, $override) {
             $model->hidden($hidden, $override);
         });
 
@@ -54,10 +65,9 @@ class Collection extends BaseCollection
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function visible(array $visible = [], bool $override = false)
+    public function visible(array $visible, bool $override = false)
     {
-        $this->each(function ($model) use ($visible, $override) {
-            /** @var Model $model */
+        $this->each(function (Model $model) use ($visible, $override) {
             $model->visible($visible, $override);
         });
 
@@ -71,10 +81,9 @@ class Collection extends BaseCollection
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function append(array $append = [], bool $override = false)
+    public function append(array $append, bool $override = false)
     {
-        $this->each(function ($model) use ($append, $override) {
-            /** @var Model $model */
+        $this->each(function (Model $model) use ($append, $override) {
             $model && $model->append($append, $override);
         });
 

@@ -66,9 +66,6 @@ class Module extends Dispatch
                 $this->app['request']->module($module);
                 $this->app->init($module);
 
-                // 加载当前模块语言包
-                $this->app['lang']->load($this->app->getAppPath() . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->app['request']->langset() . '.php');
-
                 // 模块请求缓存检查
                 $this->app['request']->cache(
                     $this->app->config('app.request_cache'),
