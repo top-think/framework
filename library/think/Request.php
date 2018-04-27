@@ -409,16 +409,19 @@ class Request
      */
     public function domain($domain = null)
     {
-        if (true === $domain) {
-            $this->domain = $this->scheme() . '://' . $this->host(true);
-        } elseif (!is_null($domain)) {
-            $this->domain = $domain;
-            return $this;
-        } elseif (!$this->domain) {
-            $this->domain = $this->scheme() . '://' . $this->host();
+        if (is_null($domain)) {
+            if (!$this->domain) {
+                $this->domain = $this->scheme() . '://' . $this->host();
+            }
+            return $this->domain;
         }
 
-        return $this->domain;
+        if (true === $domain) {
+            return $this->scheme() . '://' . $this->host(true);
+        }
+
+        $this->domain = $domain;
+        return $this;
     }
 
     /**
