@@ -64,7 +64,7 @@ class Sqlite extends Builder
      */
     public function parseKey(Query $query, $key, $strict = false)
     {
-        if (is_int($key)) {
+        if (is_numeric($key)) {
             return $key;
         } elseif ($key instanceof Expression) {
             return $key->getValue();

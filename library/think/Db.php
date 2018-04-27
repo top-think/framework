@@ -16,6 +16,7 @@ namespace think;
  * @package think
  * @method \think\db\Query connect(array $config =[], mixed $name = false) static 连接/切换数据库连接
  * @method \think\db\Query master() static 从主服务器读取数据
+ * @method \think\db\Query readMaster(bool $all = false) static 后续从主服务器读取数据
  * @method \think\db\Query table(string $table) static 指定数据表（含前缀）
  * @method \think\db\Query name(string $name) static 指定数据表（不含前缀）
  * @method \think\db\Expression raw(string $value) static 使用表达式设置数据
