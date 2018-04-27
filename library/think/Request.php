@@ -1353,7 +1353,7 @@ class Request
             $host = $this->server('HTTP_HOST');
         }
 
-        return true === $strict ? strstr($host, ':', true) : $host;
+        return true === $strict && strpos($host, ':') ? strstr($host, ':', true) : $host;
     }
 
     /**
