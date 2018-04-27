@@ -1265,7 +1265,7 @@ abstract class Connection
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             $cache  = $options['cache'];
-            $result = $this->getCacheData($query, $cache, $field, $key);
+            $result = $this->getCacheData($query, $cache, null, $key);
 
             if (false !== $result) {
                 return $result;
