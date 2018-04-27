@@ -239,7 +239,7 @@ class Url
         $rootDomain = Config::get('url_domain_root');
         if (true === $domain) {
             // 自动判断域名
-            $domain = Config::get('app_host') ?: $request->host();
+            $domain = Config::get('app_host') ?: $request->host(true);
 
             $domains = Route::rules('domain');
             if ($domains) {

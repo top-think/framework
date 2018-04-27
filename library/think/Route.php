@@ -737,7 +737,7 @@ class Route
         $rules = self::$rules['domain'];
         // 开启子域名部署 支持二级和三级域名
         if (!empty($rules)) {
-            $host = $request->host();
+            $host = $request->host(true);
             if (isset($rules[$host])) {
                 // 完整域名或者IP配置
                 $item = $rules[$host];
