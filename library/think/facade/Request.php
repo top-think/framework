@@ -66,7 +66,7 @@ use think\Facade;
  * @method bool isMobile() static 检测是否使用手机访问
  * @method string scheme() static 当前URL地址中的scheme参数
  * @method string query() static 当前请求URL地址中的query参数
- * @method string host() static 当前请求的host
+ * @method string host(bool $stric = false) static 当前请求的host
  * @method string port() static 当前请求URL地址中的port参数
  * @method string protocol() static 当前请求 SERVER_PROTOCOL
  * @method string remotePort() static 当前请求 REMOTE_PORT

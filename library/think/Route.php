@@ -122,7 +122,7 @@ class Route
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->host    = $this->request->host();
+        $this->host    = $this->request->host(true);
 
         $this->setDefaultDomain();
     }

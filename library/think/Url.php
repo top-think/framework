@@ -105,7 +105,7 @@ class Url
             $url = $match[0];
 
             if (!empty($match[1])) {
-                $host = $this->app['config']->get('app_host') ?: $this->app['request']->host();
+                $host = $this->app['config']->get('app_host') ?: $this->app['request']->host(true);
                 if ($domain || $match[1] != $host) {
                     $domain = $match[1];
                 }
@@ -264,9 +264,8 @@ class Url
 
         $rootDomain = $this->app['request']->rootDomain();
         if (true === $domain) {
-
             // 自动判断域名
-            $domain = $this->app['config']->get('app_host') ?: $this->app['request']->host();
+            $domain = $this->app['config']->get('app_host') ?: $this->app['request']->host(true);
 
             $domains = $this->app['route']->getDomains();
 

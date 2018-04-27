@@ -900,7 +900,7 @@ abstract class Rule
         }
 
         // 域名检查
-        if ((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $request->subDomain()]))) {
+        if ((isset($option['domain']) && !in_array($option['domain'], [$request->host(true), $request->subDomain()]))) {
             return false;
         }
 
