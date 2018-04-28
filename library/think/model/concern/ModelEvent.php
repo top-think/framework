@@ -25,6 +25,12 @@ trait ModelEvent
     private static $event = [];
 
     /**
+     * 是否需要事件响应
+     * @var bool
+     */
+    private $withEvent = true;
+
+    /**
      * 注册回调方法
      * @access public
      * @param  string   $event    事件名
@@ -44,6 +50,18 @@ trait ModelEvent
     }
 
     /**
+     * 当前操作的事件响应
+     * @access protected
+     * @param  bool $event  是否需要事件响应
+     * @return $this
+     */
+    public function withEvent($event)
+    {
+        $this->withEvent = $event;
+        return $this;
+    }
+
+    /**
      * 触发事件
      * @access protected
      * @param  string $event  事件名
@@ -53,7 +71,7 @@ trait ModelEvent
     {
         $class = static::class;
 
-        if (isset(self::$event[$class][$event])) {
+        if ($this->withEvent && isset(self::$event[$class][$event])) {
             foreach (self::$event[$class][$event] as $callback) {
                 $result = Container::getInstance()->invoke($callback, [$this]);
 
