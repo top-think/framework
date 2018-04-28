@@ -56,7 +56,7 @@ use think\Facade;
  * @method mixed header(mixed $name = '', mixed $default = null) static 设置或者获取当前的Header
  * @method mixed input(array $data,mixed $name = '', mixed $default = null, mixed $filter = '') static 获取变量 支持过滤和默认值
  * @method mixed filter(mixed $filter = null) static 设置或获取当前的过滤规则
- * @method mixed has(string $name, string $type = 'param', bool $checkEmpty = false) static 是否存在某个请求参数
+ * @method mixed has(mixed $name, string $type = 'param', bool $checkEmpty = false) static 是否存在某个请求参数
  * @method mixed only(mixed $name, string $type = 'param') static 获取指定的参数
  * @method mixed except(mixed $name, string $type = 'param') static 排除指定参数获取
  * @method bool isSsl() static 当前是否ssl
