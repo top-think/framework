@@ -12,6 +12,7 @@
 namespace think\model\concern;
 
 use think\Container;
+use think\Loader;
 
 /**
  * 模型事件处理
@@ -23,6 +24,18 @@ trait ModelEvent
      * @var array
      */
     private static $event = [];
+
+    /**
+     * 模型事件观察
+     * @var array
+     */
+    protected static $observe = ['before_write', 'after_write', 'before_insert', 'after_insert', 'before_update', 'after_update', 'before_delete', 'after_delete', 'before_restore', 'after_restore'];
+
+    /**
+     * 绑定模型事件观察者类
+     * @var array
+     */
+    protected $observerClass;
 
     /**
      * 是否需要事件响应
@@ -47,6 +60,33 @@ trait ModelEvent
         }
 
         self::$event[$class][$event][] = $callback;
+    }
+
+    /**
+     * 清除回调方法
+     * @access public
+     * @return void
+     */
+    public static function flushEvent()
+    {
+        self::$event[static::class] = [];
+    }
+
+    /**
+     * 注册一个模型观察者
+     *
+     * @param  object|string  $class
+     * @return void
+     */
+    public static function observe($class)
+    {
+        foreach (static::$observe as $event) {
+            $eventFuncName = Loader::parseName($event, 1, false);
+
+            if (method_exists($class, $eventFuncName)) {
+                static::event($event, [$class, $eventFuncName]);
+            }
+        }
     }
 
     /**

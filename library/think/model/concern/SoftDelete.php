@@ -161,11 +161,20 @@ trait SoftDelete
         }
 
         if ($name) {
+            if (false === $this->trigger('before_restore')) {
+                return false;
+            }
+
             // 恢复删除
-            return $this->db(false)
+            $result = $this->db(false)
                 ->where($where)
                 ->useSoftDelete($name, $this->getWithTrashedExp())
                 ->update([$name => $this->defaultSoftDelete]);
+
+            $this->trigger('after_restore');
+
+            return $result;
+
         }
 
         return 0;
