@@ -212,4 +212,25 @@ trait ModelEvent
         self::event('after_delete', $callback, $override);
     }
 
+    /**
+     * 模型before_restore事件快捷方法
+     * @access protected
+     * @param callable  $callback
+     * @param bool      $override
+     */
+    protected static function beforeRestore($callback, $override = false)
+    {
+        self::event('before_restore', $callback, $override);
+    }
+
+    /**
+     * 模型after_restore事件快捷方法
+     * @access protected
+     * @param callable  $callback
+     * @param bool      $override
+     */
+    protected static function afterRestore($callback, $override = false)
+    {
+        self::event('after_restore', $callback, $override);
+    }
 }
