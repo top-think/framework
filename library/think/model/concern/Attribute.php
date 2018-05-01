@@ -203,7 +203,7 @@ trait Attribute
      * @param  string $name 字段名 留空获取全部
      * @return mixed
      */
-    public function getOrigin( ? string $name = null)
+    public function getOrigin(? string $name = null)
     {
         if (is_null($name)) {
             return $this->origin;
@@ -219,7 +219,7 @@ trait Attribute
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function getData( ? string $name = null)
+    public function getData(? string $name = null)
     {
         if (is_null($name)) {
             return $this->data;
@@ -323,8 +323,8 @@ trait Attribute
             }
 
             switch ($type) {
-                case 'datetime' :
-                case 'date' :
+                case 'datetime':
+                case 'date':
                     $format = !empty($param) ? $param : $this->dateFormat;
                     $value  = $this->formatDateTime(time(), $format);
                     break;
