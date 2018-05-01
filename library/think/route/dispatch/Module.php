@@ -40,9 +40,9 @@ class Module extends Dispatch
             $result = explode('/', $result);
         }
 
-        if ($this->app->config('app.app_multi_module')) {
+        if ($this->app['config']->get('app.app_multi_module')) {
             // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $this->app->config('app.default_module')));
+            $module    = strip_tags(strtolower($result[0] ?: $this->app['config']->get('app.default_module')));
             $bind      = $this->app['route']->getBind();
             $available = false;
 
@@ -53,10 +53,10 @@ class Module extends Dispatch
                     $module = $bindModule;
                 }
                 $available = true;
-            } elseif (!in_array($module, $this->app->config('app.deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
+            } elseif (!in_array($module, $this->app['config']->get('app.deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
                 $available = true;
-            } elseif ($this->app->config('app.empty_module')) {
-                $module    = $this->app->config('app.empty_module');
+            } elseif ($this->app['config']->get('app.empty_module')) {
+                $module    = $this->app['config']->get('app.empty_module');
                 $available = true;
             }
 
@@ -68,9 +68,9 @@ class Module extends Dispatch
 
                 // 模块请求缓存检查
                 $this->app['request']->cache(
-                    $this->app->config('app.request_cache'),
-                    $this->app->config('app.request_cache_expire'),
-                    $this->app->config('app.request_cache_except')
+                    $this->app['config']->get('app.request_cache'),
+                    $this->app['config']->get('app.request_cache_expire'),
+                    $this->app['config']->get('app.request_cache_except')
                 );
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
@@ -85,13 +85,13 @@ class Module extends Dispatch
         $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : ''));
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($this->convert) ? $this->convert : $this->app->config('app.url_convert');
+        $convert = is_bool($this->convert) ? $this->convert : $this->app['config']->get('app.url_convert');
         // 获取控制器名
-        $controller       = strip_tags($result[1] ?: $this->app->config('app.default_controller'));
+        $controller       = strip_tags($result[1] ?: $this->app['config']->get('app.default_controller'));
         $this->controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
-        $this->actionName = strip_tags($result[2] ?: $this->app->config('app.default_action'));
+        $this->actionName = strip_tags($result[2] ?: $this->app['config']->get('app.default_action'));
 
         // 设置当前请求的控制器、操作
         $this->app['request']->controller(Loader::parseName($this->controller, 1))->action($this->actionName);
@@ -106,15 +106,15 @@ class Module extends Dispatch
         // 实例化控制器
         try {
             $instance = $this->app->controller($this->controller,
-                $this->app->config('app.url_controller_layer'),
-                $this->app->config('app.controller_suffix'),
-                $this->app->config('app.empty_controller'));
+                $this->app['config']->get('app.url_controller_layer'),
+                $this->app['config']->get('app.controller_suffix'),
+                $this->app['config']->get('app.empty_controller'));
         } catch (ClassNotFoundException $e) {
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
 
         // 获取当前操作名
-        $action = $this->actionName . $this->app->config('app.action_suffix');
+        $action = $this->actionName . $this->app['config']->get('app.action_suffix');
 
         if (is_callable([$instance, $action])) {
             // 执行操作方法
@@ -123,12 +123,12 @@ class Module extends Dispatch
             // 严格获取当前操作方法名
             $reflect    = new ReflectionMethod($instance, $action);
             $methodName = $reflect->getName();
-            $suffix     = $this->app->config('app.action_suffix');
+            $suffix     = $this->app['config']->get('app.action_suffix');
             $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
             $this->app['request']->action($actionName);
 
             // 自动获取请求变量
-            $vars = $this->app->config('app.url_param_type')
+            $vars = $this->app['config']->get('app.url_param_type')
             ? $this->app['request']->route()
             : $this->app['request']->param();
         } elseif (is_callable([$instance, '_empty'])) {

@@ -194,13 +194,13 @@ class Build
         $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
 
         if (!$layer) {
-            $layer = $this->app->config('app.url_controller_layer');
+            $layer = $this->app['config']->get('app.url_controller_layer');
         }
 
         foreach ($modules as $module) {
             $module = basename($module);
 
-            if (in_array($module, $this->app->config('app.deny_module_list'))) {
+            if (in_array($module, $this->app['config']->get('app.deny_module_list'))) {
                 continue;
             }
 
@@ -338,7 +338,7 @@ class Build
             $comment = $this->parseRouteComment($comment);
             $action  = $reflectMethod->getName();
 
-            if ($suffix = $this->app->config('app.action_suffix')) {
+            if ($suffix = $this->app['config']->get('app.action_suffix')) {
                 $action = substr($action, 0, -strlen($suffix));
             }
 

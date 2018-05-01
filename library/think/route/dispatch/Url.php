@@ -55,7 +55,7 @@ class Url extends Dispatch
         }
 
         // 解析模块
-        $module = $this->app->config('app_multi_module') ? array_shift($path) : null;
+        $module = $this->app['config']->get('app_multi_module') ? array_shift($path) : null;
         if ($this->param['auto_search']) {
             $controller = $this->autoFindController($module, $path);
         } else {
@@ -103,7 +103,7 @@ class Url extends Dispatch
      * @param  string    $bind   绑定信息
      * @return bool
      */
-    protected function hasDefinedRoute(array $route, ? string $bind = null)
+    protected function hasDefinedRoute(array $route,  ? string $bind = null)
     {
         list($module, $controller, $action) = $route;
 
@@ -138,8 +138,8 @@ class Url extends Dispatch
      */
     protected function autoFindController(string $module, array &$path)
     {
-        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->app->config('url_controller_layer');
-        $suffix = $this->app->getSuffix() || $this->app->config('controller_suffix') ? ucfirst($this->app->config('url_controller_layer')) : '';
+        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->app['config']->get('url_controller_layer');
+        $suffix = $this->app->getSuffix() || $this->app['config']->get('controller_suffix') ? ucfirst($this->app['config']->get('url_controller_layer')) : '';
 
         $item = [];
         $find = false;

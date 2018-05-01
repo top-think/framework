@@ -22,8 +22,8 @@ class Controller extends Dispatch
 
         return $this->app->action(
             $this->dispatch, $vars,
-            $this->app->config('app.url_controller_layer'),
-            $this->app->config('app.controller_suffix')
+            $this->app['config']->get('app.url_controller_layer'),
+            $this->app['config']->get('app.controller_suffix')
         );
     }
 
