@@ -84,6 +84,7 @@ trait ModelEvent
             $eventFuncName = Loader::parseName($event, 1, false);
 
             if (method_exists($class, $eventFuncName)) {
+                $class = is_string($class) ? new $class : $class;
                 static::event($event, [$class, $eventFuncName]);
             }
         }

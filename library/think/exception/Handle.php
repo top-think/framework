@@ -56,7 +56,7 @@ class Handle
                 $log = "[{$data['code']}]{$data['message']}";
             }
 
-            if (Container::get('app')->config('log.record_trace')) {
+            if (Container::get('config')->get('log.record_trace')) {
                 $log .= "\r\n" . $exception->getTraceAsString();
             }
 
@@ -121,7 +121,7 @@ class Handle
     protected function renderHttpException(HttpException $e)
     {
         $status   = $e->getStatusCode();
-        $template = Container::get('app')->config('http_exception_template');
+        $template = Container::get('config')->get('http_exception_template');
 
         if (!Container::get('app')->isDebug() && !empty($template[$status])) {
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
@@ -167,9 +167,9 @@ class Handle
                 'message' => $this->getMessage($exception),
             ];
 
-            if (!Container::get('app')->config('show_error_msg')) {
+            if (!Container::get('config')->get('show_error_msg')) {
                 // 不显示详细错误信息
-                $data['message'] = Container::get('app')->config('error_message');
+                $data['message'] = Container::get('config')->get('error_message');
             }
         }
 
@@ -182,7 +182,7 @@ class Handle
 
         ob_start();
         extract($data);
-        include Container::get('app')->config('exception_tmpl');
+        include Container::get('config')->get('exception_tmpl');
 
         // 获取并清空缓存
         $content  = ob_get_clean();

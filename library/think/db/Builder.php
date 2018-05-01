@@ -183,11 +183,11 @@ abstract class Builder
      * 字段名分析
      * @access public
      * @param  Query  $query    查询对象
-     * @param  string $key      字段名
+     * @param  mixed  $key      字段名
      * @param  bool   $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, string $key, bool $strict = false)
+    public function parseKey(Query $query, $key, bool $strict = false)
     {
         return $key;
     }

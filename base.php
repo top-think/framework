@@ -28,31 +28,6 @@ if (interface_exists('Psr\Log\LoggerInterface')) {
     {}
 }
 
-// 注册核心类到容器
-Container::getInstance()->bind([
-    'app'                   => App::class,
-    'build'                 => Build::class,
-    'cache'                 => Cache::class,
-    'config'                => Config::class,
-    'cookie'                => Cookie::class,
-    'debug'                 => Debug::class,
-    'env'                   => Env::class,
-    'hook'                  => Hook::class,
-    'lang'                  => Lang::class,
-    'log'                   => Log::class,
-    'middleware'            => Middleware::class,
-    'request'               => Request::class,
-    'response'              => Response::class,
-    'route'                 => Route::class,
-    'session'               => Session::class,
-    'url'                   => Url::class,
-    'validate'              => Validate::class,
-    'view'                  => View::class,
-    'rule_name'             => route\RuleName::class,
-    // 接口依赖注入
-    'think\LoggerInterface' => Log::class,
-]);
-
 // 注册核心类的静态代理
 Facade::bind([
     facade\App::class        => App::class,
@@ -97,9 +72,6 @@ Loader::addClassAlias([
     'Validate' => facade\Validate::class,
     'View'     => facade\View::class,
 ]);
-
-// 加载惯例配置文件
-facade\Config::set(include __DIR__ . '/convention.php');
 
 // 加载composer autofile文件
 Loader::loadComposerAutoloadFiles();

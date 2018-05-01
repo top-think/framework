@@ -60,6 +60,17 @@ class Container implements \ArrayAccess
     }
 
     /**
+     * 获取当前容器的实例（单例）
+     * @access public
+     * @param  object        $instance
+     * @return static
+     */
+    public static function setInstance($instance)
+    {
+        static::$instance = $instance;
+    }
+
+    /**
      * 获取容器中的对象实例
      * @access public
      * @param  string        $abstract       类名或者标识

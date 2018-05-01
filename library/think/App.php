@@ -121,6 +121,14 @@ class App extends Container
     public function __construct(string $appPath = '')
     {
         $this->appPath = $appPath ?: $this->getAppPath();
+
+        static::setInstance($this);
+
+        $this->registerCoreContainer();
+
+        $this->instance('app', $this);
+
+        $this->instance(Container::class, $this);
     }
 
     /**
@@ -148,6 +156,39 @@ class App extends Container
     }
 
     /**
+     * 注册核心容器实例
+     * @access public
+     * @return void
+     */
+    public function registerCoreContainer()
+    {
+        // 注册核心类到容器
+        $this->bind([
+            'app'                   => App::class,
+            'build'                 => Build::class,
+            'cache'                 => Cache::class,
+            'config'                => Config::class,
+            'cookie'                => Cookie::class,
+            'debug'                 => Debug::class,
+            'env'                   => Env::class,
+            'hook'                  => Hook::class,
+            'lang'                  => Lang::class,
+            'log'                   => Log::class,
+            'middleware'            => Middleware::class,
+            'request'               => Request::class,
+            'response'              => Response::class,
+            'route'                 => Route::class,
+            'session'               => Session::class,
+            'url'                   => Url::class,
+            'validate'              => Validate::class,
+            'view'                  => View::class,
+            'rule_name'             => route\RuleName::class,
+            // 接口依赖注入
+            'think\LoggerInterface' => Log::class,
+        ]);
+    }
+
+    /**
      * 初始化应用
      * @access public
      * @return void
@@ -161,6 +202,9 @@ class App extends Container
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
         $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
         $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+
+        // 加载惯例配置文件
+        $this->config->set(include $this->thinkPath . 'convention.php');
 
         // 设置路径环境变量
         $this->env->set([
