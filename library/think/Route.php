@@ -294,7 +294,7 @@ class Route
      * @param  string     $domain 域名
      * @return $this
      */
-    public function bind(string $bind,  ? string $domain = null)
+    public function bind(string $bind, ? string $domain = null)
     {
         $domain = is_null($domain) ? $this->domain : $domain;
 
@@ -309,7 +309,7 @@ class Route
      * @param  string    $domain 域名
      * @return string|null
      */
-    public function getBind( ? string $domain = null)
+    public function getBind(? string $domain = null)
     {
         if (is_null($domain)) {
             $domain = $this->domain;
@@ -565,7 +565,7 @@ class Route
      * @param  string    $name 路由别名
      * @return string|array|null
      */
-    public function getAlias( ? string $name = null)
+    public function getAlias(? string $name = null)
     {
         if (is_null($name)) {
             return $this->alias;
