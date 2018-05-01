@@ -830,9 +830,9 @@ abstract class Rule
 
         $request->action(array_pop($route));
         $app = Container::get('app');
-        $request->controller($route ? array_pop($route) : $app->config('default_controller'));
-        $request->module($route ? array_pop($route) : $app->config('default_module'));
-        $app->setModulePath($app->getAppPath() . ($app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
+        $request->controller($route ? array_pop($route) : $app['config']->get('default_controller'));
+        $request->module($route ? array_pop($route) : $app['config']->get('default_module'));
+        $app->setModulePath($app->getAppPath() . ($app['config']->get('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
 
         return $result;
     }
@@ -900,7 +900,7 @@ abstract class Rule
         }
 
         // 域名检查
-        if ((isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], $request->subDomain()]))) {
+        if ((isset($option['domain']) && !in_array($option['domain'], [$request->host(true), $request->subDomain()]))) {
             return false;
         }
 
