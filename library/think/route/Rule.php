@@ -388,6 +388,17 @@ abstract class Rule
     }
 
     /**
+     * 检查是否为手机访问
+     * @access public
+     * @param  bool     $mobile
+     * @return $this
+     */
+    public function mobile($mobile = true)
+    {
+        return $this->option('mobile', $mobile);
+    }
+
+    /**
      * 当前路由到一个模板地址 当使用数组的时候可以传入模板变量
      * @access public
      * @param  bool|array     $view
@@ -884,7 +895,7 @@ abstract class Rule
         }
 
         // AJAX PJAX 请求检查
-        foreach (['ajax', 'pjax'] as $item) {
+        foreach (['ajax', 'pjax', 'mobile'] as $item) {
             if (isset($option[$item])) {
                 $call = 'is' . $item;
                 if ($option[$item] && !$request->$call() || !$option[$item] && $request->$call()) {
