@@ -1606,7 +1606,7 @@ class Query
         if (key($field) !== 0) {
             $where = [];
             foreach ($field as $key => $val) {
-                $where[] = is_null($val) ? [$key, 'NULL', ''] : [$key, '=', $val];
+                $where[] = is_null($val) ? [$key, 'NULL', ''] : [$key, is_array($val) ? 'IN' : '=', $val];
             }
         } else {
             // 数组批量查询
