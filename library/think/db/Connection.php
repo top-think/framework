@@ -1619,6 +1619,59 @@ abstract class Connection
     }
 
     /**
+     * 启动XA事务
+     * @access public
+     * @param  string $xid XA事务id
+     * @return void
+     */
+    public function startTransX($xid)
+    {
+        $this->initConnect(true);
+        if (!$this->linkID) {
+            return false;
+        }
+
+        $this->execute("XA START '$xid'");
+    }
+
+    /**
+     * 预编译XA事务
+     * @access public
+     * @param  string $xid XA事务id
+     * @return void
+     */
+    public function prepareX($xid)
+    {
+        $this->initConnect(true);
+        $this->execute("XA END '$xid'");
+        $this->execute("XA PREPARE '$xid'");
+    }
+
+    /**
+     * 提交XA事务
+     * @access public
+     * @param  string $xid XA事务id
+     * @return void
+     */
+    public function commitX($xid)
+    {
+        $this->initConnect(true);
+        $this->execute("XA COMMIT '$xid'");
+    }
+
+    /**
+     * 回滚XA事务
+     * @access public
+     * @param  string $xid XA事务id
+     * @return void
+     */
+    public function rollbackX($xid)
+    {
+        $this->initConnect(true);
+        $this->execute("XA ROLLBACK '$xid'");
+    }
+
+    /**
      * 启动事务
      * @access public
      * @return void
