@@ -411,6 +411,10 @@ class Query
     {
         $xid = uniqid('xa');
 
+        if (empty($dbs)) {
+            $dbs[] = $this->getConnection();
+        }
+
         foreach ($dbs as $key => $db) {
             if ($db instanceof Query) {
                 $db = $db->getConnection();
