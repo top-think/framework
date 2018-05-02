@@ -801,12 +801,9 @@ abstract class Connection
         // 分析查询表达式
         $options = $query->getOptions();
         $pk      = $query->getPk($options);
+        $data    = $options['data'];
 
-        if (!empty($options['cache']) && true === $options['cache']['key'] && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($query, $options['where']['AND'][$pk]);
-        }
-
-        $data = $options['data'];
+        $query->setOption('limit', 1);
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
@@ -836,7 +833,6 @@ abstract class Connection
         }
 
         $query->setOption('data', $data);
-        $query->setOption('limit', 1);
 
         // 生成查询SQL
         $sql = $this->builder->select($query);
@@ -1257,7 +1253,7 @@ abstract class Connection
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             $cache  = $options['cache'];
-            $result = $this->getCacheData($query, $cache, $field, $key);
+            $result = $this->getCacheData($query, $cache, null, $key);
 
             if (false !== $result) {
                 return $result;
