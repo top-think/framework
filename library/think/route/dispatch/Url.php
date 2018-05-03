@@ -103,7 +103,7 @@ class Url extends Dispatch
      * @param  string    $bind   绑定信息
      * @return bool
      */
-    protected function hasDefinedRoute(array $route,  ? string $bind = null)
+    protected function hasDefinedRoute(array $route, ? string $bind = null)
     {
         list($module, $controller, $action) = $route;
 
