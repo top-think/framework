@@ -280,6 +280,10 @@ class Container
 
             return $reflect->invokeArgs(isset($class) ? $class : null, $args);
         } catch (ReflectionException $e) {
+            if (is_array($method) && is_object($method[0])) {
+                $method[0] = get_class($method[0]);
+            }
+
             throw new Exception('method not exists: ' . (is_array($method) ? $method[0] . '::' . $method[1] : $method) . '()');
         }
     }
