@@ -44,23 +44,31 @@ class Redis implements SessionHandlerInterface
      */
     public function open($savePath, $sessName)
     {
-        // 检测php环境
-        if (!extension_loaded('redis')) {
-            throw new Exception('not support:redis');
-        }
+        if (extension_loaded('redis')) {
+            $this->handler = new \Redis;
 
-        $this->handler = new \Redis;
+            // 建立连接
+            $func = $this->config['persistent'] ? 'pconnect' : 'connect';
+            $this->handler->$func($this->config['host'], $this->config['port'], $this->config['timeout']);
 
-        // 建立连接
-        $func = $this->config['persistent'] ? 'pconnect' : 'connect';
-        $this->handler->$func($this->config['host'], $this->config['port'], $this->config['timeout']);
+            if ('' != $this->config['password']) {
+                $this->handler->auth($this->config['password']);
+            }
 
-        if ('' != $this->config['password']) {
-            $this->handler->auth($this->config['password']);
-        }
-
-        if (0 != $this->config['select']) {
-            $this->handler->select($this->config['select']);
+            if (0 != $this->config['select']) {
+                $this->handler->select($this->config['select']);
+            }
+        } elseif (class_exists('\Predis\Client')) {
+            $params = [];
+            foreach ($this->config as $key => $val) {
+                if (in_array($key, ['aggregate', 'cluster', 'connections', 'exceptions', 'prefix', 'profile', 'replication'])) {
+                    $params[$key] = $val;
+                    unset($this->config[$key]);
+                }
+            }
+            $this->handler = new \Predis\Client($this->config, $params);
+        } else {
+            throw new \BadFunctionCallException('not support: redis');
         }
 
         return true;

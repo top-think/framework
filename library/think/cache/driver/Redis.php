@@ -41,28 +41,37 @@ class Redis extends Driver
      */
     public function __construct($options = [])
     {
-        if (!extension_loaded('redis')) {
-            throw new \BadFunctionCallException('not support: redis');
-        }
-
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
 
-        $this->handler = new \Redis;
+        if (extension_loaded('redis')) {
+            $this->handler = new \Redis;
 
-        if ($this->options['persistent']) {
-            $this->handler->pconnect($this->options['host'], $this->options['port'], $this->options['timeout'], 'persistent_id_' . $this->options['select']);
+            if ($this->options['persistent']) {
+                $this->handler->pconnect($this->options['host'], $this->options['port'], $this->options['timeout'], 'persistent_id_' . $this->options['select']);
+            } else {
+                $this->handler->connect($this->options['host'], $this->options['port'], $this->options['timeout']);
+            }
+
+            if ('' != $this->options['password']) {
+                $this->handler->auth($this->options['password']);
+            }
+
+            if (0 != $this->options['select']) {
+                $this->handler->select($this->options['select']);
+            }
+        } elseif (class_exists('\Predis\Client')) {
+            $params = [];
+            foreach ($this->options as $key => $val) {
+                if (in_array($key, ['aggregate', 'cluster', 'connections', 'exceptions', 'prefix', 'profile', 'replication'])) {
+                    $params[$key] = $val;
+                    unset($this->options[$key]);
+                }
+            }
+            $this->handler = new \Predis\Client($this->options, $params);
         } else {
-            $this->handler->connect($this->options['host'], $this->options['port'], $this->options['timeout']);
-        }
-
-        if ('' != $this->options['password']) {
-            $this->handler->auth($this->options['password']);
-        }
-
-        if (0 != $this->options['select']) {
-            $this->handler->select($this->options['select']);
+            throw new \BadFunctionCallException('not support: redis');
         }
     }
 
