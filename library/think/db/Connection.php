@@ -979,7 +979,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = $this->execute($sql, $bind, $query);
+        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
 
         if ($result) {
             $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
