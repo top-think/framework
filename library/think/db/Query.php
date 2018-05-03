@@ -407,7 +407,7 @@ class Query
      * @throws \Exception
      * @throws \Throwable
      */
-    public function transactionX($callback, array $dbs = [])
+    public function transactionXa($callback, array $dbs = [])
     {
         $xid = uniqid('xa');
 
@@ -422,7 +422,7 @@ class Query
                 $dbs[$key] = $db;
             }
 
-            $db->startTransX($xid);
+            $db->startTransXa($xid);
         }
 
         try {
@@ -432,22 +432,22 @@ class Query
             }
 
             foreach ($dbs as $db) {
-                $db->prepareX($xid);
+                $db->prepareXa($xid);
             }
 
             foreach ($dbs as $db) {
-                $db->commitX($xid);
+                $db->commitXa($xid);
             }
 
             return $result;
         } catch (\Exception $e) {
             foreach ($dbs as $db) {
-                $db->rollbackX($xid);
+                $db->rollbackXa($xid);
             }
             throw $e;
         } catch (\Throwable $e) {
             foreach ($dbs as $db) {
-                $db->rollbackX($xid);
+                $db->rollbackXa($xid);
             }
             throw $e;
         }

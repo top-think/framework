@@ -1624,15 +1624,8 @@ abstract class Connection
      * @param  string $xid XA事务id
      * @return void
      */
-    public function startTransX($xid)
-    {
-        $this->initConnect(true);
-        if (!$this->linkID) {
-            return false;
-        }
-
-        $this->execute("XA START '$xid'");
-    }
+    public function startTransXa($xid)
+    {}
 
     /**
      * 预编译XA事务
@@ -1640,12 +1633,8 @@ abstract class Connection
      * @param  string $xid XA事务id
      * @return void
      */
-    public function prepareX($xid)
-    {
-        $this->initConnect(true);
-        $this->execute("XA END '$xid'");
-        $this->execute("XA PREPARE '$xid'");
-    }
+    public function prepareXa($xid)
+    {}
 
     /**
      * 提交XA事务
@@ -1653,11 +1642,8 @@ abstract class Connection
      * @param  string $xid XA事务id
      * @return void
      */
-    public function commitX($xid)
-    {
-        $this->initConnect(true);
-        $this->execute("XA COMMIT '$xid'");
-    }
+    public function commitXa($xid)
+    {}
 
     /**
      * 回滚XA事务
@@ -1665,11 +1651,8 @@ abstract class Connection
      * @param  string $xid XA事务id
      * @return void
      */
-    public function rollbackX($xid)
-    {
-        $this->initConnect(true);
-        $this->execute("XA ROLLBACK '$xid'");
-    }
+    public function rollbackXa($xid)
+    {}
 
     /**
      * 启动事务
