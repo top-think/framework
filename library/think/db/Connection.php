@@ -967,7 +967,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = $this->execute($sql, $bind);
+        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
 
         if ($result) {
             $sequence  = $sequence ?: ($options['sequence'] ?? null);
@@ -1028,7 +1028,7 @@ abstract class Connection
                     if (!empty($options['fetch_sql'])) {
                         $fetchSql[] = $this->getRealSql($sql, $bind);
                     } else {
-                        $count += $this->execute($sql, $bind);
+                        $count += $this->execute($sql, $bind, $query);
                     }
                 }
 
@@ -1052,7 +1052,7 @@ abstract class Connection
             return $this->getRealSql($sql, $bind);
         }
 
-        return $this->execute($sql, $bind);
+        return $this->execute($sql, $bind, $query);
     }
 
     /**
@@ -1079,7 +1079,7 @@ abstract class Connection
             return $this->getRealSql($sql, $bind);
         }
 
-        return $this->execute($sql, $bind);
+        return $this->execute($sql, $bind, $query);
     }
 
     /**
@@ -1156,7 +1156,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $bind);
+        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
 
         if ($result) {
             if (is_string($pk) && isset($where[$pk])) {
@@ -1222,7 +1222,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = $this->execute($sql, $bind);
+        $result = $this->execute($sql, $bind, $query);
 
         if ($result) {
             if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
