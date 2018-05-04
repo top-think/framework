@@ -78,14 +78,7 @@ class Module extends Dispatch
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
             }
-        } else {
-            // 单一模块部署
-            $module = '';
-            $this->app['request']->module($module);
         }
-
-        // 当前模块路径
-        $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : ''));
 
         // 是否自动转换控制器和操作名
         $convert = is_bool($this->convert) ? $this->convert : $this->app->config('app.url_convert');

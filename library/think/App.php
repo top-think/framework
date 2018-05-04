@@ -304,6 +304,8 @@ class App implements \ArrayAccess
             }
         }
 
+        $this->setModulePath($path);
+
         $this->request->filter($this->config('app.default_filter'));
     }
 
