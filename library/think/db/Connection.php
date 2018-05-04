@@ -1141,8 +1141,12 @@ abstract class Connection
                 $options['where']['AND'] = $where;
                 $query->setOption('where', ['AND' => $where]);
             }
-        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($query, $options['where']['AND'][$pk]);
+        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'])) {
+            foreach ($options['where']['AND'] as $val) {
+                if (is_array($val) && $val[0] == $pk) {
+                    $key = $this->getCacheKey($query, $val);
+                }
+            }
         }
 
         // 更新数据
@@ -1204,8 +1208,12 @@ abstract class Connection
             $key = $options['cache']['key'];
         } elseif (!is_null($data) && true !== $data && !is_array($data)) {
             $key = $this->getCacheKey($query, $data);
-        } elseif (is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($query, $options['where']['AND'][$pk]);
+        } elseif (is_string($pk) && isset($options['where']['AND'])) {
+            foreach ($options['where']['AND'] as $val) {
+                if (is_array($val) && $val[0] == $pk) {
+                    $key = $this->getCacheKey($query, $val);
+                }
+            }
         }
 
         if (true !== $data && empty($options['where'])) {
