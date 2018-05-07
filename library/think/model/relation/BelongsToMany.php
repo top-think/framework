@@ -71,6 +71,19 @@ class BelongsToMany extends Relation
     }
 
     /**
+     * 获取中间表更新条件
+     * @param $data
+     * @return array
+     */
+    protected function getUpdateWhere($data)
+    {
+        return [
+            $this->localKey   => $data[$this->localKey],
+            $this->foreignKey => $data[$this->foreignKey]
+        ];
+    }
+
+    /**
      * 实例化中间表模型
      * @param $data
      * @return Pivot
@@ -104,7 +117,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $model->setRelation('pivot', $this->newPivot($pivot));
+            $model->setRelation('pivot', $this->newPivot($pivot)->isUpdate(true, $this->getUpdateWhere($pivot)));
         }
     }
 
@@ -370,7 +383,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $set->setRelation('pivot', $this->newPivot($pivot));
+            $set->setRelation('pivot', $this->newPivot($pivot)->isUpdate(true, $this->getUpdateWhere($pivot)));
             $data[$pivot[$this->localKey]][] = $set;
         }
         return $data;
@@ -473,7 +486,7 @@ class BelongsToMany extends Relation
             foreach ($ids as $id) {
                 $pivot[$this->foreignKey] = $id;
                 $this->pivot->insert($pivot, true);
-                $result[] = $this->newPivot($pivot);
+                $result[] = $this->newPivot($pivot)->isUpdate(true, $this->getUpdateWhere($pivot));
             }
             if (count($result) == 1) {
                 // 返回中间表模型对象
