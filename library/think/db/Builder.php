@@ -269,9 +269,7 @@ abstract class Builder
             foreach ($val as $field => $value) {
                 if ($value instanceof Expression) {
                     $str[] = ' ' . $key . ' ( ' . $field . ' ' . $value->getValue() . ' )';
-                    continue;
-                }
-                if ($value instanceof \Closure) {
+                } elseif ($value instanceof \Closure) {
                     // 使用闭包查询
                     $query = new Query($this->connection);
                     call_user_func_array($value, [ & $query]);
