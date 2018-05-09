@@ -74,7 +74,7 @@ trait SoftDelete
      * @param  bool  $force 是否强制删除
      * @return integer
      */
-    public function delete(bool $force = false)
+    public function delete(bool $force = false): int
     {
         if (false === $this->trigger('before_delete', $this)) {
             return false;

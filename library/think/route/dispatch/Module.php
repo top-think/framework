@@ -42,9 +42,10 @@ class Module extends Dispatch
 
         if ($this->app['config']->get('app.app_multi_module')) {
             // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $this->app['config']->get('app.default_module')));
-            $bind      = $this->app['route']->getBind();
-            $available = false;
+            $module     = strip_tags(strtolower($result[0] ?: $this->app['config']->get('app.default_module')));
+            $bind       = $this->app['route']->getBind();
+            $available  = false;
+            $modulePath = '';
 
             if ($bind && preg_match('/^[a-z]/is', $bind)) {
                 // 绑定模块
@@ -53,6 +54,9 @@ class Module extends Dispatch
                     $module = $bindModule;
                 }
                 $available = true;
+            } elseif (isset($this->app['config']->get('allow_module_list')[$module])) {
+                $modulePath = $this->app['config']->get('allow_module_list')[$module];
+                $available  = true;
             } elseif (!in_array($module, $this->app['config']->get('app.deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
                 $available = true;
             } elseif ($this->app['config']->get('app.empty_module')) {
@@ -64,7 +68,7 @@ class Module extends Dispatch
             if ($module && $available) {
                 // 初始化模块
                 $this->app['request']->module($module);
-                $this->app->init($module);
+                $this->app->init($module, $modulePath);
 
                 // 模块请求缓存检查
                 $this->app['request']->cache(
@@ -75,14 +79,7 @@ class Module extends Dispatch
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
             }
-        } else {
-            // 单一模块部署
-            $module = '';
-            $this->app['request']->module($module);
         }
-
-        // 当前模块路径
-        $this->app->setModulePath($this->app->getAppPath() . ($module ? $module . DIRECTORY_SEPARATOR : ''));
 
         // 是否自动转换控制器和操作名
         $convert = is_bool($this->convert) ? $this->convert : $this->app['config']->get('app.url_convert');

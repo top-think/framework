@@ -283,7 +283,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function log(string $level, $message, array $context = [])
+    public function log($level, $message, array $context = [])
     {
         $this->record($message, $level, $context);
     }

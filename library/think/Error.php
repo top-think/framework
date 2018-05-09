@@ -81,7 +81,7 @@ class Error
         }
 
         // 写入日志
-        Container::get('log')->save();
+        Container::get('think\Log')->save();
     }
 
     /**
@@ -108,7 +108,7 @@ class Error
 
         if (!$handle) {
             // 异常处理handle
-            $class = Container::get('config')->get('exception_handle');
+            $class = Container::get('think\Config')->get('exception_handle');
             if ($class && is_string($class) && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
                 $handle = new $class;
             } else {

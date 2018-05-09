@@ -347,6 +347,9 @@ class App extends Container
             }
         }
 
+        // 设置模块路径
+        $this->setModulePath($path);
+
         $this->request->filter($this->config('app.default_filter'));
     }
 

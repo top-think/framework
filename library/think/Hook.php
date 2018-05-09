@@ -203,7 +203,7 @@ class Hook
         if ($app->isDebug()) {
             $debug = $app['debug'];
             $debug->remark('behavior_end', 'time');
-            $app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
+            $app['log']->info('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
 
         return $result;
