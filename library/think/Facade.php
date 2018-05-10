@@ -59,11 +59,15 @@ class Facade
     {
         $class = $class ?: static::class;
 
-        if (isset(self::$bind[$class])) {
+        $facadeClass = static::getFacadeClass();
+
+        if ($facadeClass) {
+            $class = $facadeClass;
+        } elseif (isset(self::$bind[$class])) {
             $class = self::$bind[$class];
         }
 
-        $abstract = static::getFacadeClass() ?: $class;
+        $abstract = static::getFacadeInstance() ?: $class;
 
         if (static::$alwaysNewInstance) {
             $newInstance = true;
@@ -84,6 +88,14 @@ class Facade
      * @return string
      */
     protected static function getFacadeClass()
+    {}
+
+    /**
+     * 获取当前Facade对应的对象实例（闭包）
+     * @access protected
+     * @return void|\Closure
+     */
+    protected static function getFacadeInstance()
     {}
 
     /**

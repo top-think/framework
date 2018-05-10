@@ -137,9 +137,7 @@ class Container
     public function instance($abstract, $instance)
     {
         if ($instance instanceof \Closure) {
-            if (!isset($this->bind[$abstract])) {
-                $this->bind[$abstract] = $instance;
-            }
+            $this->bind[$abstract] = $instance;
         } else {
             if (isset($this->bind[$abstract])) {
                 $abstract = $this->bind[$abstract];
