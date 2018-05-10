@@ -75,7 +75,7 @@ class Facade
         if ($abstract instanceof \Closure) {
             return Container::getInstance()
                 ->instance($class, $abstract)
-                ->make($class, [], $newInstance);
+                ->make($class, $args, $newInstance);
         }
 
         return Container::getInstance()->make($abstract, $args, $newInstance);
