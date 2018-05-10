@@ -147,11 +147,15 @@ class Container implements \ArrayAccess
      */
     public function instance(string $abstract, $instance)
     {
-        if (isset($this->bind[$abstract])) {
-            $abstract = $this->bind[$abstract];
-        }
+        if ($instance instanceof \Closure) {
+            $this->bind[$abstract] = $instance;
+        } else {
+            if (isset($this->bind[$abstract])) {
+                $abstract = $this->bind[$abstract];
+            }
 
-        $this->instances[$abstract] = $instance;
+            $this->instances[$abstract] = $instance;
+        }
 
         return $this;
     }

@@ -57,7 +57,8 @@ class Facade
      */
     protected static function createFacade(string $class = '', array $args = [], bool $newInstance = false)
     {
-        $class       = $class ?: static::class;
+        $class = $class ?: static::class;
+
         $facadeClass = static::getFacadeClass();
 
         if ($facadeClass) {
@@ -66,11 +67,19 @@ class Facade
             $class = self::$bind[$class];
         }
 
+        $abstract = static::getFacadeInstance() ?: $class;
+
         if (static::$alwaysNewInstance) {
             $newInstance = true;
         }
 
-        return Container::getInstance()->make($class, $args, $newInstance);
+        if ($abstract instanceof \Closure) {
+            return Container::getInstance()
+                ->instance($class, $abstract)
+                ->make($class, $args, $newInstance);
+        }
+
+        return Container::getInstance()->make($abstract, $args, $newInstance);
     }
 
     /**
@@ -79,6 +88,14 @@ class Facade
      * @return string
      */
     protected static function getFacadeClass()
+    {}
+
+    /**
+     * 获取当前Facade对应的对象实例（闭包）
+     * @access protected
+     * @return void|\Closure
+     */
+    protected static function getFacadeInstance()
     {}
 
     /**
