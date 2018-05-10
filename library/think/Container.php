@@ -130,17 +130,23 @@ class Container
     /**
      * 绑定一个类实例当容器
      * @access public
-     * @param  string    $abstract    类名或者标识
-     * @param  object    $instance    类的实例
+     * @param  string           $abstract    类名或者标识
+     * @param  object|\Closure  $instance    类的实例
      * @return $this
      */
     public function instance($abstract, $instance)
     {
-        if (isset($this->bind[$abstract])) {
-            $abstract = $this->bind[$abstract];
-        }
+        if ($instance instanceof \Closure) {
+            if (!isset($this->bind[$abstract])) {
+                $this->bind[$abstract] = $instance;
+            }
+        } else {
+            if (isset($this->bind[$abstract])) {
+                $abstract = $this->bind[$abstract];
+            }
 
-        $this->instances[$abstract] = $instance;
+            $this->instances[$abstract] = $instance;
+        }
 
         return $this;
     }

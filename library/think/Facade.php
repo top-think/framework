@@ -61,16 +61,24 @@ class Facade
         $facadeClass = static::getFacadeClass();
 
         if ($facadeClass) {
-            $class = $facadeClass;
+            $abstract = $facadeClass;
         } elseif (isset(self::$bind[$class])) {
-            $class = self::$bind[$class];
+            $abstract = self::$bind[$class];
+        } else {
+            $abstract = $class;
         }
 
         if (static::$alwaysNewInstance) {
             $newInstance = true;
         }
 
-        return Container::getInstance()->make($class, $args, $newInstance);
+        if ($abstract instanceof \Closure) {
+            return Container::getInstance()
+                ->instance($class, $abstract)
+                ->make($class, [], $newInstance);
+        }
+
+        return Container::getInstance()->make($abstract, $args, $newInstance);
     }
 
     /**
