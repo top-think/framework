@@ -37,29 +37,7 @@ class Container implements \ArrayAccess
      * 容器绑定标识
      * @var array
      */
-    protected $bind = [
-        'app'                   => App::class,
-        'build'                 => Build::class,
-        'cache'                 => Cache::class,
-        'config'                => Config::class,
-        'cookie'                => Cookie::class,
-        'debug'                 => Debug::class,
-        'env'                   => Env::class,
-        'hook'                  => Hook::class,
-        'lang'                  => Lang::class,
-        'log'                   => Log::class,
-        'middleware'            => Middleware::class,
-        'request'               => Request::class,
-        'response'              => Response::class,
-        'route'                 => Route::class,
-        'session'               => Session::class,
-        'url'                   => Url::class,
-        'validate'              => Validate::class,
-        'view'                  => View::class,
-        'rule_name'             => route\RuleName::class,
-        // 接口依赖注入
-        'think\LoggerInterface' => Log::class,
-    ];
+    protected $bind = [];
 
     /**
      * 容器标识别名
@@ -82,10 +60,10 @@ class Container implements \ArrayAccess
     }
 
     /**
-     * 获取当前容器的实例（单例）
+     * 设置当前容器的实例
      * @access public
      * @param  object        $instance
-     * @return static
+     * @return void
      */
     public static function setInstance($instance)
     {

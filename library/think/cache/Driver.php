@@ -16,7 +16,7 @@ use think\Container;
 /**
  * 缓存基础类
  */
-abstract class Driver implements CacheInterface
+abstract class Driver extends SimpleCache
 {
     /**
      * 驱动句柄
@@ -53,103 +53,6 @@ abstract class Driver implements CacheInterface
      * @var array
      */
     protected static $serialize = ['serialize', 'unserialize', 'think_serialize:', 16];
-
-    /**
-     * 判断缓存是否存在
-     * @access public
-     * @param  string $name 缓存变量名
-     * @return bool
-     */
-    abstract public function has(string $name);
-
-    /**
-     * 读取缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @param  mixed  $default 默认值
-     * @return mixed
-     */
-    abstract public function get(string $name, $default = false);
-
-    /**
-     * 读取缓存
-     * @access public
-     * @param  iterable $keys 缓存变量名
-     * @param  mixed  $default 默认值
-     * @return iterable
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    public function getMultiple($keys, $default = null)
-    {
-        $result = [];
-
-        foreach ($keys as $key) {
-            $result[$key] = $this->get($key, $default);
-        }
-
-        return $result;
-    }
-
-    /**
-     * 写入缓存
-     * @access public
-     * @param  string    $name 缓存变量名
-     * @param  mixed     $value  存储数据
-     * @param  int       $expire  有效时间 0为永久
-     * @return bool
-     */
-    abstract public function set(string $name, $value, $expire = null);
-
-    /**
-     * 写入缓存
-     * @access public
-     * @param  iterable                 $values 缓存数据
-     * @param  null|int|\DateInterval   $ttl    有效时间 0为永久
-     * @return bool
-     */
-    public function setMultiple($values, $ttl = null)
-    {
-        foreach ($values as $key => $val) {
-            $result = $this->set($key, $val, $ttl);
-
-            if (false === $result) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * 删除缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @return boolean
-     */
-    public function delete($key)
-    {
-        return $this->rm($key);
-    }
-
-    /**
-     * 删除缓存
-     * @access public
-     * @param iterable $keys 缓存变量名
-     * @return bool
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    public function deleteMultiple($keys)
-    {
-        foreach ($kyes as $key) {
-            $result = $this->delete($key);
-
-            if (false === $result) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     /**
      * 自增缓存（针对数值缓存）

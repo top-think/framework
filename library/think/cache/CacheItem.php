@@ -11,6 +11,8 @@
 
 namespace think\cache;
 
+use think\exception\InvalidArgumentException;
+
 if (interface_exists('Psr\Cache\CacheItemInterface')) {
     interface CacheItemInterface extends \Psr\Cache\CacheItemInterface
     {}
@@ -18,6 +20,7 @@ if (interface_exists('Psr\Cache\CacheItemInterface')) {
     interface CacheItemInterface
     {}
 }
+
 class CacheItem implements CacheItemInterface
 {
     /**
@@ -87,7 +90,7 @@ class CacheItem implements CacheItemInterface
      * @access public
      * @return $this
      */
-    public function set($value): bool
+    public function set($value)
     {
         $this->value = $value;
         $this->isHit = true;
@@ -116,6 +119,7 @@ class CacheItem implements CacheItemInterface
      * @access public
      * @param int|\DateInterval $time
      * @return $this
+     * @throws InvalidArgumentException
      */
     public function expiresAfter($time = null)
     {
