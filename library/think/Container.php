@@ -256,7 +256,7 @@ class Container
 
             $args = $this->bindParams($reflect, $vars);
 
-            return $reflect->invokeArgs($args);
+            return call_user_func_array($function, $args);
         } catch (ReflectionException $e) {
             throw new Exception('function not exists: ' . $function . '()');
         }
