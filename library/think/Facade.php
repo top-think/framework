@@ -67,19 +67,11 @@ class Facade
             $class = self::$bind[$class];
         }
 
-        $abstract = static::getFacadeInstance() ?: $class;
-
         if (static::$alwaysNewInstance) {
             $newInstance = true;
         }
 
-        if ($abstract instanceof \Closure) {
-            return Container::getInstance()
-                ->instance($class, $abstract)
-                ->make($class, $args, $newInstance);
-        }
-
-        return Container::getInstance()->make($abstract, $args, $newInstance);
+        return Container::getInstance()->make($class, $args, $newInstance);
     }
 
     /**

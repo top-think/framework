@@ -335,11 +335,21 @@ class Container
         try {
             $reflect = new ReflectionClass($class);
 
+            if ($reflect->hasMethod('__make')) {
+                $method = new ReflectionMethod($class, '__make');
+
+                if ($method->isPublic() && $method->isStatic()) {
+                    $args = $this->bindParams($method, $vars);
+                    return $method->invokeArgs(null, $args);
+                }
+            }
+
             $constructor = $reflect->getConstructor();
 
             $args = $constructor ? $this->bindParams($constructor, $vars) : [];
 
             return $reflect->newInstanceArgs($args);
+
         } catch (ReflectionException $e) {
             throw new ClassNotFoundException('class not exists: ' . $class, $class);
         }
