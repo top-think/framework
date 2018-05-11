@@ -13,6 +13,14 @@ namespace think;
 
 use think\cache\Driver;
 
+/**
+ * Class Cache
+ *
+ * @package think
+ *
+ * @mixin Driver
+ * @mixin \think\cache\driver\File
+ */
 class Cache
 {
     /**
