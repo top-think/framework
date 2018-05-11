@@ -83,14 +83,6 @@ class Facade
     {}
 
     /**
-     * 获取当前Facade对应的对象实例（闭包）
-     * @access protected
-     * @return void|\Closure
-     */
-    protected static function getFacadeInstance()
-    {}
-
-    /**
      * 带参数实例化当前Facade类
      * @access public
      * @return object
