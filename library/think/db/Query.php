@@ -619,13 +619,7 @@ class Query
     {
         $this->parseOptions();
 
-        $result = $this->connection->value($this, $field, $default);
-
-        if (!empty($this->options['fetch_sql'])) {
-            return $result;
-        }
-
-        return $result;
+        return $this->connection->value($this, $field, $default);
     }
 
     /**
