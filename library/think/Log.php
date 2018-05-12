@@ -11,10 +11,10 @@
 
 namespace think;
 
-use think\exception\ClassNotFoundException;
-
 class Log implements LoggerInterface
 {
+    use Factory;
+
     const EMERGENCY = 'emergency';
     const ALERT     = 'alert';
     const CRITICAL  = 'critical';
@@ -74,21 +74,17 @@ class Log implements LoggerInterface
      */
     public function init($config = [])
     {
-        $type  = isset($config['type']) ? $config['type'] : 'File';
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
+        $type = isset($config['type']) ? $config['type'] : 'File';
 
         $this->config = $config;
 
         unset($config['type']);
+
         if (!empty($config['close'])) {
             $this->allowWrite = false;
         }
 
-        if (class_exists($class)) {
-            $this->driver = new $class($config);
-        } else {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
-        }
+        $this->driver = self::instanceFactory($type, $config, '\\think\\log\\driver\\');
 
         // 记录初始化信息
         $this->app->isDebug() && $this->record('[ LOG ] INIT ' . $type);

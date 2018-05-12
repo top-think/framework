@@ -20,9 +20,11 @@ use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
+use think\Factory;
 
 abstract class Connection
 {
+    use Factory;
     protected static $instance = [];
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
@@ -189,7 +191,6 @@ abstract class Connection
                 throw new InvalidArgumentException('Undefined db type');
             }
 
-            $class = false !== strpos($options['type'], '\\') ? $options['type'] : '\\think\\db\\connector\\' . ucwords($options['type']);
             // 记录初始化信息
             Container::get('app')->log('[ DB ] INIT ' . $options['type']);
 
@@ -197,7 +198,7 @@ abstract class Connection
                 $name = md5(serialize($config));
             }
 
-            self::$instance[$name] = new $class($options);
+            self::$instance[$name] = self::instanceFactory($options['type'], $options, '\\think\\db\\connector\\');
         }
 
         return self::$instance[$name];

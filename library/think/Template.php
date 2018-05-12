@@ -20,6 +20,8 @@ use think\exception\TemplateNotFoundException;
  */
 class Template
 {
+    use Factory;
+
     /**
      * 模板变量
      * @var array
@@ -97,10 +99,9 @@ class Template
         $this->config['tpl_end']      = preg_quote($this->config['tpl_end'], '/');
 
         // 初始化模板编译存储器
-        $type  = $this->config['compile_type'] ? $this->config['compile_type'] : 'File';
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\template\\driver\\' . ucwords($type);
+        $type = $this->config['compile_type'] ? $this->config['compile_type'] : 'File';
 
-        $this->storage = new $class();
+        $this->storage = self::instanceFactory($type, null, '\\think\\template\\driver\\');
     }
 
     /**

@@ -11,12 +11,13 @@
 
 namespace think;
 
-use think\exception\ClassNotFoundException;
 use think\model\Collection as ModelCollection;
 use think\response\Redirect;
 
 class Debug
 {
+    use Factory;
+
     /**
      * 区间时间信息
      * @var array
@@ -221,7 +222,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         }
         return $output;
@@ -231,14 +232,10 @@ class Debug
     {
         $config = $this->app['config']->pull('trace');
         $type   = isset($config['type']) ? $config['type'] : 'Html';
-        $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
+
         unset($config['type']);
 
-        if (class_exists($class)) {
-            $trace = new $class($config);
-        } else {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
-        }
+        $trace = self::instanceFactory($type, $config, '\\think\\debug\\');
 
         if ($response instanceof Redirect) {
             //TODO 记录

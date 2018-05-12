@@ -13,6 +13,8 @@ namespace think;
 
 class Config implements \ArrayAccess
 {
+    use Factory;
+
     /**
      * 配置参数
      * @var array
@@ -50,9 +52,9 @@ class Config implements \ArrayAccess
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
 
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\config\\driver\\' . ucwords($type);
+        $object = self::instanceFactory($type, $config, '\\think\\config\\driver\\');
 
-        return $this->set((new $class())->parse($config), $name);
+        return $this->set($object->parse(), $name);
     }
 
     /**

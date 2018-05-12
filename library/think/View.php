@@ -13,6 +13,8 @@ namespace think;
 
 class View
 {
+    use Factory;
+
     /**
      * 模板引擎实例
      * @var object
@@ -102,13 +104,11 @@ class View
             $type = !empty($options['type']) ? $options['type'] : 'Think';
         }
 
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\view\\driver\\' . ucfirst($type);
-
         if (isset($options['type'])) {
             unset($options['type']);
         }
 
-        $this->engine = new $class($options);
+        $this->engine = self::instanceFactory($type, $options, '\\think\\view\\driver\\');
 
         return $this;
     }
