@@ -383,7 +383,7 @@ class Container
                 if ($value instanceof $className) {
                     $args[] = $value;
                 } else {
-                    array_unshift($vars, $option);
+                    array_unshift($vars, $value);
                     $args[] = $this->make($className);
                 }
             } elseif (1 == $type && !empty($vars)) {

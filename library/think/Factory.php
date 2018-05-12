@@ -21,7 +21,7 @@ trait Factory
      * @param  string $name         工厂类名
      * @param  mixed  $option       实例化参数
      * @param  string $namespace    默认命名空间
-     * @return $this
+     * @return mixed
      */
     protected static function instanceFactory($name, $option = null, $namespace = '')
     {
