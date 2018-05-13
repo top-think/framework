@@ -485,7 +485,7 @@ abstract class Rule
             $this->option['header'] = $header;
 
             if ($request->method(true) == 'OPTIONS') {
-                return new ResponseDispatch(Response::create()->code(204)->header($header));
+                return new ResponseDispatch($request, $this->router, Response::create()->code(204)->header($header));
             }
         }
     }
@@ -629,7 +629,7 @@ abstract class Rule
         // 解析额外参数
         $count = substr_count($rule, '/');
         $url   = array_slice(explode('|', $url), $count + 1);
-        $this->parseUrlParams(implode('|', $url), $matches);
+        $this->parseUrlParams($request, implode('|', $url), $matches);
 
         // 记录匹配的路由信息
         $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
@@ -788,17 +788,17 @@ abstract class Rule
     {
         if ($route instanceof \Closure) {
             // 执行闭包
-            $result = new CallbackDispatch($route);
+            $result = new CallbackDispatch($request, $this->router, $route);
         } elseif ($route instanceof Response) {
-            $result = new ResponseDispatch($route);
+            $result = new ResponseDispatch($request, $this->router, $route);
         } elseif (isset($option['view']) && false !== $option['view']) {
-            $result = new ViewDispatch($route, is_array($option['view']) ? $option['view'] : []);
+            $result = new ViewDispatch($request, $this->router, $route, is_array($option['view']) ? $option['view'] : []);
         } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
-            $result = new RedirectDispatch($route, [], isset($option['status']) ? $option['status'] : 301);
+            $result = new RedirectDispatch($request, $this->router, $route, [], isset($option['status']) ? $option['status'] : 301);
         } elseif (false !== strpos($route, '\\')) {
             // 路由到方法
-            $result = $this->dispatchMethod($route);
+            $result = $this->dispatchMethod($request, $route);
         } elseif (0 === strpos($route, '@')) {
             // 路由到控制器
             $result = $this->dispatchController($request, substr($route, 1));
@@ -813,17 +813,18 @@ abstract class Rule
     /**
      * 解析URL地址为 模块/控制器/操作
      * @access protected
+     * @param  Request   $request Request对象
      * @param  string    $route 路由地址
      * @return CallbackDispatch
      */
-    protected function dispatchMethod($route)
+    protected function dispatchMethod($request, $route)
     {
         list($path, $var) = $this->parseUrlPath($route);
 
         $route  = str_replace('/', '@', implode('/', $path));
         $method = strpos($route, '@') ? explode('@', $route) : $route;
 
-        return new CallbackDispatch($method, $var);
+        return new CallbackDispatch($request, $this->router, $method, $var);
     }
 
     /**
@@ -837,13 +838,11 @@ abstract class Rule
     {
         list($route, $var) = $this->parseUrlPath($route);
 
-        $result = new ControllerDispatch(implode('/', $route), $var);
+        $result = new ControllerDispatch($request, $this->router, implode('/', $route), $var);
 
         $request->action(array_pop($route));
-        $app = Container::get('app');
-        $request->controller($route ? array_pop($route) : $app->config('default_controller'));
-        $request->module($route ? array_pop($route) : $app->config('default_module'));
-        $app->setModulePath($app->getAppPath() . ($app->config('app_multi_module') ? $request->module() . DIRECTORY_SEPARATOR : ''));
+        $request->controller($route ? array_pop($route) : $this->router->config('default_controller'));
+        $request->module($route ? array_pop($route) : $this->router->config('default_module'));
 
         return $result;
     }
@@ -859,13 +858,12 @@ abstract class Rule
     {
         list($path, $var) = $this->parseUrlPath($route);
 
-        $config     = Container::get('config');
         $action     = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
-        $module     = $config->get('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $module     = $this->router->config('app_multi_module') && !empty($path) ? array_pop($path) : null;
         $method     = $request->method();
 
-        if ($config->get('use_action_prefix') && $this->router->getMethodPrefix($method)) {
+        if ($this->router->config('use_action_prefix') && $this->router->getMethodPrefix($method)) {
             $prefix = $this->router->getMethodPrefix($method);
             // 操作方法前缀支持
             $action = 0 !== strpos($action, $prefix) ? $prefix . $action : $action;
@@ -875,7 +873,7 @@ abstract class Rule
         $request->route($var);
 
         // 路由到模块/控制器/操作
-        return new ModuleDispatch([$module, $controller, $action], [], false);
+        return new ModuleDispatch($request, $this->router, [$module, $controller, $action], [], false);
     }
 
     /**
@@ -927,14 +925,15 @@ abstract class Rule
     /**
      * 解析URL地址中的参数Request对象
      * @access protected
+     * @param  Request   $request
      * @param  string    $rule 路由规则
      * @param  array     $var 变量
      * @return void
      */
-    protected function parseUrlParams($url, &$var = [])
+    protected function parseUrlParams($request, $url, &$var = [])
     {
         if ($url) {
-            if (Container::get('config')->get('url_param_type')) {
+            if ($this->router->config('url_param_type')) {
                 $var += explode('|', $url);
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -944,7 +943,7 @@ abstract class Rule
         }
 
         // 设置当前请求的参数
-        Container::get('request')->route($var);
+        $request->route($var);
     }
 
     /**

@@ -40,7 +40,7 @@ class Cookie
      */
     public function __construct(array $config = [])
     {
-        $this->config = $config;
+        $this->init($config);
     }
 
     /**

@@ -40,11 +40,10 @@ class AliasRule extends Domain
      * @access public
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
-     * @param  string       $depr     路径分隔符
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    public function check($request, $url, $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
@@ -82,13 +81,13 @@ class AliasRule extends Domain
 
         if (0 === strpos($this->route, '\\')) {
             // 路由到类
-            return $this->bindToClass($bind, substr($this->route, 1));
+            return $this->bindToClass($request, $bind, substr($this->route, 1));
         } elseif (0 === strpos($this->route, '@')) {
             // 路由到控制器类
-            return $this->bindToController($bind, substr($this->route, 1));
+            return $this->bindToController($request, $bind, substr($this->route, 1));
         } else {
             // 路由到模块/控制器
-            return $this->bindToModule($bind, $this->route);
+            return $this->bindToModule($request, $bind, $this->route);
         }
     }
 

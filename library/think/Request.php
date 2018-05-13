@@ -279,6 +279,14 @@ class Request
         }
     }
 
+    public function config($name = null)
+    {
+        if (is_null($name)) {
+            return $this->config;
+        }
+        return isset($this->config[$name]) ? $this->config[$name] : null;
+    }
+
     public static function __make(Config $config)
     {
         return new static($config->pull('request'));

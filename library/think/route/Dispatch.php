@@ -12,11 +12,15 @@
 namespace think\route;
 
 use think\Container;
+use think\Request;
+use think\Route;
 
 abstract class Dispatch
 {
     // 应用实例
     protected $app;
+    protected $request;
+    protected $router;
     // 调度信息
     protected $dispatch;
     // 调度参数
@@ -26,8 +30,10 @@ abstract class Dispatch
     // 是否进行大小写转换
     protected $convert;
 
-    public function __construct($dispatch, $param = [], $code = null)
+    public function __construct(Request $request, Route $router, $dispatch, $param = [], $code = null)
     {
+        $this->request  = $request;
+        $this->router   = $router;
         $this->app      = Container::get('app');
         $this->dispatch = $dispatch;
         $this->param    = $param;

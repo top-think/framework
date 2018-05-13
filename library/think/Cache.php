@@ -86,7 +86,7 @@ class Cache
 
             if ('complex' == $options['type']) {
                 $default = $options['default'];
-                $options = $options[$default['type']] ?: $default;
+                $options = isset($options[$default['type']]) ? $options[$default['type']] : $default;
             }
 
             $this->handler = $this->connect($options);

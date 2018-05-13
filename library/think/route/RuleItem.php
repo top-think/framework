@@ -185,11 +185,10 @@ class RuleItem extends Rule
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
      * @param  array        $match    匹配路由变量
-     * @param  string       $depr     路径分隔符
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function checkRule($request, $url, $match = null, $depr = '/', $completeMatch = false)
+    public function checkRule($request, $url, $match = null, $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
@@ -212,7 +211,7 @@ class RuleItem extends Rule
         $url = $this->urlSuffixCheck($request, $url, $option);
 
         if (is_null($match)) {
-            $match = $this->match($url, $option, $depr, $completeMatch);
+            $match = $this->match($url, $option, $completeMatch);
         }
 
         if (false !== $match) {
@@ -231,9 +230,9 @@ class RuleItem extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    public function check($request, $url, $completeMatch = false)
     {
-        return $this->checkRule($request, $url, null, $depr, $completeMatch);
+        return $this->checkRule($request, $url, null, $completeMatch);
     }
 
     /**
@@ -265,11 +264,10 @@ class RuleItem extends Rule
      * @access private
      * @param  string    $url URL地址
      * @param  array     $option    路由参数
-     * @param  string    $depr URL分隔符（全局）
      * @param  bool      $completeMatch   路由是否完全匹配
      * @return array|false
      */
-    private function match($url, $option, $depr, $completeMatch)
+    private function match($url, $option, $completeMatch)
     {
         if (isset($option['complete_match'])) {
             $completeMatch = $option['complete_match'];
@@ -283,6 +281,7 @@ class RuleItem extends Rule
         }
 
         $var  = [];
+        $depr = $this->router->config('pathinfo_depr');
         $url  = $depr . str_replace('|', $depr, $url);
         $rule = $depr . str_replace('/', $depr, $this->rule);
 

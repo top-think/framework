@@ -45,21 +45,20 @@ class Domain extends RuleGroup
      * @access public
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
-     * @param  string       $depr     路径分隔符
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check($request, $url, $depr = '/', $completeMatch = false)
+    public function check($request, $url, $completeMatch = false)
     {
         // 检测别名路由
-        $result = $this->checkRouteAlias($request, $url, $depr);
+        $result = $this->checkRouteAlias($request, $url);
 
         if (false !== $result) {
             return $result;
         }
 
         // 检测URL绑定
-        $result = $this->checkUrlBind($url, $depr);
+        $result = $this->checkUrlBind($request, $url);
 
         if (!empty($this->option['append'])) {
             $request->route($this->option['append']);
@@ -76,7 +75,7 @@ class Domain extends RuleGroup
             unset($this->option['middleware']);
         }
 
-        return parent::check($request, $url, $depr, $completeMatch);
+        return parent::check($request, $url, $completeMatch);
     }
 
     /**
@@ -98,26 +97,25 @@ class Domain extends RuleGroup
      * @access private
      * @param  Request   $request
      * @param  string    $url URL地址
-     * @param  string    $depr URL分隔符
      * @return Dispatch|false
      */
-    private function checkRouteAlias($request, $url, $depr)
+    private function checkRouteAlias($request, $url)
     {
         $alias = strpos($url, '|') ? strstr($url, '|', true) : $url;
 
         $item = $this->router->getAlias($alias);
 
-        return $item ? $item->check($request, $url, $depr) : false;
+        return $item ? $item->check($request, $url) : false;
     }
 
     /**
      * 检测URL绑定
      * @access private
+     * @param  Request   $request
      * @param  string    $url URL地址
-     * @param  string    $depr URL分隔符
      * @return Dispatch|false
      */
-    private function checkUrlBind($url, $depr = '/')
+    private function checkUrlBind($request, $url)
     {
         if (!empty($this->bind)) {
             $bind = $this->bind;
@@ -137,7 +135,7 @@ class Domain extends RuleGroup
             ];
 
             if (isset($bindTo[$type])) {
-                return $this->{$bindTo[$type]}($url, $bind, $depr);
+                return $this->{$bindTo[$type]}($request, $url, $bind);
             }
         }
 
@@ -156,78 +154,82 @@ class Domain extends RuleGroup
     /**
      * 绑定到类
      * @access protected
+     * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $class 类名（带命名空间）
      * @return CallbackDispatch
      */
-    protected function bindToClass($url, $class)
+    protected function bindToClass($request, $url, $class)
     {
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
 
         if (!empty($array[1])) {
-            $this->parseUrlParams($array[1]);
+            $this->parseUrlParams($request, $array[1]);
         }
 
-        return new CallbackDispatch([$class, $action]);
+        return new CallbackDispatch($request, $this->router, [$class, $action]);
     }
 
     /**
      * 绑定到命名空间
      * @access protected
+     * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $namespace 命名空间
      * @return CallbackDispatch
      */
-    protected function bindToNamespace($url, $namespace)
+    protected function bindToNamespace($request, $url, $namespace)
     {
         $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_controller');
-        $method = !empty($array[1]) ? $array[1] : Container::get('config')->get('default_action');
+        $class  = !empty($array[0]) ? $array[0] : $this->router->config('default_controller');
+        $method = !empty($array[1]) ? $array[1] : $this->router->config('default_action');
 
         if (!empty($array[2])) {
-            $this->parseUrlParams($array[2]);
+            $this->parseUrlParams($request, $array[2]);
         }
 
-        return new CallbackDispatch([$namespace . '\\' . Loader::parseName($class, 1), $method]);
+        return new CallbackDispatch($request, $this->router, [$namespace . '\\' . Loader::parseName($class, 1), $method]);
     }
 
     /**
      * 绑定到控制器类
      * @access protected
+     * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $controller 控制器名 （支持带模块名 index/user ）
      * @return ControllerDispatch
      */
-    protected function bindToController($url, $controller)
+    protected function bindToController($request, $url, $controller)
     {
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
 
         if (!empty($array[1])) {
-            $this->parseUrlParams($array[1]);
+            $this->parseUrlParams($request, $array[1]);
         }
 
-        return new ControllerDispatch($controller . '/' . $action);
+        return new ControllerDispatch($request, $this->router, $controller . '/' . $action);
     }
 
     /**
      * 绑定到模块/控制器
      * @access protected
+     * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $controller 控制器类名（带命名空间）
      * @return ModuleDispatch
      */
-    protected function bindToModule($url, $controller)
+    protected function bindToModule($request, $url, $controller)
     {
         $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : Container::get('config')->get('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
 
         if (!empty($array[1])) {
-            $this->parseUrlParams($array[1]);
+            $this->parseUrlParams($request, $array[1]);
         }
 
-        return new ModuleDispatch($controller . '/' . $action);
+        return new ModuleDispatch($request, $this->router, $controller . '/' . $action);
     }
 
 }

@@ -72,6 +72,12 @@ class Route
     protected $group;
 
     /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * 路由绑定
      * @var array
      */
@@ -113,12 +119,34 @@ class Route
      */
     protected $autoSearchController = true;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, array $config = [])
     {
         $this->request = $request;
+        $this->config  = $config;
         $this->host    = $this->request->host(true);
 
         $this->setDefaultDomain();
+    }
+
+    public function config($name = null)
+    {
+        if (is_null($name)) {
+            return $this->config;
+        }
+
+        return isset($this->config[$name]) ? $this->config[$name] : null;
+    }
+
+    public static function __make(Request $request, Config $config)
+    {
+        $config = $config->pull('route');
+        $route  = new static($request, $config);
+
+        $route->lazy($config['url_lazy_route'])
+            ->autoSearchController($config['controller_auto_search'])
+            ->mergeRuleRegex($config['route_rule_merge']);
+
+        return $route;
     }
 
     /**
@@ -755,23 +783,23 @@ class Route
      * 检测URL路由
      * @access public
      * @param  string    $url URL地址
-     * @param  string    $depr URL分隔符
      * @param  bool      $must 是否强制路由
-     * @param  bool      $completeMatch   路由是否完全匹配
      * @return Dispatch
      * @throws RouteNotFoundException
      */
-    public function check($url, $depr = '/', $must = false, $completeMatch = false)
+    public function check($url, $must = false)
     {
         // 自动检测域名路由
         $domain = $this->checkDomain();
-        $url    = str_replace($depr, '|', $url);
+        $url    = str_replace($this->config['pathinfo_depr'], '|', $url);
 
-        $result = $domain->check($this->request, $url, $depr, $completeMatch);
+        $completeMatch = $this->config['route_complete_match'];
+
+        $result = $domain->check($this->request, $url, $completeMatch);
 
         if (false === $result && !empty($this->cross)) {
             // 检测跨域路由
-            $result = $this->cross->check($this->request, $url, $depr, $completeMatch);
+            $result = $this->cross->check($this->request, $url, $completeMatch);
         }
 
         if (false !== $result) {
@@ -783,7 +811,7 @@ class Route
         }
 
         // 默认路由解析
-        return new UrlDispatch($url, ['depr' => $depr, 'auto_search' => $this->autoSearchController]);
+        return new UrlDispatch($this->request, $this, $url, ['auto_search' => $this->autoSearchController]);
     }
 
     /**

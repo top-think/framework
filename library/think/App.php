@@ -308,11 +308,21 @@ class App implements \ArrayAccess
                     $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
                 }
             }
+
+            if ($module) {
+                // 加载当前模块语言包
+                $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
+
+                // 模块请求缓存检查
+                $this->request->cache(
+                    $this->config->get('request.request_cache'),
+                    $this->config->get('request.request_cache_expire'),
+                    $this->config->get('request.request_cache_except')
+                );
+            }
         }
 
         $this->setModulePath($path);
-
-        $this->request->filter($this->config('app.default_filter'));
     }
 
     /**
@@ -345,11 +355,6 @@ class App implements \ArrayAccess
             $dispatch = $this->dispatch;
             if (empty($dispatch)) {
                 // 路由检测
-                $this->route
-                    ->lazy($this->config('app.url_lazy_route'))
-                    ->autoSearchController($this->config('app.controller_auto_search'))
-                    ->mergeRuleRegex($this->config('app.route_rule_merge'));
-
                 $dispatch = $this->routeCheck();
             }
 
@@ -368,9 +373,9 @@ class App implements \ArrayAccess
 
             // 请求缓存检查
             $this->request->cache(
-                $this->config('app.request_cache'),
-                $this->config('app.request_cache_expire'),
-                $this->config('app.request_cache_except')
+                $this->config('request.request_cache'),
+                $this->config('request.request_cache_expire'),
+                $this->config('request.request_cache_except')
             );
 
             $data = null;
@@ -416,6 +421,7 @@ class App implements \ArrayAccess
     {
         // 读取默认语言
         $this->lang->range($this->config('app.default_lang'));
+
         if ($this->config('app.lang_switch_on')) {
             // 开启多语言机制 检测当前语言
             $this->lang->detect();
@@ -473,7 +479,6 @@ class App implements \ArrayAccess
     public function routeCheck()
     {
         $path = $this->request->path();
-        $depr = $this->config('app.pathinfo_depr');
 
         // 路由检测
         $files = scandir($this->routePath);
@@ -488,10 +493,10 @@ class App implements \ArrayAccess
             }
         }
 
-        if ($this->config('app.route_annotation')) {
+        if ($this->config('route.route_annotation')) {
             // 自动生成路由定义
             if ($this->debug) {
-                $this->build->buildRoute($this->config('app.controller_suffix'));
+                $this->build->buildRoute($this->config('route.controller_suffix'));
             }
 
             $filename = $this->runtimePath . 'build_route.php';
@@ -506,10 +511,10 @@ class App implements \ArrayAccess
         }
 
         // 是否强制路由模式
-        $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
+        $must = !is_null($this->routeMust) ? $this->routeMust : $this->route->config('url_route_must');
 
         // 路由检测 返回一个Dispatch对象
-        return $this->route->check($path, $depr, $must, $this->config('app.route_complete_match'));
+        return $this->route->check($path, $must);
     }
 
     /**

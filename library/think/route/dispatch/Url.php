@@ -20,10 +20,11 @@ class Url extends Dispatch
     protected function init()
     {
         // 解析默认的URL规则
-        $url    = str_replace($this->param['depr'], '|', $this->dispatch);
-        $result = $this->parseUrl($url);
+        $depr   = $this->router->config('pathinfo_depr');
+        $url    = str_replace($depr, '|', $this->dispatch);
+        $result = $this->parseUrl($url, $depr);
 
-        $this->dispatch = new Module($result);
+        $this->dispatch = new Module($this->request, $this->router, $result);
     }
 
     public function run()
@@ -37,11 +38,9 @@ class Url extends Dispatch
      * @param  string    $url URL
      * @return array
      */
-    protected function parseUrl($url)
+    protected function parseUrl($url, $depr)
     {
-        $router = $this->app['route'];
-        $bind   = $router->getBind();
-        $depr   = $this->param['depr'];
+        $bind = $this->router->getBind();
 
         if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
@@ -55,7 +54,7 @@ class Url extends Dispatch
         }
 
         // 解析模块
-        $module = $this->app->config('app_multi_module') ? array_shift($path) : null;
+        $module = $this->router->config('app_multi_module') ? array_shift($path) : null;
         if ($this->param['auto_search']) {
             $controller = $this->autoFindController($module, $path);
         } else {
@@ -68,7 +67,7 @@ class Url extends Dispatch
 
         // 解析额外参数
         if ($path) {
-            if ($this->app['config']->get('url_param_type')) {
+            if ($this->router->config('url_param_type')) {
                 $var += $path;
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -77,14 +76,14 @@ class Url extends Dispatch
             }
         }
 
-        $panDomain = $this->app['request']->panDomain();
+        $panDomain = $this->request->panDomain();
         if ($panDomain && $key = array_search('*', $var)) {
             // 泛域名赋值
             $var[$key] = $panDomain;
         }
 
         // 设置当前请求的参数
-        $this->app['request']->route($var);
+        $this->request->route($var);
 
         // 封装路由
         $route = [$module, $controller, $action];
@@ -116,9 +115,7 @@ class Url extends Dispatch
             $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
         }
 
-        $router = $this->app['route'];
-
-        if ($router->getName($name) || $router->getName($name2)) {
+        if ($this->router->getName($name) || $this->router->getName($name2)) {
             return true;
         }
 
@@ -134,8 +131,8 @@ class Url extends Dispatch
      */
     protected function autoFindController($module, &$path)
     {
-        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->app->config('url_controller_layer');
-        $suffix = $this->app->getSuffix() || $this->app->config('controller_suffix') ? ucfirst($this->app->config('url_controller_layer')) : '';
+        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->router->config('url_controller_layer');
+        $suffix = $this->app->getSuffix() || $this->router->config('controller_suffix') ? ucfirst($this->router->config('url_controller_layer')) : '';
 
         $item = [];
         $find = false;
