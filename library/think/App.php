@@ -218,6 +218,11 @@ class App implements \ArrayAccess
             }
         }
 
+        // 注册异常处理类
+        if ($this->config('app.exception_handle')) {
+            Error::setExceptionHandler($this->config('app.exception_handle'));
+        }
+
         // 注册根命名空间
         if (!empty($this->config('app.root_namespace'))) {
             Loader::addNamespace($this->config('app.root_namespace'));

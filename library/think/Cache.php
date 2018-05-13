@@ -24,6 +24,7 @@ use think\cache\Driver;
 class Cache
 {
     use Factory;
+
     /**
      * 缓存实例
      * @var array
@@ -42,9 +43,9 @@ class Cache
      */
     protected $handler;
 
-    public function __construct(App $app)
+    public function __construct(array $config = [])
     {
-        $this->app = $app;
+        $this->config = $config;
     }
 
     /**
@@ -62,9 +63,6 @@ class Cache
 
         if (true === $name || !isset($this->instance[$name])) {
             $type = !empty($options['type']) ? $options['type'] : 'File';
-
-            // 记录初始化信息
-            $this->app->log('[ CACHE ] INIT ' . $type);
 
             if (true === $name) {
                 $name = md5(serialize($options));
@@ -85,20 +83,21 @@ class Cache
     public function init(array $options = [])
     {
         if (is_null($this->handler)) {
-            // 自动初始化缓存
-            $config = $this->app['config'];
 
-            if (empty($options) && 'complex' == $config->get('cache.type')) {
-                $default = $config->get('cache.default');
-                $options = $config->get('cache.' . $default['type']) ?: $default;
-            } elseif (empty($options)) {
-                $options = $config->pull('cache');
+            if ('complex' == $options['type']) {
+                $default = $options['default'];
+                $options = $options[$default['type']] ?: $default;
             }
 
             $this->handler = $this->connect($options);
         }
 
         return $this->handler;
+    }
+
+    public static function __make(Config $config)
+    {
+        return (new static())->init($config->pull('cache'));
     }
 
     /**
@@ -109,8 +108,8 @@ class Cache
      */
     public function store($name = '')
     {
-        if ('' !== $name && 'complex' == $this->app['config']->get('cache.type')) {
-            return $this->connect($this->app['config']->get('cache.' . $name), strtolower($name));
+        if ('' !== $name && 'complex' == $this->config['type']) {
+            return $this->connect($this->config[$name], strtolower($name));
         }
 
         return $this->init();

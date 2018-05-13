@@ -62,9 +62,7 @@ class Controller
     {
         $this->request = Container::get('request');
         $this->app     = Container::get('app');
-        $this->view    = Container::get('view')->init(
-            $this->app['config']->pull('template')
-        );
+        $this->view    = Container::get('view');
 
         // 控制器初始化
         $this->initialize();

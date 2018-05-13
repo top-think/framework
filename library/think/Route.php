@@ -48,12 +48,6 @@ class Route
     ];
 
     /**
-     * 配置对象
-     * @var Config
-     */
-    protected $config;
-
-    /**
      * 请求对象
      * @var Request
      */

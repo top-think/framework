@@ -378,14 +378,7 @@ class Container
             $class = $param->getClass();
 
             if ($class) {
-                $className = $class->getName();
-                $value     = array_shift($vars);
-                if ($value instanceof $className) {
-                    $args[] = $value;
-                } else {
-                    array_unshift($vars, $value);
-                    $args[] = $this->make($className);
-                }
+                $args[] = $this->getObjectParam($class->getName(), $vars);
             } elseif (1 == $type && !empty($vars)) {
                 $args[] = array_shift($vars);
             } elseif (0 == $type && isset($vars[$name])) {
@@ -400,4 +393,24 @@ class Container
         return $args;
     }
 
+    /**
+     * 获取对象类型的参数值
+     * @access protected
+     * @param  string   $className  类名
+     * @param  array    $vars       参数
+     * @return mixed
+     */
+    protected function getObjectParam($className, &$vars)
+    {
+        $value = array_shift($vars);
+
+        if ($value instanceof $className) {
+            $result = $value;
+        } else {
+            array_unshift($vars, $value);
+            $result = $this->make($className);
+        }
+
+        return $result;
+    }
 }

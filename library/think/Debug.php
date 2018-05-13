@@ -19,6 +19,12 @@ class Debug
     use Factory;
 
     /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * 区间时间信息
      * @var array
      */
@@ -36,9 +42,15 @@ class Debug
      */
     protected $app;
 
-    public function __construct(App $app)
+    public function __construct(App $app, array $config = [])
     {
-        $this->app = $app;
+        $this->app    = $app;
+        $this->config = $config;
+    }
+
+    public static function __make(App $app, Config $config)
+    {
+        return new static($app, $config->pull('trace'));
     }
 
     /**
@@ -230,7 +242,7 @@ class Debug
 
     public function inject(Response $response, &$content)
     {
-        $config = $this->app['config']->pull('trace');
+        $config = $this->config;
         $type   = isset($config['type']) ? $config['type'] : 'Html';
 
         unset($config['type']);

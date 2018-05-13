@@ -35,10 +35,13 @@ class Cookie
     ];
 
     /**
-     * 是否初始化
-     * @var bool
+     * 构造方法
+     * @access public
      */
-    protected $init;
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+    }
 
     /**
      * Cookie初始化
@@ -48,17 +51,16 @@ class Cookie
      */
     public function init(array $config = [])
     {
-        if (empty($config)) {
-            $config = Container::get('config')->pull('cookie');
-        }
-
         $this->config = array_merge($this->config, array_change_key_case($config));
 
         if (!empty($this->config['httponly'])) {
             ini_set('session.cookie_httponly', 1);
         }
+    }
 
-        $this->init = true;
+    public static function __make(Config $config)
+    {
+        return new static($config->pull('cookie'));
     }
 
     /**
@@ -87,8 +89,6 @@ class Cookie
      */
     public function set($name, $value = '', $option = null)
     {
-        !isset($this->init) && $this->init();
-
         // 参数设置(会覆盖黙认设置)
         if (!is_null($option)) {
             if (is_numeric($option)) {
@@ -147,8 +147,6 @@ class Cookie
      */
     public function has($name, $prefix = null)
     {
-        !isset($this->init) && $this->init();
-
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
         $name   = $prefix . $name;
 
@@ -164,8 +162,6 @@ class Cookie
      */
     public function get($name = '', $prefix = null)
     {
-        !isset($this->init) && $this->init();
-
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
         $key    = $prefix . $name;
 
@@ -204,8 +200,6 @@ class Cookie
      */
     public function delete($name, $prefix = null)
     {
-        !isset($this->init) && $this->init();
-
         $config = $this->config;
         $prefix = !is_null($prefix) ? $prefix : $config['prefix'];
         $name   = $prefix . $name;
@@ -230,8 +224,6 @@ class Cookie
         if (empty($_COOKIE)) {
             return;
         }
-
-        !isset($this->init) && $this->init();
 
         // 要删除的cookie前缀，不指定则删除config设置的指定前缀
         $config = $this->config;

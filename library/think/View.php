@@ -53,6 +53,11 @@ class View
         return $this;
     }
 
+    public static function __make(Config $config)
+    {
+        return (new static())->init($config->pull('template'));
+    }
+
     /**
      * 模板变量静态赋值
      * @access public

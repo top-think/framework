@@ -68,6 +68,11 @@ class Session
         }
     }
 
+    public static function __make(Config $config)
+    {
+        return (new static())->init($config->pull('session'));
+    }
+
     /**
      * session初始化
      * @access public
@@ -77,12 +82,6 @@ class Session
      */
     public function init(array $config = [])
     {
-        if (empty($config)) {
-            $config = Container::get('config')->pull('session');
-        }
-
-        // 记录初始化信息
-        Container::get('app')->log('[ SESSION ] INIT ' . var_export($config, true));
         $isDoStart = false;
         if (isset($config['use_trans_sid'])) {
             ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);
@@ -161,6 +160,8 @@ class Session
         } else {
             $this->init = false;
         }
+
+        return $this;
     }
 
     /**

@@ -22,8 +22,8 @@ class Request
     protected $instance;
 
     /**
-     * 配置对象
-     * @var Config
+     * 配置参数
+     * @var array
      */
     protected $config;
 
@@ -262,22 +262,26 @@ class Request
      * @access public
      * @param  array  $options 参数
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
-        foreach ($options as $name => $item) {
-            if (property_exists($this, $name)) {
-                $this->$name = $item;
-            }
-        }
-
-        $this->config = Container::get('config');
-
-        if (is_null($this->filter)) {
-            $this->filter = $this->config->get('default_filter');
-        }
+        $this->init($options);
 
         // 保存 php://input
         $this->input = file_get_contents('php://input');
+    }
+
+    public function init(array $options = [])
+    {
+        $this->config = $options;
+
+        if (is_null($this->filter) && !empty($this->config['default_filter'])) {
+            $this->filter = $this->config['default_filter'];
+        }
+    }
+
+    public static function __make(Config $config)
+    {
+        return new static($config->pull('request'));
     }
 
     public function __call($method, $args)
@@ -431,7 +435,7 @@ class Request
      */
     public function rootDomain()
     {
-        $root = $this->config->get('app.url_domain_root');
+        $root = $this->config['url_domain_root'];
 
         if (!$root) {
             $item  = explode('.', $this->host(true));
@@ -451,7 +455,7 @@ class Request
     {
         if (is_null($this->subDomain)) {
             // 获取当前主域名
-            $rootDomain = $this->config->get('app.url_domain_root');
+            $rootDomain = $this->config['url_domain_root'];
 
             if ($rootDomain) {
                 // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
@@ -609,10 +613,10 @@ class Request
     public function pathinfo()
     {
         if (is_null($this->pathinfo)) {
-            if (isset($_GET[$this->config->get('var_pathinfo')])) {
+            if (isset($_GET[$this->config['var_pathinfo']])) {
                 // 判断URL里面是否有兼容模式参数
-                $_SERVER['PATH_INFO'] = $_GET[$this->config->get('var_pathinfo')];
-                unset($_GET[$this->config->get('var_pathinfo')]);
+                $_SERVER['PATH_INFO'] = $_GET[$this->config['var_pathinfo']];
+                unset($_GET[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
                 $_SERVER['PATH_INFO'] = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
@@ -622,7 +626,7 @@ class Request
 
             // 分析PATHINFO信息
             if (!isset($_SERVER['PATH_INFO'])) {
-                foreach ($this->config->get('pathinfo_fetch') as $type) {
+                foreach ($this->config['pathinfo_fetch'] as $type) {
                     if (!empty($_SERVER[$type])) {
                         $_SERVER['PATH_INFO'] = (0 === strpos($_SERVER[$type], $_SERVER['SCRIPT_NAME'])) ?
                         substr($_SERVER[$type], strlen($_SERVER['SCRIPT_NAME'])) : $_SERVER[$type];
@@ -645,7 +649,7 @@ class Request
     public function path()
     {
         if (is_null($this->path)) {
-            $suffix   = $this->config->get('url_html_suffix');
+            $suffix   = $this->config['url_html_suffix'];
             $pathinfo = $this->pathinfo();
             if (false === $suffix) {
                 // 禁止伪静态访问
@@ -736,8 +740,8 @@ class Request
             // 获取原始请求类型
             return $this->isCli() ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
         } elseif (!$this->method) {
-            if (isset($_POST[$this->config->get('var_method')])) {
-                $this->method = strtoupper($_POST[$this->config->get('var_method')]);
+            if (isset($_POST[$this->config['var_method']])) {
+                $this->method = strtoupper($_POST[$this->config['var_method']]);
                 $this->{$this->method}($_POST);
             } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
                 $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
@@ -1514,7 +1518,7 @@ class Request
             return true;
         } elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']) {
             return true;
-        } elseif ($this->config->get('https_agent_name') && isset($server[$this->config->get('https_agent_name')])) {
+        } elseif ($this->config['https_agent_name'] && isset($server[$this->config['https_agent_name']])) {
             return true;
         }
 
@@ -1536,7 +1540,7 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config->get('var_ajax')) ? true : $result;
+        return $this->param($this->config['var_ajax']) ? true : $result;
     }
 
     /**
@@ -1553,7 +1557,7 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config->get('var_pjax')) ? true : $result;
+        return $this->param($this->config['var_pjax']) ? true : $result;
     }
 
     /**
@@ -1572,7 +1576,7 @@ class Request
             return $ip[$type];
         }
 
-        $httpAgentIp = $this->config->get('http_agent_ip');
+        $httpAgentIp = $this->config['http_agent_ip'];
 
         if ($httpAgentIp && isset($_SERVER[$httpAgentIp])) {
             $ip = $_SERVER[$httpAgentIp];

@@ -66,6 +66,11 @@ class Log implements LoggerInterface
         $this->app = $app;
     }
 
+    public static function __make(App $app, Config $config)
+    {
+        return (new static($app))->init($config->pull('log'));
+    }
+
     /**
      * 日志初始化
      * @access public
@@ -85,9 +90,6 @@ class Log implements LoggerInterface
         }
 
         $this->driver = self::instanceFactory($type, $config, '\\think\\log\\driver\\');
-
-        // 记录初始化信息
-        $this->app->isDebug() && $this->record('[ LOG ] INIT ' . $type);
 
         return $this;
     }
@@ -196,12 +198,8 @@ class Log implements LoggerInterface
      */
     public function save()
     {
-        if (empty($this->log) || !$this->allowWrite) {
+        if (empty($this->log) || !$this->allowWrite || !$this->driver) {
             return true;
-        }
-
-        if (is_null($this->driver)) {
-            $this->init($this->app['config']->pull('log'));
         }
 
         if (!$this->check($this->config)) {
@@ -256,10 +254,6 @@ class Log implements LoggerInterface
 
         // 监听log_write
         $this->app['hook']->listen('log_write', $log);
-
-        if (is_null($this->driver)) {
-            $this->init($this->app['config']->pull('log'));
-        }
 
         // 写入日志
         $result = $this->driver->save($log);

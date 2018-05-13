@@ -104,6 +104,11 @@ class Template
         $this->storage = self::instanceFactory($type, null, '\\think\\template\\driver\\');
     }
 
+    public static function __make(Config $config)
+    {
+        return new static($config->pull('template'));
+    }
+
     /**
      * 模板变量赋值
      * @access public

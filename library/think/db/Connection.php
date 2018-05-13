@@ -14,6 +14,7 @@ namespace think\db;
 use InvalidArgumentException;
 use PDO;
 use PDOStatement;
+use think\Config;
 use think\Container;
 use think\Db;
 use think\db\exception\BindParamException;
@@ -159,6 +160,11 @@ abstract class Connection
 
         // 执行初始化操作
         $this->initialize();
+    }
+
+    public static function __make(Config $config)
+    {
+        return new static($config->pull('database'));
     }
 
     /**
