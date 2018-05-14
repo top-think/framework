@@ -25,7 +25,7 @@ class Request
      * 配置参数
      * @var array
      */
-    protected $config;
+    protected $config = [];
 
     /**
      * 请求类型
