@@ -22,7 +22,7 @@ class Config implements \ArrayAccess
     private $config = [];
 
     /**
-     * 缓存前缀
+     * 配置前缀
      * @var string
      */
     private $prefix = 'app';

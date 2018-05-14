@@ -53,6 +53,11 @@ class Debug
         return new static($app, $config->pull('trace'));
     }
 
+    public function setConfig(array $config)
+    {
+        $this->config = array_merge($this->config, $config);
+    }
+
     /**
      * 记录时间（微秒）和内存使用情况
      * @access public

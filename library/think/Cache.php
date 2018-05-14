@@ -32,10 +32,10 @@ class Cache
     protected $instance = [];
 
     /**
-     * 应用对象
-     * @var App
+     * 缓存配置
+     * @var array
      */
-    protected $app;
+    protected $config = [];
 
     /**
      * 操作句柄
@@ -46,6 +46,7 @@ class Cache
     public function __construct(array $config = [])
     {
         $this->config = $config;
+        $this->init($config);
     }
 
     /**
@@ -97,7 +98,12 @@ class Cache
 
     public static function __make(Config $config)
     {
-        return (new static())->init($config->pull('cache'));
+        return new static($config->pull('cache'));
+    }
+
+    public function setConfig(array $config)
+    {
+        $this->config = array_merge($this->config, $config);
     }
 
     /**

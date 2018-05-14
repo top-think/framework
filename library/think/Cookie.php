@@ -58,6 +58,11 @@ class Cookie
         }
     }
 
+    public function setConfig(array $config)
+    {
+        $this->config = array_merge($this->config, $config);
+    }
+
     public static function __make(Config $config)
     {
         return new static($config->pull('cookie'));

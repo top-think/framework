@@ -653,7 +653,7 @@ class Query
         if (!empty($this->options['fetch_sql'])) {
             return $result;
         } elseif ($force) {
-            $result += 0;
+            $result = (float) $result;
         }
 
         return $result;

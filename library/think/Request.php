@@ -272,7 +272,7 @@ class Request
 
     public function init(array $options = [])
     {
-        $this->config = $options;
+        $this->config = array_merge($this->config, $options);
 
         if (is_null($this->filter) && !empty($this->config['default_filter'])) {
             $this->filter = $this->config['default_filter'];
