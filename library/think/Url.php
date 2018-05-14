@@ -14,6 +14,12 @@ namespace think;
 class Url
 {
     /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * ROOT地址
      * @var string
      */
@@ -31,14 +37,31 @@ class Url
      */
     protected $app;
 
-    public function __construct(App $app)
+    public function __construct(App $app, array $config = [])
     {
-        $this->app = $app;
+        $this->app    = $app;
+        $this->config = $config;
 
         if (is_file($app->getRuntimePath() . 'route.php')) {
             // 读取路由映射文件
             $app['route']->setName(include $app->getRuntimePath() . 'route.php');
         }
+    }
+
+    /**
+     * 初始化
+     * @access public
+     * @param  array $config
+     * @return void
+     */
+    public function init(array $config = [])
+    {
+        $this->config = array_merge($this->config, array_change_key_case($config));
+    }
+
+    public static function __make(App $app, Config $config)
+    {
+        return new static($app, $config->pull('app'));
     }
 
     /**
@@ -105,7 +128,7 @@ class Url
             $url = $match[0];
 
             if (!empty($match[1])) {
-                $host = $this->app['config']->get('app_host') ?: $this->app['request']->host(true);
+                $host = $this->config['app_host'] ?: $this->app['request']->host(true);
                 if ($domain || $match[1] != $host) {
                     $domain = $match[1];
                 }
@@ -166,7 +189,7 @@ class Url
         }
 
         // 还原URL分隔符
-        $depr = $this->app['config']->get('pathinfo_depr');
+        $depr = $this->config['pathinfo_depr'];
         $url  = str_replace('/', $depr, $url);
 
         // URL后缀
@@ -182,11 +205,11 @@ class Url
         // 参数组装
         if (!empty($vars)) {
             // 添加参数
-            if ($this->app['config']->get('url_common_param')) {
+            if ($this->config['url_common_param']) {
                 $vars = http_build_query($vars);
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
-                $paramType = $this->app['config']->get('url_param_type');
+                $paramType = $this->config['url_param_type'];
 
                 foreach ($vars as $var => $val) {
                     if ('' !== trim($val)) {
@@ -244,7 +267,7 @@ class Url
                 $module     = empty($path) ? $module : array_pop($path) . '/';
             }
 
-            if ($this->app['config']->get('url_convert')) {
+            if ($this->config['url_convert']) {
                 $action     = strtolower($action);
                 $controller = Loader::parseName($controller);
             }
@@ -265,7 +288,7 @@ class Url
         $rootDomain = $this->app['request']->rootDomain();
         if (true === $domain) {
             // 自动判断域名
-            $domain = $this->app['config']->get('app_host') ?: $this->app['request']->host(true);
+            $domain = $this->config['app_host'] ?: $this->app['request']->host(true);
 
             $domains = $this->app['route']->getDomains();
 
@@ -302,7 +325,7 @@ class Url
         if (false !== strpos($domain, '://')) {
             $scheme = '';
         } else {
-            $scheme = $this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://';
+            $scheme = $this->app['request']->isSsl() || $this->config['is_https'] ? 'https://' : 'http://';
 
         }
 
@@ -313,7 +336,7 @@ class Url
     protected function parseSuffix($suffix)
     {
         if ($suffix) {
-            $suffix = true === $suffix ? $this->app['config']->get('url_html_suffix') : $suffix;
+            $suffix = true === $suffix ? $this->config['url_html_suffix'] : $suffix;
 
             if ($pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
@@ -332,7 +355,7 @@ class Url
                 return [rtrim($url, '?/-'), $domain, $suffix];
             }
 
-            $type = $this->app['config']->get('url_common_param');
+            $type = $this->config['url_common_param'];
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {

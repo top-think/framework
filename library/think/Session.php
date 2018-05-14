@@ -16,6 +16,12 @@ use think\exception\ClassNotFoundException;
 class Session
 {
     /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * 前缀
      * @var string
      */
@@ -51,6 +57,11 @@ class Session
      */
     protected $lock = false;
 
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+    }
+
     /**
      * 设置或者获取session作用域（前缀）
      * @access public
@@ -70,7 +81,18 @@ class Session
 
     public static function __make(Config $config)
     {
-        return (new static())->init($config->pull('session'));
+        return new static($config->pull('session'));
+    }
+
+    /**
+     * 配置
+     * @access public
+     * @param  array $config
+     * @return void
+     */
+    public function setConfig(array $config = [])
+    {
+        $this->config = array_merge($this->config, array_change_key_case($config));
     }
 
     /**
@@ -82,6 +104,8 @@ class Session
      */
     public function init(array $config = [])
     {
+        $config = $config ?: $this->config;
+
         $isDoStart = false;
         if (isset($config['use_trans_sid'])) {
             ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);

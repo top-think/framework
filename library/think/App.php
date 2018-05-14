@@ -308,21 +308,33 @@ class App implements \ArrayAccess
                     $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
                 }
             }
+        }
 
-            if ($module) {
-                // 加载当前模块语言包
-                $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
-
-                // 模块请求缓存检查
-                $this->request->cache(
-                    $this->config->get('request_cache'),
-                    $this->config->get('request_cache_expire'),
-                    $this->config->get('request_cache_except')
-                );
-            }
+        if ($module) {
+            $this->moduleContainerInit($module);
         }
 
         $this->setModulePath($path);
+    }
+
+    protected function moduleContainerInit($module)
+    {
+        // 对容器中的对象实例进行配置更新
+        $this->cookie->init($this->config->pull('cookie'));
+        $this->session->setConfig($this->config->pull('session'));
+        $this->view->init($this->config->pull('template'));
+        $this->log->init($this->config->pull('log'));
+        $this->__get('debug')->setConfig($this->config->pull('trace'));
+
+        // 加载当前模块语言包
+        $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
+
+        // 模块请求缓存检查
+        $this->request->cache(
+            $this->config->get('request_cache'),
+            $this->config->get('request_cache_expire'),
+            $this->config->get('request_cache_except')
+        );
     }
 
     /**
