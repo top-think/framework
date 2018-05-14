@@ -39,9 +39,9 @@ use think\Facade;
  * @method \think\Route alias(string $rule, mixed $route, array $option = [], array $pattern = []) static 注册别名路由
  * @method \think\Route setMethodPrefix(mixed $method, string $prefix = '') static 设置不同请求类型下面的方法前缀
  * @method \think\Route rest(string $name, array $resource = []) static rest方法定义和修改
- * @method \think\RuleItem miss(string $route, string $method = '*', array $option = []) static 注册未匹配路由规则后的处理
- * @method \think\RuleItem auto(string $route) static 注册一个自动解析的URL路由
- * @method \think\Dispatch check(string $url, string $depr = '/', bool $must = false, bool $completeMatch = false) static 检测URL路由
+ * @method \think\Route\RuleItem miss(string $route, string $method = '*', array $option = []) static 注册未匹配路由规则后的处理
+ * @method \think\Route\RuleItem auto(string $route) static 注册一个自动解析的URL路由
+ * @method \think\Route\Dispatch check(string $url, string $depr = '/', bool $must = false, bool $completeMatch = false) static 检测URL路由
  */
 class Route extends Facade
 {
