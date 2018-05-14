@@ -139,7 +139,7 @@ class Route
 
     public static function __make(Request $request, Config $config)
     {
-        $config = $config->pull('route');
+        $config = $config->pull('app');
         $route  = new static($request, $config);
 
         $route->lazy($config['url_lazy_route'])

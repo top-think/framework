@@ -289,7 +289,7 @@ class Request
 
     public static function __make(Config $config)
     {
-        return new static($config->pull('request'));
+        return new static($config->pull('app'));
     }
 
     public function __call($method, $args)
