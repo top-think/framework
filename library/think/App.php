@@ -315,9 +315,9 @@ class App implements \ArrayAccess
 
                 // 模块请求缓存检查
                 $this->request->cache(
-                    $this->config->get('request.request_cache'),
-                    $this->config->get('request.request_cache_expire'),
-                    $this->config->get('request.request_cache_except')
+                    $this->config->get('request_cache'),
+                    $this->config->get('request_cache_expire'),
+                    $this->config->get('request_cache_except')
                 );
             }
         }
@@ -373,9 +373,9 @@ class App implements \ArrayAccess
 
             // 请求缓存检查
             $this->request->cache(
-                $this->config('request.request_cache'),
-                $this->config('request.request_cache_expire'),
-                $this->config('request.request_cache_except')
+                $this->config('request_cache'),
+                $this->config('request_cache_expire'),
+                $this->config('request_cache_except')
             );
 
             $data = null;

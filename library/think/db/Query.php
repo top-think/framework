@@ -29,12 +29,6 @@ use think\Paginator;
 class Query
 {
     /**
-     * 数据库连接对象列表
-     * @var array
-     */
-    protected static $connections = [];
-
-    /**
      * 当前数据库连接对象
      * @var Connection
      */

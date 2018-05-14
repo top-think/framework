@@ -144,10 +144,10 @@ abstract class Connection
 
     /**
      * 架构函数 读取数据库配置信息
-     * @access public
+     * @access protected
      * @param  array $config 数据库配置数组
      */
-    public function __construct(array $config = [])
+    protected function __construct(array $config = [])
     {
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
