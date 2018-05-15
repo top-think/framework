@@ -133,29 +133,6 @@ class Db
     }
 
     /**
-     * 获取当前的数据库Connection对象
-     * @access public
-     * @return Connection
-     */
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
-     * 设置当前的数据库Connection对象
-     * @access public
-     * @param  Connection      $connection
-     * @return $this
-     */
-    public function setConnection(Connection $connection)
-    {
-        $this->connection = $connection;
-
-        return $this;
-    }
-
-    /**
      * 获取数据库的配置参数
      * @access public
      * @param  string $name 参数名称

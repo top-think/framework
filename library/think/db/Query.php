@@ -194,6 +194,29 @@ class Query
     }
 
     /**
+     * 获取当前的数据库Connection对象
+     * @access public
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * 设置当前的数据库Connection对象
+     * @access public
+     * @param  Connection      $connection
+     * @return $this
+     */
+    public function setConnection(Connection $connection)
+    {
+        $this->connection = $connection;
+
+        return $this;
+    }
+
+    /**
      * 指定模型
      * @access public
      * @param  Model $model 模型对象实例
