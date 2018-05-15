@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\Db;
 use think\db\Query;
 
 /**
