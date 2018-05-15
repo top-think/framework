@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\Db;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
 use think\route\Dispatch;
