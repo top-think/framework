@@ -11,7 +11,6 @@
 
 namespace think\view\driver;
 
-use think\Container;
 use think\exception\TemplateNotFoundException;
 use think\Loader;
 use think\Template;
@@ -20,6 +19,8 @@ class Think
 {
     // 模板引擎实例
     private $template;
+    private $app;
+
     // 模板引擎参数
     protected $config = [
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
@@ -36,14 +37,16 @@ class Think
         'tpl_cache'   => true,
     ];
 
-    public function __construct($config = [])
+    public function __construct(App $app, $config = [])
     {
+        $this->app    = $app;
         $this->config = array_merge($this->config, (array) $config);
+
         if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = Container::get('app')->getModulePath() . 'view' . DIRECTORY_SEPARATOR;
+            $this->config['view_path'] = $app->getModulePath() . 'view' . DIRECTORY_SEPARATOR;
         }
 
-        $this->template = new Template($this->config);
+        $this->template = new Template($app, $this->config);
     }
 
     /**
@@ -83,7 +86,7 @@ class Think
         }
 
         // 记录视图信息
-        Container::get('app')
+        $this->app
             ->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
 
         $this->template->fetch($template, $data, $config);
@@ -111,7 +114,7 @@ class Think
     private function parseTemplate($template)
     {
         // 分析模板文件规则
-        $request = Container::get('request');
+        $request = $this->app['request'];
 
         // 获取视图根目录
         if (strpos($template, '@')) {
@@ -124,7 +127,7 @@ class Think
             $module = isset($module) ? $module : $request->module();
             $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
         } else {
-            $path = isset($module) ? Container::get('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
+            $path = isset($module) ? $this->app->getAppPath() . $module . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
         }
 
         $depr = $this->config['view_depr'];

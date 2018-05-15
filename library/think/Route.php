@@ -48,6 +48,12 @@ class Route
     ];
 
     /**
+     * 应用对象
+     * @var App
+     */
+    protected $app;
+
+    /**
      * 请求对象
      * @var Request
      */
@@ -119,9 +125,10 @@ class Route
      */
     protected $autoSearchController = true;
 
-    public function __construct(Request $request, array $config = [])
+    public function __construct(App $app, array $config = [])
     {
-        $this->request = $request;
+        $this->app     = $app;
+        $this->request = $app['request'];
         $this->config  = $config;
         $this->host    = $this->request->host(true);
 
@@ -137,10 +144,10 @@ class Route
         return isset($this->config[$name]) ? $this->config[$name] : null;
     }
 
-    public static function __make(Request $request, Config $config)
+    public static function __make(App $app, Config $config)
     {
         $config = $config->pull('app');
-        $route  = new static($request, $config);
+        $route  = new static($app, $config);
 
         $route->lazy($config['url_lazy_route'])
             ->autoSearchController($config['controller_auto_search'])
@@ -368,7 +375,7 @@ class Route
      */
     public function getName($name = null)
     {
-        return Container::get('rule_name')->get($name);
+        return $this->app['rule_name']->get($name);
     }
 
     /**
@@ -379,7 +386,7 @@ class Route
      */
     public function setName($name)
     {
-        Container::get('rule_name')->import($name);
+        $this->app['rule_name']->import($name);
         return $this;
     }
 

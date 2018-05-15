@@ -22,6 +22,12 @@ class Request
     protected $instance;
 
     /**
+     * 应用对象实例
+     * @var App
+     */
+    protected $app;
+
+    /**
      * 配置参数
      * @var array
      */
@@ -262,8 +268,9 @@ class Request
      * @access public
      * @param  array  $options 参数
      */
-    public function __construct(array $options = [])
+    public function __construct(App $app, array $options = [])
     {
+        $this->app = $app;
         $this->init($options);
 
         // 保存 php://input
@@ -287,9 +294,9 @@ class Request
         return isset($this->config[$name]) ? $this->config[$name] : null;
     }
 
-    public static function __make(Config $config)
+    public static function __make(App $app, Config $config)
     {
-        return new static($config->pull('app'));
+        return new static($app, $config->pull('app'));
     }
 
     public function __call($method, $args)
@@ -1045,7 +1052,7 @@ class Request
     public function session($name = '', $default = null, $filter = '')
     {
         if (empty($this->session)) {
-            $this->session = Container::get('session')->get();
+            $this->session = $this->app['session']->get();
         }
 
         if (is_array($name)) {
@@ -1065,7 +1072,7 @@ class Request
      */
     public function cookie($name = '', $default = null, $filter = '')
     {
-        $cookie = Container::get('cookie');
+        $cookie = $this->app['cookie'];
 
         if (empty($this->cookie)) {
             $this->cookie = $cookie->get();
@@ -1202,7 +1209,7 @@ class Request
     public function env($name = '', $default = null, $filter = '')
     {
         if (empty($this->env)) {
-            $this->env = Container::get('env')->get();
+            $this->env = $this->app['env']->get();
         }
 
         if (is_array($name)) {
@@ -1878,7 +1885,7 @@ class Request
             header($name . ': ' . $token);
         }
 
-        Container::get('session')->set($name, $token);
+        $this->app['session']->set($name, $token);
 
         return $token;
     }
@@ -1946,7 +1953,7 @@ class Request
         if (isset($fun)) {
             $key = $fun($key);
         }
-        $cache = Container::get('cache');
+        $cache = $this->app['cache'];
 
         if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
             // 读取缓存

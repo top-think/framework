@@ -51,6 +51,17 @@ class Lang
         'zh-hans-cn' => 'zh-cn',
     ];
 
+    /**
+     * 应用对象
+     * @var App
+     */
+    protected $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
+
     // 设定当前的语言
     public function range($range = '')
     {
@@ -108,7 +119,7 @@ class Lang
         foreach ($file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
-                Container::get('app')->log('[ LANG ] ' . $_file);
+                $this->app->log('[ LANG ] ' . $_file);
                 $_lang = include $_file;
                 if (is_array($_lang)) {
                     $lang = array_change_key_case($_lang) + $lang;

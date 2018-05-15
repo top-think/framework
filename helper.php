@@ -101,7 +101,7 @@ if (!function_exists('bind')) {
      */
     function bind($abstract, $concrete = null)
     {
-        return Container::getInstance()->bind($abstract, $concrete);
+        return Container::getInstance()->bindTo($abstract, $concrete);
     }
 }
 

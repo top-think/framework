@@ -18,7 +18,7 @@ use think\route\Dispatch;
 /**
  * App 应用管理
  */
-class App implements \ArrayAccess
+class App extends Container
 {
     const VERSION = '5.1.13';
 
@@ -113,21 +113,14 @@ class App implements \ArrayAccess
     protected $dispatch;
 
     /**
-     * 容器对象实例
-     * @var Container
-     */
-    protected $container;
-
-    /**
      * 绑定模块（控制器）
      * @var string
      */
-    protected $bind;
+    protected $bindModule;
 
     public function __construct($appPath = '')
     {
-        $this->appPath   = $appPath ? realpath($appPath) . DIRECTORY_SEPARATOR : $this->getAppPath();
-        $this->container = Container::getInstance();
+        $this->appPath = $appPath ? realpath($appPath) . DIRECTORY_SEPARATOR : $this->getAppPath();
 
         $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
         $this->rootPath    = dirname($this->appPath) . DIRECTORY_SEPARATOR;
@@ -144,7 +137,7 @@ class App implements \ArrayAccess
      */
     public function bind($bind)
     {
-        $this->bind = $bind;
+        $this->bindModule = $bind;
         return $this;
     }
 
@@ -161,6 +154,39 @@ class App implements \ArrayAccess
     }
 
     /**
+     * 注册核心容器实例
+     * @access public
+     * @return void
+     */
+    public function registerCoreContainer()
+    {
+        // 注册核心类到容器
+        $this->bindTo([
+            'app'                   => App::class,
+            'build'                 => Build::class,
+            'cache'                 => Cache::class,
+            'config'                => Config::class,
+            'cookie'                => Cookie::class,
+            'debug'                 => Debug::class,
+            'env'                   => Env::class,
+            'hook'                  => Hook::class,
+            'lang'                  => Lang::class,
+            'log'                   => Log::class,
+            'middleware'            => Middleware::class,
+            'request'               => Request::class,
+            'response'              => Response::class,
+            'route'                 => Route::class,
+            'session'               => Session::class,
+            'url'                   => Url::class,
+            'validate'              => Validate::class,
+            'view'                  => View::class,
+            'rule_name'             => route\RuleName::class,
+            // 接口依赖注入
+            'think\LoggerInterface' => Log::class,
+        ]);
+    }
+
+    /**
      * 初始化应用
      * @access public
      * @return void
@@ -169,6 +195,15 @@ class App implements \ArrayAccess
     {
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
+
+        static::setInstance($this);
+
+        $this->registerCoreContainer();
+
+        $this->instance('app', $this);
+
+        // 加载惯例配置文件
+        $this->config->set(include $this->thinkPath . 'convention.php');
 
         // 设置路径环境变量
         $this->env->set([
@@ -292,7 +327,7 @@ class App implements \ArrayAccess
             if (is_file($path . 'provider.php')) {
                 $provider = include $path . 'provider.php';
                 if (is_array($provider)) {
-                    $this->container->bind($provider);
+                    $this->bindTo($provider);
                 }
             }
 
@@ -353,9 +388,9 @@ class App implements \ArrayAccess
             // 初始化应用
             $this->initialize();
 
-            if ($this->bind) {
+            if ($this->bindModule) {
                 // 模块/控制器绑定
-                $this->route->bind($this->bind);
+                $this->route->bind($this->bindModule);
             } elseif ($this->config('app.auto_bind_module')) {
                 // 入口自动绑定
                 $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
@@ -703,7 +738,7 @@ class App implements \ArrayAccess
             }
         }
 
-        return $this->container->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
+        return $this->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
     }
 
     /**
@@ -893,53 +928,4 @@ class App implements \ArrayAccess
         return $this->beginMem;
     }
 
-    /**
-     * 获取容器实例
-     * @access public
-     * @return Container
-     */
-    public function container()
-    {
-        return $this->container;
-    }
-
-    public function __set($name, $value)
-    {
-        $this->container->bind($name, $value);
-    }
-
-    public function __get($name)
-    {
-        return $this->container->make($name);
-    }
-
-    public function __isset($name)
-    {
-        return $this->container->bound($name);
-    }
-
-    public function __unset($name)
-    {
-        $this->container->delete($name);
-    }
-
-    public function offsetExists($key)
-    {
-        return $this->__isset($key);
-    }
-
-    public function offsetGet($key)
-    {
-        return $this->__get($key);
-    }
-
-    public function offsetSet($key, $value)
-    {
-        $this->__set($key, $value);
-    }
-
-    public function offsetUnset($key)
-    {
-        $this->__unset($key);
-    }
 }

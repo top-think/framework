@@ -17,19 +17,21 @@ use think\exception\HttpResponseException;
 
 class Middleware
 {
-    protected $queue  = [];
+    protected $queue = [];
+    protected $app;
     protected $config = [
         'default_namespace' => 'app\http\middleware',
     ];
 
-    public function __construct(array $config = [])
+    public function __construct(App $app, array $config = [])
     {
+        $this->app    = $app;
         $this->config = array_merge($this->config, $config);
     }
 
-    public static function __make(Config $config)
+    public static function __make(App $app, Config $config)
     {
-        return new static($config->pull('middleware'));
+        return new static($app, $config->pull('middleware'));
     }
 
     public function setConfig(array $config)
@@ -122,7 +124,7 @@ class Middleware
             list($middleware, $param) = explode(':', $middleware, 2);
         }
 
-        return [[Container::get($middleware), 'handle'], isset($param) ? $param : null];
+        return [[$this->app->make($middleware), 'handle'], isset($param) ? $param : null];
     }
 
     protected function resolve()

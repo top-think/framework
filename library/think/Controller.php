@@ -31,12 +31,6 @@ class Controller
     protected $request;
 
     /**
-     * 应用实例
-     * @var \think\App
-     */
-    protected $app;
-
-    /**
      * 验证失败是否抛出异常
      * @var bool
      */
@@ -58,11 +52,11 @@ class Controller
      * 构造方法
      * @access public
      */
-    public function __construct()
+    public function __construct(App $app = null)
     {
-        $this->request = Container::get('request');
-        $this->app     = Container::get('app');
-        $this->view    = Container::get('view');
+        $this->app     = $app ?: Container::get('app');
+        $this->request = $this->app['request'];
+        $this->view    = $this->app['view'];
 
         // 控制器初始化
         $this->initialize();

@@ -21,6 +21,12 @@ use think\response\Redirect;
 trait Jump
 {
     /**
+     * 应用实例
+     * @var \think\App
+     */
+    protected $app;
+
+    /**
      * 操作成功跳转的快捷方法
      * @access protected
      * @param  mixed     $msg 提示信息
@@ -52,7 +58,7 @@ trait Jump
             $type = 'jump';
         }
 
-        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::get('config')->get('dispatch_success_tmpl')]);
+        $response = Response::create($result, $type)->header($header)->options(['jump_template' => $this->app['config']->get('dispatch_success_tmpl')]);
 
         throw new HttpResponseException($response);
     }
@@ -69,10 +75,11 @@ trait Jump
      */
     protected function error($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
     {
+        $type = $this->getResponseType();
         if (is_null($url)) {
-            $url = Container::get('request')->isAjax() ? '' : 'javascript:history.back(-1);';
+            $url = $this->app['request']->isAjax() ? '' : 'javascript:history.back(-1);';
         } elseif ('' !== $url) {
-            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::get('url')->build($url);
+            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : $this->app['url']->build($url);
         }
 
         $result = [
@@ -83,12 +90,11 @@ trait Jump
             'wait' => $wait,
         ];
 
-        $type = $this->getResponseType();
         if ('html' == strtolower($type)) {
             $type = 'jump';
         }
 
-        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::get('config')->get('dispatch_error_tmpl')]);
+        $response = Response::create($result, $type)->header($header)->options(['jump_template' => $this->app['config']->get('dispatch_error_tmpl')]);
 
         throw new HttpResponseException($response);
     }
@@ -148,8 +154,12 @@ trait Jump
      */
     protected function getResponseType()
     {
-        $isAjax = Container::get('request')->isAjax();
-        $config = Container::get('config');
+        if (!$this->app) {
+            $this->app = Container::get('app');
+        }
+
+        $isAjax = $this->app['request']->isAjax();
+        $config = $this->app['config'];
 
         return $isAjax
         ? $config->get('default_ajax_return')

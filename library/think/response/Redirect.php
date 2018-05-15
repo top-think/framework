@@ -11,7 +11,6 @@
 
 namespace think\response;
 
-use think\Container;
 use think\Response;
 
 class Redirect extends Response
@@ -22,9 +21,9 @@ class Redirect extends Response
     // URL参数
     protected $params = [];
 
-    public function __construct($data = '', $code = 302, array $header = [], array $options = [])
+    public function __construct(App $app, $data = '', $code = 302, array $header = [], array $options = [])
     {
-        parent::__construct($data, $code, $header, $options);
+        parent::__construct($app, $data, $code, $header, $options);
 
         $this->cacheControl('no-cache,must-revalidate');
     }
@@ -51,7 +50,7 @@ class Redirect extends Response
      */
     public function with($name, $value = null)
     {
-        $session = Container::get('session');
+        $session = $this->app['session'];
 
         if (is_array($name)) {
             foreach ($name as $key => $val) {
@@ -74,7 +73,7 @@ class Redirect extends Response
         if (strpos($this->data, '://') || (0 === strpos($this->data, '/') && empty($this->params))) {
             return $this->data;
         } else {
-            return Container::get('url')->build($this->data, $this->params);
+            return $this->app['url']->build($this->data, $this->params);
         }
     }
 
@@ -92,7 +91,7 @@ class Redirect extends Response
      */
     public function remember()
     {
-        Container::get('session')->set('redirect_url', Container::get('request')->url());
+        $this->app['session']->set('redirect_url', $this->app['request']->url());
 
         return $this;
     }
@@ -104,7 +103,7 @@ class Redirect extends Response
      */
     public function restore()
     {
-        $session = Container::get('session');
+        $session = $this->app['session'];
 
         if ($session->has('redirect_url')) {
             $this->data = $session->get('redirect_url');
