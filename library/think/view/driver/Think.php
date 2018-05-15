@@ -11,6 +11,7 @@
 
 namespace think\view\driver;
 
+use think\App;
 use think\exception\TemplateNotFoundException;
 use think\Loader;
 use think\Template;
