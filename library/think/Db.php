@@ -83,8 +83,6 @@ class Db
      */
     public static $executeTimes = 0;
 
-    protected static $isInit = false;
-
     /**
      * 配置
      * @access public
@@ -96,6 +94,11 @@ class Db
         self::$config = $config;
     }
 
+    /**
+     * 获取数据库配置
+     * @access public
+     * @return array
+     */
     public static function getConfig()
     {
         return self::$config;
