@@ -14,7 +14,6 @@ namespace think\db;
 use InvalidArgumentException;
 use PDO;
 use PDOStatement;
-use think\Config;
 use think\Container;
 use think\Db;
 use think\db\exception\BindParamException;
