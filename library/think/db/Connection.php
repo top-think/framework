@@ -36,6 +36,18 @@ abstract class Connection
     // 错误信息
     protected $error = '';
 
+    /**
+     * 查询次数
+     * @var integer
+     */
+    private static $queryTimes = 0;
+
+    /**
+     * 执行次数
+     * @var integer
+     */
+    private static $executeTimes = 0;
+
     /** @var PDO[] 数据库连接ID 支持多个连接 */
     protected $links = [];
 
@@ -141,10 +153,10 @@ abstract class Connection
 
     /**
      * 架构函数 读取数据库配置信息
-     * @access public
+     * @access protected
      * @param  array $config 数据库配置数组
      */
-    public function __construct(array $config = [])
+    protected function __construct(array $config = [])
     {
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
@@ -592,7 +604,7 @@ abstract class Connection
             $this->free();
         }
 
-        Db::$queryTimes++;
+        self::$queryTimes++;
 
         // 调试开始
         $this->debug(true);
@@ -660,7 +672,7 @@ abstract class Connection
 
         $this->bind = $bind;
 
-        Db::$queryTimes++;
+        self::$queryTimes++;
 
         try {
             // 调试开始
@@ -734,7 +746,7 @@ abstract class Connection
 
         $this->bind = $bind;
 
-        Db::$executeTimes++;
+        self::$executeTimes++;
         try {
             // 调试开始
             $this->debug(true);
@@ -1743,7 +1755,7 @@ abstract class Connection
      */
     public function getQueryTimes(bool $execute = false)
     {
-        return $execute ? Db::$queryTimes + Db::$executeTimes : Db::$queryTimes;
+        return $execute ? self::$queryTimes + self::$executeTimes : self::$queryTimes;
     }
 
     /**
@@ -1753,7 +1765,7 @@ abstract class Connection
      */
     public function getExecuteTimes()
     {
-        return Db::$executeTimes;
+        return self::$executeTimes;
     }
 
     /**

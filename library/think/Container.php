@@ -267,7 +267,7 @@ class Container implements \ArrayAccess
 
             $args = $this->bindParams($reflect, $vars);
 
-            return $reflect->invokeArgs($args);
+            return call_user_func_array($function, $args);
         } catch (ReflectionException $e) {
             throw new Exception('function not exists: ' . $function . '()');
         }
@@ -342,6 +342,15 @@ class Container implements \ArrayAccess
         try {
             $reflect = new ReflectionClass($class);
 
+            if ($reflect->hasMethod('__make')) {
+                $method = new ReflectionMethod($class, '__make');
+
+                if ($method->isPublic() && $method->isStatic()) {
+                    $args = $this->bindParams($method, $vars);
+                    return $method->invokeArgs(null, $args);
+                }
+            }
+
             $constructor = $reflect->getConstructor();
 
             $args = $constructor ? $this->bindParams($constructor, $vars) : [];
@@ -375,8 +384,7 @@ class Container implements \ArrayAccess
             $class = $param->getClass();
 
             if ($class) {
-                $className = $class->getName();
-                $args[]    = $this->make($className);
+                $args[] = $this->getObjectParam($class->getName(), $vars);
             } elseif (1 == $type && !empty($vars)) {
                 $args[] = array_shift($vars);
             } elseif (0 == $type && isset($vars[$name])) {
@@ -389,6 +397,27 @@ class Container implements \ArrayAccess
         }
 
         return $args;
+    }
+
+    /**
+     * 获取对象类型的参数值
+     * @access protected
+     * @param  string   $className  类名
+     * @param  array    $vars       参数
+     * @return mixed
+     */
+    protected function getObjectParam($className, &$vars)
+    {
+        $value = array_shift($vars);
+
+        if ($value instanceof $className) {
+            $result = $value;
+        } else {
+            array_unshift($vars, $value);
+            $result = $this->make($className);
+        }
+
+        return $result;
     }
 
     public function __set($name, $value)

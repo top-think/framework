@@ -11,68 +11,179 @@
 
 namespace think;
 
-/**
- * Class Db
- * @package think
- * @method \think\db\Query connect(array $config =[], mixed $name = false) static 连接/切换数据库连接
- * @method \think\db\Query master() static 从主服务器读取数据
- * @method \think\db\Query table(string $table) static 指定数据表（含前缀）
- * @method \think\db\Query name(string $name) static 指定数据表（不含前缀）
- * @method \think\db\Expression raw(string $value) static 使用表达式设置数据
- * @method \think\db\Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
- * @method \think\db\Query whereRaw(string $where, array $bind = []) static 表达式查询
- * @method \think\db\Query whereExp(string $field, string $condition, array $bind = []) static 字段表达式查询
- * @method \think\db\Query when(mixed $condition, mixed $query, mixed $otherwise = null) static 条件查询
- * @method \think\db\Query join(mixed $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
- * @method \think\db\Query view(mixed $join, mixed $field = null, mixed $on = null, string $type = 'INNER') static 视图查询
- * @method \think\db\Query field(mixed $field, boolean $except = false) static 指定查询字段
- * @method \think\db\Query fieldRaw(string $field, array $bind = []) static 指定查询字段
- * @method \think\db\Query union(mixed $union, boolean $all = false) static UNION查询
- * @method \think\db\Query limit(mixed $offset, integer $length = null) static 查询LIMIT
- * @method \think\db\Query order(mixed $field, string $order = null) static 查询ORDER
- * @method \think\db\Query orderRaw(string $field, array $bind = []) static 查询ORDER
- * @method \think\db\Query cache(mixed $key = null , integer $expire = null) static 设置查询缓存
- * @method mixed value(string $field) static 获取某个字段的值
- * @method array column(string $field, string $key = '') static 获取某个列的值
- * @method mixed find(mixed $data = null) static 查询单个记录
- * @method mixed select(mixed $data = null) static 查询多个记录
- * @method integer insert(array $data, boolean $replace = false, boolean $getLastInsID = false, string $sequence = null) static 插入一条记录
- * @method integer insertGetId(array $data, boolean $replace = false, string $sequence = null) static 插入一条记录并返回自增ID
- * @method integer insertAll(array $dataSet) static 插入多条记录
- * @method integer update(array $data) static 更新记录
- * @method integer delete(mixed $data = null) static 删除记录
- * @method boolean chunk(integer $count, callable $callback, string $column = null) static 分块获取数据
- * @method \Generator cursor(mixed $data = null) static 使用游标查找记录
- * @method mixed query(string $sql, array $bind = [], boolean $master = false, bool $pdo = false) static SQL查询
- * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
- * @method \think\Paginator paginate(integer $listRows = 15, mixed $simple = null, array $config = []) static 分页查询
- * @method mixed transaction(callable $callback) static 执行数据库事务
- * @method void startTrans() static 启动事务
- * @method void commit() static 用于非自动提交状态下面的查询提交
- * @method void rollback() static 事务回滚
- * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
- * @method string getLastInsID(string $sequence = null) static 获取最近插入的ID
- * @method mixed getConfig(string $name = '') static 获取数据库的配置参数
- */
+use think\db\Connection;
+
 class Db
 {
     /**
-     * 查询次数
-     * @var integer
+     * 当前数据库连接对象
+     * @var Connection
      */
-    public static $queryTimes = 0;
+    protected $connection;
 
     /**
-     * 执行次数
-     * @var integer
+     * 架构函数
+     * @access public
      */
-    public static $executeTimes = 0;
-
-    public static function __callStatic($method, $args)
+    public function __construct(array $config = [])
     {
-        $class = Container::get('config')->get('database.query') ?: '\\think\\db\\Query';
+        $this->config = $config;
 
-        $query = new $class();
+        if (!empty($config['query'])) {
+            $this->config['query'] = '\\think\\db\\Query';
+        }
+
+        $this->connect($config);
+    }
+
+    public static function __make(Config $config)
+    {
+        return new static($config->pull('database'));
+    }
+
+    /**
+     * 切换数据库连接
+     * @access public
+     * @param  mixed         $config 连接配置
+     * @param  bool|string   $name 连接标识 true 强制重新连接
+     * @return $this|object
+     * @throws Exception
+     */
+    public function connect($config = [], $name = false)
+    {
+        $this->connection = Connection::instance($this->parseConfig($config), $name);
+
+        return $this;
+    }
+
+    /**
+     * 获得查询次数
+     * @access public
+     * @param  boolean $execute 是否包含所有查询
+     * @return integer
+     */
+    public function getQueryTimes(bool $execute = false)
+    {
+        return $this->connection->getQueryTimes($execute);
+    }
+
+    /**
+     * 获得执行次数
+     * @access public
+     * @return integer
+     */
+    public function getExecuteTimes()
+    {
+        return $this->connection->getExecuteTimes();
+    }
+    /**
+     * 数据库连接参数解析
+     * @access private
+     * @param  mixed $config
+     * @return array
+     */
+    private function parseConfig($config)
+    {
+        if (empty($config)) {
+            $config = $this->config;
+        } elseif (is_string($config) && false === strpos($config, '/')) {
+            // 支持读取配置参数
+            $config = $this->config[$config] ?? $this->config;
+        }
+
+        if (is_string($config)) {
+            return $this->parseDsnConfig($config);
+        } else {
+            return $config;
+        }
+    }
+
+    /**
+     * DSN解析
+     * 格式： mysql://username:passwd@localhost:3306/DbName?param1=val1&param2=val2#utf8
+     * @access private
+     * @param  string $dsnStr
+     * @return array
+     */
+    private function parseDsnConfig(string $dsnStr)
+    {
+        $info = parse_url($dsnStr);
+
+        if (!$info) {
+            return [];
+        }
+
+        $dsn = [
+            'type'     => $info['scheme'],
+            'username' => $info['user'] ?? '',
+            'password' => $info['pass'] ?? '',
+            'hostname' => $info['host'] ?? '',
+            'hostport' => $info['port'] ?? '',
+            'database' => !empty($info['path']) ? ltrim($info['path'], '/') : '',
+            'charset'  => $info['fragment'] ?? 'utf8',
+        ];
+
+        if (isset($info['query'])) {
+            parse_str($info['query'], $dsn['params']);
+        } else {
+            $dsn['params'] = [];
+        }
+
+        return $dsn;
+    }
+
+    /**
+     * 获取当前的数据库Connection对象
+     * @access public
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * 设置当前的数据库Connection对象
+     * @access public
+     * @param  Connection      $connection
+     * @return $this
+     */
+    public function setConnection(Connection $connection)
+    {
+        $this->connection = $connection;
+
+        return $this;
+    }
+
+    /**
+     * 获取数据库的配置参数
+     * @access public
+     * @param  string $name 参数名称
+     * @return mixed
+     */
+    public function getConfig(string $name = '')
+    {
+        return $name ? ($this->config[$name] ?? null) : $this->config;
+    }
+
+    /**
+     * 创建一个新的查询对象
+     * @access public
+     * @param  string $query        查询对象类名
+     * @param  mixed  $connection   连接配置信息
+     * @return mixed
+     */
+    public function buildQuery($query, $connection)
+    {
+        $connection = Connection::instance($this->parseConfig($connection));
+        return new $query($connection);
+    }
+
+    public function __call($method, $args)
+    {
+        $class = $this->config['query'];
+
+        $query = new $class($this->connection);
 
         return call_user_func_array([$query, $method], $args);
     }

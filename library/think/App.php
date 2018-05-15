@@ -122,13 +122,11 @@ class App extends Container
     {
         $this->appPath = $appPath ?: $this->getAppPath();
 
-        static::setInstance($this);
-
-        $this->registerCoreContainer();
-
-        $this->instance('app', $this);
-
-        $this->instance(Container::class, $this);
+        $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -169,6 +167,7 @@ class App extends Container
             'cache'                 => Cache::class,
             'config'                => Config::class,
             'cookie'                => Cookie::class,
+            'db'                    => Db::class,
             'debug'                 => Debug::class,
             'env'                   => Env::class,
             'hook'                  => Hook::class,
@@ -183,6 +182,7 @@ class App extends Container
             'validate'              => Validate::class,
             'view'                  => View::class,
             'rule_name'             => route\RuleName::class,
+
             // 接口依赖注入
             'think\LoggerInterface' => Log::class,
         ]);
@@ -195,13 +195,16 @@ class App extends Container
      */
     public function initialize()
     {
-        $this->beginTime   = microtime(true);
-        $this->beginMem    = memory_get_usage();
-        $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
-        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
-        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
-        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        $this->beginTime = microtime(true);
+        $this->beginMem  = memory_get_usage();
+
+        static::setInstance($this);
+
+        $this->registerCoreContainer();
+
+        $this->instance('app', $this);
+
+        $this->instance(Container::class, $this);
 
         // 加载惯例配置文件
         $this->config->set(include $this->thinkPath . 'convention.php');
@@ -235,10 +238,10 @@ class App extends Container
         $this->init();
 
         // 开启类名后缀
-        $this->suffix = $this->config('app.class_suffix');
+        $this->suffix = $this->config['app.class_suffix'];
 
         // 应用调试模式
-        $this->debug = $this->env->get('app_debug', $this->config('app.app_debug'));
+        $this->debug = $this->env->get('app_debug', $this->config['app.app_debug']);
         $this->env->set('app_debug', $this->debug);
 
         if (!$this->debug) {
@@ -255,15 +258,15 @@ class App extends Container
         }
 
         // 注册根命名空间
-        if (!empty($this->config('app.root_namespace'))) {
-            Loader::addNamespace($this->config('app.root_namespace'));
+        if (!empty($this->config['app.root_namespace'])) {
+            Loader::addNamespace($this->config['app.root_namespace']);
         }
 
         // 注册类库别名
         Loader::addClassAlias($this->config->pull('alias'));
 
         // 设置系统时区
-        date_default_timezone_set($this->config('app.default_timezone'));
+        date_default_timezone_set($this->config['app.default_timezone']);
 
         // 读取语言包
         $this->loadLangPack();
@@ -350,7 +353,7 @@ class App extends Container
         // 设置模块路径
         $this->setModulePath($path);
 
-        $this->request->filter($this->config('app.default_filter'));
+        $this->request->filter($this->config['app.default_filter']);
     }
 
     /**
@@ -365,16 +368,7 @@ class App extends Container
             // 初始化应用
             $this->initialize();
 
-            if ($this->bindModule) {
-                // 模块/控制器绑定
-                $this->route->bind($this->bindModule);
-            } elseif ($this->config('app.auto_bind_module')) {
-                // 入口自动绑定
-                $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
-                if ($name && 'index' != $name && is_dir($this->appPath . $name)) {
-                    $this->route->bind($name);
-                }
-            }
+            $this->checkBind();
 
             // 监听app_dispatch
             $this->hook->listen('app_dispatch');
@@ -384,9 +378,9 @@ class App extends Container
             if (empty($dispatch)) {
                 // 路由检测
                 $this->route
-                    ->lazy($this->config('app.url_lazy_route'))
-                    ->autoSearchController($this->config('app.controller_auto_search'))
-                    ->mergeRuleRegex($this->config('app.route_rule_merge'));
+                    ->lazy($this->config['app.url_lazy_route'])
+                    ->autoSearchController($this->config['app.controller_auto_search'])
+                    ->mergeRuleRegex($this->config['app.route_rule_merge']);
 
                 $dispatch = $this->routeCheck();
             }
@@ -406,9 +400,9 @@ class App extends Container
 
             // 请求缓存检查
             $this->request->cache(
-                $this->config('app.request_cache'),
-                $this->config('app.request_cache_expire'),
-                $this->config('app.request_cache_except')
+                $this->config['app.request_cache'],
+                $this->config['app.request_cache_expire'],
+                $this->config['app.request_cache_except']
             );
 
             $data = null;
@@ -433,7 +427,7 @@ class App extends Container
             } elseif (!is_null($data)) {
                 // 默认自动识别响应输出类型
                 $isAjax = $request->isAjax();
-                $type   = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
+                $type   = $isAjax ? $this->config['app.default_ajax_return'] : $this->config['app.default_return_type'];
 
                 $response = Response::create($data, $type);
             } else {
@@ -450,11 +444,25 @@ class App extends Container
         return $response;
     }
 
+    protected function checkBind()
+    {
+        if ($this->bindModule) {
+            // 模块/控制器绑定
+            $this->route->bind($this->bindModule);
+        } elseif ($this->config['app.auto_bind_module']) {
+            // 入口自动绑定
+            $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
+            if ($name && 'index' != $name && is_dir($this->appPath . $name)) {
+                $this->route->bind($name);
+            }
+        }
+    }
+
     protected function loadLangPack()
     {
         // 读取默认语言
-        $this->lang->range($this->config('app.default_lang'));
-        if ($this->config('app.lang_switch_on')) {
+        $this->lang->range($this->config['app.default_lang']);
+        if ($this->config['app.lang_switch_on']) {
             // 开启多语言机制 检测当前语言
             $this->lang->detect();
         }
@@ -493,17 +501,6 @@ class App extends Container
     }
 
     /**
-     * 获取配置参数 为空则获取所有配置
-     * @access public
-     * @param  string    $name 配置参数名（支持二级配置 .号分割）
-     * @return mixed
-     */
-    public function config(string $name = '')
-    {
-        return $this->config->get($name);
-    }
-
-    /**
      * URL路由检测（根据PATH_INFO)
      * @access public
      * @return Dispatch
@@ -511,7 +508,7 @@ class App extends Container
     public function routeCheck()
     {
         $path = $this->request->path();
-        $depr = $this->config('app.pathinfo_depr');
+        $depr = $this->config['app.pathinfo_depr'];
 
         // 路由检测
         $files = scandir($this->routePath);
@@ -526,10 +523,10 @@ class App extends Container
             }
         }
 
-        if ($this->config('app.route_annotation')) {
+        if ($this->config['app.route_annotation']) {
             // 自动生成路由定义
             if ($this->debug) {
-                $this->build->buildRoute($this->config('app.controller_suffix'));
+                $this->build->buildRoute($this->config['app.controller_suffix']);
             }
 
             $filename = $this->runtimePath . 'build_route.php';
@@ -544,10 +541,10 @@ class App extends Container
         }
 
         // 是否强制路由模式
-        $must = !is_null($this->routeMust) ? $this->routeMust : $this->config('app.url_route_must');
+        $must = !is_null($this->routeMust) ? $this->routeMust : $this->config['app.url_route_must'];
 
         // 路由检测 返回一个Dispatch对象
-        return $this->route->check($path, $depr, $must, $this->config('app.route_complete_match'));
+        return $this->route->check($path, $depr, $must, $this->config['app.route_complete_match']);
     }
 
     /**
@@ -602,24 +599,24 @@ class App extends Container
     {
         $guid = $name . $layer;
 
-        if ($this->__isset($guid)) {
-            return $this->__get($guid);
+        if ($this->has($guid)) {
+            return $this->make($guid);
         }
 
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
         if (class_exists($class)) {
-            $object = $this->__get($class);
+            $object = $this->make($class);
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
-                $object = $this->__get($class);
+                $object = $this->make($class);
             } else {
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
 
-        $this->__set($guid, $class);
+        $this->bind($guid, $class);
 
         return $object;
     }
@@ -654,9 +651,9 @@ class App extends Container
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
         if (class_exists($class)) {
-            return $this->__get($class);
+            return $this->make($class);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
-            return $this->__get($emptyClass);
+            return $this->make($emptyClass);
         }
 
         throw new ClassNotFoundException('class not exists:' . $class, $class);
@@ -674,7 +671,7 @@ class App extends Container
      */
     public function validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common')
     {
-        $name = $name ?: $this->config('default_validate');
+        $name = $name ?: $this->config['default_validate'];
 
         if (empty($name)) {
             return new Validate;
@@ -720,7 +717,7 @@ class App extends Container
             }
         }
 
-        return $this->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
+        return $this->invokeMethod([$class, $action . $this->config['action_suffix']], $vars);
     }
 
     /**

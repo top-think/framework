@@ -28,11 +28,6 @@ use think\Paginator;
 
 class Query
 {
-    /**
-     * 数据库连接对象列表
-     * @var array
-     */
-    protected static $connections = [];
 
     /**
      * 当前数据库连接对象
@@ -121,11 +116,7 @@ class Query
      */
     public function __construct(Connection $connection = null)
     {
-        if (is_null($connection)) {
-            $this->connection = Connection::instance();
-        } else {
-            $this->connection = $connection;
-        }
+        $this->connection = $connection;
 
         $this->prefix = $this->connection->getConfig('prefix');
     }
@@ -203,30 +194,6 @@ class Query
     }
 
     /**
-     * 设置当前的数据库Connection对象
-     * @access public
-     * @param  Connection      $connection
-     * @return $this
-     */
-    public function setConnection(Connection $connection)
-    {
-        $this->connection = $connection;
-        $this->prefix     = $this->connection->getConfig('prefix');
-
-        return $this;
-    }
-
-    /**
-     * 获取当前的数据库Connection对象
-     * @access public
-     * @return Connection
-     */
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
      * 指定模型
      * @access public
      * @param  Model $model 模型对象实例
@@ -246,21 +213,6 @@ class Query
     public function getModel()
     {
         return $this->model ? $this->model->setQuery($this) : null;
-    }
-
-    /**
-     * 设置从主库读取数据
-     * @access public
-     * @param  bool $all 是否所有表有效
-     * @return $this
-     */
-    public function readMaster($all = false)
-    {
-        $table = $all ? '*' : $this->getTable();
-
-        static::$readMaster[$table] = true;
-
-        return $this;
     }
 
     /**
@@ -286,6 +238,21 @@ class Query
     }
 
     /**
+     * 设置从主库读取数据
+     * @access public
+     * @param  bool $all 是否所有表有效
+     * @return $this
+     */
+    public function readMaster($all = false)
+    {
+        $table = $all ? '*' : $this->getTable();
+
+        static::$readMaster[$table] = true;
+
+        return $this;
+    }
+
+    /**
      * 得到当前或者指定名称的数据表
      * @access public
      * @param  string $name
@@ -300,17 +267,6 @@ class Query
         $name = $name ?: $this->name;
 
         return $this->prefix . Loader::parseName($name);
-    }
-
-    /**
-     * 获取数据库的配置参数
-     * @access public
-     * @param  string $name 参数名称
-     * @return mixed
-     */
-    public function getConfig(string $name = '')
-    {
-        return $this->connection->getConfig($name);
     }
 
     /**
@@ -388,29 +344,6 @@ class Query
         } else {
             return $this->connection->getFieldBindType($fieldType);
         }
-    }
-
-    /**
-     * 切换数据库连接
-     * @access public
-     * @param  mixed         $config 连接配置
-     * @param  bool|string   $name 连接标识 true 强制重新连接
-     * @return $this|object
-     * @throws Exception
-     */
-    public function connect($config = [], $name = false)
-    {
-        $this->connection = Connection::instance($config, $name);
-
-        $query = $this->connection->getConfig('query');
-
-        if (__CLASS__ != trim($query, '\\')) {
-            return new $query($this->connection);
-        }
-
-        $this->prefix = $this->connection->getConfig('prefix');
-
-        return $this;
     }
 
     /**
@@ -609,13 +542,7 @@ class Query
     {
         $this->parseOptions();
 
-        $result = $this->connection->value($this, $field, $default);
-
-        if (!empty($this->options['fetch_sql'])) {
-            return $result;
-        }
-
-        return $result;
+        return $this->connection->value($this, $field, $default);
     }
 
     /**
@@ -3176,7 +3103,7 @@ class Query
         }
 
         if (!isset($options['strict'])) {
-            $options['strict'] = $this->getConfig('fields_strict');
+            $options['strict'] = $this->connection->getConfig('fields_strict');
         }
 
         foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {

@@ -39,6 +39,11 @@ class Cache extends CacheItemPool
         $this->app = Container::get('app');
     }
 
+    public static function __make(Config $config)
+    {
+        return (new static())->init($config->pull('cache'));
+    }
+
     /**
      * 连接缓存
      * @access public

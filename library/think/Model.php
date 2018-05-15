@@ -12,6 +12,7 @@
 namespace think;
 
 use think\db\Query;
+use think\facade\Db;
 
 /**
  * Class Model
@@ -227,10 +228,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function buildQuery()
     {
         // 设置当前模型 确保查询返回模型对象
-        $class = $this->query;
 
-        $query = (new $class())->connect($this->connection)
-            ->model($this)
+        $query = Db::buildQuery($this->query, $this->connection);
+
+        $query->model($this)
             ->json($this->json)
             ->setFieldType($this->type);
 
