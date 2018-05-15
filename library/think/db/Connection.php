@@ -445,7 +445,7 @@ abstract class Connection
      * @param  string $field    字段名
      * @return array|string
      */
-    public function getFieldsType(string $tableName,  ? string $field = null)
+    public function getFieldsType(string $tableName, ? string $field = null)
     {
         $result = $this->getTableInfo($tableName, 'type');
 
@@ -963,7 +963,7 @@ abstract class Connection
      * @param  string  $sequence     自增序列名
      * @return integer|string
      */
-    public function insert(Query $query, bool $replace = false, bool $getLastInsID = false,  ? string $sequence = null)
+    public function insert(Query $query, bool $replace = false, bool $getLastInsID = false, ? string $sequence = null)
     {
         // 分析查询表达式
         $options = $query->getOptions();
@@ -1017,7 +1017,7 @@ abstract class Connection
      * @throws \Exception
      * @throws \Throwable
      */
-    public function insertAll(Query $query, array $dataSet = [], bool $replace = false,  ? int $limit = null)
+    public function insertAll(Query $query, array $dataSet = [], bool $replace = false, ? int $limit = null)
     {
         if (!is_array(reset($dataSet))) {
             return false;
@@ -1821,7 +1821,7 @@ abstract class Connection
      * @param  string  $sequence     自增序列名
      * @return string
      */
-    public function getLastInsID( ? string $sequence = null)
+    public function getLastInsID(? string $sequence = null)
     {
         return $this->linkID->lastInsertId($sequence);
     }
