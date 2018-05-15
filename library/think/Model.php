@@ -34,6 +34,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     private $isUpdate = false;
 
     /**
+     * 是否Replace
+     * @var bool
+     */
+    private $replace = false;
+
+    /**
      * 是否强制更新所有数据
      * @var bool
      */
@@ -356,6 +362,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 新增数据是否使用Replace
+     * @access public
+     * @param  bool $replace
+     * @return $this
+     */
+    public function replace($replace = true)
+    {
+        $this->replace = $replace;
+        return $this;
+    }
+
+    /**
      * 保存当前数据对象
      * @access public
      * @param  array  $data     数据
@@ -559,7 +577,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检查允许字段
         $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->insert));
 
-        $result = $this->db(false)->strict(false)->field($allowFields)->insert($this->data, false, false, $sequence);
+        $result = $this->db(false)->strict(false)->field($allowFields)->insert($this->data, $this->replace, false, $sequence);
 
         // 获取自动增长主键
         if ($result && $insertId = $this->db(false)->getLastInsID($sequence)) {
@@ -780,9 +798,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param  array      $data  数据数组
      * @param  array|true $field 允许字段
+     * @param  bool       $replace 使用Replace
      * @return static
      */
-    public static function create($data = [], $field = null)
+    public static function create($data = [], $field = null, $replace = false)
     {
         $model = new static();
 
@@ -790,7 +809,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $model->allowField($field);
         }
 
-        $model->isUpdate(false)->save($data, []);
+        $model->isUpdate(false)->replace($replace)->save($data, []);
 
         return $model;
     }
