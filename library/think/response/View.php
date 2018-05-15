@@ -91,9 +91,7 @@ class View extends Response
      */
     public function exists($name)
     {
-        return Container::get('view')
-            ->init(Container::get('config')->pull('template'))
-            ->exists($name);
+        return Container::get('view')->exists($name);
     }
 
 }

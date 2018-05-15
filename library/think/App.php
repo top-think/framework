@@ -11,6 +11,7 @@
 
 namespace think;
 
+use think\Db;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
 use think\route\Dispatch;
@@ -231,6 +232,9 @@ class App implements \ArrayAccess
         // 注册类库别名
         Loader::addClassAlias($this->config->pull('alias'));
 
+        // 数据库配置初始化
+        Db::init($this->config->pull('database'));
+
         // 设置系统时区
         date_default_timezone_set($this->config('app.default_timezone'));
 
@@ -320,6 +324,7 @@ class App implements \ArrayAccess
     protected function moduleContainerInit($module)
     {
         // 对容器中的对象实例进行配置更新
+        Db::init($this->config->pull('database'));
         $this->cookie->init($this->config->pull('cookie'));
         $this->session->setConfig($this->config->pull('session'));
         $this->view->init($this->config->pull('template'));

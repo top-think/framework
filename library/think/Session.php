@@ -278,8 +278,7 @@ class Session
      */
     protected function initDriver()
     {
-        // 不在 init 方法中实例化lockDriver，是因为 init 方法不一定先于 set 或 get 方法调用
-        $config = Container::get('config')->pull('session');
+        $config = $this->config;
 
         if (!empty($config['type']) && isset($config['use_lock']) && $config['use_lock']) {
             // 读取session驱动

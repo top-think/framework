@@ -297,29 +297,6 @@ class Query
     }
 
     /**
-     * 切换数据库连接
-     * @access public
-     * @param  mixed         $config 连接配置
-     * @param  bool|string   $name 连接标识 true 强制重新连接
-     * @return $this|object
-     * @throws Exception
-     */
-    public function connect($config = [], $name = false)
-    {
-        $this->connection = Connection::instance($config, $name);
-
-        $query = $this->connection->getConfig('query');
-
-        if (__CLASS__ != trim($query, '\\')) {
-            return new $query($this->connection);
-        }
-
-        $this->prefix = $this->connection->getConfig('prefix');
-
-        return $this;
-    }
-
-    /**
      * 执行查询 返回数据集
      * @access public
      * @param  string      $sql    sql指令

@@ -144,10 +144,10 @@ abstract class Connection
 
     /**
      * 架构函数 读取数据库配置信息
-     * @access protected
+     * @access public
      * @param  array $config 数据库配置数组
      */
-    protected function __construct(array $config = [])
+    public function __construct(array $config = [])
     {
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
@@ -160,11 +160,6 @@ abstract class Connection
 
         // 执行初始化操作
         $this->initialize();
-    }
-
-    public static function __make(Config $config)
-    {
-        return new static($config->pull('database'));
     }
 
     /**
@@ -190,21 +185,18 @@ abstract class Connection
         }
 
         if (true === $name || !isset(self::$instance[$name])) {
-            // 解析连接参数 支持数组和字符串
-            $options = self::parseConfig($config);
-
-            if (empty($options['type'])) {
+            if (empty($config['type'])) {
                 throw new InvalidArgumentException('Undefined db type');
             }
 
             // 记录初始化信息
-            Container::get('app')->log('[ DB ] INIT ' . $options['type']);
+            Container::get('app')->log('[ DB ] INIT ' . $config['type']);
 
             if (true === $name) {
                 $name = md5(serialize($config));
             }
 
-            self::$instance[$name] = self::instanceFactory($options['type'], $options, '\\think\\db\\connector\\');
+            self::$instance[$name] = self::instanceFactory($config['type'], $config, '\\think\\db\\connector\\');
         }
 
         return self::$instance[$name];
@@ -2154,62 +2146,6 @@ abstract class Connection
         } catch (\Exception $e) {
             throw new Exception('closure not support cache(true)');
         }
-    }
-
-    /**
-     * 数据库连接参数解析
-     * @access private
-     * @param  mixed $config
-     * @return array
-     */
-    private static function parseConfig($config)
-    {
-        if (empty($config)) {
-            $config = Container::get('config')->pull('database');
-        } elseif (is_string($config) && false === strpos($config, '/')) {
-            // 支持读取配置参数
-            $config = Container::get('config')->get('database.' . $config);
-        }
-
-        if (is_string($config)) {
-            return self::parseDsnConfig($config);
-        } else {
-            return $config;
-        }
-    }
-
-    /**
-     * DSN解析
-     * 格式： mysql://username:passwd@localhost:3306/DbName?param1=val1&param2=val2#utf8
-     * @access private
-     * @param  string $dsnStr
-     * @return array
-     */
-    private static function parseDsnConfig($dsnStr)
-    {
-        $info = parse_url($dsnStr);
-
-        if (!$info) {
-            return [];
-        }
-
-        $dsn = [
-            'type'     => $info['scheme'],
-            'username' => isset($info['user']) ? $info['user'] : '',
-            'password' => isset($info['pass']) ? $info['pass'] : '',
-            'hostname' => isset($info['host']) ? $info['host'] : '',
-            'hostport' => isset($info['port']) ? $info['port'] : '',
-            'database' => !empty($info['path']) ? ltrim($info['path'], '/') : '',
-            'charset'  => isset($info['fragment']) ? $info['fragment'] : 'utf8',
-        ];
-
-        if (isset($info['query'])) {
-            parse_str($info['query'], $dsn['params']);
-        } else {
-            $dsn['params'] = [];
-        }
-
-        return $dsn;
     }
 
 }

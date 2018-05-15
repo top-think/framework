@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\db\Connection;
+
 /**
  * Class Db
  * @package think
@@ -58,6 +60,18 @@ namespace think;
 class Db
 {
     /**
+     * 当前数据库连接对象
+     * @var Connection
+     */
+    protected static $connection;
+
+    /**
+     * 数据库配置
+     * @var array
+     */
+    protected static $config = [];
+
+    /**
      * 查询次数
      * @var integer
      */
@@ -69,12 +83,104 @@ class Db
      */
     public static $executeTimes = 0;
 
+    protected static $isInit = false;
+
+    /**
+     * 配置
+     * @access public
+     * @param  mixed $config
+     * @return void
+     */
+    public static function init($config = [])
+    {
+        self::$config = $config;
+    }
+
+    public static function getConfig()
+    {
+        return self::$config;
+    }
+
+    /**
+     * 切换数据库连接
+     * @access public
+     * @param  mixed         $config 连接配置
+     * @param  bool|string   $name 连接标识 true 强制重新连接
+     * @param  string        $query 查询对象类名
+     * @return mixed 返回查询对象实例
+     * @throws Exception
+     */
+    public static function connect($config = [], $name = false, $query = '')
+    {
+        // 解析配置参数
+        $options = self::parseConfig($config ?: self::$config);
+
+        // 创建数据库连接对象实例
+        self::$connection = Connection::instance($options, $name);
+
+        if (!$query) {
+            $query = self::$connection->getConfig('query') ?: '\\think\\db\\Query';
+        }
+
+        return new $query(self::$connection);
+    }
+
+    /**
+     * 数据库连接参数解析
+     * @access private
+     * @param  mixed $config
+     * @return array
+     */
+    private static function parseConfig($config)
+    {
+        if (is_string($config) && false === strpos($config, '/')) {
+            // 支持读取配置参数
+            $config = isset(self::$config[$config]) ? self::$config[$config] : self::$config;
+        }
+
+        if (is_string($config)) {
+            return self::parseDsnConfig($config);
+        } else {
+            return $config;
+        }
+    }
+
+    /**
+     * DSN解析
+     * 格式： mysql://username:passwd@localhost:3306/DbName?param1=val1&param2=val2#utf8
+     * @access private
+     * @param  string $dsnStr
+     * @return array
+     */
+    private static function parseDsnConfig($dsnStr)
+    {
+        $info = parse_url($dsnStr);
+
+        if (!$info) {
+            return [];
+        }
+
+        $dsn = [
+            'type'     => $info['scheme'],
+            'username' => isset($info['user']) ? $info['user'] : '',
+            'password' => isset($info['pass']) ? $info['pass'] : '',
+            'hostname' => isset($info['host']) ? $info['host'] : '',
+            'hostport' => isset($info['port']) ? $info['port'] : '',
+            'database' => !empty($info['path']) ? ltrim($info['path'], '/') : '',
+            'charset'  => isset($info['fragment']) ? $info['fragment'] : 'utf8',
+        ];
+
+        if (isset($info['query'])) {
+            parse_str($info['query'], $dsn['params']);
+        } else {
+            $dsn['params'] = [];
+        }
+
+        return $dsn;
+    }
+
     public static function __callStatic($method, $args)
     {
-        $class = Container::get('config')->get('database.query') ?: '\\think\\db\\Query';
-
-        $query = new $class();
-
-        return call_user_func_array([$query, $method], $args);
+        return call_user_func_array([static::connect(), $method], $args);
     }
 }
