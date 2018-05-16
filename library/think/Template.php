@@ -88,6 +88,7 @@ class Template
      */
     public function __construct(App $app, array $config = [])
     {
+        $this->app                  = $app;
         $this->config['cache_path'] = $app->getRuntimePath() . 'temp/';
         $this->config               = array_merge($this->config, $config);
 
