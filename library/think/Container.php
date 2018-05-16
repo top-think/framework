@@ -37,7 +37,12 @@ class Container implements \ArrayAccess
      * 容器绑定标识
      * @var array
      */
-    protected $bind = ['app' => 'think\App'];
+    protected $bind = [
+        'app'    => 'think\App',
+        'config' => 'think\Config',
+        'lang'   => 'think\Lang',
+        'log'    => 'think\Log',
+    ];
 
     /**
      * 容器标识别名
