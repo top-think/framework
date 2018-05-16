@@ -38,10 +38,12 @@ class Container implements \ArrayAccess
      * @var array
      */
     protected $bind = [
-        'app'    => 'think\App',
-        'config' => 'think\Config',
-        'lang'   => 'think\Lang',
-        'log'    => 'think\Log',
+        'app'      => 'think\App',
+        'config'   => 'think\Config',
+        'lang'     => 'think\Lang',
+        'log'      => 'think\Log',
+        'request'  => 'think\Request',
+        'response' => 'think\Response',
     ];
 
     /**
