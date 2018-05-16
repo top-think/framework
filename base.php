@@ -72,6 +72,3 @@ Loader::addClassAlias([
     'Validate' => facade\Validate::class,
     'View'     => facade\View::class,
 ]);
-
-// 加载composer autofile文件
-Loader::loadComposerAutoloadFiles();
