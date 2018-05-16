@@ -32,7 +32,7 @@ class App extends Container
      * 应用调试模式
      * @var bool
      */
-    protected $debug = true;
+    protected $appDebug = true;
 
     /**
      * 应用开始时间
@@ -237,10 +237,10 @@ class App extends Container
         $this->suffix = $this->config('app.class_suffix');
 
         // 应用调试模式
-        $this->debug = $this->env->get('app_debug', $this->config('app.app_debug'));
-        $this->env->set('app_debug', $this->debug);
+        $this->appDebug = $this->env->get('app_debug', $this->config('app.app_debug'));
+        $this->env->set('app_debug', $this->appDebug);
 
-        if (!$this->debug) {
+        if (!$this->appDebug) {
             ini_set('display_errors', 'Off');
         } elseif (PHP_SAPI != 'cli') {
             //重新申请一块比较大的buffer
@@ -351,29 +351,33 @@ class App extends Container
         $this->setModulePath($path);
 
         if ($module) {
-            $this->moduleContainerInit($module);
+            // 对容器中的对象实例进行配置更新
+            $this->containerConfigUpdate($module);
         }
 
     }
 
-    protected function moduleContainerInit($module)
+    protected function containerConfigUpdate($module)
     {
-        // 对容器中的对象实例进行配置更新
-        Db::init($this->config->pull('database'));
-        $this->cookie->init($this->config->pull('cookie'));
-        $this->session->setConfig($this->config->pull('session'));
-        $this->view->init($this->config->pull('template'));
-        $this->log->init($this->config->pull('log'));
-        $this->__get('debug')->setConfig($this->config->pull('trace'));
+        $config = $this->config->get();
+
+        Db::init($config['database']);
+
+        $this->request->init($config['app']);
+        $this->cookie->init($config['cookie']);
+        $this->view->init($config['template']);
+        $this->log->init($config['log']);
+        $this->session->setConfig($config['session']);
+        $this->debug->setConfig($config['trace']);
 
         // 加载当前模块语言包
         $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
 
         // 模块请求缓存检查
         $this->request->cache(
-            $this->config->get('request_cache'),
-            $this->config->get('request_cache_expire'),
-            $this->config->get('request_cache_except')
+            $config['app']['request_cache'],
+            $config['app']['request_cache_expire'],
+            $config['app']['request_cache_except']
         );
     }
 
@@ -414,7 +418,7 @@ class App extends Container
             $this->request->dispatch($dispatch);
 
             // 记录路由和请求信息
-            if ($this->debug) {
+            if ($this->appDebug) {
                 $this->log('[ ROUTE ] ' . var_export($this->request->routeInfo(), true));
                 $this->log('[ HEADER ] ' . var_export($this->request->header(), true));
                 $this->log('[ PARAM ] ' . var_export($this->request->param(), true));
@@ -509,7 +513,7 @@ class App extends Container
      */
     public function log($msg, $type = 'info')
     {
-        $this->debug && $this->log->record($msg, $type);
+        $this->appDebug && $this->log->record($msg, $type);
     }
 
     /**
@@ -547,7 +551,7 @@ class App extends Container
 
         if ($this->config('route.route_annotation')) {
             // 自动生成路由定义
-            if ($this->debug) {
+            if ($this->appDebug) {
                 $this->build->buildRoute($this->config('route.controller_suffix'));
             }
 
@@ -778,7 +782,7 @@ class App extends Container
      */
     public function isDebug()
     {
-        return $this->debug;
+        return $this->appDebug;
     }
 
     /**
