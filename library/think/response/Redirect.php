@@ -21,9 +21,9 @@ class Redirect extends Response
     // URL参数
     protected $params = [];
 
-    public function __construct(App $app, $data = '', $code = 302, array $header = [], array $options = [])
+    public function __construct($data = '', $code = 302, array $header = [], array $options = [])
     {
-        parent::__construct($app, $data, $code, $header, $options);
+        parent::__construct($data, $code, $header, $options);
 
         $this->cacheControl('no-cache,must-revalidate');
     }
