@@ -348,11 +348,12 @@ class App extends Container
             }
         }
 
+        $this->setModulePath($path);
+
         if ($module) {
             $this->moduleContainerInit($module);
         }
 
-        $this->setModulePath($path);
     }
 
     protected function moduleContainerInit($module)
