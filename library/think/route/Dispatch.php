@@ -16,7 +16,6 @@ use think\exception\ValidateException;
 use think\Request;
 use think\Response;
 use think\route\dispatch\ResponseDispatch;
-use think\route\RuleItem;
 
 abstract class Dispatch
 {
