@@ -20,6 +20,7 @@ use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
+use think\Loader;
 
 abstract class Connection
 {
