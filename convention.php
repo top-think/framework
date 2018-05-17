@@ -124,6 +124,10 @@ return [
         'route_annotation'       => false,
         // 默认的路由变量规则
         'default_route_pattern'  => '\w+',
+        // 是否开启路由缓存
+        'route_check_cache'      => false,
+        // 路由缓存的Key自定义设置（闭包），默认为当前URL和请求类型的md5
+        'route_check_cache_key'  => '',
 
         // +----------------------------------------------------------------------
         // | 异常及错误设置

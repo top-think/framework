@@ -20,27 +20,27 @@ class Url extends Dispatch
     protected function init()
     {
         // 解析默认的URL规则
-        $depr   = $this->router->config('pathinfo_depr');
-        $url    = str_replace($depr, '|', $this->dispatch);
-        $result = $this->parseUrl($url, $depr);
+        $depr   = $this->router->getConfig('pathinfo_depr');
+        $result = $this->parseUrl($this->dispatch, $depr);
 
         $this->dispatch = new Module($this->request, $this->router, $result);
     }
 
-    public function run()
+    public function exec()
     {
-        return $this->dispatch->run();
+        return $this->dispatch->exec();
     }
 
     /**
      * 解析URL地址
      * @access protected
-     * @param  string    $url URL
+     * @param  string   $url URL
+     * @param  string   $depr 分隔符
      * @return array
      */
     protected function parseUrl($url, $depr)
     {
-        $bind = $this->router->getBind();
+        $bind = $this->router->getRouter()->getBind();
 
         if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
@@ -54,7 +54,7 @@ class Url extends Dispatch
         }
 
         // 解析模块
-        $module = $this->router->config('app_multi_module') ? array_shift($path) : null;
+        $module = $this->router->getConfig('app_multi_module') ? array_shift($path) : null;
         if ($this->param['auto_search']) {
             $controller = $this->autoFindController($module, $path);
         } else {
@@ -67,7 +67,7 @@ class Url extends Dispatch
 
         // 解析额外参数
         if ($path) {
-            if ($this->router->config('url_param_type')) {
+            if ($this->router->getConfig('url_param_type')) {
                 $var += $path;
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -115,7 +115,7 @@ class Url extends Dispatch
             $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
         }
 
-        if ($this->router->getName($name) || $this->router->getName($name2)) {
+        if ($this->router->getRouter()->getName($name) || $this->router->getRouter()->getName($name2)) {
             return true;
         }
 
@@ -131,8 +131,8 @@ class Url extends Dispatch
      */
     protected function autoFindController($module, &$path)
     {
-        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->router->config('url_controller_layer');
-        $suffix = $this->app->getSuffix() || $this->router->config('controller_suffix') ? ucfirst($this->router->config('url_controller_layer')) : '';
+        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->router->getConfig('url_controller_layer');
+        $suffix = $this->app->getSuffix() || $this->router->getConfig('controller_suffix') ? ucfirst($this->router->getConfig('url_controller_layer')) : '';
 
         $item = [];
         $find = false;

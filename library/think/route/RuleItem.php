@@ -36,6 +36,12 @@ class RuleItem extends Rule
     protected $method;
 
     /**
+     * 路由变量
+     * @var array
+     */
+    protected $vars = [];
+
+    /**
      * 架构函数
      * @access public
      * @param  Route             $router 路由实例
@@ -123,6 +129,16 @@ class RuleItem extends Rule
     public function getMethod()
     {
         return strtolower($this->method);
+    }
+
+    /**
+     * 获取当前路由的变量
+     * @access public
+     * @return array
+     */
+    public function getVars()
+    {
+        return $this->vars;
     }
 
     /**

@@ -176,7 +176,8 @@ class RuleGroup extends Rule
 
         if ($this->auto) {
             // 自动解析URL地址
-            $result = new UrlDispatch($request, $this->router, $this->auto . '/' . $url, ['auto_search' => false]);
+            $ruleItem = new RuleItem($this->router, $this, '', '', $this->auto . '/' . $url);
+            $result   = new UrlDispatch($request, $ruleItem, $this->auto . '/' . $url, ['auto_search' => false]);
         } elseif ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
             $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());

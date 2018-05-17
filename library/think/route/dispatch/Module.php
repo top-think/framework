@@ -12,29 +12,16 @@
 namespace think\route\dispatch;
 
 use ReflectionMethod;
-use think\Container;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\Loader;
 use think\Request;
-use think\Route;
 use think\route\Dispatch;
 
 class Module extends Dispatch
 {
     protected $controller;
     protected $actionName;
-
-    public function __construct(Request $request, Route $router, $dispatch, $param = [], $convert = null)
-    {
-        $this->app      = Container::get('app');
-        $this->request  = $request;
-        $this->router   = $router;
-        $this->dispatch = $dispatch;
-        $this->param    = $param;
-        $this->convert  = $convert;
-        $this->init();
-    }
 
     protected function init()
     {
@@ -44,10 +31,10 @@ class Module extends Dispatch
             $result = explode('/', $result);
         }
 
-        if ($this->router->config('app_multi_module')) {
+        if ($this->router->getConfig('app_multi_module')) {
             // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $this->router->config('default_module')));
-            $bind      = $this->router->getBind();
+            $module    = strip_tags(strtolower($result[0] ?: $this->router->getConfig('default_module')));
+            $bind      = $this->router->getRouter()->getBind();
             $available = false;
 
             if ($bind && preg_match('/^[a-z]/is', $bind)) {
@@ -57,10 +44,10 @@ class Module extends Dispatch
                     $module = $bindModule;
                 }
                 $available = true;
-            } elseif (!in_array($module, $this->router->config('deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
+            } elseif (!in_array($module, $this->router->getConfig('deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
                 $available = true;
-            } elseif ($this->router->config('empty_module')) {
-                $module    = $this->router->config('empty_module');
+            } elseif ($this->router->getConfig('empty_module')) {
+                $module    = $this->router->getConfig('empty_module');
                 $available = true;
             }
 
@@ -75,20 +62,20 @@ class Module extends Dispatch
         }
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($this->convert) ? $this->convert : $this->router->config('url_convert');
+        $convert = is_bool($this->convert) ? $this->convert : $this->router->getConfig('url_convert');
         // 获取控制器名
-        $controller       = strip_tags($result[1] ?: $this->router->config('default_controller'));
+        $controller       = strip_tags($result[1] ?: $this->router->getConfig('default_controller'));
         $this->controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
-        $this->actionName = strip_tags($result[2] ?: $this->router->config('default_action'));
+        $this->actionName = strip_tags($result[2] ?: $this->router->getConfig('default_action'));
 
         // 设置当前请求的控制器、操作
         $this->request->controller(Loader::parseName($this->controller, 1))->action($this->actionName);
 
     }
 
-    public function run()
+    public function exec()
     {
         // 监听module_init
         $this->app['hook']->listen('module_init');
@@ -96,15 +83,15 @@ class Module extends Dispatch
         // 实例化控制器
         try {
             $instance = $this->app->controller($this->controller,
-                $this->router->config('url_controller_layer'),
-                $this->router->config('controller_suffix'),
-                $this->router->config('empty_controller'));
+                $this->router->getConfig('url_controller_layer'),
+                $this->router->getConfig('controller_suffix'),
+                $this->router->getConfig('empty_controller'));
         } catch (ClassNotFoundException $e) {
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
 
         // 获取当前操作名
-        $action = $this->actionName . $this->router->config('action_suffix');
+        $action = $this->actionName . $this->router->getConfig('action_suffix');
 
         if (is_callable([$instance, $action])) {
             // 执行操作方法
@@ -113,12 +100,12 @@ class Module extends Dispatch
             // 严格获取当前操作方法名
             $reflect    = new ReflectionMethod($instance, $action);
             $methodName = $reflect->getName();
-            $suffix     = $this->router->config('action_suffix');
+            $suffix     = $this->router->getConfig('action_suffix');
             $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
             $this->request->action($actionName);
 
             // 自动获取请求变量
-            $vars = $this->router->config('url_param_type')
+            $vars = $this->router->getConfig('url_param_type')
             ? $this->request->route()
             : $this->request->param();
         } elseif (is_callable([$instance, '_empty'])) {
@@ -132,6 +119,7 @@ class Module extends Dispatch
         }
 
         $this->app['hook']->listen('action_begin', $call);
-        return Container::getInstance()->invokeReflectMethod($instance, $reflect, $vars);
+
+        return $this->app->invokeReflectMethod($instance, $reflect, $vars);
     }
 }

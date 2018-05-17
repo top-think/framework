@@ -12,7 +12,6 @@
 namespace think\route;
 
 use think\Container;
-use think\exception\ValidateException;
 use think\Request;
 use think\Response;
 use think\route\dispatch\Callback as CallbackDispatch;
@@ -120,6 +119,27 @@ abstract class Rule
         }
 
         return isset($this->pattern[$name]) ? $this->pattern[$name] : null;
+    }
+
+    /**
+     * 获取路由参数
+     * @access public
+     * @param  string  $name 变量名
+     * @return mixed
+     */
+    public function getConfig($name = '')
+    {
+        return $this->router->config($name);
+    }
+
+    /**
+     * 获取路由对象
+     * @access public
+     * @return Route
+     */
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     /**
@@ -485,7 +505,7 @@ abstract class Rule
             $this->option['header'] = $header;
 
             if ($request->method(true) == 'OPTIONS') {
-                return new ResponseDispatch($request, $this->router, Response::create()->code(204)->header($header));
+                return new ResponseDispatch($request, $this, Response::create()->code(204)->header($header));
             }
         }
     }
@@ -529,73 +549,6 @@ abstract class Rule
     }
 
     /**
-     * 路由绑定模型实例
-     * @access protected
-     * @param  array|\Clousre    $bindModel 绑定模型
-     * @param  array             $matches   路由变量
-     * @return void
-     */
-    protected function createBindModel($bindModel, $matches)
-    {
-        foreach ($bindModel as $key => $val) {
-            if ($val instanceof \Closure) {
-                $result = Container::getInstance()->invokeFunction($val, $matches);
-            } else {
-                $fields = explode('&', $key);
-
-                if (is_array($val)) {
-                    list($model, $exception) = $val;
-                } else {
-                    $model     = $val;
-                    $exception = true;
-                }
-
-                $where = [];
-                $match = true;
-
-                foreach ($fields as $field) {
-                    if (!isset($matches[$field])) {
-                        $match = false;
-                        break;
-                    } else {
-                        $where[] = [$field, '=', $matches[$field]];
-                    }
-                }
-
-                if ($match) {
-                    $query  = strpos($model, '\\') ? $model::where($where) : Container::get('app')->model($model)->where($where);
-                    $result = $query->failException($exception)->find();
-                }
-            }
-
-            if (!empty($result)) {
-                // 注入容器
-                Container::getInstance()->instance(get_class($result), $result);
-            }
-        }
-    }
-
-    /**
-     * 处理路由请求缓存
-     * @access protected
-     * @param  Request       $request 请求对象
-     * @param  string|array  $cache  路由缓存
-     * @return void
-     */
-    protected function parseRequestCache($request, $cache)
-    {
-        if (is_array($cache)) {
-            list($key, $expire, $tag) = array_pad($cache, 3, null);
-        } else {
-            $key    = str_replace('|', '/', $request->url());
-            $expire = $cache;
-            $tag    = null;
-        }
-
-        $request->cache($key, $expire, $tag);
-    }
-
-    /**
      * 解析匹配到的规则路由
      * @access public
      * @param  Request   $request 请求对象
@@ -624,105 +577,17 @@ abstract class Rule
             }
         }
 
-        $this->afterMatchRule($request, $option, $matches);
-
         // 解析额外参数
         $count = substr_count($rule, '/');
         $url   = array_slice(explode('|', $url), $count + 1);
         $this->parseUrlParams($request, implode('|', $url), $matches);
 
-        // 记录匹配的路由信息
-        $request->routeInfo(['rule' => $rule, 'route' => $route, 'option' => $option, 'var' => $matches]);
-
-        // 检测路由after行为
-        if (!empty($option['after'])) {
-            $dispatch = $this->checkAfter($option['after']);
-
-            if (false !== $dispatch) {
-                return $dispatch;
-            }
-        }
-
-        // 数据自动验证
-        if (isset($option['validate'])) {
-            $this->autoValidate($option['validate'], $request);
-        }
+        $this->route  = $route;
+        $this->vars   = $matches;
+        $this->option = $option;
 
         // 发起路由调度
         return $this->dispatch($request, $route, $option);
-    }
-
-    protected function afterMatchRule($request, $option = [], $matches = [])
-    {
-        // 添加中间件
-        if (!empty($option['middleware'])) {
-            Container::get('middleware')->import($option['middleware']);
-        }
-
-        // 绑定模型数据
-        if (!empty($option['model'])) {
-            $this->createBindModel($option['model'], $matches);
-        }
-
-        // 指定Header数据
-        if (!empty($option['header'])) {
-            $header = $option['header'];
-            Container::get('hook')->add('response_send', function ($response) use ($header) {
-                $response->header($header);
-            });
-        }
-
-        // 指定Response响应数据
-        if (!empty($option['response'])) {
-            Container::get('hook')->add('response_send', $option['response']);
-        }
-
-        // 开启请求缓存
-        if (isset($option['cache']) && $request->isGet()) {
-            $this->parseRequestCache($request, $option['cache']);
-        }
-
-        if (!empty($option['append'])) {
-            $request->route($option['append']);
-        }
-    }
-
-    /**
-     * 验证数据
-     * @access protected
-     * @param  array             $option
-     * @param  \think\Request    $request
-     * @return void
-     * @throws ValidateException
-     */
-    protected function autoValidate($option, $request)
-    {
-        list($validate, $scene, $message, $batch) = $option;
-
-        if (is_array($validate)) {
-            // 指定验证规则
-            $v = Container::get('app')->validate();
-            $v->rule($validate);
-        } else {
-            // 调用验证器
-            $v = Container::get('app')->validate($validate);
-            if (!empty($scene)) {
-                $v->scene($scene);
-            }
-        }
-
-        if (!empty($message)) {
-            $v->message($message);
-        }
-
-        // 批量验证
-        if ($batch) {
-            $v->batch(true);
-        }
-
-        if (!$v->check($request->param())) {
-            throw new ValidateException($v->getError());
-        }
     }
 
     /**
@@ -745,38 +610,6 @@ abstract class Rule
     }
 
     /**
-     * 检查路由后置行为
-     * @access protected
-     * @param  mixed   $after 后置行为
-     * @return mixed
-     */
-    protected function checkAfter($after)
-    {
-        Container::get('log')->notice('路由后置行为建议使用中间件替代！');
-
-        $hook = Container::get('hook');
-
-        $result = null;
-
-        foreach ((array) $after as $behavior) {
-            $result = $hook->exec($behavior);
-
-            if (!is_null($result)) {
-                break;
-            }
-        }
-
-        // 路由规则重定向
-        if ($result instanceof Response) {
-            return new ResponseDispatch($result);
-        } elseif ($result instanceof Dispatch) {
-            return $result;
-        }
-
-        return false;
-    }
-
-    /**
      * 发起路由调度
      * @access protected
      * @param  Request   $request Request对象
@@ -788,14 +621,14 @@ abstract class Rule
     {
         if ($route instanceof \Closure) {
             // 执行闭包
-            $result = new CallbackDispatch($request, $this->router, $route);
+            $result = new CallbackDispatch($request, $this, $route);
         } elseif ($route instanceof Response) {
-            $result = new ResponseDispatch($request, $this->router, $route);
+            $result = new ResponseDispatch($request, $this, $route);
         } elseif (isset($option['view']) && false !== $option['view']) {
-            $result = new ViewDispatch($request, $this->router, $route, is_array($option['view']) ? $option['view'] : []);
+            $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : []);
         } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
-            $result = new RedirectDispatch($request, $this->router, $route, [], isset($option['status']) ? $option['status'] : 301);
+            $result = new RedirectDispatch($request, $this, $route, [], isset($option['status']) ? $option['status'] : 301);
         } elseif (false !== strpos($route, '\\')) {
             // 路由到方法
             $result = $this->dispatchMethod($request, $route);
@@ -824,7 +657,7 @@ abstract class Rule
         $route  = str_replace('/', '@', implode('/', $path));
         $method = strpos($route, '@') ? explode('@', $route) : $route;
 
-        return new CallbackDispatch($request, $this->router, $method, $var);
+        return new CallbackDispatch($request, $this, $method, $var);
     }
 
     /**
@@ -838,11 +671,11 @@ abstract class Rule
     {
         list($route, $var) = $this->parseUrlPath($route);
 
-        $result = new ControllerDispatch($request, $this->router, implode('/', $route), $var);
+        $result = new ControllerDispatch($request, $this, implode('/', $route), $var);
 
         $request->action(array_pop($route));
-        $request->controller($route ? array_pop($route) : $this->router->config('default_controller'));
-        $request->module($route ? array_pop($route) : $this->router->config('default_module'));
+        $request->controller($route ? array_pop($route) : $this->getConfig('default_controller'));
+        $request->module($route ? array_pop($route) : $this->getConfig('default_module'));
 
         return $result;
     }
@@ -860,10 +693,10 @@ abstract class Rule
 
         $action     = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
-        $module     = $this->router->config('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $module     = $this->getConfig('app_multi_module') && !empty($path) ? array_pop($path) : null;
         $method     = $request->method();
 
-        if ($this->router->config('use_action_prefix') && $this->router->getMethodPrefix($method)) {
+        if ($this->getConfig('use_action_prefix') && $this->router->getMethodPrefix($method)) {
             $prefix = $this->router->getMethodPrefix($method);
             // 操作方法前缀支持
             $action = 0 !== strpos($action, $prefix) ? $prefix . $action : $action;
@@ -873,7 +706,7 @@ abstract class Rule
         $request->route($var);
 
         // 路由到模块/控制器/操作
-        return new ModuleDispatch($request, $this->router, [$module, $controller, $action], [], false);
+        return new ModuleDispatch($request, $this, [$module, $controller, $action], ['convert' => false]);
     }
 
     /**
@@ -933,7 +766,7 @@ abstract class Rule
     protected function parseUrlParams($request, $url, &$var = [])
     {
         if ($url) {
-            if ($this->router->config('url_param_type')) {
+            if ($this->getConfig('url_param_type')) {
                 $var += explode('|', $url);
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -1052,7 +885,7 @@ abstract class Rule
                 $nameRule = substr($nameRule, 1, -1);
             }
         } else {
-            $nameRule = $this->router->config('default_route_pattern');
+            $nameRule = $this->getConfig('default_route_pattern');
         }
 
         return '(' . $prefix . '(?<' . $name . $suffix . '>' . $nameRule . '))' . $optional;

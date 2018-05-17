@@ -11,7 +11,6 @@
 
 namespace think\route\dispatch;
 
-use think\Container;
 use think\route\Dispatch;
 
 class Callback extends Dispatch
@@ -21,7 +20,7 @@ class Callback extends Dispatch
         // 执行回调方法
         $vars = array_merge($this->request->param(), $this->param);
 
-        return Container::getInstance()->invoke($this->dispatch, $vars);
+        return $this->app->invoke($this->dispatch, $vars);
     }
 
 }

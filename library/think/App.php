@@ -411,10 +411,30 @@ class App extends Container
             $this->hook->listen('app_dispatch');
 
             // 获取应用调度信息
+            if ($this->config->get('route_check_cache')) {
+                if ($this->config->get('route_check_cache_key')) {
+                    $closure  = $this->config->get('route_check_cache_key');
+                    $routeKey = $closure($this->request);
+                } else {
+                    $routeKey = md5($this->request->url(true) . ':' . $this->request->method());
+                }
+
+                if ($this->cache->has($routeKey)) {
+                    $this->dispatch = $this->cache->get($routeKey);
+                }
+            }
+
             $dispatch = $this->dispatch;
+
             if (empty($dispatch)) {
                 // 路由检测
                 $dispatch = $this->routeCheck();
+
+                try {
+                    if (isset($routeKey)) {
+                        $this->cache->set($routeKey, $dispatch);
+                    }
+                } catch (\Exception $e) {}
             }
 
             // 记录当前调度信息
