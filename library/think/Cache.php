@@ -23,8 +23,6 @@ use think\cache\Driver;
  */
 class Cache
 {
-    use Factory;
-
     /**
      * 缓存实例
      * @var array
@@ -69,7 +67,7 @@ class Cache
                 $name = md5(serialize($options));
             }
 
-            $this->instance[$name] = self::instanceFactory($type, $options, '\\think\\cache\\driver\\');
+            $this->instance[$name] = Loader::factory($type, $options, '\\think\\cache\\driver\\');
         }
 
         return $this->instance[$name];

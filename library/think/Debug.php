@@ -252,7 +252,7 @@ class Debug
 
         unset($config['type']);
 
-        $trace = self::instanceFactory($type, $config, '\\think\\debug\\');
+        $trace = Loader::factory($type, $config, '\\think\\debug\\');
 
         if ($response instanceof Redirect) {
             //TODO 记录

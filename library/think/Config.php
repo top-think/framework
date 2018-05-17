@@ -63,7 +63,7 @@ class Config implements \ArrayAccess
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
 
-        $object = self::instanceFactory($type, $config, '\\think\\config\\driver\\');
+        $object = Loader::factory($type, $config, '\\think\\config\\driver\\');
 
         return $this->set($object->parse(), $name);
     }
