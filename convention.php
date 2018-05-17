@@ -122,6 +122,8 @@ return [
         'route_complete_match'   => false,
         // 使用注解路由
         'route_annotation'       => false,
+        // 默认的路由变量规则
+        'default_route_pattern'  => '\w+',
 
         // +----------------------------------------------------------------------
         // | 异常及错误设置

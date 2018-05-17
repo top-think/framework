@@ -1052,7 +1052,7 @@ abstract class Rule
                 $nameRule = substr($nameRule, 1, -1);
             }
         } else {
-            $nameRule = '\w+';
+            $nameRule = $this->router->config('default_route_pattern');
         }
 
         return '(' . $prefix . '(?<' . $name . $suffix . '>' . $nameRule . '))' . $optional;
