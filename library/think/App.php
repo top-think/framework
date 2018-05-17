@@ -228,9 +228,6 @@ class App extends Container
         // 注册应用命名空间
         Loader::addNamespace($this->namespace, $this->appPath);
 
-        // 加载composer autofile文件
-        Loader::loadComposerAutoloadFiles();
-
         $this->configExt = $this->env->get('config_ext', '.php');
 
         // 初始化应用
@@ -265,6 +262,9 @@ class App extends Container
         if (!empty($this->config('app.root_namespace'))) {
             Loader::addNamespace($this->config('app.root_namespace'));
         }
+
+        // 加载composer autofile文件
+        Loader::loadComposerAutoloadFiles();
 
         // 注册类库别名
         Loader::addClassAlias($this->config->pull('alias'));
