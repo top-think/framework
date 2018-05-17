@@ -20,11 +20,9 @@ use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
-use think\Factory;
 
 abstract class Connection
 {
-    use Factory;
     protected static $instance = [];
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
@@ -195,7 +193,7 @@ abstract class Connection
                 $name = md5(serialize($config));
             }
 
-            self::$instance[$name] = self::instanceFactory($config['type'], $config, '\\think\\db\\connector\\');
+            self::$instance[$name] = Loader::factory($config['type'], $config, '\\think\\db\\connector\\');
         }
 
         return self::$instance[$name];

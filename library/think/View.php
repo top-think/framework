@@ -13,8 +13,6 @@ namespace think;
 
 class View
 {
-    use Factory;
-
     /**
      * 模板引擎实例
      * @var object

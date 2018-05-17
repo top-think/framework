@@ -13,8 +13,6 @@ namespace think;
 
 class Log implements LoggerInterface
 {
-    use Factory;
-
     const EMERGENCY = 'emergency';
     const ALERT     = 'alert';
     const CRITICAL  = 'critical';

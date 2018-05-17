@@ -13,8 +13,6 @@ namespace think;
 
 class Config implements \ArrayAccess
 {
-    use Factory;
-
     /**
      * 配置参数
      * @var array

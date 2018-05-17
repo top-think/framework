@@ -20,8 +20,6 @@ use think\exception\TemplateNotFoundException;
  */
 class Template
 {
-    use Factory;
-
     protected $app;
     /**
      * 模板变量
@@ -103,7 +101,7 @@ class Template
         // 初始化模板编译存储器
         $type = $this->config['compile_type'] ? $this->config['compile_type'] : 'File';
 
-        $this->storage = self::instanceFactory($type, null, '\\think\\template\\driver\\');
+        $this->storage = Loader::factory($type, null, '\\think\\template\\driver\\');
     }
 
     public static function __make(Config $config)

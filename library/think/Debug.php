@@ -16,8 +16,6 @@ use think\response\Redirect;
 
 class Debug
 {
-    use Factory;
-
     /**
      * 配置参数
      * @var array
