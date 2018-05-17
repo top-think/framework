@@ -15,7 +15,6 @@ use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\Loader;
-use think\Request;
 use think\route\Dispatch;
 
 class Module extends Dispatch
