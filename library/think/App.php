@@ -364,8 +364,12 @@ class App extends Container
     {
         $config = $this->config->get();
 
-        Db::init($config['database']);
+        // 注册异常处理类
+        if ($config['app']['exception_handle']) {
+            Error::setExceptionHandler($config['app']['exception_handle']);
+        }
 
+        Db::init($config['database']);
         $this->request->init($config['app']);
         $this->cookie->init($config['cookie']);
         $this->view->init($config['template']);
