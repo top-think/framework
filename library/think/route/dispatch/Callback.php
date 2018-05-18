@@ -15,7 +15,7 @@ use think\route\Dispatch;
 
 class Callback extends Dispatch
 {
-    public function run()
+    public function exec()
     {
         // 执行回调方法
         $vars = array_merge($this->request->param(), $this->param);

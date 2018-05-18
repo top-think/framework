@@ -16,7 +16,7 @@ use think\route\Dispatch;
 
 class View extends Dispatch
 {
-    public function run()
+    public function exec()
     {
         // 渲染模板输出
         $vars = array_merge($this->request->param(), $this->param);
