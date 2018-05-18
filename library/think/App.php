@@ -436,7 +436,7 @@ class App extends Container
 
                 try {
                     if (isset($routeKey)) {
-                        $this->cache->set($routeKey, $dispatch);
+                        $this->cache->tag('route_cache')->set($routeKey, $dispatch);
                     }
                 } catch (\Exception $e) {}
             }
