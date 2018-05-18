@@ -77,11 +77,12 @@ class Cache
      * 自动初始化缓存
      * @access public
      * @param  array         $options  配置数组
+     * @param  bool          $force    强制更新
      * @return Driver
      */
-    public function init(array $options = [])
+    public function init(array $options = [], $force = false)
     {
-        if (is_null($this->handler)) {
+        if (is_null($this->handler) || $force) {
 
             if ('complex' == $options['type']) {
                 $default = $options['default'];

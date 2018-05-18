@@ -376,6 +376,7 @@ class App extends Container
         $this->log->init($config['log']);
         $this->session->setConfig($config['session']);
         $this->debug->setConfig($config['trace']);
+        $this->cache->init($config['cache'], true);
 
         // 加载当前模块语言包
         $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
