@@ -82,6 +82,9 @@ abstract class Dispatch
             'var'    => $this->router->getVars(),
         ]);
 
+        // 执行路由后置操作
+        $this->routeAfter();
+
         // 初始化
         $this->init();
     }
@@ -90,25 +93,9 @@ abstract class Dispatch
     {}
 
     /**
-     * 执行路由调度
-     * @access public
-     * @return mixed
-     */
-    public function run()
-    {
-        $result = $this->routeAfter();
-
-        if ($result instanceof Response) {
-            return $result;
-        }
-
-        return $this->exec();
-    }
-
-    /**
      * 检查路由后置操作
      * @access protected
-     * @return mixed
+     * @return void
      */
     protected function routeAfter()
     {
@@ -147,12 +134,22 @@ abstract class Dispatch
         if (!empty($option['append'])) {
             $this->request->route($option['append']);
         }
+    }
+
+    /**
+     * 执行路由调度
+     * @access public
+     * @return mixed
+     */
+    public function run()
+    {
+        $option = $this->router->getOption();
 
         // 检测路由after行为
         if (!empty($option['after'])) {
             $dispatch = $this->checkAfter($option['after']);
 
-            if (false !== $dispatch) {
+            if ($dispatch instanceof Response) {
                 return $dispatch;
             }
         }
@@ -161,6 +158,8 @@ abstract class Dispatch
         if (isset($option['validate'])) {
             $this->autoValidate($option['validate'], $request);
         }
+
+        return $this->exec();
     }
 
     /**
