@@ -92,7 +92,8 @@ class Db
     public static function init($config = [])
     {
         self::$config = $config;
-        if (!empty($config['query'])) {
+
+        if (empty($config['query'])) {
             self::$config['query'] = '\\think\\db\\Query';
         }
     }
