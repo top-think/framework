@@ -212,7 +212,7 @@ class Hook
         if ($this->app->isDebug()) {
             $debug = $this->app['debug'];
             $debug->remark('behavior_end', 'time');
-            $app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
+            $this->app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
         }
 
         return $result;
