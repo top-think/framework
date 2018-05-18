@@ -127,7 +127,7 @@ abstract class Dispatch
         }
 
         // 开启请求缓存
-        if (isset($option['cache']) && $request->isGet()) {
+        if (isset($option['cache']) && $this->request->isGet()) {
             $this->parseRequestCache($option['cache']);
         }
 
