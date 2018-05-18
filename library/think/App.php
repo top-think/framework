@@ -415,7 +415,7 @@ class App extends Container
             $this->hook->listen('app_dispatch');
 
             // 获取应用调度信息
-            if ($this->config->get('route_check_cache')) {
+            if (!$this->appDebug && $this->config->get('route_check_cache')) {
                 $routeKey = $this->getRouteCacheKey();
 
                 if ($this->cache->has($routeKey)) {
