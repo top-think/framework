@@ -67,7 +67,7 @@ class Cache
                 $name = md5(serialize($options));
             }
 
-            $this->instance[$name] = Loader::factory($type, $options, '\\think\\cache\\driver\\');
+            $this->instance[$name] = Loader::factory($type, '\\think\\cache\\driver\\', $options);
         }
 
         return $this->instance[$name];

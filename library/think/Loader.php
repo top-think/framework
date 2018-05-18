@@ -385,16 +385,15 @@ class Loader
      * 创建工厂对象实例
      * @access public
      * @param  string $name         工厂类名
-     * @param  mixed  $option       实例化参数
      * @param  string $namespace    默认命名空间
      * @return mixed
      */
-    public static function factory($name, $option = null, $namespace = '')
+    public static function factory($name, $namespace = '', ...$args)
     {
         $class = false !== strpos($name, '\\') ? $name : $namespace . ucwords($name);
 
         if (class_exists($class)) {
-            return Container::getInstance()->invokeClass($class, is_null($option) ? [] : [$option]);
+            return Container::getInstance()->invokeClass($class, $args);
         } else {
             throw new ClassNotFoundException('class not exists:' . $class, $class);
         }

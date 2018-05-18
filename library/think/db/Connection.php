@@ -194,7 +194,7 @@ abstract class Connection
                 $name = md5(serialize($config));
             }
 
-            self::$instance[$name] = Loader::factory($config['type'], $config, '\\think\\db\\connector\\');
+            self::$instance[$name] = Loader::factory($config['type'], '\\think\\db\\connector\\', $config);
         }
 
         return self::$instance[$name];

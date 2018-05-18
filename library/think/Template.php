@@ -101,7 +101,7 @@ class Template
         // 初始化模板编译存储器
         $type = $this->config['compile_type'] ? $this->config['compile_type'] : 'File';
 
-        $this->storage = Loader::factory($type, null, '\\think\\template\\driver\\');
+        $this->storage = Loader::factory($type, '\\think\\template\\driver\\', null);
     }
 
     public static function __make(Config $config)

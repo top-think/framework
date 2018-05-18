@@ -111,7 +111,7 @@ class View
             unset($options['type']);
         }
 
-        $this->engine = Loader::factory($type, $options, '\\think\\view\\driver\\');
+        $this->engine = Loader::factory($type, '\\think\\view\\driver\\', $options);
 
         return $this;
     }
