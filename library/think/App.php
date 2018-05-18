@@ -416,12 +416,7 @@ class App extends Container
 
             // 获取应用调度信息
             if ($this->config->get('route_check_cache')) {
-                if ($this->config->get('route_check_cache_key')) {
-                    $closure  = $this->config->get('route_check_cache_key');
-                    $routeKey = $closure($this->request);
-                } else {
-                    $routeKey = md5($this->request->url(true) . ':' . $this->request->method());
-                }
+                $routeKey = $this->getRouteCacheKey();
 
                 if ($this->cache->has($routeKey)) {
                     $this->dispatch = $this->cache->get($routeKey);
@@ -498,6 +493,18 @@ class App extends Container
         $this->hook->listen('app_end', $response);
 
         return $response;
+    }
+
+    protected function getRouteCacheKey()
+    {
+        if ($this->config->get('route_check_cache_key')) {
+            $closure  = $this->config->get('route_check_cache_key');
+            $routeKey = $closure($this->request);
+        } else {
+            $routeKey = md5($this->request->baseUrl(true) . ':' . $this->request->method());
+        }
+
+        return $routeKey;
     }
 
     protected function loadLangPack()
