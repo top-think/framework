@@ -15,8 +15,6 @@ use think\Route;
 
 class AliasRule extends Domain
 {
-    protected $route;
-
     /**
      * 架构函数
      * @access public
@@ -36,7 +34,7 @@ class AliasRule extends Domain
     }
 
     /**
-     * 检测域名路由
+     * 检测路由别名
      * @access public
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
@@ -113,13 +111,4 @@ class AliasRule extends Domain
         return $this->option('except', $action);
     }
 
-    /**
-     * 获取当前的路由
-     * @access public
-     * @return string
-     */
-    public function getRoute()
-    {
-        return $this->route;
-    }
 }

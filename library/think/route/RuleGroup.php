@@ -33,8 +33,6 @@ class RuleGroup extends Rule
         'options' => [],
     ];
 
-    protected $rule;
-
     // MISS路由
     protected $miss;
 
@@ -131,7 +129,7 @@ class RuleGroup extends Rule
             $this->buildResourceRule($this->resource, $this->option);
         } elseif ($this->rule) {
             if ($this->rule instanceof Response) {
-                return new ResponseDispatch($request, $this->router, $this->rule);
+                return new ResponseDispatch($request, $this, $this->rule);
             }
 
             $this->parseGroupRule($this->rule);
@@ -176,12 +174,10 @@ class RuleGroup extends Rule
 
         if ($this->auto) {
             // 自动解析URL地址
-            $ruleItem = new RuleItem($this->router, $this, '', '', $this->auto . '/' . $url);
-            $result   = new UrlDispatch($request, $ruleItem, $this->auto . '/' . $url, ['auto_search' => false]);
+            $result = new UrlDispatch($request, $this, $this->auto . '/' . $url, ['auto_search' => false]);
         } elseif ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
-            $ruleItem = new RuleItem($this->router, $this, '', '', $this->miss->getRoute());
-            $result   = $ruleItem->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
+            $result = $this->miss->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
         } else {
             $result = false;
         }

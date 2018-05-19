@@ -17,8 +17,7 @@ class Resource extends RuleGroup
 {
     // 资源路由名称
     protected $resource;
-    // 资源路由地址
-    protected $route;
+
     // REST路由方法定义
     protected $rest = [];
 

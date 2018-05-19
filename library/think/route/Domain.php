@@ -168,7 +168,7 @@ class Domain extends RuleGroup
             $this->parseUrlParams($request, $array[1]);
         }
 
-        return new CallbackDispatch($request, $this->router, [$class, $action]);
+        return new CallbackDispatch($request, $this, [$class, $action]);
     }
 
     /**
@@ -189,7 +189,7 @@ class Domain extends RuleGroup
             $this->parseUrlParams($request, $array[2]);
         }
 
-        return new CallbackDispatch($request, $this->router, [$namespace . '\\' . Loader::parseName($class, 1), $method]);
+        return new CallbackDispatch($request, $this, [$namespace . '\\' . Loader::parseName($class, 1), $method]);
     }
 
     /**
@@ -209,7 +209,7 @@ class Domain extends RuleGroup
             $this->parseUrlParams($request, $array[1]);
         }
 
-        return new ControllerDispatch($request, $this->router, $controller . '/' . $action);
+        return new ControllerDispatch($request, $this, $controller . '/' . $action);
     }
 
     /**
@@ -229,7 +229,7 @@ class Domain extends RuleGroup
             $this->parseUrlParams($request, $array[1]);
         }
 
-        return new ModuleDispatch($request, $this->router, $controller . '/' . $action);
+        return new ModuleDispatch($request, $this, $controller . '/' . $action);
     }
 
 }

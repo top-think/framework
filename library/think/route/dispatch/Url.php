@@ -20,10 +20,10 @@ class Url extends Dispatch
     protected function init()
     {
         // 解析默认的URL规则
-        $depr   = $this->router->getConfig('pathinfo_depr');
+        $depr   = $this->rule->getConfig('pathinfo_depr');
         $result = $this->parseUrl($this->dispatch, $depr);
 
-        $this->dispatch = new Module($this->request, $this->router, $result);
+        $this->dispatch = new Module($this->request, $this->rule, $result);
     }
 
     public function exec()
@@ -40,7 +40,7 @@ class Url extends Dispatch
      */
     protected function parseUrl($url, $depr)
     {
-        $bind = $this->router->getRouter()->getBind();
+        $bind = $this->rule->getRouter()->getBind();
 
         if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
@@ -54,7 +54,7 @@ class Url extends Dispatch
         }
 
         // 解析模块
-        $module = $this->router->getConfig('app_multi_module') ? array_shift($path) : null;
+        $module = $this->rule->getConfig('app_multi_module') ? array_shift($path) : null;
         if ($this->param['auto_search']) {
             $controller = $this->autoFindController($module, $path);
         } else {
@@ -67,7 +67,7 @@ class Url extends Dispatch
 
         // 解析额外参数
         if ($path) {
-            if ($this->router->getConfig('url_param_type')) {
+            if ($this->rule->getConfig('url_param_type')) {
                 $var += $path;
             } else {
                 preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
@@ -115,7 +115,7 @@ class Url extends Dispatch
             $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
         }
 
-        if ($this->router->getRouter()->getName($name) || $this->router->getRouter()->getName($name2)) {
+        if ($this->rule->getRouter()->getName($name) || $this->rule->getRouter()->getName($name2)) {
             return true;
         }
 
@@ -131,8 +131,8 @@ class Url extends Dispatch
      */
     protected function autoFindController($module, &$path)
     {
-        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->router->getConfig('url_controller_layer');
-        $suffix = $this->app->getSuffix() || $this->router->getConfig('controller_suffix') ? ucfirst($this->router->getConfig('url_controller_layer')) : '';
+        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->rule->getConfig('url_controller_layer');
+        $suffix = $this->app->getSuffix() || $this->rule->getConfig('controller_suffix') ? ucfirst($this->rule->getConfig('url_controller_layer')) : '';
 
         $item = [];
         $find = false;
