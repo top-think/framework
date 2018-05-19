@@ -48,8 +48,8 @@ class RuleItem extends Rule
      * @param  RuleGroup         $parent 上级对象
      * @param  string            $name 路由标识
      * @param  string|array      $rule 路由规则
-     * @param  string            $method 请求类型
      * @param  string|\Closure   $route 路由地址
+     * @param  string            $method 请求类型
      * @param  array             $option 路由参数
      * @param  array             $pattern 变量规则
      */
