@@ -18,30 +18,6 @@ use think\Route;
 class RuleItem extends Rule
 {
     /**
-     * 路由规则
-     * @var string
-     */
-    protected $rule;
-
-    /**
-     * 路由地址
-     * @var string|\Closure
-     */
-    protected $route;
-
-    /**
-     * 请求类型
-     * @var string
-     */
-    protected $method;
-
-    /**
-     * 路由变量
-     * @var array
-     */
-    protected $vars = [];
-
-    /**
      * 架构函数
      * @access public
      * @param  Route             $router 路由实例
@@ -99,46 +75,6 @@ class RuleItem extends Rule
 
         // 生成路由标识的快捷访问
         $this->setRuleName();
-    }
-
-    /**
-     * 获取当前路由规则
-     * @access public
-     * @return string
-     */
-    public function getRule()
-    {
-        return $this->rule;
-    }
-
-    /**
-     * 获取当前路由地址
-     * @access public
-     * @return mixed
-     */
-    public function getRoute()
-    {
-        return $this->route;
-    }
-
-    /**
-     * 获取当前路由的请求类型
-     * @access public
-     * @return string
-     */
-    public function getMethod()
-    {
-        return strtolower($this->method);
-    }
-
-    /**
-     * 获取当前路由的变量
-     * @access public
-     * @return array
-     */
-    public function getVars()
-    {
-        return $this->vars;
     }
 
     /**
