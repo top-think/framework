@@ -157,7 +157,7 @@ abstract class Dispatch
 
         // 数据自动验证
         if (isset($option['validate'])) {
-            $this->autoValidate($option['validate'], $request);
+            $this->autoValidate($option['validate']);
         }
 
         return $this->exec();
@@ -197,11 +197,10 @@ abstract class Dispatch
      * 验证数据
      * @access protected
      * @param  array             $option
-     * @param  \think\Request    $request
      * @return void
      * @throws ValidateException
      */
-    protected function autoValidate($option, $request)
+    protected function autoValidate($option)
     {
         list($validate, $scene, $message, $batch) = $option;
 
@@ -226,7 +225,7 @@ abstract class Dispatch
             $v->batch(true);
         }
 
-        if (!$v->check($request->param())) {
+        if (!$v->check($this->request->param())) {
             throw new ValidateException($v->getError());
         }
     }
