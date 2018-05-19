@@ -180,7 +180,8 @@ class RuleGroup extends Rule
             $result   = new UrlDispatch($request, $ruleItem, $this->auto . '/' . $url, ['auto_search' => false]);
         } elseif ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
-            $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
+            $ruleItem = new RuleItem($this->router, $this, '', '', $this->miss->getRoute());
+            $result   = $ruleItem->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
         } else {
             $result = false;
         }
