@@ -152,9 +152,9 @@ abstract class Rule
     }
 
     /**
-     * 获取路由对象
+     * 路由是否有后置操作
      * @access public
-     * @return Route
+     * @return bool
      */
     public function doAfter()
     {
