@@ -22,8 +22,10 @@ class Module extends Dispatch
     protected $controller;
     protected $actionName;
 
-    protected function init()
+    public function init()
     {
+        parent::init();
+
         $result = $this->dispatch;
 
         if (is_string($result)) {

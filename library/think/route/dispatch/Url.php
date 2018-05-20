@@ -17,13 +17,15 @@ use think\route\Dispatch;
 
 class Url extends Dispatch
 {
-    protected function init()
+    public function init()
     {
+        parent::init();
         // 解析默认的URL规则
         $depr   = $this->rule->getConfig('pathinfo_depr');
         $result = $this->parseUrl($this->dispatch, $depr);
 
         $this->dispatch = new Module($this->request, $this->rule, $result);
+        $this->dispatch->init();
     }
 
     public function exec()

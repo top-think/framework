@@ -72,10 +72,16 @@ abstract class Dispatch
         if (isset($param['convert'])) {
             $this->convert = $param['convert'];
         }
+    }
 
+    public function init()
+    {
         // 执行路由后置操作
         if ($this->rule->doAfter()) {
             // 设置请求的路由信息
+
+            // 设置当前请求的参数
+            $this->request->route($this->rule->getVars());
             $this->request->routeInfo([
                 'rule'   => $this->rule->getRule(),
                 'route'  => $this->rule->getRoute(),
@@ -85,13 +91,7 @@ abstract class Dispatch
 
             $this->doRouteAfter();
         }
-
-        // 初始化
-        $this->init();
     }
-
-    protected function init()
-    {}
 
     /**
      * 检查路由后置操作
@@ -316,4 +316,14 @@ abstract class Dispatch
 
     abstract public function exec();
 
+    public function __sleep()
+    {
+        return ['rule', 'dispatch', 'convert', 'param', 'code', 'controller', 'actionName'];
+    }
+
+    public function __wakeup()
+    {
+        $this->app     = Container::get('app');
+        $this->request = $this->app['request'];
+    }
 }

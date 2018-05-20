@@ -262,6 +262,19 @@ abstract class Rule
     }
 
     /**
+     * 设置变量
+     * @access public
+     * @param  array  $vars 变量
+     * @return $this
+     */
+    public function vars($vars)
+    {
+        $this->vars = $vars;
+
+        return $this;
+    }
+
+    /**
      * 设置路由请求类型
      * @access public
      * @param  string     $method
@@ -879,9 +892,6 @@ abstract class Rule
                 }, $url);
             }
         }
-
-        // 设置当前请求的参数
-        $request->route($var);
     }
 
     /**
@@ -1040,5 +1050,15 @@ abstract class Rule
         array_unshift($args, $method);
 
         return call_user_func_array([$this, 'option'], $args);
+    }
+
+    public function __sleep()
+    {
+        return ['name', 'rule', 'route', 'method', 'vars', 'option', 'pattern', 'doAfter'];
+    }
+
+    public function __wakeup()
+    {
+        $this->router = Container::get('route');
     }
 }
