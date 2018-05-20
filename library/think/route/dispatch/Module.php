@@ -74,6 +74,7 @@ class Module extends Dispatch
         // 设置当前请求的控制器、操作
         $this->request->controller(Loader::parseName($this->controller, 1))->action($this->actionName);
 
+        return $this;
     }
 
     public function exec()

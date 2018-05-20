@@ -25,13 +25,11 @@ class Url extends Dispatch
         $result = $this->parseUrl($this->dispatch, $depr);
 
         $this->dispatch = new Module($this->request, $this->rule, $result);
-        $this->dispatch->init();
+        return $this->dispatch->init();
     }
 
     public function exec()
-    {
-        return $this->dispatch->exec();
-    }
+    {}
 
     /**
      * 解析URL地址

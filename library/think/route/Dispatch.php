@@ -91,6 +91,8 @@ abstract class Dispatch
 
             $this->doRouteAfter();
         }
+
+        return $this;
     }
 
     /**

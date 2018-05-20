@@ -419,8 +419,7 @@ class App extends Container
 
             if (empty($dispatch)) {
                 // 路由检测
-                $dispatch = $this->routeCheck();
-                $dispatch->init();
+                $dispatch = $this->routeCheck()->init();
             }
 
             // 记录当前调度信息
