@@ -26,17 +26,6 @@ class Config implements \ArrayAccess
     private $prefix = 'app';
 
     /**
-     * 应用对象
-     * @var App
-     */
-    protected $app;
-
-    public function __construct(App $app)
-    {
-        $this->app = $app;
-    }
-
-    /**
      * 设置配置参数默认前缀
      * @access public
      * @param string    $prefix 前缀
@@ -91,30 +80,6 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * 自动加载配置文件（PHP格式）
-     * @access public
-     * @param  string    $name 配置名
-     * @return void
-     */
-    protected function autoLoad($name)
-    {
-        // 如果尚未载入 则动态加载配置文件
-        $module = $this->app->request->module();
-        $module = $module ? $module . DIRECTORY_SEPARATOR : '';
-        $path   = $this->app->getAppPath() . $module;
-
-        if (is_dir($path . 'config')) {
-            $file = $path . 'config' . DIRECTORY_SEPARATOR . $name . $this->app->getConfigExt();
-        } elseif (is_dir($this->app->getConfigPath() . $module)) {
-            $file = $this->app->getConfigPath() . $module . $name . $this->app->getConfigExt();
-        }
-
-        if (isset($file) && is_file($file)) {
-            $this->load($file, $name);
-        }
-    }
-
-    /**
      * 检测配置是否存在
      * @access public
      * @param  string    $name 配置参数名（支持多级配置 .号分割）
@@ -138,11 +103,6 @@ class Config implements \ArrayAccess
     public function pull($name)
     {
         $name = strtolower($name);
-
-        if (!isset($this->config[$name])) {
-            // 如果尚未载入 则动态加载配置文件
-            $this->autoLoad($name);
-        }
 
         return isset($this->config[$name]) ? $this->config[$name] : [];
     }
@@ -169,11 +129,6 @@ class Config implements \ArrayAccess
         $name    = explode('.', $name);
         $name[0] = strtolower($name[0]);
         $config  = $this->config;
-
-        if (!isset($config[$name[0]])) {
-            // 如果尚未载入 则动态加载配置文件
-            $this->autoLoad($name[0]);
-        }
 
         // 按.拆分成多维数组进行判断
         foreach ($name as $val) {
