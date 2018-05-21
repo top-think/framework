@@ -19,8 +19,6 @@ class Url extends Dispatch
 {
     public function init()
     {
-        parent::init();
-
         // 解析默认的URL规则
         $result = $this->parseUrl($this->dispatch);
 

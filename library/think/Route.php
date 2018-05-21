@@ -818,9 +818,9 @@ class Route
         }
 
         // 默认路由解析
-        $ruleItem = new RuleItem($this, $this->group, '', '', $url);
-
-        return new UrlDispatch($this->request, $ruleItem, $url, ['auto_search' => $this->autoSearchController]);
+        return new UrlDispatch($this->request, $this->group, $url, [
+            'auto_search' => $this->autoSearchController,
+        ]);
     }
 
     /**

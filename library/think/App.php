@@ -554,7 +554,7 @@ class App extends Container
      */
     public function routeCheck()
     {
-        // 获取应用调度信息
+        // 检测路由缓存
         if (!$this->appDebug && $this->config->get('route_check_cache')) {
             $routeKey = $this->getRouteCacheKey();
 
@@ -563,6 +563,7 @@ class App extends Container
             }
         }
 
+        // 获取应用调度信息
         $path = $this->request->path();
 
         // 路由检测
@@ -589,10 +590,6 @@ class App extends Container
             if (is_file($filename)) {
                 include $filename;
             }
-        }
-
-        if (is_file($this->runtimePath . 'rule_regex.php')) {
-            $this->route->setRuleRegexs(include $this->runtimePath . 'rule_regex.php');
         }
 
         // 是否强制路由模式
