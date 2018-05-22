@@ -101,11 +101,16 @@ class Db
     /**
      * 获取数据库配置
      * @access public
-     * @return array
+     * @param  string $config 配置名称
+     * @return mixed
      */
-    public static function getConfig()
+    public static function getConfig($name = '')
     {
-        return self::$config;
+        if ('' === $name) {
+            return self::$config;
+        }
+
+        return isset(self::$config[$name]) ? self::$config[$name] : null;
     }
 
     /**
