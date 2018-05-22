@@ -110,10 +110,11 @@ class Config implements \ArrayAccess
     /**
      * 获取配置参数 为空则获取所有配置
      * @access public
-     * @param  string    $name 配置参数名（支持多级配置 .号分割）
+     * @param  string    $name      配置参数名（支持多级配置 .号分割）
+     * @param  mixed     $default   默认值
      * @return mixed
      */
-    public function get($name = null)
+    public function get($name = null, $default = null)
     {
         // 无参数时获取所有
         if (empty($name)) {
@@ -135,7 +136,7 @@ class Config implements \ArrayAccess
             if (isset($config[$val])) {
                 $config = $config[$val];
             } else {
-                return;
+                return $default;
             }
         }
 
