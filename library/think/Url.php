@@ -31,14 +31,37 @@ class Url
      */
     protected $app;
 
-    public function __construct(App $app)
+    /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [];
+
+    public function __construct(App $app, array $config = [])
     {
-        $this->app = $app;
+        $this->app    = $app;
+        $this->config = $config;
 
         if (is_file($app->getRuntimePath() . 'route.php')) {
             // 读取路由映射文件
             $app['route']->setName(include $app->getRuntimePath() . 'route.php');
         }
+    }
+
+    /**
+     * 初始化
+     * @access public
+     * @param  array $config
+     * @return void
+     */
+    public function init(array $config = [])
+    {
+        $this->config = array_merge($this->config, array_change_key_case($config));
+    }
+
+    public static function __make(App $app, Config $config)
+    {
+        return new static($app, $config->pull('app'));
     }
 
     /**

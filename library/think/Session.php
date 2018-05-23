@@ -16,6 +16,12 @@ use think\exception\ClassNotFoundException;
 class Session
 {
     /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * 前缀
      * @var string
      */
@@ -51,6 +57,10 @@ class Session
      */
     protected $lock = false;
 
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+    }
     /**
      * 设置或者获取session作用域（前缀）
      * @access public
@@ -68,6 +78,22 @@ class Session
         }
     }
 
+    public static function __make(Config $config)
+    {
+        return new static($config->pull('session'));
+    }
+
+    /**
+     * 配置
+     * @access public
+     * @param  array $config
+     * @return void
+     */
+    public function setConfig(array $config = [])
+    {
+        $this->config = array_merge($this->config, array_change_key_case($config));
+    }
+
     /**
      * session初始化
      * @access public
@@ -77,12 +103,8 @@ class Session
      */
     public function init(array $config = [])
     {
-        if (empty($config)) {
-            $config = Container::get('config')->pull('session');
-        }
+        $config = $config ?: $this->config;
 
-        // 记录初始化信息
-        Container::get('app')->log('[ SESSION ] INIT ' . var_export($config, true));
         $isDoStart = false;
 
         // 启动session
@@ -148,7 +170,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function set(string $name, $value, ? string $prefix = null)
+    public function set(string $name, $value, ?string $prefix = null)
     {
         $this->lock();
 
@@ -180,7 +202,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function get(string $name = '', ? string $prefix = null)
+    public function get(string $name = '', ?string $prefix = null)
     {
         $this->lock();
 
@@ -288,7 +310,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function pull(string $name, ? string $prefix = null)
+    public function pull(string $name, ?string $prefix = null)
     {
         $result = $this->get($name, $prefix);
 
@@ -349,7 +371,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function delete($name, ? string $prefix = null)
+    public function delete($name, ?string $prefix = null)
     {
         empty($this->init) && $this->boot();
 
@@ -381,7 +403,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function clear(? string $prefix = null)
+    public function clear(?string $prefix = null)
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
@@ -400,7 +422,7 @@ class Session
      * @param  string|null   $prefix
      * @return bool
      */
-    public function has(string $name, ? string $prefix = null)
+    public function has(string $name, ?string $prefix = null)
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;

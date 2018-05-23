@@ -23,8 +23,8 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     protected $instance;
 
     /**
-     * 配置对象
-     * @var Config
+     * 配置
+     * @var array
      */
     protected $config;
 
@@ -263,22 +263,35 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @param  array  $options 参数
      */
-    public function __construct($options = [])
+    public function __construct(App $app, array $options = [])
     {
-        foreach ($options as $name => $item) {
-            if (property_exists($this, $name)) {
-                $this->$name = $item;
-            }
-        }
-
-        $this->config = Container::get('config');
-
-        if (is_null($this->filter)) {
-            $this->filter = $this->config->get('default_filter');
-        }
+        $this->app = $app;
+        $this->init($options);
 
         // 保存 php://input
         $this->input = file_get_contents('php://input');
+    }
+
+    public function init(array $options = [])
+    {
+        $this->config = array_merge($this->config, $options);
+
+        if (is_null($this->filter) && !empty($this->config['default_filter'])) {
+            $this->filter = $this->config['default_filter'];
+        }
+    }
+
+    public function config($name = null)
+    {
+        if (is_null($name)) {
+            return $this->config;
+        }
+        return isset($this->config[$name]) ? $this->config[$name] : null;
+    }
+
+    public static function __make(App $app, Config $config)
+    {
+        return new static($app, $config->pull('app'));
     }
 
     public function __call($method, $args)
@@ -319,7 +332,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string    $content
      * @return \think\Request
      */
-    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [],  ? string $content = null)
+    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], ?string $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -408,7 +421,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function domain( ? string $domain = null)
+    public function domain(?string $domain = null)
     {
         if (!is_null($domain)) {
             $this->domain = $domain;
@@ -443,7 +456,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return string
      */
-    public function subDomain() : string
+    public function subDomain(): string
     {
         if (is_null($this->subDomain)) {
             // 获取当前主域名
@@ -468,7 +481,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function panDomain( ? string $domain = null)
+    public function panDomain(?string $domain = null)
     {
         if (is_null($domain)) {
             return $this->panDomain;
@@ -497,7 +510,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  bool $complete 是否包含完整域名
      * @return string|$this
      */
-    public function url(bool $complete = false) : string
+    public function url(bool $complete = false): string
     {
         if (!$this->url) {
             if ($this->isCli()) {
@@ -534,7 +547,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  bool $complete 是否包含完整域名
      * @return string
      */
-    public function baseUrl(bool $complete = false) : string
+    public function baseUrl(bool $complete = false): string
     {
         if (!$this->baseUrl) {
             $str           = $this->url();

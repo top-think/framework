@@ -145,7 +145,7 @@ class Lang
      * @param  string        $range 语言作用域
      * @return mixed
      */
-    public function get(? string $name = null, array $vars = [], string $range = '')
+    public function get(?string $name = null, array $vars = [], string $range = '')
     {
         $range = $range ?: $this->range;
 
@@ -200,11 +200,8 @@ class Lang
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
-            $langSet     = strtolower($matches[1]);
-            $acceptLangs = Container::get('config')->get('header_accept_lang');
-            if (isset($acceptLangs[$langSet])) {
-                $langSet = $acceptLangs[$langSet];
-            } elseif (isset($this->acceptLanguage[$langSet])) {
+            $langSet = strtolower($matches[1]);
+            if (isset($this->acceptLanguage[$langSet])) {
                 $langSet = $this->acceptLanguage[$langSet];
             }
         }
@@ -223,7 +220,7 @@ class Lang
      * @param  string $lang 语言
      * @return void
      */
-    public function saveToCookie(? string $lang = null)
+    public function saveToCookie(?string $lang = null)
     {
         $range = $lang ?: $this->range;
 
@@ -261,5 +258,16 @@ class Lang
     public function setAllowLangList(array $list)
     {
         $this->allowLangList = $list;
+    }
+
+    /**
+     * 设置转义的语言列表
+     * @access public
+     * @param  array $list 语言列表
+     * @return void
+     */
+    public function setAcceptLanguage(array $list)
+    {
+        $this->acceptLanguage = array_merge($this->acceptLanguage, $list);
     }
 }
