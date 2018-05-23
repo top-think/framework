@@ -13,7 +13,7 @@ namespace think;
 
 use think\exception\HttpResponseException;
 
-class Request//implements Psr\Http\Message\ServerRequestInterface
+class Request //implements Psr\Http\Message\ServerRequestInterface
 
 {
     /**
@@ -319,7 +319,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string    $content
      * @return \think\Request
      */
-    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [],  ? string $content = null)
+    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], ? string $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -408,7 +408,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function domain( ? string $domain = null)
+    public function domain(? string $domain = null)
     {
         if (!is_null($domain)) {
             $this->domain = $domain;
@@ -468,7 +468,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function panDomain( ? string $domain = null)
+    public function panDomain(? string $domain = null)
     {
         if (is_null($domain)) {
             return $this->panDomain;
