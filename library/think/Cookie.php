@@ -153,7 +153,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return bool
      */
-    public function has(string $name,  ? string $prefix = null)
+    public function has(string $name, ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -170,7 +170,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return mixed
      */
-    public function get(string $name = '',  ? string $prefix = null)
+    public function get(string $name = '', ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -210,7 +210,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return void
      */
-    public function delete(string $name,  ? string $prefix = null)
+    public function delete(string $name, ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -232,7 +232,7 @@ class Cookie
      * @param  string|null $prefix cookie前缀
      * @return void
      */
-    public function clear( ? string $prefix = null)
+    public function clear(? string $prefix = null)
     {
         // 清除指定前缀的所有cookie
         if (empty($_COOKIE)) {
