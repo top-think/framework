@@ -11,6 +11,7 @@
 
 namespace think;
 
+use ArrayAccess;
 use Closure;
 use InvalidArgumentException;
 use ReflectionClass;
@@ -19,7 +20,7 @@ use ReflectionFunction;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 
-class Container implements \ArrayAccess
+class Container implements ArrayAccess
 {
     /**
      * 容器对象实例
@@ -37,7 +38,14 @@ class Container implements \ArrayAccess
      * 容器绑定标识
      * @var array
      */
-    protected $bind = [];
+    protected $bind = [
+        'app'      => 'think\App',
+        'config'   => 'think\Config',
+        'lang'     => 'think\Lang',
+        'log'      => 'think\Log',
+        'request'  => 'think\Request',
+        'response' => 'think\Response',
+    ];
 
     /**
      * 容器标识别名
@@ -180,6 +188,21 @@ class Container implements \ArrayAccess
     public function has(string $name)
     {
         return $this->bound($name);
+    }
+
+    /**
+     * 判断容器中是否存在对象实例
+     * @access public
+     * @param  string    $abstract    类名或者标识
+     * @return bool
+     */
+    public function exists($abstract)
+    {
+        if (isset($this->bind[$abstract])) {
+            $abstract = $this->bind[$abstract];
+        }
+
+        return isset($this->instances[$abstract]);
     }
 
     /**

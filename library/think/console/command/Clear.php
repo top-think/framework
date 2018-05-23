@@ -21,28 +21,33 @@ class Clear extends Command
     protected function configure()
     {
         // 指令配置
-        // 指令配置
         $this
             ->setName('clear')
             ->addOption('path', 'd', Option::VALUE_OPTIONAL, 'path to clear', null)
             ->addOption('cache', 'c', Option::VALUE_NONE, 'clear cache file')
             ->addOption('log', 'l', Option::VALUE_NONE, 'clear log file')
             ->addOption('dir', 'r', Option::VALUE_NONE, 'clear empty dir')
+            ->addOption('route', 'u', Option::VALUE_NONE, 'clear route cache')
             ->setDescription('Clear runtime file');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        if ($input->getOption('cache')) {
-            $path = App::getRuntimePath() . 'cache';
-        } elseif ($input->getOption('log')) {
-            $path = App::getRuntimePath() . 'log';
+        if ($input->getOption('route')) {
+            Cache::clear('route_cache');
         } else {
-            $path = $input->getOption('path') ?: App::getRuntimePath();
+            if ($input->getOption('cache')) {
+                $path = App::getRuntimePath() . 'cache';
+            } elseif ($input->getOption('log')) {
+                $path = App::getRuntimePath() . 'log';
+            } else {
+                $path = $input->getOption('path') ?: App::getRuntimePath();
+            }
+
+            $rmdir = $input->getOption('dir') ? true : false;
+            $this->clear(rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR, $rmdir);
         }
 
-        $rmdir = $input->getOption('dir') ? true : false;
-        $this->clear(rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR, $rmdir);
         $output->writeln("<info>Clear Successed</info>");
     }
 

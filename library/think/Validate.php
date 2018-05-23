@@ -1078,7 +1078,7 @@ class Validate
      */
     public function requireCallback($value, $rule, $data)
     {
-        $result = call_user_func_array($rule, [$value, $data]);
+        $result = call_user_func_array([$this, $rule], [$value, $data]);
 
         if ($result) {
             return !empty($value) || '0' == $value;

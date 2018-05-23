@@ -29,7 +29,7 @@ class Db
     {
         $this->config = $config;
 
-        if (!empty($config['query'])) {
+        if (empty($config['query'])) {
             $this->config['query'] = '\\think\\db\\Query';
         }
 

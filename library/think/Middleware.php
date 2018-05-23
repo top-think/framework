@@ -18,6 +18,26 @@ use think\exception\HttpResponseException;
 class Middleware
 {
     protected $queue = [];
+    protected $app;
+    protected $config = [
+        'default_namespace' => 'app\\http\\middleware\\',
+    ];
+
+    public function __construct(App $app, array $config = [])
+    {
+        $this->app    = $app;
+        $this->config = array_merge($this->config, $config);
+    }
+
+    public static function __make(App $app, Config $config)
+    {
+        return new static($app, $config->pull('middleware'));
+    }
+
+    public function setConfig(array $config)
+    {
+        $this->config = array_merge($this->config, $config);
+    }
 
     public function import(array $middlewares = [])
     {
@@ -89,8 +109,11 @@ class Middleware
         }
 
         if (false === strpos($middleware, '\\')) {
-            $value      = Container::get('config')->get('middleware.' . $middleware);
-            $middleware = $value ?: Container::get('app')->getNamespace() . '\\http\\middleware\\' . $middleware;
+            if (isset($this->config[$middleware])) {
+                $middleware = $this->config[$middleware];
+            } else {
+                $middleware = $this->config['default_namespace'] . $middleware;
+            }
         }
 
         if (is_array($middleware)) {
@@ -101,7 +124,7 @@ class Middleware
             list($middleware, $param) = explode(':', $middleware, 2);
         }
 
-        return [[Container::get($middleware), 'handle'], $param ?? null];
+        return [[$this->app->make($middleware), 'handle'], $param ?? null];
     }
 
     protected function resolve()

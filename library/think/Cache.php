@@ -53,23 +53,19 @@ class Cache extends CacheItemPool
      */
     public function connect(array $options = [], $name = false)
     {
-        $type = !empty($options['type']) ? $options['type'] : 'File';
 
         if (false === $name) {
             $name = md5(serialize($options));
         }
 
         if (true === $name || !isset($this->instance[$name])) {
-            $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
-
-            // 记录初始化信息
-            $this->app['log']->info('[ CACHE ] INIT ' . $type);
+            $type = !empty($options['type']) ? $options['type'] : 'File';
 
             if (true === $name) {
                 $name = md5(serialize($options));
             }
 
-            $this->instance[$name] = new $class($options);
+            $this->instance[$name] = Loader::factory($type, '\\think\\cache\\driver\\', $options);
         }
 
         return $this->instance[$name];
@@ -79,19 +75,15 @@ class Cache extends CacheItemPool
      * 自动初始化缓存
      * @access public
      * @param  array         $options  配置数组
+     * @param  bool          $force    强制更新
      * @return Driver
      */
-    public function init(array $options = [])
+    public function init(array $options = [], $force = false)
     {
-        if (is_null($this->handler)) {
-            // 自动初始化缓存
-            $config = $this->app['config'];
-
-            if (empty($options) && 'complex' == $config->get('cache.type')) {
-                $default = $config->get('cache.default');
-                $options = $config->get('cache.' . $default['type']) ?: $default;
-            } elseif (empty($options)) {
-                $options = $config->pull('cache');
+        if (is_null($this->handler) || $force) {
+            if ('complex' == $options['type']) {
+                $default = $options['default'];
+                $options = isset($options[$default['type']]) ? $options[$default['type']] : $default;
             }
 
             $this->handler = $this->connect($options);
@@ -100,16 +92,21 @@ class Cache extends CacheItemPool
         return $this->handler;
     }
 
+    public function setConfig(array $config)
+    {
+        $this->config = array_merge($this->config, $config);
+    }
+
     /**
      * 切换缓存类型 需要配置 cache.type 为 complex
      * @access public
      * @param  string $name 缓存标识
      * @return Driver
      */
-    public function store(string $name = '')
+    public function store($name = '')
     {
-        if ('' !== $name && 'complex' == $this->app['config']->get('cache.type')) {
-            return $this->connect($this->app['config']->get('cache.' . $name), strtolower($name));
+        if ('' !== $name && 'complex' == $this->config['type']) {
+            return $this->connect($this->config[$name], strtolower($name));
         }
 
         return $this->init();

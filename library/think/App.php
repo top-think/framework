@@ -32,7 +32,7 @@ class App extends Container
      * 应用调试模式
      * @var bool
      */
-    protected $debug = true;
+    protected $appDebug = true;
 
     /**
      * 应用开始时间
@@ -241,10 +241,10 @@ class App extends Container
         $this->suffix = $this->config['app.class_suffix'];
 
         // 应用调试模式
-        $this->debug = $this->env->get('app_debug', $this->config['app.app_debug']);
-        $this->env->set('app_debug', $this->debug);
+        $this->appDebug = $this->env->get('app_debug', $this->config['app.app_debug']);
+        $this->env->set('app_debug', $this->appDebug);
 
-        if (!$this->debug) {
+        if (!$this->appDebug) {
             ini_set('display_errors', 'Off');
         } elseif (PHP_SAPI != 'cli') {
             //重新申请一块比较大的buffer
@@ -257,10 +257,18 @@ class App extends Container
             }
         }
 
+        // 注册异常处理类
+        if ($this->config['app.exception_handle']) {
+            Error::setExceptionHandler($this->config['app.exception_handle']);
+        }
+
         // 注册根命名空间
         if (!empty($this->config['app.root_namespace'])) {
             Loader::addNamespace($this->config['app.root_namespace']);
         }
+
+        // 加载composer autofile文件
+        Loader::loadComposerAutoloadFiles();
 
         // 注册类库别名
         Loader::addClassAlias($this->config->pull('alias'));
@@ -382,14 +390,14 @@ class App extends Container
                     ->autoSearchController($this->config['app.controller_auto_search'])
                     ->mergeRuleRegex($this->config['app.route_rule_merge']);
 
-                $dispatch = $this->routeCheck();
+                $dispatch = $this->routeCheck()->init();
             }
 
             // 记录当前调度信息
             $this->request->dispatch($dispatch);
 
             // 记录路由和请求信息
-            if ($this->debug) {
+            if ($this->appDebug) {
                 $this->log('[ ROUTE ] ' . var_export($this->request->routeInfo(), true));
                 $this->log('[ HEADER ] ' . var_export($this->request->header(), true));
                 $this->log('[ PARAM ] ' . var_export($this->request->param(), true));
@@ -458,6 +466,18 @@ class App extends Container
         }
     }
 
+    protected function getRouteCacheKey()
+    {
+        if ($this->config->get('route_check_cache_key')) {
+            $closure  = $this->config->get('route_check_cache_key');
+            $routeKey = $closure($this->request);
+        } else {
+            $routeKey = md5($this->request->baseUrl(true) . ':' . $this->request->method());
+        }
+
+        return $routeKey;
+    }
+
     protected function loadLangPack()
     {
         // 读取默认语言
@@ -497,7 +517,7 @@ class App extends Container
      */
     public function log($msg, string $type = 'info')
     {
-        $this->debug && $this->log->record($msg, $type);
+        $this->appDebug && $this->log->record($msg, $type);
     }
 
     /**
@@ -507,6 +527,15 @@ class App extends Container
      */
     public function routeCheck()
     {
+        // 检测路由缓存
+        if (!$this->appDebug && $this->config->get('route_check_cache')) {
+            $routeKey = $this->getRouteCacheKey();
+
+            if ($this->cache->has($routeKey)) {
+                return $this->cache->get($routeKey);
+            }
+        }
+
         $path = $this->request->path();
         $depr = $this->config['app.pathinfo_depr'];
 
@@ -525,7 +554,7 @@ class App extends Container
 
         if ($this->config['app.route_annotation']) {
             // 自动生成路由定义
-            if ($this->debug) {
+            if ($this->appDebug) {
                 $this->build->buildRoute($this->config['app.controller_suffix']);
             }
 
@@ -536,15 +565,23 @@ class App extends Container
             }
         }
 
-        if (is_file($this->runtimePath . 'rule_regex.php')) {
-            $this->route->setRuleRegexs(include $this->runtimePath . 'rule_regex.php');
-        }
-
         // 是否强制路由模式
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->config['app.url_route_must'];
 
         // 路由检测 返回一个Dispatch对象
-        return $this->route->check($path, $depr, $must, $this->config['app.route_complete_match']);
+        $dispatch = $this->route->check($path, $must);
+
+        if (!empty($routeKey)) {
+            try {
+                $this->cache
+                    ->tag('route_cache')
+                    ->set($routeKey, $dispatch);
+            } catch (\Exception $e) {
+                // 存在闭包的时候缓存无效
+            }
+        }
+
+        return $dispatch;
     }
 
     /**
@@ -756,7 +793,7 @@ class App extends Container
      */
     public function isDebug()
     {
-        return $this->debug;
+        return $this->appDebug;
     }
 
     /**

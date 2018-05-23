@@ -13,7 +13,8 @@ namespace think;
 
 use think\exception\HttpResponseException;
 
-class Request
+class Request//implements Psr\Http\Message\ServerRequestInterface
+
 {
     /**
      * 对象实例
@@ -478,17 +479,27 @@ class Request
     }
 
     /**
-     * 设置或获取当前完整URL 包括QUERY_STRING
+     * 设置当前完整URL 包括QUERY_STRING
      * @access public
      * @param  string|true $url URL地址 true 带域名获取
+     * @return $this
+     */
+    public function setUrl(string $url)
+    {
+
+        $this->url = $url;
+        return $this;
+    }
+
+    /**
+     * 获取当前完整URL 包括QUERY_STRING
+     * @access public
+     * @param  bool $complete 是否包含完整域名
      * @return string|$this
      */
-    public function url($url = null)
+    public function url(bool $complete = false) : string
     {
-        if (!is_null($url) && true !== $url) {
-            $this->url = $url;
-            return $this;
-        } elseif (!$this->url) {
+        if (!$this->url) {
             if ($this->isCli()) {
                 $this->url = $_SERVER['argv'][1] ?? '';
             } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
@@ -502,40 +513,58 @@ class Request
             }
         }
 
-        return true === $url ? $this->domain() . $this->url : $this->url;
+        return $complete ? $this->domain() . $this->url : $this->url;
     }
 
     /**
-     * 设置或获取当前URL 不含QUERY_STRING
+     * 设置当前URL 不含QUERY_STRING
      * @access public
      * @param  string $url URL地址
-     * @return string|$this
+     * @return $this
      */
-    public function baseUrl( ? string $url = null)
+    public function setBaseUrl(string $url)
     {
-        if (!is_null($url) && true !== $url) {
-            $this->baseUrl = $url;
-            return $this;
-        } elseif (!$this->baseUrl) {
+        $this->baseUrl = $url;
+        return $this;
+    }
+
+    /**
+     * 获取当前URL 不含QUERY_STRING
+     * @access public
+     * @param  bool $complete 是否包含完整域名
+     * @return string
+     */
+    public function baseUrl(bool $complete = false) : string
+    {
+        if (!$this->baseUrl) {
             $str           = $this->url();
             $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
         }
 
-        return true === $url ? $this->domain() . $this->baseUrl : $this->baseUrl;
+        return $complete ? $this->domain() . $this->baseUrl : $this->baseUrl;
     }
 
     /**
-     * 设置或获取当前执行的文件 SCRIPT_NAME
+     * 设置当前执行的文件 SCRIPT_NAME
      * @access public
      * @param  string $file 当前执行的文件
      * @return string|$this
      */
-    public function baseFile( ? string $file = null)
+    public function setBaseFile(string $file)
     {
-        if (!is_null($file) && true !== $file) {
-            $this->baseFile = $file;
-            return $this;
-        } elseif (!$this->baseFile) {
+        $this->baseFile = $file;
+        return $this;
+    }
+
+    /**
+     * 获取当前执行的文件 SCRIPT_NAME
+     * @access public
+     * @param  bool $complete 是否包含完整域名
+     * @return string|$this
+     */
+    public function baseFile(bool $complete = false): string
+    {
+        if (!$this->baseFile) {
             $url = '';
             if (!$this->isCli()) {
                 $script_name = basename($_SERVER['SCRIPT_FILENAME']);
@@ -554,21 +583,30 @@ class Request
             $this->baseFile = $url;
         }
 
-        return true === $file ? $this->domain() . $this->baseFile : $this->baseFile;
+        return $complte ? $this->domain() . $this->baseFile : $this->baseFile;
     }
 
     /**
-     * 设置或获取URL访问根地址
+     * 设置URL访问根地址
      * @access public
      * @param  string $url URL地址
-     * @return string|$this
+     * @return $this
      */
-    public function root($url = null)
+    public function setRoot(string $url)
     {
-        if (!is_null($url) && true !== $url) {
-            $this->root = $url;
-            return $this;
-        } elseif (!$this->root) {
+        $this->root = $url;
+        return $this;
+    }
+
+    /**
+     * 获取URL访问根地址
+     * @access public
+     * @param  bool $complete 是否包含完整域名
+     * @return string
+     */
+    public function root(bool $complete = false): string
+    {
+        if (!$this->root) {
             $file = $this->baseFile();
             if ($file && 0 !== strpos($this->url(), $file)) {
                 $file = str_replace('\\', '/', dirname($file));
@@ -576,7 +614,7 @@ class Request
             $this->root = rtrim($file, '/');
         }
 
-        return true === $url ? $this->domain() . $this->root : $this->root;
+        return $complete ? $this->domain() . $this->root : $this->root;
     }
 
     /**
@@ -584,7 +622,7 @@ class Request
      * @access public
      * @return string
      */
-    public function rootUrl() : string
+    public function rootUrl(): string
     {
         $base = $this->root();
         $root = strpos($base, '.') ? ltrim(dirname($base), DIRECTORY_SEPARATOR) : $base;
@@ -601,7 +639,7 @@ class Request
      * @access public
      * @return string
      */
-    public function pathinfo() : string
+    public function pathinfo(): string
     {
         if (is_null($this->pathinfo)) {
             if (isset($_GET[$this->config->get('var_pathinfo')])) {
@@ -637,7 +675,7 @@ class Request
      * @access public
      * @return string
      */
-    public function path() : string
+    public function path(): string
     {
         if (is_null($this->path)) {
             $suffix   = $this->config->get('url_html_suffix');
@@ -662,7 +700,7 @@ class Request
      * @access public
      * @return string
      */
-    public function ext() : string
+    public function ext(): string
     {
         return pathinfo($this->pathinfo(), PATHINFO_EXTENSION);
     }

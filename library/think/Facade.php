@@ -67,19 +67,11 @@ class Facade
             $class = self::$bind[$class];
         }
 
-        $abstract = static::getFacadeInstance() ?: $class;
-
         if (static::$alwaysNewInstance) {
             $newInstance = true;
         }
 
-        if ($abstract instanceof \Closure) {
-            return Container::getInstance()
-                ->instance($class, $abstract)
-                ->make($class, $args, $newInstance);
-        }
-
-        return Container::getInstance()->make($abstract, $args, $newInstance);
+        return Container::getInstance()->make($class, $args, $newInstance);
     }
 
     /**
@@ -91,14 +83,6 @@ class Facade
     {}
 
     /**
-     * 获取当前Facade对应的对象实例（闭包）
-     * @access protected
-     * @return void|\Closure
-     */
-    protected static function getFacadeInstance()
-    {}
-
-    /**
      * 带参数实例化当前Facade类
      * @access public
      * @return object
@@ -106,10 +90,8 @@ class Facade
     public static function instance(...$args)
     {
         if (__CLASS__ != static::class) {
-            return self::__callStatic('instance', $args);
+            return self::createFacade('', $args);
         }
-
-        return self::createFacade('', $args);
     }
 
     /**

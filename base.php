@@ -14,7 +14,7 @@ namespace think;
 require __DIR__ . '/library/think/Loader.php';
 
 // 注册自动加载
-Loader::register();
+Loader::register(defined('COMPOSER_AUTOLOAD') && COMPOSER_AUTOLOAD ? true : false);
 
 // 注册错误和异常处理机制
 Error::register();
@@ -73,6 +73,3 @@ Loader::addClassAlias([
     'Validate' => facade\Validate::class,
     'View'     => facade\View::class,
 ]);
-
-// 加载composer autofile文件
-Loader::loadComposerAutoloadFiles();

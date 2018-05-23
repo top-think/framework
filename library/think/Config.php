@@ -80,31 +80,6 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * 自动加载配置文件（PHP格式）
-     * @access public
-     * @param  string    $name 配置名
-     * @return void
-     */
-    protected function autoLoad(string $name)
-    {
-        // 如果尚未载入 则动态加载配置文件
-        $module = Container::get('request')->module();
-        $module = $module ? $module . DIRECTORY_SEPARATOR : '';
-        $app    = Container::get('app');
-        $path   = $app->getAppPath() . $module;
-
-        if (is_dir($path . 'config')) {
-            $file = $path . 'config' . DIRECTORY_SEPARATOR . $name . $app->getConfigExt();
-        } elseif (is_dir($app->getConfigPath() . $module)) {
-            $file = $app->getConfigPath() . $module . $name . $app->getConfigExt();
-        }
-
-        if (isset($file) && is_file($file)) {
-            $this->load($file, $name);
-        }
-    }
-
-    /**
      * 检测配置是否存在
      * @access public
      * @param  string    $name 配置参数名（支持多级配置 .号分割）
@@ -128,11 +103,6 @@ class Config implements \ArrayAccess
     public function pull(string $name)
     {
         $name = strtolower($name);
-
-        if (!isset($this->config[$name])) {
-            // 如果尚未载入 则动态加载配置文件
-            $this->autoLoad($name);
-        }
 
         return $this->config[$name] ?? [];
     }
@@ -159,11 +129,6 @@ class Config implements \ArrayAccess
         $name    = explode('.', $name);
         $name[0] = strtolower($name[0]);
         $config  = $this->config;
-
-        if (!isset($config[$name[0]])) {
-            // 如果尚未载入 则动态加载配置文件
-            $this->autoLoad($name[0]);
-        }
 
         // 按.拆分成多维数组进行判断
         foreach ($name as $val) {

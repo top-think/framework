@@ -46,12 +46,6 @@ class Loader
      */
     private static $files = [];
 
-    /**
-     * Composer安装路径
-     * @var string
-     */
-    private static $composerPath;
-
     // 获取应用根目录
     public static function getRootPath()
     {
@@ -71,26 +65,28 @@ class Loader
     }
 
     // 注册自动加载机制
-    public static function register( ? callable $autoload = null)
+    public static function register(bool $composerAutoLoad = false)
     {
         // 注册系统自动加载
-        spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
-
         $rootPath = self::getRootPath();
+        if ($composerAutoLoad) {
+            require $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+        } else {
+            spl_autoload_register('think\\Loader::autoload', true, true);
+            $composerPath = $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
 
-        self::$composerPath = $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
+            // Composer自动加载支持
+            if (is_dir($composerPath)) {
 
-        // Composer自动加载支持
-        if (is_dir(self::$composerPath)) {
+                require $composerPath . 'autoload_static.php';
 
-            require self::$composerPath . 'autoload_static.php';
+                $declaredClass = get_declared_classes();
+                $composerClass = array_pop($declaredClass);
 
-            $declaredClass = get_declared_classes();
-            $composerClass = array_pop($declaredClass);
-
-            foreach (['prefixLengthsPsr4', 'prefixDirsPsr4', 'fallbackDirsPsr4', 'prefixesPsr0', 'fallbackDirsPsr0', 'classMap', 'files'] as $attr) {
-                if (property_exists($composerClass, $attr)) {
-                    self::${$attr} = $composerClass::${$attr};
+                foreach (['prefixLengthsPsr4', 'prefixDirsPsr4', 'fallbackDirsPsr4', 'prefixesPsr0', 'fallbackDirsPsr0', 'classMap', 'files'] as $attr) {
+                    if (property_exists($composerClass, $attr)) {
+                        self::${$attr} = $composerClass::${$attr};
+                    }
                 }
             }
         }
@@ -296,7 +292,7 @@ class Loader
      * @param  bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    public static function parseName(string $name, int $type = 0, bool $ucfirst = true)
+    public static function parseName(string $name = null, int $type = 0, bool $ucfirst = true)
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -306,6 +302,24 @@ class Loader
         }
 
         return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
+    }
+
+    /**
+     * 创建工厂对象实例
+     * @access public
+     * @param  string $name         工厂类名
+     * @param  string $namespace    默认命名空间
+     * @return mixed
+     */
+    public static function factory($name, $namespace = '', ...$args)
+    {
+        $class = false !== strpos($name, '\\') ? $name : $namespace . ucwords($name);
+
+        if (class_exists($class)) {
+            return Container::getInstance()->invokeClass($class, $args);
+        } else {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
+        }
     }
 }
 

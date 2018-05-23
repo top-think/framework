@@ -16,10 +16,10 @@ use think\route\Dispatch;
 
 class View extends Dispatch
 {
-    public function run()
+    public function exec()
     {
         // 渲染模板输出
-        $vars = array_merge($this->app['request']->param(), $this->param);
+        $vars = array_merge($this->request->param(), $this->param);
 
         return Response::create($this->dispatch, 'view')->assign($vars);
     }

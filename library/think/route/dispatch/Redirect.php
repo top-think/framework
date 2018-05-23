@@ -16,7 +16,7 @@ use think\route\Dispatch;
 
 class Redirect extends Dispatch
 {
-    public function run()
+    public function exec()
     {
         return Response::create($this->dispatch, 'redirect')->code($this->code);
     }

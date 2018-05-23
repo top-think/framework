@@ -19,24 +19,6 @@ use think\Route;
 class RuleItem extends Rule
 {
     /**
-     * 路由规则
-     * @var string
-     */
-    protected $rule;
-
-    /**
-     * 路由地址
-     * @var string|\Closure
-     */
-    protected $route;
-
-    /**
-     * 请求类型
-     * @var string
-     */
-    protected $method;
-
-    /**
      * 架构函数
      * @access public
      * @param  Route             $router 路由实例
@@ -46,7 +28,7 @@ class RuleItem extends Rule
      * @param  string|\Closure   $route 路由地址
      * @param  string            $method 请求类型
      */
-    public function __construct(Route $router, RuleGroup $parent, ? string $name, string $rule, $route, string $method = '*')
+    public function __construct(Route $router, RuleGroup $parent,  ? string $name, string $rule, $route, string $method = '*')
     {
         $this->router = $router;
         $this->parent = $parent;
@@ -86,36 +68,6 @@ class RuleItem extends Rule
 
         // 生成路由标识的快捷访问
         $this->setRuleName();
-    }
-
-    /**
-     * 获取当前路由规则
-     * @access public
-     * @return string
-     */
-    public function getRule()
-    {
-        return $this->rule;
-    }
-
-    /**
-     * 获取当前路由地址
-     * @access public
-     * @return mixed
-     */
-    public function getRoute()
-    {
-        return $this->route;
-    }
-
-    /**
-     * 获取当前路由的请求类型
-     * @access public
-     * @return string
-     */
-    public function getMethod()
-    {
-        return strtolower($this->method);
     }
 
     /**
@@ -178,11 +130,10 @@ class RuleItem extends Rule
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
      * @param  array        $match    匹配路由变量
-     * @param  string       $depr     路径分隔符
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function checkRule(Request $request, string $url, $match = null, string $depr = '/', bool $completeMatch = false)
+    public function checkRule(Request $request, string $url, $match = null, bool $completeMatch = false)
     {
         if ($dispatch = $this->checkCrossDomain($request)) {
             // 允许跨域
@@ -205,7 +156,7 @@ class RuleItem extends Rule
         $url = $this->urlSuffixCheck($request, $url, $option);
 
         if (is_null($match)) {
-            $match = $this->match($url, $option, $depr, $completeMatch);
+            $match = $this->match($url, $option, $completeMatch);
         }
 
         if (false !== $match) {
@@ -220,13 +171,12 @@ class RuleItem extends Rule
      * @access public
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
-     * @param  string       $depr     路径分隔符
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function check(Request $request, string $url, string $depr = '/', bool $completeMatch = false)
+    public function check(Request $request, string $url, bool $completeMatch = false)
     {
-        return $this->checkRule($request, $url, null, $depr, $completeMatch);
+        return $this->checkRule($request, $url, null, $completeMatch);
     }
 
     /**
@@ -258,16 +208,16 @@ class RuleItem extends Rule
      * @access private
      * @param  string    $url URL地址
      * @param  array     $option    路由参数
-     * @param  string    $depr URL分隔符（全局）
      * @param  bool      $completeMatch   路由是否完全匹配
      * @return array|false
      */
-    private function match(string $url, array $option, string $depr, bool $completeMatch)
+    private function match(string $url, array $option, bool $completeMatch)
     {
         if (isset($option['complete_match'])) {
             $completeMatch = $option['complete_match'];
         }
 
+        $depr    = $this->router->config('pathinfo_depr');
         $pattern = array_merge($this->parent->getPattern(), $this->pattern);
 
         // 检查完整规则定义

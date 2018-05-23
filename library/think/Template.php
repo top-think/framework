@@ -27,6 +27,12 @@ class Template
     protected $data = [];
 
     /**
+     * 应用对象
+     * @var App
+     */
+    protected $app;
+
+    /**
      * 模板配置参数
      * @var array
      */
@@ -83,9 +89,10 @@ class Template
      * @access public
      * @param  array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(App $app, array $config = [])
     {
-        $this->config['cache_path'] = Container::get('app')->getRuntimePath() . 'temp/';
+        $this->app                  = $app;
+        $this->config['cache_path'] = $app->getRuntimePath() . 'temp/';
         $this->config               = array_merge($this->config, $config);
 
         $this->config['taglib_begin_origin'] = $this->config['taglib_begin'];
@@ -189,7 +196,7 @@ class Template
             $this->config($config);
         }
 
-        $cache = Container::get('cache');
+        $cache = $this->app['cache'];
 
         if (!empty($this->config['cache_id']) && $this->config['display_cache']) {
             // 读取渲染缓存
@@ -337,7 +344,7 @@ class Template
     {
         if ($cacheId && $this->config['display_cache']) {
             // 缓存页面输出
-            return Container::get('cache')->has($cacheId);
+            return $this->app['cache']->has($cacheId);
         }
 
         return false;
@@ -1218,10 +1225,10 @@ class Template
             }
 
             if ($this->config['view_base']) {
-                $module = isset($module) ? $module : Container::get('request')->module();
+                $module = isset($module) ? $module : $this->app['request']->module();
                 $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
             } else {
-                $path = isset($module) ? Container::get('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . basename($this->config['view_path']) . DIRECTORY_SEPARATOR : $this->config['view_path'];
+                $path = isset($module) ? $this->app->getAppPath() . $module . DIRECTORY_SEPARATOR . basename($this->config['view_path']) . DIRECTORY_SEPARATOR : $this->config['view_path'];
             }
 
             $template = $path . $template . '.' . ltrim($this->config['view_suffix'], '.');

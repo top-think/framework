@@ -11,7 +11,6 @@
 
 namespace think;
 
-use think\exception\ClassNotFoundException;
 use think\model\Collection as ModelCollection;
 use think\response\Redirect;
 
@@ -35,9 +34,26 @@ class Debug
      */
     protected $app;
 
-    public function __construct(App $app)
+    /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [];
+
+    public function __construct(App $app, array $config = [])
     {
-        $this->app = $app;
+        $this->app    = $app;
+        $this->config = $config;
+    }
+
+    public static function __make(App $app, Config $config)
+    {
+        return new static($app, $config->pull('trace'));
+    }
+
+    public function setConfig(array $config)
+    {
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -199,7 +215,7 @@ class Debug
      * @param  integer       $flags htmlspecialchars flags
      * @return void|string
      */
-    public function dump($var, bool $echo = true, ? string $label = null, int $flags = ENT_SUBSTITUTE)
+    public function dump($var, bool $echo = true,  ? string $label = null, int $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
         if ($var instanceof Model || $var instanceof ModelCollection) {
@@ -221,7 +237,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         }
         return $output;
@@ -229,16 +245,12 @@ class Debug
 
     public function inject(Response $response, &$content)
     {
-        $config = $this->app['config']->pull('trace');
-        $type   = $config['type'] ?? 'Html';
-        $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
+        $config = $this->config;
+        $type   = isset($config['type']) ? $config['type'] : 'Html';
+
         unset($config['type']);
 
-        if (class_exists($class)) {
-            $trace = new $class($config);
-        } else {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
-        }
+        $trace = Loader::factory($type, '\\think\\debug\\', $config);
 
         if ($response instanceof Redirect) {
             //TODO 记录

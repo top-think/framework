@@ -41,6 +41,15 @@ class Cookie
     protected $init;
 
     /**
+     * 构造方法
+     * @access public
+     */
+    public function __construct(array $config = [])
+    {
+        $this->init($config);
+    }
+
+    /**
      * Cookie初始化
      * @access public
      * @param  array $config
@@ -48,17 +57,16 @@ class Cookie
      */
     public function init(array $config = [])
     {
-        if (empty($config)) {
-            $config = Container::get('config')->pull('cookie');
-        }
-
         $this->config = array_merge($this->config, array_change_key_case($config));
 
         if (!empty($this->config['httponly'])) {
             ini_set('session.cookie_httponly', 1);
         }
+    }
 
-        $this->init = true;
+    public static function __make(Config $config)
+    {
+        return new static($config->pull('cookie'));
     }
 
     /**
@@ -145,7 +153,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return bool
      */
-    public function has(string $name, ? string $prefix = null)
+    public function has(string $name,  ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -162,7 +170,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return mixed
      */
-    public function get(string $name = '', ? string $prefix = null)
+    public function get(string $name = '',  ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -202,7 +210,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return void
      */
-    public function delete(string $name, ? string $prefix = null)
+    public function delete(string $name,  ? string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -224,7 +232,7 @@ class Cookie
      * @param  string|null $prefix cookie前缀
      * @return void
      */
-    public function clear(? string $prefix = null)
+    public function clear( ? string $prefix = null)
     {
         // 清除指定前缀的所有cookie
         if (empty($_COOKIE)) {
