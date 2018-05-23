@@ -802,7 +802,7 @@ abstract class Builder
         }
 
         foreach ($insertFields as $field) {
-            $fields[] = $this->parseKey($query, $field, true);
+            $fields[] = $this->parseKey($field, $options, true);
         }
 
         return str_replace(
