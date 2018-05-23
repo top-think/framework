@@ -1623,7 +1623,6 @@ class Route
         return $var;
     }
 
-
     /**
      * 获取路由解析缓存的key
      * @param Request $request
