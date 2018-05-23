@@ -11,6 +11,7 @@
 
 namespace think;
 
+use InvalidArgumentException;
 use think\db\Query;
 
 /**
@@ -1015,11 +1016,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function __isset($name)
     {
-        if (array_key_exists($name, $this->data) || array_key_exists($name, $this->relation)) {
-            return true;
+        try {
+            if (array_key_exists($name, $this->data) || array_key_exists($name, $this->relation)) {
+                return true;
+            } else {
+                $this->getAttr($name);
+                return true;
+            }
+        } catch (InvalidArgumentException $e) {
+            return false;
         }
-
-        return false;
     }
 
     /**

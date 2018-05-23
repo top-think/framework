@@ -226,6 +226,7 @@ class RuleItem extends Rule
         }
 
         $pattern = array_merge($this->parent->getPattern(), $this->pattern);
+        $depr    = $this->router->config('pathinfo_depr');
 
         // 检查完整规则定义
         if (isset($pattern['__url__']) && !preg_match(0 === strpos($pattern['__url__'], '/') ? $pattern['__url__'] : '/^' . $pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
@@ -233,7 +234,6 @@ class RuleItem extends Rule
         }
 
         $var  = [];
-        $depr = $this->router->config('pathinfo_depr');
         $url  = $depr . str_replace('|', $depr, $url);
         $rule = $depr . str_replace('/', $depr, $this->rule);
 

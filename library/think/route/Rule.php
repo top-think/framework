@@ -89,7 +89,7 @@ abstract class Rule
      */
     protected $doAfter;
 
-    abstract public function check($request, $url, $depr = '/');
+    abstract public function check($request, $url, $completeMatch = false);
 
     /**
      * 获取Name
