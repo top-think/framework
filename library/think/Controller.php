@@ -57,10 +57,11 @@ class Controller
     /**
      * 构造方法
      * @access public
+     * @param  App  $app  应用对象
      */
-    public function __construct(App $app = null)
+    public function __construct(App $app)
     {
-        $this->app     = $app ?: Container::get('app');
+        $this->app     = $app;
         $this->request = $this->app['request'];
         $this->view    = $this->app['view'];
 

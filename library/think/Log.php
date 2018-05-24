@@ -11,6 +11,15 @@
 
 namespace think;
 
+// 实现日志接口
+if (interface_exists('Psr\Log\LoggerInterface')) {
+    interface LoggerInterface extends \Psr\Log\LoggerInterface
+    {}
+} else {
+    interface LoggerInterface
+    {}
+}
+
 class Log implements LoggerInterface
 {
     const EMERGENCY = 'emergency';
@@ -199,10 +208,6 @@ class Log implements LoggerInterface
             return true;
         }
 
-        if (is_null($this->driver)) {
-            $this->init($this->app['config']->pull('log'));
-        }
-
         if (!$this->check($this->config)) {
             // 检测日志写入权限
             return false;
@@ -255,10 +260,6 @@ class Log implements LoggerInterface
 
         // 监听log_write
         $this->app['hook']->listen('log_write', $log);
-
-        if (is_null($this->driver)) {
-            $this->init($this->app['config']->pull('log'));
-        }
 
         // 写入日志
         $result = $this->driver->save($log);

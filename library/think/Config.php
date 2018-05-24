@@ -50,9 +50,9 @@ class Config implements \ArrayAccess
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
 
-        $class = false !== strpos($type, '\\') ? $type : '\\think\\config\\driver\\' . ucwords($type);
+        $object = Loader::factory($type, '\\think\\config\\driver\\');
 
-        return $this->set((new $class())->parse($config), $name);
+        return $this->set($object->parse($config), $name);
     }
 
     /**

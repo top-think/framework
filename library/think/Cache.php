@@ -23,10 +23,10 @@ class Cache extends CacheItemPool
     protected $instance = [];
 
     /**
-     * 应用对象
-     * @var App
+     * 配置参数
+     * @var array
      */
-    protected $app;
+    protected $config = [];
 
     /**
      * 操作句柄
@@ -34,9 +34,10 @@ class Cache extends CacheItemPool
      */
     protected $handler;
 
-    public function __construct()
+    public function __construct(array $config = [])
     {
-        $this->app = Container::get('app');
+        $this->config = $config;
+        $this->init($config);
     }
 
     public static function __make(Config $config)

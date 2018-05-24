@@ -22,16 +22,23 @@ class Db
     protected $connection;
 
     /**
+     * 数据库配置
+     * @var array
+     */
+    protected $config = [];
+
+    /**
      * 架构函数
+     * @param  array         $config 连接配置
      * @access public
      */
     public function __construct(array $config = [])
     {
-        $this->config = $config;
-
         if (empty($config['query'])) {
-            $this->config['query'] = '\\think\\db\\Query';
+            $config['query'] = '\\think\\db\\Query';
         }
+
+        $this->config = $config;
 
         $this->connect($config);
     }
@@ -76,6 +83,7 @@ class Db
     {
         return $this->connection->getExecuteTimes();
     }
+
     /**
      * 数据库连接参数解析
      * @access private
@@ -91,11 +99,7 @@ class Db
             $config = $this->config[$config] ?? $this->config;
         }
 
-        if (is_string($config)) {
-            return $this->parseDsnConfig($config);
-        } else {
-            return $config;
-        }
+        return is_string($config) ? $this->parseDsnConfig($config) : $config;
     }
 
     /**
