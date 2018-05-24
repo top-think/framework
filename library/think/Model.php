@@ -716,9 +716,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 删除当前的记录
      * @access public
+     * @param  bool  $force 是否强制删除
      * @return integer
      */
-    public function delete(): int
+    public function delete(bool $force = false): int
     {
         if (false === $this->trigger('before_delete')) {
             return false;
@@ -889,9 +890,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 删除记录
      * @access public
      * @param  mixed $data 主键列表 支持闭包查询条件
+     * @param  bool  $force 是否强制删除
      * @return integer 成功删除的记录数
      */
-    public static function destroy($data): int
+    public static function destroy($data, bool $force = false): int
     {
         if (empty($data) && 0 !== $data) {
             return 0;
@@ -914,7 +916,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if ($resultSet) {
             foreach ($resultSet as $data) {
-                $result = $data->delete();
+                $result = $data->delete($force);
                 $count += $result;
             }
         }
@@ -998,22 +1000,22 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     // ArrayAccess
-    public function offsetSet(string $name, $value)
+    public function offsetSet($name, $value)
     {
         $this->setAttr($name, $value);
     }
 
-    public function offsetExists(string $name): bool
+    public function offsetExists($name): bool
     {
         return $this->__isset($name);
     }
 
-    public function offsetUnset(string $name)
+    public function offsetUnset($name)
     {
         $this->__unset($name);
     }
 
-    public function offsetGet(string $name)
+    public function offsetGet($name)
     {
         return $this->getAttr($name);
     }

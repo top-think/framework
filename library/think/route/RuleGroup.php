@@ -496,7 +496,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName(): string
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }

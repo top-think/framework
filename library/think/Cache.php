@@ -42,7 +42,7 @@ class Cache extends CacheItemPool
 
     public static function __make(Config $config)
     {
-        return (new static())->init($config->pull('cache'));
+        return new static($config->pull('cache'));
     }
 
     /**

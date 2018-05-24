@@ -11,6 +11,7 @@
 
 namespace think\view\driver;
 
+use think\App;
 use think\Container;
 use think\exception\TemplateNotFoundException;
 use think\Loader;
@@ -19,6 +20,8 @@ class Php
 {
     protected $template;
     protected $content;
+    protected $app;
+
     // 模板引擎参数
     protected $config = [
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
@@ -33,8 +36,9 @@ class Php
         'view_depr'   => DIRECTORY_SEPARATOR,
     ];
 
-    public function __construct(array $config = [])
+    public function __construct(App $app, array $config = [])
     {
+        $this->app    = $app;
         $this->config = array_merge($this->config, (array) $config);
     }
 
@@ -76,7 +80,7 @@ class Php
         $this->template = $template;
 
         // 记录视图信息
-        Container::get('app')
+        $this->app
             ->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
 
         extract($data, EXTR_OVERWRITE);
@@ -111,7 +115,7 @@ class Php
             $this->config['view_path'] = Container::get('app')->getModulePath() . 'view' . DIRECTORY_SEPARATOR;
         }
 
-        $request = Container::get('request');
+        $request = $this->app['request'];
 
         // 获取视图根目录
         if (strpos($template, '@')) {
@@ -124,7 +128,7 @@ class Php
             $module = isset($module) ? $module : $request->module();
             $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
         } else {
-            $path = isset($module) ? Container::get('app')->getAppPath() . $module . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
+            $path = isset($module) ? $this->app->getAppPath() . $module . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
         }
 
         $depr = $this->config['view_depr'];

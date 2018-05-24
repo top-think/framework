@@ -14,6 +14,7 @@ namespace think\route;
 use think\Container;
 use think\Request;
 use think\Response;
+use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
 use think\route\dispatch\Module as ModuleDispatch;
@@ -87,7 +88,7 @@ abstract class Rule
      * 是否需要后置操作
      * @var bool
      */
-    protected $doAfter;
+    protected $doAfter = false;
 
     abstract public function check(Request $request, string $url, bool $completeMatch = false);
 

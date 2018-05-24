@@ -123,6 +123,8 @@ class Loader
             __include_file($file);
             return true;
         }
+
+        return false;
     }
 
     /**

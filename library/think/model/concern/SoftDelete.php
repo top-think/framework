@@ -116,7 +116,7 @@ trait SoftDelete
      * @param  bool  $force 是否强制删除
      * @return integer 成功删除的记录数
      */
-    public static function destroy($data, bool $force = false)
+    public static function destroy($data, bool $force = false): int
     {
         // 包含软删除数据
         $query = self::withTrashed();

@@ -12,9 +12,9 @@
 namespace think;
 
 use think\exception\HttpResponseException;
+use think\route\Dispatch;
 
-class Request//implements Psr\Http\Message\ServerRequestInterface
-
+class Request 
 {
     /**
      * 对象实例
@@ -26,7 +26,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * 配置
      * @var array
      */
-    protected $config;
+    protected $config = [];
 
     /**
      * 请求类型
@@ -96,9 +96,9 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
 
     /**
      * 当前调度信息
-     * @var array
+     * @var Dispatch
      */
-    protected $dispatch = [];
+    protected $dispatch;
 
     /**
      * 当前模块名
@@ -333,7 +333,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string    $content
      * @return \think\Request
      */
-    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [],  string $content = null)
+    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], string $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -434,7 +434,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string
      */
-    public function domain() : string
+    public function domain(): string
     {
         if (!$this->domain) {
             $this->domain = $this->scheme() . '://' . $this->host();
@@ -450,7 +450,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      */
     public function rootDomain()
     {
-        $root = $this->config->get('app.url_domain_root');
+        $root = $this->config['url_domain_root'];
 
         if (!$root) {
             $item  = explode('.', $this->host());
@@ -470,7 +470,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     {
         if (is_null($this->subDomain)) {
             // 获取当前主域名
-            $rootDomain = $this->config->get('app.url_domain_root');
+            $rootDomain = $this->config['url_domain_root'];
 
             if ($rootDomain) {
                 // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
@@ -491,7 +491,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function panDomain( string $domain = null)
+    public function panDomain(string $domain = null)
     {
         if (is_null($domain)) {
             return $this->panDomain;
@@ -519,7 +519,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  bool $complete 是否包含完整域名
      * @return string
      */
-    public function url(bool $complete = false) : string
+    public function url(bool $complete = false): string
     {
         if (!$this->url) {
             if ($this->isCli()) {
@@ -664,10 +664,10 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     public function pathinfo(): string
     {
         if (is_null($this->pathinfo)) {
-            if (isset($_GET[$this->config->get('var_pathinfo')])) {
+            if (isset($_GET[$this->config['var_pathinfo']])) {
                 // 判断URL里面是否有兼容模式参数
-                $_SERVER['PATH_INFO'] = $_GET[$this->config->get('var_pathinfo')];
-                unset($_GET[$this->config->get('var_pathinfo')]);
+                $_SERVER['PATH_INFO'] = $_GET[$this->config['var_pathinfo']];
+                unset($_GET[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
                 $_SERVER['PATH_INFO'] = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
@@ -677,7 +677,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
 
             // 分析PATHINFO信息
             if (!isset($_SERVER['PATH_INFO'])) {
-                foreach ($this->config->get('pathinfo_fetch') as $type) {
+                foreach ($this->config['pathinfo_fetch'] as $type) {
                     if (!empty($_SERVER[$type])) {
                         $_SERVER['PATH_INFO'] = (0 === strpos($_SERVER[$type], $_SERVER['SCRIPT_NAME'])) ?
                         substr($_SERVER[$type], strlen($_SERVER['SCRIPT_NAME'])) : $_SERVER[$type];
@@ -700,7 +700,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     public function path(): string
     {
         if (is_null($this->path)) {
-            $suffix   = $this->config->get('url_html_suffix');
+            $suffix   = $this->config['url_html_suffix'];
             $pathinfo = $this->pathinfo();
             if (false === $suffix) {
                 // 禁止伪静态访问
@@ -791,8 +791,8 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             // 获取原始请求类型
             return $this->isCli() ? 'GET' : ($this->server['REQUEST_METHOD'] ?? $_SERVER['REQUEST_METHOD']);
         } elseif (!$this->method) {
-            if (isset($_POST[$this->config->get('var_method')])) {
-                $this->method = strtoupper($_POST[$this->config->get('var_method')]);
+            if (isset($_POST[$this->config['var_method']])) {
+                $this->method = strtoupper($_POST[$this->config['var_method']]);
                 $this->{$this->method}($_POST);
             } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
                 $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
@@ -943,8 +943,8 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      */
     public function setRoute(array $name)
     {
-            $this->param        = [];
-            return $this->route = array_merge($this->route, $name);
+        $this->param        = [];
+        return $this->route = array_merge($this->route, $name);
     }
 
     /**
@@ -972,9 +972,8 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             $this->get = $_GET;
         }
 
-
-            $this->param      = [];
-            return $this->get = array_merge($this->get, $name);
+        $this->param      = [];
+        return $this->get = array_merge($this->get, $name);
     }
 
     /**
@@ -1011,9 +1010,8 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             }
         }
 
-
-            $this->param       = [];
-            return $this->post = array_merge($this->post, $name);
+        $this->param       = [];
+        return $this->post = array_merge($this->post, $name);
 
     }
 
@@ -1056,9 +1054,8 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             }
         }
 
-
-            $this->param      = [];
-            return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
+        $this->param      = [];
+        return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
 
     }
 
@@ -1080,7 +1077,6 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
                 parse_str($content, $this->put);
             }
         }
-
 
         return $this->input($this->put, $name, $default, $filter);
     }
@@ -1530,7 +1526,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  bool      $checkEmpty 是否检测空值
      * @return bool
      */
-    public function has(string $name, string $type = 'param', bool $checkEmpty = false):bool
+    public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
     {
         if (empty($this->$type)) {
             $param = $this->$type();
@@ -1618,7 +1614,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             return true;
         } elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']) {
             return true;
-        } elseif ($this->config->get('https_agent_name') && isset($server[$this->config->get('https_agent_name')])) {
+        } elseif ($this->config['https_agent_name'] && isset($server[$this->config['https_agent_name']])) {
             return true;
         }
 
@@ -1640,7 +1636,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             return $result;
         }
 
-        return $this->param($this->config->get('var_ajax')) ? true : $result;
+        return $this->param($this->config['var_ajax']) ? true : $result;
     }
 
     /**
@@ -1657,7 +1653,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             return $result;
         }
 
-        return $this->param($this->config->get('var_pjax')) ? true : $result;
+        return $this->param($this->config['var_pjax']) ? true : $result;
     }
 
     /**
@@ -1676,7 +1672,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             return $ip[$type];
         }
 
-        $httpAgentIp = $this->config->get('http_agent_ip');
+        $httpAgentIp = $this->config['http_agent_ip'];
 
         if ($httpAgentIp && isset($_SERVER[$httpAgentIp])) {
             $ip = $_SERVER[$httpAgentIp];
@@ -1815,7 +1811,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  array $route 路由名称
      * @return array
      */
-    public function routeInfo(array $route = []):array
+    public function routeInfo(array $route = []): array
     {
         if (!empty($route)) {
             $this->routeInfo = $route;
@@ -1827,10 +1823,10 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     /**
      * 设置或者获取当前请求的调度信息
      * @access public
-     * @param  array  $dispatch 调度信息
-     * @return array
+     * @param  Dispatch  $dispatch 调度信息
+     * @return Dispatch
      */
-    public function dispatch($dispatch = null):array
+    public function dispatch(Dispatch $dispatch = null)
     {
         if (!is_null($dispatch)) {
             $this->dispatch = $dispatch;
@@ -1844,7 +1840,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return string
      */
-    public function secureKey():string
+    public function secureKey(): string
     {
         if (is_null($this->secureKey)) {
             $this->secureKey = uniqid('', true);
@@ -1923,7 +1919,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return string
      */
-    public function getContent():string
+    public function getContent(): string
     {
         if (is_null($this->content)) {
             $this->content = $this->input;
@@ -1937,7 +1933,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return string
      */
-    public function getInput():string
+    public function getInput(): string
     {
         return $this->input;
     }
@@ -1949,7 +1945,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  mixed  $type 令牌生成方法
      * @return string
      */
-    public function token(string $name = '__token__', callable $type = 'md5'):string
+    public function token(string $name = '__token__', $type = 'md5'): string
     {
         $type  = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $_SERVER['REQUEST_TIME_FLOAT']);
@@ -1972,7 +1968,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $tag    缓存标签
      * @return void
      */
-    public function cache($key, $expire = null, $except = [], $tag = null):void
+    public function cache($key, $expire = null, $except = [], $tag = null): void
     {
         if (!is_array($except)) {
             $tag    = $except;
@@ -2045,9 +2041,9 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     /**
      * 读取请求缓存设置
      * @access public
-     * @return array
+     * @return array|null
      */
-    public function getCache():array
+    public function getCache()
     {
         return $this->cache;
     }
