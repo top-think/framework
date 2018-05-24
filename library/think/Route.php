@@ -993,7 +993,7 @@ class Route
 
         if (is_array($item)) {
             list($rule, $option) = $item;
-            $action = $array[0];
+            $action              = $array[0];
             if (isset($option['allow']) && !in_array($action, explode(',', $option['allow']))) {
                 // 允许操作
                 return false;
@@ -1143,16 +1143,16 @@ class Route
     {
         if ((isset($option['method']) && is_string($option['method']) && false === stripos($option['method'], $request->method()))
             || (isset($option['ajax']) && $option['ajax'] && !$request->isAjax()) // Ajax检测
-            || (isset($option['ajax']) && !$option['ajax'] && $request->isAjax()) // 非Ajax检测
-            || (isset($option['pjax']) && $option['pjax'] && !$request->isPjax()) // Pjax检测
-            || (isset($option['pjax']) && !$option['pjax'] && $request->isPjax()) // 非Pjax检测
-            || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|')) // 伪静态后缀检测
-            || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))
+             || (isset($option['ajax']) && !$option['ajax'] && $request->isAjax()) // 非Ajax检测
+             || (isset($option['pjax']) && $option['pjax'] && !$request->isPjax()) // Pjax检测
+             || (isset($option['pjax']) && !$option['pjax'] && $request->isPjax()) // 非Pjax检测
+             || (isset($option['ext']) && false === stripos('|' . $option['ext'] . '|', '|' . $request->ext() . '|')) // 伪静态后缀检测
+             || (isset($option['deny_ext']) && false !== stripos('|' . $option['deny_ext'] . '|', '|' . $request->ext() . '|'))
             || (isset($option['domain']) && !in_array($option['domain'], [$_SERVER['HTTP_HOST'], self::$subDomain])) // 域名检测
-            || (isset($option['https']) && $option['https'] && !$request->isSsl()) // https检测
-            || (isset($option['https']) && !$option['https'] && $request->isSsl()) // https检测
-            || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测
-            || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
+             || (isset($option['https']) && $option['https'] && !$request->isSsl()) // https检测
+             || (isset($option['https']) && !$option['https'] && $request->isSsl()) // https检测
+             || (!empty($option['before_behavior']) && false === Hook::exec($option['before_behavior'])) // 行为检测
+             || (!empty($option['callback']) && is_callable($option['callback']) && false === call_user_func($option['callback'])) // 自定义检测
         ) {
             return false;
         }
@@ -1222,9 +1222,9 @@ class Route
             // 如果有模块/控制器绑定
             $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
         }
-        $url = str_replace($depr, '|', $url);
+        $url              = str_replace($depr, '|', $url);
         list($path, $var) = self::parseUrlPath($url);
-        $route = [null, null, null];
+        $route            = [null, null, null];
         if (isset($path)) {
             // 解析模块
             $module = Config::get('app_multi_module') ? array_shift($path) : null;
@@ -1513,14 +1513,14 @@ class Route
         } elseif (false !== strpos($route, '\\')) {
             // 路由到方法
             list($path, $var) = self::parseUrlPath($route);
-            $route  = str_replace('/', '@', implode('/', $path));
-            $method = strpos($route, '@') ? explode('@', $route) : $route;
-            $result = ['type' => 'method', 'method' => $method, 'var' => $var];
+            $route            = str_replace('/', '@', implode('/', $path));
+            $method           = strpos($route, '@') ? explode('@', $route) : $route;
+            $result           = ['type' => 'method', 'method' => $method, 'var' => $var];
         } elseif (0 === strpos($route, '@')) {
             // 路由到控制器
-            $route = substr($route, 1);
+            $route             = substr($route, 1);
             list($route, $var) = self::parseUrlPath($route);
-            $result = ['type' => 'controller', 'controller' => implode('/', $route), 'var' => $var];
+            $result            = ['type' => 'controller', 'controller' => implode('/', $route), 'var' => $var];
             $request->action(array_pop($route));
             $request->controller($route ? array_pop($route) : Config::get('default_controller'));
             $request->module($route ? array_pop($route) : Config::get('default_module'));
@@ -1554,10 +1554,10 @@ class Route
     private static function parseModule($url, $convert = false)
     {
         list($path, $var) = self::parseUrlPath($url);
-        $action     = array_pop($path);
-        $controller = !empty($path) ? array_pop($path) : null;
-        $module     = Config::get('app_multi_module') && !empty($path) ? array_pop($path) : null;
-        $method     = Request::instance()->method();
+        $action           = array_pop($path);
+        $controller       = !empty($path) ? array_pop($path) : null;
+        $module           = Config::get('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $method           = Request::instance()->method();
         if (Config::get('use_action_prefix') && !empty(self::$methodPrefix[$method])) {
             // 操作方法前缀支持
             $action = 0 !== strpos($action, self::$methodPrefix[$method]) ? self::$methodPrefix[$method] . $action : $action;
@@ -1622,7 +1622,6 @@ class Route
         }
         return $var;
     }
-
 
     /**
      * 获取路由解析缓存的key
