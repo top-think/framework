@@ -14,7 +14,7 @@ namespace think;
 use think\exception\HttpResponseException;
 use think\route\Dispatch;
 
-class Request 
+class Request
 {
     /**
      * 对象实例

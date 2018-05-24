@@ -261,7 +261,7 @@ class Where implements \JsonSerializable, \ArrayAccess
      * @param  string    $logic      查询逻辑 and or xor
      * @return $this
      */
-    public function whereColumn(string $field1, string $operator,  string $field2 = null, string $logic = 'AND')
+    public function whereColumn(string $field1, string $operator, string $field2 = null, string $logic = 'AND')
     {
         if (is_array($field1)) {
             foreach ($field1 as $item) {
