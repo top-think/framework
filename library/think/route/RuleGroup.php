@@ -396,10 +396,9 @@ class RuleGroup extends Rule
      * @param  string    $rule       路由规则
      * @param  string    $route      路由地址
      * @param  string    $method     请求类型
-     * @param  array     $option     路由参数
      * @return RuleItem
      */
-    public function addRule(string $rule, $route, string $method = '*', array $option = []): RuleItem
+    public function addRule(string $rule, $route, string $method = '*'): RuleItem
     {
         // 读取路由标识
         if (is_array($rule)) {
@@ -414,7 +413,7 @@ class RuleGroup extends Rule
         $method = strtolower($method);
 
         // 创建路由规则实例
-        $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method, $option);
+        $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method);
 
         if (!empty($option['cross_domain'])) {
             $this->router->setCrossDomainRule($ruleItem, $method);
