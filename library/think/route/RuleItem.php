@@ -125,7 +125,7 @@ class RuleItem extends Rule
                 $suffix = null;
             }
 
-            $value = [$this->rule, $vars, $this->parent->getDomain(), $suffix];
+            $value = [$this->rule, $vars, $this->parent->getDomain(), $suffix, $this->method];
 
             Container::get('rule_name')->set($name, $value, $first);
         }
