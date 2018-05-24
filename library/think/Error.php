@@ -42,7 +42,7 @@ class Error
      * @access public
      * @param  \Throwable $e
      */
-    public static function appException(Throwable $e)
+    public static function appException(Throwable $e): void
     {
         self::getExceptionHandler()->report($e);
 
@@ -62,7 +62,7 @@ class Error
      * @param  integer $errline 出错行号
      * @throws ErrorException
      */
-    public static function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0)
+    public static function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0): void
     {
         $exception = new ErrorException($errno, $errstr, $errfile, $errline);
         if (error_reporting() & $errno) {
@@ -77,7 +77,7 @@ class Error
      * Shutdown Handler
      * @access public
      */
-    public static function appShutdown()
+    public static function appShutdown(): void
     {
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至think\ErrorException
@@ -97,7 +97,7 @@ class Error
      * @param  int $type
      * @return bool
      */
-    protected static function isFatal(int $type)
+    protected static function isFatal(int $type): bool
     {
         return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
     }
@@ -109,7 +109,7 @@ class Error
      * @param  mixed $handle
      * @return void
      */
-    public static function setExceptionHandler($handle)
+    public static function setExceptionHandler($handle): void
     {
         self::$exceptionHandler = $handle;
     }

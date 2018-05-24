@@ -91,7 +91,7 @@ class Lang
      * @param  string        $range  语言作用域
      * @return array
      */
-    public function load($file, $range = '')
+    public function load($file, $range = ''): array
     {
         $range = $range ?: $this->range;
         if (!isset($this->lang[$range])) {
@@ -130,7 +130,7 @@ class Lang
      * @param  string        $range 语言作用域
      * @return bool
      */
-    public function has(string $name, string $range = '')
+    public function has(string $name, string $range = ''): bool
     {
         $range = $range ?: $this->range;
 
@@ -145,7 +145,7 @@ class Lang
      * @param  string        $range 语言作用域
      * @return mixed
      */
-    public function get(?string $name = null, array $vars = [], string $range = '')
+    public function get(string $name = null, array $vars = [], string $range = '')
     {
         $range = $range ?: $this->range;
 
@@ -186,7 +186,7 @@ class Lang
      * @access public
      * @return string
      */
-    public function detect()
+    public function detect(): string
     {
         // 自动侦测设置获取语言选择
         $langSet = '';
@@ -220,7 +220,7 @@ class Lang
      * @param  string $lang 语言
      * @return void
      */
-    public function saveToCookie(?string $lang = null)
+    public function saveToCookie( ? string $lang = null) : void
     {
         $range = $lang ?: $this->range;
 
@@ -233,7 +233,7 @@ class Lang
      * @param  string $var 变量名称
      * @return void
      */
-    public function setLangDetectVar(string $var)
+    public function setLangDetectVar(string $var): void
     {
         $this->langDetectVar = $var;
     }
@@ -244,7 +244,7 @@ class Lang
      * @param  string $var 变量名称
      * @return void
      */
-    public function setLangCookieVar(string $var)
+    public function setLangCookieVar(string $var): void
     {
         $this->langCookieVar = $var;
     }
@@ -255,7 +255,7 @@ class Lang
      * @param  array $list 语言列表
      * @return void
      */
-    public function setAllowLangList(array $list)
+    public function setAllowLangList(array $list): void
     {
         $this->allowLangList = $list;
     }
@@ -266,7 +266,7 @@ class Lang
      * @param  array $list 语言列表
      * @return void
      */
-    public function setAcceptLanguage(array $list)
+    public function setAcceptLanguage(array $list): void
     {
         $this->acceptLanguage = array_merge($this->acceptLanguage, $list);
     }

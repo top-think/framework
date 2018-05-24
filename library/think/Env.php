@@ -30,7 +30,7 @@ class Env implements \ArrayAccess
      * @param  string    $file  环境变量定义文件
      * @return void
      */
-    public function load(string $file)
+    public function load(string $file):void
     {
         $env = parse_ini_file($file, true);
         $this->set($env);
@@ -86,7 +86,7 @@ class Env implements \ArrayAccess
      * @param  mixed         $value  值
      * @return void
      */
-    public function set($env, $value = null)
+    public function set($env, $value = null):void
     {
         if (is_array($env)) {
             $env = array_change_key_case($env, CASE_UPPER);
@@ -113,7 +113,7 @@ class Env implements \ArrayAccess
      * @param  string    $name  参数名
      * @param  mixed     $value 值
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value):void
     {
         return $this->set($name, $value);
     }
@@ -124,7 +124,7 @@ class Env implements \ArrayAccess
      * @param  string $name 参数名
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         return $this->get($name);
     }
@@ -135,28 +135,28 @@ class Env implements \ArrayAccess
      * @param  string $name 参数名
      * @return bool
      */
-    public function __isset($name)
+    public function __isset(string $name):bool
     {
         return !is_null($this->get($name));
     }
 
     // ArrayAccess
-    public function offsetSet($name, $value)
+    public function offsetSet(string $name, $value):void
     {
         $this->set($name, $value);
     }
 
-    public function offsetExists($name)
+    public function offsetExists(string $name):bool
     {
         return $this->__isset($name);
     }
 
-    public function offsetUnset($name)
+    public function offsetUnset(string $name)
     {
         unset($this->data[$name]);
     }
 
-    public function offsetGet($name)
+    public function offsetGet(string $name)
     {
         return $this->get($name);
     }

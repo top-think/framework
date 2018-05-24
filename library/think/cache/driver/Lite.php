@@ -189,7 +189,7 @@ class Lite extends Driver
      * @param  string $tag 标签名
      * @return bool
      */
-    public function clear(? string $tag = null)
+    public function clear(string $tag = null)
     {
         if ($tag) {
             // 指定标签清除

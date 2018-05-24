@@ -69,7 +69,7 @@ class Hook
      * @param  bool      $first 是否放到开头执行
      * @return void
      */
-    public function add(string $tag, $behavior, bool $first = false)
+    public function add(string $tag, $behavior, bool $first = false): void
     {
         isset($this->tags[$tag]) || $this->tags[$tag] = [];
 
@@ -94,7 +94,7 @@ class Hook
      * @param  bool      $recursive 是否递归合并
      * @return void
      */
-    public function import(array $tags, bool $recursive = true)
+    public function import(array $tags, bool $recursive = true): void
     {
         if ($recursive) {
             foreach ($tags as $tag => $behavior) {
@@ -111,7 +111,7 @@ class Hook
      * @param  string $tag 插件位置 留空获取全部
      * @return array
      */
-    public function get(string $tag = '')
+    public function get(string $tag = ''): array
     {
         if (empty($tag)) {
             //获取全部的插件信息

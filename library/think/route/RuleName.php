@@ -49,7 +49,7 @@ class RuleName
      * @param  string   $name      路由标识
      * @return array|null
      */
-    public function get(? string $name = null)
+    public function get(string $name = null)
     {
         if (is_null($name)) {
             return $this->item;

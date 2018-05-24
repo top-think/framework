@@ -83,7 +83,7 @@ trait RelationShip
      * @param  string $name 关联方法名
      * @return mixed
      */
-    public function getRelation(? string $name = null)
+    public function getRelation(string $name = null)
     {
         if (is_null($name)) {
             return $this->relation;

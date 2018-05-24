@@ -112,7 +112,7 @@ class File extends SplFileObject
      * @access public
      * @return string
      */
-    public function getSaveName()
+    public function getSaveName(): string
     {
         return $this->saveName;
     }
@@ -136,7 +136,7 @@ class File extends SplFileObject
      * @param  string $type
      * @return string
      */
-    public function hash(string $type = 'sha1')
+    public function hash(string $type = 'sha1'): string
     {
         if (!isset($this->hash[$type])) {
             $this->hash[$type] = hash_file($type, $this->filename);
@@ -151,7 +151,7 @@ class File extends SplFileObject
      * @param  string   $path    目录
      * @return boolean
      */
-    protected function checkPath(string $path)
+    protected function checkPath(string $path): bool
     {
         if (is_dir($path)) {
             return true;
@@ -170,7 +170,7 @@ class File extends SplFileObject
      * @access public
      * @return string
      */
-    public function getMime()
+    public function getMime(): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
 
@@ -208,7 +208,7 @@ class File extends SplFileObject
      * @access public
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
         if ($this->isTest) {
             return is_file($this->filename);
@@ -223,7 +223,7 @@ class File extends SplFileObject
      * @param  array   $rule    验证规则
      * @return bool
      */
-    public function check(array $rule = [])
+    public function check(array $rule = []): bool
     {
         $rule = $rule ?: $this->validate;
 
@@ -243,7 +243,7 @@ class File extends SplFileObject
      * @param  array|string   $ext    允许后缀
      * @return bool
      */
-    public function checkExt($ext)
+    public function checkExt($ext): bool
     {
         if (is_string($ext)) {
             $ext = explode(',', $ext);
@@ -264,7 +264,7 @@ class File extends SplFileObject
      * @access public
      * @return bool
      */
-    public function checkImg()
+    public function checkImg(): bool
     {
         $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
 
@@ -298,7 +298,7 @@ class File extends SplFileObject
      * @param  integer   $size    最大大小
      * @return bool
      */
-    public function checkSize(int $size)
+    public function checkSize(int $size): bool
     {
         if ($this->getSize() > $size) {
             $this->error = 'filesize not match';
@@ -314,7 +314,7 @@ class File extends SplFileObject
      * @param  array|string   $mime    允许类型
      * @return bool
      */
-    public function checkMime($mime)
+    public function checkMime($mime): bool
     {
         if (is_string($mime)) {
             $mime = explode(',', $mime);
@@ -393,7 +393,7 @@ class File extends SplFileObject
      * @param  string|bool   $savename    保存的文件名 默认自动生成
      * @return string
      */
-    protected function buildSaveName($savename)
+    protected function buildSaveName($savename): string
     {
         if (true === $savename) {
             // 自动生成文件名
@@ -415,7 +415,7 @@ class File extends SplFileObject
      * @access protected
      * @return string
      */
-    protected function autoBuildName()
+    protected function autoBuildName(): string
     {
         if ($this->rule instanceof \Closure) {
             $savename = call_user_func_array($this->rule, [$this]);
@@ -444,7 +444,7 @@ class File extends SplFileObject
      * @access private
      * @param  int $errorNo  错误号
      */
-    private function error(int $errorNo)
+    private function error(int $errorNo): void
     {
         switch ($errorNo) {
             case 1:
@@ -473,7 +473,7 @@ class File extends SplFileObject
      * @access public
      * @return string
      */
-    public function getError()
+    public function getError(): string
     {
         $lang = Container::get('lang');
 

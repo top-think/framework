@@ -79,9 +79,9 @@ abstract class Dispatch
         // 执行路由后置操作
         if ($this->rule->doAfter()) {
             // 设置请求的路由信息
+            $this->request->setRoute($this->rule->getVars());
 
             // 设置当前请求的参数
-            $this->request->route($this->rule->getVars());
             $this->request->routeInfo([
                 'rule'   => $this->rule->getRule(),
                 'route'  => $this->rule->getRoute(),

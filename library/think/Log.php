@@ -97,7 +97,7 @@ class Log implements LoggerInterface
      * @param  string $type 信息类型
      * @return array
      */
-    public function getLog(string $type = '')
+    public function getLog(string $type = ''): array
     {
         return $type ? $this->log[$type] : $this->log;
     }
@@ -166,7 +166,7 @@ class Log implements LoggerInterface
      * @param  array  $config  当前日志配置参数
      * @return bool
      */
-    public function check(array $config)
+    public function check(array $config): bool
     {
         if ($this->key && !empty($config['allow_key']) && !in_array($this->key, $config['allow_key'])) {
             return false;
@@ -193,7 +193,7 @@ class Log implements LoggerInterface
      * @access public
      * @return bool
      */
-    public function save()
+    public function save(): bool
     {
         if (empty($this->log) || !$this->allowWrite) {
             return true;
@@ -240,7 +240,7 @@ class Log implements LoggerInterface
      * @param  bool   $force 是否强制写入
      * @return bool
      */
-    public function write($msg, string $type = 'info', bool $force = false)
+    public function write($msg, string $type = 'info', bool $force = false): bool
     {
         // 封装日志信息
         $log = $this->log;
@@ -278,7 +278,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->record($message, $level, $context);
     }
@@ -290,7 +290,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function emergency($message, array $context = [])
+    public function emergency($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -302,7 +302,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function alert($message, array $context = [])
+    public function alert($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -314,7 +314,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function critical($message, array $context = [])
+    public function critical($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -326,7 +326,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function error($message, array $context = [])
+    public function error($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -338,7 +338,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function warning($message, array $context = [])
+    public function warning($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -350,7 +350,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function notice($message, array $context = [])
+    public function notice($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -362,7 +362,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function info($message, array $context = [])
+    public function info($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -374,7 +374,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function debug($message, array $context = [])
+    public function debug($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }
@@ -386,7 +386,7 @@ class Log implements LoggerInterface
      * @param  array  $context   替换内容
      * @return void
      */
-    public function sql($message, array $context = [])
+    public function sql($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }

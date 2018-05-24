@@ -73,7 +73,7 @@ class Container implements ArrayAccess
      * @param  object        $instance
      * @return void
      */
-    public static function setInstance($instance)
+    public static function setInstance($instance): void
     {
         static::$instance = $instance;
     }
@@ -109,9 +109,9 @@ class Container implements ArrayAccess
      * @param  string  $abstract    类标识、接口
      * @return void
      */
-    public static function remove(string $abstract)
+    public static function remove(string $abstract): void
     {
-        return static::getInstance()->delete($abstract);
+        static::getInstance()->delete($abstract);
     }
 
     /**
@@ -119,9 +119,9 @@ class Container implements ArrayAccess
      * @access public
      * @return void
      */
-    public static function clear()
+    public static function clear(): void
     {
-        return static::getInstance()->flush();
+        static::getInstance()->flush();
     }
 
     /**
@@ -174,7 +174,7 @@ class Container implements ArrayAccess
      * @param  string    $abstract    类名或者标识
      * @return bool
      */
-    public function bound(string $abstract)
+    public function bound(string $abstract): bool
     {
         return isset($this->bind[$abstract]) || isset($this->instances[$abstract]);
     }
@@ -185,7 +185,7 @@ class Container implements ArrayAccess
      * @param  string    $name    类名或者标识
      * @return bool
      */
-    public function has(string $name)
+    public function has(string $name): bool
     {
         return $this->bound($name);
     }
@@ -196,7 +196,7 @@ class Container implements ArrayAccess
      * @param  string    $abstract    类名或者标识
      * @return bool
      */
-    public function exists($abstract)
+    public function exists($abstract): bool
     {
         if (isset($this->bind[$abstract])) {
             $abstract = $this->bind[$abstract];
@@ -253,7 +253,7 @@ class Container implements ArrayAccess
      * @param  string|array    $abstract    类名或者标识
      * @return void
      */
-    public function delete($abstract)
+    public function delete($abstract): void
     {
         foreach ((array) $abstract as $name) {
             $name = isset($this->name[$name]) ? $this->name[$name] : $name;
@@ -269,7 +269,7 @@ class Container implements ArrayAccess
      * @access public
      * @return void
      */
-    public function flush()
+    public function flush(): void
     {
         $this->instances = [];
         $this->bind      = [];
@@ -391,7 +391,7 @@ class Container implements ArrayAccess
      * @param  array                                 $vars    参数
      * @return array
      */
-    protected function bindParams($reflect, array $vars = [])
+    protected function bindParams($reflect, array $vars = []): array
     {
         if ($reflect->getNumberOfParameters() == 0) {
             return [];
@@ -453,7 +453,7 @@ class Container implements ArrayAccess
         return $this->make($name);
     }
 
-    public function __isset($name)
+    public function __isset($name): bool
     {
         return $this->has($name);
     }

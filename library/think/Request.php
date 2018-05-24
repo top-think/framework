@@ -272,7 +272,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
         $this->input = file_get_contents('php://input');
     }
 
-    public function init(array $options = [])
+    public function init(array $options = []): void
     {
         $this->config = array_merge($this->config, $options);
 
@@ -286,6 +286,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
         if (is_null($name)) {
             return $this->config;
         }
+
         return isset($this->config[$name]) ? $this->config[$name] : null;
     }
 
@@ -311,7 +312,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  mixed         $callback callable
      * @return void
      */
-    public function hook($method, $callback = null)
+    public function hook($method, $callback = null): void
     {
         if (is_array($method)) {
             $this->hook = array_merge($this->hook, $method);
@@ -332,7 +333,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string    $content
      * @return \think\Request
      */
-    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], ?string $content = null)
+    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [],  ? string $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -416,17 +417,26 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     }
 
     /**
-     * 设置或获取当前包含协议的域名
+     * 设置当前包含协议的域名
      * @access public
      * @param  string $domain 域名
-     * @return string|$this
+     * @return $this
      */
-    public function domain(?string $domain = null)
+    public function setDomain(string $domain)
     {
-        if (!is_null($domain)) {
-            $this->domain = $domain;
-            return $this;
-        } elseif (!$this->domain) {
+        $this->domain = $domain;
+        return $this;
+    }
+
+    /**
+     * 获取当前包含协议的域名
+     * @access public
+     * @param  string $domain 域名
+     * @return string
+     */
+    public function domain() : string
+    {
+        if (!$this->domain) {
             $this->domain = $this->scheme() . '://' . $this->host();
         }
 
@@ -481,7 +491,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function panDomain(?string $domain = null)
+    public function panDomain( ? string $domain = null)
     {
         if (is_null($domain)) {
             return $this->panDomain;
@@ -499,7 +509,6 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      */
     public function setUrl(string $url)
     {
-
         $this->url = $url;
         return $this;
     }
@@ -508,9 +517,9 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * 获取当前完整URL 包括QUERY_STRING
      * @access public
      * @param  bool $complete 是否包含完整域名
-     * @return string|$this
+     * @return string
      */
-    public function url(bool $complete = false): string
+    public function url(bool $complete = false) : string
     {
         if (!$this->url) {
             if ($this->isCli()) {
@@ -561,7 +570,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * 设置当前执行的文件 SCRIPT_NAME
      * @access public
      * @param  string $file 当前执行的文件
-     * @return string|$this
+     * @return $this
      */
     public function setBaseFile(string $file)
     {
@@ -573,7 +582,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * 获取当前执行的文件 SCRIPT_NAME
      * @access public
      * @param  bool $complete 是否包含完整域名
-     * @return string|$this
+     * @return string
      */
     public function baseFile(bool $complete = false): string
     {
@@ -927,54 +936,71 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
     }
 
     /**
-     * 设置获取路由参数
+     * 设置路由(PATHINFO)参数
      * @access public
-     * @param  mixed         $name 变量名
+     * @param  array         $name 变量
+     * @return mixed
+     */
+    public function setRoute(array $name)
+    {
+            $this->param        = [];
+            return $this->route = array_merge($this->route, $name);
+    }
+
+    /**
+     * 获取路由参数
+     * @access public
+     * @param  string        $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function route($name = '', $default = null, $filter = '')
+    public function route(string $name = '', $default = null, $filter = '')
     {
-        if (is_array($name)) {
-            $this->param        = [];
-            return $this->route = array_merge($this->route, $name);
-        }
-
         return $this->input($this->route, $name, $default, $filter);
     }
 
     /**
-     * 设置获取GET参数
+     * 设置GET参数
      * @access public
-     * @param  mixed         $name 变量名
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  array         $name 变量名
      * @return mixed
      */
-    public function get($name = '', $default = null, $filter = '')
+    public function setGet(array $name)
     {
         if (empty($this->get)) {
             $this->get = $_GET;
         }
 
-        if (is_array($name)) {
+
             $this->param      = [];
             return $this->get = array_merge($this->get, $name);
+    }
+
+    /**
+     * 获取GET参数
+     * @access public
+     * @param  string        $name 变量名
+     * @param  mixed         $default 默认值
+     * @param  string|array  $filter 过滤方法
+     * @return mixed
+     */
+    public function get(string $name = '', $default = null, $filter = '')
+    {
+        if (empty($this->get)) {
+            $this->get = $_GET;
         }
 
         return $this->input($this->get, $name, $default, $filter);
     }
 
     /**
-     * 设置获取POST参数
+     * 设置POST参数
      * @access public
-     * @param  mixed         $name 变量名
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  array         $name 变量
      * @return mixed
      */
-    public function post($name = '', $default = null, $filter = '')
+    public function setPost($name = '')
     {
         if (empty($this->post)) {
             $content = $this->input;
@@ -985,23 +1011,41 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             }
         }
 
-        if (is_array($name)) {
+
             $this->param       = [];
             return $this->post = array_merge($this->post, $name);
+
+    }
+
+    /**
+     * 获取POST参数
+     * @access public
+     * @param  string        $name 变量名
+     * @param  mixed         $default 默认值
+     * @param  string|array  $filter 过滤方法
+     * @return mixed
+     */
+    public function post(string $name = '', $default = null, $filter = '')
+    {
+        if (empty($this->post)) {
+            $content = $this->input;
+            if (empty($_POST) && false !== strpos($this->contentType(), 'application/json')) {
+                $this->post = (array) json_decode($content, true);
+            } else {
+                $this->post = $_POST;
+            }
         }
 
         return $this->input($this->post, $name, $default, $filter);
     }
 
     /**
-     * 设置获取PUT参数
+     * 设置PUT参数
      * @access public
-     * @param  mixed             $name 变量名
-     * @param  mixed             $default 默认值
-     * @param  string|array      $filter 过滤方法
+     * @param  array             $name 变量
      * @return mixed
      */
-    public function put($name = '', $default = null, $filter = '')
+    public function setPut(array $name)
     {
         if (is_null($this->put)) {
             $content = $this->input;
@@ -1012,10 +1056,31 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             }
         }
 
-        if (is_array($name)) {
+
             $this->param      = [];
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
+
+    }
+
+    /**
+     * 获取PUT参数
+     * @access public
+     * @param  mixed             $name 变量名
+     * @param  mixed             $default 默认值
+     * @param  string|array      $filter 过滤方法
+     * @return mixed
+     */
+    public function put(string $name = '', $default = null, $filter = '')
+    {
+        if (is_null($this->put)) {
+            $content = $this->input;
+            if (false !== strpos($this->contentType(), 'application/json')) {
+                $this->put = (array) json_decode($content, true);
+            } else {
+                parse_str($content, $this->put);
+            }
         }
+
 
         return $this->input($this->put, $name, $default, $filter);
     }
@@ -1463,9 +1528,9 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string    $name 变量名
      * @param  string    $type 变量类型
      * @param  bool      $checkEmpty 是否检测空值
-     * @return mixed
+     * @return bool
      */
-    public function has(string $name, string $type = 'param', bool $checkEmpty = false)
+    public function has(string $name, string $type = 'param', bool $checkEmpty = false):bool
     {
         if (empty($this->$type)) {
             $param = $this->$type();
@@ -1750,7 +1815,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  array $route 路由名称
      * @return array
      */
-    public function routeInfo(array $route = [])
+    public function routeInfo(array $route = []):array
     {
         if (!empty($route)) {
             $this->routeInfo = $route;
@@ -1765,7 +1830,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  array  $dispatch 调度信息
      * @return array
      */
-    public function dispatch($dispatch = null)
+    public function dispatch($dispatch = null):array
     {
         if (!is_null($dispatch)) {
             $this->dispatch = $dispatch;
@@ -1779,7 +1844,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return string
      */
-    public function secureKey()
+    public function secureKey():string
     {
         if (is_null($this->secureKey)) {
             $this->secureKey = uniqid('', true);
@@ -1858,7 +1923,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return string
      */
-    public function getContent()
+    public function getContent():string
     {
         if (is_null($this->content)) {
             $this->content = $this->input;
@@ -1872,7 +1937,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return string
      */
-    public function getInput()
+    public function getInput():string
     {
         return $this->input;
     }
@@ -1884,7 +1949,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  mixed  $type 令牌生成方法
      * @return string
      */
-    public function token($name = '__token__', $type = 'md5')
+    public function token(string $name = '__token__', callable $type = 'md5'):string
     {
         $type  = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $_SERVER['REQUEST_TIME_FLOAT']);
@@ -1907,7 +1972,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $tag    缓存标签
      * @return void
      */
-    public function cache($key, $expire = null, $except = [], $tag = null)
+    public function cache($key, $expire = null, $except = [], $tag = null):void
     {
         if (!is_array($except)) {
             $tag    = $except;
@@ -1982,7 +2047,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @access public
      * @return array
      */
-    public function getCache()
+    public function getCache():array
     {
         return $this->cache;
     }
@@ -1993,7 +2058,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string    $name  参数名
      * @param  mixed     $value 值
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value)
     {
         return $this->param[$name] = $value;
     }
@@ -2004,7 +2069,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $name 名称
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         return $this->param($name);
     }

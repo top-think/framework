@@ -154,7 +154,7 @@ class Xcache extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear(? string $tag = null) : bool
+    public function clear(string $tag = null): bool
     {
         if ($tag) {
             // 指定标签清除

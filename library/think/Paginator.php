@@ -114,7 +114,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         return new static($items, $listRows, $currentPage, $total, $simple, $options);
     }
 
-    protected function setCurrentPage($currentPage)
+    protected function setCurrentPage(int $currentPage): int
     {
         if (!$this->simple && $currentPage > $this->lastPage) {
             return $this->lastPage > 0 ? $this->lastPage : 1;
@@ -127,10 +127,10 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * 获取页码对应的链接
      *
      * @access protected
-     * @param  $page
+     * @param  int  $page
      * @return string
      */
-    protected function url($page)
+    protected function url(int $page): string
     {
         if ($page <= 0) {
             $page = 1;
@@ -163,7 +163,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @param  int    $default
      * @return int
      */
-    public static function getCurrentPage($varPage = 'page', $default = 1)
+    public static function getCurrentPage(string $varPage = 'page', int $default = 1): int
     {
         $page = Container::get('request')->param($varPage);
 
@@ -179,12 +179,12 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @access public
      * @return string
      */
-    public static function getCurrentPath()
+    public static function getCurrentPath(): string
     {
         return Container::get('request')->baseUrl();
     }
 
-    public function total()
+    public function total(): int
     {
         if ($this->simple) {
             throw new \DomainException('not support total');
@@ -193,17 +193,17 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         return $this->total;
     }
 
-    public function listRows()
+    public function listRows(): int
     {
         return $this->listRows;
     }
 
-    public function currentPage()
+    public function currentPage(): int
     {
         return $this->currentPage;
     }
 
-    public function lastPage()
+    public function lastPage(): int
     {
         if ($this->simple) {
             throw new \DomainException('not support last');
@@ -217,7 +217,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @access public
      * @return boolean
      */
-    public function hasPages()
+    public function hasPages(): bool
     {
         return !(1 == $this->currentPage && !$this->hasMore);
     }
@@ -230,7 +230,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @param  int $end
      * @return array
      */
-    public function getUrlRange($start, $end)
+    public function getUrlRange(int $start, int $end): array
     {
         $urls = [];
 
@@ -286,7 +286,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @access public
      * @return string
      */
-    protected function buildFragment()
+    protected function buildFragment(): string
     {
         return $this->options['fragment'] ? '#' . $this->options['fragment'] : '';
     }
@@ -308,7 +308,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         return $this->items;
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return $this->items->isEmpty();
     }
@@ -394,7 +394,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * Count elements of an object
      */
-    public function count()
+    public function count(): int
     {
         return $this->items->count();
     }
@@ -404,7 +404,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         return (string) $this->render();
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         try {
             $total = $this->total();

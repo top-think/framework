@@ -40,19 +40,19 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @access public
      * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return empty($this->items);
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return array_map(function ($value) {
             return ($value instanceof Model || $value instanceof self) ? $value->toArray() : $value;
         }, $this->items);
     }
 
-    public function all()
+    public function all(): array
     {
         return $this->items;
     }
@@ -168,7 +168,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param  mixed  $key
      * @return void
      */
-    public function push($value, $key = null)
+    public function push($value, $key = null): void
     {
         if (is_null($key)) {
             $this->items[] = $value;
@@ -203,7 +203,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param mixed  $key
      * @return void
      */
-    public function unshift($value, $key = null)
+    public function unshift($value, $key = null): void
     {
         if (is_null($key)) {
             array_unshift($this->items, $value);
@@ -377,7 +377,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param  mixed $items
      * @return array
      */
-    protected function convertToArray($items)
+    protected function convertToArray($items): array
     {
         if ($items instanceof self) {
             return $items->all();

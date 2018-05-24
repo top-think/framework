@@ -65,7 +65,7 @@ class Loader
     }
 
     // 注册自动加载机制
-    public static function register(bool $composerAutoLoad = false)
+    public static function register(bool $composerAutoLoad = false): void
     {
         // 注册系统自动加载
         $rootPath = self::getRootPath();
@@ -107,7 +107,7 @@ class Loader
     }
 
     // 自动加载
-    public static function autoload(string $class)
+    public static function autoload(string $class): bool
     {
         if (isset(self::$classAlias[$class])) {
             return class_alias(self::$classAlias[$class], $class);
@@ -194,7 +194,7 @@ class Loader
     }
 
     // 注册classmap
-    public static function addClassMap($class, $map = '')
+    public static function addClassMap($class, $map = ''): void
     {
         if (is_array($class)) {
             self::$classMap = array_merge(self::$classMap, $class);
@@ -204,7 +204,7 @@ class Loader
     }
 
     // 注册命名空间
-    public static function addNamespace($namespace, $path = '')
+    public static function addNamespace($namespace, $path = ''): void
     {
         if (is_array($namespace)) {
             foreach ($namespace as $prefix => $paths) {
@@ -216,7 +216,7 @@ class Loader
     }
 
     // 添加Psr4空间
-    private static function addPsr4($prefix, $paths, $prepend = false)
+    private static function addPsr4($prefix, $paths, $prepend = false): void
     {
         if (!$prefix) {
             // Register directories for the root namespace.
@@ -256,13 +256,13 @@ class Loader
     }
 
     // 注册自动加载类库目录
-    public static function addAutoLoadDir(string $path)
+    public static function addAutoLoadDir(string $path): void
     {
         self::$fallbackDirsPsr4[] = $path;
     }
 
     // 注册类别名
-    public static function addClassAlias($alias, $class = null)
+    public static function addClassAlias($alias, $class = null): void
     {
         if (is_array($alias)) {
             self::$classAlias = array_merge(self::$classAlias, $alias);
@@ -272,7 +272,7 @@ class Loader
     }
 
     // 加载composer autofile文件
-    public static function loadComposerAutoloadFiles()
+    public static function loadComposerAutoloadFiles(): void
     {
         foreach (self::$files as $fileIdentifier => $file) {
             if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
@@ -292,7 +292,7 @@ class Loader
      * @param  bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    public static function parseName(string $name = null, int $type = 0, bool $ucfirst = true)
+    public static function parseName(string $name = null, int $type = 0, bool $ucfirst = true): string
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -311,7 +311,7 @@ class Loader
      * @param  string $namespace    默认命名空间
      * @return mixed
      */
-    public static function factory($name, $namespace = '', ...$args)
+    public static function factory(string $name, string $namespace = '', ...$args)
     {
         $class = false !== strpos($name, '\\') ? $name : $namespace . ucwords($name);
 

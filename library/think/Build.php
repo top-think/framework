@@ -39,7 +39,7 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public function run(array $build = [], string $namespace = 'app', bool $suffix = false)
+    public function run(array $build = [], string $namespace = 'app', bool $suffix = false): void
     {
         // 锁定
         $lockfile = $this->basePath . 'build.lock';
@@ -73,7 +73,7 @@ class Build
      * @param  array $list 目录列表
      * @return void
      */
-    protected function buildDir(array $list)
+    protected function buildDir(array $list): void
     {
         foreach ($list as $dir) {
             $this->checkDirBuild($this->basePath . $dir);
@@ -86,7 +86,7 @@ class Build
      * @param  array $list 文件列表
      * @return void
      */
-    protected function buildFile(array $list)
+    protected function buildFile(array $list): void
     {
         foreach ($list as $file) {
             if (!is_dir($this->basePath . dirname($file))) {
@@ -109,7 +109,7 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public function module(string $module = '', array $list = [], string $namespace = 'app', bool $suffix = false)
+    public function module(string $module = '', array $list = [], string $namespace = 'app', bool $suffix = false): void
     {
         $module = $module ? $module : '';
 
@@ -187,7 +187,7 @@ class Build
      * @param  string $layer  控制器层目录名
      * @return string
      */
-    public function buildRoute(bool $suffix = false, string $layer = '')
+    public function buildRoute(bool $suffix = false, string $layer = ''): string
     {
         $namespace = $this->app->getNameSpace();
         $modules   = glob($this->basePath . '*', GLOB_ONLYDIR);
@@ -224,7 +224,7 @@ class Build
      * @param  string $layer 控制器层目录名
      * @return string
      */
-    protected function buildDirRoute(string $path, string $namespace, string $module, bool $suffix, string $layer)
+    protected function buildDirRoute(string $path, string $namespace, string $module, bool $suffix, string $layer): string
     {
         $content     = '';
         $controllers = glob($path . '*.php');
@@ -265,7 +265,7 @@ class Build
      * @param  string $controller   控制器名
      * @return string
      */
-    protected function getControllerRoute(string $class, string $module, string $controller)
+    protected function getControllerRoute(string $class, string $module, string $controller): string
     {
         $content = '';
         $comment = $class->getDocComment();
@@ -301,7 +301,7 @@ class Build
      * @param  string $tag
      * @return string
      */
-    protected function parseRouteComment(string $comment, string $tag = '@route(')
+    protected function parseRouteComment(string $comment, string $tag = '@route('): string
     {
         $comment = substr($comment, 3, -2);
         $comment = explode(PHP_EOL, substr(strstr(trim($comment), $tag), 1));
@@ -358,7 +358,7 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    protected function buildHello(string $module, string $namespace, bool $suffix = false)
+    protected function buildHello(string $module, string $namespace, bool $suffix = false): void
     {
         $filename = $this->basePath . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . ($suffix ? 'Controller' : '') . '.php';
         if (!is_file($filename)) {
@@ -376,7 +376,7 @@ class Build
      * @param  string $module 模块名
      * @return void
      */
-    protected function buildCommon(string $module)
+    protected function buildCommon(string $module): void
     {
         $filename = $this->app->getConfigPath() . ($module ? $module . DIRECTORY_SEPARATOR : '') . 'app.php';
         $this->checkDirBuild(dirname($filename));
@@ -398,7 +398,7 @@ class Build
      * @param  string $dirname 目录名称
      * @return void
      */
-    protected function checkDirBuild(string $dirname)
+    protected function checkDirBuild(string $dirname): void
     {
         if (!is_dir($dirname)) {
             mkdir($dirname, 0755, true);

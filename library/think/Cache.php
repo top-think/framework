@@ -51,7 +51,7 @@ class Cache extends CacheItemPool
      * @param  bool|string   $name 缓存连接标识 true 强制重新连接
      * @return Driver
      */
-    public function connect(array $options = [], $name = false)
+    public function connect(array $options = [], $name = false): Driver
     {
 
         if (false === $name) {
@@ -78,7 +78,7 @@ class Cache extends CacheItemPool
      * @param  bool          $force    强制更新
      * @return Driver
      */
-    public function init(array $options = [], $force = false)
+    public function init(array $options = [], bool $force = false): Driver
     {
         if (is_null($this->handler) || $force) {
             if ('complex' == $options['type']) {
@@ -92,7 +92,7 @@ class Cache extends CacheItemPool
         return $this->handler;
     }
 
-    public function setConfig(array $config)
+    public function setConfig(array $config): void
     {
         $this->config = array_merge($this->config, $config);
     }
@@ -103,7 +103,7 @@ class Cache extends CacheItemPool
      * @param  string $name 缓存标识
      * @return Driver
      */
-    public function store($name = '')
+    public function store(string $name = ''): Driver
     {
         if ('' !== $name && 'complex' == $this->config['type']) {
             return $this->connect($this->config[$name], strtolower($name));

@@ -62,7 +62,7 @@ class Db
      * @param  boolean $execute 是否包含所有查询
      * @return integer
      */
-    public function getQueryTimes(bool $execute = false)
+    public function getQueryTimes(bool $execute = false): int
     {
         return $this->connection->getQueryTimes($execute);
     }
@@ -72,7 +72,7 @@ class Db
      * @access public
      * @return integer
      */
-    public function getExecuteTimes()
+    public function getExecuteTimes(): int
     {
         return $this->connection->getExecuteTimes();
     }
@@ -82,7 +82,7 @@ class Db
      * @param  mixed $config
      * @return array
      */
-    private function parseConfig($config)
+    private function parseConfig($config): array
     {
         if (empty($config)) {
             $config = $this->config;
@@ -105,7 +105,7 @@ class Db
      * @param  string $dsnStr
      * @return array
      */
-    private function parseDsnConfig(string $dsnStr)
+    private function parseDsnConfig(string $dsnStr): array
     {
         $info = parse_url($dsnStr);
 

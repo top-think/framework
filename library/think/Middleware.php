@@ -34,12 +34,12 @@ class Middleware
         return new static($app, $config->pull('middleware'));
     }
 
-    public function setConfig(array $config)
+    public function setConfig(array $config): void
     {
         $this->config = array_merge($this->config, $config);
     }
 
-    public function import(array $middlewares = [])
+    public function import(array $middlewares = []): void
     {
         foreach ($middlewares as $middleware) {
             $this->add($middleware);
@@ -49,7 +49,7 @@ class Middleware
     /**
      * {@inheritdoc}
      */
-    public function add($middleware)
+    public function add($middleware): void
     {
         if (is_null($middleware)) {
             return;
@@ -65,7 +65,7 @@ class Middleware
     /**
      * {@inheritdoc}
      */
-    public function unshift($middleware)
+    public function unshift($middleware): void
     {
         if (is_null($middleware)) {
             return;
@@ -81,7 +81,7 @@ class Middleware
     /**
      * {@inheritdoc}
      */
-    public function all()
+    public function all(): array
     {
         return $this->queue;
     }
@@ -94,7 +94,7 @@ class Middleware
         return call_user_func($this->resolve(), $request);
     }
 
-    protected function buildMiddleware($middleware)
+    protected function buildMiddleware($middleware): array
     {
         if (is_array($middleware)) {
             list($middleware, $param) = $middleware;

@@ -193,7 +193,7 @@ class Redis extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear( ? string $tag = null)
+    public function clear(string $tag = null)
     {
         if ($tag) {
             // 指定标签清除

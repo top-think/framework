@@ -55,7 +55,7 @@ class Cookie
      * @param  array $config
      * @return void
      */
-    public function init(array $config = [])
+    public function init(array $config = []): void
     {
         $this->config = array_merge($this->config, array_change_key_case($config));
 
@@ -93,7 +93,7 @@ class Cookie
      * @param  mixed  $option 可选参数 可能会是 null|integer|string
      * @return void
      */
-    public function set(string $name, $value = '', $option = null)
+    public function set(string $name, $value = '', $option = null): void
     {
         !isset($this->init) && $this->init();
 
@@ -135,7 +135,7 @@ class Cookie
      * @param  mixed  $option 可选参数 可能会是 null|integer|string
      * @return void
      */
-    public function forever(string $name, $value = '', $option = null)
+    public function forever(string $name, $value = '', $option = null): void
     {
         if (is_null($option) || is_numeric($option)) {
             $option = [];
@@ -153,7 +153,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return bool
      */
-    public function has(string $name,  ? string $prefix = null)
+    public function has(string $name, string $prefix = null): bool
     {
         !isset($this->init) && $this->init();
 
@@ -170,7 +170,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return mixed
      */
-    public function get(string $name = '',  ? string $prefix = null)
+    public function get(string $name = '', string $prefix = null)
     {
         !isset($this->init) && $this->init();
 
@@ -210,7 +210,7 @@ class Cookie
      * @param  string|null   $prefix cookie前缀
      * @return void
      */
-    public function delete(string $name,  ? string $prefix = null)
+    public function delete(string $name, string $prefix = null): void
     {
         !isset($this->init) && $this->init();
 
@@ -232,7 +232,7 @@ class Cookie
      * @param  string|null $prefix cookie前缀
      * @return void
      */
-    public function clear( ? string $prefix = null)
+    public function clear(string $prefix = null): void
     {
         // 清除指定前缀的所有cookie
         if (empty($_COOKIE)) {

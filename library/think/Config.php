@@ -31,7 +31,7 @@ class Config implements \ArrayAccess
      * @param string    $prefix 前缀
      * @return void
      */
-    public function setDefaultPrefix(string $prefix)
+    public function setDefaultPrefix(string $prefix): void
     {
         $this->prefix = $prefix;
     }
@@ -85,7 +85,7 @@ class Config implements \ArrayAccess
      * @param  string    $name 配置参数名（支持多级配置 .号分割）
      * @return bool
      */
-    public function has(string $name)
+    public function has(string $name): bool
     {
         if (!strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
@@ -100,7 +100,7 @@ class Config implements \ArrayAccess
      * @param  string    $name 一级配置名
      * @return array
      */
-    public function pull(string $name)
+    public function pull(string $name): array
     {
         $name = strtolower($name);
 
@@ -111,9 +111,10 @@ class Config implements \ArrayAccess
      * 获取配置参数 为空则获取所有配置
      * @access public
      * @param  string    $name 配置参数名（支持多级配置 .号分割）
+     * @param  mixed     $default 默认值
      * @return mixed
      */
-    public function get($name = null)
+    public function get(string $name = '', $default = null)
     {
         // 无参数时获取所有
         if (empty($name)) {
@@ -135,7 +136,7 @@ class Config implements \ArrayAccess
             if (isset($config[$val])) {
                 $config = $config[$val];
             } else {
-                return;
+                return $default;
             }
         }
 
@@ -192,7 +193,7 @@ class Config implements \ArrayAccess
      * @param  string  $name 配置参数名（支持三级配置 .号分割）
      * @return void
      */
-    public function remove($name)
+    public function remove($name): void
     {
         if (!strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
@@ -213,7 +214,7 @@ class Config implements \ArrayAccess
      * @param  string    $prefix  配置前缀名
      * @return void
      */
-    public function reset($prefix = '')
+    public function reset(string $prefix = ''): void
     {
         if ('' === $prefix) {
             $this->config = [];
@@ -239,7 +240,7 @@ class Config implements \ArrayAccess
      * @param  string $name 参数名
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         return $this->get($name);
     }
@@ -250,7 +251,7 @@ class Config implements \ArrayAccess
      * @param  string $name 参数名
      * @return bool
      */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return $this->has($name);
     }
@@ -261,7 +262,7 @@ class Config implements \ArrayAccess
         $this->set($name, $value);
     }
 
-    public function offsetExists($name)
+    public function offsetExists($name): bool
     {
         return $this->has($name);
     }

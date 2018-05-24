@@ -44,7 +44,7 @@ class View extends Response
      * @param  string $name 模板变量
      * @return mixed
      */
-    public function getVars(? string $name = null)
+    public function getVars(string $name = null)
     {
         if (is_null($name)) {
             return $this->vars;

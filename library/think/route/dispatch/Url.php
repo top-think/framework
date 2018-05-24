@@ -80,7 +80,7 @@ class Url extends Dispatch
         }
 
         // 设置当前请求的参数
-        $this->request->route($var);
+        $this->request->setRoute($var);
 
         // 封装路由
         $route = [$module, $controller, $action];
