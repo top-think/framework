@@ -1018,7 +1018,7 @@ abstract class Connection
      * @throws \Exception
      * @throws \Throwable
      */
-    public function insertAll(Query $query, array $dataSet = [], bool $replace = false,  ? int $limit = null)
+    public function insertAll(Query $query, array $dataSet = [], bool $replace = false, ? int $limit = null)
     {
         if (!is_array(reset($dataSet))) {
             return false;

@@ -13,7 +13,7 @@ namespace think;
 
 use think\exception\HttpResponseException;
 
-class Request//implements Psr\Http\Message\ServerRequestInterface
+class Request //implements Psr\Http\Message\ServerRequestInterface
 
 {
     /**
@@ -333,7 +333,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string    $content
      * @return \think\Request
      */
-    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [],  ? string $content = null)
+    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], ? string $content = null)
     {
         $server['PATH_INFO']      = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
@@ -491,7 +491,7 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
      * @param  string $domain 域名
      * @return string|$this
      */
-    public function panDomain( ? string $domain = null)
+    public function panDomain(? string $domain = null)
     {
         if (is_null($domain)) {
             return $this->panDomain;
@@ -972,7 +972,6 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             $this->get = $_GET;
         }
 
-
             $this->param      = [];
             return $this->get = array_merge($this->get, $name);
     }
@@ -1010,7 +1009,6 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
                 $this->post = $_POST;
             }
         }
-
 
             $this->param       = [];
             return $this->post = array_merge($this->post, $name);
@@ -1056,7 +1054,6 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
             }
         }
 
-
             $this->param      = [];
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
 
@@ -1080,7 +1077,6 @@ class Request//implements Psr\Http\Message\ServerRequestInterface
                 parse_str($content, $this->put);
             }
         }
-
 
         return $this->input($this->put, $name, $default, $filter);
     }
