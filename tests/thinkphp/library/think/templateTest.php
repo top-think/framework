@@ -16,331 +16,160 @@
 
 namespace tests\thinkphp\library\think;
 
+use think\Cache;
 use think\Template;
 
 class templateTest extends \PHPUnit_Framework_TestCase
 {
-    public function testVar()
+    /**
+     * @var Template
+     */
+    protected $template;
+
+    public function setUp()
     {
-        $template = new Template();
-
-        $content = <<<EOF
-{\$name.a.b}
-EOF;
-        $data = <<<EOF
-<?php echo \$name['a']['b']; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a??'test'}
-EOF;
-        $data = <<<EOF
-<?php echo isset(\$name['a']) ? \$name['a'] : 'test'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a?='test'}
-EOF;
-        $data = <<<EOF
-<?php if(!empty(\$name['a'])) echo 'test'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a?:'test'}
-EOF;
-        $data = <<<EOF
-<?php echo !empty(\$name['a'])?\$name['a']:'test'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a?\$name.b:'no'}
-EOF;
-        $data = <<<EOF
-<?php echo !empty(\$name['a'])?\$name['b']:'no'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a==\$name.b?='test'}
-EOF;
-        $data = <<<EOF
-<?php if(!empty(\$name['a']) && \$name['a']==\$name['b']) echo 'test'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a==\$name.b?'a':'b'}
-EOF;
-        $data = <<<EOF
-<?php echo !empty(\$name['a']) && \$name['a']==\$name['b']?'a':'b'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a|default='test'==\$name.b?'a':'b'}
-EOF;
-        $data = <<<EOF
-<?php echo (isset(\$name['a']) && (\$name['a'] !== '')?\$name['a']:'test')==\$name['b']?'a':'b'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name.a|trim==\$name.b?='eq'}
-EOF;
-        $data = <<<EOF
-<?php if(trim(\$name['a'])==\$name['b']) echo 'eq'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{:ltrim(rtrim(\$name.a))}
-EOF;
-        $data = <<<EOF
-<?php echo ltrim(rtrim(\$name['a'])); ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{~echo(trim(\$name.a))}
-EOF;
-        $data = <<<EOF
-<?php echo(trim(\$name['a'])); ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{++\$name.a}
-EOF;
-        $data = <<<EOF
-<?php echo ++\$name['a']; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{/*\$name*/}
-EOF;
-        $data = '';
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$0a}
-EOF;
-        $data = '{$0a}';
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
+        $this->template = new Template();
     }
 
-    public function testVarFunction()
+    public function testAssign()
     {
-        $template = new Template();
+        $reflectProperty = new \ReflectionProperty(get_class($this->template), 'data');
+        $reflectProperty->setAccessible(true);
 
-        $content = <<<EOF
-{\$name.a.b|default='test'}
-EOF;
-        $data = <<<EOF
-<?php echo (isset(\$name['a']['b']) && (\$name['a']['b'] !== '')?\$name['a']['b']:'test'); ?>
-EOF;
+        $this->template->assign('version', 'ThinkPHP3.2');
+        $data = $reflectProperty->getValue($this->template);
+        $this->assertEquals('ThinkPHP3.2', $data['version']);
 
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$create_time|date="y-m-d",###}
-EOF;
-        $data = <<<EOF
-<?php echo date("y-m-d",\$create_time); ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-{\$name}
-{\$name|trim|substr=0,3}
-EOF;
-        $data = <<<EOF
-<?php echo \$name; ?>
-<?php echo substr(trim(\$name),0,3); ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
+        $this->template->assign(['name' => 'Gao', 'version' => 'ThinkPHP5']);
+        $data = $reflectProperty->getValue($this->template);
+        $this->assertEquals('Gao', $data['name']);
+        $this->assertEquals('ThinkPHP5', $data['version']);
     }
 
-    public function testVarIdentify()
+    public function testGet()
     {
-        $config['tpl_begin']        = '<#';
-        $config['tpl_end']          = '#>';
-        $config['tpl_var_identify'] = '';
-        $template                   = new Template($config);
+        $this->template = new Template();
+        $data = [
+            'project' => 'ThinkPHP',
+            'version' => [
+                'ThinkPHP5' => ['Think5.0', 'Think5.1']
+            ]
+        ];
+        $this->template->assign($data);
 
-        $content = <<<EOF
-<#\$info.a??'test'#>
-EOF;
-        $data = <<<EOF
-<?php echo ((is_array(\$info)?\$info['a']:\$info->a)) ? (is_array(\$info)?\$info['a']:\$info->a) : 'test'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-<#\$info.a?='test'#>
-EOF;
-        $data = <<<EOF
-<?php if((is_array(\$info)?\$info['a']:\$info->a)) echo 'test'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-<#\$info.a==\$info.b?='test'#>
-EOF;
-        $data = <<<EOF
-<?php if((is_array(\$info)?\$info['a']:\$info->a)==(is_array(\$info)?\$info['b']:\$info->b)) echo 'test'; ?>
-EOF;
-
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $content = <<<EOF
-<#\$info.a|default='test'?'yes':'no'#>
-EOF;
-        $data = <<<EOF
-<?php echo ((is_array(\$info)?\$info['a']:\$info->a) !== ''?(is_array(\$info)?\$info['a']:\$info->a):'test')?'yes':'no'; ?>
-EOF;
-        $template->parse($content);
-        $this->assertEquals($data, $content);
-
-        $template2                   = new Template();
-        $template2->tpl_var_identify = 'obj';
-        $content                     = <<<EOF
-{\$info2.b|trim?'yes':'no'}
-EOF;
-        $data = <<<EOF
-<?php echo trim(\$info2->b)?'yes':'no'; ?>
-EOF;
-        $template2->parse($content);
-        $this->assertEquals($data, $content);
+        $this->assertSame($data, $this->template->get());
+        $this->assertSame('ThinkPHP', $this->template->get('project'));
+        $this->assertSame(['Think5.0', 'Think5.1'], $this->template->get('version.ThinkPHP5'));
+        $this->assertNull($this->template->get('version.ThinkPHP3.2'));
     }
 
-    public function testThinkVar()
+    /**
+     * @dataProvider provideTestParseWithVar
+     */
+    public function testParseWithVar($content, $expected)
+    {
+        $this->template = new Template();
+
+        $this->template->parse($content);
+        $this->assertEquals($expected, $content);
+    }
+
+    /**
+     * @dataProvider provideTestParseWithVarFunction
+     */
+    public function testParseWithVarFunction($content, $expected)
+    {
+        $this->template = new Template();
+
+        $this->template->parse($content);
+        $this->assertEquals($expected, $content);
+    }
+
+    /**
+     * @dataProvider provideTestParseWithVarIdentify
+     */
+    public function testParseWithVarIdentify($content, $expected, $config)
+    {
+        $this->template = new Template($config);
+
+        $this->template->parse($content);
+        $this->assertEquals($expected, $content);
+    }
+
+    /**
+     * @dataProvider provideTestParseWithThinkVar
+     */
+    public function testParseWithThinkVar($content, $expected)
     {
         $config['tpl_begin'] = '{';
         $config['tpl_end']   = '}';
-        $template            = new Template($config);
+        $this->template            = new Template($config);
 
         $_SERVER['SERVER_NAME'] = 'server_name';
         $_GET['action']         = 'action';
         $_POST['action']        = 'action';
         $_COOKIE['name']        = 'name';
         $_SESSION['action']     = ['name' => 'name'];
-        define('SITE_NAME', 'site_name');
 
-        $content = <<<EOF
-{\$Think.SERVER.SERVER_NAME}<br/>
-{\$Think.GET.action}<br/>
-{\$Think.POST.action}<br/>
-{\$Think.COOKIE.action}<br/>
-{\$Think.COOKIE.action.name}<br/>
-{\$Think.SESSION.action}<br/>
-{\$Think.SESSION.action.name}<br/>
-{\$Think.ENV.OS}<br/>
-{\$Think.REQUEST.action}<br/>
-{\$Think.CONST.SITE_NAME}<br/>
-{\$Think.LANG.action}<br/>
-{\$Think.CONFIG.action.name}<br/>
-{\$Think.NOW}<br/>
-{\$Think.VERSION}<br/>
-{\$Think.LDELIM}<br/>
-{\$Think.RDELIM}<br/>
-{\$Think.SITE_NAME}<br/>
-{\$Think.SITE.URL}
-EOF;
-        $data = <<<EOF
-<?php echo \\think\\Request::instance()->server('SERVER_NAME'); ?><br/>
-<?php echo \\think\\Request::instance()->get('action'); ?><br/>
-<?php echo \\think\\Request::instance()->post('action'); ?><br/>
-<?php echo \\think\\Cookie::get('action'); ?><br/>
-<?php echo \\think\\Cookie::get('action.name'); ?><br/>
-<?php echo \\think\\Session::get('action'); ?><br/>
-<?php echo \\think\\Session::get('action.name'); ?><br/>
-<?php echo \\think\\Request::instance()->env('OS'); ?><br/>
-<?php echo \\think\\Request::instance()->request('action'); ?><br/>
-<?php echo SITE_NAME; ?><br/>
-<?php echo \\think\\Lang::get('action'); ?><br/>
-<?php echo \\think\\Config::get('action.name'); ?><br/>
-<?php echo date('Y-m-d g:i a',time()); ?><br/>
-<?php echo THINK_VERSION; ?><br/>
-<?php echo '{'; ?><br/>
-<?php echo '}'; ?><br/>
-<?php echo SITE_NAME; ?><br/>
-<?php echo ''; ?>
-EOF;
-        $template->parse($content);
-        $this->assertEquals($data, $content);
+        $this->template->parse($content);
+        $this->assertEquals($expected, $content);
     }
 
-    public function testFetch()
+    /**
+     * @expectedException \think\exception\TemplateNotFoundException
+     */
+    public function testFetchWithEmptyTemplate()
     {
-        $template = new Template();
-        $template->assign('name', 'name');
+        $this->template = new Template();
+
+        $this->template->fetch('Foo');
+    }
+
+    /**
+     * @dataProvider provideTestFetchWithNoCache
+     */
+    public function testFetchWithNoCache($data, $expected)
+    {
+        $this->template = new Template();
+
+        $this->template->fetch($data['template'], $data['vars'], $data['config']);
+
+        $this->expectOutputString($expected);
+    }
+
+    public function testFetchWithCache()
+    {
+        $this->template = new Template();
+
+        $data = [
+            'name' => 'value'
+        ];
         $config = [
-            'strip_space'   => true,
-            'view_path'     => dirname(__FILE__) . DS,
-            'cache_id'      => '__CACHE_ID__',
+            'cache_id'      => 'TEST_FETCH_WITH_CACHE',
             'display_cache' => true,
         ];
-        $data = ['name' => 'value'];
-        $template->layout('layout')->fetch('display', $data, $config);
+
+        $this->template->fetch(APP_PATH . 'views' . DS .'display.html', $data, $config);
+
         $this->expectOutputString('value');
+        $this->assertEquals('value', Cache::get($config['cache_id']));
     }
 
     public function testDisplay()
     {
-        $config['view_path']   = dirname(__FILE__) . DS;
-        $config['view_suffix'] = '.html';
-        $config['layout_on']   = true;
-        $config['layout_name'] = 'layout';
-        $template              = new Template($config);
-        $files                 = ['extend' => 'extend', 'include' => 'include'];
-        $template->assign('files', $files);
-        $template->assign('user', ['name' => 'name', 'account' => 100]);
-        $template->assign('message', 'message');
-        $template->assign('info', ['value' => 'value']);
+        $config = [
+            'view_path'   => APP_PATH . DS . 'views' . DS,
+            'view_suffix' => '.html',
+            'layout_on'   => true,
+            'layout_name' => 'layout'
+        ];
+
+        $this->template = new Template($config);
+
+        $this->template->assign('files', ['extend' => 'extend', 'include' => 'include']);
+        $this->template->assign('user', ['name' => 'name', 'account' => 100]);
+        $this->template->assign('message', 'message');
+        $this->template->assign('info', ['value' => 'value']);
 
         $content = <<<EOF
 {extend name="\$files.extend" /}
@@ -356,7 +185,7 @@ main
 {/block}
 {/block}
 EOF;
-        $content2 = <<<EOF
+        $expected = <<<EOF
 <nav>
 header
 <div id="wrap">
@@ -382,33 +211,205 @@ value:
     php code</div>
 </nav>
 EOF;
-        $template->display($content);
-        $this->expectOutputString($content2);
-//        $template->parse($content);
-        //        var_dump($content);
+        $this->template->display($content);
+        $this->expectOutputString($expected);
     }
 
-    public function testVarAssign()
+    /**
+     * @dataProvider provideTestLayout
+     */
+    public function testLayout($data, $expected)
     {
-        $template = new Template();
-        $template->assign('name', 'value');
-        $value = $template->get('name');
-        $this->assertEquals('value', $value);
+        $this->template = new Template();
+
+        $this->template->layout($data['name'], $data['replace']);
+
+        $this->assertSame($expected['layout_on'], $this->template->config('layout_on'));
+        $this->assertSame($expected['layout_name'], $this->template->config('layout_name'));
+        $this->assertSame($expected['layout_item'], $this->template->config('layout_item'));
     }
 
-    public function testVarGet()
+    public function testParseAttr()
     {
-        $template = new Template();
-        $data     = ['a' => 'a', 'b' => 'b'];
-        $template->assign($data);
-        $this->assertEquals($data, $template->get());
+        $attributes = $this->template->parseAttr("<name version='ThinkPHP' name=\"Gao\"></name>");
+        $this->assertSame(['version' => 'ThinkPHP', 'name' => 'Gao'], $attributes);
+
+        $attributes = $this->template->parseAttr("<name version='ThinkPHP' name=\"Gao\">TestCase</name>", 'version');
+        $this->assertSame('ThinkPHP', $attributes);
     }
 
     public function testIsCache()
     {
-        $template = new Template(['cache_id' => '__CACHE_ID__', 'display_cache' => true]);
-        $this->assertTrue($template->isCache('__CACHE_ID__'));
-        $template->display_cache = false;
-        $this->assertTrue(!$template->isCache('__CACHE_ID__'));
+        $this->template = new Template();
+        $config = [
+            'cache_id'      => rand(0, 10000) . rand(0, 10000) . time(),
+            'display_cache' => true
+        ];
+
+        $this->assertFalse($this->template->isCache($config['cache_id']));
+
+        $this->template->fetch(APP_PATH . 'views' . DS .'display.html', [], $config);
+        $this->assertTrue($this->template->isCache($config['cache_id']));
+    }
+
+    public function provideTestParseWithVar()
+    {
+        return [
+            ["{\$name.a.b}", "<?php echo \$name['a']['b']; ?>"],
+            ["{\$name.a??'test'}", "<?php echo isset(\$name['a'])?\$name['a']:'test'; ?>"],
+            ["{\$name.a?='test'}", "<?php if(!empty(\$name['a'])) echo 'test'; ?>"],
+            ["{\$name.a?:'test'}", "<?php echo !empty(\$name['a'])?\$name['a']:'test'; ?>"],
+            ["{\$name.a?\$name.b:'no'}", "<?php echo !empty(\$name['a'])?\$name['b']:'no'; ?>"],
+            ["{\$name.a==\$name.b?='test'}", "<?php if(\$name['a']==\$name['b']) echo 'test'; ?>"],
+            ["{\$name.a==\$name.b?'a':'b'}", "<?php echo \$name['a']==\$name['b']?'a':'b'; ?>"],
+            ["{\$name.a|default='test'==\$name.b?'a':'b'}", "<?php echo (isset(\$name['a']) && (\$name['a'] !== '')?\$name['a']:'test')==\$name['b']?'a':'b'; ?>"],
+            ["{\$name.a|trim==\$name.b?='eq'}", "<?php if(trim(\$name['a'])==\$name['b']) echo 'eq'; ?>"],
+            ["{:ltrim(rtrim(\$name.a))}", "<?php echo ltrim(rtrim(\$name['a'])); ?>"],
+            ["{~echo(trim(\$name.a))}", "<?php echo(trim(\$name['a'])); ?>"],
+            ["{++\$name.a}", "<?php echo ++\$name['a']; ?>"],
+            ["{/*\$name*/}", ""],
+            ["{\$0a}", "{\$0a}"]
+        ];
+    }
+
+    public function provideTestParseWithVarFunction()
+    {
+        return [
+            ["{\$name.a.b|default='test'}", "<?php echo (isset(\$name['a']['b']) && (\$name['a']['b'] !== '')?\$name['a']['b']:'test'); ?>"],
+            ["{\$create_time|date=\"y-m-d\",###}", "<?php echo date(\"y-m-d\",\$create_time); ?>"],
+            ["{\$name}\n{\$name|trim|substr=0,3}", "<?php echo \$name; ?>\n<?php echo substr(trim(\$name),0,3); ?>"]
+        ];
+    }
+
+    public function provideTestParseWithVarIdentify()
+    {
+        $config['tpl_begin']        = '<#';
+        $config['tpl_end']          = '#>';
+        $config['tpl_var_identify'] = '';
+
+        return [
+            [
+                "<#\$info.a??'test'#>",
+                "<?php echo ((is_array(\$info)?\$info['a']:\$info->a)) ? (is_array(\$info)?\$info['a']:\$info->a) : 'test'; ?>",
+                $config
+            ],
+            [
+                "<#\$info.a?='test'#>",
+                "<?php if((is_array(\$info)?\$info['a']:\$info->a)) echo 'test'; ?>",
+                $config
+            ],
+            [
+                "<#\$info.a==\$info.b?='test'#>",
+                "<?php if((is_array(\$info)?\$info['a']:\$info->a)==(is_array(\$info)?\$info['b']:\$info->b)) echo 'test'; ?>",
+                $config
+            ],
+            [
+                "<#\$info.a|default='test'?'yes':'no'#>",
+                "<?php echo ((is_array(\$info)?\$info['a']:\$info->a) ?: 'test')?'yes':'no'; ?>",
+                $config
+            ],
+            [
+                "{\$info2.b|trim?'yes':'no'}",
+                "<?php echo trim(\$info2->b)?'yes':'no'; ?>",
+                array_merge(['tpl_var_identify' => 'obj'])
+            ]
+        ];
+    }
+
+    public function provideTestParseWithThinkVar()
+    {
+        return [
+            ["{\$Think.SERVER.SERVER_NAME}<br/>", "<?php echo \\think\\Request::instance()->server('SERVER_NAME'); ?><br/>"],
+            ["{\$Think.GET.action}<br/>", "<?php echo \\think\\Request::instance()->get('action'); ?><br/>"],
+            ["{\$Think.POST.action}<br/>", "<?php echo \\think\\Request::instance()->post('action'); ?><br/>"],
+            ["{\$Think.COOKIE.action}<br/>", "<?php echo \\think\\Cookie::get('action'); ?><br/>"],
+            ["{\$Think.COOKIE.action.name}<br/>", "<?php echo \\think\\Cookie::get('action.name'); ?><br/>"],
+            ["{\$Think.SESSION.action}<br/>", "<?php echo \\think\\Session::get('action'); ?><br/>"],
+            ["{\$Think.SESSION.action.name}<br/>", "<?php echo \\think\\Session::get('action.name'); ?><br/>"],
+            ["{\$Think.ENV.OS}<br/>", "<?php echo \\think\\Request::instance()->env('OS'); ?><br/>"],
+            ["{\$Think.REQUEST.action}<br/>", "<?php echo \\think\\Request::instance()->request('action'); ?><br/>"],
+            ["{\$Think.CONST.THINK_VERSION}<br/>", "<?php echo THINK_VERSION; ?><br/>"],
+            ["{\$Think.LANG.action}<br/>", "<?php echo \\think\\Lang::get('action'); ?><br/>"],
+            ["{\$Think.CONFIG.action.name}<br/>", "<?php echo \\think\\Config::get('action.name'); ?><br/>"],
+            ["{\$Think.NOW}<br/>", "<?php echo date('Y-m-d g:i a',time()); ?><br/>"],
+            ["{\$Think.VERSION}<br/>", "<?php echo THINK_VERSION; ?><br/>"],
+            ["{\$Think.LDELIM}<br/>", "<?php echo '{'; ?><br/>"],
+            ["{\$Think.RDELIM}<br/>", "<?php echo '}'; ?><br/>"],
+            ["{\$Think.THINK_VERSION}<br/>", "<?php echo THINK_VERSION; ?><br/>"],
+            ["{\$Think.SITE.URL}", "<?php echo ''; ?>"]
+        ];
+    }
+
+    public function provideTestFetchWithNoCache()
+    {
+        $provideData = [];
+
+        $this->template = [
+            'template' => APP_PATH . 'views' . DS .'display.html',
+            'vars'     => [],
+            'config'   => []
+        ];
+        $expected = 'default';
+        $provideData[] = [$this->template, $expected];
+
+        $this->template = [
+            'template' => APP_PATH . 'views' . DS .'display.html',
+            'vars'     => ['name' => 'ThinkPHP5'],
+            'config'   => []
+        ];
+        $expected = 'ThinkPHP5';
+        $provideData[] = [$this->template, $expected];
+
+        $this->template = [
+            'template' => 'views@display',
+            'vars'     => [],
+            'config'   => [
+                'view_suffix' => 'html'
+            ]
+        ];
+        $expected = 'default';
+        $provideData[] = [$this->template, $expected];
+
+        $this->template = [
+            'template' => 'views@/display',
+            'vars'     => ['name' => 'ThinkPHP5'],
+            'config'   => [
+                'view_suffix' => 'phtml'
+            ]
+        ];
+        $expected = 'ThinkPHP5';
+        $provideData[] = [$this->template, $expected];
+
+        $this->template = [
+            'template' => 'display',
+            'vars'     => ['name' => 'ThinkPHP5'],
+            'config'   => [
+                'view_suffix' => 'html',
+                'view_base'   => APP_PATH . 'views' . DS
+            ]
+        ];
+        $expected = 'ThinkPHP5';
+        $provideData[] = [$this->template, $expected];
+
+        return $provideData;
+    }
+
+    public function provideTestLayout()
+    {
+        $provideData = [];
+
+        $data = ['name' => false, 'replace' => ''];
+        $expected = ['layout_on' => false, 'layout_name' => 'layout', 'layout_item' => '{__CONTENT__}'];
+        $provideData[] = [$data, $expected];
+
+        $data = ['name' => null, 'replace' => ''];
+        $expected = ['layout_on' => true, 'layout_name' => 'layout', 'layout_item' => '{__CONTENT__}'];
+        $provideData[] = [$data, $expected];
+
+        $data = ['name' => 'ThinkName', 'replace' => 'ThinkReplace'];
+        $expected = ['layout_on' => true, 'layout_name' => 'ThinkName', 'layout_item' => 'ThinkReplace'];
+        $provideData[] = [$data, $expected];
+
+        return $provideData;
     }
 }

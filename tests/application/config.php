@@ -13,7 +13,7 @@
 return [
     'url_route_on' => true,
     'log'          => [
-        'type' => 'trace', // 支持 socket trace file
+        'type' => 'file', // 支持 socket trace file
     ],
     'view'         => [
         // 模板引擎

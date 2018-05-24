@@ -79,7 +79,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title><?php echo lang('System Error'); ?></title>
+    <title><?php echo \think\Lang::get('System Error'); ?></title>
     <meta name="robots" content="noindex,nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <style>
@@ -319,7 +319,7 @@
         
             <div class="info">
                 <div>
-                    <h2>[<?php echo $code; ?>] <?php echo sprintf('%s in %s', parse_class($name), parse_file($file, $line)); ?></h2>
+                    <h2>[<?php echo $code; ?>]&nbsp;<?php echo sprintf('%s in %s', parse_class($name), parse_file($file, $line)); ?></h2>
                 </div>
                 <div><h1><?php echo nl2br(htmlentities($message)); ?></h1></div>
             </div>

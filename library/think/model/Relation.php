@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -33,10 +33,10 @@ abstract class Relation
     protected $foreignKey;
     // 关联表主键
     protected $localKey;
-    // 关联查询参数
-    protected $option;
     // 基础查询
     protected $baseQuery;
+    // 是否为自关联
+    protected $selfRelation;
 
     /**
      * 获取关联的所属模型
@@ -49,13 +49,13 @@ abstract class Relation
     }
 
     /**
-     * 获取当前的关联模型类
+     * 获取当前的关联模型对象实例
      * @access public
-     * @return string
+     * @return Model
      */
     public function getModel()
     {
-        return $this->model;
+        return $this->query->getModel();
     }
 
     /**
@@ -69,6 +69,28 @@ abstract class Relation
     }
 
     /**
+     * 设置当前关联为自关联
+     * @access public
+     * @param  bool $self 是否自关联
+     * @return $this
+     */
+    public function selfRelation($self = true)
+    {
+        $this->selfRelation = $self;
+        return $this;
+    }
+
+    /**
+     * 当前关联是否为自关联
+     * @access public
+     * @return bool
+     */
+    public function isSelfRelation()
+    {
+        return $this->selfRelation;
+    }
+
+    /**
      * 封装关联数据集
      * @access public
      * @param array $resultSet 数据集
@@ -79,23 +101,39 @@ abstract class Relation
         return (new $this->model)->toCollection($resultSet);
     }
 
-    /**
-     * 移除关联查询参数
-     * @access public
-     * @return $this
-     */
-    public function removeOption()
+    protected function getQueryFields($model)
     {
-        $this->query->removeOption();
-        return $this;
+        $fields = $this->query->getOptions('field');
+        return $this->getRelationQueryFields($fields, $model);
+    }
+
+    protected function getRelationQueryFields($fields, $model)
+    {
+        if ($fields) {
+
+            if (is_string($fields)) {
+                $fields = explode(',', $fields);
+            }
+
+            foreach ($fields as &$field) {
+                if (false === strpos($field, '.')) {
+                    $field = $model . '.' . $field;
+                }
+            }
+        } else {
+            $fields = $model . '.*';
+        }
+
+        return $fields;
     }
 
     /**
-     * 执行基础查询（进执行一次）
+     * 执行基础查询（仅执行一次）
      * @access protected
      * @return void
      */
-    abstract protected function baseQuery();
+    protected function baseQuery()
+    {}
 
     public function __call($method, $args)
     {
@@ -105,10 +143,8 @@ abstract class Relation
 
             $result = call_user_func_array([$this->query, $method], $args);
             if ($result instanceof Query) {
-                $this->option = $result->getOptions();
                 return $this;
             } else {
-                $this->option    = [];
                 $this->baseQuery = false;
                 return $result;
             }
