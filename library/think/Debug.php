@@ -215,7 +215,7 @@ class Debug
      * @param  integer       $flags htmlspecialchars flags
      * @return void|string
      */
-    public function dump($var, bool $echo = true,  ? string $label = null, int $flags = ENT_SUBSTITUTE)
+    public function dump($var, bool $echo = true, ? string $label = null, int $flags = ENT_SUBSTITUTE)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
         if ($var instanceof Model || $var instanceof ModelCollection) {
@@ -237,7 +237,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo ($output);
+            echo($output);
             return;
         }
         return $output;

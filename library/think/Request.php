@@ -13,7 +13,7 @@ namespace think;
 
 use think\exception\HttpResponseException;
 
-class Request//implements Psr\Http\Message\ServerRequestInterface
+class Request //implements Psr\Http\Message\ServerRequestInterface
 
 {
     /**
