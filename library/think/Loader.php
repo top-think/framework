@@ -71,7 +71,7 @@ class Loader
         $rootPath = self::getRootPath();
         if ($composerAutoLoad) {
             require $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-        } elseif(!class_exists('\Composer\Autoload\ClassLoader',false)) {
+        } elseif(!class_exists('\Composer\Autoload\ClassLoader', false)) {
             spl_autoload_register('think\\Loader::autoload', true, true);
             $composerPath = $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
 
@@ -338,5 +338,3 @@ function __require_file(string $file)
 {
     return require $file;
 }
-
-

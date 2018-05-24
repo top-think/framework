@@ -220,7 +220,7 @@ class Lang
      * @param  string $lang 语言
      * @return void
      */
-    public function saveToCookie( ? string $lang = null) : void
+    public function saveToCookie(? string $lang = null) : void
     {
         $range = $lang ?: $this->range;
 
