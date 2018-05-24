@@ -60,7 +60,7 @@ abstract class Dispatch
      */
     protected $convert;
 
-    public function __construct(Request $request, Rule $rule, $dispatch, $param = [], $code = null)
+    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], $code = null)
     {
         $this->request  = $request;
         $this->rule     = $rule;
@@ -172,7 +172,7 @@ abstract class Dispatch
      * @param  array             $matches   路由变量
      * @return void
      */
-    protected function createBindModel($bindModel, $matches)
+    protected function createBindModel($bindModel, array $matches)
     {
         foreach ($bindModel as $key => $val) {
             if ($val instanceof \Closure) {
@@ -298,7 +298,7 @@ abstract class Dispatch
         }
     }
 
-    public function convert($convert)
+    public function convert(bool $convert)
     {
         $this->convert = $convert;
 
@@ -310,7 +310,7 @@ abstract class Dispatch
         return $this->dispatch;
     }
 
-    public function getParam()
+    public function getParam(): array
     {
         return $this->param;
     }

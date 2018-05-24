@@ -32,7 +32,7 @@ class Resource extends RuleGroup
      * @param  array         $option     路由参数
      * @param  array         $rest       资源定义
      */
-    public function __construct(Route $router, RuleGroup $parent = null, $name = '', $route = '', $option = [], $rest = [])
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $option = [], array $rest = [])
     {
         $this->router   = $router;
         $this->parent   = $parent;

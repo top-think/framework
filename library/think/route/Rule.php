@@ -145,7 +145,7 @@ abstract class Rule
      * @access public
      * @return Route
      */
-    public function getRouter()
+    public function getRouter(): Route
     {
         return $this->router;
     }
@@ -155,7 +155,7 @@ abstract class Rule
      * @access public
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -165,7 +165,7 @@ abstract class Rule
      * @access public
      * @return string
      */
-    public function getRule()
+    public function getRule(): string
     {
         return $this->rule;
     }
@@ -185,7 +185,7 @@ abstract class Rule
      * @access public
      * @return array
      */
-    public function getVars()
+    public function getVars(): array
     {
         return $this->vars;
     }
@@ -246,7 +246,7 @@ abstract class Rule
      * @access public
      * @return string
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         return strtolower($this->method);
     }
@@ -256,7 +256,7 @@ abstract class Rule
      * @access public
      * @return bool
      */
-    public function doAfter()
+    public function doAfter(): bool
     {
         return $this->doAfter;
     }
@@ -598,7 +598,7 @@ abstract class Rule
             $this->option['header'] = $header;
 
             if ($request->method(true) == 'OPTIONS') {
-                return new ResponseDispatch(Response::create()->code(204)->header($header));
+                return new ResponseDispatch($request, $this, Response::create()->code(204)->header($header));
             }
         }
     }
@@ -624,9 +624,9 @@ abstract class Rule
     /**
      * 合并分组参数
      * @access protected
-     * @return void
+     * @return array
      */
-    protected function mergeGroupOptions()
+    protected function mergeGroupOptions(): array
     {
         $parentOption = $this->parent->getOption();
         // 合并分组参数
@@ -652,7 +652,7 @@ abstract class Rule
      * @param  array     $matches 匹配的变量
      * @return Dispatch
      */
-    public function parseRule(Request $request, string $rule, $route, string $url, array $option = [], array $matches = [])
+    public function parseRule(Request $request, string $rule, $route, string $url, array $option = [], array $matches = []): Dispatch
     {
         if (is_string($route) && isset($option['prefix'])) {
             // 路由地址前缀
@@ -711,7 +711,7 @@ abstract class Rule
      * @param  array     $option 路由参数
      * @return Dispatch
      */
-    protected function dispatch(Request $request, $route, array $option)
+    protected function dispatch(Request $request, $route, array $option): Dispatch
     {
         if ($route instanceof \Closure) {
             // 执行闭包
@@ -743,7 +743,7 @@ abstract class Rule
      * @param  string    $route 路由地址
      * @return CallbackDispatch
      */
-    protected function dispatchMethod(string $route)
+    protected function dispatchMethod(string $route): CallbackDispatch
     {
         list($path, $var) = $this->parseUrlPath($route);
 
@@ -760,7 +760,7 @@ abstract class Rule
      * @param  string    $route 路由地址
      * @return ControllerDispatch
      */
-    protected function dispatchController(Request $request, string $route)
+    protected function dispatchController(Request $request, string $route): ControllerDispatch
     {
         list($route, $var) = $this->parseUrlPath($route);
 
@@ -780,7 +780,7 @@ abstract class Rule
      * @param  string    $route 路由地址
      * @return ModuleDispatch
      */
-    protected function dispatchModule(Request $request, string $route)
+    protected function dispatchModule(Request $request, string $route): ModuleDispatch
     {
         list($path, $var) = $this->parseUrlPath($route);
 
@@ -809,7 +809,7 @@ abstract class Rule
      * @param  Request   $request Request对象
      * @return bool
      */
-    protected function checkOption(array $option, Request $request)
+    protected function checkOption(array $option, Request $request): bool
     {
         // 请求类型检测
         if (!empty($option['method'])) {
@@ -855,7 +855,7 @@ abstract class Rule
      * @param  array     $var 变量
      * @return void
      */
-    protected function parseUrlParams(string $url, array &$var = [])
+    protected function parseUrlParams(string $url, array &$var = []): void
     {
         if ($url) {
             if ($this->getConfig('url_param_type')) {
@@ -874,7 +874,7 @@ abstract class Rule
      * @param  string    $url URL地址
      * @return array
      */
-    protected function parseUrlPath(string $url)
+    protected function parseUrlPath(string $url): array
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
@@ -910,7 +910,7 @@ abstract class Rule
      * @param  string    $suffix   路由正则变量后缀
      * @return string
      */
-    protected function buildRuleRegex(string $rule, array $match, array $pattern = [], array $option = [], bool $completeMatch = false, string $suffix = '')
+    protected function buildRuleRegex(string $rule, array $match, array $pattern = [], array $option = [], bool $completeMatch = false, string $suffix = ''): string
     {
         foreach ($match as $name) {
             $replace[] = $this->buildNameRegex($name, $pattern, $suffix);
@@ -944,7 +944,7 @@ abstract class Rule
      * @param  string    $suffix    路由正则变量后缀
      * @return string
      */
-    protected function buildNameRegex(string $name, array $pattern, string $suffix)
+    protected function buildNameRegex(string $name, array $pattern, string $suffix): string
     {
         $optional = '';
         $slash    = substr($name, 0, 1);
@@ -986,7 +986,7 @@ abstract class Rule
      * @param  string    $rule 路由规则
      * @return array
      */
-    protected function parseVar(string $rule)
+    protected function parseVar(string $rule): array
     {
         // 提取路由规则中的变量
         $var = [];

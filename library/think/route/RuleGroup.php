@@ -81,7 +81,7 @@ class RuleGroup extends Rule
      * @access public
      * @return void
      */
-    protected function setFullName()
+    protected function setFullName(): void
     {
         if (false !== strpos($this->name, ':')) {
             $this->name = preg_replace(['/\[\:(\w+)\]/', '/\:(\w+)/'], ['<\1?>', '<\1>'], $this->name);
@@ -99,7 +99,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getDomain()
+    public function getDomain(): string
     {
         return $this->domain;
     }
@@ -191,7 +191,7 @@ class RuleGroup extends Rule
      * @param  string      $method
      * @return array
      */
-    protected function getMethodRules(string $method)
+    protected function getMethodRules(string $method): array
     {
         return array_merge($this->rules[$method], $this->rules['*']);
     }
@@ -202,7 +202,7 @@ class RuleGroup extends Rule
      * @param  string     $url
      * @return bool
      */
-    protected function checkUrl(string $url)
+    protected function checkUrl(string $url): bool
     {
         if ($this->fullName) {
             $pos = strpos($this->fullName, '<');
@@ -243,7 +243,7 @@ class RuleGroup extends Rule
      * @param  mixed        $rule    路由规则
      * @return void
      */
-    public function parseGroupRule($rule)
+    public function parseGroupRule($rule): void
     {
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
@@ -346,7 +346,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule()
+    public function getMissRule(): ?RuleItem
     {
         return $this->miss;
     }
@@ -356,7 +356,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getAutoRule()
+    public function getAutoRule(): string
     {
         return $this->auto;
     }
@@ -367,7 +367,7 @@ class RuleGroup extends Rule
      * @param  string     $route   路由规则
      * @return void
      */
-    public function addAutoRule(string $route)
+    public function addAutoRule(string $route): void
     {
         $this->auto = $route;
     }
@@ -380,7 +380,7 @@ class RuleGroup extends Rule
      * @param  array     $option     路由参数
      * @return RuleItem
      */
-    public function addMissRule(string $route, string $method = '*', array $option = [])
+    public function addMissRule(string $route, string $method = '*', array $option = []): RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method), $option);
@@ -397,9 +397,9 @@ class RuleGroup extends Rule
      * @param  string    $route      路由地址
      * @param  string    $method     请求类型
      * @param  array     $option     路由参数
-     * @return $this
+     * @return RuleItem
      */
-    public function addRule(string $rule, $route, string $method = '*', array $option = [])
+    public function addRule(string $rule, $route, string $method = '*', array $option = []): RuleItem
     {
         // 读取路由标识
         if (is_array($rule)) {
@@ -434,7 +434,7 @@ class RuleGroup extends Rule
      * @param  array     $pattern    变量规则
      * @return void
      */
-    public function addRules($rules, $method = '*', $option = [], $pattern = [])
+    public function addRules($rules, $method = '*', $option = [], $pattern = []): void
     {
         foreach ($rules as $key => $val) {
             if (is_numeric($key)) {
@@ -496,7 +496,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         return $this->fullName;
     }

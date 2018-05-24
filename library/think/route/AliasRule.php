@@ -115,13 +115,4 @@ class AliasRule extends Domain
         return $this->option('except', $action);
     }
 
-    /**
-     * 获取当前的路由
-     * @access public
-     * @return string
-     */
-    public function getRoute()
-    {
-        return $this->route;
-    }
 }

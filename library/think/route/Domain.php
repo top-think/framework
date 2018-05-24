@@ -159,7 +159,7 @@ class Domain extends RuleGroup
      * @param  string    $class 类名（带命名空间）
      * @return CallbackDispatch
      */
-    protected function bindToClass(Request $request, string $url, string $class)
+    protected function bindToClass(Request $request, string $url, string $class): CallbackDispatch
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
@@ -179,7 +179,7 @@ class Domain extends RuleGroup
      * @param  string    $namespace 命名空间
      * @return CallbackDispatch
      */
-    protected function bindToNamespace(Request $request, string $url, string $namespace)
+    protected function bindToNamespace(Request $request, string $url, string $namespace): CallbackDispatch
     {
         $array  = explode('|', $url, 3);
         $class  = !empty($array[0]) ? $array[0] : $this->router->config('default_controller');
@@ -200,7 +200,7 @@ class Domain extends RuleGroup
      * @param  string    $controller 控制器名 （支持带模块名 index/user ）
      * @return ControllerDispatch
      */
-    protected function bindToController(Request $request, string $url, string $controller)
+    protected function bindToController(Request $request, string $url, string $controller): ControllerDispatch
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
@@ -220,7 +220,7 @@ class Domain extends RuleGroup
      * @param  string    $controller 控制器类名（带命名空间）
      * @return ModuleDispatch
      */
-    protected function bindToModule(Request $request, string $url, string $controller)
+    protected function bindToModule(Request $request, string $url, string $controller): ModuleDispatch
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');

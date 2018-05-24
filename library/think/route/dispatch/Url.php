@@ -34,7 +34,7 @@ class Url extends Dispatch
      * @param  string   $url URL
      * @return array
      */
-    protected function parseUrl($url)
+    protected function parseUrl(string $url): array
     {
         $depr = $this->rule->getConfig('pathinfo_depr');
         $bind = $this->rule->getRouter()->getBind();
@@ -95,11 +95,11 @@ class Url extends Dispatch
     /**
      * 检查URL是否已经定义过路由
      * @access protected
-     * @param  string    $route  路由信息
+     * @param  array     $route  路由信息
      * @param  string    $bind   绑定信息
      * @return bool
      */
-    protected function hasDefinedRoute($route, $bind)
+    protected function hasDefinedRoute(array $route, string $bind): bool
     {
         list($module, $controller, $action) = $route;
 
@@ -126,7 +126,7 @@ class Url extends Dispatch
      * @param  array     $path   URL
      * @return string
      */
-    protected function autoFindController($module, &$path)
+    protected function autoFindController(string $module, array &$path): string
     {
         $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->rule->getConfig('url_controller_layer');
         $suffix = $this->app->getSuffix() || $this->rule->getConfig('controller_suffix') ? ucfirst($this->rule->getConfig('url_controller_layer')) : '';
@@ -162,7 +162,7 @@ class Url extends Dispatch
      * @param  string    $url URL地址
      * @return array
      */
-    private function parseUrlPath($url)
+    private function parseUrlPath(string $url): array
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);

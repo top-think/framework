@@ -28,7 +28,7 @@ class RuleItem extends Rule
      * @param  string|\Closure   $route 路由地址
      * @param  string            $method 请求类型
      */
-    public function __construct(Route $router, RuleGroup $parent,  ? string $name, string $rule, $route, string $method = '*')
+    public function __construct(Route $router, RuleGroup $parent, ?string $name, string $rule, $route, string $method = '*')
     {
         $this->router = $router;
         $this->parent = $parent;
@@ -45,7 +45,7 @@ class RuleItem extends Rule
      * @param  string      $rule     路由规则
      * @return void
      */
-    public function setRule(string $rule)
+    public function setRule(string $rule): void
     {
         if ('$' == substr($rule, -1, 1)) {
             // 是否完整匹配
@@ -104,7 +104,7 @@ class RuleItem extends Rule
      * @param  bool     $first   是否插入开头
      * @return void
      */
-    protected function setRuleName(bool $first = false)
+    protected function setRuleName(bool $first = false): void
     {
         if ($this->name) {
             $vars = $this->parseVar($this->rule);
@@ -187,7 +187,7 @@ class RuleItem extends Rule
      * @param  array        $option   路由参数
      * @return string
      */
-    protected function urlSuffixCheck(Request $request, string $url, array $option = [])
+    protected function urlSuffixCheck(Request $request, string $url, array $option = []): string
     {
         // 是否区分 / 地址访问
         if (!empty($option['remove_slash']) && '/' != $this->rule) {
