@@ -435,12 +435,13 @@ class Container implements \ArrayAccess
      */
     protected function getObjectParam($className, &$vars)
     {
-        $value = array_shift($vars);
+        $array = $vars;
+        $value = array_shift($array);
 
         if ($value instanceof $className) {
             $result = $value;
+            array_shift($vars);
         } else {
-            array_unshift($vars, $value);
             $result = $this->make($className);
         }
 
