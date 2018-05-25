@@ -174,11 +174,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->resultSetType = $config['resultset_type'];
         }
 
-        if (is_null($this->query)) {
-            // 设置查询对象
-            $this->query = $config['query'];
-        }
-
         if (!empty($this->connection) && is_array($this->connection)) {
             // 设置模型的数据库连接
             $this->connection = array_merge($config, $this->connection);
