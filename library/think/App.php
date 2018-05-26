@@ -529,7 +529,7 @@ class App extends Container
 
         if ($cache) {
             list($key, $expire, $tag) = $cache;
-            if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->server('REQUEST_TIME')) {
+            if (strtotime($this->request->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->request->server('REQUEST_TIME')) {
                 // 读取缓存
                 $response = Response::create()->code(304);
                 throw new HttpResponseException($response);
