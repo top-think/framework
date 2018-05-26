@@ -11,8 +11,6 @@
 
 namespace think;
 
-use think\exception\HttpResponseException;
-
 class Request
 {
     /**
@@ -1897,7 +1895,7 @@ class Request
      * @param  mixed  $expire 缓存有效期
      * @param  array  $except 缓存排除
      * @param  string $tag    缓存标签
-     * @return void
+     * @return mixed
      */
     public function cache($key, $expire = null, $except = [], $tag = null)
     {
@@ -1954,18 +1952,8 @@ class Request
             $key = $fun($key);
         }
 
-        if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->server('REQUEST_TIME')) {
-            // 读取缓存
-            $response = Response::create()->code(304);
-            throw new HttpResponseException($response);
-        } elseif (facade\Cache::has($key)) {
-            list($content, $header) = facade\Cache::get($key);
-
-            $response = Response::create($content)->header($header);
-            throw new HttpResponseException($response);
-        }
-
         $this->cache = [$key, $expire, $tag];
+        return $this->cache;
     }
 
     /**
