@@ -22,16 +22,31 @@ class Request
     protected $instance;
 
     /**
-     * 应用对象实例
-     * @var App
-     */
-    protected $app;
-
-    /**
      * 配置参数
      * @var array
      */
-    protected $config = [];
+    protected $config = [
+        // 表单请求类型伪装变量
+        'var_method'       => '_method',
+        // 表单ajax伪装变量
+        'var_ajax'         => '_ajax',
+        // 表单pjax伪装变量
+        'var_pjax'         => '_pjax',
+        // PATHINFO变量名 用于兼容模式
+        'var_pathinfo'     => 's',
+        // 兼容PATH_INFO获取
+        'pathinfo_fetch'   => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
+        // 默认全局过滤方法 用逗号分隔多个
+        'default_filter'   => '',
+        // 域名根，如thinkphp.cn
+        'url_domain_root'  => '',
+        // HTTPS代理标识
+        'https_agent_name' => '',
+        // IP代理获取标识
+        'http_agent_ip'    => 'X-REAL-IP',
+        // URL伪静态后缀
+        'url_html_suffix'  => 'html',
+    ];
 
     /**
      * 请求类型
@@ -268,9 +283,8 @@ class Request
      * @access public
      * @param  array  $options 参数
      */
-    public function __construct(App $app, array $options = [])
+    public function __construct(array $options = [])
     {
-        $this->app = $app;
         $this->init($options);
 
         // 保存 php://input
@@ -296,7 +310,13 @@ class Request
 
     public static function __make(App $app, Config $config)
     {
-        return new static($app, $config->pull('app'));
+        $request = new static($config->pull('app'));
+        $request->session($app['session']->get());
+        $request->cookie($app['cookie']->get());
+        $request->server($_SERVER);
+        $request->env($app['env']->get());
+
+        return $request;
     }
 
     public function __call($method, $args)
@@ -411,13 +431,14 @@ class Request
         $options['domain']      = isset($info['scheme']) ? $info['scheme'] . '://' . $server['HTTP_HOST'] : '';
         $options['content']     = $content;
 
+        $request = new static();
         foreach ($options as $name => $item) {
-            if (property_exists($this, $name)) {
-                $this->$name = $item;
+            if (property_exists($request, $name)) {
+                $request->$name = $item;
             }
         }
 
-        return $this;
+        return $request;
     }
 
     /**
@@ -514,13 +535,13 @@ class Request
             return $this;
         } elseif (!$this->url) {
             if ($this->isCli()) {
-                $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
-            } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
-                $this->url = $_SERVER['HTTP_X_REWRITE_URL'];
-            } elseif (isset($_SERVER['REQUEST_URI'])) {
-                $this->url = $_SERVER['REQUEST_URI'];
-            } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
-                $this->url = $_SERVER['ORIG_PATH_INFO'] . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+                $this->url = $this->server('argv')[1] ?: '';
+            } elseif ($this->server('HTTP_X_REWRITE_URL')) {
+                $this->url = $this->server('HTTP_X_REWRITE_URL');
+            } elseif ($this->server('REQUEST_URI')) {
+                $this->url = $this->server('REQUEST_URI');
+            } elseif ($this->server('ORIG_PATH_INFO')) {
+                $this->url = $this->server('ORIG_PATH_INFO') . (!empty($this->server('QUERY_STRING')) ? '?' . $this->server('QUERY_STRING') : '');
             } else {
                 $this->url = '';
             }
@@ -562,17 +583,17 @@ class Request
         } elseif (!$this->baseFile) {
             $url = '';
             if (!$this->isCli()) {
-                $script_name = basename($_SERVER['SCRIPT_FILENAME']);
-                if (basename($_SERVER['SCRIPT_NAME']) === $script_name) {
-                    $url = $_SERVER['SCRIPT_NAME'];
-                } elseif (basename($_SERVER['PHP_SELF']) === $script_name) {
-                    $url = $_SERVER['PHP_SELF'];
-                } elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $script_name) {
-                    $url = $_SERVER['ORIG_SCRIPT_NAME'];
-                } elseif (($pos = strpos($_SERVER['PHP_SELF'], '/' . $script_name)) !== false) {
-                    $url = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $script_name;
-                } elseif (isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0) {
-                    $url = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
+                $script_name = basename($this->server('SCRIPT_FILENAME'));
+                if (basename($this->server('SCRIPT_NAME')) === $script_name) {
+                    $url = $this->server('SCRIPT_NAME');
+                } elseif (basename($this->server('PHP_SELF')) === $script_name) {
+                    $url = $this->server('PHP_SELF');
+                } elseif ($this->server('ORIG_SCRIPT_NAME') && basename($this->server('ORIG_SCRIPT_NAME')) === $script_name) {
+                    $url = $this->server('ORIG_SCRIPT_NAME');
+                } elseif (($pos = strpos($this->server('PHP_SELF'), '/' . $script_name)) !== false) {
+                    $url = substr($this->server('SCRIPT_NAME'), 0, $pos) . '/' . $script_name;
+                } elseif ($this->server('DOCUMENT_ROOT') && strpos($this->server('SCRIPT_FILENAME'), $this->server('DOCUMENT_ROOT')) === 0) {
+                    $url = str_replace('\\', '/', str_replace($this->server('DOCUMENT_ROOT'), '', $this->server('SCRIPT_FILENAME')));
                 }
             }
             $this->baseFile = $url;
@@ -630,27 +651,29 @@ class Request
         if (is_null($this->pathinfo)) {
             if (isset($_GET[$this->config['var_pathinfo']])) {
                 // 判断URL里面是否有兼容模式参数
-                $_SERVER['PATH_INFO'] = $_GET[$this->config['var_pathinfo']];
+                $pathinfo = $_GET[$this->config['var_pathinfo']];
                 unset($_GET[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
-                $_SERVER['PATH_INFO'] = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+                $pathinfo = isset($this->server('argv')[1]) ? $this->server('argv')[1] : '';
             } elseif ('cli-server' == PHP_SAPI) {
-                $_SERVER['PATH_INFO'] = strpos($_SERVER['REQUEST_URI'], '?') ? strstr($_SERVER['REQUEST_URI'], '?', true) : $_SERVER['REQUEST_URI'];
+                $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
+            } elseif ($this->server('PATH_INFO')) {
+                $pathinfo = $this->server('PATH_INFO');
             }
 
             // 分析PATHINFO信息
-            if (!isset($_SERVER['PATH_INFO'])) {
+            if (!isset($pathinfo)) {
                 foreach ($this->config['pathinfo_fetch'] as $type) {
-                    if (!empty($_SERVER[$type])) {
-                        $_SERVER['PATH_INFO'] = (0 === strpos($_SERVER[$type], $_SERVER['SCRIPT_NAME'])) ?
-                        substr($_SERVER[$type], strlen($_SERVER['SCRIPT_NAME'])) : $_SERVER[$type];
+                    if ($this->server($type)) {
+                        $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
+                        substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
                         break;
                     }
                 }
             }
 
-            $this->pathinfo = empty($_SERVER['PATH_INFO']) || '/' == $_SERVER['PATH_INFO'] ? '' : ltrim($_SERVER['PATH_INFO'], '/');
+            $this->pathinfo = empty($pathinfo) || '/' == $pathinfo ? '' : ltrim($pathinfo, '/');
         }
 
         return $this->pathinfo;
@@ -699,7 +722,7 @@ class Request
      */
     public function time($float = false)
     {
-        return $float ? $_SERVER['REQUEST_TIME_FLOAT'] : $_SERVER['REQUEST_TIME'];
+        return $float ? $this->server('REQUEST_TIME_FLOAT') : $this->server('REQUEST_TIME');
     }
 
     /**
@@ -753,15 +776,15 @@ class Request
     {
         if (true === $method) {
             // 获取原始请求类型
-            return $this->isCli() ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+            return $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
                 $this->method = strtoupper($_POST[$this->config['var_method']]);
                 $this->{$this->method}($_POST);
-            } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
-                $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
+            } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
+                $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
-                $this->method = $this->isCli() ? 'GET' : (isset($this->server['REQUEST_METHOD']) ? $this->server['REQUEST_METHOD'] : $_SERVER['REQUEST_METHOD']);
+                $this->method = $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
             }
         }
 
@@ -1051,10 +1074,6 @@ class Request
      */
     public function session($name = '', $default = null, $filter = '')
     {
-        if (empty($this->session)) {
-            $this->session = $this->app['session']->get();
-        }
-
         if (is_array($name)) {
             return $this->session = array_merge($this->session, $name);
         }
@@ -1072,16 +1091,10 @@ class Request
      */
     public function cookie($name = '', $default = null, $filter = '')
     {
-        $cookie = $this->app['cookie'];
-
-        if (empty($this->cookie)) {
-            $this->cookie = $cookie->get();
-        }
-
         if (is_array($name)) {
             return $this->cookie = array_merge($this->cookie, $name);
         } elseif (!empty($name)) {
-            $data = $cookie->has($name) ? $cookie->get($name) : $default;
+            $data = isset($this->cookie[$name]) ? $this->cookie[$name] : $default;
         } else {
             $data = $this->cookie;
         }
@@ -1109,10 +1122,6 @@ class Request
      */
     public function server($name = '', $default = null, $filter = '')
     {
-        if (empty($this->server)) {
-            $this->server = $_SERVER;
-        }
-
         if (is_array($name)) {
             return $this->server = array_merge($this->server, $name);
         }
@@ -1208,10 +1217,6 @@ class Request
      */
     public function env($name = '', $default = null, $filter = '')
     {
-        if (empty($this->env)) {
-            $this->env = $this->app['env']->get();
-        }
-
         if (is_array($name)) {
             return $this->env = array_merge($this->env, $name);
         }
@@ -1523,17 +1528,16 @@ class Request
      */
     public function isSsl()
     {
-        $server = array_merge($_SERVER, $this->server);
 
-        if (isset($server['HTTPS']) && ('1' == $server['HTTPS'] || 'on' == strtolower($server['HTTPS']))) {
+        if ($this->server['HTTPS'] && ('1' == $this->server['HTTPS'] || 'on' == strtolower($this->server['HTTPS']))) {
             return true;
-        } elseif (isset($server['REQUEST_SCHEME']) && 'https' == $server['REQUEST_SCHEME']) {
+        } elseif ('https' == $this->server['REQUEST_SCHEME']) {
             return true;
-        } elseif (isset($server['SERVER_PORT']) && ('443' == $server['SERVER_PORT'])) {
+        } elseif ('443' == $this->server['SERVER_PORT']) {
             return true;
-        } elseif (isset($server['HTTP_X_FORWARDED_PROTO']) && 'https' == $server['HTTP_X_FORWARDED_PROTO']) {
+        } elseif ('https' == $this->server['HTTP_X_FORWARDED_PROTO']) {
             return true;
-        } elseif ($this->config['https_agent_name'] && isset($server[$this->config['https_agent_name']])) {
+        } elseif ($this->config['https_agent_name'] && $this->server[$this->config['https_agent_name']]) {
             return true;
         }
 
@@ -1593,23 +1597,23 @@ class Request
 
         $httpAgentIp = $this->config['http_agent_ip'];
 
-        if ($httpAgentIp && isset($_SERVER[$httpAgentIp])) {
-            $ip = $_SERVER[$httpAgentIp];
+        if ($httpAgentIp && $this->server($httpAgentIp)) {
+            $ip = $this->server($httpAgentIp);
         } elseif ($adv) {
-            if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                $arr = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            if ($this->server('HTTP_X_FORWARDED_FOR')) {
+                $arr = explode(',', $this->server('HTTP_X_FORWARDED_FOR'));
                 $pos = array_search('unknown', $arr);
                 if (false !== $pos) {
                     unset($arr[$pos]);
                 }
                 $ip = trim(current($arr));
-            } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
-                $ip = $_SERVER['HTTP_CLIENT_IP'];
-            } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-                $ip = $_SERVER['REMOTE_ADDR'];
+            } elseif ($this->server('HTTP_CLIENT_IP')) {
+                $ip = $this->server('HTTP_CLIENT_IP');
+            } elseif ($this->server('REMOTE_ADDR')) {
+                $ip = $this->server('REMOTE_ADDR');
             }
-        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+        } elseif ($this->server('REMOTE_ADDR')) {
+            $ip = $this->server('REMOTE_ADDR');
         }
 
         // IP地址类型
@@ -1635,13 +1639,13 @@ class Request
      */
     public function isMobile()
     {
-        if (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], "wap")) {
+        if ($this->server('HTTP_VIA') && stristr($this->server('HTTP_VIA'), "wap")) {
             return true;
-        } elseif (isset($_SERVER['HTTP_ACCEPT']) && strpos(strtoupper($_SERVER['HTTP_ACCEPT']), "VND.WAP.WML")) {
+        } elseif ($this->server('HTTP_ACCEPT') && strpos(strtoupper($this->server('HTTP_ACCEPT')), "VND.WAP.WML")) {
             return true;
-        } elseif (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])) {
+        } elseif ($this->server('HTTP_X_WAP_PROFILE') || $this->server('HTTP_PROFILE')) {
             return true;
-        } elseif (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $_SERVER['HTTP_USER_AGENT'])) {
+        } elseif ($this->server('HTTP_USER_AGENT') && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $this->server('HTTP_USER_AGENT'))) {
             return true;
         }
 
@@ -1676,11 +1680,7 @@ class Request
      */
     public function host($strict = false)
     {
-        if (isset($_SERVER['HTTP_X_REAL_HOST'])) {
-            $host = $_SERVER['HTTP_X_REAL_HOST'];
-        } else {
-            $host = $this->server('HTTP_HOST');
-        }
+        $host = $this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST');
 
         return true === $strict && strpos($host, ':') ? strstr($host, ':', true) : $host;
     }
@@ -1879,13 +1879,13 @@ class Request
     public function token($name = '__token__', $type = 'md5')
     {
         $type  = is_callable($type) ? $type : 'md5';
-        $token = call_user_func($type, $_SERVER['REQUEST_TIME_FLOAT']);
+        $token = call_user_func($type, $this->server('REQUEST_TIME_FLOAT'));
 
         if ($this->isAjax()) {
             header($name . ': ' . $token);
         }
 
-        $this->app['session']->set($name, $token);
+        facade\Session::set($name, $token);
 
         return $token;
     }
@@ -1953,14 +1953,13 @@ class Request
         if (isset($fun)) {
             $key = $fun($key);
         }
-        $cache = $this->app['cache'];
 
-        if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $_SERVER['REQUEST_TIME']) {
+        if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->server('REQUEST_TIME')) {
             // 读取缓存
             $response = Response::create()->code(304);
             throw new HttpResponseException($response);
-        } elseif ($cache->has($key)) {
-            list($content, $header) = $cache->get($key);
+        } elseif (facade\Cache::has($key)) {
+            list($content, $header) = facade\Cache::get($key);
 
             $response = Response::create($content)->header($header);
             throw new HttpResponseException($response);
