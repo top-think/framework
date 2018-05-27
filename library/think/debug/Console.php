@@ -127,6 +127,7 @@ JS;
         : "console.groupCollapsed('{$type}');";
 
         foreach ((array) $msg as $key => $m) {
+            if(empty($m)) continue;
             switch ($type) {
                 case '调试':
                     $var_type = gettype($m);
