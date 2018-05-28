@@ -524,12 +524,18 @@ abstract class Builder
      * @param array $options 查询条件
      * @return string
      */
-    protected function parseJoin($join, $options = [])
+    protected function parseJoin($join, & $options = [])
     {
         $joinStr = '';
         if (!empty($join)) {
             foreach ($join as $item) {
                 list($table, $type, $on) = $item;
+                if(is_array($table)){
+                    $origin = key($table);
+                    if ($origin && $origin != $table[$origin]) {
+                        $options['alias'][$origin] = $table[$origin];
+                    }
+                }
                 $condition               = [];
                 foreach ((array) $on as $val) {
                     if (strpos($val, '=')) {
