@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use think\Db;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -201,7 +202,7 @@ class MorphMany extends Relation
         return $this->query->where([
             $this->morphKey  => [
                 'exp',
-                '=' . $this->parent->getTable() . '.' . $this->parent->getPk(),
+                Db::raw('=' . $this->parent->getTable() . '.' . $this->parent->getPk()),
             ],
             $this->morphType => $this->type,
         ])->fetchSql()->count();

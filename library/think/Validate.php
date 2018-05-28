@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -42,7 +42,6 @@ class Validate
         'float'       => ':attribute must be float',
         'boolean'     => ':attribute must be bool',
         'email'       => ':attribute not a valid email address',
-        'mobile'      => ':attribute not a valid mobile',
         'array'       => ':attribute must be a array',
         'accepted'    => ':attribute must be yes,on or 1',
         'date'        => ':attribute not a valid datetime',
@@ -351,8 +350,6 @@ class Validate
     {
         if ($rules instanceof \Closure) {
             return call_user_func_array($rules, [$value]);
-        } elseif ($rules instanceof ValidateRule) {
-            $rules = $rules->getRule();
         } elseif (is_string($rules)) {
             $rules = explode('|', $rules);
         }
@@ -1198,7 +1195,7 @@ class Validate
             // 不是正则表达式则两端补上/
             $rule = '/^' . $rule . '$/';
         }
-        return 1 === preg_match($rule, (string) $value);
+        return is_scalar($value) && 1 === preg_match($rule, (string) $value);
     }
 
     /**

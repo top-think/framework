@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -52,7 +52,7 @@ class Controller
      */
     public function __construct(Request $request = null)
     {
-        $this->view = View::instance(Config::get('template'), Config::get('view_replace_str'));
+        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
         $this->request = is_null($request) ? Request::instance() : $request;
 
         // 控制器初始化
@@ -202,9 +202,15 @@ class Controller
         }
 
         // 批量验证
-        if ($batch || $this->batchValidate) $v->batch(true);
+        if ($batch || $this->batchValidate) {
+            $v->batch(true);
+        }
+
         // 设置错误信息
-        if (is_array($message)) $v->message($message);
+        if (is_array($message)) {
+            $v->message($message);
+        }
+
         // 使用回调验证
         if ($callback && is_callable($callback)) {
             call_user_func_array($callback, [$v, &$data]);

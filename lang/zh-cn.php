@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -48,6 +48,7 @@ return [
     'KVDB init error'                                           => '没有初始化KVDB，请在SAE管理平台初始化KVDB服务',
     'fields not exists'                                         => '数据表字段不存在',
     'where express error'                                       => '查询表达式错误',
+    'not support data'                                          => '不支持的数据表达式',
     'no data to update'                                         => '没有任何数据需要更新',
     'miss data to insert'                                       => '缺少需要写入的数据',
     'miss complex primary data'                                 => '缺少复合主键数据',
@@ -66,6 +67,7 @@ return [
     'relation data not exists'                                  => '关联数据不存在',
     'relation not support'                                      => '关联不支持',
     'chunk not support order'                                   => 'Chunk不支持调用order方法',
+    'closure not support cache(true)'                           => '使用闭包查询不支持cache(true)，请指定缓存Key',
 
     // 上传错误信息
     'unknown upload error'                                      => '未知上传错误！',

@@ -82,7 +82,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     public function testGetUseTime()
     {
         $time = Debug::getUseTime();
-        $this->assertLessThan(20, $time);
+        $this->assertLessThan(30, $time);
     }
 
     /**

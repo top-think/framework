@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -23,7 +23,7 @@ class Loader
     /**
      * @var array 类名映射
      */
-    protected static $map = [];
+    protected static $classMap = [];
 
     /**
      * @var array 命名空间别名
@@ -56,9 +56,9 @@ class Loader
     private static $fallbackDirsPsr0 = [];
 
     /**
-     * @var array 自动加载的文件
+     * @var array 需要加载的文件
      */
-    private static $autoloadFiles = [];
+    private static $files = [];
 
     /**
      * 自动加载
@@ -99,8 +99,8 @@ class Loader
     private static function findFile($class)
     {
         // 类库映射
-        if (!empty(self::$map[$class])) {
-            return self::$map[$class];
+        if (!empty(self::$classMap[$class])) {
+            return self::$classMap[$class];
         }
 
         // 查找 PSR-4
@@ -156,7 +156,7 @@ class Loader
         }
 
         // 找不到则设置映射为 false 并返回
-        return self::$map[$class] = false;
+        return self::$classMap[$class] = false;
     }
 
     /**
@@ -169,9 +169,9 @@ class Loader
     public static function addClassMap($class, $map = '')
     {
         if (is_array($class)) {
-            self::$map = array_merge(self::$map, $class);
+            self::$classMap = array_merge(self::$classMap, $class);
         } else {
-            self::$map[$class] = $map;
+            self::$classMap[$class] = $map;
         }
     }
 
@@ -284,6 +284,24 @@ class Loader
         // 注册系统自动加载
         spl_autoload_register($autoload ?: 'think\\Loader::autoload', true, true);
 
+        // Composer 自动加载支持
+        if (is_dir(VENDOR_PATH . 'composer')) {
+            if (PHP_VERSION_ID >= 50600 && is_file(VENDOR_PATH . 'composer' . DS . 'autoload_static.php')) {
+                require VENDOR_PATH . 'composer' . DS . 'autoload_static.php';
+
+                $declaredClass = get_declared_classes();
+                $composerClass = array_pop($declaredClass);
+
+                foreach (['prefixLengthsPsr4', 'prefixDirsPsr4', 'fallbackDirsPsr4', 'prefixesPsr0', 'fallbackDirsPsr0', 'classMap', 'files'] as $attr) {
+                    if (property_exists($composerClass, $attr)) {
+                        self::${$attr} = $composerClass::${$attr};
+                    }
+                }
+            } else {
+                self::registerComposerLoader();
+            }
+        }
+
         // 注册命名空间定义
         self::addNamespace([
             'think'    => LIB_PATH . 'think' . DS,
@@ -296,10 +314,7 @@ class Loader
             self::addClassMap(__include_file(RUNTIME_PATH . 'classmap' . EXT));
         }
 
-        // Composer 自动加载支持
-        if (is_dir(VENDOR_PATH . 'composer')) {
-            self::registerComposerLoader();
-        }
+        self::loadComposerAutoloadFiles();
 
         // 自动加载 extend 目录
         self::$fallbackDirsPsr4[] = rtrim(EXTEND_PATH, DS);
@@ -331,16 +346,21 @@ class Loader
             if ($classMap) {
                 self::addClassMap($classMap);
             }
-
         }
 
         if (is_file(VENDOR_PATH . 'composer/autoload_files.php')) {
-            $includeFiles = require VENDOR_PATH . 'composer/autoload_files.php';
-            foreach ($includeFiles as $fileIdentifier => $file) {
-                if (empty(self::$autoloadFiles[$fileIdentifier])) {
-                    __require_file($file);
-                    self::$autoloadFiles[$fileIdentifier] = true;
-                }
+            self::$files = require VENDOR_PATH . 'composer/autoload_files.php';
+        }
+    }
+
+    // 加载composer autofile文件
+    public static function loadComposerAutoloadFiles()
+    {
+        foreach (self::$files as $fileIdentifier => $file) {
+            if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
+                __require_file($file);
+
+                $GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
             }
         }
     }

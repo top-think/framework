@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -60,13 +60,12 @@ class Error
      * @param  integer $errstr     详细错误信息
      * @param  string  $errfile    出错的文件
      * @param  integer $errline    出错行号
-     * @param  array   $errcontext 出错上下文
      * @return void
      * @throws ErrorException
      */
-    public static function appError($errno, $errstr, $errfile = '', $errline = 0, $errcontext = [])
+    public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {
-        $exception = new ErrorException($errno, $errstr, $errfile, $errline, $errcontext);
+        $exception = new ErrorException($errno, $errstr, $errfile, $errline);
 
         // 符合异常处理的则将错误信息托管至 think\exception\ErrorException
         if (error_reporting() & $errno) {

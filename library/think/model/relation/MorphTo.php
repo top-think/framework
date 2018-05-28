@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -41,6 +41,18 @@ class MorphTo extends Relation
         $this->morphKey  = $morphKey;
         $this->alias     = $alias;
         $this->relation  = $relation;
+    }
+
+    /**
+     * 获取当前的关联模型类的实例
+     * @access public
+     * @return Model
+     */
+    public function getModel()
+    {
+        $morphType = $this->morphType;
+        $model     = $this->parseModel($this->parent->$morphType);
+        return (new $model);
     }
 
     /**
