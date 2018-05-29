@@ -25,6 +25,7 @@ class File
         'path'        => '',
         'apart_level' => [],
         'max_files'   => 0,
+        'json'        => false,
     ];
 
     protected $writed = [];
@@ -84,7 +85,12 @@ class File
                 if (!is_string($msg)) {
                     $msg = var_export($msg, true);
                 }
-                $level .= '[ ' . $type . ' ] ' . $msg . "\r\n";
+
+                if ($this->config['json']) {
+                    $level .= json_encode([$type => str_replace("\n", ' ', $msg)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
+                } else {
+                    $level .= '[ ' . $type . ' ] ' . $msg . "\r\n";
+                }
             }
 
             if (in_array($type, $this->config['apart_level'])) {
@@ -136,18 +142,38 @@ class File
                 $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                 $runtime     = round(microtime(true) - Container::get('app')->getBeginTime(), 10);
                 $reqs        = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-                $time_str    = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
-                $memory_use  = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
-                $memory_str  = ' [内存消耗：' . $memory_use . 'kb]';
-                $file_load   = ' [文件加载：' . count(get_included_files()) . ']';
-                $message     = '[ info ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n" . $message;
+
+                $memory_use = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
+
+                if ($this->config['json']) {
+                    $info = [
+                        'host'   => $_SERVER['HTTP_HOST'],
+                        'time'   => number_format($runtime, 6) . 's',
+                        'reqs'   => $reqs . 'req/s',
+                        'memory' => $memory_use . 'kb',
+                        'file'   => count(get_included_files()),
+                    ];
+                } else {
+                    $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
+                    $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
+                    $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
+                    $message    = '[ info ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n" . $message;
+                }
             }
 
-            $now     = date($this->config['time_format']);
-            $ip      = Container::get('request')->ip();
-            $method  = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
-            $uri     = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-            $message = "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}\r\n" . $message;
+            if ($this->config['json']) {
+                $info['timestamp'] = date($this->config['time_format']);
+                $info['ip']        = Container::get('request')->ip();
+                $info['method']    = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
+                $info['uri']       = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+                $message           = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n" . $message;
+            } else {
+                $now     = date($this->config['time_format']);
+                $ip      = Container::get('request')->ip();
+                $method  = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
+                $uri     = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+                $message = "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}\r\n" . $message;
+            }
 
             $this->writed[$destination] = true;
         }

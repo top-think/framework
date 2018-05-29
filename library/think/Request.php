@@ -1526,16 +1526,15 @@ class Request
      */
     public function isSsl()
     {
-
-        if ($this->server['HTTPS'] && ('1' == $this->server['HTTPS'] || 'on' == strtolower($this->server['HTTPS']))) {
+        if ($this->server('HTTPS') && ('1' == $this->server('HTTPS') || 'on' == strtolower($this->server('HTTPS')))) {
             return true;
-        } elseif ('https' == $this->server['REQUEST_SCHEME']) {
+        } elseif ('https' == $this->server('REQUEST_SCHEME')) {
             return true;
-        } elseif ('443' == $this->server['SERVER_PORT']) {
+        } elseif ('443' == $this->server('SERVER_PORT')) {
             return true;
-        } elseif ('https' == $this->server['HTTP_X_FORWARDED_PROTO']) {
+        } elseif ('https' == $this->server('HTTP_X_FORWARDED_PROTO')) {
             return true;
-        } elseif ($this->config['https_agent_name'] && $this->server[$this->config['https_agent_name']]) {
+        } elseif ($this->config['https_agent_name'] && $this->server($this->config['https_agent_name'])) {
             return true;
         }
 

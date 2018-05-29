@@ -99,7 +99,7 @@ class Config extends Command
         if (is_file($path . 'provider.php')) {
             $provider = include $path . 'provider.php';
             if (is_array($provider)) {
-                $content .= PHP_EOL . '\think\Container::getInstance()->bind(' . var_export($provider, true) . ');' . PHP_EOL;
+                $content .= PHP_EOL . '\think\Container::getInstance()->bindTo(' . var_export($provider, true) . ');' . PHP_EOL;
             }
         }
 

@@ -100,6 +100,11 @@ class Cache
         return new static($config->pull('cache'));
     }
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function setConfig(array $config)
     {
         $this->config = array_merge($this->config, $config);
