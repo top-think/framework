@@ -95,9 +95,7 @@ class Resource extends RuleGroup
                 $val[1] = str_replace('<id>', '<' . $option['var'][$rule] . '>', $val[1]);
             }
 
-            $option['rest'] = $key;
-
-            $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0], $option);
+            $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0]);
         }
 
         $this->router->setGroup($origin);
