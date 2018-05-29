@@ -11,7 +11,7 @@
 
 namespace think\log\driver;
 
-use think\Container;
+use think\App;
 
 /**
  * 本地化调试输出到文件
@@ -29,16 +29,19 @@ class File
     ];
 
     protected $writed = [];
+    protected $app;
 
     // 实例化并传入参数
-    public function __construct($config = [])
+    public function __construct(App $app, $config = [])
     {
+        $this->app = $app;
+
         if (is_array($config)) {
             $this->config = array_merge($this->config, $config);
         }
 
         if (empty($this->config['path'])) {
-            $this->config['path'] = Container::get('app')->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
+            $this->config['path'] = $this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
         } elseif (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->config['path'] .= DIRECTORY_SEPARATOR;
         }
@@ -51,6 +54,54 @@ class File
      * @return bool
      */
     public function save(array $log = [])
+    {
+        $destination = $this->getMasterLogFile();
+
+        $info = [];
+        foreach ($log as $type => $val) {
+
+            foreach ($val as $msg) {
+                if (!is_string($msg)) {
+                    $msg = var_export($msg, true);
+                }
+
+                if ($this->config['json']) {
+                    $info[$type][] = str_replace("\n", ' ', $msg);
+                } else {
+                    $info[$type][] = '[ ' . $type . ' ]' . $msg;
+                }
+            }
+
+            if (in_array($type, $this->config['apart_level'])) {
+                // 独立记录的日志级别
+                $filename = $this->getApartLevelFile();
+
+                $this->write($info[$type], $filename, true);
+                unset($info[$type]);
+            }
+        }
+
+        if ($info) {
+            return $this->write($info, $destination);
+        }
+
+        return true;
+    }
+
+    protected function getApartLevelFile()
+    {
+        $cli = PHP_SAPI == 'cli' ? '_cli' : '';
+        if ($this->config['single']) {
+            $name     = is_string($this->config['single']) ? $this->config['single'] : 'single';
+            $filename = $path . DIRECTORY_SEPARATOR . $name . '_' . $type . '.log';
+        } elseif ($this->config['max_files']) {
+            $filename = $path . DIRECTORY_SEPARATOR . date('Ymd') . '_' . $type . $cli . '.log';
+        } else {
+            $filename = $path . DIRECTORY_SEPARATOR . date('d') . '_' . $type . $cli . '.log';
+        }
+    }
+
+    protected function getMasterLogFile()
     {
         if ($this->config['single']) {
             $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
@@ -78,42 +129,19 @@ class File
         $path = dirname($destination);
         !is_dir($path) && mkdir($path, 0755, true);
 
-        $info = '';
-        foreach ($log as $type => $val) {
-            $level = '';
-            foreach ($val as $msg) {
-                if (!is_string($msg)) {
-                    $msg = var_export($msg, true);
-                }
+        return $destination;
+    }
 
-                if ($this->config['json']) {
-                    $level .= json_encode([$type => str_replace("\n", ' ', $msg)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
-                } else {
-                    $level .= '[ ' . $type . ' ] ' . $msg . "\r\n";
-                }
+    protected function checkLogSize($destination)
+    {
+        if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
+            try {
+                rename($destination, dirname($destination) . DIRECTORY_SEPARATOR . time() . '-' . basename($destination));
+            } catch (\Exception $e) {
             }
 
-            if (in_array($type, $this->config['apart_level'])) {
-                // 独立记录的日志级别
-                if ($this->config['single']) {
-                    $filename = $path . DIRECTORY_SEPARATOR . $name . '_' . $type . '.log';
-                } elseif ($this->config['max_files']) {
-                    $filename = $path . DIRECTORY_SEPARATOR . date('Ymd') . '_' . $type . $cli . '.log';
-                } else {
-                    $filename = $path . DIRECTORY_SEPARATOR . date('d') . '_' . $type . $cli . '.log';
-                }
-
-                $this->write($level, $filename, true);
-            } else {
-                $info .= $level;
-            }
+            $this->writed[$destination] = false;
         }
-
-        if ($info) {
-            return $this->write($info, $destination);
-        }
-
-        return true;
     }
 
     /**
@@ -127,23 +155,16 @@ class File
     protected function write($message, $destination, $apart = false)
     {
         // 检测日志文件大小，超过配置大小则备份日志文件重新生成
-        if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
-            try {
-                rename($destination, dirname($destination) . DIRECTORY_SEPARATOR . time() . '-' . basename($destination));
-            } catch (\Exception $e) {
-            }
-
-            $this->writed[$destination] = false;
-        }
+        $this->checkLogSize($destination);
 
         if (empty($this->writed[$destination]) && PHP_SAPI != 'cli') {
-            if (Container::get('app')->isDebug() && !$apart) {
+            if ($this->app->isDebug() && !$apart) {
                 // 获取基本信息
                 $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-                $runtime     = round(microtime(true) - Container::get('app')->getBeginTime(), 10);
+                $runtime     = round(microtime(true) - $this->app->getBeginTime(), 10);
                 $reqs        = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
 
-                $memory_use = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
+                $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
 
                 if ($this->config['json']) {
                     $info = [
@@ -157,22 +178,35 @@ class File
                     $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
                     $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
                     $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
-                    $message    = '[ info ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n" . $message;
+
+                    if (isset($message['info'])) {
+                        array_unshift($message['info'], $current_uri . $time_str . $memory_str . $file_load);
+                    } else {
+                        $message['info'][] = $current_uri . $time_str . $memory_str . $file_load;
+                    }
                 }
             }
 
             if ($this->config['json']) {
                 $info['timestamp'] = date($this->config['time_format']);
-                $info['ip']        = Container::get('request')->ip();
+                $info['ip']        = $this->app['request']->ip();
                 $info['method']    = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
                 $info['uri']       = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-                $message           = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n" . $message;
+                foreach ($message as $type => $msg) {
+                    $info[$type] = implode(" ", $msg);
+                }
+
+                $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
             } else {
-                $now     = date($this->config['time_format']);
-                $ip      = Container::get('request')->ip();
-                $method  = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
-                $uri     = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-                $message = "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}\r\n" . $message;
+                $now    = date($this->config['time_format']);
+                $ip     = $this->app['request']->ip();
+                $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
+                $uri    = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+                array_unshift($message['info'], "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
+                foreach ($message as $type => $msg) {
+                    $info[$type] = implode("\r\n", $msg);
+                }
+                $message = implode("\r\n", $info);
             }
 
             $this->writed[$destination] = true;
