@@ -209,7 +209,6 @@ class File
             $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
 
             $info = [
-                'host'   => $this->app['request']->host(),
                 'time'   => number_format($runtime, 6) . 's',
                 'reqs'   => $reqs . 'req/s',
                 'memory' => $memory_use . 'kb',
@@ -309,6 +308,7 @@ class File
         $info['timestamp'] = date($this->config['time_format']);
         $info['ip']        = $this->app['request']->ip();
         $info['method']    = $this->app['request']->method();
+        $info['host']      = $this->app['request']->host();
         $info['uri']       = $this->app['request']->url();
     }
 
