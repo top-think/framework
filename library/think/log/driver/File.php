@@ -57,6 +57,9 @@ class File
     {
         $destination = $this->getMasterLogFile();
 
+        $path = dirname($destination);
+        !is_dir($path) && mkdir($path, 0755, true);
+
         $info = [];
         foreach ($log as $type => $val) {
 
@@ -74,9 +77,10 @@ class File
 
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
-                $filename = $this->getApartLevelFile();
+                $filename = $this->getApartLevelFile($path, $type);
 
                 $this->write($info[$type], $filename, true);
+
                 unset($info[$type]);
             }
         }
@@ -88,23 +92,16 @@ class File
         return true;
     }
 
-    protected function getApartLevelFile()
-    {
-        $cli = PHP_SAPI == 'cli' ? '_cli' : '';
-        if ($this->config['single']) {
-            $name     = is_string($this->config['single']) ? $this->config['single'] : 'single';
-            $filename = $path . DIRECTORY_SEPARATOR . $name . '_' . $type . '.log';
-        } elseif ($this->config['max_files']) {
-            $filename = $path . DIRECTORY_SEPARATOR . date('Ymd') . '_' . $type . $cli . '.log';
-        } else {
-            $filename = $path . DIRECTORY_SEPARATOR . date('d') . '_' . $type . $cli . '.log';
-        }
-    }
-
+    /**
+     * 获取主日志文件名
+     * @access public
+     * @return string
+     */
     protected function getMasterLogFile()
     {
         if ($this->config['single']) {
-            $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
+            $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
+
             $destination = $this->config['path'] . $name . '.log';
         } else {
             $cli = PHP_SAPI == 'cli' ? '_cli' : '';
@@ -126,12 +123,39 @@ class File
             $destination = $this->config['path'] . $filename;
         }
 
-        $path = dirname($destination);
-        !is_dir($path) && mkdir($path, 0755, true);
-
         return $destination;
     }
 
+    /**
+     * 获取独立日志文件名
+     * @access public
+     * @param  string $path 日志目录类型
+     * @param  string $type 日志类型
+     * @return string
+     */
+    protected function getApartLevelFile($path, $type)
+    {
+        $cli = PHP_SAPI == 'cli' ? '_cli' : '';
+
+        if ($this->config['single']) {
+            $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
+
+            $name .= '_' . $type;
+        } elseif ($this->config['max_files']) {
+            $name = date('Ymd') . '_' . $type . $cli;
+        } else {
+            $name = date('d') . '_' . $type . $cli;
+        }
+
+        $filename = $path . DIRECTORY_SEPARATOR . $name . '.log';
+    }
+
+    /**
+     * 检查日志文件大小并自动生成备份文件
+     * @access protected
+     * @param  string    $destination 日志文件
+     * @return void
+     */
     protected function checkLogSize($destination)
     {
         if (is_file($destination) && floor($this->config['file_size']) <= filesize($destination)) {
@@ -196,7 +220,7 @@ class File
                     $info[$type] = implode(" ", $msg);
                 }
 
-                $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
+                $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\r\n";
             } else {
                 $now    = date($this->config['time_format']);
                 $ip     = $this->app['request']->ip();

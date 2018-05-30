@@ -196,7 +196,7 @@ class Log implements LoggerInterface
      */
     public function save()
     {
-        if (empty($this->log) || !$this->allowWrite || !$this->driver) {
+        if (empty($this->log) || !$this->allowWrite) {
             return true;
         }
 
@@ -222,6 +222,7 @@ class Log implements LoggerInterface
         }
 
         $result = $this->driver->save($log);
+
         if ($result) {
             $this->log = [];
         }
@@ -240,11 +241,11 @@ class Log implements LoggerInterface
     public function write($msg, $type = 'info', $force = false)
     {
         // 封装日志信息
-        $log = $this->log;
+        if (empty($this->config['level'])) {
+            $force = true;
+        }
 
-        if (true === $force || empty($this->config['level'])) {
-            $log[$type][] = $msg;
-        } elseif (in_array($type, $this->config['level'])) {
+        if (true === $force || in_array($type, $this->config['level'])) {
             $log[$type][] = $msg;
         } else {
             return false;
@@ -254,13 +255,7 @@ class Log implements LoggerInterface
         $this->app['hook']->listen('log_write', $log);
 
         // 写入日志
-        $result = $this->driver->save($log);
-
-        if ($result) {
-            $this->log = [];
-        }
-
-        return $result;
+        return $this->driver->save($log);
     }
 
     /**
