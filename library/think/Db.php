@@ -126,7 +126,8 @@ class Db
     {
         // 解析配置参数
         $options = self::parseConfig($config ?: self::$config);
-        $query   = $query ?: (!empty($options['query']) ? $options['query'] : self::$config['query']);
+
+        $query = $query ?: $options['query'];
 
         // 创建数据库连接对象实例
         self::$connection = Connection::instance($options, $name);
@@ -147,11 +148,13 @@ class Db
             $config = isset(self::$config[$config]) ? self::$config[$config] : self::$config;
         }
 
-        if (is_string($config)) {
-            return self::parseDsnConfig($config);
-        } else {
-            return $config;
+        $result = is_string($config) ? self::parseDsnConfig($config) : $config;
+
+        if (empty($result['query'])) {
+            $result['query'] = self::$config['query'];
         }
+
+        return $result;
     }
 
     /**
