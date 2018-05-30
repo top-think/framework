@@ -217,10 +217,10 @@ class File
                 $info['method']    = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
                 $info['uri']       = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
                 foreach ($message as $type => $msg) {
-                    $info[$type] = implode(" ", $msg);
+                    $info[$type] = implode("\r\n", $msg);
                 }
 
-                $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\r\n";
+                $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
             } else {
                 $now    = date($this->config['time_format']);
                 $ip     = $this->app['request']->ip();
