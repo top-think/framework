@@ -72,7 +72,7 @@ class File
                 if ($this->config['json']) {
                     $info[$type][] = $msg;
                 } else {
-                    $info[$type][] = '[ ' . $type . ' ]' . $msg;
+                    $info[$type][] = '[ ' . $type . ' ] ' . $msg;
                 }
             }
 
