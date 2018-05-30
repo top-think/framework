@@ -50,10 +50,11 @@ class File
     /**
      * 日志写入接口
      * @access public
-     * @param  array $log 日志信息
+     * @param  array    $log    日志信息
+     * @param  bool     $append 是否追加请求信息
      * @return bool
      */
-    public function save(array $log = [])
+    public function save(array $log = [], $append = false)
     {
         $destination = $this->getMasterLogFile();
 
@@ -61,6 +62,7 @@ class File
         !is_dir($path) && mkdir($path, 0755, true);
 
         $info = [];
+
         foreach ($log as $type => $val) {
 
             foreach ($val as $msg) {
@@ -75,21 +77,46 @@ class File
                 }
             }
 
-            if (in_array($type, $this->config['apart_level'])) {
+            if (!$this->config['json'] && in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 $filename = $this->getApartLevelFile($path, $type);
 
-                $this->write($info[$type], $filename, true);
+                $this->write($info[$type], $filename, true, $append);
 
                 unset($info[$type]);
             }
         }
 
         if ($info) {
-            return $this->write($info, $destination);
+            return $this->write($info, $destination, false, $append);
         }
 
         return true;
+    }
+
+    /**
+     * 日志写入
+     * @access protected
+     * @param  array     $message 日志信息
+     * @param  string    $destination 日志文件
+     * @param  bool      $apart 是否独立文件写入
+     * @param  bool      $append 是否追加请求信息
+     * @return bool
+     */
+    protected function write($message, $destination, $apart = false, $append = false)
+    {
+        // 检测日志文件大小，超过配置大小则备份日志文件重新生成
+        $this->checkLogSize($destination);
+
+        if (PHP_SAPI == 'cli') {
+            $message = $this->parseCliMessage($message);
+        } elseif ($this->config['json']) {
+            $message = $this->parseJsonMessage($message, $append);
+        } else {
+            $message = $this->parseWebMessage($message, $append, $apart);
+        }
+
+        return error_log($message, 3, $destination);
     }
 
     /**
@@ -163,85 +190,142 @@ class File
                 rename($destination, dirname($destination) . DIRECTORY_SEPARATOR . time() . '-' . basename($destination));
             } catch (\Exception $e) {
             }
-
-            $this->writed[$destination] = false;
         }
     }
 
     /**
-     * 日志写入
+     * JSON日志解析
      * @access protected
      * @param  array     $message 日志信息
-     * @param  string    $destination 日志文件
-     * @param  bool      $apart 是否独立文件写入
-     * @return bool
+     * @param  bool      $append 是否追加请求信息
+     * @return string
      */
-    protected function write($message, $destination, $apart = false)
+    protected function parseJsonMessage($message, $append)
     {
-        // 检测日志文件大小，超过配置大小则备份日志文件重新生成
-        $this->checkLogSize($destination);
+        if ($this->app->isDebug()) {
+            // 获取基本信息
+            $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
+            $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
 
-        if (empty($this->writed[$destination]) && PHP_SAPI != 'cli') {
-            if ($this->app->isDebug() && !$apart) {
-                // 获取基本信息
-                $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-                $runtime     = round(microtime(true) - $this->app->getBeginTime(), 10);
-                $reqs        = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+            $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
 
-                $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
-
-                if ($this->config['json']) {
-                    $info = [
-                        'host'   => $_SERVER['HTTP_HOST'],
-                        'time'   => number_format($runtime, 6) . 's',
-                        'reqs'   => $reqs . 'req/s',
-                        'memory' => $memory_use . 'kb',
-                        'file'   => count(get_included_files()),
-                    ];
-                } else {
-                    $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
-                    $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-                    $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
-
-                    if (isset($message['info'])) {
-                        array_unshift($message['info'], $current_uri . $time_str . $memory_str . $file_load);
-                    } else {
-                        $message['info'][] = $current_uri . $time_str . $memory_str . $file_load;
-                    }
-                }
-            }
-
-            if ($this->config['json']) {
-                $info['timestamp'] = date($this->config['time_format']);
-                $info['ip']        = $this->app['request']->ip();
-                $info['method']    = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
-                $info['uri']       = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-                foreach ($message as $type => $msg) {
-                    $info[$type] = implode("\r\n", $msg);
-                }
-
-                $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
-            } else {
-                $now    = date($this->config['time_format']);
-                $ip     = $this->app['request']->ip();
-                $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
-                $uri    = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-                array_unshift($message['info'], "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
-                foreach ($message as $type => $msg) {
-                    $info[$type] = implode("\r\n", $msg);
-                }
-                $message = implode("\r\n", $info);
-            }
-
-            $this->writed[$destination] = true;
+            $info = [
+                'host'   => $this->app['request']->host(),
+                'time'   => number_format($runtime, 6) . 's',
+                'reqs'   => $reqs . 'req/s',
+                'memory' => $memory_use . 'kb',
+                'file'   => count(get_included_files()),
+            ];
         }
 
-        if (PHP_SAPI == 'cli') {
-            $now     = date($this->config['time_format']);
+        $this->appendJsonRequestLog($info);
+
+        foreach ($message as $type => $msg) {
+            $info[$type] = implode("\r\n", $msg);
+        }
+
+        return json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
+    }
+
+    /**
+     * WEB日志解析
+     * @access protected
+     * @param  array    $message 日志信息
+     * @param  bool     $append 是否追加请求信息
+     * @param  bool     $apart  是否独立日志
+     * @return string
+     */
+    protected function parseWebMessage($message, $append, $apart)
+    {
+        if ($this->app->isDebug() && !$apart) {
+            // 增加额外的调试信息
+            $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
+            $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+
+            $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
+
+            $time_str   = '[运行时间：' . number_format($runtime, 6) . 's] [吞吐率：' . $reqs . 'req/s]';
+            $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
+            $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
+
+            if (isset($message['info'])) {
+                array_unshift($message['info'], $time_str . $memory_str . $file_load);
+            } else {
+                $message['info'][] = $time_str . $memory_str . $file_load;
+            }
+        }
+
+        $this->appendRequestLog($message);
+
+        foreach ($message as $type => $msg) {
+            $info[$type] = implode("\r\n", $msg);
+        }
+
+        return implode("\r\n", $info) . "\r\n";
+    }
+
+    /**
+     * CLI日志解析
+     * @access protected
+     * @param  array     $message 日志信息
+     * @return string
+     */
+    protected function parseCliMessage($message)
+    {
+        $now = date($this->config['time_format']);
+
+        if ($this->config['json']) {
+            $info['timestamp'] = $now;
+
+            foreach ($message as $type => $msg) {
+                $info[$type] = implode("\r\n", $msg);
+            }
+
+            $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
+        } else {
+            foreach ($message as $type => $msg) {
+                $info[$type] = implode("\r\n", $msg);
+            }
+
+            $message = implode("\r\n", $info);
+
             $message = "[{$now}]" . $message;
         }
 
-        return error_log($message, 3, $destination);
+        return $message;
     }
 
+    /**
+     * 追加JSON请求日志
+     * @access protected
+     * @param  array     $info 日志信息
+     * @return void
+     */
+    protected function appendJsonRequestLog(&$info)
+    {
+        $info['timestamp'] = date($this->config['time_format']);
+        $info['ip']        = $this->app['request']->ip();
+        $info['method']    = $this->app['request']->method();
+        $info['uri']       = $this->app['request']->url();
+    }
+
+    /**
+     * 追加请求日志
+     * @access protected
+     * @param  array     $message 日志信息
+     * @return void
+     */
+    protected function appendRequestLog(&$message)
+    {
+        $now    = date($this->config['time_format']);
+        $ip     = $this->app['request']->ip();
+        $method = $this->app['request']->method();
+        $uri    = $this->app['request']->url(true);
+
+        if (!isset($message['info'])) {
+            $message['info'] = [];
+        }
+
+        array_unshift($message['info'], "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
+    }
 }

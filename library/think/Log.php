@@ -126,11 +126,11 @@ class Log implements LoggerInterface
             $msg = strtr($msg, $replace);
         }
 
-        $this->log[$type][] = $msg;
-
         if (PHP_SAPI == 'cli') {
             // 命令行日志实时写入
-            $this->save();
+            $this->write($msg, $type, true);
+        } else {
+            $this->log[$type][] = $msg;
         }
 
         return $this;
@@ -221,7 +221,7 @@ class Log implements LoggerInterface
             }
         }
 
-        $result = $this->driver->save($log);
+        $result = $this->driver->save($log, true);
 
         if ($result) {
             $this->log = [];
@@ -255,7 +255,7 @@ class Log implements LoggerInterface
         $this->app['hook']->listen('log_write', $log);
 
         // 写入日志
-        return $this->driver->save($log);
+        return $this->driver->save($log, false);
     }
 
     /**
