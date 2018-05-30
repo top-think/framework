@@ -246,14 +246,10 @@ class File
             $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
             $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
 
-            if (isset($message['info'])) {
-                array_unshift($message['info'], $time_str . $memory_str . $file_load);
-            } else {
-                $message['info'][] = $time_str . $memory_str . $file_load;
-            }
+            array_unshift($message, $time_str . $memory_str . $file_load);
         }
 
-        $this->appendRequestLog($message, $apart);
+        $this->appendRequestLog($message);
 
         foreach ($message as $type => $msg) {
             if (is_array($msg)) {
@@ -286,7 +282,7 @@ class File
             $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
         } else {
             foreach ($message as $type => $msg) {
-                $info[] = implode("\r\n", $msg);
+                $info[] = is_array($msg) ? implode("\r\n", $msg) : $msg;
             }
 
             $message = implode("\r\n", $info);
@@ -316,25 +312,16 @@ class File
      * 追加请求日志
      * @access protected
      * @param  array     $message 日志信息
-     * @param  bool      $apart   独立日志
      * @return void
      */
-    protected function appendRequestLog(&$message, $apart = false)
+    protected function appendRequestLog(&$message)
     {
         $now    = date($this->config['time_format']);
         $ip     = $this->app['request']->ip();
         $method = $this->app['request']->method();
         $uri    = $this->app['request']->url(true);
 
-        if ($apart) {
-            array_unshift($message, "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
+        array_unshift($message, "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
 
-        } else {
-            if (!isset($message['info'])) {
-                $message['info'] = [];
-            }
-
-            array_unshift($message['info'], "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
-        }
     }
 }
