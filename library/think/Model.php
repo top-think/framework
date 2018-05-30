@@ -538,17 +538,30 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 模型更新
-        $result = $this->db(false)->where($where)->strict(false)->field($allowFields)->update($data);
+        $db = $this->db(false);
+        $db->startTrans();
 
-        // 关联更新
-        if (!empty($this->relationWrite)) {
-            $this->autoRelationUpdate();
+        try {
+            $result = $db->where($where)
+                ->strict(false)
+                ->field($allowFields)
+                ->update($data);
+
+            // 关联更新
+            if (!empty($this->relationWrite)) {
+                $this->autoRelationUpdate();
+            }
+
+            $db->commit();
+
+            // 更新回调
+            $this->trigger('after_update');
+
+            return $result;
+        } catch (\Exception $e) {
+            $db->rollback();
+            throw $e;
         }
-
-        // 更新回调
-        $this->trigger('after_update');
-
-        return $result;
     }
 
     /**
@@ -572,31 +585,43 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检查允许字段
         $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->insert));
 
-        $result = $this->db(false)->strict(false)->field($allowFields)->insert($this->data, $this->replace, false, $sequence);
+        $db = $this->db(false);
+        $db->startTrans();
 
-        // 获取自动增长主键
-        if ($result && $insertId = $this->db(false)->getLastInsID($sequence)) {
-            $pk = $this->getPk();
+        try {
+            $result = $db->strict(false)
+                ->field($allowFields)
+                ->insert($this->data, $this->replace, false, $sequence);
 
-            foreach ((array) $pk as $key) {
-                if (!isset($this->data[$key]) || '' == $this->data[$key]) {
-                    $this->data[$key] = $insertId;
+            // 获取自动增长主键
+            if ($result && $insertId = $db->getLastInsID($sequence)) {
+                $pk = $this->getPk();
+
+                foreach ((array) $pk as $key) {
+                    if (!isset($this->data[$key]) || '' == $this->data[$key]) {
+                        $this->data[$key] = $insertId;
+                    }
                 }
             }
+
+            // 关联写入
+            if (!empty($this->relationWrite)) {
+                $this->autoRelationInsert();
+            }
+
+            $db->commit();
+
+            // 标记为更新
+            $this->isUpdate = true;
+
+            // 新增回调
+            $this->trigger('after_insert');
+
+            return $result;
+        } catch (\Exception $e) {
+            $db->rollback();
+            throw $e;
         }
-
-        // 关联写入
-        if (!empty($this->relationWrite)) {
-            $this->autoRelationInsert();
-        }
-
-        // 标记为更新
-        $this->isUpdate = true;
-
-        // 新增回调
-        $this->trigger('after_insert');
-
-        return $result;
     }
 
     /**
@@ -618,7 +643,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
-        $result = $this->db(false)->where($where)->setInc($field, $step, $lazyTime);
+        $result = $this->db(false)
+            ->where($where)
+            ->setInc($field, $step, $lazyTime);
 
         if (true !== $result) {
             $this->data[$field] += $step;
@@ -649,7 +676,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             return false;
         }
 
-        $result = $this->db(false)->where($where)->setDec($field, $step, $lazyTime);
+        $result = $this->db(false)
+            ->where($where)
+            ->setDec($field, $step, $lazyTime);
 
         if (true !== $result) {
             $this->data[$field] -= $step;
@@ -758,21 +787,31 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 读取更新条件
         $where = $this->getWhere();
 
-        // 删除当前模型数据
-        $result = $this->db(false)->where($where)->delete();
+        $db = $this->db(false);
+        $db->startTrans();
 
-        // 关联删除
-        if (!empty($this->relationWrite)) {
-            $this->autoRelationDelete();
+        try {
+            // 删除当前模型数据
+            $result = $db->where($where)->delete();
+
+            // 关联删除
+            if (!empty($this->relationWrite)) {
+                $this->autoRelationDelete();
+            }
+
+            $db->commit();
+
+            $this->trigger('after_delete');
+
+            // 清空数据
+            $this->data   = [];
+            $this->origin = [];
+
+            return $result;
+        } catch (\Exception $e) {
+            $db->rollback();
+            throw $e;
         }
-
-        $this->trigger('after_delete');
-
-        // 清空数据
-        $this->data   = [];
-        $this->origin = [];
-
-        return $result;
     }
 
     /**
