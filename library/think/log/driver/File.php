@@ -287,12 +287,12 @@ class File
             $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
         } else {
             foreach ($message as $type => $msg) {
-                $info[$type] = implode("\r\n", $msg);
+                $info[] = implode("\r\n", $msg);
             }
 
             $message = implode("\r\n", $info);
 
-            $message = "[{$now}]" . $message;
+            $message = "[{$now}]" . $message . "\r\n";
         }
 
         return $message;
