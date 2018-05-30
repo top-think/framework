@@ -28,7 +28,6 @@ class File
         'json'        => false,
     ];
 
-    protected $writed = [];
     protected $app;
 
     // 实例化并传入参数
@@ -218,7 +217,9 @@ class File
             ];
         }
 
-        $this->appendJsonRequestLog($info);
+        if ($append) {
+            $this->appendJsonRequestLog($info);
+        }
 
         foreach ($message as $type => $msg) {
             $info[$type] = implode("\r\n", $msg);
@@ -255,10 +256,16 @@ class File
             }
         }
 
-        $this->appendRequestLog($message);
+        if ($append || $apart) {
+            $this->appendRequestLog($message, $apart);
+        }
 
         foreach ($message as $type => $msg) {
-            $info[$type] = implode("\r\n", $msg);
+            if (is_array($msg)) {
+                $info[] = implode("\r\n", $msg);
+            } else {
+                $info[] = $msg;
+            }
         }
 
         return implode("\r\n", $info) . "\r\n";
@@ -313,19 +320,25 @@ class File
      * 追加请求日志
      * @access protected
      * @param  array     $message 日志信息
+     * @param  bool      $apart   独立日志
      * @return void
      */
-    protected function appendRequestLog(&$message)
+    protected function appendRequestLog(&$message, $apart = false)
     {
         $now    = date($this->config['time_format']);
         $ip     = $this->app['request']->ip();
         $method = $this->app['request']->method();
         $uri    = $this->app['request']->url(true);
 
-        if (!isset($message['info'])) {
-            $message['info'] = [];
+        if ($apart) {
+            array_unshift($message, "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
+        } else {
+            if (!isset($message['info'])) {
+                $message['info'] = [];
+            }
+
+            array_unshift($message['info'], "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
         }
 
-        array_unshift($message['info'], "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
     }
 }
