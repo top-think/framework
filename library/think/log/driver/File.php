@@ -201,7 +201,7 @@ class File
      */
     protected function parseJsonMessage($message, $append)
     {
-        if ($this->app->isDebug()) {
+        if ($this->app->isDebug() && $append) {
             // 获取基本信息
             $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
             $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
@@ -217,9 +217,7 @@ class File
             ];
         }
 
-        if ($append) {
-            $this->appendJsonRequestLog($info);
-        }
+        $this->appendJsonRequestLog($info);
 
         foreach ($message as $type => $msg) {
             $info[$type] = implode("\r\n", $msg);
@@ -238,7 +236,7 @@ class File
      */
     protected function parseWebMessage($message, $append, $apart)
     {
-        if ($this->app->isDebug() && !$apart) {
+        if ($this->app->isDebug() && $append && !$apart) {
             // 增加额外的调试信息
             $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
             $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
@@ -256,9 +254,7 @@ class File
             }
         }
 
-        if ($append || $apart) {
-            $this->appendRequestLog($message, $apart);
-        }
+        $this->appendRequestLog($message, $apart);
 
         foreach ($message as $type => $msg) {
             if (is_array($msg)) {
@@ -332,6 +328,7 @@ class File
 
         if ($apart) {
             array_unshift($message, "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
+
         } else {
             if (!isset($message['info'])) {
                 $message['info'] = [];
@@ -339,6 +336,5 @@ class File
 
             array_unshift($message['info'], "---------------------------------------------------------------\r\n[{$now}] {$ip} {$method} {$uri}");
         }
-
     }
 }
