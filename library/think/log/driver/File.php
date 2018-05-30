@@ -129,7 +129,7 @@ class File
     /**
      * 获取独立日志文件名
      * @access public
-     * @param  string $path 日志目录类型
+     * @param  string $path 日志目录
      * @param  string $type 日志类型
      * @return string
      */
@@ -147,7 +147,7 @@ class File
             $name = date('d') . '_' . $type . $cli;
         }
 
-        $filename = $path . DIRECTORY_SEPARATOR . $name . '.log';
+        return $path . DIRECTORY_SEPARATOR . $name . '.log';
     }
 
     /**
