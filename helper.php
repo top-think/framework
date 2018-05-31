@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2017 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -127,7 +127,7 @@ if (!function_exists('input')) {
         if ($pos = strpos($key, '.')) {
             // 指定参数来源
             list($method, $key) = explode('.', $key, 2);
-            if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
+            if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'route', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
                 $key    = $method . '.' . $key;
                 $method = 'param';
             }
@@ -192,7 +192,7 @@ if (!function_exists('db')) {
      * @param bool          $force 是否强制重新连接
      * @return \think\db\Query
      */
-    function db($name = '', $config = [], $force = true)
+    function db($name = '', $config = [], $force = false)
     {
         return Db::connect($config, $force)->name($name);
     }
@@ -354,22 +354,25 @@ if (!function_exists('cache')) {
     {
         if (is_array($options)) {
             // 缓存操作的同时初始化
-            Cache::connect($options);
+            $cache = Cache::connect($options);
         } elseif (is_array($name)) {
             // 缓存初始化
             return Cache::connect($name);
+        } else {
+            $cache = Cache::init();
         }
+
         if (is_null($name)) {
-            return Cache::clear($value);
+            return $cache->clear($value);
         } elseif ('' === $value) {
             // 获取缓存
-            return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
+            return 0 === strpos($name, '?') ? $cache->has(substr($name, 1)) : $cache->get($name);
         } elseif (is_null($value)) {
             // 删除缓存
-            return Cache::rm($name);
+            return $cache->rm($name);
         } elseif (0 === strpos($name, '?') && '' !== $value) {
             $expire = is_numeric($options) ? $options : null;
-            return Cache::remember(substr($name, 1), $value, $expire);
+            return $cache->remember(substr($name, 1), $value, $expire);
         } else {
             // 缓存数据
             if (is_array($options)) {
@@ -378,9 +381,9 @@ if (!function_exists('cache')) {
                 $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
             }
             if (is_null($tag)) {
-                return Cache::set($name, $value, $expire);
+                return $cache->set($name, $value, $expire);
             } else {
-                return Cache::tag($tag)->set($name, $value, $expire);
+                return $cache->tag($tag)->set($name, $value, $expire);
             }
         }
     }

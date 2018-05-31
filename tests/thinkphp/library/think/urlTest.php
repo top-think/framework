@@ -16,12 +16,14 @@
 
 namespace tests\thinkphp\library\think;
 
+use tests\thinkphp\library\think\config\ConfigInitTrait;
 use think\Config;
 use think\Route;
 use think\Url;
 
 class urlTest extends \PHPUnit_Framework_TestCase
 {
+    use ConfigInitTrait;
 
     public function setUp()
     {
@@ -107,11 +109,11 @@ class urlTest extends \PHPUnit_Framework_TestCase
     {
         Config::set('url_domain_deploy', true);
         Route::domain('subdomain.thinkphp.cn', 'admin');
-        $this->assertEquals('http://subdomain.thinkphp.cn/blog/10.shtml', Url::build('/blog/10'));
+        $this->assertEquals('http://subdomain.thinkphp.cn/blog/10.html', Url::build('/blog/10'));
         Route::domain('subdomain.thinkphp.cn', [
             'hello/:name' => 'index/hello',
         ]);
-        $this->assertEquals('http://subdomain.thinkphp.cn/hello/thinkphp.shtml', Url::build('index/hello?name=thinkphp'));
+        $this->assertEquals('http://subdomain.thinkphp.cn/hello/thinkphp.html', Url::build('index/hello?name=thinkphp'));
     }
 
     public function testRoot()

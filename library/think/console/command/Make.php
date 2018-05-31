@@ -11,6 +11,7 @@
 
 namespace think\console\command;
 
+use think\App;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -64,21 +65,21 @@ abstract class Make extends Command
         return str_replace(['{%className%}', '{%namespace%}', '{%app_namespace%}'], [
             $class,
             $namespace,
-            Config::get('app_namespace')
+            App::$namespace,
         ], $stub);
 
     }
 
     protected function getPathName($name)
     {
-        $name = str_replace(Config::get('app_namespace') . '\\', '', $name);
+        $name = str_replace(App::$namespace . '\\', '', $name);
 
         return APP_PATH . str_replace('\\', '/', $name) . '.php';
     }
 
     protected function getClassName($name)
     {
-        $appNamespace = Config::get('app_namespace');
+        $appNamespace = App::$namespace;
 
         if (strpos($name, $appNamespace . '\\') === 0) {
             return $name;
