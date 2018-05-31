@@ -212,4 +212,111 @@ class Redis extends Driver
         return $this->handler->flushDB();
     }
 
+    /**
+     * 将一个值插入到列表头部
+     * @access public
+     * @param string $name 缓存变量名
+     * @param mixed $value 存储数据
+     * @return int 列表长度
+     */
+    public function lpush($name, $value)
+    {
+        $this->writeTimes++;
+
+        $key    = $this->getCacheKey($name);
+
+        $value = $this->serialize($value);
+
+        $length = $this->handler->lpush($key, $value);
+
+        return $length;
+    }
+
+    /**
+     * 将一个值插入到列表尾部
+     * @access public
+     * @param string $name 缓存变量名
+     * @param mixed $value 存储数据
+     * @return int 列表长度
+     */
+    public function rpush($name, $value)
+    {
+        $this->writeTimes++;
+
+        $key    = $this->getCacheKey($name);
+
+        $value = $this->serialize($value);
+
+        $length = $this->handler->rpush($key, $value);
+
+        return $length;
+    }
+
+    /**
+     * 移除并返回列表的第一个元素
+     * @access public
+     * @param string $name 缓存变量名
+     * @param mixed $default 默认值
+     * @return mixed
+     */
+    public function lpop($name, $default = false)
+    {
+        $this->readTimes++;
+
+        $key    = $this->getCacheKey($name);
+
+        $value  = $this->handler->lpop($key);
+
+        if (is_null($value) || false === $value) {
+            return $default;
+        }
+
+        return $this->unserialize($value);
+    }
+
+    /**
+     * 移除并返回列表的最后一个元素
+     * @access public
+     * @param string $name 缓存变量名
+     * @param mixed $default 默认值
+     * @return mixed
+     */
+    public function rpop($name, $default = false)
+    {
+        $this->readTimes++;
+
+        $key    = $this->getCacheKey($name);
+
+        $value  = $this->handler->rpop($key);
+
+        if (is_null($value) || false === $value) {
+            return $default;
+        }
+
+        return $this->unserialize($value);
+    }
+
+    /**
+     * 通过索引获取列表中的元素
+     * @access public
+     * @param string $name 缓存变量名
+     * @param int $index 索引
+     * @param mixed $default 默认值
+     * @return  mixed
+     */
+    public function lindex($name, $index, $default = false)
+    {
+        $this->readTimes++;
+
+        $key    = $this->getCacheKey($name);
+        // redis中索引为负数则视为尾部起始索引
+        $value  = $this->handler->lindex($key, $index);
+
+        if (is_null($value) || false === $value) {
+            return $default;
+        }
+
+        return $this->unserialize($value);
+    }
+
 }
