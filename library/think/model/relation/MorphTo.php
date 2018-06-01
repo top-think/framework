@@ -112,7 +112,7 @@ class MorphTo extends Relation
 
     /**
      * 解析模型的完整命名空间
-     * @access public
+     * @access protected
      * @param  string $model 模型名（或者完整类名）
      * @return string
      */
