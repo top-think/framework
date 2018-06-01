@@ -843,6 +843,7 @@ class Query
         } else {
             $table = $this->getJoinTable($join);
 
+            $this->options["join"][] = Array();
             $this->options['join'][] = [$table, strtoupper($type), $condition];
         }
 
