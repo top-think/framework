@@ -86,7 +86,9 @@ trait SoftDelete
             // 软删除
             $this->data($name, $this->autoWriteTimestamp($name));
 
-            $result = $this->isUpdate()->save();
+            $result = $this->isUpdate()->withEvent(false)->save();
+
+            $this->withEvent = true;
         } else {
             // 读取更新条件
             $where = $this->getWhere();
