@@ -1989,4 +1989,14 @@ class Request
         return $this->param($name);
     }
 
+    /**
+     * 检测请求数据的值
+     * @access public
+     * @param  string $name 名称
+     * @return boolean
+     */
+    public function __isset($name)
+    {
+        return isset($this->param[$name]);
+    }
 }
