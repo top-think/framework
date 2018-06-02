@@ -28,11 +28,11 @@ class Route
     protected $rest = [
         'index'  => ['get', '', 'index'],
         'create' => ['get', '/create', 'create'],
-        'edit'   => ['get', '/:id/edit', 'edit'],
-        'read'   => ['get', '/:id', 'read'],
+        'edit'   => ['get', '/<id>/edit', 'edit'],
+        'read'   => ['get', '/<id>', 'read'],
         'save'   => ['post', '', 'save'],
-        'update' => ['put', '/:id', 'update'],
-        'delete' => ['delete', '/:id', 'delete'],
+        'update' => ['put', '/<id>', 'update'],
+        'delete' => ['delete', '/<id>', 'delete'],
     ];
 
     /**
