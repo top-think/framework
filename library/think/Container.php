@@ -38,12 +38,27 @@ class Container implements \ArrayAccess
      * @var array
      */
     protected $bind = [
-        'app'      => 'think\App',
-        'config'   => 'think\Config',
-        'lang'     => 'think\Lang',
-        'log'      => 'think\Log',
-        'request'  => 'think\Request',
-        'response' => 'think\Response',
+        'app'                   => App::class,
+        'build'                 => Build::class,
+        'cache'                 => Cache::class,
+        'config'                => Config::class,
+        'cookie'                => Cookie::class,
+        'debug'                 => Debug::class,
+        'env'                   => Env::class,
+        'hook'                  => Hook::class,
+        'lang'                  => Lang::class,
+        'log'                   => Log::class,
+        'middleware'            => Middleware::class,
+        'request'               => Request::class,
+        'response'              => Response::class,
+        'route'                 => Route::class,
+        'session'               => Session::class,
+        'url'                   => Url::class,
+        'validate'              => Validate::class,
+        'view'                  => View::class,
+        'rule_name'             => route\RuleName::class,
+        // 接口依赖注入
+        'think\LoggerInterface' => Log::class,
     ];
 
     /**

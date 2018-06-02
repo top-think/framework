@@ -197,7 +197,9 @@ class Session
     {
         if (is_null($this->init)) {
             $this->init();
-        } elseif (false === $this->init) {
+        }
+
+        if (false === $this->init) {
             if (PHP_SESSION_ACTIVE != session_status()) {
                 session_start();
             }

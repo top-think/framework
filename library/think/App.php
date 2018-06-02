@@ -118,6 +118,12 @@ class App extends Container
      */
     protected $bindModule;
 
+    /**
+     * 初始化
+     * @var bool
+     */
+    protected $initialized = false;
+
     public function __construct($appPath = '')
     {
         $this->appPath = $appPath ? realpath($appPath) . DIRECTORY_SEPARATOR : $this->getAppPath();
@@ -154,51 +160,21 @@ class App extends Container
     }
 
     /**
-     * 注册核心容器实例
-     * @access public
-     * @return void
-     */
-    public function registerCoreContainer()
-    {
-        // 注册核心类到容器
-        $this->bindTo([
-            'app'                   => App::class,
-            'build'                 => Build::class,
-            'cache'                 => Cache::class,
-            'config'                => Config::class,
-            'cookie'                => Cookie::class,
-            'debug'                 => Debug::class,
-            'env'                   => Env::class,
-            'hook'                  => Hook::class,
-            'lang'                  => Lang::class,
-            'log'                   => Log::class,
-            'middleware'            => Middleware::class,
-            'request'               => Request::class,
-            'response'              => Response::class,
-            'route'                 => Route::class,
-            'session'               => Session::class,
-            'url'                   => Url::class,
-            'validate'              => Validate::class,
-            'view'                  => View::class,
-            'rule_name'             => route\RuleName::class,
-            // 接口依赖注入
-            'think\LoggerInterface' => Log::class,
-        ]);
-    }
-
-    /**
      * 初始化应用
      * @access public
      * @return void
      */
     public function initialize()
     {
-        $this->beginTime = microtime(true);
-        $this->beginMem  = memory_get_usage();
+        if ($this->initialized) {
+            return;
+        }
+
+        $this->initialized = true;
+        $this->beginTime   = microtime(true);
+        $this->beginMem    = memory_get_usage();
 
         static::setInstance($this);
-
-        $this->registerCoreContainer();
 
         $this->instance('app', $this);
 
