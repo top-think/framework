@@ -277,6 +277,12 @@ class Request
     protected $secureKey;
 
     /**
+     * 是否合并Param
+     * @var bool
+     */
+    protected $mergeParam;
+
+    /**
      * 架构函数
      * @access public
      * @param  array  $options 参数
@@ -889,7 +895,7 @@ class Request
      */
     public function param($name = '', $default = null, $filter = '')
     {
-        if (empty($this->param)) {
+        if (!$this->mergeParam) {
             $method = $this->method(true);
 
             // 自动获取请求变量
@@ -907,7 +913,8 @@ class Request
             }
 
             // 当前请求参数和URL地址中的参数合并
-            $this->param = array_merge($this->get(false), $vars, $this->route(false));
+            $this->param      = array_merge($this->param, $this->get(false), $vars, $this->route(false));
+            $this->mergeParam = true;
         }
 
         if (true === $name) {
@@ -931,7 +938,6 @@ class Request
     public function route($name = '', $default = null, $filter = '')
     {
         if (is_array($name)) {
-            $this->param        = [];
             return $this->route = array_merge($this->route, $name);
         }
 
@@ -953,7 +959,6 @@ class Request
         }
 
         if (is_array($name)) {
-            $this->param      = [];
             return $this->get = array_merge($this->get, $name);
         }
 
@@ -980,7 +985,6 @@ class Request
         }
 
         if (is_array($name)) {
-            $this->param       = [];
             return $this->post = array_merge($this->post, $name);
         }
 
@@ -1007,7 +1011,6 @@ class Request
         }
 
         if (is_array($name)) {
-            $this->param      = [];
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
         }
 
@@ -1055,7 +1058,6 @@ class Request
         }
 
         if (is_array($name)) {
-            $this->param          = [];
             return $this->request = array_merge($this->request, $name);
         }
 
