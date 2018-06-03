@@ -280,7 +280,7 @@ class Request
      * 是否合并Param
      * @var bool
      */
-    protected $mergeParam;
+    protected $mergeParam = false;
 
     /**
      * 架构函数
@@ -959,6 +959,7 @@ class Request
         }
 
         if (is_array($name)) {
+            $this->mergeParam = false;
             return $this->get = array_merge($this->get, $name);
         }
 
@@ -985,6 +986,7 @@ class Request
         }
 
         if (is_array($name)) {
+            $this->mergeParam  = false;
             return $this->post = array_merge($this->post, $name);
         }
 
@@ -1011,6 +1013,7 @@ class Request
         }
 
         if (is_array($name)) {
+            $this->mergeParam = false;
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
         }
 
@@ -1238,7 +1241,7 @@ class Request
             if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
                 $header = $result;
             } else {
-                $server = $this->server ?: $_SERVER;
+                $server = $this->server;
                 foreach ($server as $key => $val) {
                     if (0 === strpos($key, 'HTTP_')) {
                         $key          = str_replace('_', '-', strtolower(substr($key, 5)));
