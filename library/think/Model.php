@@ -283,12 +283,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $query = $this->buildQuery();
 
-        if ($useBaseQuery) {
-            // 软删除
-            if (method_exists($this, 'withNoTrashed')) {
-                $this->withNoTrashed($query);
-            }
+        // 软删除
+        if (method_exists($this, 'withNoTrashed')) {
+            $this->withNoTrashed($query);
+        }
 
+        if ($useBaseQuery) {
             // 全局作用域
             if (method_exists($this, 'base')) {
                 call_user_func_array([$this, 'base'], [ & $query]);
