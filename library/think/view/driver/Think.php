@@ -100,6 +100,18 @@ class Think
     }
 
     /**
+     * 设置布局
+     * @access public
+     * @param mixed     $name 布局模板名称 false 则关闭布局
+     * @param string    $replace 布局模板内容替换标识
+     * @return object
+     */
+    public function layout($name, $replace = '')
+    {
+        $this->template->layout($name, $replace);
+    }
+
+    /**
      * 自动定位模板文件
      * @access private
      * @param string $template 模板文件规则
