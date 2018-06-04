@@ -53,6 +53,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $error;
     // 字段验证规则
     protected $validate;
+    // 当前需要自动验证的场景
+    protected $scene;
     // 数据表主键 复合主键使用数组定义 不设置则自动获取
     protected $pk;
     // 数据表字段信息 留空则自动获取
@@ -1559,6 +1561,11 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $validate = Loader::validate();
                 $validate->rule($info['rule']);
                 $validate->message($info['msg']);
+
+                if (!empty($this->scene)) {
+                    $validate_fields = $this->getValidateFields($info['rule'], $info['scene'][$this->scene]);
+                    $validate->scene(["$this->scene" => $validate_fields])->scene($this->scene);
+                }
             } else {
                 $name = is_string($info) ? $info : $this->name;
                 if (strpos($name, '.')) {
@@ -1582,6 +1589,58 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $this->validate = null;
         }
         return true;
+    }
+
+    /**
+     * 设置当前数据验证的场景
+     * @param string $scene
+     * @return $this
+     */
+    public function scene($scene = '')
+    {
+        $this->scene = $scene;
+
+        return $this;
+    }
+
+    /**
+     * 获取当前验证场景下，需要验证的 field
+     * @param array $rules          模型里面定义的 $validate['rule']
+     * @param array $scene_fields   模型里面定义的 $validate['scene']
+     * @return array 返回根据场景筛选之后的验证规则
+     */
+    protected function getValidateFields($rules, $scene_fields = [])
+    {
+        $temp = [];
+        foreach ($rules as $key => $rule) {
+            $rule = explode('|', $rule);
+            foreach ($rule as $value) {
+                if (strpos($value, ':')) {
+                    list($k) = explode(':', $value);
+                } else {
+                    $k = $value;
+                }
+                $temp[$key][$k] = $value;
+            }
+        }
+
+        $validate_fields = [];
+        foreach ($scene_fields as $value) {
+            if (strpos($value, '.') === false) {
+                $validate_fields[$value] = $rules[$value];
+            } else {
+                // name.require
+                list($key, $condition) = explode('.', $value, 2);
+                $condition = $temp[$key][$condition];
+                if (isset($validate_fields[$key])) {
+                    $validate_fields[$key] .= '|' . $condition;
+                } else {
+                    $validate_fields[$key] = $condition;
+                }
+            }
+        }
+
+        return $validate_fields;
     }
 
     /**
