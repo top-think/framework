@@ -339,6 +339,24 @@ abstract class Rule
     {
         return $this->option('domain', $domain);
     }
+    
+    /**
+     * 设置参数过滤检查
+     * @access public
+     * @param  string|array     $name
+     * @param  mixed            $value
+     * @return $this
+     */
+    public function filter($name, $value = null)
+    {
+        if (is_array($name)) {
+            $this->option['filter'] = $name;
+        } else {
+            $this->option['filter'][$name] = $value;
+        }
+
+        return $this;
+    }
 
     /**
      * 绑定模型
@@ -870,6 +888,14 @@ abstract class Rule
             return false;
         }
 
+        // 请求参数检查
+        if (isset($option['filter'])) {
+            foreach($option['filter'] as $name => $value){
+                if ($value != $request->param($name)) {
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
