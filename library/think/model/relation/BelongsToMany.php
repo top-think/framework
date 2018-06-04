@@ -566,13 +566,15 @@ class BelongsToMany extends Relation
             $pivot[] = is_array($id) ? [$this->foreignKey, 'in', $id] : [$this->foreignKey, '=', $id];
         }
 
-        $this->pivot->where($pivot)->delete();
+        $result = $this->pivot->where($pivot)->delete();
 
         // 删除关联表数据
         if (isset($id) && $relationDel) {
             $model = $this->model;
             $model::destroy($id);
         }
+
+        return $result;
     }
 
     /**
