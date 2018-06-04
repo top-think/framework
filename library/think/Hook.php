@@ -124,8 +124,13 @@ class Hook
         } elseif (is_array($class)) {
             list($class, $method) = $class;
 
-            $result = (new $class())->$method($params, $extra);
-            $class  = $class . '->' . $method;
+            if (is_object($class)) {
+                $result = $class->$method($params, $extra);
+                $class  = get_class($class) . '->' . $method;
+            } else {
+                $result = (new $class())->$method($params, $extra);
+                $class  = $class . '->' . $method;
+            }
         } elseif (is_object($class)) {
             $result = $class->$method($params, $extra);
             $class  = get_class($class);
