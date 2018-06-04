@@ -891,7 +891,7 @@ abstract class Rule
         // 请求参数检查
         if (isset($option['filter'])) {
             foreach ($option['filter'] as $name => $value) {
-                if ($request->param($name) != $value) {
+                if ($request->param($name, '', null) != $value) {
                     return false;
                 }
             }
