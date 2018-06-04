@@ -339,7 +339,7 @@ abstract class Rule
     {
         return $this->option('domain', $domain);
     }
-    
+
     /**
      * 设置参数过滤检查
      * @access public
@@ -890,8 +890,8 @@ abstract class Rule
 
         // 请求参数检查
         if (isset($option['filter'])) {
-            foreach($option['filter'] as $name => $value){
-                if ($value != $request->param($name)) {
+            foreach ($option['filter'] as $name => $value) {
+                if ($request->param($name) != $value) {
                     return false;
                 }
             }
