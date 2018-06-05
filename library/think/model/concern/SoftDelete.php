@@ -72,11 +72,11 @@ trait SoftDelete
      * 删除当前的记录
      * @access public
      * @param  bool  $force 是否强制删除
-     * @return integer
+     * @return bool
      */
     public function delete($force = false)
     {
-        if (false === $this->trigger('before_delete', $this)) {
+        if (!$this->exists || false === $this->trigger('before_delete', $this)) {
             return false;
         }
 
@@ -105,10 +105,9 @@ trait SoftDelete
         $this->trigger('after_delete', $this);
 
         // 清空数据
-        $this->data   = [];
-        $this->origin = [];
+        $this->exists = false;
 
-        return $result;
+        return true;
     }
 
     /**
