@@ -263,7 +263,7 @@ abstract class Dispatch
     {
         foreach ($bindModel as $key => $val) {
             if ($val instanceof \Closure) {
-                $result = $this->app->invokeFunction($val, [$matches]);
+                $result = $this->app->invokeFunction($val, $matches);
             } else {
                 $fields = explode('&', $key);
 
