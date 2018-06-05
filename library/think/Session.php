@@ -93,6 +93,14 @@ class Session
     public function setConfig(array $config = [])
     {
         $this->config = array_merge($this->config, array_change_key_case($config));
+
+        if (isset($config['prefix'])) {
+            $this->prefix = $config['prefix'];
+        }
+
+        if (isset($config['use_lock'])) {
+            $this->lock = $config['use_lock'];
+        }
     }
 
     /**

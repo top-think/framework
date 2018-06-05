@@ -315,7 +315,7 @@ class Request
     public static function __make(App $app, Config $config)
     {
         $request = new static($config->pull('app'));
-        $request->session($app['session']->get());
+
         $request->cookie($app['cookie']->get());
         $request->server($_SERVER);
         $request->env($app['env']->get());
@@ -1072,16 +1072,23 @@ class Request
      * @access public
      * @param  mixed         $name 数据名称
      * @param  string        $default 默认值
-     * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function session($name = '', $default = null, $filter = '')
+    public function session($name = '', $default = null)
     {
+        if (empty($this->session)) {
+            $this->session = facade\Session::get();
+        }
+
         if (is_array($name)) {
             return $this->session = array_merge($this->session, $name);
         }
 
-        return $this->input($this->session, $name, $default, $filter);
+        if ('' === $name) {
+            return $this->session;
+        }
+
+        return isset($this->session[$name]) ? $this->session[$name] : $default;
     }
 
     /**
@@ -1120,16 +1127,21 @@ class Request
      * @access public
      * @param  mixed         $name 数据名称
      * @param  string        $default 默认值
-     * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function server($name = '', $default = null, $filter = '')
+    public function server($name = '', $default = null)
     {
         if (is_array($name)) {
             return $this->server = array_merge($this->server, $name);
         }
 
-        return $this->input($this->server, false === $name ? false : strtoupper($name), $default, $filter);
+        if (empty($name)) {
+            return $this->server;
+        } else {
+            $name = strtoupper($name);
+        }
+
+        return isset($this->server[$name]) ? $this->server[$name] : $default;
     }
 
     /**
@@ -1215,16 +1227,21 @@ class Request
      * @access public
      * @param  mixed         $name 数据名称
      * @param  string        $default 默认值
-     * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function env($name = '', $default = null, $filter = '')
+    public function env($name = '', $default = null)
     {
         if (is_array($name)) {
             return $this->env = array_merge($this->env, $name);
         }
 
-        return $this->input($this->env, false === $name ? false : strtoupper($name), $default, $filter);
+        if (empty($name)) {
+            return $this->env;
+        } else {
+            $name = strtoupper($name);
+        }
+
+        return isset($this->env[$name]) ? $this->env[$name] : $default;
     }
 
     /**
@@ -1292,8 +1309,6 @@ class Request
             // 解析name
             if (strpos($name, '/')) {
                 list($name, $type) = explode('/', $name);
-            } else {
-                $type = 's';
             }
 
             // 按.拆分成多维数组进行判断
@@ -1429,12 +1444,12 @@ class Request
                 break;
             // 字符串
             case 's':
-            default:
                 if (is_scalar($data)) {
                     $data = (string) $data;
                 } else {
                     throw new \InvalidArgumentException('variable type error：' . gettype($data));
                 }
+                break;
         }
     }
 
