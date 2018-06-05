@@ -14,12 +14,6 @@ namespace think;
 class Request
 {
     /**
-     * 对象实例
-     * @var object
-     */
-    protected $instance;
-
-    /**
      * 配置参数
      * @var array
      */
