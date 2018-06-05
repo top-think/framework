@@ -313,10 +313,10 @@ abstract class OneToOne extends Relation
      * @param  string        $key         关联键名
      * @param  string        $relation    关联名
      * @param  string        $subRelation 子关联
-     * @param  bool|\Closure $closure
+     * @param  \Closure      $closure
      * @return array
      */
-    protected function eagerlyWhere($where, $key, $relation, $subRelation = '', $closure = false)
+    protected function eagerlyWhere($where, $key, $relation, $subRelation = '', $closure = null)
     {
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
