@@ -53,7 +53,7 @@ trait Conversion
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function append($append = [], $override = false)
+    public function append(array $append = [], $override = false)
     {
         $this->append = $override ? $append : array_merge($this->append, $append);
 
@@ -102,7 +102,7 @@ trait Conversion
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function hidden($hidden = [], $override = false)
+    public function hidden(array $hidden = [], $override = false)
     {
         $this->hidden = $override ? $hidden : array_merge($this->hidden, $hidden);
 
@@ -116,7 +116,7 @@ trait Conversion
      * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function visible($visible = [], $override = false)
+    public function visible(array $visible = [], $override = false)
     {
         $this->visible = $override ? $visible : array_merge($this->visible, $visible);
 
@@ -168,12 +168,12 @@ trait Conversion
                 if (is_array($name)) {
                     // 追加关联对象属性
                     $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->append($name)->toArray();
+                    $item[$key] = $relation->visible($name)->append($name)->toArray();
                 } elseif (strpos($name, '.')) {
                     list($key, $attr) = explode('.', $name);
                     // 追加关联对象属性
                     $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->append([$attr])->toArray();
+                    $item[$key] = $relation->visible([$attr])->append([$attr])->toArray();
                 } else {
                     $value = $this->getAttr($name, $item);
                     if (false !== $value) {
