@@ -1563,8 +1563,8 @@ class Request
      */
     public function isAjax($ajax = false)
     {
-        $value  = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
-        $result = ('xmlhttprequest' == $value) ? true : false;
+        $value  = $this->server('HTTP_X_REQUESTED_WITH');
+        $result = 'xmlhttprequest' == strtolower($value) ? true : false;
 
         if (true === $ajax) {
             return $result;
