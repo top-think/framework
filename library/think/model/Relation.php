@@ -128,6 +128,19 @@ abstract class Relation
     }
 
     /**
+     * 删除记录
+     * @access public
+     * @param  mixed $data 表达式 true 表示强制删除
+     * @return int
+     * @throws Exception
+     * @throws PDOException
+     */
+    public function delete($data = null)
+    {
+        return $this->query->delete($data);
+    }
+
+    /**
      * 执行基础查询（仅执行一次）
      * @access protected
      * @return void
@@ -143,7 +156,7 @@ abstract class Relation
 
             $result = call_user_func_array([$this->query->getModel(), $method], $args);
 
-            return $result === $this->query && 'delete' != $method ? $this : $result;
+            return $result === $this->query ? $this : $result;
         } else {
             throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
         }
