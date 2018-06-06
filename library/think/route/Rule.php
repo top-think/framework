@@ -839,7 +839,7 @@ abstract class Rule
         }
 
         // 设置当前请求的路由变量
-        $request->route($var);
+        $request->setRouteVars($var);
 
         // 路由到模块/控制器/操作
         return new ModuleDispatch($request, $this, [$module, $controller, $action], ['convert' => false]);

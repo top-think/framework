@@ -384,6 +384,6 @@ class Url
     public function root($root)
     {
         $this->root = $root;
-        $this->app['request']->root($root);
+        $this->app['request']->setRoot($root);
     }
 }

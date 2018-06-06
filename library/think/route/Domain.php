@@ -61,7 +61,7 @@ class Domain extends RuleGroup
         $result = $this->checkUrlBind($request, $url);
 
         if (!empty($this->option['append'])) {
-            $request->route($this->option['append']);
+            $request->setRouteVars($this->option['append']);
             unset($this->option['append']);
         }
 

@@ -81,7 +81,7 @@ abstract class Dispatch
             // 设置请求的路由信息
 
             // 设置当前请求的参数
-            $this->request->route($this->rule->getVars());
+            $this->request->setRouteVars($this->rule->getVars());
             $this->request->routeInfo([
                 'rule'   => $this->rule->getRule(),
                 'route'  => $this->rule->getRoute(),
@@ -135,7 +135,7 @@ abstract class Dispatch
         }
 
         if (!empty($option['append'])) {
-            $this->request->route($option['append']);
+            $this->request->setRouteVars($option['append']);
         }
     }
 

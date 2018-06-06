@@ -440,26 +440,14 @@ class Request
     }
 
     /**
-     * 设置或获取当前包含协议的域名
+     * 获取当前包含协议、端口的域名
      * @access public
-     * @param  string|true $domain 域名
-     * @return string|$this
+     * @param  bool $port 是否需要去除端口号
+     * @return string
      */
-    public function domain($domain = null)
+    public function domain($port = false)
     {
-        if (is_null($domain)) {
-            if (!$this->domain) {
-                $this->domain = $this->scheme() . '://' . $this->host();
-            }
-            return $this->domain;
-        }
-
-        if (true === $domain) {
-            return $this->scheme() . '://' . $this->host(true);
-        }
-
-        $this->domain = $domain;
-        return $this;
+        return $this->scheme() . '://' . $this->host($port);
     }
 
     /**
@@ -505,33 +493,36 @@ class Request
     }
 
     /**
-     * 设置或获取当前泛域名的值
+     * 设置当前泛域名的值
      * @access public
      * @param  string $domain 域名
-     * @return string|$this
+     * @return $this
      */
-    public function panDomain($domain = null)
+    public function setPanDomain($domain)
     {
-        if (is_null($domain)) {
-            return $this->panDomain;
-        }
-
         $this->panDomain = $domain;
         return $this;
     }
 
     /**
-     * 设置或获取当前完整URL 包括QUERY_STRING
+     * 获取当前泛域名的值
      * @access public
-     * @param  string|true $url URL地址 true 带域名获取
-     * @return string|$this
+     * @return string
      */
-    public function url($url = null)
+    public function panDomain()
     {
-        if (!is_null($url) && true !== $url) {
-            $this->url = $url;
-            return $this;
-        } elseif (!$this->url) {
+        return $this->panDomain;
+    }
+
+    /**
+     * 获取当前完整URL 包括QUERY_STRING
+     * @access public
+     * @param  bool $complete 是否包含域名
+     * @return string
+     */
+    public function url($complete = false)
+    {
+        if (!$this->url) {
             if ($this->isCli()) {
                 $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
             } elseif ($this->server('HTTP_X_REWRITE_URL')) {
@@ -545,40 +536,34 @@ class Request
             }
         }
 
-        return true === $url ? $this->domain() . $this->url : $this->url;
+        return $complete ? $this->domain() . $this->url : $this->url;
     }
 
     /**
-     * 设置或获取当前URL 不含QUERY_STRING
+     * 获取当前URL 不含QUERY_STRING
      * @access public
-     * @param  string|true $url URL地址
+     * @param  bool     $domain 是否包含域名
      * @return string|$this
      */
-    public function baseUrl($url = null)
+    public function baseUrl($domain = false)
     {
-        if (!is_null($url) && true !== $url) {
-            $this->baseUrl = $url;
-            return $this;
-        } elseif (!$this->baseUrl) {
+        if (!$this->baseUrl) {
             $str           = $this->url();
             $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
         }
 
-        return true === $url ? $this->domain() . $this->baseUrl : $this->baseUrl;
+        return $domain ? $this->domain() . $this->baseUrl : $this->baseUrl;
     }
 
     /**
      * 设置或获取当前执行的文件 SCRIPT_NAME
      * @access public
-     * @param  string|true $file 当前执行的文件
+     * @param  bool     $domain 是否包含域名
      * @return string|$this
      */
-    public function baseFile($file = null)
+    public function baseFile($domain = false)
     {
-        if (!is_null($file) && true !== $file) {
-            $this->baseFile = $file;
-            return $this;
-        } elseif (!$this->baseFile) {
+        if (!$this->baseFile) {
             $url = '';
             if (!$this->isCli()) {
                 $script_name = basename($this->server('SCRIPT_FILENAME'));
@@ -597,21 +582,31 @@ class Request
             $this->baseFile = $url;
         }
 
-        return true === $file ? $this->domain() . $this->baseFile : $this->baseFile;
+        return $domain ? $this->domain() . $this->baseFile : $this->baseFile;
     }
 
     /**
-     * 设置或获取URL访问根地址
+     * 设置URL访问根地址
      * @access public
-     * @param  string|true $url URL地址
+     * @param  string $url URL地址
      * @return string|$this
      */
-    public function root($url = null)
+    public function setRoot($url = null)
     {
-        if (!is_null($url) && true !== $url) {
-            $this->root = $url;
-            return $this;
-        } elseif (!$this->root) {
+
+        $this->root = $url;
+        return $this;
+    }
+
+    /**
+     * 获取URL访问根地址
+     * @access public
+     * @param  bool     $domain 是否包含域名
+     * @return string|$this
+     */
+    public function root($domain = false)
+    {
+        if (!$this->root) {
             $file = $this->baseFile();
             if ($file && 0 !== strpos($this->url(), $file)) {
                 $file = str_replace('\\', '/', dirname($file));
@@ -619,7 +614,7 @@ class Request
             $this->root = rtrim($file, '/');
         }
 
-        return true === $url ? $this->domain() . $this->root : $this->root;
+        return $domain ? $this->domain() . $this->root : $this->root;
     }
 
     /**
@@ -922,7 +917,18 @@ class Request
     }
 
     /**
-     * 设置获取路由参数
+     * 设置路由变量
+     * @access public
+     * @param  array         $route 路由变量
+     * @return void
+     */
+    public function setRouteVars(array $name)
+    {
+        $this->route = array_merge($this->route, $route);
+    }
+
+    /**
+     * 获取路由参数
      * @access public
      * @param  mixed         $name 变量名
      * @param  mixed         $default 默认值
@@ -931,17 +937,13 @@ class Request
      */
     public function route($name = '', $default = null, $filter = '')
     {
-        if (is_array($name)) {
-            return $this->route = array_merge($this->route, $name);
-        }
-
         return $this->input($this->route, $name, $default, $filter);
     }
 
     /**
-     * 设置获取GET参数
+     * 获取GET参数
      * @access public
-     * @param  mixed         $name 变量名
+     * @param  string|false  $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
@@ -952,18 +954,13 @@ class Request
             $this->get = $_GET;
         }
 
-        if (is_array($name)) {
-            $this->mergeParam = false;
-            return $this->get = array_merge($this->get, $name);
-        }
-
         return $this->input($this->get, $name, $default, $filter);
     }
 
     /**
-     * 设置获取POST参数
+     * 获取POST参数
      * @access public
-     * @param  mixed         $name 变量名
+     * @param  string|false  $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
@@ -979,18 +976,13 @@ class Request
             }
         }
 
-        if (is_array($name)) {
-            $this->mergeParam  = false;
-            return $this->post = array_merge($this->post, $name);
-        }
-
         return $this->input($this->post, $name, $default, $filter);
     }
 
     /**
-     * 设置获取PUT参数
+     * 获取PUT参数
      * @access public
-     * @param  mixed             $name 变量名
+     * @param  string|false      $name 变量名
      * @param  mixed             $default 默认值
      * @param  string|array      $filter 过滤方法
      * @return mixed
@@ -1006,18 +998,13 @@ class Request
             }
         }
 
-        if (is_array($name)) {
-            $this->mergeParam = false;
-            return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
-        }
-
         return $this->input($this->put, $name, $default, $filter);
     }
 
     /**
-     * 设置获取DELETE参数
+     * 获取DELETE参数
      * @access public
-     * @param  mixed             $name 变量名
+     * @param  string|false      $name 变量名
      * @param  mixed             $default 默认值
      * @param  string|array      $filter 过滤方法
      * @return mixed
@@ -1028,9 +1015,9 @@ class Request
     }
 
     /**
-     * 设置获取PATCH参数
+     * 获取PATCH参数
      * @access public
-     * @param  mixed             $name 变量名
+     * @param  string|false      $name 变量名
      * @param  mixed             $default 默认值
      * @param  string|array      $filter 过滤方法
      * @return mixed
@@ -1043,8 +1030,8 @@ class Request
     /**
      * 获取request变量
      * @access public
-     * @param  mixed         $name 数据名称
-     * @param  string        $default 默认值
+     * @param  string|false  $name 变量名
+     * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
@@ -1054,17 +1041,13 @@ class Request
             $this->request = $_REQUEST;
         }
 
-        if (is_array($name)) {
-            return $this->request = array_merge($this->request, $name);
-        }
-
         return $this->input($this->request, $name, $default, $filter);
     }
 
     /**
      * 获取session数据
      * @access public
-     * @param  mixed         $name 数据名称
+     * @param  string        $name 数据名称
      * @param  string        $default 默认值
      * @return mixed
      */
@@ -1072,10 +1055,6 @@ class Request
     {
         if (empty($this->session)) {
             $this->session = facade\Session::get();
-        }
-
-        if (is_array($name)) {
-            return $this->session = array_merge($this->session, $name);
         }
 
         if ('' === $name) {
@@ -1088,16 +1067,14 @@ class Request
     /**
      * 获取cookie参数
      * @access public
-     * @param  mixed         $name 数据名称
+     * @param  string        $name 变量名
      * @param  string        $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
     public function cookie($name = '', $default = null, $filter = '')
     {
-        if (is_array($name)) {
-            return $this->cookie = array_merge($this->cookie, $name);
-        } elseif (!empty($name)) {
+        if (!empty($name)) {
             $data = isset($this->cookie[$name]) ? $this->cookie[$name] : $default;
         } else {
             $data = $this->cookie;
@@ -1119,16 +1096,12 @@ class Request
     /**
      * 获取server参数
      * @access public
-     * @param  mixed         $name 数据名称
+     * @param  string        $name 数据名称
      * @param  string        $default 默认值
      * @return mixed
      */
     public function server($name = '', $default = null)
     {
-        if (is_array($name)) {
-            return $this->server = array_merge($this->server, $name);
-        }
-
         if (empty($name)) {
             return $this->server;
         } else {
@@ -1141,17 +1114,13 @@ class Request
     /**
      * 获取上传的文件信息
      * @access public
-     * @param  string|array $name 名称
+     * @param  string   $name 名称
      * @return null|array|\think\File
      */
     public function file($name = '')
     {
         if (empty($this->file)) {
             $this->file = isset($_FILES) ? $_FILES : [];
-        }
-
-        if (is_array($name)) {
-            return $this->file = array_merge($this->file, $name);
         }
 
         $files = $this->file;
@@ -1219,16 +1188,12 @@ class Request
     /**
      * 获取环境变量
      * @access public
-     * @param  mixed         $name 数据名称
+     * @param  string        $name 数据名称
      * @param  string        $default 默认值
      * @return mixed
      */
     public function env($name = '', $default = null)
     {
-        if (is_array($name)) {
-            return $this->env = array_merge($this->env, $name);
-        }
-
         if (empty($name)) {
             return $this->env;
         } else {
@@ -1239,11 +1204,11 @@ class Request
     }
 
     /**
-     * 设置或者获取当前的Header
+     * 获取当前的Header
      * @access public
-     * @param  string|array  $name header名称
-     * @param  string        $default 默认值
-     * @return string
+     * @param  string   $name header名称
+     * @param  string   $default 默认值
+     * @return string|array
      */
     public function header($name = '', $default = null)
     {
@@ -1267,10 +1232,6 @@ class Request
                 }
             }
             $this->header = array_change_key_case($header);
-        }
-
-        if (is_array($name)) {
-            return $this->header = array_merge($this->header, $name);
         }
 
         if ('' === $name) {

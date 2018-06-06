@@ -872,7 +872,7 @@ class Route
 
             if (isset($panDomain)) {
                 // 保存当前泛域名
-                $this->request->panDomain($panDomain);
+                $this->request->setPanDomain($panDomain);
             }
         }
 
