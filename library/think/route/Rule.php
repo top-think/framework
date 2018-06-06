@@ -809,9 +809,9 @@ abstract class Rule
 
         $result = new ControllerDispatch($request, $this, implode('/', $route), $var);
 
-        $request->action(array_pop($route));
-        $request->controller($route ? array_pop($route) : $this->getConfig('default_controller'));
-        $request->module($route ? array_pop($route) : $this->getConfig('default_module'));
+        $request->setAction(array_pop($route));
+        $request->setController($route ? array_pop($route) : $this->getConfig('default_controller'));
+        $request->setModule($route ? array_pop($route) : $this->getConfig('default_module'));
 
         return $result;
     }

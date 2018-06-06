@@ -18,11 +18,11 @@ use think\Facade;
  * @mixin \think\Request
  * @method void hook(mixed $method, mixed $callback = null) static Hook 方法注入
  * @method \think\Request create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], string $content = null) static 创建一个URL请求
- * @method mixed domain(string $domain = null) static 设置或获取当前包含协议的域名
- * @method mixed url(mixed $url = null) static 设置或获取当前完整URL
- * @method mixed baseUrl(string $url = null) static 设置或获取当前URL
- * @method mixed baseFile(string $file = null) static 设置或获取当前执行的文件
- * @method mixed root(string $url = null) static 设置或获取URL访问根地址
+ * @method mixed domain(bool $port = false) static 获取当前包含协议、端口的域名
+ * @method mixed url(bool $domain = false) static 获取当前完整URL
+ * @method mixed baseUrl(bool $domain = false) static 获取当前URL
+ * @method mixed baseFile(bool $domain = false) static 获取当前执行的文件
+ * @method mixed root(bool $domain = false) static 获取URL访问根地址
  * @method string rootUrl() static 获取URL访问根目录
  * @method string pathinfo() static 获取当前请求URL的pathinfo信息（含URL后缀）
  * @method string path() static 获取当前请求URL的pathinfo信息(不含URL后缀)
@@ -40,20 +40,20 @@ use think\Facade;
  * @method bool isOptions() static 是否为OPTIONS请求
  * @method bool isCli() static 是否为cli
  * @method bool isCgi() static 是否为cgi
- * @method mixed param(mixed $name = '', mixed $default = null, mixed $filter = '') static 获取当前请求的参数
- * @method mixed route(mixed $name = '', mixed $default = null, mixed $filter = '') static 设置获取路由参数
- * @method mixed get(mixed $name = '', mixed $default = null, mixed $filter = '') static 设置获取GET参数
- * @method mixed post(mixed $name = '', mixed $default = null, mixed $filter = '') static 设置获取POST参数
- * @method mixed put(mixed $name = '', mixed $default = null, mixed $filter = '') static 设置获取PUT参数
- * @method mixed delete(mixed $name = '', mixed $default = null, mixed $filter = '') static 设置获取DELETE参数
- * @method mixed patch(mixed $name = '', mixed $default = null, mixed $filter = '') static 设置获取PATCH参数
- * @method mixed request(mixed $name = '', mixed $default = null, mixed $filter = '') static 获取request变量
- * @method mixed session(mixed $name = '', mixed $default = null, mixed $filter = '') static 获取session数据
- * @method mixed cookie(mixed $name = '', mixed $default = null, mixed $filter = '') static 获取cookie参数
- * @method mixed server(mixed $name = '', mixed $default = null, mixed $filter = '') static 获取server参数
- * @method mixed env(mixed $name = '', mixed $default = null, mixed $filter = '') static 获取环境变量
- * @method mixed file(mixed $name = '') static 获取上传的文件信息
- * @method mixed header(mixed $name = '', mixed $default = null) static 设置或者获取当前的Header
+ * @method mixed param(string $name = '', mixed $default = null, mixed $filter = '') static 获取当前请求的参数
+ * @method mixed route(string $name = '', mixed $default = null, mixed $filter = '') static 设置获取路由参数
+ * @method mixed get(string $name = '', mixed $default = null, mixed $filter = '') static 设置获取GET参数
+ * @method mixed post(string $name = '', mixed $default = null, mixed $filter = '') static 设置获取POST参数
+ * @method mixed put(string $name = '', mixed $default = null, mixed $filter = '') static 设置获取PUT参数
+ * @method mixed delete(string $name = '', mixed $default = null, mixed $filter = '') static 设置获取DELETE参数
+ * @method mixed patch(string $name = '', mixed $default = null, mixed $filter = '') static 设置获取PATCH参数
+ * @method mixed request(string $name = '', mixed $default = null, mixed $filter = '') static 获取request变量
+ * @method mixed session(string $name = '', mixed $default = null, mixed $filter = '') static 获取session数据
+ * @method mixed cookie(string $name = '', mixed $default = null, mixed $filter = '') static 获取cookie参数
+ * @method mixed server(string $name = '', mixed $default = null, mixed $filter = '') static 获取server参数
+ * @method mixed env(string $name = '', mixed $default = null, mixed $filter = '') static 获取环境变量
+ * @method mixed file(string $name = '') static 获取上传的文件信息
+ * @method mixed header(string $name = '', mixed $default = null) static 设置或者获取当前的Header
  * @method mixed input(array $data,mixed $name = '', mixed $default = null, mixed $filter = '') static 获取变量 支持过滤和默认值
  * @method mixed filter(mixed $filter = null) static 设置或获取当前的过滤规则
  * @method mixed has(string $name, string $type = 'param', bool $checkEmpty = false) static 是否存在某个请求参数
@@ -71,12 +71,12 @@ use think\Facade;
  * @method string protocol() static 当前请求 SERVER_PROTOCOL
  * @method string remotePort() static 当前请求 REMOTE_PORT
  * @method string contentType() static 当前请求 HTTP_CONTENT_TYPE
- * @method array routeInfo(array $route = []) static 获取当前请求的路由信息
- * @method array dispatch(array $dispatch = null) static 设置或者获取当前请求的调度信息
- * @method mixed module(string $module = null) static 设置或者获取当前的模块名
- * @method mixed controller(string $controller = null) static 设置或者获取当前的控制器名
- * @method mixed action(string $action = null) static 设置或者获取当前的操作名
- * @method mixed langset(string $lang = null) static 设置或者获取当前的语言
+ * @method array routeInfo() static 获取当前请求的路由信息
+ * @method array dispatch() static 获取当前请求的调度信息
+ * @method string module() static 获取当前的模块名
+ * @method string controller(bool $convert = false) static 获取当前的控制器名
+ * @method string action(bool $convert = false) static 获取当前的操作名
+ * @method string langset() static 获取当前的语言
  * @method string getContent() static 设置或者获取当前请求的content
  * @method string getInput() static 获取当前请求的php://input
  * @method string token(string $name = '__token__', mixed $type = 'md5') static 生成请求令牌

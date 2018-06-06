@@ -55,7 +55,7 @@ class Module extends Dispatch
             // 模块初始化
             if ($module && $available) {
                 // 初始化模块
-                $this->request->module($module);
+                $this->request->setModule($module);
                 $this->app->init($module);
             } else {
                 throw new HttpException(404, 'module not exists:' . $module);
@@ -72,7 +72,9 @@ class Module extends Dispatch
         $this->actionName = strip_tags($result[2] ?: $this->rule->getConfig('default_action'));
 
         // 设置当前请求的控制器、操作
-        $this->request->controller(Loader::parseName($this->controller, 1))->action($this->actionName);
+        $this->request
+            ->setController(Loader::parseName($this->controller, 1))
+            ->setAction($this->actionName);
 
         return $this;
     }
@@ -104,7 +106,7 @@ class Module extends Dispatch
             $methodName = $reflect->getName();
             $suffix     = $this->rule->getConfig('action_suffix');
             $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
-            $this->request->action($actionName);
+            $this->request->setAction($actionName);
 
             // 自动获取请求变量
             $vars = $this->rule->getConfig('url_param_type')

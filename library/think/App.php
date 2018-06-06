@@ -483,7 +483,7 @@ class App extends Container
             $this->lang->detect();
         }
 
-        $this->request->langset($this->lang->range());
+        $this->request->setLangset($this->lang->range());
 
         // 加载系统语言包
         $this->lang->load([

@@ -310,9 +310,9 @@ class Request
     {
         $request = new static($config->pull('app'));
 
-        $request->cookie($app['cookie']->get());
-        $request->server($_SERVER);
-        $request->env($app['env']->get());
+        $request->cookie = $app['cookie']->get();
+        $request->server = $_SERVER;
+        $request->env    = $app['env']->get();
 
         return $request;
     }
@@ -922,7 +922,7 @@ class Request
      * @param  array         $route 路由变量
      * @return void
      */
-    public function setRouteVars(array $name)
+    public function setRouteVars(array $route)
     {
         $this->route = array_merge($this->route, $route);
     }
@@ -1753,67 +1753,94 @@ class Request
     }
 
     /**
-     * 设置或者获取当前的模块名
+     * 设置当前的模块名
      * @access public
      * @param  string $module 模块名
-     * @return string|Request
+     * @return $this
      */
-    public function module($module = null)
+    public function setModule($module)
     {
-        if (!is_null($module)) {
-            $this->module = $module;
-            return $this;
-        }
+        $this->module = $module;
+        return $this;
+    }
 
+    /**
+     * 设置当前的控制器名
+     * @access public
+     * @param  string $controller 控制器名
+     * @return $this
+     */
+    public function setController($controller)
+    {
+        $this->controller = $controller;
+        return $this;
+    }
+
+    /**
+     * 设置当前的操作名
+     * @access public
+     * @param  string $action 操作名
+     * @return $this
+     */
+    public function setAction($action)
+    {
+        $this->action = $action;
+        return $this;
+    }
+
+    /**
+     * 获取当前的模块名
+     * @access public
+     * @return string
+     */
+    public function module()
+    {
         return $this->module ?: '';
     }
 
     /**
-     * 设置或者获取当前的控制器名
+     * 获取当前的控制器名
      * @access public
-     * @param  string $controller 控制器名
-     * @return string|Request
+     * @param  bool $convert 转换为小写
+     * @return string
      */
-    public function controller($controller = null)
+    public function controller($convert = false)
     {
-        if (!is_null($controller)) {
-            $this->controller = $controller;
-            return $this;
-        }
-
-        return $this->controller ?: '';
+        $name = $this->controller ?: '';
+        return $convert ? strtolower($name) : $name;
     }
 
     /**
-     * 设置或者获取当前的操作名
+     * 获取当前的操作名
      * @access public
-     * @param  string $action 操作名
-     * @return string|Request
+     * @param  bool $convert 转换为驼峰
+     * @return string
      */
-    public function action($action = null)
+    public function action($convert = false)
     {
-        if (!is_null($action) && !is_bool($action)) {
-            $this->action = $action;
-            return $this;
-        }
-
         $name = $this->action ?: '';
-        return true === $action ? $name : strtolower($name);
+        return $convert ? $name : strtolower($name);
     }
 
     /**
-     * 设置或者获取当前的语言
+     * 设置当前的语言
      * @access public
      * @param  string $lang 语言名
-     * @return string|Request
+     * @return $this
      */
-    public function langset($lang = null)
+    public function setLangset($lang)
     {
-        if (!is_null($lang)) {
-            $this->langset = $lang;
-            return $this;
-        }
+        $this->langset = $lang;
+        return $this;
+    }
 
+    /**
+     * 获取当前的语言
+     * @access public
+     * @return string
+     */
+    public function langset()
+    {
         return $this->langset ?: '';
     }
 
