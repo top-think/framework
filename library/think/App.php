@@ -346,6 +346,7 @@ class App extends Container
         }
 
         Db::init($config['database']);
+        $this->middleware->setConfig($config['middleware']);
         $this->route->setConfig($config['app']);
         $this->request->init($config['app']);
         $this->cookie->init($config['cookie']);
