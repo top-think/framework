@@ -84,7 +84,7 @@ return [
         // HTTPS代理标识
         'https_agent_name'       => '',
         // IP代理获取标识
-        'http_agent_ip'          => 'X-REAL-IP',
+        'http_agent_ip'          => 'HTTP_X_REAL_IP',
         // URL伪静态后缀
         'url_html_suffix'        => 'html',
         // 域名根，如thinkphp.cn
