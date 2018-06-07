@@ -593,7 +593,6 @@ class Request
      */
     public function setRoot($url = null)
     {
-
         $this->root = $url;
         return $this;
     }
@@ -902,7 +901,8 @@ class Request
             }
 
             // 当前请求参数和URL地址中的参数合并
-            $this->param      = array_merge($this->param, $this->get(false), $vars, $this->route(false));
+            $this->param = array_merge($this->param, $this->get(false), $vars, $this->route(false));
+
             $this->mergeParam = true;
         }
 
@@ -969,12 +969,7 @@ class Request
     public function post($name = '', $default = null, $filter = '')
     {
         if (empty($this->post)) {
-            $content = $this->input;
-            if (empty($_POST) && false !== strpos($this->contentType(), 'application/json')) {
-                $this->post = (array) json_decode($content, true);
-            } else {
-                $this->post = $_POST;
-            }
+            $this->post = !empty($_POST) ? $_POST : $this->getJsonInputData($this->input);
         }
 
         return $this->input($this->post, $name, $default, $filter);
@@ -991,15 +986,25 @@ class Request
     public function put($name = '', $default = null, $filter = '')
     {
         if (is_null($this->put)) {
-            $content = $this->input;
-            if (false !== strpos($this->contentType(), 'application/json')) {
-                $this->put = (array) json_decode($content, true);
+            $data = $this->getJsonInputData($this->input);
+
+            if (!empty($data)) {
+                $this->put = $data;
             } else {
-                parse_str($content, $this->put);
+                parse_str($this->input, $this->put);
             }
         }
 
         return $this->input($this->put, $name, $default, $filter);
+    }
+
+    protected function getJsonInputData($content)
+    {
+        if (false !== strpos($this->contentType(), 'application/json')) {
+            return (array) json_decode($content, true);
+        }
+
+        return [];
     }
 
     /**
