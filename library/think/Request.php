@@ -108,9 +108,9 @@ class Request
 
     /**
      * 当前调度信息
-     * @var array
+     * @var \think\route\Dispatch
      */
-    protected $dispatch = [];
+    protected $dispatch;
 
     /**
      * 当前模块名
@@ -920,17 +920,18 @@ class Request
      * 设置路由变量
      * @access public
      * @param  array         $route 路由变量
-     * @return void
+     * @return $this
      */
     public function setRouteVars(array $route)
     {
         $this->route = array_merge($this->route, $route);
+        return $this;
     }
 
     /**
      * 获取路由参数
      * @access public
-     * @param  mixed         $name 变量名
+     * @param  string|false  $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
@@ -1418,6 +1419,10 @@ class Request
      */
     public function has($name, $type = 'param', $checkEmpty = false)
     {
+        if (!in_array($type, ['param', 'get', 'post', 'request', 'put', 'file', 'session', 'cookie', 'env', 'header', 'route'])) {
+            return false;
+        }
+
         if (empty($this->$type)) {
             $param = $this->$type();
         } else {
@@ -1670,7 +1675,7 @@ class Request
     /**
      * 当前请求 SERVER_PROTOCOL
      * @access public
-     * @return integer
+     * @return string
      */
     public function protocol()
     {
@@ -1714,7 +1719,7 @@ class Request
      * @param  array $route 路由名称
      * @return array
      */
-    public function routeInfo($route = [])
+    public function routeInfo(array $route = [])
     {
         if (!empty($route)) {
             $this->routeInfo = $route;
@@ -1726,8 +1731,8 @@ class Request
     /**
      * 设置或者获取当前请求的调度信息
      * @access public
-     * @param  array  $dispatch 调度信息
-     * @return array
+     * @param  \think\route\Dispatch  $dispatch 调度信息
+     * @return \think\route\Dispatch
      */
     public function dispatch($dispatch = null)
     {
@@ -1875,7 +1880,7 @@ class Request
      * @param  mixed  $type 令牌生成方法
      * @return string
      */
-    public function token($name = '__token__', $type = 'md5')
+    public function token($name = '__token__', $type = null)
     {
         $type  = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $this->server('REQUEST_TIME_FLOAT'));
