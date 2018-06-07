@@ -112,7 +112,10 @@ class Url
         }
 
         if ($url) {
-            $rule = $this->app['route']->getName(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
+            $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
+            $checkDomain = $domain && is_string($domain) ? $domain : null;
+
+            $rule = $this->app['route']->getName($checkName, $checkDomain);
 
             if (is_null($rule) && isset($info['query'])) {
                 $rule = $this->app['route']->getName($url);

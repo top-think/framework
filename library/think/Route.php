@@ -382,11 +382,12 @@ class Route
      * 读取路由标识
      * @access public
      * @param  string    $name 路由标识
+     * @param  string    $domain 域名
      * @return mixed
      */
-    public function getName($name = null)
+    public function getName($name = null, $domain = null)
     {
-        return $this->app['rule_name']->get($name);
+        return $this->app['rule_name']->get($name, $domain);
     }
 
     /**
