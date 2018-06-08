@@ -659,7 +659,7 @@ class App extends Container
      * @param  bool   $appendSuffix 是否添加类名后缀
      * @return array
      */
-    protected function parseModuleAndClass(string $name, string $layer, bool $appendSuffix)
+    protected function parseModuleAndClass(string $name, string $layer, bool $appendSuffix): array
     {
         if (false !== strpos($name, '\\')) {
             $class  = $name;
@@ -687,7 +687,7 @@ class App extends Container
      * @return object
      * @throws ClassNotFoundException
      */
-    public function create(string $name, string $layer, bool $appendSuffix = false, string $common = 'common')
+    public function create(string $name, string $layer, bool $appendSuffix = false, string $common = 'common'): object
     {
         $guid = $name . $layer;
 
@@ -723,7 +723,7 @@ class App extends Container
      * @return Model
      * @throws ClassNotFoundException
      */
-    public function model(string $name = '', string $layer = 'model', bool $appendSuffix = false, string $common = 'common')
+    public function model(string $name = '', string $layer = 'model', bool $appendSuffix = false, string $common = 'common'): Model
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }
@@ -738,7 +738,7 @@ class App extends Container
      * @return object
      * @throws ClassNotFoundException
      */
-    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '')
+    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = ''): Controller
     {
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
@@ -761,7 +761,7 @@ class App extends Container
      * @return Validate
      * @throws ClassNotFoundException
      */
-    public function validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common')
+    public function validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common'): Validate
     {
         $name = $name ?: $this->config['default_validate'];
 
@@ -821,7 +821,7 @@ class App extends Container
      * @param  bool   $appendSuffix
      * @return string
      */
-    public function parseClass(string $module, string $layer, string $name, bool $appendSuffix = false)
+    public function parseClass(string $module, string $layer, string $name, bool $appendSuffix = false): string
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
@@ -836,7 +836,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function version()
+    public function version(): string
     {
         return static::VERSION;
     }
@@ -846,7 +846,7 @@ class App extends Container
      * @access public
      * @return bool
      */
-    public function isDebug()
+    public function isDebug(): bool
     {
         return $this->appDebug;
     }
@@ -856,7 +856,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getModulePath()
+    public function getModulePath(): string
     {
         return $this->modulePath;
     }
@@ -867,7 +867,7 @@ class App extends Container
      * @param  string $path 路径
      * @return void
      */
-    public function setModulePath(string $path)
+    public function setModulePath(string $path): void
     {
         $this->modulePath = $path;
         $this->env->set('module_path', $path);
@@ -878,7 +878,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getRootPath()
+    public function getRootPath(): string
     {
         return $this->rootPath;
     }
@@ -888,7 +888,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getAppPath()
+    public function getAppPath(): string
     {
         if (is_null($this->appPath)) {
             $this->appPath = Loader::getRootPath() . 'application' . DIRECTORY_SEPARATOR;
@@ -902,7 +902,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getRuntimePath()
+    public function getRuntimePath(): string
     {
         return $this->runtimePath;
     }
@@ -912,7 +912,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getThinkPath()
+    public function getThinkPath(): string
     {
         return $this->thinkPath;
     }
@@ -922,7 +922,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getRoutePath()
+    public function getRoutePath(): string
     {
         return $this->routePath;
     }
@@ -932,7 +932,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getConfigPath()
+    public function getConfigPath(): string
     {
         return $this->configPath;
     }
@@ -942,7 +942,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getConfigExt()
+    public function getConfigExt(): string
     {
         return $this->configExt;
     }
@@ -952,7 +952,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getNamespace()
+    public function getNamespace(): string
     {
         return $this->namespace;
     }
@@ -974,7 +974,7 @@ class App extends Container
      * @access public
      * @return bool
      */
-    public function getSuffix()
+    public function getSuffix(): bool
     {
         return $this->suffix;
     }
@@ -984,7 +984,7 @@ class App extends Container
      * @access public
      * @return float
      */
-    public function getBeginTime()
+    public function getBeginTime(): float
     {
         return $this->beginTime;
     }
@@ -994,7 +994,7 @@ class App extends Container
      * @access public
      * @return integer
      */
-    public function getBeginMem()
+    public function getBeginMem(): int
     {
         return $this->beginMem;
     }

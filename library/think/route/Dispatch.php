@@ -161,7 +161,7 @@ abstract class Dispatch
         }
 
         if (!empty($option['append'])) {
-            $this->request->route($option['append']);
+            $this->request->setRouteVars($option['append']);
         }
     }
 
