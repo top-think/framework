@@ -1398,7 +1398,7 @@ class Request
     {
         switch (strtolower($type)) {
             // 数组
-            case 'a' :
+            case 'a':
                 $data = (array) $data;
                 break;
             // 数字
