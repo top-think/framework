@@ -177,13 +177,13 @@ class MorphOne extends Relation
     /**
      * 多态一对一 关联模型预查询
      * @access protected
-     * @param  array         $where       关联预查询条件
-     * @param  string        $relation    关联名
-     * @param  string        $subRelation 子关联
-     * @param  bool|\Closure $closure     闭包
+     * @param  array        $where       关联预查询条件
+     * @param  string       $relation    关联名
+     * @param  string       $subRelation 子关联
+     * @param  \Closure     $closure     闭包
      * @return array
      */
-    protected function eagerlyMorphToOne($where, $relation, $subRelation = '', $closure = false)
+    protected function eagerlyMorphToOne($where, $relation, $subRelation = '', $closure = null)
     {
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {

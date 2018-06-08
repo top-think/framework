@@ -128,6 +128,19 @@ abstract class Relation
     }
 
     /**
+     * 删除记录
+     * @access public
+     * @param  mixed $data 表达式 true 表示强制删除
+     * @return int
+     * @throws Exception
+     * @throws PDOException
+     */
+    public function delete($data = null)
+    {
+        return $this->query->delete($data);
+    }
+
+    /**
      * 执行基础查询（仅执行一次）
      * @access protected
      * @return void

@@ -168,12 +168,12 @@ trait Conversion
                 if (is_array($name)) {
                     // 追加关联对象属性
                     $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->append($name)->toArray();
+                    $item[$key] = $relation->visible($name)->append($name)->toArray();
                 } elseif (strpos($name, '.')) {
                     list($key, $attr) = explode('.', $name);
                     // 追加关联对象属性
                     $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->append([$attr])->toArray();
+                    $item[$key] = $relation->visible([$attr])->append([$attr])->toArray();
                 } else {
                     $value = $this->getAttr($name, $item);
                     if (false !== $value) {

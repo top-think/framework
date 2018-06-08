@@ -112,10 +112,13 @@ class Url
         }
 
         if ($url) {
-            $rule = $this->app['route']->getName(isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : ''));
+            $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
+            $checkDomain = $domain && is_string($domain) ? $domain : null;
+
+            $rule = $this->app['route']->getName($checkName, $checkDomain);
 
             if (is_null($rule) && isset($info['query'])) {
-                $rule = $this->app['route']->getName($url);
+                $rule = $this->app['route']->getName($url, $checkDomain);
                 // 解析地址里面参数 合并到vars
                 parse_str($info['query'], $params);
                 $vars = array_merge($params, $vars);
@@ -385,6 +388,6 @@ class Url
     public function root($root)
     {
         $this->root = $root;
-        $this->app['request']->root($root);
+        $this->app['request']->setRoot($root);
     }
 }

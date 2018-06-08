@@ -13,6 +13,7 @@ namespace think;
 
 use think\exception\RouteNotFoundException;
 use think\route\AliasRule;
+use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
 use think\route\Resource;
@@ -28,11 +29,11 @@ class Route
     protected $rest = [
         'index'  => ['get', '', 'index'],
         'create' => ['get', '/create', 'create'],
-        'edit'   => ['get', '/:id/edit', 'edit'],
-        'read'   => ['get', '/:id', 'read'],
+        'edit'   => ['get', '/<id>/edit', 'edit'],
+        'read'   => ['get', '/<id>', 'read'],
         'save'   => ['post', '', 'save'],
-        'update' => ['put', '/:id', 'update'],
-        'delete' => ['delete', '/:id', 'delete'],
+        'update' => ['put', '/<id>', 'update'],
+        'delete' => ['delete', '/<id>', 'delete'],
     ];
 
     /**
@@ -140,13 +141,9 @@ class Route
         $this->setDefaultDomain();
     }
 
-    public function config($name = null)
+    public function config(string $name = null)
     {
-        if (is_null($name)) {
-            return $this->config;
-        }
-
-        return isset($this->config[$name]) ? $this->config[$name] : null;
+        return $this->config[$name] ?? null;
     }
 
     public static function __make(App $app, Config $config)
@@ -204,7 +201,7 @@ class Route
      * @access protected
      * @return void
      */
-    protected function setDefaultDomain()
+    protected function setDefaultDomain(): void
     {
         // 默认域名
         $this->domain = $this->host;
@@ -224,7 +221,7 @@ class Route
      * @param  RuleGroup    $group 域名
      * @return void
      */
-    public function setGroup(RuleGroup $group)
+    public function setGroup(RuleGroup $group): void
     {
         $this->group = $group;
     }
@@ -234,7 +231,7 @@ class Route
      * @access public
      * @return RuleGroup
      */
-    public function getGroup()
+    public function getGroup(): RuleGroup
     {
         return $this->group;
     }
@@ -376,11 +373,12 @@ class Route
      * 读取路由标识
      * @access public
      * @param  string    $name 路由标识
+     * @param  string    $domain 域名
      * @return mixed
      */
-    public function getName(string $name)
+    public function getName(string $name = null, string $domain = null)
     {
-        return Container::get('rule_name')->get($name);
+        return $this->app['rule_name']->get($name, $domain);
     }
 
     /**
@@ -391,7 +389,7 @@ class Route
      */
     public function setName(array $name)
     {
-        Container::get('rule_name')->import($name);
+        $this->app['rule_name']->import($name);
         return $this;
     }
 
@@ -403,7 +401,7 @@ class Route
      * @param  string    $method     请求类型
      * @return RuleItem
      */
-    public function rule(string $rule, $route, string $method = '*')
+    public function rule(string $rule, $route, string $method = '*'): RuleItem
     {
         return $this->group->addRule($rule, $route, $method);
     }
@@ -434,7 +432,7 @@ class Route
      * @param  array             $option     路由参数
      * @return RuleGroup
      */
-    public function group($name, $route, array $option = [])
+    public function group($name, $route, array $option = []): RuleGroup
     {
         if (is_array($name)) {
             $option = $name;
@@ -453,7 +451,7 @@ class Route
      * @param  mixed     $route 路由地址
      * @return RuleItem
      */
-    public function any(string $rule, $route)
+    public function any(string $rule, $route): RuleItem
     {
         return $this->rule($rule, $route, '*');
     }
@@ -465,7 +463,7 @@ class Route
      * @param  mixed     $route 路由地址
      * @return RuleItem
      */
-    public function get(string $rule, $route)
+    public function get(string $rule, $route): RuleItem
     {
         return $this->rule($rule, $route, 'GET');
     }
@@ -477,7 +475,7 @@ class Route
      * @param  mixed     $route 路由地址
      * @return RuleItem
      */
-    public function post(string $rule, $route)
+    public function post(string $rule, $route): RuleItem
     {
         return $this->rule($rule, $route, 'POST');
     }
@@ -489,7 +487,7 @@ class Route
      * @param  mixed     $route 路由地址
      * @return RuleItem
      */
-    public function put(string $rule, $route)
+    public function put(string $rule, $route): RuleItem
     {
         return $this->rule($rule, $route, 'PUT');
     }
@@ -501,7 +499,7 @@ class Route
      * @param  mixed     $route 路由地址
      * @return RuleItem
      */
-    public function delete(string $rule, $route)
+    public function delete(string $rule, $route): RuleItem
     {
         return $this->rule($rule, $route, 'DELETE');
     }
@@ -513,7 +511,7 @@ class Route
      * @param  mixed     $route 路由地址
      * @return RuleItem
      */
-    public function patch(string $rule, $route)
+    public function patch(string $rule, $route): RuleItem
     {
         return $this->rule($rule, $route, 'PATCH');
     }
@@ -526,7 +524,7 @@ class Route
      * @param  array     $option 路由参数
      * @return Resource
      */
-    public function resource(string $rule, string $route, array $option = [])
+    public function resource(string $rule, string $route, array $option = []): Resource
     {
         return (new Resource($this, $this->group, $rule, $route, $option, $this->rest))
             ->lazy($this->lazy);
@@ -539,7 +537,7 @@ class Route
      * @param  string    $route 路由地址
      * @return RuleGroup
      */
-    public function controller(string $rule, string $route)
+    public function controller(string $rule, string $route): RuleGroup
     {
         $group = new RuleGroup($this, $this->group, $rule);
 
@@ -558,7 +556,7 @@ class Route
      * @param  array        $vars 模板变量
      * @return RuleItem
      */
-    public function view(string $rule, string $template = '', array $vars = [])
+    public function view(string $rule, string $template = '', array $vars = []): RuleItem
     {
         return $this->rule($rule, $template, 'GET')->view($vars);
     }
@@ -571,7 +569,7 @@ class Route
      * @param  array        $status 状态码
      * @return RuleItem
      */
-    public function redirect(string $rule, string $route = '', int $status = 301)
+    public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
     {
         return $this->rule($rule, $route, '*')->redirect()->status($status);
     }
@@ -584,7 +582,7 @@ class Route
      * @param  array   $option 路由参数
      * @return AliasRule
      */
-    public function alias(string $rule, string $route, array $option = [])
+    public function alias(string $rule, string $route, array $option = []): AliasRule
     {
         $aliasRule = new AliasRule($this, $this->group, $rule, $route, $option);
 
@@ -663,7 +661,7 @@ class Route
      * @param  string        $name 方法名称
      * @return array|null
      */
-    public function getRest($name = null)
+    public function getRest(string $name = null)
     {
         if (is_null($name)) {
             return $this->rest;
@@ -680,7 +678,7 @@ class Route
      * @param  array     $option 路由参数
      * @return RuleItem
      */
-    public function miss(string $route, string $method = '*', array $option = [])
+    public function miss(string $route, string $method = '*', array $option = []): RuleItem
     {
         return $this->group->addMissRule($route, $method, $option);
     }
@@ -689,11 +687,11 @@ class Route
      * 注册一个自动解析的URL路由
      * @access public
      * @param  string    $route 路由地址
-     * @return RuleItem
+     * @return void
      */
-    public function auto(string $route)
+    public function auto(string $route): void
     {
-        return $this->group->addAutoRule($route);
+        $this->group->addAutoRule($route);
     }
 
     /**
@@ -704,7 +702,7 @@ class Route
      * @return Dispatch
      * @throws RouteNotFoundException
      */
-    public function check(string $url, bool $must = false)
+    public function check(string $url, bool $must = false): Dispatch
     {
         // 自动检测域名路由
         $domain = $this->checkDomain();
@@ -736,7 +734,7 @@ class Route
      * @access protected
      * @return Domain
      */
-    protected function checkDomain()
+    protected function checkDomain(): Domain
     {
         // 获取当前子域名
         $subDomain = $this->request->subDomain();
@@ -769,7 +767,7 @@ class Route
 
             if (isset($panDomain)) {
                 // 保存当前泛域名
-                $this->request->panDomain($panDomain);
+                $this->request->setPanDomain($panDomain);
             }
         }
 

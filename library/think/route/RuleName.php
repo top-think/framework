@@ -47,17 +47,31 @@ class RuleName
      * 根据路由标识获取路由信息（用于URL生成）
      * @access public
      * @param  string   $name      路由标识
-     * @return array|null
+     * @param  string   $domain   域名
+     * @return array
      */
-    public function get(string $name = null)
+    public function get(string $name = null, string $domain = null)
     {
         if (is_null($name)) {
             return $this->item;
         }
 
-        $name = strtolower($name);
+        $name   = strtolower($name);
+        $result = [];
 
-        return isset($this->item[$name]) ? $this->item[$name] : null;
+        if (isset($this->item[$name])) {
+            if (is_null($domain)) {
+                $result = $this->item[$name];
+            } else {
+                foreach ($this->item[$name] as $item) {
+                    if ($item[2] == $domain) {
+                        $result[] = $item;
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 
 }

@@ -46,7 +46,7 @@ abstract class Make extends Command
         }
 
         if (!is_dir(dirname($pathname))) {
-            mkdir(strtolower(dirname($pathname)), 0755, true);
+            mkdir(dirname($pathname), 0755, true);
         }
 
         file_put_contents($pathname, $this->buildClass($classname));

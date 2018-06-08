@@ -80,7 +80,7 @@ class Url extends Dispatch
         }
 
         // 设置当前请求的参数
-        $this->request->setRoute($var);
+        $this->request->setRouteVars($var);
 
         // 封装路由
         $route = [$module, $controller, $action];
@@ -112,7 +112,9 @@ class Url extends Dispatch
             $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
         }
 
-        if ($this->rule->getRouter()->getName($name) || $this->rule->getRouter()->getName($name2)) {
+        $host = $this->request->host(true);
+
+        if ($this->rule->getRouter()->getName($name, $host) || $this->rule->getRouter()->getName($name2, $host)) {
             return true;
         }
 

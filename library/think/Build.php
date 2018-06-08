@@ -239,7 +239,7 @@ class Build
 
             $class = new \ReflectionClass($namespace . '\\' . $module . '\\' . $layer . '\\' . $controller);
 
-            if (strpos($layer, DIRECTORY_SEPARATOR)) {
+            if (strpos($layer, '\\')) {
                 // 多级控制器
                 $level      = str_replace(DIRECTORY_SEPARATOR, '.', substr($layer, 11));
                 $controller = $level . '.' . $controller;

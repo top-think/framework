@@ -41,7 +41,7 @@ trait ModelEvent
      * 是否需要事件响应
      * @var bool
      */
-    private $withEvent = true;
+    protected $withEvent = true;
 
     /**
      * 注册回调方法
