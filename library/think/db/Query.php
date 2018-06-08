@@ -650,10 +650,12 @@ class Query
                 $query->fetchSql(true);
             }
 
-            return $query->aggregate('COUNT', '*', true);
+            $count = $query->aggregate('COUNT', '*', true);
+        } else {
+            $count = $this->aggregate('COUNT', $field, true);
         }
 
-        return $this->aggregate('COUNT', $field, true);
+        return is_string($count) ? $count : (int)$count;
     }
 
     /**
