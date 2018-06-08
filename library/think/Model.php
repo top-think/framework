@@ -355,6 +355,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
+     * 判断force
+     * @access public
+     * @return bool
+     */
+    public function isForce()
+    {
+        return $this->force;
+    }
+
+    /**
      * 新增数据是否使用Replace
      * @access public
      * @param  bool $replace
@@ -367,7 +377,18 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     }
 
     /**
-     * 新增数据是否使用Replace
+     * 设置数据是否存在
+     * @access public
+     * @param  bool $exists
+     * @return void
+     */
+    public function exists($exists)
+    {
+        $this->exists = $exists;
+    }
+
+    /**
+     * 判断数据是否存在数据库
      * @access public
      * @return bool
      */

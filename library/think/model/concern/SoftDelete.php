@@ -71,18 +71,17 @@ trait SoftDelete
     /**
      * 删除当前的记录
      * @access public
-     * @param  bool  $force 是否强制删除
      * @return bool
      */
-    public function delete($force = false)
+    public function delete()
     {
-        if (!$this->exists || false === $this->trigger('before_delete', $this)) {
+        if (!$this->isExists() || false === $this->trigger('before_delete', $this)) {
             return false;
         }
 
         $name = $this->getDeleteTimeField();
 
-        if ($name && !$force) {
+        if ($name && !$this->isForce()) {
             // 软删除
             $this->data($name, $this->autoWriteTimestamp($name));
 
@@ -104,7 +103,7 @@ trait SoftDelete
 
         $this->trigger('after_delete', $this);
 
-        $this->exists = false;
+        $this->exists(false);
 
         return true;
     }
@@ -135,7 +134,7 @@ trait SoftDelete
 
         if ($resultSet) {
             foreach ($resultSet as $data) {
-                $data->delete($force);
+                $data->force($force)->delete();
             }
         }
 
@@ -146,35 +145,35 @@ trait SoftDelete
      * 恢复被软删除的记录
      * @access public
      * @param  array $where 更新条件
-     * @return integer
+     * @return bool
      */
     public function restore($where = [])
     {
         $name = $this->getDeleteTimeField();
-
-        if (empty($where)) {
-            $pk = $this->getPk();
-
-            $where[] = [$pk, '=', $this->getData($pk)];
-        }
 
         if ($name) {
             if (false === $this->trigger('before_restore')) {
                 return false;
             }
 
+            if (empty($where)) {
+                $pk = $this->getPk();
+
+                $where[] = [$pk, '=', $this->getData($pk)];
+            }
+
             // 恢复删除
-            $result = $this->db(false)
+            $this->db(false)
                 ->where($where)
                 ->useSoftDelete($name, $this->getWithTrashedExp())
                 ->update([$name => $this->defaultSoftDelete]);
 
             $this->trigger('after_restore');
 
-            return $result;
+            return true;
         }
 
-        return 0;
+        return false;
     }
 
     /**
