@@ -87,7 +87,7 @@ trait SoftDelete
 
             $result = $this->isUpdate()->withEvent(false)->save();
 
-            $this->withEvent = true;
+            $this->withEvent(true);
         } else {
             // 读取更新条件
             $where = $this->getWhere();
