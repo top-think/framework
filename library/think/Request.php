@@ -761,12 +761,12 @@ class Request
     /**
      * 当前的请求类型
      * @access public
-     * @param  bool $method  true 获取原始请求类型
+     * @param  bool $origin  是否获取原始请求类型
      * @return string
      */
-    public function method($method = false)
+    public function method($origin = false)
     {
-        if (true === $method) {
+        if ($origin) {
             // 获取原始请求类型
             return $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
         } elseif (!$this->method) {
@@ -910,6 +910,7 @@ class Request
             // 获取包含文件上传信息的数组
             $file = $this->file();
             $data = is_array($file) ? array_merge($this->param, $file) : $this->param;
+
             return $this->input($data, '', $default, $filter);
         }
 
