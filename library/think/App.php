@@ -164,7 +164,7 @@ class App extends Container
      * @access public
      * @return void
      */
-    public function initialize()
+    public function initialize(): void
     {
         if ($this->initialized) {
             return;
@@ -314,7 +314,7 @@ class App extends Container
      * @param  string $path   模块路径
      * @return void
      */
-    public function init(string $module = '', string $path = '')
+    public function init(string $module = '', string $path = ''): void
     {
         // 定位模块目录
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';
@@ -394,7 +394,7 @@ class App extends Container
      * @return Response
      * @throws Exception
      */
-    public function run()
+    public function run(): Response
     {
         try {
             // 初始化应用
@@ -478,7 +478,7 @@ class App extends Container
         return $response;
     }
 
-    protected function checkBind()
+    protected function checkBind(): void
     {
         if ($this->bindModule) {
             // 模块/控制器绑定
@@ -492,7 +492,7 @@ class App extends Container
         }
     }
 
-    protected function getRouteCacheKey()
+    protected function getRouteCacheKey(): string
     {
         if ($this->config->get('route_check_cache_key')) {
             $closure  = $this->config->get('route_check_cache_key');
@@ -504,7 +504,7 @@ class App extends Container
         return $routeKey;
     }
 
-    protected function loadLangPack()
+    protected function loadLangPack(): void
     {
         // 读取默认语言
         $this->lang->range($this->config['app.default_lang']);
@@ -541,7 +541,7 @@ class App extends Container
      * @param  string $type 信息类型
      * @return void
      */
-    public function log($msg, string $type = 'info')
+    public function log($msg, string $type = 'info'): void
     {
         $this->appDebug && $this->log->record($msg, $type);
     }
@@ -551,7 +551,7 @@ class App extends Container
      * @access public
      * @return Dispatch
      */
-    public function routeCheck()
+    public function routeCheck(): Dispatch
     {
         // 检测路由缓存
         if (!$this->appDebug && $this->config->get('route_check_cache')) {
@@ -620,7 +620,7 @@ class App extends Container
      * @param  string $tag    缓存标签
      * @return void
      */
-    public function checkRequestCache($key, $expire = null, $except = [], $tag = null)
+    public function checkRequestCache($key, $expire = null, $except = [], $tag = null): void
     {
         $cache = $this->request->cache($key, $expire, $except, $tag);
 

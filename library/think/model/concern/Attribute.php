@@ -97,16 +97,24 @@ trait Attribute
     /**
      * 设置允许写入的字段
      * @access public
-     * @param  array|string|true $field 允许写入的字段 如果为true只允许写入数据表字段
+     * @param  array $field 允许写入的字段
      * @return $this
      */
-    public function allowField($field)
+    public function allowField(array $field)
     {
-        if (is_string($field)) {
-            $field = explode(',', $field);
-        }
-
         $this->field = $field;
+
+        return $this;
+    }
+
+    /**
+     * 设置只允许写入数据表的字段
+     * @access public
+     * @return $this
+     */
+    public function allowAllField()
+    {
+        $this->field = true;
 
         return $this;
     }
@@ -114,7 +122,7 @@ trait Attribute
     /**
      * 设置只读字段
      * @access public
-     * @param  array|string $field 只读字段
+     * @param  array $field 只读字段
      * @return $this
      */
     public function readonly(array $field)
