@@ -563,7 +563,7 @@ class BelongsToMany extends Relation
         $pivot[] = [$this->localKey, '=', $this->parent->$pk];
 
         if (isset($id)) {
-            $pivot[] = is_array($id) ? [$this->foreignKey, 'in', $id] : [$this->foreignKey, '=', $id];
+            $pivot[] = [$this->foreignKey, is_array($id) ? 'in' : '=', $id];
         }
 
         $result = $this->pivot->where($pivot)->delete();

@@ -635,7 +635,7 @@ class Query
      * COUNT查询
      * @access public
      * @param  string $field 字段名
-     * @return integer|string
+     * @return float|string
      */
     public function count($field = '*')
     {
@@ -660,7 +660,7 @@ class Query
      * SUM查询
      * @access public
      * @param  string $field 字段名
-     * @return float|int
+     * @return float
      */
     public function sum($field)
     {
@@ -695,7 +695,7 @@ class Query
      * AVG查询
      * @access public
      * @param  string $field 字段名
-     * @return float|int
+     * @return float
      */
     public function avg($field)
     {
