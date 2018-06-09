@@ -117,7 +117,7 @@ class Log implements LoggerInterface
             return;
         }
 
-        if (is_string($msg)) {
+        if (is_string($msg) && !empty($context)) {
             $replace = [];
             foreach ($context as $key => $val) {
                 $replace['{' . $key . '}'] = $val;
