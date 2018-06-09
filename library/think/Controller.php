@@ -49,6 +49,12 @@ class Controller
     protected $beforeActionList = [];
 
     /**
+     * 控制器中间件
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
      * 构造方法
      * @access public
      */
@@ -60,6 +66,8 @@ class Controller
 
         // 控制器初始化
         $this->initialize();
+
+        $this->app['middleware']->import($this->middleware, 'controller');
 
         // 前置操作方法
         foreach ((array) $this->beforeActionList as $method => $options) {

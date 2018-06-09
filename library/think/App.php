@@ -427,30 +427,7 @@ class App extends Container
         }
 
         $this->middleware->add(function (Request $request, $next) use ($dispatch, $data) {
-            if (is_null($data)) {
-                try {
-                    // 执行调度
-                    $data = $dispatch->run();
-                } catch (HttpResponseException $exception) {
-                    $data = $exception->getResponse();
-                }
-            }
-
-            // 输出数据到客户端
-            if ($data instanceof Response) {
-                $response = $data;
-            } elseif (!is_null($data)) {
-                // 默认自动识别响应输出类型
-                $isAjax = $request->isAjax();
-                $type   = $isAjax ? $this->config('app.default_ajax_return') : $this->config('app.default_return_type');
-
-                $response = Response::create($data, $type);
-            } else {
-                $data     = ob_get_clean();
-                $status   = empty($data) ? 204 : 200;
-                $response = Response::create($data, '', $status);
-            }
-            return $response;
+            return is_null($data) ? $dispatch->run() : $data;
         });
 
         $response = $this->middleware->dispatch($this->request);

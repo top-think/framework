@@ -39,17 +39,17 @@ class Middleware
         $this->config = array_merge($this->config, $config);
     }
 
-    public function import(array $middlewares = [])
+    public function import(array $middlewares = [], $type = 'route')
     {
         foreach ($middlewares as $middleware) {
-            $this->add($middleware);
+            $this->add($middleware, $type);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function add($middleware)
+    public function add($middleware, $type = 'route')
     {
         if (is_null($middleware)) {
             return;
@@ -58,14 +58,14 @@ class Middleware
         $middleware = $this->buildMiddleware($middleware);
 
         if ($middleware) {
-            $this->queue[] = $middleware;
+            $this->queue[$type][] = $middleware;
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function unshift($middleware)
+    public function unshift($middleware, $type = 'route')
     {
         if (is_null($middleware)) {
             return;
@@ -74,24 +74,24 @@ class Middleware
         $middleware = $this->buildMiddleware($middleware);
 
         if ($middleware) {
-            array_unshift($this->queue, $middleware);
+            array_unshift($this->queue[$type], $middleware);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function all()
+    public function all($type = 'route')
     {
-        return $this->queue;
+        return $this->queue[$type] ?: [];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dispatch(Request $request)
+    public function dispatch(Request $request, $type = 'route')
     {
-        return call_user_func($this->resolve(), $request);
+        return call_user_func($this->resolve($type), $request);
     }
 
     protected function buildMiddleware($middleware)
@@ -127,10 +127,11 @@ class Middleware
         return [[$this->app->make($middleware), 'handle'], isset($param) ? $param : null];
     }
 
-    protected function resolve()
+    protected function resolve($type = 'route')
     {
-        return function (Request $request) {
-            $middleware = array_shift($this->queue);
+        return function (Request $request) use ($type) {
+
+            $middleware = array_shift($this->queue[$type]);
 
             if (null === $middleware) {
                 throw new InvalidArgumentException('The queue was exhausted, with no response returned');
@@ -139,7 +140,7 @@ class Middleware
             list($call, $param) = $middleware;
 
             try {
-                $response = call_user_func_array($call, [$request, $this->resolve(), $param]);
+                $response = call_user_func_array($call, [$request, $this->resolve($type), $param]);
             } catch (HttpResponseException $exception) {
                 $response = $exception->getResponse();
             }
@@ -150,6 +151,12 @@ class Middleware
 
             return $response;
         };
+    }
+
+    public function __call($method, $args)
+    {
+        array_push($args, $method);
+        return call_user_func_array([$this, 'add'], $args);
     }
 
 }
