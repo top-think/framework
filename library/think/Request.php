@@ -1068,7 +1068,7 @@ class Request
             return $this->session;
         }
 
-        return isset($this->session[$name]) ? $this->session[$name] : $default;
+        return $this->getData($this->session, $name) ?: $default;
     }
 
     /**
@@ -1273,14 +1273,10 @@ class Request
                 list($name, $type) = explode('/', $name);
             }
 
-            // 按.拆分成多维数组进行判断
-            foreach (explode('.', $name) as $val) {
-                if (isset($data[$val])) {
-                    $data = $data[$val];
-                } else {
-                    // 无输入数据，返回默认值
-                    return $default;
-                }
+            $data = $this->getData($data, $name);
+
+            if (is_null($data)) {
+                return $default;
             }
 
             if (is_object($data)) {
@@ -1301,6 +1297,26 @@ class Request
         if (isset($type) && $data !== $default) {
             // 强制类型转换
             $this->typeCast($data, $type);
+        }
+
+        return $data;
+    }
+
+    /**
+     * 获取数据
+     * @access public
+     * @param  array         $data 数据源
+     * @param  string|false  $name 字段名
+     * @return mixed
+     */
+    protected function getData(array $data, $name)
+    {
+        foreach (explode('.', $name) as $val) {
+            if (isset($data[$val])) {
+                $data = $data[$val];
+            } else {
+                return;
+            }
         }
 
         return $data;
