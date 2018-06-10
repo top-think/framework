@@ -43,7 +43,7 @@ class Controller
     protected $batchValidate = false;
 
     /**
-     * 前置操作方法列表
+     * 前置操作方法列表（即将废弃）
      * @var array $beforeActionList
      */
     protected $beforeActionList = [];
@@ -67,9 +67,10 @@ class Controller
         // 控制器初始化
         $this->initialize();
 
+        // 控制器中间件
         $this->app['middleware']->import($this->middleware, 'controller');
 
-        // 前置操作方法
+        // 前置操作方法 即将废弃
         foreach ((array) $this->beforeActionList as $method => $options) {
             is_numeric($method) ?
             $this->beforeAction($options) :

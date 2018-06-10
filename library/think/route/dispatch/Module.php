@@ -14,10 +14,8 @@ namespace think\route\dispatch;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
-use think\exception\HttpResponseException;
 use think\Loader;
 use think\Request;
-use think\Response;
 use think\route\Dispatch;
 
 class Module extends Dispatch
@@ -98,57 +96,39 @@ class Module extends Dispatch
         }
 
         $this->app['middleware']->controller(function (Request $request, $next) use ($instance) {
+            // 获取当前操作名
+            $action = $this->actionName . $this->rule->getConfig('action_suffix');
 
-            try {
-                // 获取当前操作名
-                $action = $this->actionName . $this->rule->getConfig('action_suffix');
+            if (is_callable([$instance, $action])) {
+                // 执行操作方法
+                $call = [$instance, $action];
 
-                if (is_callable([$instance, $action])) {
-                    // 执行操作方法
-                    $call = [$instance, $action];
+                // 严格获取当前操作方法名
+                $reflect    = new ReflectionMethod($instance, $action);
+                $methodName = $reflect->getName();
+                $suffix     = $this->rule->getConfig('action_suffix');
+                $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
+                $this->request->setAction($actionName);
 
-                    // 严格获取当前操作方法名
-                    $reflect    = new ReflectionMethod($instance, $action);
-                    $methodName = $reflect->getName();
-                    $suffix     = $this->rule->getConfig('action_suffix');
-                    $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
-                    $this->request->setAction($actionName);
-
-                    // 自动获取请求变量
-                    $vars = $this->rule->getConfig('url_param_type')
-                    ? $this->request->route()
-                    : $this->request->param();
-                } elseif (is_callable([$instance, '_empty'])) {
-                    // 空操作
-                    $call    = [$instance, '_empty'];
-                    $vars    = [$this->actionName];
-                    $reflect = new ReflectionMethod($instance, '_empty');
-                } else {
-                    // 操作不存在
-                    throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
-                }
-
-                $this->app['hook']->listen('action_begin', $call);
-                $data = $this->app->invokeReflectMethod($instance, $reflect, $vars);
-            } catch (HttpResponseException $exception) {
-                $data = $exception->getResponse();
-            }
-
-            // 输出数据到客户端
-            if ($data instanceof Response) {
-                $response = $data;
-            } elseif (!is_null($data)) {
-                // 默认自动识别响应输出类型
-                $isAjax = $request->isAjax();
-                $type   = $isAjax ? $this->app->config('app.default_ajax_return') : $this->app->config('app.default_return_type');
-
-                $response = Response::create($data, $type);
+                // 自动获取请求变量
+                $vars = $this->rule->getConfig('url_param_type')
+                ? $this->request->route()
+                : $this->request->param();
+            } elseif (is_callable([$instance, '_empty'])) {
+                // 空操作
+                $call    = [$instance, '_empty'];
+                $vars    = [$this->actionName];
+                $reflect = new ReflectionMethod($instance, '_empty');
             } else {
-                $data     = ob_get_clean();
-                $status   = empty($data) ? 204 : 200;
-                $response = Response::create($data, '', $status);
+                // 操作不存在
+                throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
             }
-            return $response;
+
+            $this->app['hook']->listen('action_begin', $call);
+
+            $data = $this->app->invokeReflectMethod($instance, $reflect, $vars);
+
+            return $this->app->autoResponse($data);
         });
 
         return $this->app['middleware']->dispatch($this->request, 'controller');

@@ -427,13 +427,34 @@ class App extends Container
         }
 
         $this->middleware->add(function (Request $request, $next) use ($dispatch, $data) {
-            return is_null($data) ? $dispatch->run() : $data;
+            $data = is_null($data) ? $dispatch->run() : $data;
+
+            return $this->autoResponse($data);
         });
 
         $response = $this->middleware->dispatch($this->request);
 
         // 监听app_end
         $this->hook->listen('app_end', $response);
+
+        return $response;
+    }
+
+    public function autoResponse($data)
+    {
+        if ($data instanceof Response) {
+            $response = $data;
+        } elseif (!is_null($data)) {
+            // 默认自动识别响应输出类型
+            $isAjax = $this->request->isAjax();
+            $type   = $isAjax ? $this->config('default_ajax_return') : $this->config('default_return_type');
+
+            $response = Response::create($data, $type);
+        } else {
+            $data     = ob_get_clean();
+            $status   = empty($data) ? 204 : 200;
+            $response = Response::create($data, '', $status);
+        }
 
         return $response;
     }
