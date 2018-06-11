@@ -162,7 +162,29 @@ abstract class Dispatch
             $this->autoValidate($option['validate']);
         }
 
-        return $this->exec();
+        $data = $this->exec();
+
+        return $this->autoResponse($data);
+    }
+
+    protected function autoResponse($data)
+    {
+        if ($data instanceof Response) {
+            $response = $data;
+        } elseif (!is_null($data)) {
+            // 默认自动识别响应输出类型
+            $isAjax = $this->request->isAjax();
+            $type   = $isAjax ? $this->rule->getConfig('default_ajax_return') : $this->rule->getConfig('default_return_type');
+
+            $response = Response::create($data, $type);
+        } else {
+            $data     = ob_get_clean();
+            $data     = false === $data ? '' : $data;
+            $status   = empty($data) ? 204 : 200;
+            $response = Response::create($data, '', $status);
+        }
+
+        return $response;
     }
 
     /**

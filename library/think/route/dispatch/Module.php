@@ -128,7 +128,7 @@ class Module extends Dispatch
 
             $data = $this->app->invokeReflectMethod($instance, $reflect, $vars);
 
-            return $this->app->autoResponse($data);
+            return $this->autoResponse($data);
         });
 
         return $this->app['middleware']->dispatch($this->request, 'controller');

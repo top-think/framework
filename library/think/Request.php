@@ -771,8 +771,9 @@ class Request
             return $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
-                $this->method = strtoupper($_POST[$this->config['var_method']]);
-                $this->{$this->method}($_POST);
+                $this->method    = strtoupper($_POST[$this->config['var_method']]);
+                $method          = strtolower($this->method);
+                $this->{$method} = $_POST;
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
