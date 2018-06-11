@@ -180,7 +180,7 @@ abstract class Dispatch
         } else {
             $data     = ob_get_clean();
             $data     = false === $data ? '' : $data;
-            $status   = empty($data) ? 204 : 200;
+            $status   = '' === $data ? 204 : 200;
             $response = Response::create($data, '', $status);
         }
 
