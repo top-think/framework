@@ -452,6 +452,7 @@ class App extends Container
             $response = Response::create($data, $type);
         } else {
             $data     = ob_get_clean();
+            $data     = false === $data ? '' : $data;
             $status   = empty($data) ? 204 : 200;
             $response = Response::create($data, '', $status);
         }
