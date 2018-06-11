@@ -126,6 +126,100 @@ class Sqlsrv extends Connection
     }
 
     /**
+     * 得到某个列的数组
+     * @access public
+     * @param  Query     $query 查询对象
+     * @param  string    $field 字段名 多个字段用逗号分隔
+     * @param  string    $key   索引
+     * @return array
+     */
+    public function column(Query $query, $field, $key = '')
+    {
+        $options = $query->getOptions();
+
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
+            // 判断查询缓存
+            $cache = $options['cache'];
+
+            $guid = is_string($cache['key']) ? $cache['key'] : $this->getCacheKey($query, $field);
+
+            $result = Container::get('cache')->get($guid);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
+
+        if (isset($options['field'])) {
+            $query->removeOption('field');
+        }
+
+        if (is_null($field)) {
+            $field = '*';
+        } elseif ($key && '*' != $field) {
+            $field = $key . ',' . $field;
+        }
+
+        if (is_string($field)) {
+            $field = array_map('trim', explode(',', $field));
+        }
+
+        $query->setOption('field', $field);
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        $bind = $query->getBind();
+
+        if (!empty($options['fetch_sql'])) {
+            // 获取实际执行的SQL语句
+            return $this->getRealSql($sql, $bind);
+        }
+
+        // 执行查询操作
+        $pdo = $this->query($sql, $bind, $options['master'], true);
+
+        if (1 == $pdo->columnCount()) {
+            $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
+        } else {
+            $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
+
+            if ('*' == $field && $key) {
+                $result = array_column($resultSet, null, $key);
+            } elseif ($resultSet) {
+                $fields = array_keys($resultSet[0]);
+                $count  = count($fields);
+                $key1   = array_shift($fields);
+                $key2   = $fields ? array_shift($fields) : '';
+                $key    = $key ?: $key1;
+
+                if (strpos($key, '.')) {
+                    list($alias, $key) = explode('.', $key);
+                }
+
+                if (3 == $count) {
+                    $column = $key2;
+                } elseif ($count < 3) {
+                    $column = $key1;
+                } else {
+                    $column = null;
+                }
+
+                $result = array_column($resultSet, $column, $key);
+            } else {
+                $result = [];
+            }
+        }
+
+        if (isset($cache) && isset($guid)) {
+            // 缓存数据
+            $this->cacheData($guid, $result, $cache);
+        }
+
+        return $result;
+    }
+
+    /**
      * SQL性能分析
      * @access protected
      * @param  string $sql
