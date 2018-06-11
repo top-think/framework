@@ -414,6 +414,11 @@ class RuleGroup extends Rule
 
         $method = strtolower($method);
 
+        if ('/' == $rule) {
+            // 首页自动完整匹配
+            $rule .= '$';
+        }
+
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method, $option, $pattern);
 
