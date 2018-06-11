@@ -2124,11 +2124,13 @@ class Query
      * 设置JSON字段信息
      * @access public
      * @param  array $json JSON字段
+     * @param  bool  $assoc 是否取出数组
      * @return $this
      */
-    public function json(array $json = [])
+    public function json(array $json = [], $assoc = false)
     {
-        $this->options['json'] = $json;
+        $this->options['json']       = $json;
+        $this->options['json_assoc'] = $assoc;
         return $this;
     }
 
@@ -2897,7 +2899,7 @@ class Query
     protected function resultToModel(&$result, $options = [], $resultSet = false)
     {
         if (!empty($options['json'])) {
-            $this->jsonResult($result, $options['json']);
+            $this->jsonResult($result, $options['json'], $options['json_assoc']);
         }
 
         $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;
