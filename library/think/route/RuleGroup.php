@@ -414,7 +414,7 @@ class RuleGroup extends Rule
 
         $method = strtolower($method);
 
-        if ('/' == $rule) {
+        if ('/' === $rule || '' === $rule) {
             // 首页自动完整匹配
             $rule .= '$';
         }
