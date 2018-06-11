@@ -48,23 +48,16 @@ class Cache extends CacheItemPool
     /**
      * 连接缓存
      * @access public
-     * @param  array         $options  配置数组
-     * @param  bool|string   $name 缓存连接标识 true 强制重新连接
+     * @param  array    $options  配置数组
+     * @param  bool     $force 强制重新连接
      * @return Driver
      */
-    public function connect(array $options = [], $name = false): Driver
+    public function connect(array $options = [], bool $force = false): Driver
     {
+        $name = md5(serialize($options));
 
-        if (false === $name) {
-            $name = md5(serialize($options));
-        }
-
-        if (true === $name || !isset($this->instance[$name])) {
+        if ($force || !isset($this->instance[$name])) {
             $type = !empty($options['type']) ? $options['type'] : 'File';
-
-            if (true === $name) {
-                $name = md5(serialize($options));
-            }
 
             $this->instance[$name] = Loader::factory($type, '\\think\\cache\\driver\\', $options);
         }

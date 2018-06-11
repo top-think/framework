@@ -42,9 +42,9 @@ class Config implements \ArrayAccess
      * @param  string    $config 配置文件路径或内容
      * @param  string    $type 配置解析类型
      * @param  string    $name 配置名（如设置即表示二级配置）
-     * @return mixed
+     * @return array
      */
-    public function parse(string $config, string $type = '', string $name = '')
+    public function parse(string $config, string $type = '', string $name = ''): array
     {
         if (empty($type)) {
             $type = pathinfo($config, PATHINFO_EXTENSION);
@@ -60,9 +60,9 @@ class Config implements \ArrayAccess
      * @access public
      * @param  string    $file 配置文件名
      * @param  string    $name 一级配置名
-     * @return mixed
+     * @return array
      */
-    public function load(string $file, string $name = '')
+    public function load(string $file, string $name = ''): array
     {
         if (is_file($file)) {
             $name = strtolower($name);
@@ -91,7 +91,7 @@ class Config implements \ArrayAccess
             $name = $this->prefix . '.' . $name;
         }
 
-        return !is_null($this->get($name)) ? true : false;
+        return !is_null($this->get($name));
     }
 
     /**
@@ -193,7 +193,7 @@ class Config implements \ArrayAccess
      * @param  string  $name 配置参数名（支持三级配置 .号分割）
      * @return void
      */
-    public function remove($name): void
+    public function remove(string $name): void
     {
         if (!strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;

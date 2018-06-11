@@ -90,7 +90,7 @@ class Container implements ArrayAccess
      * @param  object        $instance
      * @return void
      */
-    public static function setInstance($instance): void
+    public static function setInstance(object $instance): void
     {
         static::$instance = $instance;
     }
@@ -103,7 +103,7 @@ class Container implements ArrayAccess
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public static function get(string $abstract, $vars = [], bool $newInstance = false)
+    public static function get(string $abstract, array $vars = [], bool $newInstance = false): object
     {
         return static::getInstance()->make($abstract, $vars, $newInstance);
     }
@@ -164,7 +164,7 @@ class Container implements ArrayAccess
     }
 
     /**
-     * 绑定一个类实例当容器
+     * 绑定一个类实例到容器
      * @access public
      * @param  string    $abstract    类名或者标识
      * @param  object    $instance    类的实例
@@ -226,18 +226,12 @@ class Container implements ArrayAccess
      * 创建类的实例
      * @access public
      * @param  string        $abstract       类名或者标识
-     * @param  array|true    $vars           变量
+     * @param  array         $vars           变量
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public function make(string $abstract, $vars = [], bool $newInstance = false)
+    public function make(string $abstract, array $vars = [], bool $newInstance = false): object
     {
-        if (true === $vars) {
-            // 总是创建新的实例化对象
-            $newInstance = true;
-            $vars        = [];
-        }
-
         $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
 
         if (isset($this->instances[$abstract]) && !$newInstance) {
