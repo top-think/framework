@@ -1069,7 +1069,9 @@ class Request
             return $this->session;
         }
 
-        return $this->getData($this->session, $name) ?: $default;
+        $data = $this->getData($this->session, $name);
+
+        return is_null($data) ? $default : $data;
     }
 
     /**
