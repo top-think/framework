@@ -113,23 +113,6 @@ class Validate
     protected $currentScene = null;
 
     /**
-     * 内置正则验证规则
-     * @var array
-     */
-    protected $regex = [
-        'alpha'       => '/^[A-Za-z]+$/',
-        'alphaNum'    => '/^[A-Za-z0-9]+$/',
-        'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
-        'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
-        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
-        'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u',
-        'chsDash'     => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u',
-        'mobile'      => '/^1[3-9][0-9]\d{8}$/',
-        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/',
-        'zip'         => '/\d{6}/',
-    ];
-
-    /**
      * Filter_var 规则
      * @var array
      */
@@ -140,6 +123,21 @@ class Validate
         'url'     => FILTER_VALIDATE_URL,
         'macAddr' => FILTER_VALIDATE_MAC,
         'float'   => FILTER_VALIDATE_FLOAT,
+    ];
+
+    /**
+     * 内置正则验证规则
+     * @var array
+     */
+    protected $regex = [
+        'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
+        'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
+        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
+        'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u',
+        'chsDash'     => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u',
+        'mobile'      => '/^1[3-9][0-9]\d{8}$/',
+        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/',
+        'zip'         => '/\d{6}/',
     ];
 
     /**
@@ -751,6 +749,9 @@ class Validate
             case 'number':
                 $result = ctype_digit((string) $value);
                 break;
+            case 'alphaNum':
+                $result = ctype_alnum($value);
+                break;
             case 'array':
                 // 是否为数组
                 $result = is_array($value);
@@ -768,6 +769,10 @@ class Validate
                 if (isset(self::$type[$rule])) {
                     // 注册的验证规则
                     $result = call_user_func_array(self::$type[$rule], [$value]);
+                } elseif (function_exists('ctype_' . $rule)) {
+                    // ctype验证规则
+                    $ctypeFun = 'ctype_' . $rule;
+                    $result   = $ctypeFun($value);
                 } elseif (isset($this->filter[$rule])) {
                     // Filter_var验证规则
                     $result = $this->filter($value, $this->filter[$rule]);
