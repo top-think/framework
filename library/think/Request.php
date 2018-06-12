@@ -11,6 +11,9 @@
 
 namespace think;
 
+use think\facade\Cookie;
+use think\facade\Session;
+
 class Request
 {
     /**
@@ -310,7 +313,6 @@ class Request
     {
         $request = new static($config->pull('app'));
 
-        $request->cookie = $app['cookie']->get();
         $request->server = $_SERVER;
         $request->env    = $app['env']->get();
 
@@ -1062,7 +1064,7 @@ class Request
     public function session($name = '', $default = null)
     {
         if (empty($this->session)) {
-            $this->session = facade\Session::get();
+            $this->session = Session::get();
         }
 
         if ('' === $name) {
@@ -1084,8 +1086,12 @@ class Request
      */
     public function cookie($name = '', $default = null, $filter = '')
     {
+        if (empty($this->cookie)) {
+            $this->cookie = Cookie::get();
+        }
+
         if (!empty($name)) {
-            $data = isset($this->cookie[$name]) ? $this->cookie[$name] : $default;
+            $data = Cookie::has($name) ? Cookie::get($name) : $default;
         } else {
             $data = $this->cookie;
         }
