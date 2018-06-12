@@ -751,6 +751,9 @@ class Validate
             case 'number':
                 $result = ctype_digit((array) $value);
                 break;
+            case 'alphaNum':
+                $result = ctype_alnum($value);
+                break;
             case 'array':
                 // 是否为数组
                 $result = is_array($value);
@@ -768,6 +771,10 @@ class Validate
                 if (isset(self::$type[$rule])) {
                     // 注册的验证规则
                     $result = call_user_func_array(self::$type[$rule], [$value]);
+                } elseif (function_exists('ctype_' . $rule)) {
+                    // ctype验证规则
+                    $ctypeFun = 'ctype_' . $rule;
+                    $result   = $ctypeFun($value);
                 } elseif (isset($this->filter[$rule])) {
                     // Filter_var验证规则
                     $result = $this->filter($value, $this->filter[$rule]);
