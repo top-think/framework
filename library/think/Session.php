@@ -180,7 +180,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function set(string $name, $value,  ? string $prefix = null)
+    public function set(string $name, $value, ? string $prefix = null)
     {
         $this->lock();
 
@@ -212,7 +212,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function get(string $name = '',  ? string $prefix = null)
+    public function get(string $name = '', ? string $prefix = null)
     {
         $this->lock();
 
@@ -320,7 +320,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function pull(string $name,  ? string $prefix = null)
+    public function pull(string $name, ? string $prefix = null)
     {
         $result = $this->get($name, $prefix);
 
@@ -381,7 +381,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function delete($name,  ? string $prefix = null)
+    public function delete($name, ? string $prefix = null)
     {
         empty($this->init) && $this->boot();
 
@@ -413,7 +413,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function clear( ? string $prefix = null)
+    public function clear(? string $prefix = null)
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
@@ -432,7 +432,7 @@ class Session
      * @param  string|null   $prefix
      * @return bool
      */
-    public function has(string $name,  ? string $prefix = null)
+    public function has(string $name, ? string $prefix = null)
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
