@@ -61,6 +61,7 @@ class Session
     {
         $this->config = $config;
     }
+
     /**
      * 设置或者获取session作用域（前缀）
      * @access public
@@ -89,7 +90,7 @@ class Session
      * @param  array $config
      * @return void
      */
-    public function setConfig(array $config = [])
+    public function setConfig(array $config = []): void
     {
         $this->config = array_merge($this->config, array_change_key_case($config));
 
@@ -109,7 +110,7 @@ class Session
      * @return void
      * @throws \think\Exception
      */
-    public function init(array $config = [])
+    public function init(array $config = []): void
     {
         $config = $config ?: $this->config;
 
@@ -158,7 +159,7 @@ class Session
      * @access public
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         if (is_null($this->init)) {
             $this->init();
@@ -180,7 +181,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function set(string $name, $value,  ? string $prefix = null)
+    public function set(string $name, $value, string $prefix = null): void
     {
         $this->lock();
 
@@ -212,7 +213,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function get(string $name = '',  ? string $prefix = null)
+    public function get(string $name = '', string $prefix = null)
     {
         $this->lock();
 
@@ -243,7 +244,7 @@ class Session
     /**
      * session 读写锁驱动实例化
      */
-    protected function initDriver()
+    protected function initDriver(): void
     {
         // 不在 init 方法中实例化lockDriver，是因为 init 方法不一定先于 set 或 get 方法调用
         $config = Container::get('config')->pull('session');
@@ -320,15 +321,13 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function pull(string $name,  ? string $prefix = null)
+    public function pull(string $name, string $prefix = null)
     {
         $result = $this->get($name, $prefix);
 
         if ($result) {
             $this->delete($name, $prefix);
             return $result;
-        } else {
-            return;
         }
     }
 
@@ -339,7 +338,7 @@ class Session
      * @param  mixed         $value session值
      * @return void
      */
-    public function flash(string $name, $value)
+    public function flash(string $name, $value): void
     {
         $this->set($name, $value);
 
@@ -381,7 +380,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function delete($name,  ? string $prefix = null)
+    public function delete($name, string $prefix = null): void
     {
         empty($this->init) && $this->boot();
 
@@ -413,7 +412,7 @@ class Session
      * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function clear( ? string $prefix = null)
+    public function clear(string $prefix = null): void
     {
         empty($this->init) && $this->boot();
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
@@ -428,23 +427,28 @@ class Session
     /**
      * 判断session数据
      * @access public
-     * @param  string        $name session名称
-     * @param  string|null   $prefix
+     * @param  string       $name session名称
+     * @param  string       $prefix
      * @return bool
      */
-    public function has(string $name,  ? string $prefix = null)
+    public function has(string $name, string $prefix = null): bool
     {
         empty($this->init) && $this->boot();
+
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
+        $value  = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
 
-        if (strpos($name, '.')) {
-            // 支持数组
-            list($name1, $name2) = explode('.', $name);
+        $name = explode('.', $name);
 
-            return $prefix ? isset($_SESSION[$prefix][$name1][$name2]) : isset($_SESSION[$name1][$name2]);
-        } else {
-            return $prefix ? isset($_SESSION[$prefix][$name]) : isset($_SESSION[$name]);
+        foreach ($name as $val) {
+            if (!isset($value[$val])) {
+                return false;
+            } else {
+                $value = $value[$val];
+            }
         }
+
+        return true;
     }
 
     /**
@@ -454,7 +458,7 @@ class Session
      * @param  mixed   $value
      * @return void
      */
-    public function push(string $key, $value)
+    public function push(string $key, $value): void
     {
         $array = $this->get($key);
 
@@ -472,7 +476,7 @@ class Session
      * @access public
      * @return void
      */
-    public function start()
+    public function start(): void
     {
         session_start();
 
@@ -484,7 +488,7 @@ class Session
      * @access public
      * @return void
      */
-    public function destroy()
+    public function destroy(): void
     {
         if (!empty($_SESSION)) {
             $_SESSION = [];
@@ -503,7 +507,7 @@ class Session
      * @param  bool $delete 是否删除关联会话文件
      * @return void
      */
-    public function regenerate(bool $delete = false)
+    public function regenerate(bool $delete = false): void
     {
         session_regenerate_id($delete);
     }
@@ -513,7 +517,7 @@ class Session
      * @access public
      * @return void
      */
-    public function pause()
+    public function pause(): void
     {
         // 暂停session
         session_write_close();
