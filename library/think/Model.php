@@ -232,7 +232,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $query = Db::buildQuery($this->query, $this->connection);
 
         $query->model($this)
-            ->json($this->json)
+            ->json($this->json, $this->jsonAssoc)
             ->setFieldType($this->type);
 
         if (isset(static::$readMaster['*']) || isset(static::$readMaster[static::class])) {

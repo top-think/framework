@@ -609,11 +609,11 @@ class Query
      * COUNT查询
      * @access public
      * @param  string $field 字段名
-     * @return integer|string
+     * @return float|string
      */
     public function count(string $field = '*')
     {
-        if (isset($this->options['group'])) {
+        if (!empty($this->options['group'])) {
             // 支持GROUP
             $options = $this->getOptions();
             $subSql  = $this->options($options)->field('count(' . $field . ') AS think_count')->bind($this->bind)->buildSql();
@@ -634,7 +634,7 @@ class Query
      * SUM查询
      * @access public
      * @param  string $field 字段名
-     * @return float|int
+     * @return float
      */
     public function sum(string $field)
     {
@@ -669,7 +669,7 @@ class Query
      * AVG查询
      * @access public
      * @param  string $field 字段名
-     * @return float|int
+     * @return float
      */
     public function avg(string $field)
     {
@@ -2095,11 +2095,13 @@ class Query
      * 设置JSON字段信息
      * @access public
      * @param  array $json JSON字段
+     * @param  bool  $assoc 是否取出数组
      * @return $this
      */
-    public function json(array $json = [])
+    public function json(array $json = [], bool $assoc = false)
     {
-        $this->options['json'] = $json;
+        $this->options['json']       = $json;
+        $this->options['json_assoc'] = $assoc;
         return $this;
     }
 
@@ -2845,7 +2847,7 @@ class Query
     protected function resultToModel(&$result, array $options = [], bool $resultSet = false)
     {
         if (!empty($options['json'])) {
-            $this->jsonResult($result, $options['json']);
+            $this->jsonResult($result, $options['json'], $options['json_assoc']);
         }
 
         $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;

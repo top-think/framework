@@ -37,6 +37,12 @@ trait Attribute
     protected $json = [];
 
     /**
+     * JSON数据取出是否需要转换为数组
+     * @var bool
+     */
+    protected $jsonAssoc = false;
+
+    /**
      * 数据表废弃字段
      * @var array
      */
