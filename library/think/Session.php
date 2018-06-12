@@ -478,16 +478,21 @@ class Session
     public function has($name, $prefix = null)
     {
         empty($this->init) && $this->boot();
+
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
+        $value  = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
 
-        if (strpos($name, '.')) {
-            // 支持数组
-            list($name1, $name2) = explode('.', $name);
+        $name = explode('.', $name);
 
-            return $prefix ? isset($_SESSION[$prefix][$name1][$name2]) : isset($_SESSION[$name1][$name2]);
-        } else {
-            return $prefix ? isset($_SESSION[$prefix][$name]) : isset($_SESSION[$name]);
+        foreach ($name as $val) {
+            if (!isset($value[$val])) {
+                return false;
+            } else {
+                $value = $value[$val];
+            }
         }
+
+        return true;
     }
 
     /**
