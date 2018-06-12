@@ -789,7 +789,9 @@ class Request
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
                 $this->method = strtoupper($_POST[$this->config['var_method']]);
-                $this->{$this->method}($_POST);
+                $method       = strtolower($this->method);
+                unset($_POST[$this->config['var_method']]);
+                $this->{$method} = $_POST;
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
