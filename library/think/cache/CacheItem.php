@@ -55,12 +55,12 @@ class CacheItem implements CacheItemInterface
      * @access public
      * @return string
      */
-    public function getKey()
+    public function getKey(): string
     {
         return $this->key;
     }
 
-    public function getExpire()
+    public function getExpire(): int
     {
         return $this->expire;
     }

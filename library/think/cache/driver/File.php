@@ -56,7 +56,7 @@ class File extends Driver
      * @access private
      * @return boolean
      */
-    private function init()
+    private function init(): bool
     {
         // 创建项目缓存目录
         try {
@@ -76,7 +76,7 @@ class File extends Driver
      * @param  bool   $auto 是否自动创建目录
      * @return string
      */
-    protected function getCacheKey(string $name, bool $auto = false)
+    protected function getCacheKey(string $name, bool $auto = false): string
     {
         $name = hash($this->options['hash_type'], $name);
 
@@ -108,7 +108,7 @@ class File extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function has(string $name)
+    public function has(string $name): bool
     {
         return false !== $this->get($name) ? true : false;
     }
@@ -162,7 +162,7 @@ class File extends Driver
      * @param  int|\DateTime $expire  有效时间 0为永久
      * @return boolean
      */
-    public function set(string $name, $value, $expire = null)
+    public function set(string $name, $value, $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -191,9 +191,9 @@ class File extends Driver
             isset($first) && $this->setTagItem($filename);
             clearstatcache();
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -242,7 +242,7 @@ class File extends Driver
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    public function rm(string $name)
+    public function rm(string $name): bool
     {
         $this->writeTimes++;
 
@@ -258,7 +258,7 @@ class File extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear(string $tag = null)
+    public function clear(string $tag = null): bool
     {
         if ($tag) {
             // 指定标签清除
@@ -297,7 +297,7 @@ class File extends Driver
      * @author byron sampson <xiaobo.sun@qq.com>
      * @return boolean
      */
-    private function unlink(string $path)
+    private function unlink(string $path): bool
     {
         return is_file($path) && unlink($path);
     }

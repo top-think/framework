@@ -49,7 +49,7 @@ class Lite extends Driver
      * @param  string $name 缓存变量名
      * @return string
      */
-    protected function getCacheKey(string $name)
+    protected function getCacheKey(string $name): string
     {
         return $this->options['path'] . $this->options['prefix'] . md5($name) . '.php';
     }
@@ -58,9 +58,9 @@ class Lite extends Driver
      * 判断缓存是否存在
      * @access public
      * @param  string $name 缓存变量名
-     * @return mixed
+     * @return bool
      */
-    public function has(string $name)
+    public function has(string $name): bool
     {
         return $this->get($name) ? true : false;
     }
@@ -102,7 +102,7 @@ class Lite extends Driver
      * @param  int|\DateTime $expire 有效时间 0为永久
      * @return bool
      */
-    public function set(string $name, $value, $expire = null)
+    public function set(string $name, $value, $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -176,7 +176,7 @@ class Lite extends Driver
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    public function rm(string $name)
+    public function rm(string $name): bool
     {
         $this->writeTimes++;
 
@@ -189,7 +189,7 @@ class Lite extends Driver
      * @param  string $tag 标签名
      * @return bool
      */
-    public function clear(string $tag = null)
+    public function clear(string $tag = null): bool
     {
         if ($tag) {
             // 指定标签清除

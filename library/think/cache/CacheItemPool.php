@@ -36,7 +36,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @return CacheItemInterface
      * @throws InvalidArgumentException
      */
-    public function getItem(string $key)
+    public function getItem(string $key): CacheItem
     {
         if (isset($this->data[$key])) {
             return $this->data[$key];
@@ -99,7 +99,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteItem(string $key)
+    public function deleteItem(string $key): bool
     {
         return $this->delete($key);
     }
@@ -111,7 +111,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteItems(array $keys)
+    public function deleteItems(array $keys): bool
     {
         foreach ($keys as $key) {
             $this->delete($key);
@@ -126,7 +126,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @param  CacheItemInterface $item
      * @return bool
      */
-    public function save(CacheItemInterface $item)
+    public function save(CacheItemInterface $item): bool
     {
         if ($item->getKey()) {
             $expire = $item->getExpire();
@@ -147,7 +147,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @param  CacheItemInterface $item
      * @return bool
      */
-    public function saveDeferred(CacheItemInterface $item)
+    public function saveDeferred(CacheItemInterface $item): bool
     {
         $this->deferred[$item->getKey()] = $item;
         return true;
@@ -158,11 +158,12 @@ class CacheItemPool implements CacheItemPoolInterface
      * @access public
      * @return bool
      */
-    public function commit()
+    public function commit(): bool
     {
         foreach ($this->deferred as $key => $item) {
             $result = $this->save($item);
             unset($this->deferred[$key]);
+
             if (false === $result) {
                 return false;
             }

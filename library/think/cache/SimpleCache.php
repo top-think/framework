@@ -51,12 +51,46 @@ abstract class SimpleCache implements CacheInterface
     abstract public function set(string $name, $value, $expire = null);
 
     /**
+     * 自增缓存（针对数值缓存）
+     * @access public
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
+     * @return false|int
+     */
+    abstract public function inc(string $name, int $step = 1);
+
+    /**
+     * 自减缓存（针对数值缓存）
+     * @access public
+     * @param  string    $name 缓存变量名
+     * @param  int       $step 步长
+     * @return false|int
+     */
+    abstract public function dec(string $name, int $step = 1);
+
+    /**
      * 删除缓存
      * @access public
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    public function delete($key)
+    abstract public function rm(string $name);
+
+    /**
+     * 清除缓存
+     * @access public
+     * @param  string $tag 标签名
+     * @return boolean
+     */
+    abstract public function clear(string $tag = null);
+
+    /**
+     * 删除缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return boolean
+     */
+    public function delete(string $key): bool
     {
         return $this->rm($key);
     }
@@ -69,7 +103,7 @@ abstract class SimpleCache implements CacheInterface
      * @return iterable
      * @throws InvalidArgumentException
      */
-    public function getMultiple($keys, $default = null)
+    public function getMultiple(iterable $keys, $default = null): iterable
     {
         $result = [];
 
@@ -87,7 +121,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  null|int|\DateInterval   $ttl    有效时间 0为永久
      * @return bool
      */
-    public function setMultiple($values, $ttl = null)
+    public function setMultiple(iterable $values, $ttl = null): bool
     {
         foreach ($values as $key => $val) {
             $result = $this->set($key, $val, $ttl);
@@ -107,7 +141,7 @@ abstract class SimpleCache implements CacheInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteMultiple($keys)
+    public function deleteMultiple(iterable $keys): bool
     {
         foreach ($kyes as $key) {
             $result = $this->delete($key);

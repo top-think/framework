@@ -180,7 +180,7 @@ abstract class Connection
      * @access protected
      * @return void
      */
-    protected function initialize()
+    protected function initialize(): void
     {}
 
     /**
@@ -221,7 +221,7 @@ abstract class Connection
      * @access public
      * @return string
      */
-    public function getBuilderClass()
+    public function getBuilderClass(): string
     {
         if (!empty($this->builderClassName)) {
             return $this->builderClassName;
@@ -291,7 +291,7 @@ abstract class Connection
      * @param  array $info 字段信息
      * @return array
      */
-    public function fieldCase(array $info)
+    public function fieldCase(array $info): array
     {
         // 字段大小写转换
         switch ($this->attrCase) {
@@ -315,7 +315,7 @@ abstract class Connection
      * @param  string $type 字段类型
      * @return integer
      */
-    public function getFieldBindType(string $type)
+    public function getFieldBindType(string $type): int
     {
         if (0 === strpos($type, 'set') || 0 === strpos($type, 'enum')) {
             $bind = PDO::PARAM_STR;
@@ -336,7 +336,7 @@ abstract class Connection
      * @param  string $sql sql语句
      * @return string
      */
-    public function parseSqlTable(string $sql)
+    public function parseSqlTable(string $sql): string
     {
         if (false !== strpos($sql, '__')) {
             $prefix = $this->getConfig('prefix');
@@ -434,7 +434,7 @@ abstract class Connection
      * @param  string $tableName 数据表名
      * @return array
      */
-    public function getTableFields(string $tableName)
+    public function getTableFields(string $tableName): array
     {
         return $this->getTableInfo($tableName, 'fields');
     }
@@ -463,7 +463,7 @@ abstract class Connection
      * @param  string $tableName 数据表名
      * @return array
      */
-    public function getFieldsBind(string $tableName)
+    public function getFieldsBind(string $tableName): array
     {
         return $this->getTableInfo($tableName, 'bind');
     }
@@ -486,7 +486,7 @@ abstract class Connection
      * @param  mixed             $value 配置值
      * @return void
      */
-    public function setConfig($config, $value = '')
+    public function setConfig($config, $value = ''): void
     {
         if (is_array($config)) {
             $this->config = array_merge($this->config, $config);
@@ -561,7 +561,7 @@ abstract class Connection
      * 释放查询结果
      * @access public
      */
-    public function free()
+    public function free(): void
     {
         $this->PDOStatement = null;
     }
@@ -1047,10 +1047,7 @@ abstract class Connection
 
                 // 提交事务
                 $this->commit();
-            } catch (\Exception $e) {
-                $this->rollback();
-                throw $e;
-            } catch (\Throwable $e) {
+            } catch (\Exception | \Throwable $e) {
                 $this->rollback();
                 throw $e;
             }
@@ -1330,7 +1327,7 @@ abstract class Connection
      * @param  string    $key   索引
      * @return array
      */
-    public function column(Query $query, $field, string $key = '')
+    public function column(Query $query, $field, string $key = ''): array
     {
         $options = $query->getOptions();
 
@@ -1447,7 +1444,7 @@ abstract class Connection
      * @param  array     $bind 参数绑定列表
      * @return string
      */
-    public function getRealSql(string $sql, array $bind = [])
+    public function getRealSql(string $sql, array $bind = []): string
     {
         if (is_array($sql)) {
             $sql = implode(';', $sql);
@@ -1484,7 +1481,7 @@ abstract class Connection
      * @return void
      * @throws BindParamException
      */
-    protected function bindValue(array $bind = [])
+    protected function bindValue(array $bind = []): void
     {
         foreach ($bind as $key => $val) {
             // 占位符
@@ -1517,7 +1514,7 @@ abstract class Connection
      * @return void
      * @throws BindParamException
      */
-    protected function bindParam(array $bind)
+    protected function bindParam(array $bind): void
     {
         foreach ($bind as $key => $val) {
             $param = is_numeric($key) ? $key + 1 : ':' . $key;
@@ -1549,7 +1546,7 @@ abstract class Connection
      * @param  bool   $procedure 是否存储过程
      * @return array
      */
-    protected function getResult(bool $pdo = false, bool $procedure = false)
+    protected function getResult(bool $pdo = false, bool $procedure = false): array
     {
         if ($pdo) {
             // 返回PDOStatement对象处理
@@ -1573,7 +1570,7 @@ abstract class Connection
      * @access protected
      * @return array
      */
-    protected function procedure()
+    protected function procedure(): array
     {
         $item = [];
 
@@ -1654,7 +1651,7 @@ abstract class Connection
      * @return void
      * @throws PDOException
      */
-    public function commit()
+    public function commit(): void
     {
         $this->initConnect(true);
 
@@ -1671,7 +1668,7 @@ abstract class Connection
      * @return void
      * @throws PDOException
      */
-    public function rollback()
+    public function rollback(): void
     {
         $this->initConnect(true);
 
@@ -1690,7 +1687,7 @@ abstract class Connection
      * 是否支持事务嵌套
      * @return bool
      */
-    protected function supportSavepoint()
+    protected function supportSavepoint(): bool
     {
         return false;
     }
@@ -1701,7 +1698,7 @@ abstract class Connection
      * @param  $name
      * @return string
      */
-    protected function parseSavepoint(string $name)
+    protected function parseSavepoint(string $name): string
     {
         return 'SAVEPOINT ' . $name;
     }
@@ -1712,7 +1709,7 @@ abstract class Connection
      * @param  $name
      * @return string
      */
-    protected function parseSavepointRollBack(string $name)
+    protected function parseSavepointRollBack(string $name): string
     {
         return 'ROLLBACK TO SAVEPOINT ' . $name;
     }
@@ -1725,7 +1722,7 @@ abstract class Connection
      * @param  array $bind       参数绑定
      * @return boolean
      */
-    public function batchQuery(array $sqlArray = [], array $bind = [])
+    public function batchQuery(array $sqlArray = [], array $bind = []): bool
     {
         if (!is_array($sqlArray)) {
             return false;
@@ -1754,7 +1751,7 @@ abstract class Connection
      * @param  boolean $execute 是否包含所有查询
      * @return integer
      */
-    public function getQueryTimes(bool $execute = false)
+    public function getQueryTimes(bool $execute = false): int
     {
         return $execute ? self::$queryTimes + self::$executeTimes : self::$queryTimes;
     }
@@ -1764,7 +1761,7 @@ abstract class Connection
      * @access public
      * @return integer
      */
-    public function getExecuteTimes()
+    public function getExecuteTimes(): int
     {
         return self::$executeTimes;
     }
@@ -1790,7 +1787,7 @@ abstract class Connection
      * @param  \PDOException|\Exception  $e 异常对象
      * @return bool
      */
-    protected function isBreak($e)
+    protected function isBreak($e): bool
     {
         if (!$this->config['break_reconnect']) {
             return false;
@@ -1811,7 +1808,7 @@ abstract class Connection
      * @access public
      * @return string
      */
-    public function getLastSql()
+    public function getLastSql(): string
     {
         return $this->getRealSql($this->queryStr, $this->bind);
     }
@@ -1822,7 +1819,7 @@ abstract class Connection
      * @param  string  $sequence     自增序列名
      * @return string
      */
-    public function getLastInsID(string $sequence = null)
+    public function getLastInsID(string $sequence = null): string
     {
         return $this->linkID->lastInsertId($sequence);
     }
@@ -1832,7 +1829,7 @@ abstract class Connection
      * @access public
      * @return integer
      */
-    public function getNumRows()
+    public function getNumRows(): int
     {
         return $this->numRows;
     }
@@ -1842,7 +1839,7 @@ abstract class Connection
      * @access public
      * @return string
      */
-    public function getError()
+    public function getError(): string
     {
         if ($this->PDOStatement) {
             $error = $this->PDOStatement->errorInfo();
@@ -1866,7 +1863,7 @@ abstract class Connection
      * @param  bool    $master 主从标记
      * @return void
      */
-    protected function debug(bool $start, string $sql = '', bool $master = false)
+    protected function debug(bool $start, string $sql = '', bool $master = false): void
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
@@ -1898,7 +1895,7 @@ abstract class Connection
      * @param  callable $callback 回调方法
      * @return void
      */
-    public function listen(callable $callback)
+    public function listen(callable $callback): void
     {
         self::$event[] = $callback;
     }
@@ -1912,7 +1909,7 @@ abstract class Connection
      * @param  bool      $master 主从标记
      * @return void
      */
-    protected function triggerSql(string $sql, float $runtime, array $explain = [], bool $master = false)
+    protected function triggerSql(string $sql, float $runtime, array $explain = [], bool $master = false): void
     {
         if (!empty(self::$event)) {
             foreach (self::$event as $callback) {
@@ -1937,7 +1934,7 @@ abstract class Connection
         }
     }
 
-    public function log($log, string $type = 'sql')
+    public function log($log, string $type = 'sql'): void
     {
         $this->config['debug'] && Container::get('log')->record($log, $type);
     }
@@ -1948,7 +1945,7 @@ abstract class Connection
      * @param  boolean $master 是否主服务器
      * @return void
      */
-    protected function initConnect(bool $master = true)
+    protected function initConnect(bool $master = true): void
     {
         if (!empty($this->config['deploy'])) {
             // 采用分布式数据库
@@ -2043,7 +2040,7 @@ abstract class Connection
      * @param  mixed     $data   缓存数据
      * @param  array     $config 缓存参数
      */
-    protected function cacheData(string $key, $data, array $config = [])
+    protected function cacheData(string $key, $data, array $config = []): void
     {
         $cache = Container::get('cache');
 
@@ -2077,7 +2074,7 @@ abstract class Connection
      * @param  mixed     $value   缓存数据
      * @return string
      */
-    protected function getCacheKey(Query $query, $value)
+    protected function getCacheKey(Query $query, $value): string
     {
         if (is_scalar($value)) {
             $data = $value;

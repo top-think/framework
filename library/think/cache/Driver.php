@@ -55,40 +55,6 @@ abstract class Driver extends SimpleCache
     protected static $serialize = ['serialize', 'unserialize', 'think_serialize:', 16];
 
     /**
-     * 自增缓存（针对数值缓存）
-     * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
-     * @return false|int
-     */
-    abstract public function inc(string $name, int $step = 1);
-
-    /**
-     * 自减缓存（针对数值缓存）
-     * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
-     * @return false|int
-     */
-    abstract public function dec(string $name, int $step = 1);
-
-    /**
-     * 删除缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @return boolean
-     */
-    abstract public function rm(string $name);
-
-    /**
-     * 清除缓存
-     * @access public
-     * @param  string $tag 标签名
-     * @return boolean
-     */
-    abstract public function clear(string $tag = null);
-
-    /**
      * 获取有效期
      * @access protected
      * @param  integer|\DateTime $expire 有效期
@@ -109,7 +75,7 @@ abstract class Driver extends SimpleCache
      * @param  string $name 缓存名
      * @return string
      */
-    protected function getCacheKey(string $name)
+    protected function getCacheKey(string $name): string
     {
         return $this->options['prefix'] . $name;
     }
@@ -127,8 +93,6 @@ abstract class Driver extends SimpleCache
         if ($result) {
             $this->rm($name);
             return $result;
-        } else {
-            return;
         }
     }
 
@@ -218,7 +182,7 @@ abstract class Driver extends SimpleCache
      * @param  string $name 缓存标识
      * @return void
      */
-    protected function setTagItem(string $name)
+    protected function setTagItem(string $name): void
     {
         if ($this->tag) {
             $key       = 'tag_' . md5($this->tag);
@@ -244,7 +208,7 @@ abstract class Driver extends SimpleCache
      * @param  string $tag 缓存标签
      * @return array
      */
-    protected function getTagItem(string $tag)
+    protected function getTagItem(string $tag): array
     {
         $key   = 'tag_' . md5($tag);
         $value = $this->get($key);
@@ -262,7 +226,7 @@ abstract class Driver extends SimpleCache
      * @param  mixed $data
      * @return string
      */
-    protected function serialize($data)
+    protected function serialize($data): string
     {
         if (is_scalar($data) || !$this->options['serialize']) {
             return $data;
@@ -296,9 +260,9 @@ abstract class Driver extends SimpleCache
      * @param  callable $serialize      序列化方法
      * @param  callable $unserialize    反序列化方法
      * @param  string   $prefix         序列化前缀标识
-     * @return $this
+     * @return void
      */
-    public static function registerSerialize(callable $serialize, callable $unserialize, string $prefix = 'think_serialize:')
+    public static function registerSerialize(callable $serialize, callable $unserialize, string $prefix = 'think_serialize:'): void
     {
         self::$serialize = [$serialize, $unserialize, $prefix, strlen($prefix)];
     }
@@ -309,17 +273,17 @@ abstract class Driver extends SimpleCache
      * @access public
      * @return object
      */
-    public function handler()
+    public function handler(): object
     {
         return $this->handler;
     }
 
-    public function getReadTimes()
+    public function getReadTimes(): int
     {
         return $this->readTimes;
     }
 
-    public function getWriteTimes()
+    public function getWriteTimes(): int
     {
         return $this->writeTimes;
     }

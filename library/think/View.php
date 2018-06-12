@@ -163,7 +163,7 @@ class View
      * @return string
      * @throws \Exception
      */
-    public function fetch($template = '', $vars = [], $config = [], $renderContent = false)
+    public function fetch(string $template = '', array $vars = [], array $config = [], bool $renderContent = false): string
     {
         // 模板变量
         $vars = array_merge(self::$var, $this->data, $vars);
@@ -197,9 +197,9 @@ class View
      * @param  string $content 内容
      * @param  array  $vars    模板输出变量
      * @param  array  $config  模板参数
-     * @return mixed
+     * @return string
      */
-    public function display($content, $vars = [], $config = [])
+    public function display(string $content, array $vars = [], array $config = []): string
     {
         return $this->fetch($content, $vars, $config, true);
     }

@@ -66,7 +66,7 @@ class Memcache extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function has(string $name)
+    public function has(string $name): bool
     {
         $key = $this->getCacheKey($name);
 
@@ -97,7 +97,7 @@ class Memcache extends Driver
      * @param  int|DateTime  $expire  有效时间（秒）
      * @return bool
      */
-    public function set(string $name, $value, $expire = null)
+    public function set(string $name, $value, $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -166,7 +166,7 @@ class Memcache extends Driver
      * @param  bool|false   $ttl
      * @return bool
      */
-    public function rm(string $name, $ttl = false)
+    public function rm(string $name, $ttl = false): bool
     {
         $this->writeTimes++;
 
@@ -183,7 +183,7 @@ class Memcache extends Driver
      * @param  string $tag 标签名
      * @return bool
      */
-    public function clear(string $tag = null)
+    public function clear(string $tag = null): bool
     {
         if ($tag) {
             // 指定标签清除

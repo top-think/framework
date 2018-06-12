@@ -182,7 +182,7 @@ class Query
      * @param  callable      $callback
      * @return void
      */
-    public static function extend($method, $callback = null)
+    public static function extend($method, $callback = null): void
     {
         if (is_array($method)) {
             foreach ($method as $key => $val) {
@@ -255,7 +255,7 @@ class Query
      * @access public
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name ?: $this->model->getName();
     }
@@ -266,7 +266,7 @@ class Query
      * @param  bool $all 是否所有表有效
      * @return $this
      */
-    public function readMaster($all = false)
+    public function readMaster(bool $all = false)
     {
         $table = $all ? '*' : $this->getTable();
 
@@ -281,7 +281,7 @@ class Query
      * @param  string $name
      * @return string
      */
-    public function getTable(string $name = '')
+    public function getTable(string $name = ''): string
     {
         if (empty($name) && isset($this->options['table'])) {
             return $this->options['table'];
@@ -298,7 +298,7 @@ class Query
      * @param  string $tableName 数据表名
      * @return array
      */
-    public function getTableFields(string $tableName = '')
+    public function getTableFields(string $tableName = ''): array
     {
         if ('' == $tableName) {
             $tableName = $this->options['table'] ?? $this->getTable();
@@ -364,9 +364,9 @@ class Query
 
         if (is_null($field)) {
             return array_map([$this->connection, 'getFieldBindType'], $fieldType);
-        } else {
-            return $this->connection->getFieldBindType($fieldType);
         }
+
+        return $this->connection->getFieldBindType($fieldType);
     }
 
     /**
@@ -405,7 +405,7 @@ class Query
      * @param  callable $callback 回调方法
      * @return void
      */
-    public function listen(callable $callback)
+    public function listen(callable $callback): void
     {
         $this->connection->listen($callback);
     }
@@ -414,7 +414,7 @@ class Query
      * 获取最近插入的ID
      * @access public
      * @param  string $sequence 自增序列名
-     * @return string
+     * @return mixed
      */
     public function getLastInsID(string $sequence = null)
     {
@@ -426,7 +426,7 @@ class Query
      * @access public
      * @return integer
      */
-    public function getNumRows()
+    public function getNumRows(): int
     {
         return $this->connection->getNumRows();
     }
@@ -436,7 +436,7 @@ class Query
      * @access public
      * @return string
      */
-    public function getLastSql()
+    public function getLastSql(): string
     {
         return $this->connection->getLastSql();
     }
@@ -457,7 +457,7 @@ class Query
      * @access public
      * @return void
      */
-    public function startTrans()
+    public function startTrans(): void
     {
         $this->connection->startTrans();
     }
@@ -468,7 +468,7 @@ class Query
      * @return void
      * @throws PDOException
      */
-    public function commit()
+    public function commit(): void
     {
         $this->connection->commit();
     }
@@ -479,7 +479,7 @@ class Query
      * @return void
      * @throws PDOException
      */
-    public function rollback()
+    public function rollback(): void
     {
         $this->connection->rollback();
     }
@@ -491,7 +491,7 @@ class Query
      * @param  array $sql SQL批处理指令
      * @return boolean
      */
-    public function batchQuery(array $sql = [])
+    public function batchQuery(array $sql = []): bool
     {
         return $this->connection->batchQuery($sql);
     }
@@ -504,7 +504,7 @@ class Query
      * @param  array  $rule  分表规则
      * @return string
      */
-    public function getPartitionTableName(array $data, string $field, array $rule = [])
+    public function getPartitionTableName(array $data, string $field, array $rule = []): string
     {
         // 对数据表进行分区
         if ($field && isset($data[$field])) {
@@ -575,7 +575,7 @@ class Query
      * @param  string $key   索引
      * @return array
      */
-    public function column($field, string $key = '')
+    public function column($field, string $key = ''): array
     {
         $this->parseOptions();
 
@@ -599,7 +599,7 @@ class Query
         if (!empty($this->options['fetch_sql'])) {
             return $result;
         } elseif ($force) {
-            $result += 0;
+            $result = (float) $result;
         }
 
         return $result;
@@ -636,7 +636,7 @@ class Query
      * @param  string $field 字段名
      * @return float
      */
-    public function sum(string $field)
+    public function sum(string $field): float
     {
         return $this->aggregate('SUM', $field, true);
     }
@@ -671,7 +671,7 @@ class Query
      * @param  string $field 字段名
      * @return float
      */
-    public function avg(string $field)
+    public function avg(string $field): float
     {
         return $this->aggregate('AVG', $field, true);
     }
@@ -684,7 +684,7 @@ class Query
      * @param  mixed        $value 字段值
      * @return integer
      */
-    public function setField($field, $value = '')
+    public function setField($field, $value = ''): int
     {
         if (is_array($field)) {
             $data = $field;
@@ -2258,7 +2258,7 @@ class Query
      * @param  string $key 参数名
      * @return bool
      */
-    public function isBind(string $key)
+    public function isBind(string $key): bool
     {
         return isset($this->bind[$key]);
     }
@@ -2827,7 +2827,7 @@ class Query
      * @param  bool  $assoc      是否转换为数组
      * @return void
      */
-    protected function jsonResult(&$result, $json = [], $assoc = false)
+    protected function jsonResult(&$result, $json = [], $assoc = false): void
     {
         foreach ($json as $name) {
             if (isset($result[$name])) {
@@ -2844,7 +2844,7 @@ class Query
      * @param  bool  $resultSet  是否为数据集查询
      * @return void
      */
-    protected function resultToModel(&$result, array $options = [], bool $resultSet = false)
+    protected function resultToModel(&$result, array $options = [], bool $resultSet = false): void
     {
         if (!empty($options['json'])) {
             $this->jsonResult($result, $options['json'], $options['json_assoc']);
@@ -2926,7 +2926,7 @@ class Query
      * @return boolean
      * @throws DbException
      */
-    public function chunk(int $count, callable $callback, $column = null, string $order = 'asc')
+    public function chunk(int $count, callable $callback, $column = null, string $order = 'asc'): bool
     {
         $options = $this->getOptions();
         $column  = $column ?: $this->getPk($options);
@@ -2988,7 +2988,7 @@ class Query
      * @param  bool $clear
      * @return array
      */
-    public function getBind(bool $clear = true)
+    public function getBind(bool $clear = true): array
     {
         $bind = $this->bind;
         if ($clear) {
@@ -3005,7 +3005,7 @@ class Query
      * @return string
      * @throws DbException
      */
-    public function buildSql(bool $sub = true)
+    public function buildSql(bool $sub = true): string
     {
         return $sub ? '( ' . $this->select(false) . ' )' : $this->select(false);
     }
@@ -3016,7 +3016,7 @@ class Query
      * @param  array   $options    查询参数
      * @return void
      */
-    protected function parseView(&$options)
+    protected function parseView(&$options): void
     {
         foreach (['AND', 'OR'] as $logic) {
             if (isset($options['where'][$logic])) {
@@ -3063,7 +3063,7 @@ class Query
      * @return void
      * @throws Exception
      */
-    public function parsePkWhere($data)
+    public function parsePkWhere($data): void
     {
         $pk = $this->getPk($this->options);
 
@@ -3101,8 +3101,6 @@ class Query
                 $this->options['where']['AND'] = $where;
             }
         }
-
-        return;
     }
 
     /**
@@ -3110,7 +3108,7 @@ class Query
      * @access protected
      * @return array
      */
-    protected function parseOptions()
+    protected function parseOptions(): array
     {
         $options = $this->getOptions();
 
@@ -3177,7 +3175,7 @@ class Query
      * @param  callable $callback 回调方法
      * @return void
      */
-    public static function event(string $event, callable $callback)
+    public static function event(string $event, callable $callback): void
     {
         self::$event[$event] = $callback;
     }

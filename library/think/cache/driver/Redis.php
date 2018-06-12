@@ -81,7 +81,7 @@ class Redis extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function has(string $name)
+    public function has(string $name): bool
     {
         return $this->handler->exists($this->getCacheKey($name));
     }
@@ -114,7 +114,7 @@ class Redis extends Driver
      * @param  integer|\DateTime $expire  有效时间（秒）
      * @return boolean
      */
-    public function set(string $name, $value, $expire = null)
+    public function set(string $name, $value, $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -180,7 +180,7 @@ class Redis extends Driver
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    public function rm(string $name)
+    public function rm(string $name): bool
     {
         $this->writeTimes++;
 
@@ -193,7 +193,7 @@ class Redis extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear(string $tag = null)
+    public function clear(string $tag = null): bool
     {
         if ($tag) {
             // 指定标签清除
