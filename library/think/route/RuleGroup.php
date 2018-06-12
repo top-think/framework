@@ -346,7 +346,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule(): ?RuleItem
+    public function getMissRule():  ? RuleItem
     {
         return $this->miss;
     }
@@ -356,7 +356,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getAutoRule(): string
+    public function getAutoRule() : string
     {
         return $this->auto;
     }
@@ -411,6 +411,10 @@ class RuleGroup extends Rule
         }
 
         $method = strtolower($method);
+
+        if ('' === $rule || '/' === $rule) {
+            $rule .= '$';
+        }
 
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method);
@@ -495,7 +499,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName(): ?string
+    public function getFullName():  ? string
     {
         return $this->fullName;
     }

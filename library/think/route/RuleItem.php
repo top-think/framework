@@ -234,7 +234,7 @@ class RuleItem extends Rule
         }
 
         if (false === strpos($rule, '<')) {
-            if (0 === strcasecmp($rule, $url) || (!$completeMatch && 0 === strncasecmp($rule, $url, strlen($rule)))) {
+            if (0 === strcasecmp($rule, $url) || (!$completeMatch && 0 === strncasecmp($rule . $depr, $url . $depr, strlen($rule . $depr)))) {
                 return $var;
             }
             return false;
