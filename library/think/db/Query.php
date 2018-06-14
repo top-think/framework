@@ -87,7 +87,7 @@ class Query
      * 读取主库的表
      * @var array
      */
-    private static $readMaster = [];
+    protected static $readMaster = [];
 
     /**
      * 日期查询表达式
