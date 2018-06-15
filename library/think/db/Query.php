@@ -2250,6 +2250,33 @@ class Query
     }
 
     /**
+     * 查询当前时间在两个时间字段范围
+     * @access public
+     * @param  string    $startField    开始时间字段
+     * @param  string    $endField 结束时间字段
+     * @param  string    $logic AND OR
+     * @return $this
+     */
+    public function whereBetweenTimeField($startField, $endField)
+    {
+        return $this->whereTime($startField, '<=', time())
+            ->whereTime($endField, '>=', time());
+    }
+
+    /**
+     * 查询当前时间不在两个时间字段范围
+     * @access public
+     * @param  string    $startField    开始时间字段
+     * @param  string    $endField 结束时间字段
+     * @return $this
+     */
+    public function whereNotBetweenTimeField($startField, $endField)
+    {
+        return $this->whereTime($startField, '>', time())
+            ->whereTime($endField, '<', time(), 'OR');
+    }
+
+    /**
      * 查询日期或者时间范围
      * @access public
      * @param  string    $field 日期字段名
