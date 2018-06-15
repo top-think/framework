@@ -198,14 +198,14 @@ class MorphTo extends Relation
                     if ($key == $result->$morphType) {
                         // 关联模型
                         if (!isset($data[$result->$morphKey])) {
-                            throw new Exception('relation data not exists :' . $this->model);
+                            $relationModel = null;
                         } else {
                             $relationModel = $data[$result->$morphKey];
                             $relationModel->setParent(clone $result);
                             $relationModel->isUpdate(true);
-
-                            $result->setRelation($attr, $relationModel);
                         }
+
+                        $result->setRelation($attr, $relationModel);
                     }
                 }
             }
