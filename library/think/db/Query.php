@@ -2254,7 +2254,6 @@ class Query
      * @access public
      * @param  string    $startField    开始时间字段
      * @param  string    $endField 结束时间字段
-     * @param  string    $logic AND OR
      * @return $this
      */
     public function whereBetweenTimeField($startField, $endField)
