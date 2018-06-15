@@ -1340,11 +1340,8 @@ abstract class Connection
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
-            $cache = $options['cache'];
-
-            $guid = is_string($cache['key']) ? $cache['key'] : $this->getCacheKey($query, $field);
-
-            $result = Container::get('cache')->get($guid);
+            $cache  = $options['cache'];
+            $result = $this->getCacheData($query, $cache, null, $guid);
 
             if (false !== $result) {
                 return $result;
