@@ -28,7 +28,7 @@ class Mysql extends Connection
      * @access protected
      * @return void
      */
-    protected function initialize()
+    protected function initialize(): void
     {
         // Point类型支持
         Query::extend('point', function ($query, $field, $value = null, $fun = 'GeomFromText', $type = 'POINT') {
@@ -51,7 +51,7 @@ class Mysql extends Connection
      * @param  array $config 连接信息
      * @return string
      */
-    protected function parseDsn(array $config)
+    protected function parseDsn(array $config): string
     {
         if (!empty($config['socket'])) {
             $dsn = 'mysql:unix_socket=' . $config['socket'];
@@ -75,7 +75,7 @@ class Mysql extends Connection
      * @param  string $tableName
      * @return array
      */
-    public function getFields(string $tableName)
+    public function getFields(string $tableName): array
     {
         list($tableName) = explode(' ', $tableName);
 
@@ -114,7 +114,7 @@ class Mysql extends Connection
      * @param  string $dbName
      * @return array
      */
-    public function getTables(string $dbName = '')
+    public function getTables(string $dbName = ''): array
     {
         $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
         $pdo    = $this->query($sql, [], false, true);
@@ -134,7 +134,7 @@ class Mysql extends Connection
      * @param  string $sql
      * @return array
      */
-    protected function getExplain(string $sql)
+    protected function getExplain(string $sql): array
     {
         $pdo    = $this->linkID->query("EXPLAIN " . $sql);
         $result = $pdo->fetch(PDO::FETCH_ASSOC);
@@ -149,7 +149,7 @@ class Mysql extends Connection
         return $result;
     }
 
-    protected function supportSavepoint()
+    protected function supportSavepoint(): bool
     {
         return true;
     }

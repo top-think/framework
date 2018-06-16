@@ -11,6 +11,8 @@
 
 namespace think;
 
+use think\exception\ClassNotFoundException;
+
 class Loader
 {
     /**

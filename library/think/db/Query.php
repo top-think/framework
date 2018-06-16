@@ -2422,7 +2422,8 @@ class Query
             }
 
             foreach ($relations as $key => $relation) {
-                $closure = false;
+                $closure = null;
+
                 if ($relation instanceof \Closure) {
                     $closure  = $relation;
                     $relation = $key;

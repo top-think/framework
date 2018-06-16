@@ -363,7 +363,7 @@ class BelongsToMany extends Relation
      * @param  string   $field 字段
      * @return string
      */
-    public function getRelationCountQuery(Closure $closure, string $aggregate = 'count', string $field = '*'): string
+    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*'): string
     {
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             [

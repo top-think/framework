@@ -176,7 +176,7 @@ class HasMany extends Relation
      * @param  string   $field 字段
      * @return string
      */
-    public function getRelationCountQuery(Closure $closure, string $aggregate = 'count', string $field = '*'): string
+    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*'): string
     {
         if ($closure) {
             $closure($this->query);

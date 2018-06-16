@@ -90,7 +90,7 @@ class Container implements ArrayAccess
      * @param  object        $instance
      * @return void
      */
-    public static function setInstance(object $instance): void
+    public static function setInstance($instance): void
     {
         static::$instance = $instance;
     }
@@ -103,7 +103,7 @@ class Container implements ArrayAccess
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public static function get(string $abstract, array $vars = [], bool $newInstance = false): object
+    public static function get(string $abstract, array $vars = [], bool $newInstance = false)
     {
         return static::getInstance()->make($abstract, $vars, $newInstance);
     }
@@ -230,7 +230,7 @@ class Container implements ArrayAccess
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public function make(string $abstract, array $vars = [], bool $newInstance = false): object
+    public function make(string $abstract, array $vars = [], bool $newInstance = false)
     {
         $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
 
@@ -440,7 +440,7 @@ class Container implements ArrayAccess
      * @param  array    $vars       参数
      * @return mixed
      */
-    protected function getObjectParam($className, &$vars)
+    protected function getObjectParam(string $className, array &$vars)
     {
         $array = $vars;
         $value = array_shift($array);

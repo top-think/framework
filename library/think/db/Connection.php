@@ -706,7 +706,12 @@ abstract class Connection
             $this->debug(false, '', $master);
 
             // 返回结果集
-            return $this->getResult($pdo, $procedure);
+            if ($pdo) {
+                // 返回PDOStatement对象处理
+                return $this->PDOStatement;
+            }
+
+            return $this->getResult($procedure);
         } catch (\PDOException $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->query($sql, $bind, $master, $pdo);
@@ -1539,17 +1544,11 @@ abstract class Connection
     /**
      * 获得数据集数组
      * @access protected
-     * @param  bool   $pdo 是否返回PDOStatement
      * @param  bool   $procedure 是否存储过程
      * @return array
      */
-    protected function getResult(bool $pdo = false, bool $procedure = false): array
+    protected function getResult(bool $procedure = false): array
     {
-        if ($pdo) {
-            // 返回PDOStatement对象处理
-            return $this->PDOStatement;
-        }
-
         if ($procedure) {
             // 存储过程返回结果
             return $this->procedure();

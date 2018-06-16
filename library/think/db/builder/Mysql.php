@@ -46,7 +46,7 @@ class Mysql extends Builder
      * @param  bool      $replace 是否replace
      * @return string
      */
-    public function insertAll(Query $query, array $dataSet, bool $replace = false)
+    public function insertAll(Query $query, array $dataSet, bool $replace = false): string
     {
         $options = $query->getOptions();
 
@@ -97,7 +97,7 @@ class Mysql extends Builder
      * @param  string       $field
      * @return string
      */
-    protected function parseRegexp(Query $query, string $key, string $exp, Expression $value, string $field)
+    protected function parseRegexp(Query $query, string $key, string $exp, Expression $value, string $field): string
     {
         return $key . ' ' . $exp . ' ' . $value->getValue();
     }
@@ -110,7 +110,7 @@ class Mysql extends Builder
      * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, $key, bool $strict = false)
+    public function parseKey(Query $query, $key, bool $strict = false): string
     {
         if (is_int($key)) {
             return $key;
@@ -161,7 +161,7 @@ class Mysql extends Builder
      * @param  Query     $query        查询对象
      * @return string
      */
-    protected function parseRand(Query $query)
+    protected function parseRand(Query $query): string
     {
         return 'rand()';
     }
