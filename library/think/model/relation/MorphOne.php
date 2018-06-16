@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use Closure;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -51,7 +52,7 @@ class MorphOne extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null)
+    public function getRelation(string $subRelation = '', Closure $closure = null)
     {
         if ($closure) {
             $closure($this->query);
@@ -103,7 +104,7 @@ class MorphOne extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
+    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation, Closure $closure = null): void
     {
         $morphType = $this->morphType;
         $morphKey  = $this->morphKey;
@@ -151,7 +152,7 @@ class MorphOne extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
+    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
     {
         $pk = $result->getPk();
 
@@ -183,7 +184,7 @@ class MorphOne extends Relation
      * @param  \Closure     $closure     闭包
      * @return array
      */
-    protected function eagerlyMorphToOne($where, $relation, $subRelation = '', $closure = null)
+    protected function eagerlyMorphToOne(array $where, string $relation, string $subRelation = '', $closure = null): array
     {
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
@@ -229,7 +230,7 @@ class MorphOne extends Relation
      * @access protected
      * @return void
      */
-    protected function baseQuery()
+    protected function baseQuery(): void
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
             $pk = $this->parent->getPk();

@@ -21,7 +21,7 @@ class Bootstrap extends Paginator
      * @param string $text
      * @return string
      */
-    protected function getPreviousButton($text = "&laquo;")
+    protected function getPreviousButton(string $text = "&laquo;"): string
     {
 
         if ($this->currentPage() <= 1) {
@@ -40,7 +40,7 @@ class Bootstrap extends Paginator
      * @param string $text
      * @return string
      */
-    protected function getNextButton($text = '&raquo;')
+    protected function getNextButton(string $text = '&raquo;'): string
     {
         if (!$this->hasMore) {
             return $this->getDisabledTextWrapper($text);
@@ -55,7 +55,7 @@ class Bootstrap extends Paginator
      * 页码按钮
      * @return string
      */
-    protected function getLinks()
+    protected function getLinks(): string
     {
         if ($this->simple) {
             return '';
@@ -134,7 +134,7 @@ class Bootstrap extends Paginator
      * @param  int    $page
      * @return string
      */
-    protected function getAvailablePageWrapper($url, $page)
+    protected function getAvailablePageWrapper(string $url, int $page): string
     {
         return '<li><a href="' . htmlentities($url) . '">' . $page . '</a></li>';
     }
@@ -145,7 +145,7 @@ class Bootstrap extends Paginator
      * @param  string $text
      * @return string
      */
-    protected function getDisabledTextWrapper($text)
+    protected function getDisabledTextWrapper(string $text): string
     {
         return '<li class="disabled"><span>' . $text . '</span></li>';
     }
@@ -156,7 +156,7 @@ class Bootstrap extends Paginator
      * @param  string $text
      * @return string
      */
-    protected function getActivePageWrapper($text)
+    protected function getActivePageWrapper(string $text): string
     {
         return '<li class="active"><span>' . $text . '</span></li>';
     }
@@ -166,7 +166,7 @@ class Bootstrap extends Paginator
      *
      * @return string
      */
-    protected function getDots()
+    protected function getDots(): string
     {
         return $this->getDisabledTextWrapper('...');
     }
@@ -177,7 +177,7 @@ class Bootstrap extends Paginator
      * @param  array $urls
      * @return string
      */
-    protected function getUrlLinks(array $urls)
+    protected function getUrlLinks(array $urls): string
     {
         $html = '';
 
@@ -195,7 +195,7 @@ class Bootstrap extends Paginator
      * @param  int    $page
      * @return string
      */
-    protected function getPageLinkWrapper($url, $page)
+    protected function getPageLinkWrapper(string $url, int $page): string
     {
         if ($this->currentPage() == $page) {
             return $this->getActivePageWrapper($page);

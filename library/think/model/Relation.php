@@ -75,7 +75,7 @@ abstract class Relation
      * @access public
      * @return bool
      */
-    public function isSelfRelation()
+    public function isSelfRelation(): bool
     {
         return $this->selfRelation;
     }
@@ -117,7 +117,7 @@ abstract class Relation
         return $fields;
     }
 
-    protected function getQueryWhere(&$where, $relation)
+    protected function getQueryWhere(array &$where, string $relation)
     {
         foreach ($where as $key => $val) {
             if (is_string($key)) {
@@ -135,7 +135,7 @@ abstract class Relation
      * @throws Exception
      * @throws PDOException
      */
-    public function delete($data = null)
+    public function delete($data = null): int
     {
         return $this->query->delete($data);
     }
@@ -145,7 +145,7 @@ abstract class Relation
      * @access protected
      * @return void
      */
-    protected function baseQuery()
+    protected function baseQuery(): void
     {}
 
     public function __call($method, $args)

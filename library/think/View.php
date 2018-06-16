@@ -133,10 +133,10 @@ class View
     /**
      * 检查模板是否存在
      * @access public
-     * @param  string|array  $name 参数名
+     * @param  string  $name 参数名
      * @return bool
      */
-    public function exists($name)
+    public function exists(string $name): bool
     {
         return $this->engine->exists($name);
     }
@@ -147,7 +147,7 @@ class View
      * @param Callable  $filter 过滤方法或闭包
      * @return $this
      */
-    public function filter($filter)
+    public function filter(callable $filter)
     {
         $this->filter = $filter;
         return $this;

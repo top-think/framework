@@ -142,7 +142,7 @@ class Domain extends RuleGroup
         return false;
     }
 
-    protected function parseBindAppendParam(string &$bind)
+    protected function parseBindAppendParam(string &$bind): void
     {
         if (false !== strpos($bind, '?')) {
             list($bind, $query) = explode('?', $bind);

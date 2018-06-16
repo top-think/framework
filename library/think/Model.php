@@ -280,7 +280,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $query = $this->buildQuery();
 
         // 软删除
-        if (method_exists($this, 'withNoTrashed')) {
+        if (property_exists($this, 'withTrashed') && !$this->withTrashed) {
             $this->withNoTrashed($query);
         }
 

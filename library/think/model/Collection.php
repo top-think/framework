@@ -23,7 +23,7 @@ class Collection extends BaseCollection
      * @param  string|null   $index_key
      * @return array
      */
-    public function column($column_key, $index_key = null)
+    public function column(string $column_key, string $index_key = null): array
     {
         return array_column($this->toArray(), $column_key, $index_key);
     }
@@ -34,7 +34,7 @@ class Collection extends BaseCollection
      * @param  mixed $relation 关联
      * @return $this
      */
-    public function load($relation)
+    public function load(string $relation)
     {
         $item = current($this->items);
         $item->eagerlyResultSet($this->items, $relation);

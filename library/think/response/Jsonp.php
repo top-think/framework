@@ -29,10 +29,10 @@ class Jsonp extends Response
      * 处理数据
      * @access protected
      * @param  mixed $data 要处理的数据
-     * @return mixed
+     * @return string
      * @throws \Exception
      */
-    protected function output($data)
+    protected function output($data): string
     {
         try {
             // 返回JSON数据格式到客户端 包含状态信息 [当url_common_param为false时是无法获取到$_GET的数据的，故使用Request来获取<xiaobo.sun@qq.com>]

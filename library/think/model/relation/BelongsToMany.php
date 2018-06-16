@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use Closure;
 use think\Collection;
 use think\db\Query;
 use think\Exception;
@@ -74,10 +75,11 @@ class BelongsToMany extends Relation
      * @return Pivot
      * @throws Exception
      */
-    protected function newPivot(array $data = [])
+    protected function newPivot(array $data = []): Pivot
     {
         $class = $this->pivotName ?: '\\think\\model\\Pivot';
         $pivot = new $class($data, $this->parent, $this->middle);
+
         if ($pivot instanceof Pivot) {
             return $pivot;
         } else {
@@ -90,7 +92,7 @@ class BelongsToMany extends Relation
      * @access protected
      * @param  array|Collection|Paginator $models
      */
-    protected function hydratePivot($models)
+    protected function hydratePivot(iterable $models)
     {
         foreach ($models as $model) {
             $pivot = [];
@@ -115,7 +117,7 @@ class BelongsToMany extends Relation
      * @access protected
      * @return Query
      */
-    protected function buildQuery()
+    protected function buildQuery(): Query
     {
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
@@ -135,7 +137,7 @@ class BelongsToMany extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return Collection
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null)
+    public function getRelation(string $subRelation = '', Closure $closure = null): Collection
     {
         if ($closure) {
             $closure($this->query);
@@ -153,7 +155,7 @@ class BelongsToMany extends Relation
      * @param  mixed $data
      * @return Collection
      */
-    public function select($data = null)
+    public function select($data = null): Collection
     {
         $result = $this->buildQuery()->select($data);
         $this->hydratePivot($result);
@@ -169,7 +171,7 @@ class BelongsToMany extends Relation
      * @param  array $config
      * @return Paginator
      */
-    public function paginate($listRows = null, $simple = false, $config = [])
+    public function paginate($listRows = null, $simple = false, $config = []): Paginator
     {
         $result = $this->buildQuery()->paginate($listRows, $simple, $config);
         $this->hydratePivot($result);
@@ -186,6 +188,7 @@ class BelongsToMany extends Relation
     public function find($data = null)
     {
         $result = $this->buildQuery()->find($data);
+
         if ($result) {
             $this->hydratePivot([$result]);
         }
@@ -199,7 +202,7 @@ class BelongsToMany extends Relation
      * @param  array|string|Query|\Closure $data
      * @return Collection
      */
-    public function selectOrFail($data = null)
+    public function selectOrFail($data = null): Collection
     {
         return $this->failException(true)->select($data);
     }
@@ -210,7 +213,7 @@ class BelongsToMany extends Relation
      * @param  array|string|Query|\Closure $data
      * @return Model
      */
-    public function findOrFail($data = null)
+    public function findOrFail($data = null): Model
     {
         return $this->failException(true)->find($data);
     }
@@ -224,7 +227,7 @@ class BelongsToMany extends Relation
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has(string $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER')
+    public function has(string $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER'): Query
     {
         return $this->parent;
     }
@@ -265,7 +268,7 @@ class BelongsToMany extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
+    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation, Closure $closure = null): void
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -308,7 +311,7 @@ class BelongsToMany extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
+    public function eagerlyResult(Model $result, string $relation, string $subRelation, Closure $closure = null): void
     {
         $pk = $result->getPk();
 
@@ -337,7 +340,7 @@ class BelongsToMany extends Relation
      * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
+    public function relationCount(Model $result, Closure $closure = null, string $aggregate = 'count', string $field = '*'): float
     {
         $pk    = $result->getPk();
         $count = 0;
@@ -360,7 +363,7 @@ class BelongsToMany extends Relation
      * @param  string   $field 字段
      * @return string
      */
-    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
+    public function getRelationCountQuery(Closure $closure, string $aggregate = 'count', string $field = '*'): string
     {
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             [
@@ -377,7 +380,7 @@ class BelongsToMany extends Relation
      * @param  string $subRelation 子关联
      * @return array
      */
-    protected function eagerlyManyToMany($where, $relation, $subRelation = '')
+    protected function eagerlyManyToMany(array $where, string $relation, string $subRelation = ''): array
     {
         // 预载入关联查询 支持嵌套预载入
         $list = $this->belongsToManyQuery($this->foreignKey, $this->localKey, $where)
@@ -414,7 +417,7 @@ class BelongsToMany extends Relation
      * @param  array  $condition  关联查询条件
      * @return Query
      */
-    protected function belongsToManyQuery($foreignKey, $localKey, $condition = [])
+    protected function belongsToManyQuery(string $foreignKey, string $localKey, array $condition = []): Query
     {
         // 关联查询封装
         $tableName = $this->query->getTable();
@@ -530,7 +533,7 @@ class BelongsToMany extends Relation
      * @param  bool          $relationDel 是否同时删除关联表数据
      * @return integer
      */
-    public function detach($data = null, bool $relationDel = false)
+    public function detach($data = null, bool $relationDel = false): int
     {
         if (is_array($data)) {
             $id = $data;
@@ -569,7 +572,7 @@ class BelongsToMany extends Relation
      * @param  bool  $detaching
      * @return array
      */
-    public function sync($ids, bool $detaching = true)
+    public function sync(array $ids, bool $detaching = true): array
     {
         $changes = [
             'attached' => [],
@@ -617,7 +620,7 @@ class BelongsToMany extends Relation
      * @access protected
      * @return void
      */
-    protected function baseQuery()
+    protected function baseQuery(): void
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
             $pk    = $this->parent->getPk();

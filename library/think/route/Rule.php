@@ -207,7 +207,7 @@ abstract class Rule
      * @param  string  $name 变量名
      * @return mixed
      */
-    public function getConfig($name = '')
+    public function getConfig(string $name = '')
     {
         return $this->router->config($name);
     }
@@ -466,10 +466,10 @@ abstract class Rule
     /**
      * 检查URL分隔符
      * @access public
-     * @param  bool     $depr
+     * @param  string     $depr
      * @return $this
      */
-    public function depr($depr)
+    public function depr(string $depr)
     {
         return $this->option('param_depr', $depr);
     }

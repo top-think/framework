@@ -22,15 +22,14 @@ class Jump extends Response
      * 处理数据
      * @access protected
      * @param  mixed $data 要处理的数据
-     * @return mixed
+     * @return string
      * @throws \Exception
      */
-    protected function output($data)
+    protected function output($data): string
     {
         $config = Container::get('config');
-        $data   = Container::get('view')
+        return Container::get('view')
             ->init($config->pull('template'))
             ->fetch($this->options['jump_template'], $data);
-        return $data;
     }
 }

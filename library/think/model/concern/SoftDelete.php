@@ -9,13 +9,18 @@ use think\db\Query;
  */
 trait SoftDelete
 {
+    /**
+     * 是否包含软删除数据
+     * @var bool
+     */
+    protected $withTrashed = false;
 
     /**
      * 判断当前实例是否被软删除
      * @access public
      * @return boolean
      */
-    public function trashed()
+    public function trashed(): bool
     {
         $field = $this->getDeleteTimeField();
 
@@ -35,7 +40,19 @@ trait SoftDelete
     {
         $model = new static();
 
-        return $model->db(false);
+        return $model->withTrashedData(true)->db(false);
+    }
+
+    /**
+     * 是否包含软删除数据
+     * @access protected
+     * @param  bool $withTrashed 是否包含软删除数据
+     * @return $this
+     */
+    protected function withTrashedData($withTrashed)
+    {
+        $this->withTrashed = $withTrashed;
+        return $this;
     }
 
     /**
@@ -43,7 +60,7 @@ trait SoftDelete
      * @access public
      * @return Query
      */
-    public static function onlyTrashed()
+    public static function onlyTrashed(): Query
     {
         $model = new static();
         $field = $model->getDeleteTimeField(true);
@@ -62,7 +79,7 @@ trait SoftDelete
      * @access protected
      * @return array
      */
-    protected function getWithTrashedExp()
+    protected function getWithTrashedExp(): array
     {
         return is_null($this->defaultSoftDelete) ?
         ['notnull', ''] : ['<>', $this->defaultSoftDelete];
@@ -208,7 +225,7 @@ trait SoftDelete
      * @param  Query  $query
      * @return void
      */
-    protected function withNoTrashed($query)
+    protected function withNoTrashed($query): void
     {
         $field = $this->getDeleteTimeField(true);
 

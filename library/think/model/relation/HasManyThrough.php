@@ -11,6 +11,8 @@
 
 namespace think\model\relation;
 
+use Closure;
+use think\Collection;
 use think\db\Query;
 use think\Exception;
 use think\Loader;
@@ -52,7 +54,7 @@ class HasManyThrough extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return \think\Collection
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null)
+    public function getRelation(string $subRelation = '', \Closure $closure = null): Collection
     {
         if ($closure) {
             $closure($this->query);
@@ -98,7 +100,7 @@ class HasManyThrough extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
+    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure): void
     {}
 
     /**
@@ -110,7 +112,7 @@ class HasManyThrough extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
+    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
     {}
 
     /**
@@ -122,7 +124,7 @@ class HasManyThrough extends Relation
      * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*')
     {}
 
     /**
@@ -130,7 +132,7 @@ class HasManyThrough extends Relation
      * @access protected
      * @return void
      */
-    protected function baseQuery()
+    protected function baseQuery(): void
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
             $through      = $this->through;

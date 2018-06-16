@@ -39,7 +39,7 @@ class Xml extends Response
      * @param  mixed $data 要处理的数据
      * @return mixed
      */
-    protected function output($data)
+    protected function output($data): string
     {
         if (is_string($data)) {
             if (0 !== strpos($data, '<?xml')) {
@@ -65,7 +65,7 @@ class Xml extends Response
      * @param  string $encoding 数据编码
      * @return string
      */
-    protected function xmlEncode($data, $root, $item, $attr, $id, $encoding)
+    protected function xmlEncode($data, string $root, string $item, string $attr, string $id, string $encoding): string
     {
         if (is_array($attr)) {
             $array = [];
@@ -93,7 +93,7 @@ class Xml extends Response
      * @param  string $id   数字索引key转换为的属性名
      * @return string
      */
-    protected function dataToXml($data, $item, $id)
+    protected function dataToXml($data, string $item, string $id): string
     {
         $xml = $attr = '';
 

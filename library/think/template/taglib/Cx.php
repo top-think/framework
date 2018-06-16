@@ -60,7 +60,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagPhp($tag, $content)
+    public function tagPhp(array $tag, string $content): string
     {
         $parseStr = '<?php ' . $content . ' ?>';
         return $parseStr;
@@ -76,9 +76,9 @@ class Cx extends Taglib
      * @access public
      * @param  array $tag 标签属性
      * @param  string $content 标签内容
-     * @return string|void
+     * @return string
      */
-    public function tagVolist($tag, $content)
+    public function tagVolist(array $tag, string $content): string
     {
         $name   = $tag['name'];
         $id     = $tag['id'];
@@ -116,11 +116,7 @@ class Cx extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php endforeach; endif; else: echo "' . $empty . '" ;endif; ?>';
 
-        if (!empty($parseStr)) {
-            return $parseStr;
-        }
-
-        return;
+        return $parseStr;
     }
 
     /**
@@ -132,9 +128,9 @@ class Cx extends Taglib
      * @access public
      * @param  array $tag 标签属性
      * @param  string $content 标签内容
-     * @return string|void
+     * @return string
      */
-    public function tagForeach($tag, $content)
+    public function tagForeach(array $tag, string $content): string
     {
         // 直接使用表达式
         if (!empty($tag['expression'])) {
@@ -203,11 +199,7 @@ class Cx extends Taglib
         $parseStr .= $content;
         $parseStr .= '<?php endforeach; endif; else: echo "' . $empty . '" ;endif; ?>';
 
-        if (!empty($parseStr)) {
-            return $parseStr;
-        }
-
-        return;
+        return $parseStr;
     }
 
     /**
@@ -223,7 +215,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagIf($tag, $content)
+    public function tagIf(array $tag, string $content): string
     {
         $condition = !empty($tag['expression']) ? $tag['expression'] : $tag['condition'];
         $condition = $this->parseCondition($condition);
@@ -240,7 +232,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagElseif($tag, $content)
+    public function tagElseif(array $tag, string $content): string
     {
         $condition = !empty($tag['expression']) ? $tag['expression'] : $tag['condition'];
         $condition = $this->parseCondition($condition);
@@ -256,7 +248,7 @@ class Cx extends Taglib
      * @param  array $tag 标签属性
      * @return string
      */
-    public function tagElse($tag)
+    public function tagElse(array $tag): string
     {
         $parseStr = '<?php else: ?>';
 
@@ -276,7 +268,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagSwitch($tag, $content)
+    public function tagSwitch(array $tag, string $content): string
     {
         $name     = !empty($tag['expression']) ? $tag['expression'] : $tag['name'];
         $name     = $this->autoBuildVar($name);
@@ -292,7 +284,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagCase($tag, $content)
+    public function tagCase(array $tag, string $content): string
     {
         $value = isset($tag['expression']) ? $tag['expression'] : $tag['value'];
         $flag  = substr($value, 0, 1);
@@ -328,7 +320,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagDefault($tag)
+    public function tagDefault(array $tag): string
     {
         $parseStr = '<?php default: ?>';
 
@@ -344,7 +336,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagCompare($tag, $content)
+    public function tagCompare(array $tag, string $content): string
     {
         $name  = $tag['name'];
         $value = $tag['value'];
@@ -382,7 +374,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagRange($tag, $content)
+    public function tagRange(array $tag, string $content): string
     {
         $name  = $tag['name'];
         $value = $tag['value'];
@@ -420,7 +412,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagPresent($tag, $content)
+    public function tagPresent(array $tag, string $content): string
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
@@ -438,7 +430,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagNotpresent($tag, $content)
+    public function tagNotpresent(array $tag, string $content): string
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
@@ -456,7 +448,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagEmpty($tag, $content)
+    public function tagEmpty(array $tag, string $content): string
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
@@ -474,7 +466,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagNotempty($tag, $content)
+    public function tagNotempty(array $tag, string $content): string
     {
         $name     = $tag['name'];
         $name     = $this->autoBuildVar($name);
@@ -491,7 +483,7 @@ class Cx extends Taglib
      * @param  string $content
      * @return string
      */
-    public function tagDefined($tag, $content)
+    public function tagDefined(array $tag, string $content): string
     {
         $name     = $tag['name'];
         $parseStr = '<?php if(defined("' . $name . '")): ?>' . $content . '<?php endif; ?>';
@@ -507,7 +499,7 @@ class Cx extends Taglib
      * @param  string $content
      * @return string
      */
-    public function tagNotdefined($tag, $content)
+    public function tagNotdefined(array $tag, string $content): string
     {
         $name     = $tag['name'];
         $parseStr = '<?php if(!defined("' . $name . '")): ?>' . $content . '<?php endif; ?>';
@@ -523,7 +515,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagLoad($tag, $content)
+    public function tagLoad(array $tag, string $content): string
     {
         $file = isset($tag['file']) ? $tag['file'] : $tag['href'];
         $type = isset($tag['type']) ? strtolower($tag['type']) : '';
@@ -570,7 +562,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagAssign($tag, $content)
+    public function tagAssign(array $tag, string $content): string
     {
         $name = $this->autoBuildVar($tag['name']);
         $flag = substr($tag['value'], 0, 1);
@@ -595,7 +587,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagDefine($tag, $content)
+    public function tagDefine(array $tag, string $content): string
     {
         $name = '\'' . $tag['name'] . '\'';
         $flag = substr($tag['value'], 0, 1);
@@ -622,7 +614,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagFor($tag, $content)
+    public function tagFor(array $tag, string $content): string
     {
         //设置默认值
         $start      = 0;
@@ -675,7 +667,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagUrl($tag, $content)
+    public function tagUrl(array $tag, string $content): string
     {
         $url    = isset($tag['link']) ? $tag['link'] : '';
         $vars   = isset($tag['vars']) ? $tag['vars'] : '';
@@ -702,7 +694,7 @@ class Cx extends Taglib
      * @param  string $content 标签内容
      * @return string
      */
-    public function tagFunction($tag, $content)
+    public function tagFunction(array $tag, string $content): string
     {
         $name = !empty($tag['name']) ? $tag['name'] : 'func';
         $vars = !empty($tag['vars']) ? $tag['vars'] : '';

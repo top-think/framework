@@ -100,7 +100,7 @@ abstract class Dispatch
      * @access public
      * @return mixed
      */
-    public function run()
+    public function run(): Response
     {
         $option = $this->rule->getOption();
 
@@ -123,7 +123,7 @@ abstract class Dispatch
         return $this->autoResponse($data);
     }
 
-    protected function autoResponse($data)
+    protected function autoResponse($data): Response
     {
         if ($data instanceof Response) {
             $response = $data;
@@ -148,7 +148,7 @@ abstract class Dispatch
      * @access protected
      * @return void
      */
-    protected function doRouteAfter()
+    protected function doRouteAfter(): void
     {
         // 记录匹配的路由信息
         $option  = $this->rule->getOption();
@@ -194,7 +194,7 @@ abstract class Dispatch
      * @param  array             $matches   路由变量
      * @return void
      */
-    protected function createBindModel($bindModel, array $matches)
+    protected function createBindModel(array $bindModel, array $matches): void
     {
         foreach ($bindModel as $key => $val) {
             if ($val instanceof \Closure) {
@@ -290,7 +290,7 @@ abstract class Dispatch
      * @return void
      * @throws ValidateException
      */
-    protected function autoValidate(array $option)
+    protected function autoValidate(array $option): void
     {
         list($validate, $scene, $message, $batch) = $option;
 

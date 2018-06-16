@@ -12,6 +12,7 @@
 namespace think\template;
 
 use think\Exception;
+use think\Template;
 
 /**
  * ThinkPHP标签库TagLib解析基类
@@ -70,9 +71,9 @@ class TagLib
     /**
      * 架构函数
      * @access public
-     * @param  \stdClass $template 模板引擎对象
+     * @param  Template $template 模板引擎对象
      */
-    public function __construct($template)
+    public function __construct(Template $template)
     {
         $this->tpl = $template;
     }
@@ -84,7 +85,7 @@ class TagLib
      * @param  string $lib 标签库名
      * @return void
      */
-    public function parseTag(&$content, $lib = '')
+    public function parseTag(string &$content, string $lib = ''): void
     {
         $tags = [];
         $lib  = $lib ? strtolower($lib) . ':' : '';
@@ -196,7 +197,7 @@ class TagLib
      * @param  boolean          $close 是否为闭合标签
      * @return string
      */
-    public function getRegex($tags, $close)
+    public function getRegex($tags, bool $close): string
     {
         $begin   = $this->tpl->config('taglib_begin');
         $end     = $this->tpl->config('taglib_end');
@@ -230,7 +231,7 @@ class TagLib
      * @param  string $alias 别名
      * @return array
      */
-    public function parseAttr($str, $name, $alias = '')
+    public function parseAttr(string $str, string $name, string $alias = ''): array
     {
         $regex  = '/\s+(?>(?P<name>[\w-]+)\s*)=(?>\s*)([\"\'])(?P<value>(?:(?!\\2).)*)\\2/is';
         $result = [];
@@ -296,7 +297,7 @@ class TagLib
      * @param  string $condition 表达式标签内容
      * @return string
      */
-    public function parseCondition($condition)
+    public function parseCondition(string $condition): string
     {
         if (strpos($condition, ':')) {
             $condition = ' ' . substr(strstr($condition, ':'), 1);
@@ -315,7 +316,7 @@ class TagLib
      * @param  string    $name       变量描述
      * @return string
      */
-    public function autoBuildVar(&$name)
+    public function autoBuildVar(string &$name): string
     {
         $flag = substr($name, 0, 1);
 
@@ -344,7 +345,7 @@ class TagLib
      * @access public
      * @return array
      */
-    public function getTags()
+    public function getTags(): array
     {
         return $this->tags;
     }

@@ -68,13 +68,10 @@ trait Conversion
      * @return $this
      * @throws Exception
      */
-    public function appendRelationAttr(string $attr, $append)
+    public function appendRelationAttr(string $attr, array $append)
     {
-        if (is_string($append)) {
-            $append = explode(',', $append);
-        }
-
         $relation = Loader::parseName($attr, 1, false);
+
         if (isset($this->relation[$relation])) {
             $model = $this->relation[$relation];
         } else {
@@ -147,43 +144,55 @@ trait Conversion
         }
 
         foreach ($data as $key => $val) {
-            if ($val instanceof Model || $val instanceof ModelCollection) {
-                // 关联模型对象
-                if (isset($visible[$key])) {
-                    $val->visible($visible[$key]);
-                } elseif (isset($hidden[$key])) {
-                    $val->hidden($hidden[$key]);
-                }
-                // 关联模型对象
-                $item[$key] = $val->toArray();
-            } else {
-                // 模型属性
-                $item[$key] = $this->getAttr($key);
-            }
+            $item[$key] = $this->getArrayData($key, $val, $visible, $hidden);
         }
 
         // 追加属性（必须定义获取器）
         if (!empty($this->append)) {
             foreach ($this->append as $key => $name) {
-                if (is_array($name)) {
-                    // 追加关联对象属性
-                    $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->visible($name)->append($name)->toArray();
-                } elseif (strpos($name, '.')) {
-                    list($key, $attr) = explode('.', $name);
-                    // 追加关联对象属性
-                    $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->visible([$attr])->append([$attr])->toArray();
-                } else {
-                    $value = $this->getAttr($name, $item);
-                    if (false !== $value) {
-                        $item[$name] = $value;
-                    }
-                }
+                $this->appendAttrToArray($item, $kye, $name);
             }
         }
 
         return $item;
+    }
+
+    protected function appendAttrToArray(&$item, $key, $name)
+    {
+        if (is_array($name)) {
+            // 追加关联对象属性
+            $relation   = $this->getAttr($key);
+            $item[$key] = $relation->visible($name)->append($name)->toArray();
+        } elseif (strpos($name, '.')) {
+            list($key, $attr) = explode('.', $name);
+            // 追加关联对象属性
+            $relation   = $this->getAttr($key);
+            $item[$key] = $relation->visible([$attr])->append([$attr])->toArray();
+        } else {
+            $value = $this->getAttr($name, $item);
+            if (false !== $value) {
+                $item[$name] = $value;
+            }
+        }
+    }
+
+    protected function getArrayData($key, $val, array $visible, array $hidden)
+    {
+        if ($val instanceof Model || $val instanceof ModelCollection) {
+            // 关联模型对象
+            if (isset($visible[$key])) {
+                $val->visible($visible[$key]);
+            } elseif (isset($hidden[$key])) {
+                $val->hidden($hidden[$key]);
+            }
+            // 关联模型对象
+            $result = $val->toArray();
+        } else {
+            // 模型属性
+            $result = $this->getAttr($key);
+        }
+
+        return $result;
     }
 
     /**
@@ -226,7 +235,7 @@ trait Conversion
      * @param  string           $resultSetType 数据集类
      * @return Collection
      */
-    public function toCollection($collection, $resultSetType = null)
+    public function toCollection(iterable $collection, string $resultSetType = null): Collection
     {
         $resultSetType = $resultSetType ?: $this->resultSetType;
 
@@ -247,7 +256,7 @@ trait Conversion
      * @param  bool  $visible
      * @return array
      */
-    protected function parseAttr(array $attrs, &$result, bool $visible = true)
+    protected function parseAttr(array $attrs, array &$result, bool $visible = true): array
     {
         $array = [];
 

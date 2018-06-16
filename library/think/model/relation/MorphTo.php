@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use Closure;
 use think\Exception;
 use think\Loader;
 use think\Model;
@@ -49,7 +50,7 @@ class MorphTo extends Relation
      * @access public
      * @return Model
      */
-    public function getModel()
+    public function getModel(): Model
     {
         $morphType = $this->morphType;
         $model     = $this->parseModel($this->parent->$morphType);
@@ -64,7 +65,7 @@ class MorphTo extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null)
+    public function getRelation(string $subRelation = '', Closure $closure = null)
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
@@ -116,7 +117,7 @@ class MorphTo extends Relation
      * @param  string $model 模型名（或者完整类名）
      * @return string
      */
-    protected function parseModel($model)
+    protected function parseModel(string $model): string
     {
         if (isset($this->alias[$model])) {
             $model = $this->alias[$model];
@@ -165,7 +166,7 @@ class MorphTo extends Relation
      * @return void
      * @throws Exception
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
+    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation, Closure $closure = null): void
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
@@ -198,14 +199,15 @@ class MorphTo extends Relation
                     if ($key == $result->$morphType) {
                         // 关联模型
                         if (!isset($data[$result->$morphKey])) {
+                            $relationModel = null;
                             throw new Exception('relation data not exists :' . $this->model);
                         } else {
                             $relationModel = $data[$result->$morphKey];
                             $relationModel->setParent(clone $result);
                             $relationModel->isUpdate(true);
-
-                            $result->setRelation($attr, $relationModel);
                         }
+
+                        $result->setRelation($attr, $relationModel);
                     }
                 }
             }
@@ -221,7 +223,7 @@ class MorphTo extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
+    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
@@ -240,7 +242,7 @@ class MorphTo extends Relation
      * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*')
     {}
 
     /**
@@ -252,7 +254,7 @@ class MorphTo extends Relation
      * @param  string $subRelation 子关联
      * @return void
      */
-    protected function eagerlyMorphToOne($model, $relation, &$result, $subRelation = '')
+    protected function eagerlyMorphToOne(string $model, string $relation, Model $result, string $subRelation = ''): void
     {
         // 预载入关联查询 支持嵌套预载入
         $pk   = $this->parent->{$this->morphKey};
@@ -273,7 +275,7 @@ class MorphTo extends Relation
      * @param  string    $type   多态类型
      * @return Model
      */
-    public function associate($model, $type = '')
+    public function associate(Model $model, string $type = ''): Model
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;
@@ -291,7 +293,7 @@ class MorphTo extends Relation
      * @access public
      * @return Model
      */
-    public function dissociate()
+    public function dissociate(): Model
     {
         $morphKey  = $this->morphKey;
         $morphType = $this->morphType;

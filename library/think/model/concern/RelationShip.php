@@ -72,7 +72,7 @@ trait RelationShip
      * @access public
      * @return Model
      */
-    public function getParent()
+    public function getParent(): Model
     {
         return $this->parent;
     }
@@ -121,12 +121,8 @@ trait RelationShip
      * @param  array|string $relation 关联
      * @return $this
      */
-    public function together($relation)
+    public function together(array $relation)
     {
-        if (is_string($relation)) {
-            $relation = explode(',', $relation);
-        }
-
         $this->together = $relation;
 
         $this->checkAutoRelationWrite();
@@ -144,7 +140,7 @@ trait RelationShip
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public static function has(string $relation, $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER')
+    public static function has(string $relation, $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER'): Query
     {
         $relation = (new static())->$relation();
 
@@ -163,7 +159,7 @@ trait RelationShip
      * @param  mixed  $fields   字段
      * @return Query
      */
-    public static function hasWhere(string $relation, $where = [], $fields = '*')
+    public static function hasWhere(string $relation, $where = [], $fields = '*'): Query
     {
         return (new static())->$relation()->hasWhere($where, $fields);
     }
@@ -171,15 +167,11 @@ trait RelationShip
     /**
      * 查询当前模型的关联数据
      * @access public
-     * @param  string|array $relations 关联名
-     * @return $this
+     * @param  array $relations 关联名
+     * @return void
      */
-    public function relationQuery($relations)
+    public function relationQuery(array $relations): void
     {
-        if (is_string($relations)) {
-            $relations = explode(',', $relations);
-        }
-
         foreach ($relations as $key => $relation) {
             $subRelation = '';
             $closure     = null;
@@ -201,8 +193,6 @@ trait RelationShip
 
             $this->relation[$relation] = $this->$method()->getRelation($subRelation, $closure);
         }
-
-        return $this;
     }
 
     /**
@@ -210,9 +200,9 @@ trait RelationShip
      * @access public
      * @param  array  $resultSet 数据集
      * @param  string $relation  关联名
-     * @return array
+     * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation)
+    public function eagerlyResultSet(array &$resultSet, string $relation): void
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
@@ -241,14 +231,12 @@ trait RelationShip
     /**
      * 预载入关联查询 返回模型对象
      * @access public
-     * @param  Model  $result   数据对象
-     * @param  string $relation 关联名
-     * @return Model
+     * @param  Model    $result    数据对象
+     * @param  array    $relations 关联
+     * @return void
      */
-    public function eagerlyResult(&$result, $relation)
+    public function eagerlyResult(Model $result, array $relations): void
     {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
-
         foreach ($relations as $key => $relation) {
             $subRelation = '';
             $closure     = false;
@@ -280,7 +268,7 @@ trait RelationShip
      * @param  string   $field      字段
      * @return void
      */
-    public function relationCount(&$result, $relations, $aggregate = 'sum', $field = '*')
+    public function relationCount(Model $result, array $relations, string $aggregate = 'sum', string $field = '*'): void
     {
         foreach ($relations as $key => $relation) {
             $closure = false;
@@ -312,7 +300,7 @@ trait RelationShip
      * @param  string $localKey   当前主键
      * @return HasOne
      */
-    public function hasOne(string $model, string $foreignKey = '', string $localKey = '')
+    public function hasOne(string $model, string $foreignKey = '', string $localKey = ''): HasOne
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -330,7 +318,7 @@ trait RelationShip
      * @param  string $localKey   关联主键
      * @return BelongsTo
      */
-    public function belongsTo(string $model, string $foreignKey = '', string $localKey = '')
+    public function belongsTo(string $model, string $foreignKey = '', string $localKey = ''): BelongsTo
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -350,7 +338,7 @@ trait RelationShip
      * @param  string $localKey   当前主键
      * @return HasMany
      */
-    public function hasMany(string $model, string $foreignKey = '', string $localKey = '')
+    public function hasMany(string $model, string $foreignKey = '', string $localKey = ''): HasMany
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -370,7 +358,7 @@ trait RelationShip
      * @param  string $localKey   当前主键
      * @return HasManyThrough
      */
-    public function hasManyThrough(string $model, string $through, string $foreignKey = '', string $throughKey = '', string $localKey = '')
+    public function hasManyThrough(string $model, string $through, string $foreignKey = '', string $throughKey = '', string $localKey = ''): HasManyThrough
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -391,7 +379,7 @@ trait RelationShip
      * @param  string $localKey   当前模型关联键
      * @return BelongsToMany
      */
-    public function belongsToMany(string $model, string $table = '', string $foreignKey = '', string $localKey = '')
+    public function belongsToMany(string $model, string $table = '', string $foreignKey = '', string $localKey = ''): BelongsToMany
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -411,7 +399,7 @@ trait RelationShip
      * @param  string       $type  多态类型
      * @return MorphOne
      */
-    public function morphOne(string $model, $morph = null, string $type = '')
+    public function morphOne(string $model, $morph = null, string $type = ''): MorphOne
     {
         // 记录当前关联信息
         $model = $this->parseModel($model);
@@ -441,7 +429,7 @@ trait RelationShip
      * @param  string       $type  多态类型
      * @return MorphMany
      */
-    public function morphMany(string $model, $morph = null, string $type = '')
+    public function morphMany(string $model, $morph = null, string $type = ''): MorphMany
     {
         // 记录当前关联信息
         $model = $this->parseModel($model);
@@ -470,7 +458,7 @@ trait RelationShip
      * @param  array        $alias 多态别名定义
      * @return MorphTo
      */
-    public function morphTo($morph = null, array $alias = [])
+    public function morphTo($morph = null, array $alias = []): MorphTo
     {
         $trace    = debug_backtrace(false, 2);
         $relation = Loader::parseName($trace[1]['function']);
@@ -496,7 +484,7 @@ trait RelationShip
      * @param  string $model 模型名（或者完整类名）
      * @return string
      */
-    protected function parseModel(string $model)
+    protected function parseModel(string $model): string
     {
         if (false === strpos($model, '\\')) {
             $path = explode('\\', static::class);
@@ -514,7 +502,7 @@ trait RelationShip
      * @param  string $name 模型名
      * @return string
      */
-    protected function getForeignKey(string $name)
+    protected function getForeignKey(string $name): string
     {
         if (strpos($name, '\\')) {
             $name = basename(str_replace('\\', '/', $name));
@@ -563,7 +551,7 @@ trait RelationShip
      * @access protected
      * @return void
      */
-    protected function checkAutoRelationWrite()
+    protected function checkAutoRelationWrite(): void
     {
         foreach ($this->together as $key => $name) {
             if (is_array($name)) {
@@ -593,7 +581,7 @@ trait RelationShip
      * @access protected
      * @return void
      */
-    protected function autoRelationUpdate()
+    protected function autoRelationUpdate(): void
     {
         foreach ($this->relationWrite as $name => $val) {
             if ($val instanceof Model) {
@@ -612,7 +600,7 @@ trait RelationShip
      * @access protected
      * @return void
      */
-    protected function autoRelationInsert()
+    protected function autoRelationInsert(): void
     {
         foreach ($this->relationWrite as $name => $val) {
             $method = Loader::parseName($name, 1, false);
@@ -625,7 +613,7 @@ trait RelationShip
      * @access protected
      * @return void
      */
-    protected function autoRelationDelete()
+    protected function autoRelationDelete(): void
     {
         foreach ($this->relationWrite as $key => $name) {
             $name   = is_numeric($key) ? $name : $key;

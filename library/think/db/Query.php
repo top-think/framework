@@ -75,19 +75,19 @@ class Query
      * 事件回调
      * @var array
      */
-    private static $event = [];
+    protected static $event = [];
 
     /**
      * 扩展查询方法
      * @var array
      */
-    private static $extend = [];
+    protected static $extend = [];
 
     /**
      * 读取主库的表
      * @var array
      */
-    private static $readMaster = [];
+    protected static $readMaster = [];
 
     /**
      * 日期查询表达式
@@ -2214,6 +2214,32 @@ class Query
         }
 
         return $this->parseWhereExp($logic, $field, 'between time', [$startTime, $endTime], [], true);
+    }
+
+    /**
+     * 查询当前时间在两个时间字段范围
+     * @access public
+     * @param  string    $startField    开始时间字段
+     * @param  string    $endField 结束时间字段
+     * @return $this
+     */
+    public function whereBetweenTimeField($startField, $endField)
+    {
+        return $this->whereTime($startField, '<=', time())
+            ->whereTime($endField, '>=', time());
+    }
+
+    /**
+     * 查询当前时间不在两个时间字段范围
+     * @access public
+     * @param  string    $startField    开始时间字段
+     * @param  string    $endField 结束时间字段
+     * @return $this
+     */
+    public function whereNotBetweenTimeField($startField, $endField)
+    {
+        return $this->whereTime($startField, '>', time())
+            ->whereTime($endField, '<', time(), 'OR');
     }
 
     /**

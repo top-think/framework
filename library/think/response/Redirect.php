@@ -33,13 +33,13 @@ class Redirect extends Response
      * 处理数据
      * @access protected
      * @param  mixed $data 要处理的数据
-     * @return mixed
+     * @return string
      */
-    protected function output($data)
+    protected function output($data): string
     {
         $this->header['Location'] = $this->getTargetUrl();
 
-        return;
+        return '';
     }
 
     /**

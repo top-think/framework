@@ -61,7 +61,7 @@ class Resource extends RuleGroup
      * @param  array     $option     路由参数
      * @return void
      */
-    protected function buildResourceRule($rule, $option = [])
+    protected function buildResourceRule(array $rule, array $option = []): void
     {
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
@@ -124,7 +124,7 @@ class Resource extends RuleGroup
      * @param  array     $only
      * @return $this
      */
-    public function only($only)
+    public function only(array $only)
     {
         return $this->option('only', $only);
     }
@@ -135,7 +135,7 @@ class Resource extends RuleGroup
      * @param  array     $except
      * @return $this
      */
-    public function except($except)
+    public function except(array $except)
     {
         return $this->option('except', $except);
     }
@@ -146,7 +146,7 @@ class Resource extends RuleGroup
      * @param  array     $vars
      * @return $this
      */
-    public function vars($vars)
+    public function vars(array $vars)
     {
         return $this->option('var', $vars);
     }

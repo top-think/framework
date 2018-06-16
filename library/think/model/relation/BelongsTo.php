@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use Closure;
 use think\Loader;
 use think\Model;
 
@@ -43,7 +44,7 @@ class BelongsTo extends OneToOne
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null)
+    public function getRelation(string $subRelation = '', Closure $closure = null)
     {
         if ($closure) {
             $closure($this->query);
@@ -113,7 +114,7 @@ class BelongsTo extends OneToOne
      * @param  \Closure  $closure 闭包
      * @return void
      */
-    protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure)
+    protected function eagerlySet(array &$resultSet, string $relation, string $subRelation, Closure $closure = null): void
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -167,7 +168,7 @@ class BelongsTo extends OneToOne
      * @param  \Closure  $closure 闭包
      * @return void
      */
-    protected function eagerlyOne(&$result, $relation, $subRelation, $closure)
+    protected function eagerlyOne(Model $result, string $relation, string $subRelation, Closure $closure): void
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -202,7 +203,7 @@ class BelongsTo extends OneToOne
      * @param  Model $model       关联模型对象
      * @return Model
      */
-    public function associate(Model $model)
+    public function associate(Model $model): Model
     {
         $foreignKey = $this->foreignKey;
         $pk         = $model->getPk();
@@ -218,7 +219,7 @@ class BelongsTo extends OneToOne
      * @access public
      * @return Model
      */
-    public function dissociate()
+    public function dissociate(): Model
     {
         $foreignKey = $this->foreignKey;
 
@@ -233,7 +234,7 @@ class BelongsTo extends OneToOne
      * @access protected
      * @return void
      */
-    protected function baseQuery()
+    protected function baseQuery(): void
     {
         if (empty($this->baseQuery)) {
             if (isset($this->parent->{$this->foreignKey})) {

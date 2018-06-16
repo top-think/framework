@@ -88,7 +88,7 @@ trait Attribute
      * @param  string $key 名称
      * @return bool
      */
-    protected function isPk(string $key)
+    protected function isPk(string $key): bool
     {
         $pk = $this->getPk();
         if (is_string($pk) && $pk == $key) {
@@ -141,17 +141,13 @@ trait Attribute
     /**
      * 设置数据对象值
      * @access public
-     * @param  mixed $data  数据或者属性名
-     * @param  mixed $value 值
+     * @param  mixed    $data  数据或者属性名
+     * @param  bool     $setter 值
+     * @param  array    $allow 值
      * @return $this
      */
-    public function data($data, $value = null)
+    public function data($data, bool $setter = false, array $allow = [])
     {
-        if (is_string($data)) {
-            $this->data[$data] = $value;
-            return $this;
-        }
-
         // 清空数据
         $this->data = [];
 
@@ -168,13 +164,11 @@ trait Attribute
             }
         }
 
-        if (true === $value) {
+        if ($setter) {
             // 数据对象赋值
-            foreach ($data as $key => $value) {
-                $this->setAttr($key, $value, $data);
-            }
-        } elseif (is_array($value)) {
-            foreach ($value as $name) {
+            $this->setAttrs($data);
+        } elseif (!empty($allow)) {
+            foreach ($allow as $name) {
                 if (isset($data[$name])) {
                     $this->data[$name] = $data[$name];
                 }
@@ -196,10 +190,7 @@ trait Attribute
     public function appendData($data, bool $set = false)
     {
         if ($set) {
-            // 进行数据处理
-            foreach ($data as $key => $value) {
-                $this->setAttr($key, $value, $data);
-            }
+            $this->setAttrs($data);
         } else {
             if (is_object($data)) {
                 $data = get_object_vars($data);
@@ -278,14 +269,40 @@ trait Attribute
     }
 
     /**
-     * 修改器 设置数据对象值
+     * 直接设置数据对象值
+     * @access public
+     * @param  string $name  属性名
+     * @param  mixed  $value 值
+     * @return void
+     */
+    public function set(string $name, $value): void
+    {
+        $this->data[$name] = $value;
+    }
+
+    /**
+     * 通过修改器 批量设置数据对象值
+     * @access public
+     * @param  mixed $data  数据
+     * @return void
+     */
+    public function setAttrs($data): void
+    {
+        // 进行数据处理
+        foreach ($data as $key => $value) {
+            $this->setAttr($key, $value, $data);
+        }
+    }
+
+    /**
+     * 通过修改器 设置数据对象值
      * @access public
      * @param  string $name  属性名
      * @param  mixed  $value 属性值
      * @param  array  $data  数据
-     * @return $this
+     * @return void
      */
-    public function setAttr(string $name, $value, array $data = [])
+    public function setAttr(string $name, $value, array $data = []): void
     {
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
@@ -304,8 +321,6 @@ trait Attribute
 
         // 设置数据对象属性
         $this->data[$name] = $value;
-
-        return $this;
     }
 
     /**
@@ -431,7 +446,7 @@ trait Attribute
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function getAttr(string $name, &$item = null)
+    public function getAttr(string $name, array &$item = [])
     {
         try {
             $notFound = false;
@@ -478,7 +493,7 @@ trait Attribute
      * @param  array    $item  数据
      * @return mixed
      */
-    protected function getRelationAttribute(string $name, &$item)
+    protected function getRelationAttribute(string $name, array &$item)
     {
         $relation = $this->isRelationAttr($name);
 

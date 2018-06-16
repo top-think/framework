@@ -108,7 +108,7 @@ class ValidateRule
      * @access public
      * @return array
      */
-    public function getRule()
+    public function getRule(): array
     {
         return $this->rule;
     }
@@ -118,7 +118,7 @@ class ValidateRule
      * @access public
      * @return string
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -128,7 +128,7 @@ class ValidateRule
      * @access public
      * @return array
      */
-    public function getMsg()
+    public function getMsg(): array
     {
         return $this->message;
     }
@@ -138,7 +138,7 @@ class ValidateRule
      * @access public
      * @return $this
      */
-    public function title($title)
+    public function title(string $title)
     {
         $this->title = $title;
 

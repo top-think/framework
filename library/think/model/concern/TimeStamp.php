@@ -64,7 +64,7 @@ trait TimeStamp
      * @access protected
      * @return void
      */
-    protected function checkTimeStampWrite()
+    protected function checkTimeStampWrite(): void
     {
         // 自动写入创建时间和更新时间
         if ($this->autoWriteTimestamp) {

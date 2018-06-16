@@ -26,9 +26,9 @@ class View extends Response
      * 处理数据
      * @access protected
      * @param  mixed $data 要处理的数据
-     * @return mixed
+     * @return string
      */
-    protected function output($data)
+    protected function output($data): string
     {
         // 渲染模板输出
         $config = Container::get('config');
@@ -49,7 +49,7 @@ class View extends Response
         if (is_null($name)) {
             return $this->vars;
         } else {
-            return isset($this->vars[$name]) ? $this->vars[$name] : null;
+            return $this->vars[$name] ?? null;
         }
     }
 
@@ -85,8 +85,8 @@ class View extends Response
 
     /**
      * 检查模板是否存在
-     * @access private
-     * @param  string|array  $name 参数名
+     * @access public
+     * @param  string  $name 模板名
      * @return bool
      */
     public function exists($name)

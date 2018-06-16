@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use Closure;
 use think\db\Query;
 use think\Loader;
 use think\Model;
@@ -42,7 +43,7 @@ class HasOne extends OneToOne
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null)
+    public function getRelation(string $subRelation = '', Closure $closure = null)
     {
         $localKey = $this->localKey;
 
@@ -125,7 +126,7 @@ class HasOne extends OneToOne
      * @param  \Closure $closure     闭包
      * @return void
      */
-    protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure)
+    protected function eagerlySet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure = null): void
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -179,7 +180,7 @@ class HasOne extends OneToOne
      * @param  \Closure $closure     闭包
      * @return void
      */
-    protected function eagerlyOne(&$result, $relation, $subRelation, $closure)
+    protected function eagerlyOne(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -212,7 +213,7 @@ class HasOne extends OneToOne
      * @access protected
      * @return void
      */
-    protected function baseQuery()
+    protected function baseQuery(): void
     {
         if (empty($this->baseQuery)) {
             if (isset($this->parent->{$this->localKey})) {

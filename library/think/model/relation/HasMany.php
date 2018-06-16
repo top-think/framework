@@ -11,6 +11,8 @@
 
 namespace think\model\relation;
 
+use Closure;
+use think\Collection;
 use think\db\Query;
 use think\Loader;
 use think\Model;
@@ -42,7 +44,7 @@ class HasMany extends Relation
      * @param  \Closure $closure     闭包查询条件
      * @return \think\Collection
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null)
+    public function getRelation(string $subRelation = '', Closure $closure = null): Collection
     {
         if ($closure) {
             $closure($this->query);
@@ -71,7 +73,7 @@ class HasMany extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
+    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation, Closure $closure = null): void
     {
         $localKey = $this->localKey;
         $range    = [];
@@ -117,7 +119,7 @@ class HasMany extends Relation
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult(&$result, $relation, $subRelation, $closure)
+    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
     {
         $localKey = $this->localKey;
 
@@ -150,7 +152,7 @@ class HasMany extends Relation
      * @param  string   $field 字段
      * @return integer
      */
-    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*'): float
     {
         $localKey = $this->localKey;
         $count    = 0;
@@ -174,7 +176,7 @@ class HasMany extends Relation
      * @param  string   $field 字段
      * @return string
      */
-    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
+    public function getRelationCountQuery(Closure $closure, string $aggregate = 'count', string $field = '*'): string
     {
         if ($closure) {
             $closure($this->query);
@@ -195,7 +197,7 @@ class HasMany extends Relation
      * @param  \Closure $closure
      * @return array
      */
-    protected function eagerlyOneToMany($where, $relation, $subRelation = '', $closure = null)
+    protected function eagerlyOneToMany(array $where, string $relation, string $subRelation = '', Closure $closure = null): array
     {
         $foreignKey = $this->foreignKey;
 
@@ -311,7 +313,7 @@ class HasMany extends Relation
      * @access protected
      * @return void
      */
-    protected function baseQuery()
+    protected function baseQuery(): void
     {
         if (empty($this->baseQuery)) {
             if (isset($this->parent->{$this->localKey})) {
