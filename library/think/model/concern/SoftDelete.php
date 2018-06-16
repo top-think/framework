@@ -68,7 +68,7 @@ trait SoftDelete
 
         if ($field) {
             return $model
-                ->db(false, false)
+                ->db(false)
                 ->useSoftDelete($field, $model->getWithTrashedExp());
         }
 
