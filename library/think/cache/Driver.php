@@ -273,7 +273,7 @@ abstract class Driver extends SimpleCache
      * @access public
      * @return object
      */
-    public function handler(): object
+    public function handler()
     {
         return $this->handler;
     }

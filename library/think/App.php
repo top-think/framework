@@ -664,7 +664,7 @@ class App extends Container
      * @return object
      * @throws ClassNotFoundException
      */
-    public function create(string $name, string $layer, bool $appendSuffix = false, string $common = 'common'): object
+    public function create(string $name, string $layer, bool $appendSuffix = false, string $common = 'common')
     {
         $guid = $name . $layer;
 
