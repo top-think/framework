@@ -397,7 +397,7 @@ class Route
      * @param  string    $domain 域名
      * @return array
      */
-    public function getRule($rule = null, $domain = null)
+    public function getRule($rule, $domain = null)
     {
         if (is_null($domain)) {
             $domain = $this->domain;
