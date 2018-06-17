@@ -128,6 +128,7 @@ class RuleItem extends Rule
             $value = [$this->rule, $vars, $this->parent->getDomain(), $suffix, $this->method];
 
             Container::get('rule_name')->set($name, $value, $first);
+            Container::get('rule_name')->setRule($this->rule, $this);
         }
     }
 

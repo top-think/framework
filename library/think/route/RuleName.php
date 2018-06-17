@@ -14,6 +14,7 @@ namespace think\route;
 class RuleName
 {
     protected $item = [];
+    protected $rule = [];
 
     /**
      * 注册路由标识
@@ -30,6 +31,66 @@ class RuleName
         } else {
             $this->item[$name][] = $value;
         }
+    }
+
+    /**
+     * 注册路由规则
+     * @access public
+     * @param  string   $rule      路由规则
+     * @param  RuleItem $route     路由
+     * @return void
+     */
+    public function setRule($rule, $route)
+    {
+        $this->rule[$route->getDomain()][$rule][$route->getRoute()] = $route;
+    }
+
+    /**
+     * 根据路由规则获取路由对象（列表）
+     * @access public
+     * @param  string   $name      路由标识
+     * @param  string   $domain   域名
+     * @return array
+     */
+    public function getRule($rule = null, $domain = null)
+    {
+        if (is_null($rule)) {
+            return $this->rule;
+        }
+
+        return isset($this->rule[$domain][$rule]) ? $this->rule[$domain][$rule] : [];
+    }
+
+    /**
+     * 获取全部路由列表
+     * @access public
+     * @param  string   $domain   域名
+     * @return array
+     */
+    public function getRuleList($domain = null)
+    {
+        $list = [];
+
+        foreach ($this->rule as $ruleDomain => $rules) {
+            foreach ($rules as $rule => $items) {
+                foreach ($items as $item) {
+                    $val = [];
+
+                    foreach (['method', 'rule', 'name', 'route', 'pattern', 'option'] as $param) {
+                        $call        = 'get' . $param;
+                        $val[$param] = $item->$call();
+                    }
+
+                    $list[$ruleDomain][] = $val;
+                }
+            }
+        }
+
+        if ($domain) {
+            return isset($list[$domain]) ? $list[$domain] : [];
+        }
+
+        return $list;
     }
 
     /**

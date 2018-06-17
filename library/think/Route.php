@@ -391,6 +391,33 @@ class Route
     }
 
     /**
+     * 读取路由
+     * @access public
+     * @param  string    $rule 路由规则
+     * @param  string    $domain 域名
+     * @return array
+     */
+    public function getRule($rule = null, $domain = null)
+    {
+        if (is_null($domain)) {
+            $domain = $this->domain;
+        }
+
+        return $this->app['rule_name']->getRule($rule, $domain);
+    }
+
+    /**
+     * 读取路由
+     * @access public
+     * @param  string    $domain 域名
+     * @return array
+     */
+    public function getRuleList($domain = null)
+    {
+        return $this->app['rule_name']->getRuleList($domain);
+    }
+
+    /**
      * 批量导入路由标识
      * @access public
      * @param  array    $name 路由标识
