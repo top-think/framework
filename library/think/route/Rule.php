@@ -202,6 +202,16 @@ abstract class Rule
     }
 
     /**
+     * 获取路由所在域名
+     * @access public
+     * @return string
+     */
+    public function getDomain()
+    {
+        return $this->parent->getDomain();
+    }
+
+    /**
      * 获取路由参数
      * @access public
      * @param  string  $name 变量名

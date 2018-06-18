@@ -378,7 +378,7 @@ class Route
      */
     public function getName(string $name = null, string $domain = null)
     {
-        return $this->app['rule_name']->get($name, $domain);
+        return $this->app['rule_name']->getName($name, $domain);
     }
 
     /**
@@ -391,6 +391,33 @@ class Route
     {
         $this->app['rule_name']->import($name);
         return $this;
+    }
+
+    /**
+     * 读取路由
+     * @access public
+     * @param  string    $rule 路由规则
+     * @param  string    $domain 域名
+     * @return array
+     */
+    public function getRule(string $rule, string $domain = null): array
+    {
+        if (is_null($domain)) {
+            $domain = $this->domain;
+        }
+
+        return $this->app['rule_name']->getRule($rule, $domain);
+    }
+
+    /**
+     * 读取路由列表
+     * @access public
+     * @param  string    $domain 域名
+     * @return array
+     */
+    public function getRuleList(string $domain = null): array
+    {
+        return $this->app['rule_name']->getRuleList($domain);
     }
 
     /**

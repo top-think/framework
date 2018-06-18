@@ -44,12 +44,14 @@ class Error
      */
     public static function appException(Throwable $e): void
     {
-        self::getExceptionHandler()->report($e);
+        $handler = self::getExceptionHandler();
+
+        $handler->report($e);
 
         if (PHP_SAPI == 'cli') {
-            self::getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
+            $handler->renderForConsole(new ConsoleOutput, $e);
         } else {
-            self::getExceptionHandler()->render($e)->send();
+            $handler->render($e)->send();
         }
     }
 
@@ -65,6 +67,7 @@ class Error
     public static function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0): void
     {
         $exception = new ErrorException($errno, $errstr, $errfile, $errline);
+
         if (error_reporting() & $errno) {
             // 将错误信息托管至 think\exception\ErrorException
             throw $exception;
