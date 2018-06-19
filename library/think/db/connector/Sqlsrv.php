@@ -13,6 +13,7 @@ namespace think\db\connector;
 
 use PDO;
 use think\db\Connection;
+use think\db\Query;
 
 /**
  * Sqlsrv数据库驱动
