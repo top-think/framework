@@ -564,10 +564,10 @@ class App extends Container
             }
         }
 
-        if ($this->config('route.route_annotation')) {
+        if ($this->route->config('route_annotation')) {
             // 自动生成路由定义
             if ($this->appDebug) {
-                $this->build->buildRoute($this->config('route.controller_suffix'));
+                $this->build->buildRoute($this->route->config('controller_suffix'));
             }
 
             $filename = $this->runtimePath . 'build_route.php';
