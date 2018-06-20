@@ -1430,7 +1430,7 @@ class Query
             $results = $this->page($page, $listRows)->select();
         }
 
-        return $class::make($results, $listRows, $page, $total, $simple, $config);
+        return $class::make($results, $listRows, (int) $page, $total, $simple, $config);
     }
 
     /**
