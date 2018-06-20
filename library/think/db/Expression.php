@@ -9,31 +9,40 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think;
+namespace think\db;
 
-class Env
+class Expression
 {
     /**
-     * 获取环境变量值
-     * @access public
-     * @param  string $name    环境变量名（支持二级 . 号分割）
-     * @param  string $default 默认值
-     * @return mixed
+     * 查询表达式
+     *
+     * @var string
      */
-    public static function get($name, $default = null)
+    protected $value;
+
+    /**
+     * 创建一个查询表达式
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function __construct($value)
     {
-        $result = getenv(ENV_PREFIX . strtoupper(str_replace('.', '_', $name)));
+        $this->value = $value;
+    }
 
-        if (false !== $result) {
-            if ('false' === $result) {
-                $result = false;
-            } elseif ('true' === $result) {
-                $result = true;
-            }
+    /**
+     * 获取表达式
+     *
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
-            return $result;
-        }
-
-        return $default;
+    public function __toString()
+    {
+        return (string) $this->value;
     }
 }
