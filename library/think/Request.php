@@ -649,7 +649,7 @@ class Request
                 unset($_GET[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
-                $pathinfo = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+                $pathinfo = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : $this->server('PATH_INFO');
             } elseif ('cli-server' == PHP_SAPI) {
                 $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
             } elseif ($this->server('PATH_INFO')) {
@@ -683,6 +683,7 @@ class Request
         if (is_null($this->path)) {
             $suffix   = $this->config['url_html_suffix'];
             $pathinfo = $this->pathinfo();
+
             if (false === $suffix) {
                 // 禁止伪静态访问
                 $this->path = $pathinfo;
@@ -2001,6 +2002,24 @@ class Request
     public function getCache()
     {
         return $this->cache;
+    }
+
+    /**
+     * 设置Swoole请求数据
+     * @access public
+     * @param  \Swoole\Http\Request    $request
+     * @param  $this
+     */
+    public function swoole(\Swoole\Http\Request $request)
+    {
+        $this->header = $request->header;
+        $this->server = array_change_key_case($request->server, CASE_UPPER) + array_change_key_case($this->header, CASE_UPPER);
+        $this->post   = $request->post;
+        $this->get    = $request->get;
+        $this->cookie = $request->cookie;
+        $_COOKIE      = $this->cookie;
+
+        return $this;
     }
 
     /**

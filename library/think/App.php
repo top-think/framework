@@ -335,6 +335,12 @@ class App extends Container
         }
     }
 
+    public function swoole($request)
+    {
+        $this->request->swoole($request);
+        return $this;
+    }
+
     protected function containerConfigUpdate($module)
     {
         $config = $this->config->get();
