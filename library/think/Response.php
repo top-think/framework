@@ -112,7 +112,7 @@ class Response
      * @return void
      * @throws \InvalidArgumentException
      */
-    public function send()
+    public function send(): void
     {
         // 监听response_send
         Container::get('hook')->listen('response_send', $this);
@@ -178,7 +178,7 @@ class Response
      * @param string $data 要处理的数据
      * @return void
      */
-    protected function sendData($data)
+    protected function sendData($data): void
     {
         echo $data;
     }
@@ -225,17 +225,12 @@ class Response
     /**
      * 设置响应头
      * @access public
-     * @param  string|array $name  参数名
-     * @param  string       $value 参数值
+     * @param  array $header  参数
      * @return $this
      */
-    public function header($name, $value = null)
+    public function header(array $header = [])
     {
-        if (is_array($name)) {
-            $this->header = array_merge($this->header, $name);
-        } else {
-            $this->header[$name] = $value;
-        }
+        $this->header = array_merge($this->header, $header);
 
         return $this;
     }
@@ -349,7 +344,7 @@ class Response
     public function getHeader(string $name = '')
     {
         if (!empty($name)) {
-            return isset($this->header[$name]) ? $this->header[$name] : null;
+            return $this->header[$name] ?? null;
         }
 
         return $this->header;
@@ -368,9 +363,9 @@ class Response
     /**
      * 获取输出数据
      * @access public
-     * @return mixed
+     * @return string
      */
-    public function getContent()
+    public function getContent(): string
     {
         if (null == $this->content) {
             $content = $this->output($this->data);
@@ -394,7 +389,7 @@ class Response
      * @access public
      * @return integer
      */
-    public function getCode()
+    public function getCode(): int
     {
         return $this->code;
     }

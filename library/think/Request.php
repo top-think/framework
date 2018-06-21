@@ -1232,14 +1232,15 @@ class Request
     /**
      * 设置或者获取当前的Header
      * @access public
-     * @param  string|array  $name header名称
-     * @param  string        $default 默认值
-     * @return string
+     * @param  string   $name header名称
+     * @param  string   $default 默认值
+     * @return string|array
      */
-    public function header($name = '', $default = null)
+    public function header(string $name = '', string $default = null)
     {
         if (empty($this->header)) {
             $header = [];
+
             if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
                 $header = $result;
             } else {
@@ -1257,6 +1258,7 @@ class Request
                     $header['content-length'] = $server['CONTENT_LENGTH'];
                 }
             }
+
             $this->header = array_change_key_case($header);
         }
 
