@@ -110,7 +110,10 @@ trait SoftDelete
             $where = $this->getWhere();
 
             // 删除当前模型数据
-            $result = $this->db(false)->where($where)->delete();
+            $result = $this->db(false)
+                ->where($where)
+                ->removeOption('soft_delete')
+                ->delete();
         }
 
         // 关联删除
