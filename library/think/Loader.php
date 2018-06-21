@@ -149,8 +149,13 @@ class Loader
 
         // 查找 PSR-4
         $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . '.php';
+ 
+        //首字母转换为小写
+        $first = strtolower($class[0]); 
 
-        $first = $class[0];
+        //首字母转换为小写  转换后use Think\Controller 可用
+        $class =   lcfirst($class);
+        
         if (isset(self::$prefixLengthsPsr4[$first])) {
             foreach (self::$prefixLengthsPsr4[$first] as $prefix => $length) {
                 if (0 === strpos($class, $prefix)) {
