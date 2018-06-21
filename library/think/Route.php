@@ -168,6 +168,17 @@ class Route
     }
 
     /**
+     * 设置路由的请求对象实例
+     * @access public
+     * @param  Request     $request   请求对象实例
+     * @return void
+     */
+    public function setRequest($request)
+    {
+        $this->request = $request;
+    }
+
+    /**
      * 设置路由域名及分组（包括资源路由）是否延迟解析
      * @access public
      * @param  bool     $lazy   路由是否延迟解析

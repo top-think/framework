@@ -254,6 +254,9 @@ class App extends Container
         // 读取语言包
         $this->loadLangPack();
 
+        // 路由初始化
+        $this->routeInit();
+
         // 监听app_init
         $this->hook->listen('app_init');
     }
@@ -337,7 +340,16 @@ class App extends Container
 
     public function swoole($request)
     {
+        $this->beginTime = microtime(true);
+        $this->beginMem  = memory_get_usage();
+
+        // 销毁当前请求对象实例
+        $this->delete('think\Request');
+        // 处理swoole请求数据
         $this->request->swoole($request);
+        // 更新请求对象实例
+        $this->route->setRequest($this->request);
+
         return $this;
     }
 
@@ -538,25 +550,12 @@ class App extends Container
     }
 
     /**
-     * URL路由检测（根据PATH_INFO)
+     * 路由初始化 导入路由定义规则
      * @access public
-     * @return Dispatch
+     * @return void
      */
-    public function routeCheck()
+    public function routeInit()
     {
-        // 检测路由缓存
-        if (!$this->appDebug && $this->config->get('route_check_cache')) {
-            $routeKey = $this->getRouteCacheKey();
-            $option   = $this->config->get('route_cache_option') ?: $this->cache->getConfig();
-
-            if ($this->cache->connect($option)->has($routeKey)) {
-                return $this->cache->connect($option)->get($routeKey);
-            }
-        }
-
-        // 获取应用调度信息
-        $path = $this->request->path();
-
         // 路由检测
         $files = scandir($this->routePath);
         foreach ($files as $file) {
@@ -582,6 +581,27 @@ class App extends Container
                 include $filename;
             }
         }
+    }
+
+    /**
+     * URL路由检测（根据PATH_INFO)
+     * @access public
+     * @return Dispatch
+     */
+    public function routeCheck()
+    {
+        // 检测路由缓存
+        if (!$this->appDebug && $this->config->get('route_check_cache')) {
+            $routeKey = $this->getRouteCacheKey();
+            $option   = $this->config->get('route_cache_option') ?: $this->cache->getConfig();
+
+            if ($this->cache->connect($option)->has($routeKey)) {
+                return $this->cache->connect($option)->get($routeKey);
+            }
+        }
+
+        // 获取应用调度信息
+        $path = $this->request->path();
 
         // 是否强制路由模式
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->route->config('url_route_must');
