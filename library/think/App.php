@@ -335,21 +335,6 @@ class App extends Container
         }
     }
 
-    public function swoole($request)
-    {
-        $this->beginTime = microtime(true);
-        $this->beginMem  = memory_get_usage();
-
-        // 销毁当前请求对象实例
-        $this->delete('think\Request');
-        // 处理swoole请求数据
-        $this->request->swoole($request);
-        // 更新请求对象实例
-        $this->route->setRequest($this->request);
-
-        return $this;
-    }
-
     protected function containerConfigUpdate($module)
     {
         $config = $this->config->get();
