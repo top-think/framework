@@ -126,16 +126,11 @@ class Url
             }
         }
 
-        if (!empty($rule) && $match = $this->getRuleUrl($rule, $vars)) {
+        if (!empty($rule) && $match = $this->getRuleUrl($rule, $vars, $domain)) {
             // 匹配路由命名标识
             $url = $match[0];
 
-            if (!empty($match[1])) {
-                $host = $this->config['app_host'] ?: $this->app['request']->host(true);
-                if ($domain || $match[1] != $host) {
-                    $domain = $match[1];
-                }
-            }
+            $domain = $match[1];
 
             if (!is_null($match[2])) {
                 $suffix = $match[2];
@@ -350,10 +345,15 @@ class Url
     }
 
     // 匹配路由地址
-    public function getRuleUrl($rule, &$vars = [])
+    public function getRuleUrl($rule, &$vars = [], $allowDomain = '')
     {
         foreach ($rule as $item) {
             list($url, $pattern, $domain, $suffix) = $item;
+
+            if (is_string($allowDomain) && $domain != $allowDomain) {
+                continue;
+            }
+
             if (empty($pattern)) {
                 return [rtrim($url, '?/-'), $domain, $suffix];
             }
