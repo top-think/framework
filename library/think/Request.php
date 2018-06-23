@@ -635,6 +635,12 @@ class Request
         return $root;
     }
 
+    public function setPathinfo($pathinfo)
+    {
+        $this->pathinfo = $pathinfo;
+        return $this;
+    }
+
     /**
      * 获取当前请求URL的pathinfo信息（含URL后缀）
      * @access public
@@ -649,7 +655,7 @@ class Request
                 unset($_GET[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
-                $pathinfo = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : $this->server('PATH_INFO');
+                $pathinfo = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
             } elseif ('cli-server' == PHP_SAPI) {
                 $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
             } elseif ($this->server('PATH_INFO')) {
