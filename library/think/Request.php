@@ -50,6 +50,12 @@ class Request
     protected $method;
 
     /**
+     * 主机名（含端口）
+     * @var string
+     */
+    protected $host;
+
+    /**
      * 域名（含协议及端口）
      * @var string
      */
@@ -1688,6 +1694,19 @@ class Request
     }
 
     /**
+     * 设置当前请求的host（包含端口）
+     * @access public
+     * @param  string $host 主机名（含端口）
+     * @return $this
+     */
+    public function setHost($host)
+    {
+        $this->host = $host;
+
+        return $this;
+    }
+
+    /**
      * 当前请求的host
      * @access public
      * @param bool $strict  true 仅仅获取HOST
@@ -1695,9 +1714,11 @@ class Request
      */
     public function host($strict = false)
     {
-        $host = $this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST');
+        if (!$this->host) {
+            $this->host = $this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST');
+        }
 
-        return true === $strict && strpos($host, ':') ? strstr($host, ':', true) : $host;
+        return true === $strict && strpos($this->host, ':') ? strstr($this->host, ':', true) : $this->host;
     }
 
     /**
