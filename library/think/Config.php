@@ -17,7 +17,7 @@ class Config implements \ArrayAccess
      * 配置参数
      * @var array
      */
-    private $config = [];
+    public $config = [];
 
     /**
      * 配置前缀

@@ -210,8 +210,8 @@ class App extends Container
         $this->init();
 
         // 开启类名后缀
-        $this->suffix = $this->config('app.class_suffix');
-
+        $this->suffix = $this->config->app_class_suffix;
+            
         // 应用调试模式
         $this->appDebug = $this->env->get('app_debug', $this->config('app.app_debug'));
         $this->env->set('app_debug', $this->appDebug);
