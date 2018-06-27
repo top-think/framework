@@ -174,7 +174,9 @@ abstract class Dispatch
 
         // 指定Response响应数据
         if (!empty($option['response'])) {
-            $this->app['hook']->add('response_send', $option['response']);
+            foreach ($option['response'] as $response) {
+                $this->app['hook']->add('response_send', $response);
+            }
         }
 
         // 开启请求缓存

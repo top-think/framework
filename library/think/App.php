@@ -303,8 +303,8 @@ class App extends Container
         // 读取语言包
         $this->loadLangPack();
 
-        // 监听app_init
-        $this->hook->listen('app_init');
+        // 路由初始化
+        $this->routeInit();
     }
 
     /**
@@ -400,20 +400,16 @@ class App extends Container
             // 初始化应用
             $this->initialize();
 
-            $this->checkBind();
+            // 监听app_init
+            $this->hook->listen('app_init');
 
-            // 监听app_dispatch
-            $this->hook->listen('app_dispatch');
+            $this->checkBind();
 
             // 获取应用调度信息
             $dispatch = $this->dispatch;
+
             if (empty($dispatch)) {
                 // 路由检测
-                $this->route
-                    ->lazy($this->config['app.url_lazy_route'])
-                    ->autoSearchController($this->config['app.controller_auto_search'])
-                    ->mergeRuleRegex($this->config['app.route_rule_merge']);
-
                 $dispatch = $this->routeCheck()->init();
             }
 
@@ -524,6 +520,41 @@ class App extends Container
     }
 
     /**
+     * 路由初始化（路由规则注册）
+     * @access public
+     * @return void
+     */
+    public function routeInit(): void
+    {
+        // 路由检测
+        $files = scandir($this->routePath);
+
+        foreach ($files as $file) {
+            if (strpos($file, '.php')) {
+                $filename = $this->routePath . $file;
+                // 导入路由配置
+                $rules = include $filename;
+                if (is_array($rules)) {
+                    $this->route->import($rules);
+                }
+            }
+        }
+
+        if ($this->route->config('route_annotation')) {
+            // 自动生成注解路由定义
+            if ($this->appDebug) {
+                $this->build->buildRoute($this->route->config('controller_suffix'));
+            }
+
+            $filename = $this->runtimePath . 'build_route.php';
+
+            if (is_file($filename)) {
+                include $filename;
+            }
+        }
+    }
+
+    /**
      * URL路由检测（根据PATH_INFO)
      * @access public
      * @return Dispatch
@@ -541,33 +572,6 @@ class App extends Container
         }
 
         $path = $this->request->path();
-        $depr = $this->config['app.pathinfo_depr'];
-
-        // 路由检测
-        $files = scandir($this->routePath);
-        foreach ($files as $file) {
-            if (strpos($file, '.php')) {
-                $filename = $this->routePath . $file;
-                // 导入路由配置
-                $rules = include $filename;
-                if (is_array($rules)) {
-                    $this->route->import($rules);
-                }
-            }
-        }
-
-        if ($this->config['app.route_annotation']) {
-            // 自动生成路由定义
-            if ($this->appDebug) {
-                $this->build->buildRoute($this->config['app.controller_suffix']);
-            }
-
-            $filename = $this->runtimePath . 'build_route.php';
-
-            if (is_file($filename)) {
-                include $filename;
-            }
-        }
 
         // 是否强制路由模式
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->config['app.url_route_must'];
