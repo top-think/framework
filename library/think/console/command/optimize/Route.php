@@ -56,6 +56,26 @@ class Route extends Command
             }
         }
 
+        // 扩展路由检测
+        $path = Container::get('app')->getGroupPath();
+
+        $files = is_dir($path) ? scandir($path) : [];
+        foreach ($files as $file) {
+            if ('.' != $file && '..' != $file) {
+                $_path = $path . DIRECTORY_SEPARATOR . $file;
+                if (is_dir($_path) && is_file($_path . 'module.json')) {
+                    $filename = $_path . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'route.php';
+                    if (is_file($filename)) {
+                        // 导入路由配置
+                        $rules = include $filename;
+                        if (is_array($rules)) {
+                            Container::get('route')->import($rules);
+                        }
+                    }
+                }
+            }
+        }
+
         if (Container::get('config')->get('route_annotation')) {
             include Container::get('build')->buildRoute();
         }

@@ -50,7 +50,13 @@ class App extends Container
      * 应用类库命名空间
      * @var string
      */
-    protected $namespace = 'app';
+    protected $namespace = 'shuguo';
+
+    /**
+     * 组织名称
+     * @var string
+     */
+    protected $groupname = 'chinashuguo';
 
     /**
      * 应用类库后缀
@@ -101,6 +107,23 @@ class App extends Container
     protected $routePath;
 
     /**
+     * 扩展目录
+     * @var string
+     */
+    protected $extendPath;
+
+    /**
+     * 第三方库目录
+     * @var string
+     */
+    protected $vendorPath;
+
+    /**
+     *  组目录
+     */
+    protected $groupPath;
+
+    /**
      * 配置后缀
      * @var string
      */
@@ -133,6 +156,8 @@ class App extends Container
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
         $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
         $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        $this->extendPath  = $this->rootPath . 'extend' . DIRECTORY_SEPARATOR;
+        $this->vendorPath  = $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -204,6 +229,12 @@ class App extends Container
         // 注册应用命名空间
         Loader::addNamespace($this->namespace, $this->appPath);
 
+        // 组织名称
+        $this->groupname = $this->env->get('app_groupname', $this->groupname);
+        $this->env->set('app_groupname', $this->groupname);
+
+        $this->setGroupPath($this->vendorPath . $this->getGroupname() . DIRECTORY_SEPARATOR);
+
         $this->configExt = $this->env->get('config_ext', '.php');
 
         // 初始化应用
@@ -270,6 +301,10 @@ class App extends Container
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';
         $path   = $this->appPath . $module;
 
+        if (!is_dir($path)) {
+            $path = $this->groupPath . $module . 'src' . DIRECTORY_SEPARATOR;
+        }
+
         // 加载初始化文件
         if (is_file($path . 'init.php')) {
             include $path . 'init.php';
@@ -312,7 +347,7 @@ class App extends Container
 
             // 自动读取配置文件
             if (is_dir($path . 'config')) {
-                $dir = $path . 'config';
+                $dir = $path . 'config' . DIRECTORY_SEPARATOR;
             } elseif (is_dir($this->configPath . $module)) {
                 $dir = $this->configPath . $module;
             }
@@ -321,7 +356,7 @@ class App extends Container
 
             foreach ($files as $file) {
                 if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
-                    $filename = $dir . DIRECTORY_SEPARATOR . $file;
+                    $filename = rtrim($dir, '\\') . DIRECTORY_SEPARATOR . $file;
                     $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
                 }
             }
@@ -356,7 +391,11 @@ class App extends Container
         $this->cache->init($config['cache'], true);
 
         // 加载当前模块语言包
-        $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
+        $path = $this->appPath . $module . DIRECTORY_SEPARATOR;
+        if (!is_dir($path)) {
+            $path = $this->groupPath . $module . 'src' . DIRECTORY_SEPARATOR;
+        }
+        $this->lang->load($path . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
 
         // 模块请求缓存检查
         $this->checkRequestCache(
@@ -554,10 +593,28 @@ class App extends Container
             }
         }
 
-        if ($this->route->config('route_annotation')) {
+        // 扩展路由检测
+        $files = scandir($this->groupPath);
+        foreach ($files as $file) {
+            if ('.' != $file && '..' != $file) {
+                $path = $this->groupPath . $file . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+                if (is_dir($path) && is_file($path . 'module.json')) {
+                    $filename = $path . 'route.php';
+                    if (is_file($filename)) {
+                        // 导入路由配置
+                        $rules = include $filename;
+                        if (is_array($rules)) {
+                            $this->route->import($rules);
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($this->config('route.route_annotation')) {
             // 自动生成路由定义
             if ($this->appDebug) {
-                $this->build->buildRoute($this->route->config('controller_suffix'));
+                $this->build->buildRoute($this->config('route.controller_suffix'));
             }
 
             $filename = $this->runtimePath . 'build_route.php';
@@ -907,6 +964,56 @@ class App extends Container
     }
 
     /**
+     * 获取扩展目录
+     * @access public
+     * @return string
+     */
+    public function getExtendPath()
+    {
+        return $this->extendPath;
+    }
+
+    /**
+     * 获取第三方库目录
+     * @access public
+     * @return string
+     */
+    public function getVendorPath()
+    {
+        return $this->vendorPath;
+    }
+
+    /**
+     * 获取组目录
+     * @access public
+     * @return string
+     */
+    public function getGroupPath()
+    {
+        return $this->groupPath;
+    }
+
+    /**
+     * 设置组目录
+     * @param $path
+     */
+    public function setGroupPath($path)
+    {
+        $this->groupPath = $path;
+        $this->env->set('group_path', $path);
+    }
+
+    /**
+     * 获取组模块文件 module.json
+     * @param $module
+     * @return string
+     */
+    public function getGroupFile($module)
+    {
+        return $this->groupPath . $module . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'module.json';
+    }
+
+    /**
      * 获取配置后缀
      * @access public
      * @return string
@@ -914,6 +1021,29 @@ class App extends Container
     public function getConfigExt()
     {
         return $this->configExt;
+    }
+
+    /**
+     * 获取组织名称
+     * @access public
+     * @return string
+     */
+    public function getGroupname()
+    {
+        return $this->groupname;
+    }
+
+    /**
+     * 设置组织名称
+     * @access public
+     * @param  string $groupname 组织名称
+     * @return $this
+     */
+    public function setGroupname($groupname)
+    {
+        $this->groupname = $groupname;
+
+        return $this;
     }
 
     /**

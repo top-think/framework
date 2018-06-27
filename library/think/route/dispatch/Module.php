@@ -48,6 +48,12 @@ class Module extends Dispatch
                 $available = true;
             } elseif (!in_array($module, $this->rule->getConfig('deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
                 $available = true;
+            } elseif (!in_array($module, $this->rule->getConfig('deny_module_list')) && is_dir($this->app->getGroupPath() . $module) && is_file($this->app->getGroupFile($module))) {
+                // 扩展vendor下的模块化开发
+                $extFile = json_decode(file_get_contents($this->app->getGroupFile($module)), JSON_FORCE_OBJECT);
+                if ($module == strtolower($extFile['name'])) {
+                    $available = true;
+                }
             } elseif ($this->rule->getConfig('empty_module')) {
                 $module    = $this->rule->getConfig('empty_module');
                 $available = true;
