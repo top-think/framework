@@ -122,7 +122,7 @@ class App extends Container
      * 初始化
      * @var bool
      */
-    protected $initialized = false;
+    protected static $initialized = false;
 
     public function __construct($appPath = '')
     {
@@ -166,11 +166,11 @@ class App extends Container
      */
     public function initialize()
     {
-        if ($this->initialized) {
+        if (self::$initialized) {
             return;
         }
 
-        $this->initialized = true;
+        self::$initialized = true;
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
 
