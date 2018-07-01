@@ -122,7 +122,7 @@ class App extends Container
      * 初始化
      * @var bool
      */
-    protected static $initialized = false;
+    protected $initialized = false;
 
     public function __construct($appPath = '')
     {
@@ -166,11 +166,11 @@ class App extends Container
      */
     public function initialize()
     {
-        if (self::$initialized) {
+        if ($this->initialized) {
             return;
         }
 
-        self::$initialized = true;
+        $this->initialized = true;
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
 
@@ -286,7 +286,7 @@ class App extends Container
 
             // 加载公共文件
             if (is_file($path . 'common.php')) {
-                include $path . 'common.php';
+                include_once $path . 'common.php';
             }
 
             if ('' == $module) {
