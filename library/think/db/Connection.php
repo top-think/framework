@@ -502,7 +502,8 @@ abstract class Connection
 
         // 连接参数
         if (isset($config['params']) && is_array($config['params'])) {
-            $params = $config['params'] + $this->params;
+            //$params = $config['params'] + $this->params;
+            $params = array_merge($config['params'], $this->params);
         } else {
             $params = $this->params;
         }
