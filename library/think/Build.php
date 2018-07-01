@@ -273,7 +273,7 @@ class Build
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);
             $route   = $module . '/' . $controller;
-            $comment = preg_replace('/route\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::resourece(\1,\'' . $route . '\')', $comment);
+            $comment = preg_replace('/route\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::resource(\1,\'' . $route . '\')', $comment);
             $content .= PHP_EOL . $comment;
         } elseif (false !== strpos($comment, '@alias(')) {
             $comment = $this->parseRouteComment($comment, '@alias(');
