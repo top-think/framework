@@ -783,7 +783,7 @@ class Request
     {
         if ($origin) {
             // 获取原始请求类型
-            return $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
+            return $this->server('REQUEST_METHOD') ?: 'GET';
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
                 $this->method    = strtoupper($_POST[$this->config['var_method']]);
@@ -792,7 +792,7 @@ class Request
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
-                $this->method = $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
+                $this->method = $this->server('REQUEST_METHOD') ?: 'GET';
             }
         }
 
