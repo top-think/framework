@@ -174,7 +174,7 @@ class Db
 
         $dsn = [
             'type'     => $info['scheme'],
-            'username' => isset($info['user']) ? $info['user'] : '',
+            'username' => isset($info['User']) ? $info['User'] : '',
             'password' => isset($info['pass']) ? $info['pass'] : '',
             'hostname' => isset($info['host']) ? $info['host'] : '',
             'hostport' => isset($info['port']) ? $info['port'] : '',

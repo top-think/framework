@@ -100,7 +100,7 @@ class Console
         if (!$console) {
             $config = Container::get('config')->pull('console');
             // 实例化 console
-            $console = new self($config['name'], $config['version'], $config['user']);
+            $console = new self($config['name'], $config['version'], $config['User']);
 
             // 读取指令集
             $file = Container::get('env')->get('app_path') . 'command.php';

@@ -301,6 +301,6 @@ class Handle
     {
         $const = get_defined_constants(true);
 
-        return isset($const['user']) ? $const['user'] : [];
+        return isset($const['User']) ? $const['User'] : [];
     }
 }
