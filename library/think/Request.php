@@ -389,8 +389,8 @@ class Request
             $server['HTTP_HOST']   = $server['HTTP_HOST'] . ':' . $info['port'];
         }
 
-        if (isset($info['User'])) {
-            $server['PHP_AUTH_USER'] = $info['User'];
+        if (isset($info['user'])) {
+            $server['PHP_AUTH_USER'] = $info['user'];
         }
 
         if (isset($info['pass'])) {

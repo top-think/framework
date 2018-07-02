@@ -314,7 +314,7 @@ return [
     'console'    => [
         'name'    => 'Think Console',
         'version' => '0.1',
-        'User' => null,
+        'user' => null,
     ],
 
     // 中间件配置
