@@ -2723,10 +2723,12 @@ class Query
         if (!empty($this->options['soft_delete'])) {
             // 软删除
             list($field, $condition) = $this->options['soft_delete'];
-            unset($this->options['soft_delete']);
-            $this->options['data'] = [$field => $condition];
+            if ($condition) {
+                unset($this->options['soft_delete']);
+                $this->options['data'] = [$field => $condition];
 
-            return $this->connection->update($this);
+                return $this->connection->update($this);
+            }
         }
 
         $this->options['data'] = $data;
