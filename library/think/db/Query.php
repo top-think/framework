@@ -575,7 +575,7 @@ class Query
             $tableName[] = 'SELECT * FROM ' . $this->getTable() . '_' . ($i + 1);
         }
 
-        $tableName = '( ' . implode(" UNION ", $tableName) . ') AS ' . $this->name;
+        $tableName = ['( ' . implode(" UNION ", $tableName) . ' )' => $this->name];
 
         return $tableName;
     }
