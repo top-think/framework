@@ -236,6 +236,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 设置当前模型 确保查询返回模型对象
         $query = Db::connect($this->connection, false, $this->query);
         $query->model($this)
+            ->name($this->name)
             ->json($this->json, $this->jsonAssoc)
             ->setJsonFieldType($this->jsonType);
 
@@ -246,8 +247,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
             $query->table($this->table);
-        } else {
-            $query->name($this->name);
         }
 
         if (!empty($this->pk)) {
