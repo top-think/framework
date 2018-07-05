@@ -85,7 +85,7 @@ class Cookie
     }
 
     /**
-     * Cookie 设置、获取、删除
+     * Cookie 设置
      *
      * @access public
      * @param  string $name  cookie名称
@@ -121,10 +121,24 @@ class Cookie
         $expire = !empty($config['expire']) ? $_SERVER['REQUEST_TIME'] + intval($config['expire']) : 0;
 
         if ($config['setcookie']) {
-            setcookie($name, $value, $expire, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+            $this->setCookie($name, $value, $expire, $config);
         }
 
         $_COOKIE[$name] = $value;
+    }
+
+    /**
+     * Cookie 设置保存
+     *
+     * @access public
+     * @param  string $name  cookie名称
+     * @param  mixed  $value cookie值
+     * @param  array  $option 可选参数
+     * @return void
+     */
+    protected function setCookie($name, $value, $expire, $option = [])
+    {
+        setcookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'], $option['httponly']);
     }
 
     /**
@@ -219,7 +233,7 @@ class Cookie
         $name   = $prefix . $name;
 
         if ($config['setcookie']) {
-            setcookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+            $this->setCookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
         }
 
         // 删除指定cookie
@@ -250,7 +264,7 @@ class Cookie
             foreach ($_COOKIE as $key => $val) {
                 if (0 === strpos($key, $prefix)) {
                     if ($config['setcookie']) {
-                        setcookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'], $config['domain'], $config['secure'], $config['httponly']);
+                        $this->setCookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
                     }
                     unset($_COOKIE[$key]);
                 }
