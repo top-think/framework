@@ -64,7 +64,7 @@ class Redis extends Driver
                 $this->handler->auth($this->options['password']);
             }
 
-            if (0 != $this->options['select']) {
+            if(0 != $this->options['select']) {
                 $this->handler->select($this->options['select']);
             }
         } elseif (class_exists('\Predis\Client')) {
@@ -105,7 +105,7 @@ class Redis extends Driver
 
         $value = $this->handler->get($this->getCacheKey($name));
 
-        if (is_null($value) || false === $value) {
+        if(is_null($value) || false === $value) {
             return $default;
         }
 
@@ -220,11 +220,10 @@ class Redis extends Driver
 
     /**
      * 设置过期时间$expire
-     * @param $name
+     * @param $key
      * @param $expire
-     * @return boolean
      */
-    public function expire($name, $expire)
+    public function expire($key, $expire)
     {
         $key = $this->getCacheKey($name);
         return $this->handler->expire($key, $expire);
@@ -235,7 +234,8 @@ class Redis extends Driver
      * @param $name
      * @return mixed
      */
-    public function ttl($name){
+    public function ttl($name)
+    {
         $key = $this->getCacheKey($name);
         return $this->handler->ttl($key);
     }
@@ -295,4 +295,99 @@ class Redis extends Driver
         $key = $this->getCacheKey($name);
         return $this->handler->lSize($key);
     }
+
+    /**
+     * 向名字叫 'hash' 的 hash表 中添加元素 ['key1' => 'val1']
+     * @param string $h
+     * @param $key
+     * @param $value
+     * @return bool
+     */
+    public function hSet($h = 'hash', $key, $value)
+    {
+        return $this->handler->hSet($h, $key, $value);
+    }
+
+    /**
+     * 获取hash表中键名为$key的值
+     * @param string $h
+     * @param $key
+     */
+    public function hGet($h = 'hash', $key){
+        return $this->handler->hGet($h, $key);
+    }
+
+    /**
+     * 获取hash表的元素的数量
+     */
+    public function hLen($h){
+        return $this->handler->hLen($h);
+    }
+
+    /**
+     * 获取hash表中所有的值
+     * @param $h
+     */
+    public function hKeys($h){
+        return $this->handler->hKeys($h);
+    }
+
+    /**
+     * 获取hash表中的所有值
+     * @param $h
+     */
+    public function hVals($h)
+    {
+        return $this->handler->hVals($h);
+    }
+
+    /**
+     * 获取hash表的元素集合
+     * @param $h
+     */
+    public function hGetAll($h)
+    {
+        return $this->handler->hGetAll($h);
+    }
+
+    /**
+     * 判断 hash 表中是否存在键名是 $key 的元素
+     * @param $h
+     * @param $key
+     */
+    public function hExists($h, $key)
+    {
+        return $this->handler->hExists($h, $key);
+    }
+
+    /**
+     *  批量添加元素
+     * @param       $h
+     * @param array $data
+     */
+    public function hMset($h, $data = [])
+    {
+        return $this->handler->hMset($h, $data);
+    }
+
+    /**
+     * 批量获取元素
+     * @param       $h
+     * @param array $field
+     */
+    public function hMGet($h, $field = [])
+    {
+        return $this->handler->hMGet($h, $field);
+
+    }
+
+    /**
+     * 删除 hash表
+     * @param $h
+     */
+    public function hDelete($h)
+    {
+        return $this->handler->delete($h);
+    }
+
 }
