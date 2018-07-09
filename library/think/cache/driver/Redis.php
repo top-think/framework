@@ -41,7 +41,13 @@ class Redis extends Driver
      */
     public function __construct($options = [])
     {
-        if (!empty($options)) {
+        $serialize_type = config('cache.default.serialize_type');
+        if(isset($serialize_type) && $serialize_type !== 'serialize') {
+            self::$serialize_type = 'json';
+            self::registerSerialize('json_encode', 'json_decode', 'think_json:');
+        }
+
+        if(!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
 
@@ -212,4 +218,71 @@ class Redis extends Driver
         return $this->handler->flushDB();
     }
 
+    /**
+     * 设置过期时间$expire
+     * @param $key
+     * @param $expire
+     */
+    public function expire($key, $expire)
+    {
+        return $this->handler->expire($key, $expire);
+    }
+
+    /**
+     * 获取剩余生命时间
+     */
+    public function ttl($key){
+        return $this->handler->ttl($key);
+    }
+
+    /**
+     * 获取string值长度
+     * @param string $key
+     * @return int
+     */
+    public function strlen($key)
+    {
+        return $this->handler->strlen($key);
+    }
+
+
+    /**
+     * 获取值长度
+     * @param string $key
+     * @return int
+     */
+    public function lLen($key)
+    {
+        return $this->handler->lLen($key);
+    }
+
+    /**
+     * 在list的左边增加一个$value值
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function lPush($key, $value)
+    {
+        return $this->handler->lPush($key, $value);
+    }
+
+    /**
+     * 在list的左边弹出一个值
+     * @param $key
+     */
+    public function lPop($key)
+    {
+        return $this->handler->lPop($key);
+    }
+
+    /**
+     * 返回名称为key的list有多少个元素
+     * @param $key
+     * @return mixed
+     */
+    public function lSize($key)
+    {
+        return $this->handler->lSize($key);
+    }
 }

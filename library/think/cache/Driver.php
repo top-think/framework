@@ -49,6 +49,12 @@ abstract class Driver
     protected $tag;
 
     /**
+     * 序列号类型
+     * @var string
+     */
+    protected static $serialize_type = 'serialize';
+
+    /**
      * 序列化方法
      * @var array
      */
@@ -297,6 +303,7 @@ abstract class Driver
 
         $serialize = self::$serialize[0];
 
+        //对数组/对象数据进行缓存处理，保证数据完整性
         return self::$serialize[2] . $serialize($data);
     }
 
@@ -310,6 +317,10 @@ abstract class Driver
     {
         if ($this->options['serialize'] && 0 === strpos($data, self::$serialize[2])) {
             $unserialize = self::$serialize[1];
+
+            if(self::$serialize_type == 'json'){
+                return $unserialize(substr($data, self::$serialize[3]), true);
+            }
 
             return $unserialize(substr($data, self::$serialize[3]));
         } else {
