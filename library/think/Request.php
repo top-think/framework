@@ -986,7 +986,7 @@ class Request
     public function post($name = '', $default = null, $filter = '')
     {
         if (empty($this->post)) {
-            $this->post = !empty($_POST) ? $_POST : $this->getJsonInputData($this->input);
+            $this->post = !empty($_POST) ? $_POST : $this->getInputData($this->input);
         }
 
         return $this->input($this->post, $name, $default, $filter);
@@ -1003,22 +1003,19 @@ class Request
     public function put($name = '', $default = null, $filter = '')
     {
         if (is_null($this->put)) {
-            $data = $this->getJsonInputData($this->input);
-
-            if (!empty($data)) {
-                $this->put = $data;
-            } else {
-                parse_str($this->input, $this->put);
-            }
+            $this->put = $this->getInputData($this->input);
         }
 
         return $this->input($this->put, $name, $default, $filter);
     }
 
-    protected function getJsonInputData($content)
+    protected function getInputData($content)
     {
         if (false !== strpos($this->contentType(), 'application/json')) {
             return (array) json_decode($content, true);
+        } elseif (strpos($content, '=')) {
+            parse_str($content, $data);
+            return $data;
         }
 
         return [];
