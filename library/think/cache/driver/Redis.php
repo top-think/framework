@@ -220,69 +220,79 @@ class Redis extends Driver
 
     /**
      * 设置过期时间$expire
-     * @param $key
+     * @param $name
      * @param $expire
+     * @return boolean
      */
-    public function expire($key, $expire)
+    public function expire($name, $expire)
     {
+        $key = $this->getCacheKey($name);
         return $this->handler->expire($key, $expire);
     }
 
     /**
      * 获取剩余生命时间
+     * @param $name
+     * @return mixed
      */
-    public function ttl($key){
+    public function ttl($name){
+        $key = $this->getCacheKey($name);
         return $this->handler->ttl($key);
     }
 
     /**
      * 获取string值长度
-     * @param string $key
+     * @param string $name
      * @return int
      */
-    public function strlen($key)
+    public function strlen($name)
     {
+        $key = $this->getCacheKey($name);
         return $this->handler->strlen($key);
     }
 
 
     /**
      * 获取值长度
-     * @param string $key
+     * @param string $name
      * @return int
      */
-    public function lLen($key)
+    public function lLen($name)
     {
+        $key = $this->getCacheKey($name);
         return $this->handler->lLen($key);
     }
 
     /**
      * 在list的左边增加一个$value值
-     * @param $key
+     * @param $name
      * @param $value
      * @return mixed
      */
-    public function lPush($key, $value)
+    public function lPush($name, $value)
     {
+        $key = $this->getCacheKey($name);
         return $this->handler->lPush($key, $value);
     }
 
     /**
      * 在list的左边弹出一个值
-     * @param $key
+     * @param $name
      */
-    public function lPop($key)
+    public function lPop($name)
     {
+        $key = $this->getCacheKey($name);
         return $this->handler->lPop($key);
     }
 
     /**
      * 返回名称为key的list有多少个元素
-     * @param $key
+     * @param $name
      * @return mixed
      */
-    public function lSize($key)
+    public function lSize($name)
     {
+        $key = $this->getCacheKey($name);
         return $this->handler->lSize($key);
     }
 }
