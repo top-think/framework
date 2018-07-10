@@ -315,7 +315,7 @@ abstract class Driver
      */
     protected function unserialize($data)
     {
-        if ($this->options['serialize'] && 0 === strpos($data, self::$serialize[2])) {
+        if ($this->options['serialize'] && (empty(self::$serialize[2]) || 0 === strpos($data, self::$serialize[2]))) {
             $unserialize = self::$serialize[1];
 
             if(self::$serialize_type == 'json'){

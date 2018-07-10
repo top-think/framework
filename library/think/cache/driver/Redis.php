@@ -22,6 +22,24 @@ use think\cache\Driver;
  */
 class Redis extends Driver
 {
+    /**
+     * 序列化前缀
+     * @var
+     */
+    protected $serializePrefix;
+
+    /**
+     * 序列化数组
+     * @var array
+     */
+    protected static $json = [
+        'json_encode',
+        'json_decode',
+        'think_json:',
+        10
+    ];
+
+
     protected $options = [
         'host'       => '127.0.0.1',
         'port'       => 6379,
@@ -44,7 +62,10 @@ class Redis extends Driver
         $serialize_type = config('cache.default.serialize_type');
         if(isset($serialize_type) && $serialize_type !== 'serialize') {
             self::$serialize_type = 'json';
-            self::registerSerialize('json_encode', 'json_decode', 'think_json:');
+            $this->serializePrefix = self::$json[2];
+            // 默认设置为think_json:前缀，而此处定制序列化前缀为空
+            $this->setSerializePrefix('');
+            self::registerJson(self::$json[0], self::$json[1], $this->serializePrefix);
         }
 
         if(!empty($options)) {
@@ -79,6 +100,34 @@ class Redis extends Driver
         } else {
             throw new \BadFunctionCallException('not support: redis');
         }
+    }
+
+    /**
+     * 重新定制json序列化机制
+     * @access public
+     * @param  callable $serialize      序列化方法
+     * @param  callable $unserialize    反序列化方法
+     * @param  string   $prefix         序列化前缀标识
+     * @return $this
+     */
+    public static function registerJson($serialize, $unserialize, $prefix = 'think_json:'){
+        self::registerSerialize($serialize, $unserialize, $prefix);
+    }
+
+    /**
+     * 设置序列化前缀
+     */
+    public function setSerializePrefix($prefix)
+    {
+        $this->serializePrefix = $prefix;
+    }
+
+    /**
+     * 选择数据库
+     * @param $db
+     */
+    public function select($db){
+       return $this->handler->select($db);
     }
 
     /**
@@ -226,6 +275,7 @@ class Redis extends Driver
     public function expire($name, $expire)
     {
         $key = $this->getCacheKey($name);
+
         return $this->handler->expire($key, $expire);
     }
 
@@ -237,6 +287,7 @@ class Redis extends Driver
     public function ttl($name)
     {
         $key = $this->getCacheKey($name);
+
         return $this->handler->ttl($key);
     }
 
@@ -248,6 +299,7 @@ class Redis extends Driver
     public function strlen($name)
     {
         $key = $this->getCacheKey($name);
+
         return $this->handler->strlen($key);
     }
 
@@ -260,6 +312,7 @@ class Redis extends Driver
     public function lLen($name)
     {
         $key = $this->getCacheKey($name);
+
         return $this->handler->lLen($key);
     }
 
@@ -272,6 +325,7 @@ class Redis extends Driver
     public function lPush($name, $value)
     {
         $key = $this->getCacheKey($name);
+
         return $this->handler->lPush($key, $value);
     }
 
@@ -282,6 +336,7 @@ class Redis extends Driver
     public function lPop($name)
     {
         $key = $this->getCacheKey($name);
+
         return $this->handler->lPop($key);
     }
 
@@ -293,6 +348,7 @@ class Redis extends Driver
     public function lSize($name)
     {
         $key = $this->getCacheKey($name);
+
         return $this->handler->lSize($key);
     }
 
@@ -305,6 +361,10 @@ class Redis extends Driver
      */
     public function hSet($h = 'hash', $key, $value)
     {
+        $this->writeTimes++;
+
+        $this->handler->select(1);
+
         return $this->handler->hSet($h, $key, $value);
     }
 
@@ -314,6 +374,10 @@ class Redis extends Driver
      * @param $key
      */
     public function hGet($h = 'hash', $key){
+        $this->readTimes++;
+
+        $this->handler->select(1);
+
         return $this->handler->hGet($h, $key);
     }
 
@@ -343,11 +407,15 @@ class Redis extends Driver
 
     /**
      * 获取hash表的元素集合
-     * @param $h
+     * @param $name
      */
-    public function hGetAll($h)
+    public function hGetAll($name)
     {
-        return $this->handler->hGetAll($h);
+        $this->readTimes++;
+
+        $key = $this->getCacheKey($name);
+
+        return $this->handler->hGetAll($key);
     }
 
     /**
@@ -362,32 +430,30 @@ class Redis extends Driver
 
     /**
      *  批量添加元素
-     * @param       $h
+     * @param       $name
      * @param array $data
      */
-    public function hMset($h, $data = [])
+    public function hMset($name, $data = [])
     {
-        return $this->handler->hMset($h, $data);
+        $this->writeTimes++;
+
+        $key = $this->getCacheKey($name);
+
+        return $this->handler->hMset($key, $data);
     }
 
     /**
      * 批量获取元素
-     * @param       $h
+     * @param       $name
      * @param array $field
      */
-    public function hMGet($h, $field = [])
+    public function hMGet($name, $field = [])
     {
-        return $this->handler->hMGet($h, $field);
+        $this->readTimes++;
 
-    }
+        $key = $this->getCacheKey($name);
 
-    /**
-     * 删除 hash表
-     * @param $h
-     */
-    public function hDelete($h)
-    {
-        return $this->handler->delete($h);
+        return $this->handler->hMGet($key, $field);
     }
 
 }
