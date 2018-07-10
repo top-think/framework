@@ -33,6 +33,10 @@ class HasOne extends OneToOne
         $this->localKey   = $localKey;
         $this->joinType   = 'INNER';
         $this->query      = (new $model)->db();
+
+        if (get_class($parent) == $model) {
+            $this->selfRelation = true;
+        }
     }
 
     /**
