@@ -220,10 +220,10 @@ class Redis extends Driver
 
     /**
      * 设置过期时间$expire
-     * @param $key
+     * @param $name
      * @param $expire
      */
-    public function expire($key, $expire)
+    public function expire($name, $expire)
     {
         $key = $this->getCacheKey($name);
         return $this->handler->expire($key, $expire);
