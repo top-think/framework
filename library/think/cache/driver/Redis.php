@@ -131,7 +131,7 @@ class Redis extends Driver
      * @param $db
      */
     public function select($db){
-       return $this->handler->select($db);
+       $this->handler->select($db);
     }
 
     /**
@@ -443,8 +443,9 @@ class Redis extends Driver
      * 批量获取元素
      * @param       $name
      * @param array $fields
+     * @return mixed
      */
-    public function hMGet($name, $fields = [])
+    public function hMGet($name, $fields)
     {
         $this->readTimes++;
 
