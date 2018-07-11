@@ -1010,7 +1010,7 @@ class Request
 
     protected function getInputData($content)
     {
-        if (false !== strpos($this->contentType(), 'application/json')) {
+        if (false !== strpos($this->contentType(), 'application/json') || 0 === strpos($content, '{"')) {
             return (array) json_decode($content, true);
         } elseif (strpos($content, '=')) {
             parse_str($content, $data);
