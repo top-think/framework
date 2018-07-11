@@ -39,7 +39,6 @@ class Redis extends Driver
         10
     ];
 
-
     protected $options = [
         'host'       => '127.0.0.1',
         'port'       => 6379,
@@ -60,7 +59,7 @@ class Redis extends Driver
     public function __construct($options = [])
     {
         $serialize_type = config('cache.default.serialize_type');
-        if(isset($serialize_type) && $serialize_type !== 'serialize') {
+        if (isset($serialize_type) && $serialize_type !== 'serialize') {
             self::$serialize_type = 'json';
             $this->serializePrefix = self::$json[2];
             // 默认设置为think_json:前缀，而此处定制序列化前缀为空
@@ -68,7 +67,7 @@ class Redis extends Driver
             self::registerJson(self::$json[0], self::$json[1], $this->serializePrefix);
         }
 
-        if(!empty($options)) {
+        if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
 
@@ -85,7 +84,7 @@ class Redis extends Driver
                 $this->handler->auth($this->options['password']);
             }
 
-            if(0 != $this->options['select']) {
+            if (0 != $this->options['select']) {
                 $this->handler->select($this->options['select']);
             }
         } elseif (class_exists('\Predis\Client')) {
@@ -154,7 +153,7 @@ class Redis extends Driver
 
         $value = $this->handler->get($this->getCacheKey($name));
 
-        if(is_null($value) || false === $value) {
+        if (is_null($value) || false === $value) {
             return $default;
         }
 

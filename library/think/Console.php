@@ -142,7 +142,7 @@ class Console
                     }
                 }
             }
-            
+
         }
 
         if ($run) {

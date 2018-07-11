@@ -690,6 +690,7 @@ if (!function_exists('xml')) {
     }
 }
 
+
 if(!function_exists('is_json')){
     /**
      * 判断字符串是不是json格式

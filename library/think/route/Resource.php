@@ -118,38 +118,4 @@ class Resource extends RuleGroup
 
         return $this;
     }
-
-    /**
-     * 设置资源允许
-     * @access public
-     * @param  array     $only
-     * @return $this
-     */
-    public function only($only)
-    {
-        return $this->option('only', $only);
-    }
-
-    /**
-     * 设置资源排除
-     * @access public
-     * @param  array     $except
-     * @return $this
-     */
-    public function except($except)
-    {
-        return $this->option('except', $except);
-    }
-
-    /**
-     * 设置资源路由的变量
-     * @access public
-     * @param  array     $vars
-     * @return $this
-     */
-    public function vars($vars)
-    {
-        return $this->option('var', $vars);
-    }
-
 }

@@ -20,7 +20,7 @@ use think\route\Dispatch;
  */
 class App extends Container
 {
-    const VERSION = '5.1.17';
+    const VERSION = '5.1.19';
 
     /**
      * 当前模块路径
@@ -321,7 +321,7 @@ class App extends Container
 
             // 加载公共文件
             if (is_file($path . 'common.php')) {
-                include $path . 'common.php';
+                include_once $path . 'common.php';
             }
 
             if ('' == $module) {

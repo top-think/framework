@@ -28,13 +28,15 @@ class DemoController extend controller {
 vendor/chinashuguo/api/src文件结构：
 controller/api.php
 controller/demo.php
+config/
+command/
 model/
 logic/
 view/
 validate/
 service/
 common.php
-config.php
+command.php
 module.json
 
 ## 参与开发

@@ -34,6 +34,10 @@ class BelongsTo extends OneToOne
         $this->joinType   = 'INNER';
         $this->query      = (new $model)->db();
         $this->relation   = $relation;
+
+        if (get_class($parent) == $model) {
+            $this->selfRelation = true;
+        }
     }
 
     /**
