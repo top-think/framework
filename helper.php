@@ -689,3 +689,16 @@ if (!function_exists('xml')) {
         return Response::create($data, 'xml', $code, $header, $options);
     }
 }
+
+if(!function_exists('is_json')){
+    /**
+     * 判断字符串是不是json格式
+     * @param $str
+     * @return bool
+     */
+    function is_json($str)
+    {
+        json_decode($str);
+        return (json_last_error() == JSON_ERROR_NONE);
+    }
+}
