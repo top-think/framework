@@ -258,7 +258,6 @@ class Request
      * php://input内容
      * @var string
      */
-    // php://input
     protected $input;
 
     /**
@@ -2049,6 +2048,30 @@ class Request
     public function withPost(array $post)
     {
         $this->post = $post;
+        return $this;
+    }
+
+    /**
+     * 设置php://input数据
+     * @access public
+     * @param  string $input RAW数据
+     * @return $this
+     */
+    public function withInput($input)
+    {
+        $this->input = $input;
+        return $this;
+    }
+
+    /**
+     * 设置文件上传数据
+     * @access public
+     * @param  array $files 上传信息
+     * @return $this
+     */
+    public function withFiles(array $files)
+    {
+        $this->file = $files;
         return $this;
     }
 
