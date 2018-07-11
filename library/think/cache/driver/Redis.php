@@ -274,9 +274,7 @@ class Redis extends Driver
      */
     public function expire($name, $expire)
     {
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->expire($key, $expire);
+        return $this->handler->expire($this->getCacheKey($name), $expire);
     }
 
     /**
@@ -286,9 +284,7 @@ class Redis extends Driver
      */
     public function ttl($name)
     {
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->ttl($key);
+        return $this->handler->ttl($this->getCacheKey($name));
     }
 
     /**
@@ -298,9 +294,7 @@ class Redis extends Driver
      */
     public function strlen($name)
     {
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->strlen($key);
+        return $this->handler->strlen($this->getCacheKey($name));
     }
 
 
@@ -311,9 +305,7 @@ class Redis extends Driver
      */
     public function lLen($name)
     {
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->lLen($key);
+        return $this->handler->lLen($this->getCacheKey($name));
     }
 
     /**
@@ -324,9 +316,7 @@ class Redis extends Driver
      */
     public function lPush($name, $value)
     {
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->lPush($key, $value);
+        return $this->handler->lPush($this->getCacheKey($name), $value);
     }
 
     /**
@@ -335,9 +325,7 @@ class Redis extends Driver
      */
     public function lPop($name)
     {
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->lPop($key);
+        return $this->handler->lPop($this->getCacheKey($name));
     }
 
     /**
@@ -347,62 +335,61 @@ class Redis extends Driver
      */
     public function lSize($name)
     {
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->lSize($key);
+        return $this->handler->lSize($this->getCacheKey($name));
     }
 
     /**
      * 向名字叫 'hash' 的 hash表 中添加元素 ['key1' => 'val1']
-     * @param string $h
+     * @param string $name
      * @param $key
      * @param $value
      * @return bool
      */
-    public function hSet($h = 'hash', $key, $value)
+    public function hSet($name = 'hash', $key, $value)
     {
         $this->writeTimes++;
 
-        $this->handler->select(1);
-
-        return $this->handler->hSet($h, $key, $value);
+        return $this->handler->hSet($this->getCacheKey($name), $key, $value);
     }
 
     /**
      * 获取hash表中键名为$key的值
      * @param string $h
-     * @param $key
+     * @param $name
+     * @return mixed
      */
-    public function hGet($h = 'hash', $key){
+    public function hGet($name = 'hash', $key)
+    {
         $this->readTimes++;
 
-        $this->handler->select(1);
-
-        return $this->handler->hGet($h, $key);
+        return $this->handler->hGet($this->getCacheKey($name), $key);
     }
 
     /**
      * 获取hash表的元素的数量
      */
-    public function hLen($h){
-        return $this->handler->hLen($h);
+    public function hLen($name)
+    {
+        return $this->handler->hLen($this->getCacheKey($name));
     }
 
     /**
      * 获取hash表中所有的值
      * @param $h
      */
-    public function hKeys($h){
-        return $this->handler->hKeys($h);
+    public function hKeys($name)
+    {
+        return $this->handler->hKeys($this->getCacheKey($name));
     }
 
     /**
      * 获取hash表中的所有值
-     * @param $h
+     * @param $name
+     * @return ini
      */
-    public function hVals($h)
+    public function hVals($name)
     {
-        return $this->handler->hVals($h);
+        return $this->handler->hVals($this->getCacheKey($name));
     }
 
     /**
@@ -413,19 +400,17 @@ class Redis extends Driver
     {
         $this->readTimes++;
 
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->hGetAll($key);
+        return $this->handler->hGetAll($this->getCacheKey($name));
     }
 
     /**
      * 判断 hash 表中是否存在键名是 $key 的元素
-     * @param $h
+     * @param $name
      * @param $key
      */
-    public function hExists($h, $key)
+    public function hExists($name, $key)
     {
-        return $this->handler->hExists($h, $key);
+        return $this->handler->hExists($this->getCacheKey($name), $key);
     }
 
     /**
@@ -437,23 +422,29 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
+
         $key = $this->getCacheKey($name);
 
-        return $this->handler->hMset($key, $data);
+        $result = $this->handler->hMset($key, $data);
+
+        isset($first) && $this->setTagItem($key);
+
+        return $result;
     }
 
     /**
      * 批量获取元素
      * @param       $name
-     * @param array $field
+     * @param array $fields
      */
-    public function hMGet($name, $field = [])
+    public function hMGet($name, $fields = [])
     {
         $this->readTimes++;
 
-        $key = $this->getCacheKey($name);
-
-        return $this->handler->hMGet($key, $field);
+        return $this->handler->hMGet($this->getCacheKey($name), $fields);
     }
 
 }
