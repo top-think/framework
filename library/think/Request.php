@@ -2077,7 +2077,6 @@ class Request
     }
 
     /**
->>>>>>> 8b3ea7f4401c22b414512870371d657f90cdbbc8
      * 设置COOKIE数据
      * @access public
      * @param  array $cookie 数据
