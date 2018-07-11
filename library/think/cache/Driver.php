@@ -290,6 +290,15 @@ abstract class Driver
     }
 
     /**
+     * 设置序列化类型
+     * @param $type
+     */
+    protected function setSerializeType($type)
+    {
+        self::$serialize_type = $type;
+    }
+
+    /**
      * 序列化数据
      * @access protected
      * @param  mixed $data

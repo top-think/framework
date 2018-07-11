@@ -58,18 +58,23 @@ class Redis extends Driver
      */
     public function __construct($options = [])
     {
-        $serialize_type = config('cache.default.serialize_type');
-        if (isset($serialize_type) && $serialize_type !== 'serialize') {
-            self::$serialize_type = 'json';
-            $this->serializePrefix = self::$json[2];
-            // 默认设置为think_json:前缀，而此处定制序列化前缀为空
-            $this->setSerializePrefix('');
-            self::registerJson(self::$json[0], self::$json[1], $this->serializePrefix);
+        if(!isset($options['serialize_type']) || $options['serialize_type'] !== self::$serialize_type){
+            $options['serialize_type'] = 'json';
+        }
+
+        // 默认设置为think_json:前缀，而此处定制序列化前缀为空
+        if(!isset($options['serialize_prefix']) || empty($options['serialize_prefix'])){
+            $options['serialize_prefix'] = '';
         }
 
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
+
+        // 注册序列化方式
+        $this->setSerializeType($this->options['serialize_type']);
+        $this->setSerializePrefix($this->options['serialize_prefix']);
+        self::registerJson(self::$json[0], self::$json[1], $this->options['serialize_prefix']);
 
         if (extension_loaded('redis')) {
             $this->handler = new \Redis;
