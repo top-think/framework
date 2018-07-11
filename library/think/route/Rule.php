@@ -932,11 +932,11 @@ abstract class Rule
 
     /**
      * 解析URL的pathinfo参数和变量
-     * @access protected
+     * @access public
      * @param  string    $url URL地址
      * @return array
      */
-    protected function parseUrlPath($url)
+    public function parseUrlPath($url)
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
@@ -953,6 +953,7 @@ abstract class Rule
             $path = explode('/', $url);
         } elseif (false !== strpos($url, '=')) {
             // 参数1=值1&参数2=值2...
+            $path = [];
             parse_str($url, $var);
         } else {
             $path = [$url];

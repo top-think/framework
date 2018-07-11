@@ -45,7 +45,7 @@ class Url extends Dispatch
             $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
         }
 
-        list($path, $var) = $this->parseUrlPath($url);
+        list($path, $var) = $this->rule->parseUrlPath($url);
         if (empty($path)) {
             return [null, null, null];
         }
@@ -160,34 +160,4 @@ class Url extends Dispatch
         return $controller;
     }
 
-    /**
-     * 解析URL的pathinfo参数和变量
-     * @access private
-     * @param  string    $url URL地址
-     * @return array
-     */
-    private function parseUrlPath($url)
-    {
-        // 分隔符替换 确保路由定义使用统一的分隔符
-        $url = str_replace('|', '/', $url);
-        $url = trim($url, '/');
-        $var = [];
-
-        if (false !== strpos($url, '?')) {
-            // [模块/控制器/操作?]参数1=值1&参数2=值2...
-            $info = parse_url($url);
-            $path = explode('/', $info['path']);
-            parse_str($info['query'], $var);
-        } elseif (strpos($url, '/')) {
-            // [模块/控制器/操作]
-            $path = explode('/', $url);
-        } elseif (false !== strpos($url, '=')) {
-            // 参数1=值1&参数2=值2...
-            parse_str($url, $var);
-        } else {
-            $path = [$url];
-        }
-
-        return [$path, $var];
-    }
 }
