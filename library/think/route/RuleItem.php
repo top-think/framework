@@ -78,7 +78,7 @@ class RuleItem extends Rule
      */
     public function ext(string $ext = '')
     {
-        $this->option('ext', $ext);
+        $this->setOption('ext', $ext);
         $this->setRuleName(true);
 
         return $this;

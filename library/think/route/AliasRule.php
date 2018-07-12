@@ -101,7 +101,7 @@ class AliasRule extends Domain
      */
     public function allow(array $action = [])
     {
-        return $this->option('allow', $action);
+        return $this->setOption('allow', $action);
     }
 
     /**
@@ -112,7 +112,7 @@ class AliasRule extends Domain
      */
     public function except(array $action = [])
     {
-        return $this->option('except', $action);
+        return $this->setOption('except', $action);
     }
 
 }

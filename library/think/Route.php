@@ -251,13 +251,12 @@ class Route
     /**
      * 注册变量规则
      * @access public
-     * @param  string|array  $name 变量名
-     * @param  string        $rule 变量规则
+     * @param  array  $pattern 变量规则
      * @return $this
      */
-    public function pattern($name, $rule = '')
+    public function pattern(array $pattern)
     {
-        $this->group->pattern($name, $rule);
+        $this->group->pattern($pattern);
 
         return $this;
     }
@@ -265,13 +264,12 @@ class Route
     /**
      * 注册路由参数
      * @access public
-     * @param  string|array  $name  参数名
-     * @param  mixed         $value 值
+     * @param  array  $option  参数
      * @return $this
      */
-    public function option($name, $value = '')
+    public function option(array $option)
     {
-        $this->group->option($name, $value);
+        $this->group->option($option);
 
         return $this;
     }

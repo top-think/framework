@@ -502,9 +502,9 @@ class Query
      * @param  array  $data  操作的数据
      * @param  string $field 分表依据的字段
      * @param  array  $rule  分表规则
-     * @return string
+     * @return mixed
      */
-    public function getPartitionTableName(array $data, string $field, array $rule = []): string
+    public function getPartitionTableName(array $data, string $field, array $rule = [])
     {
         // 对数据表进行分区
         if ($field && isset($data[$field])) {
@@ -540,18 +540,18 @@ class Query
                         $seq = (ord($value{0}) % $rule['num']) + 1;
                     }
             }
+
             return $this->getTable() . '_' . $seq;
         }
         // 当设置的分表字段不在查询条件或者数据中
         // 进行联合查询，必须设定 partition['num']
         $tableName = [];
+
         for ($i = 0; $i < $rule['num']; $i++) {
             $tableName[] = 'SELECT * FROM ' . $this->getTable() . '_' . ($i + 1);
         }
 
-        $tableName = ['( ' . implode(" UNION ", $tableName) . ' )' => $this->name];
-
-        return $tableName;
+        return ['( ' . implode(" UNION ", $tableName) . ' )' => $this->name];
     }
 
     /**

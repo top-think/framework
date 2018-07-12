@@ -133,10 +133,11 @@ class Cookie
      * @access public
      * @param  string $name  cookie名称
      * @param  mixed  $value cookie值
+     * @param  int    $expire 有效期
      * @param  array  $option 可选参数
      * @return void
      */
-    protected function setCookie($name, $value, $expire, $option = [])
+    protected function setCookie(string $name, $value, int $expire, array $option = []): void
     {
         setcookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'], $option['httponly']);
     }

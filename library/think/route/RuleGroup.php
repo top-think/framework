@@ -454,7 +454,7 @@ class RuleGroup extends Rule
      * @param  array     $pattern    变量规则
      * @return void
      */
-    public function addRules($rules, $method = '*', $option = [], $pattern = []): void
+    public function addRules(array $rules, string $method = '*', array $option = [], array $pattern = []): void
     {
         foreach ($rules as $key => $val) {
             if (is_numeric($key)) {
@@ -473,7 +473,7 @@ class RuleGroup extends Rule
         }
     }
 
-    public function addRuleItem($rule, string $method = '*')
+    public function addRuleItem(Rule $rule, string $method = '*')
     {
         if (strpos($method, '|')) {
             $rule->method($method);
@@ -497,7 +497,40 @@ class RuleGroup extends Rule
             $prefix = $this->parent->getOption('prefix') . $prefix;
         }
 
-        return $this->option('prefix', $prefix);
+        return $this->setOption('prefix', $prefix);
+    }
+
+    /**
+     * 设置资源允许
+     * @access public
+     * @param  array     $only
+     * @return $this
+     */
+    public function only(array $only)
+    {
+        return $this->setOption('only', $only);
+    }
+
+    /**
+     * 设置资源排除
+     * @access public
+     * @param  array     $except
+     * @return $this
+     */
+    public function except(array $except)
+    {
+        return $this->setOption('except', $except);
+    }
+
+    /**
+     * 设置资源路由的变量
+     * @access public
+     * @param  array     $vars
+     * @return $this
+     */
+    public function vars(array $vars)
+    {
+        return $this->setOption('var', $vars);
     }
 
     /**
@@ -508,7 +541,7 @@ class RuleGroup extends Rule
      */
     public function mergeRuleRegex(bool $merge = true)
     {
-        return $this->option('merge_rule_regex', $merge);
+        return $this->setOption('merge_rule_regex', $merge);
     }
 
     /**
@@ -527,7 +560,7 @@ class RuleGroup extends Rule
      * @param  string     $method
      * @return array
      */
-    public function getRules(string $method = '')
+    public function getRules(string $method = '') : array
     {
         if ('' === $method) {
             return $this->rules;

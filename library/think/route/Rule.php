@@ -93,19 +93,28 @@ abstract class Rule
     abstract public function check(Request $request, string $url, bool $completeMatch = false);
 
     /**
-     * 注册路由参数
+     * 设置路由参数
      * @access public
-     * @param  string|array  $name  参数名
-     * @param  mixed         $value 值
+     * @param  array  $option  参数
      * @return $this
      */
-    public function option($name, $value = '')
+    public function option(array $option)
     {
-        if (is_array($name)) {
-            $this->option = array_merge($this->option, $name);
-        } else {
-            $this->option[$name] = $value;
-        }
+        $this->option = array_merge($this->option, $option);
+
+        return $this;
+    }
+
+    /**
+     * 设置单个路由参数
+     * @access public
+     * @param  string  $name  参数名
+     * @param  mixed   $value 值
+     * @return $this
+     */
+    public function setOption(string $name, $value)
+    {
+        $this->option[$name] = $value;
 
         return $this;
     }
@@ -113,17 +122,12 @@ abstract class Rule
     /**
      * 注册变量规则
      * @access public
-     * @param  string|array  $name 变量名
-     * @param  string        $rule 变量规则
+     * @param  array  $pattern 变量规则
      * @return $this
      */
-    public function pattern($name, $rule = '')
+    public function pattern(array $pattern)
     {
-        if (is_array($name)) {
-            $this->pattern = array_merge($this->pattern, $name);
-        } else {
-            $this->pattern[$name] = $rule;
-        }
+        $this->pattern = array_merge($this->pattern, $pattern);
 
         return $this;
     }
@@ -206,7 +210,7 @@ abstract class Rule
      * @access public
      * @return string
      */
-    public function getDomain()
+    public function getDomain(): string
     {
         return $this->parent->getDomain();
     }
@@ -280,7 +284,7 @@ abstract class Rule
      */
     public function method(string $method)
     {
-        return $this->option('method', strtolower($method));
+        return $this->setOption('method', strtolower($method));
     }
 
     /**
@@ -291,7 +295,7 @@ abstract class Rule
      */
     public function before($before)
     {
-        return $this->option('before', $before);
+        return $this->setOption('before', $before);
     }
 
     /**
@@ -302,7 +306,7 @@ abstract class Rule
      */
     public function after($after)
     {
-        return $this->option('after', $after);
+        return $this->setOption('after', $after);
     }
 
     /**
@@ -313,7 +317,7 @@ abstract class Rule
      */
     public function ext(string $ext = '')
     {
-        return $this->option('ext', $ext);
+        return $this->setOption('ext', $ext);
     }
 
     /**
@@ -324,7 +328,7 @@ abstract class Rule
      */
     public function denyExt(string $ext = '')
     {
-        return $this->option('deny_ext', $ext);
+        return $this->setOption('deny_ext', $ext);
     }
 
     /**
@@ -335,7 +339,7 @@ abstract class Rule
      */
     public function domain(string $domain)
     {
-        return $this->option('domain', $domain);
+        return $this->setOption('domain', $domain);
     }
 
     /**
@@ -470,7 +474,7 @@ abstract class Rule
      */
     public function cache($cache)
     {
-        return $this->option('cache', $cache);
+        return $this->setOption('cache', $cache);
     }
 
     /**
@@ -481,7 +485,7 @@ abstract class Rule
      */
     public function depr(string $depr)
     {
-        return $this->option('param_depr', $depr);
+        return $this->setOption('param_depr', $depr);
     }
 
     /**
@@ -492,7 +496,7 @@ abstract class Rule
      */
     public function mergeExtraVars(bool $merge = true)
     {
-        return $this->option('merge_extra_vars', $merge);
+        return $this->setOption('merge_extra_vars', $merge);
     }
 
     /**
@@ -515,7 +519,7 @@ abstract class Rule
      */
     public function https(bool $https = true)
     {
-        return $this->option('https', $https);
+        return $this->setOption('https', $https);
     }
 
     /**
@@ -526,7 +530,7 @@ abstract class Rule
      */
     public function ajax(bool $ajax = true)
     {
-        return $this->option('ajax', $ajax);
+        return $this->setOption('ajax', $ajax);
     }
 
     /**
@@ -537,7 +541,7 @@ abstract class Rule
      */
     public function pjax(bool $pjax = true)
     {
-        return $this->option('pjax', $pjax);
+        return $this->setOption('pjax', $pjax);
     }
 
     /**
@@ -548,7 +552,7 @@ abstract class Rule
      */
     public function view($view = true)
     {
-        return $this->option('view', $view);
+        return $this->setOption('view', $view);
     }
 
     /**
@@ -559,7 +563,7 @@ abstract class Rule
      */
     public function redirect(bool $redirect = true)
     {
-        return $this->option('redirect', $redirect);
+        return $this->setOption('redirect', $redirect);
     }
 
     /**
@@ -570,7 +574,7 @@ abstract class Rule
      */
     public function completeMatch(bool $match = true)
     {
-        return $this->option('complete_match', $match);
+        return $this->setOption('complete_match', $match);
     }
 
     /**
@@ -581,7 +585,7 @@ abstract class Rule
      */
     public function removeSlash(bool $remove = true)
     {
-        return $this->option('remove_slash', $remove);
+        return $this->setOption('remove_slash', $remove);
     }
 
     /**
@@ -601,7 +605,7 @@ abstract class Rule
             $this->parent->addRuleItem($this, 'options');
         }
 
-        return $this->option('cross_domain', $allow);
+        return $this->setOption('cross_domain', $allow);
     }
 
     /**
@@ -908,11 +912,11 @@ abstract class Rule
 
     /**
      * 解析URL的pathinfo参数和变量
-     * @access protected
+     * @access public
      * @param  string    $url URL地址
      * @return array
      */
-    protected function parseUrlPath(string $url): array
+    public function parseUrlPath(string $url): array
     {
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
@@ -930,6 +934,7 @@ abstract class Rule
         } elseif (false !== strpos($url, '=')) {
             // 参数1=值1&参数2=值2...
             parse_str($url, $var);
+            $path = [];
         } else {
             $path = [$url];
         }
