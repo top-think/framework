@@ -691,7 +691,7 @@ if (!function_exists('xml')) {
 }
 
 
-if(!function_exists('is_json')){
+if (!function_exists('is_json')) {
     /**
      * 判断字符串是不是json格式
      * @param $str
@@ -700,6 +700,29 @@ if(!function_exists('is_json')){
     function is_json($str)
     {
         json_decode($str);
+
         return (json_last_error() == JSON_ERROR_NONE);
+    }
+}
+
+if (!function_exists('trace_service')) {
+    function trace_service($data, $type = 'info')
+    {
+        $msg = '';
+        if (!is_scalar($data)) {
+            $data = array_merge($data, [
+                'trace' => [
+                    '__FILE__' => __FILE__,
+                    '__NAMESPACE__' => __NAMESPACE__,
+                    '__CLASS__' => __CLASS__,
+                    '__METHOD__' => __METHOD__,
+                    '__LINE__' => __LINE__,
+                ]
+            ]);
+
+            $msg = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        }
+
+        Log::record($msg, $type);
     }
 }
