@@ -22,6 +22,8 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
  + 模型和数据库增强
  + 依赖注入完善
  + 支持PSR-3日志规范
+ + 中间件支持（`V5.1.6+`）
+ + 支持`Swoole`/`Workerman`运行（`V5.1.18+`）
 
 ### 废除的功能：
 
@@ -31,6 +33,18 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
 
 > ThinkPHP5.1的运行环境要求PHP5.6+。
 
+## 安装
+
+使用composer安装
+
+~~~
+composer create-project topthink/think tp
+~~~
+
+更新框架
+~~~
+composer update topthink/framework
+~~~
 
 ## 在线手册
 
