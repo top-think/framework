@@ -41,10 +41,24 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
 composer create-project topthink/think tp
 ~~~
 
+启动服务
+
+~~~
+cd tp
+php think run
+~~~
+
+然后就可以在浏览器中访问
+
+~~~
+http://localhost:8000
+~~~
+
 更新框架
 ~~~
 composer update topthink/framework
 ~~~
+
 
 ## 在线手册
 
