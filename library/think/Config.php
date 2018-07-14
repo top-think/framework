@@ -11,6 +11,8 @@
 
 namespace think;
 
+use Yaconf;
+
 class Config implements \ArrayAccess
 {
     /**
@@ -91,6 +93,10 @@ class Config implements \ArrayAccess
             $name = $this->prefix . '.' . $name;
         }
 
+        if (class_exists('Yaconf')) {
+            return Yaconf::has($name);
+        }
+
         return !is_null($this->get($name));
     }
 
@@ -116,6 +122,14 @@ class Config implements \ArrayAccess
      */
     public function get(string $name = '', $default = null)
     {
+        if (class_exists('Yaconf')) {
+            if ($name && !strpos($name, '.')) {
+                $name = $this->prefix . '.' . $name;
+            }
+
+            return Yaconf::get($name, $default);
+        }
+
         // 无参数时获取所有
         if (empty($name)) {
             return $this->config;
