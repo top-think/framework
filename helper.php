@@ -706,23 +706,21 @@ if (!function_exists('is_json')) {
 }
 
 if (!function_exists('trace_service')) {
-    function trace_service($data, $type = 'info')
+    function trace_service($trace,  $type = 'info', $debug = false)
     {
-        $msg = '';
-        if (!is_scalar($data)) {
-            $data = array_merge($data, [
+        // 追踪代码信息，给函数埋雷，检测业务代码信息
+        if(!$debug){
+            $trace = [
                 'trace' => [
-                    '__FILE__' => __FILE__,
-                    '__NAMESPACE__' => __NAMESPACE__,
-                    '__CLASS__' => __CLASS__,
-                    '__METHOD__' => __METHOD__,
-                    '__LINE__' => __LINE__,
+                    'class' => $trace[0]['class'],
+                    'file' => $trace[0]['file'],
+                    'function' => $trace[0]['function'],
+                    'line' => $trace[0]['line'],
+                    'args' => $trace[0]['args']
                 ]
-            ]);
-
-            $msg = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            ];
         }
-
-        Log::record($msg, $type);
+    
+        Log::record(json_encode($trace, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), $type);
     }
 }
