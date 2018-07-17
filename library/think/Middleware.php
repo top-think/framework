@@ -20,7 +20,7 @@ class Middleware
     protected $queue = [];
     protected $app;
     protected $config = [
-        'default_namespace' => 'app\\http\\middleware\\',
+        'default_namespace' => 'shuguo\\http\\middleware\\',
     ];
 
     public function __construct(App $app, array $config = [])
@@ -140,15 +140,15 @@ class Middleware
         if (!is_string($middleware)) {
             throw new InvalidArgumentException('The middleware is invalid');
         }
-
         if (false === strpos($middleware, '\\')) {
             if (isset($this->config[$middleware])) {
                 $middleware = $this->config[$middleware];
+
             } else {
                 $middleware = $this->config['default_namespace'] . $middleware;
             }
         }
-
+        var_dump($middleware);
         if (is_array($middleware)) {
             return $this->import($middleware, $type);
         }

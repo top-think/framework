@@ -319,6 +319,6 @@ return [
 
     // 中间件配置
     'middleware' => [
-        'default_namespace' => 'app\\http\\middleware\\',
+        'default_namespace' => 'shuguo\\http\\middleware\\',
     ],
 ];
