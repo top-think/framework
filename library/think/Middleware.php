@@ -148,7 +148,7 @@ class Middleware
                 $middleware = $this->config['default_namespace'] . $middleware;
             }
         }
-        var_dump($middleware);
+
         if (is_array($middleware)) {
             return $this->import($middleware, $type);
         }
