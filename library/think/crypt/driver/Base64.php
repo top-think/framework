@@ -33,6 +33,7 @@ class Base64 extends Driver
         $x      = 0;
         $len    = strlen($data);
         $l      = strlen($key);
+        $char = $str = '';
         for ($i = 0; $i < $len; $i++) {
             if ($x == $l) {
                 $x = 0;
@@ -60,6 +61,7 @@ class Base64 extends Driver
         $x   = 0;
         $len = strlen($data);
         $l   = strlen($key);
+        $char = $str = '';
         for ($i = 0; $i < $len; $i++) {
             if ($x == $l) {
                 $x = 0;
