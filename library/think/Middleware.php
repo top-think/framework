@@ -140,10 +140,10 @@ class Middleware
         if (!is_string($middleware)) {
             throw new InvalidArgumentException('The middleware is invalid');
         }
+
         if (false === strpos($middleware, '\\')) {
             if (isset($this->config[$middleware])) {
                 $middleware = $this->config[$middleware];
-
             } else {
                 $middleware = $this->config['default_namespace'] . $middleware;
             }
