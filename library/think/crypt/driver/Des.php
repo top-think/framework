@@ -11,16 +11,16 @@
 
 namespace think\crypt\driver;
 
+use think\crypt\Driver;
+
 /**
  * Des 加密实现类
  * Converted from JavaScript to PHP by Jim Gibbs, June 2004 Paul Tero, July 2001
  * Optimised for performance with large blocks by Michael Hayworth, November 2001
  * http://www.netdealing.com
  */
-
 class Des extends Driver
 {
-
     /**
      * 加密字符串
      * @param string  $str 字符串

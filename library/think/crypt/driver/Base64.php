@@ -11,12 +11,13 @@
 
 namespace think\crypt\driver;
 
+use think\crypt\Driver;
+
 /**
  * Base64 加密实现类
  */
 class Base64 extends Driver
 {
-
     /**
      * 加密字符串
      * @param string $str 字符串

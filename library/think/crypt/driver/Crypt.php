@@ -11,6 +11,8 @@
 
 namespace think\crypt\driver;
 
+use think\crypt\Driver;
+
 /**
  * Crypt 加密实现类
  * @category   ORG
@@ -20,7 +22,6 @@ namespace think\crypt\driver;
  */
 class Crypt extends Driver
 {
-
     /**
      * 加密字符串
      * @param string  $str 字符串

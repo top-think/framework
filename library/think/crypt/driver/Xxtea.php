@@ -11,12 +11,13 @@
 
 namespace think\crypt\driver;
 
+use think\crypt\Driver;
+
 /**
  * Xxtea 加密实现类
  */
 class Xxtea extends Driver
 {
-
     /**
      * 加密字符串
      * @param string  $str 字符串

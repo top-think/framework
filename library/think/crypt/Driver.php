@@ -37,13 +37,6 @@ abstract class Driver
 
 
     /**
-     * 初始化句柄
-     * @param string $type
-     * @return mixed
-     */
-    abstract public function init($type = 'think');
-
-    /**
      * 加密字符串
      * @param string  $data 字符串
      * @param string  $key 加密key

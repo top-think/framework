@@ -10,42 +10,81 @@
 // +----------------------------------------------------------------------
 namespace think;
 
-use think\facade\Config;
-
 /**
  * 加密解密类
  */
 class Crypt
 {
     /**
+     * 配置参数
+     * @var string
+     */
+    protected $config = [];
+
+    /**
+     * 驱动类型
+     * @var array
+     */
+    private static $defaultDrivers = [
+        "\\think\\crypt\\driver\\Think", "\\think\\crypt\\driver\\Base64", "\\think\\crypt\\driver\\Crypt", "\\think\\crypt\\driver\\Des", "\\think\\crypt\\driver\\Xxtea",
+    ];
+
+    /**
      * 操作句柄
      * @var object
      */
-    protected $handler = null;
+    private $handler = null;
 
     /**
-     * Crypt constructor.
-     * @param string $type
+     * 应用对象
+     * @var App
      */
-    public function __construct($type = 'think')
+    protected $app;
+
+    public function __construct(App $app, $config = [])
     {
-        $this->init($type);
+        $this->app = $app;
+        $this->config = $config;
     }
+
 
     /**
      * 初始化句柄
-     * @param string $type
+     * @param  string $options
      * @return mixed|object|string
      */
-    public function init($type = 'think')
+    public function init($options = '')
     {
+
         if (is_null($this->handler)) {
-            $options = Config::pull('crypt');
-            $class = strpos($options[$type], '\\') ? $options[$type] : 'think\\crypt\\driver\\' . ucwords(strtolower($type));
-            $this->handler = $class;
+            $type = '';
+
+            if (is_scalar($options)) {
+                $type = ucwords(strtolower($options));
+                if (empty($type)) {
+                    $options = $this->config;
+                    if ('complex' == $options['type']) {
+                        $default = $options['default'];
+                        $type = ucwords(strtolower($default['type']));
+                    }
+                }
+            }
+
+            foreach (self::$defaultDrivers as $driver) {
+                if (false !== strpos($driver, $type)) {
+                    $class = $driver;
+                }
+            }
+
+            $this->handler = new $class;
         }
 
         return $this->handler;
+    }
+
+    public static function __make(App $app, Config $config)
+    {
+        return new static($app, $config->pull('crypt'));
     }
 
     /**
