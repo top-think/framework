@@ -83,6 +83,12 @@ class App extends Container
     protected $thinkPath;
 
     /**
+     * 核心模块目录
+     * @var string
+     */
+    protected $corePath;
+
+    /**
      * 应用根目录
      * @var string
      */
@@ -233,7 +239,11 @@ class App extends Container
         $this->groupname = $this->env->get('app_groupname', $this->groupname);
         $this->env->set('app_groupname', $this->groupname);
 
+        // 设置组织目录
         $this->setGroupPath($this->vendorPath . $this->getGroupname() . DIRECTORY_SEPARATOR);
+
+        // 设置核心目录
+        $this->setCorePath($this->groupPath);
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
@@ -507,6 +517,7 @@ class App extends Container
         $this->lang->load([
             $this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
             $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
+            $this->corePath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
         ]);
     }
 
@@ -1001,6 +1012,15 @@ class App extends Container
     {
         $this->groupPath = $path;
         $this->env->set('group_path', $path);
+    }
+
+    /**
+     * 设置核心目录
+     * @param $path
+     */
+    public function setCorePath($path)
+    {
+        $this->corePath = $path . 'core' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
     }
 
     /**
