@@ -1461,7 +1461,7 @@ abstract class Connection
             if (PDO::PARAM_STR == $type) {
                 $value = '\'' . addslashes($value) . '\'';
             } elseif (PDO::PARAM_INT == $type) {
-                $value = (float) $value;
+                $value = (int) $value;
             }
 
             // 判断占位符
