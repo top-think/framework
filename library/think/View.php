@@ -209,6 +209,7 @@ class View
      * @param  array  $vars    模板输出变量
      * @param  array  $config  模板参数
      * @return mixed
+     * @throws \Exception
      */
     public function display($content, $vars = [], $config = [])
     {

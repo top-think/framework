@@ -10,6 +10,9 @@
 // +----------------------------------------------------------------------
 namespace think;
 
+// 载入系统常量
+require __DIR__ . DIRECTORY_SEPARATOR . 'constant.php';
+
 // 载入Loader类
 require __DIR__ . '/library/think/Loader.php';
 
