@@ -58,12 +58,12 @@ class Redis extends Driver
      */
     public function __construct($options = [])
     {
-        if(!isset($options['serialize_type']) || $options['serialize_type'] !== self::$serialize_type){
+        if (!isset($options['serialize_type']) || $options['serialize_type'] !== self::$serialize_type) {
             $options['serialize_type'] = 'json';
         }
 
         // 默认设置为think_json:前缀，而此处定制序列化前缀为空
-        if(!isset($options['serialize_prefix']) || empty($options['serialize_prefix'])){
+        if (!isset($options['serialize_prefix']) || empty($options['serialize_prefix'])) {
             $options['serialize_prefix'] = '';
         }
 
@@ -109,12 +109,13 @@ class Redis extends Driver
     /**
      * 重新定制json序列化机制
      * @access public
-     * @param  callable $serialize      序列化方法
-     * @param  callable $unserialize    反序列化方法
-     * @param  string   $prefix         序列化前缀标识
+     * @param  callable $serialize 序列化方法
+     * @param  callable $unserialize 反序列化方法
+     * @param  string   $prefix 序列化前缀标识
      * @return $this
      */
-    public static function registerJson($serialize, $unserialize, $prefix = 'think_json:'){
+    public static function registerJson($serialize, $unserialize, $prefix = 'think_json:')
+    {
         self::registerSerialize($serialize, $unserialize, $prefix);
     }
 
@@ -130,8 +131,9 @@ class Redis extends Driver
      * 选择数据库
      * @param $db
      */
-    public function select($db){
-       $this->handler->select($db);
+    public function select($db)
+    {
+        $this->handler->select($db);
     }
 
     /**
@@ -169,8 +171,8 @@ class Redis extends Driver
      * 写入缓存
      * @access public
      * @param  string            $name 缓存变量名
-     * @param  mixed             $value  存储数据
-     * @param  integer|\DateTime $expire  有效时间（秒）
+     * @param  mixed             $value 存储数据
+     * @param  integer|\DateTime $expire 有效时间（秒）
      * @return boolean
      */
     public function set($name, $value, $expire = null)
@@ -185,7 +187,7 @@ class Redis extends Driver
             $first = true;
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
 
         $value = $this->serialize($value);
@@ -204,8 +206,8 @@ class Redis extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
+     * @param  string $name 缓存变量名
+     * @param  int    $step 步长
      * @return false|int
      */
     public function inc($name, $step = 1)
@@ -220,8 +222,8 @@ class Redis extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
+     * @param  string $name 缓存变量名
+     * @param  int    $step 步长
      * @return false|int
      */
     public function dec($name, $step = 1)
@@ -263,6 +265,7 @@ class Redis extends Driver
             }
 
             $this->rm('tag_' . md5($tag));
+
             return true;
         }
 
@@ -345,8 +348,8 @@ class Redis extends Driver
     /**
      * 向名字叫 'hash' 的 hash表 中添加元素 ['key1' => 'val1']
      * @param string $name
-     * @param $key
-     * @param $value
+     * @param        $key
+     * @param        $value
      * @return bool
      */
     public function hSet($name = 'hash', $key, $value)
@@ -359,7 +362,7 @@ class Redis extends Driver
     /**
      * 获取hash表中键名为$key的值
      * @param string $h
-     * @param $name
+     * @param        $name
      * @return mixed
      */
     public function hGet($name = 'hash', $key)
