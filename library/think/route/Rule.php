@@ -727,7 +727,6 @@ abstract class Rule
         $url   = array_slice(explode('|', $url), $count + 1);
         $this->parseUrlParams($request, implode('|', $url), $matches);
 
-        $this->route   = $route;
         $this->vars    = $matches;
         $this->option  = $option;
         $this->doAfter = true;
