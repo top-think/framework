@@ -24,6 +24,8 @@ use think\Loader;
 
 abstract class Connection
 {
+    const PDO_PARAM_FLOAT = 21;
+
     protected static $instance = [];
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
@@ -303,8 +305,10 @@ abstract class Connection
     {
         if (0 === strpos($type, 'set') || 0 === strpos($type, 'enum')) {
             $bind = PDO::PARAM_STR;
-        } elseif (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
+        } elseif (preg_match('/(int|serial|bit)/is', $type)) {
             $bind = PDO::PARAM_INT;
+        } elseif (preg_match('/(double|float|decimal|real|numeric)/is', $type)) {
+            $bind = self::PDO_PARAM_FLOAT;
         } elseif (preg_match('/bool/is', $type)) {
             $bind = PDO::PARAM_BOOL;
         } else {
@@ -1462,6 +1466,8 @@ abstract class Connection
                 $value = '\'' . addslashes($value) . '\'';
             } elseif (PDO::PARAM_INT == $type) {
                 $value = (int) $value;
+            } elseif (self::PDO_PARAM_FLOAT == $type){
+                $value = (float) $value;
             }
 
             // 判断占位符
