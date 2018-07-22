@@ -16,18 +16,20 @@
 // | 定义系统常量
 // +----------------------------------------------------------------------
 
-
 //记录开始运行时间
 $GLOBALS['_beginTime'] = microtime(true);
 
-// 记录内存初始使用
-sgdefine('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
+// 开启或关闭调试模式
+define('SITE_DEBUG', false);
 
-// 应用开发中的配置
-// sgdefine('DEBUG', false);
+// 记录内存初始使用
+define('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
 
 // 设置全局变量sg
 $sg['_debug'] = false;        // 调试模式
+if (SITE_DEBUG) {
+    $sg['_debug'] = true;
+}
 
 $sg['_define'] = array();    // 全局常量
 $sg['_config'] = array();    // 全局配置
@@ -52,55 +54,56 @@ sgdefine('__ROOT__', getRootPath());
 //基本常量定义
 sgdefine('GROUP_NAME', 'shuguo');
 sgdefine('GROUP_CORE_MODE', 'core');
-
 sgdefine('SITE_NAME', 'sgs-api');
 sgdefine('SITE_PATH', dirname($_SERVER['SCRIPT_FILENAME']) . DS);
-
-// 新系统需要的一些配置
-sgdefine('SG_ROOT', SITE_PATH);        // SG根
-sgdefine('SG_APPLICATION', SG_ROOT . 'application'); // 应用存在的目录
-sgdefine('SG_CONFIGURE', SG_ROOT . 'config'); // 配置文件存在的目录
-sgdefine('SG_STORAGE', SG_ROOT . 'storage');            // 储存目录，需要可以公开访问，相对于域名根
-
-sgdefine('ROOT_PATH', SITE_PATH);
-sgdefine('ROOT_FILE', basename(_PHP_FILE_));
 
 sgdefine('SITE_DOMAIN', getSiteHost());
 sgdefine('SITE_URL', (IS_HTTPS ? 'https:' : 'http:') . '//' . SITE_DOMAIN . __ROOT__);
 
-sgdefine('THINK_PATH', SITE_PATH . 'thinkphp' . DS);
+// 新系统需要的一些配置
+sgdefine('SG_ROOT', SITE_PATH);   // SG根
+sgdefine('SG_APPLICATION', SG_ROOT . 'application'); // 应用存在的目录
+sgdefine('SG_CONFIGURE', SG_ROOT . 'config'); // 配置文件存在的目录
+sgdefine('SG_STORAGE', DS . 'storage');            // 储存目录，需要可以公开访问，相对于域名根
+
+sgdefine('ROOT_PATH', SITE_PATH);
+sgdefine('ROOT_FILE', basename(_PHP_FILE_));
+
+sgdefine('THINK_PATH', ROOT_PATH . 'thinkphp' . DS);
 sgdefine('LIB_PATH', THINK_PATH . 'library' . DS);
 sgdefine('CORE_PATH', LIB_PATH . 'think' . DS);
 sgdefine('TRAIT_PATH', LIB_PATH . 'traits' . DS);
-sgdefine('ROUTE_PATH', SITE_PATH . 'route' . DS);
-sgdefine('EXTEND_PATH', SITE_PATH . 'extend' . DS);
-sgdefine('RUNTIME_PATH', SITE_PATH . 'runtime' . DS);
+sgdefine('ROUTE_PATH', ROOT_PATH . 'route' . DS);
+sgdefine('EXTEND_PATH', ROOT_PATH . 'extend' . DS);
+sgdefine('RUNTIME_PATH', ROOT_PATH . 'runtime' . DS);
 sgdefine('LOG_PATH', RUNTIME_PATH . 'log' . DS);
 sgdefine('CACHE_PATH', RUNTIME_PATH . 'cache' . DS);
 sgdefine('SESSION_PATH', RUNTIME_PATH . 'session' . DS);
 sgdefine('TEMP_PATH', RUNTIME_PATH . 'temp' . DS);
-sgdefine('CONF_PATH', SITE_PATH . 'config' . DS); // 配置文件目录
-sgdefine('VENDOR_PATH', SITE_PATH . 'vendor' . DS);
-sgdefine('GROUP_PATH', VENDOR_PATH . GROUP_NAME . DS . 'src' . DS);
+sgdefine('CONF_PATH', ROOT_PATH . 'config' . DS); // 配置文件目录
+sgdefine('VENDOR_PATH', ROOT_PATH . 'vendor' . DS);
+
+sgdefine('GROUP_PATH', VENDOR_PATH . GROUP_NAME . DS);
+sgdefine('GROUP_URL', SITE_URL . DS . 'vendor' . DS . GROUP_NAME);
 sgdefine('GROUP_CORE_PATH', GROUP_PATH . GROUP_CORE_MODE . DS . 'src' . DS);
 
 sgdefine('CONF_EXT', EXT); // 配置文件后缀
 sgdefine('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
 
-sgdefine('APPS_PATH', SITE_PATH . 'application' . DS);
+sgdefine('APPS_PATH', ROOT_PATH . 'application' . DS);
 sgdefine('APPS_URL', SITE_URL . DS . 'application');    # 应用内部图标 等元素
 
-sgdefine('ADDON_PATH',    SITE_PATH . 'addons' . DS);
-sgdefine('ADDON_URL',    SITE_URL . DS .'addons');
+sgdefine('ADDON_PATH', ROOT_PATH . 'addons' . DS);
+sgdefine('ADDON_URL', SITE_URL . DS . 'addons');
 
-sgdefine('DATA_PATH', SITE_PATH . 'data' . DS);
+sgdefine('DATA_PATH', ROOT_PATH . 'data' . DS);
 sgdefine('DATA_URL', SITE_URL . DS . 'data');
 
 sgdefine('UPLOAD_PATH', DATA_PATH . 'uploads' . DS);
 sgdefine('UPLOAD_URL', DATA_URL . DS . 'uploads');
 
 // 公共资源目录常量
-sgdefine('PUBLIC_PATH', SITE_PATH . 'public' . DS);
+sgdefine('PUBLIC_PATH', ROOT_PATH . 'public' . DS);
 sgdefine('PUBLIC_URL', SITE_URL . DS . 'public');
 
 // 前端资源目录常量
@@ -117,7 +120,8 @@ sgdefine('IS_POST', REQUEST_METHOD == 'POST' ? true : false);
  * 判断是否为调试模式
  * @return bool
  */
-function isDebug() {
+function isDebug()
+{
     // TODO
 }
 
@@ -203,6 +207,31 @@ function getRootPath()
     }
     
     return $root;
+}
+
+/**
+ * 纯request请求
+ */
+function raw_request()
+{
+    $request['server_name']     = $_SERVER['SERVER_NAME'];
+    $request['server_port']     = $_SERVER['SERVER_PORT'];
+    $request['server_protocol'] = $_SERVER['SERVER_PROTOCOL'];
+    $request['script_name']     = $_SERVER['SCRIPT_NAME'];
+    $request['requet_scheme']   = $_SERVER['REQUEST_SCHEME'];
+    $request['request_method']  = $_SERVER['REQUEST_METHOD'];
+    $request['request_time']    = $_SERVER['REQUEST_TIME'];
+    $request['query_string']    = $_SERVER['QUERY_STRING'];
+    
+    $request['url'] = $_SERVER['REQUEST_URI'];
+    $url            = parse_url($request['url']);
+    if (!isset($url['query'])) {
+        $url['query'] = '';
+    }
+    $request            = array_merge($request, $url);
+    $pathinfo           = explode(DS, ltrim($request['path'], DS));
+    $request['project'] = $pathinfo[0];
+    return $request;
 }
 
 /**

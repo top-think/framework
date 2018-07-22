@@ -11,7 +11,7 @@
 namespace think;
 
 // 载入系统常量
-require __DIR__  . '/constant.php';
+require __DIR__ . '/constant.php';
 
 // 载入Loader类
 require __DIR__ . '/library/think/Loader.php';
