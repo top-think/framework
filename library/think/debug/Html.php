@@ -55,7 +55,7 @@ class Html
 
         // 页面Trace信息
         if ($request->host()) {
-            $uri = $request->url(true);
+            $uri = $request->protocol() . ' ' . $request->method() . ' : ' . $request->url(true);
         } else {
             $uri = 'cmd:' . implode(' ', $_SERVER['argv']);
         }

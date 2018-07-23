@@ -55,7 +55,7 @@ class Console
         $mem     = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
 
         if ($request->host()) {
-            $uri = $request->url(true);
+            $uri = $request->protocol() . ' ' . $request->method() . ' : ' . $request->url(true);
         } else {
             $uri = 'cmd:' . implode(' ', $_SERVER['argv']);
         }
