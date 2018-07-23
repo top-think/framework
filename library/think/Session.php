@@ -126,7 +126,7 @@ class Session
 
         $isDoStart = false;
         if (isset($config['use_trans_sid'])) {
-            ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 : 0);
+            ini_set('session.use_trans_sid', $config['use_trans_sid'] ? 1 && ini_set('session.use_only_cookies', 0) : 0);
         }
 
         // 启动session
