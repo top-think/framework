@@ -521,6 +521,11 @@ class Request
         return $this->panDomain;
     }
 
+    public function setUrl($url)
+    {
+        $this->url = $url;
+    }
+
     /**
      * 获取当前完整URL 包括QUERY_STRING
      * @access public
@@ -544,6 +549,11 @@ class Request
         }
 
         return $complete ? $this->domain() . $this->url : $this->url;
+    }
+
+    public function setBaseUrl($url)
+    {
+        $this->baseUrl = $url;
     }
 
     /**
