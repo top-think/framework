@@ -22,12 +22,6 @@ class Session
     protected $config = [];
 
     /**
-     * 前缀
-     * @var string
-     */
-    protected $prefix = '';
-
-    /**
      * 是否初始化
      * @var bool
      */
@@ -62,23 +56,6 @@ class Session
         $this->config = $config;
     }
 
-    /**
-     * 设置或者获取session作用域（前缀）
-     * @access public
-     * @param  string $prefix
-     * @return string|void
-     */
-    public function prefix($prefix = '')
-    {
-        empty($this->init) && $this->boot();
-
-        if (empty($prefix) && null !== $prefix) {
-            return $this->prefix;
-        } else {
-            $this->prefix = $prefix;
-        }
-    }
-
     public static function __make(Config $config)
     {
         return new static($config->pull('session'));
@@ -93,10 +70,6 @@ class Session
     public function setConfig(array $config = []): void
     {
         $this->config = array_merge($this->config, array_change_key_case($config));
-
-        if (isset($config['prefix'])) {
-            $this->prefix = $config['prefix'];
-        }
 
         if (isset($config['use_lock'])) {
             $this->lock = $config['use_lock'];
@@ -120,10 +93,6 @@ class Session
         if (!empty($config['auto_start']) && PHP_SESSION_ACTIVE != session_status()) {
             ini_set('session.auto_start', 0);
             $isDoStart = true;
-        }
-
-        if (isset($config['prefix'])) {
-            $this->prefix = $config['prefix'];
         }
 
         if (isset($config['use_lock'])) {
@@ -178,27 +147,19 @@ class Session
      * @access public
      * @param  string        $name session名称
      * @param  mixed         $value session值
-     * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function set(string $name, $value, string $prefix = null): void
+    public function set(string $name, $value): void
     {
         $this->lock();
 
         empty($this->init) && $this->boot();
 
-        $prefix = !is_null($prefix) ? $prefix : $this->prefix;
-
         if (strpos($name, '.')) {
             // 二维数组赋值
             list($name1, $name2) = explode('.', $name);
-            if ($prefix) {
-                $_SESSION[$prefix][$name1][$name2] = $value;
-            } else {
-                $_SESSION[$name1][$name2] = $value;
-            }
-        } elseif ($prefix) {
-            $_SESSION[$prefix][$name] = $value;
+
+            $_SESSION[$name1][$name2] = $value;
         } else {
             $_SESSION[$name] = $value;
         }
@@ -210,18 +171,16 @@ class Session
      * session获取
      * @access public
      * @param  string        $name session名称
-     * @param  string|null   $prefix 作用域（前缀）
+     * @param  mixed         $default 默认值
      * @return mixed
      */
-    public function get(string $name = '', string $prefix = null)
+    public function get(string $name = '', $default = null)
     {
         $this->lock();
 
         empty($this->init) && $this->boot();
 
-        $prefix = !is_null($prefix) ? $prefix : $this->prefix;
-
-        $value = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
+        $value = $_SESSION;
 
         if ('' != $name) {
             $name = explode('.', $name);
@@ -230,7 +189,7 @@ class Session
                 if (isset($value[$val])) {
                     $value = $value[$val];
                 } else {
-                    $value = null;
+                    $value = $default;
                     break;
                 }
             }
@@ -318,15 +277,14 @@ class Session
      * session获取并删除
      * @access public
      * @param  string        $name session名称
-     * @param  string|null   $prefix 作用域（前缀）
      * @return mixed
      */
-    public function pull(string $name, string $prefix = null)
+    public function pull(string $name)
     {
-        $result = $this->get($name, $prefix);
+        $result = $this->get($name);
 
         if ($result) {
-            $this->delete($name, $prefix);
+            $this->delete($name);
             return $result;
         }
     }
@@ -377,66 +335,48 @@ class Session
      * 删除session数据
      * @access public
      * @param  string|array  $name session名称
-     * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function delete($name, string $prefix = null): void
+    public function delete($name): void
     {
         empty($this->init) && $this->boot();
 
-        $prefix = !is_null($prefix) ? $prefix : $this->prefix;
-
         if (is_array($name)) {
             foreach ($name as $key) {
-                $this->delete($key, $prefix);
+                $this->delete($key);
             }
         } elseif (strpos($name, '.')) {
             list($name1, $name2) = explode('.', $name);
-            if ($prefix) {
-                unset($_SESSION[$prefix][$name1][$name2]);
-            } else {
-                unset($_SESSION[$name1][$name2]);
-            }
+
+            unset($_SESSION[$name1][$name2]);
         } else {
-            if ($prefix) {
-                unset($_SESSION[$prefix][$name]);
-            } else {
-                unset($_SESSION[$name]);
-            }
+            unset($_SESSION[$name]);
         }
     }
 
     /**
      * 清空session数据
      * @access public
-     * @param  string|null   $prefix 作用域（前缀）
      * @return void
      */
-    public function clear(string $prefix = null): void
+    public function clear(): void
     {
         empty($this->init) && $this->boot();
-        $prefix = !is_null($prefix) ? $prefix : $this->prefix;
 
-        if ($prefix) {
-            unset($_SESSION[$prefix]);
-        } else {
-            $_SESSION = [];
-        }
+        $_SESSION = [];
     }
 
     /**
      * 判断session数据
      * @access public
      * @param  string       $name session名称
-     * @param  string       $prefix
      * @return bool
      */
-    public function has(string $name, string $prefix = null): bool
+    public function has(string $name): bool
     {
         empty($this->init) && $this->boot();
 
-        $prefix = !is_null($prefix) ? $prefix : $this->prefix;
-        $value  = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
+        $value = $_SESSION;
 
         $name = explode('.', $name);
 

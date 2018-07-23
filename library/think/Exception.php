@@ -13,7 +13,6 @@ namespace think;
 
 class Exception extends \Exception
 {
-
     /**
      * 保存异常页面显示的额外Debug数据
      * @var array
