@@ -35,6 +35,7 @@ use think\db\Connection;
  * @method \think\db\Query order(mixed $field, string $order = null) static 查询ORDER
  * @method \think\db\Query orderRaw(string $field, array $bind = []) static 查询ORDER
  * @method \think\db\Query cache(mixed $key = null , integer $expire = null) static 设置查询缓存
+ * @method \think\db\Query withAttr(string $name = '',callable $callback) static 使用获取器获取数据
  * @method mixed value(string $field) static 获取某个字段的值
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method mixed find(mixed $data = null) static 查询单个记录

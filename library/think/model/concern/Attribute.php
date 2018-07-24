@@ -451,13 +451,13 @@ trait Attribute
         $fieldName = Loader::parseName($name);
         $method    = 'get' . Loader::parseName($name, 1) . 'Attr';
 
-        if (isset($this->getAttr[$fieldName])) {
+        if (isset($this->withAttr[$fieldName])) {
             if ($notFound && $relation = $this->isRelationAttr($name)) {
                 $modelRelation = $this->$relation();
                 $value         = $this->getRelationData($modelRelation);
             }
 
-            $closure = $this->getAttr[$fieldName];
+            $closure = $this->withAttr[$fieldName];
             $value   = $closure($value, $this->data);
         } elseif (method_exists($this, $method)) {
             if ($notFound && $relation = $this->isRelationAttr($name)) {
