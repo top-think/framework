@@ -3008,7 +3008,7 @@ class Query
                 $result[$name] = json_decode($result[$name], $assoc);
 
                 if (isset($withRelationAttr[$name])) {
-                    foreach ($withRelationAttr as $key => $val) {
+                    foreach ($withRelationAttr[$name] as $key => $val) {
                         if (isset($result[$name]->$key)) {
                             $data = get_object_vars($result[$name]);
 
