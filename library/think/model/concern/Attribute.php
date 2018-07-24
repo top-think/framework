@@ -604,7 +604,7 @@ trait Attribute
      * @param  array        $attrs 值
      * @return $this
      */
-    public function withAttrs(array $attrs = [])
+    public function setModelAttrs(array $attrs = [])
     {
         $this->withAttr = $attrs;
 

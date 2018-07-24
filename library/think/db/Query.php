@@ -3053,7 +3053,7 @@ class Query
 
         // 动态获取器
         if (!empty($options['with_attr'])) {
-            $result->withAttrs($options['with_attr']);
+            $result->setModelAttrs($options['with_attr']);
         }
 
         // 关联查询
