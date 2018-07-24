@@ -20,7 +20,7 @@
 $GLOBALS['_beginTime'] = microtime(true);
 
 // 开启或关闭调试模式
-define('SITE_DEBUG', false);
+define('SITE_DEBUG', true);
 
 // 记录内存初始使用
 define('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
