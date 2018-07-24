@@ -2119,6 +2119,22 @@ class Query
     }
 
     /**
+     * 设置数据字段获取器
+     * @access public
+     * @param  string       $name       字段名
+     * @param  callable     $callback   闭包获取器
+     * @return $this
+     */
+    public function withAttr($name, $callback)
+    {
+        $name = Loader::parseName($name);
+
+        $this->options['with_attr'][$name] = $callback;
+
+        return $this;
+    }
+
+    /**
      * 设置JSON字段信息
      * @access public
      * @param  array $json JSON字段
@@ -2829,11 +2845,7 @@ class Query
                 $resultSet = $this->model->toCollection($resultSet);
             }
         } else {
-            if (!empty($this->options['json'])) {
-                foreach ($resultSet as &$result) {
-                    $this->jsonResult($result, $this->options['json'], true);
-                }
-            }
+            $this->resultSet($resultSet);
 
             if ('collection' == $this->connection->getConfig('resultset_type')) {
                 // 返回Collection对象
@@ -2847,6 +2859,31 @@ class Query
         }
 
         return $resultSet;
+    }
+
+    /**
+     * 处理数据集
+     * @access public
+     * @param  array $resultSet
+     * @return void
+     */
+    protected function resultSet(&$resultSet)
+    {
+        if (!empty($this->options['json'])) {
+            foreach ($resultSet as &$result) {
+                $this->jsonResult($result, $this->options['json'], true);
+            }
+        }
+
+        if (!empty($this->options['with_attr'])) {
+            foreach ($resultSet as &$result) {
+                foreach ($this->options['with_attr'] as $name => $closure) {
+                    if (isset($result[$name])) {
+                        $result[$name] = $closure($result[$name], $result);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -2887,14 +2924,35 @@ class Query
             if (!empty($this->model)) {
                 // 返回模型对象
                 $this->resultToModel($result, $this->options);
-            } elseif (!empty($this->options['json'])) {
-                $this->jsonResult($result, $this->options['json'], true);
+            } else {
+                $this->result($result);
             }
         } elseif (!empty($this->options['fail'])) {
             $this->throwNotFound($this->options);
         }
 
         return $result;
+    }
+
+    /**
+     * 处理数据
+     * @access protected
+     * @param  array $result     查询数据
+     * @return void
+     */
+    protected function result(&$result)
+    {
+        if (!empty($this->options['json'])) {
+            $this->jsonResult($result, $this->options['json'], true);
+        }
+
+        if (!empty($this->options['with_attr'])) {
+            foreach ($this->options['with_attr'] as $name => $closure) {
+                if (isset($result[$name])) {
+                    $result[$name] = $closure($result[$name], $result);
+                }
+            }
+        }
     }
 
     /**
@@ -2946,6 +3004,11 @@ class Query
             foreach ($options['with_count'] as $val) {
                 $result->relationCount($result, $val[0], $val[1], $val[2]);
             }
+        }
+
+        // 动态获取器
+        if (!empty($options['with_attr'])) {
+            $result->withAttrs($options['with_attr']);
         }
     }
 
