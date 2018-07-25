@@ -48,6 +48,7 @@ class Console
         "think\\console\\command\\optimize\\Schema",
         "think\\console\\command\\optimize\\Route",
         "think\\console\\command\\RunServer",
+        "think\\console\\command\\Version",
     ];
 
     /**
