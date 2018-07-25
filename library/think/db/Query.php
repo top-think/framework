@@ -2983,11 +2983,11 @@ class Query
                 // 支持JSON字段 获取器定义
                 list($key, $field) = explode('.', $name);
 
-                if (isset($result[$key][$field])) {
-                    $result[$key][$field] = $closure($result[$key][$field], $result[$key]);
+                if (isset($result[$key])) {
+                    $result[$key][$field] = $closure(isset($result[$key][$field]) ? $result[$key][$field] : null, $result[$key]);
                 }
-            } elseif (isset($result[$name])) {
-                $result[$name] = $closure($result[$name], $result);
+            } else {
+                $result[$name] = $closure(isset($result[$name]) ? $result[$name] : null, $result);
             }
         }
     }
@@ -3008,12 +3008,9 @@ class Query
                 $result[$name] = json_decode($result[$name], $assoc);
 
                 if (isset($withRelationAttr[$name])) {
-                    foreach ($withRelationAttr[$name] as $key => $val) {
-                        if (isset($result[$name]->$key)) {
-                            $data = get_object_vars($result[$name]);
-
-                            $result[$name]->$key = $val($result[$name]->$key, $data);
-                        }
+                    foreach ($withRelationAttr[$name] as $key => $closure) {
+                        $data                = get_object_vars($result[$name]);
+                        $result[$name]->$key = $closure(isset($result[$name]->$key) ? $result[$name]->$key : null, $data);
                     }
                 }
             }
