@@ -237,7 +237,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         }
         return $output;
@@ -266,5 +266,13 @@ class Debug
                 }
             }
         }
+    }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app']);
+
+        return $data;
     }
 }

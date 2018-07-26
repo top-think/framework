@@ -3069,7 +3069,6 @@ class Query
                 $result->relationCount($result, $val[0], $val[1], $val[2]);
             }
         }
-
     }
 
     /**
