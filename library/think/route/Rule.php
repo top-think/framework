@@ -82,7 +82,7 @@ abstract class Rule
      * 需要和分组合并的路由参数
      * @var array
      */
-    protected $mergeOptions = ['after', 'before', 'model', 'header', 'response', 'append', 'middleware'];
+    protected $mergeOptions = ['after', 'model', 'header', 'response', 'append', 'middleware'];
 
     /**
      * 是否需要后置操作
