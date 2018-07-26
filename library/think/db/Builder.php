@@ -756,7 +756,7 @@ abstract class Builder
             $table = $options['table'];
         }
 
-        $type = $this->connection->getTableInfo($table, 'type');
+        $type = $this->connection->getTableInfo(parse_name($table), 'type');
 
         if (isset($type[$key])) {
             $info = $type[$key];
