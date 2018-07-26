@@ -1314,5 +1314,5 @@ class Template
         unset($data['app']);
 
         return $data;
-    }    
+    }
 }
