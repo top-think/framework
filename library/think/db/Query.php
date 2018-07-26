@@ -2776,7 +2776,7 @@ if (!empty($this->options['with_attr'])) {
     }
 }
 
-$withRelationAttr = $withRelationAttr?? [];
+$withRelationAttr = $withRelationAttr ?? [];
                 
 foreach ($resultSet as $key => &$result) {
     // 数据转换为模型对象
@@ -2787,7 +2787,6 @@ if (!empty($this->options['with'])) {
     // 预载入
     $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
 }
-
 
                 // 模型数据集转换
                 $resultSet = $result->toCollection($resultSet);
@@ -2880,8 +2879,7 @@ if (!empty($this->options['with'])) {
         return $result;
     }
 
-
-        /**
+    /**
      * 处理数据
      * @access protected
      * @param  array $result     查询数据
@@ -2913,7 +2911,7 @@ if (!empty($this->options['with'])) {
                 list($key, $field) = explode('.', $name);
 
                 if (isset($result[$key])) {
-                    $result[$key][$field] = $closure( $result[$key][$field]?? null, $result[$key]);
+                    $result[$key][$field] = $closure( $result[$key][$field] ?? null, $result[$key]);
                 }
             } else {
                 $result[$name] = $closure( $result[$name] ?? null, $result);
@@ -2939,7 +2937,7 @@ if (!empty($this->options['with'])) {
                 if (isset($withRelationAttr[$name])) {
                     foreach ($withRelationAttr[$name] as $key => $closure) {
                         $data                = get_object_vars($result[$name]);
-                        $result[$name]->$key = $closure( $result[$name]->$key?? null, $data);
+                        $result[$name]->$key = $closure( $result[$name]->$key ?? null, $data);
                     }
                 }
             }
