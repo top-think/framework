@@ -23,13 +23,13 @@ use think\cache\Driver;
 class Redis extends Driver
 {
     /**
-     * 序列化前缀
+     * @title 序列化前缀
      * @var
      */
     protected $serializePrefix;
 
     /**
-     * 序列化数组
+     * @title 序列化数组
      * @var array
      */
     protected static $json = [
@@ -40,19 +40,19 @@ class Redis extends Driver
     ];
 
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 6379,
-        'password'   => '',
-        'select'     => 0,
-        'timeout'    => 0,
-        'expire'     => 0,
+        'host' => '127.0.0.1',
+        'port' => 6379,
+        'password' => '',
+        'select' => 0,
+        'timeout' => 0,
+        'expire' => 0,
         'persistent' => false,
-        'prefix'     => '',
-        'serialize'  => true,
+        'prefix' => '',
+        'serialize' => true,
     ];
 
     /**
-     * 架构函数
+     * @title 架构函数
      * @access public
      * @param  array $options 缓存参数
      */
@@ -107,12 +107,11 @@ class Redis extends Driver
     }
 
     /**
-     * 重新定制json序列化机制
+     * @title 重新定制json序列化机制
      * @access public
      * @param  callable $serialize 序列化方法
      * @param  callable $unserialize 反序列化方法
      * @param  string   $prefix 序列化前缀标识
-     * @return $this
      */
     public static function registerJson($serialize, $unserialize, $prefix = 'think_json:')
     {
@@ -120,7 +119,8 @@ class Redis extends Driver
     }
 
     /**
-     * 设置序列化前缀
+     * @title 设置序列化前缀
+     * @param $prefix
      */
     public function setSerializePrefix($prefix)
     {
@@ -128,7 +128,7 @@ class Redis extends Driver
     }
 
     /**
-     * 选择数据库
+     * @title 选择数据库
      * @param $db
      */
     public function select($db)
@@ -137,7 +137,7 @@ class Redis extends Driver
     }
 
     /**
-     * 判断缓存
+     * @title 判断缓存
      * @access public
      * @param  string $name 缓存变量名
      * @return bool
@@ -148,7 +148,18 @@ class Redis extends Driver
     }
 
     /**
-     * 读取缓存
+     * @title 判断缓存的别名
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return bool
+     */
+    public function exists($name)
+    {
+        return $this->handler->exists($this->getCacheKey($name));
+    }
+
+    /**
+     * @title 读取缓存
      * @access public
      * @param  string $name 缓存变量名
      * @param  mixed  $default 默认值
@@ -168,7 +179,7 @@ class Redis extends Driver
     }
 
     /**
-     * 写入缓存
+     * @title 写入缓存
      * @access public
      * @param  string            $name 缓存变量名
      * @param  mixed             $value 存储数据
@@ -204,7 +215,7 @@ class Redis extends Driver
     }
 
     /**
-     * 自增缓存（针对数值缓存）
+     * @title 自增缓存（针对数值缓存）
      * @access public
      * @param  string $name 缓存变量名
      * @param  int    $step 步长
@@ -214,13 +225,21 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
+
         $key = $this->getCacheKey($name);
 
-        return $this->handler->incrby($key, $step);
+        $result = $this->handler->incrby($key, $step);
+
+        isset($first) && $this->setTagItem($key);
+
+        return $result;
     }
 
     /**
-     * 自减缓存（针对数值缓存）
+     * @title 自减缓存（针对数值缓存）
      * @access public
      * @param  string $name 缓存变量名
      * @param  int    $step 步长
@@ -236,7 +255,7 @@ class Redis extends Driver
     }
 
     /**
-     * 删除缓存
+     * @title 删除缓存
      * @access public
      * @param  string $name 缓存变量名
      * @return boolean
@@ -249,7 +268,7 @@ class Redis extends Driver
     }
 
     /**
-     * 清除缓存
+     * @title 清除缓存
      * @access public
      * @param  string $tag 标签名
      * @return boolean
@@ -275,9 +294,10 @@ class Redis extends Driver
     }
 
     /**
-     * 设置过期时间$expire
+     * @title 设置过期时间$expire
      * @param $name
      * @param $expire
+     * @return mixed
      */
     public function expire($name, $expire)
     {
@@ -285,7 +305,7 @@ class Redis extends Driver
     }
 
     /**
-     * 获取剩余生命时间
+     * @title 获取剩余生命时间
      * @param $name
      * @return mixed
      */
@@ -295,7 +315,7 @@ class Redis extends Driver
     }
 
     /**
-     * 获取string值长度
+     * @title 获取string值长度
      * @param string $name
      * @return int
      */
@@ -306,7 +326,7 @@ class Redis extends Driver
 
 
     /**
-     * 获取值长度
+     * @title 获取值长度
      * @param string $name
      * @return int
      */
@@ -316,7 +336,7 @@ class Redis extends Driver
     }
 
     /**
-     * 在list的左边增加一个$value值
+     * @title 在list的左边增加一个$value值
      * @param $name
      * @param $value
      * @return mixed
@@ -327,8 +347,9 @@ class Redis extends Driver
     }
 
     /**
-     * 在list的左边弹出一个值
+     * @title 在list的左边弹出一个值
      * @param $name
+     * @return mixed
      */
     public function lPop($name)
     {
@@ -336,7 +357,7 @@ class Redis extends Driver
     }
 
     /**
-     * 返回名称为key的list有多少个元素
+     * @title 返回名称为key的list有多少个元素
      * @param $name
      * @return mixed
      */
@@ -346,7 +367,7 @@ class Redis extends Driver
     }
 
     /**
-     * 向名字叫 'hash' 的 hash表 中添加元素 ['key1' => 'val1']
+     * @title 向名字叫 'hash' 的 hash表 中添加元素 ['key1' => 'val1']
      * @param string $name
      * @param        $key
      * @param        $value
@@ -356,12 +377,21 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        return $this->handler->hSet($this->getCacheKey($name), $key, $value);
+        if ($this->tag && !$this->has($name)) {
+            $first = true;
+        }
+
+        $name = $this->getCacheKey($name);
+
+        $result = $this->handler->hSet($name, $key, $value);
+
+        isset($first) && $this->setTagItem($key);
+
+        return $result;
     }
 
     /**
-     * 获取hash表中键名为$key的值
-     * @param string $h
+     * @title 获取hash表中键名为$key的值
      * @param        $name
      * @return mixed
      */
@@ -373,7 +403,9 @@ class Redis extends Driver
     }
 
     /**
-     * 获取hash表的元素的数量
+     * @title 获取hash表的元素的数量
+     * @param $name
+     * @return mixed
      */
     public function hLen($name)
     {
@@ -381,8 +413,9 @@ class Redis extends Driver
     }
 
     /**
-     * 获取hash表中所有的值
-     * @param $h
+     * @title 获取hash表中所有的值
+     * @param $name
+     * @return mixed
      */
     public function hKeys($name)
     {
@@ -400,8 +433,9 @@ class Redis extends Driver
     }
 
     /**
-     * 获取hash表的元素集合
+     * @title 获取hash表的元素集合
      * @param $name
+     * @return mixed
      */
     public function hGetAll($name)
     {
@@ -411,9 +445,10 @@ class Redis extends Driver
     }
 
     /**
-     * 判断 hash 表中是否存在键名是 $key 的元素
+     * @title 判断 hash 表中是否存在键名是 $key 的元素
      * @param $name
      * @param $key
+     * @return mixed
      */
     public function hExists($name, $key)
     {
@@ -421,9 +456,10 @@ class Redis extends Driver
     }
 
     /**
-     *  批量添加元素
+     * @title 批量添加元素
      * @param       $name
      * @param array $data
+     * @return mixed
      */
     public function hMset($name, $data = [])
     {
@@ -454,5 +490,4 @@ class Redis extends Driver
 
         return $this->handler->hMGet($this->getCacheKey($name), $fields);
     }
-
 }
