@@ -557,7 +557,7 @@ trait RelationShip
     {
         $relation = Loader::parseName($attr, 1, false);
 
-        if (method_exists($this, $relation)) {
+        if (method_exists($this, $relation) && !method_exists('think\Model', $relation)) {
             return $relation;
         }
 
