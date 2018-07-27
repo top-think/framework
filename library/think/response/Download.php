@@ -19,6 +19,7 @@ class Download extends Response
     protected $expire = 360;
     protected $name;
     protected $mimeType;
+    protected $isContent = false;
 
     /**
      * 处理数据
@@ -29,31 +30,50 @@ class Download extends Response
      */
     protected function output($data)
     {
-        if (!is_file($data)) {
+        if (!$this->isContent && !is_file($data)) {
             throw new Exception('file not exists:' . $data);
         }
+
         ob_end_clean();
 
         if (!empty($this->name)) {
-            $filename = $this->name;
+            $name = $this->name;
         } else {
-            $filename = pathinfo($data, PATHINFO_BASENAME);
+            $name = !$this->isContent ? pathinfo($data, PATHINFO_BASENAME) : '';
         }
 
-        $mimeType = $this->getMimeType($data) ?: 'application/octet-stream';
+        if ($this->isContent) {
+            $mimeType = $this->mimeType;
+            $size     = strlen($data);
+        } else {
+            $mimeType = $this->getMimeType($data);
+            $size     = filesize($data);
+        }
 
         $this->header['Pragma']                    = 'public';
-        $this->header['Content-Type']              = $mimeType;
+        $this->header['Content-Type']              = $mimeType ?: 'application/octet-stream';
         $this->header['Cache-control']             = 'max-age=' . $this->expire;
-        $this->header['Content-Disposition']       = 'attachment; filename="' . $filename . '"';
-        $this->header['Content-Length']            = filesize($data);
+        $this->header['Content-Disposition']       = 'attachment; filename="' . $name . '"';
+        $this->header['Content-Length']            = $size;
         $this->header['Content-Transfer-Encoding'] = 'binary';
         $this->header['Expires']                   = gmdate("D, d M Y H:i:s", time() + $this->expire) . ' GMT';
 
-        $this->lastModified(date('D, d M Y H:i:s', time()) . ' GMT');
+        $this->lastModified(gmdate('D, d M Y H:i:s', time()) . ' GMT');
 
-        $data = file_get_contents($data);
+        $data = $this->isContent ? $data : file_get_contents($data);
         return $data;
+    }
+
+    /**
+     * 设置是否为内容 必须配合mimeType方法使用
+     * @access public
+     * @param  bool $content
+     * @return $this
+     */
+    public function isContent($content = true)
+    {
+        $this->isContent = $content;
+        return $this;
     }
 
     /**
