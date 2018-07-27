@@ -148,6 +148,21 @@ class App extends Container
     protected $bindModule;
 
     /**
+     * 模块列表
+     */
+    protected $moduleList = [];
+
+    /**
+     * 应用模块列表
+     */
+    protected $appModuleList = [];
+
+    /**
+     * 组织模块列表
+     */
+    protected $groupModuleList = [];
+
+    /**
      * 初始化
      * @var bool
      */
@@ -244,6 +259,9 @@ class App extends Container
 
         // 设置核心目录
         $this->setCorePath($this->groupPath);
+
+        // 设置模块列表
+        $this->initModuleList();
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
@@ -401,11 +419,11 @@ class App extends Container
         $this->cache->init($config['cache'], true);
 
         // 加载当前模块语言包
-        $path = $this->appPath . $module . DIRECTORY_SEPARATOR;
-        if (!is_dir($path)) {
-            $path = $this->groupPath . $module . 'src' . DIRECTORY_SEPARATOR;
-        }
-        $this->lang->load($path . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
+//        $path = $this->appPath . $module . DIRECTORY_SEPARATOR;
+//        if (!is_dir($path)) {
+//            $path = $this->groupPath . $module . 'src' . DIRECTORY_SEPARATOR;
+//        }
+//        $this->lang->load($path . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
 
         // 模块请求缓存检查
         $this->checkRequestCache(
@@ -515,12 +533,25 @@ class App extends Container
 
         $this->request->setLangset($this->lang->range());
 
-        // 加载系统语言包
-        $this->lang->load([
+        // 系统语言包
+        $lang = [
             $this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
             $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
             $this->corePath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
-        ]);
+        ];
+
+        // 应用语言包
+        foreach ($this->appModuleList as $module) {
+            $lang[] = $this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php';
+        }
+
+        // 组织语言包
+        foreach ($this->groupModuleList as $module) {
+            $lang[] = $this->groupPath . $module . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php';
+        }
+
+        // 加载所有语言包
+        $this->lang->load($lang);
     }
 
     /**
@@ -991,6 +1022,76 @@ class App extends Container
     public function isDebug()
     {
         return $this->appDebug;
+    }
+
+    /**
+     * 初始化模块列表
+     */
+    public function initModuleList()
+    {
+        $this->appModuleList = $this->getModuleByDir($this->appPath);
+        $this->groupModuleList = $this->getModuleByDir($this->groupPath);
+        $this->moduleList = array_merge($this->appModuleList, $this->groupModuleList);
+    }
+
+    /**
+     * 获取所有模块路径
+     * @access public
+     * @return string
+     */
+    public function getModuleList()
+    {
+        return $this->moduleList;
+    }
+
+    /**
+     * 获取应用下所有模块
+     * @return array
+     */
+    public function getAppModuleList()
+    {
+        return $this->appModuleList;
+    }
+
+    /**
+     * 获取组织下的所有模块
+     * @return array
+     */
+    public function getGroupModuleList()
+    {
+        return $this->groupModuleList;
+    }
+
+    /**
+     * 根据目录条件，获取所有模块
+     * @param $dir
+     * @return array
+     */
+    public function getModuleByDir($dir)
+    {
+        $module = [];
+        $files = scandir($dir) ? scandir($dir) : [];
+        foreach ($files as $file) {
+            if ('.' != $file && '..' != $file) {
+                $path = '';
+                if ($this->appPath !== $dir) {
+                    $path = $dir . $file . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+                } else {
+                    if (is_dir($dir . $file . DIRECTORY_SEPARATOR)) {
+                        $path = $dir . $file . DIRECTORY_SEPARATOR;
+                    }
+                }
+
+                if (is_dir($path) && is_file($path . 'module.json')) {
+                    $modulejson = json_decode(file_get_contents($path . 'module.json'), JSON_FORCE_OBJECT);
+                    if ($file == strtolower($modulejson['name'])) {
+                        $module[] = $file;
+                    }
+                }
+            }
+        }
+
+        return $module;
     }
 
     /**

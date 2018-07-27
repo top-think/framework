@@ -720,7 +720,7 @@ if (!function_exists('trace_service')) {
                 ]
             ];
         }
-    
+
         Log::record(json_encode($trace, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), $type);
     }
 }
