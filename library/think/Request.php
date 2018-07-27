@@ -2198,5 +2198,5 @@ class Request
         unset($data['dispatch']);
 
         return $data;
-    }    
+    }
 }
