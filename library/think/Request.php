@@ -2195,7 +2195,7 @@ class Request
     public function __debugInfo()
     {
         $data = get_object_vars($this);
-        unset($data['dispatch']);
+        unset($data['dispatch'], $data['config']);
 
         return $data;
     }
