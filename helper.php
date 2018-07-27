@@ -309,6 +309,7 @@ if (!function_exists('download')) {
      * 获取\think\response\Download对象实例
      * @param string  $filename 要下载的文件
      * @param string  $name 显示文件名
+     * @param integer $expire 有效期
      * @return \think\response\Download
      */
     function download($filename, $name = '', $expire = 360)
