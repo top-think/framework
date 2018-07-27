@@ -356,7 +356,7 @@ abstract class Dispatch
     public function __debugInfo()
     {
         $data = get_object_vars($this);
-        unset($data['app'], $data['request']);
+        unset($data['app'], $data['request'], $data['rule']);
 
         return $data;
     }
