@@ -19,22 +19,27 @@
 //记录开始运行时间
 $GLOBALS['_beginTime'] = microtime(true);
 
-// 开启或关闭调试模式
-define('SITE_DEBUG', true);
-
 // 记录内存初始使用
 define('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
 
-// 设置全局变量sg
-$sg['_debug'] = false;        // 调试模式
-if (SITE_DEBUG) {
-    $sg['_debug'] = true;
-}
+// 开启或关闭调试模式
+sgdefine('SITE_DEBUG', false);
 
-$sg['_define'] = array();    // 全局常量
-$sg['_config'] = array();    // 全局配置
-$sg['_access'] = array();    // 访问配置
-$sg['_router'] = array();    // 路由配置
+// 设置全局变量sg
+$sg['_debug'] = false;  // 调试模式
+$sg['_define'] = [];    // 全局常量
+$sg['_config'] = [];    // 全局配置
+$sg['_env'] = [];    // 环境配置
+$sg['_access'] = [];    // 访问配置
+$sg['_router'] = [];    // 路由配置
+
+// 初始化环境变量
+sgenv();
+
+if (isset($sg['_env']['app']['debug'])) {
+    sgdefine('SITE_DEBUG', $sg['_env']['app']['debug']);
+    $sg['_debug'] = $sg['_env']['app']['debug'];
+}
 
 //Think框架常量的基本配置
 sgdefine('THINK_VERSION', '5.1.18');
@@ -56,7 +61,6 @@ sgdefine('GROUP_NAME', 'shuguo');
 sgdefine('GROUP_CORE_MODE', 'core');
 sgdefine('SITE_NAME', 'sgs-api');
 sgdefine('SITE_PATH', dirname($_SERVER['SCRIPT_FILENAME']) . DS);
-
 sgdefine('SITE_DOMAIN', getSiteHost());
 sgdefine('SITE_URL', (IS_HTTPS ? 'https:' : 'http:') . '//' . SITE_DOMAIN . __ROOT__);
 
@@ -127,7 +131,7 @@ function isDebug()
 
 /**
  * @titile定义常量,判断是否未定义.
- * @param  string $name  常量名
+ * @param  string $name 常量名
  * @param  string $value 常量值
  * @return string $str 返回常量的值
  */
@@ -144,7 +148,7 @@ function sgdefine($name, $value)
     }
     // 缓存已定义常量列表
     $sg['_define'][$name] = $value;
-    
+
     return $value;
 }
 
@@ -171,7 +175,7 @@ function getScriptName()
     } else {
         $scriptName = rtrim($_SERVER['SCRIPT_NAME'], '/');
     }
-    
+
     return $scriptName;
 }
 
@@ -187,9 +191,9 @@ function getSiteHost()
     } elseif (isset($_SERVER['HTTP_HOST'])) {
         $host = $_SERVER['HTTP_HOST'];
     }
-    
+
     $host = strip_tags($host);
-    
+
     return $host;
 }
 
@@ -205,8 +209,46 @@ function getRootPath()
     } else {
         $root = rtrim($root, '/');
     }
-    
+
     return $root;
+}
+
+/**
+ * @title 获取环境配置
+ * @param null $name
+ * @return array|bool
+ */
+function sgenv($name = null)
+{
+    global $sg;
+
+    if (is_null($name)) {
+        // 环境配置文件
+        $file = dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . '.env';
+        if (is_file($file)) {
+            $sg['_env'] = parse_ini_file($file, true);
+        }
+
+        return $sg['_env'];
+    }
+
+    if (false !== strpos($name, '.')) {
+        $names = explode('.', $name);
+        $arr = $sg['_env'];
+        for ($i = 0; $i < count($names); $i++) {
+            if (isset($arr[strval($names[$i])])) {
+                $arr = $arr[strval($names[$i])];
+            } else {
+                return null;
+            }
+        }
+
+        if (!is_null($arr)) {
+            return $arr;
+        }
+    } else {
+        return $sg['_env'][$name];
+    }
 }
 
 /**
@@ -214,29 +256,30 @@ function getRootPath()
  */
 function raw_request()
 {
-    $request['server_name']     = $_SERVER['SERVER_NAME'];
-    $request['server_port']     = $_SERVER['SERVER_PORT'];
+    $request['server_name'] = $_SERVER['SERVER_NAME'];
+    $request['server_port'] = $_SERVER['SERVER_PORT'];
     $request['server_protocol'] = $_SERVER['SERVER_PROTOCOL'];
-    $request['script_name']     = $_SERVER['SCRIPT_NAME'];
-    $request['requet_scheme']   = $_SERVER['REQUEST_SCHEME'];
-    $request['request_method']  = $_SERVER['REQUEST_METHOD'];
-    $request['request_time']    = $_SERVER['REQUEST_TIME'];
-    $request['query_string']    = $_SERVER['QUERY_STRING'];
-    
+    $request['script_name'] = $_SERVER['SCRIPT_NAME'];
+    $request['requet_scheme'] = $_SERVER['REQUEST_SCHEME'];
+    $request['request_method'] = $_SERVER['REQUEST_METHOD'];
+    $request['request_time'] = $_SERVER['REQUEST_TIME'];
+    $request['query_string'] = $_SERVER['QUERY_STRING'];
+
     $request['url'] = $_SERVER['REQUEST_URI'];
-    $url            = parse_url($request['url']);
+    $url = parse_url($request['url']);
     if (!isset($url['query'])) {
         $url['query'] = '';
     }
-    $request            = array_merge($request, $url);
-    $pathinfo           = explode(DS, ltrim($request['path'], DS));
+    $request = array_merge($request, $url);
+    $pathinfo = explode(DS, ltrim($request['path'], DS));
     $request['project'] = $pathinfo[0];
+
     return $request;
 }
 
 /**
  * 载入配置 修改自ThinkPHP:C函数 为了不与tp冲突
- * @param  string              $name  配置名/文件名.
+ * @param  string              $name 配置名/文件名.
  * @param  string|array|object $value 配置赋值
  * @return void|null
  */
@@ -255,24 +298,24 @@ function sgconfig($name = null, $value = null)
                 return isset($sg['_config'][$name]) ? $sg['_config'][$name] : null;
             }
             $sg['_config'][$name] = $value;
-            
+
             return;
         }
         // 二维数组设置和获取支持
-        $name    = explode('.', $name);
+        $name = explode('.', $name);
         $name[0] = strtolower($name[0]);
         if (is_null($value)) {
             return isset($sg['_config'][$name[0]][$name[1]]) ? $sg['_config'][$name[0]][$name[1]] : null;
         }
         $sg['_config'][$name[0]][$name[1]] = $value;
-        
+
         return;
     }
     // 批量设置
     if (is_array($name)) {
-        return $sg['_config'] = array_merge((array) $sg['_config'], array_change_key_case($name));
+        return $sg['_config'] = array_merge((array)$sg['_config'], array_change_key_case($name));
     }
-    
+
     return null;// 避免非法参数
 }
 
@@ -297,7 +340,7 @@ function load_sys_config($path)
 
 /**
  * 执行钩子方法
- * @param  string $name   钩子方法名.
+ * @param  string $name 钩子方法名.
  * @param  array  $params 钩子参数数组.
  * @return array|string Stripped array (or string in the callback).
  */
@@ -311,10 +354,10 @@ function sghook($name, $params = array())
                 $result = call_user_func_array($call, $params);
             }
         }
-        
+
         return $result;
     }
-    
+
     return false;
 }
 
@@ -337,7 +380,7 @@ function stripslashes_deep($value)
     } else {
         $value = stripslashes($value);
     }
-    
+
     return $value;
 }
 
@@ -389,7 +432,7 @@ function static_cache($cache_id, $value = null, $clean = false)
     if ($clean) { //清空缓存 其实是清不了的 程序执行结束才会自动清理
         unset($cacheHash);
         $cacheHash = array(0);
-        
+
         return $cacheHash;
     }
     if (empty($cache_id)) {
@@ -401,7 +444,7 @@ function static_cache($cache_id, $value = null, $clean = false)
     } else {
         //设置缓存数据
         $cacheHash[$cache_id] = $value;
-        
+
         return $cacheHash[$cache_id];
     }
 }
