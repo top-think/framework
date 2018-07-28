@@ -405,4 +405,12 @@ class Response
     {
         return $this->code;
     }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app']);
+
+        return $data;
+    }
 }

@@ -793,4 +793,11 @@ class Console
         return $namespaces;
     }
 
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['commands'], $data['definition']);
+
+        return $data;
+    }
 }

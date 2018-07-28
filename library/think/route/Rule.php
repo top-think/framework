@@ -1097,4 +1097,12 @@ abstract class Rule
     {
         $this->router = Container::get('route');
     }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['parent'], $data['router'], $data['route']);
+
+        return $data;
+    }
 }

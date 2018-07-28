@@ -2191,4 +2191,12 @@ class Request
     {
         return isset($this->param[$name]);
     }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['dispatch'], $data['config']);
+
+        return $data;
+    }
 }

@@ -531,4 +531,12 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     {
         return new ArrayIterator($this->instances);
     }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['instances'], $data['instance']);
+
+        return $data;
+    }
 }

@@ -304,6 +304,20 @@ if (!function_exists('debug')) {
     }
 }
 
+if (!function_exists('download')) {
+    /**
+     * 获取\think\response\Download对象实例
+     * @param string  $filename 要下载的文件
+     * @param string  $name 显示文件名
+     * @param integer $expire 有效期
+     * @return \think\response\Download
+     */
+    function download($filename, $name = '', $expire = 360)
+    {
+        return Response::create($filename, 'download')->name($name)->expire($expire);
+    }
+}
+
 if (!function_exists('dump')) {
     /**
      * 浏览器友好的变量输出

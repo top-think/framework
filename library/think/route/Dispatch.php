@@ -352,4 +352,12 @@ abstract class Dispatch
         $this->app     = Container::get('app');
         $this->request = $this->app['request'];
     }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app'], $data['request'], $data['rule']);
+
+        return $data;
+    }
 }

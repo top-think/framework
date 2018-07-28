@@ -941,4 +941,12 @@ class Route
     {
         return call_user_func_array([$this->group, $method], $args);
     }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app'], $data['request']);
+
+        return $data;
+    }
 }

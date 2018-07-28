@@ -186,4 +186,11 @@ class Middleware
         };
     }
 
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app']);
+
+        return $data;
+    }
 }
