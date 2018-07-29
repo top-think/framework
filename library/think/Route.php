@@ -466,7 +466,9 @@ class Route
 
         // 检查路由别名
         if (isset($rules['__alias__'])) {
-            $this->alias($rules['__alias__']);
+            foreach ($rules['__alias__'] as $key => $val) {
+                $this->alias($key, $val);
+            }
             unset($rules['__alias__']);
         }
 
