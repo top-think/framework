@@ -779,8 +779,8 @@ class App extends Container
         }
         
         //默认静态文件、模版文件目录
-        sgdefine('THEME_PATH', PUBLIC_PATH . 'theme' . DS);
-        sgdefine('THEME_URL', PUBLIC_URL . DS . 'theme');
+        sgdefine('THEME_PATH', PUBLIC_PATH . 'theme' . DS . THEME_NAME);
+        sgdefine('THEME_URL', PUBLIC_URL . DS . 'theme' . DS . THEME_NAME);
         sgdefine('THEME_PUBLIC_PATH', THEME_PATH . 'static' . DS);
         sgdefine('THEME_PUBLIC_URL', THEME_URL . DS . 'static');
         sgdefine('APP_PUBLIC_PATH', APP_PATH . 'static' . DS);
