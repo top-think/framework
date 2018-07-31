@@ -232,12 +232,12 @@ class Build
         foreach ($controllers as $controller) {
             $controller = basename($controller, '.php');
 
+            $class = new \ReflectionClass($namespace . '\\' . $module . '\\' . $layer . '\\' . $controller);
+
             if ($suffix) {
                 // 控制器后缀
                 $controller = substr($controller, 0, -10);
             }
-
-            $class = new \ReflectionClass($namespace . '\\' . $module . '\\' . $layer . '\\' . $controller);
 
             if (strpos($layer, '\\')) {
                 // 多级控制器

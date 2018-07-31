@@ -820,7 +820,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         try {
             // 删除当前模型数据
-            $result = $db->where($where)->delete();
+            $db->where($where)->delete();
 
             // 关联删除
             if (!empty($this->relationWrite)) {
