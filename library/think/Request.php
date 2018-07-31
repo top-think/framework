@@ -1600,7 +1600,9 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config['var_ajax']) ? true : $result;
+        $result           = $this->param($this->config['var_ajax']) ? true : $result;
+        $this->mergeParam = false;
+        return $result;
     }
 
     /**
@@ -1617,7 +1619,9 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config['var_pjax']) ? true : $result;
+        $result           = $this->param($this->config['var_pjax']) ? true : $result;
+        $this->mergeParam = false;
+        return $result;
     }
 
     /**
