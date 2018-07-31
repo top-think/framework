@@ -89,6 +89,12 @@ abstract class Rule
      */
     protected $doAfter;
 
+    /**
+     * 是否锁定参数
+     * @var bool
+     */
+    protected $lockOption = false;
+
     abstract public function check($request, $url, $completeMatch = false);
 
     /**
@@ -680,15 +686,18 @@ abstract class Rule
      */
     protected function mergeGroupOptions()
     {
-        $parentOption = $this->parent->getOption();
-        // 合并分组参数
-        foreach ($this->mergeOptions as $item) {
-            if (isset($parentOption[$item]) && isset($this->option[$item])) {
-                $this->option[$item] = array_merge($parentOption[$item], $this->option[$item]);
+        if (!$this->lockOption) {
+            $parentOption = $this->parent->getOption();
+            // 合并分组参数
+            foreach ($this->mergeOptions as $item) {
+                if (isset($parentOption[$item]) && isset($this->option[$item])) {
+                    $this->option[$item] = array_merge($parentOption[$item], $this->option[$item]);
+                }
             }
-        }
 
-        $this->option = array_merge($parentOption, $this->option);
+            $this->option     = array_merge($parentOption, $this->option);
+            $this->lockOption = true;
+        }
 
         return $this->option;
     }
