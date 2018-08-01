@@ -1489,6 +1489,11 @@ class Query
 
         $logic = strtoupper($logic);
 
+        if ($field instanceof Where) {
+            $this->options['where'][$logic] = $field->parse();
+            return $this;
+        }
+
         if (is_string($field) && !empty($this->options['via']) && !strpos($field, '.')) {
             $field = $this->options['via'] . '.' . $field;
         }
