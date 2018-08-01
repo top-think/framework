@@ -117,12 +117,14 @@ abstract class Relation
         return $fields;
     }
 
-    protected function getQueryWhere(array &$where, string $relation)
+    protected function getQueryWhere(array &$where, string $relation): void
     {
-        foreach ($where as $key => $val) {
+        foreach ($where as $key => &$val) {
             if (is_string($key)) {
                 $where[] = [false === strpos($key, '.') ? $relation . '.' . $key : $key, '=', $val];
                 unset($where[$key]);
+            } elseif (isset($val[0]) && false === strpos($val[0], '.')) {
+                $val[0] = $relation . '.' . $val[0];
             }
         }
     }

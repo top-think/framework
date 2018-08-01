@@ -178,8 +178,9 @@ trait SoftDelete
 
             if (empty($where)) {
                 $pk = $this->getPk();
-
-                $where[] = [$pk, '=', $this->getData($pk)];
+                if (is_string($pk)) {
+                    $where[] = [$pk, '=', $this->getData($pk)];
+                }
             }
 
             // 恢复删除

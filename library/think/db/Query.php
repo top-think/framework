@@ -2986,8 +2986,7 @@ class Query
             $this->jsonResult($result, $options['json'], $options['json_assoc'], $withRelationAttr);
         }
 
-        $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;
-        $result    = $this->model->newInstance($result, $condition);
+        $result = $this->model->newInstance($result, $resultSet ? null : $this->getModelUpdateCondition($options));
 
         // 动态获取器
         if (!empty($options['with_attr'])) {
@@ -3010,6 +3009,16 @@ class Query
                 $result->relationCount($result, $val[0], $val[1], $val[2]);
             }
         }
+    }
+
+    /**
+     * 获取模型的更新条件
+     * @access protected
+     * @param  array $options 查询参数
+     */
+    protected function getModelUpdateCondition(array $options)
+    {
+        return $options['where']['AND'] ?? null;
     }
 
     /**
