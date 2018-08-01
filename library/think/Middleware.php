@@ -111,6 +111,18 @@ class Middleware
     }
 
     /**
+     * 清除中间件
+     * @access public
+     * @param  string $type  中间件类型
+     */
+    public function clear($type = 'route')
+    {
+        if (isset($this->queue[$type])) {
+            $this->queue[$type] = [];
+        }
+    }
+
+    /**
      * 中间件调度
      * @access public
      * @param  Request  $request
