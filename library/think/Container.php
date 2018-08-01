@@ -439,8 +439,9 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $params = $reflect->getParameters();
 
         foreach ($params as $param) {
-            $name  = $param->getName();
-            $class = $param->getClass();
+            $name      = $param->getName();
+            $lowerName = Loader::parseName($name);
+            $class     = $param->getClass();
 
             if ($class) {
                 $args[] = $this->getObjectParam($class->getName(), $vars);
@@ -448,6 +449,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
                 $args[] = array_shift($vars);
             } elseif (0 == $type && isset($vars[$name])) {
                 $args[] = $vars[$name];
+            } elseif (0 == $type && isset($vars[$lowerName])) {
+                $args[] = $vars[$lowerName];
             } elseif ($param->isDefaultValueAvailable()) {
                 $args[] = $param->getDefaultValue();
             } else {
