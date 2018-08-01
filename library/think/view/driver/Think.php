@@ -82,7 +82,7 @@ class Think
         }
 
         // 模板不存在 抛出异常
-        if (!is_file($template)) {
+        if (!is_file($template) || !is_readable($template)) {
             throw new TemplateNotFoundException('template not exists:' . $template, $template);
         }
 
