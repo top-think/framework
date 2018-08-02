@@ -309,12 +309,13 @@ if (!function_exists('download')) {
      * 获取\think\response\Download对象实例
      * @param string  $filename 要下载的文件
      * @param string  $name 显示文件名
-     * @param integer $expire 有效期
+     * @param bool    $content 是否为内容
+     * @param integer $expire 有效期（秒）
      * @return \think\response\Download
      */
-    function download($filename, $name = '', $expire = 360)
+    function download($filename, $name = '', $content = false, $expire = 180)
     {
-        return Response::create($filename, 'download')->name($name)->expire($expire);
+        return Response::create($filename, 'download')->name($name)->isContent($content)->expire($expire);
     }
 }
 
