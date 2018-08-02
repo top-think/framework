@@ -298,7 +298,7 @@ class BelongsToMany extends Relation
             // 查询关联数据
             $data = $this->eagerlyManyToMany([
                 ['pivot.' . $localKey, 'in', $range],
-            ], $relation, $subRelation);
+            ], $relation, $subRelation, $closure);
 
             // 关联属性名
             $attr = Loader::parseName($relation);
@@ -332,7 +332,7 @@ class BelongsToMany extends Relation
             // 查询管理数据
             $data = $this->eagerlyManyToMany([
                 ['pivot.' . $this->localKey, '=', $pk],
-            ], $relation, $subRelation);
+            ], $relation, $subRelation, $closure);
 
             // 关联数据封装
             if (!isset($data[$pk])) {
@@ -387,15 +387,16 @@ class BelongsToMany extends Relation
     /**
      * 多对多 关联模型预查询
      * @access protected
-     * @param  array  $where       关联预查询条件
-     * @param  string $relation    关联名
-     * @param  string $subRelation 子关联
+     * @param  array    $where       关联预查询条件
+     * @param  string   $relation    关联名
+     * @param  string   $subRelation 子关联
+     * @param  \Closure $closure     闭包
      * @return array
      */
-    protected function eagerlyManyToMany($where, $relation, $subRelation = '')
+    protected function eagerlyManyToMany($where, $relation, $subRelation = '', $closure = null)
     {
         // 预载入关联查询 支持嵌套预载入
-        $list = $this->belongsToManyQuery($this->foreignKey, $this->localKey, $where)
+        $list = $this->belongsToManyQuery($this->foreignKey, $this->localKey, $where, $closure)
             ->with($subRelation)
             ->select();
 
@@ -424,13 +425,18 @@ class BelongsToMany extends Relation
     /**
      * BELONGS TO MANY 关联查询
      * @access protected
-     * @param  string $foreignKey 关联模型关联键
-     * @param  string $localKey   当前模型关联键
-     * @param  array  $condition  关联查询条件
+     * @param  string   $foreignKey 关联模型关联键
+     * @param  string   $localKey   当前模型关联键
+     * @param  array    $condition  关联查询条件
+     * @param  \Closure $closure     闭包
      * @return Query
      */
-    protected function belongsToManyQuery($foreignKey, $localKey, $condition = [])
+    protected function belongsToManyQuery($foreignKey, $localKey, $condition = [], $closure = null)
     {
+        if ($closure) {
+            $closure($this->query);
+        }
+
         // 关联查询封装
         $tableName = $this->query->getTable();
         $table     = $this->pivot->getTable();
