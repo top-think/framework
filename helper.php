@@ -446,16 +446,47 @@ if (!function_exists('model')) {
     /**
      * 实例化Model
      * @param string    $name Model名称
-     * @param string    $layer 业务层名称
-     * @param bool      $appendSuffix 是否添加类名后缀
      * @param  string $common       公共模块名，默认core
+     * @param string    $layer 模型层名称
+
      * @return \think\Model
      */
-    function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'core')
+    function model($name = '', $common = 'core', $layer = 'model', $appendSuffix = false)
     {
         return app()->model($name, $layer, $appendSuffix, $common);
     }
 }
+
+if (!function_exists('logic')) {
+    /**
+     * 实例化Logic
+     * @param string    $name Logic名称
+     * @param  string $common       公共模块名，默认core
+     * @param string    $layer 业务层名称
+
+     * @return mixed
+     */
+    function logic($name = '', $common = 'core', $layer = 'logic', $appendSuffix = true)
+    {
+        return app()->logic($name, $layer, $appendSuffix, $common);
+    }
+}
+
+if (!function_exists('service')) {
+    /**
+     * 实例化Service
+     * @param string    $name Service名称
+     * @param  string $common       公共模块名，默认core
+     * @param string    $layer 服务层名称
+
+     * @return mixed
+     */
+    function service($name = '', $common = 'core', $layer = 'service', $appendSuffix = true)
+    {
+        return app()->service($name, $layer, $appendSuffix, $common);
+    }
+}
+
 
 if (!function_exists('parse_name')) {
     /**

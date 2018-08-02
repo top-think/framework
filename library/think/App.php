@@ -890,13 +890,43 @@ class App extends Container
      * 实例化（分层）模型
      * @access public
      * @param  string $name         Model名称
-     * @param  string $layer        业务层名称
+     * @param  string $layer        模型层名称
      * @param  bool   $appendSuffix 是否添加类名后缀
      * @param  string $common       公共模块名
      * @return Model
      * @throws ClassNotFoundException
      */
     public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'core')
+    {
+        return $this->create($name, $layer, $appendSuffix, $common);
+    }
+
+    /**
+     * 实例化（分层）业务
+     * @access public
+     * @param  string $name         Logic名称
+     * @param  string $layer        业务层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
+     * @return Logic
+     * @throws ClassNotFoundException
+     */
+    public function logic($name = '', $layer = 'logic', $appendSuffix = true, $common = 'core')
+    {
+        return $this->create($name, $layer, $appendSuffix, $common);
+    }
+
+    /**
+     * 实例化（分层）服务
+     * @access public
+     * @param  string $name         Service名称
+     * @param  string $layer        服务层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
+     * @return Service
+     * @throws ClassNotFoundException
+     */
+    public function service($name = '', $layer = 'service', $appendSuffix = true, $common = 'core')
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }
