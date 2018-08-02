@@ -896,7 +896,7 @@ class App extends Container
      * @return Model
      * @throws ClassNotFoundException
      */
-    public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
+    public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'core')
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }
