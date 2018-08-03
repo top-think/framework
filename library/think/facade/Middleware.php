@@ -24,4 +24,13 @@ use think\Facade;
  */
 class Middleware extends Facade
 {
+    /**
+     * 获取当前Facade对应类名
+     * @access protected
+     * @return string
+     */
+    protected static function getFacadeClass()
+    {
+        return 'middleware';
+    }
 }
