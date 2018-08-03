@@ -1465,6 +1465,11 @@ class Query
 
         $logic = strtoupper($logic);
 
+        if ($field instanceof Where) {
+            $this->options['where'][$logic] = $field->parse();
+            return $this;
+        }
+
         if (is_string($field) && !empty($this->options['via']) && !strpos($field, '.')) {
             $field = $this->options['via'] . '.' . $field;
         }
@@ -2384,12 +2389,14 @@ class Query
             $model    = $class->$relation();
 
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
-                $model->removeOption()->eagerly($this, $relation, $subRelation, $closure, $first);
+                $talbe = $model->getTable();
+                $model->removeOption()->table($table)->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
             } elseif ($closure) {
                 $with[$key] = $closure;
             }
         }
+
         $this->via();
 
         if (isset($this->options['with'])) {

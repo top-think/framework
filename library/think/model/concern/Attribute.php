@@ -147,12 +147,12 @@ trait Attribute
     /**
      * 设置数据对象值
      * @access public
-     * @param  mixed    $data  数据或者属性名
-     * @param  bool     $setter 值
-     * @param  array    $allow 值
+     * @param  array    $data  数据
+     * @param  bool     $set  是否调用修改器
+     * @param  array    $allow 允许的字段名
      * @return $this
      */
-    public function data($data, bool $setter = false, array $allow = [])
+    public function data($data, bool $set = false, array $allow = [])
     {
         // 清空数据
         $this->data = [];
@@ -170,7 +170,7 @@ trait Attribute
             }
         }
 
-        if ($setter) {
+        if ($set) {
             // 数据对象赋值
             $this->setAttrs($data);
         } elseif (!empty($allow)) {
@@ -467,17 +467,15 @@ trait Attribute
         $method    = 'get' . Loader::parseName($name, 1) . 'Attr';
 
         if (isset($this->withAttr[$fieldName])) {
-            if ($notFound && $relation = $this->isRelationAttr($name)) {
-                $modelRelation = $this->$relation();
-                $value         = $this->getRelationData($modelRelation);
+            if ($notFound) {
+                $value = $this->getRelationValue($name);
             }
 
             $closure = $this->withAttr[$fieldName];
             $value   = $closure($value, $this->data);
         } elseif (method_exists($this, $method)) {
-            if ($notFound && $relation = $this->isRelationAttr($name)) {
-                $modelRelation = $this->$relation();
-                $value         = $this->getRelationData($modelRelation);
+            if ($notFound) {
+                $value = $this->getRelationValue($name);
             }
 
             $value = $this->$method($value, $this->data);
@@ -501,6 +499,21 @@ trait Attribute
         return $value;
     }
 
+    protected function getRelationValue(string $name)
+    {
+        $relation = $this->isRelationAttr($name);
+
+        $modelRelation = $this->$relation();
+
+        if ($modelRelation instanceof Relation) {
+            $value = $this->getRelationData($modelRelation);
+        } else {
+            $value = null;
+        }
+
+        return $value;
+    }
+
     /**
      * 获取关联属性值
      * @access protected
@@ -510,33 +523,28 @@ trait Attribute
      */
     protected function getRelationAttribute(string $name, array &$item)
     {
-        $relation = $this->isRelationAttr($name);
+        $value = $this->getRelationValue($name);
 
-        if ($relation) {
-            $modelRelation = $this->$relation();
-            if ($modelRelation instanceof Relation) {
-                $value = $this->getRelationData($modelRelation);
+        if ($value) {
+            if ($item && method_exists($modelRelation, 'getBindAttr') && $bindAttr = $modelRelation->getBindAttr()) {
 
-                if ($item && method_exists($modelRelation, 'getBindAttr') && $bindAttr = $modelRelation->getBindAttr()) {
+                foreach ($bindAttr as $key => $attr) {
+                    $key = is_numeric($key) ? $attr : $key;
 
-                    foreach ($bindAttr as $key => $attr) {
-                        $key = is_numeric($key) ? $attr : $key;
-
-                        if (isset($item[$key])) {
-                            throw new Exception('bind attr has exists:' . $key);
-                        } else {
-                            $item[$key] = $value ? $value->getAttr($attr) : null;
-                        }
+                    if (isset($item[$key])) {
+                        throw new Exception('bind attr has exists:' . $key);
+                    } else {
+                        $item[$key] = $value ? $value->getAttr($attr) : null;
                     }
-
-                    return false;
                 }
 
-                // 保存关联对象值
-                $this->relation[$name] = $value;
-
-                return $value;
+                return false;
             }
+
+            // 保存关联对象值
+            $this->relation[$name] = $value;
+
+            return $value;
         }
 
         throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);

@@ -58,6 +58,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         'response'              => Response::class,
         'route'                 => Route::class,
         'session'               => Session::class,
+        'template'              => Template::class,
         'url'                   => Url::class,
         'validate'              => Validate::class,
         'view'                  => View::class,

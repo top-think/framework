@@ -43,7 +43,7 @@ abstract class Relation
      * @access public
      * @return Model
      */
-    public function getParent()
+    public function getParent(): Model
     {
         return $this->parent;
     }
@@ -53,7 +53,7 @@ abstract class Relation
      * @access public
      * @return Model
      */
-    public function getModel()
+    public function getModel(): Model
     {
         return $this->query->getModel();
     }
