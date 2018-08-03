@@ -2463,7 +2463,8 @@ class Query
             $model    = $class->$relation();
 
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
-                $model->removeOption()->eagerly($this, $relation, $subRelation, $closure, $first);
+                $table = $model->getTable();
+                $model->removeOption()->table($table)->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
             } elseif ($closure) {
                 $with[$key] = $closure;
