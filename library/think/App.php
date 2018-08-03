@@ -691,7 +691,7 @@ class App extends Container
 
         // 是否强制路由模式
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->route->config('url_route_must');
-        
+
         // 路由检测 返回一个Dispatch对象
         $dispatch = $this->route->check($path, $must);
 
@@ -708,19 +708,19 @@ class App extends Container
 
         return $dispatch;
     }
-    
+
     /**
      * 记录应用路由信息
      */
     public function routeRecord()
     {
         global $sg;
-        
+
         $config = $this->config();
         if ($config) {
             sgconfig($config);
         }
-        
+
         $module     = $this->request->module();
         $controller = $this->request->controller();
         $action     = $this->request->action();
@@ -738,12 +738,12 @@ class App extends Container
         sgdefine('CONT_NAME', $sg['controller']);
         sgdefine('ACTION_NAME', $sg['action']);
         sgdefine('TRUE_APPNAME', APP_NAME);
-        
+
         //新增一些CODE常量.用于简化判断操作
         sgdefine('MODULE_CODE', $sg['module'] . '/' . $sg['controller']);
         sgdefine('ACTION_CODE', $sg['module'] . '/' . $sg['controller'] . '/' . $sg['action']);
         sgdefine('APP_RUN_PATH', RUNTIME_PATH . '~' . TRUE_APPNAME);
-        
+
         /*  应用配置  */
         //载入应用配置
         if (!in_array(TRUE_APPNAME, $this->config('deny_module_list')) && is_dir($this->getAppPath() . TRUE_APPNAME)) {
@@ -756,7 +756,7 @@ class App extends Container
                 sgdefine('APP_URL', GROUP_URL . DS . TRUE_APPNAME . DS . 'src');
             }
         }
-        
+
         sgdefine('APP_COMMON_PATH', APP_PATH . 'common');
         sgdefine('APP_COMMAND_PATH', APP_PATH . 'command');
         sgdefine('APP_CONFIG_PATH', APP_PATH . 'config');
@@ -766,18 +766,18 @@ class App extends Container
         sgdefine('APP_LOGIC_PATH', APP_PATH . 'logic');
         sgdefine('APP_SERVICE_PATH', APP_PATH . 'service');
         sgdefine('APP_VALID_PATH', APP_PATH . 'validate');
-        
+
         //定义语言缓存文件路径常量
         sgdefine('LANG_PATH', DATA_PATH . 'lang');
         sgdefine('LANG_URL', DATA_URL . DS . 'lang');
-        
+
         //默认风格包名称
         if (C('theme_name')) {
             sgdefine('THEME_NAME', C('theme_name'));
         } else {
             sgdefine('THEME_NAME', 'stv1');
         }
-        
+
         //默认静态文件、模版文件目录
         sgdefine('THEME_PATH', PUBLIC_PATH . 'theme' . DS . THEME_NAME);
         sgdefine('THEME_URL', PUBLIC_URL . DS . 'theme' . DS . THEME_NAME);
@@ -787,9 +787,9 @@ class App extends Container
         sgdefine('APP_TPL_PATH', APP_PATH . 'view' . DS . 'default' . DS);
         sgdefine('APP_TPL_URL', APP_URL . DS . 'view' . DS . 'default');
         sgdefine('CANVAS_PATH', ROOT_PATH . 'config' . DS . 'canvas' . DS);
-        
+
         sgdefine('OL_MAP_PATH_URL', ADDON_URL . DS . 'maps' . DS . 'openlayer');
-        
+
         /* 临时兼容代码，新方法开发中 */
         $timer = sprintf('%s%s/app/timer', SG_ROOT, SG_STORAGE);
         // 七天更新一次
@@ -799,12 +799,12 @@ class App extends Container
             file_put_contents($timer, time());
         }
         sgdefine('APP_PUBLIC_URL', sprintf('%s%s/app/%s', SITE_URL, SG_STORAGE, strtolower(APP_NAME)));
-        
+
         //根据应用配置重定义以下常量
         if (C('app_tpl_path')) {
             sgdefine('APP_TPL_PATH', C('app_tpl_path'));
         }
-        
+
         //如果是部署模式、则如下定义
         if (C('deploy_static')) {
             sgdefine('THEME_PUBLIC_URL', PUBLIC_URL . DS . THEME_NAME);
@@ -851,6 +851,23 @@ class App extends Container
     }
 
     /**
+     * 获取模块下的类名
+     * @access protected
+     * @param  string  $class   类名
+     * @param  string  $module  模块名
+     * @return object  返回应用的类名
+     */
+    protected function getModuleListClass($class, $module)
+    {
+        foreach ($this->moduleList as $mod) {
+            $classname = str_replace('\\' . $module . '\\', '\\' . $mod . '\\', $class);
+            if (class_exists($classname)) {
+                return $classname;
+            }
+        }
+    }
+
+    /**
      * 实例化应用类库
      * @access public
      * @param  string $name         类名称
@@ -872,6 +889,9 @@ class App extends Container
 
         if (class_exists($class)) {
             $object = $this->__get($class);
+        } elseif (class_exists($this->getModuleListClass($class, $module))) {
+            $class  = $this->getModuleListClass($class, $module);
+            $object = $this->__get($this->getModuleListClass($class, $module));
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
@@ -896,7 +916,7 @@ class App extends Container
      * @return Model
      * @throws ClassNotFoundException
      */
-    public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'core')
+    public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }
@@ -911,7 +931,7 @@ class App extends Container
      * @return Logic
      * @throws ClassNotFoundException
      */
-    public function logic($name = '', $layer = 'logic', $appendSuffix = true, $common = 'core')
+    public function logic($name = '', $layer = 'logic', $appendSuffix = true, $common = 'common')
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }
@@ -926,7 +946,7 @@ class App extends Container
      * @return Service
      * @throws ClassNotFoundException
      */
-    public function service($name = '', $layer = 'service', $appendSuffix = true, $common = 'core')
+    public function service($name = '', $layer = 'service', $appendSuffix = true, $common = 'common')
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }

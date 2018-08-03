@@ -669,13 +669,14 @@ if (!function_exists('validate')) {
     /**
      * 实例化验证器
      * @param string    $name 验证器名称
+     * @param  string $common       公共模块名，默认core
      * @param string    $layer 业务层名称
      * @param bool      $appendSuffix 是否添加类名后缀
      * @return \think\Validate
      */
-    function validate($name = '', $layer = 'validate', $appendSuffix = false)
+    function validate($name = '', $common = 'core', $layer = 'validate', $appendSuffix = false)
     {
-        return app()->validate($name, $layer, $appendSuffix);
+        return app()->validate($name, $layer, $appendSuffix, $common);
     }
 }
 
