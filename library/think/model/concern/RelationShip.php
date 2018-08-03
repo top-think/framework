@@ -219,9 +219,10 @@ trait RelationShip
      * @param  array  $resultSet        数据集
      * @param  string $relation         关联名
      * @param  array  $withRelationAttr 关联获取器
+     * @param  bool   $join             是否为JOIN方式
      * @return array
      */
-    public function eagerlyResultSet(&$resultSet, $relation, $withRelationAttr = [])
+    public function eagerlyResultSet(&$resultSet, $relation, $withRelationAttr = [], $join = false)
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
@@ -250,7 +251,7 @@ trait RelationShip
                 $relationResult->withAttr($withRelationAttr[$relationName]);
             }
 
-            $relationResult->eagerlyResultSet($resultSet, $relation, $subRelation, $closure);
+            $relationResult->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $join);
         }
     }
 
@@ -260,9 +261,10 @@ trait RelationShip
      * @param  Model  $result           数据对象
      * @param  string $relation         关联名
      * @param  array  $withRelationAttr 关联获取器
+     * @param  bool   $join             是否为JOIN方式
      * @return Model
      */
-    public function eagerlyResult(&$result, $relation, $withRelationAttr = [])
+    public function eagerlyResult(&$result, $relation, $withRelationAttr = [], $join = false)
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
@@ -291,7 +293,7 @@ trait RelationShip
                 $relationResult->withAttr($withRelationAttr[$relationName]);
             }
 
-            $relationResult->eagerlyResult($result, $relation, $subRelation, $closure);
+            $relationResult->eagerlyResult($result, $relation, $subRelation, $closure, $join);
         }
     }
 
