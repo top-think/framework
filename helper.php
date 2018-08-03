@@ -674,7 +674,7 @@ if (!function_exists('validate')) {
      * @param bool      $appendSuffix 是否添加类名后缀
      * @return \think\Validate
      */
-    function validate($name = '', $common = 'core', $layer = 'validate', $appendSuffix = false)
+    function validate($name = '', $common = 'core', $layer = 'validate', $appendSuffix = true)
     {
         return app()->validate($name, $layer, $appendSuffix, $common);
     }
