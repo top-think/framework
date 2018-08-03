@@ -146,7 +146,6 @@ abstract class OneToOne extends Relation
             // IN查询
             $this->eagerlySet($resultSet, $relation, $subRelation, $closure);
         }
-
     }
 
     /**
@@ -274,9 +273,15 @@ abstract class OneToOne extends Relation
         }
 
         if (isset($list[$relation])) {
-            $relationModel = new $model($list[$relation]);
-            $relationModel->setParent(clone $result);
-            $relationModel->isUpdate(true);
+            $array = array_unique($list[$relation]);
+
+            if (count($array) == 1 && null === current($array)) {
+                $relationModel = null;
+            } else {
+                $relationModel = new $model($list[$relation]);
+                $relationModel->setParent(clone $result);
+                $relationModel->isUpdate(true);
+            }
 
             if (!empty($this->bindAttr)) {
                 $this->bindAttr($relationModel, $result, $this->bindAttr);
