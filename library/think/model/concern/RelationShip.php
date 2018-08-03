@@ -200,9 +200,11 @@ trait RelationShip
      * @access public
      * @param  array  $resultSet 数据集
      * @param  string $relation  关联名
+     * @param  array  $withRelationAttr 关联获取器
+     * @param  bool   $join             是否为JOIN方式
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation): void
+    public function eagerlyResultSet(array &$resultSet, string $relation, array $withRelationAttr = [], bool $join = false): void
     {
         $relations = is_string($relation) ? explode(',', $relation) : $relation;
 
@@ -222,9 +224,16 @@ trait RelationShip
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
-            $relation = Loader::parseName($relation, 1, false);
+            $relation     = Loader::parseName($relation, 1, false);
+            $relationName = Loader::parseName($relation);
 
-            $this->$relation()->eagerlyResultSet($resultSet, $relation, $subRelation, $closure);
+            $relationResult = $this->$relation();
+
+            if (isset($withRelationAttr[$relationName])) {
+                $relationResult->withAttr($withRelationAttr[$relationName]);
+            }
+
+            $relationResult->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $join);
         }
     }
 
@@ -233,9 +242,11 @@ trait RelationShip
      * @access public
      * @param  Model    $result    数据对象
      * @param  array    $relations 关联
+     * @param  array    $withRelationAttr 关联获取器
+     * @param  bool     $join             是否为JOIN方式
      * @return void
      */
-    public function eagerlyResult(Model $result, array $relations): void
+    public function eagerlyResult(Model $result, array $relations, array $withRelationAttr = [], bool $join = false): void
     {
         foreach ($relations as $key => $relation) {
             $subRelation = '';
@@ -253,9 +264,16 @@ trait RelationShip
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
-            $relation = Loader::parseName($relation, 1, false);
+            $relation     = Loader::parseName($relation, 1, false);
+            $relationName = Loader::parseName($relation);
 
-            $this->$relation()->eagerlyResult($result, $relation, $subRelation, $closure);
+            $relationResult = $this->$relation();
+
+            if (isset($withRelationAttr[$relationName])) {
+                $relationResult->withAttr($withRelationAttr[$relationName]);
+            }
+
+            $relationResult->eagerlyResult($result, $relation, $subRelation, $closure, $join);
         }
     }
 

@@ -2349,10 +2349,29 @@ class Query
     /**
      * 设置关联查询JOIN预查询
      * @access public
-     * @param  string|array $with 关联方法名称
+     * @param  array $with 关联方法名称
      * @return $this
      */
-    public function with($with)
+    public function with(array $with)
+    {
+        if (empty($with)) {
+            return $this;
+        }
+
+        $this->options['with'] = $with;
+
+        return $this;
+    }
+
+    /**
+     * 关联预载入 JOIN方式
+     * @access protected
+     * @param  string|array $with 关联方法名
+     * @param  mixed        $field 字段
+     * @param  string       $joinType JOIN方式
+     * @return $this
+     */
+    public function withJoin($with, $field = true, $joinType = '')
     {
         if (empty($with)) {
             return $this;
@@ -2388,21 +2407,21 @@ class Query
             $relation = Loader::parseName($relation, 1, false);
             $model    = $class->$relation();
 
-            if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
-                $talbe = $model->getTable();
-                $model->removeOption()->table($table)->eagerly($this, $relation, $subRelation, $closure, $first);
+            if ($model instanceof OneToOne) {
+                $model->eagerly($this, $relation, $field, $joinType, $subRelation, $closure, $first);
                 $first = false;
-            } elseif ($closure) {
-                $with[$key] = $closure;
+            } else {
+                // 不支持其它关联
+                unset($with[$key]);
             }
         }
 
         $this->via();
 
-        if (isset($this->options['with'])) {
-            $this->options['with'] = array_merge($this->options['with'], $with);
+        if (isset($this->options['with_join'])) {
+            $this->options['with_join'] = array_merge($this->options['with_join'], $with);
         } else {
-            $this->options['with'] = $with;
+            $this->options['with_join'] = $with;
         }
 
         return $this;
@@ -2809,6 +2828,11 @@ class Query
                     $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
                 }
 
+                if (!empty($this->options['with_join'])) {
+                    // JOIN预载入
+                    $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
+                }
+
                 // 模型数据集转换
                 $resultSet = $result->toCollection($resultSet);
             } else {
@@ -3008,6 +3032,11 @@ class Query
         // 预载入查询
         if (!$resultSet && !empty($options['with'])) {
             $result->eagerlyResult($result, $options['with'], $withRelationAttr);
+        }
+
+        // JOIN预载入查询
+        if (!$resultSet && !empty($options['with_join'])) {
+            $result->eagerlyResult($result, $options['with_join'], $withRelationAttr, true);
         }
 
         // 关联统计

@@ -134,18 +134,19 @@ abstract class OneToOne extends Relation
      * @param  string   $relation    当前关联名
      * @param  string   $subRelation 子关联名
      * @param  \Closure $closure     闭包
+     * @param  bool     $join        是否为JOIN方式
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure = null): void
+    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure = null, bool $join = false): void
     {
-        if (1 == $this->eagerlyType) {
-            // IN查询
-            $this->eagerlySet($resultSet, $relation, $subRelation, $closure);
-        } else {
-            // 模型关联组装
+        if ($join || 0 == $this->eagerlyType) {
+            // 模型JOIN关联组装
             foreach ($resultSet as $result) {
                 $this->match($this->model, $relation, $result);
             }
+        } else {
+            // IN查询
+            $this->eagerlySet($resultSet, $relation, $subRelation, $closure);
         }
     }
 
@@ -156,16 +157,17 @@ abstract class OneToOne extends Relation
      * @param  string   $relation    当前关联名
      * @param  string   $subRelation 子关联名
      * @param  \Closure $closure     闭包
+     * @param  bool     $join        是否为JOIN方式
      * @return void
      */
-    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
+    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null, bool $join = false): void
     {
-        if (1 == $this->eagerlyType) {
+        if (0 == $this->eagerlyType || $join) {
+            // 模型JOIN关联组装
+            $this->match($this->model, $relation, $result);
+        } else {
             // IN查询
             $this->eagerlyOne($result, $relation, $subRelation, $closure);
-        } else {
-            // 模型关联组装
-            $this->match($this->model, $relation, $result);
         }
     }
 
