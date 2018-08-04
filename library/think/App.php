@@ -1036,7 +1036,21 @@ class App extends Container
 
         return $this->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
     }
-
+    
+    /**
+     * 转换层名
+     * @param $layer
+     * @return string
+     */
+    protected function convertLayer($layer)
+    {
+        if ('validate' == strtolower($layer)) {
+            $layer = 'validator';
+        }
+        
+        return $layer;
+    }
+    
     /**
      * 解析应用类的类名
      * @access public
@@ -1050,9 +1064,9 @@ class App extends Container
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
+        $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($this->convertLayer($layer)) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-
+        
         return $this->namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
