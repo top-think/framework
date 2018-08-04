@@ -17,13 +17,42 @@ class Config implements \ArrayAccess
      * 配置参数
      * @var array
      */
-    private $config = [];
+    protected $config = [];
 
     /**
      * 配置前缀
      * @var string
      */
-    private $prefix = 'app';
+    protected $prefix = 'app';
+
+    /**
+     * 配置文件目录
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * 配置文件后缀
+     * @var string
+     */
+    protected $ext;
+
+    /**
+     * 构造方法
+     * @access public
+     */
+    public function __construct($path = '', $ext = '.php')
+    {
+        $this->path = $path;
+        $this->ext  = $ext;
+    }
+
+    public static function __make(App $app)
+    {
+        $path = $app->getConfigPath();
+        $ext  = $app->getConfigExt();
+        return new static($path, $ext);
+    }
 
     /**
      * 设置配置参数默认前缀
@@ -64,19 +93,32 @@ class Config implements \ArrayAccess
      */
     public function load($file, $name = '')
     {
-        if (is_file($file)) {
-            $name = strtolower($name);
-            $type = pathinfo($file, PATHINFO_EXTENSION);
 
-            if ('php' == $type) {
-                return $this->set(include $file, $name);
-            } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
-                return $this->set(yaml_parse_file($file), $name);
-            }
-            return $this->parse($file, $type, $name);
+        if (is_file($file)) {
+            $filename = $file;
+        } elseif (is_file($this->path . $file . $this->ext)) {
+            $filename = $this->path . $file . $this->ext;
+        }
+
+        if (isset($filename)) {
+            return $this->loadFile($filename, $name);
         }
 
         return $this->config;
+    }
+
+    protected function loadFile($file, $name)
+    {
+        $name = strtolower($name);
+        $type = pathinfo($file, PATHINFO_EXTENSION);
+
+        if ('php' == $type) {
+            return $this->set(include $file, $name);
+        } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
+            return $this->set(yaml_parse_file($file), $name);
+        }
+
+        return $this->parse($file, $type, $name);
     }
 
     /**
