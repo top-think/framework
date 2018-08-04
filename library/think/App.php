@@ -859,10 +859,10 @@ class App extends Container
      */
     protected function getModuleListClass($class, $module)
     {
-        foreach ($this->moduleList as $mod) {
-            $classname = str_replace('\\' . $module . '\\', '\\' . $mod . '\\', $class);
-            if (class_exists($classname)) {
-                return $classname;
+        foreach ($this->moduleList as $_module) {
+            $_class = str_replace('\\' . $module . '\\', '\\' . $_module . '\\', $class);
+            if (class_exists($_class)) {
+                return $_class;
             }
         }
     }
@@ -880,18 +880,20 @@ class App extends Container
     public function create($name, $layer, $appendSuffix = false, $common = 'common')
     {
         $guid = $name . $layer;
-
+        
         if ($this->__isset($guid)) {
             return $this->__get($guid);
         }
-
+        
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
-
+        
+        $_class = $this->getModuleListClass($class, $module);
+        
         if (class_exists($class)) {
             $object = $this->__get($class);
-        } elseif (class_exists($this->getModuleListClass($class, $module))) {
-            $class  = $this->getModuleListClass($class, $module);
-            $object = $this->__get($this->getModuleListClass($class, $module));
+        } elseif (class_exists($_class)) {
+            $class  = $_class;
+            $object = $this->__get($class);
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
             if (class_exists($class)) {
@@ -900,9 +902,9 @@ class App extends Container
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-
+        
         $this->__set($guid, $class);
-
+        
         return $object;
     }
 
