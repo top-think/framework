@@ -2220,6 +2220,31 @@ class Query
     }
 
     /**
+     * 条件搜索某个字段（支持搜索器）
+     * @access public
+     * @param  array $fields 搜索字段
+     * @param  array $data   搜索数据
+     * @return $this
+     */
+    public function withSearch(array $fields, array $data = [])
+    {
+        foreach ($fields as $key => $field) {
+            if ($field instanceof \Closure) {
+                $field($this, isset($data[$key]) ? $data[$key] : null, $data);
+            } elseif ($this->model) {
+                // 检测搜索器
+                $method = 'search' . Loader::parseName($field, 1) . 'Attr';
+
+                if (method_exists($this->model, $method)) {
+                    $this->model->$method($this, isset($data[$field]) ? $data[$field] : null, $data);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * 指定数据表主键
      * @access public
      * @param  string $pk 主键
