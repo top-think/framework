@@ -1659,12 +1659,6 @@ abstract class Connection
                     $this->parseSavepoint('trans' . $this->transTimes)
                 );
             }
-        } catch (\PDOException $e) {
-            if ($this->isBreak($e)) {
-                --$this->transTimes;
-                return $this->close()->startTrans();
-            }
-            throw $e;
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
                 --$this->transTimes;
