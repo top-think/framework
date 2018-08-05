@@ -2475,11 +2475,8 @@ class Query
                 $relation   = $key;
                 $with[$key] = $key;
             } elseif (is_array($relation)) {
-                $subRelation = $relation;
-                $relation    = $key;
+                $relation = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                $with[$key] = $relation;
-
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
@@ -2489,32 +2486,28 @@ class Query
 
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
                 $table = $model->getTable();
-                $model->removeOption()->table($table)->eagerly($this, $relation, true, '', $subRelation, $closure, $first);
+                $model->removeOption()
+                    ->table($table)
+                    ->eagerly($this, $relation, true, '', $closure, $first);
                 $first = false;
-            } elseif ($closure) {
-                $with[$key] = $closure;
             }
         }
+
         $this->via();
 
-        if (isset($this->options['with'])) {
-            $this->options['with'] = array_merge($this->options['with'], $with);
-        } else {
-            $this->options['with'] = $with;
-        }
+        $this->options['with'] = $with;
 
         return $this;
     }
 
     /**
-     * 关联预载入 JOIN方式
+     * 关联预载入 JOIN方式（不支持嵌套）
      * @access protected
      * @param  string|array $with 关联方法名
-     * @param  mixed        $field 字段
      * @param  string       $joinType JOIN方式
      * @return $this
      */
-    public function withJoin($with, $field = true, $joinType = '')
+    public function withJoin($with, $joinType = '')
     {
         if (empty($with)) {
             return $this;
@@ -2529,20 +2522,17 @@ class Query
         /** @var Model $class */
         $class = $this->model;
         foreach ($with as $key => $relation) {
-            $subRelation = '';
-            $closure     = false;
+            $closure = null;
+            $field   = true;
 
             if ($relation instanceof \Closure) {
                 // 支持闭包查询过滤关联条件
-                $closure    = $relation;
-                $relation   = $key;
-                $with[$key] = $key;
+                $closure  = $relation;
+                $relation = $key;
             } elseif (is_array($relation)) {
-                $subRelation = $relation;
-                $relation    = $key;
+                $field    = $relation;
+                $relation = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                $with[$key] = $relation;
-
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
@@ -2551,7 +2541,7 @@ class Query
             $model    = $class->$relation();
 
             if ($model instanceof OneToOne) {
-                $model->eagerly($this, $relation, $field, $joinType, $subRelation, $closure, $first);
+                $model->eagerly($this, $relation, $field, $joinType, $closure, $first);
                 $first = false;
             } else {
                 // 不支持其它关联
@@ -2561,11 +2551,7 @@ class Query
 
         $this->via();
 
-        if (isset($this->options['with_join'])) {
-            $this->options['with_join'] = array_merge($this->options['with_join'], $with);
-        } else {
-            $this->options['with_join'] = $with;
-        }
+        $this->options['with_join'] = $with;
 
         return $this;
     }

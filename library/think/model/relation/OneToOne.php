@@ -50,14 +50,13 @@ abstract class OneToOne extends Relation
      * @access public
      * @param  Query    $query       查询对象
      * @param  string   $relation    关联名
-     * @param  mixed    $field       字段
+     * @param  mixed    $field       关联字段
      * @param  string   $joinType    JOIN方式
-     * @param  string   $subRelation 子关联
      * @param  \Closure $closure     闭包条件
      * @param  bool     $first
      * @return void
      */
-    public function eagerly(Query $query, $relation, $field, $joinType, $subRelation, $closure, $first)
+    public function eagerly(Query $query, $relation, $field, $joinType, $closure, $first)
     {
         $name = Loader::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
 
