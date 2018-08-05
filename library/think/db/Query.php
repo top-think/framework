@@ -2471,9 +2471,8 @@ class Query
 
             if ($relation instanceof \Closure) {
                 // 支持闭包查询过滤关联条件
-                $closure    = $relation;
-                $relation   = $key;
-                $with[$key] = $key;
+                $closure  = $relation;
+                $relation = $key;
             } elseif (is_array($relation)) {
                 $relation = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
