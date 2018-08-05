@@ -194,7 +194,7 @@ class Hook
                 $method = self::$portal;
             }
 
-            $call  = [$class, $method];
+            $call  = [$obj, $method];
             $class = $class . '->' . $method;
         }
 
