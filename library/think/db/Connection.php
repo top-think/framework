@@ -1661,11 +1661,13 @@ abstract class Connection
             }
         } catch (\PDOException $e) {
             if ($this->isBreak($e)) {
+                --$this->transTimes;
                 return $this->close()->startTrans();
             }
             throw $e;
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
+                --$this->transTimes;
                 return $this->close()->startTrans();
             }
             throw $e;
