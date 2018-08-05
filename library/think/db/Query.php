@@ -2220,7 +2220,7 @@ class Query
     }
 
     /**
-     * 条件搜索某个字段（支持搜索器）
+     * 使用搜索器条件搜索字段
      * @access public
      * @param  array $fields 搜索字段
      * @param  array $data   搜索数据
