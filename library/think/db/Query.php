@@ -2347,14 +2347,29 @@ class Query
      * @param  string|array $with 关联方法名称
      * @return $this
      */
-    public function with($with)
+    public function with(array $with)
     {
         if (empty($with)) {
             return $this;
         }
 
-        if (is_string($with)) {
-            $with = explode(',', $with);
+        $this->options['with'] = $with;
+
+        return $this;
+    }
+
+    /**
+     * 关联预载入 JOIN方式
+     * @access protected
+     * @param  string|array $with 关联方法名
+     * @param  mixed        $field 字段
+     * @param  string       $joinType JOIN方式
+     * @return $this
+     */
+    public function withJoin(array $with, string $joinType = '')
+    {
+        if (empty($with)) {
+            return $this;
         }
 
         $first = true;
@@ -2362,20 +2377,17 @@ class Query
         /** @var Model $class */
         $class = $this->model;
         foreach ($with as $key => $relation) {
-            $subRelation = '';
-            $closure     = false;
+            $closure = false;
+            $field   = true;
 
             if ($relation instanceof \Closure) {
                 // 支持闭包查询过滤关联条件
-                $closure    = $relation;
-                $relation   = $key;
-                $with[$key] = $key;
+                $closure  = $relation;
+                $relation = $key;
             } elseif (is_array($relation)) {
-                $subRelation = $relation;
-                $relation    = $key;
+                $field    = $relation;
+                $relation = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                $with[$key] = $relation;
-
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
@@ -2383,19 +2395,42 @@ class Query
             $relation = Loader::parseName($relation, 1, false);
             $model    = $class->$relation();
 
-            if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
-                $model->removeOption()->eagerly($this, $relation, $subRelation, $closure, $first);
+            if ($model instanceof OneToOne) {
+                $model->eagerly($this, $relation, $field, $joinType, $closure, $first);
                 $first = false;
-            } elseif ($closure) {
-                $with[$key] = $closure;
+            } else {
+                // 不支持其它关联
+                unset($with[$key]);
             }
         }
+
         $this->via();
 
-        if (isset($this->options['with'])) {
-            $this->options['with'] = array_merge($this->options['with'], $with);
-        } else {
-            $this->options['with'] = $with;
+        $this->options['with_join'] = $with;
+
+        return $this;
+    }
+
+    /**
+     * 使用搜索器条件搜索字段
+     * @access public
+     * @param  array $fields 搜索字段
+     * @param  array $data   搜索数据
+     * @return $this
+     */
+    public function withSearch(array $fields, array $data = [])
+    {
+        foreach ($fields as $key => $field) {
+            if ($field instanceof \Closure) {
+                $field($this, isset($data[$key]) ? $data[$key] : null, $data);
+            } elseif ($this->model) {
+                // 检测搜索器
+                $method = 'search' . Loader::parseName($field, 1) . 'Attr';
+
+                if (method_exists($this->model, $method)) {
+                    $this->model->$method($this, isset($data[$field]) ? $data[$field] : null, $data);
+                }
+            }
         }
 
         return $this;
@@ -2764,29 +2799,34 @@ class Query
         if (!empty($this->model)) {
             // 生成模型对象
             if (count($resultSet) > 0) {
-// 检查动态获取器
-if (!empty($this->options['with_attr'])) {
-    foreach ($this->options['with_attr'] as $name => $val) {
-        if (strpos($name, '.')) {
-            list($relation, $field) = explode('.', $name);
+                // 检查动态获取器
+                if (!empty($this->options['with_attr'])) {
+                    foreach ($this->options['with_attr'] as $name => $val) {
+                        if (strpos($name, '.')) {
+                            list($relation, $field) = explode('.', $name);
 
-            $withRelationAttr[$relation][$field] = $val;
-            unset($this->options['with_attr'][$name]);
-        }
-    }
-}
+                            $withRelationAttr[$relation][$field] = $val;
+                            unset($this->options['with_attr'][$name]);
+                        }
+                    }
+                }
 
-$withRelationAttr = $withRelationAttr ?? [];
-                
-foreach ($resultSet as $key => &$result) {
-    // 数据转换为模型对象
-    $this->resultToModel($result, $this->options, true, $withRelationAttr);
-}
+                $withRelationAttr = $withRelationAttr ?? [];
 
-if (!empty($this->options['with'])) {
-    // 预载入
-    $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
-}
+                foreach ($resultSet as $key => &$result) {
+                    // 数据转换为模型对象
+                    $this->resultToModel($result, $this->options, true, $withRelationAttr);
+                }
+
+                if (!empty($this->options['with'])) {
+                    // 预载入
+                    $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
+                }
+
+                if (!empty($this->options['with_join'])) {
+                    // 预载入
+                    $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
+                }
 
                 // 模型数据集转换
                 $resultSet = $result->toCollection($resultSet);
@@ -2816,7 +2856,7 @@ if (!empty($this->options['with'])) {
      * @param  array $resultSet
      * @return void
      */
-    protected function resultSet(array &$resultSet):void
+    protected function resultSet(array &$resultSet): void
     {
         if (!empty($this->options['json'])) {
             foreach ($resultSet as &$result) {
@@ -2885,7 +2925,7 @@ if (!empty($this->options['with'])) {
      * @param  array $result     查询数据
      * @return void
      */
-    protected function result(array &$result):void
+    protected function result(array &$result): void
     {
         if (!empty($this->options['json'])) {
             $this->jsonResult($result, $this->options['json'], true);
@@ -2903,7 +2943,7 @@ if (!empty($this->options['with'])) {
      * @param  array $withAttr   字段获取器
      * @return void
      */
-    protected function getResultAttr(array &$result, array $withAttr = []):void
+    protected function getResultAttr(array &$result, array $withAttr = []): void
     {
         foreach ($withAttr as $name => $closure) {
             if (strpos($name, '.')) {
@@ -2911,10 +2951,10 @@ if (!empty($this->options['with'])) {
                 list($key, $field) = explode('.', $name);
 
                 if (isset($result[$key])) {
-                    $result[$key][$field] = $closure( $result[$key][$field] ?? null, $result[$key]);
+                    $result[$key][$field] = $closure($result[$key][$field] ?? null, $result[$key]);
                 }
             } else {
-                $result[$name] = $closure( $result[$name] ?? null, $result);
+                $result[$name] = $closure($result[$name] ?? null, $result);
             }
         }
     }
@@ -2928,7 +2968,7 @@ if (!empty($this->options['with'])) {
      * @param  array $withRelationAttr  关联获取器
      * @return void
      */
-    protected function jsonResult(array &$result, array $json = [], bool $assoc = false, array $withRelationAttr = []):void
+    protected function jsonResult(array &$result, array $json = [], bool $assoc = false, array $withRelationAttr = []): void
     {
         foreach ($json as $name) {
             if (isset($result[$name])) {
@@ -2937,7 +2977,7 @@ if (!empty($this->options['with'])) {
                 if (isset($withRelationAttr[$name])) {
                     foreach ($withRelationAttr[$name] as $key => $closure) {
                         $data                = get_object_vars($result[$name]);
-                        $result[$name]->$key = $closure( $result[$name]->$key ?? null, $data);
+                        $result[$name]->$key = $closure($result[$name]->$key ?? null, $data);
                     }
                 }
             }
@@ -2953,7 +2993,7 @@ if (!empty($this->options['with'])) {
      * @param  array $withRelationAttr  关联字段获取器
      * @return void
      */
-    protected function resultToModel(array &$result, array $options = [], bool $resultSet = false, array $withRelationAttr = []):void
+    protected function resultToModel(array &$result, array $options = [], bool $resultSet = false, array $withRelationAttr = []): void
     {
         // 动态获取器
         if (!empty($options['with_attr']) && empty($withRelationAttr)) {

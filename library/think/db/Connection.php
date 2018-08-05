@@ -1635,6 +1635,7 @@ abstract class Connection
             }
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
+                --$this->transTimes;
                 return $this->close()->startTrans();
             }
             throw $e;
