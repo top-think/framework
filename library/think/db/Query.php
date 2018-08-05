@@ -2466,8 +2466,7 @@ class Query
         /** @var Model $class */
         $class = $this->model;
         foreach ($with as $key => $relation) {
-            $subRelation = '';
-            $closure     = false;
+            $closure = false;
 
             if ($relation instanceof \Closure) {
                 // 支持闭包查询过滤关联条件
