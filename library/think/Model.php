@@ -18,6 +18,7 @@ use think\db\Query;
  * Class Model
  * @package think
  * @mixin Query
+ * @method \think\Model withAttr(array $name,\Closure $closure) 动态定义获取器
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
