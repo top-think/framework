@@ -111,7 +111,7 @@ class Config implements \ArrayAccess
         if (isset($filename)) {
             return $this->loadFile($filename, $name);
         } elseif ($this->yaconf && Yaconf::has($file)) {
-            return $this->set(Yaconf::get($file), strtolower($file));
+            return $this->set(Yaconf::get($file), $name);
         }
 
         return $this->config;
