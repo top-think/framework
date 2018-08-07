@@ -22,12 +22,6 @@ class Config implements \ArrayAccess
     protected $config = [];
 
     /**
-     * 配置参数
-     * @var array
-     */
-    protected $loaded = [];
-
-    /**
      * 配置前缀
      * @var string
      */
@@ -67,6 +61,17 @@ class Config implements \ArrayAccess
         $path = $app->getConfigPath();
         $ext  = $app->getConfigExt();
         return new static($path, $ext);
+    }
+
+    /**
+     * 设置开启Yaconf
+     * @access public
+     * @param  bool    $yaconf  是否使用Yaconf
+     * @return void
+     */
+    public function useYaconf($yaconf)
+    {
+        $this->yaconf = $yaconf;
     }
 
     /**
@@ -117,7 +122,6 @@ class Config implements \ArrayAccess
         if (isset($filename)) {
             return $this->loadFile($filename, $name);
         } elseif ($this->yaconf && Yaconf::has($file)) {
-            $this->loaded[$name] = true;
             return $this->set(Yaconf::get($file), $name);
         }
 
@@ -163,17 +167,12 @@ class Config implements \ArrayAccess
     {
         $name = strtolower($name);
 
-        if (isset($this->config[$name])) {
-            return $this->config[$name];
-        }
-
         if ($this->yaconf && Yaconf::has($name)) {
-            $this->loaded[$name] = true;
-
-            return $this->config[$name] = Yaconf::get($name);
-        } else {
-            return [];
+            $config = Yaconf::get($name);
+            return isset($this->config[$name]) ? array_merge($this->config[$name], $config) : $config;
         }
+
+        return isset($this->config[$name]) ? $this->config[$name] : [];
     }
 
     /**
@@ -198,19 +197,8 @@ class Config implements \ArrayAccess
             return $this->pull(substr($name, 0, -1));
         }
 
-        $prefix = strstr($name, '.', true);
-
-        if ($this->yaconf && empty($this->loaded[$prefix]) && Yaconf::has($prefix)) {
-            $config = Yaconf::get($prefix);
-            $prefix = strtolower($prefix);
-
-            if (!isset($this->config[$prefix])) {
-                $this->config[$prefix] = $config;
-            } else {
-                $this->config[$prefix] = array_merge($this->config[$prefix], $config);
-            }
-
-            $this->loaded[$prefix] = true;
+        if ($this->yaconf && Yaconf::has($name)) {
+            return Yaconf::get($name);
         }
 
         $name    = explode('.', $name);
