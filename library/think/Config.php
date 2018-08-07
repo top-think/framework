@@ -19,13 +19,49 @@ class Config implements \ArrayAccess
      * 配置参数
      * @var array
      */
-    private $config = [];
+    protected $config = [];
 
     /**
-     * 缓存前缀
+     * 配置前缀
      * @var string
      */
-    private $prefix = 'app';
+    protected $prefix = 'app';
+
+    /**
+     * 配置文件目录
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * 配置文件后缀
+     * @var string
+     */
+    protected $ext;
+
+    /**
+     * 是否支持Yaconf
+     * @var bool
+     */
+    protected $yaconf;
+
+    /**
+     * 构造方法
+     * @access public
+     */
+    public function __construct(string $path = '', string $ext = '.php')
+    {
+        $this->path   = $path;
+        $this->ext    = $ext;
+        $this->yaconf = class_exists('Yaconf');
+    }
+
+    public static function __make(App $app)
+    {
+        $path = $app->getConfigPath();
+        $ext  = $app->getConfigExt();
+        return new static($path, $ext);
+    }
 
     /**
      * 设置配置参数默认前缀
@@ -33,7 +69,7 @@ class Config implements \ArrayAccess
      * @param string    $prefix 前缀
      * @return void
      */
-    public function setDefaultPrefix(string $prefix): void
+    public function setDefaultPrefix(string $prefix)
     {
         $this->prefix = $prefix;
     }
@@ -44,7 +80,7 @@ class Config implements \ArrayAccess
      * @param  string    $config 配置文件路径或内容
      * @param  string    $type 配置解析类型
      * @param  string    $name 配置名（如设置即表示二级配置）
-     * @return array
+     * @return mixed
      */
     public function parse(string $config, string $type = '', string $name = ''): array
     {
@@ -52,9 +88,9 @@ class Config implements \ArrayAccess
             $type = pathinfo($config, PATHINFO_EXTENSION);
         }
 
-        $object = Loader::factory($type, '\\think\\config\\driver\\');
+        $object = Loader::factory($type, '\\think\\config\\driver\\', $config);
 
-        return $this->set($object->parse($config), $name);
+        return $this->set($object->parse(), $name);
     }
 
     /**
@@ -62,23 +98,37 @@ class Config implements \ArrayAccess
      * @access public
      * @param  string    $file 配置文件名
      * @param  string    $name 一级配置名
-     * @return array
+     * @return mixed
      */
     public function load(string $file, string $name = ''): array
     {
         if (is_file($file)) {
-            $name = strtolower($name);
-            $type = pathinfo($file, PATHINFO_EXTENSION);
+            $filename = $file;
+        } elseif (is_file($this->path . $file . $this->ext)) {
+            $filename = $this->path . $file . $this->ext;
+        }
 
-            if ('php' == $type) {
-                return $this->set(include $file, $name);
-            } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
-                return $this->set(yaml_parse_file($file), $name);
-            }
-            return $this->parse($file, $type, $name);
+        if (isset($filename)) {
+            return $this->loadFile($filename, $name);
+        } elseif ($this->yaconf && Yaconf::has($file)) {
+            return $this->set(Yaconf::get($file), $name);
         }
 
         return $this->config;
+    }
+
+    protected function loadFile(string $file, string $name): array
+    {
+        $name = strtolower($name);
+        $type = pathinfo($file, PATHINFO_EXTENSION);
+
+        if ('php' == $type) {
+            return $this->set(include $file, $name);
+        } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
+            return $this->set(yaml_parse_file($file), $name);
+        }
+
+        return $this->parse($file, $type, $name);
     }
 
     /**
@@ -91,10 +141,6 @@ class Config implements \ArrayAccess
     {
         if (!strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
-        }
-
-        if (class_exists('Yaconf')) {
-            return Yaconf::has($name);
         }
 
         return !is_null($this->get($name));
@@ -110,24 +156,28 @@ class Config implements \ArrayAccess
     {
         $name = strtolower($name);
 
-        return $this->config[$name] ?? [];
+        if (isset($this->config[$name])) {
+            return $this->config[$name];
+        }
+
+        if ($this->yaconf && Yaconf::has($name)) {
+            return $this->config[$name] = Yaconf::get($name);
+        } else {
+            return [];
+        }
     }
 
     /**
      * 获取配置参数 为空则获取所有配置
      * @access public
-     * @param  string    $name 配置参数名（支持多级配置 .号分割）
-     * @param  mixed     $default 默认值
+     * @param  string    $name      配置参数名（支持多级配置 .号分割）
+     * @param  mixed     $default   默认值
      * @return mixed
      */
-    public function get(string $name = '', $default = null)
+    public function get(string $name = null, $default = null)
     {
-        if (class_exists('Yaconf')) {
-            if ($name && !strpos($name, '.')) {
-                $name = $this->prefix . '.' . $name;
-            }
-
-            return Yaconf::get($name, $default);
+        if ($name && !strpos($name, '.')) {
+            $name = $this->prefix . '.' . $name;
         }
 
         // 无参数时获取所有
@@ -135,10 +185,14 @@ class Config implements \ArrayAccess
             return $this->config;
         }
 
-        if (!strpos($name, '.')) {
-            $name = $this->prefix . '.' . $name;
-        } elseif ('.' == substr($name, -1)) {
+        if ('.' == substr($name, -1)) {
             return $this->pull(substr($name, 0, -1));
+        }
+
+        $prefix = strstr($name, '.', true);
+
+        if (!isset($this->config[$prefix]) && $this->yaconf && Yaconf::has($prefix)) {
+            $this->config[strtolower($prefix)] = Yaconf::get($prefix);
         }
 
         $name    = explode('.', $name);
@@ -254,7 +308,7 @@ class Config implements \ArrayAccess
      * @param  string $name 参数名
      * @return mixed
      */
-    public function __get(string $name)
+    public function __get($name)
     {
         return $this->get($name);
     }
@@ -265,7 +319,7 @@ class Config implements \ArrayAccess
      * @param  string $name 参数名
      * @return bool
      */
-    public function __isset(string $name): bool
+    public function __isset($name)
     {
         return $this->has($name);
     }
@@ -276,7 +330,7 @@ class Config implements \ArrayAccess
         $this->set($name, $value);
     }
 
-    public function offsetExists($name): bool
+    public function offsetExists($name)
     {
         return $this->has($name);
     }

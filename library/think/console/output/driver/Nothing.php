@@ -26,7 +26,7 @@ class Nothing
         // do nothing
     }
 
-    public function renderException(\Exception $e)
+    public function renderException(\Throwable $e)
     {
         // do nothing
     }

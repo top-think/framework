@@ -204,13 +204,11 @@ trait RelationShip
      * @param  bool   $join             是否为JOIN方式
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation, array $withRelationAttr = [], bool $join = false): void
+    public function eagerlyResultSet(array &$resultSet, array $relations, array $withRelationAttr = [], bool $join = false): void
     {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
-
         foreach ($relations as $key => $relation) {
             $subRelation = '';
-            $closure     = false;
+            $closure     = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
@@ -250,7 +248,7 @@ trait RelationShip
     {
         foreach ($relations as $key => $relation) {
             $subRelation = '';
-            $closure     = false;
+            $closure     = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
@@ -289,7 +287,7 @@ trait RelationShip
     public function relationCount(Model $result, array $relations, string $aggregate = 'sum', string $field = '*'): void
     {
         foreach ($relations as $key => $relation) {
-            $closure = false;
+            $closure = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;

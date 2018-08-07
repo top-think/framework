@@ -31,10 +31,10 @@ class Collection extends BaseCollection
     /**
      * 延迟预载入关联查询
      * @access public
-     * @param  mixed $relation 关联
+     * @param  array $relation 关联
      * @return $this
      */
-    public function load(string $relation)
+    public function load(array $relation)
     {
         $item = current($this->items);
         $item->eagerlyResultSet($this->items, $relation);
@@ -90,4 +90,20 @@ class Collection extends BaseCollection
         return $this;
     }
 
+    /**
+     * 设置数据字段获取器
+     * @access public
+     * @param  string|array $name       字段名
+     * @param  callable     $callback   闭包获取器
+     * @return $this
+     */
+    public function withAttr($name, $callback = null)
+    {
+        $this->each(function ($model) use ($name, $callback) {
+            /** @var Model $model */
+            $model && $model->withAttribute($name, $callback);
+        });
+
+        return $this;
+    }
 }

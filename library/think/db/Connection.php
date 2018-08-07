@@ -20,13 +20,10 @@ use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
-use think\Factory;
 use think\Loader;
 
 abstract class Connection
 {
-    use Factory;
-
     protected static $instance = [];
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
@@ -1635,6 +1632,7 @@ abstract class Connection
             }
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
+                --$this->transTimes;
                 return $this->close()->startTrans();
             }
             throw $e;

@@ -20,6 +20,7 @@ use think\console\output\driver\Nothing;
 use think\console\output\Question;
 use think\console\output\question\Choice;
 use think\console\output\question\Confirmation;
+use Throwable;
 
 /**
  * Class Output
@@ -61,7 +62,7 @@ class Output
         'comment',
         'question',
         'highlight',
-        'warning'
+        'warning',
     ];
 
     public function __construct($driver = 'console')
@@ -154,7 +155,7 @@ class Output
         $this->handle->write($messages, $newline, $type);
     }
 
-    public function renderException(\Exception $e)
+    public function renderException(Throwable $e)
     {
         $this->handle->renderException($e);
     }

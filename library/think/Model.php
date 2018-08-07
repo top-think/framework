@@ -1006,6 +1006,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
     public function __call($method, $args)
     {
+        if ('withattr' == strtolower($method)) {
+            return call_user_func_array([$this, 'withAttribute'], $args);
+        }
+
         return call_user_func_array([$this->db(), $method], $args);
     }
 

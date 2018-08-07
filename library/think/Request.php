@@ -1669,7 +1669,7 @@ class Request
      */
     public function host(bool $strict = false): string
     {
-        $host = $this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST');
+        $host = strval($this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST'));
 
         return true === $strict && strpos($host, ':') ? strstr($host, ':', true) : $host;
     }

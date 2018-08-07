@@ -68,7 +68,7 @@ class Console
         }
     }
 
-    public function renderException(\Exception $e)
+    public function renderException(\Throwable $e)
     {
         $stderr    = $this->openErrorStream();
         $decorated = $this->hasColorSupport($stderr);
