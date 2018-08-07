@@ -268,9 +268,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
             $result = isset($data[$field]) ? $data[$field] : null;
 
             switch ($operator) {
-                case '==':
-                case '=':
-                    return $result == $value;
                 case '===':
                     return $result === $value;
                 case '!==':
@@ -300,6 +297,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
                 case 'not between':
                     list($min, $max) = is_string($value) ? explode(',', $value) : $value;
                     return is_scalar($result) && $result > $max || $result < $min;
+                case '==':
+                case '=':
+                default:
+                    return $result == $value;
             }
         });
     }
