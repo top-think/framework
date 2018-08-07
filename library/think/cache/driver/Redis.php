@@ -490,4 +490,20 @@ class Redis extends Driver
 
         return $this->handler->hMGet($this->getCacheKey($name), $fields);
     }
+
+    /**
+     * @title 读取session信息
+     * @access public
+     * @param  string $sessionId 缓存变量名
+     * @return mixed
+     */
+    public function getSession($sessionId)
+    {
+        $this->readTimes++;
+        $this->select(config('session.select'));
+        $value = $this->handler->get($sessionId);
+        $value = unserialize(ltrim($value, config('session.prefix') . '|'));
+
+        return $value;
+    }
 }
