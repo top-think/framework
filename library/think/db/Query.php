@@ -2162,14 +2162,8 @@ class Query
     public function withAttr($name, $callback = null)
     {
         if (is_array($name)) {
-            foreach ($name as $key => $val) {
-                $key = Loader::parseName($key);
-
-                $this->options['with_attr'][$key] = $val;
-            }
+            $this->options['with_attr'] = $name;
         } else {
-            $name = Loader::parseName($name);
-
             $this->options['with_attr'][$name] = $callback;
         }
 
@@ -3177,6 +3171,8 @@ class Query
     protected function getResultAttr(&$result, $withAttr = [])
     {
         foreach ($withAttr as $name => $closure) {
+            $name = Loader::parseName($name);
+
             if (strpos($name, '.')) {
                 // 支持JSON字段 获取器定义
                 list($key, $field) = explode('.', $name);
@@ -3247,7 +3243,7 @@ class Query
 
         // 动态获取器
         if (!empty($options['with_attr'])) {
-            $result->setModelAttrs($options['with_attr']);
+            $result->withAttribute($options['with_attr']);
         }
 
         // 输出属性控制

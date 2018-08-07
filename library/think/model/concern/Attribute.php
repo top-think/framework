@@ -621,17 +621,4 @@ trait Attribute
 
         return $this;
     }
-
-    /**
-     * 动态设置获取器
-     * @access protected
-     * @param  array        $attrs 值
-     * @return $this
-     */
-    public function setModelAttrs(array $attrs = [])
-    {
-        $this->withAttr = $attrs;
-
-        return $this;
-    }
 }
