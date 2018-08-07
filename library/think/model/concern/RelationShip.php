@@ -228,7 +228,7 @@ trait RelationShip
 
         foreach ($relations as $key => $relation) {
             $subRelation = '';
-            $closure     = false;
+            $closure     = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
@@ -270,7 +270,7 @@ trait RelationShip
 
         foreach ($relations as $key => $relation) {
             $subRelation = '';
-            $closure     = false;
+            $closure     = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
@@ -309,7 +309,7 @@ trait RelationShip
     public function relationCount(&$result, $relations, $aggregate = 'sum', $field = '*')
     {
         foreach ($relations as $key => $relation) {
-            $closure = false;
+            $closure = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
