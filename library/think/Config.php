@@ -134,7 +134,7 @@ class Config implements \ArrayAccess
         }
 
         if (class_exists('Yaconf')) {
-            return Yaconf::has($name);
+            return \Yaconf::has($name);
         }
 
         return !is_null($this->get($name));
@@ -167,7 +167,7 @@ class Config implements \ArrayAccess
                 $name = $this->prefix . '.' . $name;
             }
 
-            return Yaconf::get($name, $default);
+            return \Yaconf::get($name, $default);
         }
 
         // 无参数时获取所有
