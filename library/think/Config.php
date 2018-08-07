@@ -11,6 +11,8 @@
 
 namespace think;
 
+use Yaconf;
+
 class Config implements \ArrayAccess
 {
     /**
@@ -38,13 +40,20 @@ class Config implements \ArrayAccess
     protected $ext;
 
     /**
+     * 是否支持Yaconf
+     * @var bool
+     */
+    protected $yaconf;
+
+    /**
      * 构造方法
      * @access public
      */
     public function __construct($path = '', $ext = '.php')
     {
-        $this->path = $path;
-        $this->ext  = $ext;
+        $this->path   = $path;
+        $this->ext    = $ext;
+        $this->yaconf = class_exists('Yaconf');
     }
 
     public static function __make(App $app)
@@ -93,7 +102,6 @@ class Config implements \ArrayAccess
      */
     public function load($file, $name = '')
     {
-
         if (is_file($file)) {
             $filename = $file;
         } elseif (is_file($this->path . $file . $this->ext)) {
@@ -102,6 +110,8 @@ class Config implements \ArrayAccess
 
         if (isset($filename)) {
             return $this->loadFile($filename, $name);
+        } elseif ($this->yaconf && Yaconf::has($file)) {
+            return $this->set(Yaconf::get($file), strtolower($file));
         }
 
         return $this->config;
@@ -133,10 +143,6 @@ class Config implements \ArrayAccess
             $name = $this->prefix . '.' . $name;
         }
 
-        if (class_exists('Yaconf')) {
-            return \Yaconf::has($name);
-        }
-
         return !is_null($this->get($name));
     }
 
@@ -150,7 +156,16 @@ class Config implements \ArrayAccess
     {
         $name = strtolower($name);
 
-        return isset($this->config[$name]) ? $this->config[$name] : [];
+        if (isset($this->config[$name])) {
+            return $this->config[$name];
+        }
+
+        if ($this->yaconf && Yaconf::has($name)) {
+            return $this->config[$name] = Yaconf::get($name);
+        } else {
+            return [];
+        }
+
     }
 
     /**
@@ -162,12 +177,8 @@ class Config implements \ArrayAccess
      */
     public function get($name = null, $default = null)
     {
-        if (class_exists('Yaconf')) {
-            if ($name && !strpos($name, '.')) {
-                $name = $this->prefix . '.' . $name;
-            }
-
-            return \Yaconf::get($name, $default);
+        if ($name && !strpos($name, '.')) {
+            $name = $this->prefix . '.' . $name;
         }
 
         // 无参数时获取所有
@@ -175,10 +186,14 @@ class Config implements \ArrayAccess
             return $this->config;
         }
 
-        if (!strpos($name, '.')) {
-            $name = $this->prefix . '.' . $name;
-        } elseif ('.' == substr($name, -1)) {
+        if ('.' == substr($name, -1)) {
             return $this->pull(substr($name, 0, -1));
+        }
+
+        $prefix = strstr($name, '.', true);
+
+        if (!isset($this->config[$prefix]) && $this->yaconf && Yaconf::has($prefix)) {
+            $this->config[strtolower($prefix)] = Yaconf::get($prefix);
         }
 
         $name    = explode('.', $name);
