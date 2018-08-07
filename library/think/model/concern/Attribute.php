@@ -599,6 +599,30 @@ trait Attribute
     }
 
     /**
+     * 设置数据字段获取器
+     * @access public
+     * @param  string|array $name       字段名
+     * @param  callable     $callback   闭包获取器
+     * @return $this
+     */
+    public function withAttribute($name, $callback = null)
+    {
+        if (is_array($name)) {
+            foreach ($name as $key => $val) {
+                $key = Loader::parseName($key);
+
+                $this->withAttr[$key] = $val;
+            }
+        } else {
+            $name = Loader::parseName($name);
+
+            $this->withAttr[$name] = $callback;
+        }
+
+        return $this;
+    }
+
+    /**
      * 动态设置获取器
      * @access protected
      * @param  array        $attrs 值
