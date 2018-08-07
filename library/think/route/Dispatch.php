@@ -182,7 +182,7 @@ abstract class Dispatch
         } else {
             $data     = ob_get_clean();
             $content  = false === $data ? '' : $data;
-            $status   = false === $data ? 204 : 200;
+            $status   = '' === $content && $this->request->isAjax() ? 204 : 200;
             $response = Response::create($content, '', $status);
         }
 
