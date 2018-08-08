@@ -49,21 +49,6 @@ if (!function_exists('abort')) {
     }
 }
 
-if (!function_exists('action')) {
-    /**
-     * 调用模块的操作方法 参数格式 [模块/控制器/]操作
-     * @param string        $url 调用地址
-     * @param string|array  $vars 调用参数 支持字符串和数组
-     * @param string        $layer 要调用的控制层名称
-     * @param bool          $appendSuffix 是否添加类名后缀
-     * @return mixed
-     */
-    function action(string $url, $vars = [], string $layer = 'controller', bool $appendSuffix = false)
-    {
-        return app()->action($url, $vars, $layer, $appendSuffix);
-    }
-}
-
 if (!function_exists('app')) {
     /**
      * 快速获取容器中的实例 支持依赖注入
@@ -218,31 +203,6 @@ if (!function_exists('config')) {
     }
 }
 
-if (!function_exists('container')) {
-    /**
-     * 获取容器对象实例
-     * @return Container
-     */
-    function container()
-    {
-        return Container::getInstance();
-    }
-}
-
-if (!function_exists('controller')) {
-    /**
-     * 实例化控制器 格式：[模块/]控制器
-     * @param string    $name 资源地址
-     * @param string    $layer 控制层名称
-     * @param bool      $appendSuffix 是否添加类名后缀
-     * @return \think\Controller
-     */
-    function controller(string $name, string $layer = 'controller', bool $appendSuffix = false)
-    {
-        return app()->controller($name, $layer, $appendSuffix);
-    }
-}
-
 if (!function_exists('cookie')) {
     /**
      * Cookie管理
@@ -301,6 +261,21 @@ if (!function_exists('debug')) {
         } else {
             return 'm' == $dec ? Debug::getRangeMem($start, $end) : Debug::getRangeTime($start, $end, $dec);
         }
+    }
+}
+
+if (!function_exists('download')) {
+    /**
+     * 获取\think\response\Download对象实例
+     * @param string  $filename 要下载的文件
+     * @param string  $name 显示文件名
+     * @param bool    $content 是否为内容
+     * @param integer $expire 有效期（秒）
+     * @return \think\response\Download
+     */
+    function download($filename, $name = '', $content = false, $expire = 180)
+    {
+        return Response::create($filename, 'download')->name($name)->isContent($content)->expire($expire);
     }
 }
 
@@ -439,20 +414,6 @@ if (!function_exists('lang')) {
     function lang($name, $vars = [], $lang = '')
     {
         return Lang::get($name, $vars, $lang);
-    }
-}
-
-if (!function_exists('model')) {
-    /**
-     * 实例化Model
-     * @param string    $name Model名称
-     * @param string    $layer 业务层名称
-     * @param bool      $appendSuffix 是否添加类名后缀
-     * @return \think\Model
-     */
-    function model(string $name = '', string $layer = 'model', bool $appendSuffix = false)
-    {
-        return app()->model($name, $layer, $appendSuffix);
     }
 }
 
@@ -628,20 +589,6 @@ if (!function_exists('url')) {
     function url(string $url = '', $vars = '', $suffix = true, $domain = false)
     {
         return Url::build($url, $vars, $suffix, $domain);
-    }
-}
-
-if (!function_exists('validate')) {
-    /**
-     * 实例化验证器
-     * @param string    $name 验证器名称
-     * @param string    $layer 业务层名称
-     * @param bool      $appendSuffix 是否添加类名后缀
-     * @return \think\Validate
-     */
-    function validate($name = '', $layer = 'validate', $appendSuffix = false)
-    {
-        return app()->validate($name, $layer, $appendSuffix);
     }
 }
 

@@ -673,21 +673,6 @@ class App extends Container
     }
 
     /**
-     * 实例化（分层）模型
-     * @access public
-     * @param  string $name         Model名称
-     * @param  string $layer        业务层名称
-     * @param  bool   $appendSuffix 是否添加类名后缀
-     * @param  string $common       公共模块名
-     * @return Model
-     * @throws ClassNotFoundException
-     */
-    public function model(string $name = '', string $layer = 'model', bool $appendSuffix = false, string $common = 'common'): Model
-    {
-        return $this->create($name, $layer, $appendSuffix, $common);
-    }
-
-    /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
      * @access public
      * @param  string $name              资源地址
@@ -708,39 +693,6 @@ class App extends Container
         }
 
         throw new ClassNotFoundException('class not exists:' . $class, $class);
-    }
-
-    /**
-     * 实例化验证类 格式：[模块名/]验证器名
-     * @access public
-     * @param  string $name         资源地址
-     * @param  string $layer        验证层名称
-     * @param  bool   $appendSuffix 是否添加类名后缀
-     * @param  string $common       公共模块名
-     * @return Validate
-     * @throws ClassNotFoundException
-     */
-    public function validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common'): Validate
-    {
-        $name = $name ?: $this->config['default_validate'];
-
-        if (empty($name)) {
-            return new Validate;
-        }
-
-        return $this->create($name, $layer, $appendSuffix, $common);
-    }
-
-    /**
-     * 数据库初始化
-     * @access public
-     * @param  mixed         $config 数据库配置
-     * @param  bool|string   $name 连接标识 true 强制重新连接
-     * @return \think\db\Query
-     */
-    public function db($config = [], $name = false)
-    {
-        return Db::connect($config, $name);
     }
 
     /**
