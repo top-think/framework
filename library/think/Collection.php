@@ -265,7 +265,13 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         }
 
         return $this->filter(function ($data) use ($field, $operator, $value) {
-            $result = isset($data[$field]) ? $data[$field] : null;
+            if (strpos($field, '.')) {
+                list($field, $relation) = explode('.', $field);
+
+                $result = isset($data[$field][$relation]) ? $data[$field][$relation] : null;
+            } else {
+                $result = isset($data[$field]) ? $data[$field] : null;
+            }
 
             switch ($operator) {
                 case '===':
