@@ -441,7 +441,7 @@ class Query
                 $result += 0;
             }
 
-            if (isset($cache)) {
+            if (isset($cache) && false !== $result) {
                 // 缓存数据
                 $this->cacheData($key, $result, $cache);
             }
