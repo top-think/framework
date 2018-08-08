@@ -1299,6 +1299,17 @@ class Validate
     }
 
     /**
+     * 获取验证器的规则
+     * @access public
+     * @param string $name 名称
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->$name;
+    }
+    
+    /**
      * 获取数据验证的场景
      * @access protected
      * @param string $scene  验证场景
