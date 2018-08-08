@@ -1371,11 +1371,11 @@ class Query
     /**
      * 设置软删除字段及条件
      * @access public
-     * @param  false|string  $field     查询字段
-     * @param  mixed         $condition 查询条件
+     * @param  string       $field     查询字段
+     * @param  mixed        $condition 查询条件
      * @return $this
      */
-    public function useSoftDelete($field, $condition = null)
+    public function useSoftDelete(string $field, $condition = null)
     {
         if ($field) {
             $this->options['soft_delete'] = [$field, $condition];
@@ -1393,7 +1393,7 @@ class Query
      * @param  string $logic     查询逻辑 and or xor
      * @return $this
      */
-    public function whereExp(string $field, $condition, $bind = [], string $logic = 'AND')
+    public function whereExp(string $field, $condition, array $bind = [], string $logic = 'AND')
     {
         $this->options['where'][$logic][] = [$field, 'EXP', $this->raw($condition)];
 
@@ -1411,7 +1411,7 @@ class Query
      * @param  string $logic  查询逻辑 and or xor
      * @return $this
      */
-    public function whereRaw(string $where, $bind = [], string $logic = 'AND')
+    public function whereRaw(string $where, array $bind = [], string $logic = 'AND')
     {
         $this->options['where'][$logic][] = $this->raw($where);
 
@@ -1429,7 +1429,7 @@ class Query
      * @param  array  $bind   参数绑定
      * @return $this
      */
-    public function whereOrRaw(string $where, $bind = [])
+    public function whereOrRaw(string $where, array $bind = [])
     {
         return $this->whereRaw($where, $bind, 'OR');
     }
@@ -1530,7 +1530,7 @@ class Query
      * @param  string   $logic     查询逻辑 and or xor
      * @return $this
      */
-    protected function parseArrayWhereItems($field, string $logic)
+    protected function parseArrayWhereItems(array $field, string $logic)
     {
         if (key($field) !== 0) {
             $where = [];
@@ -1578,14 +1578,14 @@ class Query
     /**
      * 去除查询参数
      * @access public
-     * @param  string|bool $option 参数名 true 表示去除所有参数
+     * @param  string $option 参数名 留空去除所有参数
      * @return $this
      */
-    public function removeOption($option = true)
+    public function removeOption(string $option = '')
     {
-        if (true === $option) {
+        if ('' === $option) {
             $this->options = [];
-        } elseif (is_string($option) && isset($this->options[$option])) {
+        } elseif (isset($this->options[$option])) {
             unset($this->options[$option]);
         }
 
@@ -1789,7 +1789,7 @@ class Query
      * @param  string       $order 排序
      * @return $this
      */
-    public function order($field, $order = null)
+    public function order($field, string $order = '')
     {
         if (empty($field)) {
             return $this;
@@ -1857,7 +1857,7 @@ class Query
      * @param  string   $order
      * @return $this
      */
-    public function orderField(string $field, array $values, $order = '')
+    public function orderField(string $field, array $values, string $order = '')
     {
         if (!empty($values)) {
             $values['sort'] = $order;

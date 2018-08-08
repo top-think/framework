@@ -597,20 +597,13 @@ abstract class Connection
 
         $this->bind = $bind;
 
-        // 释放前次的查询结果
-        if (!empty($this->PDOStatement)) {
-            $this->free();
-        }
-
         self::$queryTimes++;
 
         // 调试开始
         $this->debug(true);
 
         // 预处理
-        if (empty($this->PDOStatement)) {
-            $this->PDOStatement = $this->linkID->prepare($sql);
-        }
+        $this->PDOStatement = $this->linkID->prepare($sql);
 
         // 是否为存储过程调用
         $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
@@ -676,15 +669,8 @@ abstract class Connection
             // 调试开始
             $this->debug(true);
 
-            // 释放前次的查询结果
-            if (!empty($this->PDOStatement)) {
-                $this->free();
-            }
-
             // 预处理
-            if (empty($this->PDOStatement)) {
-                $this->PDOStatement = $this->linkID->prepare($sql);
-            }
+            $this->PDOStatement = $this->linkID->prepare($sql);
 
             // 是否为存储过程调用
             $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
@@ -754,15 +740,8 @@ abstract class Connection
             // 调试开始
             $this->debug(true);
 
-            //释放前次的查询结果
-            if (!empty($this->PDOStatement) && $this->PDOStatement->queryString != $sql) {
-                $this->free();
-            }
-
             // 预处理
-            if (empty($this->PDOStatement)) {
-                $this->PDOStatement = $this->linkID->prepare($sql);
-            }
+            $this->PDOStatement = $this->linkID->prepare($sql);
 
             // 是否为存储过程调用
             $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
@@ -1771,6 +1750,8 @@ abstract class Connection
         $this->linkWrite = null;
         $this->linkRead  = null;
         $this->links     = [];
+
+        $this->free();
 
         return $this;
     }
