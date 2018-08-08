@@ -509,8 +509,7 @@ class BelongsToMany extends Relation
             } else {
                 // 保存关联表数据
                 $model = new $this->model;
-                $model->save($data);
-                $id = $model->getLastInsID();
+                $id    = $model->insertGetId($data);
             }
         } elseif (is_numeric($data) || is_string($data)) {
             // 根据关联表主键直接写入中间表
