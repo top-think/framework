@@ -109,6 +109,9 @@ class BelongsToMany extends Relation
     {
         foreach ($models as $model) {
             $pivot = [];
+            if (!$model) {
+                continue;
+            }
             foreach ($model->getData() as $key => $val) {
                 if (strpos($key, '__')) {
                     list($name, $attr) = explode('__', $key, 2);
