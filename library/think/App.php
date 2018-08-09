@@ -637,42 +637,6 @@ class App extends Container
     }
 
     /**
-     * 实例化应用类库
-     * @access public
-     * @param  string $name         类名称
-     * @param  string $layer        业务层名称
-     * @param  bool   $appendSuffix 是否添加类名后缀
-     * @param  string $common       公共模块名
-     * @return object
-     * @throws ClassNotFoundException
-     */
-    public function create(string $name, string $layer, bool $appendSuffix = false, string $common = 'common')
-    {
-        $guid = $name . $layer;
-
-        if ($this->has($guid)) {
-            return $this->make($guid);
-        }
-
-        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
-
-        if (class_exists($class)) {
-            $object = $this->make($class);
-        } else {
-            $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
-            if (class_exists($class)) {
-                $object = $this->make($class);
-            } else {
-                throw new ClassNotFoundException('class not exists:' . $class, $class);
-            }
-        }
-
-        $this->bind($guid, $class);
-
-        return $object;
-    }
-
-    /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
      * @access public
      * @param  string $name              资源地址
