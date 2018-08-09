@@ -27,6 +27,7 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
  + 中间件支持（`V5.1.6+`）
  + 支持`Swoole`/`Workerman`运行（`V5.1.18+`）
 
+
 ### 废除的功能：
 
  + 聚合模型
@@ -69,7 +70,7 @@ composer update topthink/framework
 
 ## 命名规范
 
-`ThinkPHP5`遵循PSR-2命名规范和PSR-4自动加载规范。
+`ThinkPHP5.1`遵循PSR-2命名规范和PSR-4自动加载规范。
 
 ## 参与开发
 
