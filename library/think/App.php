@@ -312,7 +312,7 @@ class App extends Container
 
             // 自动读取配置文件
             if (is_dir($path . 'config')) {
-                $dir = $path . 'config';
+                $dir = $path . 'config'.DIRECTORY_SEPARATOR;
             } elseif (is_dir($this->configPath . $module)) {
                 $dir = $this->configPath . $module;
             }
