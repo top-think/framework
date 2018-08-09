@@ -97,6 +97,7 @@ trait Attribute
     protected function isPk(string $key): bool
     {
         $pk = $this->getPk();
+
         if (is_string($pk) && $pk == $key) {
             return true;
         } elseif (is_array($pk) && in_array($key, $pk)) {
@@ -104,6 +105,22 @@ trait Attribute
         }
 
         return false;
+    }
+
+    /**
+     * 获取模型对象的主键值
+     * @access public
+     * @return integer
+     */
+    public function getKey()
+    {
+        $pk = $this->getPk();
+
+        if (is_string($pk) && array_key_exists($pk, $this->data)) {
+            return $this->data[$pk];
+        }
+
+        return;
     }
 
     /**

@@ -339,7 +339,7 @@ class App extends Container
 
             // 自动读取配置文件
             if (is_dir($path . 'config')) {
-                $dir = $path . 'config';
+                $dir = $path . 'config' . DIRECTORY_SEPARATOR;
             } elseif (is_dir($this->configPath . $module)) {
                 $dir = $this->configPath . $module;
             }
@@ -348,8 +348,7 @@ class App extends Container
 
             foreach ($files as $file) {
                 if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
-                    $filename = $dir . DIRECTORY_SEPARATOR . $file;
-                    $this->config->load($filename, pathinfo($file, PATHINFO_FILENAME));
+                    $this->config->load($dir . $file, pathinfo($file, PATHINFO_FILENAME));
                 }
             }
 
