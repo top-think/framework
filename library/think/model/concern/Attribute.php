@@ -113,6 +113,21 @@ trait Attribute
     }
 
     /**
+     * 获取模型对象的主键值
+     * @access public
+     * @return integer
+     */
+    public function getKey()
+    {
+        $pk = $this->getPk();
+        if (is_string($pk) && array_key_exists($pk, $this->data)) {
+            return $this->data[$pk];
+        }
+
+        return;
+    }
+
+    /**
      * 设置允许写入的字段
      * @access public
      * @param  array|string|true $field 允许写入的字段 如果为true只允许写入数据表字段
