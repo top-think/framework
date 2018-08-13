@@ -865,10 +865,10 @@ abstract class Builder
                 } else {
                     $sort = $val;
                 }
-                
+
                 if (false === strpos($key, ')') && false === strpos($key, '#')) {
-                                    $sort = strtoupper($sort);
-                                    $sort = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
+                    $sort    = strtoupper($sort);
+                    $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
                     $array[] = $this->parseKey($query, $key, true) . $sort;
                 }
             }
