@@ -345,6 +345,23 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
+     * 指定字段排序
+     * @access public
+     * @param  string       $field 排序字段
+     * @param  string       $order 排序
+     * @return $this
+     */
+    public function order($field, $order = null)
+    {
+        return $this->sort(function ($a, $b) use ($field, $order) {
+            $fieldA = isset($a[$field]) ? $a[$field] : null;
+            $fieldB = isset($b[$field]) ? $b[$field] : null;
+
+            return 'desc' == strtolower($order) ? strcmp($fieldB, $fieldA) : strcmp($fieldA, $fieldB);
+        });
+    }
+
+    /**
      * 将数组打乱
      *
      * @access public
