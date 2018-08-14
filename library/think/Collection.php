@@ -235,6 +235,17 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
+     * 用回调函数处理数组中的元素
+     * @access public
+     * @param  callable|null $callback
+     * @return static
+     */
+    public function map(callable $callback)
+    {
+        return new static(array_map($callback, $this->items));
+    }
+
+    /**
      * 用回调函数过滤数组中的元素
      * @access public
      * @param  callable|null $callback
