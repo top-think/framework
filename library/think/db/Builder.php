@@ -226,11 +226,12 @@ abstract class Builder
     /**
      * table分析
      * @access protected
-     * @param  Query     $query     查询对象
-     * @param  mixed     $tables    表名
+     * @param  Query     $query         查询对象
+     * @param  mixed     $tables        表名
+     * @param  bool      $allowAlias    允许使用别名
      * @return string
      */
-    protected function parseTable(Query $query, $tables)
+    protected function parseTable(Query $query, $tables,$allowAlias=false)
     {
         $item    = [];
         $options = $query->getOptions();
@@ -242,7 +243,7 @@ abstract class Builder
             } else {
                 $table = $this->connection->parseSqlTable($table);
 
-                if (isset($options['alias'][$table])) {
+                if ($allowAlias && isset($options['alias'][$table])) {
                     $item[] = $this->parseKey($query, $table) . ' ' . $this->parseKey($query, $options['alias'][$table]);
                 } else {
                     $item[] = $this->parseKey($query, $table);
@@ -828,7 +829,7 @@ abstract class Builder
                     }
                 }
 
-                $table = $this->parseTable($query, $table);
+                $table = $this->parseTable($query, $table,true);
 
                 $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
             }
@@ -1043,7 +1044,7 @@ abstract class Builder
         return str_replace(
             ['%TABLE%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
             [
-                $this->parseTable($query, $options['table']),
+                $this->parseTable($query, $options['table'],true),
                 $this->parseDistinct($query, $options['distinct']),
                 $this->parseField($query, $options['field']),
                 $this->parseJoin($query, $options['join']),
@@ -1173,7 +1174,6 @@ abstract class Builder
     {
         $options = $query->getOptions();
 
-        $table = $this->parseTable($query, $options['table']);
         $data  = $this->parseData($query, $options['data']);
 
         if (empty($data)) {
