@@ -1050,12 +1050,12 @@ abstract class Connection
      * 通过Select方式插入记录
      * @access public
      * @param  Query     $query      查询对象
-     * @param  string    $fields     要插入的数据表字段名
+     * @param  array     $fields     要插入的数据表字段名
      * @param  string    $table      要插入的数据表名
      * @return integer|string
      * @throws PDOException
      */
-    public function selectInsert(Query $query, $fields, string $table)
+    public function selectInsert(Query $query, array $fields, string $table)
     {
         // 分析查询表达式
         $options = $query->getOptions();
@@ -1281,6 +1281,8 @@ abstract class Connection
             // 缓存数据
             $this->cacheData($key, $result, $cache);
         }
+
+        $query->removeOption('limit');
 
         return false !== $result ? $result : $default;
     }

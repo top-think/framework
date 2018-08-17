@@ -22,6 +22,7 @@ use think\exception\DbException;
 use think\exception\PDOException;
 use think\Loader;
 use think\Model;
+use think\model\Collection as ModelCollection;
 use think\model\Relation;
 use think\model\relation\OneToOne;
 use think\Paginator;
@@ -601,6 +602,9 @@ class Query
         } elseif ($force) {
             $result = (float) $result;
         }
+
+        // 查询完成后清空聚合字段信息
+        $this->removeOption('field');
 
         return $result;
     }
@@ -2385,7 +2389,7 @@ class Query
     /**
      * 设置关联查询JOIN预查询
      * @access public
-     * @param  string|array $with 关联方法名称
+     * @param  array $with 关联方法名称(数组)
      * @return $this
      */
     public function with(array $with)
@@ -2403,7 +2407,6 @@ class Query
      * 关联预载入 JOIN方式
      * @access protected
      * @param  array        $with 关联方法名
-     * @param  mixed        $field 字段
      * @param  string       $joinType JOIN方式
      * @return $this
      */
@@ -2455,17 +2458,26 @@ class Query
     /**
      * 设置数据字段获取器
      * @access public
-     * @param  string|array $name       字段名
+     * @param  string       $name       字段名
      * @param  callable     $callback   闭包获取器
      * @return $this
      */
-    public function withAttr($name, $callback = null)
+    public function withAttr(string $name, callable $callback)
     {
-        if (is_array($name)) {
-            $this->options['with_attr'] = $name;
-        } else {
-            $this->options['with_attr'][$name] = $callback;
-        }
+        $this->options['with_attr'][$name] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * 设置数据字段获取器
+     * @access public
+     * @param  array    $attrs       字段获取器
+     * @return $this
+     */
+    public function withAttrs(array $attrs)
+    {
+        $this->options['with_attr'] = $attrs;
 
         return $this;
     }
@@ -2641,21 +2653,13 @@ class Query
      * @param  string|array $relation 关联名称
      * @return $this
      */
-    public function relation($relation)
+    public function relation(array $relation)
     {
         if (empty($relation)) {
             return $this;
         }
 
-        if (is_string($relation)) {
-            $relation = explode(',', $relation);
-        }
-
-        if (isset($this->options['relation'])) {
-            $this->options['relation'] = array_merge($this->options['relation'], $relation);
-        } else {
-            $this->options['relation'] = $relation;
-        }
+        $this->options['relation'] = $relation;
 
         return $this;
     }
@@ -2717,12 +2721,12 @@ class Query
     /**
      * 通过Select方式插入记录
      * @access public
-     * @param  string $fields 要插入的数据表字段名
-     * @param  string $table  要插入的数据表名
+     * @param  array    $fields 要插入的数据表字段名
+     * @param  string   $table  要插入的数据表名
      * @return integer|string
      * @throws PDOException
      */
-    public function selectInsert($fields, string $table)
+    public function selectInsert(array $fields, string $table)
     {
         $this->parseOptions();
 
@@ -2854,59 +2858,65 @@ class Query
             return $resultSet;
         }
 
-        // 数据列表读取后的处理
-        if (!empty($this->model)) {
-            // 生成模型对象
-            if (count($resultSet) > 0) {
-                // 检查动态获取器
-                if (!empty($this->options['with_attr'])) {
-                    foreach ($this->options['with_attr'] as $name => $val) {
-                        if (strpos($name, '.')) {
-                            list($relation, $field) = explode('.', $name);
-
-                            $withRelationAttr[$relation][$field] = $val;
-                            unset($this->options['with_attr'][$name]);
-                        }
-                    }
-                }
-
-                $withRelationAttr = $withRelationAttr ?? [];
-
-                foreach ($resultSet as $key => &$result) {
-                    // 数据转换为模型对象
-                    $this->resultToModel($result, $this->options, true, $withRelationAttr);
-                }
-
-                if (!empty($this->options['with'])) {
-                    // 预载入
-                    $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
-                }
-
-                if (!empty($this->options['with_join'])) {
-                    // 预载入
-                    $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
-                }
-
-                // 模型数据集转换
-                $resultSet = $result->toCollection($resultSet);
-            } else {
-                $resultSet = $this->model->toCollection($resultSet);
-            }
-        } else {
-            $this->resultSet($resultSet);
-
-            if ('collection' == $this->connection->getConfig('resultset_type')) {
-                // 返回Collection对象
-                $resultSet = new Collection($resultSet);
-            }
-        }
-
         // 返回结果处理
         if (!empty($this->options['fail']) && count($resultSet) == 0) {
             $this->throwNotFound($this->options);
         }
 
+        // 数据列表读取后的处理
+        if (!empty($this->model)) {
+            // 生成模型对象
+            $resultSet = $this->resultSetToModelCollection($resultSet);
+        } else {
+            $this->resultSet($resultSet);
+        }
+
         return $resultSet;
+    }
+
+    /**
+     * 查询数据转换为模型数据集对象
+     * @access protected
+     * @param  array  $resultSet         数据集
+     * @return ModelCollection
+     */
+    protected function resultSetToModelCollection(array $resultSet): ModelCollection
+    {
+        if (empty($resultSet)) {
+            return $this->model->toCollection([]);
+        }
+
+        // 检查动态获取器
+        if (!empty($this->options['with_attr'])) {
+            foreach ($this->options['with_attr'] as $name => $val) {
+                if (strpos($name, '.')) {
+                    list($relation, $field) = explode('.', $name);
+
+                    $withRelationAttr[$relation][$field] = $val;
+                    unset($this->options['with_attr'][$name]);
+                }
+            }
+        }
+
+        $withRelationAttr = $withRelationAttr ?? [];
+
+        foreach ($resultSet as $key => &$result) {
+            // 数据转换为模型对象
+            $this->resultToModel($result, $this->options, true, $withRelationAttr);
+        }
+
+        if (!empty($this->options['with'])) {
+            // 预载入
+            $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
+        }
+
+        if (!empty($this->options['with_join'])) {
+            // 预载入
+            $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
+        }
+
+        // 模型数据集转换
+        return $this->model->toCollection($resultSet);
     }
 
     /**
@@ -2927,6 +2937,11 @@ class Query
             foreach ($resultSet as &$result) {
                 $this->getResultAttr($result, $this->options['with_attr']);
             }
+        }
+
+        if ('collection' == $this->connection->getConfig('resultset_type')) {
+            // 返回Collection对象
+            $resultSet = new Collection($resultSet);
         }
     }
 
@@ -2963,21 +2978,40 @@ class Query
             return $result;
         }
 
+        $this->removeOption('limit');
+
+        if (empty($result)) {
+            return $this->resultToEmpty();
+        }
+
         // 数据处理
-        if (!empty($result)) {
-            if (!empty($this->model)) {
-                // 返回模型对象
-                $this->resultToModel($result, $this->options);
-            } else {
-                $this->result($result);
-            }
-        } elseif (!empty($this->options['allow_empty'])) {
-            $result = !empty($this->model) ? $this->model->newInstance([], $this->getModelUpdateCondition($this->options)) : [];
-        } elseif (!empty($this->options['fail'])) {
-            $this->throwNotFound($this->options);
+        if (!empty($this->model)) {
+            // 返回模型对象
+            $this->resultToModel($result, $this->options);
+        } else {
+            $this->result($result);
         }
 
         return $result;
+    }
+
+    /**
+     * 处理空数据
+     * @access protected
+     * @return array|Model
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    protected function resultToEmpty()
+    {
+        if (!empty($this->options['allow_empty'])) {
+            return !empty($this->model) ? $this->model->newInstance([], $this->getModelUpdateCondition($this->options)) : [];
+        } elseif (!empty($this->options['fail'])) {
+            $this->throwNotFound($this->options);
+        } else {
+            return;
+        }
     }
 
     /**
@@ -3121,15 +3155,17 @@ class Query
      * 查询失败 抛出异常
      * @access protected
      * @param  array $options 查询参数
+     * @return void
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    protected function throwNotFound(array $options = [])
+    protected function throwNotFound(array $options = []): void
     {
         if (!empty($this->model)) {
             $class = get_class($this->model);
             throw new ModelNotFoundException('model data Not Found:' . $class, $class, $options);
         }
+
         $table = is_array($options['table']) ? key($options['table']) : $options['table'];
         throw new DataNotFoundException('table data not Found:' . $table, $table, $options);
     }

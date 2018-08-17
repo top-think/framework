@@ -1146,12 +1146,8 @@ abstract class Builder
      * @param  string    $table  数据表
      * @return string
      */
-    public function selectInsert(Query $query, $fields, string $table): string
+    public function selectInsert(Query $query, array $fields, string $table): string
     {
-        if (is_string($fields)) {
-            $fields = explode(',', $fields);
-        }
-
         foreach ($fields as &$field) {
             $field = $this->parseKey($query, $field, true);
         }
