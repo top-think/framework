@@ -235,6 +235,17 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
+     * 用回调函数处理数组中的元素
+     * @access public
+     * @param  callable|null $callback
+     * @return static
+     */
+    public function map(callable $callback)
+    {
+        return new static(array_map($callback, $this->items));
+    }
+
+    /**
      * 用回调函数过滤数组中的元素
      * @access public
      * @param  callable|null $callback
@@ -342,6 +353,23 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         uasort($items, $callback);
 
         return new static($items);
+    }
+
+    /**
+     * 指定字段排序
+     * @access public
+     * @param  string       $field 排序字段
+     * @param  string       $order 排序
+     * @return $this
+     */
+    public function order($field, $order = null)
+    {
+        return $this->sort(function ($a, $b) use ($field, $order) {
+            $fieldA = isset($a[$field]) ? $a[$field] : null;
+            $fieldB = isset($b[$field]) ? $b[$field] : null;
+
+            return 'desc' == strtolower($order) ? strcmp($fieldB, $fieldA) : strcmp($fieldA, $fieldB);
+        });
     }
 
     /**

@@ -205,5 +205,7 @@ class Lite extends Driver
         $this->writeTimes++;
 
         array_map("unlink", glob($this->options['path'] . ($this->options['prefix'] ? $this->options['prefix'] . DIRECTORY_SEPARATOR : '') . '*.php'));
+
+        return true;
     }
 }

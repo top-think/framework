@@ -249,6 +249,7 @@ class File extends Driver
         try {
             return $this->unlink($this->getCacheKey($name));
         } catch (\Exception $e) {
+            return false;
         }
     }
 
@@ -294,8 +295,6 @@ class File extends Driver
      * @access private
      * @param  string $path
      * @return bool
-     * @author byron sampson <xiaobo.sun@qq.com>
-     * @return boolean
      */
     private function unlink(string $path): bool
     {
