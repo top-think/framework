@@ -231,7 +231,7 @@ abstract class Builder
      * @param  bool      $allowAlias    允许使用别名
      * @return string
      */
-    protected function parseTable(Query $query, $tables,$allowAlias=false)
+    protected function parseTable(Query $query, $tables, $allowAlias=false)
     {
         $item    = [];
         $options = $query->getOptions();
@@ -829,7 +829,7 @@ abstract class Builder
                     }
                 }
 
-                $table = $this->parseTable($query, $table,true);
+                $table = $this->parseTable($query, $table, true);
 
                 $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
             }
@@ -1044,7 +1044,7 @@ abstract class Builder
         return str_replace(
             ['%TABLE%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
             [
-                $this->parseTable($query, $options['table'],true),
+                $this->parseTable($query, $options['table'], true),
                 $this->parseDistinct($query, $options['distinct']),
                 $this->parseField($query, $options['field']),
                 $this->parseJoin($query, $options['join']),
