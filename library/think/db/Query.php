@@ -23,6 +23,7 @@ use think\exception\DbException;
 use think\exception\PDOException;
 use think\Loader;
 use think\Model;
+use think\model\Collection as ModelCollection;
 use think\model\Relation;
 use think\model\relation\OneToOne;
 use think\Paginator;
@@ -2947,59 +2948,65 @@ class Query
             return $resultSet;
         }
 
-        // 数据列表读取后的处理
-        if (!empty($this->model)) {
-            // 生成模型对象
-            if (count($resultSet) > 0) {
-                // 检查动态获取器
-                if (!empty($this->options['with_attr'])) {
-                    foreach ($this->options['with_attr'] as $name => $val) {
-                        if (strpos($name, '.')) {
-                            list($relation, $field) = explode('.', $name);
-
-                            $withRelationAttr[$relation][$field] = $val;
-                            unset($this->options['with_attr'][$name]);
-                        }
-                    }
-                }
-
-                $withRelationAttr = isset($withRelationAttr) ? $withRelationAttr : [];
-
-                foreach ($resultSet as $key => &$result) {
-                    // 数据转换为模型对象
-                    $this->resultToModel($result, $this->options, true, $withRelationAttr);
-                }
-
-                if (!empty($this->options['with'])) {
-                    // 预载入
-                    $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
-                }
-
-                if (!empty($this->options['with_join'])) {
-                    // JOIN预载入
-                    $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
-                }
-
-                // 模型数据集转换
-                $resultSet = $result->toCollection($resultSet);
-            } else {
-                $resultSet = $this->model->toCollection($resultSet);
-            }
-        } else {
-            $this->resultSet($resultSet);
-
-            if ('collection' == $this->connection->getConfig('resultset_type')) {
-                // 返回Collection对象
-                $resultSet = new Collection($resultSet);
-            }
-        }
-
         // 返回结果处理
         if (!empty($this->options['fail']) && count($resultSet) == 0) {
             $this->throwNotFound($this->options);
         }
 
+        // 数据列表读取后的处理
+        if (!empty($this->model)) {
+            // 生成模型对象
+            $resultSet = $this->resultSetToModelCollection($resultSet);
+        } else {
+            $this->resultSet($resultSet);
+        }
+
         return $resultSet;
+    }
+
+    /**
+     * 查询数据转换为模型数据集对象
+     * @access protected
+     * @param  array  $resultSet         数据集
+     * @return ModelCollection
+     */
+    protected function resultSetToModelCollection($resultSet)
+    {
+        if (count($resultSet) > 0) {
+            // 检查动态获取器
+            if (!empty($this->options['with_attr'])) {
+                foreach ($this->options['with_attr'] as $name => $val) {
+                    if (strpos($name, '.')) {
+                        list($relation, $field) = explode('.', $name);
+
+                        $withRelationAttr[$relation][$field] = $val;
+                        unset($this->options['with_attr'][$name]);
+                    }
+                }
+            }
+
+            $withRelationAttr = isset($withRelationAttr) ? $withRelationAttr : [];
+
+            foreach ($resultSet as $key => &$result) {
+                // 数据转换为模型对象
+                $this->resultToModel($result, $this->options, true, $withRelationAttr);
+            }
+
+            if (!empty($this->options['with'])) {
+                // 预载入
+                $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
+            }
+
+            if (!empty($this->options['with_join'])) {
+                // JOIN预载入
+                $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
+            }
+
+            // 模型数据集转换
+            return $result->toCollection($resultSet);
+        } else {
+            return $this->model->toCollection($resultSet);
+        }
     }
 
     /**
@@ -3020,6 +3027,11 @@ class Query
             foreach ($resultSet as &$result) {
                 $this->getResultAttr($result, $this->options['with_attr']);
             }
+        }
+
+        if ('collection' == $this->connection->getConfig('resultset_type')) {
+            // 返回Collection对象
+            $resultSet = new Collection($resultSet);
         }
     }
 
@@ -3055,22 +3067,41 @@ class Query
         if ($this->options['fetch_sql']) {
             return $result;
         }
+        
+        $this->removeOption('limit');
 
         // 数据处理
-        if (!empty($result)) {
-            if (!empty($this->model)) {
-                // 返回模型对象
-                $this->resultToModel($result, $this->options);
-            } else {
-                $this->result($result);
-            }
-        } elseif (!empty($this->options['allow_empty'])) {
-            $result = !empty($this->model) ? $this->model->newInstance([], $this->getModelUpdateCondition($this->options)) : [];
-        } elseif (!empty($this->options['fail'])) {
-            $this->throwNotFound($this->options);
+        if (empty($result)) {
+            return $this->resultToEmpty();
+        }
+
+        if (!empty($this->model)) {
+            // 返回模型对象
+            $this->resultToModel($result, $this->options);
+        } else {
+            $this->result($result);
         }
 
         return $result;
+    }
+
+    /**
+     * 处理空数据
+     * @access protected
+     * @return array|Model|null
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    protected function resultToEmpty()
+    {
+        if (!empty($this->options['allow_empty'])) {
+            return !empty($this->model) ? $this->model->newInstance([], $this->getModelUpdateCondition($this->options)) : [];
+        } elseif (!empty($this->options['fail'])) {
+            $this->throwNotFound($this->options);
+        } else {
+            return;
+        }
     }
 
     /**
