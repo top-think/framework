@@ -2135,6 +2135,18 @@ class Query
     }
 
     /**
+     * 是否允许返回空数据（或空模型）
+     * @access public
+     * @param  bool $allowEmpty 是否允许为空
+     * @return $this
+     */
+    public function allowEmpty($allowEmpty = true)
+    {
+        $this->options['allow_empty'] = $allowEmpty;
+        return $this;
+    }
+
+    /**
      * 添加查询范围
      * @access public
      * @param  array|string|\Closure   $scope 查询范围定义
@@ -2959,6 +2971,8 @@ class Query
             } else {
                 $this->result($result);
             }
+        } elseif (!empty($this->options['allow_empty'])) {
+            $result = !empty($this->model) ? $this->model->newInstance([], $this->getModelUpdateCondition($this->options)) : [];
         } elseif (!empty($this->options['fail'])) {
             $this->throwNotFound($this->options);
         }
@@ -3146,6 +3160,20 @@ class Query
     public function findOrFail($data = null)
     {
         return $this->failException(true)->find($data);
+    }
+
+    /**
+     * 查找单条记录 如果不存在则抛出异常
+     * @access public
+     * @param  array|string|Query|\Closure $data
+     * @return array|\PDOStatement|string|Model
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function findOrEmpty($data = null)
+    {
+        return $this->allowEmpty(true)->find($data);
     }
 
     /**
