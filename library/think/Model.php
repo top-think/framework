@@ -254,7 +254,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $query->pk($this->pk);
         }
 
-        return $query;
+        return $query->alias($this->name);
     }
 
     /**

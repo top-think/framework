@@ -2970,43 +2970,43 @@ class Query
      * @param  array  $resultSet         数据集
      * @return ModelCollection
      */
-    protected function resultSetToModelCollection($resultSet)
+    protected function resultSetToModelCollection(array $resultSet)
     {
-        if (count($resultSet) > 0) {
-            // 检查动态获取器
-            if (!empty($this->options['with_attr'])) {
-                foreach ($this->options['with_attr'] as $name => $val) {
-                    if (strpos($name, '.')) {
-                        list($relation, $field) = explode('.', $name);
+        if (empty($resultSet)) {
+            return $this->model->toCollection([]);
+        }
 
-                        $withRelationAttr[$relation][$field] = $val;
-                        unset($this->options['with_attr'][$name]);
-                    }
+        // 检查动态获取器
+        if (!empty($this->options['with_attr'])) {
+            foreach ($this->options['with_attr'] as $name => $val) {
+                if (strpos($name, '.')) {
+                    list($relation, $field) = explode('.', $name);
+
+                    $withRelationAttr[$relation][$field] = $val;
+                    unset($this->options['with_attr'][$name]);
                 }
             }
-
-            $withRelationAttr = isset($withRelationAttr) ? $withRelationAttr : [];
-
-            foreach ($resultSet as $key => &$result) {
-                // 数据转换为模型对象
-                $this->resultToModel($result, $this->options, true, $withRelationAttr);
-            }
-
-            if (!empty($this->options['with'])) {
-                // 预载入
-                $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
-            }
-
-            if (!empty($this->options['with_join'])) {
-                // JOIN预载入
-                $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
-            }
-
-            // 模型数据集转换
-            return $result->toCollection($resultSet);
-        } else {
-            return $this->model->toCollection($resultSet);
         }
+
+        $withRelationAttr = isset($withRelationAttr) ? $withRelationAttr : [];
+
+        foreach ($resultSet as $key => &$result) {
+            // 数据转换为模型对象
+            $this->resultToModel($result, $this->options, true, $withRelationAttr);
+        }
+
+        if (!empty($this->options['with'])) {
+            // 预载入
+            $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
+        }
+
+        if (!empty($this->options['with_join'])) {
+            // JOIN预载入
+            $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
+        }
+
+        // 模型数据集转换
+        return $result->toCollection($resultSet);
     }
 
     /**
@@ -3067,7 +3067,7 @@ class Query
         if ($this->options['fetch_sql']) {
             return $result;
         }
-        
+
         $this->removeOption('limit');
 
         // 数据处理
