@@ -2260,16 +2260,17 @@ class Query
      * @access public
      * @param  array $fields 搜索字段
      * @param  array $data   搜索数据
+     * @param  bool  $join   是否JOIN搜索
      * @return $this
      */
-    public function withSearch(array $fields, array $data = [])
+    public function withSearch(array $fields, array $data = [], $join = false)
     {
         foreach ($fields as $key => $field) {
             if ($field instanceof \Closure) {
                 $field($this, isset($data[$key]) ? $data[$key] : null, $data);
             } elseif ($this->model) {
                 // 检测搜索器
-                $method = 'search' . Loader::parseName($field, 1) . 'Attr';
+                $method = ($join ? 'join' : '') . 'search' . Loader::parseName($field, 1) . 'Attr';
 
                 if (method_exists($this->model, $method)) {
                     $this->model->$method($this, isset($data[$field]) ? $data[$field] : null, $data);
@@ -2278,6 +2279,18 @@ class Query
         }
 
         return $this;
+    }
+
+    /**
+     * 使用搜索器条件搜索JOIN字段
+     * @access public
+     * @param  array $fields 搜索字段
+     * @param  array $data   搜索数据
+     * @return $this
+     */
+    public function withJoinSearch(array $fields, array $data)
+    {
+        return $this->withSearch($fields, $data, true);
     }
 
     /**
