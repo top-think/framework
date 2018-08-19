@@ -56,7 +56,7 @@ class Route
         'url_lazy_route'         => true,
         'route_rule_merge'       => true,
         'controller_auto_search' => true,
-        'ruoute_check_cache'     => false,
+        'route_check_cache'      => false,
     ];
 
     /**
