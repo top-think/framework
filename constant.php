@@ -26,10 +26,10 @@ define('MEMORY_LIMIT_ON', function_exists('memory_get_usage'));
 sgdefine('SITE_DEBUG', false);
 
 // 设置全局变量sg
-$sg['_debug'] = false;  // 调试模式
+$sg['_debug']  = false;  // 调试模式
 $sg['_define'] = [];    // 全局常量
 $sg['_config'] = [];    // 全局配置
-$sg['_env'] = [];    // 环境配置
+$sg['_env']    = [];    // 环境配置
 $sg['_access'] = [];    // 访问配置
 $sg['_router'] = [];    // 路由配置
 
@@ -234,7 +234,7 @@ function sgenv($name = null)
 
     if (false !== strpos($name, '.')) {
         $names = explode('.', $name);
-        $arr = $sg['_env'];
+        $arr   = $sg['_env'];
         for ($i = 0; $i < count($names); $i++) {
             if (isset($arr[strval($names[$i])])) {
                 $arr = $arr[strval($names[$i])];
@@ -256,22 +256,22 @@ function sgenv($name = null)
  */
 function raw_request()
 {
-    $request['server_name'] = $_SERVER['SERVER_NAME'];
-    $request['server_port'] = $_SERVER['SERVER_PORT'];
+    $request['server_name']     = $_SERVER['SERVER_NAME'];
+    $request['server_port']     = $_SERVER['SERVER_PORT'];
     $request['server_protocol'] = $_SERVER['SERVER_PROTOCOL'];
-    $request['script_name'] = $_SERVER['SCRIPT_NAME'];
-    $request['requet_scheme'] = $_SERVER['REQUEST_SCHEME'];
-    $request['request_method'] = $_SERVER['REQUEST_METHOD'];
-    $request['request_time'] = $_SERVER['REQUEST_TIME'];
-    $request['query_string'] = $_SERVER['QUERY_STRING'];
+    $request['script_name']     = $_SERVER['SCRIPT_NAME'];
+    $request['requet_scheme']   = $_SERVER['REQUEST_SCHEME'];
+    $request['request_method']  = $_SERVER['REQUEST_METHOD'];
+    $request['request_time']    = $_SERVER['REQUEST_TIME'];
+    $request['query_string']    = $_SERVER['QUERY_STRING'];
 
     $request['url'] = $_SERVER['REQUEST_URI'];
-    $url = parse_url($request['url']);
+    $url            = parse_url($request['url']);
     if (!isset($url['query'])) {
         $url['query'] = '';
     }
-    $request = array_merge($request, $url);
-    $pathinfo = explode(DS, ltrim($request['path'], DS));
+    $request            = array_merge($request, $url);
+    $pathinfo           = explode(DS, ltrim($request['path'], DS));
     $request['project'] = $pathinfo[0];
 
     return $request;
@@ -302,7 +302,7 @@ function sgconfig($name = null, $value = null)
             return;
         }
         // 二维数组设置和获取支持
-        $name = explode('.', $name);
+        $name    = explode('.', $name);
         $name[0] = strtolower($name[0]);
         if (is_null($value)) {
             return isset($sg['_config'][$name[0]][$name[1]]) ? $sg['_config'][$name[0]][$name[1]] : null;
