@@ -2258,39 +2258,27 @@ class Query
     /**
      * 使用搜索器条件搜索字段
      * @access public
-     * @param  array $fields 搜索字段
-     * @param  array $data   搜索数据
-     * @param  bool  $join   是否JOIN搜索
+     * @param  array    $fields     搜索字段
+     * @param  array    $data       搜索数据
+     * @param  string   $prefix     字段前缀标识
      * @return $this
      */
-    public function withSearch(array $fields, array $data = [], $join = false)
+    public function withSearch(array $fields, array $data = [], $prefix = '')
     {
         foreach ($fields as $key => $field) {
             if ($field instanceof \Closure) {
                 $field($this, isset($data[$key]) ? $data[$key] : null, $data);
             } elseif ($this->model) {
                 // 检测搜索器
-                $method = ($join ? 'join' : '') . 'search' . Loader::parseName($field, 1) . 'Attr';
+                $method = 'search' . Loader::parseName($field, 1) . 'Attr';
 
                 if (method_exists($this->model, $method)) {
-                    $this->model->$method($this, isset($data[$field]) ? $data[$field] : null, $data);
+                    $this->model->$method($this, isset($data[$field]) ? $data[$field] : null, $data, $prefix);
                 }
             }
         }
 
         return $this;
-    }
-
-    /**
-     * 使用搜索器条件搜索JOIN字段
-     * @access public
-     * @param  array $fields 搜索字段
-     * @param  array $data   搜索数据
-     * @return $this
-     */
-    public function withJoinSearch(array $fields, array $data)
-    {
-        return $this->withSearch($fields, $data, true);
     }
 
     /**
