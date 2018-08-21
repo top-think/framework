@@ -628,7 +628,7 @@ abstract class Builder
     protected function parseComment($comment)
     {
         if (false !== strpos($comment, '*/')) {
-            $comment = strstr($coment, '*/', true);
+            $comment = strstr($comment, '*/', true);
         }
         return !empty($comment) ? ' /* ' . $comment . ' */' : '';
     }
