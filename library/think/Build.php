@@ -236,7 +236,7 @@ class Build
 
             if ($suffix) {
                 // 控制器后缀
-                $controller = substr($controller, 0, -10);
+                $controller = substr($controller, 0, -strlen($layer));
             }
 
             if (strpos($layer, '\\')) {

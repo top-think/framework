@@ -57,7 +57,8 @@ class Route extends Command
         }
 
         if (Container::get('config')->get('route_annotation')) {
-            include Container::get('build')->buildRoute();
+            $suffix = Container::get('config')->get('controller_suffix') || Container::get('config')->get('class_suffix');
+            include Container::get('build')->buildRoute($suffix);
         }
 
         $content = '<?php ' . PHP_EOL . 'return ';

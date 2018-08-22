@@ -2267,7 +2267,7 @@ class Query
     {
         foreach ($fields as $key => $field) {
             if ($field instanceof \Closure) {
-                $field($this, isset($data[$key]) ? $data[$key] : null, $data);
+                $field($this, isset($data[$key]) ? $data[$key] : null, $data, $prefix);
             } elseif ($this->model) {
                 // 检测搜索器
                 $method = 'search' . Loader::parseName($field, 1) . 'Attr';
