@@ -70,18 +70,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
-     * 比较数组，返回差集
-     *
-     * @access public
-     * @param  mixed $items
-     * @return static
-     */
-    public function diff($items)
-    {
-        return new static(array_diff($this->items, $this->convertToArray($items)));
-    }
-
-    /**
      * 交换数组中的键和值
      *
      * @access public
@@ -93,15 +81,88 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
+     * 按指定键整理数据
+     *
+     * @access public
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   键名
+     * @return array
+     */
+    public function dictionary($items = null, &$indexKey = null)
+    {
+        if ($items instanceof self) {
+            $items = $items->all();
+        } elseif ($items instanceof Paginator) {
+            $items = $items->items();
+        }
+
+        $items = is_null($items) ? $this->items : $items;
+
+        if ($items && empty($indexKey)) {
+            $indexKey = is_array($items[0]) ? 'id' : $items[0]->getPk();
+        }
+
+        if (isset($indexKey) && is_string($indexKey)) {
+            return array_column($items, null, $indexKey);
+        }
+
+        return $items;
+    }
+
+    /**
+     * 比较数组，返回差集
+     *
+     * @access public
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   指定比较的键名
+     * @return static
+     */
+    public function diff($items, $indexKey = null)
+    {
+        if ($this->isEmpty() || is_scalar($this->items[0])) {
+            return new static(array_diff($this->items, $this->convertToArray($items)));
+        }
+
+        $diff       = [];
+        $dictionary = $this->dictionary($items, $indexKey);
+
+        if (is_string($indexKey)) {
+            foreach ($this->items as $item) {
+                if (!isset($dictionary[$item[$indexKey]])) {
+                    $diff[] = $item;
+                }
+            }
+        }
+
+        return new static($diff);
+    }
+
+    /**
      * 比较数组，返回交集
      *
      * @access public
-     * @param  mixed $items
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   指定比较的键名
      * @return static
      */
-    public function intersect($items)
+    public function intersect($items, $indexKey = null)
     {
-        return new static(array_intersect($this->items, $this->convertToArray($items)));
+        if ($this->isEmpty() || is_scalar($this->items[0])) {
+            return new static(array_diff($this->items, $this->convertToArray($items)));
+        }
+
+        $intersect  = [];
+        $dictionary = $this->dictionary($items, $indexKey);
+
+        if (is_string($indexKey)) {
+            foreach ($this->items as $item) {
+                if (isset($dictionary[$item[$indexKey]])) {
+                    $intersect[] = $item;
+                }
+            }
+        }
+
+        return new static($intersect);
     }
 
     /**

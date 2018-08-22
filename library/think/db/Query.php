@@ -1187,6 +1187,19 @@ class Query
     }
 
     /**
+     * 设置是否返回数据集对象
+     * @access public
+     * @param  bool  $collection  是否返回数据集对象
+     * @return $this
+     */
+    public function collection($collection = true)
+    {
+        $this->options['collection'] = $collection;
+
+        return $this;
+    }
+    
+    /**
      * 指定AND查询条件
      * @access public
      * @param  mixed $field     查询字段
@@ -3030,7 +3043,7 @@ class Query
             }
         }
 
-        if ('collection' == $this->connection->getConfig('resultset_type')) {
+        if (!empty($this->options['collection']) || 'collection' == $this->connection->getConfig('resultset_type')) {
             // 返回Collection对象
             $resultSet = new Collection($resultSet);
         }

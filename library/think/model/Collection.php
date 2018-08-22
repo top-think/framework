@@ -17,18 +17,6 @@ use think\Model;
 class Collection extends BaseCollection
 {
     /**
-     * 返回数组中指定的一列
-     * @access public
-     * @param  string        $column_key
-     * @param  string|null   $index_key
-     * @return array
-     */
-    public function column($column_key, $index_key = null)
-    {
-        return array_column($this->toArray(), $column_key, $index_key);
-    }
-
-    /**
      * 延迟预载入关联查询
      * @access public
      * @param  mixed $relation 关联
@@ -108,69 +96,5 @@ class Collection extends BaseCollection
         });
 
         return $this;
-    }
-
-    /**
-     * 按主键整理数据
-     *
-     * @access public
-     * @param  mixed $items
-     * @return array
-     */
-    public function dictionary($items = null)
-    {
-        $items = is_null($items) ? $this->items : $items;
-
-        if ($items) {
-            $indexKey = $items[0]->getPk();
-        }
-
-        if (isset($indexKey) && is_string($indexKey)) {
-            return array_column($items, null, $indexKey);
-        }
-
-        return $items;
-    }
-
-    /**
-     * 比较数组，返回差集
-     *
-     * @access public
-     * @param  mixed $items
-     * @return static
-     */
-    public function diff($items)
-    {
-        $diff       = [];
-        $dictionary = $this->dictionary($items);
-
-        foreach ($this->items as $item) {
-            if (!isset($dictionary[$item->getkey()])) {
-                $diff[] = $item;
-            }
-        }
-
-        return new static($diff);
-    }
-
-    /**
-     * 比较数组，返回交集
-     *
-     * @access public
-     * @param  mixed $items
-     * @return static
-     */
-    public function intersect($items)
-    {
-        $intersect  = [];
-        $dictionary = $this->dictionary($items);
-
-        foreach ($this->items as $item) {
-            if (isset($dictionary[$item->getkey()])) {
-                $intersect[] = $item;
-            }
-        }
-
-        return new static($intersect);
     }
 }
