@@ -90,10 +90,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      */
     public function dictionary($items = null, &$indexKey = null)
     {
-        if ($items instanceof self) {
+        if ($items instanceof self || $items instanceof Paginator) {
             $items = $items->all();
-        } elseif ($items instanceof Paginator) {
-            $items = $items->items();
         }
 
         $items = is_null($items) ? $this->items : $items;
