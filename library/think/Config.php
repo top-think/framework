@@ -66,10 +66,10 @@ class Config implements \ArrayAccess
     /**
      * 设置开启Yaconf
      * @access public
-     * @param  bool    $yaconf  是否使用Yaconf
+     * @param  bool|string    $yaconf  是否使用Yaconf
      * @return void
      */
-    public function useYaconf($yaconf)
+    public function setYaconf($yaconf)
     {
         $this->yaconf = $yaconf;
     }
@@ -128,6 +128,41 @@ class Config implements \ArrayAccess
         return $this->config;
     }
 
+    /**
+     * 获取实际的yaconf配置参数
+     * @access protected
+     * @param  string    $name 配置参数名
+     * @return string
+     */
+    protected function getYaconfName($name)
+    {
+        if ($this->yaconf && is_string($this->yaconf)) {
+            return $this->yaconf . '.' . $name;
+        }
+
+        return $name;
+    }
+
+    /**
+     * 获取yaconf配置
+     * @access public
+     * @param  string    $name 配置参数名
+     * @param  mixed     $default   默认值
+     * @return mixed
+     */
+    public function yaconf($name, $default = null)
+    {
+        if ($this->yaconf) {
+            $yaconfName = $this->getYaconfName($name);
+
+            if (Yaconf::has($yaconfName)) {
+                return Yaconf::get($yaconfName);
+            }
+        }
+
+        return $default;
+    }
+
     protected function loadFile($file, $name)
     {
         $name = strtolower($name);
@@ -167,9 +202,13 @@ class Config implements \ArrayAccess
     {
         $name = strtolower($name);
 
-        if ($this->yaconf && Yaconf::has($name)) {
-            $config = Yaconf::get($name);
-            return isset($this->config[$name]) ? array_merge($this->config[$name], $config) : $config;
+        if ($this->yaconf) {
+            $yaconfName = $this->getYaconfName($name);
+
+            if (Yaconf::has($yaconfName)) {
+                $config = Yaconf::get($yaconfName);
+                return isset($this->config[$name]) ? array_merge($this->config[$name], $config) : $config;
+            }
         }
 
         return isset($this->config[$name]) ? $this->config[$name] : [];
@@ -197,8 +236,12 @@ class Config implements \ArrayAccess
             return $this->pull(substr($name, 0, -1));
         }
 
-        if ($this->yaconf && Yaconf::has($name)) {
-            return Yaconf::get($name);
+        if ($this->yaconf) {
+            $yaconfName = $this->getYaconfName($name);
+
+            if (Yaconf::has($yaconfName)) {
+                return Yaconf::get($yaconfName);
+            }
         }
 
         $name    = explode('.', $name);
