@@ -167,11 +167,21 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 返回数组中所有的键名
      *
      * @access public
-     * @return static
+     * @return array
      */
     public function keys()
     {
-        return new static(array_keys($this->items));
+        $current = current($this->items);
+
+        if (is_scalar($current)) {
+            $array = $this->items;
+        } elseif (is_array($current)) {
+            $array = $current;
+        } else {
+            $array = $current->toArray();
+        }
+
+        return array_keys($array);
     }
 
     /**
