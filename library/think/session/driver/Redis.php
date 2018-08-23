@@ -19,14 +19,14 @@ class Redis implements SessionHandlerInterface
     /** @var \Redis */
     protected $handler = null;
     protected $config  = [
-        'host'         => '127.0.0.1', // redis主机
-        'port'         => 6379, // redis端口
-        'password'     => '', // 密码
-        'select'       => 0, // 操作库
-        'expire'       => 3600, // 有效期(秒)
-        'timeout'      => 0, // 超时时间(秒)
-        'persistent'   => true, // 是否长连接
-        'session_name' => '', // sessionkey前缀
+        'host'       => '127.0.0.1', // redis主机
+        'port'       => 6379, // redis端口
+        'password'   => '', // 密码
+        'select'     => 0, // 操作库
+        'expire'     => 3600, // 有效期(秒)
+        'timeout'    => 0, // 超时时间(秒)
+        'persistent' => true, // 是否长连接
+        'name'       => '', // session key前缀
     ];
 
     public function __construct(array $config = [])
@@ -95,7 +95,7 @@ class Redis implements SessionHandlerInterface
      */
     public function read(string $sessID): string
     {
-        return (string) $this->handler->get($this->config['session_name'] . $sessID);
+        return (string) $this->handler->get($this->config['name'] . $sessID);
     }
 
     /**
@@ -108,9 +108,9 @@ class Redis implements SessionHandlerInterface
     public function write(string $sessID, string $sessData): bool
     {
         if ($this->config['expire'] > 0) {
-            $result = $this->handler->setex($this->config['session_name'] . $sessID, $this->config['expire'], $sessData);
+            $result = $this->handler->setex($this->config['name'] . $sessID, $this->config['expire'], $sessData);
         } else {
-            $result = $this->handler->set($this->config['session_name'] . $sessID, $sessData);
+            $result = $this->handler->set($this->config['name'] . $sessID, $sessData);
         }
 
         return $result ? true : false;
@@ -124,7 +124,7 @@ class Redis implements SessionHandlerInterface
      */
     public function destroy(string $sessID): bool
     {
-        return $this->handler->delete($this->config['session_name'] . $sessID) > 0;
+        return $this->handler->delete($this->config['name'] . $sessID) > 0;
     }
 
     /**

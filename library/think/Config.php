@@ -41,7 +41,7 @@ class Config implements \ArrayAccess
 
     /**
      * 是否支持Yaconf
-     * @var bool
+     * @var bool|string
      */
     protected $yaconf;
 
@@ -69,9 +69,55 @@ class Config implements \ArrayAccess
      * @param string    $prefix 前缀
      * @return void
      */
-    public function setDefaultPrefix(string $prefix)
+    public function setDefaultPrefix(string $prefix): void
     {
         $this->prefix = $prefix;
+    }
+
+    /**
+     * 设置开启Yaconf 或者指定配置文件名
+     * @access public
+     * @param  bool|string    $yaconf  是否使用Yaconf
+     * @return void
+     */
+    public function setYaconf($yaconf): void
+    {
+        $this->yaconf = $yaconf;
+    }
+
+    /**
+     * 获取实际的yaconf配置参数名
+     * @access protected
+     * @param  string    $name 配置参数名
+     * @return string
+     */
+    protected function getYaconfName(string $name)
+    {
+        if ($this->yaconf && is_string($this->yaconf)) {
+            return $this->yaconf . '.' . $name;
+        }
+
+        return $name;
+    }
+
+    /**
+     * 获取yaconf配置
+     * @access public
+     * @param  string    $name 配置参数名
+     * @param  mixed     $default   默认值
+     * @return mixed
+     */
+    public function yaconf(string $name, $default = null)
+    {
+        if ($this->yaconf) {
+            $yaconfName = $this->getYaconfName($name);
+
+            if (Yaconf::has($yaconfName)) {
+                return Yaconf::get($yaconfName);
+            }
+        }
+
+        return $default;
     }
 
     /**
@@ -156,15 +202,16 @@ class Config implements \ArrayAccess
     {
         $name = strtolower($name);
 
-        if (isset($this->config[$name])) {
-            return $this->config[$name];
+        if ($this->yaconf) {
+            $yaconfName = $this->getYaconfName($name);
+
+            if (Yaconf::has($yaconfName)) {
+                $config = Yaconf::get($yaconfName);
+                return isset($this->config[$name]) ? array_merge($this->config[$name], $config) : $config;
+            }
         }
 
-        if ($this->yaconf && Yaconf::has($name)) {
-            return $this->config[$name] = Yaconf::get($name);
-        } else {
-            return [];
-        }
+        return isset($this->config[$name]) ? $this->config[$name] : [];
     }
 
     /**
@@ -189,10 +236,12 @@ class Config implements \ArrayAccess
             return $this->pull(substr($name, 0, -1));
         }
 
-        $prefix = strstr($name, '.', true);
+        if ($this->yaconf) {
+            $yaconfName = $this->getYaconfName($name);
 
-        if (!isset($this->config[$prefix]) && $this->yaconf && Yaconf::has($prefix)) {
-            $this->config[strtolower($prefix)] = Yaconf::get($prefix);
+            if (Yaconf::has($yaconfName)) {
+                return Yaconf::get($yaconfName);
+            }
         }
 
         $name    = explode('.', $name);

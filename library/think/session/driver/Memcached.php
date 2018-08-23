@@ -18,13 +18,13 @@ class Memcached implements SessionHandlerInterface
 {
     protected $handler = null;
     protected $config  = [
-        'host'         => '127.0.0.1', // memcache主机
-        'port'         => 11211, // memcache端口
-        'expire'       => 3600, // session有效期
-        'timeout'      => 0, // 连接超时时间（单位：毫秒）
-        'session_name' => '', // memcache key前缀
-        'username'     => '', //账号
-        'password'     => '', //密码
+        'host'     => '127.0.0.1', // memcache主机
+        'port'     => 11211, // memcache端口
+        'expire'   => 3600, // session有效期
+        'timeout'  => 0, // 连接超时时间（单位：毫秒）
+        'name'     => '', // session name （memcache key前缀）
+        'username' => '', //账号
+        'password' => '', //密码
     ];
 
     public function __construct(array $config = [])
@@ -99,7 +99,7 @@ class Memcached implements SessionHandlerInterface
      */
     public function read(string $sessID): string
     {
-        return (string) $this->handler->get($this->config['session_name'] . $sessID);
+        return (string) $this->handler->get($this->config['name'] . $sessID);
     }
 
     /**
@@ -111,7 +111,7 @@ class Memcached implements SessionHandlerInterface
      */
     public function write(string $sessID, string $sessData): bool
     {
-        return $this->handler->set($this->config['session_name'] . $sessID, $sessData, $this->config['expire']);
+        return $this->handler->set($this->config['name'] . $sessID, $sessData, $this->config['expire']);
     }
 
     /**
@@ -122,7 +122,7 @@ class Memcached implements SessionHandlerInterface
      */
     public function destroy(string $sessID): bool
     {
-        return $this->handler->delete($this->config['session_name'] . $sessID);
+        return $this->handler->delete($this->config['name'] . $sessID);
     }
 
     /**

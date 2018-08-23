@@ -84,7 +84,7 @@ if (!function_exists('bind')) {
      * @param mixed   $concrete    要绑定的类、闭包或者实例
      * @return Container
      */
-    function bind($abstract, $concrete = null)
+    function bind(string $abstract, $concrete = null)
     {
         return Container::getInstance()->bind($abstract, $concrete);
     }
@@ -254,7 +254,7 @@ if (!function_exists('debug')) {
      * @param integer|string    $dec 小数位 如果是m 表示统计内存占用
      * @return mixed
      */
-    function debug($start, $end = '', $dec = 6)
+    function debug(string $start, string $end = '', $dec = 6)
     {
         if ('' == $end) {
             Debug::remark($start);
@@ -273,7 +273,7 @@ if (!function_exists('download')) {
      * @param integer $expire 有效期（秒）
      * @return \think\response\Download
      */
-    function download($filename, $name = '', $content = false, $expire = 180)
+    function download(string $filename, string $name = '', bool $content = false, int $expire = 180)
     {
         return Response::create($filename, 'download')->name($name)->isContent($content)->expire($expire);
     }
@@ -411,7 +411,7 @@ if (!function_exists('lang')) {
      * @param string    $lang 语言
      * @return mixed
      */
-    function lang($name, $vars = [], $lang = '')
+    function lang(string $name, array $vars = [], string $lang = '')
     {
         return Lang::get($name, $vars, $lang);
     }
@@ -549,7 +549,7 @@ if (!function_exists('trace')) {
      * @param string    $level 日志级别
      * @return array|void
      */
-    function trace($log = '[think]', $level = 'log')
+    function trace($log = '[think]', string $level = 'log')
     {
         if ('[think]' === $log) {
             return Log::getLog();
@@ -566,7 +566,7 @@ if (!function_exists('trait_uses_recursive')) {
      * @param  string $trait
      * @return array
      */
-    function trait_uses_recursive($trait)
+    function trait_uses_recursive(string $trait)
     {
         $traits = class_uses($trait);
         foreach ($traits as $trait) {
@@ -614,7 +614,7 @@ if (!function_exists('widget')) {
      * @param array     $data 传入的参数
      * @return mixed
      */
-    function widget(string $name, $data = [])
+    function widget(string $name, array $data = [])
     {
         return app()->action($name, $data, 'widget');
     }
@@ -632,5 +632,19 @@ if (!function_exists('xml')) {
     function xml($data = [], $code = 200, $header = [], $options = [])
     {
         return Response::create($data, 'xml', $code, $header, $options);
+    }
+}
+
+if (!function_exists('yaconf')) {
+    /**
+     * 获取yaconf配置
+     *
+     * @param  string    $name 配置参数名
+     * @param  mixed     $default   默认值
+     * @return mixed
+     */
+    function yaconf(string $name, $default = null)
+    {
+        return Config::yaconf($name, $default);
     }
 }

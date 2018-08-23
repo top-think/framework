@@ -141,7 +141,7 @@ class Query
      * @throws DbException
      * @throws Exception
      */
-    public function __call($method, $args)
+    public function __call(string $method, array $args)
     {
         if (isset(self::$extend[strtolower($method)])) {
             // 调用扩展查询方法
@@ -199,7 +199,7 @@ class Query
      * @access public
      * @return Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->connection;
     }
@@ -2485,21 +2485,22 @@ class Query
     /**
      * 使用搜索器条件搜索字段
      * @access public
-     * @param  array $fields 搜索字段
-     * @param  array $data   搜索数据
+     * @param  array    $fields     搜索字段
+     * @param  array    $data       搜索数据
+     * @param  string   $prefix     字段前缀标识
      * @return $this
      */
-    public function withSearch(array $fields, array $data = [])
+    public function withSearch(array $fields, array $data = [], string $prefix = '')
     {
         foreach ($fields as $key => $field) {
             if ($field instanceof \Closure) {
-                $field($this, $data[$key] ?? null, $data);
+                $field($this, $data[$key] ?? null, $data, $prefix);
             } elseif ($this->model) {
                 // 检测搜索器
                 $method = 'search' . Loader::parseName($field, 1) . 'Attr';
 
                 if (method_exists($this->model, $method)) {
-                    $this->model->$method($this, $data[$field] ?? null, $data);
+                    $this->model->$method($this, $data[$field] ?? null, $data, $prefix);
                 }
             }
         }
@@ -2980,11 +2981,11 @@ class Query
 
         $this->removeOption('limit');
 
+        // 数据处理
         if (empty($result)) {
             return $this->resultToEmpty();
         }
 
-        // 数据处理
         if (!empty($this->model)) {
             // 返回模型对象
             $this->resultToModel($result, $this->options);
@@ -2998,7 +2999,7 @@ class Query
     /**
      * 处理空数据
      * @access protected
-     * @return array|Model
+     * @return array|Model|null
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
