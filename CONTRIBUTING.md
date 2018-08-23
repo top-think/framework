@@ -84,7 +84,7 @@ GitHub 提供了 Issue 功能，该功能可以用于：
 或自行安装
 
 - Apache / Nginx
-- PHP 5.4 ~ 5.6
+- PHP 5.4 ~ 7.0
 - MySQL / MariaDB
 
 *Windows 用户推荐添加 PHP bin 目录到 PATH，方便使用 composer*
