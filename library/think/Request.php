@@ -1257,7 +1257,9 @@ class Request
         if (true === $ajax) {
             return $result;
         } else {
-            return $this->param(Config::get('var_ajax')) ? true : $result;
+            $result =  $this->param(Config::get('var_ajax')) ? true : $result;
+            $this->mergeParam = false;
+            return $result;
         }
     }
 
@@ -1273,7 +1275,9 @@ class Request
         if (true === $pjax) {
             return $result;
         } else {
-            return $this->param(Config::get('var_pjax')) ? true : $result;
+            $result = $this->param(Config::get('var_pjax')) ? true : $result;
+            $this->mergeParam = false;
+            return $result;
         }
     }
 
