@@ -127,7 +127,7 @@ trait SoftDelete
 
         $this->exists(false);
 
-        return true;
+        return $result;
     }
 
     /**
