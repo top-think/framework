@@ -57,7 +57,10 @@ trait TimeStamp
         if (false !== strpos($format, '\\')) {
             $time = new $format($time);
         } elseif (!$timestamp && false !== $format) {
-            $time = date($format, $time);
+            if (is_numeric($time))
+            {
+                $time = date($format, $time);
+            }
         }
 
         return $time;
