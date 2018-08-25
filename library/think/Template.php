@@ -1050,7 +1050,7 @@ class Template
 
                 switch (strtolower($fun)) {
                     case 'raw':
-                        continue;
+                        break;
                     case 'date':
                         $name = 'date(' . $args[1] . ',!is_numeric(' . $name . ')? strtotime(' . $name . ') : ' . $name . ')';
                         break;
