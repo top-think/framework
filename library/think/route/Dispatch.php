@@ -253,7 +253,8 @@ abstract class Dispatch
             $tag    = null;
         }
 
-        $this->request->cache($key, $expire, $tag);
+        $cache = $this->request->cache($key, $expire, $tag);
+        $this->app->setResponseCache($cache);
     }
 
     /**

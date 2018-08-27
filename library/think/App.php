@@ -583,17 +583,23 @@ class App extends Container
         $cache = $this->request->cache($key, $expire, $except, $tag);
 
         if ($cache) {
-            list($key, $expire, $tag) = $cache;
-            if (strtotime($this->request->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->request->server('REQUEST_TIME')) {
-                // 读取缓存
-                $response = Response::create()->code(304);
-                throw new HttpResponseException($response);
-            } elseif ($this->cache->has($key)) {
-                list($content, $header) = $this->cache->get($key);
+            $this->setResponseCache($cache);
+        }
+    }
 
-                $response = Response::create($content)->header($header);
-                throw new HttpResponseException($response);
-            }
+    public function setResponseCache(array $cache): void
+    {
+        list($key, $expire, $tag) = $cache;
+
+        if (strtotime($this->request->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->request->server('REQUEST_TIME')) {
+            // 读取缓存
+            $response = Response::create()->code(304);
+            throw new HttpResponseException($response);
+        } elseif ($this->cache->has($key)) {
+            list($content, $header) = $this->cache->get($key);
+
+            $response = Response::create($content)->header($header);
+            throw new HttpResponseException($response);
         }
     }
 
