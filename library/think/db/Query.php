@@ -3033,6 +3033,16 @@ class Query
     }
 
     /**
+     * 获取模型的更新条件
+     * @access protected
+     * @param  array $options 查询参数
+     */
+    protected function getModelUpdateCondition(array $options)
+    {
+        return $options['where']['AND'] ?? null;
+    }
+
+    /**
      * 查找单条记录
      * @access public
      * @param  mixed     $data  主键值或者查询条件（闭包）
@@ -3215,8 +3225,7 @@ class Query
             $this->jsonResult($result, $options['json'], $options['json_assoc'], $withRelationAttr);
         }
 
-        $condition = (!$resultSet && isset($options['where']['AND'])) ? $options['where']['AND'] : null;
-        $result    = $this->model->newInstance($result, $condition);
+        $result = $this->model->newInstance($result, $resultSet ? null : $this->getModelUpdateCondition($options));
 
         // 动态获取器
         if (!empty($options['with_attr'])) {
