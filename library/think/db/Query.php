@@ -2038,6 +2038,18 @@ class Query
     }
 
     /**
+     * 设置是否返回数据集对象
+     * @access public
+     * @param  bool|string  $collection  是否返回数据集对象
+     * @return $this
+     */
+    public function fetchCollection($collection = true)
+    {
+        $this->options['collection'] = $collection;
+        return $this;
+    }
+
+    /**
      * 设置从主服务器读取数据
      * @access public
      * @return $this
@@ -2883,8 +2895,12 @@ class Query
      */
     protected function resultSetToModelCollection(array $resultSet): ModelCollection
     {
+        if (!empty($this->options['collection']) && is_string($this->options['collection'])) {
+            $collection = $this->options['collection'];
+        }
+
         if (empty($resultSet)) {
-            return $this->model->toCollection([]);
+            return $this->model->toCollection([], $collection ?? null);
         }
 
         // 检查动态获取器
@@ -2917,7 +2933,7 @@ class Query
         }
 
         // 模型数据集转换
-        return $this->model->toCollection($resultSet);
+        return $this->model->toCollection($resultSet, $collection ?? null);
     }
 
     /**
@@ -2940,7 +2956,7 @@ class Query
             }
         }
 
-        if ('collection' == $this->connection->getConfig('resultset_type')) {
+        if (!empty($this->options['collection']) || 'collection' == $this->connection->getConfig('resultset_type')) {
             // 返回Collection对象
             $resultSet = new Collection($resultSet);
         }
@@ -3013,6 +3029,94 @@ class Query
         } else {
             return;
         }
+    }
+
+    /**
+     * 查找单条记录
+     * @access public
+     * @param  mixed     $data  主键值或者查询条件（闭包）
+     * @param  mixed     $with  关联预查询
+     * @param  bool      $cache 是否缓存
+     * @param  bool      $failException 是否抛出异常
+     * @return Model|array|null
+     * @throws exception\DbException
+     */
+    public function get($data, $with = [], $cache = false, $failException = false)
+    {
+        if (is_null($data)) {
+            return;
+        }
+
+        if (true === $with || is_int($with)) {
+            $cache = $with;
+            $with  = [];
+        }
+
+        return $this->parseQuery($data, $with, $cache)
+            ->fetchSql(false)
+            ->failException($failException)
+            ->find($data);
+    }
+
+    /**
+     * 查找单条记录 如果不存在直接抛出异常
+     * @access public
+     * @param  mixed     $data  主键值或者查询条件（闭包）
+     * @param  mixed     $with  关联预查询
+     * @param  bool      $cache 是否缓存
+     * @return Model|array|null
+     * @throws exception\DbException
+     */
+    public function getOrFail($data, $with = [], $cache = false)
+    {
+        return $this->get($data, $with, $cache, true);
+    }
+
+    /**
+     * 查找所有记录
+     * @access public
+     * @param  mixed        $data  主键列表或者查询条件（闭包）
+     * @param  array|string $with  关联预查询
+     * @param  bool         $cache 是否缓存
+     * @return Collection|array
+     * @throws exception\DbException
+     */
+    public function all($data = null, $with = [], $cache = false)
+    {
+        if (true === $with || is_int($with)) {
+            $cache = $with;
+            $with  = [];
+        }
+
+        return $this->parseQuery($data, $with, $cache)
+            ->fetchSql(false)
+            ->select($data);
+    }
+
+    /**
+     * 分析查询表达式
+     * @access public
+     * @param  mixed  $data  主键列表或者查询条件（闭包）
+     * @param  string $with  关联预查询
+     * @param  bool   $cache 是否缓存
+     * @return Query
+     */
+    protected function parseQuery(&$data, $with, $cache)
+    {
+        $result = $this->with($with)->cache($cache);
+
+        if (is_array($data) && key($data) !== 0) {
+            $result = $result->where($data);
+            $data   = null;
+        } elseif ($data instanceof \Closure) {
+            $data($result);
+            $data = null;
+        } elseif ($data instanceof Query) {
+            $result = $data->with($with)->cache($cache);
+            $data   = null;
+        }
+
+        return $result;
     }
 
     /**
