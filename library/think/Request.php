@@ -1208,8 +1208,8 @@ class Request
                 $count = count($file['name']);
 
                 for ($i = 0; $i < $count; $i++) {
-                    if (empty($file['tmp_name'][$i]) || !is_file($file['tmp_name'][$i])) {
-                        continue;
+                    if ($file['error'][$i] > 0) {
+                        $this->throwUploadFileError($file['error'][$i]);
                     }
 
                     $temp['key'] = $key;
@@ -1226,8 +1226,8 @@ class Request
                 if ($file instanceof File) {
                     $array[$key] = $file;
                 } else {
-                    if (empty($file['tmp_name']) || !is_file($file['tmp_name'])) {
-                        continue;
+                    if ($file['error'] > 0) {
+                        $this->throwUploadFileError($file['error']);
                     }
 
                     $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
@@ -1236,6 +1236,22 @@ class Request
         }
 
         return $array;
+    }
+
+    protected function throwUploadFileError($error)
+    {
+        static $fileUploadErrors = [
+            1 => 'upload File size exceeds the maximum value',
+            2 => 'upload File size exceeds the maximum value',
+            3 => 'only the portion of file is uploaded',
+            4 => 'no file to uploaded',
+            6 => 'upload temp dir not found',
+            7 => 'file write error',
+        ];
+
+        $msg = $fileUploadErrors[$error];
+        $msg = Lang::has($msg) ? Lang::get($msg) : $msg;
+        throw new Exception($msg);
     }
 
     /**
