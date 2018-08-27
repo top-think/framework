@@ -1187,19 +1187,6 @@ class Query
     }
 
     /**
-     * 设置是否返回数据集对象
-     * @access public
-     * @param  bool  $collection  是否返回数据集对象
-     * @return $this
-     */
-    public function fetchCollection($collection = true)
-    {
-        $this->options['collection'] = $collection;
-
-        return $this;
-    }
-
-    /**
      * 指定AND查询条件
      * @access public
      * @param  mixed $field     查询字段
@@ -2076,6 +2063,19 @@ class Query
     public function fetchPdo($pdo = true)
     {
         $this->options['fetch_pdo'] = $pdo;
+        return $this;
+    }
+
+    /**
+     * 设置是否返回数据集对象
+     * @access public
+     * @param  bool|string  $collection  是否返回数据集对象
+     * @return $this
+     */
+    public function fetchCollection($collection = true)
+    {
+        $this->options['collection'] = $collection;
+
         return $this;
     }
 
@@ -2986,8 +2986,12 @@ class Query
      */
     protected function resultSetToModelCollection(array $resultSet)
     {
+        if (!empty($this->options['collection']) && is_string($this->options['collection'])) {
+            $collection = $this->options['collection'];
+        }
+
         if (empty($resultSet)) {
-            return $this->model->toCollection([]);
+            return $this->model->toCollection([], isset($collection) ? $collection : null);
         }
 
         // 检查动态获取器
@@ -3020,7 +3024,7 @@ class Query
         }
 
         // 模型数据集转换
-        return $result->toCollection($resultSet);
+        return $result->toCollection($resultSet, isset($collection) ? $collection : null);
     }
 
     /**
