@@ -234,15 +234,17 @@ class Build
 
             $class = new \ReflectionClass($namespace . '\\' . $module . '\\' . $layer . '\\' . $controller);
 
-            if ($suffix) {
-                // 控制器后缀
-                $controller = substr($controller, 0, -strlen($layer));
-            }
-
             if (strpos($layer, '\\')) {
                 // 多级控制器
                 $level      = str_replace(DIRECTORY_SEPARATOR, '.', substr($layer, 11));
                 $controller = $level . '.' . $controller;
+                $length     = strlen(strstr($layer, '\\', true));
+            } else {
+                $length = strlen($layer);
+            }
+
+            if ($suffix) {
+                $controller = substr($controller, 0, -$length);
             }
 
             $content .= $this->getControllerRoute($class, $module, $controller);
