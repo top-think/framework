@@ -2067,7 +2067,7 @@ class Query
     }
 
     /**
-     * 设置是否返回数据集对象
+     * 设置是否返回数据集对象（支持设置数据集对象类名）
      * @access public
      * @param  bool|string  $collection  是否返回数据集对象
      * @return $this
