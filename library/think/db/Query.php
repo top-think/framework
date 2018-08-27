@@ -376,14 +376,14 @@ class Query
      * @param  string      $sql    sql指令
      * @param  array       $bind   参数绑定
      * @param  boolean     $master 是否在主服务器读操作
-     * @param  bool|string $class  指定返回的数据集对象
+     * @param  bool        $pdo    是否返回PDO对象
      * @return mixed
      * @throws BindParamException
      * @throws PDOException
      */
-    public function query(string $sql, array $bind = [], bool $master = false, $class = false)
+    public function query(string $sql, array $bind = [], bool $master = false, bool $pdo = false)
     {
-        return $this->connection->query($sql, $bind, $master, $class);
+        return $this->connection->query($sql, $bind, $master, $pdo);
     }
 
     /**
@@ -2812,7 +2812,7 @@ class Query
     /**
      * 使用游标查找记录
      * @access public
-     * @param  array|string|Query|\Closure $data
+     * @param  mixed $data
      * @return \Generator
      */
     public function cursor($data = null)
@@ -2839,7 +2839,7 @@ class Query
     /**
      * 查找记录
      * @access public
-     * @param  array|string|Query|\Closure $data
+     * @param  mixed $data
      * @return Collection|array|\PDOStatement|string
      * @throws DbException
      * @throws ModelNotFoundException
@@ -2847,19 +2847,14 @@ class Query
      */
     public function select($data = null)
     {
-        if ($data instanceof Query) {
-            return $data->select();
-        } elseif ($data instanceof \Closure) {
+        if ($data instanceof \Closure) {
             $data($this);
             $data = null;
         }
 
         $this->parseOptions();
 
-        if (false === $data) {
-            // 用于子查询 不查询只返回SQL
-            $this->options['fetch_sql'] = true;
-        } elseif (!is_null($data)) {
+        if (!is_null($data)) {
             // 主键条件分析
             $this->parsePkWhere($data);
         }
@@ -2966,7 +2961,7 @@ class Query
     /**
      * 查找单条记录
      * @access public
-     * @param  array|string|Query|\Closure $data
+     * @param  mixed $data
      * @return array|null|\PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
@@ -2974,9 +2969,7 @@ class Query
      */
     public function find($data = null)
     {
-        if ($data instanceof Query) {
-            return $data->find();
-        } elseif ($data instanceof \Closure) {
+        if ($data instanceof \Closure) {
             $data($this);
             $data = null;
         }
@@ -3027,8 +3020,6 @@ class Query
             return !empty($this->model) ? $this->model->newInstance([], $this->getModelUpdateCondition($this->options)) : [];
         } elseif (!empty($this->options['fail'])) {
             $this->throwNotFound($this->options);
-        } else {
-            return;
         }
     }
 
@@ -3478,30 +3469,20 @@ class Query
     {
         $pk = $this->getPk($this->options);
 
-        // 获取当前数据表
-        $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
-
-        if (!empty($this->options['alias'][$table])) {
-            $alias = $this->options['alias'][$table];
-        }
-
         if (is_string($pk)) {
+            // 获取当前数据表
+            $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
+
+            if (!empty($this->options['alias'][$table])) {
+                $alias = $this->options['alias'][$table];
+            }
+
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
             if (is_array($data)) {
                 $where[$pk] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
             } else {
                 $where[$pk] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
-            }
-        } elseif (is_array($pk) && is_array($data) && !empty($data)) {
-            // 根据复合主键查询
-            foreach ($pk as $key) {
-                if (isset($data[$key])) {
-                    $attr        = isset($alias) ? $alias . '.' . $key : $key;
-                    $where[$key] = [$attr, '=', $data[$key]];
-                } else {
-                    throw new Exception('miss complex primary data');
-                }
             }
         }
 
