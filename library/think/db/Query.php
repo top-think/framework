@@ -2038,7 +2038,7 @@ class Query
     }
 
     /**
-     * 设置是否返回数据集对象
+     * 设置是否返回数据集对象（支持设置数据集对象类名）
      * @access public
      * @param  bool|string  $collection  是否返回数据集对象
      * @return $this
@@ -2052,11 +2052,12 @@ class Query
     /**
      * 设置从主服务器读取数据
      * @access public
+     * @param  bool $readMaster 是否从主服务器读取
      * @return $this
      */
-    public function master()
+    public function master(bool $readMaster = true)
     {
-        $this->options['master'] = true;
+        $this->options['master'] = $readMaster;
         return $this;
     }
 
