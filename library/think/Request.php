@@ -45,19 +45,6 @@ class Request
     ];
 
     /**
-     * 上传错误信息
-     * @var array
-     */
-    protected $fileUploadErrors = [
-        1 => 'upload File size exceeds the maximum value',
-        2 => 'upload File size exceeds the maximum value',
-        3 => 'only the portion of file is uploaded',
-        4 => 'no file to uploaded',
-        6 => 'upload temp dir not found',
-        7 => 'file write error',
-    ];
-
-    /**
      * 请求类型
      * @var string
      */
@@ -1250,8 +1237,18 @@ class Request
 
     protected function throwUploadFileError($error)
     {
-        $msg = $this->fileUploadErrors[$error];
+        static $fileUploadErrors = [
+            1 => 'upload File size exceeds the maximum value',
+            2 => 'upload File size exceeds the maximum value',
+            3 => 'only the portion of file is uploaded',
+            4 => 'no file to uploaded',
+            6 => 'upload temp dir not found',
+            7 => 'file write error',
+        ];
+
+        $msg = $fileUploadErrors[$error];
         $msg = Lang::has($msg) ? Lang::get($msg) : $msg;
+
         throw new Exception($msg);
     }
 
