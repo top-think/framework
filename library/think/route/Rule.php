@@ -682,7 +682,7 @@ abstract class Rule
     /**
      * 合并分组参数
      * @access protected
-     * @return void
+     * @return array
      */
     protected function mergeGroupOptions()
     {
