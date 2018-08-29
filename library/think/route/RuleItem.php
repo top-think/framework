@@ -17,6 +17,8 @@ use think\Route;
 
 class RuleItem extends Rule
 {
+    protected $hasSetRule;
+
     /**
      * 架构函数
      * @access public
@@ -128,7 +130,11 @@ class RuleItem extends Rule
             $value = [$this->rule, $vars, $this->parent->getDomain(), $suffix, $this->method];
 
             Container::get('rule_name')->set($name, $value, $first);
+        }
+
+        if (!$this->hasSetRule) {
             Container::get('rule_name')->setRule($this->rule, $this);
+            $this->hasSetRule = true;
         }
     }
 

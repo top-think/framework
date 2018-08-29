@@ -42,7 +42,13 @@ class RuleName
      */
     public function setRule($rule, $route)
     {
-        $this->rule[$route->getDomain()][$rule][$route->getRoute()] = $route;
+        if (is_string($route->getRoute())) {
+            $result[$route->getRoute()] = $route;
+        } else {
+            $result[] = $route;
+        }
+
+        $this->rule[$route->getDomain()][$rule] = $result;
     }
 
     /**
