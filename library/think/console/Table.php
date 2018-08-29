@@ -80,7 +80,7 @@ class Table
 
     public function setStyle($style)
     {
-        $this->style = $style;
+        $this->style = isset($this->format[$style]) ? $style : 'default';
     }
 
     protected function renderSeparator($pos)
