@@ -67,6 +67,7 @@ class Table
      * @var array
      */
     protected $format = [
+        'compact'    => [],
         'default'    => [
             'top'          => ['+', '-', '+', '+'],
             'cell'         => ['|', ' ', '|', '|'],
@@ -75,7 +76,14 @@ class Table
             'cross-top'    => ['+', '-', '-', '+'],
             'cross-bottom' => ['+', '-', '-', '+'],
         ],
-
+        'borderless' => [
+            'top'          => ['=', '=', ' ', '='],
+            'cell'         => [' ', ' ', ' ', ' '],
+            'middle'       => ['=', '=', ' ', '='],
+            'bottom'       => ['=', '=', ' ', '='],
+            'cross-top'    => ['=', '=', ' ', '='],
+            'cross-bottom' => ['=', '=', ' ', '='],
+        ],
         'box'        => [
             'top'          => ['┌', '─', '┬', '┐'],
             'cell'         => ['│', ' ', '│', '│'],
@@ -84,7 +92,6 @@ class Table
             'cross-top'    => ['├', '─', '┴', '┤'],
             'cross-bottom' => ['├', '─', '┬', '┤'],
         ],
-
         'box-double' => [
             'top'          => ['╔', '═', '╤', '╗'],
             'cell'         => ['║', ' ', '│', '║'],
@@ -181,7 +188,7 @@ class Table
      */
     protected function renderSeparator($pos)
     {
-        $style = $this->format[$this->style][$pos];
+        $style = $this->getStyle($pos);
         $array = [];
 
         foreach ($this->colWidth as $width) {
@@ -199,7 +206,7 @@ class Table
      */
     protected function renderHeader()
     {
-        $style   = $this->format[$this->style]['cell'];
+        $style   = $this->getStyle('cell');
         $content = $this->renderSeparator('top');
 
         foreach ($this->header as $key => $header) {
@@ -217,6 +224,17 @@ class Table
         return $content;
     }
 
+    protected function getStyle($style)
+    {
+        if ($this->format[$this->style]) {
+            $style = $this->format[$this->style][$style];
+        } else {
+            $style = [' ', ' ', ' ', ' '];
+        }
+
+        return $style;
+    }
+
     /**
      * 输出表格
      * @access public
@@ -231,7 +249,7 @@ class Table
 
         // 输出头部
         $content = $this->renderHeader();
-        $style   = $this->format[$this->style]['cell'];
+        $style   = $this->getStyle('cell');
 
         if ($this->rows) {
             foreach ($this->rows as $row) {
