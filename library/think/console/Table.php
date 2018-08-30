@@ -11,9 +11,6 @@
 
 namespace think\console;
 
-use think\Console;
-use think\console\Output;
-
 class Table
 {
     const ALIGN_LEFT   = 1;
