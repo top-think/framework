@@ -37,8 +37,6 @@ class RouteList extends Command
 
         $content = $this->getRouteList();
         file_put_contents($filename, 'Route List' . PHP_EOL . $content);
-
-        $output->writeln($content);
     }
 
     protected function getRouteList()
@@ -82,7 +80,7 @@ class RouteList extends Command
         }
 
         $table->setRows($rows);
-        return $table->render();
+        return $this->table($table);
     }
 
 }
