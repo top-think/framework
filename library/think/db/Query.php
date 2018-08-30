@@ -2278,25 +2278,17 @@ class Query
      * @param  array    $fields     搜索字段
      * @param  array    $data       搜索数据
      * @param  string   $prefix     字段前缀标识
-     * @param  array    $alias      搜索别名
      * @return $this
      */
-    public function withSearch(array $fields, array $data = [], $prefix = '', array $alias = [])
+    public function withSearch(array $fields, array $data = [], $prefix = '')
     {
         foreach ($fields as $key => $field) {
             if ($field instanceof \Closure) {
-                if (isset($alias[$key])) {
-                    $key = $alias[$key];
-                }
-
                 $field($this, isset($data[$key]) ? $data[$key] : null, $data, $prefix);
             } elseif ($this->model) {
                 // 检测搜索器
-                $method = 'search' . Loader::parseName($field, 1) . 'Attr';
-
-                if (isset($alias[$field])) {
-                    $field = $alias[$field];
-                }
+                $fieldName = is_numeric($key) ? $field : $key;
+                $method    = 'search' . Loader::parseName($fieldName, 1) . 'Attr';
 
                 if (method_exists($this->model, $method)) {
                     $this->model->$method($this, isset($data[$field]) ? $data[$field] : null, $data, $prefix);
