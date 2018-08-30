@@ -16,58 +16,113 @@ use think\console\Output;
 
 class Table
 {
+    const ALIGN_LEFT   = 1;
+    const ALIGN_RIGHT  = 0;
+    const ALIGN_CENTER = 2;
+
+    /**
+     * 输出对象
+     * @var Output
+     */
     protected $output;
 
+    /**
+     * 头信息数据
+     * @var array
+     */
     protected $header = [];
 
+    /**
+     * 头部对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
+     * @var int
+     */
+    protected $headerAlign = 1;
+
+    /**
+     * 表格数据（二维数组）
+     * @var array
+     */
     protected $rows = [];
 
+    /**
+     * 单元格对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
+     * @var int
+     */
+    protected $cellAlign = 1;
+
+    /**
+     * 单元格宽度信息
+     * @var array
+     */
     protected $colWidth = [];
 
-    protected $style  = 'default';
+    /**
+     * 表格输出样式
+     * @var string
+     */
+    protected $style = 'default';
+
+    /**
+     * 表格样式定义
+     * @var array
+     */
     protected $format = [
         'default'    => [
-            'top'    => ['+', '-', '+', '+'],
-            'cell'   => ['|', ' ', '|', '|'],
-            'middle' => ['+', '-', '+', '+'],
-            'bottom' => ['+', '-', '+', '+'],
+            'top'          => ['+', '-', '+', '+'],
+            'cell'         => ['|', ' ', '|', '|'],
+            'middle'       => ['+', '-', '+', '+'],
+            'bottom'       => ['+', '-', '+', '+'],
+            'cross-top'    => ['+', '-', '-', '+'],
+            'cross-bottom' => ['+', '-', '-', '+'],
         ],
+
         'box'        => [
-            'top'    => ['┌', '─', '┬', '┐'],
-            'cell'   => ['│', ' ', '│', '│'],
-            'middle' => ['├', '─', '┼', '┤'],
-            'bottom' => ['└', '─', '┴', '┘'],
+            'top'          => ['┌', '─', '┬', '┐'],
+            'cell'         => ['│', ' ', '│', '│'],
+            'middle'       => ['├', '─', '┼', '┤'],
+            'bottom'       => ['└', '─', '┴', '┘'],
+            'cross-top'    => ['├', '─', '┴', '┤'],
+            'cross-bottom' => ['├', '─', '┬', '┤'],
         ],
+
         'box-double' => [
-            'top'    => ['╔', '═', '╤', '╗'],
-            'cell'   => ['║', ' ', '│', '║'],
-            'middle' => ['╠', '─', '╪', '╣'],
-            'bottom' => ['╚', '═', '╧', '╝'],
+            'top'          => ['╔', '═', '╤', '╗'],
+            'cell'         => ['║', ' ', '│', '║'],
+            'middle'       => ['╠', '─', '╪', '╣'],
+            'bottom'       => ['╚', '═', '╧', '╝'],
+            'cross-top'    => ['╠', '═', '╧', '╣'],
+            'cross-bottom' => ['╠', '═', '╤', '╣'],
         ],
     ];
 
     /**
-     * 构造方法
-     * @param string|null $name 命令名称,如果没有设置则比如在 configure() 里设置
-     * @throws \LogicException
-     * @api
+     * 设置表格头信息 以及对齐方式
+     * @access public
+     * @param array $header     要输出的Header信息
+     * @param int   $align      对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
+     * @return void
      */
-    public function __construct(Output $output)
+    public function setHeader(array $header, $align = self::ALIGN_LEFT)
     {
-        $this->output = $output;
-    }
+        $this->header      = $header;
+        $this->headerAlign = $align;
 
-    public function setHeader(array $header)
-    {
-        $this->header = $header;
         foreach ($header as $key => $val) {
             $this->colWidth[$key] = strlen($val);
         }
     }
 
-    public function setRows(array $rows)
+    /**
+     * 设置输出表格数据 及对齐方式
+     * @access public
+     * @param array $rows       要输出的表格数据（二维数组）
+     * @param int   $align      对齐方式 默认1 ALGIN_LEFT 0 ALIGN_RIGHT 2 ALIGN_CENTER
+     * @return void
+     */
+    public function setRows(array $rows, $align = self::ALIGN_LEFT)
     {
-        $this->rows = $rows;
+        $this->rows      = $rows;
+        $this->cellAlign = $align;
 
         foreach ($rows as $row) {
             foreach ((array) $row as $key => $cell) {
@@ -78,11 +133,23 @@ class Table
         }
     }
 
+    /**
+     * 设置输出表格的样式
+     * @access public
+     * @param  string $style       样式名
+     * @return void
+     */
     public function setStyle($style)
     {
         $this->style = isset($this->format[$style]) ? $style : 'default';
     }
 
+    /**
+     * 输出分隔行
+     * @access public
+     * @param  string $pos       位置
+     * @return string
+     */
     protected function renderSeparator($pos)
     {
         $style = $this->format[$this->style][$pos];
@@ -96,13 +163,18 @@ class Table
         return $content;
     }
 
+    /**
+     * 输出表格头部
+     * @access public
+     * @return string
+     */
     protected function renderHeader()
     {
         $style = $this->format[$this->style]['cell'];
         $array = [];
 
         foreach ($this->header as $key => $header) {
-            $array[] = ' ' . str_pad($header, $this->colWidth[$key], $style[1]);
+            $array[] = ' ' . str_pad($header, $this->colWidth[$key], $style[1], $this->headerAlign);
         }
 
         $content = $this->renderSeparator('top');
@@ -112,26 +184,38 @@ class Table
         return $content;
     }
 
-    public function render()
+    /**
+     * 输出表格
+     * @access public
+     * @param  array $dataList       表格数据
+     * @return string
+     */
+    public function render($dataList = [])
     {
+        if ($dataList) {
+            $this->setRows($dataList);
+        }
+
         // 输出头部
         $content = $this->renderHeader();
         $style   = $this->format[$this->style]['cell'];
 
         foreach ($this->rows as $row) {
-            if (is_string($row) && false !== strpos($row, '-')) {
+            if (is_string($row) && '-' === $row) {
                 $content .= $this->renderSeparator('middle');
             } elseif (is_scalar($row)) {
-                $array = ' ' . str_pad($row, array_reduce($this->colWidth, function ($a, $b) {
+                $content .= $this->renderSeparator('cross-top');
+
+                $array = str_pad($row, 3 * count($this->colWidth) + array_reduce($this->colWidth, function ($a, $b) {
                     return $a + $b;
-                })) . str_repeat(' ', 3 * (count($this->colWidth) - 1)) . " ";
+                }));
 
-                $content .= $style[0] . $array . $style[3] . PHP_EOL;
+                $content .= $style[0] . ' ' . $array . ' ' . $style[3] . PHP_EOL;
+                $content .= $this->renderSeparator('cross-bottom');
             } else {
-
                 $array = [];
                 foreach ($row as $key => $val) {
-                    $array[] = ' ' . str_pad($val, $this->colWidth[$key]);
+                    $array[] = ' ' . str_pad($val, $this->colWidth[$key], ' ', $this->cellAlign);
                 }
 
                 $content .= $style[0] . implode(' ' . $style[2], $array) . ' ' . $style[3] . PHP_EOL;
@@ -140,6 +224,6 @@ class Table
 
         $content .= $this->renderSeparator('bottom');
 
-        $this->output->writeln($content);
+        return $content;
     }
 }

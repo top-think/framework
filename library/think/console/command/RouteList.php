@@ -30,15 +30,18 @@ class RouteList extends Command
     protected function execute(Input $input, Output $output)
     {
         $filename = Container::get('app')->getRuntimePath() . 'route_list.php';
+
         if (is_file($filename)) {
             unlink($filename);
         }
-        $content = $this->getRouteList($output);
-        file_put_contents($filename, $content);
+
+        $content = $this->getRouteList();
+        file_put_contents($filename, 'Route List' . PHP_EOL . $content);
+
         $output->writeln($content);
     }
 
-    protected function getRouteList($output)
+    protected function getRouteList()
     {
         Container::get('route')->setName([]);
         Container::get('route')->lazy(false);
@@ -63,7 +66,7 @@ class RouteList extends Command
             include Container::get('build')->buildRoute($suffix);
         }
 
-        $table = new Table($output);
+        $table = new Table();
         $table->setHeader(['Rule', 'Route', 'Method', 'Name', 'Domain']);
 
         $routeList = Container::get('route')->getRuleList();
