@@ -28,5 +28,4 @@ class Version extends Command
     {
         $output->writeln('v' . App::version());
     }
-
 }

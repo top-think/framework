@@ -21,7 +21,6 @@ use think\facade\Env;
 
 abstract class Make extends Command
 {
-
     protected $type;
 
     abstract protected function getStub();

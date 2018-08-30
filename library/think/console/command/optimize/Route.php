@@ -17,9 +17,6 @@ use think\Container;
 
 class Route extends Command
 {
-    /** @var  Output */
-    protected $output;
-
     protected function configure()
     {
         $this->setName('optimize:route')
