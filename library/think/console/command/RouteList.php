@@ -12,6 +12,7 @@ namespace think\console\command;
 
 use think\console\Command;
 use think\console\Input;
+use think\console\input\Option;
 use think\console\Output;
 use think\console\Table;
 use think\Container;
@@ -21,9 +22,18 @@ class RouteList extends Command
     /** @var  Output */
     protected $output;
 
+    protected $sortBy = [
+        'rule'   => 0,
+        'route'  => 1,
+        'method' => 2,
+        'name'   => 3,
+        'domain' => 4,
+    ];
+
     protected function configure()
     {
         $this->setName('route:list')
+            ->addOption('sort', 's', Option::VALUE_OPTIONAL, 'order by rule name.', 0)
             ->setDescription('show route list.');
     }
 
@@ -42,7 +52,7 @@ class RouteList extends Command
     protected function getRouteList()
     {
         Container::get('route')->setName([]);
-        Container::get('route')->lazy(false);
+        Container::get('route')->setTestMode(true);
         // 路由检测
         $path = Container::get('app')->getRoutePath();
 
@@ -79,7 +89,25 @@ class RouteList extends Command
             }
         }
 
+        if ($this->input->getOption('sort')) {
+            $sort = $this->input->getOption('sort');
+
+            if (isset($this->sortBy[$sort])) {
+                $sort = $this->sortBy[$sort];
+            }
+
+            $callback = function ($a, $b) use ($sort) {
+                $fieldA = isset($a[$sort]) ? $a[$sort] : null;
+                $fieldB = isset($b[$sort]) ? $b[$sort] : null;
+
+                return strcasecmp($fieldA, $fieldB);
+            };
+
+            uasort($rows, $callback);
+        }
+
         $table->setRows($rows);
+
         return $this->table($table);
     }
 

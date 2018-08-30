@@ -39,7 +39,7 @@ class Route extends Command
     protected function buildRouteCache()
     {
         Container::get('route')->setName([]);
-        Container::get('route')->lazy(false);
+        Container::get('route')->setTestMode(true);
         // 路由检测
         $path = Container::get('app')->getRoutePath();
 
