@@ -23,6 +23,28 @@ use ReflectionFunction;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 
+/**
+ * @package think
+ * @property Build          $build
+ * @property Cache          $cache
+ * @property Config         $config
+ * @property Cookie         $cookie
+ * @property Debug          $debug
+ * @property Env            $env
+ * @property Hook           $hook
+ * @property Lang           $lang
+ * @property Middleware     $middleware
+ * @property Request        $request
+ * @property Response       $response
+ * @property Route          $route
+ * @property Session        $session
+ * @property Template       $template
+ * @property Url            $url
+ * @property Validate       $validate
+ * @property View           $view
+ * @property route\RuleName $rule_name
+ * @property Log            $log
+ */
 class Container implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
