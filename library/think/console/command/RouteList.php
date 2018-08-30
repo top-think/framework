@@ -31,6 +31,7 @@ class RouteList extends Command
     {
         $this->setName('route:list')
             ->addOption('sort', 's', Option::VALUE_OPTIONAL, 'order by rule name.', 0)
+            ->addOption('more', 'm', Option::VALUE_NONE, 'show route options.')
             ->setDescription('show route list.');
     }
 
@@ -48,7 +49,6 @@ class RouteList extends Command
 
     protected function getRouteList()
     {
-        Container::get('route')->setName([]);
         Container::get('route')->setTestMode(true);
         // 路由检测
         $path = Container::get('app')->getRoutePath();
@@ -60,6 +60,7 @@ class RouteList extends Command
                 $filename = $path . DIRECTORY_SEPARATOR . $file;
                 // 导入路由配置
                 $rules = include $filename;
+
                 if (is_array($rules)) {
                     Container::get('route')->import($rules);
                 }
@@ -68,21 +69,34 @@ class RouteList extends Command
 
         if (Container::get('config')->get('route_annotation')) {
             $suffix = Container::get('config')->get('controller_suffix') || Container::get('config')->get('class_suffix');
+
             include Container::get('build')->buildRoute($suffix);
         }
 
         $table = new Table();
-        $table->setHeader(['Rule', 'Route', 'Method', 'Name', 'Domain']);
+
+        if ($this->input->hasOption('more')) {
+            $header = ['Rule', 'Route', 'Method', 'Name', 'Domain', 'Option'];
+        } else {
+            $header = ['Rule', 'Route', 'Method', 'Name', 'Domain'];
+        }
+
+        $table->setHeader($header);
 
         $routeList = Container::get('route')->getRuleList();
         $rows      = [];
 
         foreach ($routeList as $domain => $items) {
             foreach ($items as $item) {
-                $item['route']  = $item['route'] instanceof \Closure ? 'Closure' : $item['route'];
-                $item['domain'] = $domain;
+                $item['route'] = $item['route'] instanceof \Closure ? '<Closure>' : $item['route'];
 
-                $rows[] = [$item['rule'], $item['route'], $item['method'], $item['name'], $item['domain']];
+                if ($this->input->hasOption('more')) {
+                    $item = [$item['rule'], $item['route'], $item['method'], $item['name'], $domain, json_encode($item['option'])];
+                } else {
+                    $item = [$item['rule'], $item['route'], $item['method'], $item['name'], $domain];
+                }
+
+                $rows[] = $item;
             }
         }
 
@@ -93,14 +107,12 @@ class RouteList extends Command
                 $sort = $this->sortBy[$sort];
             }
 
-            $callback = function ($a, $b) use ($sort) {
-                $fieldA = isset($a[$sort]) ? $a[$sort] : null;
-                $fieldB = isset($b[$sort]) ? $b[$sort] : null;
+            uasort($rows, function ($a, $b) use ($sort) {
+                $itemA = isset($a[$sort]) ? $a[$sort] : null;
+                $itemB = isset($b[$sort]) ? $b[$sort] : null;
 
-                return strcasecmp($fieldA, $fieldB);
-            };
-
-            uasort($rows, $callback);
+                return strcasecmp($itemA, $itemB);
+            });
         }
 
         $table->setRows($rows);
