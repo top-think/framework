@@ -19,9 +19,6 @@ use think\Container;
 
 class RouteList extends Command
 {
-    /** @var  Output */
-    protected $output;
-
     protected $sortBy = [
         'rule'   => 0,
         'route'  => 1,
