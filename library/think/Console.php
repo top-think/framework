@@ -39,6 +39,7 @@ class Console
         "think\\console\\command\\Lists",
         "think\\console\\command\\Build",
         "think\\console\\command\\Clear",
+        "think\\console\\command\\make\\Command",
         "think\\console\\command\\make\\Controller",
         "think\\console\\command\\make\\Model",
         "think\\console\\command\\make\\Middleware",
@@ -82,6 +83,10 @@ class Console
      */
     public function setUser($user)
     {
+        if (DIRECTORY_SEPARATOR == '\\') {
+            return;
+        }
+
         $user = posix_getpwnam($user);
         if ($user) {
             posix_setuid($user['uid']);
@@ -101,22 +106,41 @@ class Console
 
         if (!$console) {
             $config = Container::get('config')->pull('console');
+
             // 实例化 console
             $console = new self($config['name'], $config['version'], $config['user']);
+
+            // 自动加载路径
+            if (!empty($config['auto_path']) && is_dir($config['auto_path'])) {
+                $files       = scandir($config['auto_path']);
+                $beforeClass = get_declared_classes();
+
+                foreach ($files as $file) {
+                    if (pathinfo($file, PATHINFO_EXTENSION) == 'php') {
+                        include $config['auto_path'] . $file;
+                    }
+                }
+
+                $afterClass = get_declared_classes();
+                $commands   = array_diff($afterClass, $beforeClass);
+            } else {
+                $commands = [];
+            }
 
             // 读取指令集
             $file = Container::get('env')->get('app_path') . 'command.php';
 
             if (is_file($file)) {
-                $commands = include $file;
+                $loadCommands = include $file;
+                if (is_array($loadCommands)) {
+                    $commands = array_merge($commands, $loadCommands);
+                }
+            }
 
-                if (is_array($commands)) {
-                    foreach ($commands as $command) {
-                        if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
-                            // 注册指令
-                            $console->add(new $command());
-                        }
-                    }
+            foreach ($commands as $command) {
+                if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
+                    // 注册指令
+                    $console->add(new $command());
                 }
             }
         }

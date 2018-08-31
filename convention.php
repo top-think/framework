@@ -312,9 +312,10 @@ return [
 
     //控制台配置
     'console'    => [
-        'name'    => 'Think Console',
-        'version' => '0.1',
-        'user'    => null,
+        'name'      => 'Think Console',
+        'version'   => '0.1',
+        'user'      => null,
+        'auto_path' => '',
     ],
 
     // 中间件配置

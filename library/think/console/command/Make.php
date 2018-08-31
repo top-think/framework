@@ -67,7 +67,6 @@ abstract class Make extends Command
             $namespace,
             App::getNamespace(),
         ], $stub);
-
     }
 
     protected function getPathName($name)
