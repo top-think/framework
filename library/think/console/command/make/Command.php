@@ -50,7 +50,7 @@ class Command extends Make
 
     protected function getNamespace($appNamespace, $module)
     {
-        return parent::getNamespace($appNamespace, 'command');
+        return $appNamespace . '\\command';
     }
 
 }
