@@ -18,12 +18,6 @@ class Table
     const ALIGN_CENTER = 2;
 
     /**
-     * 输出对象
-     * @var Output
-     */
-    protected $output;
-
-    /**
      * 头信息数据
      * @var array
      */

@@ -323,9 +323,8 @@ abstract class Connection
     public function parseSqlTable($sql)
     {
         if (false !== strpos($sql, '__')) {
-            $prefix = $this->getConfig('prefix');
-            $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
-                return $prefix . strtolower($match[1]);
+            $sql = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) {
+                return $this->getConfig('prefix') . strtolower($match[1]);
             }, $sql);
         }
 
