@@ -21,7 +21,6 @@ use think\facade\Env;
 
 abstract class Make extends Command
 {
-
     protected $type;
 
     abstract protected function getStub();
@@ -33,7 +32,6 @@ abstract class Make extends Command
 
     protected function execute(Input $input, Output $output)
     {
-
         $name = trim($input->getArgument('name'));
 
         $classname = $this->getClassName($name);
@@ -52,7 +50,6 @@ abstract class Make extends Command
         file_put_contents($pathname, $this->buildClass($classname));
 
         $output->writeln('<info>' . $this->type . ' created successfully.</info>');
-
     }
 
     protected function buildClass(string $name)
@@ -68,7 +65,6 @@ abstract class Make extends Command
             $namespace,
             App::getNamespace(),
         ], $stub);
-
     }
 
     protected function getPathName(string $name)

@@ -237,11 +237,8 @@ abstract class Builder
 
         foreach ((array) $tables as $key => $table) {
             if (!is_numeric($key)) {
-                $key    = $this->connection->parseSqlTable($key);
                 $item[] = $this->parseKey($query, $key) . ' ' . $this->parseKey($query, $table);
             } else {
-                $table = $this->connection->parseSqlTable($table);
-
                 if (isset($options['alias'][$table])) {
                     $item[] = $this->parseKey($query, $table) . ' ' . $this->parseKey($query, $options['alias'][$table]);
                 } else {
@@ -983,7 +980,7 @@ abstract class Builder
             if ($u instanceof \Closure) {
                 $sql[] = $type . ' ' . $this->parseClosure($query, $u);
             } elseif (is_string($u)) {
-                $sql[] = $type . ' ( ' . $this->connection->parseSqlTable($u) . ' )';
+                $sql[] = $type . ' ( ' . $u . ' )';
             }
         }
 

@@ -1965,20 +1965,10 @@ class Query
     public function alias($alias)
     {
         if (is_array($alias)) {
-            foreach ($alias as $key => $val) {
-                if (false !== strpos($key, '__')) {
-                    $table = $this->connection->parseSqlTable($key);
-                } else {
-                    $table = $key;
-                }
-                $this->options['alias'][$table] = $val;
-            }
+            $this->options['alias'] = $alias;
         } else {
             if (isset($this->options['table'])) {
                 $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
-                if (false !== strpos($table, '__')) {
-                    $table = $this->connection->parseSqlTable($table);
-                }
             } else {
                 $table = $this->getTable();
             }
@@ -2510,7 +2500,8 @@ class Query
                 $field($this, $data[$key] ?? null, $data, $prefix);
             } elseif ($this->model) {
                 // 检测搜索器
-                $method = 'search' . Loader::parseName($field, 1) . 'Attr';
+                $fieldName = is_numeric($key) ? $field : $key;
+                $method    = 'search' . Loader::parseName($fieldName, 1) . 'Attr';
 
                 if (method_exists($this->model, $method)) {
                     $this->model->$method($this, $data[$field] ?? null, $data, $prefix);
@@ -2532,7 +2523,9 @@ class Query
      */
     protected function withAggregate($relations, string $aggregate = 'count', $field = '*', bool $subQuery = true)
     {
-        $relations = is_string($relation) ? explode(',', $relation) : $relation;
+        if (is_string($relations)) {
+            $relations = explode(',', $relations);
+        }
 
         if (!$subQuery) {
             $this->options['with_count'][] = [$relations, $aggregate, $field];

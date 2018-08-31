@@ -328,24 +328,6 @@ abstract class Connection
     }
 
     /**
-     * 将SQL语句中的__TABLE_NAME__字符串替换成带前缀的表名（小写）
-     * @access public
-     * @param  string $sql sql语句
-     * @return string
-     */
-    public function parseSqlTable(string $sql): string
-    {
-        if (false !== strpos($sql, '__')) {
-            $prefix = $this->getConfig('prefix');
-            $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
-                return $prefix . strtolower($match[1]);
-            }, $sql);
-        }
-
-        return $sql;
-    }
-
-    /**
      * 获取数据表信息
      * @access public
      * @param  mixed  $tableName 数据表名 留空自动获取
@@ -361,8 +343,6 @@ abstract class Connection
         if (strpos($tableName, ',')) {
             // 多表不获取字段信息
             return false;
-        } else {
-            $tableName = $this->parseSqlTable($tableName);
         }
 
         // 修正子查询作为表名的问题
@@ -1059,8 +1039,6 @@ abstract class Connection
     {
         // 分析查询表达式
         $options = $query->getOptions();
-
-        $table = $this->parseSqlTable($table);
 
         $sql = $this->builder->selectInsert($query, $fields, $table);
 

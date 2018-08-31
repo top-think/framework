@@ -19,9 +19,6 @@ use think\facade\App;
 
 class Schema extends Command
 {
-    /** @var  Output */
-    protected $output;
-
     protected function configure()
     {
         $this->setName('optimize:schema')

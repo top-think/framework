@@ -20,7 +20,6 @@ use think\facade\Build as AppBuild;
 
 class Build extends Command
 {
-
     /**
      * {@inheritdoc}
      */
@@ -55,6 +54,5 @@ class Build extends Command
 
         AppBuild::run($build);
         $output->writeln("Successed");
-
     }
 }

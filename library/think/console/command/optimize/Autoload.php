@@ -17,7 +17,6 @@ use think\Container;
 
 class Autoload extends Command
 {
-
     protected function configure()
     {
         $this->setName('optimize:autoload')
