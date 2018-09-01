@@ -70,10 +70,6 @@ class Console
 
         $this->defaultCommand = 'list';
         $this->definition     = $this->getDefaultInputDefinition();
-
-        foreach ($this->getDefaultCommands() as $command) {
-            $this->add($command);
-        }
     }
 
     /**
@@ -105,13 +101,42 @@ class Console
         static $console;
 
         if (!$console) {
-            $config = Container::get('config')->pull('console');
-            // 实例化 console
+            $config  = Container::get('config')->pull('console');
             $console = new self($config['name'], $config['version'], $config['user']);
 
-            // 自动加载路径
-            if (!empty($config['auto_path']) && is_dir($config['auto_path'])) {
-                $files       = scandir($config['auto_path']);
+            $commands = $console->getDefinedCommands($config);
+
+            if (!empty($config['cache'])) {
+                // 从缓存读取指令集
+                $console->readCommandsFromCache($commands);
+            } else {
+                // 添加指令集
+                $console->addCommands($commands);
+            }
+        }
+
+        if ($run) {
+            // 运行
+            return $console->run();
+        } else {
+            return $console;
+        }
+    }
+
+    /**
+     * @access public
+     * @param  array $config
+     * @return array
+     */
+    public function getDefinedCommands(array $config)
+    {
+        $commands = self::$defaultCommands;
+
+        if (!empty($config['auto_path']) && is_dir($config['auto_path'])) {
+            // 自动加载指令类
+            $files = scandir($config['auto_path']);
+
+            if (count($files) > 2) {
                 $beforeClass = get_declared_classes();
 
                 foreach ($files as $file) {
@@ -121,34 +146,46 @@ class Console
                 }
 
                 $afterClass = get_declared_classes();
-                $commands   = array_diff($afterClass, $beforeClass);
-            } else {
-                $commands = [];
-            }
-
-            // 读取指令集
-            $file = Container::get('env')->get('app_path') . 'command.php';
-
-            if (is_file($file)) {
-                $loadCommands = include $file;
-                if (is_array($loadCommands)) {
-                    $commands = array_merge($commands, $loadCommands);
-                }
-            }
-
-            foreach ($commands as $command) {
-                if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
-                    // 注册指令
-                    $console->add(new $command());
-                }
+                $commands   = array_merge($commands, array_diff($afterClass, $beforeClass));
             }
         }
 
-        if ($run) {
-            // 运行
-            return $console->run();
+        $file = Container::get('env')->get('app_path') . 'command.php';
+
+        if (is_file($file)) {
+            $appCommands = include $file;
+
+            if (is_array($appCommands)) {
+                $commands = array_unique($commands + $appCommands);
+            }
+        }
+
+        return $commands;
+    }
+
+    /**
+     * @access public
+     * @param  array $commands
+     * @return void
+     */
+    public function readCommandsFromCache(array $commands = [])
+    {
+        $commandCacheFile = Container::get('env')->get('runtime_path') . 'commands.php';
+
+        if (is_file($commandCacheFile)) {
+            // 指令集缓存
+            $commandsCache = include $commandCacheFile;
+        }
+
+        if (empty($commandsCache) || count($commandsCache) != count($commands)) {
+            // 重新生成指令集缓存
+            $this->addCommands($commands);
+
+            $content = '<?php ' . PHP_EOL . 'return ';
+            $content .= var_export($this->getCommands(), true) . ';';
+            file_put_contents($commandCacheFile, $content);
         } else {
-            return $console;
+            $this->setCommands($commandsCache);
         }
     }
 
@@ -372,7 +409,10 @@ class Console
      */
     public function register(string $name)
     {
-        return $this->add(new Command($name));
+        $command = new $name();
+
+        $this->commands[$command->getName()] = $name;
+        return $command;
     }
 
     /**
@@ -385,6 +425,26 @@ class Console
         foreach ($commands as $command) {
             $this->add($command);
         }
+    }
+
+    /**
+     * 添加指令
+     * @access public
+     * @param  array $commands
+     */
+    public function setCommands($commands)
+    {
+        $this->commands = $commands;
+    }
+
+    /**
+     * 获取指令
+     * @access public
+     * @return  array
+     */
+    public function getCommands()
+    {
+        return $this->commands;
     }
 
     /**
@@ -429,6 +489,10 @@ class Console
         }
 
         $command = $this->commands[$name];
+
+        if (is_string($command)) {
+            $command = new $command;
+        }
 
         if ($this->wantHelps) {
             $this->wantHelps = false;
@@ -683,24 +747,6 @@ class Console
             new InputOption('--no-ansi', '', InputOption::VALUE_NONE, 'Disable ANSI output'),
             new InputOption('--no-interaction', '-n', InputOption::VALUE_NONE, 'Do not ask any interactive question'),
         ]);
-    }
-
-    /**
-     * 设置默认命令
-     * @access protected
-     * @return Command[] An array of default Command instances
-     */
-    protected function getDefaultCommands()
-    {
-        $defaultCommands = [];
-
-        foreach (self::$defaultCommands as $classname) {
-            if (class_exists($classname) && is_subclass_of($classname, "think\\console\\Command")) {
-                $defaultCommands[] = new $classname();
-            }
-        }
-
-        return $defaultCommands;
     }
 
     public static function addDefaultCommands(array $classnames)
