@@ -753,24 +753,6 @@ class Console
         ]);
     }
 
-    /**
-     * 设置默认命令
-     * @access protected
-     * @return Command[] An array of default Command instances
-     */
-    protected function getDefaultCommands()
-    {
-        $defaultCommands = [];
-
-        foreach (self::$defaultCommands as $classname) {
-            if (class_exists($classname) && is_subclass_of($classname, "think\\console\\Command")) {
-                $defaultCommands[] = new $classname();
-            }
-        }
-
-        return $defaultCommands;
-    }
-
     public static function addDefaultCommands(array $classnames)
     {
         self::$defaultCommands = array_merge(self::$defaultCommands, $classnames);
