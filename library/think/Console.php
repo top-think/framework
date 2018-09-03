@@ -106,13 +106,8 @@ class Console
 
             $commands = $console->getDefinedCommands($config);
 
-            if (!empty($config['cache'])) {
-                // 从缓存读取指令集
-                $console->readCommandsFromCache($commands);
-            } else {
-                // 添加指令集
-                $console->addCommands($commands);
-            }
+            // 添加指令集
+            $console->addCommands($commands);
         }
 
         if ($run) {
@@ -161,32 +156,6 @@ class Console
         }
 
         return $commands;
-    }
-
-    /**
-     * @access public
-     * @param  array $commands
-     * @return void
-     */
-    public function readCommandsFromCache(array $commands = [])
-    {
-        $commandCacheFile = Container::get('env')->get('runtime_path') . 'commands.php';
-
-        if (is_file($commandCacheFile)) {
-            // 指令集缓存
-            $commandsCache = include $commandCacheFile;
-        }
-
-        if (empty($commandsCache) || count($commandsCache) != count($commands)) {
-            // 重新生成指令集缓存
-            $this->addCommands($commands);
-
-            $content = '<?php ' . PHP_EOL . 'return ';
-            $content .= var_export($this->getCommands(), true) . ';';
-            file_put_contents($commandCacheFile, $content);
-        } else {
-            $this->setCommands($commandsCache);
-        }
     }
 
     /**
@@ -409,14 +378,11 @@ class Console
      */
     public function register($name)
     {
-        $command = new $name();
-
-        $this->commands[$command->getName()] = $name;
-        return $command;
+        return $this->add(new Command($name));
     }
 
     /**
-     * 添加指令
+     * 添加指令集
      * @access public
      * @param  array $commands
      */
@@ -425,29 +391,9 @@ class Console
         foreach ($commands as $command) {
             if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
                 // 注册指令
-                $this->register($command);
+                $this->add(new $command());
             }
         }
-    }
-
-    /**
-     * 添加指令
-     * @access public
-     * @param  array $commands
-     */
-    public function setCommands($commands)
-    {
-        $this->commands = $commands;
-    }
-
-    /**
-     * 获取指令
-     * @access public
-     * @return  array
-     */
-    public function getCommands()
-    {
-        return $this->commands;
     }
 
     /**
