@@ -3091,8 +3091,6 @@ class Query
             return $result;
         }
 
-        $this->removeOption('limit');
-
         // 数据处理
         if (empty($result)) {
             return $this->resultToEmpty();

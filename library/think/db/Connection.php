@@ -824,6 +824,8 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
+        $query->removeOption('limit');
+
         $bind = $query->getBind();
 
         if (!empty($options['fetch_sql'])) {
@@ -1269,6 +1271,14 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
+        if (isset($options['field'])) {
+            $query->setOption('field', $options['field']);
+        } else {
+            $query->removeOption('field');
+        }
+
+        $query->removeOption('limit');
+
         $bind = $query->getBind();
 
         if (!empty($options['fetch_sql'])) {
@@ -1344,6 +1354,12 @@ abstract class Connection
 
         // 生成查询SQL
         $sql = $this->builder->select($query);
+
+        if (isset($options['field'])) {
+            $query->setOption('field', $options['field']);
+        } else {
+            $query->removeOption('field');
+        }
 
         $bind = $query->getBind();
 
