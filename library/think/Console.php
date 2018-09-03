@@ -35,22 +35,22 @@ class Console
     private $defaultCommand;
 
     private static $defaultCommands = [
-        "think\\console\\command\\Help",
-        "think\\console\\command\\Lists",
-        "think\\console\\command\\Build",
-        "think\\console\\command\\Clear",
-        "think\\console\\command\\make\\Command",
-        "think\\console\\command\\make\\Controller",
-        "think\\console\\command\\make\\Model",
-        "think\\console\\command\\make\\Middleware",
-        "think\\console\\command\\make\\Validate",
-        "think\\console\\command\\optimize\\Autoload",
-        "think\\console\\command\\optimize\\Config",
-        "think\\console\\command\\optimize\\Schema",
-        "think\\console\\command\\optimize\\Route",
-        "think\\console\\command\\RunServer",
-        "think\\console\\command\\Version",
-        "think\\console\\command\\RouteList",
+        'help'              => "think\\console\\command\\Help",
+        'list'              => "think\\console\\command\\Lists",
+        'build'             => "think\\console\\command\\Build",
+        'clear'             => "think\\console\\command\\Clear",
+        'make:command'      => "think\\console\\command\\make\\Command",
+        'make:controller'   => "think\\console\\command\\make\\Controller",
+        'make:model'        => "think\\console\\command\\make\\Model",
+        'make:middleware'   => "think\\console\\command\\make\\Middleware",
+        'make:validate'     => "think\\console\\command\\make\\Validate",
+        'optimize:autoload' => "think\\console\\command\\optimize\\Autoload",
+        'optimize:config'   => "think\\console\\command\\optimize\\Config",
+        'optimize:schema'   => "think\\console\\command\\optimize\\Schema",
+        'optimize:route'    => "think\\console\\command\\optimize\\Route",
+        'run'               => "think\\console\\command\\RunServer",
+        'version'           => "think\\console\\command\\Version",
+        'route:list'        => "think\\console\\command\\RouteList",
     ];
 
     /**
@@ -151,7 +151,7 @@ class Console
             $appCommands = include $file;
 
             if (is_array($appCommands)) {
-                $commands = array_unique($commands + $appCommands);
+                $commands = array_merge($commands, $appCommands);
             }
         }
 
@@ -371,9 +371,9 @@ class Console
     }
 
     /**
-     * 注册一个指令
+     * 注册一个指令 （便于动态创建指令）
      * @access public
-     * @param  string $name     指令类名
+     * @param  string $name     指令名
      * @return Command
      */
     public function register($name)
@@ -388,22 +388,32 @@ class Console
      */
     public function addCommands(array $commands)
     {
-        foreach ($commands as $command) {
-            if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
+        foreach ($commands as $key => $command) {
+            if (is_subclass_of($command, "\\think\\console\\Command")) {
                 // 注册指令
-                $this->add(new $command());
+                $this->add($command, is_numeric($key) ? '' : $key);
             }
         }
     }
 
     /**
-     * 注册一个指令对象
+     * 注册一个指令（对象）
      * @access public
-     * @param  Command $command
-     * @return Command
+     * @param  mixed    $command    指令对象或者指令类名
+     * @param  string   $name       指令名 留空则自动获取
+     * @return mixed
      */
-    public function add(Command $command)
+    public function add($command, $name)
     {
+        if ($name) {
+            $this->commands[$name] = $command;
+            return;
+        }
+
+        if (is_string($command)) {
+            $command = new $command();
+        }
+
         $command->setConsole($this);
 
         if (!$command->isEnabled()) {
@@ -441,8 +451,9 @@ class Console
 
         if (is_string($command)) {
             $command = new $command();
-            $command->setConsole($this);
         }
+
+        $command->setConsole($this);
 
         if ($this->wantHelps) {
             $this->wantHelps = false;
