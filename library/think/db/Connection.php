@@ -904,6 +904,8 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
+        $query->removeOption('limit');
+
         $bind = $query->getBind();
 
         if (!empty($options['fetch_sql'])) {
