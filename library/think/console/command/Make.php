@@ -62,8 +62,9 @@ abstract class Make extends Command
 
         $class = str_replace($namespace . '\\', '', $name);
 
-        return str_replace(['{%className%}', '{%namespace%}', '{%app_namespace%}'], [
+        return str_replace(['{%className%}', '{%actionSuffix%}', '{%namespace%}', '{%app_namespace%}'], [
             $class,
+            Config::get('action_suffix'),
             $namespace,
             App::getNamespace(),
         ], $stub);
