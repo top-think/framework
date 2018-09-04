@@ -126,13 +126,8 @@ class App extends Container
 
     public function __construct(string $appPath = '')
     {
-        $this->appPath = $appPath ?: $this->getAppPath();
-
-        $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
-        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
-        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
-        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        $this->thinkPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->path($appPath);
     }
 
     /**
@@ -155,7 +150,7 @@ class App extends Container
      */
     public function path(string $path)
     {
-        $this->appPath = $path;
+        $this->appPath = $path ?: $this->getAppPath();
         return $this;
     }
 
@@ -174,6 +169,11 @@ class App extends Container
 
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
+
+        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
         static::setInstance($this);
 
