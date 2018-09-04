@@ -836,7 +836,7 @@ class Route
     public static function check($request, $url, $depr = '/', $checkDomain = false)
     {
         //检查解析缓存
-        if (Config::get('route_check_cache')) {
+        if (!App::$debug && Config::get('route_check_cache')) {
             $key = self::getCheckCacheKey($request);
             if (Cache::has($key)) {
                 list($rule, $route, $pathinfo, $option, $matches) = Cache::get($key);
