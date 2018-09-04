@@ -12,7 +12,6 @@
 namespace think;
 
 use think\facade\Cookie;
-use think\facade\Lang;
 use think\facade\Session;
 
 class Request
@@ -1247,7 +1246,6 @@ class Request
         ];
 
         $msg = $fileUploadErrors[$error];
-        $msg = Lang::has($msg) ? Lang::get($msg) : $msg;
 
         throw new Exception($msg);
     }
