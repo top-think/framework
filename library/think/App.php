@@ -585,10 +585,12 @@ class App extends Container
         // 检测路由缓存
         if (!$this->appDebug && $this->config->get('route_check_cache')) {
             $routeKey = $this->getRouteCacheKey();
-            $option   = $this->config->get('route_cache_option') ?: $this->cache->getConfig();
+            $option   = $this->config->get('route_cache_option');
 
-            if ($this->cache->connect($option)->has($routeKey)) {
+            if ($option && $this->cache->connect($option)->has($routeKey)) {
                 return $this->cache->connect($option)->get($routeKey);
+            } elseif ($this->cache->has($routeKey)) {
+                return $this->cache->get($routeKey);
             }
         }
 
