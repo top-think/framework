@@ -560,9 +560,11 @@ class App extends Container
 
         if (!empty($routeKey)) {
             try {
-                $this->cache
-                    ->tag('route_cache')
-                    ->set($routeKey, $dispatch);
+                if ($option) {
+                    $this->cache->connect($option)->tag('route_cache')->set($routeKey, $dispatch);
+                } else {
+                    $this->cache->tag('route_cache')->set($routeKey, $dispatch);
+                }
             } catch (\Exception $e) {
                 // 存在闭包的时候缓存无效
             }
