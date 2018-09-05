@@ -12,6 +12,7 @@ namespace think\console\command;
 
 use think\console\Command;
 use think\console\Input;
+use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 use think\console\Table;
@@ -30,6 +31,7 @@ class RouteList extends Command
     protected function configure()
     {
         $this->setName('route:list')
+            ->addArgument('style', Argument::OPTIONAL, "the style of the table.", 'default')
             ->addOption('sort', 's', Option::VALUE_OPTIONAL, 'order by rule name.', 0)
             ->addOption('more', 'm', Option::VALUE_NONE, 'show route options.')
             ->setDescription('show route list.');
@@ -116,6 +118,11 @@ class RouteList extends Command
         }
 
         $table->setRows($rows);
+
+        if ($this->input->getArgument('style')) {
+            $style = $this->input->getArgument('style');
+            $table->setStyle($style);
+        }
 
         return $this->table($table);
     }
