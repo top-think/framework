@@ -655,7 +655,7 @@ class App extends Container
      * @return object
      * @throws ClassNotFoundException
      */
-    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = ''): Controller
+    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '')
     {
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 

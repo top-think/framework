@@ -601,7 +601,7 @@ class Request
             $this->baseFile = $url;
         }
 
-        return $domain ? $this->domain() . $this->baseFile : $this->baseFile;
+        return $complete ? $this->domain() . $this->baseFile : $this->baseFile;
     }
 
     /**
