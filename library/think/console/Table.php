@@ -194,8 +194,7 @@ class Table
             $array[] = str_repeat($style[1], $width + 2);
         }
 
-        $content = $style[0] . implode($style[2], $array) . $style[3] . PHP_EOL;
-        return $content;
+        return $style[0] . implode($style[2], $array) . $style[3] . PHP_EOL;
     }
 
     /**
