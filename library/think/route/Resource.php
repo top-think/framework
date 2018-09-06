@@ -116,9 +116,11 @@ class Resource extends RuleGroup
     public function rest($name, $resource = [])
     {
         if (is_array($name)) {
-            $this->rest = $resource ? $name : array_merge($this->rest, $name);
-        } else {
+            $this->rest = $resource ? $name : array_merge($name, $this->rest);
+        } elseif (isset($this->rest[$name])) {
             $this->rest[$name] = $resource;
+        } else {
+            $this->rest = array_merge([$name=>$resource], $this->rest);
         }
 
         return $this;
