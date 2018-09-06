@@ -109,7 +109,7 @@ class Redirect extends Response
         if ($session->has('redirect_url')) {
             $this->data = $session->get('redirect_url');
             $session->delete('redirect_url');
-        } else if ($url) {
+        } elseif ($url) {
             $this->data = $url;
         }
 
