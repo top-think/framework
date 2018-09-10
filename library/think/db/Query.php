@@ -177,7 +177,7 @@ class Query
             call_user_func_array([$this->model, $method], $args);
             return $this;
         } else {
-            throw new Exception('method not exist:' . static::class . '->' . $method);
+            throw new Exception('method not exist:' . ($this->model ? get_class($this->model) : static::class) . '->' . $method);
         }
     }
 
