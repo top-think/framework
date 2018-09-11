@@ -226,8 +226,8 @@ abstract class Builder
     /**
      * table分析
      * @access protected
-     * @param  Query     $query     查询对象
-     * @param  mixed     $tables    表名
+     * @param  Query     $query         查询对象
+     * @param  mixed     $tables        表名
      * @return string
      */
     protected function parseTable(Query $query, $tables)
@@ -866,9 +866,11 @@ abstract class Builder
                     $sort = $val;
                 }
 
-                $sort    = strtoupper($sort);
-                $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
-                $array[] = $this->parseKey($query, $key, true) . $sort;
+                if (false === strpos($key, ')') && false === strpos($key, '#')) {
+                    $sort    = strtoupper($sort);
+                    $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
+                    $array[] = $this->parseKey($query, $key, true) . $sort;
+                }
             }
         }
 
@@ -1171,8 +1173,7 @@ abstract class Builder
     {
         $options = $query->getOptions();
 
-        $table = $this->parseTable($query, $options['table']);
-        $data  = $this->parseData($query, $options['data']);
+        $data = $this->parseData($query, $options['data']);
 
         if (empty($data)) {
             return '';

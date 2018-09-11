@@ -114,6 +114,12 @@ class Route
     protected $lazy = true;
 
     /**
+     * 路由是否测试模式
+     * @var bool
+     */
+    protected $isTest;
+
+    /**
      * （分组）路由规则是否合并解析
      * @var bool
      */
@@ -189,6 +195,27 @@ class Route
     {
         $this->lazy = $lazy;
         return $this;
+    }
+
+    /**
+     * 设置路由为测试模式
+     * @access public
+     * @param  bool     $test   路由是否测试模式
+     * @return void
+     */
+    public function setTestMode($test)
+    {
+        $this->isTest = $test;
+    }
+
+    /**
+     * 检查路由是否为测试模式
+     * @access public
+     * @return bool
+     */
+    public function isTest()
+    {
+        return $this->isTest;
     }
 
     /**
@@ -466,7 +493,9 @@ class Route
 
         // 检查路由别名
         if (isset($rules['__alias__'])) {
-            $this->alias($rules['__alias__']);
+            foreach ($rules['__alias__'] as $key => $val) {
+                $this->alias($key, $val);
+            }
             unset($rules['__alias__']);
         }
 
@@ -938,5 +967,13 @@ class Route
     public function __call($method, $args)
     {
         return call_user_func_array([$this->group, $method], $args);
+    }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app'], $data['request']);
+
+        return $data;
     }
 }

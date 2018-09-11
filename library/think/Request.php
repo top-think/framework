@@ -258,7 +258,6 @@ class Request
      * php://input内容
      * @var string
      */
-    // php://input
     protected $input;
 
     /**
@@ -523,6 +522,18 @@ class Request
     }
 
     /**
+     * 设置当前完整URL 包括QUERY_STRING
+     * @access public
+     * @param  string $url URL
+     * @return $this
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    /**
      * 获取当前完整URL 包括QUERY_STRING
      * @access public
      * @param  bool $complete 是否包含域名
@@ -545,6 +556,18 @@ class Request
         }
 
         return $complete ? $this->domain() . $this->url : $this->url;
+    }
+
+    /**
+     * 设置当前完整URL 不包括QUERY_STRING
+     * @access public
+     * @param  string $url URL
+     * @return $this
+     */
+    public function setBaseUrl($url)
+    {
+        $this->baseUrl = $url;
+        return $this;
     }
 
     /**
@@ -1011,7 +1034,7 @@ class Request
 
     protected function getInputData($content)
     {
-        if (false !== strpos($this->contentType(), 'application/json')) {
+        if (false !== strpos($this->contentType(), 'application/json') || 0 === strpos($content, '{"')) {
             return (array) json_decode($content, true);
         } elseif (strpos($content, '=')) {
             parse_str($content, $data);
@@ -1181,8 +1204,8 @@ class Request
                 $count = count($file['name']);
 
                 for ($i = 0; $i < $count; $i++) {
-                    if (empty($file['tmp_name'][$i]) || !is_file($file['tmp_name'][$i])) {
-                        continue;
+                    if ($file['error'][$i] > 0) {
+                        $this->throwUploadFileError($file['error'][$i]);
                     }
 
                     $temp['key'] = $key;
@@ -1199,8 +1222,8 @@ class Request
                 if ($file instanceof File) {
                     $array[$key] = $file;
                 } else {
-                    if (empty($file['tmp_name']) || !is_file($file['tmp_name'])) {
-                        continue;
+                    if ($file['error'] > 0) {
+                        $this->throwUploadFileError($file['error']);
                     }
 
                     $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
@@ -1209,6 +1232,22 @@ class Request
         }
 
         return $array;
+    }
+
+    protected function throwUploadFileError($error)
+    {
+        static $fileUploadErrors = [
+            1 => 'upload File size exceeds the maximum value',
+            2 => 'upload File size exceeds the maximum value',
+            3 => 'only the portion of file is uploaded',
+            4 => 'no file to uploaded',
+            6 => 'upload temp dir not found',
+            7 => 'file write error',
+        ];
+
+        $msg = $fileUploadErrors[$error];
+
+        throw new Exception($msg);
     }
 
     /**
@@ -1577,7 +1616,9 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config['var_ajax']) ? true : $result;
+        $result           = $this->param($this->config['var_ajax']) ? true : $result;
+        $this->mergeParam = false;
+        return $result;
     }
 
     /**
@@ -1594,7 +1635,9 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config['var_pjax']) ? true : $result;
+        $result           = $this->param($this->config['var_pjax']) ? true : $result;
+        $this->mergeParam = false;
+        return $result;
     }
 
     /**
@@ -2167,5 +2210,13 @@ class Request
     public function __isset($name)
     {
         return isset($this->param[$name]);
+    }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['dispatch'], $data['config']);
+
+        return $data;
     }
 }

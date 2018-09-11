@@ -11,7 +11,6 @@
 
 namespace think;
 
-
 use ArrayAccess;
 use ArrayIterator;
 use Closure;
@@ -24,6 +23,29 @@ use ReflectionFunction;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 
+
+/**
+ * @package think
+ * @property Build          $build
+ * @property Cache          $cache
+ * @property Config         $config
+ * @property Cookie         $cookie
+ * @property Debug          $debug
+ * @property Env            $env
+ * @property Hook           $hook
+ * @property Lang           $lang
+ * @property Middleware     $middleware
+ * @property Request        $request
+ * @property Response       $response
+ * @property Route          $route
+ * @property Session        $session
+ * @property Template       $template
+ * @property Url            $url
+ * @property Validate       $validate
+ * @property View           $view
+ * @property route\RuleName $rule_name
+ * @property Log            $log
+ */
 class Container implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
@@ -45,6 +67,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     protected $bind = [
         'app'                   => App::class,
         'build'                 => Build::class,
+        'crypt'                 => Crypt::class,
         'cache'                 => Cache::class,
         'config'                => Config::class,
         'cookie'                => Cookie::class,
@@ -58,6 +81,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         'response'              => Response::class,
         'route'                 => Route::class,
         'session'               => Session::class,
+        'template'              => Template::class,
         'url'                   => Url::class,
         'validate'              => Validate::class,
         'view'                  => View::class,
@@ -440,8 +464,9 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $params = $reflect->getParameters();
 
         foreach ($params as $param) {
-            $name  = $param->getName();
-            $class = $param->getClass();
+            $name      = $param->getName();
+            $lowerName = Loader::parseName($name);
+            $class     = $param->getClass();
 
             if ($class) {
                 $args[] = $this->getObjectParam($class->getName(), $vars);
@@ -449,6 +474,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
                 $args[] = array_shift($vars);
             } elseif (0 == $type && isset($vars[$name])) {
                 $args[] = $vars[$name];
+            } elseif (0 == $type && isset($vars[$lowerName])) {
+                $args[] = $vars[$lowerName];
             } elseif ($param->isDefaultValueAvailable()) {
                 $args[] = $param->getDefaultValue();
             } else {
@@ -531,5 +558,13 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     public function getIterator()
     {
         return new ArrayIterator($this->instances);
+    }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['instances'], $data['instance']);
+
+        return $data;
     }
 }

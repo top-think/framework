@@ -218,4 +218,11 @@ class Hook
         return $result;
     }
 
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app']);
+
+        return $data;
+    }
 }

@@ -79,6 +79,12 @@ trait Attribute
     private $origin = [];
 
     /**
+     * 动态获取器
+     * @var array
+     */
+    private $withAttr = [];
+
+    /**
      * 获取模型对象的主键
      * @access public
      * @return string|array
@@ -104,6 +110,21 @@ trait Attribute
         }
 
         return false;
+    }
+
+    /**
+     * 获取模型对象的主键值
+     * @access public
+     * @return integer
+     */
+    public function getKey()
+    {
+        $pk = $this->getPk();
+        if (is_string($pk) && array_key_exists($pk, $this->data)) {
+            return $this->data[$pk];
+        }
+
+        return;
     }
 
     /**
@@ -442,9 +463,18 @@ trait Attribute
         }
 
         // 检测属性获取器
-        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
+        $fieldName = Loader::parseName($name);
+        $method    = 'get' . Loader::parseName($name, 1) . 'Attr';
 
-        if (method_exists($this, $method)) {
+        if (isset($this->withAttr[$fieldName])) {
+            if ($notFound && $relation = $this->isRelationAttr($name)) {
+                $modelRelation = $this->$relation();
+                $value         = $this->getRelationData($modelRelation);
+            }
+
+            $closure = $this->withAttr[$fieldName];
+            $value   = $closure($value, $this->data);
+        } elseif (method_exists($this, $method)) {
             if ($notFound && $relation = $this->isRelationAttr($name)) {
                 $modelRelation = $this->$relation();
                 $value         = $this->getRelationData($modelRelation);
@@ -583,4 +613,27 @@ trait Attribute
         return $value;
     }
 
+    /**
+     * 设置数据字段获取器
+     * @access public
+     * @param  string|array $name       字段名
+     * @param  callable     $callback   闭包获取器
+     * @return $this
+     */
+    public function withAttribute($name, $callback = null)
+    {
+        if (is_array($name)) {
+            foreach ($name as $key => $val) {
+                $key = Loader::parseName($key);
+
+                $this->withAttr[$key] = $val;
+            }
+        } else {
+            $name = Loader::parseName($name);
+
+            $this->withAttr[$name] = $callback;
+        }
+
+        return $this;
+    }
 }

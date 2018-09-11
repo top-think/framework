@@ -74,6 +74,10 @@ class RuleGroup extends Rule
         if (!empty($option['cross_domain'])) {
             $this->router->setCrossDomainRule($this);
         }
+
+        if ($router->isTest()) {
+            $this->lazy(false);
+        }
     }
 
     /**
@@ -124,9 +128,17 @@ class RuleGroup extends Rule
             return false;
         }
 
+        // 检查前置行为
+        if (isset($this->option['before'])) {
+            if (false === $this->checkBefore($this->option['before'])) {
+                return false;
+            }
+            unset($this->option['before']);
+        }
+
         // 解析分组路由
         if ($this instanceof Resource) {
-            $this->buildResourceRule($this->resource, $this->option);
+            $this->buildResourceRule();
         } elseif ($this->rule) {
             if ($this->rule instanceof Response) {
                 return new ResponseDispatch($request, $this, $this->rule);

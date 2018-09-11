@@ -304,6 +304,21 @@ if (!function_exists('debug')) {
     }
 }
 
+if (!function_exists('download')) {
+    /**
+     * 获取\think\response\Download对象实例
+     * @param string  $filename 要下载的文件
+     * @param string  $name 显示文件名
+     * @param bool    $content 是否为内容
+     * @param integer $expire 有效期（秒）
+     * @return \think\response\Download
+     */
+    function download($filename, $name = '', $content = false, $expire = 180)
+    {
+        return Response::create($filename, 'download')->name($name)->isContent($content)->expire($expire);
+    }
+}
+
 if (!function_exists('dump')) {
     /**
      * 浏览器友好的变量输出
@@ -723,6 +738,19 @@ if (!function_exists('xml')) {
     }
 }
 
+if (!function_exists('yaconf')) {
+    /**
+     * 获取yaconf配置
+     *
+     * @param  string    $name 配置参数名
+     * @param  mixed     $default   默认值
+     * @return mixed
+     */
+    function yaconf($name, $default = null)
+    {
+        return Config::yaconf($name, $default);
+    }
+}
 
 if (!function_exists('is_json')) {
     /**

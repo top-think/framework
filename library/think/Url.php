@@ -286,7 +286,7 @@ class Url
         $rootDomain = $this->app['request']->rootDomain();
         if (true === $domain) {
             // 自动判断域名
-            $domain = $this->config['app_host'] ?: $this->app['request']->host(true);
+            $domain = $this->config['app_host'] ?: $this->app['request']->host();
 
             $domains = $this->app['route']->getDomains();
 
@@ -388,5 +388,13 @@ class Url
     {
         $this->root = $root;
         $this->app['request']->setRoot($root);
+    }
+
+    public function __debugInfo()
+    {
+        $data = get_object_vars($this);
+        unset($data['app']);
+
+        return $data;
     }
 }

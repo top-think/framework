@@ -42,7 +42,7 @@ class RuleName
      */
     public function setRule($rule, $route)
     {
-        $this->rule[$route->getDomain()][$rule][$route->getRoute()] = $route;
+        $this->rule[$route->getDomain()][$rule][$route->getMethod()] = $route;
     }
 
     /**
@@ -70,7 +70,7 @@ class RuleName
         foreach ($this->rule as $ruleDomain => $rules) {
             foreach ($rules as $rule => $items) {
                 foreach ($items as $item) {
-                    $val = [];
+                    $val['domain'] = $ruleDomain;
 
                     foreach (['method', 'rule', 'name', 'route', 'pattern', 'option'] as $param) {
                         $call        = 'get' . $param;
