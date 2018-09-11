@@ -184,14 +184,6 @@ class App extends Container
         // 注册错误和异常处理机制
         Error::register();
 
-        // 加载类库映射文件
-        if (is_file($this->runtimePath . 'classmap.php')) {
-            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
-        }
-
-        // 自动加载extend目录
-        Loader::addAutoLoadDir($this->rootPath . 'extend');
-
         // 注册类库别名
         Loader::addClassAlias([
             'App'      => facade\App::class,

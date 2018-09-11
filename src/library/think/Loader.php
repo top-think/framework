@@ -97,6 +97,14 @@ class Loader
             'think'  => __DIR__,
             'traits' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'traits',
         ]);
+
+        // 加载类库映射文件
+        if (is_file($this->runtimePath . 'classmap.php')) {
+            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
+        }
+
+        // 自动加载extend目录
+        Loader::addAutoLoadDir($this->rootPath . 'extend');
     }
 
     // 自动加载
