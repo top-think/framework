@@ -99,12 +99,12 @@ class Loader
         ]);
 
         // 加载类库映射文件
-        if (is_file($this->runtimePath . 'classmap.php')) {
-            Loader::addClassMap(__include_file($this->runtimePath . 'classmap.php'));
+        if (is_file($rootPath . 'runtime' . DIRECTORY_SEPARATOR . 'classmap.php')) {
+            self::addClassMap(__include_file($rootPath . 'runtime' . DIRECTORY_SEPARATOR . 'classmap.php'));
         }
 
         // 自动加载extend目录
-        Loader::addAutoLoadDir($this->rootPath . 'extend');
+        self::addAutoLoadDir($rootPath . 'extend');
     }
 
     // 自动加载
