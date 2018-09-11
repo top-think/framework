@@ -17,6 +17,10 @@
         {
             "name": "yunwuxin",
             "email": "448901948@qq.com"
+        },
+        {
+            "name": "opensmarty",
+            "email": "opensmarty@163.com"
         }
     ],
     "minimum-stability": "dev",
