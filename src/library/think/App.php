@@ -515,12 +515,7 @@ class App extends Container
 
         foreach ($files as $file) {
             if (strpos($file, '.php')) {
-                $filename = $this->routePath . $file;
-                // 导入路由配置
-                $rules = include $filename;
-                if (is_array($rules)) {
-                    $this->route->import($rules);
-                }
+                include $this->routePath . $file;
             }
         }
 
