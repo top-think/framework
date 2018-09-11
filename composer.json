@@ -36,5 +36,10 @@
         "sebastian/phpcpd": "2.*",
         "squizlabs/php_codesniffer": "2.*",
         "phpdocumentor/reflection-docblock": "^2.0"
+    },
+    "extra":{
+        "branch-alias":{
+            "dev-master":"5.1.x-dev"
+        }
     }
 }
