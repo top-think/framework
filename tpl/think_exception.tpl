@@ -143,7 +143,7 @@
             padding: 0;
             margin: 0;
         }
-    
+
         /* Exception Info */
         .exception {
             margin-top: 20px;
@@ -227,7 +227,7 @@
             margin: 12px 0;
             box-sizing: border-box;
             table-layout:fixed;
-            word-wrap:break-word;            
+            word-wrap:break-word;
         }
         .exception-var table caption{
             text-align: left;
@@ -289,14 +289,14 @@
     <?php if(\think\facade\App::isDebug()) { ?>
     <div class="exception">
     <div class="message">
-        
+
             <div class="info">
                 <div>
                     <h2>[<?php echo $code; ?>]&nbsp;<?php echo sprintf('%s in %s', parse_class($name), parse_file($file, $line)); ?></h2>
                 </div>
                 <div><h1><?php echo nl2br(htmlentities($message)); ?></h1></div>
             </div>
-        
+
     </div>
 	<?php if(!empty($source)){?>
         <div class="source-code">
@@ -309,14 +309,14 @@
                 <li><?php echo sprintf('in %s', parse_file($file, $line)); ?></li>
                 <?php foreach ((array) $trace as $value) { ?>
                 <li>
-                <?php 
+                <?php
                     // Show Function
                     if($value['function']){
                         echo sprintf(
-                            'at %s%s%s(%s)', 
+                            'at %s%s%s(%s)',
                             isset($value['class']) ? parse_class($value['class']) : '',
-                            isset($value['type'])  ? $value['type'] : '', 
-                            $value['function'], 
+                            isset($value['type'])  ? $value['type'] : '',
+                            $value['function'],
                             isset($value['args'])?parse_args($value['args']):''
                         );
                     }
@@ -333,12 +333,12 @@
     </div>
     <?php } else { ?>
     <div class="exception">
-        
+
             <div class="info"><h1><?php echo htmlentities($message); ?></h1></div>
-        
+
     </div>
     <?php } ?>
-    
+
     <?php if(!empty($datas)){ ?>
     <div class="exception-var">
         <h2>Exception Datas</h2>
@@ -353,10 +353,10 @@
                 <tr>
                     <td><?php echo htmlentities($key); ?></td>
                     <td>
-                        <?php 
-                            if(is_array($val) || is_object($val)){ 
+                        <?php
+                            if(is_array($val) || is_object($val)){
                                 echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
-                            } else if(is_bool($val)) { 
+                            } else if(is_bool($val)) {
                                 echo $val ? 'true' : 'false';
                             } else if(is_scalar($val)) {
                                 echo htmlentities($val);
@@ -388,10 +388,10 @@
                 <tr>
                     <td><?php echo htmlentities($key); ?></td>
                     <td>
-                        <?php 
-                            if(is_array($val) || is_object($val)){ 
+                        <?php
+                            if(is_array($val) || is_object($val)){
                                 echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
-                            } else if(is_bool($val)) { 
+                            } else if(is_bool($val)) {
                                 echo $val ? 'true' : 'false';
                             } else if(is_scalar($val)) {
                                 echo htmlentities($val);
@@ -410,8 +410,8 @@
     <?php } ?>
 
     <div class="copyright">
-        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a> 
-        <span>V<?php echo \think\facade\App::version(); ?></span> 
+        <a title="官方网站" href="http://www.thinkphp.cn">ThinkPHP</a>
+        <span>V<?php echo \think\facade\App::version(); ?></span>
         <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
     </div>
     <?php if(\think\facade\App::isDebug()) { ?>
@@ -443,7 +443,7 @@
             return elements;
 
             function get_elements_by_class(search_class, node, tag) {
-                var elements = [], eles, 
+                var elements = [], eles,
                     pattern  = new RegExp('(^|\\s)' + search_class + '(\\s|$)');
 
                 node = node || document;
@@ -462,18 +462,18 @@
 
         $.getScript = function(src, func){
             var script = document.createElement('script');
-            
+
             script.async  = 'async';
             script.src    = src;
             script.onload = func || function(){};
-            
+
             $('head')[0].appendChild(script);
         }
 
         ;(function(){
             var files = $('.toggle');
             var ol    = $('ol', $('.prettyprint')[0]);
-            var li    = $('li', ol[0]);   
+            var li    = $('li', ol[0]);
 
             // 短路径和长路径变换
             for(var i = 0; i < files.length; i++){

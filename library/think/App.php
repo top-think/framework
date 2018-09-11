@@ -20,7 +20,7 @@ use think\route\Dispatch;
  */
 class App extends Container
 {
-    const VERSION = '5.1.17';
+    const VERSION = '5.1.19';
 
     /**
      * 当前模块路径
@@ -56,7 +56,7 @@ class App extends Container
      * 组织名称
      * @var string
      */
-    protected $groupname = 'chinashuguo';
+    protected $groupname = 'shuguo';
 
     /**
      * 应用类库后缀
@@ -81,6 +81,12 @@ class App extends Container
      * @var string
      */
     protected $thinkPath;
+
+    /**
+     * 核心模块目录
+     * @var string
+     */
+    protected $corePath;
 
     /**
      * 应用根目录
@@ -140,6 +146,21 @@ class App extends Container
      * @var string
      */
     protected $bindModule;
+
+    /**
+     * 模块列表
+     */
+    protected $moduleList = [];
+
+    /**
+     * 应用模块列表
+     */
+    protected $appModuleList = [];
+
+    /**
+     * 组织模块列表
+     */
+    protected $groupModuleList = [];
 
     /**
      * 初始化
@@ -233,7 +254,14 @@ class App extends Container
         $this->groupname = $this->env->get('app_groupname', $this->groupname);
         $this->env->set('app_groupname', $this->groupname);
 
+        // 设置组织目录
         $this->setGroupPath($this->vendorPath . $this->getGroupname() . DIRECTORY_SEPARATOR);
+
+        // 设置核心目录
+        $this->setCorePath($this->groupPath);
+
+        // 设置模块列表
+        $this->initModuleList();
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
@@ -321,7 +349,7 @@ class App extends Container
 
             // 加载公共文件
             if (is_file($path . 'common.php')) {
-                include $path . 'common.php';
+                include_once $path . 'common.php';
             }
 
             if ('' == $module) {
@@ -391,11 +419,11 @@ class App extends Container
         $this->cache->init($config['cache'], true);
 
         // 加载当前模块语言包
-        $path = $this->appPath . $module . DIRECTORY_SEPARATOR;
-        if (!is_dir($path)) {
-            $path = $this->groupPath . $module . 'src' . DIRECTORY_SEPARATOR;
-        }
-        $this->lang->load($path . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
+//        $path = $this->appPath . $module . DIRECTORY_SEPARATOR;
+//        if (!is_dir($path)) {
+//            $path = $this->groupPath . $module . 'src' . DIRECTORY_SEPARATOR;
+//        }
+//        $this->lang->load($path . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
 
         // 模块请求缓存检查
         $this->checkRequestCache(
@@ -435,10 +463,12 @@ class App extends Container
             $this->hook->listen('app_dispatch');
 
             $dispatch = $this->dispatch;
-
             if (empty($dispatch)) {
                 // 路由检测
                 $dispatch = $this->routeCheck()->init();
+                if($dispatch){
+                    $this->routeRecord();
+                }
             }
 
             // 记录当前调度信息
@@ -503,11 +533,25 @@ class App extends Container
 
         $this->request->setLangset($this->lang->range());
 
-        // 加载系统语言包
-        $this->lang->load([
+        // 系统语言包
+        $lang = [
             $this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
             $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
-        ]);
+            $this->corePath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
+        ];
+
+        // 应用语言包
+        foreach ($this->appModuleList as $module) {
+            $lang[] = $this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php';
+        }
+
+        // 组织语言包
+        foreach ($this->groupModuleList as $module) {
+            $lang[] = $this->groupPath . $module . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php';
+        }
+
+        // 加载所有语言包
+        $this->lang->load($lang);
     }
 
     /**
@@ -666,6 +710,109 @@ class App extends Container
     }
 
     /**
+     * 记录应用路由信息
+     */
+    public function routeRecord()
+    {
+        global $sg;
+
+        $config = $this->config();
+        if ($config) {
+            sgconfig($config);
+        }
+
+        $module     = $this->request->module();
+        $controller = $this->request->controller();
+        $action     = $this->request->action();
+        if (!isset($module) && !isset($controller) && !isset($action)) {
+            $sg['module']     = $this->config('default_module');
+            $sg['controller'] = $this->config('default_controller');
+            $sg['action']     = $this->config('default_action');
+        } else {
+            $sg['module']     = isset($module) && !empty($module) ? $module : $this->config('default_module');
+            $sg['controller'] = isset($controller) && !empty($controller) ? $controller : $this->config('default_controller');
+            $sg['action']     = isset($action) && !empty($action) ? $action : $this->config('default_action');
+        }
+        //APP的常量定义
+        sgdefine('APP_NAME', $sg['module']);
+        sgdefine('CONT_NAME', $sg['controller']);
+        sgdefine('ACTION_NAME', $sg['action']);
+        sgdefine('TRUE_APPNAME', APP_NAME);
+
+        //新增一些CODE常量.用于简化判断操作
+        sgdefine('MODULE_CODE', $sg['module'] . '/' . $sg['controller']);
+        sgdefine('ACTION_CODE', $sg['module'] . '/' . $sg['controller'] . '/' . $sg['action']);
+        sgdefine('APP_RUN_PATH', RUNTIME_PATH . '~' . TRUE_APPNAME);
+
+        /*  应用配置  */
+        //载入应用配置
+        if (!in_array(TRUE_APPNAME, $this->config('deny_module_list')) && is_dir($this->getAppPath() . TRUE_APPNAME)) {
+            sgdefine('APP_PATH', APPS_PATH . TRUE_APPNAME . DS);
+            sgdefine('APP_URL', APPS_URL . DS . TRUE_APPNAME);
+        } elseif (!in_array(TRUE_APPNAME, $this->config('deny_module_list')) && is_dir($this->getGroupPath() . TRUE_APPNAME) && is_file($this->getGroupFile(TRUE_APPNAME))) {
+            $extFile = json_decode(file_get_contents($this->getGroupFile(TRUE_APPNAME)), true);
+            if (TRUE_APPNAME == strtolower($extFile['name'])) {
+                sgdefine('APP_PATH', GROUP_PATH . TRUE_APPNAME . DS . 'src' . DS);
+                sgdefine('APP_URL', GROUP_URL . DS . TRUE_APPNAME . DS . 'src');
+            }
+        }
+
+        sgdefine('APP_COMMON_PATH', APP_PATH . 'common');
+        sgdefine('APP_COMMAND_PATH', APP_PATH . 'command');
+        sgdefine('APP_CONFIG_PATH', APP_PATH . 'config');
+        sgdefine('APP_LANG_PATH', APP_PATH . 'lang');
+        sgdefine('APP_CONT_PATH', APP_PATH . 'controller');
+        sgdefine('APP_MODEL_PATH', APP_PATH . 'model');
+        sgdefine('APP_LOGIC_PATH', APP_PATH . 'logic');
+        sgdefine('APP_SERVICE_PATH', APP_PATH . 'service');
+        sgdefine('APP_VALID_PATH', APP_PATH . 'validate');
+
+        //定义语言缓存文件路径常量
+        sgdefine('LANG_PATH', DATA_PATH . 'lang');
+        sgdefine('LANG_URL', DATA_URL . DS . 'lang');
+
+        //默认风格包名称
+        if (C('theme_name')) {
+            sgdefine('THEME_NAME', C('theme_name'));
+        } else {
+            sgdefine('THEME_NAME', 'stv1');
+        }
+
+        //默认静态文件、模版文件目录
+        sgdefine('THEME_PATH', PUBLIC_PATH . 'theme' . DS . THEME_NAME);
+        sgdefine('THEME_URL', PUBLIC_URL . DS . 'theme' . DS . THEME_NAME);
+        sgdefine('THEME_PUBLIC_PATH', THEME_PATH . 'static' . DS);
+        sgdefine('THEME_PUBLIC_URL', THEME_URL . DS . 'static');
+        sgdefine('APP_PUBLIC_PATH', APP_PATH . 'static' . DS);
+        sgdefine('APP_TPL_PATH', APP_PATH . 'view' . DS . 'default' . DS);
+        sgdefine('APP_TPL_URL', APP_URL . DS . 'view' . DS . 'default');
+        sgdefine('CANVAS_PATH', ROOT_PATH . 'config' . DS . 'canvas' . DS);
+
+        sgdefine('OL_MAP_PATH_URL', ADDON_URL . DS . 'maps' . DS . 'openlayer');
+
+        /* 临时兼容代码，新方法开发中 */
+        $timer = sprintf('%s%s/app/timer', SG_ROOT, SG_STORAGE);
+        // 七天更新一次
+        if (!file_exists($timer) || (time() - file_get_contents($timer)) > 604800) {
+            \shuguo\core\facade\AppInstall::moveAllApplicationResources(); // 移动应用所有的资源
+            \Medz\Component\Filesystem\Filesystem::mkdir(dirname($timer), 0777);
+            file_put_contents($timer, time());
+        }
+        sgdefine('APP_PUBLIC_URL', sprintf('%s%s/app/%s', SITE_URL, SG_STORAGE, strtolower(APP_NAME)));
+
+        //根据应用配置重定义以下常量
+        if (C('app_tpl_path')) {
+            sgdefine('APP_TPL_PATH', C('app_tpl_path'));
+        }
+
+        //如果是部署模式、则如下定义
+        if (C('deploy_static')) {
+            sgdefine('THEME_PUBLIC_URL', PUBLIC_URL . DS . THEME_NAME);
+            sgdefine('APP_PUBLIC_URL', THEME_PUBLIC_URL . DS . TRUE_APPNAME);
+        }
+    }
+
+    /**
      * 设置应用的路由检测机制
      * @access public
      * @param  bool $must  是否强制检测路由
@@ -704,6 +851,23 @@ class App extends Container
     }
 
     /**
+     * 获取模块下的类名
+     * @access protected
+     * @param  string  $class   类名
+     * @param  string  $module  模块名
+     * @return object  返回应用的类名
+     */
+    protected function getModuleListClass($class, $module)
+    {
+        foreach ($this->moduleList as $_module) {
+            $_class = str_replace('\\' . $module . '\\', '\\' . $_module . '\\', $class);
+            if (class_exists($_class)) {
+                return $_class;
+            }
+        }
+    }
+
+    /**
      * 实例化应用类库
      * @access public
      * @param  string $name         类名称
@@ -716,14 +880,19 @@ class App extends Container
     public function create($name, $layer, $appendSuffix = false, $common = 'common')
     {
         $guid = $name . $layer;
-
+        
         if ($this->__isset($guid)) {
             return $this->__get($guid);
         }
-
+        
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
-
+        
+        $_class = $this->getModuleListClass($class, $module);
+        
         if (class_exists($class)) {
+            $object = $this->__get($class);
+        } elseif (class_exists($_class)) {
+            $class  = $_class;
             $object = $this->__get($class);
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
@@ -733,9 +902,9 @@ class App extends Container
                 throw new ClassNotFoundException('class not exists:' . $class, $class);
             }
         }
-
+        
         $this->__set($guid, $class);
-
+        
         return $object;
     }
 
@@ -743,13 +912,43 @@ class App extends Container
      * 实例化（分层）模型
      * @access public
      * @param  string $name         Model名称
-     * @param  string $layer        业务层名称
+     * @param  string $layer        模型层名称
      * @param  bool   $appendSuffix 是否添加类名后缀
      * @param  string $common       公共模块名
      * @return Model
      * @throws ClassNotFoundException
      */
     public function model($name = '', $layer = 'model', $appendSuffix = false, $common = 'common')
+    {
+        return $this->create($name, $layer, $appendSuffix, $common);
+    }
+
+    /**
+     * 实例化（分层）业务
+     * @access public
+     * @param  string $name         Logic名称
+     * @param  string $layer        业务层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
+     * @return Logic
+     * @throws ClassNotFoundException
+     */
+    public function logic($name = '', $layer = 'logic', $appendSuffix = true, $common = 'common')
+    {
+        return $this->create($name, $layer, $appendSuffix, $common);
+    }
+
+    /**
+     * 实例化（分层）服务
+     * @access public
+     * @param  string $name         Service名称
+     * @param  string $layer        服务层名称
+     * @param  bool   $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名
+     * @return Service
+     * @throws ClassNotFoundException
+     */
+    public function service($name = '', $layer = 'service', $appendSuffix = true, $common = 'common')
     {
         return $this->create($name, $layer, $appendSuffix, $common);
     }
@@ -837,7 +1036,21 @@ class App extends Container
 
         return $this->invokeMethod([$class, $action . $this->config('action_suffix')], $vars);
     }
-
+    
+    /**
+     * 转换层名
+     * @param $layer
+     * @return string
+     */
+    protected function convertLayer($layer)
+    {
+        if ('validate' == strtolower($layer)) {
+            $layer = 'validator';
+        }
+        
+        return $layer;
+    }
+    
     /**
      * 解析应用类的类名
      * @access public
@@ -851,9 +1064,9 @@ class App extends Container
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
+        $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($this->convertLayer($layer)) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
-
+        
         return $this->namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }
 
@@ -875,6 +1088,76 @@ class App extends Container
     public function isDebug()
     {
         return $this->appDebug;
+    }
+
+    /**
+     * 初始化模块列表
+     */
+    public function initModuleList()
+    {
+        $this->appModuleList = $this->getModuleByDir($this->appPath);
+        $this->groupModuleList = $this->getModuleByDir($this->groupPath);
+        $this->moduleList = array_merge($this->appModuleList, $this->groupModuleList);
+    }
+
+    /**
+     * 获取所有模块路径
+     * @access public
+     * @return string
+     */
+    public function getModuleList()
+    {
+        return $this->moduleList;
+    }
+
+    /**
+     * 获取应用下所有模块
+     * @return array
+     */
+    public function getAppModuleList()
+    {
+        return $this->appModuleList;
+    }
+
+    /**
+     * 获取组织下的所有模块
+     * @return array
+     */
+    public function getGroupModuleList()
+    {
+        return $this->groupModuleList;
+    }
+
+    /**
+     * 根据目录条件，获取所有模块
+     * @param $dir
+     * @return array
+     */
+    public function getModuleByDir($dir)
+    {
+        $module = [];
+        $files = scandir($dir) ? scandir($dir) : [];
+        foreach ($files as $file) {
+            if ('.' != $file && '..' != $file) {
+                $path = '';
+                if ($this->appPath !== $dir) {
+                    $path = $dir . $file . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+                } else {
+                    if (is_dir($dir . $file . DIRECTORY_SEPARATOR)) {
+                        $path = $dir . $file . DIRECTORY_SEPARATOR;
+                    }
+                }
+
+                if (is_dir($path) && is_file($path . 'module.json')) {
+                    $modulejson = json_decode(file_get_contents($path . 'module.json'), JSON_FORCE_OBJECT);
+                    if ($file == strtolower($modulejson['name'])) {
+                        $module[] = $file;
+                    }
+                }
+            }
+        }
+
+        return $module;
     }
 
     /**
@@ -1001,6 +1284,15 @@ class App extends Container
     {
         $this->groupPath = $path;
         $this->env->set('group_path', $path);
+    }
+
+    /**
+     * 设置核心目录
+     * @param $path
+     */
+    public function setCorePath($path)
+    {
+        $this->corePath = $path . 'core' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
     }
 
     /**

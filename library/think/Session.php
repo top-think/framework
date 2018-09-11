@@ -104,6 +104,16 @@ class Session
     }
 
     /**
+     * 设置已经初始化
+     * @access public
+     * @return void
+     */
+    public function inited()
+    {
+        $this->init = true;
+    }
+
+    /**
      * session初始化
      * @access public
      * @param  array $config

@@ -20,7 +20,7 @@ class Middleware
     protected $queue = [];
     protected $app;
     protected $config = [
-        'default_namespace' => 'app\\http\\middleware\\',
+        'default_namespace' => 'shuguo\\http\\middleware\\',
     ];
 
     public function __construct(App $app, array $config = [])

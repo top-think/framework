@@ -446,15 +446,47 @@ if (!function_exists('model')) {
     /**
      * 实例化Model
      * @param string    $name Model名称
-     * @param string    $layer 业务层名称
-     * @param bool      $appendSuffix 是否添加类名后缀
+     * @param  string $common       公共模块名，默认core
+     * @param string    $layer 模型层名称
+
      * @return \think\Model
      */
-    function model($name = '', $layer = 'model', $appendSuffix = false)
+    function model($name = '', $common = 'core', $layer = 'model', $appendSuffix = false)
     {
-        return app()->model($name, $layer, $appendSuffix);
+        return app()->model($name, $layer, $appendSuffix, $common);
     }
 }
+
+if (!function_exists('logic')) {
+    /**
+     * 实例化Logic
+     * @param string    $name Logic名称
+     * @param  string $common       公共模块名，默认core
+     * @param string    $layer 业务层名称
+
+     * @return mixed
+     */
+    function logic($name = '', $common = 'core', $layer = 'logic', $appendSuffix = true)
+    {
+        return app()->logic($name, $layer, $appendSuffix, $common);
+    }
+}
+
+if (!function_exists('service')) {
+    /**
+     * 实例化Service
+     * @param string    $name Service名称
+     * @param  string $common       公共模块名，默认core
+     * @param string    $layer 服务层名称
+
+     * @return mixed
+     */
+    function service($name = '', $common = 'core', $layer = 'service', $appendSuffix = true)
+    {
+        return app()->service($name, $layer, $appendSuffix, $common);
+    }
+}
+
 
 if (!function_exists('parse_name')) {
     /**
@@ -637,13 +669,14 @@ if (!function_exists('validate')) {
     /**
      * 实例化验证器
      * @param string    $name 验证器名称
+     * @param  string $common       公共模块名，默认core
      * @param string    $layer 业务层名称
      * @param bool      $appendSuffix 是否添加类名后缀
      * @return \think\Validate
      */
-    function validate($name = '', $layer = 'validate', $appendSuffix = false)
+    function validate($name = '', $common = 'core', $layer = 'validate', $appendSuffix = true)
     {
-        return app()->validate($name, $layer, $appendSuffix);
+        return app()->validate($name, $layer, $appendSuffix, $common);
     }
 }
 
@@ -687,5 +720,40 @@ if (!function_exists('xml')) {
     function xml($data = [], $code = 200, $header = [], $options = [])
     {
         return Response::create($data, 'xml', $code, $header, $options);
+    }
+}
+
+
+if (!function_exists('is_json')) {
+    /**
+     * 判断字符串是不是json格式
+     * @param $str
+     * @return bool
+     */
+    function is_json($str)
+    {
+        json_decode($str);
+
+        return (json_last_error() == JSON_ERROR_NONE);
+    }
+}
+
+if (!function_exists('trace_service')) {
+    function trace_service($trace,  $type = 'info', $debug = false)
+    {
+        // 追踪代码信息，给函数埋雷，检测业务代码信息
+        if(!$debug){
+            $trace = [
+                'trace' => [
+                    'class' => $trace[0]['class'],
+                    'file' => $trace[0]['file'],
+                    'function' => $trace[0]['function'],
+                    'line' => $trace[0]['line'],
+                    'args' => $trace[0]['args']
+                ]
+            ];
+        }
+
+        Log::record(json_encode($trace, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), $type);
     }
 }

@@ -75,6 +75,17 @@ class View
     }
 
     /**
+     * 清理模板变量
+     * @access public
+     * @return void
+     */
+    public function clear()
+    {
+        self::$var  = [];
+        $this->data = [];
+    }
+
+    /**
      * 模板变量赋值
      * @access public
      * @param  mixed $name  变量名
@@ -198,6 +209,7 @@ class View
      * @param  array  $vars    模板输出变量
      * @param  array  $config  模板参数
      * @return mixed
+     * @throws \Exception
      */
     public function display($content, $vars = [], $config = [])
     {

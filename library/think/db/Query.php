@@ -528,7 +528,7 @@ class Query
      * @param  array  $data  操作的数据
      * @param  string $field 分表依据的字段
      * @param  array  $rule  分表规则
-     * @return string
+     * @return array
      */
     public function getPartitionTableName($data, $field, $rule = [])
     {
@@ -575,9 +575,7 @@ class Query
             $tableName[] = 'SELECT * FROM ' . $this->getTable() . '_' . ($i + 1);
         }
 
-        $tableName = '( ' . implode(" UNION ", $tableName) . ') AS ' . $this->name;
-
-        return $tableName;
+        return ['( ' . implode(" UNION ", $tableName) . ' )' => $this->name];
     }
 
     /**
@@ -2723,10 +2721,12 @@ class Query
         if (!empty($this->options['soft_delete'])) {
             // 软删除
             list($field, $condition) = $this->options['soft_delete'];
-            unset($this->options['soft_delete']);
-            $this->options['data'] = [$field => $condition];
+            if ($condition) {
+                unset($this->options['soft_delete']);
+                $this->options['data'] = [$field => $condition];
 
-            return $this->connection->update($this);
+                return $this->connection->update($this);
+            }
         }
 
         $this->options['data'] = $data;

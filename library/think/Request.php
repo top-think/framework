@@ -301,7 +301,7 @@ class Request
     public function init(array $options = [])
     {
         $this->config = array_merge($this->config, $options);
-
+        
         if (is_null($this->filter) && !empty($this->config['default_filter'])) {
             $this->filter = $this->config['default_filter'];
         }
@@ -783,7 +783,7 @@ class Request
     {
         if ($origin) {
             // 获取原始请求类型
-            return $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
+            return $this->server('REQUEST_METHOD') ?: 'GET';
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
                 $this->method    = strtoupper($_POST[$this->config['var_method']]);
@@ -792,7 +792,7 @@ class Request
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
-                $this->method = $this->isCli() ? 'GET' : $this->server('REQUEST_METHOD');
+                $this->method = $this->server('REQUEST_METHOD') ?: 'GET';
             }
         }
 
@@ -986,7 +986,7 @@ class Request
     public function post($name = '', $default = null, $filter = '')
     {
         if (empty($this->post)) {
-            $this->post = !empty($_POST) ? $_POST : $this->getJsonInputData($this->input);
+            $this->post = !empty($_POST) ? $_POST : $this->getInputData($this->input);
         }
 
         return $this->input($this->post, $name, $default, $filter);
@@ -1003,22 +1003,19 @@ class Request
     public function put($name = '', $default = null, $filter = '')
     {
         if (is_null($this->put)) {
-            $data = $this->getJsonInputData($this->input);
-
-            if (!empty($data)) {
-                $this->put = $data;
-            } else {
-                parse_str($this->input, $this->put);
-            }
+            $this->put = $this->getInputData($this->input);
         }
 
         return $this->input($this->put, $name, $default, $filter);
     }
 
-    protected function getJsonInputData($content)
+    protected function getInputData($content)
     {
         if (false !== strpos($this->contentType(), 'application/json')) {
             return (array) json_decode($content, true);
+        } elseif (strpos($content, '=')) {
+            parse_str($content, $data);
+            return $data;
         }
 
         return [];
@@ -2052,6 +2049,30 @@ class Request
     public function withPost(array $post)
     {
         $this->post = $post;
+        return $this;
+    }
+
+    /**
+     * 设置php://input数据
+     * @access public
+     * @param  string $input RAW数据
+     * @return $this
+     */
+    public function withInput($input)
+    {
+        $this->input = $input;
+        return $this;
+    }
+
+    /**
+     * 设置文件上传数据
+     * @access public
+     * @param  array $files 上传信息
+     * @return $this
+     */
+    public function withFiles(array $files)
+    {
+        $this->file = $files;
         return $this;
     }
 

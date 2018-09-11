@@ -10,6 +10,9 @@
 // +----------------------------------------------------------------------
 namespace think;
 
+// 载入系统常量
+require __DIR__ . '/constant.php';
+
 // 载入Loader类
 require __DIR__ . '/library/think/Loader.php';
 
@@ -32,6 +35,7 @@ if (interface_exists('Psr\Log\LoggerInterface')) {
 Facade::bind([
     facade\App::class        => App::class,
     facade\Build::class      => Build::class,
+    facade\Crypt::class      => Crypt::class,
     facade\Cache::class      => Cache::class,
     facade\Config::class     => Config::class,
     facade\Cookie::class     => Cookie::class,
@@ -54,6 +58,7 @@ Facade::bind([
 Loader::addClassAlias([
     'App'      => facade\App::class,
     'Build'    => facade\Build::class,
+    'Crypt'    => facade\Crypt::class,
     'Cache'    => facade\Cache::class,
     'Config'   => facade\Config::class,
     'Cookie'   => facade\Cookie::class,
