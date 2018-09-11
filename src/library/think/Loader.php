@@ -79,7 +79,6 @@ class Loader
 
             // Composer自动加载支持
             if (is_dir($composerPath)) {
-
                 require $composerPath . 'autoload_static.php';
 
                 $declaredClass = get_declared_classes();
@@ -98,14 +97,6 @@ class Loader
             'think'  => __DIR__,
             'traits' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'traits',
         ]);
-
-        // 加载类库映射文件
-        if (is_file($rootPath . 'runtime' . DIRECTORY_SEPARATOR . 'classmap.php')) {
-            self::addClassMap(__include_file($rootPath . 'runtime' . DIRECTORY_SEPARATOR . 'classmap.php'));
-        }
-
-        // 自动加载extend目录
-        self::addAutoLoadDir($rootPath . 'extend');
     }
 
     // 自动加载

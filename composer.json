@@ -1,7 +1,6 @@
 {
     "name": "topthink/framework",
-    "description": "the new thinkphp framework",
-    "type": "think-framework",
+    "description": "The ThinkPHP Framework.",
     "keywords": [
         "framework",
         "thinkphp",
@@ -30,5 +29,13 @@
         "sebastian/phpcpd": "2.*",
         "squizlabs/php_codesniffer": "2.*",
         "phpdocumentor/reflection-docblock": "^2.0"
-    }
+    },
+    "autoload": {
+        "files": [],
+        "psr-4": {
+            "think\\": "src/library/think/"
+        }
+    },    
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
