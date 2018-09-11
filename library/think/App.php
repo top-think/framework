@@ -56,7 +56,7 @@ class App extends Container
      * 组织名称
      * @var string
      */
-    protected $groupname = 'shuguo';
+    protected $groupname = 'chinashuguo';
 
     /**
      * 应用类库后缀
