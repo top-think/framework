@@ -1250,7 +1250,6 @@ class Request
         ];
 
         $msg = $fileUploadErrors[$error];
-        $msg = Lang::has($msg) ? Lang::get($msg) : $msg;
         throw new Exception($msg);
     }
 

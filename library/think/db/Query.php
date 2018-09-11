@@ -1722,6 +1722,9 @@ class Query
             $results = $this->page($page, $listRows)->select();
         }
 
+        $this->removeOption('limit');
+        $this->removeOption('page');
+
         return $class::make($results, $listRows, $page, $total, $simple, $config);
     }
 
