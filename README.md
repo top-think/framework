@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## shuguo framework
 本框架以thinkphp5.1.16为核心而打造的可扩展框架, 扩展composer模块化功能, 最新版本为v5.1.24。
 例如：http://localhost/sgs-api/api/demo/index
