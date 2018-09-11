@@ -601,7 +601,7 @@ class Request
             $this->baseFile = $url;
         }
 
-        return $domain ? $this->domain() . $this->baseFile : $this->baseFile;
+        return $complete ? $this->domain() . $this->baseFile : $this->baseFile;
     }
 
     /**
@@ -948,7 +948,7 @@ class Request
      * @param  array         $route 路由变量
      * @return $this
      */
-    public function setRouteVars(array $route)
+    public function setRoute(array $route)
     {
         $this->route = array_merge($this->route, $route);
         return $this;

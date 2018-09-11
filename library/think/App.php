@@ -126,13 +126,8 @@ class App extends Container
 
     public function __construct(string $appPath = '')
     {
-        $this->appPath = $appPath ?: $this->getAppPath();
-
-        $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
-        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
-        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
-        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        $this->thinkPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->path($appPath);
     }
 
     /**
@@ -155,7 +150,7 @@ class App extends Container
      */
     public function path(string $path)
     {
-        $this->appPath = $path;
+        $this->appPath = $path ?: $this->getAppPath();
         return $this;
     }
 
@@ -174,6 +169,11 @@ class App extends Container
 
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
+
+        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
         static::setInstance($this);
 
@@ -541,10 +541,12 @@ class App extends Container
         // 检测路由缓存
         if (!$this->appDebug && $this->config->get('route_check_cache')) {
             $routeKey = $this->getRouteCacheKey();
-            $option   = $this->config->get('route_cache_option') ?: $this->cache->getConfig();
+            $option   = $this->config->get('route_cache_option');
 
-            if ($this->cache->connect($option)->has($routeKey)) {
+            if ($option && $this->cache->connect($option)->has($routeKey)) {
                 return $this->cache->connect($option)->get($routeKey);
+            } elseif ($this->cache->has($routeKey)) {
+                return $this->cache->get($routeKey);
             }
         }
 
@@ -558,9 +560,11 @@ class App extends Container
 
         if (!empty($routeKey)) {
             try {
-                $this->cache
-                    ->tag('route_cache')
-                    ->set($routeKey, $dispatch);
+                if ($option) {
+                    $this->cache->connect($option)->tag('route_cache')->set($routeKey, $dispatch);
+                } else {
+                    $this->cache->tag('route_cache')->set($routeKey, $dispatch);
+                }
             } catch (\Exception $e) {
                 // 存在闭包的时候缓存无效
             }
@@ -651,7 +655,7 @@ class App extends Container
      * @return object
      * @throws ClassNotFoundException
      */
-    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = ''): Controller
+    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '')
     {
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 

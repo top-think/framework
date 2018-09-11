@@ -372,7 +372,7 @@ class Console
     }
 
     /**
-     * 注册一个指令
+     * 注册一个指令 （便于动态创建指令）
      * @access public
      * @param  string $name 指令名
      * @return Command
@@ -383,9 +383,9 @@ class Console
     }
 
     /**
-     * 添加指令
+     * 添加指令集
      * @access public
-     * @param  Command[] $commands
+     * @param  array $commands
      */
     public function addCommands(array $commands)
     {
@@ -398,11 +398,11 @@ class Console
     }
 
     /**
-     * 注册一个指令（对象）
+     * 添加一个指令
      * @access public
      * @param  mixed    $command    指令对象或者指令类名
      * @param  string   $name       指令名 留空则自动获取
-     * @return mixed
+     * @return Command
      */
     public function add($command, $name)
     {
@@ -572,16 +572,6 @@ class Console
             }
 
             throw new \InvalidArgumentException($message);
-        }
-
-        if (count($commands) > 1) {
-            $commandList = $this->commands;
-
-            $commands = array_filter($commands, function ($nameOrAlias) use ($commandList, $commands) {
-                $commandName = $commandList[$nameOrAlias]->getName();
-
-                return $commandName === $nameOrAlias || !in_array($commandName, $commands);
-            });
         }
 
         $exact = in_array($name, $commands, true);

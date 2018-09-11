@@ -24,6 +24,8 @@ use think\Loader;
 
 abstract class Connection
 {
+    const PARAM_FLOAT = 21;
+
     protected static $instance = [];
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
@@ -316,7 +318,9 @@ abstract class Connection
     {
         if (0 === strpos($type, 'set') || 0 === strpos($type, 'enum')) {
             $bind = PDO::PARAM_STR;
-        } elseif (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
+        } elseif (preg_match('/(double|float|decimal|real|numeric)/is', $type)) {
+            $bind = self::PARAM_FLOAT;
+        } elseif (preg_match('/(int|serial|bit)/is', $type)) {
             $bind = PDO::PARAM_INT;
         } elseif (preg_match('/bool/is', $type)) {
             $bind = PDO::PARAM_BOOL;
@@ -1418,18 +1422,14 @@ abstract class Connection
      */
     public function getRealSql(string $sql, array $bind = []): string
     {
-        if (is_array($sql)) {
-            $sql = implode(';', $sql);
-        }
-
         foreach ($bind as $key => $val) {
             $value = is_array($val) ? $val[0] : $val;
             $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
 
-            if (PDO::PARAM_STR == $type) {
-                $value = '\'' . addslashes($value) . '\'';
-            } elseif (PDO::PARAM_INT == $type) {
+            if (PDO::PARAM_INT == $type || self::PARAM_FLOAT == $type) {
                 $value = (float) $value;
+            } elseif (PDO::PARAM_STR == $type) {
+                $value = '\'' . addslashes($value) . '\'';
             }
 
             // 判断占位符
@@ -1462,7 +1462,11 @@ abstract class Connection
             if (is_array($val)) {
                 if (PDO::PARAM_INT == $val[1] && '' === $val[0]) {
                     $val[0] = 0;
+                } elseif (self::PARAM_FLOAT == $val[1]) {
+                    $val[0] = (float) $val[0];
+                    $val[1] = PDO::PARAM_STR;
                 }
+
                 $result = $this->PDOStatement->bindValue($param, $val[0], $val[1]);
             } else {
                 $result = $this->PDOStatement->bindValue($param, $val);
