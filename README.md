@@ -17,10 +17,22 @@ ThinkPHP5.2底层架构采用PHP7.1改写和进一步优化，其主要特性包
  + 模板引擎重构
  + IDE助手
 
+## 安装
+
+~~~
+composer create-project topthink/think tp5 5.2.*-dev
+~~~
+
+如果需要更新框架使用
+~~~
+composer update topthink/framework
+~~~
+
 ### 计划废除的功能（待定）：
 
  + 路由的数组定义
  + 路由行为
+ + 核心Facade类的别名
 
 > ThinkPHP5.2的运行环境要求PHP7.1+。
 
