@@ -537,7 +537,7 @@ class App extends Container
         $lang = [
             $this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
             $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
-            $this->corePath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
+            $this->corePath . 'src' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
         ];
 
         // 应用语言包
@@ -1287,12 +1287,22 @@ class App extends Container
     }
 
     /**
+     * 获取核心目录
+     * @access public
+     * @return string
+     */
+    public function getCorePath()
+    {
+        return $this->corePath;
+    }
+
+    /**
      * 设置核心目录
      * @param $path
      */
     public function setCorePath($path)
     {
-        $this->corePath = $path . 'core' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+        $this->corePath = $path . 'core' . DIRECTORY_SEPARATOR;
     }
 
     /**
