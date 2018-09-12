@@ -855,11 +855,11 @@ abstract class Builder
         foreach ($order as $key => $val) {
             if ($val instanceof Expression) {
                 $array[] = $val->getValue();
-            } elseif (is_array($val)) {
+            } elseif (is_array($val) && preg_match('/\w/', $key)) {
                 $array[] = $this->parseOrderField($query, $key, $val);
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);
-            } else {
+            } elseif (is_string($val)) {
                 if (is_numeric($key)) {
                     list($key, $sort) = explode(' ', strpos($val, ' ') ? $val : $val . ' ');
                 } else {
