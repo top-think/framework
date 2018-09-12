@@ -11,15 +11,8 @@
 
 namespace think\cache;
 
+use Psr\Cache\CacheItemPoolInterface;
 use think\exception\InvalidArgumentException;
-
-if (interface_exists('Psr\Cache\CacheItemPoolInterface')) {
-    interface CacheItemPoolInterface extends \Psr\Cache\CacheItemPoolInterface
-    {}
-} else {
-    interface CacheItemPoolInterface
-    {}
-}
 
 class CacheItemPool implements CacheItemPoolInterface
 {

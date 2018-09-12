@@ -11,14 +11,7 @@
 
 namespace think;
 
-// 实现日志接口
-if (interface_exists('Psr\Log\LoggerInterface')) {
-    interface LoggerInterface extends \Psr\Log\LoggerInterface
-    {}
-} else {
-    interface LoggerInterface
-    {}
-}
+use Psr\Log\LoggerInterface;
 
 class Log implements LoggerInterface
 {

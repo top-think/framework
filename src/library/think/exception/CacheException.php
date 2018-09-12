@@ -11,23 +11,9 @@
 
 namespace think\exception;
 
+use Psr\Cache\CacheException as Psr6CacheExceptionInterface;
+use Psr\SimpleCache\CacheException as SimpleCacheExceptionInterface;
 use think\Exception;
-
-if (interface_exists('Psr\Cache\CacheException')) {
-    interface Psr6CacheExceptionInterface extends \Psr\Cache\CacheException
-    {}
-} else {
-    interface Psr6CacheExceptionInterface
-    {}
-}
-
-if (interface_exists('Psr\SimpleCache\CacheException')) {
-    interface SimpleCacheExceptionInterface extends \Psr\SimpleCache\CacheException
-    {}
-} else {
-    interface SimpleCacheExceptionInterface
-    {}
-}
 
 class CacheException extends Exception implements Psr6CacheExceptionInterface, SimpleCacheExceptionInterface
 {

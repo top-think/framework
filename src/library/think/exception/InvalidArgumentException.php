@@ -11,21 +11,8 @@
 
 namespace think\exception;
 
-if (interface_exists('Psr\Cache\InvalidArgumentException')) {
-    interface Psr6CacheInvalidArgumentInterface extends \Psr\Cache\InvalidArgumentException
-    {}
-} else {
-    interface Psr6CacheInvalidArgumentInterface
-    {}
-}
-
-if (interface_exists('Psr\SimpleCache\InvalidArgumentException')) {
-    interface SimpleCacheInvalidArgumentInterface extends \Psr\SimpleCache\InvalidArgumentException
-    {}
-} else {
-    interface SimpleCacheInvalidArgumentInterface
-    {}
-}
+use Psr\Cache\InvalidArgumentException as Psr6CacheInvalidArgumentInterface;
+use Psr\SimpleCache\InvalidArgumentException as SimpleCacheInvalidArgumentInterface;
 
 class InvalidArgumentException extends \InvalidArgumentException implements Psr6CacheInvalidArgumentInterface, SimpleCacheInvalidArgumentInterface
 {

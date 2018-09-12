@@ -11,15 +11,8 @@
 
 namespace think\cache;
 
+use Psr\SimpleCache\CacheInterface;
 use think\exception\InvalidArgumentException;
-
-if (interface_exists('Psr\SimpleCache\CacheInterface')) {
-    interface CacheInterface extends \Psr\SimpleCache\CacheInterface
-    {}
-} else {
-    interface CacheInterface
-    {}
-}
 
 abstract class SimpleCache implements CacheInterface
 {
