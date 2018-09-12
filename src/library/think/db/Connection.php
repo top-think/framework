@@ -14,13 +14,13 @@ namespace think\db;
 use InvalidArgumentException;
 use PDO;
 use PDOStatement;
+use think\App;
 use think\Container;
 use think\Db;
 use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
-use think\Loader;
 
 abstract class Connection
 {
@@ -209,7 +209,7 @@ abstract class Connection
                 $name = md5(serialize($config));
             }
 
-            self::$instance[$name] = Loader::factory($config['type'], '\\think\\db\\connector\\', $config);
+            self::$instance[$name] = App::factory($config['type'], '\\think\\db\\connector\\', $config);
         }
 
         return self::$instance[$name];

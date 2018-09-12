@@ -11,8 +11,8 @@
 
 namespace think\model\concern;
 
+use think\App;
 use think\Container;
-use think\Loader;
 
 /**
  * 模型事件处理
@@ -81,7 +81,7 @@ trait ModelEvent
     public static function observe($class): void
     {
         foreach (static::$observe as $event) {
-            $eventFuncName = Loader::parseName($event, 1, false);
+            $eventFuncName = App::parseName($event, 1, false);
 
             if (method_exists($class, $eventFuncName)) {
                 $class = is_string($class) ? new $class : $class;

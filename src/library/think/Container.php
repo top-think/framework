@@ -432,7 +432,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
 
         foreach ($params as $param) {
             $name      = $param->getName();
-            $lowerName = Loader::parseName($name);
+            $lowerName = App::parseName($name);
             $class     = $param->getClass();
 
             if ($class) {

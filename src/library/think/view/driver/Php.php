@@ -14,7 +14,6 @@ namespace think\view\driver;
 use think\App;
 use think\Container;
 use think\exception\TemplateNotFoundException;
-use think\Loader;
 
 class Php
 {
@@ -135,12 +134,12 @@ class Php
 
         if (0 !== strpos($template, '/')) {
             $template   = str_replace(['/', ':'], $depr, $template);
-            $controller = Loader::parseName($request->controller());
+            $controller = App::parseName($request->controller());
 
             if ($controller) {
                 if ('' == $template) {
                     // 如果模板文件名为空 按照默认规则定位
-                    $template = str_replace('.', DIRECTORY_SEPARATOR, $controller) . $depr . (1 == $this->config['auto_rule'] ? Loader::parseName($request->action(true)) : $request->action());
+                    $template = str_replace('.', DIRECTORY_SEPARATOR, $controller) . $depr . (1 == $this->config['auto_rule'] ? App::parseName($request->action(true)) : $request->action());
                 } elseif (false === strpos($template, $depr)) {
                     $template = str_replace('.', DIRECTORY_SEPARATOR, $controller) . $depr . $template;
                 }

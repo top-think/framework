@@ -180,7 +180,7 @@ class Hook
 
         $app->isDebug() && $app['debug']->remark('behavior_start', 'time');
 
-        $method = Loader::parseName($tag, 1, false);
+        $method = App::parseName($tag, 1, false);
 
         if ($class instanceof \Closure) {
             $call  = $class;

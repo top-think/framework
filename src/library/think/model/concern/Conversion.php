@@ -11,9 +11,9 @@
 
 namespace think\model\concern;
 
+use think\App;
 use think\Collection;
 use think\Exception;
-use think\Loader;
 use think\Model;
 use think\model\Collection as ModelCollection;
 
@@ -70,7 +70,7 @@ trait Conversion
      */
     public function appendRelationAttr(string $attr, array $append)
     {
-        $relation = Loader::parseName($attr, 1, false);
+        $relation = App::parseName($attr, 1, false);
 
         if (isset($this->relation[$relation])) {
             $model = $this->relation[$relation];

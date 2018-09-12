@@ -11,8 +11,8 @@
 
 namespace think\route;
 
+use think\App;
 use think\Container;
-use think\Loader;
 use think\Request;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
@@ -189,7 +189,7 @@ class Domain extends RuleGroup
             $this->parseUrlParams($array[2]);
         }
 
-        return new CallbackDispatch($request, $this, [$namespace . '\\' . Loader::parseName($class, 1), $method]);
+        return new CallbackDispatch($request, $this, [$namespace . '\\' . App::parseName($class, 1), $method]);
     }
 
     /**

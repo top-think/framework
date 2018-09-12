@@ -104,7 +104,7 @@ class App extends Container
      * 配置后缀
      * @var string
      */
-    protected $configExt;
+    protected $configExt = '.php';
 
     /**
      * 应用调度实例
@@ -184,29 +184,6 @@ class App extends Container
         // 注册错误和异常处理机制
         Error::register();
 
-        // 注册类库别名
-        Loader::addClassAlias([
-            'App'      => facade\App::class,
-            'Build'    => facade\Build::class,
-            'Cache'    => facade\Cache::class,
-            'Config'   => facade\Config::class,
-            'Cookie'   => facade\Cookie::class,
-            'Db'       => facade\Db::class,
-            'Debug'    => facade\Debug::class,
-            'Env'      => facade\Env::class,
-            'Facade'   => Facade::class,
-            'Hook'     => facade\Hook::class,
-            'Lang'     => facade\Lang::class,
-            'Log'      => facade\Log::class,
-            'Request'  => facade\Request::class,
-            'Response' => facade\Response::class,
-            'Route'    => facade\Route::class,
-            'Session'  => facade\Session::class,
-            'Url'      => facade\Url::class,
-            'Validate' => facade\Validate::class,
-            'View'     => facade\View::class,
-        ]);
-
         $this->configExt = $this->env->get('config_ext', '.php');
 
         // 加载惯例配置文件
@@ -231,9 +208,6 @@ class App extends Container
 
         $this->namespace = $this->env->get('app_namespace', $this->namespace);
         $this->env->set('app_namespace', $this->namespace);
-
-        // 注册应用命名空间
-        Loader::addNamespace($this->namespace, $this->appPath);
 
         // 初始化应用
         $this->init();
@@ -262,17 +236,6 @@ class App extends Container
         if ($this->config['app.exception_handle']) {
             Error::setExceptionHandler($this->config['app.exception_handle']);
         }
-
-        // 注册根命名空间
-        if (!empty($this->config['app.root_namespace'])) {
-            Loader::addNamespace($this->config['app.root_namespace']);
-        }
-
-        // 加载composer autofile文件
-        Loader::loadComposerAutoloadFiles();
-
-        // 注册类库别名
-        Loader::addClassAlias($this->config->pull('alias'));
 
         // 设置系统时区
         date_default_timezone_set($this->config['app.default_timezone']);
@@ -704,7 +667,7 @@ class App extends Container
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
+        $class = self::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
@@ -770,7 +733,7 @@ class App extends Container
     public function getAppPath(): string
     {
         if (is_null($this->appPath)) {
-            $this->appPath = Loader::getRootPath() . 'application' . DIRECTORY_SEPARATOR;
+            $this->appPath = $this->rootPath() . 'application' . DIRECTORY_SEPARATOR;
         }
 
         return $this->appPath;
@@ -878,4 +841,60 @@ class App extends Container
         return $this->beginMem;
     }
 
+    // 获取应用根目录
+    public function rootPath()
+    {
+        if ('cli' == PHP_SAPI) {
+            $scriptName = realpath($_SERVER['argv'][0]);
+        } else {
+            $scriptName = $_SERVER['SCRIPT_FILENAME'];
+        }
+
+        $path = realpath(dirname($scriptName));
+
+        if (!is_file($path . DIRECTORY_SEPARATOR . 'think')) {
+            $path = dirname($path);
+        }
+
+        return $path . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * 字符串命名风格转换
+     * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
+     * @access public
+     * @param  string  $name 字符串
+     * @param  integer $type 转换类型
+     * @param  bool    $ucfirst 首字母是否大写（驼峰规则）
+     * @return string
+     */
+    public static function parseName(string $name = null, int $type = 0, bool $ucfirst = true): string
+    {
+        if ($type) {
+            $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
+                return strtoupper($match[1]);
+            }, $name);
+            return $ucfirst ? ucfirst($name) : lcfirst($name);
+        }
+
+        return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
+    }
+
+    /**
+     * 创建工厂对象实例
+     * @access public
+     * @param  string $name         工厂类名
+     * @param  string $namespace    默认命名空间
+     * @return mixed
+     */
+    public static function factory(string $name, string $namespace = '', ...$args)
+    {
+        $class = false !== strpos($name, '\\') ? $name : $namespace . ucwords($name);
+
+        if (class_exists($class)) {
+            return Container::getInstance()->invokeClass($class, $args);
+        } else {
+            throw new ClassNotFoundException('class not exists:' . $class, $class);
+        }
+    }
 }

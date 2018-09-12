@@ -11,8 +11,8 @@
 
 namespace think\route\dispatch;
 
+use think\App;
 use think\exception\HttpException;
-use think\Loader;
 use think\route\Dispatch;
 
 class Url extends Dispatch
@@ -104,12 +104,12 @@ class Url extends Dispatch
         list($module, $controller, $action) = $route;
 
         // 检查地址是否被定义过路由
-        $name = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
+        $name = strtolower($module . '/' . App::parseName($controller, 1) . '/' . $action);
 
         $name2 = '';
 
         if (empty($module) || $module == $bind) {
-            $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
+            $name2 = strtolower(App::parseName($controller, 1) . '/' . $action);
         }
 
         $host = $this->request->host(true);
@@ -139,12 +139,12 @@ class Url extends Dispatch
         foreach ($path as $val) {
             $item[] = $val;
             $file   = $dir . '/' . str_replace('.', '/', $val) . $suffix . '.php';
-            $file   = pathinfo($file, PATHINFO_DIRNAME) . '/' . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
+            $file   = pathinfo($file, PATHINFO_DIRNAME) . '/' . App::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
             if (is_file($file)) {
                 $find = true;
                 break;
             } else {
-                $dir .= '/' . Loader::parseName($val);
+                $dir .= '/' . App::parseName($val);
             }
         }
 

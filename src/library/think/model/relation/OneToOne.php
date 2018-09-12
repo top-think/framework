@@ -12,9 +12,9 @@
 namespace think\model\relation;
 
 use Closure;
+use think\App;
 use think\db\Query;
 use think\Exception;
-use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -60,7 +60,7 @@ abstract class OneToOne extends Relation
      */
     public function eagerly(Query $query, string $relation, $field = true, string $joinType = '', Closure $closure = null, bool $first = false): void
     {
-        $name = Loader::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
+        $name = App::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
 
         if ($first) {
             $table = $query->getTable();
@@ -288,7 +288,7 @@ abstract class OneToOne extends Relation
             $relationModel = null;
         }
 
-        $result->setRelation(Loader::parseName($relation), $relationModel);
+        $result->setRelation(App::parseName($relation), $relationModel);
     }
 
     /**

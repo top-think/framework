@@ -20,7 +20,6 @@ use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
 use think\exception\PDOException;
-use think\Loader;
 use think\Model;
 use think\model\Collection as ModelCollection;
 use think\model\Relation;
@@ -150,18 +149,18 @@ class Query
             return Container::getInstance()->invoke(self::$extend[strtolower($method)], $args);
         } elseif (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
-            $field = Loader::parseName(substr($method, 5));
+            $field = App::parseName(substr($method, 5));
             return $this->where($field, '=', $args[0])->find();
         } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
             // 根据某个字段获取记录的某个值
-            $name = Loader::parseName(substr($method, 10));
+            $name = App::parseName(substr($method, 10));
             return $this->where($name, '=', $args[0])->value($args[1]);
         } elseif (strtolower(substr($method, 0, 7)) == 'whereor') {
-            $name = Loader::parseName(substr($method, 7));
+            $name = App::parseName(substr($method, 7));
             array_unshift($args, $name);
             return call_user_func_array([$this, 'whereOr'], $args);
         } elseif (strtolower(substr($method, 0, 5)) == 'where') {
-            $name = Loader::parseName(substr($method, 5));
+            $name = App::parseName(substr($method, 5));
             array_unshift($args, $name);
             return call_user_func_array([$this, 'where'], $args);
         } elseif ($this->model && method_exists($this->model, 'scope' . $method)) {
@@ -290,7 +289,7 @@ class Query
 
         $name = $name ?: $this->name;
 
-        return $this->prefix . Loader::parseName($name);
+        return $this->prefix . App::parseName($name);
     }
 
     /**
@@ -2442,7 +2441,7 @@ class Query
             }
 
             /** @var Relation $model */
-            $relation = Loader::parseName($relation, 1, false);
+            $relation = App::parseName($relation, 1, false);
             $model    = $class->$relation();
 
             if ($model instanceof OneToOne) {
@@ -2504,7 +2503,7 @@ class Query
             } elseif ($this->model) {
                 // 检测搜索器
                 $fieldName = is_numeric($key) ? $field : $key;
-                $method    = 'search' . Loader::parseName($fieldName, 1) . 'Attr';
+                $method    = 'search' . App::parseName($fieldName, 1) . 'Attr';
 
                 if (method_exists($this->model, $method)) {
                     $this->model->$method($this, $data[$field] ?? null, $data, $prefix);
@@ -2549,10 +2548,10 @@ class Query
                 }
 
                 if (!isset($aggregateField)) {
-                    $aggregateField = Loader::parseName($relation) . '_' . $aggregate;
+                    $aggregateField = App::parseName($relation) . '_' . $aggregate;
                 }
 
-                $relation = Loader::parseName($relation, 1, false);
+                $relation = App::parseName($relation, 1, false);
                 $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure, $aggregate, $field) . ')';
 
                 $this->field([$count => $aggregateField]);
@@ -3144,7 +3143,7 @@ class Query
     protected function getResultAttr(array &$result, array $withAttr = []): void
     {
         foreach ($withAttr as $name => $closure) {
-            $name = Loader::parseName($name);
+            $name = App::parseName($name);
 
             if (strpos($name, '.')) {
                 // 支持JSON字段 获取器定义

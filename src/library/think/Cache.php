@@ -59,7 +59,7 @@ class Cache extends CacheItemPool
         if ($force || !isset($this->instance[$name])) {
             $type = !empty($options['type']) ? $options['type'] : 'File';
 
-            $this->instance[$name] = Loader::factory($type, '\\think\\cache\\driver\\', $options);
+            $this->instance[$name] = App::factory($type, '\\think\\cache\\driver\\', $options);
         }
 
         return $this->instance[$name];

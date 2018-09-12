@@ -12,7 +12,7 @@
 namespace think\model\relation;
 
 use Closure;
-use think\Loader;
+use think\App;
 use think\Model;
 
 class BelongsTo extends OneToOne
@@ -139,7 +139,7 @@ class BelongsTo extends OneToOne
             ], $localKey, $relation, $subRelation, $closure);
 
             // 关联属性名
-            $attr = Loader::parseName($relation);
+            $attr = App::parseName($relation);
 
             // 关联数据封装
             foreach ($resultSet as $result) {
@@ -197,7 +197,7 @@ class BelongsTo extends OneToOne
             $this->bindAttr($relationModel, $result);
         } else {
             // 设置关联属性
-            $result->setRelation(Loader::parseName($relation), $relationModel);
+            $result->setRelation(App::parseName($relation), $relationModel);
         }
     }
 

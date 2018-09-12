@@ -12,9 +12,9 @@
 namespace think\model\relation;
 
 use Closure;
+use think\App;
 use think\Collection;
 use think\db\Query;
-use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -96,7 +96,7 @@ class HasMany extends Relation
             $data = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
 
             // 关联属性名
-            $attr = Loader::parseName($relation);
+            $attr = App::parseName($relation);
 
             // 关联数据封装
             foreach ($resultSet as $result) {
@@ -143,7 +143,7 @@ class HasMany extends Relation
                 $relationModel->setParent(clone $result);
             }
 
-            $result->setRelation(Loader::parseName($relation), $this->resultSetBuild($data[$pk]));
+            $result->setRelation(App::parseName($relation), $this->resultSetBuild($data[$pk]));
         }
     }
 

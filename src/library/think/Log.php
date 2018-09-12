@@ -95,7 +95,7 @@ class Log implements LoggerInterface
             $this->allowWrite = false;
         }
 
-        $this->driver = Loader::factory($type, '\\think\\log\\driver\\', $config);
+        $this->driver = App::factory($type, '\\think\\log\\driver\\', $config);
 
         return $this;
     }

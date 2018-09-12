@@ -726,7 +726,7 @@ class Validate
      */
     public function is($value, $rule, $data = []): bool
     {
-        switch (Loader::parseName($rule, 1, false)) {
+        switch (App::parseName($rule, 1, false)) {
             case 'require':
                 // 必须
                 $result = !empty($value) || '0' == $value;

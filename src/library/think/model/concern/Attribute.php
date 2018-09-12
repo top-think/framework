@@ -12,8 +12,8 @@
 namespace think\model\concern;
 
 use InvalidArgumentException;
+use think\App;
 use think\Exception;
-use think\Loader;
 use think\model\Relation;
 
 trait Attribute
@@ -332,7 +332,7 @@ trait Attribute
             $value = $this->autoWriteTimestamp($name);
         } else {
             // 检测修改器
-            $method = 'set' . Loader::parseName($name, 1) . 'Attr';
+            $method = 'set' . App::parseName($name, 1) . 'Attr';
 
             if (method_exists($this, $method)) {
                 $value = $this->$method($value, array_merge($this->data, $data));
@@ -480,8 +480,8 @@ trait Attribute
         }
 
         // 检测属性获取器
-        $fieldName = Loader::parseName($name);
-        $method    = 'get' . Loader::parseName($name, 1) . 'Attr';
+        $fieldName = App::parseName($name);
+        $method    = 'get' . App::parseName($name, 1) . 'Attr';
 
         if (isset($this->withAttr[$fieldName])) {
             if ($notFound) {
@@ -649,12 +649,12 @@ trait Attribute
     {
         if (is_array($name)) {
             foreach ($name as $key => $val) {
-                $key = Loader::parseName($key);
+                $key = App::parseName($key);
 
                 $this->withAttr[$key] = $val;
             }
         } else {
-            $name = Loader::parseName($name);
+            $name = App::parseName($name);
 
             $this->withAttr[$name] = $callback;
         }

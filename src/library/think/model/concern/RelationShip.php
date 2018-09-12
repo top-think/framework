@@ -11,9 +11,9 @@
 
 namespace think\model\concern;
 
+use think\App;
 use think\Collection;
 use think\db\Query;
-use think\Loader;
 use think\Model;
 use think\model\Relation;
 use think\model\relation\BelongsTo;
@@ -104,7 +104,7 @@ trait RelationShip
     public function setRelation(string $name, $value, array $data = [])
     {
         // 检测修改器
-        $method = 'set' . Loader::parseName($name, 1) . 'Attr';
+        $method = 'set' . App::parseName($name, 1) . 'Attr';
 
         if (method_exists($this, $method)) {
             $value = $this->$method($value, array_merge($this->data, $data));
@@ -189,7 +189,7 @@ trait RelationShip
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
-            $method = Loader::parseName($relation, 1, false);
+            $method = App::parseName($relation, 1, false);
 
             $this->relation[$relation] = $this->$method()->getRelation($subRelation, $closure);
         }
@@ -222,8 +222,8 @@ trait RelationShip
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
-            $relation     = Loader::parseName($relation, 1, false);
-            $relationName = Loader::parseName($relation);
+            $relation     = App::parseName($relation, 1, false);
+            $relationName = App::parseName($relation);
 
             $relationResult = $this->$relation();
 
@@ -262,8 +262,8 @@ trait RelationShip
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
-            $relation     = Loader::parseName($relation, 1, false);
-            $relationName = Loader::parseName($relation);
+            $relation     = App::parseName($relation, 1, false);
+            $relationName = App::parseName($relation);
 
             $relationResult = $this->$relation();
 
@@ -297,11 +297,11 @@ trait RelationShip
                 $relation = $key;
             }
 
-            $relation = Loader::parseName($relation, 1, false);
+            $relation = App::parseName($relation, 1, false);
             $count    = $this->$relation()->relationCount($result, $closure, $aggregate, $field);
 
             if (!isset($name)) {
-                $name = Loader::parseName($relation) . '_' . $aggregate;
+                $name = App::parseName($relation) . '_' . $aggregate;
             }
 
             $result->setAttr($name, $count);
@@ -341,7 +341,7 @@ trait RelationShip
         $foreignKey = $foreignKey ?: $this->getForeignKey((new $model)->getName());
         $localKey   = $localKey ?: (new $model)->getPk();
         $trace      = debug_backtrace(false, 2);
-        $relation   = Loader::parseName($trace[1]['function']);
+        $relation   = App::parseName($trace[1]['function']);
 
         return new BelongsTo($this, $model, $foreignKey, $localKey, $relation);
     }
@@ -399,8 +399,8 @@ trait RelationShip
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $name       = Loader::parseName(basename(str_replace('\\', '/', $model)));
-        $table      = $table ?: Loader::parseName($this->name) . '_' . $name;
+        $name       = App::parseName(basename(str_replace('\\', '/', $model)));
+        $table      = $table ?: App::parseName($this->name) . '_' . $name;
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: $this->getForeignKey($this->name);
 
@@ -422,7 +422,7 @@ trait RelationShip
 
         if (is_null($morph)) {
             $trace = debug_backtrace(false, 2);
-            $morph = Loader::parseName($trace[1]['function']);
+            $morph = App::parseName($trace[1]['function']);
         }
 
         if (is_array($morph)) {
@@ -452,7 +452,7 @@ trait RelationShip
 
         if (is_null($morph)) {
             $trace = debug_backtrace(false, 2);
-            $morph = Loader::parseName($trace[1]['function']);
+            $morph = App::parseName($trace[1]['function']);
         }
 
         $type = $type ?: get_class($this);
@@ -477,7 +477,7 @@ trait RelationShip
     public function morphTo($morph = null, array $alias = []): MorphTo
     {
         $trace    = debug_backtrace(false, 2);
-        $relation = Loader::parseName($trace[1]['function']);
+        $relation = App::parseName($trace[1]['function']);
 
         if (is_null($morph)) {
             $morph = $relation;
@@ -505,7 +505,7 @@ trait RelationShip
         if (false === strpos($model, '\\')) {
             $path = explode('\\', static::class);
             array_pop($path);
-            array_push($path, Loader::parseName($model, 1));
+            array_push($path, App::parseName($model, 1));
             $model = implode('\\', $path);
         }
 
@@ -524,7 +524,7 @@ trait RelationShip
             $name = basename(str_replace('\\', '/', $name));
         }
 
-        return Loader::parseName($name) . '_id';
+        return App::parseName($name) . '_id';
     }
 
     /**
@@ -535,7 +535,7 @@ trait RelationShip
      */
     protected function isRelationAttr(string $attr)
     {
-        $relation = Loader::parseName($attr, 1, false);
+        $relation = App::parseName($attr, 1, false);
 
         if (method_exists($this, $relation) && !method_exists('think\Model', $relation)) {
             return $relation;
@@ -619,7 +619,7 @@ trait RelationShip
     protected function autoRelationInsert(): void
     {
         foreach ($this->relationWrite as $name => $val) {
-            $method = Loader::parseName($name, 1, false);
+            $method = App::parseName($name, 1, false);
             $this->$method()->save($val);
         }
     }

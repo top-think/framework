@@ -12,9 +12,9 @@
 namespace think\route\dispatch;
 
 use ReflectionMethod;
+use think\App;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
-use think\Loader;
 use think\Request;
 use think\route\Dispatch;
 
@@ -74,7 +74,7 @@ class Module extends Dispatch
 
         // 设置当前请求的控制器、操作
         $this->request
-            ->setController(Loader::parseName($this->controller, 1))
+            ->setController(App::parseName($this->controller, 1))
             ->setAction($this->actionName);
 
         return $this;

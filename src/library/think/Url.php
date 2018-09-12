@@ -269,7 +269,7 @@ class Url
 
             if ($this->app['config']->get('url_convert')) {
                 $action     = strtolower($action);
-                $controller = Loader::parseName($controller);
+                $controller = App::parseName($controller);
             }
 
             $url = $module . $controller . '/' . $action;

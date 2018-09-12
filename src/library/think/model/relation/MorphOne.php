@@ -12,9 +12,9 @@
 namespace think\model\relation;
 
 use Closure;
+use think\App;
 use think\db\Query;
 use think\Exception;
-use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -126,7 +126,7 @@ class MorphOne extends Relation
             ], $relation, $subRelation, $closure);
 
             // 关联属性名
-            $attr = Loader::parseName($relation);
+            $attr = App::parseName($relation);
 
             // 关联数据封装
             foreach ($resultSet as $result) {
@@ -171,7 +171,7 @@ class MorphOne extends Relation
                 $relationModel = null;
             }
 
-            $result->setRelation(Loader::parseName($relation), $relationModel);
+            $result->setRelation(App::parseName($relation), $relationModel);
         }
     }
 

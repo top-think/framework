@@ -12,8 +12,8 @@
 namespace think\model\relation;
 
 use Closure;
+use think\App;
 use think\db\Query;
-use think\Loader;
 use think\Model;
 
 class HasOne extends OneToOne
@@ -151,7 +151,7 @@ class HasOne extends OneToOne
             ], $foreignKey, $relation, $subRelation, $closure);
 
             // 关联属性名
-            $attr = Loader::parseName($relation);
+            $attr = App::parseName($relation);
 
             // 关联数据封装
             foreach ($resultSet as $result) {
@@ -208,7 +208,7 @@ class HasOne extends OneToOne
             // 绑定关联属性
             $this->bindAttr($relationModel, $result, $this->bindAttr);
         } else {
-            $result->setRelation(Loader::parseName($relation), $relationModel);
+            $result->setRelation(App::parseName($relation), $relationModel);
         }
     }
 

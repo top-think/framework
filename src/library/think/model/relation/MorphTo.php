@@ -12,8 +12,8 @@
 namespace think\model\relation;
 
 use Closure;
+use think\App;
 use think\Exception;
-use think\Loader;
 use think\Model;
 use think\model\Relation;
 
@@ -126,7 +126,7 @@ class MorphTo extends Relation
         if (false === strpos($model, '\\')) {
             $path = explode('\\', get_class($this->parent));
             array_pop($path);
-            array_push($path, Loader::parseName($model, 1));
+            array_push($path, App::parseName($model, 1));
             $model = implode('\\', $path);
         }
 
@@ -181,7 +181,7 @@ class MorphTo extends Relation
 
         if (!empty($range)) {
             // 关联属性名
-            $attr = Loader::parseName($relation);
+            $attr = App::parseName($relation);
 
             foreach ($range as $key => $val) {
                 // 多态类型映射
@@ -265,7 +265,7 @@ class MorphTo extends Relation
             $data->isUpdate(true);
         }
 
-        $result->setRelation(Loader::parseName($relation), $data ?: null);
+        $result->setRelation(App::parseName($relation), $data ?: null);
     }
 
     /**
