@@ -16,9 +16,7 @@ return [
         // 应用模式状态
         'app_status'             => '',
         // 是否支持多模块
-        'app_multi_module'       => true,
-        // 入口自动绑定模块
-        'auto_bind_module'       => false,
+        'app_multi'              => true,
         // 注册的根命名空间
         'root_namespace'         => [],
         // 默认输出类型
@@ -46,20 +44,16 @@ return [
         // | 模块设置
         // +----------------------------------------------------------------------
 
-        // 默认模块名
-        'default_module'         => 'index',
         // 允许访问模块
-        'allow_module_list'      => [],
+        'allow_app_list'         => [],
         // 禁止访问模块
-        'deny_module_list'       => ['common'],
+        'deny_app_list'          => ['base'],
         // 默认控制器名
         'default_controller'     => 'Index',
         // 默认操作名
         'default_action'         => 'index',
         // 默认验证器
         'default_validate'       => '',
-        // 默认的空模块名
-        'empty_module'           => '',
         // 默认的空控制器名
         'empty_controller'       => 'Error',
         // 操作方法前缀

@@ -49,9 +49,9 @@ class Controller extends Make
         return parent::getClassName($name) . (Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '');
     }
 
-    protected function getNamespace(string $appNamespace, string $module)
+    protected function getNamespace(string $appNamespace)
     {
-        return parent::getNamespace($appNamespace, $module) . '\controller';
+        return $appNamespace . '\\controller';
     }
 
 }

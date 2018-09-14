@@ -18,7 +18,7 @@ use think\Facade;
  * @mixin \think\App
  * @method \think\App bind(string $bind) static 绑定模块或者控制器
  * @method void initialize() static 初始化应用
- * @method void init(string $module='') static 初始化模块
+ * @method void init() static 初始化应用
  * @method \think\Response run() static 执行应用
  * @method \think\App dispatch(\think\route\Dispatch $dispatch) static 设置当前请求的调度信息
  * @method void log(mixed $log, string $type = 'info') static 记录调试信息
@@ -30,11 +30,9 @@ use think\Facade;
  * @method \think\Validate validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common') static 实例化验证器类
  * @method \think\db\Query db(mixed $config = [], mixed $name = false) static 数据库初始化
  * @method mixed action(string $url, $vars = [], $layer = 'controller', $appendSuffix = false) static 调用模块的操作方法
- * @method string parseClass(string $module, string $layer, string $name, bool $appendSuffix = false) static 解析应用类的类名
+ * @method string parseClass(string $layer, string $name, bool $appendSuffix = false) static 解析应用类的类名
  * @method string version() static 获取框架版本
  * @method bool isDebug() static 是否为调试模式
- * @method string getModulePath() static 获取当前模块路径
- * @method void setModulePath(string $path) static 设置当前模块路径
  * @method string getRootPath() static 获取应用根目录
  * @method string getAppPath() static 获取应用类库目录
  * @method string getRuntimePath() static 获取应用运行时目录

@@ -47,13 +47,11 @@ class Url extends Dispatch
 
         list($path, $var) = $this->rule->parseUrlPath($url);
         if (empty($path)) {
-            return [null, null, null];
+            return [null, null];
         }
 
-        // 解析模块
-        $module = $this->rule->getConfig('app_multi_module') ? array_shift($path) : null;
         if ($this->param['auto_search']) {
-            $controller = $this->autoFindController($module, $path);
+            $controller = $this->autoFindController($path);
         } else {
             // 解析控制器
             $controller = !empty($path) ? array_shift($path) : null;
@@ -83,7 +81,7 @@ class Url extends Dispatch
         $this->request->setRoute($var);
 
         // 封装路由
-        $route = [$module, $controller, $action];
+        $route = [$controller, $action];
 
         if ($this->hasDefinedRoute($route, $bind)) {
             throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
@@ -101,20 +99,14 @@ class Url extends Dispatch
      */
     protected function hasDefinedRoute(array $route, string $bind = null): bool
     {
-        list($module, $controller, $action) = $route;
+        list($controller, $action) = $route;
 
         // 检查地址是否被定义过路由
-        $name = strtolower($module . '/' . App::parseName($controller, 1) . '/' . $action);
-
-        $name2 = '';
-
-        if (empty($module) || $module == $bind) {
-            $name2 = strtolower(App::parseName($controller, 1) . '/' . $action);
-        }
+        $name = strtolower(App::parseName($controller, 1) . '/' . $action);
 
         $host = $this->request->host(true);
 
-        if ($this->rule->getRouter()->getName($name, $host) || $this->rule->getRouter()->getName($name2, $host)) {
+        if ($this->rule->getRouter()->getName($name, $host)) {
             return true;
         }
 
@@ -124,13 +116,12 @@ class Url extends Dispatch
     /**
      * 自动定位控制器类
      * @access protected
-     * @param  string    $module 模块名
      * @param  array     $path   URL
      * @return string
      */
-    protected function autoFindController(string $module, array &$path): string
+    protected function autoFindController(array &$path): string
     {
-        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->rule->getConfig('url_controller_layer');
+        $dir    = $this->app->getAppPath() . $this->rule->getConfig('url_controller_layer');
         $suffix = $this->app->getSuffix() || $this->rule->getConfig('controller_suffix') ? ucfirst($this->rule->getConfig('url_controller_layer')) : '';
 
         $item = [];

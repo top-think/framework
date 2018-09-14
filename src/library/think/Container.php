@@ -72,7 +72,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * 容器标识别名
      * @var array
      */
-    protected $name = [];
+    protected $alias = [];
 
     /**
      * 获取当前容器的实例（单例）
@@ -239,7 +239,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      */
     public function make(string $abstract, array $vars = [], bool $newInstance = false)
     {
-        $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
+        $abstract = isset($this->alias[$abstract]) ? $this->alias[$abstract] : $abstract;
 
         if (isset($this->instances[$abstract]) && !$newInstance) {
             return $this->instances[$abstract];
@@ -251,7 +251,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
             if ($concrete instanceof Closure) {
                 $object = $this->invokeFunction($concrete, $vars);
             } else {
-                $this->name[$abstract] = $concrete;
+                $this->alias[$abstract] = $concrete;
                 return $this->make($concrete, $vars, $newInstance);
             }
         } else {
@@ -274,7 +274,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     public function delete($abstract): void
     {
         foreach ((array) $abstract as $name) {
-            $name = isset($this->name[$name]) ? $this->name[$name] : $name;
+            $name = isset($this->alias[$name]) ? $this->alias[$name] : $name;
 
             if (isset($this->instances[$name])) {
                 unset($this->instances[$name]);
@@ -301,7 +301,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     {
         $this->instances = [];
         $this->bind      = [];
-        $this->name      = [];
+        $this->alias     = [];
     }
 
     /**

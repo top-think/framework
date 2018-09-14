@@ -11,6 +11,7 @@
 
 namespace think\cache;
 
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use think\exception\InvalidArgumentException;
 
@@ -29,7 +30,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @return CacheItemInterface
      * @throws InvalidArgumentException
      */
-    public function getItem(string $key): CacheItem
+    public function getItem($key): CacheItem
     {
         if (isset($this->data[$key])) {
             return $this->data[$key];
@@ -70,7 +71,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function hasItem(string $key): bool
+    public function hasItem($key): bool
     {
         return $this->has($key);
     }
@@ -92,7 +93,7 @@ class CacheItemPool implements CacheItemPoolInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteItem(string $key): bool
+    public function deleteItem($key): bool
     {
         return $this->delete($key);
     }

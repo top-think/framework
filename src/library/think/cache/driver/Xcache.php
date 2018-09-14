@@ -48,7 +48,7 @@ class Xcache extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function has(string $name): bool
+    public function has($name): bool
     {
         $key = $this->getCacheKey($name);
 
@@ -62,7 +62,7 @@ class Xcache extends Driver
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name, $default = false)
+    public function get($name, $default = false)
     {
         $this->readTimes++;
 
@@ -79,7 +79,7 @@ class Xcache extends Driver
      * @param  integer|\DateTime $expire  有效时间（秒）
      * @return boolean
      */
-    public function set(string $name, $value, $expire = null): bool
+    public function set($name, $value, $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -154,7 +154,7 @@ class Xcache extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear(string $tag = null): bool
+    public function clear($tag = null): bool
     {
         if ($tag) {
             // 指定标签清除

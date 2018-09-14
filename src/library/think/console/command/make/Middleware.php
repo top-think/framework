@@ -29,8 +29,8 @@ class Middleware extends Make
         return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'middleware.stub';
     }
 
-    protected function getNamespace(string $appNamespace, string $module)
+    protected function getNamespace(string $appNamespace)
     {
-        return parent::getNamespace($appNamespace, 'http') . '\middleware';
+        return $appNamespace . '\\middleware';
     }
 }

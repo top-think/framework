@@ -23,10 +23,10 @@ class App extends Container
     const VERSION = '5.2.0beta';
 
     /**
-     * 当前模块路径
+     * 应用名称
      * @var string
      */
-    protected $modulePath;
+    protected $name = 'app';
 
     /**
      * 应用调试模式
@@ -57,12 +57,6 @@ class App extends Container
      * @var bool
      */
     protected $suffix = false;
-
-    /**
-     * 严格路由检测
-     * @var bool
-     */
-    protected $routeMust;
 
     /**
      * 应用类库目录
@@ -107,50 +101,43 @@ class App extends Container
     protected $configExt = '.php';
 
     /**
-     * 应用调度实例
-     * @var Dispatch
-     */
-    protected $dispatch;
-
-    /**
-     * 绑定模块（控制器）
-     * @var string
-     */
-    protected $bindModule;
-
-    /**
      * 初始化
      * @var bool
      */
     protected $initialized = false;
 
-    public function __construct(string $appPath = '')
+    /**
+     * 架构方法
+     * @access public
+     * @param  string $rootPath 应用根目录
+     */
+    public function __construct(string $rootPath = '')
     {
         $this->thinkPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
-        $this->path($appPath);
+        $this->rootPath  = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
     }
 
     /**
-     * 绑定模块或者控制器
+     * 设置应用路径
      * @access public
-     * @param  string $bind
-     * @return $this
-     */
-    public function bindModule(string $bind)
-    {
-        $this->bindModule = $bind;
-        return $this;
-    }
-
-    /**
-     * 设置应用类库目录
-     * @access public
-     * @param  string $path 路径
+     * @param  string $path 应用目录
      * @return $this
      */
     public function path(string $path)
     {
-        $this->appPath = $path ?: $this->getAppPath();
+        $this->appPath = $path;
+        return $this;
+    }
+
+    /**
+     * 设置应用名称
+     * @access public
+     * @param  string $name 应用名称
+     * @return $this
+     */
+    public function name(string $name)
+    {
+        $this->name = $name;
         return $this;
     }
 
@@ -170,7 +157,10 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        $this->rootPath    = dirname(realpath($this->appPath)) . DIRECTORY_SEPARATOR;
+        if (!$this->appPath) {
+            $this->appPath = $this->rootPath . $this->name . DIRECTORY_SEPARATOR;
+        }
+
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
         $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
         $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
@@ -206,11 +196,17 @@ class App extends Container
             $this->env->load($this->rootPath . '.env');
         }
 
-        $this->namespace = $this->env->get('app_namespace', $this->namespace);
-        $this->env->set('app_namespace', $this->namespace);
-
-        // 初始化应用
+        // 初始化当前应用
         $this->init();
+
+        // 获取当前应用的命名空间
+        $appNamespace = $this->config['app.app_namespace'] ?: [];
+
+        if ($key = array_search($this->name, $appNamespace)) {
+            $this->namespace = $key;
+        }
+
+        $this->env->set('app_namespace', $this->namespace);
 
         // 开启类名后缀
         $this->suffix = $this->config['app.class_suffix'];
@@ -250,79 +246,65 @@ class App extends Container
     /**
      * 初始化应用或模块
      * @access public
-     * @param  string $module 模块名
-     * @param  string $path   模块路径
      * @return void
      */
-    public function init(string $module = '', string $path = ''): void
+    public function init(): void
     {
-        // 定位模块目录
-        $module = $module ? $module . DIRECTORY_SEPARATOR : '';
-        $path   = $path ?: $this->appPath . $module;
-
         // 加载初始化文件
-        if (is_file($path . 'init.php')) {
-            include $path . 'init.php';
-        } elseif (is_file($this->runtimePath . $module . 'init.php')) {
-            include $this->runtimePath . $module . 'init.php';
+        if (is_file($this->appPath . 'init.php')) {
+            include $this->appPath . 'init.php';
+        } elseif (is_file($this->runtimePath . $this->name . DIRECTORY_SEPARATOR . 'init.php')) {
+            include $this->runtimePath . $this->name . DIRECTORY_SEPARATOR . 'init.php';
         } else {
             // 加载行为扩展文件
-            if (is_file($path . 'tags.php')) {
-                $tags = include $path . 'tags.php';
+            if (is_file($this->appPath . 'tags.php')) {
+                $tags = include $this->appPath . 'tags.php';
                 if (is_array($tags)) {
                     $this->hook->import($tags);
                 }
             }
 
             // 加载公共文件
-            if (is_file($path . 'common.php')) {
-                include_once $path . 'common.php';
+            if (is_file($this->appPath . 'common.php')) {
+                include_once $this->appPath . 'common.php';
             }
 
-            if ('' == $module) {
-                // 加载系统助手函数
-                include $this->thinkPath . 'helper.php';
-            }
+            // 加载系统助手函数
+            include $this->thinkPath . 'helper.php';
 
             // 加载中间件
-            if (is_file($path . 'middleware.php')) {
-                $middleware = include $path . 'middleware.php';
+            if (is_file($this->appPath . 'middleware.php')) {
+                $middleware = include $this->appPath . 'middleware.php';
                 if (is_array($middleware)) {
                     $this->middleware->import($middleware);
                 }
             }
 
             // 注册服务的容器对象实例
-            if (is_file($path . 'provider.php')) {
-                $provider = include $path . 'provider.php';
+            if (is_file($this->appPath . 'provider.php')) {
+                $provider = include $this->appPath . 'provider.php';
                 if (is_array($provider)) {
                     $this->bind($provider);
                 }
             }
 
-            // 自动读取配置文件
-            if (is_dir($path . 'config')) {
-                $dir = $path . 'config' . DIRECTORY_SEPARATOR;
-            } elseif (is_dir($this->configPath . $module)) {
-                $dir = $this->configPath . $module;
+            // 加载应用配置文件
+            $files = [];
+
+            if (is_dir($this->configPath)) {
+                $files = glob($this->configPath . '*' . $this->configExt);
             }
 
-            $files = isset($dir) ? scandir($dir) : [];
+            if (is_dir($this->appPath . 'config')) {
+                $files = array_merge($files, glob($this->appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+            } elseif (is_dir($this->configPath . $this->name)) {
+                $files = array_merge($files, glob($this->configPath . $this->name . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+            }
 
             foreach ($files as $file) {
-                if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
-                    $this->config->load($dir . $file, pathinfo($file, PATHINFO_FILENAME));
-                }
-            }
-
-            // 加载当前模块语言包
-            if ($module) {
-                $this->lang->load($path . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
+                $this->config->load($file, pathinfo($file, PATHINFO_FILENAME));
             }
         }
-
-        // 设置模块路径
-        $this->setModulePath($path);
 
         $this->request->filter($this->config['app.default_filter']);
     }
@@ -342,15 +324,8 @@ class App extends Container
             // 监听app_init
             $this->hook->listen('app_init');
 
-            $this->checkBind();
-
-            // 获取应用调度信息
-            $dispatch = $this->dispatch;
-
-            if (empty($dispatch)) {
-                // 路由检测
-                $dispatch = $this->routeCheck()->init();
-            }
+            // 路由检测
+            $dispatch = $this->routeCheck()->init();
 
             // 记录当前调度信息
             $this->request->dispatch($dispatch);
@@ -390,20 +365,6 @@ class App extends Container
         return $response;
     }
 
-    protected function checkBind(): void
-    {
-        if ($this->bindModule) {
-            // 模块/控制器绑定
-            $this->route->bind($this->bindModule);
-        } elseif ($this->config['app.auto_bind_module']) {
-            // 入口自动绑定
-            $name = pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
-            if ($name && 'index' != $name && is_dir($this->appPath . $name)) {
-                $this->route->bind($name);
-            }
-        }
-    }
-
     protected function getRouteCacheKey(): string
     {
         if ($this->config->get('route_check_cache_key')) {
@@ -435,18 +396,6 @@ class App extends Container
     }
 
     /**
-     * 设置当前请求的调度信息
-     * @access public
-     * @param  Dispatch  $dispatch 调度信息
-     * @return $this
-     */
-    public function dispatch(Dispatch $dispatch)
-    {
-        $this->dispatch = $dispatch;
-        return $this;
-    }
-
-    /**
      * 记录调试信息
      * @access public
      * @param  mixed  $msg  调试信息
@@ -455,7 +404,7 @@ class App extends Container
      */
     public function log($msg, string $type = 'info'): void
     {
-        $this->appDebug && $this->log->record($msg, $type);
+        $this->log->record($msg, $type);
     }
 
     /**
@@ -465,12 +414,13 @@ class App extends Container
      */
     public function routeInit(): void
     {
-        // 路由检测
-        $files = scandir($this->routePath);
-
-        foreach ($files as $file) {
-            if (strpos($file, '.php')) {
-                include $this->routePath . $file;
+        // 加载路由定义
+        if (is_file($this->routePath . $this->name . '.php')) {
+            include $this->routePath . $this->name . '.php';
+        } elseif (is_dir($this->routePath . $this->name)) {
+            $files = glob($this->routePath . $this->name . DIRECTORY_SEPARATOR . '*.php');
+            foreach ($files as $file) {
+                include $file;
             }
         }
 
@@ -481,7 +431,7 @@ class App extends Container
                 $this->build->buildRoute($suffix);
             }
 
-            $filename = $this->runtimePath . 'build_route.php';
+            $filename = $this->runtimePath . $this->name . DIRECTORY_SEPARATOR . 'build_route.php';
 
             if (is_file($filename)) {
                 include $filename;
@@ -510,11 +460,8 @@ class App extends Container
 
         $path = $this->request->path();
 
-        // 是否强制路由模式
-        $must = !is_null($this->routeMust) ? $this->routeMust : $this->config['app.url_route_must'];
-
         // 路由检测 返回一个Dispatch对象
-        $dispatch = $this->route->check($path, $must);
+        $dispatch = $this->route->check($path, $this->config['app.url_route_must']);
 
         if (!empty($routeKey)) {
             try {
@@ -566,44 +513,6 @@ class App extends Container
     }
 
     /**
-     * 设置应用的路由检测机制
-     * @access public
-     * @param  bool $must  是否强制检测路由
-     * @return $this
-     */
-    public function routeMust(bool $must = false)
-    {
-        $this->routeMust = $must;
-        return $this;
-    }
-
-    /**
-     * 解析模块和类名
-     * @access protected
-     * @param  string $name         资源地址
-     * @param  string $layer        验证层名称
-     * @param  bool   $appendSuffix 是否添加类名后缀
-     * @return array
-     */
-    protected function parseModuleAndClass(string $name, string $layer, bool $appendSuffix): array
-    {
-        if (false !== strpos($name, '\\')) {
-            $class  = $name;
-            $module = $this->request->module();
-        } else {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name, 2);
-            } else {
-                $module = $this->request->module();
-            }
-
-            $class = $this->parseClass($module, $layer, $name, $appendSuffix);
-        }
-
-        return [$module, $class];
-    }
-
-    /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
      * @access public
      * @param  string $name              资源地址
@@ -615,11 +524,15 @@ class App extends Container
      */
     public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '')
     {
-        list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
+        if (false !== strpos($name, '\\')) {
+            $class = $name;
+        } else {
+            $class = $this->parseClass($layer, $name, $appendSuffix);
+        }
 
         if (class_exists($class)) {
             return $this->make($class);
-        } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
+        } elseif ($empty && class_exists($emptyClass = $this->parseClass($layer, $empty, $appendSuffix))) {
             return $this->make($emptyClass);
         }
 
@@ -638,10 +551,10 @@ class App extends Container
      */
     public function action(string $url, $vars = [], string $layer = 'controller', bool $appendSuffix = false)
     {
-        $info   = pathinfo($url);
-        $action = $info['basename'];
-        $module = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
-        $class  = $this->controller($module, $layer, $appendSuffix);
+        $info       = pathinfo($url);
+        $action     = $info['basename'];
+        $controller = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
+        $class      = $this->controller($controller, $layer, $appendSuffix);
 
         if (is_scalar($vars)) {
             if (strpos($vars, '=')) {
@@ -657,20 +570,19 @@ class App extends Container
     /**
      * 解析应用类的类名
      * @access public
-     * @param  string $module 模块名
      * @param  string $layer  层名 controller model ...
      * @param  string $name   类名
      * @param  bool   $appendSuffix
      * @return string
      */
-    public function parseClass(string $module, string $layer, string $name, bool $appendSuffix = false): string
+    public function parseClass(string $layer, string $name, bool $appendSuffix = false): string
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
         $class = self::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
-        return $this->namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
+        return $this->namespace . '\\' . $layer . '\\' . $path . $class;
     }
 
     /**
@@ -684,6 +596,16 @@ class App extends Container
     }
 
     /**
+     * 获取应用名称
+     * @access public
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
      * 是否为调试模式
      * @access public
      * @return bool
@@ -691,28 +613,6 @@ class App extends Container
     public function isDebug(): bool
     {
         return $this->appDebug;
-    }
-
-    /**
-     * 获取模块路径
-     * @access public
-     * @return string
-     */
-    public function getModulePath(): string
-    {
-        return $this->modulePath;
-    }
-
-    /**
-     * 设置模块路径
-     * @access public
-     * @param  string $path 路径
-     * @return void
-     */
-    public function setModulePath(string $path): void
-    {
-        $this->modulePath = $path;
-        $this->env->set('module_path', $path);
     }
 
     /**
@@ -726,16 +626,12 @@ class App extends Container
     }
 
     /**
-     * 获取应用类库目录
+     * 获取当前应用目录
      * @access public
      * @return string
      */
     public function getAppPath(): string
     {
-        if (is_null($this->appPath)) {
-            $this->appPath = $this->rootPath() . 'application' . DIRECTORY_SEPARATOR;
-        }
-
         return $this->appPath;
     }
 
@@ -800,18 +696,6 @@ class App extends Container
     }
 
     /**
-     * 设置应用类库命名空间
-     * @access public
-     * @param  string $namespace 命名空间名称
-     * @return $this
-     */
-    public function setNamespace(string $namespace)
-    {
-        $this->namespace = $namespace;
-        return $this;
-    }
-
-    /**
      * 是否启用类库后缀
      * @access public
      * @return bool
@@ -842,7 +726,7 @@ class App extends Container
     }
 
     // 获取应用根目录
-    public function rootPath()
+    public function getDefaultRootPath()
     {
         if ('cli' == PHP_SAPI) {
             $scriptName = realpath($_SERVER['argv'][0]);

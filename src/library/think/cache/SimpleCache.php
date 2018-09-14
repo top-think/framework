@@ -22,7 +22,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  string $name 缓存变量名
      * @return bool
      */
-    abstract public function has(string $name);
+    abstract public function has($name);
 
     /**
      * 读取缓存
@@ -31,7 +31,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    abstract public function get(string $name, $default = false);
+    abstract public function get($name, $default = false);
 
     /**
      * 写入缓存
@@ -41,7 +41,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  int       $expire  有效时间 0为永久
      * @return bool
      */
-    abstract public function set(string $name, $value, $expire = null);
+    abstract public function set($name, $value, $expire = null);
 
     /**
      * 自增缓存（针对数值缓存）
@@ -75,7 +75,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  string $tag 标签名
      * @return boolean
      */
-    abstract public function clear(string $tag = null);
+    abstract public function clear($tag = null);
 
     /**
      * 删除缓存
@@ -83,7 +83,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  string $name 缓存变量名
      * @return boolean
      */
-    public function delete(string $key): bool
+    public function delete($key): bool
     {
         return $this->rm($key);
     }
@@ -96,7 +96,7 @@ abstract class SimpleCache implements CacheInterface
      * @return iterable
      * @throws InvalidArgumentException
      */
-    public function getMultiple(iterable $keys, $default = null): iterable
+    public function getMultiple($keys, $default = null): iterable
     {
         $result = [];
 
@@ -114,7 +114,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  null|int|\DateInterval   $ttl    有效时间 0为永久
      * @return bool
      */
-    public function setMultiple(iterable $values, $ttl = null): bool
+    public function setMultiple($values, $ttl = null): bool
     {
         foreach ($values as $key => $val) {
             $result = $this->set($key, $val, $ttl);
@@ -134,7 +134,7 @@ abstract class SimpleCache implements CacheInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteMultiple(iterable $keys): bool
+    public function deleteMultiple($keys): bool
     {
         foreach ($kyes as $key) {
             $result = $this->delete($key);

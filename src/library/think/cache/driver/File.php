@@ -42,8 +42,10 @@ class File extends Driver
             $this->options = array_merge($this->options, $options);
         }
 
+        $app = Container::get('app');
+
         if (empty($this->options['path'])) {
-            $this->options['path'] = Container::get('app')->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR;
+            $this->options['path'] = $app->getRuntimePath() . $app->getName() . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
         } elseif (substr($this->options['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->options['path'] .= DIRECTORY_SEPARATOR;
         }
@@ -108,7 +110,7 @@ class File extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function has(string $name): bool
+    public function has($name): bool
     {
         return false !== $this->get($name) ? true : false;
     }
@@ -120,7 +122,7 @@ class File extends Driver
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name, $default = false)
+    public function get($name, $default = false)
     {
         $this->readTimes++;
 
@@ -162,7 +164,7 @@ class File extends Driver
      * @param  int|\DateTime $expire  有效时间 0为永久
      * @return boolean
      */
-    public function set(string $name, $value, $expire = null): bool
+    public function set($name, $value, $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -259,7 +261,7 @@ class File extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear(string $tag = null): bool
+    public function clear($tag = null): bool
     {
         if ($tag) {
             // 指定标签清除

@@ -801,7 +801,6 @@ abstract class Rule
 
         $request->setAction(array_pop($route));
         $request->setController($route ? array_pop($route) : $this->getConfig('default_controller'));
-        $request->setModule($route ? array_pop($route) : $this->getConfig('default_module'));
 
         return $result;
     }
@@ -819,7 +818,6 @@ abstract class Rule
 
         $action     = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
-        $module     = $this->getConfig('app_multi_module') && !empty($path) ? array_pop($path) : null;
         $method     = $request->method();
 
         if ($this->getConfig('use_action_prefix') && $this->router->getMethodPrefix($method)) {
@@ -832,7 +830,7 @@ abstract class Rule
         $request->setRoute($var);
 
         // 路由到模块/控制器/操作
-        return new ModuleDispatch($request, $this, [$module, $controller, $action], [], false);
+        return new ModuleDispatch($request, $this, [$controller, $action], [], false);
     }
 
     /**
@@ -924,12 +922,12 @@ abstract class Rule
         $var = [];
 
         if (false !== strpos($url, '?')) {
-            // [模块/控制器/操作?]参数1=值1&参数2=值2...
+            // [控制器/操作?]参数1=值1&参数2=值2...
             $info = parse_url($url);
             $path = explode('/', $info['path']);
             parse_str($info['query'], $var);
         } elseif (strpos($url, '/')) {
-            // [模块/控制器/操作]
+            // [控制器/操作]
             $path = explode('/', $url);
         } elseif (false !== strpos($url, '=')) {
             // 参数1=值1&参数2=值2...

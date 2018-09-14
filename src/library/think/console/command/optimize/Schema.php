@@ -24,7 +24,7 @@ class Schema extends Command
         $this->setName('optimize:schema')
             ->addOption('db', null, Option::VALUE_REQUIRED, 'db name .')
             ->addOption('table', null, Option::VALUE_REQUIRED, 'table name .')
-            ->addOption('module', null, Option::VALUE_REQUIRED, 'module name .')
+            ->addOption('app', null, Option::VALUE_REQUIRED, 'app name .')
             ->setDescription('Build database schema cache.');
     }
 
@@ -34,10 +34,10 @@ class Schema extends Command
             @mkdir(App::getRuntimePath() . 'schema', 0755, true);
         }
 
-        if ($input->hasOption('module')) {
-            $module = $input->getOption('module');
+        if ($input->hasOption('app')) {
+            $app = $input->getOption('app');
             // 读取模型
-            $path      = App::getAppPath() . $module . DIRECTORY_SEPARATOR . 'model';
+            $path      = App::getRootPath() . $app . DIRECTORY_SEPARATOR . 'model';
             $list      = is_dir($path) ? scandir($path) : [];
             $namespace = App::getNamespace();
 
@@ -45,7 +45,7 @@ class Schema extends Command
                 if (0 === strpos($file, '.')) {
                     continue;
                 }
-                $class = '\\' . $namespace . '\\' . $module . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
+                $class = '\\' . $namespace . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
                 $this->buildModelSchema($class);
             }
 
@@ -61,7 +61,7 @@ class Schema extends Command
         } elseif ($input->hasOption('db')) {
             $dbName = $input->getOption('db');
             $tables = Db::getConnection()->getTables($dbName);
-        } elseif (!\think\facade\Config::get('app_multi_module')) {
+        } else {
             $namespace = App::getNamespace();
             $path      = App::getAppPath() . 'model';
             $list      = is_dir($path) ? scandir($path) : [];
@@ -76,8 +76,6 @@ class Schema extends Command
 
             $output->writeln('<info>Succeed!</info>');
             return;
-        } else {
-            $tables = Db::getConnection()->getTables();
         }
 
         $db = isset($dbName) ? $dbName . '.' : '';

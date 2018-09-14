@@ -29,8 +29,8 @@ class Model extends Make
         return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'model.stub';
     }
 
-    protected function getNamespace(string $appNamespace, string $module)
+    protected function getNamespace(string $appNamespace)
     {
-        return parent::getNamespace($appNamespace, $module) . '\model';
+        return $appNamespace . '\\model';
     }
 }

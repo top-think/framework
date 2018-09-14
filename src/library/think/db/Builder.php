@@ -845,7 +845,7 @@ abstract class Builder
         foreach ($order as $key => $val) {
             if ($val instanceof Expression) {
                 $array[] = $val->getValue();
-            } elseif (is_array($val) && preg_match('/\w/', $key)) {
+            } elseif (is_array($val) && !preg_match('/\W/', $key)) {
                 $array[] = $this->parseOrderField($query, $key, $val);
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);

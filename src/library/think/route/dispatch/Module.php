@@ -33,44 +33,14 @@ class Module extends Dispatch
             $result = explode('/', $result);
         }
 
-        if ($this->rule->getConfig('app_multi_module')) {
-            // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $this->rule->getConfig('default_module')));
-            $bind      = $this->rule->getRouter()->getBind();
-            $available = false;
-
-            if ($bind && preg_match('/^[a-z]/is', $bind)) {
-                // 绑定模块
-                list($bindModule) = explode('/', $bind);
-                if (empty($result[0])) {
-                    $module = $bindModule;
-                }
-                $available = true;
-            } elseif (!in_array($module, $this->rule->getConfig('deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
-                $available = true;
-            } elseif ($this->rule->getConfig('empty_module')) {
-                $module    = $this->rule->getConfig('empty_module');
-                $available = true;
-            }
-
-            // 模块初始化
-            if ($module && $available) {
-                // 初始化模块
-                $this->request->setModule($module);
-                $this->app->init($module);
-            } else {
-                throw new HttpException(404, 'module not exists:' . $module);
-            }
-        }
-
         // 是否自动转换控制器和操作名
         $convert = is_bool($this->convert) ? $this->convert : $this->rule->getConfig('url_convert');
         // 获取控制器名
-        $controller       = strip_tags($result[1] ?: $this->rule->getConfig('default_controller'));
+        $controller       = strip_tags($result[0] ?: $this->rule->getConfig('default_controller'));
         $this->controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
-        $this->actionName = strip_tags($result[2] ?: $this->rule->getConfig('default_action'));
+        $this->actionName = strip_tags($result[1] ?: $this->rule->getConfig('default_action'));
 
         // 设置当前请求的控制器、操作
         $this->request
@@ -82,9 +52,6 @@ class Module extends Dispatch
 
     public function exec()
     {
-        // 监听module_init
-        $this->app['hook']->listen('module_init');
-
         try {
             // 实例化控制器
             $instance = $this->app->controller($this->controller,

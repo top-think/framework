@@ -83,26 +83,16 @@ abstract class Make extends Command
             return $name;
         }
 
-        if (Config::get('app_multi_module')) {
-            if (strpos($name, '/')) {
-                list($module, $name) = explode('/', $name, 2);
-            } else {
-                $module = 'common';
-            }
-        } else {
-            $module = null;
-        }
-
         if (strpos($name, '/') !== false) {
             $name = str_replace('/', '\\', $name);
         }
 
-        return $this->getNamespace($appNamespace, $module) . '\\' . $name;
+        return $this->getNamespace($appNamespace) . '\\' . $name;
     }
 
-    protected function getNamespace(string $appNamespace, string $module)
+    protected function getNamespace(string $appNamespace)
     {
-        return $module ? ($appNamespace . '\\' . $module) : $appNamespace;
+        return $appNamespace;
     }
 
 }

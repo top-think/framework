@@ -28,15 +28,15 @@ class Build extends Command
         $this->setName('build')
             ->setDefinition([
                 new Option('config', null, Option::VALUE_OPTIONAL, "build.php path"),
-                new Option('module', null, Option::VALUE_OPTIONAL, "module name"),
+                new Option('app', null, Option::VALUE_OPTIONAL, "app name"),
             ])
             ->setDescription('Build Application Dirs');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        if ($input->hasOption('module')) {
-            AppBuild::module($input->getOption('module'));
+        if ($input->hasOption('app')) {
+            AppBuild::buildApp($input->getOption('app'));
             $output->writeln("Successed");
             return;
         }

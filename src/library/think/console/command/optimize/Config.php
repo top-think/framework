@@ -22,38 +22,36 @@ class Config extends Command
     protected function configure()
     {
         $this->setName('optimize:config')
-            ->addArgument('module', Argument::OPTIONAL, 'Build module config cache .')
+            ->addArgument('app', Argument::OPTIONAL, 'Build app config cache .')
             ->setDescription('Build config and common file cache.');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        if ($input->getArgument('module')) {
-            $module = $input->getArgument('module') . DIRECTORY_SEPARATOR;
+        if ($input->getArgument('app')) {
+            $app = $input->getArgument('app') . DIRECTORY_SEPARATOR;
         } else {
-            $module = '';
+            $app = 'app' . DIRECTORY_SEPARATOR;
         }
 
-        $content     = '<?php ' . PHP_EOL . $this->buildCacheContent($module);
+        $content     = '<?php ' . PHP_EOL . $this->buildCacheContent($app);
         $runtimePath = App::getRuntimePath();
-        if (!is_dir($runtimePath . $module)) {
-            @mkdir($runtimePath . $module, 0755, true);
+        if (!is_dir($runtimePath . $app)) {
+            @mkdir($runtimePath . $app, 0755, true);
         }
 
-        file_put_contents($runtimePath . $module . 'init.php', $content);
+        file_put_contents($runtimePath . $app . 'init.php', $content);
 
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildCacheContent(string $module)
+    protected function buildCacheContent(string $app)
     {
         $content = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL;
-        $path    = realpath(App::getAppPath() . $module) . DIRECTORY_SEPARATOR;
-        if ($module) {
-            $configPath = is_dir($path . 'config') ? $path . 'config' : App::getConfigPath() . $module;
-        } else {
-            $configPath = App::getConfigPath();
-        }
+        $path    = realpath(App::getRootPath() . $app) . DIRECTORY_SEPARATOR;
+
+        $configPath = is_dir($path . 'config') ? $path . 'config' : App::getConfigPath() . $app;
+
         $ext    = App::getConfigExt();
         $config = Container::get('config');
 
@@ -82,14 +80,12 @@ class Config extends Command
             }
         }
 
-        if ('' == $module) {
-            $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
+        $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
 
-            if (is_file($path . 'middleware.php')) {
-                $middleware = include $path . 'middleware.php';
-                if (is_array($middleware)) {
-                    $content .= PHP_EOL . '\think\Container::get("middleware")->import(' . var_export($middleware, true) . ');' . PHP_EOL;
-                }
+        if (is_file($path . 'middleware.php')) {
+            $middleware = include $path . 'middleware.php';
+            if (is_array($middleware)) {
+                $content .= PHP_EOL . '\think\Container::get("middleware")->import(' . var_export($middleware, true) . ');' . PHP_EOL;
             }
         }
 
