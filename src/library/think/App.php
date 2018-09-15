@@ -26,7 +26,7 @@ class App extends Container
      * 应用名称
      * @var string
      */
-    protected $name = 'app';
+    protected $name;
 
     /**
      * 应用调试模式
@@ -47,10 +47,16 @@ class App extends Container
     protected $beginMem;
 
     /**
+     * 应用类库顶级命名空间
+     * @var string
+     */
+    protected $rootNamespace = 'app';
+
+    /**
      * 应用类库命名空间
      * @var string
      */
-    protected $namespace = 'app';
+    protected $namespace;
 
     /**
      * 应用类库后缀
@@ -59,10 +65,10 @@ class App extends Container
     protected $suffix = false;
 
     /**
-     * 应用类库目录
+     * 应用根目录
      * @var string
      */
-    protected $appPath;
+    protected $rootPath;
 
     /**
      * 框架目录
@@ -71,10 +77,16 @@ class App extends Container
     protected $thinkPath;
 
     /**
-     * 应用根目录
+     * 应用基础目录
      * @var string
      */
-    protected $rootPath;
+    protected $basePath;
+
+    /**
+     * 应用类库目录
+     * @var string
+     */
+    protected $appPath;
 
     /**
      * 运行时目录
@@ -107,6 +119,12 @@ class App extends Container
     protected $initialized = false;
 
     /**
+     * 是否为多应用模式
+     * @var bool
+     */
+    protected $appMulti = false;
+
+    /**
      * 架构方法
      * @access public
      * @param  string $rootPath 应用根目录
@@ -115,6 +133,9 @@ class App extends Container
     {
         $this->thinkPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
         $this->rootPath  = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
+        $this->basePath  = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
+
+        $this->appMulti = is_dir($this->basePath . 'controller') ? false : true;
     }
 
     /**
@@ -158,12 +179,23 @@ class App extends Container
         $this->beginMem  = memory_get_usage();
 
         if (!$this->appPath) {
-            $this->appPath = $this->rootPath . $this->name . DIRECTORY_SEPARATOR;
+            if ($this->appMulti) {
+                $this->name    = $this->name ?: 'index';
+                $this->appPath = $this->basePath . $this->name . DIRECTORY_SEPARATOR;
+            } else {
+                $this->appPath = $this->basePath;
+            }
         }
 
-        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
-        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        if ($this->appMulti) {
+            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
+            $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
+        } else {
+            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+            $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        }
+
+        $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
         static::setInstance($this);
 
@@ -200,10 +232,18 @@ class App extends Container
         $this->init();
 
         // 获取当前应用的命名空间
-        $appNamespace = $this->config['app.app_namespace'] ?: [];
+        if ($this->config['app.root_namespace']) {
+            $this->rootNamespace = $this->config['app.root_namespace'];
+        }
 
-        if ($key = array_search($this->name, $appNamespace)) {
-            $this->namespace = $key;
+        if ($this->appMulti) {
+            if ($this->config['app.app_namespace']) {
+                $this->namespace = $this->config['app.app_namespace'];
+            } else {
+                $this->namespace = $this->rootNamespace . '\\' . $this->name;
+            }
+        } else {
+            $this->namespace = $this->rootNamespace;
         }
 
         $this->env->set('app_namespace', $this->namespace);
@@ -253,8 +293,8 @@ class App extends Container
         // 加载初始化文件
         if (is_file($this->appPath . 'init.php')) {
             include $this->appPath . 'init.php';
-        } elseif (is_file($this->runtimePath . $this->name . DIRECTORY_SEPARATOR . 'init.php')) {
-            include $this->runtimePath . $this->name . DIRECTORY_SEPARATOR . 'init.php';
+        } elseif (is_file($this->runtimePath . 'init.php')) {
+            include $this->runtimePath . 'init.php';
         } else {
             // 加载行为扩展文件
             if (is_file($this->appPath . 'tags.php')) {
@@ -295,10 +335,12 @@ class App extends Container
                 $files = glob($this->configPath . '*' . $this->configExt);
             }
 
-            if (is_dir($this->appPath . 'config')) {
-                $files = array_merge($files, glob($this->appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->configExt));
-            } elseif (is_dir($this->configPath . $this->name)) {
-                $files = array_merge($files, glob($this->configPath . $this->name . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+            if ($this->appMulti) {
+                if (is_dir($this->appPath . 'config')) {
+                    $files = array_merge($files, glob($this->appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+                } elseif (is_dir($this->configPath . $this->name)) {
+                    $files = array_merge($files, glob($this->configPath . $this->name . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+                }
             }
 
             foreach ($files as $file) {
@@ -415,10 +457,8 @@ class App extends Container
     public function routeInit(): void
     {
         // 加载路由定义
-        if (is_file($this->routePath . $this->name . '.php')) {
-            include $this->routePath . $this->name . '.php';
-        } elseif (is_dir($this->routePath . $this->name)) {
-            $files = glob($this->routePath . $this->name . DIRECTORY_SEPARATOR . '*.php');
+        if (is_dir($this->routePath)) {
+            $files = glob($this->routePath . DIRECTORY_SEPARATOR . '*.php');
             foreach ($files as $file) {
                 include $file;
             }
@@ -431,7 +471,7 @@ class App extends Container
                 $this->build->buildRoute($suffix);
             }
 
-            $filename = $this->runtimePath . $this->name . DIRECTORY_SEPARATOR . 'build_route.php';
+            $filename = $this->runtimePath . 'build_route.php';
 
             if (is_file($filename)) {
                 include $filename;
@@ -602,7 +642,7 @@ class App extends Container
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->name ?: '';
     }
 
     /**
@@ -623,6 +663,16 @@ class App extends Container
     public function getRootPath(): string
     {
         return $this->rootPath;
+    }
+
+    /**
+     * 获取应用基础目录
+     * @access public
+     * @return string
+     */
+    public function getBasePath(): string
+    {
+        return $this->basePath;
     }
 
     /**

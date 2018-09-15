@@ -20,55 +20,22 @@ class Build
     protected $app;
 
     /**
-     * 应用根目录
+     * 应用基础目录
      * @var string
      */
-    protected $rootPath;
+    protected $basePath;
 
     /**
      * 应用目录
      * @var string
      */
-    protected $basePath;
+    protected $appPath;
 
     public function __construct(App $app)
     {
         $this->app      = $app;
-        $this->rootPath = $this->app->getRootPath();
-        $this->basePath = $this->app->getAppPath();
-    }
-
-    /**
-     * 创建目录
-     * @access protected
-     * @param  array $list 目录列表
-     * @return void
-     */
-    protected function buildDir(array $list): void
-    {
-        foreach ($list as $dir) {
-            $this->checkDirBuild($this->basePath . $dir);
-        }
-    }
-
-    /**
-     * 创建文件
-     * @access protected
-     * @param  array $list 文件列表
-     * @return void
-     */
-    protected function buildFile(array $list): void
-    {
-        foreach ($list as $file) {
-            if (!is_dir($this->basePath . dirname($file))) {
-                // 创建目录
-                mkdir($this->basePath . dirname($file), 0755, true);
-            }
-
-            if (!is_file($this->basePath . $file)) {
-                file_put_contents($this->basePath . $file, 'php' == pathinfo($file, PATHINFO_EXTENSION) ? "<?php\n" : '');
-            }
-        }
+        $this->basePath = $app->getBasePath();
+        $this->appPath  = $app->getAppPath();
     }
 
     /**
@@ -79,17 +46,17 @@ class Build
      * @param  bool   $suffix 类库后缀
      * @return void
      */
-    public function buildApp(string $name, string $namespace = 'app', bool $suffix = false): void
+    public function buildApp(string $app, string $namespace = 'app', bool $suffix = false): void
     {
-        if (!is_dir($this->rootPath . $name)) {
-            // 创建模块目录
-            mkdir($this->rootPath . $name);
+        if (!is_dir($this->basePath . $app)) {
+            // 创建应用目录
+            mkdir($this->basePath . $app);
         }
 
         // 创建配置文件和公共文件
-        $this->buildCommon($name);
+        $this->buildCommon($app);
         // 创建模块的默认页面
-        $this->buildHello($name, $namespace, $suffix);
+        $this->buildHello($app, $namespace, $suffix);
 
         // 创建默认的模块目录和文件
         $list = [
@@ -98,8 +65,8 @@ class Build
         ];
 
         // 创建子目录和文件
+        $appPath = $this->basePath . $app . DIRECTORY_SEPARATOR;
         foreach ($list as $path => $file) {
-            $appPath = $this->rootPath . $name . DIRECTORY_SEPARATOR;
             if ('__dir__' == $path) {
                 // 生成子目录
                 foreach ($file as $dir) {
@@ -160,10 +127,10 @@ class Build
             $layer = $this->app['config']->get('app.url_controller_layer');
         }
 
-        $path = $this->basePath . $layer . DIRECTORY_SEPARATOR;
+        $path = $this->appPath . $layer . DIRECTORY_SEPARATOR;
         $content .= $this->buildDirRoute($path, $namespace, $suffix, $layer);
 
-        $filename = $this->app->getRuntimePath() . $this->app->getName() . DIRECTORY_SEPARATOR . 'build_route.php';
+        $filename = $this->app->getRuntimePath() . 'build_route.php';
         file_put_contents($filename, $content);
 
         return $filename;
@@ -301,7 +268,7 @@ class Build
     }
 
     /**
-     * 创建模块的欢迎页面
+     * 创建应用的欢迎页面
      * @access protected
      * @param  string $appName 应用名
      * @param  string $namespace 应用类库命名空间
@@ -310,7 +277,7 @@ class Build
      */
     protected function buildHello(string $appName, string $namespace, bool $suffix = false): void
     {
-        $filename = $this->rootPath . $appName . DIRECTORY_SEPARATOR . 'controller' . DIRECTORY_SEPARATOR . 'Index' . ($suffix ? 'Controller' : '') . '.php';
+        $filename = $this->basePath . $appName . DIRECTORY_SEPARATOR . 'controller' . DIRECTORY_SEPARATOR . 'Index' . ($suffix ? 'Controller' : '') . '.php';
         if (!is_file($filename)) {
             $content = file_get_contents($this->app->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
             $content = str_replace(['{$app}', '{layer}', '{$suffix}'], [$namespace, 'controller', $suffix ? 'Controller' : ''], $content);
@@ -328,14 +295,14 @@ class Build
      */
     protected function buildCommon(string $appName): void
     {
-        $filename = $this->rootPath . $appName . DIRECTORY_SEPARATOR . 'app.php';
+        $filename = $this->basePath . $appName . DIRECTORY_SEPARATOR . 'app.php';
         $this->checkDirBuild(dirname($filename));
 
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n//配置文件\nreturn [\n\n];");
         }
 
-        $filename = $this->rootPath . $appName . DIRECTORY_SEPARATOR . 'common.php';
+        $filename = $this->basePath . $appName . DIRECTORY_SEPARATOR . 'common.php';
 
         if (!is_file($filename)) {
             file_put_contents($filename, "<?php\n");
