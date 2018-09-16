@@ -675,7 +675,7 @@ class App extends Container
         }
 
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
-        if(!$module) { 
+        if(!$module) {
             $class = str_replace('\\' . $layer . '\\', '\\' . $common.'\\'.$layer . '\\', $class);
         }
         if (class_exists($class)) {
