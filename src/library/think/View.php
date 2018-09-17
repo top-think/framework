@@ -147,7 +147,7 @@ class View
      * @param Callable  $filter 过滤方法或闭包
      * @return $this
      */
-    public function filter(callable $filter)
+    public function filter(?callable $filter)
     {
         $this->filter = $filter;
         return $this;
