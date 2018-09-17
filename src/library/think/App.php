@@ -348,6 +348,7 @@ class App extends Container
             }
         }
 
+        $this->request->setApp($this->name);
         $this->request->filter($this->config['app.default_filter']);
     }
 

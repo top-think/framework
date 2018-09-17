@@ -96,10 +96,10 @@ class Request
     protected $dispatch;
 
     /**
-     * 当前模块名
+     * 当前应用名
      * @var string
      */
-    protected $module;
+    protected $app;
 
     /**
      * 当前控制器名
@@ -1785,14 +1785,14 @@ class Request
     }
 
     /**
-     * 设置当前的模块名
+     * 设置当前的应用名
      * @access public
-     * @param  string $module 模块名
+     * @param  string $app 应用名
      * @return $this
      */
-    public function setModule($module)
+    public function setApp($app)
     {
-        $this->module = $module;
+        $this->app = $app;
         return $this;
     }
 
@@ -1821,13 +1821,13 @@ class Request
     }
 
     /**
-     * 获取当前的模块名
+     * 获取当前的应用名
      * @access public
      * @return string
      */
-    public function module()
+    public function app()
     {
-        return $this->module ?: '';
+        return $this->app ?: '';
     }
 
     /**
