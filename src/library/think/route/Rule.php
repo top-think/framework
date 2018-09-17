@@ -782,7 +782,6 @@ abstract class Rule
         return new CallbackDispatch($request, $this, $method, $var);
     }
 
-
     /**
      * 解析URL地址为 模块/控制器/操作
      * @access protected
