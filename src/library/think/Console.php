@@ -128,17 +128,17 @@ class Console
     {
         $commands = self::$defaultCommands;
 
-        if (!empty($config['auto_path']) && is_dir($config['auto_path'])) {
-            // 自动加载指令类
-            $files = scandir($config['auto_path']);
+        $path = Container::get('env')->get('app_path');
 
-            if (count($files) > 2) {
+        if (is_dir($path . 'command')) {
+            // 自动加载指令类
+            $files = glob($path . 'command' . DIRECTORY_SEPARATOR . '*.php');
+
+            if ($files) {
                 $beforeClass = get_declared_classes();
 
                 foreach ($files as $file) {
-                    if (pathinfo($file, PATHINFO_EXTENSION) == 'php') {
-                        include $config['auto_path'] . $file;
-                    }
+                    include $file;
                 }
 
                 $afterClass = get_declared_classes();
@@ -146,7 +146,7 @@ class Console
             }
         }
 
-        $file = Container::get('env')->get('app_path') . 'command.php';
+        $file = $path . 'command.php';
 
         if (is_file($file)) {
             $appCommands = include $file;

@@ -111,7 +111,7 @@ class Php
     private function parseTemplate(string $template)
     {
         if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = Container::get('app')->getModulePath() . 'view' . DIRECTORY_SEPARATOR;
+            $this->config['view_path'] = Container::get('app')->getAppPath() . 'view' . DIRECTORY_SEPARATOR;
         }
 
         $request = $this->app['request'];
@@ -119,15 +119,15 @@ class Php
         // 获取视图根目录
         if (strpos($template, '@')) {
             // 跨模块调用
-            list($module, $template) = explode('@', $template);
+            list($app, $template) = explode('@', $template);
         }
 
         if ($this->config['view_base']) {
             // 基础视图目录
-            $module = isset($module) ? $module : $request->module();
-            $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
+            $app  = isset($app) ? $app : $request->app();
+            $path = $this->config['view_base'] . ($app ? $app . DIRECTORY_SEPARATOR : '');
         } else {
-            $path = isset($module) ? $this->app->getAppPath() . $module . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
+            $path = isset($app) ? $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
         }
 
         $depr = $this->config['view_depr'];

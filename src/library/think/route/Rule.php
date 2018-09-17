@@ -17,7 +17,6 @@ use think\Response;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
-use think\route\dispatch\Module as ModuleDispatch;
 use think\route\dispatch\Redirect as RedirectDispatch;
 use think\route\dispatch\Response as ResponseDispatch;
 use think\route\dispatch\View as ViewDispatch;
@@ -759,12 +758,9 @@ abstract class Rule
         } elseif (false !== strpos($route, '\\')) {
             // 路由到方法
             $result = $this->dispatchMethod($route);
-        } elseif (0 === strpos($route, '@')) {
-            // 路由到控制器
-            $result = $this->dispatchController($request, substr($route, 1));
         } else {
             // 路由到模块/控制器/操作
-            $result = $this->dispatchModule($request, $route);
+            $result = $this->dispatchController($request, $route);
         }
 
         return $result;
@@ -786,6 +782,7 @@ abstract class Rule
         return new CallbackDispatch($request, $this, $method, $var);
     }
 
+
     /**
      * 解析URL地址为 模块/控制器/操作
      * @access protected
@@ -794,25 +791,6 @@ abstract class Rule
      * @return ControllerDispatch
      */
     protected function dispatchController(Request $request, string $route): ControllerDispatch
-    {
-        list($route, $var) = $this->parseUrlPath($route);
-
-        $result = new ControllerDispatch($request, $this, implode('/', $route), $var);
-
-        $request->setAction(array_pop($route));
-        $request->setController($route ? array_pop($route) : $this->getConfig('default_controller'));
-
-        return $result;
-    }
-
-    /**
-     * 解析URL地址为 模块/控制器/操作
-     * @access protected
-     * @param  Request   $request Request对象
-     * @param  string    $route 路由地址
-     * @return ModuleDispatch
-     */
-    protected function dispatchModule(Request $request, string $route): ModuleDispatch
     {
         list($path, $var) = $this->parseUrlPath($route);
 
@@ -830,7 +808,7 @@ abstract class Rule
         $request->setRoute($var);
 
         // 路由到模块/控制器/操作
-        return new ModuleDispatch($request, $this, [$controller, $action], [], false);
+        return new ControllerDispatch($request, $this, [$controller, $action], [], false);
     }
 
     /**

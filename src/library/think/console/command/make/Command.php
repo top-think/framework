@@ -48,9 +48,9 @@ class Command extends Make
         return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'command.stub';
     }
 
-    protected function getNamespace(string $appNamespace)
+    protected function getNamespace(string $app)
     {
-        return $appNamespace . '\\command';
+        return parent::getNamespace($app) . '\\command';
     }
 
 }

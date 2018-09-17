@@ -737,6 +737,16 @@ class App extends Container
     }
 
     /**
+     * 获取应用类基础命名空间
+     * @access public
+     * @return string
+     */
+    public function getRootNamespace(): string
+    {
+        return $this->rootNamespace;
+    }
+
+    /**
      * 获取应用类库命名空间
      * @access public
      * @return string

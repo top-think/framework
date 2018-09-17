@@ -1,5 +1,5 @@
 <?php
-namespace {$app}\{$module}{layer};
+namespace {$app}\{layer};
 
 class Index{$suffix}
 {

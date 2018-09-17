@@ -17,7 +17,6 @@ use think\Request;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
-use think\route\dispatch\Module as ModuleDispatch;
 
 class Domain extends RuleGroup
 {
@@ -193,11 +192,11 @@ class Domain extends RuleGroup
     }
 
     /**
-     * 绑定到控制器类
+     * 绑定到控制器
      * @access protected
      * @param  Request   $request
      * @param  string    $url URL地址
-     * @param  string    $controller 控制器名 （支持带模块名 index/user ）
+     * @param  string    $controller 控制器名
      * @return ControllerDispatch
      */
     protected function bindToController(Request $request, string $url, string $controller): ControllerDispatch
@@ -210,26 +209,6 @@ class Domain extends RuleGroup
         }
 
         return new ControllerDispatch($request, $this, $controller . '/' . $action);
-    }
-
-    /**
-     * 绑定到模块/控制器
-     * @access protected
-     * @param  Request   $request
-     * @param  string    $url URL地址
-     * @param  string    $controller 控制器类名（带命名空间）
-     * @return ModuleDispatch
-     */
-    protected function bindToModule(Request $request, string $url, string $controller): ModuleDispatch
-    {
-        $array  = explode('|', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
-
-        if (!empty($array[1])) {
-            $this->parseUrlParams($array[1]);
-        }
-
-        return new ModuleDispatch($request, $this, $controller . '/' . $action);
     }
 
 }

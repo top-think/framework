@@ -677,7 +677,7 @@ class Request
                 $pathinfo = $_GET[$this->config['var_pathinfo']];
                 unset($_GET[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
-                // CLI模式下 index.php module/controller/action/params/...
+                // CLI模式下 index.php controller/action/params/...
                 $pathinfo = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
             } elseif ('cli-server' == PHP_SAPI) {
                 $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
@@ -1845,7 +1845,7 @@ class Request
     /**
      * 获取当前的操作名
      * @access public
-     * @param  bool $convert 转换为驼峰
+     * @param  bool $convert 转换为小写
      * @return string
      */
     public function action($convert = false)
@@ -1961,7 +1961,7 @@ class Request
 
         // 特殊规则替换
         if (false !== strpos($key, '__')) {
-            $key = str_replace(['__MODULE__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$this->module, $this->controller, $this->action, md5($this->url(true))], $key);
+            $key = str_replace(['__APP__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$this->app, $this->controller, $this->action, md5($this->url(true))], $key);
         }
 
         if (false !== strpos($key, ':')) {

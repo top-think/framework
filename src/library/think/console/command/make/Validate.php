@@ -31,9 +31,9 @@ class Validate extends Make
         return $stubPath . 'validate.stub';
     }
 
-    protected function getNamespace(string $appNamespace)
+    protected function getNamespace(string $app)
     {
-        return $appNamespace . '\\validate';
+        return parent::getNamespace($app) . '\\validate';
     }
 
 }

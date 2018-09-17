@@ -73,9 +73,12 @@ use think\Facade;
  * @method string contentType() static 当前请求 HTTP_CONTENT_TYPE
  * @method array routeInfo(array $route = []) static 获取当前请求的路由信息
  * @method array dispatch(array $dispatch = null) static 设置或者获取当前请求的调度信息
- * @method mixed module(string $module = null) static 设置或者获取当前的模块名
- * @method mixed controller(string $controller = null) static 设置或者获取当前的控制器名
- * @method mixed action(string $action = null) static 设置或者获取当前的操作名
+ * @method mixed app() static 获取当前的应用名
+ * @method mixed controller(bool $convert = false) static 获取当前的控制器名
+ * @method mixed action(bool $convert = false) static 获取当前的操作名
+ * @method mixed setApp(string $app = null) static 设置当前的应用名
+ * @method mixed setController(string $controller) static 设置当前的控制器名
+ * @method mixed setAction(string $action) static 设置当前的操作名
  * @method mixed langset(string $lang = null) static 设置或者获取当前的语言
  * @method string getContent() static 设置或者获取当前请求的content
  * @method string getInput() static 获取当前请求的php://input

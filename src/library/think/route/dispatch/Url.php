@@ -22,7 +22,7 @@ class Url extends Dispatch
         // 解析默认的URL规则
         $result = $this->parseUrl($this->dispatch);
 
-        return (new Module($this->request, $this->rule, $result))->init();
+        return (new Controller($this->request, $this->rule, $result))->init();
     }
 
     public function exec()

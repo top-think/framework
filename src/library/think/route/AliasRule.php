@@ -84,12 +84,9 @@ class AliasRule extends Domain
         if (0 === strpos($this->route, '\\')) {
             // 路由到类
             return $this->bindToClass($bind, substr($this->route, 1));
-        } elseif (0 === strpos($this->route, '@')) {
-            // 路由到控制器类
-            return $this->bindToController($bind, substr($this->route, 1));
         } else {
             // 路由到模块/控制器
-            return $this->bindToModule($bind, $this->route);
+            return $this->bindToController($bind, $this->route);
         }
     }
 

@@ -253,9 +253,7 @@ class Url
             // 解析到控制器
             $url = substr($url, 1);
         } else {
-            // 解析到 模块/控制器/操作
-            $module     = $request->module();
-            $module     = $module ? $module . '/' : '';
+            // 解析到 控制器/操作
             $controller = $request->controller();
 
             if ('' == $url) {
@@ -264,7 +262,6 @@ class Url
                 $path       = explode('/', $url);
                 $action     = array_pop($path);
                 $controller = empty($path) ? $controller : array_pop($path);
-                $module     = empty($path) ? $module : array_pop($path) . '/';
             }
 
             if ($this->app['config']->get('url_convert')) {
@@ -272,7 +269,7 @@ class Url
                 $controller = App::parseName($controller);
             }
 
-            $url = $module . $controller . '/' . $action;
+            $url =  $controller . '/' . $action;
         }
 
         return $url;
