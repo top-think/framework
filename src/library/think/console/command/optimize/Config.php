@@ -29,39 +29,53 @@ class Config extends Command
     protected function execute(Input $input, Output $output)
     {
         if ($input->getArgument('app')) {
-            $app = $input->getArgument('app') . DIRECTORY_SEPARATOR;
+            $runtimePath = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
         } else {
-            $app = 'app' . DIRECTORY_SEPARATOR;
+            $runtimePath = App::getRuntimePath();
         }
 
-        $content     = '<?php ' . PHP_EOL . $this->buildCacheContent($app);
-        $runtimePath = App::getRuntimePath();
-        if (!is_dir($runtimePath . $app)) {
-            @mkdir($runtimePath . $app, 0755, true);
+        $content = '<?php ' . PHP_EOL . $this->buildCacheContent($input->getArgument('app'));
+
+        if (!is_dir($runtimePath)) {
+            @mkdir($runtimePath, 0755, true);
         }
 
-        file_put_contents($runtimePath . $app . 'init.php', $content);
+        file_put_contents($runtimePath . 'init.php', $content);
 
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildCacheContent(string $app)
+    protected function buildCacheContent($app)
     {
         $content = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL;
-        $path    = realpath(App::getRootPath() . $app) . DIRECTORY_SEPARATOR;
 
-        $configPath = is_dir($path . 'config') ? $path . 'config' : App::getConfigPath() . $app;
+        if ($app) {
+            $path = App::getBasePath() . $app . DIRECTORY_SEPARATOR;
+        } else {
+            $path = App::getAppPath();
+        }
 
-        $ext    = App::getConfigExt();
-        $config = Container::get('config');
+        $configPath = App::getConfigPath();
+        $configExt  = App::getConfigExt();
+        $config     = Container::get('config');
 
-        $files = is_dir($configPath) ? scandir($configPath) : [];
+        // 加载应用配置文件
+        $files = [];
+
+        if (is_dir($configPath)) {
+            $files = glob($configPath . '*' . $configExt);
+        }
+
+        if ($app) {
+            if (is_dir($path . 'config')) {
+                $files = array_merge($files, glob($path . 'config' . DIRECTORY_SEPARATOR . '*' . $configExt));
+            } elseif (is_dir($configPath . $app)) {
+                $files = array_merge($files, glob($configPath . $app . DIRECTORY_SEPARATOR . '*' . $configExt));
+            }
+        }
 
         foreach ($files as $file) {
-            if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $ext) {
-                $filename = $configPath . DIRECTORY_SEPARATOR . $file;
-                $config->load($filename, pathinfo($file, PATHINFO_FILENAME));
-            }
+            $config->load($file, pathinfo($file, PATHINFO_FILENAME));
         }
 
         // 加载行为扩展文件
