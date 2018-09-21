@@ -35,21 +35,21 @@ class Console
     private $defaultCommand;
 
     private static $defaultCommands = [
-        'help'              => "think\\console\\command\\Help",
-        'list'              => "think\\console\\command\\Lists",
-        'build'             => "think\\console\\command\\Build",
-        'clear'             => "think\\console\\command\\Clear",
-        'make:command'      => "think\\console\\command\\make\\Command",
-        'make:controller'   => "think\\console\\command\\make\\Controller",
-        'make:model'        => "think\\console\\command\\make\\Model",
-        'make:middleware'   => "think\\console\\command\\make\\Middleware",
-        'make:validate'     => "think\\console\\command\\make\\Validate",
-        'optimize:config'   => "think\\console\\command\\optimize\\Config",
-        'optimize:schema'   => "think\\console\\command\\optimize\\Schema",
-        'optimize:route'    => "think\\console\\command\\optimize\\Route",
-        'run'               => "think\\console\\command\\RunServer",
-        'version'           => "think\\console\\command\\Version",
-        'route:list'        => "think\\console\\command\\RouteList",
+        'help'            => "think\\console\\command\\Help",
+        'list'            => "think\\console\\command\\Lists",
+        'build'           => "think\\console\\command\\Build",
+        'clear'           => "think\\console\\command\\Clear",
+        'make:command'    => "think\\console\\command\\make\\Command",
+        'make:controller' => "think\\console\\command\\make\\Controller",
+        'make:model'      => "think\\console\\command\\make\\Model",
+        'make:middleware' => "think\\console\\command\\make\\Middleware",
+        'make:validate'   => "think\\console\\command\\make\\Validate",
+        'optimize:config' => "think\\console\\command\\optimize\\Config",
+        'optimize:schema' => "think\\console\\command\\optimize\\Schema",
+        'optimize:route'  => "think\\console\\command\\optimize\\Route",
+        'run'             => "think\\console\\command\\RunServer",
+        'version'         => "think\\console\\command\\Version",
+        'route:list'      => "think\\console\\command\\RouteList",
     ];
 
     /**

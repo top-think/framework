@@ -163,6 +163,17 @@ class App extends Container
     }
 
     /**
+     * 设置应用命名空间
+     * @access public
+     * @param  string $namespace 应用命名空间
+     * @return $this
+     */
+    function namespace (string $namespace) {
+        $this->namespace = $namespace;
+        return $this;
+    }
+
+    /**
      * 初始化应用
      * @access public
      * @return void
@@ -236,14 +247,16 @@ class App extends Container
             $this->rootNamespace = $this->config['app.root_namespace'];
         }
 
-        if ($this->appMulti) {
-            if ($this->config['app.app_namespace']) {
-                $this->namespace = $this->config['app.app_namespace'];
+        if (!$this->namespace) {
+            if ($this->appMulti) {
+                if ($this->config['app.app_namespace']) {
+                    $this->namespace = $this->config['app.app_namespace'];
+                } else {
+                    $this->namespace = $this->rootNamespace . '\\' . $this->name;
+                }
             } else {
-                $this->namespace = $this->rootNamespace . '\\' . $this->name;
+                $this->namespace = $this->rootNamespace;
             }
-        } else {
-            $this->namespace = $this->rootNamespace;
         }
 
         $this->env->set('app_namespace', $this->namespace);
