@@ -74,6 +74,10 @@ class RuleGroup extends Rule
         if (!empty($option['cross_domain'])) {
             $this->router->setCrossDomainRule($this);
         }
+
+        if ($router->isTest()) {
+            $this->lazy(false);
+        }
     }
 
     /**
@@ -363,7 +367,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule():  ? RuleItem
+    public function getMissRule(): ?RuleItem
     {
         return $this->miss;
     }
@@ -373,7 +377,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getAutoRule() : string
+    public function getAutoRule(): string
     {
         return $this->auto;
     }
@@ -549,7 +553,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName():  ? string
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }
@@ -560,7 +564,7 @@ class RuleGroup extends Rule
      * @param  string     $method
      * @return array
      */
-    public function getRules(string $method = '') : array
+    public function getRules(string $method = ''): array
     {
         if ('' === $method) {
             return $this->rules;
@@ -569,4 +573,22 @@ class RuleGroup extends Rule
         return $this->rules[strtolower($method)] ?? [];
     }
 
+    /**
+     * 清空分组下的路由规则
+     * @access public
+     * @return void
+     */
+    public function clear(): void
+    {
+        $this->rules = [
+            '*'       => [],
+            'get'     => [],
+            'post'    => [],
+            'put'     => [],
+            'patch'   => [],
+            'delete'  => [],
+            'head'    => [],
+            'options' => [],
+        ];
+    }
 }

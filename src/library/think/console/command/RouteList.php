@@ -17,6 +17,7 @@ use think\console\input\Option;
 use think\console\Output;
 use think\console\Table;
 use think\Container;
+use think\facade\App;
 
 class RouteList extends Command
 {
@@ -31,6 +32,7 @@ class RouteList extends Command
     protected function configure()
     {
         $this->setName('route:list')
+            ->addArgument('app', Argument::OPTIONAL, 'app name .')
             ->addArgument('style', Argument::OPTIONAL, "the style of the table.", 'default')
             ->addOption('sort', 's', Option::VALUE_OPTIONAL, 'order by rule name.', 0)
             ->addOption('more', 'm', Option::VALUE_NONE, 'show route options.')
@@ -39,33 +41,38 @@ class RouteList extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $filename = Container::get('app')->getRuntimePath() . 'route_list.php';
+        $app = $input->getArgument('app');
+
+        if ($app) {
+            $filename = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'route_list_' . $app . '.php';
+        } else {
+            $filename = App::getRuntimePath() . 'route_list.php';
+        }
 
         if (is_file($filename)) {
             unlink($filename);
         }
 
-        $content = $this->getRouteList();
+        $content = $this->getRouteList($app);
         file_put_contents($filename, 'Route List' . PHP_EOL . $content);
     }
 
-    protected function getRouteList()
+    protected function getRouteList($app)
     {
         Container::get('route')->setTestMode(true);
-        // 路由检测
-        $path = Container::get('app')->getRoutePath();
+        Container::get('route')->clear();
+
+        if ($app) {
+            $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
+        } else {
+            $path = App::getRoutePath();
+        }
 
         $files = is_dir($path) ? scandir($path) : [];
 
         foreach ($files as $file) {
             if (strpos($file, '.php')) {
-                $filename = $path . DIRECTORY_SEPARATOR . $file;
-                // 导入路由配置
-                $rules = include $filename;
-
-                if (is_array($rules)) {
-                    Container::get('route')->import($rules);
-                }
+                include $path . $file;
             }
         }
 

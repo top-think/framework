@@ -59,6 +59,17 @@ class RuleName
     }
 
     /**
+     * 清空路由规则
+     * @access public
+     * @return void
+     */
+    public function clear(): void
+    {
+        $this->item = [];
+        $this->rule = [];
+    }
+
+    /**
      * 获取全部路由列表
      * @access public
      * @param  string   $domain   域名

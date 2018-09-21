@@ -52,6 +52,10 @@ class Resource extends RuleGroup
             $this->domain = $this->parent->getDomain();
             $this->parent->addRuleItem($this);
         }
+
+        if ($router->isTest()) {
+            $this->buildResourceRule();
+        }
     }
 
     /**
