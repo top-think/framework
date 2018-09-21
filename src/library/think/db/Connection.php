@@ -1953,7 +1953,7 @@ abstract class Connection
 
         // 分布式数据库配置解析
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
-            $_config[$name] = explode(',', $this->config[$name]);
+            $_config[$name] = is_string($this->config[$name]) ? explode(',', $this->config[$name]) : $this->config[$name];
         }
 
         // 主服务器序号
