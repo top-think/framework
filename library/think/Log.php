@@ -217,6 +217,8 @@ class Log implements LoggerInterface
             foreach ($this->config['level'] as $level) {
                 if (isset($this->log[$level])) {
                     $log[$level] = $this->log[$level];
+                    // 监听log_level
+                    $this->app['hook']->listen('log_level', [$level, $log[$level]]);
                 }
             }
         }
