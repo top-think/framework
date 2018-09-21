@@ -133,4 +133,14 @@ class RuleName
         return $result;
     }
 
+    /**
+     * 清空路由规则
+     * @access public
+     * @return void
+     */
+    public function clear()
+    {
+        $this->item = [];
+        $this->rule = [];
+    }
 }

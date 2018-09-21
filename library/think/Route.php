@@ -958,6 +958,17 @@ class Route
     }
 
     /**
+     * 清空路由规则
+     * @access public
+     * @return void
+     */
+    public function clear()
+    {
+        $this->app['rule_name']->clear();
+        $this->group->clear();
+    }
+
+    /**
      * 设置全局的路由分组参数
      * @access public
      * @param  string    $method     方法名

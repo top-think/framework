@@ -584,4 +584,22 @@ class RuleGroup extends Rule
         return isset($this->rules[strtolower($method)]) ? $this->rules[strtolower($method)] : [];
     }
 
+    /**
+     * 清空分组下的路由规则
+     * @access public
+     * @return void
+     */
+    public function clear()
+    {
+        $this->rules = [
+            '*'       => [],
+            'get'     => [],
+            'post'    => [],
+            'put'     => [],
+            'patch'   => [],
+            'delete'  => [],
+            'head'    => [],
+            'options' => [],
+        ];
+    }
 }
