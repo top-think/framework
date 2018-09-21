@@ -29,8 +29,6 @@ class File
         'json'        => false,
     ];
 
-    protected $writed = [];
-
     // 实例化并传入参数
     public function __construct($config = [])
     {
