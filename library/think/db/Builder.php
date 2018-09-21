@@ -120,7 +120,7 @@ abstract class Builder
                 $result[$item] = $val->getValue();
                 continue;
             } elseif (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $this->connection->getFieldsType($options['table'], $key))) {
-                $val = json_encode($val);
+                $val = json_encode($val, JSON_UNESCAPED_UNICODE);
             } elseif (is_object($val) && method_exists($val, '__toString')) {
                 // 对象数据写入
                 $val = $val->__toString();
