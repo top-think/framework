@@ -206,6 +206,10 @@ class Log implements LoggerInterface
             return false;
         }
 
+        foreach ($this->log as $level => $info) {
+            $this->app['hook']->listen('log_level', [$level, $info]);
+        }
+
         if (empty($this->config['level'])) {
             // 获取全部日志
             $log = $this->log;
