@@ -79,8 +79,7 @@ class Where implements ArrayAccess
      * 分析查询表达式
      * @access protected
      * @param  string   $field     查询字段
-     * @param  string   $op        查询表达式
-     * @param  mixed    $condition 查询条件
+     * @param  array    $where     查询条件
      * @return array
      */
     protected function parseItem($field, $where = [])

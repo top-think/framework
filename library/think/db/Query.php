@@ -3197,7 +3197,7 @@ class Query
     {
         $result = $this->with($with)->cache($cache);
 
-        if (is_array($data) && key($data) !== 0) {
+        if ((is_array($data) && key($data) !== 0) || $data instanceof Where) {
             $result = $result->where($data);
             $data   = null;
         } elseif ($data instanceof \Closure) {
