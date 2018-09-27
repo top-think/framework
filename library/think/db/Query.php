@@ -1024,16 +1024,11 @@ class Query
      * 表达式方式指定查询字段
      * @access public
      * @param  string $field    字段名
-     * @param  array  $bind     参数绑定
      * @return $this
      */
-    public function fieldRaw($field, array $bind = [])
+    public function fieldRaw($field)
     {
         $this->options['field'][] = $this->raw($field);
-
-        if ($bind) {
-            $this->bind($bind);
-        }
 
         return $this;
     }
@@ -1424,11 +1419,17 @@ class Query
      */
     public function whereExp($field, $condition, $bind = [], $logic = 'AND')
     {
+        if ($bind) {
+            foreach ($bind as $key => $value) {
+                if (!is_numeric($key)) {
+                    $where = str_replace(':' . $key, '?', $where);
+                }
+            }
+            $this->bind(array_values($bind));
+        }
+
         $this->options['where'][$logic][] = [$field, 'EXP', $this->raw($condition)];
 
-        if ($bind) {
-            $this->bind($bind);
-        }
         return $this;
     }
 
@@ -1442,11 +1443,17 @@ class Query
      */
     public function whereRaw($where, $bind = [], $logic = 'AND')
     {
-        $this->options['where'][$logic][] = $this->raw($where);
-
         if ($bind) {
-            $this->bind($bind);
+            foreach ($bind as $key => $value) {
+                if (!is_numeric($key)) {
+                    $where = str_replace(':' . $key, '?', $where);
+                }
+            }
+
+            $this->bind(array_values($bind));
         }
+
+        $this->options['where'][$logic][] = $this->raw($where);
 
         return $this;
     }
@@ -1875,16 +1882,11 @@ class Query
      * 表达式方式指定Field排序
      * @access public
      * @param  string $field 排序字段
-     * @param  array  $bind  参数绑定
      * @return $this
      */
-    public function orderRaw($field, array $bind = [])
+    public function orderRaw($field)
     {
         $this->options['order'][] = $this->raw($field);
-
-        if ($bind) {
-            $this->bind($bind);
-        }
 
         return $this;
     }
@@ -2424,17 +2426,16 @@ class Query
     /**
      * 参数绑定
      * @access public
-     * @param  mixed   $key   参数名
      * @param  mixed   $value 绑定变量值
      * @param  integer $type  绑定类型
      * @return $this
      */
-    public function bind($key, $value = false, $type = PDO::PARAM_STR)
+    public function bind($value = false, $type = PDO::PARAM_STR)
     {
-        if (is_array($key)) {
-            $this->bind = array_merge($this->bind, $key);
+        if (is_array($value)) {
+            $this->bind = array_merge($this->bind, $value);
         } else {
-            $this->bind[$key] = [$value, $type];
+            $this->bind[] = [$value, $type];
         }
 
         return $this;
