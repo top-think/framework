@@ -1346,13 +1346,13 @@ abstract class Connection
         }
 
         if (is_null($field)) {
-            $field = '*';
-        } elseif ($key && '*' != $field) {
-            $field = $key . ',' . $field;
+            $field = ['*'];
+        } elseif (is_string($field)) {
+            $field = array_map('trim', explode(',', $field));
         }
 
-        if (is_string($field)) {
-            $field = array_map('trim', explode(',', $field));
+        if ($key) {
+            $field[] = $key;
         }
 
         $query->setOption('field', $field);
@@ -1360,6 +1360,7 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
+        // 还原field参数
         if (isset($options['field'])) {
             $query->setOption('field', $options['field']);
         } else {
