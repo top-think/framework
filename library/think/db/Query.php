@@ -653,10 +653,12 @@ class Query
                 $query->fetchSql(true);
             }
 
-            return $query->aggregate('COUNT', '*', true);
+            $count = $query->aggregate('COUNT', '*');
+        } else {
+            $count = $this->aggregate('COUNT', $field);
         }
 
-        return $this->aggregate('COUNT', $field, true);
+        return (int) $count;
     }
 
     /**
