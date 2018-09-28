@@ -71,9 +71,21 @@ class Controller
         if ($this->middleware) {
             foreach ($this->middleware as $key => $val) {
                 if (!is_int($key)) {
-                    if (isset($val['only']) && !in_array($this->request->action(), $val['only'])) {
+                    $only = $except = null;
+
+                    if (isset($val['only'])) {
+                        $only = array_map(function ($item) {
+                            return strtolower($item);
+                        }, $val['only']);
+                    } elseif (isset($val['except'])) {
+                        $except = array_map(function ($item) {
+                            return strtolower($item);
+                        }, $val['except']);
+                    }
+
+                    if (isset($only) && !in_array($this->request->action(), $only)) {
                         continue;
-                    } elseif (isset($val['except']) && in_array($this->request->action(), $val['except'])) {
+                    } elseif (isset($except) && in_array($this->request->action(), $except)) {
                         continue;
                     } else {
                         $val = $key;
@@ -108,14 +120,24 @@ class Controller
             if (is_string($options['only'])) {
                 $options['only'] = explode(',', $options['only']);
             }
-            if (!in_array($this->request->action(), $options['only'])) {
+
+            $only = array_map(function ($val) {
+                return strtolower($val);
+            }, $options['only']);
+
+            if (!in_array($this->request->action(), $only)) {
                 return;
             }
         } elseif (isset($options['except'])) {
             if (is_string($options['except'])) {
                 $options['except'] = explode(',', $options['except']);
             }
-            if (in_array($this->request->action(), $options['except'])) {
+
+            $except = array_map(function ($val) {
+                return strtolower($val);
+            }, $options['except']);
+
+            if (in_array($this->request->action(), $except)) {
                 return;
             }
         }
