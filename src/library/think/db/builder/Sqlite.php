@@ -20,7 +20,6 @@ use think\db\Query;
  */
 class Sqlite extends Builder
 {
-
     /**
      * limit
      * @access public

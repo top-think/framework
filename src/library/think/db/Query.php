@@ -998,16 +998,11 @@ class Query
      * 表达式方式指定查询字段
      * @access public
      * @param  string $field    字段名
-     * @param  array  $bind     参数绑定
      * @return $this
      */
-    public function fieldRaw(string $field, array $bind = [])
+    public function fieldRaw(string $field)
     {
         $this->options['field'][] = $this->raw($field);
-
-        if ($bind) {
-            $this->bind($bind);
-        }
 
         return $this;
     }
@@ -1844,13 +1839,9 @@ class Query
      * @param  array  $bind  参数绑定
      * @return $this
      */
-    public function orderRaw(string $field, array $bind = [])
+    public function orderRaw(string $field)
     {
         $this->options['order'][] = $this->raw($field);
-
-        if ($bind) {
-            $this->bind($bind);
-        }
 
         return $this;
     }
@@ -2312,31 +2303,19 @@ class Query
     /**
      * 参数绑定
      * @access public
-     * @param  mixed   $key   参数名
      * @param  mixed   $value 绑定变量值
      * @param  integer $type  绑定类型
      * @return $this
      */
-    public function bind($key, $value = false, $type = PDO::PARAM_STR)
+    public function bind($value = false, $type = PDO::PARAM_STR)
     {
-        if (is_array($key)) {
-            $this->bind = array_merge($this->bind, $key);
+        if (is_array($value)) {
+            $this->bind = array_merge($this->bind, $value);
         } else {
-            $this->bind[$key] = [$value, $type];
+            $this->bind[] = [$value, $type];
         }
 
         return $this;
-    }
-
-    /**
-     * 检测参数是否已经绑定
-     * @access public
-     * @param  string $key 参数名
-     * @return bool
-     */
-    public function isBind(string $key): bool
-    {
-        return isset($this->bind[$key]);
     }
 
     /**

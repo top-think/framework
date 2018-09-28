@@ -60,8 +60,8 @@ class Mysql extends Builder
         // 获取绑定信息
         $bind = $this->connection->getFieldsBind($options['table']);
 
-        foreach ($dataSet as $k => $data) {
-            $data = $this->parseData($query, $data, $allowFields, $bind, '_' . $k);
+        foreach ($dataSet as $data) {
+            $data = $this->parseData($query, $data, $allowFields);
 
             $values[] = '( ' . implode(',', array_values($data)) . ' )';
 
