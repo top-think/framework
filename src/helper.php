@@ -14,12 +14,12 @@
 //-------------------------
 
 use think\Container;
-use think\Db;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
+use think\facade\Db;
 use think\facade\Debug;
 use think\facade\Env;
 use think\facade\Hook;
@@ -152,7 +152,7 @@ if (!function_exists('class_basename')) {
      * @param  string|object $class
      * @return string
      */
-    function class_basename($class)
+    function classBasename($class)
     {
         $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
@@ -166,7 +166,7 @@ if (!function_exists('class_uses_recursive')) {
      * @param $class
      * @return array
      */
-    function class_uses_recursive($class)
+    function classUsesRecursive($class)
     {
         if (is_object($class)) {
             $class = get_class($class);
@@ -175,7 +175,7 @@ if (!function_exists('class_uses_recursive')) {
         $results = [];
         $classes = array_merge([$class => $class], class_parents($class));
         foreach ($classes as $class) {
-            $results += trait_uses_recursive($class);
+            $results += traitUsesRecursive($class);
         }
 
         return array_unique($results);
@@ -426,7 +426,7 @@ if (!function_exists('parse_name')) {
      * @param bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    function parse_name(string $name, int $type = 0, bool $ucfirst = true)
+    function parseName(string $name, int $type = 0, bool $ucfirst = true)
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -566,11 +566,11 @@ if (!function_exists('trait_uses_recursive')) {
      * @param  string $trait
      * @return array
      */
-    function trait_uses_recursive(string $trait)
+    function traitUsesRecursive(string $trait)
     {
         $traits = class_uses($trait);
         foreach ($traits as $trait) {
-            $traits += trait_uses_recursive($trait);
+            $traits += traitUsesRecursive($trait);
         }
 
         return $traits;

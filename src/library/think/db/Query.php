@@ -12,6 +12,7 @@
 namespace think\db;
 
 use PDO;
+use think\App;
 use think\Collection;
 use think\Container;
 use think\db\exception\BindParamException;
@@ -627,10 +628,12 @@ class Query
                 $query->fetchSql(true);
             }
 
-            return $query->aggregate('COUNT', '*', true);
+            $count = $query->aggregate('COUNT', '*');
+        } else {
+            $count = $this->aggregate('COUNT', $field);
         }
 
-        return $this->aggregate('COUNT', $field, true);
+        return (int) $count;
     }
 
     /**
