@@ -1351,8 +1351,9 @@ abstract class Connection
             $field = array_map('trim', explode(',', $field));
         }
 
-        if ($key) {
-            $field[] = $key;
+        if ($key && ['*'] != $field) {
+            array_unshift($field, $key);
+            $field = array_unique($field);
         }
 
         $query->setOption('field', $field);
@@ -1382,7 +1383,7 @@ abstract class Connection
         } else {
             $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
 
-            if ('*' == $field && $key) {
+            if (['*'] == $field && $key) {
                 $result = array_column($resultSet, null, $key);
             } elseif ($resultSet) {
                 $fields = array_keys($resultSet[0]);
