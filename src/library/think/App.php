@@ -310,11 +310,23 @@ class App extends Container
         } elseif (is_file($this->runtimePath . 'init.php')) {
             include $this->runtimePath . 'init.php';
         } else {
-            // 加载行为扩展文件
-            if (is_file($this->appPath . 'tags.php')) {
-                $tags = include $this->appPath . 'tags.php';
-                if (is_array($tags)) {
-                    $this->hook->import($tags);
+            // 加载事件定义文件
+            if (is_file($this->appPath . 'event.php')) {
+                $event = include $this->appPath . 'event.php';
+                if (is_array($event)) {
+                    if(isset($event['bind'])){
+                        $this->event->bind($event['bind']);
+                    }
+
+                    if(isset($event['listen'])){
+                        $this->event->listenEvents($event['listen']);
+                    }
+
+                    if(isset($event['subscribe'])){
+                        foreach($event['subscribe'] as $subscribe){
+                            $this->event->subscribe($subscribe);
+                        }
+                    }
                 }
             }
 
@@ -378,8 +390,8 @@ class App extends Container
             // 初始化应用
             $this->initialize();
 
-            // 监听app_init
-            $this->hook->listen('app_init');
+            // 监听AppInit
+            $this->event->trigger('AppInit');
 
             // 路由检测
             $dispatch = $this->routeCheck()->init();
@@ -394,8 +406,8 @@ class App extends Container
                 $this->log('[ PARAM ] ' . var_export($this->request->param(), true));
             }
 
-            // 监听app_begin
-            $this->hook->listen('app_begin');
+            // 监听AppBegin
+            $this->event->trigger('AppBegin');
 
             // 请求缓存检查
             $this->checkRequestCache(
@@ -416,8 +428,8 @@ class App extends Container
 
         $response = $this->middleware->dispatch($this->request);
 
-        // 监听app_end
-        $this->hook->listen('app_end', $response);
+        // 监听AppEnd
+        $this->event->trigger('AppEnd', $response);
 
         return $response;
     }

@@ -50,7 +50,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         'db'                    => Db::class,
         'debug'                 => Debug::class,
         'env'                   => Env::class,
-        'hook'                  => Hook::class,
+        'event'                 => Event::class,
         'lang'                  => Lang::class,
         'log'                   => Log::class,
         'middleware'            => Middleware::class,

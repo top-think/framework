@@ -150,11 +150,6 @@ class RuleItem extends Rule
         // 合并分组参数
         $option = $this->mergeGroupOptions();
 
-        // 检查前置行为
-        if (isset($option['before']) && false === $this->checkBefore($option['before'])) {
-            return false;
-        }
-
         $url = $this->urlSuffixCheck($request, $url, $option);
 
         if (is_null($match)) {

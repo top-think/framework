@@ -207,7 +207,7 @@ class Log implements LoggerInterface
         }
 
         foreach ($this->log as $level => $info) {
-            $this->app['hook']->listen('log_level', [$level, $info]);
+            $this->app['event']->trigger('LogLevel', [$level, $info]);
         }
 
         if (empty($this->config['level'])) {
@@ -255,8 +255,8 @@ class Log implements LoggerInterface
             return false;
         }
 
-        // 监听log_write
-        $this->app['hook']->listen('log_write', $log);
+        // 监听LogWrite
+        $this->app['event']->trigger('LogWrite', $log);
 
         // 写入日志
         return $this->driver->save($log, false);

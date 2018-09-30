@@ -1023,19 +1023,6 @@ class Validate
     }
 
     /**
-     * 使用行为类验证
-     * @access public
-     * @param  mixed     $value  字段值
-     * @param  mixed     $rule  验证规则
-     * @param  array     $data  数据
-     * @return mixed
-     */
-    public function behavior($value, $rule, $data): bool
-    {
-        return Container::get('hook')->exec($rule, $data);
-    }
-
-    /**
      * 使用filter_var方式验证
      * @access public
      * @param  mixed     $value  字段值

@@ -115,7 +115,7 @@ class Response
     public function send(): void
     {
         // 监听response_send
-        Container::get('hook')->listen('response_send', $this);
+        Container::get('event')->trigger('ResponseSend', $this);
 
         // 处理输出数据
         $data = $this->getContent();
@@ -153,7 +153,7 @@ class Response
         }
 
         // 监听response_end
-        Container::get('hook')->listen('response_end', $this);
+        Container::get('event')->trigger('ResponseEnd', $this);
 
         // 清空当次请求有效的数据
         if (!($this instanceof RedirectResponse)) {

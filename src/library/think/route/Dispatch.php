@@ -104,15 +104,6 @@ abstract class Dispatch
     {
         $option = $this->rule->getOption();
 
-        // 检测路由after行为
-        if (!empty($option['after'])) {
-            $dispatch = $this->checkAfter($option['after']);
-
-            if ($dispatch instanceof Response) {
-                return $dispatch;
-            }
-        }
-
         // 数据自动验证
         if (isset($option['validate'])) {
             $this->autoValidate($option['validate']);
@@ -168,7 +159,7 @@ abstract class Dispatch
         // 指定Header数据
         if (!empty($option['header'])) {
             $header = $option['header'];
-            $this->app['hook']->add('response_send', function ($response) use ($header) {
+            $this->app['event']->listen('ResponseSend', function ($response) use ($header) {
                 $response->header($header);
             });
         }
@@ -176,7 +167,7 @@ abstract class Dispatch
         // 指定Response响应数据
         if (!empty($option['response'])) {
             foreach ($option['response'] as $response) {
-                $this->app['hook']->add('response_send', $response);
+                $this->app['event']->listen('ResponseSend', $response);
             }
         }
 
@@ -255,36 +246,6 @@ abstract class Dispatch
 
         $cache = $this->request->cache($key, $expire, $tag);
         $this->app->setResponseCache($cache);
-    }
-
-    /**
-     * 检查路由后置行为
-     * @access protected
-     * @param  mixed   $after 后置行为
-     * @return mixed
-     */
-    protected function checkAfter($after)
-    {
-        $this->app['log']->notice('路由后置行为建议使用中间件替代！');
-
-        $hook = $this->app['hook'];
-
-        $result = null;
-
-        foreach ((array) $after as $behavior) {
-            $result = $hook->exec($behavior);
-
-            if (!is_null($result)) {
-                break;
-            }
-        }
-
-        // 路由规则重定向
-        if ($result instanceof Response) {
-            return $result;
-        }
-
-        return false;
     }
 
     /**

@@ -22,7 +22,7 @@ use think\facade\Cookie;
 use think\facade\Db;
 use think\facade\Debug;
 use think\facade\Env;
-use think\facade\Hook;
+use think\facade\Event;
 use think\facade\Lang;
 use think\facade\Log;
 use think\facade\Request;
@@ -60,19 +60,6 @@ if (!function_exists('app')) {
     function app(string $name = 'think\App', $args = [], bool $newInstance = false)
     {
         return Container::get($name, $args, $newInstance);
-    }
-}
-
-if (!function_exists('behavior')) {
-    /**
-     * 执行某个行为（run方法） 支持依赖注入
-     * @param mixed $behavior   行为类名或者别名
-     * @param mixed $args       参数
-     * @return mixed
-     */
-    function behavior($behavior, $args = null)
-    {
-        return Hook::exec($behavior, $args);
     }
 }
 
@@ -306,6 +293,20 @@ if (!function_exists('env')) {
         return Env::get($name, $default);
     }
 }
+
+if (!function_exists('event')) {
+    /**
+     * 触发事件
+     * @param mixed $event    事件名（或者类名）
+     * @param mixed $args       参数
+     * @return mixed
+     */
+    function event($event, $args = null)
+    {
+        return Event::trigger($event, $args);
+    }
+}
+
 
 if (!function_exists('exception')) {
     /**

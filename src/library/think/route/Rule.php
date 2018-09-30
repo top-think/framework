@@ -717,25 +717,6 @@ abstract class Rule
     }
 
     /**
-     * 检查路由前置行为
-     * @access protected
-     * @param  mixed   $before 前置行为
-     * @return mixed
-     */
-    protected function checkBefore($before)
-    {
-        $hook = Container::get('hook');
-
-        foreach ((array) $before as $behavior) {
-            $result = $hook->exec($behavior);
-
-            if (false === $result) {
-                return false;
-            }
-        }
-    }
-
-    /**
      * 发起路由调度
      * @access protected
      * @param  Request   $request Request对象

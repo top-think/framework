@@ -79,10 +79,24 @@ class Config extends Command
         }
 
         // 加载行为扩展文件
-        if (is_file($path . 'tags.php')) {
-            $tags = include $path . 'tags.php';
-            if (is_array($tags)) {
-                $content .= PHP_EOL . '\think\facade\Hook::import(' . (var_export($tags, true)) . ');' . PHP_EOL;
+        if (is_file($path . 'event.php')) {
+            $event = include $path . 'event.php';
+
+            if (is_array($event)) {
+                if (isset($event['bind'])) {
+                    $content .= PHP_EOL . '\think\facade\Event::bind(' . (var_export($event['bind'], true)) . ');' . PHP_EOL;
+                }
+
+                if (isset($event['listen'])) {
+                    $content .= PHP_EOL . '\think\facade\Event::listenEvents(' . (var_export($event['listen'], true)) . ');' . PHP_EOL;
+                }
+
+                if (isset($event['subscribe'])) {
+
+                    foreach ($event['subscribe'] as $subscribe) {
+                        $content .= PHP_EOL . '\think\facade\Event::observe(' . $subscribe . ');' . PHP_EOL;
+                    }
+                }
             }
         }
 
