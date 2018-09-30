@@ -307,7 +307,6 @@ if (!function_exists('event')) {
     }
 }
 
-
 if (!function_exists('exception')) {
     /**
      * 抛出异常处理
