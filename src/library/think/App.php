@@ -164,7 +164,7 @@ class App extends Container
      * @param  string $namespace 应用命名空间
      * @return $this
      */
-    public function namespace (string $namespace) 
+    public function namespace(string $namespace)
     {
         $this->namespace = $namespace;
         return $this;
