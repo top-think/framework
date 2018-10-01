@@ -150,16 +150,20 @@ class Event
      */
     public function subscribe($subscriber)
     {
-        if (is_string($subscriber)) {
-            $subscriber = $this->app->make($subscriber);
-        }
+        $subscribers = (array) $subscriber;
 
-        if (method_exists($subscriber, 'subscribe')) {
-            // 手动订阅
-            $subscriber->subscribe($this);
-        } else {
-            // 智能订阅
-            $this->observe($subscriber);
+        foreach ($subscribers as $subscriber) {
+            if (is_string($subscriber)) {
+                $subscriber = $this->app->make($subscriber);
+            }
+
+            if (method_exists($subscriber, 'subscribe')) {
+                // 手动订阅
+                $subscriber->subscribe($this);
+            } else {
+                // 智能订阅
+                $this->observe($subscriber);
+            }
         }
 
         return $this;

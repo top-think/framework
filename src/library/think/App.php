@@ -11,10 +11,6 @@
 
 namespace think;
 
-use think\exception\ClassNotFoundException;
-use think\exception\HttpResponseException;
-use think\route\Dispatch;
-
 /**
  * App 应用管理
  */
@@ -168,7 +164,7 @@ class App extends Container
      * @param  string $namespace 应用命名空间
      * @return $this
      */
-    public function namespace(string $namespace)
+    public function namespace (string $namespace) 
     {
         $this->namespace = $namespace;
         return $this;
@@ -314,18 +310,16 @@ class App extends Container
             if (is_file($this->appPath . 'event.php')) {
                 $event = include $this->appPath . 'event.php';
                 if (is_array($event)) {
-                    if(isset($event['bind'])){
+                    if (isset($event['bind'])) {
                         $this->event->bind($event['bind']);
                     }
 
-                    if(isset($event['listen'])){
+                    if (isset($event['listen'])) {
                         $this->event->listenEvents($event['listen']);
                     }
 
-                    if(isset($event['subscribe'])){
-                        foreach($event['subscribe'] as $subscribe){
-                            $this->event->subscribe($subscribe);
-                        }
+                    if (isset($event['subscribe'])) {
+                        $this->event->subscribe($event['subscribe']);
                     }
                 }
             }
