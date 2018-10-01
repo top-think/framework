@@ -32,10 +32,10 @@ class Event
     protected $bind = [
         'AppInit'      => event\AppInit::class,
         'AppBegin'     => event\AppBegin::class,
+        'ActionBegin'  => event\ActionBegin::class,
         'AppEnd'       => event\AppEnd::class,
         'LogLevel'     => event\LogLevel::class,
         'LogWrite'     => event\LogWrite::class,
-        'ActionBegin'  => event\ActionBegin::class,
         'ViewFilter'   => event\ViewFilter::class,
         'ResponseSend' => event\ResponseSend::class,
         'ResponseEnd'  => event\ResponseEnd::class,
@@ -76,15 +76,21 @@ class Event
      * @access public
      * @param  string    $event         事件名称
      * @param  mixed     $listener      监听操作（或者类名）
+     * @param  bool      $first         是否优先执行
      * @return $this
      */
-    public function listen(string $event, $listener)
+    public function listen(string $event, $listener, bool $first = false)
     {
         if (isset($this->bind[$event])) {
             $event = $this->bind[$event];
         }
 
-        $this->listener[$event][] = $listener;
+        if ($first) {
+            array_unshift($this->listener[$event], $listener);
+        } else {
+            $this->listener[$event][] = $listener;
+        }
+
         return $this;
     }
 
@@ -149,10 +155,10 @@ class Event
         }
 
         if (method_exists($subscriber, 'subscribe')) {
-            // 订阅
+            // 手动订阅
             $subscriber->subscribe($this);
         } else {
-            // 自动观察
+            // 智能订阅
             $this->observe($subscriber);
         }
 
@@ -174,7 +180,7 @@ class Event
         $events = array_keys($this->listener);
 
         foreach ($events as $event) {
-            $method = substr(strrchr($event, '\\'), 1);
+            $method = 'on' . substr(strrchr($event, '\\'), 1);
 
             if (method_exists($observer, $method)) {
                 $this->listen($event, [$observer, $method]);

@@ -14,6 +14,5 @@ namespace think\event;
 /**
  * AppBegin事件类
  */
-
 class AppBegin
 {}

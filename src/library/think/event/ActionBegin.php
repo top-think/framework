@@ -14,6 +14,5 @@ namespace think\event;
 /**
  * ActionBegin事件类
  */
-
 class ActionBegin
 {}
