@@ -85,7 +85,7 @@ class Event
             $event = $this->bind[$event];
         }
 
-        if ($first) {
+        if ($first && isset($this->listener[$event])) {
             array_unshift($this->listener[$event], $listener);
         } else {
             $this->listener[$event][] = $listener;
@@ -197,13 +197,19 @@ class Event
     /**
      * 触发事件
      * @access public
-     * @param  string $event        事件名称
-     * @param  mixed  $params       传入参数
-     * @param  bool   $once         只获取一个有效返回值
+     * @param  string|object $event        事件名称
+     * @param  mixed         $params       传入参数
+     * @param  bool          $once         只获取一个有效返回值
      * @return mixed
      */
-    public function trigger(string $event, $params = null, bool $once = false)
+    public function trigger($event, $params = null, bool $once = false)
     {
+        if (is_object($event)) {
+            $class = get_class($event);
+            $this->app->instance($class, $event);
+            $event = $class;
+        }
+
         if (isset($this->bind[$event])) {
             $event = $this->bind[$event];
         }

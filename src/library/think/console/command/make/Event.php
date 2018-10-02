@@ -8,29 +8,28 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-
 namespace think\console\command\make;
 
 use think\console\command\Make;
 
-class Middleware extends Make
+class Event extends Make
 {
-    protected $type = "Middleware";
+    protected $type = "Event";
 
     protected function configure()
     {
         parent::configure();
-        $this->setName('make:middleware')
-            ->setDescription('Create a new middleware class');
+        $this->setName('make:event')
+            ->setDescription('Create a new event class');
     }
 
     protected function getStub()
     {
-        return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'middleware.stub';
+        return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'event.stub';
     }
 
     protected function getNamespace(string $app)
     {
-        return parent::getNamespace($app) . '\\middleware';
+        return parent::getNamespace($app) . '\\event';
     }
 }

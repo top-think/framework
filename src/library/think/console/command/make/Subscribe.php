@@ -8,29 +8,28 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-
 namespace think\console\command\make;
 
 use think\console\command\Make;
 
-class Middleware extends Make
+class Subscribe extends Make
 {
-    protected $type = "Middleware";
+    protected $type = "Subscribe";
 
     protected function configure()
     {
         parent::configure();
-        $this->setName('make:middleware')
-            ->setDescription('Create a new middleware class');
+        $this->setName('make:subscribe')
+            ->setDescription('Create a new subscribe class');
     }
 
     protected function getStub()
     {
-        return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'middleware.stub';
+        return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'subscribe.stub';
     }
 
     protected function getNamespace(string $app)
     {
-        return parent::getNamespace($app) . '\\middleware';
+        return parent::getNamespace($app) . '\\subscribe';
     }
 }
