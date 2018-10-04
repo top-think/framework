@@ -50,11 +50,11 @@ class HasManyThrough extends Relation
     /**
      * 延迟获取关联数据
      * @access public
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包查询条件
      * @return \think\Collection
      */
-    public function getRelation(string $subRelation = '', \Closure $closure = null): Collection
+    public function getRelation(array $subRelation = [], \Closure $closure = null): Collection
     {
         if ($closure) {
             $closure($this->query);
@@ -96,11 +96,11 @@ class HasManyThrough extends Relation
      * @access public
      * @param  array    $resultSet   数据集
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure): void
+    public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure): void
     {}
 
     /**
@@ -108,11 +108,11 @@ class HasManyThrough extends Relation
      * @access public
      * @param  Model    $result      数据对象
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
+    public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
     {}
 
     /**

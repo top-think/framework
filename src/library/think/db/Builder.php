@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think\db;
 
@@ -733,7 +734,7 @@ abstract class Builder
      * @param  mixed     $limit
      * @return string
      */
-    protected function parseLimit(Query $query, $limit): string
+    protected function parseLimit(Query $query, string $limit): string
     {
         return (!empty($limit) && false === strpos($limit, '(')) ? ' LIMIT ' . $limit . ' ' : '';
     }

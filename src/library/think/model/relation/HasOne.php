@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think\model\relation;
 
@@ -43,11 +44,11 @@ class HasOne extends OneToOne
     /**
      * 延迟获取关联数据
      * @access public
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包查询条件
      * @return Model
      */
-    public function getRelation(string $subRelation = '', Closure $closure = null)
+    public function getRelation(array $subRelation = [], Closure $closure = null)
     {
         $localKey = $this->localKey;
 
@@ -67,6 +68,26 @@ class HasOne extends OneToOne
         }
 
         return $relationModel;
+    }
+
+    /**
+     * 创建关联统计子查询
+     * @access public
+     * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
+     * @return string
+     */
+    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*'): string
+    {
+        if ($closure) {
+            $closure($this->query);
+        }
+
+        return $this->query
+            ->whereExp($this->foreignKey, '=' . $this->parent->getTable() . '.' . $this->parent->getPk())
+            ->fetchSql()
+            ->$aggregate($field);
     }
 
     /**
@@ -126,11 +147,11 @@ class HasOne extends OneToOne
      * @access protected
      * @param  array    $resultSet   数据集
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @return void
      */
-    protected function eagerlySet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure = null): void
+    protected function eagerlySet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null): void
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -180,11 +201,11 @@ class HasOne extends OneToOne
      * @access protected
      * @param  Model    $result      数据对象
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @return void
      */
-    protected function eagerlyOne(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
+    protected function eagerlyOne(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;

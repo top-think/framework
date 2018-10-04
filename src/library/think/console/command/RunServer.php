@@ -8,6 +8,8 @@
 // +----------------------------------------------------------------------
 // | Author: Slince <taosikai@yeah.net>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
+
 namespace think\console\command;
 
 use think\console\Command;

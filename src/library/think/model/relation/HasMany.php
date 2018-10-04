@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think\model\relation;
 
@@ -44,11 +45,11 @@ class HasMany extends Relation
     /**
      * 延迟获取关联数据
      * @access public
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包查询条件
      * @return \think\Collection
      */
-    public function getRelation(string $subRelation = '', Closure $closure = null): Collection
+    public function getRelation(array $subRelation = [], Closure $closure = null): Collection
     {
         if ($closure) {
             $closure($this->query);
@@ -73,11 +74,11 @@ class HasMany extends Relation
      * @access public
      * @param  array    $resultSet   数据集
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation, Closure $closure = null): void
+    public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation, Closure $closure = null): void
     {
         $localKey = $this->localKey;
         $range    = [];
@@ -119,11 +120,11 @@ class HasMany extends Relation
      * @access public
      * @param  Model    $result      数据对象
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null): void
+    public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
     {
         $localKey = $this->localKey;
 
@@ -197,11 +198,11 @@ class HasMany extends Relation
      * @access public
      * @param  array    $where       关联预查询条件
      * @param  string   $relation    关联名
-     * @param  string   $subRelation 子关联
+     * @param  array    $subRelation 子关联
      * @param  \Closure $closure
      * @return array
      */
-    protected function eagerlyOneToMany(array $where, string $relation, string $subRelation = '', Closure $closure = null): array
+    protected function eagerlyOneToMany(array $where, string $relation, array $subRelation = [], Closure $closure = null): array
     {
         $foreignKey = $this->foreignKey;
 

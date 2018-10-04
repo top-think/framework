@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think\model\concern;
 
@@ -207,7 +208,7 @@ trait RelationShip
     public function eagerlyResultSet(array &$resultSet, array $relations, array $withRelationAttr = [], bool $join = false): void
     {
         foreach ($relations as $key => $relation) {
-            $subRelation = '';
+            $subRelation = [];
             $closure     = null;
 
             if ($relation instanceof \Closure) {
@@ -220,6 +221,8 @@ trait RelationShip
                 $relation    = $key;
             } elseif (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation, 2);
+
+                $subRelation = [$subRelation];
             }
 
             $relation     = App::parseName($relation, 1, false);
@@ -247,7 +250,7 @@ trait RelationShip
     public function eagerlyResult(Model $result, array $relations, array $withRelationAttr = [], bool $join = false): void
     {
         foreach ($relations as $key => $relation) {
-            $subRelation = '';
+            $subRelation = [];
             $closure     = null;
 
             if ($relation instanceof \Closure) {
@@ -260,6 +263,8 @@ trait RelationShip
                 $relation    = $key;
             } elseif (strpos($relation, '.')) {
                 list($relation, $subRelation) = explode('.', $relation, 2);
+
+                $subRelation = [$subRelation];
             }
 
             $relation     = App::parseName($relation, 1, false);
@@ -340,7 +345,7 @@ trait RelationShip
         $model      = $this->parseModel($model);
         $foreignKey = $foreignKey ?: $this->getForeignKey((new $model)->getName());
         $localKey   = $localKey ?: (new $model)->getPk();
-        $trace      = debug_backtrace(false, 2);
+        $trace      = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
         $relation   = App::parseName($trace[1]['function']);
 
         return new BelongsTo($this, $model, $foreignKey, $localKey, $relation);
@@ -421,7 +426,7 @@ trait RelationShip
         $model = $this->parseModel($model);
 
         if (is_null($morph)) {
-            $trace = debug_backtrace(false, 2);
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
             $morph = App::parseName($trace[1]['function']);
         }
 
@@ -451,7 +456,7 @@ trait RelationShip
         $model = $this->parseModel($model);
 
         if (is_null($morph)) {
-            $trace = debug_backtrace(false, 2);
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
             $morph = App::parseName($trace[1]['function']);
         }
 
@@ -476,7 +481,7 @@ trait RelationShip
      */
     public function morphTo($morph = null, array $alias = []): MorphTo
     {
-        $trace    = debug_backtrace(false, 2);
+        $trace    = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
         $relation = App::parseName($trace[1]['function']);
 
         if (is_null($morph)) {

@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think\db;
 
@@ -781,7 +782,7 @@ abstract class Connection
         $pk      = $query->getPk($options);
         $data    = $options['data'];
 
-        $query->setOption('limit', 1);
+        $query->setOption('limit', '1');
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
@@ -1244,7 +1245,7 @@ abstract class Connection
         }
 
         $query->setOption('field', $field);
-        $query->setOption('limit', 1);
+        $query->setOption('limit', '1');
 
         // 生成查询SQL
         $sql = $this->builder->select($query);
@@ -1429,7 +1430,7 @@ abstract class Connection
             if (PDO::PARAM_INT == $type || self::PARAM_FLOAT == $type) {
                 $value = (float) $value;
             } elseif (PDO::PARAM_STR == $type) {
-                $value = '\'' . addslashes($value) . '\'';
+                $value = '\'' . (is_string($value) ? addslashes($value) : $value) . '\'';
             }
 
             // 判断占位符
@@ -1877,12 +1878,12 @@ abstract class Connection
      * 触发SQL事件
      * @access protected
      * @param  string    $sql SQL语句
-     * @param  float     $runtime SQL运行时间
+     * @param  string    $runtime SQL运行时间
      * @param  mixed     $explain SQL分析
      * @param  bool      $master 主从标记
      * @return void
      */
-    protected function triggerSql(string $sql, float $runtime, array $explain = [], bool $master = false): void
+    protected function triggerSql(string $sql, string $runtime, array $explain = [], bool $master = false): void
     {
         if (!empty(self::$event)) {
             foreach (self::$event as $callback) {

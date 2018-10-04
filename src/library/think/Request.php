@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think;
 
@@ -962,7 +963,7 @@ class Request
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function route(string $name = '', $default = null, $filter = '')
+    public function route($name = '', $default = null, $filter = '')
     {
         return $this->input($this->route, $name, $default, $filter);
     }
@@ -975,7 +976,7 @@ class Request
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function get(string $name = '', $default = null, $filter = '')
+    public function get($name = '', $default = null, $filter = '')
     {
         if (empty($this->get)) {
             $this->get = $_GET;
@@ -992,7 +993,7 @@ class Request
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function post(string $name = '', $default = null, $filter = '')
+    public function post($name = '', $default = null, $filter = '')
     {
         if (empty($this->post)) {
             $this->post = !empty($_POST) ? $_POST : $this->getInputData($this->input);
@@ -1009,7 +1010,7 @@ class Request
      * @param  string|array      $filter 过滤方法
      * @return mixed
      */
-    public function put(string $name = '', $default = null, $filter = '')
+    public function put($name = '', $default = null, $filter = '')
     {
         if (is_null($this->put)) {
             $this->put = $this->getInputData($this->input);
@@ -1544,7 +1545,7 @@ class Request
     public function isAjax(bool $ajax = false): bool
     {
         $value  = $this->server('HTTP_X_REQUESTED_WITH');
-        $result = 'xmlhttprequest' == strtolower($value) ? true : false;
+        $result = $value && 'xmlhttprequest' == strtolower($value) ? true : false;
 
         if (true === $ajax) {
             return $result;

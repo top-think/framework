@@ -53,7 +53,6 @@ abstract class OneToOne extends Relation
      * @param  string   $relation    关联名
      * @param  mixed    $field       关联字段
      * @param  string   $joinType    JOIN方式
-     * @param  string   $subRelation 子关联
      * @param  \Closure $closure     闭包条件
      * @param  bool     $first
      * @return void
@@ -109,34 +108,34 @@ abstract class OneToOne extends Relation
      * @access protected
      * @param  array    $resultSet
      * @param  string   $relation
-     * @param  string   $subRelation
+     * @param  array    $subRelation
      * @param  \Closure $closure
      * @return mixed
      */
-    abstract protected function eagerlySet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure = null);
+    abstract protected function eagerlySet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null);
 
     /**
      * 预载入关联查询（数据）
      * @access protected
      * @param  Model    $result
      * @param  string   $relation
-     * @param  string   $subRelation
+     * @param  array    $subRelation
      * @param  \Closure $closure
      * @return mixed
      */
-    abstract protected function eagerlyOne(Model $result, string $relation, string $subRelation = '', Closure $closure = null);
+    abstract protected function eagerlyOne(Model $result, string $relation, array $subRelation = [], Closure $closure = null);
 
     /**
      * 预载入关联查询（数据集）
      * @access public
      * @param  array    $resultSet   数据集
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @param  bool     $join        是否为JOIN方式
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation, string $subRelation = '', Closure $closure = null, bool $join = false): void
+    public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null, bool $join = false): void
     {
         if ($join || 0 == $this->eagerlyType) {
             // 模型JOIN关联组装
@@ -154,12 +153,12 @@ abstract class OneToOne extends Relation
      * @access public
      * @param  Model    $result      数据对象
      * @param  string   $relation    当前关联名
-     * @param  string   $subRelation 子关联名
+     * @param  array    $subRelation 子关联名
      * @param  \Closure $closure     闭包
      * @param  bool     $join        是否为JOIN方式
      * @return void
      */
-    public function eagerlyResult(Model $result, string $relation, string $subRelation = '', Closure $closure = null, bool $join = false): void
+    public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null, bool $join = false): void
     {
         if ($join || 0 == $this->eagerlyType) {
             // 模型JOIN关联组装
@@ -317,11 +316,11 @@ abstract class OneToOne extends Relation
      * @param  array        $where       关联预查询条件
      * @param  string       $key         关联键名
      * @param  string       $relation    关联名
-     * @param  string       $subRelation 子关联
+     * @param  array        $subRelation 子关联
      * @param  \Closure     $closure
      * @return array
      */
-    protected function eagerlyWhere(array $where, string $key, string $relation, string $subRelation = '', Closure $closure = null)
+    protected function eagerlyWhere(array $where, string $key, string $relation, array $subRelation = [], Closure $closure = null)
     {
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {

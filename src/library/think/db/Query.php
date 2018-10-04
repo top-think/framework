@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think\db;
 
@@ -633,7 +634,7 @@ class Query
             $count = $this->aggregate('COUNT', $field);
         }
 
-        return (int) $count;
+        return is_string($count)? $count : (int) $count;
     }
 
     /**
@@ -642,7 +643,7 @@ class Query
      * @param  string $field 字段名
      * @return float
      */
-    public function sum(string $field): float
+    public function sum(string $field)
     {
         return $this->aggregate('SUM', $field, true);
     }
@@ -677,7 +678,7 @@ class Query
      * @param  string $field 字段名
      * @return float
      */
-    public function avg(string $field): float
+    public function avg(string $field)
     {
         return $this->aggregate('AVG', $field, true);
     }
@@ -1503,6 +1504,8 @@ class Query
             // 同一字段多条件查询
             array_unshift($param, $field);
             $where = $param;
+        } elseif(!is_string($op)){
+            $where = [$field, '=', $op];
         } elseif ($field && is_null($condition)) {
             if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
@@ -2419,7 +2422,7 @@ class Query
                 $field    = $relation;
                 $relation = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                list($relation, $subRelation) = explode('.', $relation, 2);
+                $relation = strstr($relation, '.', true);
             }
 
             /** @var Relation $model */
@@ -3459,7 +3462,7 @@ class Query
             if (is_array($data)) {
                 $where[$pk] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
             } else {
-                $where[$pk] = strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
+                $where[$pk] = is_string($data) && strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
             }
         }
 
