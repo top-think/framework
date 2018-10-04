@@ -634,7 +634,7 @@ class Query
             $count = $this->aggregate('COUNT', $field);
         }
 
-        return is_string($count)? $count : (int) $count;
+        return is_string($count) ? $count : (int) $count;
     }
 
     /**
