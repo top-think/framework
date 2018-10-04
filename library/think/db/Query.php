@@ -628,6 +628,9 @@ class Query
             $result = (float) $result;
         }
 
+        // 查询完成后清空聚合字段信息
+        $this->removeOption('field');
+
         return $result;
     }
 
@@ -658,7 +661,7 @@ class Query
             $count = $this->aggregate('COUNT', $field);
         }
 
-        return (int) $count;
+        return is_string($count) ? $count : (int) $count;
     }
 
     /**
