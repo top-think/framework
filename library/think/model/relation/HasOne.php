@@ -69,6 +69,26 @@ class HasOne extends OneToOne
     }
 
     /**
+     * 创建关联统计子查询
+     * @access public
+     * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
+     * @return string
+     */
+    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
+    {
+        if ($closure) {
+            $closure($this->query);
+        }
+
+        return $this->query
+            ->whereExp($this->foreignKey, '=' . $this->parent->getTable() . '.' . $this->parent->getPk())
+            ->fetchSql()
+            ->$aggregate($field);
+    }
+
+    /**
      * 根据关联条件查询当前模型
      * @access public
      * @param  string  $operator 比较操作符
