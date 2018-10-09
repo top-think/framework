@@ -12,6 +12,8 @@ declare (strict_types = 1);
 
 namespace think;
 
+use think\exception\ClassNotFoundException;
+use think\exception\HttpResponseException;
 use think\route\Dispatch;
 
 /**
@@ -52,7 +54,7 @@ class App extends Container
     protected $rootNamespace = 'app';
 
     /**
-     * 应用类库命名空间
+     * 当前应用类库命名空间
      * @var string
      */
     protected $namespace;
@@ -150,6 +152,18 @@ class App extends Container
     }
 
     /**
+     * 开启应用调试模式
+     * @access public
+     * @param  bool $debug 开启应用调试模式
+     * @return $this
+     */
+    public function debug(bool $debug = true)
+    {
+        $this->appDebug = $debug;
+        return $this;
+    }
+
+    /**
      * 设置应用名称
      * @access public
      * @param  string $name 应用名称
@@ -170,6 +184,18 @@ class App extends Container
     public function namespace(string $namespace)
     {
         $this->namespace = $namespace;
+        return $this;
+    }
+
+    /**
+     * 设置是否启用应用类库后缀
+     * @access public
+     * @param  bool  $suffix 启用应用类库后缀
+     * @return $this
+     */
+    public function suffix(bool $suffix)
+    {
+        $this->suffix = $suffix;
         return $this;
     }
 
@@ -262,10 +288,14 @@ class App extends Container
         $this->env->set('app_namespace', $this->namespace);
 
         // 开启类名后缀
-        $this->suffix = $this->config['app.class_suffix'];
+        if (!$this->suffix) {
+            $this->suffix = $this->config['app.class_suffix'];
+        }
 
         // 应用调试模式
-        $this->appDebug = $this->env->get('app_debug', $this->config['app.app_debug']);
+        if (!$this->appDebug) {
+            $this->appDebug = $this->env->get('app_debug', $this->config['app.app_debug']);
+        }
         $this->env->set('app_debug', $this->appDebug);
 
         if (!$this->appDebug) {
@@ -407,11 +437,7 @@ class App extends Container
             $this->event->trigger('AppBegin');
 
             // 请求缓存检查
-            $this->checkRequestCache(
-                $this->config['app.request_cache'],
-                $this->config['app.request_cache_expire'],
-                $this->config['app.request_cache_except']
-            );
+            $this->checkRequestCache();
 
             $data = null;
         } catch (HttpResponseException $exception) {
@@ -544,16 +570,14 @@ class App extends Container
 
     /**
      * 设置当前地址的请求缓存
-     * @access public
-     * @param  string $key 缓存标识，支持变量规则 ，例如 item/:name/:id
-     * @param  mixed  $expire 缓存有效期
-     * @param  array  $except 缓存排除
-     * @param  string $tag    缓存标签
+     * @access protected
      * @return void
      */
-    public function checkRequestCache($key, $expire = null, $except = [], $tag = null): void
+    protected function checkRequestCache(): void
     {
-        $cache = $this->request->cache($key, $expire, $except, $tag);
+        $cache = $this->request->cache($this->config['app.request_cache'],
+            $this->config['app.request_cache_expire'],
+            $this->config['app.request_cache_except']);
 
         if ($cache) {
             $this->setResponseCache($cache);
