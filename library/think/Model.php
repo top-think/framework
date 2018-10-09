@@ -125,6 +125,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $defaultSoftDelete;
 
     /**
+     * 全局查询范围
+     * @var array
+     */
+    protected $globalScope = [];
+
+    /**
      * 架构函数
      * @access public
      * @param  array|object $data 数据
@@ -272,7 +278,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
-     * @param  bool $useBaseQuery 是否调用全局查询范围
+     * @param  bool|array $useBaseQuery 是否调用全局查询范围（或者指定查询范围名称）
      * @return Query
      */
     public function db($useBaseQuery = true)
@@ -289,8 +295,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 全局作用域
-        if ($useBaseQuery && method_exists($this, 'base')) {
+        if (true === $useBaseQuery && method_exists($this, 'base')) {
             call_user_func_array([$this, 'base'], [ & $query]);
+        }
+
+        $globalScope = is_array($useBaseQuery) && $useBaseQuery ?: $this->globalScope;
+
+        if ($globalScope) {
+            $query->scope($globalScope);
         }
 
         // 返回当前模型的数据库查询对象
@@ -1030,7 +1042,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 设置是否使用全局查询范围
      * @access public
-     * @param  bool $use 是否启用全局查询范围
+     * @param  bool|array $use 是否启用全局查询范围（或者用数组指定查询范围名称）
      * @return Query
      */
     public static function useGlobalScope($use)
