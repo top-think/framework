@@ -13,6 +13,7 @@ namespace think\route;
 
 use think\Container;
 use think\exception\ValidateException;
+use think\App;
 use think\Request;
 use think\Response;
 
