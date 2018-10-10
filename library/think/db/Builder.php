@@ -808,15 +808,13 @@ abstract class Builder
                     $sort    = strtoupper($sort);
                     $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
                     $array[] = $this->parseKey($query, $key, true) . $sort;
+                } else {
+                    throw new Exception('order express error:' . $key);
                 }
             }
         }
 
-        if (empty($array)) {
-            return '';
-        }
-
-        return ' ORDER BY ' . implode(',', $array);
+        return empty($array) ? '' : ' ORDER BY ' . implode(',', $array);
     }
 
     /**
