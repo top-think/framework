@@ -783,12 +783,6 @@ abstract class Builder
      */
     protected function parseOrder(Query $query, array $order): string
     {
-        if (empty($order)) {
-            return '';
-        }
-
-        $array = [];
-
         foreach ($order as $key => $val) {
             if ($val instanceof Expression) {
                 $array[] = $val->getValue();
@@ -803,15 +797,17 @@ abstract class Builder
                     $sort = $val;
                 }
 
-                if (false === strpos($key, ')') && false === strpos($key, '#')) {
+                if (preg_match('/^[\w]+$/', $key)) {
                     $sort    = strtoupper($sort);
                     $sort    = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
                     $array[] = $this->parseKey($query, $key, true) . $sort;
+                } else {
+                    throw new Exception('order express error:' . $key);
                 }
             }
         }
 
-        return ' ORDER BY ' . implode(',', $array);
+        return empty($array) ? '' : ' ORDER BY ' . implode(',', $array);
     }
 
     /**
