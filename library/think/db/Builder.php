@@ -788,10 +788,6 @@ abstract class Builder
      */
     protected function parseOrder(Query $query, $order)
     {
-        if (empty($order)) {
-            return '';
-        }
-
         $array = [];
 
         foreach ($order as $key => $val) {
@@ -814,6 +810,10 @@ abstract class Builder
                     $array[] = $this->parseKey($query, $key, true) . $sort;
                 }
             }
+        }
+
+        if (empty($order)) {
+            return '';
         }
 
         return ' ORDER BY ' . implode(',', $array);
