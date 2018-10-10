@@ -812,7 +812,7 @@ abstract class Builder
             }
         }
 
-        if (empty($order)) {
+        if (empty($array)) {
             return '';
         }
 
