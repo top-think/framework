@@ -1198,14 +1198,20 @@ class Request
     {
         $array = [];
         foreach ($files as $key => $file) {
-            if (is_array($file['name'])) {
+            if ($file instanceof File) {
+                $array[$key] = $file;
+            } elseif (is_array($file['name'])) {
                 $item  = [];
                 $keys  = array_keys($file);
                 $count = count($file['name']);
 
                 for ($i = 0; $i < $count; $i++) {
-                    if ($name == $key && $file['error'][$i] > 0) {
-                        $this->throwUploadFileError($file['error'][$i]);
+                    if ($file['error'][$i] > 0) {
+                        if ($name == $key) {
+                            $this->throwUploadFileError($file['error'][$i]);
+                        } else {
+                            continue;
+                        }
                     }
 
                     $temp['key'] = $key;
@@ -1219,15 +1225,15 @@ class Request
 
                 $array[$key] = $item;
             } else {
-                if ($file instanceof File) {
-                    $array[$key] = $file;
-                } else {
-                    if ($key == $name && $file['error'] > 0) {
+                if ($file['error'] > 0) {
+                    if ($key == $name) {
                         $this->throwUploadFileError($file['error']);
+                    } else {
+                        continue;
                     }
-
-                    $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
                 }
+
+                $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
             }
         }
 
