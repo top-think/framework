@@ -1887,10 +1887,21 @@ class Query
      * 表达式方式指定Field排序
      * @access public
      * @param  string $field 排序字段
+     * @param  array  $bind  参数绑定
      * @return $this
      */
-    public function orderRaw($field)
+    public function orderRaw($field, $bind = [])
     {
+        if ($bind) {
+            foreach ($bind as $key => $value) {
+                if (!is_numeric($key)) {
+                    $where = str_replace(':' . $key, '?', $where);
+                }
+            }
+
+            $this->bind(array_values($bind));
+        }
+
         $this->options['order'][] = $this->raw($field);
 
         return $this;

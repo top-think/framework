@@ -788,12 +788,10 @@ abstract class Builder
      */
     protected function parseOrder(Query $query, $order)
     {
-        $array = [];
-
         foreach ($order as $key => $val) {
             if ($val instanceof Expression) {
                 $array[] = $val->getValue();
-            } elseif (is_array($val) && !preg_match('/\W/', $key)) {
+            } elseif (is_array($val) && preg_match('/^[\w\.]+$/', $key)) {
                 $array[] = $this->parseOrderField($query, $key, $val);
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);
