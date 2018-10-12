@@ -198,6 +198,7 @@ class Build
 
         if ($this->app->config('app.app_multi_module')) {
             $modules = glob($this->basePath . '*', GLOB_ONLYDIR);
+
             foreach ($modules as $module) {
                 $module = basename($module);
 
@@ -208,7 +209,6 @@ class Build
                 $path = $this->basePath . $module . DIRECTORY_SEPARATOR . $layer . DIRECTORY_SEPARATOR;
                 $content .= $this->buildDirRoute($path, $namespace, $module, $suffix, $layer);
             }
-
         } else {
             $path = $this->basePath . $layer . DIRECTORY_SEPARATOR;
             $content .= $this->buildDirRoute($path, $namespace, '', $suffix, $layer);
