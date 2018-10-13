@@ -915,7 +915,7 @@ class Request
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
-    public function param(string $name = '', $default = null, $filter = '')
+    public function param($name = '', $default = null, $filter = '')
     {
         if (empty($this->mergeParam)) {
             $method = $this->method(true);
@@ -940,6 +940,10 @@ class Request
             $this->mergeParam = true;
         }
 
+        if (is_array($name)) {
+            return $this->only($name, $this->param, $filter);
+        }
+
         return $this->input($this->param, $name, $default, $filter);
     }
 
@@ -958,20 +962,24 @@ class Request
     /**
      * 获取路由参数
      * @access public
-     * @param  string        $name 变量名
+     * @param  mixed         $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
     public function route($name = '', $default = null, $filter = '')
     {
+        if (is_array($name)) {
+            return $this->only($name, $this->route, $filter);
+        }
+
         return $this->input($this->route, $name, $default, $filter);
     }
 
     /**
      * 获取GET参数
      * @access public
-     * @param  string        $name 变量名
+     * @param  mixed         $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
@@ -982,13 +990,17 @@ class Request
             $this->get = $_GET;
         }
 
+        if (is_array($name)) {
+            return $this->only($name, $this->get, $filter);
+        }
+
         return $this->input($this->get, $name, $default, $filter);
     }
 
     /**
      * 获取POST参数
      * @access public
-     * @param  string        $name 变量名
+     * @param  mixed         $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
@@ -997,6 +1009,10 @@ class Request
     {
         if (empty($this->post)) {
             $this->post = !empty($_POST) ? $_POST : $this->getInputData($this->input);
+        }
+
+        if (is_array($name)) {
+            return $this->only($name, $this->post, $filter);
         }
 
         return $this->input($this->post, $name, $default, $filter);
@@ -1014,6 +1030,10 @@ class Request
     {
         if (is_null($this->put)) {
             $this->put = $this->getInputData($this->input);
+        }
+
+        if (is_array($name)) {
+            return $this->only($name, $this->put, $filter);
         }
 
         return $this->input($this->put, $name, $default, $filter);
@@ -1061,7 +1081,7 @@ class Request
      * 获取request变量
      * @access public
      * @param  mixed         $name 数据名称
-     * @param  string        $default 默认值
+     * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
      */
@@ -1069,6 +1089,10 @@ class Request
     {
         if (empty($this->request)) {
             $this->request = $_REQUEST;
+        }
+
+        if (is_array($name)) {
+            return $this->only($name, $this->request, $filter);
         }
 
         return $this->input($this->request, $name, $default, $filter);
@@ -1136,7 +1160,7 @@ class Request
      * @param  string        $default 默认值
      * @return string
      */
-    public function server(string $name = '', string $default = null):  ? string
+    public function server(string $name = '', string $default = null): ?string
     {
         if (empty($name)) {
             return $this->server;
@@ -1330,6 +1354,11 @@ class Request
             }
         }
 
+        return $this->filterData($data, $filter, $default);
+    }
+
+    protected function filterData($data, $filter, $default)
+    {
         // 解析过滤器
         $filter = $this->getFilter($filter, $default);
 
@@ -1376,6 +1405,8 @@ class Request
         }
 
         $this->filter = $filter;
+
+        return $this;
     }
 
     protected function getFilter($filter, $default)
@@ -1443,7 +1474,7 @@ class Request
      * @param  bool      $checkEmpty 是否检测空值
      * @return bool
      */
-    public function has(string $name, string $type = 'param', bool $checkEmpty = false) : bool
+    public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
     {
         if (empty($this->$type)) {
             $param = $this->$type();
@@ -1466,13 +1497,14 @@ class Request
     /**
      * 获取指定的参数
      * @access public
-     * @param  array    $name 变量名
-     * @param  string   $type 变量类型
+     * @param  array            $name 变量名
+     * @param  mixed            $data 数据或者变量类型
+     * @param  string|array     $filter 过滤方法
      * @return mixed
      */
-    public function only(array $name, string $type = 'param')
+    public function only(array $name, $data = 'param', $filter = '')
     {
-        $param = $this->$type();
+        $data = is_array($data) ? $data : $this->$data();
 
         $item = [];
         foreach ($name as $key => $val) {
@@ -1480,15 +1512,14 @@ class Request
             if (is_int($key)) {
                 $default = null;
                 $key     = $val;
+                if (!isset($data[$key])) {
+                    continue;
+                }
             } else {
                 $default = $val;
             }
 
-            if (isset($param[$key])) {
-                $item[$key] = $param[$key];
-            } elseif (isset($default)) {
-                $item[$key] = $default;
-            }
+            $item[$key] = $this->filterData($data[$key] ?? $default, $filter, $default);
         }
 
         return $item;
