@@ -1895,7 +1895,7 @@ class Query
         if ($bind) {
             foreach ($bind as $key => $value) {
                 if (!is_numeric($key)) {
-                    $where = str_replace(':' . $key, '?', $where);
+                    $field = str_replace(':' . $key, '?', $field);
                 }
             }
 
