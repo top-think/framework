@@ -439,6 +439,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 重新记录原始数据
         $this->origin = $this->data;
+        $this->set    = [];
 
         return true;
     }

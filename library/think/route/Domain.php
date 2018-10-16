@@ -20,7 +20,6 @@ use think\route\dispatch\Module as ModuleDispatch;
 
 class Domain extends RuleGroup
 {
-
     /**
      * 架构函数
      * @access public

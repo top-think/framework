@@ -73,6 +73,12 @@ trait Attribute
     private $data = [];
 
     /**
+     * 修改器执行记录
+     * @var array
+     */
+    private $set = [];
+
+    /**
      * 原始数据
      * @var array
      */
@@ -304,10 +310,14 @@ trait Attribute
      * @param  string $name  属性名
      * @param  mixed  $value 属性值
      * @param  array  $data  数据
-     * @return $this
+     * @return void
      */
     public function setAttr($name, $value, $data = [])
     {
+        if (isset($this->set[$name])) {
+            return;
+        }
+
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
             $value = $this->autoWriteTimestamp($name);
@@ -325,8 +335,7 @@ trait Attribute
 
         // 设置数据对象属性
         $this->data[$name] = $value;
-
-        return $this;
+        $this->set[$name]  = true;
     }
 
     /**
