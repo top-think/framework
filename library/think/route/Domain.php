@@ -161,6 +161,7 @@ class Domain extends RuleGroup
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
+        $param  = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($request, $array[1], $param);
@@ -182,6 +183,7 @@ class Domain extends RuleGroup
         $array  = explode('|', $url, 3);
         $class  = !empty($array[0]) ? $array[0] : $this->router->config('default_controller');
         $method = !empty($array[1]) ? $array[1] : $this->router->config('default_action');
+        $param  = [];
 
         if (!empty($array[2])) {
             $this->parseUrlParams($request, $array[2], $param);
@@ -202,6 +204,7 @@ class Domain extends RuleGroup
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
+        $param  = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($request, $array[1], $param);
@@ -222,6 +225,7 @@ class Domain extends RuleGroup
     {
         $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
+        $param  = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($request, $array[1], $param);
