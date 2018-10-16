@@ -236,9 +236,6 @@ class App extends Container
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
-        // 加载惯例配置文件
-        $this->config->set(include $this->rootPath . 'convention.php');
-
         if (!$this->appPath) {
             if ($this->appMulti) {
                 $this->name    = $this->name ?: 'index';
@@ -259,6 +256,9 @@ class App extends Container
             'extend_path'  => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
             'vendor_path'  => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
         ]);
+
+        // 加载惯例配置文件
+        $this->config->set(include $this->rootPath . 'convention.php');
 
         // 加载环境变量配置文件
         if (is_file($this->rootPath . '.env')) {
