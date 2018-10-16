@@ -215,15 +215,6 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        if (!$this->appPath) {
-            if ($this->appMulti) {
-                $this->name    = $this->name ?: 'index';
-                $this->appPath = $this->basePath . $this->name . DIRECTORY_SEPARATOR;
-            } else {
-                $this->appPath = $this->basePath;
-            }
-        }
-
         if ($this->appMulti) {
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
@@ -246,7 +237,16 @@ class App extends Container
         $this->configExt = $this->env->get('config_ext', '.php');
 
         // 加载惯例配置文件
-        $this->config->set(include $this->thinkPath . 'convention.php');
+        $this->config->set(include $this->rootPath . 'convention.php');
+
+        if (!$this->appPath) {
+            if ($this->appMulti) {
+                $this->name    = $this->name ?: 'index';
+                $this->appPath = $this->basePath . $this->name . DIRECTORY_SEPARATOR;
+            } else {
+                $this->appPath = $this->basePath;
+            }
+        }
 
         // 设置路径环境变量
         $this->env->set([

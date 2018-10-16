@@ -82,6 +82,8 @@ class Controller extends Dispatch
                 $vars = $this->rule->getConfig('url_param_type')
                 ? $this->request->route()
                 : $this->request->param();
+
+                $vars = array_merge($vars, $this->param);
             } elseif (is_callable([$instance, '_empty'])) {
                 // 空操作
                 $call    = [$instance, '_empty'];
