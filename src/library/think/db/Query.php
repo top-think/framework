@@ -1504,7 +1504,7 @@ class Query
             // 同一字段多条件查询
             array_unshift($param, $field);
             $where = $param;
-        } elseif(!is_string($op)){
+        } elseif (!is_string($op)) {
             $where = [$field, '=', $op];
         } elseif ($field && is_null($condition)) {
             if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
@@ -1845,8 +1845,18 @@ class Query
      * @param  array  $bind  参数绑定
      * @return $this
      */
-    public function orderRaw(string $field)
+    public function orderRaw(string $field, array $bind = [])
     {
+        if ($bind) {
+            foreach ($bind as $key => $value) {
+                if (!is_numeric($key)) {
+                    $field = str_replace(':' . $key, '?', $field);
+                }
+            }
+
+            $this->bind(array_values($bind));
+        }
+
         $this->options['order'][] = $this->raw($field);
 
         return $this;
