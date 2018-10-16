@@ -74,6 +74,12 @@ trait Attribute
     private $origin = [];
 
     /**
+     * 修改器执行记录
+     * @var array
+     */
+    private $set = [];
+
+    /**
      * 动态获取器
      * @var array
      */
@@ -328,6 +334,10 @@ trait Attribute
      */
     public function setAttr(string $name, $value, array $data = []): void
     {
+        if (isset($this->set[$name])) {
+            return;
+        }
+
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
             $value = $this->autoWriteTimestamp($name);
@@ -345,6 +355,7 @@ trait Attribute
 
         // 设置数据对象属性
         $this->data[$name] = $value;
+        $this->set[$name]  = true;
     }
 
     /**

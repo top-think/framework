@@ -73,9 +73,7 @@ class Controller extends Dispatch
 
                 // 严格获取当前操作方法名
                 $reflect    = new ReflectionMethod($instance, $action);
-                $methodName = $reflect->getName();
-                $suffix     = $this->rule->getConfig('action_suffix');
-                $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
+                $actionName = $reflect->getName();
                 $this->request->setAction($actionName);
 
                 // 自动获取请求变量

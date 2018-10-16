@@ -779,12 +779,6 @@ abstract class Rule
         $controller = !empty($path) ? array_pop($path) : null;
         $method     = $request->method();
 
-        if ($this->getConfig('use_action_prefix') && $this->router->getMethodPrefix($method)) {
-            $prefix = $this->router->getMethodPrefix($method);
-            // 操作方法前缀支持
-            $action = 0 !== strpos($action, $prefix) ? $prefix . $action : $action;
-        }
-
         // 设置当前请求的路由变量
         $request->setRoute($var);
 
