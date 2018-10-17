@@ -70,7 +70,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return new static(array_merge($this->items, $this->convertToArray($items)));
     }
 
-
     /**
      * 按指定键整理数据
      *
@@ -164,8 +163,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     {
         return new static(array_flip($this->items));
     }
-
-
 
     /**
      * 返回数组中所有的键名
