@@ -63,7 +63,7 @@ abstract class Builder
      * @access public
      * @return Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->connection;
     }
@@ -252,7 +252,7 @@ abstract class Builder
      * @param  mixed     $where   查询条件
      * @return string
      */
-    protected function parseWhere(Query $query, $where): string
+    protected function parseWhere(Query $query, array $where): string
     {
         $options  = $query->getOptions();
         $whereStr = $this->buildWhere($query, $where);
@@ -276,7 +276,7 @@ abstract class Builder
      * @param  mixed     $where     查询条件
      * @return string
      */
-    public function buildWhere(Query $query, $where): string
+    public function buildWhere(Query $query, array $where): string
     {
         if (empty($where)) {
             $where = [];
@@ -355,7 +355,7 @@ abstract class Builder
     }
 
     // where子单元分析
-    protected function parseWhereItem(Query $query, $field, $val, $rule = '', $binds = []): string
+    protected function parseWhereItem(Query $query, $field, $val, $rule = '', array $binds = []): string
     {
         // 字段分析
         $key = $field ? $this->parseKey($query, $field, true) : '';
@@ -480,16 +480,16 @@ abstract class Builder
      * @param  integer      $bindType
      * @return string
      */
-    protected function parseColumn(Query $query, $key, $exp, array $value, $field, $bindType): string
+    protected function parseColumn(Query $query, string $key, $exp, array $value, string $field, int $bindType): string
     {
         // 字段比较查询
-        list($op, $field2) = $value;
+        list($op, $field) = $value;
 
         if (!in_array(trim($op), ['=', '<>', '>', '>=', '<', '<='])) {
             throw new Exception('where express error:' . var_export($value, true));
         }
 
-        return '( ' . $key . ' ' . $op . ' ' . $this->parseKey($query, $field2, true) . ' )';
+        return '( ' . $key . ' ' . $op . ' ' . $this->parseKey($query, $field, true) . ' )';
     }
 
     /**
@@ -682,12 +682,12 @@ abstract class Builder
      * 日期时间条件解析
      * @access protected
      * @param  Query     $query        查询对象
-     * @param  string    $value
+     * @param  mixed     $value
      * @param  string    $key
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseDateTime(Query $query, $value, $key, int $bindType): string
+    protected function parseDateTime(Query $query, $value, string $key, int $bindType): string
     {
         $options = $query->getOptions();
 
@@ -746,29 +746,27 @@ abstract class Builder
      * @param  array     $join
      * @return string
      */
-    protected function parseJoin(Query $query, $join): string
+    protected function parseJoin(Query $query, array $join): string
     {
         $joinStr = '';
 
-        if (!empty($join)) {
-            foreach ($join as $item) {
-                list($table, $type, $on) = $item;
+        foreach ($join as $item) {
+            list($table, $type, $on) = $item;
 
-                $condition = [];
+            $condition = [];
 
-                foreach ((array) $on as $val) {
-                    if (strpos($val, '=')) {
-                        list($val1, $val2) = explode('=', $val, 2);
-                        $condition[]       = $this->parseKey($query, $val1) . '=' . $this->parseKey($query, $val2);
-                    } else {
-                        $condition[] = $val;
-                    }
+            foreach ((array) $on as $val) {
+                if (strpos($val, '=')) {
+                    list($val1, $val2) = explode('=', $val, 2);
+                    $condition[]       = $this->parseKey($query, $val1) . '=' . $this->parseKey($query, $val2);
+                } else {
+                    $condition[] = $val;
                 }
-
-                $table = $this->parseTable($query, $table);
-
-                $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
             }
+
+            $table = $this->parseTable($query, $table);
+
+            $joinStr .= ' ' . $type . ' JOIN ' . $table . ' ON ' . implode(' AND ', $condition);
         }
 
         return $joinStr;
@@ -814,11 +812,11 @@ abstract class Builder
      * orderField分析
      * @access protected
      * @param  Query     $query        查询对象
-     * @param  mixed     $key
+     * @param  string    $key
      * @param  array     $val
      * @return string
      */
-    protected function parseOrderField($query, $key, $val): string
+    protected function parseOrderField(Query $query, string $key, array $val): string
     {
         if (isset($val['sort'])) {
             $sort = $val['sort'];
@@ -907,10 +905,10 @@ abstract class Builder
      * union分析
      * @access protected
      * @param  Query     $query        查询对象
-     * @param  mixed     $union
+     * @param  array     $union
      * @return string
      */
-    protected function parseUnion(Query $query, $union): string
+    protected function parseUnion(Query $query, array $union): string
     {
         if (empty($union)) {
             return '';
@@ -944,7 +942,7 @@ abstract class Builder
         }
 
         if (is_array($index)) {
-            $index = join(",", $index);
+            $index = join(',', $index);
         }
 
         return sprintf(" FORCE INDEX ( %s ) ", $index);
@@ -961,7 +959,9 @@ abstract class Builder
     {
         if (is_bool($lock)) {
             return $lock ? ' FOR UPDATE ' : '';
-        } elseif (is_string($lock) && !empty($lock)) {
+        }
+
+        if (is_string($lock) && !empty($lock)) {
             return ' ' . trim($lock) . ' ';
         }
     }

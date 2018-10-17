@@ -69,12 +69,12 @@ class Url
      * URL生成 支持路由反射
      * @access public
      * @param  string            $url 路由地址
-     * @param  string|array      $vars 参数（支持数组和字符串）a=val&b=val2... ['a'=>'val1', 'b'=>'val2']
+     * @param  string            $vars 参数 ['a'=>'val1', 'b'=>'val2']
      * @param  string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
      * @param  boolean|string    $domain 是否显示域名 或者直接传入域名
      * @return string
      */
-    public function build(string $url = '', $vars = '', $suffix = true, $domain = false)
+    public function build(string $url = '', array $vars = [], $suffix = true, $domain = false): string
     {
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
@@ -240,7 +240,7 @@ class Url
     }
 
     // 直接解析URL地址
-    protected function parseUrl($url)
+    protected function parseUrl($url): string
     {
         $request = $this->app['request'];
 
@@ -270,14 +270,14 @@ class Url
                 $controller = App::parseName($controller);
             }
 
-            $url =  $controller . '/' . $action;
+            $url = $controller . '/' . $action;
         }
 
         return $url;
     }
 
     // 检测域名
-    protected function parseDomain(&$url, $domain)
+    protected function parseDomain(&$url, $domain): string
     {
         if (!$domain) {
             return '';
@@ -332,7 +332,7 @@ class Url
     }
 
     // 解析URL后缀
-    protected function parseSuffix($suffix)
+    protected function parseSuffix($suffix): string
     {
         if ($suffix) {
             $suffix = true === $suffix ? $this->app['config']->get('url_html_suffix') : $suffix;
@@ -346,7 +346,7 @@ class Url
     }
 
     // 匹配路由地址
-    public function getRuleUrl($rule, &$vars = [], $allowDomain = '')
+    public function getRuleUrl(array $rule, array &$vars = [], $allowDomain = ''): array
     {
         foreach ($rule as $item) {
             list($url, $pattern, $domain, $suffix) = $item;
@@ -381,11 +381,11 @@ class Url
             }
         }
 
-        return false;
+        return [];
     }
 
     // 指定当前生成URL地址的root
-    public function root($root)
+    public function root(string $root): void
     {
         $this->root = $root;
         $this->app['request']->setRoot($root);

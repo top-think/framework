@@ -32,16 +32,10 @@ trait Attribute
     protected $field = [];
 
     /**
-     * JSON数据表字段
+     * 数据表字段类型
      * @var array
      */
-    protected $json = [];
-
-    /**
-     * JSON数据取出是否需要转换为数组
-     * @var bool
-     */
-    protected $jsonAssoc = false;
+    protected $type = [];
 
     /**
      * 数据表废弃字段
@@ -56,12 +50,6 @@ trait Attribute
     protected $readonly = [];
 
     /**
-     * 数据表字段类型
-     * @var array
-     */
-    protected $type = [];
-
-    /**
      * 当前模型数据
      * @var array
      */
@@ -72,6 +60,18 @@ trait Attribute
      * @var array
      */
     private $origin = [];
+
+    /**
+     * JSON数据表字段
+     * @var array
+     */
+    protected $json = [];
+
+    /**
+     * JSON数据取出是否需要转换为数组
+     * @var bool
+     */
+    protected $jsonAssoc = false;
 
     /**
      * 修改器执行记录
@@ -144,24 +144,12 @@ trait Attribute
     }
 
     /**
-     * 设置只允许写入数据表的字段
-     * @access public
-     * @return $this
-     */
-    public function allowAllField()
-    {
-        $this->field = true;
-
-        return $this;
-    }
-
-    /**
      * 设置只读字段
      * @access public
      * @param  array $field 只读字段
      * @return $this
      */
-    public function readonly(array $field)
+    public function readOnly(array $field)
     {
         $this->readonly = $field;
 
@@ -176,14 +164,10 @@ trait Attribute
      * @param  array    $allow 允许的字段名
      * @return $this
      */
-    public function data($data, bool $set = false, array $allow = [])
+    public function data(array $data, bool $set = false, array $allow = [])
     {
         // 清空数据
         $this->data = [];
-
-        if (is_object($data)) {
-            $data = get_object_vars($data);
-        }
 
         if ($this->disuse) {
             // 废弃字段
@@ -217,15 +201,11 @@ trait Attribute
      * @param  bool  $set   是否需要进行数据处理
      * @return $this
      */
-    public function appendData($data, bool $set = false)
+    public function appendData(array $data, bool $set = false)
     {
         if ($set) {
             $this->setAttrs($data);
         } else {
-            if (is_object($data)) {
-                $data = get_object_vars($data);
-            }
-
             $this->data = array_merge($this->data, $data);
         }
 
@@ -313,10 +293,10 @@ trait Attribute
     /**
      * 通过修改器 批量设置数据对象值
      * @access public
-     * @param  mixed $data  数据
+     * @param  array $data  数据
      * @return void
      */
-    public function setAttrs($data): void
+    public function setAttrs(array $data): void
     {
         // 进行数据处理
         foreach ($data as $key => $value) {
@@ -398,11 +378,8 @@ trait Attribute
                     $value = time();
                     break;
             }
-        } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
-            'datetime',
-            'date',
-            'timestamp',
-        ])) {
+        } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),
+            ['datetime', 'date', 'timestamp'])) {
             $value = $this->formatDateTime(time(), $this->dateFormat);
         } else {
             $value = $this->formatDateTime(time(), $this->dateFormat, true);
@@ -534,13 +511,7 @@ trait Attribute
 
         $modelRelation = $this->$relation();
 
-        if ($modelRelation instanceof Relation) {
-            $value = $this->getRelationData($modelRelation);
-        } else {
-            $value = null;
-        }
-
-        return $value;
+        return $modelRelation instanceof Relation ? $this->getRelationData($modelRelation) : null;
     }
 
     /**
@@ -554,29 +525,29 @@ trait Attribute
     {
         $value = $this->getRelationValue($name);
 
-        if ($value) {
-            if ($item && method_exists($modelRelation, 'getBindAttr') && $bindAttr = $modelRelation->getBindAttr()) {
-
-                foreach ($bindAttr as $key => $attr) {
-                    $key = is_numeric($key) ? $attr : $key;
-
-                    if (isset($item[$key])) {
-                        throw new Exception('bind attr has exists:' . $key);
-                    } else {
-                        $item[$key] = $value ? $value->getAttr($attr) : null;
-                    }
-                }
-
-                return false;
-            }
-
-            // 保存关联对象值
-            $this->relation[$name] = $value;
-
-            return $value;
+        if (!$value) {
+            throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
         }
 
-        throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
+        if ($item && method_exists($modelRelation, 'getBindAttr') && $bindAttr = $modelRelation->getBindAttr()) {
+
+            foreach ($bindAttr as $key => $attr) {
+                $key = is_numeric($key) ? $attr : $key;
+
+                if (isset($item[$key])) {
+                    throw new Exception('bind attr has exists:' . $key);
+                }
+
+                $item[$key] = $value ? $value->getAttr($attr) : null;
+            }
+
+            return false;
+        }
+
+        // 保存关联对象值
+        $this->relation[$name] = $value;
+
+        return $value;
     }
 
     /**

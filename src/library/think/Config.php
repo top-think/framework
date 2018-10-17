@@ -61,6 +61,7 @@ class Config implements \ArrayAccess
     {
         $path = $app->getConfigPath();
         $ext  = $app->getConfigExt();
+
         return new static($path, $ext);
     }
 
@@ -157,7 +158,9 @@ class Config implements \ArrayAccess
 
         if (isset($filename)) {
             return $this->loadFile($filename, $name);
-        } elseif ($this->yaconf && Yaconf::has($file)) {
+        }
+        
+        if ($this->yaconf && Yaconf::has($file)) {
             return $this->set(Yaconf::get($file), $name);
         }
 
@@ -171,7 +174,9 @@ class Config implements \ArrayAccess
 
         if ('php' == $type) {
             return $this->set(include $file, $name);
-        } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
+        }
+        
+        if ('yaml' == $type && function_exists('yaml_parse_file')) {
             return $this->set(yaml_parse_file($file), $name);
         }
 

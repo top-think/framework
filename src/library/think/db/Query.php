@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\db;
 
 use PDO;
+use PDOStatement;
 use think\App;
 use think\Collection;
 use think\Container;
@@ -577,7 +578,7 @@ class Query
      * @param  string $key   索引
      * @return array
      */
-    public function column($field, string $key = ''): array
+    public function column(string $field, string $key = ''): array
     {
         $this->parseOptions();
 
@@ -687,17 +688,13 @@ class Query
      * 设置记录的某个字段值
      * 支持使用数据库字段和方法
      * @access public
-     * @param  string|array $field 字段名
+     * @param  string       $field 字段名
      * @param  mixed        $value 字段值
      * @return integer
      */
-    public function setField($field, $value = ''): int
+    public function setField(string $field, $value = ''): int
     {
-        if (is_array($field)) {
-            $data = $field;
-        } else {
-            $data[$field] = $value;
-        }
+        $data[$field] = $value;
 
         return $this->update($data);
     }
@@ -814,18 +811,9 @@ class Query
      */
     public function join($join, $condition = null, string $type = 'INNER')
     {
-        if (empty($condition)) {
-            // 如果为组数，则循环调用join
-            foreach ($join as $key => $value) {
-                if (is_array($value) && 2 <= count($value)) {
-                    $this->join($value[0], $value[1], $value[2] ?? $type);
-                }
-            }
-        } else {
-            $table = $this->getJoinTable($join);
+        $table = $this->getJoinTable($join);
 
-            $this->options['join'][] = [$table, strtoupper($type), $condition];
-        }
+        $this->options['join'][] = [$table, strtoupper($type), $condition];
 
         return $this;
     }
@@ -1014,17 +1002,12 @@ class Query
     /**
      * 设置数据
      * @access public
-     * @param  mixed $field 字段名或者数据
-     * @param  mixed $value 字段值
+     * @param  array $data 数据
      * @return $this
      */
-    public function data($field, $value = null)
+    public function data(array $data)
     {
-        if (is_array($field)) {
-            $this->options['data'] = isset($this->options['data']) ? array_merge($this->options['data'], $field) : $field;
-        } else {
-            $this->options['data'][$field] = $value;
-        }
+        $this->options['data'] = $data;
 
         return $this;
     }
@@ -1032,23 +1015,13 @@ class Query
     /**
      * 字段值增长
      * @access public
-     * @param  string|array $field 字段名
+     * @param  string       $field 字段名
      * @param  integer      $step  增长值
      * @return $this
      */
-    public function inc($field, int $step = 1, string $op = 'INC')
+    public function inc(string $field, int $step = 1, string $op = 'INC')
     {
-        $fields = is_string($field) ? explode(',', $field) : $field;
-
-        foreach ($fields as $field => $val) {
-            if (is_numeric($field)) {
-                $field = $val;
-            } else {
-                $step = $val;
-            }
-
-            $this->data($field, [$op, $step]);
-        }
+        $this->options['data'][$field] = [$op, $step];
 
         return $this;
     }
@@ -1056,11 +1029,11 @@ class Query
     /**
      * 字段值减少
      * @access public
-     * @param  string|array $field 字段名
+     * @param  string       $field 字段名
      * @param  integer      $step  增长值
      * @return $this
      */
-    public function dec($field, int $step = 1)
+    public function dec(string $field, int $step = 1)
     {
         return $this->inc($field, $step, 'DEC');
     }
@@ -1074,7 +1047,7 @@ class Query
      */
     public function exp(string $field, string $value)
     {
-        $this->data($field, $this->raw($value));
+        $this->options['data'][$field] = $this->raw($value);
         return $this;
     }
 
@@ -1084,7 +1057,7 @@ class Query
      * @param  mixed $value 表达式
      * @return Expression
      */
-    public function raw(string $value)
+    public function raw(string $value): Expression
     {
         return new Expression($value);
     }
@@ -1102,47 +1075,41 @@ class Query
     {
         $this->options['view'] = true;
 
-        if (is_array($join) && key($join) === 0) {
-            foreach ($join as $key => $val) {
-                $this->view($val[0], $val[1], $val[2] ?? null, $val[3] ?? 'INNER');
-            }
+        $fields = [];
+        $table  = $this->getJoinTable($join, $alias);
+
+        if (true === $field) {
+            $fields = $alias . '.*';
         } else {
-            $fields = [];
-            $table  = $this->getJoinTable($join, $alias);
+            if (is_string($field)) {
+                $field = explode(',', $field);
+            }
 
-            if (true === $field) {
-                $fields = $alias . '.*';
-            } else {
-                if (is_string($field)) {
-                    $field = explode(',', $field);
-                }
+            foreach ($field as $key => $val) {
+                if (is_numeric($key)) {
+                    $fields[] = $alias . '.' . $val;
 
-                foreach ($field as $key => $val) {
-                    if (is_numeric($key)) {
-                        $fields[] = $alias . '.' . $val;
-
-                        $this->options['map'][$val] = $alias . '.' . $val;
+                    $this->options['map'][$val] = $alias . '.' . $val;
+                } else {
+                    if (preg_match('/[,=\.\'\"\(\s]/', $key)) {
+                        $name = $key;
                     } else {
-                        if (preg_match('/[,=\.\'\"\(\s]/', $key)) {
-                            $name = $key;
-                        } else {
-                            $name = $alias . '.' . $key;
-                        }
-
-                        $fields[] = $name . ' AS ' . $val;
-
-                        $this->options['map'][$val] = $name;
+                        $name = $alias . '.' . $key;
                     }
+
+                    $fields[] = $name . ' AS ' . $val;
+
+                    $this->options['map'][$val] = $name;
                 }
             }
+        }
 
-            $this->field($fields);
+        $this->field($fields);
 
-            if ($on) {
-                $this->join($table, $on, $type);
-            } else {
-                $this->table($table);
-            }
+        if ($on) {
+            $this->join($table, $on, $type);
+        } else {
+            $this->table($table);
         }
 
         return $this;
@@ -1496,9 +1463,9 @@ class Query
      * @param  mixed    $op        查询表达式
      * @param  mixed    $condition 查询条件
      * @param  array    $param     查询参数
-     * @return mixed
+     * @return array
      */
-    protected function parseWhereItem(string $logic, $field, $op, $condition, array $param = [])
+    protected function parseWhereItem(string $logic, $field, $op, $condition, array $param = []): array
     {
         if (is_array($op)) {
             // 同一字段多条件查询
@@ -1521,7 +1488,7 @@ class Query
         } elseif (in_array(strtoupper($op), ['REGEXP', 'NOT REGEXP', 'EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
             $where = [$field, $op, is_string($condition) ? $this->raw($condition) : $condition];
         } else {
-            $where = $field ? [$field, $op, $condition, isset($param[2]) ? $param[2] : null] : null;
+            $where = $field ? [$field, $op, $condition, isset($param[2]) ? $param[2] : null] : [];
         }
 
         return $where;
@@ -1630,17 +1597,13 @@ class Query
     /**
      * 指定查询数量
      * @access public
-     * @param  mixed $offset 起始位置
-     * @param  mixed $length 查询数量
+     * @param  int $offset 起始位置
+     * @param  int $length 查询数量
      * @return $this
      */
-    public function limit($offset, $length = null)
+    public function limit(int $offset, int $length = null)
     {
-        if (is_null($length) && strpos($offset, ',')) {
-            list($offset, $length) = explode(',', $offset);
-        }
-
-        $this->options['limit'] = intval($offset) . ($length ? ',' . intval($length) : '');
+        $this->options['limit'] = $offset . ($length ? ',' . $length : '');
 
         return $this;
     }
@@ -1648,17 +1611,13 @@ class Query
     /**
      * 指定分页
      * @access public
-     * @param  mixed $page     页数
-     * @param  mixed $listRows 每页数量
+     * @param  int $page     页数
+     * @param  int $listRows 每页数量
      * @return $this
      */
-    public function page($page, $listRows = null)
+    public function page(int $page, int $listRows = null)
     {
-        if (is_null($listRows) && strpos($page, ',')) {
-            list($page, $listRows) = explode(',', $page);
-        }
-
-        $this->options['page'] = [intval($page), intval($listRows)];
+        $this->options['page'] = [$page, $listRows];
 
         return $this;
     }
@@ -1690,10 +1649,10 @@ class Query
 
         if (is_array($listRows)) {
             $config   = array_merge($paginate, $listRows);
-            $listRows = $config['list_rows'];
+            $listRows = intval($config['list_rows']);
         } else {
             $config   = array_merge($paginate, $config);
-            $listRows = $listRows ?: $config['list_rows'];
+            $listRows = intval($listRows ?: $config['list_rows']);
         }
 
         /** @var Paginator $class */
@@ -1959,7 +1918,7 @@ class Query
      * @param  bool $distinct 是否唯一
      * @return $this
      */
-    public function distinct(bool $distinct)
+    public function distinct(bool $distinct = true)
     {
         $this->options['distinct'] = $distinct;
         return $this;
@@ -1994,7 +1953,7 @@ class Query
      * @param  string $force 索引名称
      * @return $this
      */
-    public function force($force)
+    public function force(string $force)
     {
         $this->options['force'] = $force;
         return $this;
@@ -2099,10 +2058,10 @@ class Query
     /**
      * 设置需要隐藏的输出属性
      * @access public
-     * @param  mixed $hidden 需要隐藏的字段名
+     * @param  array $hidden 需要隐藏的字段名
      * @return $this
      */
-    public function hidden($hidden)
+    public function hidden(array $hidden)
     {
         if ($this->model) {
             $this->options['hidden'] = $hidden;
@@ -2156,7 +2115,7 @@ class Query
      * @param  bool $allowEmpty 是否允许为空
      * @return $this
      */
-    public function allowEmpty($allowEmpty = true)
+    public function allowEmpty(bool $allowEmpty = true)
     {
         $this->options['allow_empty'] = $allowEmpty;
         return $this;
@@ -2277,10 +2236,10 @@ class Query
      * 查询当前时间在两个时间字段范围
      * @access public
      * @param  string    $startField    开始时间字段
-     * @param  string    $endField 结束时间字段
+     * @param  string    $endField      结束时间字段
      * @return $this
      */
-    public function whereBetweenTimeField($startField, $endField)
+    public function whereBetweenTimeField(string $startField, string $endField)
     {
         return $this->whereTime($startField, '<=', time())
             ->whereTime($endField, '>=', time());
@@ -2290,10 +2249,10 @@ class Query
      * 查询当前时间不在两个时间字段范围
      * @access public
      * @param  string    $startField    开始时间字段
-     * @param  string    $endField 结束时间字段
+     * @param  string    $endField      结束时间字段
      * @return $this
      */
-    public function whereNotBetweenTimeField($startField, $endField)
+    public function whereNotBetweenTimeField(string $startField, string $endField)
     {
         return $this->whereTime($startField, '>', time())
             ->whereTime($endField, '<', time(), 'OR');
@@ -2323,7 +2282,7 @@ class Query
      * @param  integer $type  绑定类型
      * @return $this
      */
-    public function bind($value = false, $type = PDO::PARAM_STR)
+    public function bind($value = false, int $type = PDO::PARAM_STR)
     {
         if (is_array($value)) {
             $this->bind = array_merge($this->bind, $value);
@@ -2335,20 +2294,7 @@ class Query
     }
 
     /**
-     * 查询参数赋值
-     * @access public
-     * @param  string $name     参数名
-     * @param  mixed  $value    值
-     * @return $this
-     */
-    public function option(string $name, $value)
-    {
-        $this->options[$name] = $value;
-        return $this;
-    }
-
-    /**
-     * 查询参数赋值
+     * 查询参数批量赋值
      * @access protected
      * @param  array $options 表达式参数
      * @return $this
@@ -2370,6 +2316,7 @@ class Query
         if ('' === $name) {
             return $this->options;
         }
+
         return $this->options[$name] ?? null;
     }
 
@@ -2790,7 +2737,7 @@ class Query
     /**
      * 执行查询但只返回PDOStatement对象
      * @access public
-     * @return \PDOStatement|string
+     * @return PDOStatement|string
      */
     public function getPdo()
     {
@@ -2830,7 +2777,7 @@ class Query
      * 查找记录
      * @access public
      * @param  mixed $data
-     * @return Collection|array|\PDOStatement|string
+     * @return Collection|array|PDOStatement|string
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -2853,7 +2800,7 @@ class Query
 
         $resultSet = $this->connection->select($this);
 
-        if ($this->options['fetch_sql']) {
+        if ($this->options['fetch_sql'] || $resultSet instanceof PDOStatement) {
             return $resultSet;
         }
 
@@ -2952,7 +2899,7 @@ class Query
      * 查找单条记录
      * @access public
      * @param  mixed $data
-     * @return array|null|\PDOStatement|string|Model
+     * @return array|null|PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -2975,7 +2922,7 @@ class Query
 
         $result = $this->connection->find($this);
 
-        if ($this->options['fetch_sql']) {
+        if ($this->options['fetch_sql'] || $result instanceof PDOStatement) {
             return $result;
         }
 
@@ -3007,7 +2954,7 @@ class Query
     protected function resultToEmpty()
     {
         if (!empty($this->options['allow_empty'])) {
-            return !empty($this->model) ? $this->model->newInstance([], $this->getModelUpdateCondition($this->options)) : [];
+            return !empty($this->model) ? $this->model->newInstance([], true, $this->getModelUpdateCondition($this->options)) : [];
         } elseif (!empty($this->options['fail'])) {
             $this->throwNotFound($this->options);
         }
@@ -3165,15 +3112,20 @@ class Query
     protected function jsonResult(array &$result, array $json = [], bool $assoc = false, array $withRelationAttr = []): void
     {
         foreach ($json as $name) {
-            if (isset($result[$name])) {
-                $result[$name] = json_decode($result[$name], $assoc);
+            if (!isset($result[$name])) {
+                continue;
+            }
 
-                if (isset($withRelationAttr[$name])) {
-                    foreach ($withRelationAttr[$name] as $key => $closure) {
-                        $data                = get_object_vars($result[$name]);
-                        $result[$name]->$key = $closure($result[$name]->$key ?? null, $data);
-                    }
-                }
+            $result[$name] = json_decode($result[$name], $assoc);
+
+            if (!isset($withRelationAttr[$name])) {
+                continue;
+            }
+
+            foreach ($withRelationAttr[$name] as $key => $closure) {
+                $data = get_object_vars($result[$name]);
+
+                $result[$name]->$key = $closure($result[$name]->$key ?? null, $data);
             }
         }
     }
@@ -3206,7 +3158,7 @@ class Query
             $this->jsonResult($result, $options['json'], $options['json_assoc'], $withRelationAttr);
         }
 
-        $result = $this->model->newInstance($result, $resultSet ? null : $this->getModelUpdateCondition($options));
+        $result = $this->model->newInstance($result, true, $resultSet ? null : $this->getModelUpdateCondition($options));
 
         // 动态获取器
         if (!empty($options['with_attr'])) {
@@ -3270,7 +3222,7 @@ class Query
      * 查找多条记录 如果不存在则抛出异常
      * @access public
      * @param  array|string|Query|\Closure $data
-     * @return array|\PDOStatement|string|Model
+     * @return array|PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -3284,7 +3236,7 @@ class Query
      * 查找单条记录 如果不存在则抛出异常
      * @access public
      * @param  array|string|Query|\Closure $data
-     * @return array|\PDOStatement|string|Model
+     * @return array|PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -3295,10 +3247,10 @@ class Query
     }
 
     /**
-     * 查找单条记录 如果不存在则抛出异常
+     * 查找单条记录 如果不存在则返回空
      * @access public
      * @param  array|string|Query|\Closure $data
-     * @return array|\PDOStatement|string|Model
+     * @return array|PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -3425,9 +3377,6 @@ class Query
 
         if (isset($options['order'])) {
             // 视图查询排序处理
-            if (is_string($options['order'])) {
-                $options['order'] = explode(',', $options['order']);
-            }
             foreach ($options['order'] as $key => $val) {
                 if (is_numeric($key)) {
                     if (strpos($val, ' ')) {
@@ -3510,7 +3459,7 @@ class Query
             $options['field'] = '*';
         }
 
-        foreach (['data', 'order'] as $name) {
+        foreach (['data', 'order', 'join', 'union'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = [];
             }
@@ -3530,7 +3479,7 @@ class Query
             $options['master'] = true;
         }
 
-        foreach (['join', 'union', 'group', 'having', 'limit', 'force', 'comment'] as $name) {
+        foreach (['group', 'having', 'limit', 'force', 'comment'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = '';
             }
@@ -3540,7 +3489,7 @@ class Query
             // 根据页数计算limit
             list($page, $listRows) = $options['page'];
             $page                  = $page > 0 ? $page : 1;
-            $listRows              = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $listRows              = $listRows ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
             $offset                = $listRows * ($page - 1);
             $options['limit']      = $offset . ',' . $listRows;
         }

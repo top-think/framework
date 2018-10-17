@@ -48,7 +48,7 @@ class Php
      * @param  string $template 模板文件或者模板规则
      * @return bool
      */
-    public function exists(string $template)
+    public function exists(string $template): bool
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -65,7 +65,7 @@ class Php
      * @param  array     $data 模板变量
      * @return void
      */
-    public function fetch(string $template, array $data = [])
+    public function fetch(string $template, array $data = []): void
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -95,7 +95,7 @@ class Php
      * @param  array     $data 模板变量
      * @return void
      */
-    public function display(string $content, array $data = [])
+    public function display(string $content, array $data = []): void
     {
         $this->content = $content;
 
@@ -109,7 +109,7 @@ class Php
      * @param  string $template 模板文件规则
      * @return string
      */
-    private function parseTemplate(string $template)
+    private function parseTemplate(string $template): string
     {
         if (empty($this->config['view_path'])) {
             $this->config['view_path'] = Container::get('app')->getAppPath() . 'view' . DIRECTORY_SEPARATOR;
@@ -155,19 +155,22 @@ class Php
     /**
      * 配置模板引擎
      * @access private
-     * @param  string|array  $name 参数名
-     * @param  mixed         $value 参数值
+     * @param  array  $config 参数
      * @return void
      */
-    public function config($name, $value = null)
+    public function config(array $config): void
     {
-        if (is_array($name)) {
-            $this->config = array_merge($this->config, $name);
-        } elseif (is_null($value)) {
-            return isset($this->config[$name]) ? $this->config[$name] : null;
-        } else {
-            $this->config[$name] = $value;
-        }
+        $this->config = array_merge($this->config, $name);
     }
 
+    /**
+     * 获取模板引擎配置
+     * @access public
+     * @param  string  $name 参数名
+     * @return void
+     */
+    public function getConfig(string $name)
+    {
+        return $this->config[$name] ?? null;
+    }
 }

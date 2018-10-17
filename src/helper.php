@@ -385,7 +385,7 @@ if (!function_exists('json')) {
      */
     function json($data = [], $code = 200, $header = [], $options = [])
     {
-        return Response::create($data, 'json', $code, $header, $options);
+        return Response::create($data, 'json', $code)->header($header)->options($options);
     }
 }
 
@@ -400,7 +400,7 @@ if (!function_exists('jsonp')) {
      */
     function jsonp($data = [], $code = 200, $header = [], $options = [])
     {
-        return Response::create($data, 'jsonp', $code, $header, $options);
+        return Response::create($data, 'jsonp', $code)->header($header)->options($options);
     }
 }
 
@@ -482,7 +482,7 @@ if (!function_exists('response')) {
      */
     function response($data = [], $code = 200, $header = [], $type = 'html')
     {
-        return Response::create($data, $type, $code, $header);
+        return Response::create($data, $type, $code)->header($header);
     }
 }
 
@@ -632,7 +632,7 @@ if (!function_exists('xml')) {
      */
     function xml($data = [], $code = 200, $header = [], $options = [])
     {
-        return Response::create($data, 'xml', $code, $header, $options);
+        return Response::create($data, 'xml', $code)->header($header)->options($options);
     }
 }
 

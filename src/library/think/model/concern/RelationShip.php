@@ -88,7 +88,9 @@ trait RelationShip
     {
         if (is_null($name)) {
             return $this->relation;
-        } elseif (array_key_exists($name, $this->relation)) {
+        } 
+        
+        if (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         }
         return;
@@ -119,7 +121,7 @@ trait RelationShip
     /**
      * 关联数据写入
      * @access public
-     * @param  array|string $relation 关联
+     * @param  array $relation 关联
      * @return $this
      */
     public function together(array $relation)

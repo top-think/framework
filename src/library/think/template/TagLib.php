@@ -186,8 +186,6 @@ class TagLib
                 return $this->$method($attrs, '');
             }, $content);
         }
-
-        return;
     }
 
     /**
@@ -199,8 +197,8 @@ class TagLib
      */
     public function getRegex($tags, bool $close): string
     {
-        $begin   = $this->tpl->config('taglib_begin');
-        $end     = $this->tpl->config('taglib_end');
+        $begin   = $this->tpl->getConfig('taglib_begin');
+        $end     = $this->tpl->getConfig('taglib_end');
         $single  = strlen(ltrim($begin, '\\')) == 1 && strlen(ltrim($end, '\\')) == 1 ? true : false;
         $tagName = is_array($tags) ? implode('|', $tags) : $tags;
 
@@ -276,8 +274,8 @@ class TagLib
             if (!empty($this->tags[$name]['expression'])) {
                 static $_taglibs;
                 if (!isset($_taglibs[$name])) {
-                    $_taglibs[$name][0] = strlen($this->tpl->config('taglib_begin_origin') . $name);
-                    $_taglibs[$name][1] = strlen($this->tpl->config('taglib_end_origin'));
+                    $_taglibs[$name][0] = strlen($this->tpl->getConfig('taglib_begin_origin') . $name);
+                    $_taglibs[$name][1] = strlen($this->tpl->getConfig('taglib_end_origin'));
                 }
                 $result['expression'] = substr($str, $_taglibs[$name][0], -$_taglibs[$name][1]);
                 // 清除自闭合标签尾部/
@@ -306,7 +304,6 @@ class TagLib
         $condition = str_ireplace(array_keys($this->comparison), array_values($this->comparison), $condition);
         $this->tpl->parseVar($condition);
 
-        // $this->tpl->parseVarFunction($condition); // XXX: 此句能解析表达式中用|分隔的函数，但表达式中如果有|、||这样的逻辑运算就产生了歧异
         return $condition;
     }
 

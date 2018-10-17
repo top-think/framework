@@ -38,18 +38,6 @@ class Route
     ];
 
     /**
-     * 请求方法前缀定义
-     * @var array
-     */
-    protected $methodPrefix = [
-        'get'    => 'get',
-        'post'   => 'post',
-        'put'    => 'put',
-        'delete' => 'delete',
-        'patch'  => 'patch',
-    ];
-
-    /**
      * 配置参数
      * @var array
      */
@@ -195,7 +183,7 @@ class Route
      * @param  bool     $test   路由是否测试模式
      * @return void
      */
-    public function setTestMode($test)
+    public function setTestMode(bool $test): void
     {
         $this->isTest = $test;
     }
@@ -205,7 +193,7 @@ class Route
      * @access public
      * @return bool
      */
-    public function isTest()
+    public function isTest(): bool
     {
         return $this->isTest;
     }
@@ -311,7 +299,7 @@ class Route
      * @param  array         $pattern 变量规则
      * @return Domain
      */
-    public function domain($name, $rule = '', array $option = [], array $pattern = [])
+    public function domain($name, $rule = '', array $option = [], array $pattern = []): Domain
     {
         // 支持多个域名使用相同路由规则
         $domainName = is_array($name) ? array_shift($name) : $name;
@@ -351,7 +339,7 @@ class Route
      * @access public
      * @return array
      */
-    public function getDomains()
+    public function getDomains(): array
     {
         return $this->domains;
     }
@@ -412,9 +400,9 @@ class Route
      * @access public
      * @param  string    $name 路由标识
      * @param  string    $domain 域名
-     * @return mixed
+     * @return array
      */
-    public function getName(string $name = null, string $domain = null)
+    public function getName(string $name = null, string $domain = null): array
     {
         return $this->app['rule_name']->getName($name, $domain);
     }
@@ -512,7 +500,7 @@ class Route
     {
         if (is_array($name)) {
             $option = $name;
-            $name   = isset($option['name']) ? $option['name'] : '';
+            $name   = $option['name'] ?? '';
         }
 
         return (new RuleGroup($this, $this->group, $name, $route, $option))
@@ -607,24 +595,6 @@ class Route
     }
 
     /**
-     * 注册控制器路由 操作方法对应不同的请求前缀
-     * @access public
-     * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
-     * @return RuleGroup
-     */
-    public function controller(string $rule, string $route): RuleGroup
-    {
-        $group = new RuleGroup($this, $this->group, $rule);
-
-        foreach ($this->methodPrefix as $type => $val) {
-            $group->addRule('<action>', $val . '<action>', $type);
-        }
-
-        return $group->prefix($route . '/');
-    }
-
-    /**
      * 注册视图路由
      * @access public
      * @param  string|array $rule 路由规则
@@ -680,37 +650,6 @@ class Route
         }
 
         return $this->alias[$name] ?? null;
-    }
-
-    /**
-     * 设置不同请求类型下面的方法前缀
-     * @access public
-     * @param  string|array  $method 请求类型
-     * @param  string        $prefix 类型前缀
-     * @return $this
-     */
-    public function setMethodPrefix($method, $prefix = '')
-    {
-        if (is_array($method)) {
-            $this->methodPrefix = array_merge($this->methodPrefix, array_change_key_case($method));
-        } else {
-            $this->methodPrefix[strtolower($method)] = $prefix;
-        }
-
-        return $this;
-    }
-
-    /**
-     * 获取请求类型的方法前缀
-     * @access public
-     * @param  string    $method 请求类型
-     * @return string|null
-     */
-    public function getMethodPrefix(string $method)
-    {
-        $method = strtolower($method);
-
-        return isset($this->methodPrefix[$method]) ? $this->methodPrefix[$method] : null;
     }
 
     /**
@@ -781,12 +720,11 @@ class Route
     public function check(string $url, bool $must = false): Dispatch
     {
         // 自动检测域名路由
-        $domain = $this->checkDomain();
         $url    = str_replace($this->config['pathinfo_depr'], '|', $url);
 
         $completeMatch = $this->config['route_complete_match'];
 
-        $result = $domain->check($this->request, $url, $completeMatch);
+        $result = $this->checkDomain()->check($this->request, $url, $completeMatch);
 
         if (false === $result && !empty($this->cross)) {
             // 检测跨域路由

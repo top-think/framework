@@ -83,7 +83,7 @@ class Where implements ArrayAccess
      * @param  array    $where     查询条件
      * @return array
      */
-    protected function parseItem($field, $where = []): array
+    protected function parseItem(string $field, array $where = []): array
     {
         $op        = $where[0];
         $condition = isset($where[1]) ? $where[1] : null;

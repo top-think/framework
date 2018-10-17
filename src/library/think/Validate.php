@@ -234,7 +234,7 @@ class Validate
      * @param  mixed     $callback callback方法(或闭包)
      * @return void
      */
-    public static function extend(string $type, callable $callback = null)
+    public static function extend(string $type, callable $callback = null): void
     {
         if (is_array($type)) {
             self::$type = array_merge(self::$type, $type);
@@ -250,7 +250,7 @@ class Validate
      * @param  string        $msg  验证提示信息
      * @return void
      */
-    public static function setTypeMsg($type, $msg = null)
+    public static function setTypeMsg($type, string $msg = null): void
     {
         if (is_array($type)) {
             self::$typeMsg = array_merge(self::$typeMsg, $type);
@@ -266,7 +266,7 @@ class Validate
      * @param  string        $message 提示信息
      * @return Validate
      */
-    public function message($name, $message = '')
+    public function message($name, string $message = '')
     {
         if (is_array($name)) {
             $this->message = array_merge($this->message, $name);
@@ -476,7 +476,7 @@ class Validate
                 // 判断验证类型
                 list($type, $rule) = $this->getValidateType($key, $rule);
 
-                $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
+                $callback = self::$type[$type] ?? [$this, $type];
 
                 $result = call_user_func_array($callback, [$value, $rule]);
             }
@@ -500,7 +500,7 @@ class Validate
      * @param  array     $msg  提示信息
      * @return mixed
      */
-    protected function checkItem($field, $value, $rules, $data, $title = '', $msg = [])
+    protected function checkItem(string $field, $value, $rules, $data, string $title = '', array $msg = [])
     {
         if (isset($this->remove[$field]) && true === $this->remove[$field] && empty($this->append[$field])) {
             // 字段已经移除 无需验证
@@ -615,7 +615,7 @@ class Validate
      * @param  string    $field 字段名
      * @return bool
      */
-    public function confirm($value, $rule, $data = [], $field = ''): bool
+    public function confirm($value, $rule, array $data = [], string $field = ''): bool
     {
         if ('' == $rule) {
             if (strpos($field, '_confirm')) {
@@ -636,7 +636,7 @@ class Validate
      * @param  array $data  数据
      * @return bool
      */
-    public function different($value, $rule, $data = []): bool
+    public function different($value, $rule, array $data = []): bool
     {
         return $this->getDataValue($data, $rule) != $value;
     }
@@ -649,7 +649,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function egt($value, $rule, $data = []): bool
+    public function egt($value, $rule, array $data = []): bool
     {
         return $value >= $this->getDataValue($data, $rule);
     }
@@ -662,7 +662,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function gt($value, $rule, $data): bool
+    public function gt($value, $rule, array $data = []): bool
     {
         return $value > $this->getDataValue($data, $rule);
     }
@@ -675,7 +675,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function elt($value, $rule, $data = []): bool
+    public function elt($value, $rule, array $data = []): bool
     {
         return $value <= $this->getDataValue($data, $rule);
     }
@@ -688,7 +688,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function lt($value, $rule, $data = []): bool
+    public function lt($value, $rule, array $data = []): bool
     {
         return $value < $this->getDataValue($data, $rule);
     }
@@ -725,7 +725,7 @@ class Validate
      * @param  array     $data  验证数据
      * @return bool
      */
-    public function is($value, $rule, $data = []): bool
+    public function is($value, $rule, array $data = []): bool
     {
         switch (App::parseName($rule, 1, false)) {
             case 'require':
@@ -810,7 +810,7 @@ class Validate
      * @param  mixed     $rule  验证规则
      * @return bool
      */
-    public function activeUrl($value, $rule = 'MX'): bool
+    public function activeUrl(string $value, string $rule = 'MX'): bool
     {
         if (!in_array($rule, ['A', 'MX', 'NS', 'SOA', 'PTR', 'CNAME', 'AAAA', 'A6', 'SRV', 'NAPTR', 'TXT', 'ANY'])) {
             $rule = 'MX';
@@ -826,7 +826,7 @@ class Validate
      * @param  mixed     $rule  验证规则 ipv4 ipv6
      * @return bool
      */
-    public function ip($value, $rule = 'ipv4'): bool
+    public function ip($value, string $rule = 'ipv4'): bool
     {
         if (!in_array($rule, ['ipv4', 'ipv6'])) {
             $rule = 'ipv4';
@@ -977,7 +977,7 @@ class Validate
      * @param  string    $field  验证字段名
      * @return bool
      */
-    public function unique($value, $rule, $data, $field): bool
+    public function unique($value, $rule, array $data = [], string $field = ''): bool
     {
         if (is_string($rule)) {
             $rule = explode(',', $rule);
@@ -1052,7 +1052,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function requireIf($value, $rule, $data): bool
+    public function requireIf($value, $rule, array $data = []): bool
     {
         list($field, $val) = explode(',', $rule);
 
@@ -1071,7 +1071,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function requireCallback($value, $rule, $data): bool
+    public function requireCallback($value, $rule, array $data = []): bool
     {
         $result = call_user_func_array([$this, $rule], [$value, $data]);
 
@@ -1090,7 +1090,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function requireWith($value, $rule, $data): bool
+    public function requireWith($value, $rule, array $data = []): bool
     {
         $val = $this->getDataValue($data, $rule);
 
@@ -1329,7 +1329,7 @@ class Validate
      * @param  array     $data  数据
      * @return bool
      */
-    public function token($value, $rule, $data): bool
+    public function token($value, $rule, array $data = []): bool
     {
         $rule    = !empty($rule) ? $rule : '__token__';
         $session = Container::get('session');
@@ -1365,7 +1365,7 @@ class Validate
      * @param  string    $key  数据标识 支持二维
      * @return mixed
      */
-    protected function getDataValue($data, $key)
+    protected function getDataValue(array $data, string $key)
     {
         if (is_numeric($key)) {
             $value = $key;
@@ -1435,7 +1435,7 @@ class Validate
      * @param  string $scene  验证场景
      * @return void
      */
-    protected function getScene($scene = '')
+    protected function getScene(string $scene = ''): void
     {
         if (empty($scene)) {
             // 读取指定场景

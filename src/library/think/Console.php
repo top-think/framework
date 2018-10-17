@@ -114,9 +114,9 @@ class Console
         if ($run) {
             // 运行
             return $console->run();
-        } else {
-            return $console;
         }
+
+        return $console;
     }
 
     /**
@@ -259,9 +259,7 @@ class Console
 
         $command = $this->find($name);
 
-        $exitCode = $this->doRunCommand($command, $input, $output);
-
-        return $exitCode;
+        return $this->doRunCommand($command, $input, $output);
     }
 
     /**
@@ -646,14 +644,12 @@ class Console
 
         if (true === $input->hasParameterOption(['--quiet', '-q'])) {
             $output->setVerbosity(Output::VERBOSITY_QUIET);
-        } else {
-            if ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
-                $output->setVerbosity(Output::VERBOSITY_DEBUG);
-            } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
-                $output->setVerbosity(Output::VERBOSITY_VERY_VERBOSE);
-            } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
-                $output->setVerbosity(Output::VERBOSITY_VERBOSE);
-            }
+        } elseif ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
+            $output->setVerbosity(Output::VERBOSITY_DEBUG);
+        } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
+            $output->setVerbosity(Output::VERBOSITY_VERY_VERBOSE);
+        } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
+            $output->setVerbosity(Output::VERBOSITY_VERBOSE);
         }
     }
 

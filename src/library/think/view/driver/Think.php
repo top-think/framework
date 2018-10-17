@@ -58,7 +58,7 @@ class Think
      * @param  string $template 模板文件或者模板规则
      * @return bool
      */
-    public function exists(string $template)
+    public function exists(string $template): bool
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -76,7 +76,7 @@ class Think
      * @param  array     $config 模板参数
      * @return void
      */
-    public function fetch(string $template, array $data = [], array $config = [])
+    public function fetch(string $template, array $data = [], array $config = []): void
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -103,7 +103,7 @@ class Think
      * @param  array     $config 模板参数
      * @return void
      */
-    public function display(string $template, array $data = [], array $config = [])
+    public function display(string $template, array $data = [], array $config = []): void
     {
         $this->template->display($template, $data, $config);
     }
@@ -114,7 +114,7 @@ class Think
      * @param  string $template 模板文件规则
      * @return string
      */
-    private function parseTemplate(string $template)
+    private function parseTemplate(string $template): string
     {
         // 分析模板文件规则
         $request = $this->app['request'];
@@ -127,8 +127,8 @@ class Think
 
         if ($this->config['view_base']) {
             // 基础视图目录
-            $app = isset($app) ? $app : $request->app();
-            $path   = $this->config['view_base'] . ($app ? $app . DIRECTORY_SEPARATOR : '');
+            $app  = isset($app) ? $app : $request->app();
+            $path = $this->config['view_base'] . ($app ? $app . DIRECTORY_SEPARATOR : '');
         } else {
             $path = isset($app) ? $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
         }
@@ -154,23 +154,26 @@ class Think
     }
 
     /**
-     * 配置或者获取模板引擎参数
+     * 配置模板引擎
      * @access private
-     * @param  string|array  $name 参数名
-     * @param  mixed         $value 参数值
-     * @return mixed
+     * @param  array  $config 参数
+     * @return void
      */
-    public function config($name, $value = null)
+    public function config(array $config): void
     {
-        if (is_array($name)) {
-            $this->template->config($name);
-            $this->config = array_merge($this->config, $name);
-        } elseif (is_null($value)) {
-            return $this->template->config($name);
-        } else {
-            $this->template->$name = $value;
-            $this->config[$name]   = $value;
-        }
+        $this->template->config($config);
+        $this->config = array_merge($this->config, $config);
+    }
+
+    /**
+     * 获取模板引擎配置
+     * @access public
+     * @param  string  $name 参数名
+     * @return void
+     */
+    public function getConfig(string $name)
+    {
+        return $this->template->getConfig($name);
     }
 
     public function __call($method, $params)

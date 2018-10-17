@@ -221,7 +221,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * @param  string    $abstract    类名或者标识
      * @return bool
      */
-    public function exists($abstract): bool
+    public function exists(string $abstract): bool
     {
         if (isset($this->bind[$abstract])) {
             $abstract = $this->bind[$abstract];

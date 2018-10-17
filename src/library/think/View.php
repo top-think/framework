@@ -60,17 +60,13 @@ class View
     /**
      * 模板变量静态赋值
      * @access public
-     * @param  mixed $name  变量名
-     * @param  mixed $value 变量值
+     * @param  array $vars  变量名
      * @return $this
      */
-    public function share($name, $value = '')
+    public function share($vars)
     {
-        if (is_array($name)) {
-            self::$var = array_merge(self::$var, $name);
-        } else {
-            self::$var[$name] = $value;
-        }
+
+        self::$var = array_merge(self::$var, $vars);
 
         return $this;
     }
@@ -78,17 +74,12 @@ class View
     /**
      * 模板变量赋值
      * @access public
-     * @param  mixed $name  变量名
-     * @param  mixed $value 变量值
+     * @param  array $vars  模板变量
      * @return $this
      */
-    public function assign($name, $value = '')
+    public function assign(array $vars)
     {
-        if (is_array($name)) {
-            $this->data = array_merge($this->data, $name);
-        } else {
-            $this->data[$name] = $value;
-        }
+        $this->data = array_merge($this->data, $vars);
 
         return $this;
     }
@@ -120,13 +111,12 @@ class View
     /**
      * 配置模板引擎
      * @access public
-     * @param  string|array  $name 参数名
-     * @param  mixed         $value 参数值
+     * @param  array  $name 模板参数
      * @return $this
      */
-    public function config($name, $value = null)
+    public function config(array $config)
     {
-        $this->engine->config($name, $value);
+        $this->engine->config($config);
 
         return $this;
     }
@@ -148,7 +138,7 @@ class View
      * @param Callable  $filter 过滤方法或闭包
      * @return $this
      */
-    public function filter(?callable $filter)
+    public function filter(callable $filter = null)
     {
         $this->filter = $filter;
         return $this;

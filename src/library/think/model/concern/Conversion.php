@@ -151,14 +151,14 @@ trait Conversion
         // 追加属性（必须定义获取器）
         if (!empty($this->append)) {
             foreach ($this->append as $key => $name) {
-                $this->appendAttrToArray($item, $kye, $name);
+                $this->appendAttrToArray($item, $key, $name);
             }
         }
 
         return $item;
     }
 
-    protected function appendAttrToArray(&$item, $key, $name)
+    protected function appendAttrToArray(array &$item, string $key, string $name)
     {
         if (is_array($name)) {
             // 追加关联对象属性
@@ -189,7 +189,7 @@ trait Conversion
         }
     }
 
-    protected function getArrayData($key, $val, array $visible, array $hidden)
+    protected function getArrayData(string $key, $val, array $visible, array $hidden)
     {
         if ($val instanceof Model || $val instanceof ModelCollection) {
             // 关联模型对象

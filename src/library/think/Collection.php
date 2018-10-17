@@ -70,16 +70,88 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return new static(array_merge($this->items, $this->convertToArray($items)));
     }
 
+
+    /**
+     * 按指定键整理数据
+     *
+     * @access public
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   键名
+     * @return array
+     */
+    public function dictionary($items = null, string &$indexKey = null)
+    {
+        if ($items instanceof self || $items instanceof Paginator) {
+            $items = $items->all();
+        }
+
+        $items = is_null($items) ? $this->items : $items;
+
+        if ($items && empty($indexKey)) {
+            $indexKey = is_array($items[0]) ? 'id' : $items[0]->getPk();
+        }
+
+        if (isset($indexKey) && is_string($indexKey)) {
+            return array_column($items, null, $indexKey);
+        }
+
+        return $items;
+    }
+
     /**
      * 比较数组，返回差集
      *
      * @access public
-     * @param  mixed $items
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   指定比较的键名
      * @return static
      */
-    public function diff($items)
+    public function diff($items, string $indexKey = null)
     {
-        return new static(array_diff($this->items, $this->convertToArray($items)));
+        if ($this->isEmpty() || is_scalar($this->items[0])) {
+            return new static(array_diff($this->items, $this->convertToArray($items)));
+        }
+
+        $diff       = [];
+        $dictionary = $this->dictionary($items, $indexKey);
+
+        if (is_string($indexKey)) {
+            foreach ($this->items as $item) {
+                if (!isset($dictionary[$item[$indexKey]])) {
+                    $diff[] = $item;
+                }
+            }
+        }
+
+        return new static($diff);
+    }
+
+    /**
+     * 比较数组，返回交集
+     *
+     * @access public
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   指定比较的键名
+     * @return static
+     */
+    public function intersect($items, string $indexKey = null)
+    {
+        if ($this->isEmpty() || is_scalar($this->items[0])) {
+            return new static(array_diff($this->items, $this->convertToArray($items)));
+        }
+
+        $intersect  = [];
+        $dictionary = $this->dictionary($items, $indexKey);
+
+        if (is_string($indexKey)) {
+            foreach ($this->items as $item) {
+                if (isset($dictionary[$item[$indexKey]])) {
+                    $intersect[] = $item;
+                }
+            }
+        }
+
+        return new static($intersect);
     }
 
     /**
@@ -93,17 +165,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return new static(array_flip($this->items));
     }
 
-    /**
-     * 比较数组，返回交集
-     *
-     * @access public
-     * @param  mixed $items
-     * @return static
-     */
-    public function intersect($items)
-    {
-        return new static(array_intersect($this->items, $this->convertToArray($items)));
-    }
+
 
     /**
      * 返回数组中所有的键名
@@ -169,7 +231,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param  mixed  $key
      * @return void
      */
-    public function push($value, $key = null): void
+    public function push($value, string $key = null): void
     {
         if (is_null($key)) {
             $this->items[] = $value;
@@ -186,7 +248,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param  bool $preserveKeys
      * @return static
      */
-    public function chunk($size, $preserveKeys = false)
+    public function chunk(int $size, bool $preserveKeys = false)
     {
         $chunks = [];
 
@@ -204,7 +266,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param mixed  $key
      * @return void
      */
-    public function unshift($value, $key = null): void
+    public function unshift($value, string $key = null): void
     {
         if (is_null($key)) {
             array_unshift($this->items, $value);
@@ -363,7 +425,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param  string       $order 排序
      * @return $this
      */
-    public function order($field, $order = null)
+    public function order(string $field, string $order = null)
     {
         return $this->sort(function ($a, $b) use ($field, $order) {
             $fieldA = isset($a[$field]) ? $a[$field] : null;
@@ -397,7 +459,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param  bool $preserveKeys
      * @return static
      */
-    public function slice($offset, $length = null, $preserveKeys = false)
+    public function slice(int $offset, int $length = null, bool $preserveKeys = false)
     {
         return new static(array_slice($this->items, $offset, $length, $preserveKeys));
     }
@@ -451,7 +513,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @param  integer $options json参数
      * @return string
      */
-    public function toJson($options = JSON_UNESCAPED_UNICODE)
+    public function toJson(int $options = JSON_UNESCAPED_UNICODE)
     {
         return json_encode($this->toArray(), $options);
     }

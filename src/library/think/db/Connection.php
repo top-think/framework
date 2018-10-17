@@ -191,7 +191,7 @@ abstract class Connection
      * @return Connection
      * @throws Exception
      */
-    public static function instance($config = [], $name = false)
+    public static function instance($config = [], $name = false):Connection
     {
         if (false === $name) {
             $name = md5(serialize($config));
@@ -248,7 +248,7 @@ abstract class Connection
      * @access public
      * @return Builder
      */
-    public function getBuilder()
+    public function getBuilder():Builder
     {
         return $this->builder;
     }
@@ -464,17 +464,12 @@ abstract class Connection
     /**
      * 设置数据库的配置参数
      * @access public
-     * @param  string|array      $config 配置名称
-     * @param  mixed             $value 配置值
+     * @param  array      $config 配置
      * @return void
      */
-    public function setConfig($config, $value = ''): void
+    public function setConfig($config): void
     {
-        if (is_array($config)) {
             $this->config = array_merge($this->config, $config);
-        } else {
-            $this->config[$config] = $value;
-        }
     }
 
     /**
@@ -486,7 +481,7 @@ abstract class Connection
      * @return PDO
      * @throws Exception
      */
-    public function connect(array $config = [], $linkNum = 0, $autoConnection = false)
+    public function connect(array $config = [], $linkNum = 0, $autoConnection = false):PDO
     {
         if (isset($this->links[$linkNum])) {
             return $this->links[$linkNum];
@@ -639,10 +634,6 @@ abstract class Connection
     {
         $this->initConnect($master);
 
-        if (!$this->linkID) {
-            return false;
-        }
-
         // 记录SQL语句
         $this->queryStr = $sql;
 
@@ -707,13 +698,9 @@ abstract class Connection
      * @throws \Exception
      * @throws \Throwable
      */
-    public function execute(string $sql, array $bind = [], Query $query)
+    public function execute(string $sql, array $bind = [], Query $query):int
     {
         $this->initConnect(true);
-
-        if (!$this->linkID) {
-            return false;
-        }
 
         // 记录SQL语句
         $this->queryStr = $sql;
@@ -1220,7 +1207,7 @@ abstract class Connection
      * @access public
      * @param  Query     $query 查询对象
      * @param  string    $field   字段名
-     * @param  bool      $default   默认值
+     * @param  mixed     $default   默认值
      * @return mixed
      */
     public function value(Query $query, string $field, $default = null)
@@ -1301,7 +1288,7 @@ abstract class Connection
      * @param  string    $key   索引
      * @return array
      */
-    public function column(Query $query, $field, string $key = ''): array
+    public function column(Query $query, string $field, string $key = ''): array
     {
         $options = $query->getOptions();
 
@@ -1319,15 +1306,11 @@ abstract class Connection
             $query->removeOption('field');
         }
 
-        if (is_null($field)) {
-            $field = '*';
-        } elseif ($key && '*' != $field) {
+        if ($key && '*' != $field) {
             $field = $key . ',' . $field;
         }
 
-        if (is_string($field)) {
             $field = array_map('trim', explode(',', $field));
-        }
 
         $query->setOption('field', $field);
 
@@ -1591,12 +1574,9 @@ abstract class Connection
      * @throws \PDOException
      * @throws \Exception
      */
-    public function startTrans()
+    public function startTrans():void
     {
         $this->initConnect(true);
-        if (!$this->linkID) {
-            return false;
-        }
 
         ++$this->transTimes;
 
@@ -1611,7 +1591,7 @@ abstract class Connection
         } catch (\Exception $e) {
             if ($this->isBreak($e)) {
                 --$this->transTimes;
-                return $this->close()->startTrans();
+                $this->close()->startTrans();
             }
             throw $e;
         }
@@ -1774,6 +1754,7 @@ abstract class Connection
                 return true;
             }
         }
+
         return false;
     }
 
@@ -1948,7 +1929,7 @@ abstract class Connection
      * @param  boolean $master 主服务器
      * @return PDO
      */
-    protected function multiConnect(bool $master = false)
+    protected function multiConnect(bool $master = false):PDO
     {
         $_config = [];
 
@@ -2030,7 +2011,8 @@ abstract class Connection
      * @access protected
      * @param  Query     $query   查询对象
      * @param  mixed     $cache   缓存设置
-     * @param  array     $options 缓存
+     * @param  array     $data    缓存数据
+     * @param  string    $key     缓存Key
      * @return mixed
      */
     protected function getCacheData(Query $query, $cache, $data, &$key = null)

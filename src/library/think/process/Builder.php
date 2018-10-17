@@ -166,7 +166,7 @@ class Builder
     }
 
     /**
-     * 设置proc_open选项
+     * 设置选项
      * @param string $name
      * @param string $value
      * @return self

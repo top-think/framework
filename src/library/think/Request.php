@@ -1357,7 +1357,7 @@ class Request
         return $this->filterData($data, $filter, $default);
     }
 
-    protected function filterData($data, $filter, $default)
+    protected function filterData(array $data, $filter, $default)
     {
         // 解析过滤器
         $filter = $this->getFilter($filter, $default);
@@ -1376,10 +1376,10 @@ class Request
      * 获取数据
      * @access public
      * @param  array         $data 数据源
-     * @param  string|false  $name 字段名
+     * @param  string        $name 字段名
      * @return mixed
      */
-    protected function getData(array $data, $name)
+    protected function getData(array $data, string $name)
     {
         foreach (explode('.', $name) as $val) {
             if (isset($data[$val])) {
@@ -1500,9 +1500,9 @@ class Request
      * @param  array            $name 变量名
      * @param  mixed            $data 数据或者变量类型
      * @param  string|array     $filter 过滤方法
-     * @return mixed
+     * @return array
      */
-    public function only(array $name, $data = 'param', $filter = '')
+    public function only(array $name, $data = 'param', $filter = ''): array
     {
         $data = is_array($data) ? $data : $this->$data();
 
@@ -1532,7 +1532,7 @@ class Request
      * @param  string $type 变量类型
      * @return mixed
      */
-    public function except(array $name, string $type = 'param')
+    public function except(array $name, string $type = 'param'): array
     {
         $param = $this->$type();
 
@@ -1793,7 +1793,7 @@ class Request
      * @param  Dispatch  $dispatch 调度信息
      * @return Dispatch
      */
-    public function dispatch(Dispatch $dispatch = null)
+    public function dispatch(Dispatch $dispatch = null): Dispatch
     {
         if (!is_null($dispatch)) {
             $this->dispatch = $dispatch;
@@ -1822,7 +1822,7 @@ class Request
      * @param  string $app 应用名
      * @return $this
      */
-    public function setApp($app)
+    public function setApp(string $app)
     {
         $this->app = $app;
         return $this;
@@ -1834,7 +1834,7 @@ class Request
      * @param  string $controller 控制器名
      * @return $this
      */
-    public function setController($controller)
+    public function setController(string $controller)
     {
         $this->controller = $controller;
         return $this;
@@ -1846,7 +1846,7 @@ class Request
      * @param  string $action 操作名
      * @return $this
      */
-    public function setAction($action)
+    public function setAction(string $action)
     {
         $this->action = $action;
         return $this;
@@ -1857,7 +1857,7 @@ class Request
      * @access public
      * @return string
      */
-    public function app()
+    public function app():string
     {
         return $this->app ?: '';
     }
@@ -1868,7 +1868,7 @@ class Request
      * @param  bool $convert 转换为小写
      * @return string
      */
-    public function controller($convert = false)
+    public function controller(bool $convert = false):string
     {
         $name = $this->controller ?: '';
         return $convert ? strtolower($name) : $name;
@@ -1880,7 +1880,7 @@ class Request
      * @param  bool $convert 转换为小写
      * @return string
      */
-    public function action($convert = false)
+    public function action(bool $convert = false):string
     {
         $name = $this->action ?: '';
         return $convert ? strtolower($name) : $name;
@@ -1892,7 +1892,7 @@ class Request
      * @param  string $lang 语言名
      * @return $this
      */
-    public function setLangset($lang)
+    public function setLangset(string $lang)
     {
         $this->langset = $lang;
         return $this;
@@ -1903,7 +1903,7 @@ class Request
      * @access public
      * @return string
      */
-    public function langset()
+    public function langset():string
     {
         return $this->langset ?: '';
     }
@@ -1959,7 +1959,7 @@ class Request
      * @param  mixed  $expire 缓存有效期
      * @param  array  $except 缓存排除
      * @param  string $tag    缓存标签
-     * @return void
+     * @return mixed
      */
     public function cache($key, $expire = null, $except = [], $tag = null)
     {
@@ -2108,7 +2108,7 @@ class Request
      * @param  string $input RAW数据
      * @return $this
      */
-    public function withInput($input)
+    public function withInput(string $input)
     {
         $this->input = $input;
         return $this;

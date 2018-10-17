@@ -41,7 +41,7 @@ trait SoftDelete
     {
         $model = new static();
 
-        return $model->withTrashedData(true)->db(false);
+        return $model->withTrashedData(true)->db();
     }
 
     /**
@@ -50,7 +50,7 @@ trait SoftDelete
      * @param  bool $withTrashed 是否包含软删除数据
      * @return $this
      */
-    protected function withTrashedData($withTrashed)
+    protected function withTrashedData(bool $withTrashed)
     {
         $this->withTrashed = $withTrashed;
         return $this;
@@ -68,11 +68,11 @@ trait SoftDelete
 
         if ($field) {
             return $model
-                ->db(false)
+                ->db()
                 ->useSoftDelete($field, $model->getWithTrashedExp());
         }
 
-        return $model->db(false);
+        return $model->db();
     }
 
     /**
@@ -82,8 +82,7 @@ trait SoftDelete
      */
     protected function getWithTrashedExp(): array
     {
-        return is_null($this->defaultSoftDelete) ?
-        ['notnull', ''] : ['<>', $this->defaultSoftDelete];
+        return is_null($this->defaultSoftDelete) ? ['notnull', ''] : ['<>', $this->defaultSoftDelete];
     }
 
     /**
@@ -111,7 +110,7 @@ trait SoftDelete
             $where = $this->getWhere();
 
             // 删除当前模型数据
-            $result = $this->db(false)
+            $result = $this->db()
                 ->where($where)
                 ->removeOption('soft_delete')
                 ->delete();
@@ -153,10 +152,8 @@ trait SoftDelete
 
         $resultSet = $query->select($data);
 
-        if ($resultSet) {
-            foreach ($resultSet as $data) {
-                $data->force($force)->delete();
-            }
+        foreach ($resultSet as $result) {
+            $result->force($force)->delete();
         }
 
         return true;
@@ -172,30 +169,26 @@ trait SoftDelete
     {
         $name = $this->getDeleteTimeField();
 
-        if ($name) {
-            if (false === $this->trigger('before_restore')) {
-                return false;
-            }
-
-            if (empty($where)) {
-                $pk = $this->getPk();
-                if (is_string($pk)) {
-                    $where[] = [$pk, '=', $this->getData($pk)];
-                }
-            }
-
-            // 恢复删除
-            $this->db(false)
-                ->where($where)
-                ->useSoftDelete($name, $this->getWithTrashedExp())
-                ->update([$name => $this->defaultSoftDelete]);
-
-            $this->trigger('after_restore');
-
-            return true;
+        if (!$name || false === $this->trigger('before_restore')) {
+            return false;
         }
 
-        return false;
+        if (empty($where)) {
+            $pk = $this->getPk();
+            if (is_string($pk)) {
+                $where[] = [$pk, '=', $this->getData($pk)];
+            }
+        }
+
+        // 恢复删除
+        $this->db(false)
+            ->where($where)
+            ->useSoftDelete($name, $this->getWithTrashedExp())
+            ->update([$name => $this->defaultSoftDelete]);
+
+        $this->trigger('after_restore');
+
+        return true;
     }
 
     /**
@@ -230,7 +223,7 @@ trait SoftDelete
      * @param  Query  $query
      * @return void
      */
-    protected function withNoTrashed($query): void
+    protected function withNoTrashed(Query $query): void
     {
         $field = $this->getDeleteTimeField(true);
 

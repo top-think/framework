@@ -317,7 +317,6 @@ class Cx extends Taglib
      * 使用： {default /}ddfdf
      * @access public
      * @param  array $tag 标签属性
-     * @param  string $content 标签内容
      * @return string
      */
     public function tagDefault(array $tag): string

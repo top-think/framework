@@ -207,7 +207,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  mixed        $where 更新条件
      * @return Model
      */
-    public function newInstance($data = [], $isUpdate = false, $where = null)
+    public function newInstance($data = [], bool $isUpdate = false, $where = null)
     {
         return (new static($data))->isUpdate($isUpdate, $where);
     }
@@ -218,7 +218,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  bool     $all 是否所有模型有效
      * @return $this
      */
-    public function readMaster($all = false)
+    public function readMaster(bool $all = false)
     {
         $model = $all ? '*' : static::class;
 
@@ -373,7 +373,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  bool $exists
      * @return $this
      */
-    public function exists($exists)
+    public function exists(bool $exists)
     {
         $this->exists = $exists;
         return $this;
@@ -397,13 +397,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  string $sequence 自增序列名
      * @return bool
      */
-    public function save(array $data = [], $where = [], string $sequence = null): bool
+    public function save(array $data = [], array $where = [], string $sequence = null): bool
     {
-        if (is_string($data)) {
-            $sequence = $data;
-            $data     = [];
-        }
-
         if (!$this->checkBeforeSave($data, $where)) {
             return false;
         }
@@ -466,8 +461,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected function checkAllowFields(array $append = []): array
     {
         // 检测字段
-        if (empty($this->field) || true === $this->field) {
-            $query = $this->db(false);
+        if (empty($this->field)) {
+            $query = $this->db();
             $table = $this->table ?: $query->getTable();
 
             $this->field = $query->getConnection()->getTableFields($table);
@@ -561,7 +556,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 模型更新
-        $db = $this->db(false);
+        $db = $this->db();
         $db->startTrans();
 
         try {
@@ -608,7 +603,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 检查允许字段
         $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->insert));
 
-        $db = $this->db(false);
+        $db = $this->db();
         $db->startTrans();
 
         try {
@@ -656,12 +651,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @return integer|true
      * @throws Exception
      */
-    public function setInc($field, $step = 1, $lazyTime = 0)
+    public function setInc(string $field, int $step = 1, int $lazyTime = 0)
     {
         // 读取更新条件
         $where = $this->getWhere();
 
-        $result = $this->db(false)->where($where)->setInc($field, $step, $lazyTime);
+        $result = $this->where($where)->setInc($field, $step, $lazyTime);
 
         if (true !== $result) {
             $this->data[$field] += $step;
@@ -679,12 +674,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @return integer|true
      * @throws Exception
      */
-    public function setDec($field, $step = 1, $lazyTime = 0)
+    public function setDec(string $field, int $step = 1, int $lazyTime = 0)
     {
         // 读取更新条件
         $where = $this->getWhere();
 
-        $result = $this->db(false)->where($where)->setDec($field, $step, $lazyTime);
+        $result = $this->where($where)->setDec($field, $step, $lazyTime);
 
         if (true !== $result) {
             $this->data[$field] -= $step;
@@ -724,7 +719,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function saveAll(array $dataSet, bool $replace = true)
     {
-        $db = $this->db(false);
+        $db = $this->db();
         $db->startTrans();
 
         try {
@@ -756,21 +751,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否为更新数据
      * @access public
-     * @param  mixed  $update
+     * @param  bool  $update
      * @param  mixed  $where
      * @return $this
      */
-    public function isUpdate($update = true, $where = null)
+    public function isUpdate(bool $update = true, $where = null)
     {
-        if (is_bool($update)) {
-            $this->exists = $update;
+        $this->exists = $update;
 
-            if (!empty($where)) {
-                $this->updateWhere = $where;
-            }
-        } else {
-            $this->exists      = true;
-            $this->updateWhere = $update;
+        if (!empty($where)) {
+            $this->updateWhere = $where;
         }
 
         return $this;
@@ -790,7 +780,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 读取更新条件
         $where = $this->getWhere();
 
-        $db = $this->db(false);
+        $db = $this->db();
         $db->startTrans();
 
         try {
@@ -832,10 +822,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 写入数据
      * @access public
      * @param  array      $data  数据数组
-     * @param  array|true $field 允许字段
+     * @param  array      $field 允许字段
      * @return static
      */
-    public static function create(array $data = [], $field = null)
+    public static function create(array $data = [], array $field = [])
     {
         $model = new static();
 
@@ -853,10 +843,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @access public
      * @param  array      $data  数据数组
      * @param  array      $where 更新条件
-     * @param  array|true $field 允许字段
+     * @param  array      $field 允许字段
      * @return static
      */
-    public static function update(array $data = [], array $where = [], $field = null)
+    public static function update(array $data = [], array $where = [], array $field = [])
     {
         $model = new static();
 

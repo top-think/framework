@@ -69,21 +69,13 @@ class Response
      * @access public
      * @param  mixed $data    输出数据
      * @param  int   $code
-     * @param  array $header
-     * @param  array $options 输出参数
      */
-    public function __construct($data = '', int $code = 200, array $header = [], array $options = [])
+    public function __construct($data = '', int $code = 200)
     {
         $this->data($data);
-
-        if (!empty($options)) {
-            $this->options = array_merge($this->options, $options);
-        }
+        $this->code = $code;
 
         $this->contentType($this->contentType, $this->charset);
-
-        $this->code   = $code;
-        $this->header = array_merge($this->header, $header);
     }
 
     /**
@@ -92,19 +84,17 @@ class Response
      * @param  mixed  $data    输出数据
      * @param  string $type    输出类型
      * @param  int    $code
-     * @param  array  $header
-     * @param  array  $options 输出参数
      * @return Response
      */
-    public static function create($data = '', string $type = '', int $code = 200, array $header = [], array $options = [])
+    public static function create($data = '', string $type = '', int $code = 200): Response
     {
         $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst(strtolower($type));
 
         if (class_exists($class)) {
-            return new $class($data, $code, $header, $options);
+            return new $class($data, $code);
         }
 
-        return new static($data, $code, $header, $options);
+        return new static($data, $code);
     }
 
     /**
@@ -179,7 +169,7 @@ class Response
      * @param string $data 要处理的数据
      * @return void
      */
-    protected function sendData($data): void
+    protected function sendData(string $data): void
     {
         echo $data;
     }

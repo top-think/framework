@@ -22,9 +22,9 @@ class File
      * @access public
      * @param  string $cacheFile 缓存的文件名
      * @param  string $content 缓存的内容
-     * @return void|array
+     * @return void
      */
-    public function write($cacheFile, $content)
+    public function write(string $cacheFile, string $content): void
     {
         // 检测模板目录
         $dir = dirname($cacheFile);
@@ -46,7 +46,7 @@ class File
      * @param  array   $vars 变量数组
      * @return void
      */
-    public function read($cacheFile, $vars = [])
+    public function read(string $cacheFile, array $vars = []): void
     {
         $this->cacheFile = $cacheFile;
 
@@ -66,7 +66,7 @@ class File
      * @param  int     $cacheTime 缓存时间
      * @return boolean
      */
-    public function check($cacheFile, $cacheTime)
+    public function check(string $cacheFile, int $cacheTime): bool
     {
         // 缓存文件不存在, 直接返回false
         if (!file_exists($cacheFile)) {

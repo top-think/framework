@@ -18,18 +18,6 @@ use think\Model;
 class Collection extends BaseCollection
 {
     /**
-     * 返回数组中指定的一列
-     * @access public
-     * @param  string        $column_key
-     * @param  string|null   $index_key
-     * @return array
-     */
-    public function column(string $column_key, string $index_key = null): array
-    {
-        return array_column($this->toArray(), $column_key, $index_key);
-    }
-
-    /**
      * 延迟预载入关联查询
      * @access public
      * @param  array $relation 关联
@@ -109,17 +97,22 @@ class Collection extends BaseCollection
     }
 
     /**
-     * 按主键整理数据
+     * 按指定键整理数据
      *
      * @access public
-     * @param  mixed $items
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   键名
      * @return array
      */
-    public function dictionary($items = null)
+    public function dictionary($items = null, string &$indexKey = null)
     {
+        if ($items instanceof self || $items instanceof Paginator) {
+            $items = $items->all();
+        }
+
         $items = is_null($items) ? $this->items : $items;
 
-        if ($items) {
+        if ($items && empty($indexKey)) {
             $indexKey = $items[0]->getPk();
         }
 
@@ -131,20 +124,27 @@ class Collection extends BaseCollection
     }
 
     /**
-     * 比较数组，返回差集
+     * 比较数据集，返回差集
      *
      * @access public
-     * @param  mixed $items
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   指定比较的键名
      * @return static
      */
-    public function diff($items)
+    public function diff($items, string $indexKey = null)
     {
-        $diff       = [];
-        $dictionary = $this->dictionary($items);
+        if ($this->isEmpty()) {
+            return new static($items);
+        }
 
-        foreach ($this->items as $item) {
-            if (!isset($dictionary[$item->getkey()])) {
-                $diff[] = $item;
+        $diff       = [];
+        $dictionary = $this->dictionary($items, $indexKey);
+
+        if (is_string($indexKey)) {
+            foreach ($this->items as $item) {
+                if (!isset($dictionary[$item[$indexKey]])) {
+                    $diff[] = $item;
+                }
             }
         }
 
@@ -152,20 +152,27 @@ class Collection extends BaseCollection
     }
 
     /**
-     * 比较数组，返回交集
+     * 比较数据集，返回交集
      *
      * @access public
-     * @param  mixed $items
+     * @param  mixed    $items      数据
+     * @param  string   $indexKey   指定比较的键名
      * @return static
      */
-    public function intersect($items)
+    public function intersect($items, string $indexKey = null)
     {
-        $intersect  = [];
-        $dictionary = $this->dictionary($items);
+        if ($this->isEmpty()) {
+            return new static([]);
+        }
 
-        foreach ($this->items as $item) {
-            if (isset($dictionary[$item->getkey()])) {
-                $intersect[] = $item;
+        $intersect  = [];
+        $dictionary = $this->dictionary($items, $indexKey);
+
+        if (is_string($indexKey)) {
+            foreach ($this->items as $item) {
+                if (isset($dictionary[$item[$indexKey]])) {
+                    $intersect[] = $item;
+                }
             }
         }
 

@@ -215,16 +215,6 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        if ($this->appMulti) {
-            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
-            $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
-        } else {
-            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-            $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
-        }
-
-        $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
-
         static::setInstance($this);
 
         $this->instance('app', $this);
@@ -234,68 +224,41 @@ class App extends Container
         // 注册错误和异常处理机制
         Error::register();
 
-        $this->configExt = $this->env->get('config_ext', '.php');
-
-        if (!$this->appPath) {
-            if ($this->appMulti) {
-                $this->name    = $this->name ?: 'index';
-                $this->appPath = $this->basePath . $this->name . DIRECTORY_SEPARATOR;
-            } else {
-                $this->appPath = $this->basePath;
-            }
-        }
-
-        // 设置路径环境变量
-        $this->env->set([
-            'think_path'   => $this->thinkPath,
-            'root_path'    => $this->rootPath,
-            'app_path'     => $this->appPath,
-            'config_path'  => $this->configPath,
-            'route_path'   => $this->routePath,
-            'runtime_path' => $this->runtimePath,
-            'extend_path'  => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
-            'vendor_path'  => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
-        ]);
-
-        // 加载惯例配置文件
-        $this->config->set(include $this->rootPath . 'convention.php');
-
-        // 加载环境变量配置文件
         if (is_file($this->rootPath . '.env')) {
             $this->env->load($this->rootPath . '.env');
         }
+        
+        $this->setDependPath();
+        
+        $this->configExt = $this->env->get('config_ext', '.php');
+        $this->config->set(include $this->rootPath . 'convention.php');
 
-        // 初始化当前应用
         $this->init();
 
-        // 获取当前应用的命名空间
-        if ($this->config['app.root_namespace']) {
-            $this->rootNamespace = $this->config['app.root_namespace'];
-        }
-
-        if (!$this->namespace) {
-            if ($this->appMulti) {
-                if ($this->config['app.app_namespace']) {
-                    $this->namespace = $this->config['app.app_namespace'];
-                } else {
-                    $this->namespace = $this->rootNamespace . '\\' . $this->name;
-                }
-            } else {
-                $this->namespace = $this->rootNamespace;
-            }
-        }
-
-        $this->env->set('app_namespace', $this->namespace);
-
-        // 开启类名后缀
         if (!$this->suffix) {
             $this->suffix = $this->config['app.class_suffix'];
         }
 
+        $this->debugModeInit();
+
+        if ($this->config['app.exception_handle']) {
+            Error::setExceptionHandler($this->config['app.exception_handle']);
+        }
+
+        date_default_timezone_set($this->config['app.default_timezone']);
+
+        $this->loadLangPack();
+
+        $this->routeInit();
+    }
+
+    protected function debugModeInit(): void
+    {
         // 应用调试模式
         if (!$this->appDebug) {
             $this->appDebug = $this->env->get('app_debug', $this->config['app.app_debug']);
         }
+
         $this->env->set('app_debug', $this->appDebug);
 
         if (!$this->appDebug) {
@@ -310,24 +273,40 @@ class App extends Container
                 echo $output;
             }
         }
+    }
 
-        // 注册异常处理类
-        if ($this->config['app.exception_handle']) {
-            Error::setExceptionHandler($this->config['app.exception_handle']);
+    protected function setDependPath(): void
+    {
+        if (!$this->appPath) {
+            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR: $this->basePath;
         }
 
-        // 设置系统时区
-        date_default_timezone_set($this->config['app.default_timezone']);
+        if ($this->appMulti) {
+            $this->name        = $this->name ?: 'index';
+            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
+            $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
+        } else {
+            $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+            $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        }
 
-        // 读取语言包
-        $this->loadLangPack();
+        $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
-        // 路由初始化
-        $this->routeInit();
+        // 设置路径环境变量
+        $this->env->set([
+            'think_path'   => $this->thinkPath,
+            'root_path'    => $this->rootPath,
+            'app_path'     => $this->appPath,
+            'config_path'  => $this->configPath,
+            'route_path'   => $this->routePath,
+            'runtime_path' => $this->runtimePath,
+            'extend_path'  => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
+            'vendor_path'  => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
+        ]);
     }
 
     /**
-     * 初始化应用或模块
+     * 初始化应用
      * @access public
      * @return void
      */
@@ -339,70 +318,86 @@ class App extends Container
         } elseif (is_file($this->runtimePath . 'init.php')) {
             include $this->runtimePath . 'init.php';
         } else {
-            // 加载事件定义文件
-            if (is_file($this->appPath . 'event.php')) {
-                $event = include $this->appPath . 'event.php';
-                if (is_array($event)) {
-                    if (isset($event['bind'])) {
-                        $this->event->bind($event['bind']);
-                    }
+            $this->loadAppFile();
+        }
 
-                    if (isset($event['listen'])) {
-                        $this->event->listenEvents($event['listen']);
-                    }
+        if ($this->config['app.root_namespace']) {
+            $this->rootNamespace = $this->config['app.root_namespace'];
+        }
 
-                    if (isset($event['subscribe'])) {
-                        $this->event->subscribe($event['subscribe']);
-                    }
+        if ($this->namespace) {
+
+        } elseif ($this->appMulti) {
+            if ($this->config['app.app_namespace']) {
+                $this->namespace = $this->config['app.app_namespace'];
+            } else {
+                $this->namespace = $this->rootNamespace . '\\' . $this->name;
+            }
+        } else {
+            $this->namespace = $this->rootNamespace;
+        }
+
+        $this->env->set('app_namespace', $this->namespace);
+        $this->request->setApp($this->name);
+        $this->request->filter($this->config['app.default_filter']);
+    }
+
+    protected function loadAppFile()
+    {
+        if (is_file($this->appPath . 'event.php')) {
+            $event = include $this->appPath . 'event.php';
+            if (is_array($event)) {
+                if (isset($event['bind'])) {
+                    $this->event->bind($event['bind']);
                 }
-            }
 
-            // 加载公共文件
-            if (is_file($this->appPath . 'common.php')) {
-                include_once $this->appPath . 'common.php';
-            }
-
-            // 加载系统助手函数
-            include $this->thinkPath . 'helper.php';
-
-            // 加载中间件
-            if (is_file($this->appPath . 'middleware.php')) {
-                $middleware = include $this->appPath . 'middleware.php';
-                if (is_array($middleware)) {
-                    $this->middleware->import($middleware);
+                if (isset($event['listen'])) {
+                    $this->event->listenEvents($event['listen']);
                 }
-            }
 
-            // 注册服务的容器对象实例
-            if (is_file($this->appPath . 'provider.php')) {
-                $provider = include $this->appPath . 'provider.php';
-                if (is_array($provider)) {
-                    $this->bind($provider);
+                if (isset($event['subscribe'])) {
+                    $this->event->subscribe($event['subscribe']);
                 }
-            }
-
-            // 加载应用配置文件
-            $files = [];
-
-            if (is_dir($this->configPath)) {
-                $files = glob($this->configPath . '*' . $this->configExt);
-            }
-
-            if ($this->appMulti) {
-                if (is_dir($this->appPath . 'config')) {
-                    $files = array_merge($files, glob($this->appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->configExt));
-                } elseif (is_dir($this->configPath . $this->name)) {
-                    $files = array_merge($files, glob($this->configPath . $this->name . DIRECTORY_SEPARATOR . '*' . $this->configExt));
-                }
-            }
-
-            foreach ($files as $file) {
-                $this->config->load($file, pathinfo($file, PATHINFO_FILENAME));
             }
         }
 
-        $this->request->setApp($this->name);
-        $this->request->filter($this->config['app.default_filter']);
+        if (is_file($this->appPath . 'common.php')) {
+            include_once $this->appPath . 'common.php';
+        }
+
+        include $this->thinkPath . 'helper.php';
+
+        if (is_file($this->appPath . 'middleware.php')) {
+            $middleware = include $this->appPath . 'middleware.php';
+            if (is_array($middleware)) {
+                $this->middleware->import($middleware);
+            }
+        }
+
+        if (is_file($this->appPath . 'provider.php')) {
+            $provider = include $this->appPath . 'provider.php';
+            if (is_array($provider)) {
+                $this->bind($provider);
+            }
+        }
+
+        $files = [];
+
+        if (is_dir($this->configPath)) {
+            $files = glob($this->configPath . '*' . $this->configExt);
+        }
+
+        if ($this->appMulti) {
+            if (is_dir($this->appPath . 'config')) {
+                $files = array_merge($files, glob($this->appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+            } elseif (is_dir($this->configPath . $this->name)) {
+                $files = array_merge($files, glob($this->configPath . $this->name . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+            }
+        }
+
+        foreach ($files as $file) {
+            $this->config->load($file, pathinfo($file, PATHINFO_FILENAME));
+        }
     }
 
     /**
@@ -885,8 +880,8 @@ class App extends Container
 
         if (class_exists($class)) {
             return Container::getInstance()->invokeClass($class, $args);
-        } else {
-            throw new ClassNotFoundException('class not exists:' . $class, $class);
         }
+
+        throw new ClassNotFoundException('class not exists:' . $class, $class);
     }
 }
