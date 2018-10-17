@@ -88,7 +88,7 @@ trait RelationShip
     {
         if (is_null($name)) {
             return $this->relation;
-        } 
+        }
         
         if (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
