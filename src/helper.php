@@ -103,19 +103,19 @@ if (!function_exists('cache')) {
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::rm($name);
-        } else {
-            // 缓存数据
-            if (is_array($options)) {
-                $expire = isset($options['expire']) ? $options['expire'] : null; //修复查询缓存无法设置过期时间
-            } else {
-                $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
-            }
+        }
 
-            if (is_null($tag)) {
-                return Cache::set($name, $value, $expire);
-            } else {
-                return Cache::tag($tag)->set($name, $value, $expire);
-            }
+        // 缓存数据
+        if (is_array($options)) {
+            $expire = isset($options['expire']) ? $options['expire'] : null; //修复查询缓存无法设置过期时间
+        } else {
+            $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
+        }
+
+        if (is_null($tag)) {
+            return Cache::set($name, $value, $expire);
+        } else {
+            return Cache::tag($tag)->set($name, $value, $expire);
         }
     }
 }
@@ -185,9 +185,9 @@ if (!function_exists('config')) {
             }
 
             return 0 === strpos($name, '?') ? Config::has(substr($name, 1)) : Config::get($name);
-        } else {
-            return Config::set($name, $value);
         }
+
+        return Config::set($name, $value);
     }
 }
 
@@ -435,9 +435,9 @@ if (!function_exists('parse_name')) {
             }, $name);
 
             return $ucfirst ? ucfirst($name) : lcfirst($name);
-        } else {
-            return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
         }
+
+        return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
     }
 }
 
@@ -554,9 +554,8 @@ if (!function_exists('trace')) {
     {
         if ('[think]' === $log) {
             return Log::getLog();
-        } else {
-            Log::record($log, $level);
         }
+        Log::record($log, $level);
     }
 }
 
