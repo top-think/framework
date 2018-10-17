@@ -47,7 +47,8 @@ class Config extends Command
 
     protected function buildCacheContent($app)
     {
-        $content = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL;
+        $header  = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL . 'declare (strict_types = 1);' . PHP_EOL;
+        $content = '';
 
         if ($app) {
             $path = App::getBasePath() . $app . DIRECTORY_SEPARATOR;
@@ -94,7 +95,7 @@ class Config extends Command
                 if (isset($event['subscribe'])) {
 
                     foreach ($event['subscribe'] as $subscribe) {
-                        $content .= PHP_EOL . '\think\facade\Event::observe(' . $subscribe . ');' . PHP_EOL;
+                        $content .= PHP_EOL . '\think\facade\Event::observe(\'' . $subscribe . '\');' . PHP_EOL;
                     }
                 }
             }
@@ -126,6 +127,6 @@ class Config extends Command
 
         $content .= PHP_EOL . '\think\facade\Config::set(' . var_export($config->get(), true) . ');' . PHP_EOL;
 
-        return $content;
+        return $header . str_replace('declare (strict_types = 1);', '', $content);
     }
 }

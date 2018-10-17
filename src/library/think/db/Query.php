@@ -264,6 +264,17 @@ class Query
     }
 
     /**
+     * 获取数据库的配置参数
+     * @access public
+     * @param  string $name 参数名称
+     * @return mixed
+     */
+    public function getConfig(string $name = '')
+    {
+        return $this->connection->getConfig($name);
+    }
+
+    /**
      * 设置从主库读取数据
      * @access public
      * @param  bool $all 是否所有表有效

@@ -140,6 +140,16 @@ class App extends Container
     }
 
     /**
+     * 是否为多应用模式
+     * @access public
+     * @return bool
+     */
+    public function isMulti(): bool
+    {
+        return $this->appMulti;
+    }
+
+    /**
      * 设置应用路径
      * @access public
      * @param  string $path 应用目录
@@ -227,9 +237,9 @@ class App extends Container
         if (is_file($this->rootPath . '.env')) {
             $this->env->load($this->rootPath . '.env');
         }
-        
+
         $this->setDependPath();
-        
+
         $this->configExt = $this->env->get('config_ext', '.php');
         $this->config->set(include $this->rootPath . 'convention.php');
 
@@ -338,7 +348,7 @@ class App extends Container
         }
 
         $this->env->set('app_namespace', $this->namespace);
-        $this->request->setApp($this->name);
+        $this->request->setApp($this->name ?: '');
         $this->request->filter($this->config['app.default_filter']);
     }
 

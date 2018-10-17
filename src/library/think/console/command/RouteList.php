@@ -43,7 +43,7 @@ class RouteList extends Command
     {
         $app = $input->getArgument('app');
 
-        if ($app) {
+        if (App::isMulti() && $app) {
             $filename = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'route_list_' . $app . '.php';
         } else {
             $filename = App::getRuntimePath() . 'route_list.php';
@@ -62,7 +62,7 @@ class RouteList extends Command
         Container::get('route')->setTestMode(true);
         Container::get('route')->clear();
 
-        if ($app) {
+        if (App::isMulti() && $app) {
             $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
             $path = App::getRoutePath();
