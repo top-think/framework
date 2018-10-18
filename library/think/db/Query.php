@@ -436,9 +436,10 @@ class Query
                 // 返回SQL语句
                 return $pdo;
             }
+
             $result = $pdo->fetchColumn();
             if ($force) {
-                $result += 0;
+                $result = (float) $result;
             }
 
             if (isset($cache) && false !== $result) {
@@ -538,10 +539,13 @@ class Query
             $options = $this->getOptions();
             $subSql  = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
 
-            return $this->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0, true);
+            $count = $this->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0);
+        } else {
+            $count = $this->aggregate('COUNT', $field);
         }
 
-        return $this->aggregate('COUNT', $field, true);
+        return is_string($count) ? $count : (int) $count;
+
     }
 
     /**
