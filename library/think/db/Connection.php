@@ -1314,7 +1314,11 @@ abstract class Connection
      */
     public function aggregate(Query $query, $aggregate, $field)
     {
-        $field = $aggregate . '(' . $this->builder->parseKey($query, $field, true) . ') AS tp_' . strtolower($aggregate);
+        if (0 === stripos($field, 'DISTINCT ')) {
+            list($distinct, $field) = explode(' ', $field);
+        }
+
+        $field = $aggregate . '(' . (!empty($distinct) ? 'DISTINCT ' : '') . $this->builder->parseKey($query, $field, true) . ') AS tp_' . strtolower($aggregate);
 
         return $this->value($query, $field, 0);
     }
