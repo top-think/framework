@@ -195,6 +195,8 @@ class Lang
         if (isset($_GET[self::$langDetectVar])) {
             // url 中设置了语言变量
             $langSet = strtolower($_GET[self::$langDetectVar]);
+            // 保存当前语言到Cookie
+            $this->saveToCookie($langSet);
         } elseif (isset($_COOKIE[self::$langCookieVar])) {
             // Cookie 中设置了语言变量
             $langSet = strtolower($_COOKIE[self::$langCookieVar]);
@@ -261,5 +263,18 @@ class Lang
     public static function setAllowLangList($list)
     {
         self::$allowLangList = $list;
+    }
+    
+     /**
+     * 设置当前语言到Cookie
+     * @access public
+     * @param  string $lang 语言
+     * @return void
+     */
+    public function saveToCookie($lang = null)
+    {
+        $range = $lang ?: $this->range;
+
+        $this->app->cookie->forever($this->langCookieVar, $range);
     }
 }
