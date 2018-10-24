@@ -315,8 +315,8 @@ class Validate
 
             // 字段验证
             if ($rule instanceof \Closure) {
-                // 匿名函数验证 支持传入当前字段和所有字段两个数据
-                $result = call_user_func_array($rule, [$value, $data]);
+                // 匿名函数验证
+                $result = call_user_func_array($rule, [$value, $data, $title, $msg, $this]);
             } else {
                 $result = $this->checkItem($key, $value, $rule, $data, $title, $msg);
             }
