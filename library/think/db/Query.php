@@ -558,11 +558,15 @@ class Query
      */
     public function aggregate($aggregate, $field, $force = false)
     {
+        if (0 === stripos($field, 'DISTINCT ')) {
+            list($distinct, $field) = explode(' ', $field);
+        }
+
         if (!preg_match('/^[\w\.\*]+$/', $field)) {
             throw new Exception('not support data:' . $field);
         }
 
-        $result = $this->value($aggregate . '(' . $field . ') AS tp_' . strtolower($aggregate), 0, $force);
+        $result = $this->value($aggregate . '(' . (!empty($distinct) ? 'DISTINCT ' : '') . $field . ') AS tp_' . strtolower($aggregate), 0, $force);
 
         return $result;
     }
