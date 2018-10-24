@@ -207,27 +207,21 @@ class Log implements LoggerInterface
             return false;
         }
 
-        foreach ($this->log as $level => $info) {
-            $this->app['event']->trigger('LogLevel', [$level, $info]);
-        }
+        $log = [];
 
-        if (empty($this->config['level'])) {
-            // 获取全部日志
-            $log = $this->log;
-            if (!$this->app->isDebug() && isset($log['debug'])) {
-                unset($log['debug']);
+        foreach ($this->log as $level => $info) {
+            if (!$this->app->isDebug() && 'debug' == $level) {
+                continue;
             }
-        } else {
-            // 记录允许级别
-            $log = [];
-            foreach ($this->config['level'] as $level) {
-                if (isset($this->log[$level])) {
-                    $log[$level] = $this->log[$level];
-                }
+
+            if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
+                $log[$level] = $info;
+                $this->app['event']->trigger('LogLevel', [$level, $info]);
             }
         }
 
         $result = $this->driver->save($log);
+
         if ($result) {
             $this->log = [];
         }
