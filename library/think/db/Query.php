@@ -92,6 +92,13 @@ class Query
             $name         = Loader::parseName(substr($method, 10));
             $where[$name] = $args[0];
             return $this->where($where)->value($args[1]);
+        } elseif ($this->model && method_exists($this->model, 'scope' . $method)) {
+            // 动态调用命名范围
+            $method = 'scope' . $method;
+            array_unshift($args, $this);
+
+            call_user_func_array([$this->model, $method], $args);
+            return $this;
         } else {
             throw new Exception('method not exist:' . __CLASS__ . '->' . $method);
         }
