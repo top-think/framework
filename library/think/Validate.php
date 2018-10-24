@@ -422,7 +422,7 @@ class Validate
 
             // 字段验证
             if ($rule instanceof \Closure) {
-                $result = call_user_func_array($rule, [$value, $data]);
+                $result = call_user_func_array($rule, [$value, $data, $title, $this]);
             } elseif ($rule instanceof ValidateRule) {
                 //  验证因子
                 $result = $this->checkItem($key, $value, $rule->getRule(), $data, $rule->getTitle() ?: $title, $rule->getMsg());
