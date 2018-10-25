@@ -75,7 +75,7 @@ class HasMany extends Relation
      * @param  array    $resultSet   数据集
      * @param  string   $relation    当前关联名
      * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
+     * @param  Closure  $closure     闭包
      * @return void
      */
     public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation, Closure $closure = null): void
@@ -121,7 +121,7 @@ class HasMany extends Relation
      * @param  Model    $result      数据对象
      * @param  string   $relation    当前关联名
      * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
+     * @param  Closure  $closure     闭包
      * @return void
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
@@ -152,36 +152,42 @@ class HasMany extends Relation
      * 关联统计
      * @access public
      * @param  Model    $result  数据对象
-     * @param  \Closure $closure 闭包
+     * @param  Closure  $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
+     * @param  string   $name 统计字段别名
      * @return integer
      */
-    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*'): float
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null): float
     {
         $localKey = $this->localKey;
-        $count    = 0;
 
-        if (isset($result->$localKey)) {
-            if ($closure) {
-                $closure($this->query);
-            }
-
-            $count = $this->query->where($this->foreignKey, '=', $result->$localKey)->$aggregate($field);
+        if (!isset($result->$localKey)) {
+            return 0;
         }
 
-        return $count;
+        if ($closure) {
+            $return = $closure($this->query);
+            if ($resturn && is_string($return)) {
+                $name = $return;
+            }
+        }
+
+        return $this->query
+            ->where($this->foreignKey, '=', $result->$localKey)
+            ->$aggregate($field);
     }
 
     /**
      * 创建关联统计子查询
      * @access public
-     * @param  \Closure $closure 闭包
+     * @param  Closure  $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
+     * @param  string   $name 统计字段别名
      * @return string
      */
-    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*'): string
+    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string
     {
         if ($closure) {
             $closure($this->query);

@@ -89,7 +89,7 @@ trait RelationShip
         if (is_null($name)) {
             return $this->relation;
         }
-        
+
         if (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         }
@@ -294,7 +294,7 @@ trait RelationShip
     public function relationCount(Model $result, array $relations, string $aggregate = 'sum', string $field = '*'): void
     {
         foreach ($relations as $key => $relation) {
-            $closure = null;
+            $closure = $name = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
@@ -305,9 +305,9 @@ trait RelationShip
             }
 
             $relation = App::parseName($relation, 1, false);
-            $count    = $this->$relation()->relationCount($result, $closure, $aggregate, $field);
+            $count    = $this->$relation()->relationCount($result, $closure, $aggregate, $field, $name);
 
-            if (!isset($name)) {
+            if (empty($name)) {
                 $name = App::parseName($relation) . '_' . $aggregate;
             }
 

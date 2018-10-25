@@ -185,36 +185,40 @@ class MorphMany extends Relation
      * 关联统计
      * @access public
      * @param  Model    $result  数据对象
-     * @param  \Closure $closure 闭包
+     * @param  Closure  $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
+     * @param  string   $name 统计字段别名
      * @return integer
      */
-    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*')
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null)
     {
-        $pk    = $result->getPk();
-        $count = 0;
+        $pk = $result->getPk();
 
-        if (isset($result->$pk)) {
-            if ($closure) {
-                $closure($this->query);
-            }
-
-            $count = $this->query
-                ->where([
-                    [$this->morphKey, '=', $result->$pk],
-                    [$this->morphType, '=', $this->type],
-                ])
-                ->$aggregate($field);
+        if (!isset($result->$pk)) {
+            return 0;
         }
 
-        return $count;
+        if ($closure) {
+            $return = $closure($this->query);
+
+            if ($return && is_string($return)) {
+                $name = $return;
+            }
+        }
+
+        return $this->query
+            ->where([
+                [$this->morphKey, '=', $result->$pk],
+                [$this->morphType, '=', $this->type],
+            ])
+            ->$aggregate($field);
     }
 
     /**
      * 获取关联统计子查询
      * @access public
-     * @param  \Closure $closure 闭包
+     * @param  Closure  $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
      * @return string
@@ -222,7 +226,11 @@ class MorphMany extends Relation
     public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*'): string
     {
         if ($closure) {
-            $closure($this->query);
+            $return = $closure($this->query);
+
+            if ($return && is_string($return)) {
+                $name = $return;
+            }
         }
 
         return $this->query

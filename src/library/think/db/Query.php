@@ -2490,7 +2490,7 @@ class Query
             }
 
             foreach ($relations as $key => $relation) {
-                $closure = null;
+                $closure = $aggregateField = null;
 
                 if ($relation instanceof \Closure) {
                     $closure  = $relation;
@@ -2500,12 +2500,13 @@ class Query
                     $relation       = $key;
                 }
 
-                if (!isset($aggregateField)) {
+                $relation = App::parseName($relation, 1, false);
+
+                $count = '(' . $this->model->$relation()->getRelationCountQuery($closure, $aggregate, $field, $aggregateField) . ')';
+
+                if (empty($aggregateField)) {
                     $aggregateField = App::parseName($relation) . '_' . $aggregate;
                 }
-
-                $relation = App::parseName($relation, 1, false);
-                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure, $aggregate, $field) . ')';
 
                 $this->field([$count => $aggregateField]);
             }

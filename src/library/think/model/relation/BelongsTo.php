@@ -46,7 +46,7 @@ class BelongsTo extends OneToOne
      * 延迟获取关联数据
      * @access public
      * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包查询条件
+     * @param  Closure  $closure     闭包查询条件
      * @return Model
      */
     public function getRelation(array $subRelation = [], Closure $closure = null)
@@ -73,20 +73,55 @@ class BelongsTo extends OneToOne
     /**
      * 创建关联统计子查询
      * @access public
-     * @param  \Closure $closure 闭包
+     * @param  Closure  $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
+     * @param  string   $name 聚合字段别名
      * @return string
      */
-    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*'): string
+    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', &$name = ''): string
     {
         if ($closure) {
             $closure($this->query);
+            if ($return && is_string($return)) {
+                $name = $return;
+            }
         }
 
         return $this->query
             ->whereExp($this->localKey, '=' . $this->parent->getTable() . '.' . $this->foreignKey)
             ->fetchSql()
+            ->$aggregate($field);
+    }
+
+    /**
+     * 关联统计
+     * @access public
+     * @param  Model    $result  数据对象
+     * @param  Closure  $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
+     * @param  string   $name 统计字段别名
+     * @return integer
+     */
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null)
+    {
+        $foreignKey = $this->foreignKey;
+
+        if (!isset($result->$foreignKey)) {
+            return 0;
+        }
+
+        if ($closure) {
+            $return = $closure($this->query);
+
+            if ($resturn && is_string($return)) {
+                $name = $return;
+            }
+        }
+
+        return $this->query
+            ->where($this->localKey, '=', $result->$foreignKey)
             ->$aggregate($field);
     }
 
