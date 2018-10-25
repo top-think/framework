@@ -70,7 +70,7 @@ class BelongsToMany extends Relation
         return $this;
     }
 
-        /**
+    /**
      * 设置中间表数据名称
      * @access public
      * @param  string $name
