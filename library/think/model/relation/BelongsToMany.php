@@ -364,21 +364,30 @@ class BelongsToMany extends Relation
      * @param  \Closure $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
+     * @param  string   $name 统计字段别名
      * @return integer
      */
-    public function relationCount($result, $closure, $aggregate = 'count', $field = '*')
+    public function relationCount($result, $closure, $aggregate = 'count', $field = '*', &$name = '')
     {
-        $pk    = $result->getPk();
-        $count = 0;
+        $pk = $result->getPk();
 
-        if (isset($result->$pk)) {
-            $pk    = $result->$pk;
-            $count = $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
-                ['pivot.' . $this->localKey, '=', $pk],
-            ])->$aggregate($field);
+        if (!isset($result->$pk)) {
+            return 0;
         }
 
-        return $count;
+        $pk = $result->$pk;
+
+        if ($closure) {
+            $return = $closure($this->query);
+
+            if ($return && is_string($return)) {
+                $name = $return;
+            }
+        }
+
+        return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
+            ['pivot.' . $this->localKey, '=', $pk],
+        ])->$aggregate($field);
     }
 
     /**
@@ -387,10 +396,19 @@ class BelongsToMany extends Relation
      * @param  \Closure $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
-     * @return string
+     * @param  string   $aggregateAlias 聚合字段别名
+     * @return array
      */
-    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
+    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*', &$aggregateAlias = '')
     {
+        if ($closure) {
+            $return = $closure($this->query);
+
+            if ($return && is_string($return)) {
+                $aggregateAlias = $return;
+            }
+        }
+
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             [
                 'pivot.' . $this->localKey, 'exp', $this->query->raw('=' . $this->parent->getTable() . '.' . $this->parent->getPk()),
@@ -410,7 +428,11 @@ class BelongsToMany extends Relation
     protected function eagerlyManyToMany($where, $relation, $subRelation = '', $closure = null)
     {
         // 预载入关联查询 支持嵌套预载入
-        $list = $this->belongsToManyQuery($this->foreignKey, $this->localKey, $where, $closure)
+        if ($closure) {
+            $closure($this->query);
+        }
+
+        $list = $this->belongsToManyQuery($this->foreignKey, $this->localKey, $where)
             ->with($subRelation)
             ->select();
 
@@ -442,15 +464,10 @@ class BelongsToMany extends Relation
      * @param  string   $foreignKey 关联模型关联键
      * @param  string   $localKey   当前模型关联键
      * @param  array    $condition  关联查询条件
-     * @param  \Closure $closure     闭包
      * @return Query
      */
-    protected function belongsToManyQuery($foreignKey, $localKey, $condition = [], $closure = null)
+    protected function belongsToManyQuery($foreignKey, $localKey, $condition = [])
     {
-        if ($closure) {
-            $closure($this->query);
-        }
-
         // 关联查询封装
         $tableName = $this->query->getTable();
         $table     = $this->pivot->getTable();

@@ -309,7 +309,7 @@ trait RelationShip
     public function relationCount(&$result, $relations, $aggregate = 'sum', $field = '*')
     {
         foreach ($relations as $key => $relation) {
-            $closure = null;
+            $closure = $name = null;
 
             if ($relation instanceof \Closure) {
                 $closure  = $relation;
@@ -320,9 +320,10 @@ trait RelationShip
             }
 
             $relation = Loader::parseName($relation, 1, false);
-            $count    = $this->$relation()->relationCount($result, $closure, $aggregate, $field);
 
-            if (!isset($name)) {
+            $count = $this->$relation()->relationCount($result, $closure, $aggregate, $field, $name);
+
+            if (empty($name)) {
                 $name = Loader::parseName($relation) . '_' . $aggregate;
             }
 

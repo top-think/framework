@@ -74,17 +74,53 @@ class BelongsTo extends OneToOne
      * @param  \Closure $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
+     * @param  string   $aggregateAlias 聚合字段别名
      * @return string
      */
-    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*')
+    public function getRelationCountQuery($closure, $aggregate = 'count', $field = '*', &$aggregateAlias = '')
     {
         if ($closure) {
-            $closure($this->query);
+            $return = $closure($this->query);
+
+            if ($return && is_string($return)) {
+                $aggregateAlias = $return;
+            }
         }
 
         return $this->query
             ->whereExp($this->localKey, '=' . $this->parent->getTable() . '.' . $this->foreignKey)
             ->fetchSql()
+            ->$aggregate($field);
+    }
+
+    /**
+     * 关联统计
+     * @access public
+     * @param  Model    $result  数据对象
+     * @param  \Closure $closure 闭包
+     * @param  string   $aggregate 聚合查询方法
+     * @param  string   $field 字段
+     * @param  string   $name 统计字段别名
+     * @return integer
+     */
+    public function relationCount($result, $closure, $aggregate = 'count', $field = '*', &$name = '')
+    {
+        $foreignKey = $this->foreignKey;
+
+        if (!isset($result->$foreignKey)) {
+            return 0;
+        }
+
+        if ($closure) {
+            $return = $closure($this->query);
+
+            if ($resturn && is_string($return)) {
+                $name = $return;
+            }
+        }
+
+        return $this->query
+            ->where($this->localKey, '=', $result->$foreignKey)
             ->$aggregate($field);
     }
 
