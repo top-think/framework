@@ -315,8 +315,8 @@ class Validate
 
             // 字段验证
             if ($rule instanceof \Closure) {
-                // 匿名函数验证
-                $result = call_user_func_array($rule, [$value, $data, $title, $msg, $this]);
+                // 匿名函数验证 支持传入当前字段和所有字段两个数据
+                $result = call_user_func_array($rule, [$value, $data]);
             } else {
                 $result = $this->checkItem($key, $value, $rule, $data, $title, $msg);
             }
@@ -1113,10 +1113,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function after($value, $rule)
+    protected function after($value, $rule, $data)
     {
+        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) >= strtotime($rule);
     }
 
@@ -1125,10 +1127,12 @@ class Validate
      * @access protected
      * @param mixed     $value  字段值
      * @param mixed     $rule  验证规则
+     * @param array     $data  数据
      * @return bool
      */
-    protected function before($value, $rule)
+    protected function before($value, $rule, $data)
     {
+        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) <= strtotime($rule);
     }
 
@@ -1247,7 +1251,7 @@ class Validate
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
-            $value = isset($data[$key]) ? $data[$key] : null;
+            $value = isset($data[$key]) ? $data[$key] : $key;
         }
         return $value;
     }

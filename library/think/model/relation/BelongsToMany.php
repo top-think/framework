@@ -29,6 +29,8 @@ class BelongsToMany extends Relation
     protected $pivotName;
     // 中间表模型对象
     protected $pivot;
+    // 中间表数据名称
+    protected $pivotDataName = 'pivot';
 
     /**
      * 构造函数
@@ -67,6 +69,18 @@ class BelongsToMany extends Relation
     public function pivot($pivot)
     {
         $this->pivotName = $pivot;
+        return $this;
+    }
+
+    /**
+     * 设置中间表数据名称
+     * @access public
+     * @param  string $name
+     * @return $this
+     */
+    public function pivotDataName($name)
+    {
+        $this->pivotDataName = $name;
         return $this;
     }
 
@@ -118,7 +132,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $model->setRelation('pivot', $this->newPivot($pivot, true));
+            $model->setRelation($this->pivotDataName, $this->newPivot($pivot, true));
         }
     }
 
@@ -384,7 +398,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $set->setRelation('pivot', $this->newPivot($pivot, true));
+            $set->setRelation($this->pivotDataName, $this->newPivot($pivot, true));
             $data[$pivot[$this->localKey]][] = $set;
         }
         return $data;
