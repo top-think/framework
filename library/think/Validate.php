@@ -1241,10 +1241,12 @@ class Validate
      * @access public
      * @param  mixed     $value  字段值
      * @param  mixed     $rule  验证规则
+     * @param  array     $data  数据
      * @return bool
      */
-    public function after($value, $rule)
+    public function after($value, $rule, $data)
     {
+        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) >= strtotime($rule);
     }
 
@@ -1253,10 +1255,12 @@ class Validate
      * @access public
      * @param  mixed     $value  字段值
      * @param  mixed     $rule  验证规则
+     * @param  array     $data  数据
      * @return bool
      */
-    public function before($value, $rule)
+    public function before($value, $rule, $data)
     {
+        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) <= strtotime($rule);
     }
 
@@ -1384,7 +1388,7 @@ class Validate
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
-            $value = isset($data[$key]) ? $data[$key] : null;
+            $value = isset($data[$key]) ? $data[$key] : $key;
         }
 
         return $value;
