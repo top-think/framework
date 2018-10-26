@@ -365,9 +365,11 @@ class BelongsToMany extends Relation
      */
     public function getRelationCountQuery($closure, &$name = null)
     {
-        $return = call_user_func_array($closure, [ & $this->query]);
-        if ($return && is_string($return)) {
-            $name = $return;
+        if ($closure) {
+            $return = call_user_func_array($closure, [ & $this->query]);
+            if ($return && is_string($return)) {
+                $name = $return;
+            }
         }
 
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
