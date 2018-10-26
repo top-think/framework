@@ -2130,14 +2130,23 @@ class Query
                 $this->field('*');
             }
             foreach ($relations as $key => $relation) {
-                $closure = false;
+                $closure = $name = null;
                 if ($relation instanceof \Closure) {
                     $closure  = $relation;
                     $relation = $key;
+                } elseif (!is_int($key)) {
+                    $name     = $relation;
+                    $relation = $key;
                 }
                 $relation = Loader::parseName($relation, 1, false);
-                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure) . ')';
-                $this->field([$count => Loader::parseName($relation) . '_count']);
+
+                $count = '(' . $this->model->$relation()->getRelationCountQuery($closure, $name) . ')';
+
+                if (empty($name)) {
+                    $name = Loader::parseName($relation) . '_count';
+                }
+
+                $this->field([$count => $name]);
             }
         }
         return $this;

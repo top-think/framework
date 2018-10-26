@@ -360,10 +360,16 @@ class BelongsToMany extends Relation
      * 获取关联统计子查询
      * @access public
      * @param \Closure $closure 闭包
+     * @param string   $name    统计数据别名
      * @return string
      */
-    public function getRelationCountQuery($closure)
+    public function getRelationCountQuery($closure, &$name = null)
     {
+        $return = call_user_func_array($closure, [ & $this->query]);
+        if ($return && is_string($return)) {
+            $name = $return;
+        }
+
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             'pivot.' . $this->localKey => [
                 'exp',
@@ -511,6 +517,30 @@ class BelongsToMany extends Relation
         } else {
             throw new Exception('miss relation data');
         }
+    }
+
+    /**
+     * 判断是否存在关联数据
+     * @access public
+     * @param mixed $data  数据 可以使用关联模型对象 或者 关联对象的主键
+     * @return Pivot
+     * @throws Exception
+     */
+    public function attached($data)
+    {
+        if ($data instanceof Model) {
+            // 根据关联表主键直接写入中间表
+            $relationFk = $data->getPk();
+            $id         = $data->$relationFk;
+        } else {
+            $id = $data;
+        }
+
+        $pk = $this->parent->getPk();
+
+        $pivot = $this->pivot->where($this->localKey, $this->parent->$pk)->where($this->foreignKey, $id)->find();
+
+        return $pivot ?: false;
     }
 
     /**
