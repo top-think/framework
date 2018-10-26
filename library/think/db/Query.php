@@ -2651,6 +2651,7 @@ class Query
 
             foreach ($relations as $key => $relation) {
                 $closure = $aggregateField = null;
+
                 if ($relation instanceof \Closure) {
                     $closure  = $relation;
                     $relation = $key;
