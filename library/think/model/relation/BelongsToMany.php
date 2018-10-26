@@ -577,14 +577,13 @@ class BelongsToMany extends Relation
     /**
      * 判断是否存在关联数据
      * @access public
-     * @param mixed $data  数据 可以使用关联模型对象 或者 关联对象的主键
+     * @param  mixed $data  数据 可以使用关联模型对象 或者 关联对象的主键
      * @return Pivot
      * @throws Exception
      */
     public function attached($data)
     {
         if ($data instanceof Model) {
-            // 根据关联表主键直接写入中间表
             $id = $data->getKey();
         } else {
             $id = $data;
