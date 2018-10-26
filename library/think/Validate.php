@@ -1251,7 +1251,7 @@ class Validate
             list($name1, $name2) = explode('.', $key);
             $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
-            $value = isset($data[$key]) ? $data[$key] : $key;
+            $value = isset($data[$key]) ? $data[$key] : null;
         }
         return $value;
     }
