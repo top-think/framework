@@ -87,6 +87,8 @@ class Validate
         'min'         => 'min size of :attribute must be :rule',
         'after'       => ':attribute cannot be less than :rule',
         'before'      => ':attribute cannot exceed :rule',
+        'afterWith'   => ':attribute cannot be less than :rule',
+        'beforeWith'  => ':attribute cannot exceed :rule',
         'expire'      => ':attribute not within :rule',
         'allowIp'     => 'access IP is not allowed',
         'denyIp'      => 'access IP denied',
@@ -1246,7 +1248,6 @@ class Validate
      */
     public function after($value, $rule, $data)
     {
-        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) >= strtotime($rule);
     }
 
@@ -1260,8 +1261,35 @@ class Validate
      */
     public function before($value, $rule, $data)
     {
-        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) <= strtotime($rule);
+    }
+
+    /**
+     * 验证日期字段
+     * @access protected
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @param array     $data  数据
+     * @return bool
+     */
+    protected function afterWith($value, $rule, $data)
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) >= strtotime($rule);
+    }
+
+    /**
+     * 验证日期字段
+     * @access protected
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @param array     $data  数据
+     * @return bool
+     */
+    protected function beforeWith($value, $rule, $data)
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) <= strtotime($rule);
     }
 
     /**
