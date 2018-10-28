@@ -1118,7 +1118,6 @@ class Validate
      */
     protected function after($value, $rule, $data)
     {
-        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) >= strtotime($rule);
     }
 
@@ -1132,8 +1131,35 @@ class Validate
      */
     protected function before($value, $rule, $data)
     {
-        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) <= strtotime($rule);
+    }
+
+    /**
+     * 验证日期字段
+     * @access protected
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @param array     $data  数据
+     * @return bool
+     */
+    protected function afterWith($value, $rule, $data)
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) >= strtotime($rule);
+    }
+
+    /**
+     * 验证日期字段
+     * @access protected
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @param array     $data  数据
+     * @return bool
+     */
+    protected function beforeWith($value, $rule, $data)
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) <= strtotime($rule);
     }
 
     /**
