@@ -165,7 +165,7 @@ class HasMany extends Relation
 
         if ($closure) {
             $return = $closure($this->query);
-            if ($resturn && is_string($return)) {
+            if ($return && is_string($return)) {
                 $name = $return;
             }
         }
