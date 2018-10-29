@@ -1236,7 +1236,6 @@ class Validate
      */
     public function after($value, $rule, array $data = []): bool
     {
-        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) >= strtotime($rule);
     }
 
@@ -1250,8 +1249,35 @@ class Validate
      */
     public function before($value, $rule, array $data = []): bool
     {
-        $rule = $this->getDataValue($data, $rule);
         return strtotime($value) <= strtotime($rule);
+    }
+
+        /**
+     * 验证日期
+     * @access public
+     * @param  mixed     $value  字段值
+     * @param  mixed     $rule  验证规则
+     * @param  array     $data  数据
+     * @return bool
+     */
+    public function afterWith($value, $rule, array $data = []): bool
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) >= strtotime($rule);
+    }
+
+    /**
+     * 验证日期
+     * @access public
+     * @param  mixed     $value  字段值
+     * @param  mixed     $rule  验证规则
+     * @param  array     $data  数据
+     * @return bool
+     */
+    public function beforeWith($value, $rule, array $data = []): bool
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) <= strtotime($rule);
     }
 
     /**
