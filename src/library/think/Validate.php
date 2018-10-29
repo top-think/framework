@@ -1252,7 +1252,7 @@ class Validate
         return strtotime($value) <= strtotime($rule);
     }
 
-        /**
+    /**
      * 验证日期
      * @access public
      * @param  mixed     $value  字段值
