@@ -1368,18 +1368,19 @@ class Query
      * 指定Exp查询条件
      * @access public
      * @param  mixed  $field     查询字段
-     * @param  string $condition 查询条件
+     * @param  string $where     查询条件
      * @param  array  $bind      参数绑定
      * @param  string $logic     查询逻辑 and or xor
      * @return $this
      */
-    public function whereExp(string $field, $condition, array $bind = [], string $logic = 'AND')
+    public function whereExp(string $field, $where, array $bind = [], string $logic = 'AND')
     {
-        $this->options['where'][$logic][] = [$field, 'EXP', $this->raw($condition)];
-
         if ($bind) {
-            $this->bind($bind);
+            $this->bindParams($where, $bind);
         }
+
+        $this->options['where'][$logic][] = [$field, 'EXP', $this->raw($where)];
+
         return $this;
     }
 
@@ -1393,11 +1394,11 @@ class Query
      */
     public function whereRaw(string $where, array $bind = [], string $logic = 'AND')
     {
-        $this->options['where'][$logic][] = $this->raw($where);
-
         if ($bind) {
-            $this->bind($bind);
+            $this->bindParams($where, $bind);
         }
+
+        $this->options['where'][$logic][] = $this->raw($where);
 
         return $this;
     }
@@ -1818,13 +1819,7 @@ class Query
     public function orderRaw(string $field, array $bind = [])
     {
         if ($bind) {
-            foreach ($bind as $key => $value) {
-                if (!is_numeric($key)) {
-                    $field = str_replace(':' . $key, '?', $field);
-                }
-            }
-
-            $this->bind(array_values($bind));
+            $this->bindParams($field, $bind);
         }
 
         $this->options['order'][] = $this->raw($field);
@@ -2291,17 +2286,40 @@ class Query
      * @access public
      * @param  mixed   $value 绑定变量值
      * @param  integer $type  绑定类型
-     * @return $this
+     * @return $this|string
      */
-    public function bind($value = false, int $type = PDO::PARAM_STR)
+    public function bind($value, int $type = PDO::PARAM_STR)
     {
         if (is_array($value)) {
             $this->bind = array_merge($this->bind, $value);
         } else {
-            $this->bind[] = [$value, $type];
+            $name = 'ThinkBind_' . (count($this->bind) + 1);
+
+            $this->bind[$name] = [$value, $type];
+            return $name;
         }
 
         return $this;
+    }
+
+    /**
+     * 参数绑定
+     * @access public
+     * @param  string $sql    绑定的sql表达式
+     * @param  array  $bind   参数绑定
+     * @return void
+     */
+    protected function bindParams(&$sql, array $bind = [])
+    {
+        foreach ($bind as $key => $value) {
+            $name = $this->bind($value);
+
+            if (is_numeric($key)) {
+                $sql = substr_replace($sql, ':' . $name, strpos($sql, '?'), 1);
+            } else {
+                $sql = str_replace(':' . $key, ':' . $name, $sql);
+            }
+        }
     }
 
     /**

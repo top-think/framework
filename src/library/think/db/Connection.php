@@ -191,7 +191,7 @@ abstract class Connection
      * @return Connection
      * @throws Exception
      */
-    public static function instance($config = [], $name = false):Connection
+    public static function instance($config = [], $name = false): Connection
     {
         if (false === $name) {
             $name = md5(serialize($config));
@@ -248,7 +248,7 @@ abstract class Connection
      * @access public
      * @return Builder
      */
-    public function getBuilder():Builder
+    public function getBuilder(): Builder
     {
         return $this->builder;
     }
@@ -469,7 +469,7 @@ abstract class Connection
      */
     public function setConfig($config): void
     {
-            $this->config = array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -481,7 +481,7 @@ abstract class Connection
      * @return PDO
      * @throws Exception
      */
-    public function connect(array $config = [], $linkNum = 0, $autoConnection = false):PDO
+    public function connect(array $config = [], $linkNum = 0, $autoConnection = false): PDO
     {
         if (isset($this->links[$linkNum])) {
             return $this->links[$linkNum];
@@ -698,7 +698,7 @@ abstract class Connection
      * @throws \Exception
      * @throws \Throwable
      */
-    public function execute(string $sql, array $bind = [], Query $query):int
+    public function execute(string $sql, array $bind = [], Query $query): int
     {
         $this->initConnect(true);
 
@@ -1310,7 +1310,7 @@ abstract class Connection
             $field = $key . ',' . $field;
         }
 
-            $field = array_map('trim', explode(',', $field));
+        $field = array_map('trim', explode(',', $field));
 
         $query->setOption('field', $field);
 
@@ -1419,10 +1419,7 @@ abstract class Connection
             // 判断占位符
             $sql = is_numeric($key) ?
             substr_replace($sql, $value, strpos($sql, '?'), 1) :
-            str_replace(
-                [':' . $key . ')', ':' . $key . ',', ':' . $key . ' ', ':' . $key . PHP_EOL],
-                [$value . ')', $value . ',', $value . ' ', $value . PHP_EOL],
-                $sql . ' ');
+            str_replace(':' . $key, $value, $sql);
         }
 
         return rtrim($sql);
@@ -1574,7 +1571,7 @@ abstract class Connection
      * @throws \PDOException
      * @throws \Exception
      */
-    public function startTrans():void
+    public function startTrans(): void
     {
         $this->initConnect(true);
 
@@ -1929,7 +1926,7 @@ abstract class Connection
      * @param  boolean $master 主服务器
      * @return PDO
      */
-    protected function multiConnect(bool $master = false):PDO
+    protected function multiConnect(bool $master = false): PDO
     {
         $_config = [];
 

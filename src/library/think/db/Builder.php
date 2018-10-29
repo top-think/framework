@@ -401,8 +401,8 @@ abstract class Builder
         $bindType = $binds[$field] ?? PDO::PARAM_STR;
 
         if (is_scalar($value) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
-            $query->bind($value, $bindType);
-            $value = '?';
+            $name  = $query->bind($value, $bindType);
+            $value = ':' . $name;
         }
 
         // 解析查询表达式
@@ -437,12 +437,9 @@ abstract class Builder
         // 模糊匹配
         if (is_array($value)) {
             foreach ($value as $item) {
-
-                $bind[]  = [$item, $bindType];
-                $array[] = $key . ' ' . $exp . ' ?';
+                $name    = $query->bind($item, $bindType);
+                $array[] = $key . ' ' . $exp . ' :' . $name;
             }
-
-            $query->bind($bind);
 
             $whereStr = '(' . implode($array, ' ' . strtoupper($logic) . ' ') . ')';
         } else {
@@ -525,14 +522,10 @@ abstract class Builder
         // BETWEEN 查询
         $data = is_array($value) ? $value : explode(',', $value);
 
-        $bind = [
-            [$data[0], $bindType],
-            [$data[1], $bindType],
-        ];
+        $min = $query->bind($data[0], $bindType);
+        $max = $query->bind($data[1], $bindType);
 
-        $query->bind($bind);
-
-        return $key . ' ' . $exp . ' ? AND ? ';
+        return $key . ' ' . $exp . ' :' . $min . ' AND :' . $max . ' ';
     }
 
     /**
@@ -644,17 +637,15 @@ abstract class Builder
         } else {
             $value = array_unique(is_array($value) ? $value : explode(',', $value));
 
-            $bind  = [];
             $array = [];
 
             foreach ($value as $v) {
 
-                $bind[]  = [$v, $bindType];
-                $array[] = '?';
+                $name    = $query->bind($v, $bindType);
+                $array[] = ':' . $name;
             }
 
             $zone = implode(',', $array);
-            $query->bind($bind);
 
             $value = empty($zone) ? "''" : $zone;
         }
@@ -722,9 +713,9 @@ abstract class Builder
             }
         }
 
-        $query->bind($value, $bindType);
+        $name = $query->bind($value, $bindType);
 
-        return '?';
+        return ':' . $name;
     }
 
     /**
