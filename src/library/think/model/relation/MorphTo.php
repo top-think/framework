@@ -94,7 +94,7 @@ class MorphTo extends Relation
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
+    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = '')
     {
         return $this->parent;
     }
@@ -106,7 +106,7 @@ class MorphTo extends Relation
      * @param  mixed     $fields 字段
      * @return Query
      */
-    public function hasWhere($where = [], $fields = null)
+    public function hasWhere($where = [], $fields = null, string $joinType = '')
     {
         throw new Exception('relation not support: hasWhere');
     }

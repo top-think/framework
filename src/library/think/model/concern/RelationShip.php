@@ -53,7 +53,7 @@ trait RelationShip
      * 关联自动写入信息
      * @var array
      */
-    protected $relationWrite;
+    protected $relationWrite = [];
 
     /**
      * 设置父关联对象
@@ -93,7 +93,6 @@ trait RelationShip
         if (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         }
-        return;
     }
 
     /**
@@ -143,15 +142,11 @@ trait RelationShip
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public static function has(string $relation, $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER'): Query
+    public static function has(string $relation, string $operator = '>=', int $count = 1, string $id = '*', string $joinType = ''): Query
     {
-        $relation = (new static())->$relation();
-
-        if (is_array($operator) || $operator instanceof \Closure) {
-            return $relation->hasWhere($operator);
-        }
-
-        return $relation->has($operator, $count, $id, $joinType);
+        return (new static())
+            ->$relation()
+            ->has($operator, $count, $id, $joinType);
     }
 
     /**
@@ -160,11 +155,14 @@ trait RelationShip
      * @param  string $relation 关联方法名
      * @param  mixed  $where    查询条件（数组或者闭包）
      * @param  mixed  $fields   字段
+     * @param  string $joinType JOIN类型
      * @return Query
      */
-    public static function hasWhere(string $relation, $where = [], $fields = '*'): Query
+    public static function hasWhere(string $relation, $where = [], string $fields = '*', string $joinType = ''): Query
     {
-        return (new static())->$relation()->hasWhere($where, $fields);
+        return (new static())
+            ->$relation()
+            ->hasWhere($where, $fields, $joinType);
     }
 
     /**

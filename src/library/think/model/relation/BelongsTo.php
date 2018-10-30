@@ -33,7 +33,6 @@ class BelongsTo extends OneToOne
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
-        $this->joinType   = 'INNER';
         $this->query      = (new $model)->db();
         $this->relation   = $relation;
 
@@ -134,19 +133,32 @@ class BelongsTo extends OneToOne
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has(string $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER')
+    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = ''): Query
     {
-        return $this->parent;
+        $table      = $this->query->getTable();
+        $model      = basename(str_replace('\\', '/', get_class($this->parent)));
+        $relation   = basename(str_replace('\\', '/', $this->model));
+        $localKey   = $this->localKey;
+        $foreignKey = $this->foreignKey;
+
+        return $this->parent->db()
+            ->alias($model)
+            ->whereExists(function ($query) use ($table, $model, $relation, $localKey, $foreignKey) {
+                $query->table([$table => $relation])
+                    ->field($relation . '.' . $localKey)
+                    ->whereExp($model . '.' . $foreignKey, '=' . $relation . '.' . $localKey);
+            });
     }
 
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param  mixed     $where  查询条件（数组或者闭包）
-     * @param  mixed     $fields 字段
+     * @param  mixed   $where  查询条件（数组或者闭包）
+     * @param  mixed   $fields 字段
+     * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function hasWhere($where = [], $fields = null)
+    public function hasWhere($where = [], $fields = null, string $joinType = ''): Query
     {
         $table    = $this->query->getTable();
         $model    = basename(str_replace('\\', '/', get_class($this->parent)));
@@ -161,7 +173,7 @@ class BelongsTo extends OneToOne
         return $this->parent->db()
             ->alias($model)
             ->field($fields)
-            ->join([$table => $relation], $model . '.' . $this->foreignKey . '=' . $relation . '.' . $this->localKey, $this->joinType)
+            ->join([$table => $relation], $model . '.' . $this->foreignKey . '=' . $relation . '.' . $this->localKey, $joinType ?: $this->joinType)
             ->where($where);
     }
 

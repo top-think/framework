@@ -117,7 +117,7 @@ trait Attribute
     /**
      * 获取模型对象的主键值
      * @access public
-     * @return integer
+     * @return mixed
      */
     public function getKey()
     {
@@ -160,7 +160,7 @@ trait Attribute
      * 设置数据对象值
      * @access public
      * @param  array    $data  数据
-     * @param  bool     $set  是否调用修改器
+     * @param  bool     $set   是否调用修改器
      * @param  array    $allow 允许的字段名
      * @return $this
      */
@@ -169,12 +169,10 @@ trait Attribute
         // 清空数据
         $this->data = [];
 
-        if ($this->disuse) {
-            // 废弃字段
-            foreach ((array) $this->disuse as $key) {
-                if (array_key_exists($key, $data)) {
-                    unset($data[$key]);
-                }
+        // 废弃字段
+        foreach ($this->disuse as $key) {
+            if (array_key_exists($key, $data)) {
+                unset($data[$key]);
             }
         }
 
@@ -252,7 +250,7 @@ trait Attribute
      * @access public
      * @return array
      */
-    public function getChangedData()
+    public function getChangedData(): array
     {
         if ($this->force) {
             $data = $this->data;
@@ -266,12 +264,10 @@ trait Attribute
             });
         }
 
-        if (!empty($this->readonly)) {
-            // 只读字段不允许更新
-            foreach ($this->readonly as $key => $field) {
-                if (isset($data[$field])) {
-                    unset($data[$field]);
-                }
+        // 只读字段不允许更新
+        foreach ($this->readonly as $key => $field) {
+            if (isset($data[$field])) {
+                unset($data[$field]);
             }
         }
 
@@ -327,6 +323,8 @@ trait Attribute
 
             if (method_exists($this, $method)) {
                 $value = $this->$method($value, array_merge($this->data, $data));
+
+                $this->set[$name] = true;
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
@@ -335,7 +333,6 @@ trait Attribute
 
         // 设置数据对象属性
         $this->data[$name] = $value;
-        $this->set[$name]  = true;
     }
 
     /**

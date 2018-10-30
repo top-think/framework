@@ -12,9 +12,10 @@ declare (strict_types = 1);
 
 namespace think;
 
+use ArrayAccess;
 use Yaconf;
 
-class Config implements \ArrayAccess
+class Config implements ArrayAccess
 {
     /**
      * 配置参数
@@ -159,7 +160,7 @@ class Config implements \ArrayAccess
         if (isset($filename)) {
             return $this->loadFile($filename, $name);
         }
-        
+
         if ($this->yaconf && Yaconf::has($file)) {
             return $this->set(Yaconf::get($file), $name);
         }
@@ -175,7 +176,7 @@ class Config implements \ArrayAccess
         if ('php' == $type) {
             return $this->set(include $file, $name);
         }
-        
+
         if ('yaml' == $type && function_exists('yaml_parse_file')) {
             return $this->set(yaml_parse_file($file), $name);
         }

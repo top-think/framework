@@ -126,7 +126,7 @@ trait Conversion
      * @access public
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         $item    = [];
         $visible = [];
@@ -149,10 +149,8 @@ trait Conversion
         }
 
         // 追加属性（必须定义获取器）
-        if (!empty($this->append)) {
-            foreach ($this->append as $key => $name) {
-                $this->appendAttrToArray($item, $key, $name);
-            }
+        foreach ($this->append as $key => $name) {
+            $this->appendAttrToArray($item, $key, $name);
         }
 
         return $item;
@@ -183,6 +181,7 @@ trait Conversion
             $item[$key] = $relation->append([$attr])->toArray();
         } else {
             $value = $this->getAttr($name, $item);
+
             if (false !== $value) {
                 $item[$name] = $value;
             }
@@ -214,7 +213,7 @@ trait Conversion
      * @param  integer $options json参数
      * @return string
      */
-    public function toJson(int $options = JSON_UNESCAPED_UNICODE)
+    public function toJson(int $options = JSON_UNESCAPED_UNICODE): string
     {
         return json_encode($this->toArray(), $options);
     }

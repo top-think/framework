@@ -191,7 +191,7 @@ class App extends Container
      * @param  string $namespace 应用命名空间
      * @return $this
      */
-    public function namespace(string $namespace)
+    public function setNamespace(string $namespace)
     {
         $this->namespace = $namespace;
         return $this;
@@ -288,7 +288,7 @@ class App extends Container
     protected function setDependPath(): void
     {
         if (!$this->appPath) {
-            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR : $this->basePath;
+            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR: $this->basePath;
         }
 
         if ($this->appMulti) {

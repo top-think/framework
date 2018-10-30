@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+use ArrayAccess;
+use JsonSerializable;
+use think\Collection;
 use think\db\Query;
 use think\facade\Db;
 
@@ -20,7 +23,7 @@ use think\facade\Db;
  * @package think
  * @mixin Query
  */
-abstract class Model implements \JsonSerializable, \ArrayAccess
+abstract class Model implements JsonSerializable, ArrayAccess
 {
     use model\concern\Attribute;
     use model\concern\RelationShip;
@@ -127,17 +130,13 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 架构函数
      * @access public
-     * @param  array|object $data 数据
+     * @param  array $data 数据
      */
-    public function __construct($data = [])
+    public function __construct(array $data = [])
     {
-        if (is_object($data)) {
-            $this->data = get_object_vars($data);
-        } else {
-            $this->data = $data;
-        }
+        $this->data = $data;
 
-        if ($this->disuse) {
+        if ($this->data) {
             // 废弃字段
             foreach ((array) $this->disuse as $key) {
                 if (array_key_exists($key, $this->data)) {
@@ -202,12 +201,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 创建新的模型实例
      * @access public
-     * @param  array|object $data 数据
-     * @param  bool         $isUpdate 是否为更新
-     * @param  mixed        $where 更新条件
+     * @param  array    $data 数据
+     * @param  bool     $isUpdate 是否为更新
+     * @param  mixed    $where 更新条件
      * @return Model
      */
-    public function newInstance($data = [], bool $isUpdate = false, $where = null)
+    public function newInstance(array $data = [], bool $isUpdate = false, $where = null): Model
     {
         return (new static($data))->isUpdate($isUpdate, $where);
     }
@@ -273,10 +272,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
-     * @param  array $scope 使用的全局查询范围
+     * @param  array|false $scope 使用的全局查询范围
      * @return Query
      */
-    public function db(array $scope = []): Query
+    public function db($scope = []): Query
     {
         if ($this->queryInstance) {
             return $this->queryInstance;
@@ -290,9 +289,9 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 全局作用域
-        $globalScope = $scope ?: $this->globalScope;
+        $globalScope = is_array($scope) && $scope ? $scope : $this->globalScope;
 
-        if ($globalScope) {
+        if ($globalScope && false !== $scope) {
             $query->scope($globalScope);
         }
 
@@ -373,7 +372,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  bool $exists
      * @return $this
      */
-    public function exists(bool $exists)
+    public function exists(bool $exists = true)
     {
         $this->exists = $exists;
         return $this;
@@ -478,7 +477,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if ($this->disuse) {
             // 废弃字段
-            $field = array_diff($field, (array) $this->disuse);
+            $field = array_diff($field, $this->disuse);
         }
 
         return $field;
@@ -509,7 +508,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->autoRelationUpdate();
             }
 
-            return 0;
+            return false;
         } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
             // 自动写入更新时间
             $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
@@ -717,7 +716,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @return Collection
      * @throws \Exception
      */
-    public function saveAll(array $dataSet, bool $replace = true)
+    public function saveAll(array $dataSet, bool $replace = true): Collection
     {
         $db = $this->db();
         $db->startTrans();
@@ -751,7 +750,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 是否为更新数据
      * @access public
-     * @param  bool  $update
+     * @param  bool   $update
      * @param  mixed  $where
      * @return $this
      */
@@ -825,7 +824,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  array      $field 允许字段
      * @return static
      */
-    public static function create(array $data = [], array $field = [])
+    public static function create(array $data, array $field = []): Model
     {
         $model = new static();
 
@@ -833,7 +832,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $model->allowField($field);
         }
 
-        $model->isUpdate(false)->save($data, []);
+        $model->isUpdate(false)->save($data);
 
         return $model;
     }
@@ -846,7 +845,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @param  array      $field 允许字段
      * @return static
      */
-    public static function update(array $data = [], array $where = [], array $field = [])
+    public static function update(array $data, array $where = [], array $field = [])
     {
         $model = new static();
 
@@ -869,7 +868,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public static function destroy($data, bool $force = false): bool
     {
         if (empty($data) && 0 !== $data) {
-            return 0;
+            return false;
         }
 
         $model = new static();
@@ -886,10 +885,8 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $resultSet = $query->select($data);
 
-        if ($resultSet) {
-            foreach ($resultSet as $data) {
-                $data->force($force)->delete();
-            }
+        foreach ($resultSet as $data) {
+            $data->force($force)->delete();
         }
 
         return true;
@@ -994,10 +991,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 设置使用的全局查询范围
      * @access public
-     * @param  array $scope 启用的全局查询范围
+     * @param  array|false $scope 启用的全局查询范围
      * @return Query
      */
-    public static function useGlobalScope(array $scope)
+    public static function useGlobalScope($scope)
     {
         $model = new static();
 

@@ -28,7 +28,7 @@ abstract class OneToOne extends Relation
     // 预载入方式 0 -JOIN 1 -IN
     protected $eagerlyType = 1;
     // 当前关联的JOIN类型
-    protected $joinType;
+    protected $joinType = 'INNER';
     // 要绑定的属性
     protected $bindAttr = [];
     // 关联名

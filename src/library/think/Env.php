@@ -12,7 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
-class Env implements \ArrayAccess
+use ArrayAccess;
+
+class Env implements ArrayAccess
 {
     /**
      * 环境变量数据
