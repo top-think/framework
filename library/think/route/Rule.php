@@ -681,10 +681,10 @@ abstract class Rule
 
     /**
      * 合并分组参数
-     * @access protected
+     * @access public
      * @return array
      */
-    protected function mergeGroupOptions()
+    public function mergeGroupOptions()
     {
         if (!$this->lockOption) {
             $parentOption = $this->parent->getOption();
