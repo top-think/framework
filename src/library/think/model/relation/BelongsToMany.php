@@ -76,7 +76,7 @@ class BelongsToMany extends Relation
      * @param  string $name
      * @return $this
      */
-    public function pivotDataName($name)
+    public function pivotDataName(string $name)
     {
         $this->pivotDataName = $name;
         return $this;
