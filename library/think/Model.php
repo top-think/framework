@@ -301,7 +301,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         $globalScope = is_array($useBaseQuery) && $useBaseQuery ? $useBaseQuery : $this->globalScope;
 
-        if ($globalScope) {
+        if ($globalScope && false !== $useBaseQuery) {
             $query->scope($globalScope);
         }
 
