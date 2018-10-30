@@ -11,6 +11,7 @@
 
 namespace think\model;
 
+use think\Exception;
 use think\Model;
 
 class Pivot extends Model
@@ -28,8 +29,12 @@ class Pivot extends Model
      * @param  Model         $parent 上级模型
      * @param  string        $table 中间数据表名
      */
-    public function __construct($data = [], Model $parent = null, $table = '')
+    public function __construct($data = [], $parent = null, $table = '')
     {
+        if (!is_null($parent) && !($parent instanceof Model)) {
+            throw new Exception('parent model must extends: \think\Model');
+        }
+        
         $this->parent = $parent;
 
         if (is_null($this->name)) {
