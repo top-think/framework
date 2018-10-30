@@ -656,10 +656,10 @@ abstract class Rule
 
     /**
      * 合并分组参数
-     * @access protected
+     * @access public
      * @return array
      */
-    protected function mergeGroupOptions(): array
+    public function mergeGroupOptions(): array
     {
         $parentOption = $this->parent->getOption();
         // 合并分组参数
