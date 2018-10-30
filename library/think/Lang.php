@@ -161,7 +161,7 @@ class Lang
         $range = $range ?: $this->range;
 
         // 空参数返回所有定义
-        if (is_null($name)) {
+        if (empty($name)) {
             return $this->lang[$range];
         }
 
@@ -210,16 +210,16 @@ class Lang
             $langSet = strtolower($_COOKIE[$this->langCookieVar]);
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // 自动侦测浏览器语言
-            preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
-            $langSet = strtolower($matches[1]);
+            preg_match('/^([a-z\d\-\_]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
+            $langSet = str_replace('_', '-', strtolower($matches[1]));
             if (isset($this->acceptLanguage[$langSet])) {
                 $langSet = $this->acceptLanguage[$langSet];
             }
         }
 
-        if (empty($this->allowLangList) || in_array($langSet, $this->allowLangList)) {
+        if (!empty($this->allowLangList) && in_array($langSet, $this->allowLangList)) {
             // 合法的语言
-            $this->range = $langSet ?: $this->range;
+            $this->range = $langSet;
         }
 
         return $this->range;
