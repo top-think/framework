@@ -192,7 +192,7 @@ class Hook
         if ($class instanceof \Closure) {
             $call  = $class;
             $class = 'Closure';
-        } elseif (strpos($class, '::')) {
+        } elseif (is_array($class) || strpos($class, '::')) {
             $call = $class;
         } else {
             $obj = Container::get($class);
