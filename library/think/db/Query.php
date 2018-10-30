@@ -177,7 +177,7 @@ class Query
             call_user_func_array([$this->model, $method], $args);
             return $this;
         } else {
-            throw new Exception('method not exist:' . static::class . '->' . $method);
+            throw new Exception('method not exist:' . ($this->model ? get_class($this->model) : static::class) . '->' . $method);
         }
     }
 
@@ -628,6 +628,9 @@ class Query
             $result = (float) $result;
         }
 
+        // 查询完成后清空聚合字段信息
+        $this->removeOption('field');
+
         return $result;
     }
 
@@ -653,10 +656,12 @@ class Query
                 $query->fetchSql(true);
             }
 
-            return $query->aggregate('COUNT', '*', true);
+            $count = $query->aggregate('COUNT', '*');
+        } else {
+            $count = $this->aggregate('COUNT', $field);
         }
 
-        return $this->aggregate('COUNT', $field, true);
+        return is_string($count) ? $count : (int) $count;
     }
 
     /**
@@ -1024,16 +1029,11 @@ class Query
      * 表达式方式指定查询字段
      * @access public
      * @param  string $field    字段名
-     * @param  array  $bind     参数绑定
      * @return $this
      */
-    public function fieldRaw($field, array $bind = [])
+    public function fieldRaw($field)
     {
         $this->options['field'][] = $this->raw($field);
-
-        if ($bind) {
-            $this->bind($bind);
-        }
 
         return $this;
     }
@@ -1417,18 +1417,19 @@ class Query
      * 指定Exp查询条件
      * @access public
      * @param  mixed  $field     查询字段
-     * @param  string $condition 查询条件
+     * @param  string $where     查询条件
      * @param  array  $bind      参数绑定
      * @param  string $logic     查询逻辑 and or xor
      * @return $this
      */
-    public function whereExp($field, $condition, $bind = [], $logic = 'AND')
+    public function whereExp($field, $where, $bind = [], $logic = 'AND')
     {
-        $this->options['where'][$logic][] = [$field, 'EXP', $this->raw($condition)];
-
         if ($bind) {
-            $this->bind($bind);
+            $this->bindParams($where, $bind);
         }
+
+        $this->options['where'][$logic][] = [$field, 'EXP', $this->raw($where)];
+
         return $this;
     }
 
@@ -1442,13 +1443,37 @@ class Query
      */
     public function whereRaw($where, $bind = [], $logic = 'AND')
     {
-        $this->options['where'][$logic][] = $this->raw($where);
-
         if ($bind) {
-            $this->bind($bind);
+            $this->bindParams($where, $bind);
         }
 
+        $this->options['where'][$logic][] = $this->raw($where);
+
         return $this;
+    }
+
+    /**
+     * 参数绑定
+     * @access public
+     * @param  string $sql    绑定的sql表达式
+     * @param  array  $bind   参数绑定
+     * @return void
+     */
+    protected function bindParams(&$sql, array $bind = [])
+    {
+        foreach ($bind as $key => $value) {
+            if (is_array($value)) {
+                $name = $this->bind($value[0], $value[1], isset($value[2]) ? $value[2] : null);
+            } else {
+                $name = $this->bind($value);
+            }
+
+            if (is_numeric($key)) {
+                $sql = substr_replace($sql, ':' . $name, strpos($sql, '?'), 1);
+            } else {
+                $sql = str_replace(':' . $key, ':' . $name, $sql);
+            }
+        }
     }
 
     /**
@@ -1878,13 +1903,13 @@ class Query
      * @param  array  $bind  参数绑定
      * @return $this
      */
-    public function orderRaw($field, array $bind = [])
+    public function orderRaw($field, $bind = [])
     {
-        $this->options['order'][] = $this->raw($field);
-
         if ($bind) {
-            $this->bind($bind);
+            $this->bindParams($field, $bind);
         }
+
+        $this->options['order'][] = $this->raw($field);
 
         return $this;
     }
@@ -2424,17 +2449,20 @@ class Query
     /**
      * 参数绑定
      * @access public
-     * @param  mixed   $key   参数名
      * @param  mixed   $value 绑定变量值
      * @param  integer $type  绑定类型
-     * @return $this
+     * @param  string  $name  绑定名称
+     * @return $this|string
      */
-    public function bind($key, $value = false, $type = PDO::PARAM_STR)
+    public function bind($value, $type = PDO::PARAM_STR, $name = null)
     {
-        if (is_array($key)) {
-            $this->bind = array_merge($this->bind, $key);
+        if (is_array($value)) {
+            $this->bind = array_merge($this->bind, $value);
         } else {
-            $this->bind[$key] = [$value, $type];
+            $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1);
+
+            $this->bind[$name] = [$value, $type];
+            return $name;
         }
 
         return $this;
@@ -2633,7 +2661,8 @@ class Query
             }
 
             foreach ($relations as $key => $relation) {
-                $closure = null;
+                $closure = $aggregateField = null;
+
                 if ($relation instanceof \Closure) {
                     $closure  = $relation;
                     $relation = $key;
@@ -2642,14 +2671,15 @@ class Query
                     $relation       = $key;
                 }
 
-                if (!isset($aggregateField)) {
+                $relation = Loader::parseName($relation, 1, false);
+
+                $count = $this->model->$relation()->getRelationCountQuery($closure, $aggregate, $field, $aggregateField);
+
+                if (empty($aggregateField)) {
                     $aggregateField = Loader::parseName($relation) . '_' . $aggregate;
                 }
 
-                $relation = Loader::parseName($relation, 1, false);
-                $count    = '(' . $this->model->$relation()->getRelationCountQuery($closure, $aggregate, $field) . ')';
-
-                $this->field([$count => $aggregateField]);
+                $this->field(['(' . $count . ')' => $aggregateField]);
             }
         }
 
@@ -3197,7 +3227,7 @@ class Query
     {
         $result = $this->with($with)->cache($cache);
 
-        if (is_array($data) && key($data) !== 0) {
+        if ((is_array($data) && key($data) !== 0) || $data instanceof Where) {
             $result = $result->where($data);
             $data   = null;
         } elseif ($data instanceof \Closure) {

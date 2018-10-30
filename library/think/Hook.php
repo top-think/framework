@@ -187,8 +187,6 @@ class Hook
      */
     protected function execTag($class, $tag = '', $params = null)
     {
-        $this->app->isDebug() && $this->app['debug']->remark('behavior_start', 'time');
-
         $method = Loader::parseName($tag, 1, false);
 
         if ($class instanceof \Closure) {
@@ -208,12 +206,6 @@ class Hook
         }
 
         $result = $this->app->invoke($call, [$params]);
-
-        if ($this->app->isDebug()) {
-            $debug = $this->app['debug'];
-            $debug->remark('behavior_end', 'time');
-            $this->app->log('[ BEHAVIOR ] Run ' . $class . ' @' . $tag . ' [ RunTime:' . $debug->getRangeTime('behavior_start', 'behavior_end') . 's ]');
-        }
 
         return $result;
     }

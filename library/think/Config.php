@@ -71,7 +71,9 @@ class Config implements \ArrayAccess
      */
     public function setYaconf($yaconf)
     {
-        $this->yaconf = $yaconf;
+        if ($this->yaconf) {
+            $this->yaconf = $yaconf;
+        }
     }
 
     /**

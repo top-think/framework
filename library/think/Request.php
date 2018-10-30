@@ -1174,12 +1174,12 @@ class Request
 
         $files = $this->file;
         if (!empty($files)) {
-            // 处理上传文件
-            $array = $this->dealUploadFile($files);
-
             if (strpos($name, '.')) {
                 list($name, $sub) = explode('.', $name);
             }
+
+            // 处理上传文件
+            $array = $this->dealUploadFile($files, $name);
 
             if ('' === $name) {
                 // 获取全部文件
@@ -1194,18 +1194,24 @@ class Request
         return;
     }
 
-    protected function dealUploadFile($files)
+    protected function dealUploadFile($files, $name)
     {
         $array = [];
         foreach ($files as $key => $file) {
-            if (is_array($file['name'])) {
+            if ($file instanceof File) {
+                $array[$key] = $file;
+            } elseif (is_array($file['name'])) {
                 $item  = [];
                 $keys  = array_keys($file);
                 $count = count($file['name']);
 
                 for ($i = 0; $i < $count; $i++) {
                     if ($file['error'][$i] > 0) {
-                        $this->throwUploadFileError($file['error'][$i]);
+                        if ($name == $key) {
+                            $this->throwUploadFileError($file['error'][$i]);
+                        } else {
+                            continue;
+                        }
                     }
 
                     $temp['key'] = $key;
@@ -1219,15 +1225,15 @@ class Request
 
                 $array[$key] = $item;
             } else {
-                if ($file instanceof File) {
-                    $array[$key] = $file;
-                } else {
-                    if ($file['error'] > 0) {
+                if ($file['error'] > 0) {
+                    if ($key == $name) {
                         $this->throwUploadFileError($file['error']);
+                    } else {
+                        continue;
                     }
-
-                    $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
                 }
+
+                $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
             }
         }
 

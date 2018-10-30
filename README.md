@@ -1,6 +1,6 @@
 ![](http://www.thinkphp.cn/Uploads/editor/2016-06-23/576b4732a6e04.png) 
 
-ThinkPHP 5.1 —— 12载初心，你值得信赖的PHP框架
+ThinkPHP 5.1（LTS） —— 12载初心，你值得信赖的PHP框架
 ===============
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/top-think/framework/badges/quality-score.png?b=5.1)](https://scrutinizer-ci.com/g/top-think/framework/?branch=5.1)
@@ -27,6 +27,7 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
  + 中间件支持（`V5.1.6+`）
  + 支持`Swoole`/`Workerman`运行（`V5.1.18+`）
 
+官方已经正式宣布`5.1.27`版本为LTS版本。
 
 ### 废除的功能：
 
@@ -35,6 +36,7 @@ ThinkPHP5.1对底层架构做了进一步的改进，减少依赖，其主要特
  + 模型自动验证
 
 > ThinkPHP5.1的运行环境要求PHP5.6+。
+
 
 ## 安装
 
