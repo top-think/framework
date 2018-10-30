@@ -2286,14 +2286,15 @@ class Query
      * @access public
      * @param  mixed   $value 绑定变量值
      * @param  integer $type  绑定类型
+     * @param  string  $name  绑定标识
      * @return $this|string
      */
-    public function bind($value, int $type = PDO::PARAM_STR)
+    public function bind($value, int $type = PDO::PARAM_STR, string $name = null)
     {
         if (is_array($value)) {
             $this->bind = array_merge($this->bind, $value);
         } else {
-            $name = 'ThinkBind_' . (count($this->bind) + 1);
+            $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1);
 
             $this->bind[$name] = [$value, $type];
             return $name;
@@ -2309,10 +2310,14 @@ class Query
      * @param  array  $bind   参数绑定
      * @return void
      */
-    protected function bindParams(&$sql, array $bind = [])
+    protected function bindParams(string &$sql, array $bind = []): void
     {
         foreach ($bind as $key => $value) {
-            $name = $this->bind($value);
+            if (is_array($value)) {
+                $name = $this->bind($value[0], $value[1], $value[2] ?? null);
+            } else {
+                $name = $this->bind($value);
+            }
 
             if (is_numeric($key)) {
                 $sql = substr_replace($sql, ':' . $name, strpos($sql, '?'), 1);
