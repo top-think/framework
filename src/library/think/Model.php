@@ -14,7 +14,6 @@ namespace think;
 
 use ArrayAccess;
 use JsonSerializable;
-use think\Collection;
 use think\db\Query;
 use think\facade\Db;
 
