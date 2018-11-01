@@ -316,7 +316,7 @@ class Url
                     }
                 }
             }
-        } elseif (!strpos($domain, '.')) {
+        } elseif (!strpos($domain, '.') && 'localhost' != $rootDomain) {
             $domain .= '.' . $rootDomain;
         }
 
