@@ -58,9 +58,13 @@ class Env
         return $this->getEnv($name, $default);
     }
 
-    protected function getEnv($name, $default = null)
+    protected function getEnv($name, $default = null, $php_prefix = true)
     {
-        $result = getenv('PHP_' . $name);
+        if ($php_prefix) {
+            $name = 'PHP_' . $name;
+        }
+
+        $result = getenv($name);
 
         if (false === $result) {
             return $default;
