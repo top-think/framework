@@ -535,8 +535,6 @@ abstract class Builder
         $min = $query->bind($data[0], $bindType);
         $max = $query->bind($data[1], $bindType);
 
-        $query->bind($bind);
-
         return $key . ' ' . $exp . ' :' . $min . ' AND :' . $max . ' ';
     }
 
