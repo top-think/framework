@@ -163,7 +163,7 @@ trait Conversion
         }
 
         // 追加属性（必须定义获取器）
-        if (!empty($this->append)) {
+        if (!empty($this->append) && is_array($this->append)) {
             foreach ($this->append as $key => $name) {
                 if (is_array($name)) {
                     // 追加关联对象属性
