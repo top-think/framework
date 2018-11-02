@@ -2459,7 +2459,7 @@ class Query
         if (is_array($value)) {
             $this->bind = array_merge($this->bind, $value);
         } else {
-            $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1);
+            $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1) . '_';
 
             $this->bind[$name] = [$value, $type];
             return $name;
