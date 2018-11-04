@@ -331,10 +331,10 @@ class Validate
      * 移除某个字段的验证规则
      * @access public
      * @param  string|array  $field  字段名
-     * @param  mixed         $rule   验证规则 true 移除所有规则
+     * @param  mixed         $rule   验证规则 null 移除所有规则
      * @return $this
      */
-    public function remove($field, $rule = true)
+    public function remove($field, $rule = null)
     {
         if (is_array($field)) {
             foreach ($field as $key => $rule) {
