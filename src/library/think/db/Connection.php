@@ -757,12 +757,72 @@ abstract class Connection
      * 查找单条记录
      * @access public
      * @param  Query  $query        查询对象
-     * @return array|null|\PDOStatement|string
+     * @return string
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function fetchFind(Query $query): string
+    {
+        $options = $this->parseFindData($query);
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        $query->removeOption('limit');
+
+        // 获取实际执行的SQL语句
+        return $this->fetch($query, $sql);
+    }
+
+    /**
+     * 查找单条记录
+     * @access public
+     * @param  Query  $query        查询对象
+     * @return array|null
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
     public function find(Query $query)
+    {
+        $options = $this->parseFindData($query);
+
+        if (isset($options['key'])) {
+            $result = Container::get('cache')->get($options['key']);
+
+            if (false !== $result) {
+                return $result;
+            }
+
+        }
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        $query->removeOption('limit');
+
+        $bind = $query->getBind();
+
+        // 事件回调
+        $result = $query->trigger('before_find');
+
+        if (!$result) {
+            // 执行查询
+            $resultSet = $this->query($sql, $bind, $options['master'], false);
+
+            $result = $resultSet[0] ?? null;
+        }
+
+        if (isset($options['key']) && $result) {
+            // 缓存数据
+            $this->cacheData($options['key'], $result, $options['cache']);
+        }
+
+        return $result;
+    }
+
+    protected function parseFindData($query): array
     {
         // 分析查询表达式
         $options = $query->getOptions();
@@ -780,12 +840,8 @@ abstract class Connection
             } elseif (!isset($key)) {
                 $key = $this->getCacheKey($query, $data);
             }
+            $options['key'] = $key;
 
-            $result = Container::get('cache')->get($key);
-
-            if (false !== $result) {
-                return $result;
-            }
         }
 
         if (is_string($pk) && !is_array($data)) {
@@ -800,39 +856,7 @@ abstract class Connection
 
         $query->setOption('data', $data);
 
-        // 生成查询SQL
-        $sql = $this->builder->select($query);
-
-        $query->removeOption('limit');
-
-        $bind = $query->getBind();
-
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
-
-        // 事件回调
-        $result = $query->trigger('before_find');
-
-        if (!$result) {
-            // 执行查询
-            $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
-
-            if ($resultSet instanceof \PDOStatement) {
-                // 返回PDOStatement对象
-                return $resultSet;
-            }
-
-            $result = $resultSet[0] ?? null;
-        }
-
-        if (isset($cache) && $result) {
-            // 缓存数据
-            $this->cacheData($key, $result, $cache);
-        }
-
-        return $result;
+        return $options;
     }
 
     /**
@@ -862,12 +886,12 @@ abstract class Connection
      * 查找记录
      * @access public
      * @param  Query   $query        查询对象
-     * @return array|\PDOStatement|string
+     * @return array
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    public function select(Query $query)
+    public function select(Query $query): array
     {
         // 分析查询表达式
         $options = $query->getOptions();
@@ -885,21 +909,12 @@ abstract class Connection
 
         $bind = $query->getBind();
 
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
-
         $resultSet = $query->trigger('before_select');
 
         if (!$resultSet) {
             // 执行查询操作
-            $resultSet = $this->query($sql, $bind, $options['master'], $options['fetch_pdo']);
+            $resultSet = $this->query($sql, $bind, $options['master'], false);
 
-            if ($resultSet instanceof \PDOStatement) {
-                // 返回PDOStatement对象
-                return $resultSet;
-            }
         }
 
         if (!empty($options['cache']) && false !== $resultSet) {
@@ -911,13 +926,29 @@ abstract class Connection
     }
 
     /**
+     * 查找记录
+     * @access public
+     * @param  Query   $query        查询对象
+     * @return string
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function fetchSelect(Query $query): string
+    {
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+        return $this->fetch($query, $sql);
+    }
+
+    /**
      * 插入记录
      * @access public
      * @param  Query   $query        查询对象
      * @param  boolean $replace      是否replace
      * @param  boolean $getLastInsID 返回自增主键
      * @param  string  $sequence     自增序列名
-     * @return integer|string
+     * @return integer
      */
     public function insert(Query $query, bool $replace = false, bool $getLastInsID = false, string $sequence = null)
     {
@@ -928,11 +959,6 @@ abstract class Connection
         $sql = $this->builder->insert($query, $replace);
 
         $bind = $query->getBind();
-
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
 
         // 执行操作
         $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
@@ -963,20 +989,35 @@ abstract class Connection
     }
 
     /**
+     * 插入记录
+     * @access public
+     * @param  Query   $query        查询对象
+     * @param  boolean $replace      是否replace
+     * @param  boolean $getLastInsID 返回自增主键
+     * @param  string  $sequence     自增序列名
+     * @return string
+     */
+    public function fetchInsert(Query $query, bool $replace = false): string
+    {
+        $sql = $this->builder->insert($query, $replace);
+        return $this->fetch($query, $sql);
+    }
+
+    /**
      * 批量插入记录
      * @access public
      * @param  Query     $query      查询对象
      * @param  mixed     $dataSet    数据集
      * @param  bool      $replace    是否replace
      * @param  integer   $limit      每次写入数据限制
-     * @return integer|string
+     * @return integer
      * @throws \Exception
      * @throws \Throwable
      */
-    public function insertAll(Query $query, array $dataSet = [], bool $replace = false, int $limit = null)
+    public function insertAll(Query $query, array $dataSet = [], bool $replace = false, int $limit = null): int
     {
         if (!is_array(reset($dataSet))) {
-            return false;
+            return 0;
         }
 
         $options = $query->getOptions();
@@ -993,11 +1034,7 @@ abstract class Connection
                     $sql  = $this->builder->insertAll($query, $item, $replace);
                     $bind = $query->getBind();
 
-                    if (!empty($options['fetch_sql'])) {
-                        $fetchSql[] = $this->getRealSql($sql, $bind);
-                    } else {
-                        $count += $this->execute($sql, $bind, $query);
-                    }
+                    $count += $this->execute($sql, $bind, $query);
                 }
 
                 // 提交事务
@@ -1007,15 +1044,63 @@ abstract class Connection
                 throw $e;
             }
 
-            return isset($fetchSql) ? implode(';', $fetchSql) : $count;
+            return $count;
         }
 
         $sql  = $this->builder->insertAll($query, $dataSet, $replace);
         $bind = $query->getBind();
 
-        if (!empty($options['fetch_sql'])) {
-            return $this->getRealSql($sql, $bind);
+        return $this->execute($sql, $bind, $query);
+    }
+
+    /**
+     * 批量插入记录
+     * @access public
+     * @param  Query     $query      查询对象
+     * @param  mixed     $dataSet    数据集
+     * @param  bool      $replace    是否replace
+     * @param  integer   $limit      每次写入数据限制
+     * @return string
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function fetchInsertAll(Query $query, array $dataSet = [], bool $replace = false, int $limit = null): string
+    {
+        if ($limit) {
+
+            $array = array_chunk($dataSet, $limit, true);
+
+            foreach ($array as $item) {
+                $sql  = $this->builder->insertAll($query, $item, $replace);
+                $bind = $query->getBind();
+
+                $fetchSql[] = $this->getRealSql($sql, $bind);
+            }
+
+            return implode(';', $fetchSql);
         }
+
+        $sql = $this->builder->insertAll($query, $dataSet, $replace);
+        return $this->fetch($query, $sql);
+    }
+
+    /**
+     * 通过Select方式插入记录
+     * @access public
+     * @param  Query     $query      查询对象
+     * @param  array     $fields     要插入的数据表字段名
+     * @param  string    $table      要插入的数据表名
+     * @return integer
+     * @throws PDOException
+     */
+    public function selectInsert(Query $query, array $fields, string $table): int
+    {
+        // 分析查询表达式
+        $options = $query->getOptions();
+
+        $sql = $this->builder->selectInsert($query, $fields, $table);
+
+        $bind = $query->getBind();
 
         return $this->execute($sql, $bind, $query);
     }
@@ -1026,34 +1111,69 @@ abstract class Connection
      * @param  Query     $query      查询对象
      * @param  array     $fields     要插入的数据表字段名
      * @param  string    $table      要插入的数据表名
-     * @return integer|string
+     * @return string
      * @throws PDOException
      */
-    public function selectInsert(Query $query, array $fields, string $table)
+    public function fetchSelectInsert(Query $query, array $fields, string $table): string
     {
-        // 分析查询表达式
-        $options = $query->getOptions();
-
         $sql = $this->builder->selectInsert($query, $fields, $table);
+        return $this->fetch($query, $sql);
+    }
 
+    public function fetch($query, $sql)
+    {
         $bind = $query->getBind();
 
-        if (!empty($options['fetch_sql'])) {
-            return $this->getRealSql($sql, $bind);
-        }
-
-        return $this->execute($sql, $bind, $query);
+        // 获取实际执行的SQL语句
+        return $this->getRealSql($sql, $bind);
     }
 
     /**
      * 更新记录
      * @access public
      * @param  Query     $query  查询对象
-     * @return integer|string
+     * @return integer
      * @throws Exception
      * @throws PDOException
      */
-    public function update(Query $query)
+    public function update(Query $query): int
+    {
+        $options = $this->parseUpdateData($query);
+
+        // 生成UPDATE SQL语句
+        $sql  = $this->builder->update($query);
+        $bind = $query->getBind();
+
+        // 检测缓存
+        $cache = Container::get('cache');
+
+        if (isset($options['key']) && $cache->get($options['key'])) {
+            // 删除缓存
+            $cache->rm($options['key']);
+        } elseif (!empty($options['cache']['tag'])) {
+            $cache->clear($options['cache']['tag']);
+        }
+
+        // 执行操作
+        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
+
+        if ($result) {
+            $pk = $options['pk'];
+            if (is_string($pk) && isset($options['where']['AND'][$pk])) {
+                $data[$pk] = $options['where']['AND'][$pk];
+            } elseif (is_string($pk) && isset($options['key']) && strpos($options['key'], '|')) {
+                list($a, $val) = explode('|', $options['key']);
+                $data[$pk]     = $val;
+            }
+
+            $query->setOption('data', $data);
+            $query->trigger('after_update');
+        }
+
+        return $result;
+    }
+
+    protected function parseUpdateData($query): array
     {
         $options = $query->getOptions();
 
@@ -1061,8 +1181,9 @@ abstract class Connection
             $key = $options['cache']['key'];
         }
 
-        $pk   = $query->getPk($options);
-        $data = $options['data'];
+        $pk            = $query->getPk($options);
+        $data          = $options['data'];
+        $options['pk'] = $pk;
 
         if (empty($options['where'])) {
             // 如果存在主键数据 则自动作为更新条件
@@ -1096,44 +1217,28 @@ abstract class Connection
             $key = $this->getCacheKey($query, $options['where']['AND'][$pk]);
         }
 
+        if (isset($key)) {
+            $options['key'] = $key;
+        }
         // 更新数据
         $query->setOption('data', $data);
+        return $options;
+    }
+
+    /**
+     * 更新记录
+     * @access public
+     * @param  Query     $query  查询对象
+     * @return string
+     * @throws Exception
+     * @throws PDOException
+     */
+    public function fetchUpdate(Query $query): string
+    {
+        $this->parseUpdateData($query);
 
         // 生成UPDATE SQL语句
-        $sql  = $this->builder->update($query);
-        $bind = $query->getBind();
-
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
-
-        // 检测缓存
-        $cache = Container::get('cache');
-
-        if (isset($key) && $cache->get($key)) {
-            // 删除缓存
-            $cache->rm($key);
-        } elseif (!empty($options['cache']['tag'])) {
-            $cache->clear($options['cache']['tag']);
-        }
-
-        // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
-
-        if ($result) {
-            if (is_string($pk) && isset($where[$pk])) {
-                $data[$pk] = $where[$pk];
-            } elseif (is_string($pk) && isset($key) && strpos($key, '|')) {
-                list($a, $val) = explode('|', $key);
-                $data[$pk]     = $val;
-            }
-
-            $query->setOption('data', $data);
-            $query->trigger('after_update');
-        }
-
-        return $result;
+        return $this->builder->update($query);
     }
 
     /**
@@ -1144,7 +1249,7 @@ abstract class Connection
      * @throws Exception
      * @throws PDOException
      */
-    public function delete(Query $query)
+    public function delete(Query $query): int
     {
         // 分析查询表达式
         $options = $query->getOptions();
@@ -1168,11 +1273,6 @@ abstract class Connection
         $sql = $this->builder->delete($query);
 
         $bind = $query->getBind();
-
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
 
         // 检测缓存
         $cache = Container::get('cache');
@@ -1203,6 +1303,20 @@ abstract class Connection
     }
 
     /**
+     * 删除记录
+     * @access public
+     * @param  Query $query 查询对象
+     * @return string
+     * @throws Exception
+     * @throws PDOException
+     */
+    public function fetchDelete(Query $query): string
+    {
+        // 生成删除SQL语句
+        return $this->builder->delete($query);
+    }
+
+    /**
      * 得到某个字段的值
      * @access public
      * @param  Query     $query 查询对象
@@ -1212,7 +1326,8 @@ abstract class Connection
      */
     public function value(Query $query, string $field, $default = null)
     {
-        $options = $query->getOptions();
+
+        $options = $this->parseValueData($query);
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             $cache  = $options['cache'];
@@ -1222,6 +1337,62 @@ abstract class Connection
                 return $result;
             }
         }
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        if (isset($options['field'])) {
+            $query->setOption('field', $options['field']);
+        } else {
+            $query->removeOption('field');
+        }
+
+        $query->removeOption('limit');
+
+        $bind = $query->getBind();
+
+        // 执行查询操作
+        $pdo = $this->query($sql, $bind, $options['master'], true);
+
+        $result = $pdo->fetchColumn();
+
+        if (isset($cache) && false !== $result) {
+            // 缓存数据
+            $this->cacheData($key, $result, $cache);
+        }
+
+        return false !== $result ? $result : $default;
+    }
+
+    /**
+     * 得到某个字段的值
+     * @access public
+     * @param  Query     $query 查询对象
+     * @param  string    $field   字段名
+     * @param  mixed     $default   默认值
+     * @return string
+     */
+    public function fetchValue(Query $query, string $field, $default = null): string
+    {
+        $options = $this->parseValueData($query);
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        if (isset($options['field'])) {
+            $query->setOption('field', $options['field']);
+        } else {
+            $query->removeOption('field');
+        }
+
+        $query->removeOption('limit');
+
+        return $sql;
+    }
+
+    protected function parseValueData($query): array
+    {
+        $options = $query->getOptions();
 
         if (isset($options['field'])) {
             $query->removeOption('field');
@@ -1244,25 +1415,7 @@ abstract class Connection
         }
 
         $query->removeOption('limit');
-
-        $bind = $query->getBind();
-
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
-
-        // 执行查询操作
-        $pdo = $this->query($sql, $bind, $options['master'], true);
-
-        $result = $pdo->fetchColumn();
-
-        if (isset($cache) && false !== $result) {
-            // 缓存数据
-            $this->cacheData($key, $result, $cache);
-        }
-
-        return false !== $result ? $result : $default;
+        return $options;
     }
 
     /**
@@ -1290,7 +1443,7 @@ abstract class Connection
      */
     public function column(Query $query, string $field, string $key = ''): array
     {
-        $options = $query->getOptions();
+        $options = $this->parseColumnData($query);
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
@@ -1302,18 +1455,6 @@ abstract class Connection
             }
         }
 
-        if (isset($options['field'])) {
-            $query->removeOption('field');
-        }
-
-        if ($key && '*' != $field) {
-            $field = $key . ',' . $field;
-        }
-
-        $field = array_map('trim', explode(',', $field));
-
-        $query->setOption('field', $field);
-
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
@@ -1324,11 +1465,6 @@ abstract class Connection
         }
 
         $bind = $query->getBind();
-
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
 
         // 执行查询操作
         $pdo = $this->query($sql, $bind, $options['master'], true);
@@ -1374,6 +1510,57 @@ abstract class Connection
     }
 
     /**
+     * 得到某个列的数组
+     * @access public
+     * @param  Query     $query 查询对象
+     * @param  string    $field 字段名 多个字段用逗号分隔
+     * @param  string    $key   索引
+     * @return string
+     */
+    public function fetchColumn(Query $query, string $field, string $key = ''): string
+    {
+
+        $options = $this->parseColumnData($query);
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        if (isset($options['field'])) {
+            $query->setOption('field', $options['field']);
+        } else {
+            $query->removeOption('field');
+        }
+
+        return $sql;
+    }
+
+    protected function parseColumnData($query): array
+    {
+        $options = $query->getOptions();
+
+        if (isset($options['field'])) {
+            $query->removeOption('field');
+        }
+
+        if ($key && '*' != $field) {
+            $field = $key . ',' . $field;
+        }
+
+        $field = array_map('trim', explode(',', $field));
+
+        $query->setOption('field', $field);
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        if (isset($options['field'])) {
+            $query->setOption('field', $options['field']);
+        } else {
+            $query->removeOption('field');
+        }
+        return $options;
+    }
+
+    /**
      * 执行查询但只返回PDOStatement对象
      * @access public
      * @return \PDOStatement|string
@@ -1387,11 +1574,6 @@ abstract class Connection
         $sql = $this->builder->select($query);
 
         $bind = $query->getBind();
-
-        if (!empty($options['fetch_sql'])) {
-            // 获取实际执行的SQL语句
-            return $this->getRealSql($sql, $bind);
-        }
 
         // 执行查询操作
         return $this->query($sql, $bind, $options['master'], true);
@@ -1419,7 +1601,7 @@ abstract class Connection
             // 判断占位符
             $sql = is_numeric($key) ?
             substr_replace($sql, $value, strpos($sql, '?'), 1) :
-            str_replace(':' . $key, $value, $sql);
+            substr_replace($sql, $value, strpos($sql, ':' . $key), strlen(':' . $key));
         }
 
         return rtrim($sql);

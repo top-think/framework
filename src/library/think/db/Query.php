@@ -1986,6 +1986,9 @@ class Query
     public function fetchSql(bool $fetch = true)
     {
         $this->options['fetch_sql'] = $fetch;
+        if ($fetch) {
+            return new Fetch($this);
+        }
         return $this;
     }
 
@@ -2294,7 +2297,7 @@ class Query
         if (is_array($value)) {
             $this->bind = array_merge($this->bind, $value);
         } else {
-            $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1);
+            $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1) . '_';
 
             $this->bind[$name] = [$value, $type];
             return $name;
@@ -2657,7 +2660,7 @@ class Query
      * @param  boolean $replace      是否replace
      * @param  boolean $getLastInsID 返回自增主键
      * @param  string  $sequence     自增序列名
-     * @return integer|string
+     * @return integer
      */
     public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, string $sequence = null)
     {
@@ -2666,6 +2669,22 @@ class Query
         $this->options['data'] = array_merge($this->options['data'], $data);
 
         return $this->connection->insert($this, $replace, $getLastInsID, $sequence);
+    }
+
+    /**
+     * 插入记录
+     * @access public
+     * @param  array   $data         数据
+     * @param  boolean $replace      是否replace
+     * @return string
+     */
+    public function fetchInsert(array $data = [], bool $replace = false): string
+    {
+        $this->parseOptions();
+
+        $this->options['data'] = array_merge($this->options['data'], $data);
+
+        return $this->connection->fetchInsert($this, $replace);
     }
 
     /**
@@ -2687,7 +2706,7 @@ class Query
      * @param  array     $dataSet 数据集
      * @param  boolean   $replace 是否replace
      * @param  integer   $limit   每次写入数据限制
-     * @return integer|string
+     * @return integer
      */
     public function insertAll(array $dataSet = [], bool $replace = false, int $limit = null)
     {
@@ -2705,11 +2724,34 @@ class Query
     }
 
     /**
+     * 批量插入记录
+     * @access public
+     * @param  array     $dataSet 数据集
+     * @param  boolean   $replace 是否replace
+     * @param  integer   $limit   每次写入数据限制
+     * @return string
+     */
+    public function fetchInsertAll(array $dataSet = [], bool $replace = false, int $limit = null): string
+    {
+        $this->parseOptions();
+
+        if (empty($dataSet)) {
+            $dataSet = $this->options['data'];
+        }
+
+        if (empty($limit) && !empty($this->options['limit'])) {
+            $limit = $this->options['limit'];
+        }
+
+        return $this->connection->fetchInsertAll($this, $dataSet, $replace, $limit);
+    }
+
+    /**
      * 通过Select方式插入记录
      * @access public
      * @param  array    $fields 要插入的数据表字段名
      * @param  string   $table  要插入的数据表名
-     * @return integer|string
+     * @return integer
      * @throws PDOException
      */
     public function selectInsert(array $fields, string $table)
@@ -2720,10 +2762,25 @@ class Query
     }
 
     /**
+     * 通过Select方式插入记录
+     * @access public
+     * @param  array    $fields 要插入的数据表字段名
+     * @param  string   $table  要插入的数据表名
+     * @return string
+     * @throws PDOException
+     */
+    public function fetchSelectInsert(array $fields, string $table): string
+    {
+        $this->parseOptions();
+
+        return $this->connection->fetchSelectInsert($this, $fields, $table);
+    }
+
+    /**
      * 更新记录
      * @access public
      * @param  mixed $data 数据
-     * @return integer|string
+     * @return integer
      * @throws Exception
      * @throws PDOException
      */
@@ -2734,6 +2791,23 @@ class Query
         $this->options['data'] = array_merge($this->options['data'], $data);
 
         return $this->connection->update($this);
+    }
+
+    /**
+     * 更新记录
+     * @access public
+     * @param  mixed $data 数据
+     * @return string
+     * @throws Exception
+     * @throws PDOException
+     */
+    public function fetchUpdate(array $data = []): string
+    {
+        $this->parseOptions();
+
+        $this->options['data'] = array_merge($this->options['data'], $data);
+
+        return $this->connection->fetchUpdate($this);
     }
 
     /**
@@ -2767,6 +2841,39 @@ class Query
         $this->options['data'] = $data;
 
         return $this->connection->delete($this);
+    }
+
+    /**
+     * 删除记录
+     * @access public
+     * @param  mixed $data 表达式 true 表示强制删除
+     * @return string
+     * @throws Exception
+     * @throws PDOException
+     */
+    public function fetchDelete($data = null): string
+    {
+        $this->parseOptions();
+
+        if (!is_null($data) && true !== $data) {
+            // AR模式分析主键条件
+            $this->parsePkWhere($data);
+        }
+
+        if (!empty($this->options['soft_delete'])) {
+            // 软删除
+            list($field, $condition) = $this->options['soft_delete'];
+            if ($condition) {
+                unset($this->options['soft_delete']);
+                $this->options['data'] = [$field => $condition];
+
+                return $this->connection->fetchUpdate($this);
+            }
+        }
+
+        $this->options['data'] = $data;
+
+        return $this->connection->fetchDelete($this);
     }
 
     /**
@@ -2835,10 +2942,6 @@ class Query
 
         $resultSet = $this->connection->select($this);
 
-        if ($this->options['fetch_sql'] || $resultSet instanceof PDOStatement) {
-            return $resultSet;
-        }
-
         // 返回结果处理
         if (!empty($this->options['fail']) && count($resultSet) == 0) {
             $this->throwNotFound($this->options);
@@ -2853,6 +2956,34 @@ class Query
         }
 
         return $resultSet;
+    }
+
+    /**
+     * 查找记录
+     * @access public
+     * @param  mixed $data
+     * @return string
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function fetchSelect($data = null): string
+    {
+        if ($data instanceof \Closure) {
+            $data($this);
+            $data = null;
+        }
+
+        $this->parseOptions();
+
+        if (!is_null($data)) {
+            // 主键条件分析
+            $this->parsePkWhere($data);
+        }
+
+        $this->options['data'] = $data;
+
+        return $this->connection->fetchSelect($this);
     }
 
     /**
@@ -2941,23 +3072,11 @@ class Query
      */
     public function find($data = null)
     {
-        if ($data instanceof \Closure) {
-            $data($this);
-            $data = null;
-        }
-
-        $this->parseOptions();
-
-        if (!is_null($data)) {
-            // AR模式分析主键条件
-            $this->parsePkWhere($data);
-        }
-
-        $this->options['data'] = $data;
+        $this->parseData($data);
 
         $result = $this->connection->find($this);
 
-        if ($this->options['fetch_sql'] || $result instanceof PDOStatement) {
+        if ($result instanceof PDOStatement) {
             return $result;
         }
 
@@ -2976,6 +3095,30 @@ class Query
         }
 
         return $result;
+    }
+
+    protected function parseData($data)
+    {
+        if ($data instanceof \Closure) {
+            $data($this);
+            $data = null;
+        }
+
+        $this->parseOptions();
+
+        if (!is_null($data)) {
+            // AR模式分析主键条件
+            $this->parsePkWhere($data);
+        }
+
+        $this->options['data'] = $data;
+    }
+
+    public function fetchFind($data = null)
+    {
+        $this->parseData($data);
+
+        return $this->connection->fetchFind($this);
     }
 
     /**
@@ -3386,7 +3529,7 @@ class Query
      */
     public function buildSql(bool $sub = true): string
     {
-        return $sub ? '( ' . $this->select(false) . ' )' : $this->select(false);
+        return $sub ? '( ' . $this->fetchSql()->select() . ' )' : $this->fetchSql()->select();
     }
 
     /**

@@ -306,6 +306,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function initialize(): void
     {
         if (!isset(static::$initialized[static::class])) {
+            if ($this->observerClass) {
+                // 注册模型观察者
+                static::observe($this->observerClass);
+            }
             static::$initialized[static::class] = true;
             static::init();
         }
