@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use think\exception\ClassNotFoundException;
+use think\facade\Lang;
 use think\validate\ValidateRule;
 
 class Validate

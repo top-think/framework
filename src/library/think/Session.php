@@ -117,6 +117,7 @@ class Session
         }
 
         if ($isDoStart) {
+            unset($config['id'], $config['auto_start'], $config['httponly'], $config['secure'], $config['var_session_id'], $config['type'], $config['prefix']);
             session_start($config);
             $this->init = true;
         } else {
