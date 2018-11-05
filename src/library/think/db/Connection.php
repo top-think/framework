@@ -757,28 +757,6 @@ abstract class Connection
      * 查找单条记录
      * @access public
      * @param  Query  $query        查询对象
-     * @return string
-     * @throws DbException
-     * @throws ModelNotFoundException
-     * @throws DataNotFoundException
-     */
-    public function fetchFind(Query $query): string
-    {
-        $options = $this->parseFindData($query);
-
-        // 生成查询SQL
-        $sql = $this->builder->select($query);
-
-        $query->removeOption('limit');
-
-        // 获取实际执行的SQL语句
-        return $this->fetch($query, $sql);
-    }
-
-    /**
-     * 查找单条记录
-     * @access public
-     * @param  Query  $query        查询对象
      * @return array|null
      * @throws DbException
      * @throws ModelNotFoundException
