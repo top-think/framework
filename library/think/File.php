@@ -393,7 +393,7 @@ class File extends SplFileObject
      * @param  string|bool   $savename    保存的文件名 默认自动生成
      * @return string
      */
-    protected function buildSaveName($savename)
+    protected function buildSaveName($savename, $auto_ext = true)
     {
         if (true === $savename) {
             // 自动生成文件名
@@ -401,6 +401,10 @@ class File extends SplFileObject
         } elseif ('' === $savename || false === $savename) {
             // 保留原文件名
             $savename = $this->getInfo('name');
+        }
+
+        if ($auto_ext && false === strpos($savename, '.')) {
+            $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
         }
 
         return $savename;
