@@ -403,10 +403,6 @@ class File extends SplFileObject
             $savename = $this->getInfo('name');
         }
 
-        if (!strpos($savename, '.')) {
-            $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
-        }
-
         return $savename;
     }
 
