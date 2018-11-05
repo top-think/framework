@@ -21,7 +21,7 @@ use think\route\Dispatch;
  */
 class App extends Container
 {
-    const VERSION = '5.2.0beta';
+    const VERSION = '5.2.0beta1';
 
     /**
      * 应用名称
@@ -288,7 +288,7 @@ class App extends Container
     protected function setDependPath(): void
     {
         if (!$this->appPath) {
-            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR : $this->basePath;
+            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR: $this->basePath;
         }
 
         if ($this->appMulti) {
