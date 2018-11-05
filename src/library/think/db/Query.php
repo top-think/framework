@@ -1993,18 +1993,6 @@ class Query
     }
 
     /**
-     * 不主动获取数据集
-     * @access public
-     * @param  bool $pdo 是否返回 PDOStatement 对象
-     * @return $this
-     */
-    public function fetchPdo(bool $pdo = true)
-    {
-        $this->options['fetch_pdo'] = $pdo;
-        return $this;
-    }
-
-    /**
      * 设置是否返回数据集对象（支持设置数据集对象类名）
      * @access public
      * @param  bool|string  $collection  是否返回数据集对象
@@ -2662,7 +2650,7 @@ class Query
      * @param  string  $sequence     自增序列名
      * @return integer
      */
-    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, string $sequence = null)
+    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, string $sequence = null): int
     {
         $this->parseOptions();
 
@@ -2692,7 +2680,7 @@ class Query
      * @param  integer   $limit   每次写入数据限制
      * @return integer
      */
-    public function insertAll(array $dataSet = [], bool $replace = false, int $limit = null)
+    public function insertAll(array $dataSet = [], bool $replace = false, int $limit = null): int
     {
         $this->parseOptions();
 
@@ -2715,7 +2703,7 @@ class Query
      * @return integer
      * @throws PDOException
      */
-    public function selectInsert(array $fields, string $table)
+    public function selectInsert(array $fields, string $table): int
     {
         $this->parseOptions();
 
@@ -2730,7 +2718,7 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function update(array $data = [])
+    public function update(array $data = []): int
     {
         $this->parseOptions();
 
@@ -2747,7 +2735,7 @@ class Query
      * @throws Exception
      * @throws PDOException
      */
-    public function delete($data = null)
+    public function delete($data = null): int
     {
         $this->parseOptions();
 
@@ -2775,9 +2763,9 @@ class Query
     /**
      * 执行查询但只返回PDOStatement对象
      * @access public
-     * @return PDOStatement|string
+     * @return PDOStatement
      */
-    public function getPdo()
+    public function getPdo(): PDOStatement
     {
         $this->parseOptions();
 
@@ -2815,7 +2803,7 @@ class Query
      * 查找记录
      * @access public
      * @param  mixed $data
-     * @return Collection|array|PDOStatement|string
+     * @return Collection|array
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -2933,7 +2921,7 @@ class Query
      * 查找单条记录
      * @access public
      * @param  mixed $data
-     * @return array|null|PDOStatement|string|Model
+     * @return array|null|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -3503,7 +3491,7 @@ class Query
             $options['strict'] = $this->connection->getConfig('fields_strict');
         }
 
-        foreach (['master', 'lock', 'fetch_pdo', 'fetch_sql', 'distinct'] as $name) {
+        foreach (['master', 'lock', 'fetch_sql', 'distinct'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }

@@ -1335,9 +1335,9 @@ abstract class Connection
     /**
      * 执行查询但只返回PDOStatement对象
      * @access public
-     * @return \PDOStatement|string
+     * @return PDOStatement
      */
-    public function pdo(Query $query)
+    public function pdo(Query $query): PDOStatement
     {
         // 分析查询表达式
         $options = $query->getOptions();
