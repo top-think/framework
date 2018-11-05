@@ -610,9 +610,7 @@ class Query
 
         $result = $this->connection->aggregate($this, $aggregate, $field);
 
-        if (!empty($this->options['fetch_sql'])) {
-            return $result;
-        } elseif ($force) {
+        if ($force) {
             $result = (float) $result;
         }
 
@@ -1978,17 +1976,19 @@ class Query
     }
 
     /**
-     * 获取执行的SQL语句
+     * 获取执行的SQL语句而不进行实际的查询
      * @access public
-     * @param  boolean $fetch 是否返回sql
-     * @return $this
+     * @param  bool $fetch 是否返回sql
+     * @return $this|Fetch
      */
     public function fetchSql(bool $fetch = true)
     {
         $this->options['fetch_sql'] = $fetch;
+
         if ($fetch) {
             return new Fetch($this);
         }
+
         return $this;
     }
 
@@ -2672,22 +2672,6 @@ class Query
     }
 
     /**
-     * 插入记录
-     * @access public
-     * @param  array   $data         数据
-     * @param  boolean $replace      是否replace
-     * @return string
-     */
-    public function fetchInsert(array $data = [], bool $replace = false): string
-    {
-        $this->parseOptions();
-
-        $this->options['data'] = array_merge($this->options['data'], $data);
-
-        return $this->connection->fetchInsert($this, $replace);
-    }
-
-    /**
      * 插入记录并获取自增ID
      * @access public
      * @param  array   $data     数据
@@ -2724,29 +2708,6 @@ class Query
     }
 
     /**
-     * 批量插入记录
-     * @access public
-     * @param  array     $dataSet 数据集
-     * @param  boolean   $replace 是否replace
-     * @param  integer   $limit   每次写入数据限制
-     * @return string
-     */
-    public function fetchInsertAll(array $dataSet = [], bool $replace = false, int $limit = null): string
-    {
-        $this->parseOptions();
-
-        if (empty($dataSet)) {
-            $dataSet = $this->options['data'];
-        }
-
-        if (empty($limit) && !empty($this->options['limit'])) {
-            $limit = $this->options['limit'];
-        }
-
-        return $this->connection->fetchInsertAll($this, $dataSet, $replace, $limit);
-    }
-
-    /**
      * 通过Select方式插入记录
      * @access public
      * @param  array    $fields 要插入的数据表字段名
@@ -2759,21 +2720,6 @@ class Query
         $this->parseOptions();
 
         return $this->connection->selectInsert($this, $fields, $table);
-    }
-
-    /**
-     * 通过Select方式插入记录
-     * @access public
-     * @param  array    $fields 要插入的数据表字段名
-     * @param  string   $table  要插入的数据表名
-     * @return string
-     * @throws PDOException
-     */
-    public function fetchSelectInsert(array $fields, string $table): string
-    {
-        $this->parseOptions();
-
-        return $this->connection->fetchSelectInsert($this, $fields, $table);
     }
 
     /**
@@ -2791,23 +2737,6 @@ class Query
         $this->options['data'] = array_merge($this->options['data'], $data);
 
         return $this->connection->update($this);
-    }
-
-    /**
-     * 更新记录
-     * @access public
-     * @param  mixed $data 数据
-     * @return string
-     * @throws Exception
-     * @throws PDOException
-     */
-    public function fetchUpdate(array $data = []): string
-    {
-        $this->parseOptions();
-
-        $this->options['data'] = array_merge($this->options['data'], $data);
-
-        return $this->connection->fetchUpdate($this);
     }
 
     /**
@@ -2841,39 +2770,6 @@ class Query
         $this->options['data'] = $data;
 
         return $this->connection->delete($this);
-    }
-
-    /**
-     * 删除记录
-     * @access public
-     * @param  mixed $data 表达式 true 表示强制删除
-     * @return string
-     * @throws Exception
-     * @throws PDOException
-     */
-    public function fetchDelete($data = null): string
-    {
-        $this->parseOptions();
-
-        if (!is_null($data) && true !== $data) {
-            // AR模式分析主键条件
-            $this->parsePkWhere($data);
-        }
-
-        if (!empty($this->options['soft_delete'])) {
-            // 软删除
-            list($field, $condition) = $this->options['soft_delete'];
-            if ($condition) {
-                unset($this->options['soft_delete']);
-                $this->options['data'] = [$field => $condition];
-
-                return $this->connection->fetchUpdate($this);
-            }
-        }
-
-        $this->options['data'] = $data;
-
-        return $this->connection->fetchDelete($this);
     }
 
     /**
@@ -2956,34 +2852,6 @@ class Query
         }
 
         return $resultSet;
-    }
-
-    /**
-     * 查找记录
-     * @access public
-     * @param  mixed $data
-     * @return string
-     * @throws DbException
-     * @throws ModelNotFoundException
-     * @throws DataNotFoundException
-     */
-    public function fetchSelect($data = null): string
-    {
-        if ($data instanceof \Closure) {
-            $data($this);
-            $data = null;
-        }
-
-        $this->parseOptions();
-
-        if (!is_null($data)) {
-            // 主键条件分析
-            $this->parsePkWhere($data);
-        }
-
-        $this->options['data'] = $data;
-
-        return $this->connection->fetchSelect($this);
     }
 
     /**
@@ -3072,7 +2940,19 @@ class Query
      */
     public function find($data = null)
     {
-        $this->parseData($data);
+        if ($data instanceof \Closure) {
+            $data($this);
+            $data = null;
+        }
+
+        $this->parseOptions();
+
+        if (!is_null($data)) {
+            // AR模式分析主键条件
+            $this->parsePkWhere($data);
+        }
+
+        $this->options['data'] = $data;
 
         $result = $this->connection->find($this);
 
@@ -3095,30 +2975,6 @@ class Query
         }
 
         return $result;
-    }
-
-    protected function parseData($data)
-    {
-        if ($data instanceof \Closure) {
-            $data($this);
-            $data = null;
-        }
-
-        $this->parseOptions();
-
-        if (!is_null($data)) {
-            // AR模式分析主键条件
-            $this->parsePkWhere($data);
-        }
-
-        $this->options['data'] = $data;
-    }
-
-    public function fetchFind($data = null)
-    {
-        $this->parseData($data);
-
-        return $this->connection->fetchFind($this);
     }
 
     /**
@@ -3614,10 +3470,10 @@ class Query
 
     /**
      * 分析表达式（可用于查询或者写入操作）
-     * @access protected
+     * @access public
      * @return array
      */
-    protected function parseOptions(): array
+    public function parseOptions(): array
     {
         $options = $this->getOptions();
 

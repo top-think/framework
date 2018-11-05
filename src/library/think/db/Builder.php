@@ -169,9 +169,9 @@ abstract class Builder
             return $data->getValue();
         }
 
-        $query->bind($data, $bind[$key] ?? PDO::PARAM_STR);
+        $name = $query->bind($data, isset($bind[$key]) ? $bind[$key] : PDO::PARAM_STR);
 
-        return '?';
+        return ':' . $name;
     }
 
     /**
