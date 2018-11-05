@@ -12,6 +12,8 @@ declare (strict_types = 1);
 
 namespace think\db;
 
+use think\Exception;
+
 class Fetch
 {
     /**
@@ -131,7 +133,7 @@ class Fetch
         $options = $this->query->parseOptions();
 
         if (isset($options['field'])) {
-            $query->removeOption('field');
+            $this->query->removeOption('field');
         }
 
         if ($key && '*' != $field) {
@@ -169,6 +171,18 @@ class Fetch
 
         $sql = $this->builder->insert($this->query, $replace);
         return $this->fetch($sql);
+    }
+
+    /**
+     * 插入记录并获取自增ID
+     * @access public
+     * @param  array   $data     数据
+     * @param  boolean $replace  是否replace
+     * @return string
+     */
+    public function insertGetId(array $data, bool $replace = false)
+    {
+        return $this->insert($data, $replace);
     }
 
     /**
@@ -265,12 +279,12 @@ class Fetch
                 throw new Exception('miss update condition');
             } else {
                 $options['where']['AND'] = $where;
-                $query->setOption('where', ['AND' => $where]);
+                $this->query->setOption('where', ['AND' => $where]);
             }
         }
 
         // 更新数据
-        $query->setOption('data', $data);
+        $this->query->setOption('data', $data);
 
         // 生成UPDATE SQL语句
         $sql = $this->builder->update($this->query);
@@ -369,11 +383,49 @@ class Fetch
         return $this->fetch($sql);
     }
 
+    /**
+     * 查找多条记录 如果不存在则抛出异常
+     * @access public
+     * @param  array|string|Query|\Closure $data
+     * @return string
+     */
+    public function selectOrFail($data = null): string
+    {
+        return $this->failException(true)->select($data);
+    }
+
+    /**
+     * 查找单条记录 如果不存在则抛出异常
+     * @access public
+     * @param  array|string|Query|\Closure $data
+     * @return string
+     */
+    public function findOrFail($data = null): string
+    {
+        return $this->failException(true)->find($data);
+    }
+
+    /**
+     * 查找单条记录 如果不存在则返回空
+     * @access public
+     * @param  array|string|Query|\Closure $data
+     * @return string
+     */
+    public function findOrEmpty($data = null): string
+    {
+        return $this->allowEmpty(true)->find($data);
+    }
+
+    /**
+     * 获取实际的SQL语句
+     * @access public
+     * @param  string $sql
+     * @return string
+     */
     public function fetch(string $sql): string
     {
         $bind = $this->query->getBind();
 
-        // 获取实际执行的SQL语句
         return $this->connection->getRealSql($sql, $bind);
     }
 
