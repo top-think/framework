@@ -18,6 +18,7 @@ use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
 use think\route\Resource;
+use think\route\Rule;
 use think\route\RuleGroup;
 use think\route\RuleItem;
 
@@ -112,7 +113,7 @@ class Route
      * 路由是否测试模式
      * @var bool
      */
-    protected $isTest;
+    protected $isTest = false;
 
     /**
      * （分组）路由规则是否合并解析
@@ -720,7 +721,7 @@ class Route
     public function check(string $url, bool $must = false): Dispatch
     {
         // 自动检测域名路由
-        $url    = str_replace($this->config['pathinfo_depr'], '|', $url);
+        $url = str_replace($this->config['pathinfo_depr'], '|', $url);
 
         $completeMatch = $this->config['route_complete_match'];
 
