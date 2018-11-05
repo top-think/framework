@@ -2701,7 +2701,7 @@ class Query
         }
 
         if (empty($limit) && !empty($this->options['limit'])) {
-            $limit = $this->options['limit'];
+            $limit = (int) $this->options['limit'];
         }
 
         return $this->connection->insertAll($this, $dataSet, $replace, $limit);
