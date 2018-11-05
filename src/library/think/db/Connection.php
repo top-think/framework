@@ -1327,7 +1327,7 @@ abstract class Connection
     public function value(Query $query, string $field, $default = null)
     {
 
-        $options = $this->parseValueData($query);
+        $options = $this->parseValueData($query, $field);
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             $cache  = $options['cache'];
@@ -1374,7 +1374,7 @@ abstract class Connection
      */
     public function fetchValue(Query $query, string $field, $default = null): string
     {
-        $options = $this->parseValueData($query);
+        $options = $this->parseValueData($query, $field);
 
         // 生成查询SQL
         $sql = $this->builder->select($query);
@@ -1387,10 +1387,10 @@ abstract class Connection
 
         $query->removeOption('limit');
 
-        return $sql;
+        return $this->fetch($query, $sql);
     }
 
-    protected function parseValueData($query): array
+    protected function parseValueData($query, $field): array
     {
         $options = $query->getOptions();
 
@@ -1530,7 +1530,7 @@ abstract class Connection
             $query->removeOption('field');
         }
 
-        return $sql;
+        return $this->fetch($query, $sql);
     }
 
     protected function parseColumnData($query): array
