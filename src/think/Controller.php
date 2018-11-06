@@ -13,7 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use think\exception\ValidateException;
-use traits\controller\Jump;
+use think\traits\Jump;
 
 class Controller
 {

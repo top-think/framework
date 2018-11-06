@@ -4,14 +4,14 @@
  * 用法：
  * class index
  * {
- *     use \traits\controller\Jump;
+ *     use \think\traits\Jump;
  *     public function index(){
  *         $this->error();
  *         $this->redirect();
  *     }
  * }
  */
-namespace traits\controller;
+namespace think\traits;
 
 use think\Container;
 use think\exception\HttpResponseException;

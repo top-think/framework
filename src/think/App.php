@@ -132,7 +132,7 @@ class App extends Container
      */
     public function __construct(string $rootPath = '')
     {
-        $this->thinkPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->thinkPath = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         $this->rootPath  = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->basePath  = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
 
@@ -288,7 +288,7 @@ class App extends Container
     protected function setDependPath(): void
     {
         if (!$this->appPath) {
-            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR : $this->basePath;
+            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR: $this->basePath;
         }
 
         if ($this->appMulti) {

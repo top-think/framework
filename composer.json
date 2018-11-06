@@ -36,8 +36,7 @@
     "autoload": {
         "files": [],
         "psr-4": {
-            "think\\": "src/library/think/",
-            "traits\\": "src/library/traits/"
+            "think\\": "src/think/"
         }
     },    
     "minimum-stability": "dev",

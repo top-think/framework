@@ -118,7 +118,7 @@ class Session
 
         if ($isDoStart) {
             try {
-                session_start($config);
+                session_start($config['options'] ?? []);
             } catch (\Exception $e) {
             }
             $this->init = true;
