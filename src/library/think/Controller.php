@@ -120,13 +120,12 @@ class Controller
     /**
      * 模板变量赋值
      * @access protected
-     * @param  mixed $name  要显示的模板变量
-     * @param  mixed $value 变量的值
+     * @param  array $value 模板变量
      * @return $this
      */
-    protected function assign($name, $value = '')
+    protected function assign(array $value)
     {
-        $this->view->assign($name, $value);
+        $this->view->assign($value);
 
         return $this;
     }

@@ -65,7 +65,6 @@ class View
      */
     public function share($vars)
     {
-
         self::$var = array_merge(self::$var, $vars);
 
         return $this;
