@@ -63,7 +63,7 @@ class View
      * @param  array $vars  变量名
      * @return $this
      */
-    public function share($vars)
+    public function share(array $vars)
     {
         self::$var = array_merge(self::$var, $vars);
 
