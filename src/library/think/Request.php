@@ -1357,7 +1357,7 @@ class Request
         return $this->filterData($data, $filter, $name, $default);
     }
 
-    protected function filterData($data, $filter, string $name, $default)
+    protected function filterData($data, $filter, $name, $default)
     {
         // 解析过滤器
         $filter = $this->getFilter($filter, $default);
