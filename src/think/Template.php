@@ -392,7 +392,7 @@ class Template
         }
 
         // 优化生成的php代码
-        $content = preg_replace('/\?>\s*<\?php\s(?!echo\b)/s', '', $content);
+        $content = preg_replace('/\?>\s*<\?php\s(?!echo\b|\bend)/s', '', $content);
 
         // 模板过滤输出
         $replace = $this->config['tpl_replace_string'];

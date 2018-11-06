@@ -192,7 +192,7 @@ class Config implements ArrayAccess
      */
     public function has(string $name): bool
     {
-        if (!strpos($name, '.')) {
+        if (false === strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
         }
 
@@ -230,7 +230,7 @@ class Config implements ArrayAccess
      */
     public function get(string $name = null, $default = null)
     {
-        if ($name && !strpos($name, '.')) {
+        if ($name && false === strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
         }
 
@@ -277,7 +277,7 @@ class Config implements ArrayAccess
     public function set($name, $value = null)
     {
         if (is_string($name)) {
-            if (!strpos($name, '.')) {
+            if (false === strpos($name, '.')) {
                 $name = $this->prefix . '.' . $name;
             }
 
@@ -319,7 +319,7 @@ class Config implements ArrayAccess
      */
     public function remove(string $name): void
     {
-        if (!strpos($name, '.')) {
+        if (false === strpos($name, '.')) {
             $name = $this->prefix . '.' . $name;
         }
 

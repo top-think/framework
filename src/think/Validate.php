@@ -336,7 +336,7 @@ class Validate
      * @param  mixed         $rule   验证规则 true 移除所有规则
      * @return $this
      */
-    public function remove($field, $rule = true)
+    public function remove($field, $rule = null)
     {
         if (is_array($field)) {
             foreach ($field as $key => $rule) {

@@ -205,7 +205,7 @@ trait SoftDelete
             return false;
         }
 
-        if (!strpos($field, '.')) {
+        if (false === strpos($field, '.')) {
             $field = '__TABLE__.' . $field;
         }
 

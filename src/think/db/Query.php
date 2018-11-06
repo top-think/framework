@@ -1433,7 +1433,7 @@ class Query
 
         $logic = strtoupper($logic);
 
-        if (is_string($field) && !empty($this->options['via']) && !strpos($field, '.')) {
+        if (is_string($field) && !empty($this->options['via']) && false === strpos($field, '.')) {
             $field = $this->options['via'] . '.' . $field;
         }
 
