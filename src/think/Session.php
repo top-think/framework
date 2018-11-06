@@ -88,14 +88,6 @@ class Session
     {
         $config = $config ?: $this->config;
 
-        $isDoStart = false;
-
-        // 启动session
-        if (!empty($config['auto_start']) && PHP_SESSION_ACTIVE != session_status()) {
-            ini_set('session.auto_start', '0');
-            $isDoStart = true;
-        }
-
         if (isset($config['use_lock'])) {
             $this->lock = $config['use_lock'];
         }
@@ -116,7 +108,7 @@ class Session
             }
         }
 
-        if ($isDoStart) {
+        if (!empty($config['auto_start'])) {
             try {
                 session_start($config['options'] ?? []);
             } catch (\Exception $e) {
