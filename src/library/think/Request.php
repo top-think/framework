@@ -1160,7 +1160,7 @@ class Request
      * @param  string        $default 默认值
      * @return string
      */
-    public function server(string $name = '', string $default = null): ?string
+    public function server(string $name = '', string $default = null):  ? string
     {
         if (empty($name)) {
             return $this->server;
@@ -1354,10 +1354,10 @@ class Request
             }
         }
 
-        return $this->filterData($data, $filter, $default);
+        return $this->filterData($data, $filter, $name, $default);
     }
 
-    protected function filterData(array $data, $filter, $default)
+    protected function filterData($data, $filter, string $name, $default)
     {
         // 解析过滤器
         $filter = $this->getFilter($filter, $default);
@@ -1474,7 +1474,7 @@ class Request
      * @param  bool      $checkEmpty 是否检测空值
      * @return bool
      */
-    public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
+    public function has(string $name, string $type = 'param', bool $checkEmpty = false) : bool
     {
         if (empty($this->$type)) {
             $param = $this->$type();
@@ -1519,7 +1519,7 @@ class Request
                 $default = $val;
             }
 
-            $item[$key] = $this->filterData($data[$key] ?? $default, $filter, $default);
+            $item[$key] = $this->filterData($data[$key] ?? $default, $filter, $key, $default);
         }
 
         return $item;
@@ -1857,7 +1857,7 @@ class Request
      * @access public
      * @return string
      */
-    public function app():string
+    public function app(): string
     {
         return $this->app ?: '';
     }
@@ -1868,7 +1868,7 @@ class Request
      * @param  bool $convert 转换为小写
      * @return string
      */
-    public function controller(bool $convert = false):string
+    public function controller(bool $convert = false): string
     {
         $name = $this->controller ?: '';
         return $convert ? strtolower($name) : $name;
@@ -1880,7 +1880,7 @@ class Request
      * @param  bool $convert 转换为小写
      * @return string
      */
-    public function action(bool $convert = false):string
+    public function action(bool $convert = false): string
     {
         $name = $this->action ?: '';
         return $convert ? strtolower($name) : $name;
@@ -1903,7 +1903,7 @@ class Request
      * @access public
      * @return string
      */
-    public function langset():string
+    public function langset(): string
     {
         return $this->langset ?: '';
     }
