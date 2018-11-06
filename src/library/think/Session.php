@@ -117,8 +117,10 @@ class Session
         }
 
         if ($isDoStart) {
-            unset($config['id'], $config['auto_start'], $config['httponly'], $config['secure'], $config['var_session_id'], $config['type'], $config['prefix']);
-            session_start($config);
+            try {
+                session_start($config);
+            } catch (\Exception $e) {
+            }
             $this->init = true;
         } else {
             $this->init = false;

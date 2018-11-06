@@ -40,7 +40,7 @@ class Memcached implements SessionHandlerInterface
      * @param  mixed     $sessName
      * @return bool
      */
-    public function open(string $savePath, string $sessName): bool
+    public function open($savePath, $sessName): bool
     {
         // 检测php环境
         if (!extension_loaded('memcached')) {
@@ -98,7 +98,7 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessID
      * @return string
      */
-    public function read(string $sessID): string
+    public function read($sessID): string
     {
         return (string) $this->handler->get($this->config['name'] . $sessID);
     }
@@ -110,7 +110,7 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessData
      * @return bool
      */
-    public function write(string $sessID, string $sessData): bool
+    public function write($sessID, $sessData): bool
     {
         return $this->handler->set($this->config['name'] . $sessID, $sessData, $this->config['expire']);
     }
@@ -121,7 +121,7 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessID
      * @return bool
      */
-    public function destroy(string $sessID): bool
+    public function destroy($sessID): bool
     {
         return $this->handler->delete($this->config['name'] . $sessID);
     }
@@ -132,7 +132,7 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessMaxLifeTime
      * @return true
      */
-    public function gc(int $sessMaxLifeTime): bool
+    public function gc($sessMaxLifeTime): bool
     {
         return true;
     }

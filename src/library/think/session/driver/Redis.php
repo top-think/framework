@@ -43,7 +43,7 @@ class Redis implements SessionHandlerInterface
      * @return bool
      * @throws Exception
      */
-    public function open(string $savePath, string $sessName): bool
+    public function open($savePath, $sessName): bool
     {
         if (extension_loaded('redis')) {
             $this->handler = new \Redis;
@@ -94,7 +94,7 @@ class Redis implements SessionHandlerInterface
      * @param  string $sessID
      * @return string
      */
-    public function read(string $sessID): string
+    public function read($sessID): string
     {
         return (string) $this->handler->get($this->config['name'] . $sessID);
     }
@@ -106,7 +106,7 @@ class Redis implements SessionHandlerInterface
      * @param  string $sessData
      * @return bool
      */
-    public function write(string $sessID, string $sessData): bool
+    public function write($sessID, $sessData): bool
     {
         if ($this->config['expire'] > 0) {
             $result = $this->handler->setex($this->config['name'] . $sessID, $this->config['expire'], $sessData);
@@ -123,7 +123,7 @@ class Redis implements SessionHandlerInterface
      * @param  string $sessID
      * @return bool
      */
-    public function destroy(string $sessID): bool
+    public function destroy($sessID): bool
     {
         return $this->handler->delete($this->config['name'] . $sessID) > 0;
     }
@@ -134,7 +134,7 @@ class Redis implements SessionHandlerInterface
      * @param  string $sessMaxLifeTime
      * @return bool
      */
-    public function gc(int $sessMaxLifeTime): bool
+    public function gc($sessMaxLifeTime): bool
     {
         return true;
     }
