@@ -490,10 +490,14 @@ class Console
     {
         $namespaces = [];
         foreach ($this->commands as $command) {
-            $namespaces = array_merge($namespaces, $this->extractAllNamespaces($command->getName()));
+            if (is_string($command)) {
+                $namespaces[] = $command;
+            } else {
+                $namespaces = array_merge($namespaces, $this->extractAllNamespaces($command->getName()));
 
-            foreach ($command->getAliases() as $alias) {
-                $namespaces = array_merge($namespaces, $this->extractAllNamespaces($alias));
+                foreach ($command->getAliases() as $alias) {
+                    $namespaces = array_merge($namespaces, $this->extractAllNamespaces($alias));
+                }
             }
         }
 
