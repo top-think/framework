@@ -361,7 +361,7 @@ abstract class Connection
 
         list($tableName) = explode(' ', $tableName);
 
-        if (!strpos($tableName, '.')) {
+        if (false === strpos($tableName, '.')) {
             $schema = $this->getConfig('database') . '.' . $tableName;
         } else {
             $schema = $tableName;

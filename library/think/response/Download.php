@@ -128,7 +128,7 @@ class Download extends Response
     {
         $this->name = $filename;
 
-        if ($extension && !strpos($filename, '.')) {
+        if ($extension && false === strpos($filename, '.')) {
             $this->name .= '.' . pathinfo($this->data, PATHINFO_EXTENSION);
         }
 
