@@ -326,7 +326,7 @@ class Route
         // 支持多个域名使用相同路由规则
         $domainName = is_array($name) ? array_shift($name) : $name;
 
-        if ('*' != $domainName && !strpos($domainName, '.')) {
+        if ('*' != $domainName && false === strpos($domainName, '.')) {
             $domainName .= '.' . $this->request->rootDomain();
         }
 
@@ -344,7 +344,7 @@ class Route
         if (is_array($name) && !empty($name)) {
             $root = $this->request->rootDomain();
             foreach ($name as $item) {
-                if (!strpos($item, '.')) {
+                if (false === strpos($item, '.')) {
                     $item .= '.' . $root;
                 }
 
@@ -394,7 +394,7 @@ class Route
             $domain = $this->domain;
         } elseif (true === $domain) {
             return $this->bind;
-        } elseif (!strpos($domain, '.')) {
+        } elseif (false === strpos($domain, '.')) {
             $domain .= '.' . $this->request->rootDomain();
         }
 
