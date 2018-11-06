@@ -61,7 +61,7 @@ class Cookie
         $this->config = array_merge($this->config, array_change_key_case($config));
 
         if (!empty($this->config['httponly']) && PHP_SESSION_ACTIVE != session_status()) {
-            ini_set('session.cookie_httponly', 1);
+            ini_set('session.cookie_httponly', '1');
         }
     }
 
