@@ -364,10 +364,10 @@ class Route
     /**
      * 读取路由绑定
      * @access public
-     * @param  string    $domain 域名
+     * @param  string|true    $domain 域名
      * @return string|null
      */
-    public function getBind(string $domain = null)
+    public function getBind($domain = null)
     {
         if (is_null($domain)) {
             $domain = $this->domain;
