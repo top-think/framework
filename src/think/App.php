@@ -294,10 +294,6 @@ class App extends Container
 
     protected function setDependPath(): void
     {
-        if (!$this->appPath) {
-            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR: $this->basePath;
-        }
-
         if ($this->appMulti) {
             $this->name        = $this->name ?: pathinfo($this->scriptName, PATHINFO_FILENAME);
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
@@ -305,6 +301,10 @@ class App extends Container
         } else {
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        }
+
+        if (!$this->appPath) {
+            $this->appPath = $this->appMulti ? $this->basePath . $this->name . DIRECTORY_SEPARATOR : $this->basePath;
         }
 
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
