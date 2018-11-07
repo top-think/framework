@@ -1158,9 +1158,9 @@ class Request
      * @access public
      * @param  string        $name 数据名称
      * @param  string        $default 默认值
-     * @return string
+     * @return mixed
      */
-    public function server(string $name = '', string $default = null):  ? string
+    public function server(string $name = '', string $default = null)
     {
         if (empty($name)) {
             return $this->server;
@@ -1474,7 +1474,7 @@ class Request
      * @param  bool      $checkEmpty 是否检测空值
      * @return bool
      */
-    public function has(string $name, string $type = 'param', bool $checkEmpty = false) : bool
+    public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
     {
         if (empty($this->$type)) {
             $param = $this->$type();
