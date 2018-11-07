@@ -51,9 +51,9 @@ class Config implements ArrayAccess
      * 构造方法
      * @access public
      */
-    public function __construct(string $path = '', string $ext = '.php')
+    public function __construct(string $path = null, string $ext = '.php')
     {
-        $this->path   = $path;
+        $this->path   = $path ?: '';
         $this->ext    = $ext;
         $this->yaconf = class_exists('Yaconf');
     }

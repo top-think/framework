@@ -57,7 +57,7 @@ class App extends Container
      * 当前应用类库命名空间
      * @var string
      */
-    protected $namespace;
+    protected $namespace = '';
 
     /**
      * 应用类库后缀
@@ -69,43 +69,43 @@ class App extends Container
      * 应用根目录
      * @var string
      */
-    protected $rootPath;
+    protected $rootPath = '';
 
     /**
      * 框架目录
      * @var string
      */
-    protected $thinkPath;
+    protected $thinkPath = '';
 
     /**
      * 应用基础目录
      * @var string
      */
-    protected $basePath;
+    protected $basePath = '';
 
     /**
      * 应用类库目录
      * @var string
      */
-    protected $appPath;
+    protected $appPath = '';
 
     /**
      * 运行时目录
      * @var string
      */
-    protected $runtimePath;
+    protected $runtimePath = '';
 
     /**
      * 配置目录
      * @var string
      */
-    protected $configPath;
+    protected $configPath = '';
 
     /**
      * 路由目录
      * @var string
      */
-    protected $routePath;
+    protected $routePath = '';
 
     /**
      * 配置后缀
@@ -288,11 +288,11 @@ class App extends Container
     protected function setDependPath(): void
     {
         if (!$this->appPath) {
-            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR : $this->basePath;
+            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR: $this->basePath;
         }
 
         if ($this->appMulti) {
-            $this->name        = $this->name ?: 'index';
+            $this->name        = $this->name ?: pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
         } else {
