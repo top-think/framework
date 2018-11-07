@@ -739,7 +739,7 @@ abstract class Rule
             $result = new RedirectDispatch($request, $this, $route, [], isset($option['status']) ? $option['status'] : 301);
         } elseif (false !== strpos($route, '\\')) {
             // 路由到方法
-            $result = $this->dispatchMethod($route);
+            $result = $this->dispatchMethod($request, $route);
         } else {
             // 路由到模块/控制器/操作
             $result = $this->dispatchController($request, $route);
@@ -751,10 +751,11 @@ abstract class Rule
     /**
      * 解析URL地址为 模块/控制器/操作
      * @access protected
+     * @param  Request   $request Request对象
      * @param  string    $route 路由地址
      * @return CallbackDispatch
      */
-    protected function dispatchMethod(string $route): CallbackDispatch
+    protected function dispatchMethod(Request $request, string $route): CallbackDispatch
     {
         list($path, $var) = $this->parseUrlPath($route);
 
