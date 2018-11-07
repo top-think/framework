@@ -30,6 +30,12 @@ class App extends Container
     protected $name;
 
     /**
+     * 应用入口文件
+     * @var string
+     */
+    protected $scriptName;
+
+    /**
      * 应用调试模式
      * @var bool
      */
@@ -132,9 +138,10 @@ class App extends Container
      */
     public function __construct(string $rootPath = '')
     {
-        $this->thinkPath = dirname(__DIR__) . DIRECTORY_SEPARATOR;
-        $this->rootPath  = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
-        $this->basePath  = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
+        $this->scriptName = $this->getScriptName();
+        $this->thinkPath  = dirname(__DIR__) . DIRECTORY_SEPARATOR;
+        $this->rootPath   = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
+        $this->basePath   = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
 
         $this->appMulti = is_dir($this->basePath . 'controller') ? false : true;
     }
@@ -292,7 +299,7 @@ class App extends Container
         }
 
         if ($this->appMulti) {
-            $this->name        = $this->name ?: pathinfo($this->request->baseFile(), PATHINFO_FILENAME);
+            $this->name        = $this->name ?: pathinfo($this->scriptName, PATHINFO_FILENAME);
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
         } else {
@@ -847,19 +854,18 @@ class App extends Container
     // 获取应用根目录
     public function getDefaultRootPath()
     {
-        if ('cli' == PHP_SAPI) {
-            $scriptName = realpath($_SERVER['argv'][0]);
-        } else {
-            $scriptName = $_SERVER['SCRIPT_FILENAME'];
-        }
-
-        $path = realpath(dirname($scriptName));
+        $path = realpath(dirname($this->scriptName));
 
         if (!is_file($path . DIRECTORY_SEPARATOR . 'think')) {
             $path = dirname($path);
         }
 
         return $path . DIRECTORY_SEPARATOR;
+    }
+
+    protected function getScriptName()
+    {
+        return 'cli' == PHP_SAPI ? realpath($_SERVER['argv'][0]) : $_SERVER['SCRIPT_FILENAME'];
     }
 
     /**

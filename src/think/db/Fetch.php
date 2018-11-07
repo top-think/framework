@@ -498,6 +498,16 @@ class Fetch
 
     public function __call($method, $args)
     {
+        if (strtolower(substr($method, 0, 5)) == 'getby') {
+            // 根据某个字段获取记录
+            $field = App::parseName(substr($method, 5));
+            return $this->where($field, '=', $args[0])->find();
+        } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
+            // 根据某个字段获取记录的某个值
+            $name = App::parseName(substr($method, 10));
+            return $this->where($name, '=', $args[0])->value($args[1]);
+        }
+
         $result = call_user_func_array([$this->query, $method], $args);
         return $result === $this->query ? $this : $result;
     }
