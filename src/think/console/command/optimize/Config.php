@@ -79,7 +79,7 @@ class Config extends Command
             $config->load($file, pathinfo($file, PATHINFO_FILENAME));
         }
 
-        // 加载行为扩展文件
+        // 加载事件定义文件
         if (is_file($path . 'event.php')) {
             $event = include $path . 'event.php';
 
@@ -93,7 +93,6 @@ class Config extends Command
                 }
 
                 if (isset($event['subscribe'])) {
-
                     foreach ($event['subscribe'] as $subscribe) {
                         $content .= PHP_EOL . '\think\facade\Event::observe(\'' . $subscribe . '\');' . PHP_EOL;
                     }
@@ -102,6 +101,13 @@ class Config extends Command
         }
 
         // 加载公共文件
+        if ($app && is_file(App::getBasePath() . 'common.php')) {
+            $common = substr(php_strip_whitespace(App::getBasePath() . 'common.php'), 6);
+            if ($common) {
+                $content .= PHP_EOL . $common . PHP_EOL;
+            }
+        }
+
         if (is_file($path . 'common.php')) {
             $common = substr(php_strip_whitespace($path . 'common.php'), 6);
             if ($common) {

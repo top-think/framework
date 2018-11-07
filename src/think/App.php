@@ -288,7 +288,7 @@ class App extends Container
     protected function setDependPath(): void
     {
         if (!$this->appPath) {
-            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR : $this->basePath;
+            $this->appPath = $this->appMulti ? $this->basePath . ($this->name ?: 'index') . DIRECTORY_SEPARATOR: $this->basePath;
         }
 
         if ($this->appMulti) {
@@ -323,9 +323,7 @@ class App extends Container
     public function init(): void
     {
         // 加载初始化文件
-        if (is_file($this->appPath . 'init.php')) {
-            include $this->appPath . 'init.php';
-        } elseif (is_file($this->runtimePath . 'init.php')) {
+        if (is_file($this->runtimePath . 'init.php')) {
             include $this->runtimePath . 'init.php';
         } else {
             $this->loadAppFile();
@@ -352,23 +350,31 @@ class App extends Container
         $this->request->filter($this->config['app.default_filter']);
     }
 
-    protected function loadAppFile()
+    /**
+     * 加载应用文件和配置
+     * @access protected
+     * @return void
+     */
+    protected function loadAppFile(): void
     {
         if (is_file($this->appPath . 'event.php')) {
             $event = include $this->appPath . 'event.php';
-            if (is_array($event)) {
-                if (isset($event['bind'])) {
-                    $this->event->bind($event['bind']);
-                }
 
-                if (isset($event['listen'])) {
-                    $this->event->listenEvents($event['listen']);
-                }
-
-                if (isset($event['subscribe'])) {
-                    $this->event->subscribe($event['subscribe']);
-                }
+            if (isset($event['bind'])) {
+                $this->event->bind($event['bind']);
             }
+
+            if (isset($event['listen'])) {
+                $this->event->listenEvents($event['listen']);
+            }
+
+            if (isset($event['subscribe'])) {
+                $this->event->subscribe($event['subscribe']);
+            }
+        }
+
+        if ($this->appMulti && is_file($this->basePath . 'common.php')) {
+            include_once $this->basePath . 'common.php';
         }
 
         if (is_file($this->appPath . 'common.php')) {
