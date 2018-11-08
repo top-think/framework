@@ -1993,7 +1993,7 @@ class Query
     }
 
     /**
-     * 设置是否返回数据集对象（支持设置数据集对象类名）
+     * 设置是否返回数据集对象
      * @access public
      * @param  bool|string  $collection  是否返回数据集对象
      * @return $this
@@ -2803,7 +2803,7 @@ class Query
      * 查找记录
      * @access public
      * @param  mixed $data
-     * @return Collection|array
+     * @return Collection|array|ModelCollection
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -2911,7 +2911,7 @@ class Query
             }
         }
 
-        if (!empty($this->options['collection']) || 'collection' == $this->connection->getConfig('resultset_type')) {
+        if (!empty($this->options['collection'])) {
             // 返回Collection对象
             $resultSet = new Collection($resultSet);
         }
