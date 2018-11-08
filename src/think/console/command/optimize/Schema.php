@@ -14,8 +14,8 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Option;
 use think\console\Output;
-use think\Db;
 use think\facade\App;
+use think\facade\Db;
 
 class Schema extends Command
 {
