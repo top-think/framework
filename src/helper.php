@@ -20,7 +20,6 @@ use think\exception\HttpResponseException;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
-use think\facade\Db;
 use think\facade\Debug;
 use think\facade\Env;
 use think\facade\Event;
@@ -140,7 +139,7 @@ if (!function_exists('class_basename')) {
      * @param  string|object $class
      * @return string
      */
-    function classBasename($class)
+    function class_basename($class)
     {
         $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
@@ -154,7 +153,7 @@ if (!function_exists('class_uses_recursive')) {
      * @param $class
      * @return array
      */
-    function classUsesRecursive($class)
+    function class_uses_recursive($class)
     {
         if (is_object($class)) {
             $class = get_class($class);
@@ -217,20 +216,6 @@ if (!function_exists('cookie')) {
             // 设置
             return Cookie::set($name, $value, $option);
         }
-    }
-}
-
-if (!function_exists('db')) {
-    /**
-     * 实例化数据库类
-     * @param string        $name 操作的数据表名称（不含前缀）
-     * @param array|string  $config 数据库配置参数
-     * @param bool          $force 是否强制重新连接
-     * @return \think\db\Query
-     */
-    function db(string $name = '', $config = [], $force = true)
-    {
-        return Db::connect($config, $force)->name($name);
     }
 }
 
@@ -427,7 +412,7 @@ if (!function_exists('parse_name')) {
      * @param bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    function parseName(string $name, int $type = 0, bool $ucfirst = true)
+    function parse_name(string $name, int $type = 0, bool $ucfirst = true)
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -566,7 +551,7 @@ if (!function_exists('trait_uses_recursive')) {
      * @param  string $trait
      * @return array
      */
-    function traitUsesRecursive(string $trait)
+    function trait_uses_recursive(string $trait)
     {
         $traits = class_uses($trait);
         foreach ($traits as $trait) {

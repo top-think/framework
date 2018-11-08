@@ -1397,9 +1397,14 @@ class Validate
         if (is_numeric($key)) {
             $value = $key;
         } elseif (strpos($key, '.')) {
-            // 支持二维数组验证
-            list($name1, $name2) = explode('.', $key);
-            $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
+            // 支持多维数组验证
+            foreach (explode('.', $key) as $key) {
+                if (!isset($data[$key])) {
+                    $value = null;
+                    break;
+                }
+                $value = $data = $data[$key];
+            }
         } else {
             $value = isset($data[$key]) ? $data[$key] : null;
         }
