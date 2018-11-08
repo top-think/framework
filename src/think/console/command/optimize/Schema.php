@@ -12,6 +12,7 @@ namespace think\console\command\optimize;
 
 use think\console\Command;
 use think\console\Input;
+use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 use think\facade\App;
@@ -22,36 +23,30 @@ class Schema extends Command
     protected function configure()
     {
         $this->setName('optimize:schema')
+            ->addArgument('app', Argument::OPTIONAL, 'app name .')
             ->addOption('db', null, Option::VALUE_REQUIRED, 'db name .')
             ->addOption('table', null, Option::VALUE_REQUIRED, 'table name .')
-            ->addOption('app', null, Option::VALUE_REQUIRED, 'app name .')
             ->setDescription('Build database schema cache.');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        if (!is_dir(App::getRuntimePath() . 'schema')) {
-            @mkdir(App::getRuntimePath() . 'schema', 0755, true);
+        if ($input->getArgument('app')) {
+            $runtimePath = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
+            $appPath     = App::getBasePath() . $input->getArgument('app') . DIRECTORY_SEPARATOR;
+            $namespace   = App::getNamespace() . '\\' . $input->getArgument('app');
+        } else {
+            $runtimePath = App::getRuntimePath();
+            $appPath     = App::getBasePath();
+            $namespace   = App::getNamespace();
         }
 
-        if ($input->hasOption('app')) {
-            $app = $input->getOption('app');
-            // 读取模型
-            $path      = App::getRootPath() . $app . DIRECTORY_SEPARATOR . 'model';
-            $list      = is_dir($path) ? scandir($path) : [];
-            $namespace = App::getNamespace();
+        $schemaPath = $runtimePath . 'schema' . DIRECTORY_SEPARATOR;
+        if (!is_dir($schemaPath)) {
+            @mkdir($schemaPath, 0755, true);
+        }
 
-            foreach ($list as $file) {
-                if (0 === strpos($file, '.')) {
-                    continue;
-                }
-                $class = '\\' . $namespace . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
-                $this->buildModelSchema($class);
-            }
-
-            $output->writeln('<info>Succeed!</info>');
-            return;
-        } elseif ($input->hasOption('table')) {
+        if ($input->hasOption('table')) {
             $table = $input->getOption('table');
             if (false === strpos($table, '.')) {
                 $dbName = Db::getConfig('database');
@@ -62,16 +57,16 @@ class Schema extends Command
             $dbName = $input->getOption('db');
             $tables = Db::getConnection()->getTables($dbName);
         } else {
-            $namespace = App::getNamespace();
-            $path      = App::getAppPath() . 'model';
-            $list      = is_dir($path) ? scandir($path) : [];
+
+            $path = $appPath . 'model';
+            $list = is_dir($path) ? scandir($path) : [];
 
             foreach ($list as $file) {
                 if (0 === strpos($file, '.')) {
                     continue;
                 }
                 $class = '\\' . $namespace . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
-                $this->buildModelSchema($class);
+                $this->buildModelSchema($schemaPath, $class);
             }
 
             $output->writeln('<info>Succeed!</info>');
@@ -79,12 +74,12 @@ class Schema extends Command
         }
 
         $db = isset($dbName) ? $dbName . '.' : '';
-        $this->buildDataBaseSchema($tables, $db);
+        $this->buildDataBaseSchema($schemaPath, $tables, $db);
 
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildModelSchema(string $class)
+    protected function buildModelSchema(string $path, string $class)
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
@@ -94,11 +89,11 @@ class Schema extends Command
             $info    = $class::getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
 
-            file_put_contents(App::getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $dbName . '.' . $table . '.php', $content);
+            file_put_contents($path . $dbName . '.' . $table . '.php', $content);
         }
     }
 
-    protected function buildDataBaseSchema(array $tables, string $db)
+    protected function buildDataBaseSchema(string $path, array $tables, string $db)
     {
         if ('' == $db) {
             $dbName = Db::getConfig('database') . '.';
@@ -110,7 +105,7 @@ class Schema extends Command
             $content = '<?php ' . PHP_EOL . 'return ';
             $info    = Db::getConnection()->getFields($db . $table);
             $content .= var_export($info, true) . ';';
-            file_put_contents(App::getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $dbName . $table . '.php', $content);
+            file_put_contents($path . $dbName . $table . '.php', $content);
         }
     }
 }
