@@ -129,7 +129,7 @@ class App extends Container
      * 是否为多应用模式
      * @var bool
      */
-    protected $appMulti = false;
+    protected $multi = false;
 
     /**
      * 架构方法
@@ -143,7 +143,19 @@ class App extends Container
         $this->rootPath   = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->basePath   = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
 
-        $this->appMulti = is_dir($this->basePath . 'controller') ? false : true;
+        $this->multi = is_dir($this->basePath . 'controller') ? false : true;
+    }
+
+    /**
+     * 设置应用模式
+     * @access public
+     * @param  bool $multi
+     * @return $this
+     */
+    public function multi(bool $multi)
+    {
+        $this->multi = $multi;
+        return $this;
     }
 
     /**
@@ -153,7 +165,7 @@ class App extends Container
      */
     public function isMulti(): bool
     {
-        return $this->appMulti;
+        return $this->multi;
     }
 
     /**
@@ -294,7 +306,7 @@ class App extends Container
 
     protected function setDependPath(): void
     {
-        if ($this->appMulti) {
+        if ($this->multi) {
             $this->name        = $this->name ?: pathinfo($this->scriptName, PATHINFO_FILENAME);
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
@@ -304,7 +316,7 @@ class App extends Container
         }
 
         if (!$this->appPath) {
-            $this->appPath = $this->appMulti ? $this->basePath . $this->name . DIRECTORY_SEPARATOR : $this->basePath;
+            $this->appPath = $this->multi ? $this->basePath . $this->name . DIRECTORY_SEPARATOR : $this->basePath;
         }
 
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
@@ -342,7 +354,7 @@ class App extends Container
 
         if ($this->namespace) {
 
-        } elseif ($this->appMulti) {
+        } elseif ($this->multi) {
             if ($this->config['app.app_namespace']) {
                 $this->namespace = $this->config['app.app_namespace'];
             } else {
@@ -380,7 +392,7 @@ class App extends Container
             }
         }
 
-        if ($this->appMulti && is_file($this->basePath . 'common.php')) {
+        if ($this->multi && is_file($this->basePath . 'common.php')) {
             include_once $this->basePath . 'common.php';
         }
 
@@ -410,7 +422,7 @@ class App extends Container
             $files = glob($this->configPath . '*' . $this->configExt);
         }
 
-        if ($this->appMulti) {
+        if ($this->multi) {
             if (is_dir($this->appPath . 'config')) {
                 $files = array_merge($files, glob($this->appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->configExt));
             } elseif (is_dir($this->configPath . $this->name)) {

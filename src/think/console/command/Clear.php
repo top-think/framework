@@ -23,6 +23,7 @@ class Clear extends Command
         // 指令配置
         $this
             ->setName('clear')
+            ->addArgument('app', Argument::OPTIONAL, 'Build app config cache .')
             ->addOption('path', 'd', Option::VALUE_OPTIONAL, 'path to clear', null)
             ->addOption('cache', 'c', Option::VALUE_NONE, 'clear cache file')
             ->addOption('log', 'l', Option::VALUE_NONE, 'clear log file')
@@ -36,12 +37,18 @@ class Clear extends Command
         if ($input->getOption('route')) {
             Cache::clear('route_cache');
         } else {
-            if ($input->getOption('cache')) {
-                $path = App::getRuntimePath() . 'cache';
-            } elseif ($input->getOption('log')) {
-                $path = App::getRuntimePath() . 'log';
+            if ($input->getArgument('app')) {
+                $runtimePath = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
             } else {
-                $path = $input->getOption('path') ?: App::getRuntimePath();
+                $runtimePath = App::getRuntimePath();
+            }
+
+            if ($input->getOption('cache')) {
+                $path = $runtimePath . 'cache';
+            } elseif ($input->getOption('log')) {
+                $path = $runtimePath . 'log';
+            } else {
+                $path = $input->getOption('path') ?: $runtimePath;
             }
 
             $rmdir = $input->getOption('dir') ? true : false;
