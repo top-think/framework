@@ -961,9 +961,10 @@ abstract class Builder
      * 生成查询SQL
      * @access public
      * @param  Query  $query  查询对象
+     * @param  bool   $one    是否仅获取一个记录
      * @return string
      */
-    public function select(Query $query): string
+    public function select(Query $query, bool $one = false): string
     {
         $options = $query->getOptions();
 
@@ -978,7 +979,7 @@ abstract class Builder
                 $this->parseGroup($query, $options['group']),
                 $this->parseHaving($query, $options['having']),
                 $this->parseOrder($query, $options['order']),
-                $this->parseLimit($query, $options['limit']),
+                $one ? 1 : $this->parseLimit($query, $options['limit']),
                 $this->parseUnion($query, $options['union']),
                 $this->parseLock($query, $options['lock']),
                 $this->parseComment($query, $options['comment']),

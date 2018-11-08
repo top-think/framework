@@ -767,8 +767,6 @@ abstract class Connection
         $pk      = $query->getPk($options);
         $data    = $options['data'];
 
-        $query->setOption('limit', '1');
-
         if (!empty($options['cache'])) {
             // 判断查询缓存
             $cache = $options['cache'];
@@ -803,9 +801,7 @@ abstract class Connection
         }
 
         // 生成查询SQL
-        $sql = $this->builder->select($query);
-
-        $query->removeOption('limit');
+        $sql = $this->builder->select($query, true);
 
         $bind = $query->getBind();
 
@@ -1190,7 +1186,6 @@ abstract class Connection
         }
 
         $query->setOption('field', $field);
-        $query->setOption('limit', '1');
 
         if (!empty($options['cache'])) {
             $cache  = $options['cache'];
@@ -1202,15 +1197,13 @@ abstract class Connection
         }
 
         // 生成查询SQL
-        $sql = $this->builder->select($query);
+        $sql = $this->builder->select($query, true);
 
         if (isset($options['field'])) {
             $query->setOption('field', $options['field']);
         } else {
             $query->removeOption('field');
         }
-
-        $query->removeOption('limit');
 
         $bind = $query->getBind();
 
