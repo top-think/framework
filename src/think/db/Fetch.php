@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\db;
 
+use think\App;
 use think\Exception;
 
 class Fetch

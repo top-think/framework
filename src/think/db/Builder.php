@@ -979,7 +979,7 @@ abstract class Builder
                 $this->parseGroup($query, $options['group']),
                 $this->parseHaving($query, $options['having']),
                 $this->parseOrder($query, $options['order']),
-                $one ? 1 : $this->parseLimit($query, $options['limit']),
+                $this->parseLimit($query, $one ? '1' : $options['limit']),
                 $this->parseUnion($query, $options['union']),
                 $this->parseLock($query, $options['lock']),
                 $this->parseComment($query, $options['comment']),
