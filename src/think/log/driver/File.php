@@ -41,7 +41,7 @@ class File
         }
 
         if (empty($this->config['path'])) {
-            $this->config['path'] = $app->getRuntimePath() . $app->getName() . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
+            $this->config['path'] = $app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
         } elseif (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->config['path'] .= DIRECTORY_SEPARATOR;
         }

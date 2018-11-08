@@ -46,7 +46,7 @@ class File extends Driver
         $app = Container::get('app');
 
         if (empty($this->options['path'])) {
-            $this->options['path'] = $app->getRuntimePath() . $app->getName() . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
+            $this->options['path'] = $app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR;
         } elseif (substr($this->options['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->options['path'] .= DIRECTORY_SEPARATOR;
         }

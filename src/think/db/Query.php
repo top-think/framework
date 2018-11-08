@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\db;
 
+use Closure;
 use PDO;
 use PDOStatement;
 use think\App;
@@ -1445,7 +1446,7 @@ class Query
         } elseif (is_array($field)) {
             // 解析数组批量查询
             return $this->parseArrayWhereItems($field, $logic);
-        } elseif ($field instanceof \Closure) {
+        } elseif ($field instanceof Closure) {
             $where = $field;
         } elseif (is_string($field)) {
             if (preg_match('/[,=\<\'\"\(\s]/', $field)) {
@@ -1577,24 +1578,24 @@ class Query
      * 条件查询
      * @access public
      * @param  mixed             $condition  满足条件（支持闭包）
-     * @param  \Closure|array    $query      满足条件后执行的查询表达式（闭包或数组）
-     * @param  \Closure|array    $otherwise  不满足条件后执行
+     * @param  Closure|array    $query      满足条件后执行的查询表达式（闭包或数组）
+     * @param  Closure|array    $otherwise  不满足条件后执行
      * @return $this
      */
     public function when($condition, $query, $otherwise = null)
     {
-        if ($condition instanceof \Closure) {
+        if ($condition instanceof Closure) {
             $condition = $condition($this);
         }
 
         if ($condition) {
-            if ($query instanceof \Closure) {
+            if ($query instanceof Closure) {
                 $query($this, $condition);
             } elseif (is_array($query)) {
                 $this->where($query);
             }
         } elseif ($otherwise) {
-            if ($otherwise instanceof \Closure) {
+            if ($otherwise instanceof Closure) {
                 $otherwise($this, $condition);
             } elseif (is_array($otherwise)) {
                 $this->where($otherwise);
@@ -2121,7 +2122,7 @@ class Query
     /**
      * 添加查询范围
      * @access public
-     * @param  array|string|\Closure   $scope 查询范围定义
+     * @param  array|string|Closure   $scope 查询范围定义
      * @param  array                   $args  参数
      * @return $this
      */
@@ -2130,7 +2131,7 @@ class Query
         // 查询范围的第一个参数始终是当前查询对象
         array_unshift($args, $this);
 
-        if ($scope instanceof \Closure) {
+        if ($scope instanceof Closure) {
             call_user_func_array($scope, $args);
             return $this;
         }
@@ -2396,7 +2397,7 @@ class Query
             $closure = null;
             $field   = true;
 
-            if ($relation instanceof \Closure) {
+            if ($relation instanceof Closure) {
                 // 支持闭包查询过滤关联条件
                 $closure  = $relation;
                 $relation = $key;
@@ -2465,7 +2466,7 @@ class Query
     public function withSearch(array $fields, array $data = [], string $prefix = '')
     {
         foreach ($fields as $key => $field) {
-            if ($field instanceof \Closure) {
+            if ($field instanceof Closure) {
                 $field($this, $data[$key] ?? null, $data, $prefix);
             } elseif ($this->model) {
                 // 检测搜索器
@@ -2506,7 +2507,7 @@ class Query
             foreach ($relations as $key => $relation) {
                 $closure = $aggregateField = null;
 
-                if ($relation instanceof \Closure) {
+                if ($relation instanceof Closure) {
                     $closure  = $relation;
                     $relation = $key;
                 } elseif (!is_int($key)) {
@@ -2780,7 +2781,7 @@ class Query
      */
     public function cursor($data = null)
     {
-        if ($data instanceof \Closure) {
+        if ($data instanceof Closure) {
             $data($this);
             $data = null;
         }
@@ -2810,7 +2811,7 @@ class Query
      */
     public function select($data = null)
     {
-        if ($data instanceof \Closure) {
+        if ($data instanceof Closure) {
             $data($this);
             $data = null;
         }
@@ -2928,7 +2929,7 @@ class Query
      */
     public function find($data = null)
     {
-        if ($data instanceof \Closure) {
+        if ($data instanceof Closure) {
             $data($this);
             $data = null;
         }
@@ -3155,7 +3156,7 @@ class Query
     /**
      * 查找多条记录 如果不存在则抛出异常
      * @access public
-     * @param  array|string|Query|\Closure $data
+     * @param  array|string|Query|Closure $data
      * @return array|PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
@@ -3169,7 +3170,7 @@ class Query
     /**
      * 查找单条记录 如果不存在则抛出异常
      * @access public
-     * @param  array|string|Query|\Closure $data
+     * @param  array|string|Query|Closure $data
      * @return array|PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
@@ -3183,7 +3184,7 @@ class Query
     /**
      * 查找单条记录 如果不存在则返回空
      * @access public
-     * @param  array|string|Query|\Closure $data
+     * @param  array|string|Query|Closure $data
      * @return array|PDOStatement|string|Model
      * @throws DbException
      * @throws ModelNotFoundException
