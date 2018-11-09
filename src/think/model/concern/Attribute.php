@@ -506,6 +506,10 @@ trait Attribute
     {
         $relation = $this->isRelationAttr($name);
 
+        if (false === $relation) {
+            return null;
+        }
+
         $modelRelation = $this->$relation();
 
         return $modelRelation instanceof Relation ? $this->getRelationData($modelRelation) : null;
