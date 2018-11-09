@@ -2651,7 +2651,7 @@ class Query
      * @param  string  $sequence     自增序列名
      * @return integer
      */
-    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, string $sequence = null): int
+    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, string $sequence = null)
     {
         $this->parseOptions();
 
