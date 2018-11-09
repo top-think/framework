@@ -1017,52 +1017,14 @@ abstract class Connection
      */
     public function update(Query $query): int
     {
-        $options = $this->parseUpdateData($query);
-
-        // 生成UPDATE SQL语句
-        $sql  = $this->builder->update($query);
-        $bind = $query->getBind();
-
-        // 检测缓存
-        $cache = Container::get('cache');
-
-        if (isset($options['key']) && $cache->get($options['key'])) {
-            // 删除缓存
-            $cache->rm($options['key']);
-        } elseif (!empty($options['cache']['tag'])) {
-            $cache->clear($options['cache']['tag']);
-        }
-
-        // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
-
-        if ($result) {
-            $pk = $options['pk'];
-            if (is_string($pk) && isset($options['where']['AND'][$pk])) {
-                $data[$pk] = $options['where']['AND'][$pk];
-            } elseif (is_string($pk) && isset($options['key']) && strpos($options['key'], '|')) {
-                list($a, $val) = explode('|', $options['key']);
-                $data[$pk]     = $val;
-            }
-
-            $query->setOption('data', $data);
-            $query->trigger('after_update');
-        }
-
-        return $result;
-    }
-
-    protected function parseUpdateData($query): array
-    {
         $options = $query->getOptions();
 
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
         }
 
-        $pk            = $query->getPk($options);
-        $data          = $options['data'];
-        $options['pk'] = $pk;
+        $pk   = $query->getPk($options);
+        $data = $options['data'];
 
         if (empty($options['where'])) {
             // 如果存在主键数据 则自动作为更新条件
@@ -1101,7 +1063,37 @@ abstract class Connection
         }
         // 更新数据
         $query->setOption('data', $data);
-        return $options;
+
+        // 生成UPDATE SQL语句
+        $sql  = $this->builder->update($query);
+        $bind = $query->getBind();
+
+        // 检测缓存
+        $cache = Container::get('cache');
+
+        if (isset($options['key']) && $cache->get($options['key'])) {
+            // 删除缓存
+            $cache->rm($options['key']);
+        } elseif (!empty($options['cache']['tag'])) {
+            $cache->clear($options['cache']['tag']);
+        }
+
+        // 执行操作
+        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
+
+        if ($result) {
+            if (is_string($pk) && isset($options['where']['AND'][$pk])) {
+                $data[$pk] = $options['where']['AND'][$pk];
+            } elseif (is_string($pk) && isset($options['key']) && strpos($options['key'], '|')) {
+                list($a, $val) = explode('|', $options['key']);
+                $data[$pk]     = $val;
+            }
+
+            $query->setOption('data', $data);
+            $query->trigger('after_update');
+        }
+
+        return $result;
     }
 
     /**
