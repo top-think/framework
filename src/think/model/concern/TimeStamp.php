@@ -55,7 +55,9 @@ trait TimeStamp
             return;
         }
 
-        if (false !== strpos($format, '\\')) {
+        if (false === $format) {
+
+        } elseif (false !== strpos($format, '\\')) {
             $time = new $format($time);
         } elseif (!$timestamp && false !== $format) {
             $time = date($format, $time);
