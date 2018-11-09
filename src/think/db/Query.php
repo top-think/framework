@@ -358,7 +358,7 @@ class Query
      */
     public function getFieldType(string $field = null)
     {
-        $fieldType = $this->options['field_type'] ?? $this->getTableFieldsType();
+        $fieldType = !empty($this->options['field_type']) ? $this->options['field_type'] : $this->getTableFieldsType();
 
         if (is_null($field)) {
             return $fieldType;
