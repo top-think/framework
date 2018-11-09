@@ -507,7 +507,7 @@ trait Attribute
         $relation = $this->isRelationAttr($name);
 
         if (false === $relation) {
-            return null;
+            return;
         }
 
         $modelRelation = $this->$relation();
