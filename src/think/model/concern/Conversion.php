@@ -156,7 +156,7 @@ trait Conversion
         return $item;
     }
 
-    protected function appendAttrToArray(array &$item, string $key, string $name)
+    protected function appendAttrToArray(array &$item, $key, string $name)
     {
         if (is_array($name)) {
             // 追加关联对象属性
