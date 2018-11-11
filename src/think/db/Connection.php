@@ -763,7 +763,7 @@ abstract class Connection
     public function find(Query $query)
     {
         // 分析查询表达式
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
         $pk      = $query->getPk($options);
         $data    = $options['data'];
 
@@ -797,7 +797,6 @@ abstract class Connection
             if (false !== $result) {
                 return $result;
             }
-
         }
 
         // 生成查询SQL
@@ -832,7 +831,7 @@ abstract class Connection
     public function cursor(Query $query)
     {
         // 分析查询表达式
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         // 生成查询SQL
         $sql = $this->builder->select($query);
@@ -858,7 +857,7 @@ abstract class Connection
     public function select(Query $query): array
     {
         // 分析查询表达式
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             $resultSet = $this->getCacheData($query, $options['cache'], null, $key);
@@ -901,7 +900,7 @@ abstract class Connection
     public function insert(Query $query, bool $replace = false, bool $getLastInsID = false, string $sequence = null)
     {
         // 分析查询表达式
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         // 生成SQL语句
         $sql = $this->builder->insert($query, $replace);
@@ -953,7 +952,7 @@ abstract class Connection
             return 0;
         }
 
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         if ($limit) {
             // 分批写入 自动启动事务支持
@@ -998,7 +997,7 @@ abstract class Connection
     public function selectInsert(Query $query, array $fields, string $table): int
     {
         // 分析查询表达式
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         $sql = $this->builder->selectInsert($query, $fields, $table);
 
@@ -1017,7 +1016,7 @@ abstract class Connection
      */
     public function update(Query $query): int
     {
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
@@ -1107,7 +1106,7 @@ abstract class Connection
     public function delete(Query $query): int
     {
         // 分析查询表达式
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
         $pk      = $query->getPk($options);
         $data    = $options['data'];
 
@@ -1167,7 +1166,7 @@ abstract class Connection
      */
     public function value(Query $query, string $field, $default = null)
     {
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         if (isset($options['field'])) {
             $query->removeOption('field');
@@ -1218,13 +1217,16 @@ abstract class Connection
      * @param  Query     $query     查询对象
      * @param  string    $aggregate 聚合方法
      * @param  string    $field     字段名
+     * @param  bool      $force     强制转为数字类型
      * @return mixed
      */
-    public function aggregate(Query $query, string $aggregate, string $field)
+    public function aggregate(Query $query, string $aggregate, string $field, bool $force = false)
     {
         $field = $aggregate . '(' . $this->builder->parseKey($query, $field) . ') AS tp_' . strtolower($aggregate);
 
-        return $this->value($query, $field, 0);
+        $result = $this->value($query, $field, 0);
+
+        return $force ? (float) $result : $result;
     }
 
     /**
@@ -1237,7 +1239,7 @@ abstract class Connection
      */
     public function column(Query $query, string $field, string $key = ''): array
     {
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         if (isset($options['field'])) {
             $query->removeOption('field');
@@ -1323,7 +1325,7 @@ abstract class Connection
     public function pdo(Query $query): PDOStatement
     {
         // 分析查询表达式
-        $options = $query->getOptions();
+        $options = $query->parseOptions();
 
         // 生成查询SQL
         $sql = $this->builder->select($query);

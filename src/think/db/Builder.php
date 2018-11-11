@@ -233,12 +233,10 @@ abstract class Builder
         foreach ((array) $tables as $key => $table) {
             if (!is_numeric($key)) {
                 $item[] = $this->parseKey($query, $key) . ' ' . $this->parseKey($query, $table);
+            } elseif (isset($options['alias'][$table])) {
+                $item[] = $this->parseKey($query, $table) . ' ' . $this->parseKey($query, $options['alias'][$table]);
             } else {
-                if (isset($options['alias'][$table])) {
-                    $item[] = $this->parseKey($query, $table) . ' ' . $this->parseKey($query, $options['alias'][$table]);
-                } else {
-                    $item[] = $this->parseKey($query, $table);
-                }
+                $item[] = $this->parseKey($query, $table);
             }
         }
 

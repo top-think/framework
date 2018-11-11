@@ -32,7 +32,6 @@ use think\Paginator;
 
 class Query
 {
-
     /**
      * 当前数据库连接对象
      * @var Connection
@@ -409,9 +408,9 @@ class Query
      * @throws BindParamException
      * @throws PDOException
      */
-    public function execute(string $sql, array $bind = [])
+    public function execute(string $sql, array $bind = []): int
     {
-        return $this->connection->execute($sql, $bind);
+        return $this->connection->execute($sql, $bind, $this);
     }
 
     /**
@@ -429,9 +428,9 @@ class Query
      * 获取最近插入的ID
      * @access public
      * @param  string $sequence 自增序列名
-     * @return mixed
+     * @return string
      */
-    public function getLastInsID(string $sequence = null)
+    public function getLastInsID(string $sequence = null): string
     {
         return $this->connection->getLastInsID($sequence);
     }
@@ -578,8 +577,6 @@ class Query
      */
     public function value(string $field, $default = null)
     {
-        $this->parseOptions();
-
         return $this->connection->value($this, $field, $default);
     }
 
@@ -592,42 +589,29 @@ class Query
      */
     public function column(string $field, string $key = ''): array
     {
-        $this->parseOptions();
-
         return $this->connection->column($this, $field, $key);
     }
 
     /**
      * 聚合查询
-     * @access public
+     * @access protected
      * @param  string $aggregate    聚合方法
      * @param  string $field        字段名
      * @param  bool   $force        强制转为数字类型
      * @return mixed
      */
-    public function aggregate(string $aggregate, string $field, bool $force = false)
+    protected function aggregate(string $aggregate, string $field, bool $force = false)
     {
-        $this->parseOptions();
-
-        $result = $this->connection->aggregate($this, $aggregate, $field);
-
-        if ($force) {
-            $result = (float) $result;
-        }
-
-        // 查询完成后清空聚合字段信息
-        $this->removeOption('field');
-
-        return $result;
+        return $this->connection->aggregate($this, $aggregate, $field, $force);
     }
 
     /**
      * COUNT查询
      * @access public
      * @param  string $field 字段名
-     * @return float|string
+     * @return int
      */
-    public function count(string $field = '*')
+    public function count(string $field = '*'): int
     {
         if (!empty($this->options['group'])) {
             // 支持GROUP
@@ -636,16 +620,12 @@ class Query
 
             $query = $this->newQuery()->table([$subSql => '_group_count_']);
 
-            if (!empty($options['fetch_sql'])) {
-                $query->fetchSql(true);
-            }
-
             $count = $query->aggregate('COUNT', '*');
         } else {
             $count = $this->aggregate('COUNT', $field);
         }
 
-        return is_string($count) ? $count : (int) $count;
+        return (int) $count;
     }
 
     /**
@@ -654,7 +634,7 @@ class Query
      * @param  string $field 字段名
      * @return float
      */
-    public function sum(string $field)
+    public function sum(string $field): float
     {
         return $this->aggregate('SUM', $field, true);
     }
@@ -689,24 +669,21 @@ class Query
      * @param  string $field 字段名
      * @return float
      */
-    public function avg(string $field)
+    public function avg(string $field): float
     {
         return $this->aggregate('AVG', $field, true);
     }
 
     /**
      * 设置记录的某个字段值
-     * 支持使用数据库字段和方法
      * @access public
      * @param  string       $field 字段名
      * @param  mixed        $value 字段值
      * @return integer
      */
-    public function setField(string $field, $value = ''): int
+    public function setField(string $field, $value): int
     {
-        $data[$field] = $value;
-
-        return $this->update($data);
+        return $this->update([$field => $value]);
     }
 
     /**
@@ -1064,7 +1041,7 @@ class Query
     /**
      * 使用表达式设置数据
      * @access public
-     * @param  mixed $value 表达式
+     * @param  string $value 表达式
      * @return Expression
      */
     public function raw(string $value): Expression
@@ -1427,11 +1404,6 @@ class Query
      */
     protected function parseWhereExp(string $logic, $field, $op, $condition, array $param = [], bool $strict = false)
     {
-        if ($field instanceof $this) {
-            $this->options['where'] = $field->getOptions('where');
-            return $this;
-        }
-
         $logic = strtoupper($logic);
 
         if (is_string($field) && !empty($this->options['via']) && false === strpos($field, '.')) {
@@ -1699,6 +1671,19 @@ class Query
     }
 
     /**
+     * 表达式方式指定当前操作的数据表
+     * @access public
+     * @param  mixed $table 表名
+     * @return $this
+     */
+    public function tableRaw(string $table)
+    {
+        $this->options['table'] = $this->raw($table);
+
+        return $this;
+    }
+
+    /**
      * 指定当前操作的数据表
      * @access public
      * @param  mixed $table 表名
@@ -1911,8 +1896,11 @@ class Query
      */
     public function lock($lock = false)
     {
-        $this->options['lock']   = $lock;
-        $this->options['master'] = true;
+        $this->options['lock'] = $lock;
+
+        if ($lock) {
+            $this->options['master'] = true;
+        }
 
         return $this;
     }
@@ -2061,12 +2049,8 @@ class Query
      */
     public function hidden(array $hidden)
     {
-        if ($this->model) {
-            $this->options['hidden'] = $hidden;
-            return $this;
-        }
-
-        return $this->field($hidden, true);
+        $this->options['hidden'] = $hidden;
+        return $this;
     }
 
     /**
@@ -2167,7 +2151,7 @@ class Query
     }
 
     /**
-     * 查询日期或者时间
+     * 添加日期或者时间查询规则
      * @access public
      * @param  string       $name  时间表达式
      * @param  string|array $rule  时间范围
@@ -2653,9 +2637,7 @@ class Query
      */
     public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, string $sequence = null)
     {
-        $this->parseOptions();
-
-        $this->options['data'] = array_merge($this->options['data'], $data);
+        $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
 
         return $this->connection->insert($this, $replace, $getLastInsID, $sequence);
     }
@@ -2683,10 +2665,8 @@ class Query
      */
     public function insertAll(array $dataSet = [], bool $replace = false, int $limit = null): int
     {
-        $this->parseOptions();
-
         if (empty($dataSet)) {
-            $dataSet = $this->options['data'];
+            $dataSet = $this->options['data'] ?? [];
         }
 
         if (empty($limit) && !empty($this->options['limit'])) {
@@ -2706,8 +2686,6 @@ class Query
      */
     public function selectInsert(array $fields, string $table): int
     {
-        $this->parseOptions();
-
         return $this->connection->selectInsert($this, $fields, $table);
     }
 
@@ -2721,9 +2699,7 @@ class Query
      */
     public function update(array $data = []): int
     {
-        $this->parseOptions();
-
-        $this->options['data'] = array_merge($this->options['data'], $data);
+        $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
 
         return $this->connection->update($this);
     }
@@ -2738,8 +2714,6 @@ class Query
      */
     public function delete($data = null): int
     {
-        $this->parseOptions();
-
         if (!is_null($data) && true !== $data) {
             // AR模式分析主键条件
             $this->parsePkWhere($data);
@@ -2768,8 +2742,6 @@ class Query
      */
     public function getPdo(): PDOStatement
     {
-        $this->parseOptions();
-
         return $this->connection->pdo($this);
     }
 
@@ -2785,8 +2757,6 @@ class Query
             $data($this);
             $data = null;
         }
-
-        $this->parseOptions();
 
         if (!is_null($data)) {
             // 主键条件分析
@@ -2815,8 +2785,6 @@ class Query
             $data($this);
             $data = null;
         }
-
-        $this->parseOptions();
 
         if (!is_null($data)) {
             // 主键条件分析
@@ -2912,6 +2880,12 @@ class Query
             }
         }
 
+        if (!empty($this->options['visible']) || !empty($this->options['hidden'])) {
+            foreach ($resultSet as &$result) {
+                $this->filterResult($result);
+            }
+        }
+
         if (!empty($this->options['collection'])) {
             // 返回Collection对象
             $resultSet = new Collection($resultSet);
@@ -2934,8 +2908,6 @@ class Query
             $data = null;
         }
 
-        $this->parseOptions();
-
         if (!is_null($data)) {
             // AR模式分析主键条件
             $this->parsePkWhere($data);
@@ -2944,12 +2916,6 @@ class Query
         $this->options['data'] = $data;
 
         $result = $this->connection->find($this);
-
-        if ($result instanceof PDOStatement) {
-            return $result;
-        }
-
-        $this->removeOption('limit');
 
         // 数据处理
         if (empty($result)) {
@@ -3007,6 +2973,29 @@ class Query
 
         if (!empty($this->options['with_attr'])) {
             $this->getResultAttr($result, $this->options['with_attr']);
+        }
+
+        $this->filterResult($result);
+    }
+
+    /**
+     * 处理数据的可见和隐藏
+     * @access protected
+     * @param  array $result     查询数据
+     * @return void
+     */
+    protected function filterResult(&$result): void
+    {
+        if (!empty($this->options['visible'])) {
+            foreach ($this->options['visible'] as $key) {
+                $array[] = $key;
+            }
+            $result = array_intersect_key($result, array_flip($array));
+        } elseif (!empty($this->options['hidden'])) {
+            foreach ($this->options['hidden'] as $key) {
+                $array[] = $key;
+            }
+            $result = array_diff_key($result, array_flip($array));
         }
     }
 
@@ -3295,7 +3284,7 @@ class Query
      * @param  array   $options    查询参数
      * @return void
      */
-    protected function parseView(&$options): void
+    protected function parseView(array &$options): void
     {
         foreach (['AND', 'OR'] as $logic) {
             if (isset($options['where'][$logic])) {
@@ -3344,7 +3333,11 @@ class Query
         $pk = $this->getPk($this->options);
 
         if (is_string($pk)) {
-            // 获取当前数据表
+            // 获取数据表
+            if (empty($this->options['table'])) {
+                $this->options['table'] = $this->getTable();
+            }
+
             $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
 
             if (!empty($this->options['alias'][$table])) {
