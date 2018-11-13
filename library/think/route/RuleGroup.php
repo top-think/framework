@@ -13,6 +13,7 @@ namespace think\route;
 
 use think\Container;
 use think\Exception;
+use think\facade\Config;
 use think\Request;
 use think\Response;
 use think\Route;
@@ -436,6 +437,13 @@ class RuleGroup extends Rule
             $name = $rule[0];
             $rule = $rule[1];
         } elseif (is_string($route)) {
+            $route_split = explode('/', $route);
+            if (1 == count($route_split)) {
+                $route = Config::get('default_module') . '/' . Config::get('default_controller') . '/' . $route;
+            }else if (2 == count($route_split)) {
+                $route = Config::get('default_module') . '/' . $route;
+            }
+            unset($route_split);
             $name = $route;
         } else {
             $name = null;
