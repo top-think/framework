@@ -107,13 +107,14 @@ class RuleName
      * @param  string   $domain   域名
      * @return array|null
      */
-    public function get($name = null, $domain = null)
+    public function get($name = null, $domain = null, $method = '*')
     {
         if (is_null($name)) {
             return $this->item;
         }
 
         $name = strtolower($name);
+        $method = strtolower($method);
 
         if (isset($this->item[$name])) {
             if (is_null($domain)) {
@@ -121,7 +122,7 @@ class RuleName
             } else {
                 $result = [];
                 foreach ($this->item[$name] as $item) {
-                    if ($item[2] == $domain) {
+                    if ($item[2] == $domain && ('*' == $item[4] || $method == $item[4])) {
                         $result[] = $item;
                     }
                 }
