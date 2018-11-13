@@ -424,9 +424,9 @@ class Route
      * @param  string    $domain 域名
      * @return mixed
      */
-    public function getName($name = null, $domain = null)
+    public function getName($name = null, $domain = null, $method = '*')
     {
-        return $this->app['rule_name']->get($name, $domain);
+        return $this->app['rule_name']->get($name, $domain, $method);
     }
 
     /**
