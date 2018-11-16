@@ -517,6 +517,8 @@ class Validate
         }
 
         $i = 0;
+        $result = true;
+
         foreach ($rules as $key => $rule) {
             if ($rule instanceof \Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
@@ -527,7 +529,7 @@ class Validate
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
 
-                } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
+                } elseif (array_key_exists($field, $this->remove) && (null === $this->remove[$field] || in_array($info, $this->remove[$field]))) {
                     // 规则已经移除
                     $i++;
                     continue;
