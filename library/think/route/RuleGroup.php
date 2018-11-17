@@ -440,7 +440,7 @@ class RuleGroup extends Rule
             $route_split = explode('/', $route);
             if (1 == count($route_split)) {
                 $route = Config::get('default_module') . '/' . Config::get('default_controller') . '/' . $route;
-            } else if (2 == count($route_split)) {
+            } elseif (2 == count($route_split)) {
                 $route = Config::get('default_module') . '/' . $route;
             }
             unset($route_split);
