@@ -3567,7 +3567,7 @@ class Query
                 $options['order'] = explode(',', $options['order']);
             }
             foreach ($options['order'] as $key => $val) {
-                if (is_numeric($key)) {
+                if (is_numeric($key) && is_string($val)) {
                     if (strpos($val, ' ')) {
                         list($field, $sort) = explode(' ', $val);
                         if (array_key_exists($field, $options['map'])) {
