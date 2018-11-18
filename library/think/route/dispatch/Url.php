@@ -12,7 +12,6 @@
 namespace think\route\dispatch;
 
 use think\exception\HttpException;
-use think\facade\Request;
 use think\Loader;
 use think\route\Dispatch;
 
@@ -117,9 +116,9 @@ class Url extends Dispatch
 
         $host = $this->request->host(true);
 
-        $request_method = Request::method();
+        $method = $this->request->method();
 
-        if ($this->rule->getRouter()->getName($name, $host, $request_method) || $this->rule->getRouter()->getName($name2, $host, $request_method)) {
+        if ($this->rule->getRouter()->getName($name, $host, $method) || $this->rule->getRouter()->getName($name2, $host, $method)) {
             return true;
         }
 
