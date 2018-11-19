@@ -1353,7 +1353,7 @@ class Request
 
         if (is_array($data)) {
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
-            reset($data);
+            $this->array_reset($data);
         } else {
             $this->filterValue($data, $name, $filter);
         }
@@ -1364,6 +1364,21 @@ class Request
         }
 
         return $data;
+    }
+
+    /**
+     * 递归重置数组指针
+     * @access public
+     * @param array $data 数据源
+     * @return void
+     */
+    public function array_reset(array &$data) {
+        foreach ($data as &$value) {
+            if (is_array($value)) {
+                $this->array_reset($value);
+            }
+        }
+        reset($data);
     }
 
     /**
