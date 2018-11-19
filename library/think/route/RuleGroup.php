@@ -13,7 +13,6 @@ namespace think\route;
 
 use think\Container;
 use think\Exception;
-use think\facade\Config;
 use think\Request;
 use think\Response;
 use think\Route;
