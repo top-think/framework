@@ -523,7 +523,7 @@ class Validate
                 $info   = is_numeric($key) ? '' : $key;
             } else {
                 // 判断验证类型
-                list($type, $rule, $info) = $this->getValidateType($key, $rule);
+                list($type, $rule, $info, $mustCall) = $this->getValidateType($key, $rule);
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
 
@@ -533,9 +533,14 @@ class Validate
                     continue;
                 }
 
-                // 验证类型
-                $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
-                if ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value) || method_exists($callback[0], $callback[1])) {
+                if (
+                    'must' == $info
+                    || 0 === strpos($info, 'require')
+                    || (!is_null($value) && '' !== $value)
+                    || $mustCall
+                ) {
+                    // 验证类型
+                    $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
                     // 验证数据
                     $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
                 } else {
@@ -587,7 +592,13 @@ class Validate
         }
 
         if (strpos($rule, ':')) {
-            list($type, $rule) = explode(':', $rule, 2);
+            $exploded = explode(':', $rule, 3);
+            // 判断是否提供了mustCall选项
+            if (isset($exploded[2]) && $exploded[2] === 'mustCall') {
+                $mustCall = true;
+                unset($exploded[2]);
+            }
+            list($type, $rule) = $exploded;
             if (isset($this->alias[$type])) {
                 // 判断别名
                 $type = $this->alias[$type];
@@ -602,7 +613,7 @@ class Validate
             $info = $rule;
         }
 
-        return [$type, $rule, $info];
+        return [$type, $rule, $info, isset($mustCall) ? $mustCall : false];
     }
 
     /**
