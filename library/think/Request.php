@@ -1353,7 +1353,7 @@ class Request
 
         if (is_array($data)) {
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
-            $this->array_reset($data);
+            $this->arrayReset($data);
         } else {
             $this->filterValue($data, $name, $filter);
         }
@@ -1372,10 +1372,10 @@ class Request
      * @param array $data 数据源
      * @return void
      */
-    public function array_reset(array &$data) {
+    public function arrayReset(array &$data) {
         foreach ($data as &$value) {
             if (is_array($value)) {
-                $this->array_reset($value);
+                $this->arrayReset($value);
             }
         }
         reset($data);
