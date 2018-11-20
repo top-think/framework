@@ -534,10 +534,11 @@ class Validate
                 }
 
                 // 验证类型
-                $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
-                if ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value) || method_exists($callback[0], $callback[1])) {
+                if (isset(self::$type[$type])) {
+                    $result = call_user_func_array(self::$type[$type], [$value, $rule, $data, $field, $title]);
+                } elseif ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                     // 验证数据
-                    $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
+                    $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
                 }
