@@ -535,11 +535,10 @@ class Validate
                     continue;
                 }
 
-                if ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
-                    // 验证类型
-                    $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
-                    // 验证数据
-                    $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
+                if (isset(self::$type[$type])) {
+                    $result = call_user_func_array(self::$type[$type], [$value, $rule, $data, $field, $title]);
+                } elseif ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
+                    $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
                 }
