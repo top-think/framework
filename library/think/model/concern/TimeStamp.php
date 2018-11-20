@@ -58,6 +58,14 @@ trait TimeStamp
             $time = new $format($time);
         } elseif (!$timestamp && false !== $format) {
             $time = date($format, $time);
+            if ((false !== strpos($format, '.'))) {
+                //时间格式中如果包含点则自动追加小数位数,以获取毫秒数
+                $suffix       = substr($format, strpos($format, '.') + 1);
+                $dot_length   = strlen($suffix);
+                $milliseconds = substr(microtime(true), strpos($format, '.'), $dot_length);
+                $milliseconds = str_pad($milliseconds, $dot_length, "0", STR_PAD_RIGHT);
+                $time         = str_replace($suffix, $milliseconds, $time);
+            }
         }
 
         return $time;
