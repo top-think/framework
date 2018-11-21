@@ -1994,6 +1994,20 @@ class Query
     }
 
     /**
+     * 设置是否返回数组
+     * @access public
+     * @param  bool  $asArray  是否返回数组
+     * @return $this
+     */
+    public function fetchArray(bool $asArray = true)
+    {
+        if ($asArray) {
+            $this->model = null;
+        }
+        return $this;
+    }
+
+    /**
      * 设置从主服务器读取数据
      * @access public
      * @param  bool $readMaster 是否从主服务器读取
