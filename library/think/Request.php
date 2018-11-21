@@ -1168,27 +1168,26 @@ class Request
      */
     public function file($name = '')
     {
-        if (empty($this->file)) {
-            $this->file = isset($_FILES) ? $_FILES : [];
+        if (strpos($name, '.')) {
+            list($name, $sub) = explode('.', $name);
         }
 
-        $files = $this->file;
-        if (!empty($files)) {
-            if (strpos($name, '.')) {
-                list($name, $sub) = explode('.', $name);
-            }
+        if (empty($this->file)) {
+            $files = isset($_FILES) ? $_FILES : [];
 
             // 处理上传文件
-            $array = $this->dealUploadFile($files, $name);
+            $this->file = $this->dealUploadFile($files, $name);
+        }
 
-            if ('' === $name) {
-                // 获取全部文件
-                return $array;
-            } elseif (isset($sub) && isset($array[$name][$sub])) {
-                return $array[$name][$sub];
-            } elseif (isset($array[$name])) {
-                return $array[$name];
-            }
+        $array = $this->file;
+
+        if ('' === $name) {
+            // 获取全部文件
+            return $array;
+        } elseif (isset($sub) && isset($array[$name][$sub])) {
+            return $array[$name][$sub];
+        } elseif (isset($array[$name])) {
+            return $array[$name];
         }
 
         return;
