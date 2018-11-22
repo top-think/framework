@@ -301,7 +301,6 @@ abstract class Builder
                 }
 
                 if (is_array($value)) {
-                    reset($value);
                     if (key($value) !== 0) {
                         throw new Exception('where express error:' . var_export($value, true));
                     }
