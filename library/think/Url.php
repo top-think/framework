@@ -354,7 +354,7 @@ class Url
                 continue;
             }
 
-            if ($this->app['request']->port() != 80) {
+            if (!in_array($this->app['request']->port(), [80, 443])) {
                 $domain .= ':' . $this->app['request']->port();
             }
 
