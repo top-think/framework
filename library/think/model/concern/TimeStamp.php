@@ -12,6 +12,7 @@
 namespace think\model\concern;
 
 use DateTime;
+
 /**
  * 自动时间戳
  */
