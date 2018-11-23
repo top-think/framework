@@ -21,7 +21,7 @@ use think\route\Dispatch;
  */
 class App extends Container
 {
-    const VERSION = '5.2.0beta1';
+    const VERSION = '5.2.0beta2';
 
     /**
      * 应用名称

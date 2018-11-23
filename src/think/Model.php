@@ -771,7 +771,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * 更新数据
      * @access public
      * @param  array      $data  数据数组
-     * @param  array      $where 更新条件
      * @param  array      $field 允许字段
      * @return static
      */
