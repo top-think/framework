@@ -412,13 +412,22 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
             $total = null;
         }
 
-        return [
-            'total'        => $total,
-            'per_page'     => $this->listRows(),
-            'current_page' => $this->currentPage(),
-            'last_page'    => $this->lastPage,
-            'data'         => $this->items->toArray(),
-        ];
+        if ($this->simple) {
+            return [
+                'per_page'     => $this->listRows,
+                'current_page' => $this->currentPage,
+                'has_more'     => $this->hasMore,
+                'data'         => $this->items->toArray(),
+            ];
+        } else {
+            return [
+                'total'        => $this->total,
+                'per_page'     => $this->listRows,
+                'current_page' => $this->currentPage,
+                'last_page'    => $this->lastPage,
+                'data'         => $this->items->toArray(),
+            ];
+        }
     }
 
     /**
@@ -441,5 +450,4 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
         return $result;
     }
-
 }
