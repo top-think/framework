@@ -484,7 +484,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function updateData(array $where): bool
     {
         // 自动更新
-        $this->autoCompleteData(array_merge($this->auto, $this->update));
+        $auto = array_merge($this->auto, $this->update);
+        $this->autoCompleteData($auto);
 
         // 事件回调
         if (false === $this->trigger('before_update')) {
@@ -513,7 +514,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         }
 
         // 检查允许字段
-        $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->update));
+        $allowFields = $this->checkAllowFields($auto);
 
         // 保留主键数据
         foreach ($this->data as $key => $val) {
@@ -582,7 +583,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function insertData(string $sequence = null): bool
     {
         // 自动写入
-        $this->autoCompleteData(array_merge($this->auto, $this->insert));
+        $auto = array_merge($this->auto, $this->insert);
+        $this->autoCompleteData($auto);
 
         // 时间戳自动写入
         $this->checkTimeStampWrite();
@@ -592,7 +594,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         }
 
         // 检查允许字段
-        $allowFields = $this->checkAllowFields(array_merge($this->auto, $this->insert));
+        $allowFields = $this->checkAllowFields($auto);
 
         $db = $this->db();
         $db->startTrans();
@@ -631,52 +633,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $db->rollback();
             throw $e;
         }
-    }
-
-    /**
-     * 字段值(延迟)增长
-     * @access public
-     * @param  string  $field    字段名
-     * @param  integer $step     增长值
-     * @param  integer $lazyTime 延时时间(s)
-     * @return integer|true
-     * @throws Exception
-     */
-    public function setInc(string $field, int $step = 1, int $lazyTime = 0)
-    {
-        // 读取更新条件
-        $where = $this->getWhere();
-
-        $result = $this->where($where)->setInc($field, $step, $lazyTime);
-
-        if (true !== $result) {
-            $this->data[$field] += $step;
-        }
-
-        return $result;
-    }
-
-    /**
-     * 字段值(延迟)减少
-     * @access public
-     * @param  string  $field    字段名
-     * @param  integer $step     减少值
-     * @param  integer $lazyTime 延时时间(s)
-     * @return integer|true
-     * @throws Exception
-     */
-    public function setDec(string $field, int $step = 1, int $lazyTime = 0)
-    {
-        // 读取更新条件
-        $where = $this->getWhere();
-
-        $result = $this->where($where)->setDec($field, $step, $lazyTime);
-
-        if (true !== $result) {
-            $this->data[$field] -= $step;
-        }
-
-        return $result;
     }
 
     /**
