@@ -29,6 +29,12 @@ trait Attribute
      * 数据表字段信息 留空则自动获取
      * @var array
      */
+    protected $schema = [];
+
+    /**
+     * 当前允许写入的字段
+     * @var array
+     */
     protected $field = [];
 
     /**

@@ -135,6 +135,17 @@ abstract class Connection
         PDO::ATTR_EMULATE_PREPARES  => false,
     ];
 
+    // 参数绑定类型映射
+    protected $bindType = [
+        'string'  => PDO::PARAM_STR,
+        'str'     => PDO::PARAM_STR,
+        'integer' => PDO::PARAM_INT,
+        'int'     => PDO::PARAM_INT,
+        'boolean' => PDO::PARAM_BOOL,
+        'bool'    => PDO::PARAM_BOOL,
+        'float'   => self::PARAM_FLOAT,
+    ];
+
     // 服务器断线标识字符
     protected $breakMatchStr = [
         'server has gone away',
@@ -315,7 +326,9 @@ abstract class Connection
      */
     public function getFieldBindType(string $type): int
     {
-        if (0 === strpos($type, 'set') || 0 === strpos($type, 'enum')) {
+        if (in_array($type, ['integer', 'string', 'float', 'boolean', 'bool', 'int', 'str'])) {
+            $bind = $this->bindType[$type];
+        } elseif (0 === strpos($type, 'set') || 0 === strpos($type, 'enum')) {
             $bind = PDO::PARAM_STR;
         } elseif (preg_match('/(double|float|decimal|real|numeric)/is', $type)) {
             $bind = self::PARAM_FLOAT;

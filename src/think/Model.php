@@ -244,7 +244,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $query->model($this)
             ->name($this->name)
             ->json($this->json, $this->jsonAssoc)
-            ->setFieldType($this->type);
+            ->setFieldType($this->schema);
 
         if (isset(static::$readMaster['*']) || isset(static::$readMaster[static::class])) {
             $query->master(true);
