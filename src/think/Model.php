@@ -388,20 +388,22 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * 保存当前数据对象
      * @access public
      * @param  array  $data     数据
-     * @param  array  $where    更新条件
      * @param  string $sequence 自增序列名
      * @return bool
      */
-    public function save(array $data = [], array $where = [], string $sequence = null): bool
+    public function save(array $data = [], string $sequence = null): bool
     {
-        $this->checkBeforeSave($data, $where);
+        // 数据对象赋值
+        foreach ($data as $key => $value) {
+            $this->setAttr($key, $value, $data);
+        }
 
         // 事件回调
         if (false === $this->trigger('before_write')) {
             return false;
         }
 
-        $result = $this->exists ? $this->updateData($where) : $this->insertData($sequence);
+        $result = $this->exists ? $this->updateData() : $this->insertData($sequence);
 
         if (false === $result) {
             return false;
@@ -415,28 +417,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $this->set    = [];
 
         return true;
-    }
-
-    /**
-     * 写入之前检查数据
-     * @access protected
-     * @param  array   $data  数据
-     * @param  array   $where 保存条件
-     * @return void
-     */
-    protected function checkBeforeSave(array $data, $where): void
-    {
-        if (!empty($data)) {
-            // 数据对象赋值
-            foreach ($data as $key => $value) {
-                $this->setAttr($key, $value, $data);
-            }
-
-            if (!empty($where)) {
-                $this->exists      = true;
-                $this->updateWhere = $where;
-            }
-        }
     }
 
     /**
@@ -478,13 +458,13 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 保存写入数据
      * @access protected
-     * @param  array   $where 保存条件
      * @return bool
      */
-    protected function updateData(array $where): bool
+    protected function updateData(): bool
     {
         // 自动更新
         $auto = array_merge($this->auto, $this->update);
+
         $this->autoCompleteData($auto);
 
         // 事件回调
@@ -509,10 +489,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $this->data[$this->updateTime] = $data[$this->updateTime];
         }
 
-        if (empty($where) && !empty($this->updateWhere)) {
-            $where = $this->updateWhere;
-        }
-
         // 检查允许字段
         $allowFields = $this->checkAllowFields($auto);
 
@@ -535,14 +511,18 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
         if (!empty($array)) {
             $where = $array;
+        } else {
+            $where = $this->updateWhere;
         }
 
         foreach ((array) $this->relationWrite as $name => $val) {
-            if (is_array($val)) {
-                foreach ($val as $key) {
-                    if (isset($data[$key])) {
-                        unset($data[$key]);
-                    }
+            if (!is_array($val)) {
+                continue;
+            }
+
+            foreach ($val as $key) {
+                if (isset($data[$key])) {
+                    unset($data[$key]);
                 }
             }
         }
@@ -584,6 +564,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     {
         // 自动写入
         $auto = array_merge($this->auto, $this->insert);
+
         $this->autoCompleteData($auto);
 
         // 时间戳自动写入
@@ -680,7 +661,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
             foreach ($dataSet as $key => $data) {
                 if ($this->exists || (!empty($auto) && isset($data[$pk]))) {
-                    $result[$key] = self::update($data, [], $this->field);
+                    $result[$key] = self::update($data, $this->field);
                 } else {
                     $result[$key] = self::create($data, $this->field, $this->replace);
                 }
@@ -794,7 +775,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * @param  array      $field 允许字段
      * @return static
      */
-    public static function update(array $data, array $where = [], array $field = [])
+    public static function update(array $data, array $field = [])
     {
         $model = new static();
 
@@ -802,7 +783,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $model->allowField($field);
         }
 
-        $model->isUpdate(true)->save($data, $where);
+        $model->isUpdate(true)->save($data);
 
         return $model;
     }
