@@ -394,7 +394,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     public function save(array $data = [], array $where = [], string $sequence = null): bool
     {
-        if (!$this->checkBeforeSave($data, $where)) {
+        $this->checkBeforeSave($data, $where);
+
+        // 事件回调
+        if (false === $this->trigger('before_write')) {
             return false;
         }
 
@@ -419,12 +422,11 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * @access protected
      * @param  array   $data  数据
      * @param  array   $where 保存条件
-     * @return bool
+     * @return void
      */
-    protected function checkBeforeSave(array $data, $where): bool
+    protected function checkBeforeSave(array $data, $where): void
     {
         if (!empty($data)) {
-
             // 数据对象赋值
             foreach ($data as $key => $value) {
                 $this->setAttr($key, $value, $data);
@@ -435,16 +437,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
                 $this->updateWhere = $where;
             }
         }
-
-        // 数据自动完成
-        $this->autoCompleteData($this->auto);
-
-        // 事件回调
-        if (false === $this->trigger('before_write')) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -457,10 +449,14 @@ abstract class Model implements JsonSerializable, ArrayAccess
     {
         // 检测字段
         if (empty($this->field)) {
-            $query = $this->db();
-            $table = $this->table ?: $query->getTable();
+            if ($this->schema) {
+                $this->field = array_keys($this->schema);
+            } else {
+                $query = $this->db();
+                $table = $this->table ?: $query->getTable();
 
-            $this->field = $query->getConnection()->getTableFields($table);
+                $this->field = $query->getConnection()->getTableFields($table);
+            }
 
             $field = $this->field;
         } else {
@@ -488,7 +484,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function updateData(array $where): bool
     {
         // 自动更新
-        $this->autoCompleteData($this->update);
+        $this->autoCompleteData(array_merge($this->auto, $this->update));
 
         // 事件回调
         if (false === $this->trigger('before_update')) {
@@ -586,7 +582,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function insertData(string $sequence = null): bool
     {
         // 自动写入
-        $this->autoCompleteData($this->insert);
+        $this->autoCompleteData(array_merge($this->auto, $this->insert));
 
         // 时间戳自动写入
         $this->checkTimeStampWrite();
