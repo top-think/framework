@@ -87,12 +87,6 @@ class Query
     protected static $extend = [];
 
     /**
-     * 读取主库的表
-     * @var array
-     */
-    protected static $readMaster = [];
-
-    /**
      * 日期查询表达式
      * @var array
      */
@@ -272,21 +266,6 @@ class Query
     public function getConfig(string $name = '')
     {
         return $this->connection->getConfig($name);
-    }
-
-    /**
-     * 设置从主库读取数据
-     * @access public
-     * @param  bool $all 是否所有表有效
-     * @return $this
-     */
-    public function readMaster(bool $all = false)
-    {
-        $table = $all ? '*' : $this->getTable();
-
-        static::$readMaster[$table] = true;
-
-        return $this;
     }
 
     /**
@@ -3415,10 +3394,6 @@ class Query
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
-        }
-
-        if (isset(static::$readMaster['*']) || (is_string($options['table']) && isset(static::$readMaster[$options['table']]))) {
-            $options['master'] = true;
         }
 
         foreach (['group', 'having', 'limit', 'force', 'comment'] as $name) {

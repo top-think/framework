@@ -742,10 +742,6 @@ abstract class Connection
             // 调试结束
             $this->debug(false, '', true);
 
-            if ($query && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
-                $query->readMaster();
-            }
-
             $this->numRows = $this->PDOStatement->rowCount();
 
             return $this->numRows;
