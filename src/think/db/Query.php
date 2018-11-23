@@ -87,12 +87,6 @@ class Query
     protected static $extend = [];
 
     /**
-     * 读取主库的表
-     * @var array
-     */
-    protected static $readMaster = [];
-
-    /**
      * 日期查询表达式
      * @var array
      */
@@ -272,21 +266,6 @@ class Query
     public function getConfig(string $name = '')
     {
         return $this->connection->getConfig($name);
-    }
-
-    /**
-     * 设置从主库读取数据
-     * @access public
-     * @param  bool $all 是否所有表有效
-     * @return $this
-     */
-    public function readMaster(bool $all = false)
-    {
-        $table = $all ? '*' : $this->getTable();
-
-        static::$readMaster[$table] = true;
-
-        return $this;
     }
 
     /**
@@ -854,32 +833,23 @@ class Query
         if (is_array($join)) {
             $table = $join;
             $alias = array_shift($join);
+            return $table;
+        }
+
+        $join = trim($join);
+
+        if (false !== strpos($join, '(')) {
+            // 使用子查询
+            $table = $join;
+        } elseif (strpos($join, ' ')) {
+            // 使用别名
+            list($table, $alias) = explode(' ', $join);
         } else {
-            $join = trim($join);
+            $table = $join;
+        }
 
-            if (false !== strpos($join, '(')) {
-                // 使用子查询
-                $table = $join;
-            } else {
-                $prefix = $this->prefix;
-                if (strpos($join, ' ')) {
-                    // 使用别名
-                    list($table, $alias) = explode(' ', $join);
-                } else {
-                    $table = $join;
-                    if (false === strpos($join, '.') && 0 !== strpos($join, '__')) {
-                        $alias = $join;
-                    }
-                }
-
-                if ($prefix && false === strpos($table, '.') && 0 !== strpos($table, $prefix) && 0 !== strpos($table, '__')) {
-                    $table = $this->getTable($table);
-                }
-            }
-
-            if (isset($alias) && $table != $alias) {
-                $table = [$table => $alias];
-            }
+        if (isset($alias) && $table != $alias) {
+            $table = [$table => $alias];
         }
 
         return $table;
@@ -1694,7 +1664,7 @@ class Query
         if (is_string($table)) {
             if (strpos($table, ')')) {
                 // 子查询
-            } elseif (strpos($table, ',')) {
+            } else {
                 $tables = explode(',', $table);
                 $table  = [];
 
@@ -1707,11 +1677,6 @@ class Query
                         $table[] = $item;
                     }
                 }
-            } elseif (strpos($table, ' ')) {
-                list($table, $alias) = explode(' ', $table);
-
-                $table = [$table => $alias];
-                $this->alias($table);
             }
         } else {
             $tables = $table;
@@ -1812,7 +1777,7 @@ class Query
     }
 
     /**
-     * 指定Field排序 order('id',[1,2,3],'desc')
+     * 指定Field排序 orderField('id',[1,2,3],'desc')
      * @access public
      * @param  string   $field 排序字段
      * @param  array    $values 排序值
@@ -1928,11 +1893,7 @@ class Query
         if (is_array($alias)) {
             $this->options['alias'] = $alias;
         } else {
-            if (isset($this->options['table'])) {
-                $table = is_array($this->options['table']) ? key($this->options['table']) : $this->options['table'];
-            } else {
-                $table = $this->getTable();
-            }
+            $table = $this->getTable();
 
             $this->options['alias'][$table] = $alias;
         }
@@ -1990,6 +1951,20 @@ class Query
     public function fetchCollection($collection = true)
     {
         $this->options['collection'] = $collection;
+        return $this;
+    }
+
+    /**
+     * 设置是否返回数组
+     * @access public
+     * @param  bool  $asArray  是否返回数组
+     * @return $this
+     */
+    public function fetchArray(bool $asArray = true)
+    {
+        if ($asArray) {
+            $this->model = null;
+        }
         return $this;
     }
 
@@ -3401,10 +3376,6 @@ class Query
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
-        }
-
-        if (isset(static::$readMaster['*']) || (is_string($options['table']) && isset(static::$readMaster[$options['table']]))) {
-            $options['master'] = true;
         }
 
         foreach (['group', 'having', 'limit', 'force', 'comment'] as $name) {
