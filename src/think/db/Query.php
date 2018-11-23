@@ -841,14 +841,24 @@ class Query
         if (false !== strpos($join, '(')) {
             // 使用子查询
             $table = $join;
-        } elseif (strpos($join, ' ')) {
-            // 使用别名
-            list($table, $alias) = explode(' ', $join);
         } else {
-            $table = $join;
+            // 使用别名
+            if (strpos($join, ' ')) {
+                // 使用别名
+                list($table, $alias) = explode(' ', $join);
+            } else {
+                $table = $join;
+                if (false === strpos($join, '.')) {
+                    $alias = $join;
+                }
+            }
+
+            if ($this->prefix && false === strpos($table, '.') && 0 !== strpos($table, $this->prefix)) {
+                $table = $this->getTable($table);
+            }
         }
 
-        if (isset($alias) && $table != $alias) {
+        if (!empty($alias) && $table != $alias) {
             $table = [$table => $alias];
         }
 
