@@ -2265,6 +2265,17 @@ class Query
     }
 
     /**
+     * 检测参数是否已经绑定
+     * @access public
+     * @param  string $key 参数名
+     * @return bool
+     */
+    public function isBind($key)
+    {
+        return isset($this->bind[$key]);
+    }
+
+    /**
      * 参数绑定
      * @access public
      * @param  string $sql    绑定的sql表达式
@@ -3288,7 +3299,6 @@ class Query
                 $this->options['where']['AND'] = $where;
             }
         }
-
     }
 
     /**
