@@ -385,6 +385,16 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
+     * 判断模型是否为空
+     * @access public
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->data);
+    }
+
+    /**
      * 保存当前数据对象
      * @access public
      * @param  array  $data     数据
@@ -398,8 +408,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $this->setAttr($key, $value, $data);
         }
 
-        // 事件回调
-        if (false === $this->trigger('before_write')) {
+        if ($this->isEmpty() || false === $this->trigger('before_write')) {
             return false;
         }
 

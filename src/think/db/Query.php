@@ -2927,11 +2927,11 @@ class Query
      */
     protected function resultToEmpty()
     {
-        if (!empty($this->options['allow_empty'])) {
-            return !empty($this->model) ? $this->model->newInstance([], true, $this->getModelUpdateCondition($this->options)) : [];
-        } elseif (!empty($this->options['fail'])) {
+        if (!empty($this->options['fail'])) {
             $this->throwNotFound($this->options);
         }
+
+        return !empty($this->model) ? $this->model->newInstance([], true) : [];
     }
 
     /**
@@ -3153,20 +3153,6 @@ class Query
     public function findOrFail($data = null)
     {
         return $this->failException(true)->find($data);
-    }
-
-    /**
-     * 查找单条记录 如果不存在则返回空
-     * @access public
-     * @param  array|string|Query|Closure $data
-     * @return array|PDOStatement|string|Model
-     * @throws DbException
-     * @throws ModelNotFoundException
-     * @throws DataNotFoundException
-     */
-    public function findOrEmpty($data = null)
-    {
-        return $this->allowEmpty(true)->find($data);
     }
 
     /**
