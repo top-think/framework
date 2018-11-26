@@ -576,10 +576,9 @@ abstract class Connection
      * @param  bool      $master 是否在主服务器读操作
      * @param  Model     $model 模型对象实例
      * @param  array     $condition 查询条件
-     * @param  mixed     $relation 关联查询
      * @return \Generator
      */
-    public function getCursor(string $sql, array $bind = [], bool $master = false, $model = null, $condition = null, $relation = null)
+    public function getCursor(string $sql, array $bind = [], bool $master = false, $model = null, $condition = null)
     {
         $this->initConnect($master);
 
@@ -615,13 +614,7 @@ abstract class Connection
         // 返回结果集
         while ($result = $this->PDOStatement->fetch($this->fetchType)) {
             if ($model) {
-                $instance = $model->newInstance($result, $condition);
-
-                if ($relation) {
-                    $instance->relationQuery($relation);
-                }
-
-                yield $instance;
+                yield $model->newInstance($result, $condition);
             } else {
                 yield $result;
             }
@@ -848,10 +841,9 @@ abstract class Connection
         $bind = $query->getBind();
 
         $condition = $options['where']['AND'] ?? null;
-        $relation  = $options['relaltion'] ?? null;
 
         // 执行查询操作
-        return $this->getCursor($sql, $bind, $options['master'], $query->getModel(), $condition, $relation);
+        return $this->getCursor($sql, $bind, $options['master'], $query->getModel(), $condition);
     }
 
     /**
