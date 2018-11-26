@@ -100,19 +100,18 @@ abstract class Relation
 
     protected function getRelationQueryFields($fields, string $model)
     {
-        if ($fields) {
+        if (empty($fields) || '*' == $fields) {
+            return $model . '.*';
+        }
 
-            if (is_string($fields)) {
-                $fields = explode(',', $fields);
-            }
+        if (is_string($fields)) {
+            $fields = explode(',', $fields);
+        }
 
-            foreach ($fields as &$field) {
-                if (false === strpos($field, '.')) {
-                    $field = $model . '.' . $field;
-                }
+        foreach ($fields as &$field) {
+            if (false === strpos($field, '.')) {
+                $field = $model . '.' . $field;
             }
-        } else {
-            $fields = $model . '.*';
         }
 
         return $fields;
@@ -159,9 +158,9 @@ abstract class Relation
 
             $result = call_user_func_array([$this->query->getModel(), $method], $args);
 
-            return $result === $this->query && strtolower($method) != 'fetchsql' ? $this : $result;
-        } else {
-            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+            return $result === $this->query ? $this : $result;
         }
+
+        throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
     }
 }

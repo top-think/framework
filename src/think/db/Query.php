@@ -2721,11 +2721,6 @@ class Query
      */
     public function cursor($data = null)
     {
-        if ($data instanceof Closure) {
-            $data($this);
-            $data = null;
-        }
-
         if (!is_null($data)) {
             // 主键条件分析
             $this->parsePkWhere($data);
@@ -2749,11 +2744,6 @@ class Query
      */
     public function select($data = null)
     {
-        if ($data instanceof Closure) {
-            $data($this);
-            $data = null;
-        }
-
         if (!is_null($data)) {
             // 主键条件分析
             $this->parsePkWhere($data);
@@ -2871,11 +2861,6 @@ class Query
      */
     public function find($data = null)
     {
-        if ($data instanceof Closure) {
-            $data($this);
-            $data = null;
-        }
-
         if (!is_null($data)) {
             // AR模式分析主键条件
             $this->parsePkWhere($data);
@@ -3295,20 +3280,15 @@ class Query
 
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
-            if (is_array($data)) {
-                $where[$pk] = isset($data[$pk]) ? [$key, '=', $data[$pk]] : [$key, 'in', $data];
-            } else {
-                $where[$pk] = is_string($data) && strpos($data, ',') ? [$key, 'IN', $data] : [$key, '=', $data];
-            }
-        }
+            $where[$pk] = is_array($data) ? [$key, 'in', $data] : [$key, '=', $data];
 
-        if (!empty($where)) {
             if (isset($this->options['where']['AND'])) {
                 $this->options['where']['AND'] = array_merge($this->options['where']['AND'], $where);
             } else {
                 $this->options['where']['AND'] = $where;
             }
         }
+
     }
 
     /**

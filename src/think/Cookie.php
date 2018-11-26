@@ -122,7 +122,7 @@ class Cookie
         $expire = !empty($config['expire']) ? $_SERVER['REQUEST_TIME'] + intval($config['expire']) : 0;
 
         if ($config['setcookie']) {
-            $this->setCookie($name, $value, $expire, $config);
+            $this->setCookie($name, (string) $value, $expire, $config);
         }
 
         $_COOKIE[$name] = $value;
@@ -138,9 +138,9 @@ class Cookie
      * @param  array  $option 可选参数
      * @return void
      */
-    protected function setCookie(string $name, $value, int $expire, array $option = []): void
+    protected function setCookie(string $name, string $value, int $expire, array $option = []): void
     {
-        setcookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'], $option['httponly']);
+        setcookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'] ? true : false, $option['httponly'] ? true : false);
     }
 
     /**

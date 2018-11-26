@@ -352,16 +352,12 @@ class App extends Container
             $this->rootNamespace = $this->config['app.root_namespace'];
         }
 
-        if ($this->namespace) {
-
-        } elseif ($this->multi) {
-            if ($this->config['app.app_namespace']) {
+        if (!$this->namespace) {
+            if ($this->multi && $this->config['app.app_namespace']) {
                 $this->namespace = $this->config['app.app_namespace'];
             } else {
-                $this->namespace = $this->rootNamespace . '\\' . $this->name;
+                $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
             }
-        } else {
-            $this->namespace = $this->rootNamespace;
         }
 
         $this->env->set('app_namespace', $this->namespace);

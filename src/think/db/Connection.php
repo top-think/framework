@@ -668,25 +668,22 @@ abstract class Connection
             // 调试结束
             $this->debug(false, '', $master);
 
-            // 返回结果集
             if ($pdo) {
                 // 返回PDOStatement对象处理
                 return $this->PDOStatement;
             }
 
             return $this->getResult($procedure);
-        } catch (\PDOException $e) {
-            if ($this->isBreak($e)) {
-                return $this->close()->query($sql, $bind, $master, $pdo);
-            }
-
-            throw new PDOException($e, $this->config, $this->getLastsql());
         } catch (\Throwable | \Exception $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->query($sql, $bind, $master, $pdo);
             }
 
-            throw $e;
+            if ($e instanceof \PDOException) {
+                throw new PDOException($e, $this->config, $this->getLastsql());
+            } else {
+                throw $e;
+            }
         }
     }
 
@@ -738,18 +735,16 @@ abstract class Connection
             $this->numRows = $this->PDOStatement->rowCount();
 
             return $this->numRows;
-        } catch (\PDOException $e) {
-            if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind, $query);
-            }
-
-            throw new PDOException($e, $this->config, $this->getLastsql());
         } catch (\Throwable | \Exception $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->execute($sql, $bind, $query);
             }
 
-            throw $e;
+            if ($e instanceof \PDOException) {
+                throw new PDOException($e, $this->config, $this->getLastsql());
+            } else {
+                throw $e;
+            }
         }
     }
 
@@ -878,7 +873,6 @@ abstract class Connection
         if (!$resultSet) {
             // 执行查询操作
             $resultSet = $this->query($sql, $bind, $options['master'], false);
-
         }
 
         if (!empty($options['cache']) && false !== $resultSet) {
@@ -966,7 +960,6 @@ abstract class Connection
                 foreach ($array as $item) {
                     $sql  = $this->builder->insertAll($query, $item, $replace);
                     $bind = $query->getBind();
-
                     $count += $this->execute($sql, $bind, $query);
                 }
 
@@ -998,10 +991,7 @@ abstract class Connection
     public function selectInsert(Query $query, array $fields, string $table): int
     {
         // 分析查询表达式
-        $options = $query->parseOptions();
-
-        $sql = $this->builder->selectInsert($query, $fields, $table);
-
+        $sql  = $this->builder->selectInsert($query, $fields, $table);
         $bind = $query->getBind();
 
         return $this->execute($sql, $bind, $query);
