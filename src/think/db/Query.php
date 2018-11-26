@@ -2595,23 +2595,6 @@ class Query
     }
 
     /**
-     * 设置关联查询
-     * @access public
-     * @param  string|array $relation 关联名称
-     * @return $this
-     */
-    public function relation(array $relation)
-    {
-        if (empty($relation)) {
-            return $this;
-        }
-
-        $this->options['relation'] = $relation;
-
-        return $this;
-    }
-
-    /**
      * 插入记录
      * @access public
      * @param  array   $data         数据
@@ -3083,11 +3066,6 @@ class Query
 
         if (!empty($options['append'])) {
             $result->append($options['append']);
-        }
-
-        // 关联查询
-        if (!empty($options['relation'])) {
-            $result->relationQuery($options['relation'], $withRelationAttr);
         }
 
         // 预载入查询
