@@ -129,11 +129,9 @@ class HasMany extends Relation
         $localKey = $this->localKey;
 
         if (isset($result->$localKey)) {
-            $pk    = $result->$localKey;
-            $where = [
-                [$this->foreignKey, '=', $pk],
-            ];
-            $data = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
+            $pk      = $result->$localKey;
+            $where[] = [$this->foreignKey, '=', $pk];
+            $data    = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
 
             // 关联数据封装
             if (!isset($data[$pk])) {
@@ -280,9 +278,10 @@ class HasMany extends Relation
      */
     public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = ''): Query
     {
-        $table    = $this->query->getTable();
-        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
-        $relation = basename(str_replace('\\', '/', $this->model));
+        $table = $this->query->getTable();
+
+        $model    = App::classBaseName($this->parent);
+        $relation = App::classBaseName($this->model);
 
         return $this->parent->db()
             ->alias($model)
@@ -303,8 +302,8 @@ class HasMany extends Relation
     public function hasWhere($where = [], $fields = null, string $joinType = ''): Query
     {
         $table    = $this->query->getTable();
-        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
-        $relation = basename(str_replace('\\', '/', $this->model));
+        $model    = App::classBaseName($this->parent);
+        $relation = App::classBaseName($this->model);
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $relation);

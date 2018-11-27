@@ -49,7 +49,7 @@ class BelongsToMany extends Relation
 
         if (false !== strpos($table, '\\')) {
             $this->pivotName = $table;
-            $this->middle    = basename(str_replace('\\', '/', $table));
+            $this->middle    = App::classBaseName($table);
         } else {
             $this->middle = $table;
         }

@@ -136,7 +136,7 @@ class HasManyThrough extends Relation
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
             $through      = $this->through;
-            $alias        = App::parseName(basename(str_replace('\\', '/', $this->model)));
+            $alias        = App::parseName(App::classBaseName($this->model));
             $throughTable = $through::getTable();
             $pk           = (new $through)->getPk();
             $throughKey   = $this->throughKey;

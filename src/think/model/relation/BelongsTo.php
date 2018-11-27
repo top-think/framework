@@ -82,6 +82,7 @@ class BelongsTo extends OneToOne
     {
         if ($closure) {
             $closure($this->query);
+
             if ($return && is_string($return)) {
                 $name = $return;
             }
@@ -136,8 +137,8 @@ class BelongsTo extends OneToOne
     public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = ''): Query
     {
         $table      = $this->query->getTable();
-        $model      = basename(str_replace('\\', '/', get_class($this->parent)));
-        $relation   = basename(str_replace('\\', '/', $this->model));
+        $model      = App::classBaseName($this->parent);
+        $relation   = App::classBaseName($this->model);
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
 
@@ -161,8 +162,8 @@ class BelongsTo extends OneToOne
     public function hasWhere($where = [], $fields = null, string $joinType = ''): Query
     {
         $table    = $this->query->getTable();
-        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
-        $relation = basename(str_replace('\\', '/', $this->model));
+        $model    = App::classBaseName($this->parent);
+        $relation = App::classBaseName($this->model);
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $relation);

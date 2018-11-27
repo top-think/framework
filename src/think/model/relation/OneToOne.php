@@ -57,7 +57,7 @@ abstract class OneToOne extends Relation
      */
     public function eagerly(Query $query, string $relation, $field = true, string $joinType = '', Closure $closure = null, bool $first = false): void
     {
-        $name = App::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
+        $name = App::parseName(App::classBaseName($this->parent));
 
         if ($first) {
             $table = $query->getTable();

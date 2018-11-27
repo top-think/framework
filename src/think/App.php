@@ -898,6 +898,18 @@ class App extends Container
     }
 
     /**
+     * 获取类名(不包含命名空间)
+     * @access public
+     * @param  string|object $class
+     * @return string
+     */
+    public static function classBaseName($class)
+    {
+        $class = is_object($class) ? get_class($class) : $class;
+        return basename(str_replace('\\', '/', $class));
+    }
+
+    /**
      * 创建工厂对象实例
      * @access public
      * @param  string $name         工厂类名

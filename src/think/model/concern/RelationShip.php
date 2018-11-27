@@ -373,7 +373,7 @@ trait RelationShip
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
-        $name       = App::parseName(basename(str_replace('\\', '/', $model)));
+        $name       = App::parseName(App::classBaseName($model));
         $table      = $table ?: App::parseName($this->name) . '_' . $name;
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: $this->getForeignKey($this->name);
@@ -495,7 +495,7 @@ trait RelationShip
     protected function getForeignKey(string $name): string
     {
         if (strpos($name, '\\')) {
-            $name = basename(str_replace('\\', '/', $name));
+            $name = App::classBaseName($name);
         }
 
         return App::parseName($name) . '_id';
@@ -527,13 +527,11 @@ trait RelationShip
     protected function getRelationData(Relation $modelRelation)
     {
         if ($this->parent && !$modelRelation->isSelfRelation() && get_class($this->parent) == get_class($modelRelation->getModel())) {
-            $value = $this->parent;
-        } else {
-            // 获取关联数据
-            $value = $modelRelation->getRelation();
+            return $this->parent;
         }
 
-        return $value;
+        // 获取关联数据
+        return $modelRelation->getRelation();
     }
 
     /**
@@ -548,7 +546,7 @@ trait RelationShip
                 if (key($name) === 0) {
                     $this->relationWrite[$key] = [];
                     // 绑定关联属性
-                    foreach ((array) $name as $val) {
+                    foreach ($name as $val) {
                         if (isset($this->data[$val])) {
                             $this->relationWrite[$key][$val] = $this->data[$val];
                         }
@@ -578,6 +576,7 @@ trait RelationShip
                 $val->isUpdate()->save();
             } else {
                 $model = $this->getRelation($name);
+
                 if ($model instanceof Model) {
                     $model->isUpdate()->save($val);
                 }
