@@ -710,7 +710,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     public function delete(): bool
     {
-        if (!$this->exists || false === $this->trigger('before_delete')) {
+        if (!$this->exists || $this->isEmpty() || false === $this->trigger('before_delete')) {
             return false;
         }
 

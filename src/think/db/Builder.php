@@ -399,7 +399,7 @@ abstract class Builder
         $bindType = $binds[$field] ?? PDO::PARAM_STR;
 
         if (is_scalar($value) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
-            if (0 === strpos($value, ':') && $query->isBind(substr($value, 1))) {
+            if (is_string($value) && 0 === strpos($value, ':') && $query->isBind(substr($value, 1))) {
             } else {
                 $name  = $query->bind($value, $bindType);
                 $value = ':' . $name;

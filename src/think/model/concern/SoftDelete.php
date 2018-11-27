@@ -92,7 +92,7 @@ trait SoftDelete
      */
     public function delete(): bool
     {
-        if (!$this->isExists() || false === $this->trigger('before_delete', $this)) {
+        if (!$this->isExists() || $this->isEmpty() || false === $this->trigger('before_delete', $this)) {
             return false;
         }
 

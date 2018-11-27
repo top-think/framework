@@ -25,8 +25,6 @@ use think\model\Relation;
  */
 abstract class OneToOne extends Relation
 {
-    // 预载入方式 0 -JOIN 1 -IN
-    protected $eagerlyType = 1;
     // 当前关联的JOIN类型
     protected $joinType = 'INNER';
     // 要绑定的属性
@@ -137,7 +135,7 @@ abstract class OneToOne extends Relation
      */
     public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null, bool $join = false): void
     {
-        if ($join || 0 == $this->eagerlyType) {
+        if ($join) {
             // 模型JOIN关联组装
             foreach ($resultSet as $result) {
                 $this->match($this->model, $relation, $result);
@@ -160,7 +158,7 @@ abstract class OneToOne extends Relation
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null, bool $join = false): void
     {
-        if ($join || 0 == $this->eagerlyType) {
+        if ($join) {
             // 模型JOIN关联组装
             $this->match($this->model, $relation, $result);
         } else {
@@ -186,29 +184,6 @@ abstract class OneToOne extends Relation
         $data[$this->foreignKey] = $this->parent->{$this->localKey};
 
         return $model->save($data) ? $model : false;
-    }
-
-    /**
-     * 设置预载入方式
-     * @access public
-     * @param  integer $type 预载入方式 0 JOIN查询 1 IN查询
-     * @return $this
-     */
-    public function setEagerlyType($type)
-    {
-        $this->eagerlyType = $type;
-
-        return $this;
-    }
-
-    /**
-     * 获取预载入方式
-     * @access public
-     * @return integer
-     */
-    public function getEagerlyType()
-    {
-        return $this->eagerlyType;
     }
 
     /**
