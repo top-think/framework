@@ -355,6 +355,10 @@ class Url
                 continue;
             }
 
+            if (!in_array($this->app['request']->port(), [80, 443])) {
+                $domain .= ':' . $this->app['request']->port();
+            }
+
             if (empty($pattern)) {
                 return [rtrim($url, '?/-'), $domain, $suffix];
             }

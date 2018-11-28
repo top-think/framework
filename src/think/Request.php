@@ -1745,9 +1745,9 @@ class Request
     /**
      * 当前请求URL地址中的port参数
      * @access public
-     * @return integer
+     * @return string
      */
-    public function port(): int
+    public function port(): string
     {
         return $this->server('SERVER_PORT');
     }
@@ -1765,9 +1765,9 @@ class Request
     /**
      * 当前请求 REMOTE_PORT
      * @access public
-     * @return integer
+     * @return string
      */
-    public function remotePort(): int
+    public function remotePort(): string
     {
         return $this->server('REMOTE_PORT');
     }
