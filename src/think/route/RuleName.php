@@ -116,17 +116,19 @@ class RuleName
     /**
      * 根据路由标识获取路由信息（用于URL生成）
      * @access public
-     * @param  string   $name      路由标识
-     * @param  string   $domain   域名
+     * @param  string   $name       路由标识
+     * @param  string   $domain     域名
+     * @param  string   $method     请求类型
      * @return array
      */
-    public function getName(string $name = null, string $domain = null): array
+    public function getName(string $name = null, string $domain = null, string $method = '*'): array
     {
         if (is_null($name)) {
             return $this->item;
         }
 
         $name   = strtolower($name);
+        $method = strtolower($method);
         $result = [];
 
         if (isset($this->item[$name])) {
@@ -134,7 +136,7 @@ class RuleName
                 $result = $this->item[$name];
             } else {
                 foreach ($this->item[$name] as $item) {
-                    if ($item[2] == $domain) {
+                    if ($item[2] == $domain && ('*' == $item[4] || $method == $item[4])) {
                         $result[] = $item;
                     }
                 }

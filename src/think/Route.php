@@ -401,11 +401,12 @@ class Route
      * @access public
      * @param  string    $name 路由标识
      * @param  string    $domain 域名
+     * @param  string    $method 请求类型
      * @return array
      */
-    public function getName(string $name = null, string $domain = null): array
+    public function getName(string $name = null, string $domain = null, string $method = '*'): array
     {
-        return $this->app['rule_name']->getName($name, $domain);
+        return $this->app['rule_name']->getName($name, $domain, $method);
     }
 
     /**
