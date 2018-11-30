@@ -1309,12 +1309,12 @@ abstract class Connection
      * @access public
      * @param  Query     $query     查询对象
      * @param  string    $aggregate 聚合方法
-     * @param  string    $field     字段名
+     * @param  mixed     $field     字段名
      * @return mixed
      */
     public function aggregate(Query $query, $aggregate, $field)
     {
-        if (0 === stripos($field, 'DISTINCT ')) {
+        if (is_string($field) && 0 === stripos($field, 'DISTINCT ')) {
             list($distinct, $field) = explode(' ', $field);
         }
 
