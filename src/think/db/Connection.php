@@ -1207,11 +1207,11 @@ abstract class Connection
      * @access public
      * @param  Query     $query     查询对象
      * @param  string    $aggregate 聚合方法
-     * @param  string    $field     字段名
+     * @param  mixed     $field     字段名
      * @param  bool      $force     强制转为数字类型
      * @return mixed
      */
-    public function aggregate(Query $query, string $aggregate, string $field, bool $force = false)
+    public function aggregate(Query $query, string $aggregate, $field, bool $force = false)
     {
         $field = $aggregate . '(' . $this->builder->parseKey($query, $field) . ') AS tp_' . strtolower($aggregate);
 

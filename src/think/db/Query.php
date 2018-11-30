@@ -1107,6 +1107,11 @@ class Query
      */
     public function where($field, $op = null, $condition = null)
     {
+        if ($field instanceof $this) {
+            $this->options['where'] = $field->getOptions('where');
+            return $this;
+        }
+
         $param = func_get_args();
         array_shift($param);
         return $this->parseWhereExp('AND', $field, $op, $condition, $param);
