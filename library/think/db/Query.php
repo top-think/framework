@@ -1008,11 +1008,16 @@ class Query
         if ($tableName) {
             // 添加统一的前缀
             $prefix = $prefix ?: $tableName;
-            foreach ($field as $key => $val) {
+            foreach ($field as $key => &$val) {
                 if (is_numeric($key)) {
-                    $val = $prefix . '.' . $val . ($alias ? ' AS ' . $alias . $val : '');
+                    if ($alias) {
+                        $field[$prefix . '.' . $val] = $alias . $val;
+                        unset($field[$key]);
+                    } else {
+                        $val = $prefix . '.' . $val;
+                    }
+
                 }
-                $field[$key] = $val;
             }
         }
 
