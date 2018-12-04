@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think\cache;
 
+use DateInterval;
+use DateTime;
+use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
 use think\exception\InvalidArgumentException;
 
@@ -31,7 +34,7 @@ class CacheItem implements CacheItemInterface
 
     /**
      * 过期时间
-     * @var int
+     * @var int|DateTimeInterface
      */
     protected $expire;
 
@@ -68,6 +71,10 @@ class CacheItem implements CacheItemInterface
 
     public function getExpire()
     {
+        if ($this->expire instanceof DateTimeInterface) {
+            return $this->expire;
+        }
+
         return $this->expire ? $this->expire - time() : null;
     }
 
@@ -125,14 +132,14 @@ class CacheItem implements CacheItemInterface
      * @param  mixed $expire
      * @return $this
      */
-    public function expire($expire)
+    public function expire($expire = null)
     {
         if (is_null($expire)) {
             $this->expire = $this->getDefaultExpireTime();
-        } elseif (is_int($expire) || $expire instanceof \DateInterval) {
+        } elseif (is_int($expire) || $expire instanceof DateInterval) {
             $this->expiresAfter($expire);
-        } elseif ($expire instanceof \DateTimeInterface) {
-            $this->expiresAt($expire);
+        } elseif ($expire instanceof DateTimeInterface) {
+            $this->expire = $expire;
         } else {
             throw new InvalidArgumentException('not support datetime');
         }
@@ -153,15 +160,13 @@ class CacheItem implements CacheItemInterface
     /**
      * 设置缓存项的准确过期时间点
      * @access public
-     * @param \DateTimeInterface $expiration
+     * @param  DateTimeInterface $expiration
      * @return $this
      */
-    public function expiresAt($expiration = null)
+    public function expiresAt($expiration)
     {
-        if (null === $expiration) {
-            $this->expire = $this->getDefaultExpireTime();
-        } elseif ($expiration instanceof \DateTimeInterface) {
-            $this->expire = (int) $expiration->format('U');
+        if ($expiration instanceof DateTimeInterface) {
+            $this->expire = $expiration;
         } else {
             throw new InvalidArgumentException('not support datetime');
         }
@@ -172,16 +177,14 @@ class CacheItem implements CacheItemInterface
     /**
      * 设置缓存项的过期时间
      * @access public
-     * @param int|\DateInterval $time
+     * @param int|DateInterval $time
      * @return $this
      * @throws InvalidArgumentException
      */
-    public function expiresAfter($time = null)
+    public function expiresAfter($time)
     {
-        if (null === $time) {
-            $this->expire = $this->getDefaultExpireTime();
-        } elseif ($time instanceof \DateInterval) {
-            $this->expire = (int) \DateTime::createFromFormat('U', time())->add($time)->format('U');
+        if ($time instanceof DateInterval) {
+            $this->expire = (int) DateTime::createFromFormat('U', time())->add($time)->format('U');
         } elseif (is_int($time)) {
             $this->expire = $time + time();
         } else {
