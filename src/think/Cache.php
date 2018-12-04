@@ -21,6 +21,12 @@ use think\exception\InvalidArgumentException;
 class Cache implements CacheItemPoolInterface
 {
     /**
+     * 缓存队列
+     * @var array
+     */
+    protected $data = [];
+
+    /**
      * 延期保存的缓存队列
      * @var array
      */
