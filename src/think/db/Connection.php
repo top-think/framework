@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use PDO;
 use PDOStatement;
 use think\App;
+use think\cache\CacheItem;
 use think\Container;
 use think\Db;
 use think\db\exception\BindParamException;
@@ -766,14 +767,14 @@ abstract class Connection
 
         if (!empty($options['cache'])) {
             // 判断查询缓存
-            $cache = $options['cache'];
+            $cacheItem = $options['cache'];
 
-            if (is_string($cache['key'])) {
-                $key = $cache['key'];
-            } elseif (!isset($key)) {
+            if (!$cacheItem->getKey()) {
                 $key = $this->getCacheKey($query, $data);
+                $cacheItem->setKey($key);
             }
-            $options['key'] = $key;
+
+            $options['key'] = $cacheItem->getKey();
         }
 
         if (is_string($pk) && !is_array($data)) {
@@ -811,9 +812,10 @@ abstract class Connection
             $result = $resultSet[0] ?? null;
         }
 
-        if (isset($options['key']) && $result) {
+        if (isset($cacheItem) && $result) {
             // 缓存数据
-            $this->cacheData($options['key'], $result, $options['cache']);
+            $cacheItem->set($result);
+            $this->cacheData($cacheItem);
         }
 
         return $result;
@@ -855,8 +857,9 @@ abstract class Connection
         // 分析查询表达式
         $options = $query->parseOptions();
 
-        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
-            $resultSet = $this->getCacheData($query, $options['cache'], null, $key);
+        if (!empty($options['cache'])) {
+            $cacheItem = $options['cache'];
+            $resultSet = $this->getCacheData($cacheItem);
 
             if (false !== $resultSet) {
                 return $resultSet;
@@ -875,9 +878,10 @@ abstract class Connection
             $resultSet = $this->query($sql, $bind, $options['master'], false);
         }
 
-        if (!empty($options['cache']) && false !== $resultSet) {
+        if (isset($cacheItem) && false !== $resultSet) {
             // 缓存数据集
-            $this->cacheData($key, $resultSet, $options['cache']);
+            $cacheItem->set($resultSet);
+            $this->cacheData($cacheItem);
         }
 
         return $resultSet;
@@ -1009,8 +1013,9 @@ abstract class Connection
     {
         $options = $query->parseOptions();
 
-        if (isset($options['cache']) && is_string($options['cache']['key'])) {
-            $key = $options['cache']['key'];
+        if (isset($options['cache'])) {
+            $cacheItem = $options['cache'];
+            $key       = $cacheItem->getKey();
         }
 
         $pk   = $query->getPk($options);
@@ -1022,6 +1027,7 @@ abstract class Connection
                 $where[$pk] = [$pk, '=', $data[$pk]];
                 if (!isset($key)) {
                     $key = $this->getCacheKey($query, $data[$pk]);
+
                 }
                 unset($data[$pk]);
             } elseif (is_array($pk)) {
@@ -1044,13 +1050,14 @@ abstract class Connection
                 $options['where']['AND'] = $where;
                 $query->setOption('where', ['AND' => $where]);
             }
-        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($query, $options['where']['AND'][$pk]);
+        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'])) {
+            foreach ($options['where']['AND'] as $val) {
+                if (is_array($val) && $val[0] == $pk) {
+                    $key = $this->getCacheKey($query, $val);
+                }
+            }
         }
 
-        if (isset($key)) {
-            $options['key'] = $key;
-        }
         // 更新数据
         $query->setOption('data', $data);
 
@@ -1061,11 +1068,11 @@ abstract class Connection
         // 检测缓存
         $cache = Container::get('cache');
 
-        if (isset($options['key']) && $cache->get($options['key'])) {
+        if (isset($key) && $cache->get($key)) {
             // 删除缓存
-            $cache->rm($options['key']);
-        } elseif (!empty($options['cache']['tag'])) {
-            $cache->clear($options['cache']['tag']);
+            $cache->rm($key);
+        } elseif (isset($cacheItem) && $cacheItem->getTag()) {
+            $cache->clear($cacheItem->getTag());
         }
 
         // 执行操作
@@ -1074,8 +1081,8 @@ abstract class Connection
         if ($result) {
             if (is_string($pk) && isset($options['where']['AND'][$pk])) {
                 $data[$pk] = $options['where']['AND'][$pk];
-            } elseif (is_string($pk) && isset($options['key']) && strpos($options['key'], '|')) {
-                list($a, $val) = explode('|', $options['key']);
+            } elseif (is_string($pk) && isset($key) && strpos($key, '|')) {
+                list($a, $val) = explode('|', $key);
                 $data[$pk]     = $val;
             }
 
@@ -1101,8 +1108,9 @@ abstract class Connection
         $pk      = $query->getPk($options);
         $data    = $options['data'];
 
-        if (isset($options['cache']) && is_string($options['cache']['key'])) {
-            $key = $options['cache']['key'];
+        if (isset($options['cache'])) {
+            $cacheItem = $options['cache'];
+            $key       = $cacheItem->getKey();
         } elseif (!is_null($data) && true !== $data && !is_array($data)) {
             $key = $this->getCacheKey($query, $data);
         } elseif (is_string($pk) && isset($options['where']['AND'][$pk])) {
@@ -1125,8 +1133,8 @@ abstract class Connection
         if (isset($key) && $cache->get($key)) {
             // 删除缓存
             $cache->rm($key);
-        } elseif (!empty($options['cache']['tag'])) {
-            $cache->clear($options['cache']['tag']);
+        } elseif (isset($cacheItem) && $cacheItem->getTag()) {
+            $cache->clear($cacheItem->getTag());
         }
 
         // 执行操作
@@ -1170,8 +1178,8 @@ abstract class Connection
         $query->setOption('field', $field);
 
         if (!empty($options['cache'])) {
-            $cache  = $options['cache'];
-            $result = $this->getCacheData($query, $cache, null, $key);
+            $cacheItem = $options['cache'];
+            $result    = $this->getCacheData($cacheItem);
 
             if (false !== $result) {
                 return $result;
@@ -1194,9 +1202,10 @@ abstract class Connection
 
         $result = $pdo->fetchColumn();
 
-        if (isset($cache) && false !== $result) {
+        if (isset($cacheItem) && false !== $result) {
             // 缓存数据
-            $this->cacheData($key, $result, $cache);
+            $cacheItem->set($result);
+            $this->cacheData($cacheItem);
         }
 
         return false !== $result ? $result : $default;
@@ -1246,8 +1255,8 @@ abstract class Connection
 
         if (!empty($options['cache'])) {
             // 判断查询缓存
-            $cache  = $options['cache'];
-            $result = $this->getCacheData($query, $cache, null, $guid);
+            $cacheItem = $options['cache'];
+            $result    = $this->getCacheData($cacheItem);
 
             if (false !== $result) {
                 return $result;
@@ -1300,9 +1309,10 @@ abstract class Connection
             }
         }
 
-        if (isset($cache) && isset($guid)) {
+        if (isset($cacheItem)) {
             // 缓存数据
-            $this->cacheData($guid, $result, $cache);
+            $cacheItem->set($result);
+            $this->cacheData($cacheItem);
         }
 
         return $result;
@@ -1920,19 +1930,18 @@ abstract class Connection
     /**
      * 缓存数据
      * @access protected
-     * @param  string    $key    缓存标识
-     * @param  mixed     $data   缓存数据
-     * @param  array     $config 缓存参数
+     * @param  CacheItem    $cacheItem   缓存Item
      */
-    protected function cacheData(string $key, $data, array $config = []): void
+    protected function cacheData(CacheItem $cacheItem): void
     {
         $cache = Container::get('cache');
 
-        if (isset($config['tag'])) {
-            $cache->tag($config['tag'])->set($key, $data, $config['expire']);
-        } else {
-            $cache->set($key, $data, $config['expire']);
+        if ($cacheItem->getTag()) {
+            $cache->tag($cacheItem->getTag());
         }
+
+        $cache->set($cacheItem->getKey(), $cacheItem->get(), $cacheItem->getExpire());
+
     }
 
     /**
@@ -1944,12 +1953,10 @@ abstract class Connection
      * @param  string    $key     缓存Key
      * @return mixed
      */
-    protected function getCacheData(Query $query, $cache, $data, &$key = null)
+    protected function getCacheData(CacheItem $cacheItem)
     {
         // 判断查询缓存
-        $key = is_string($cache['key']) ? $cache['key'] : $this->getCacheKey($query, $data);
-
-        return Container::get('cache')->get($key);
+        return Container::get('cache')->get($cacheItem->getKey());
     }
 
     /**

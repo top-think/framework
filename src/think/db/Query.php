@@ -16,6 +16,7 @@ use Closure;
 use PDO;
 use PDOStatement;
 use think\App;
+use think\cache\CacheItem;
 use think\Collection;
 use think\Container;
 use think\db\exception\BindParamException;
@@ -1833,15 +1834,24 @@ class Query
      */
     public function cache($key = true, $expire = null, $tag = null)
     {
-        // 增加快捷调用方式 cache(10) 等同于 cache(true, 10)
-        if ($key instanceof \DateTime || (is_numeric($key) && is_null($expire))) {
-            $expire = $key;
-            $key    = true;
+        if (false === $key) {
+            return $this;
         }
 
-        if (false !== $key) {
-            $this->options['cache'] = ['key' => $key, 'expire' => $expire, 'tag' => $tag];
+        if ($key instanceof CacheItem) {
+            $cacheItem = $key;
+        } else {
+            if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
+                $expire = $key;
+                $key    = true;
+            }
+
+            $cacheItem = new CacheItem(true === $key ? null : $key);
+            $cacheItem->expire($expire);
+            $cacheItem->tag($tag);
         }
+
+        $this->options['cache'] = $cacheItem;
 
         return $this;
     }
