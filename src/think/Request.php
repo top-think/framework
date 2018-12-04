@@ -956,7 +956,7 @@ class Request
             }
 
             // 当前请求参数和URL地址中的参数合并
-            $this->param = array_merge($this->param, $this->get(false), $vars, $this->route(false), $this->file(false) ?: []);
+            $this->param = array_merge($this->param, $this->get(false), $vars, $this->route(false), $this->file() ?: []);
 
             $this->mergeParam = true;
         }
