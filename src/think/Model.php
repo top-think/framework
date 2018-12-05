@@ -128,9 +128,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
     /**
      * 延迟保存信息
-     * @var array
+     * @var bool
      */
-    private $lazySave;
+    private $lazySave = false;
 
     /**
      * 架构函数
@@ -404,12 +404,16 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * 延迟保存当前数据对象
      * @access public
      * @param  array  $data     数据
-     * @param  string $sequence 自增序列名
      * @return void
      */
-    public function lazySave(array $data = [], string $sequence = null)
+    public function lazySave(array $data = [])
     {
-        $this->lazySave = [$data, $sequence];
+        // 数据对象赋值
+        foreach ($data as $key => $value) {
+            $this->setAttr($key, $value, $data);
+        }
+
+        $this->lazySave = true;
     }
 
     /**
@@ -440,8 +444,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $this->trigger('after_write');
 
         // 重新记录原始数据
-        $this->origin = $this->data;
-        $this->set    = [];
+        $this->origin   = $this->data;
+        $this->set      = [];
+        $this->lazySave = false;
 
         return true;
     }
@@ -751,7 +756,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
             $this->trigger('after_delete');
 
-            $this->exists = false;
+            $this->exists   = false;
+            $this->lazySave = false;
 
             return true;
         } catch (\Exception $e) {
@@ -980,8 +986,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     public function __destruct()
     {
         if ($this->lazySave) {
-            list($data, $sequence) = $this->lazySave;
-            $this->save($data, $sequence);
+            $this->save();
         }
     }
 }

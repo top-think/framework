@@ -114,6 +114,8 @@ trait SoftDelete
                 ->where($where)
                 ->removeOption('soft_delete')
                 ->delete();
+
+            $this->lazySave(false);
         }
 
         // 关联删除
