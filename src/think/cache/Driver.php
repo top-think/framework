@@ -59,15 +59,15 @@ abstract class Driver extends SimpleCache
      * 获取有效期
      * @access protected
      * @param  integer|\DateTimeInterface $expire 有效期
-     * @return integer
+     * @return int
      */
-    protected function getExpireTime($expire)
+    protected function getExpireTime($expire): int
     {
         if ($expire instanceof \DateTimeInterface) {
             $expire = $expire->getTimestamp() - time();
         }
 
-        return $expire;
+        return (int) $expire;
     }
 
     /**

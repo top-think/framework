@@ -44,16 +44,24 @@ class CacheItem implements CacheItemInterface
      */
     protected $tag;
 
+    /**
+     * 缓存是否命中
+     * @var bool
+     */
     protected $isHit = false;
-
-    protected $defaultLifetime = 0;
 
     public function __construct(string $key = null)
     {
         $this->key = $key;
     }
 
-    public function setKey($key)
+    /**
+     * 为此缓存项设置「键」
+     * @access public
+     * @param  string $key
+     * @return $this
+     */
+    public function setKey(string $key)
     {
         $this->key = $key;
         return $this;
@@ -69,6 +77,11 @@ class CacheItem implements CacheItemInterface
         return $this->key;
     }
 
+    /**
+     * 返回当前缓存项的有效期
+     * @access public
+     * @return DateTimeInterface|int|null
+     */
     public function getExpire()
     {
         if ($this->expire instanceof DateTimeInterface) {
@@ -111,6 +124,7 @@ class CacheItem implements CacheItemInterface
     /**
      * 为此缓存项设置「值」
      * @access public
+     * @param  mixed $value
      * @return $this
      */
     public function set($value)
@@ -120,7 +134,13 @@ class CacheItem implements CacheItemInterface
         return $this;
     }
 
-    public function tag($tag)
+    /**
+     * 为此缓存项设置所属标签
+     * @access public
+     * @param  string $tag
+     * @return $this
+     */
+    public function tag(string $tag)
     {
         $this->tag = $tag;
         return $this;
@@ -132,11 +152,11 @@ class CacheItem implements CacheItemInterface
      * @param  mixed $expire
      * @return $this
      */
-    public function expire($expire = null)
+    public function expire($expire)
     {
         if (is_null($expire)) {
-            $this->expire = $this->getDefaultExpireTime();
-        } elseif (is_int($expire) || $expire instanceof DateInterval) {
+            $this->expire = null;
+        } elseif (is_numeric($expire) || $expire instanceof DateInterval) {
             $this->expiresAfter($expire);
         } elseif ($expire instanceof DateTimeInterface) {
             $this->expire = $expire;
@@ -145,16 +165,6 @@ class CacheItem implements CacheItemInterface
         }
 
         return $this;
-    }
-
-    /**
-     * 获取默认的缓存有效期
-     * @access protected
-     * @return int
-     */
-    protected function getDefaultExpireTime()
-    {
-        return $this->defaultLifetime > 0 ? time() + $this->defaultLifetime : null;
     }
 
     /**
@@ -177,19 +187,20 @@ class CacheItem implements CacheItemInterface
     /**
      * 设置缓存项的过期时间
      * @access public
-     * @param int|DateInterval $time
+     * @param int|DateInterval $timeInterval
      * @return $this
      * @throws InvalidArgumentException
      */
-    public function expiresAfter($time)
+    public function expiresAfter($timeInterval)
     {
-        if ($time instanceof DateInterval) {
-            $this->expire = (int) DateTime::createFromFormat('U', time())->add($time)->format('U');
-        } elseif (is_int($time)) {
-            $this->expire = $time + time();
+        if ($timeInterval instanceof DateInterval) {
+            $this->expire = (int) DateTime::createFromFormat('U', time())->add($timeInterval)->format('U');
+        } elseif (is_numeric($timeInterval)) {
+            $this->expire = $timeInterval + time();
         } else {
             throw new InvalidArgumentException('not support datetime');
         }
+
         return $this;
     }
 
