@@ -140,7 +140,7 @@ class CacheItem implements CacheItemInterface
      * @param  string $tag
      * @return $this
      */
-    public function tag(string $tag)
+    public function tag(string $tag = null)
     {
         $this->tag = $tag;
         return $this;
