@@ -569,7 +569,7 @@ class Query
             list($distinct, $field) = explode(' ', $field);
         }
 
-        if (!preg_match('/^[\w\.\*]+$/', $field)) {
+        if (!preg_match('/^[\w\.\+\-\*]+$/', $field)) {
             throw new Exception('not support data:' . $field);
         }
 
