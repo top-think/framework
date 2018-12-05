@@ -426,6 +426,18 @@ if (!function_exists('parse_name')) {
     }
 }
 
+if (!function_exists('raw')) {
+    /**
+     * 生成一个数据库的Expression对象
+     * @param string         $str
+     * @return \think\db\Expression
+     */
+    function raw($str)
+    {
+        return Db::raw($str);
+    }
+}
+
 if (!function_exists('redirect')) {
     /**
      * 获取\think\response\Redirect对象实例
