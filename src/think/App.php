@@ -217,6 +217,18 @@ class App extends Container
     }
 
     /**
+     * 设置应用根命名空间
+     * @access public
+     * @param  string $rootNamespace 应用命名空间
+     * @return $this
+     */
+    public function setRootNamespace(string $rootNamespace)
+    {
+        $this->rootNamespace = $rootNamespace;
+        return $this;
+    }
+
+    /**
      * 设置是否启用应用类库后缀
      * @access public
      * @param  bool  $suffix 启用应用类库后缀
@@ -285,7 +297,7 @@ class App extends Container
     {
         // 应用调试模式
         if (!$this->appDebug) {
-            $this->appDebug = $this->env->get('app_debug', $this->config['app.app_debug']);
+            $this->appDebug = $this->env->get('app_debug', false);
         }
 
         $this->env->set('app_debug', $this->appDebug);
@@ -348,16 +360,8 @@ class App extends Container
             $this->loadAppFile();
         }
 
-        if ($this->config['app.root_namespace']) {
-            $this->rootNamespace = $this->config['app.root_namespace'];
-        }
-
         if (!$this->namespace) {
-            if ($this->multi && $this->config['app.app_namespace']) {
-                $this->namespace = $this->config['app.app_namespace'];
-            } else {
-                $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
-            }
+            $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
         }
 
         $this->env->set('app_namespace', $this->namespace);
