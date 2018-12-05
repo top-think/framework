@@ -1352,7 +1352,7 @@ abstract class Connection
 
             if (self::PARAM_FLOAT == $type) {
                 $value = (float) $value;
-            } elseif (PDO::PARAM_STR == $type) {
+            } elseif (PDO::PARAM_STR == $type && is_string($value)) {
                 $value = '\'' . addslashes($value) . '\'';
             } elseif (PDO::PARAM_INT == $type && '' === $value) {
                 $value = 0;
