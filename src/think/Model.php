@@ -127,6 +127,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected $globalScope = [];
 
     /**
+     * 延迟保存信息
+     * @var array
+     */
+    private $lazySave;
+
+    /**
      * 架构函数
      * @access public
      * @param  array $data 数据
@@ -392,6 +398,18 @@ abstract class Model implements JsonSerializable, ArrayAccess
     public function isEmpty(): bool
     {
         return empty($this->data);
+    }
+
+    /**
+     * 延迟保存当前数据对象
+     * @access public
+     * @param  array  $data     数据
+     * @param  string $sequence 自增序列名
+     * @return void
+     */
+    public function lazySave(array $data = [], string $sequence = null)
+    {
+        $this->lazySave = [$data, $sequence];
     }
 
     /**
@@ -953,5 +971,17 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $model = new static();
 
         return call_user_func_array([$model->db(), $method], $args);
+    }
+
+    /**
+     * 析构方法
+     * @access public
+     */
+    public function __destruct()
+    {
+        if ($this->lazySave) {
+            list($data, $sequence) = $this->lazySave;
+            $this->save($data, $sequence);
+        }
     }
 }
