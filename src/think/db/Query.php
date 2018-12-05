@@ -575,12 +575,12 @@ class Query
     /**
      * 聚合查询
      * @access protected
-     * @param  string $aggregate    聚合方法
-     * @param  string $field        字段名
-     * @param  bool   $force        强制转为数字类型
+     * @param  string               $aggregate    聚合方法
+     * @param  string|Expression    $field        字段名
+     * @param  bool                 $force        强制转为数字类型
      * @return mixed
      */
-    protected function aggregate(string $aggregate, string $field, bool $force = false)
+    protected function aggregate(string $aggregate, $field, bool $force = false)
     {
         return $this->connection->aggregate($this, $aggregate, $field, $force);
     }
@@ -614,7 +614,7 @@ class Query
      * @param  string $field 字段名
      * @return float
      */
-    public function sum(string $field): float
+    public function sum($field): float
     {
         return $this->aggregate('SUM', $field, true);
     }
@@ -622,11 +622,11 @@ class Query
     /**
      * MIN查询
      * @access public
-     * @param  string $field    字段名
-     * @param  bool   $force    强制转为数字类型
+     * @param  string|Expression    $field    字段名
+     * @param  bool                 $force    强制转为数字类型
      * @return mixed
      */
-    public function min(string $field, bool $force = true)
+    public function min($field, bool $force = true)
     {
         return $this->aggregate('MIN', $field, $force);
     }
@@ -634,11 +634,11 @@ class Query
     /**
      * MAX查询
      * @access public
-     * @param  string $field    字段名
-     * @param  bool   $force    强制转为数字类型
+     * @param  string|Expression    $field    字段名
+     * @param  bool                 $force    强制转为数字类型
      * @return mixed
      */
-    public function max(string $field, bool $force = true)
+    public function max($field, bool $force = true)
     {
         return $this->aggregate('MAX', $field, $force);
     }
@@ -646,10 +646,10 @@ class Query
     /**
      * AVG查询
      * @access public
-     * @param  string $field 字段名
+     * @param  string|Expression $field 字段名
      * @return float
      */
-    public function avg(string $field): float
+    public function avg($field): float
     {
         return $this->aggregate('AVG', $field, true);
     }
