@@ -107,36 +107,34 @@ abstract class Driver extends SimpleCache
      */
     public function remember(string $name, $value, $expire = null)
     {
-        if (!$this->has($name)) {
-            $time = time();
-            while ($time + 5 > time() && $this->has($name . '_lock')) {
-                // 存在锁定则等待
-                usleep(200000);
+        if ($this->has($name)) {
+            return $this->get($name);
+        }
+
+        $time = time();
+
+        while ($time + 5 > time() && $this->has($name . '_lock')) {
+            // 存在锁定则等待
+            usleep(200000);
+        }
+
+        try {
+            // 锁定
+            $this->set($name . '_lock', true);
+
+            if ($value instanceof \Closure) {
+                // 获取缓存数据
+                $value = Container::getInstance()->invokeFunction($value);
             }
 
-            try {
-                // 锁定
-                $this->set($name . '_lock', true);
+            // 缓存数据
+            $this->set($name, $value, $expire);
 
-                if ($value instanceof \Closure) {
-                    // 获取缓存数据
-                    $value = Container::getInstance()->invokeFunction($value);
-                }
-
-                // 缓存数据
-                $this->set($name, $value, $expire);
-
-                // 解锁
-                $this->rm($name . '_lock');
-            } catch (\Exception $e) {
-                $this->rm($name . '_lock');
-                throw $e;
-            } catch (\throwable $e) {
-                $this->rm($name . '_lock');
-                throw $e;
-            }
-        } else {
-            $value = $this->get($name);
+            // 解锁
+            $this->rm($name . '_lock');
+        } catch (\Exception | \throwable $e) {
+            $this->rm($name . '_lock');
+            throw $e;
         }
 
         return $value;
@@ -248,11 +246,10 @@ abstract class Driver extends SimpleCache
     {
         if ($this->options['serialize'] && 0 === strpos($data, self::$serialize[2])) {
             $unserialize = self::$serialize[1];
-
             return $unserialize(substr($data, self::$serialize[3]));
-        } else {
-            return $data;
         }
+
+        return $data;
     }
 
     /**
