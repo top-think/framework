@@ -403,17 +403,20 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 延迟保存当前数据对象
      * @access public
-     * @param  array  $data     数据
+     * @param  array|bool  $data     数据
      * @return void
      */
-    public function lazySave(array $data = [])
+    public function lazySave($data = [])
     {
-        // 数据对象赋值
-        foreach ($data as $key => $value) {
-            $this->setAttr($key, $value, $data);
-        }
+        if (false === $data) {
+            $this->lazySave = false;
+        } else {
+            if (is_array($data)) {
+                $this->setAttrs($data);
+            }
 
-        $this->lazySave = true;
+            $this->lazySave = true;
+        }
     }
 
     /**
