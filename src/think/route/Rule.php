@@ -489,17 +489,6 @@ abstract class Rule
     }
 
     /**
-     * 是否合并额外参数
-     * @access public
-     * @param  bool     $merge
-     * @return $this
-     */
-    public function mergeExtraVars(bool $merge = true)
-    {
-        return $this->setOption('merge_extra_vars', $merge);
-    }
-
-    /**
      * 设置需要合并的路由参数
      * @access public
      * @param  array     $option
