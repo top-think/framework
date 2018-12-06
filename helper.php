@@ -313,7 +313,11 @@ if (!function_exists('download')) {
      * @param integer $expire 有效期（秒）
      * @return \think\response\Download
      */
+<<<<<<< HEAD
     function download($filename, $name = '', $content = false, $expire = 360, $openinBrower = false)
+=======
+    function download($filename, $name = '', $content = false, $expire = 180, $openinBrower = false)
+>>>>>>> 4c2b06e43c2e742c68ed5bfe6a0e7d85c6ad8b92
     {
         return Response::create($filename, 'download')->name($name)->isContent($content)->expire($expire)->openinBrower($openinBrower);
     }
