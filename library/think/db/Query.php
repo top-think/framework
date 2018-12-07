@@ -1131,6 +1131,10 @@ class Query
     {
         $this->options['view'] = true;
 
+        if (!array_key_exists('map', $this->options)) {
+            $this->options['map'] = [];
+        }
+
         if (is_array($join) && key($join) === 0) {
             foreach ($join as $key => $val) {
                 $this->view($val[0], $val[1], isset($val[2]) ? $val[2] : null, isset($val[3]) ? $val[3] : 'INNER');
