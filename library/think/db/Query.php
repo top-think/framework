@@ -3550,6 +3550,10 @@ class Query
      */
     protected function parseView(&$options)
     {
+        if (!isset($options['map'])) {
+            return;
+        }
+
         foreach (['AND', 'OR'] as $logic) {
             if (isset($options['where'][$logic])) {
                 foreach ($options['where'][$logic] as $key => $val) {
