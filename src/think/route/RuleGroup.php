@@ -402,7 +402,7 @@ class RuleGroup extends Rule
      * @param  array     $option     路由参数
      * @return RuleItem
      */
-    public function addMissRule(string $route, string $method = '*', array $option = []): RuleItem
+    public function miss(string $route, string $method = '*', array $option = []): RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method), $option);

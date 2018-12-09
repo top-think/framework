@@ -697,7 +697,7 @@ class Route
      */
     public function miss(string $route, string $method = '*', array $option = []): RuleItem
     {
-        return $this->group->addMissRule($route, $method, $option);
+        return $this->group->miss($route, $method, $option);
     }
 
     /**
