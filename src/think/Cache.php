@@ -111,12 +111,13 @@ class Cache implements CacheItemPoolInterface
      * 切换缓存类型 需要配置 cache.type 为 complex
      * @access public
      * @param  string $name 缓存标识
+     * @param  bool          $force    强制更新
      * @return Driver
      */
-    public function store(string $name = ''): Driver
+    public function store(string $name = '', $force = false): Driver
     {
         if ('' !== $name && 'complex' == $this->config['type']) {
-            return $this->connect($this->config[$name], strtolower($name));
+            return $this->connect($this->config[$name], $force);
         }
 
         return $this->init();
