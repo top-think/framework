@@ -399,13 +399,12 @@ class RuleGroup extends Rule
      * @access public
      * @param  string    $route      路由地址
      * @param  string    $method     请求类型
-     * @param  array     $option     路由参数
      * @return RuleItem
      */
-    public function miss(string $route, string $method = '*', array $option = []): RuleItem
+    public function miss(string $route, string $method = '*'): RuleItem
     {
         // 创建路由规则实例
-        $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method), $option);
+        $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));
 
         $this->miss = $ruleItem;
 

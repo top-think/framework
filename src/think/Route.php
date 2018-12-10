@@ -42,12 +42,7 @@ class Route
      * 配置参数
      * @var array
      */
-    protected $config = [
-        'url_lazy_route'         => true,
-        'route_rule_merge'       => true,
-        'controller_auto_search' => true,
-        'route_check_cache'      => false,
-    ];
+    protected $config = [];
 
     /**
      * 应用对象
@@ -146,13 +141,7 @@ class Route
     public static function __make(App $app, Config $config)
     {
         $config = $config->pull('app');
-        $route  = new static($app, $config);
-
-        $route->lazy($config['url_lazy_route'])
-            ->autoSearchController($config['controller_auto_search'])
-            ->mergeRuleRegex($config['route_rule_merge']);
-
-        return $route;
+        return new static($app, $config);
     }
 
     /**
