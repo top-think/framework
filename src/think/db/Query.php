@@ -292,7 +292,7 @@ class Query
      * @param  string $tableName 数据表名
      * @return array
      */
-    public function getTableFields(string $tableName = ''): array
+    public function getTableFields($tableName = ''): array
     {
         if ('' == $tableName) {
             $tableName = $this->options['table'] ?? $this->getTable();
@@ -308,7 +308,7 @@ class Query
      * @param  string $field    字段名
      * @return array|string
      */
-    protected function getTableFieldsType(string $tableName = '', string $field = null)
+    protected function getTableFieldsType($tableName = '', string $field = null)
     {
         if ('' == $tableName) {
             $tableName = $this->options['table'] ?? $this->getTable();
