@@ -202,10 +202,9 @@ class HasMany extends Relation
      */
     public function save($data)
     {
-        $model = $this->make();
-        $data  = array_merge($model->getData(), $data);
+        $model = $this->make($data);
 
-        return $model->save($data) ? $model : false;
+        return $model->save() ? $model : false;
     }
 
     /**
