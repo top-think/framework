@@ -199,8 +199,10 @@ class MorphOne extends Relation
      */
     public function save($data)
     {
-        $model = $this->make($data);
-        return $model->save() ? $model : false;
+        $model = $this->make();
+        $data  = array_merge($model->getData(), $data);
+
+        return $model->save($data) ? $model : false;
     }
 
     /**

@@ -245,7 +245,8 @@ class MorphMany extends Relation
      */
     public function save($data)
     {
-        $model = $this->make($data);
+        $model = $this->make();
+        $data  = array_merge($model->getData(), $data);
 
         return $model->save($data) ? $model : false;
     }
