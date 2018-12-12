@@ -277,9 +277,9 @@ class MorphMany extends Relation
      */
     public function save($data)
     {
-        $model = $this->make($data);
+        $model = $this->make();
 
-        return $model->save() ? $model : false;
+        return $model->save($data) ? $model : false;
     }
 
     /**
