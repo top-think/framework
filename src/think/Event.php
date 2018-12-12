@@ -66,7 +66,7 @@ class Event
                 $event = $this->bind[$event];
             }
 
-            $this->listener[$event] = $listeners;
+            $this->listener[$event] = array_merge($this->listener[$event] ?? [], $listeners);
         }
 
         return $this;

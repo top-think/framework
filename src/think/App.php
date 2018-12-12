@@ -287,10 +287,6 @@ class App extends Container
         }
 
         date_default_timezone_set($this->config['app.default_timezone']);
-
-        $this->loadLangPack();
-
-        $this->routeInit();
     }
 
     protected function debugModeInit(): void
@@ -376,20 +372,12 @@ class App extends Container
      */
     protected function loadAppFile(): void
     {
+        if ($this->multi && is_file($this->basePath . 'event.php')) {
+            $this->loadEvent(include $this->basePath . 'event.php');
+        }
+
         if (is_file($this->appPath . 'event.php')) {
-            $event = include $this->appPath . 'event.php';
-
-            if (isset($event['bind'])) {
-                $this->event->bind($event['bind']);
-            }
-
-            if (isset($event['listen'])) {
-                $this->event->listenEvents($event['listen']);
-            }
-
-            if (isset($event['subscribe'])) {
-                $this->event->subscribe($event['subscribe']);
-            }
+            $this->loadEvent(include $this->appPath . 'event.php');
         }
 
         if ($this->multi && is_file($this->basePath . 'common.php')) {
@@ -402,18 +390,20 @@ class App extends Container
 
         include $this->thinkPath . 'helper.php';
 
+        if ($this->multi && is_file($this->basePath . 'middleware')) {
+            $this->middleware->import(include $this->basePath . 'middleware.php');
+        }
+
         if (is_file($this->appPath . 'middleware.php')) {
-            $middleware = include $this->appPath . 'middleware.php';
-            if (is_array($middleware)) {
-                $this->middleware->import($middleware);
-            }
+            $this->middleware->import(include $this->appPath . 'middleware.php');
+        }
+
+        if ($this->multi && is_file($this->basePath . 'provider.php')) {
+            $this->bind(include $this->basePath . 'provider.php');
         }
 
         if (is_file($this->appPath . 'provider.php')) {
-            $provider = include $this->appPath . 'provider.php';
-            if (is_array($provider)) {
-                $this->bind($provider);
-            }
+            $this->bind(include $this->appPath . 'provider.php');
         }
 
         $files = [];
@@ -435,6 +425,21 @@ class App extends Container
         }
     }
 
+    protected function loadEvent($event)
+    {
+        if (isset($event['bind'])) {
+            $this->event->bind($event['bind']);
+        }
+
+        if (isset($event['listen'])) {
+            $this->event->listenEvents($event['listen']);
+        }
+
+        if (isset($event['subscribe'])) {
+            $this->event->subscribe($event['subscribe']);
+        }
+    }
+
     /**
      * 执行应用程序
      * @access public
@@ -450,24 +455,14 @@ class App extends Container
             // 监听AppInit
             $this->event->trigger('AppInit');
 
-            // 路由检测
-            $dispatch = $this->routeCheck()->init();
+            $dispatch = $this->request->dispatch();
 
-            // 记录当前调度信息
-            $this->request->dispatch($dispatch);
-
-            // 记录路由和请求信息
-            if ($this->appDebug) {
-                $this->log('[ ROUTE ] ' . var_export($this->request->routeInfo(), true));
-                $this->log('[ HEADER ] ' . var_export($this->request->header(), true));
-                $this->log('[ PARAM ] ' . var_export($this->request->param(), true));
+            if (!$dispatch) {
+                $dispatch = $this->route->url($this->request->path());
             }
 
             // 监听AppBegin
             $this->event->trigger('AppBegin');
-
-            // 请求缓存检查
-            $this->checkRequestCache();
 
             $data = null;
         } catch (HttpResponseException $exception) {
@@ -487,36 +482,6 @@ class App extends Container
         return $response;
     }
 
-    protected function getRouteCacheKey(): string
-    {
-        if ($this->config->get('route_check_cache_key')) {
-            $closure  = $this->config->get('route_check_cache_key');
-            $routeKey = $closure($this->request);
-        } else {
-            $routeKey = md5($this->request->baseUrl(true) . ':' . $this->request->method());
-        }
-
-        return $routeKey;
-    }
-
-    protected function loadLangPack(): void
-    {
-        // 读取默认语言
-        $this->lang->range($this->config['app.default_lang']);
-        if ($this->config['app.lang_switch_on']) {
-            // 开启多语言机制 检测当前语言
-            $this->lang->detect();
-        }
-
-        $this->request->setLangset($this->lang->range());
-
-        // 加载系统语言包
-        $this->lang->load([
-            $this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
-            $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
-        ]);
-    }
-
     /**
      * 记录调试信息
      * @access public
@@ -527,107 +492,6 @@ class App extends Container
     public function log($msg, string $type = 'info'): void
     {
         $this->log->record($msg, $type);
-    }
-
-    /**
-     * 路由初始化（路由规则注册）
-     * @access public
-     * @return void
-     */
-    public function routeInit(): void
-    {
-        // 加载路由定义
-        if (is_dir($this->routePath)) {
-            $files = glob($this->routePath . DIRECTORY_SEPARATOR . '*.php');
-            foreach ($files as $file) {
-                include $file;
-            }
-        }
-
-        if ($this->route->config('route_annotation')) {
-            // 自动生成注解路由定义
-            if ($this->appDebug) {
-                $suffix = $this->route->config('controller_suffix') || $this->route->config('class_suffix');
-                $this->build->buildRoute($suffix);
-            }
-
-            $filename = $this->runtimePath . 'build_route.php';
-
-            if (is_file($filename)) {
-                include $filename;
-            }
-        }
-    }
-
-    /**
-     * URL路由检测（根据PATH_INFO)
-     * @access public
-     * @return Dispatch
-     */
-    public function routeCheck(): Dispatch
-    {
-        // 检测路由缓存
-        if (!$this->appDebug && $this->config->get('route_check_cache')) {
-            $routeKey = $this->getRouteCacheKey();
-            $option   = $this->config->get('route_cache_option');
-
-            if ($option && $this->cache->connect($option)->has($routeKey)) {
-                return $this->cache->connect($option)->get($routeKey);
-            } elseif ($this->cache->has($routeKey)) {
-                return $this->cache->get($routeKey);
-            }
-        }
-
-        $path = $this->request->path();
-
-        // 路由检测 返回一个Dispatch对象
-        $dispatch = $this->route->check($path, $this->config['app.url_route_must']);
-
-        if (!empty($routeKey)) {
-            try {
-                if ($option) {
-                    $this->cache->connect($option)->tag('route_cache')->set($routeKey, $dispatch);
-                } else {
-                    $this->cache->tag('route_cache')->set($routeKey, $dispatch);
-                }
-            } catch (\Exception $e) {
-                // 存在闭包的时候缓存无效
-            }
-        }
-
-        return $dispatch;
-    }
-
-    /**
-     * 设置当前地址的请求缓存
-     * @access protected
-     * @return void
-     */
-    protected function checkRequestCache(): void
-    {
-        $cache = $this->request->cache($this->config['app.request_cache'],
-            $this->config['app.request_cache_expire'],
-            $this->config['app.request_cache_except']);
-
-        if ($cache) {
-            $this->setResponseCache($cache);
-        }
-    }
-
-    public function setResponseCache(array $cache): void
-    {
-        list($key, $expire, $tag) = $cache;
-
-        if (strtotime($this->request->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->request->server('REQUEST_TIME')) {
-            // 读取缓存
-            $response = Response::create()->code(304);
-            throw new HttpResponseException($response);
-        } elseif ($this->cache->has($key)) {
-            list($content, $header) = $this->cache->get($key);
-
-            $response = Response::create($content)->header($header);
-            throw new HttpResponseException($response);
-        }
     }
 
     /**

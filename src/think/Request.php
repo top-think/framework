@@ -24,25 +24,31 @@ class Request
      */
     protected $config = [
         // PATHINFO变量名 用于兼容模式
-        'var_pathinfo'     => 's',
+        'var_pathinfo'         => 's',
         // 兼容PATH_INFO获取
-        'pathinfo_fetch'   => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
+        'pathinfo_fetch'       => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
         // 表单请求类型伪装变量
-        'var_method'       => '_method',
+        'var_method'           => '_method',
         // 表单ajax伪装变量
-        'var_ajax'         => '_ajax',
+        'var_ajax'             => '_ajax',
         // 表单pjax伪装变量
-        'var_pjax'         => '_pjax',
+        'var_pjax'             => '_pjax',
         // 默认全局过滤方法 用逗号分隔多个
-        'default_filter'   => '',
+        'default_filter'       => '',
         // 域名根，如thinkphp.cn
-        'url_domain_root'  => '',
+        'url_domain_root'      => '',
         // HTTPS代理标识
-        'https_agent_name' => '',
+        'https_agent_name'     => '',
         // IP代理获取标识
-        'http_agent_ip'    => 'HTTP_X_REAL_IP',
+        'http_agent_ip'        => 'HTTP_X_REAL_IP',
         // URL伪静态后缀
-        'url_html_suffix'  => 'html',
+        'url_html_suffix'      => 'html',
+        // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
+        'request_cache'        => false,
+        // 请求缓存有效期
+        'request_cache_expire' => null,
+        // 全局请求缓存排除规则
+        'request_cache_except' => [],
     ];
 
     /**
@@ -1814,7 +1820,7 @@ class Request
      * @param  Dispatch  $dispatch 调度信息
      * @return Dispatch
      */
-    public function dispatch(Dispatch $dispatch = null): Dispatch
+    public function dispatch(Dispatch $dispatch = null)
     {
         if (!is_null($dispatch)) {
             $this->dispatch = $dispatch;
@@ -2035,6 +2041,17 @@ class Request
 
         if (isset($fun)) {
             $key = $fun($key);
+        }
+
+        if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->server('REQUEST_TIME')) {
+            // 读取缓存
+            $response = Response::create()->code(304);
+            throw new HttpResponseException($response);
+        } elseif ($this->app['cache']->has($key)) {
+            list($content, $header) = $this->app['cache']->get($key);
+
+            $response = Response::create($content)->header($header);
+            throw new HttpResponseException($response);
         }
 
         $this->cache = [$key, $expire, $tag];

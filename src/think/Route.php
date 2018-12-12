@@ -723,14 +723,22 @@ class Route
         }
 
         if (false !== $result) {
-            // 路由匹配
             return $result;
         } elseif ($must) {
-            // 强制路由不匹配则抛出异常
             throw new RouteNotFoundException();
         }
 
-        // 默认路由解析
+        return $this->url($url);
+    }
+
+    /**
+     * 默认URL解析
+     * @access public
+     * @param  string    $url URL地址
+     * @return Dispatch
+     */
+    public function url($url)
+    {
         return new UrlDispatch($this->request, $this->group, $url, ['auto_search' => $this->autoSearchController]);
     }
 
