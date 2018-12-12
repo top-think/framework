@@ -67,13 +67,14 @@ class Url
     /**
      * URL生成 支持路由反射
      * @access public
-     * @param  string            $url 路由地址
-     * @param  string|array      $vars 参数（支持数组和字符串）a=val&b=val2... ['a'=>'val1', 'b'=>'val2']
-     * @param  string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
-     * @param  boolean|string    $domain 是否显示域名 或者直接传入域名
+     * @param  string $url 路由地址
+     * @param  string|array $vars 参数（支持数组和字符串）a=val&b=val2... ['a'=>'val1', 'b'=>'val2']
+     * @param  string|bool $suffix 伪静态后缀，默认为true表示获取配置值
+     * @param  boolean|string $domain 是否显示域名 或者直接传入域名
+     * @param  bool $force_https 是否强制使用https链接，默认false，系统自动判定
      * @return string
      */
-    public function build($url = '', $vars = '', $suffix = true, $domain = false)
+    public function build($url = '', $vars = '', $suffix = true, $domain = false, $force_https = false)
     {
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
@@ -226,7 +227,7 @@ class Url
         }
 
         // 检测域名
-        $domain = $this->parseDomain($url, $domain);
+        $domain = $this->parseDomain($url, $domain, $force_https);
 
         // URL组装
         $url = $domain . rtrim($this->root ?: $this->app['request']->root(), '/') . '/' . ltrim($url, '/');
@@ -277,7 +278,7 @@ class Url
     }
 
     // 检测域名
-    protected function parseDomain(&$url, $domain)
+    protected function parseDomain(&$url, $domain, $force_https = false)
     {
         if (!$domain) {
             return '';
@@ -323,7 +324,7 @@ class Url
         if (false !== strpos($domain, '://')) {
             $scheme = '';
         } else {
-            $scheme = $this->app['request']->isSsl() || $this->config['is_https'] ? 'https://' : 'http://';
+            $scheme = $this->app['request']->isSsl() || $this->config['is_https'] || $force_https ? 'https://' : 'http://';
 
         }
 

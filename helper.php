@@ -636,15 +636,16 @@ if (!function_exists('trait_uses_recursive')) {
 if (!function_exists('url')) {
     /**
      * Url生成
-     * @param string        $url 路由地址
-     * @param string|array  $vars 变量
-     * @param bool|string   $suffix 生成的URL后缀
-     * @param bool|string   $domain 域名
+     * @param string $url 路由地址
+     * @param string|array $vars 变量
+     * @param bool|string $suffix 生成的URL后缀
+     * @param bool|string $domain 域名
+     * @param bool $force_https 是否强制使用https链接，默认false，系统自动判定
      * @return string
      */
-    function url($url = '', $vars = '', $suffix = true, $domain = false)
+    function url($url = '', $vars = '', $suffix = true, $domain = false, $force_https = false)
     {
-        return Url::build($url, $vars, $suffix, $domain);
+        return Url::build($url, $vars, $suffix, $domain, $force_https);
     }
 }
 
