@@ -27,5 +27,4 @@ class CheckRequestCache
             $app->config->get('app.request_cache_expire'),
             $app->config->get('app.request_cache_except'));
     }
-
 }
