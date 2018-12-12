@@ -164,10 +164,10 @@ class App implements \ArrayAccess
         $this->beginTime   = microtime(true);
         $this->beginMem    = memory_get_usage();
         $this->thinkPath   = dirname(dirname(__DIR__)) . '/';
-        $this->rootPath    = dirname(realpath($this->appPath)) . '/';
-        $this->runtimePath = $this->rootPath . 'runtime/';
-        $this->routePath   = $this->rootPath . 'route/';
-        $this->configPath  = $this->rootPath . 'config/';
+        $this->rootPath    = defined('ROOT_PATH') ? ROOT_PATH : dirname($this->appPath) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = defined('RUNTIME_PATH') ? RUNTIME_PATH : $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = defined('ROUTE_PATH') ? ROUTE_PATH : $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath  = defined('CONFIG_PATH') ? CONFIG_PATH : $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
         // 设置路径环境变量
         $this->env->set([
