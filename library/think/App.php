@@ -186,7 +186,7 @@ class App implements \ArrayAccess
             $this->env->load($this->rootPath . '.env');
         }
 
-        $this->namespace = $this->env->get('app_namespace', $this->namespace);
+        $this->namespace = defined('APP_NAMESPACE') ? APP_NAMESPACE : $this->env->get('app_namespace', $this->namespace);
         $this->env->set('app_namespace', $this->namespace);
 
         // 注册应用命名空间
