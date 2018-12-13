@@ -62,7 +62,7 @@ trait TimeStamp
             return new $format($time);
         }
 
-        if ($timestamp) {
+        if ($timestamp || is_int($time)) {
             $dateTime = new DateTime();
             $dateTime->setTimestamp($time);
         } else {
