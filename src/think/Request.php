@@ -178,6 +178,12 @@ class Request
     protected $route = [];
 
     /**
+     * 中间件传递的参数
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
      * 当前PUT参数
      * @var array
      */
@@ -1022,6 +1028,18 @@ class Request
         }
 
         return $this->input($this->get, $name, $default, $filter);
+    }
+
+    /**
+     * 获取中间件传递的参数
+     * @access public
+     * @param  mixed         $name 变量名
+     * @param  mixed         $default 默认值
+     * @return mixed
+     */
+    public function middleware($name, $default = null)
+    {
+        return $this->middleware[$name] ?? $default;
     }
 
     /**
@@ -2069,6 +2087,18 @@ class Request
     }
 
     /**
+     * 设置在中间件传递的数据
+     * @access public
+     * @param  array $middleware 数据
+     * @return $this
+     */
+    public function withMiddleware(array $middleware)
+    {
+        $this->middleware = array_merge($this->middleware, $middleware);
+        return $this;
+    }
+
+    /**
      * 设置GET数据
      * @access public
      * @param  array $get 数据
@@ -2177,25 +2207,25 @@ class Request
     }
 
     /**
-     * 设置请求数据
+     * 设置中间传递数据
      * @access public
      * @param  string    $name  参数名
      * @param  mixed     $value 值
      */
     public function __set(string $name, $value)
     {
-        $this->param[$name] = $value;
+        $this->middleware[$name] = $value;
     }
 
     /**
-     * 获取请求数据的值
+     * 获取中间传递数据的值
      * @access public
      * @param  string $name 名称
      * @return mixed
      */
     public function __get(string $name)
     {
-        return $this->param($name);
+        return $this->middleware($name);
     }
 
     /**

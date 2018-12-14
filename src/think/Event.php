@@ -128,17 +128,12 @@ class Event
     /**
      * 指定事件别名标识 便于调用
      * @access public
-     * @param  string|array  $name     事件别名
-     * @param  mixed         $event    事件名称
+     * @param  array  $events     事件别名
      * @return $this
      */
-    public function bind($name, $event = null)
+    public function bind(array $events)
     {
-        if (is_array($name)) {
-            $this->bind = array_merge($this->bind, $name);
-        } else {
-            $this->bind[$name] = $event;
-        }
+        $this->bind = array_merge($this->bind, $events);
 
         return $this;
     }
