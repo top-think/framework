@@ -376,12 +376,12 @@ trait Attribute
                 case 'date':
                 case 'timestamp':
                     $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = $this->formatDateTime($format . '.u');
+                    $value  = $this->formatDateTime($format);
                     break;
             }
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),
             ['datetime', 'date', 'timestamp'])) {
-            $value = $this->formatDateTime($this->dateFormat . '.u');
+            $value = $this->formatDateTime($this->dateFormat);
         }
 
         return $value;
