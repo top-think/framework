@@ -242,8 +242,12 @@ trait Attribute
     {
         if (is_null($name)) {
             return $this->data;
-        } elseif (array_key_exists($name, $this->data)) {
-            return $this->data[$name];
+        }
+
+        $fieldName = App::parseName($name);
+
+        if (array_key_exists($fieldName, $this->data)) {
+            return $this->data[$fieldName];
         } elseif (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         }
@@ -289,6 +293,8 @@ trait Attribute
      */
     public function set(string $name, $value): void
     {
+        $name = App::parseName($name);
+
         $this->data[$name] = $value;
     }
 
@@ -316,6 +322,8 @@ trait Attribute
      */
     public function setAttr(string $name, $value, array $data = []): void
     {
+        $name = App::parseName($name);
+
         if (isset($this->set[$name])) {
             return;
         }
