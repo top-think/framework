@@ -51,12 +51,8 @@ class Url extends Dispatch
             return [null, null];
         }
 
-        if ($this->param['auto_search']) {
-            $controller = $this->autoFindController($path);
-        } else {
-            // 解析控制器
-            $controller = !empty($path) ? array_shift($path) : null;
-        }
+        // 解析控制器
+        $controller = !empty($path) ? array_shift($path) : null;
 
         if ($controller && !preg_match('/^[A-Za-z][\w|\.]*$/', $controller)) {
             throw new HttpException(404, 'controller not exists:' . $controller);
@@ -116,42 +112,6 @@ class Url extends Dispatch
         }
 
         return false;
-    }
-
-    /**
-     * 自动定位控制器类
-     * @access protected
-     * @param  array     $path   URL
-     * @return string
-     */
-    protected function autoFindController(array &$path): string
-    {
-        $dir    = $this->app->getAppPath() . $this->rule->getConfig('url_controller_layer');
-        $suffix = $this->app->getSuffix() || $this->rule->getConfig('controller_suffix') ? ucfirst($this->rule->getConfig('url_controller_layer')) : '';
-
-        $item = [];
-        $find = false;
-
-        foreach ($path as $val) {
-            $item[] = $val;
-            $file   = $dir . '/' . str_replace('.', '/', $val) . $suffix . '.php';
-            $file   = pathinfo($file, PATHINFO_DIRNAME) . '/' . App::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
-            if (is_file($file)) {
-                $find = true;
-                break;
-            } else {
-                $dir .= '/' . App::parseName($val);
-            }
-        }
-
-        if ($find) {
-            $controller = implode('.', $item);
-            $path       = array_slice($path, count($item));
-        } else {
-            $controller = array_shift($path);
-        }
-
-        return $controller;
     }
 
 }

@@ -68,22 +68,23 @@ class Controller
 
         // 控制器初始化
         $this->initialize();
+    }
 
-        // 控制器中间件
-        if ($this->middleware) {
-            foreach ($this->middleware as $key => $val) {
-                if (!is_int($key)) {
-                    if (isset($val['only']) && !in_array($this->request->action(), $val['only'])) {
-                        continue;
-                    } elseif (isset($val['except']) && in_array($this->request->action(), $val['except'])) {
-                        continue;
-                    } else {
-                        $val = $key;
-                    }
+    // 注册控制器中间件
+    public function registerMiddleware()
+    {
+        foreach ($this->middleware as $key => $val) {
+            if (!is_int($key)) {
+                if (isset($val['only']) && !in_array($this->request->action(), $val['only'])) {
+                    continue;
+                } elseif (isset($val['except']) && in_array($this->request->action(), $val['except'])) {
+                    continue;
+                } else {
+                    $val = $key;
                 }
-
-                $this->app['middleware']->controller($val);
             }
+
+            $this->app['middleware']->controller($val);
         }
     }
 

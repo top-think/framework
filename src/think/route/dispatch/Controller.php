@@ -14,6 +14,7 @@ namespace think\route\dispatch;
 
 use ReflectionMethod;
 use think\App;
+use think\Controller;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\Request;
@@ -60,6 +61,10 @@ class Controller extends Dispatch
                 $this->rule->getConfig('url_controller_layer'),
                 $this->rule->getConfig('controller_suffix'),
                 $this->rule->getConfig('empty_controller'));
+
+            if ($instance instanceof Controller) {
+                $instance->registerMiddleware();
+            }
         } catch (ClassNotFoundException $e) {
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
@@ -92,8 +97,6 @@ class Controller extends Dispatch
                 // 操作不存在
                 throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
             }
-
-            $this->app['event']->trigger('ActionBegin', $call);
 
             $data = $this->app->invokeReflectMethod($instance, $reflect, $vars);
 
