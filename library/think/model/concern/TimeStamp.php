@@ -62,14 +62,14 @@ trait TimeStamp
             return new $format($time);
         }
 
-        if ($timestamp || is_int($time)) {
+        if ($timestamp) {
             $dateTime = new DateTime();
             $dateTime->setTimestamp($time);
         } else {
             $dateTime = new DateTime($time);
         }
 
-        return $dateTime->format($format . '.u');
+        return $dateTime->format($format . (strpos($format, 'u') ? '' : '.u'));
     }
 
     /**
