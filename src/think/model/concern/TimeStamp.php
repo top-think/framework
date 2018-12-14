@@ -61,18 +61,18 @@ trait TimeStamp
             return $time;
         } elseif (false !== strpos($format, '\\')) {
             return new $format($time);
-        } elseif ($time instanceof DateTime) {
-            return $time->format($format);
         }
 
-        if ($timestamp) {
+        if ($time instanceof DateTime) {
+            $dateTime = $time;
+        } elseif ($timestamp) {
             $dateTime = new DateTime();
             $dateTime->setTimestamp($time);
         } else {
             $dateTime = new DateTime($time);
         }
 
-        return $dateTime->format($format);
+        return $dateTime->format($format . (strpos($format, 'u') ? '' : '.u'));
     }
 
     /**
