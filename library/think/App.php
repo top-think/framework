@@ -722,9 +722,9 @@ class App extends Container
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
 
         if (class_exists($class)) {
-            return $this->__get($class);
+            return $this->make($class, true);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($module, $layer, $empty, $appendSuffix))) {
-            return $this->__get($emptyClass);
+            return $this->make($emptyClass, true);
         }
 
         throw new ClassNotFoundException('class not exists:' . $class, $class);
