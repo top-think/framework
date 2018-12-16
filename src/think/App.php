@@ -512,9 +512,9 @@ class App extends Container
         }
 
         if (class_exists($class)) {
-            return $this->make($class, true);
+            return $this->make($class, [], true);
         } elseif ($empty && class_exists($emptyClass = $this->parseClass($layer, $empty, $appendSuffix))) {
-            return $this->make($emptyClass, true);
+            return $this->make($emptyClass, [], true);
         }
 
         throw new ClassNotFoundException('class not exists:' . $class, $class);
