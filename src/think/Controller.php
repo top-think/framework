@@ -68,6 +68,7 @@ class Controller
 
         // 控制器初始化
         $this->initialize();
+        $this->registerMiddleware();
     }
 
     // 注册控制器中间件

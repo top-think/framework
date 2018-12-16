@@ -60,10 +60,6 @@ class Controller extends Dispatch
                 $this->rule->getConfig('url_controller_layer'),
                 $this->rule->getConfig('controller_suffix'),
                 $this->rule->getConfig('empty_controller'));
-
-            if ($instance instanceof \think\Controller) {
-                $instance->registerMiddleware();
-            }
         } catch (ClassNotFoundException $e) {
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
