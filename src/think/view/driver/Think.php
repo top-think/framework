@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think\view\driver;
 
 use think\App;
-use think\Container;
 use think\exception\TemplateNotFoundException;
 use think\Template;
 
@@ -89,8 +88,8 @@ class Think
         }
 
         // 记录视图信息
-        Container::get('app')
-            ->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
+        $this->app['log']
+            ->record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
 
         $this->template->fetch($template, $data, $config);
     }

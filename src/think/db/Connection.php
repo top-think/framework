@@ -214,7 +214,7 @@ abstract class Connection
             }
 
             // 记录初始化信息
-            Container::get('app')->log('[ DB ] INIT ' . $config['type']);
+            Container::get('log')->record('[ DB ] INIT ' . $config['type']);
 
             if (true === $name) {
                 $name = md5(serialize($config));

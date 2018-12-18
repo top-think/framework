@@ -120,7 +120,7 @@ class Domain extends RuleGroup
             $this->parseBindAppendParam($bind);
 
             // 记录绑定信息
-            Container::get('app')->log('[ BIND ] ' . var_export($bind, true));
+            Container::get('log')->record('[ BIND ] ' . var_export($bind, true));
 
             // 如果有URL绑定 则进行绑定检测
             $type = substr($bind, 0, 1);

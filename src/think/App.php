@@ -482,18 +482,6 @@ class App extends Container
     }
 
     /**
-     * 记录调试信息
-     * @access public
-     * @param  mixed  $msg  调试信息
-     * @param  string $type 信息类型
-     * @return void
-     */
-    public function log($msg, string $type = 'info'): void
-    {
-        $this->log->record($msg, $type);
-    }
-
-    /**
      * 实例化（分层）控制器 格式：[模块名/]控制器名
      * @access public
      * @param  string $name              资源地址
@@ -505,11 +493,7 @@ class App extends Container
      */
     public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '')
     {
-        if (false !== strpos($name, '\\')) {
-            $class = $name;
-        } else {
-            $class = $this->parseClass($layer, $name, $appendSuffix);
-        }
+        $class = $this->parseClass($layer, $name, $appendSuffix);
 
         if (class_exists($class)) {
             return $this->make($class, [], true);

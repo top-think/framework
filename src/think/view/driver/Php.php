@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think\view\driver;
 
 use think\App;
-use think\Container;
 use think\exception\TemplateNotFoundException;
 
 class Php
@@ -80,8 +79,8 @@ class Php
         $this->template = $template;
 
         // 记录视图信息
-        $this->app
-            ->log('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
+        $this->app['log']
+            ->record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
 
         extract($data, EXTR_OVERWRITE);
 
@@ -112,7 +111,7 @@ class Php
     private function parseTemplate(string $template): string
     {
         if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = Container::get('app')->getAppPath() . 'view' . DIRECTORY_SEPARATOR;
+            $this->config['view_path'] = $this->app->getAppPath() . 'view' . DIRECTORY_SEPARATOR;
         }
 
         $request = $this->app['request'];
