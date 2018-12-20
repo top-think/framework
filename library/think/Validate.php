@@ -1002,7 +1002,7 @@ class Validate
             // 支持多个字段验证
             $fields = explode('^', $key);
             foreach ($fields as $key) {
-                if (isset($data[$field])) {
+                if (isset($data[$key])) {
                     $map[] = [$key, '=', $data[$key]];
                 }
             }
