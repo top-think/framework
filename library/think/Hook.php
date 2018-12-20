@@ -32,11 +32,12 @@ class Hook
 
         if (is_array($behavior) && !is_callable($behavior)) {
             if (!array_key_exists('_overlay', $behavior) || !$behavior['_overlay']) {
+                unset($behavior['_overlay']);
                 self::$tags[$tag] = array_merge(self::$tags[$tag], $behavior);
             } else {
+                unset($behavior['_overlay']);
                 self::$tags[$tag] = $behavior;
             }
-            unset($behavior['_overlay']);
         } elseif ($first) {
             array_unshift(self::$tags[$tag], $behavior);
         } else {
