@@ -18,13 +18,14 @@ use Closure;
 use Countable;
 use InvalidArgumentException;
 use IteratorAggregate;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 
-class Container implements ArrayAccess, IteratorAggregate, Countable
+class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
 {
     /**
      * 容器对象实例
@@ -108,42 +109,24 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public static function get(string $abstract, array $vars = [], bool $newInstance = false)
+    public static function take($abstract, $vars = [], $newInstance = false)
     {
         return static::getInstance()->make($abstract, $vars, $newInstance);
     }
 
     /**
-     * 绑定一个类、闭包、实例、接口实现到容器
+     * 获取容器中的对象实例
      * @access public
-     * @param  string  $abstract    类标识、接口
-     * @param  mixed   $concrete    要绑定的类、闭包或者实例
-     * @return Container
+     * @param  string        $abstract       类名或者标识
+     * @return object
      */
-    public static function set(string $abstract, $concrete = null)
+    public function get($abstract)
     {
-        return static::getInstance()->bind($abstract, $concrete);
-    }
+        if ($this->has($abstract)) {
+            return $this->make($abstract);
+        }
 
-    /**
-     * 移除容器中的对象实例
-     * @access public
-     * @param  string  $abstract    类标识、接口
-     * @return void
-     */
-    public static function remove(string $abstract): void
-    {
-        static::getInstance()->delete($abstract);
-    }
-
-    /**
-     * 清除容器中的对象实例
-     * @access public
-     * @return void
-     */
-    public static function clear(): void
-    {
-        static::getInstance()->flush();
+        throw new ClassNotFoundException('class not exists: ' . $$abstract, $$abstract);
     }
 
     /**
@@ -210,7 +193,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * @param  string    $name    类名或者标识
      * @return bool
      */
-    public function has(string $name): bool
+    public function has($name): bool
     {
         return $this->bound($name);
     }
@@ -483,7 +466,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
 
     public function __get($name)
     {
-        return $this->make($name);
+        return $this->get($name);
     }
 
     public function __isset($name): bool
