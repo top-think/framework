@@ -214,7 +214,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 创建类的实例
+     * 创建类的实例 已经存在则直接获取
      * @access public
      * @param  string        $abstract       类名或者标识
      * @param  array         $vars           变量

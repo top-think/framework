@@ -205,7 +205,7 @@ class Redis extends Driver
                 $this->handler->delete($key);
             }
 
-            $this->rm('tag_' . md5($tag));
+            $this->handler->delete($tag);
             return true;
         }
 
@@ -214,4 +214,54 @@ class Redis extends Driver
         return $this->handler->flushDB();
     }
 
+    /**
+     * 缓存标签
+     * @access public
+     * @param  string        $name 标签名
+     * @param  string|array  $keys 缓存标识
+     * @param  bool          $overlay 是否覆盖
+     * @return $this
+     */
+    public function tag(string $name, $keys = null, bool $overlay = false)
+    {
+        if (is_null($name)) {
+
+        } elseif (is_null($keys)) {
+            $this->tag = $name;
+        } else {
+            if ($overlay) {
+                $this->handler->delete($name);
+            }
+
+            foreach ($keys as $key) {
+                $this->handler->sAdd($name, $key);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * 更新标签
+     * @access protected
+     * @param  string $name 缓存标识
+     * @return void
+     */
+    protected function setTagItem(string $name): void
+    {
+        if ($this->tag) {
+            $this->handler->sAdd($this->tag, $name);
+        }
+    }
+
+    /**
+     * 获取标签包含的缓存标识
+     * @access protected
+     * @param  string $tag 缓存标签
+     * @return array
+     */
+    protected function getTagItem(string $tag): array
+    {
+        return $this->handler->sMembers($tag);
+    }
 }
