@@ -51,7 +51,7 @@ class Redirect extends Response
      */
     public function with($name, $value = null)
     {
-        $session = Container::get('session');
+        $session = Container::pull('session');
 
         if (is_array($name)) {
             foreach ($name as $key => $val) {
@@ -74,7 +74,7 @@ class Redirect extends Response
         if (strpos($this->data, '://') || (0 === strpos($this->data, '/') && empty($this->params))) {
             return $this->data;
         } else {
-            return Container::get('url')->build($this->data, $this->params);
+            return Container::pull('url')->build($this->data, $this->params);
         }
     }
 
@@ -92,7 +92,7 @@ class Redirect extends Response
      */
     public function remember()
     {
-        Container::get('session')->set('redirect_url', Container::get('request')->url());
+        Container::pull('session')->set('redirect_url', Container::pull('request')->url());
 
         return $this;
     }
@@ -104,7 +104,7 @@ class Redirect extends Response
      */
     public function restore()
     {
-        $session = Container::get('session');
+        $session = Container::pull('session');
 
         if ($session->has('redirect_url')) {
             $this->data = $session->get('redirect_url');

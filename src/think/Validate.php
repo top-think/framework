@@ -951,7 +951,7 @@ class Validate
      */
     public function method($value, $rule): bool
     {
-        $method = Container::get('request')->method();
+        $method = Container::pull('request')->method();
         return strtoupper($rule) == $method;
     }
 
@@ -1362,7 +1362,7 @@ class Validate
     public function token($value, $rule, array $data = []): bool
     {
         $rule    = !empty($rule) ? $rule : '__token__';
-        $session = Container::get('session');
+        $session = Container::pull('session');
 
         if (!isset($data[$rule]) || !$session->has($rule)) {
             // 令牌数据无效
@@ -1426,7 +1426,7 @@ class Validate
      */
     protected function getRuleMsg(string $attribute, string $title, string $type, $rule): string
     {
-        $lang = Container::get('lang');
+        $lang = Container::pull('lang');
 
         if (isset($this->message[$attribute . '.' . $type])) {
             $msg = $this->message[$attribute . '.' . $type];

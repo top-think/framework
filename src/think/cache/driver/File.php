@@ -43,7 +43,7 @@ class File extends Driver
             $this->options = array_merge($this->options, $options);
         }
 
-        $app = Container::get('app');
+        $app = Container::pull('app');
 
         if (empty($this->options['path'])) {
             $this->options['path'] = $app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR;

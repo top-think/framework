@@ -106,24 +106,24 @@ class Response
     public function send(): void
     {
         // 监听response_send
-        Container::get('event')->trigger('ResponseSend', $this);
+        Container::pull('event')->trigger('ResponseSend', $this);
 
         // 处理输出数据
         $data = $this->getContent();
 
         // Trace调试注入
-        if ('cli' != PHP_SAPI && Container::get('env')->get('app_trace', Container::get('config')->get('app.app_trace'))) {
-            Container::get('debug')->inject($this, $data);
+        if ('cli' != PHP_SAPI && Container::pull('env')->get('app_trace', Container::pull('config')->get('app.app_trace'))) {
+            Container::pull('debug')->inject($this, $data);
         }
 
         if (200 == $this->code && $this->allowCache) {
-            $cache = Container::get('request')->getCache();
+            $cache = Container::pull('request')->getCache();
             if ($cache) {
                 $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
                 $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
                 $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
 
-                Container::get('cache')->tag($cache[2])->set($cache[0], [$data, $this->header], $cache[1]);
+                Container::pull('cache')->tag($cache[2])->set($cache[0], [$data, $this->header], $cache[1]);
             }
         }
 
@@ -144,11 +144,11 @@ class Response
         }
 
         // 监听response_end
-        Container::get('event')->trigger('ResponseEnd', $this);
+        Container::pull('event')->trigger('ResponseEnd', $this);
 
         // 清空当次请求有效的数据
         if (!($this instanceof RedirectResponse)) {
-            Container::get('session')->flush();
+            Container::pull('session')->flush();
         }
     }
 

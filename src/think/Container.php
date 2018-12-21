@@ -102,14 +102,14 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 获取容器中的对象实例
+     * 获取容器中的对象实例 不存在则创建
      * @access public
      * @param  string        $abstract       类名或者标识
      * @param  array|true    $vars           变量
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
-    public static function take($abstract, $vars = [], $newInstance = false)
+    public static function pull(string $abstract, array $vars = [], bool $newInstance = false)
     {
         return static::getInstance()->make($abstract, $vars, $newInstance);
     }

@@ -105,7 +105,7 @@ class Console
         static $console;
 
         if (!$console) {
-            $config  = Container::get('config')->pull('console');
+            $config  = Container::pull('config')->pull('console');
             $console = new self($config['name'], $config['version'], $config['user']);
 
             $commands = $console->getDefinedCommands($config);
@@ -131,7 +131,7 @@ class Console
     {
         $commands = self::$defaultCommands;
 
-        $path = Container::get('env')->get('app_path');
+        $path = Container::pull('env')->get('app_path');
 
         if (is_dir($path . 'command')) {
             // 自动加载指令类

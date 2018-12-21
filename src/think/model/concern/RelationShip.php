@@ -283,6 +283,22 @@ trait RelationShip
     }
 
     /**
+     * HAS RELATION 关联定义
+     * @access public
+     * @param  string $model      模型名
+     * @param  string $foreignKey 关联外键
+     * @param  string $localKey   当前主键
+     * @return HasOne
+     */
+    public function hasRelation(string $model, $condition): HasRelation
+    {
+        // 记录当前关联信息
+        $model = $this->parseModel($model);
+
+        return new HasRelation($this, $model, $contition);
+    }
+
+    /**
      * HAS ONE 关联定义
      * @access public
      * @param  string $model      模型名

@@ -91,7 +91,7 @@ class Error
         }
 
         // 写入日志
-        Container::get('think\Log')->save();
+        Container::pull('think\Log')->save();
     }
 
     /**

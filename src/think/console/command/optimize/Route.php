@@ -45,8 +45,8 @@ class Route extends Command
 
     protected function buildRouteCache($app)
     {
-        Container::get('route')->setName([]);
-        Container::get('route')->lazy(false);
+        Container::pull('route')->setName([]);
+        Container::pull('route')->lazy(false);
 
         // 路由检测
         if ($app) {
@@ -63,13 +63,13 @@ class Route extends Command
             }
         }
 
-        if (Container::get('config')->get('route_annotation')) {
-            $suffix = Container::get('config')->get('controller_suffix') || Container::get('config')->get('class_suffix');
-            include Container::get('build')->buildRoute($suffix);
+        if (Container::pull('config')->get('route_annotation')) {
+            $suffix = Container::pull('config')->get('controller_suffix') || Container::pull('config')->get('class_suffix');
+            include Container::pull('build')->buildRoute($suffix);
         }
 
         $content = '<?php ' . PHP_EOL . 'return ';
-        $content .= var_export(Container::get('route')->getName(), true) . ';';
+        $content .= var_export(Container::pull('route')->getName(), true) . ';';
         return $content;
     }
 

@@ -58,7 +58,7 @@ class Config extends Command
 
         $configPath = App::getConfigPath();
         $configExt  = App::getConfigExt();
-        $config     = Container::get('config');
+        $config     = Container::pull('config');
 
         // 加载应用配置文件
         $files = [];
@@ -120,7 +120,7 @@ class Config extends Command
         if (is_file($path . 'middleware.php')) {
             $middleware = include $path . 'middleware.php';
             if (is_array($middleware)) {
-                $content .= PHP_EOL . '\think\Container::get("middleware")->import(' . var_export($middleware, true) . ');' . PHP_EOL;
+                $content .= PHP_EOL . '\think\Container::pull("middleware")->import(' . var_export($middleware, true) . ');' . PHP_EOL;
             }
         }
 

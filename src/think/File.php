@@ -476,7 +476,7 @@ class File extends SplFileObject
      */
     public function getError(): string
     {
-        $lang = Container::get('lang');
+        $lang = Container::pull('lang');
 
         if (is_array($this->error)) {
             list($msg, $vars) = $this->error;

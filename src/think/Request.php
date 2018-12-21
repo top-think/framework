@@ -1992,7 +1992,7 @@ class Request
             header($name . ': ' . $token);
         }
 
-        Container::get('session')->set($name, $token);
+        Container::pull('session')->set($name, $token);
 
         return $token;
     }

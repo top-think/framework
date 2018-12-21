@@ -35,7 +35,7 @@ trait Jump
         if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
             $url = $_SERVER["HTTP_REFERER"];
         } elseif ('' !== $url) {
-            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::get('url')->build($url);
+            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::pull('url')->build($url);
         }
 
         $result = [
@@ -52,7 +52,7 @@ trait Jump
             $type = 'jump';
         }
 
-        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::get('config')->get('dispatch_success_tmpl')]);
+        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::pull('config')->get('dispatch_success_tmpl')]);
 
         throw new HttpResponseException($response);
     }
@@ -70,9 +70,9 @@ trait Jump
     protected function error($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
     {
         if (is_null($url)) {
-            $url = Container::get('request')->isAjax() ? '' : 'javascript:history.back(-1);';
+            $url = Container::pull('request')->isAjax() ? '' : 'javascript:history.back(-1);';
         } elseif ('' !== $url) {
-            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::get('url')->build($url);
+            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::pull('url')->build($url);
         }
 
         $result = [
@@ -88,7 +88,7 @@ trait Jump
             $type = 'jump';
         }
 
-        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::get('config')->get('dispatch_error_tmpl')]);
+        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::pull('config')->get('dispatch_error_tmpl')]);
 
         throw new HttpResponseException($response);
     }
@@ -148,8 +148,8 @@ trait Jump
      */
     protected function getResponseType()
     {
-        $isAjax = Container::get('request')->isAjax();
-        $config = Container::get('config');
+        $isAjax = Container::pull('request')->isAjax();
+        $config = Container::pull('config');
 
         return $isAjax
         ? $config->get('default_ajax_return')

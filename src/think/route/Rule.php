@@ -1021,6 +1021,6 @@ abstract class Rule
 
     public function __wakeup()
     {
-        $this->router = Container::get('route');
+        $this->router = Container::pull('route');
     }
 }

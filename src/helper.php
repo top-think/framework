@@ -59,7 +59,7 @@ if (!function_exists('app')) {
      */
     function app(string $name = 'think\App', $args = [], bool $newInstance = false)
     {
-        return Container::get($name, $args, $newInstance);
+        return Container::pull($name, $args, $newInstance);
     }
 }
 

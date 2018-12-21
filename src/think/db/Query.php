@@ -748,7 +748,7 @@ class Query
      */
     protected function lazyWrite(string $type, string $guid, int $step, int $lazyTime)
     {
-        $cache = Container::get('cache');
+        $cache = Container::pull('cache');
 
         if (!$cache->has($guid . '_time')) {
             // 计时开始
@@ -1616,7 +1616,7 @@ class Query
             $simple = false;
         }
 
-        $paginate = Container::get('config')->pull('paginate');
+        $paginate = Container::pull('config')->pull('paginate');
 
         if (is_array($listRows)) {
             $config   = array_merge($paginate, $listRows);
@@ -3162,7 +3162,7 @@ class Query
         $column  = $column ?: $this->getPk($options);
 
         if (isset($options['order'])) {
-            if (Container::get('app')->isDebug()) {
+            if (Container::pull('app')->isDebug()) {
                 throw new DbException('chunk not support call order');
             }
             unset($options['order']);

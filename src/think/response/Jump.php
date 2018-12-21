@@ -27,8 +27,8 @@ class Jump extends Response
      */
     protected function output($data): string
     {
-        $config = Container::get('config');
-        return Container::get('view')
+        $config = Container::pull('config');
+        return Container::pull('view')
             ->init($config->pull('template'))
             ->fetch($this->options['jump_template'], $data);
     }

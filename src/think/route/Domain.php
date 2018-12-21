@@ -69,7 +69,7 @@ class Domain extends RuleGroup
 
         // 添加域名中间件
         if (!empty($this->option['middleware'])) {
-            Container::get('middleware')->import($this->option['middleware']);
+            Container::pull('middleware')->import($this->option['middleware']);
             unset($this->option['middleware']);
         }
 
@@ -120,7 +120,7 @@ class Domain extends RuleGroup
             $this->parseBindAppendParam($bind);
 
             // 记录绑定信息
-            Container::get('log')->record('[ BIND ] ' . var_export($bind, true));
+            Container::pull('log')->record('[ BIND ] ' . var_export($bind, true));
 
             // 如果有URL绑定 则进行绑定检测
             $type = substr($bind, 0, 1);

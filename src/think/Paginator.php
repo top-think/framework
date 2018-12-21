@@ -166,7 +166,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      */
     public static function getCurrentPage(string $varPage = 'page', int $default = 1): int
     {
-        $page = Container::get('request')->param($varPage);
+        $page = Container::pull('request')->param($varPage);
 
         if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int) $page >= 1) {
             return $page;
@@ -182,7 +182,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      */
     public static function getCurrentPath(): string
     {
-        return Container::get('request')->baseUrl();
+        return Container::pull('request')->baseUrl();
     }
 
     public function total(): int

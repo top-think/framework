@@ -214,7 +214,7 @@ abstract class Connection
             }
 
             // 记录初始化信息
-            Container::get('log')->record('[ DB ] INIT ' . $config['type']);
+            Container::pull('log')->record('[ DB ] INIT ' . $config['type']);
 
             if (true === $name) {
                 $name = md5(serialize($config));
@@ -377,7 +377,7 @@ abstract class Connection
 
         if (!isset(self::$info[$schema])) {
             // 读取缓存
-            $cacheFile = Container::get('app')->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $schema . '.php';
+            $cacheFile = Container::pull('app')->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $schema . '.php';
 
             if (!$this->config['debug'] && is_file($cacheFile)) {
                 $info = include $cacheFile;
@@ -790,7 +790,7 @@ abstract class Connection
         $query->setOption('data', $data);
 
         if (isset($options['key'])) {
-            $result = Container::get('cache')->get($options['key']);
+            $result = Container::pull('cache')->get($options['key']);
 
             if (false !== $result) {
                 return $result;
@@ -1066,7 +1066,7 @@ abstract class Connection
         $bind = $query->getBind();
 
         // 检测缓存
-        $cache = Container::get('cache');
+        $cache = Container::pull('cache');
 
         if (isset($key) && $cache->get($key)) {
             // 删除缓存
@@ -1128,7 +1128,7 @@ abstract class Connection
         $bind = $query->getBind();
 
         // 检测缓存
-        $cache = Container::get('cache');
+        $cache = Container::pull('cache');
 
         if (isset($key) && $cache->get($key)) {
             // 删除缓存
@@ -1761,7 +1761,7 @@ abstract class Connection
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
-            $debug = Container::get('debug');
+            $debug = Container::pull('debug');
 
             if ($start) {
                 $debug->remark('queryStartTime', 'time');
@@ -1830,7 +1830,7 @@ abstract class Connection
 
     public function log($log, string $type = 'sql'): void
     {
-        $this->config['debug'] && Container::get('log')->record($log, $type);
+        $this->config['debug'] && Container::pull('log')->record($log, $type);
     }
 
     /**
@@ -1934,7 +1934,7 @@ abstract class Connection
      */
     protected function cacheData(CacheItem $cacheItem): void
     {
-        $cache = Container::get('cache');
+        $cache = Container::pull('cache');
 
         if ($cacheItem->getTag()) {
             $cache->tag($cacheItem->getTag());
@@ -1956,7 +1956,7 @@ abstract class Connection
     protected function getCacheData(CacheItem $cacheItem)
     {
         // 判断查询缓存
-        return Container::get('cache')->get($cacheItem->getKey());
+        return Container::pull('cache')->get($cacheItem->getKey());
     }
 
     /**

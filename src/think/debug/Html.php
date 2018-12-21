@@ -39,7 +39,7 @@ class Html
      */
     public function output(Response $response, array $log = [])
     {
-        $request     = Container::get('request');
+        $request     = Container::pull('request');
         $contentType = $response->getHeader('Content-Type');
         $accept      = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
@@ -48,9 +48,9 @@ class Html
             return false;
         }
         // 获取基本信息
-        $runtime = number_format(microtime(true) - Container::get('app')->getBeginTime(), 10, '.', '');
+        $runtime = number_format(microtime(true) - Container::pull('app')->getBeginTime(), 10, '.', '');
         $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $mem     = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
+        $mem     = number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024, 2);
 
         // 页面Trace信息
         if ($request->host()) {
@@ -62,15 +62,15 @@ class Html
         $base = [
             '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
             '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
-            '查询信息' => Container::get('db')->getQueryTimes() . ' queries ' . Container::get('db')->getExecuteTimes() . ' writes ',
-            '缓存信息' => Container::get('cache')->getReadTimes() . ' reads,' . Container::get('cache')->getWriteTimes() . ' writes',
+            '查询信息' => Container::pull('db')->getQueryTimes() . ' queries ' . Container::pull('db')->getExecuteTimes() . ' writes ',
+            '缓存信息' => Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes',
         ];
 
         if (session_id()) {
             $base['会话信息'] = 'SESSION_ID=' . session_id();
         }
 
-        $info = Container::get('debug')->getFile(true);
+        $info = Container::pull('debug')->getFile(true);
 
         // 页面Trace信息
         $trace = [];
