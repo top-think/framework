@@ -69,6 +69,11 @@ class Redis extends Driver
                     unset($this->options[$key]);
                 }
             }
+
+            if ('' == $this->options['password']) {
+                unset($this->options['password']);
+            }
+
             $this->handler = new \Predis\Client($this->options, $params);
 
             $this->options['prefix'] = '';
@@ -134,14 +139,14 @@ class Redis extends Driver
         $value = $this->serialize($value);
 
         if ($expire) {
-            $result = $this->handler->setex($key, $expire, $value);
+            $this->handler->setex($key, $expire, $value);
         } else {
-            $result = $this->handler->set($key, $value);
+            $this->handler->set($key, $value);
         }
 
         isset($first) && $this->setTagItem($key);
 
-        return $result;
+        return true;
     }
 
     /**
@@ -186,7 +191,8 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        return $this->handler->delete($this->getCacheKey($name));
+        $this->handler->del($this->getCacheKey($name));
+        return true;
     }
 
     /**
@@ -202,16 +208,17 @@ class Redis extends Driver
             $keys = $this->getTagItem($tag);
 
             foreach ($keys as $key) {
-                $this->handler->delete($key);
+                $this->handler->del($key);
             }
 
-            $this->handler->delete($tag);
+            $this->handler->del($tag);
             return true;
         }
 
         $this->writeTimes++;
 
-        return $this->handler->flushDB();
+        $this->handler->flushDB();
+        return true;
     }
 
     /**
@@ -230,7 +237,7 @@ class Redis extends Driver
             $this->tag = $name;
         } else {
             if ($overlay) {
-                $this->handler->delete($name);
+                $this->handler->del($name);
             }
 
             foreach ($keys as $key) {
