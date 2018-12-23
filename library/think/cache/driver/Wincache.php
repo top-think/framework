@@ -160,10 +160,11 @@ class Wincache extends Driver
     {
         if ($tag) {
             $keys = $this->getTagItem($tag);
-            foreach ($keys as $key) {
-                wincache_ucache_delete($key);
-            }
-            $this->rm('tag_' . md5($tag));
+
+            wincache_ucache_delete($keys);
+
+            $tagName = $this->getTagkey($tag);
+            $this->rm($tagName);
             return true;
         } else {
             $this->writeTimes++;

@@ -204,13 +204,12 @@ class Redis extends Driver
     {
         if ($tag) {
             // 指定标签清除
-            $keys = $this->getTagItem($tag);
+            $keys = $this->getTagItems($tag);
 
-            foreach ($keys as $key) {
-                $this->handler->del($key);
-            }
+            $this->handler->del($keys);
 
-            $this->handler->del('tag_' . $tag);
+            $tagName = $this->getTagKey($tag);
+            $this->handler->del($tagName);
             return true;
         }
 
@@ -229,17 +228,16 @@ class Redis extends Driver
      */
     public function tag($name, $keys = null, $overlay = false)
     {
-        if (is_null($name)) {
-
-        } elseif (is_null($keys)) {
+        if (is_null($keys)) {
             $this->tag = $name;
         } else {
+            $tagName = $this->getTagKey($name);
             if ($overlay) {
-                $this->handler->del('tag_' . $name);
+                $this->handler->del($tagName);
             }
 
             foreach ($keys as $key) {
-                $this->handler->sAdd('tag_' . $name, $key);
+                $this->handler->sAdd($tagName, $key);
             }
         }
 
@@ -255,7 +253,8 @@ class Redis extends Driver
     protected function setTagItem($name)
     {
         if ($this->tag) {
-            $this->handler->sAdd('tag_' . $this->tag, $name);
+            $tagName = $this->getTagKey($this->tag);
+            $this->handler->sAdd($tagName, $name);
         }
     }
 
@@ -267,6 +266,7 @@ class Redis extends Driver
      */
     protected function getTagItem($tag)
     {
-        return $this->handler->sMembers('tag_' . $tag);
+        $tagName = $this->getTagKey($tag);
+        return $this->handler->sMembers($tagName);
     }
 }
