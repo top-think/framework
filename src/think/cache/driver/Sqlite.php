@@ -26,6 +26,7 @@ class Sqlite extends Driver
         'expire'     => 0,
         'persistent' => false,
         'serialize'  => true,
+        'tag_prefix' => 'tag_',
     ];
 
     /**
@@ -230,9 +231,9 @@ class Sqlite extends Driver
         return true;
     }
 
-    public function clearTag($tag)
+    public function clearTag(string $tag): void
     {
-        $name = sqlite_escape_string($tag);
+        $name = sqlite_escape_string($this->getTagKey($tag));
         $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
         sqlite_query($this->handler, $sql);
     }

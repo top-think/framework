@@ -29,6 +29,7 @@ class File extends Driver
         'hash_type'     => 'md5',
         'data_compress' => false,
         'serialize'     => true,
+        'tag_prefix'    => 'tag_',
     ];
 
     protected $expire;
@@ -299,7 +300,7 @@ class File extends Driver
             $this->unlink($key);
         }
 
-        $this->rm('tag_' . md5($tag));
+        $this->rm($this->getTagKey($tag));
     }
 
     /**

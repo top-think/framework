@@ -16,15 +16,16 @@ use think\cache\Driver;
 class Memcached extends Driver
 {
     protected $options = [
-        'host'      => '127.0.0.1',
-        'port'      => 11211,
-        'expire'    => 0,
-        'timeout'   => 0, // 超时时间（单位：毫秒）
-        'prefix'    => '',
-        'username'  => '', //账号
-        'password'  => '', //密码
-        'option'    => [],
-        'serialize' => true,
+        'host'       => '127.0.0.1',
+        'port'       => 11211,
+        'expire'     => 0,
+        'timeout'    => 0, // 超时时间（单位：毫秒）
+        'prefix'     => '',
+        'username'   => '', //账号
+        'password'   => '', //密码
+        'option'     => [],
+        'serialize'  => true,
+        'tag_prefix' => 'tag_',
     ];
 
     /**
@@ -211,7 +212,7 @@ class Memcached extends Driver
         return $this->handler->flush();
     }
 
-    public function clearTag(string $tag)
+    public function clearTag(string $tag): void
     {
         // 指定标签清除
         $keys = $this->getTagItems($tag);
@@ -219,6 +220,40 @@ class Memcached extends Driver
         $this->handler->deleteMulti($keys);
 
         $tagName = $this->getTagKey($tag);
-        $this->handler->del($tagName);
+        $this->handler->delete($tagName);
+    }
+
+    /**
+     * 更新标签
+     * @access protected
+     * @param  string $name 缓存标识
+     * @return void
+     */
+    protected function setTagItem(string $name): void
+    {
+        if ($this->tag) {
+            foreach ($this->tag as $tag) {
+                $tagName = $this->getTagKey($tag);
+                if ($this->handler->has($tagName)) {
+                    $this->handler->append($tagName, ',' . $name);
+                } else {
+                    $this->handler->set($tagName, $name);
+                }
+            }
+
+            $this->tag = null;
+        }
+    }
+
+    /**
+     * 获取标签包含的缓存标识
+     * @access public
+     * @param  string $tag 缓存标签
+     * @return array
+     */
+    public function getTagItems(string $tag): array
+    {
+        $tagName = $this->getTagKey($tag);
+        return explode(',', $this->handler->get($tagName));
     }
 }

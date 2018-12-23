@@ -20,9 +20,10 @@ use think\cache\Driver;
 class Wincache extends Driver
 {
     protected $options = [
-        'prefix'    => '',
-        'expire'    => 0,
-        'serialize' => true,
+        'prefix'     => '',
+        'expire'     => 0,
+        'serialize'  => true,
+        'tag_prefix' => 'tag_',
     ];
 
     /**
@@ -168,11 +169,12 @@ class Wincache extends Driver
         return wincache_ucache_clear();
     }
 
-    public function clearTag($tag)
+    public function clearTag(string $tag): void
     {
         $keys = $this->getTagItem($tag);
 
         wincache_ucache_delete($keys);
+
         $tagName = $this->getTagkey($tag);
         wincache_ucache_delete($tagName);
     }

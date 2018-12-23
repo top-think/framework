@@ -216,7 +216,7 @@ class Redis extends Driver
         return true;
     }
 
-    public function clearTag(string $tag)
+    public function clearTag(string $tag): void
     {
         // 指定标签清除
         $keys = $this->getTagItems($tag);
@@ -225,19 +225,6 @@ class Redis extends Driver
 
         $tagName = $this->getTagKey($tag);
         $this->handler->del($tagName);
-    }
-
-    /**
-     * 缓存标签
-     * @access public
-     * @param  string|array        $name 标签名
-     * @return $this
-     */
-    public function tag($name)
-    {
-        $this->tag = (array) $name;
-
-        return $this;
     }
 
     /**
@@ -270,8 +257,4 @@ class Redis extends Driver
         return $this->handler->sMembers($tagName);
     }
 
-    protected function getTagKey(string $tag): string
-    {
-        return $this->options['tag_prefix'] . $tag;
-    }
 }

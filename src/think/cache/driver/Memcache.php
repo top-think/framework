@@ -23,6 +23,7 @@ class Memcache extends Driver
         'persistent' => true,
         'prefix'     => '',
         'serialize'  => true,
+        'tag_prefix' => 'tag_',
     ];
 
     /**
@@ -196,16 +197,17 @@ class Memcache extends Driver
         return $this->handler->flush();
     }
 
-    public function clearTag(string $tag)
+    public function clearTag(string $tag): void
     {
         // 指定标签清除
         $keys = $this->getTagItems($tag);
 
         foreach ($keys as $key) {
-            $this->handler->del($key);
+            $this->handler->delete($key);
         }
 
         $tagName = $this->getTagKey($tag);
-        $this->handler->del($tagName);
+        $this->handler->delete($tagName);
     }
+
 }

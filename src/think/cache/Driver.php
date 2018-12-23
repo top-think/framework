@@ -143,7 +143,7 @@ abstract class Driver extends SimpleCache
     /**
      * 缓存标签
      * @access public
-     * @param  string        $name 标签名
+     * @param  string|array        $name 标签名
      * @return $this
      */
     public function tag($name)
@@ -162,25 +162,27 @@ abstract class Driver extends SimpleCache
     protected function setTagItem(string $name): void
     {
         if ($this->tag) {
-            $key       = 'tag_' . md5($this->tag);
-            $prev      = $this->tag;
+            $tags      = $this->tag;
             $this->tag = null;
 
-            if ($this->has($key)) {
-                $value   = explode(',', $this->get($key));
-                $value[] = $name;
+            foreach ($tags as $tag) {
+                $key = $this->getTagKey($tag);
 
-                if (count($value) > 1000) {
-                    array_shift($value);
+                if ($this->has($key)) {
+                    $value   = explode(',', $this->get($key));
+                    $value[] = $name;
+
+                    if (count($value) > 1000) {
+                        array_shift($value);
+                    }
+
+                    $value = implode(',', array_unique($value));
+                } else {
+                    $value = $name;
                 }
 
-                $value = implode(',', array_unique($value));
-            } else {
-                $value = $name;
+                $this->set($key, $value, 0);
             }
-
-            $this->set($key, $value, 0);
-            $this->tag = $prev;
         }
     }
 
@@ -192,7 +194,7 @@ abstract class Driver extends SimpleCache
      */
     protected function getTagItems(string $tag): array
     {
-        $key   = 'tag_' . md5($tag);
+        $key   = $this->getTagkey($tag);
         $value = $this->get($key);
 
         if ($value) {
@@ -200,6 +202,11 @@ abstract class Driver extends SimpleCache
         } else {
             return [];
         }
+    }
+
+    protected function getTagKey(string $tag): string
+    {
+        return $this->options['tag_prefix'] . md5($tag);
     }
 
     /**
