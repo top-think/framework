@@ -166,10 +166,10 @@ class Wincache extends Driver
             $tagName = $this->getTagkey($tag);
             $this->rm($tagName);
             return true;
-        } else {
-            $this->writeTimes++;
-            return wincache_ucache_clear();
         }
+
+        $this->writeTimes++;
+        return wincache_ucache_clear();
     }
 
 }

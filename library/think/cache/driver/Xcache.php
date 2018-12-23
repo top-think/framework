@@ -163,6 +163,7 @@ class Xcache extends Driver
             foreach ($keys as $key) {
                 xcache_unset($key);
             }
+
             $this->rm($this->getTagKey($tag));
             return true;
         }

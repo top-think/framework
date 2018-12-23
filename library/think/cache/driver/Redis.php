@@ -204,7 +204,7 @@ class Redis extends Driver
     {
         if ($tag) {
             // 指定标签清除
-            $keys = $this->getTagItems($tag);
+            $keys = $this->getTagItem($tag);
 
             $this->handler->del($keys);
 
