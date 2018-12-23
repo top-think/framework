@@ -73,10 +73,9 @@ abstract class SimpleCache implements CacheInterface
     /**
      * 清除缓存
      * @access public
-     * @param  string $tag 标签名
      * @return boolean
      */
-    abstract public function clear($tag = null);
+    abstract public function clear();
 
     /**
      * 删除缓存

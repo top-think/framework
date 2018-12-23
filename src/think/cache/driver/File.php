@@ -259,7 +259,6 @@ class File extends Driver
     /**
      * 清除缓存
      * @access public
-     * @param  string $tag 标签名
      * @return boolean
      */
     public function clear(): bool
