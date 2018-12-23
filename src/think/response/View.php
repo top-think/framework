@@ -77,7 +77,7 @@ class View extends Response
      * @param callable $filter
      * @return $this
      */
-    public function filter( ? callable $filter)
+    public function filter(? callable $filter)
     {
         $this->filter = $filter;
         return $this;
