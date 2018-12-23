@@ -262,15 +262,14 @@ class File extends Driver
      * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear($tag = null): bool
+    public function clear(): bool
     {
-        if ($tag) {
+        if ($this->tag) {
             // 指定标签清除
-            $keys = $this->getTagItem($tag);
-            foreach ($keys as $key) {
-                $this->unlink($key);
+            foreach ($this->tag as $tag) {
+                $this->clearTag($tag);
             }
-            $this->rm('tag_' . md5($tag));
+
             return true;
         }
 
@@ -291,6 +290,17 @@ class File extends Driver
         }
 
         return true;
+    }
+
+    public function clearTag(string $tag)
+    {
+        $keys = $this->getTagItems($tag);
+
+        foreach ($keys as $key) {
+            $this->unlink($key);
+        }
+
+        $this->rm('tag_' . md5($tag));
     }
 
     /**

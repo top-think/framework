@@ -194,17 +194,14 @@ class Memcached extends Driver
     /**
      * 清除缓存
      * @access public
-     * @param  string $tag 标签名
      * @return bool
      */
-    public function clear($tag = null): bool
+    public function clear(): bool
     {
-        if ($tag) {
-            // 指定标签清除
-            $keys = $this->getTagItem($tag);
-
-            $this->handler->deleteMulti($keys);
-            $this->rm('tag_' . md5($tag));
+        if ($this->tag) {
+            foreach ($this->tag as $tag) {
+                $this->clearTag($tag);
+            }
 
             return true;
         }
@@ -212,5 +209,16 @@ class Memcached extends Driver
         $this->writeTimes++;
 
         return $this->handler->flush();
+    }
+
+    public function clearTag(string $tag)
+    {
+        // 指定标签清除
+        $keys = $this->getTagItems($tag);
+
+        $this->handler->deleteMulti($keys);
+
+        $tagName = $this->getTagKey($tag);
+        $this->handler->del($tagName);
     }
 }

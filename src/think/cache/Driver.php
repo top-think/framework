@@ -45,7 +45,7 @@ abstract class Driver extends SimpleCache
 
     /**
      * 缓存标签
-     * @var string
+     * @var array
      */
     protected $tag;
 
@@ -144,33 +144,11 @@ abstract class Driver extends SimpleCache
      * 缓存标签
      * @access public
      * @param  string        $name 标签名
-     * @param  string|array  $keys 缓存标识
-     * @param  bool          $overlay 是否覆盖
      * @return $this
      */
-    public function tag(string $name, $keys = null, bool $overlay = false)
+    public function tag($name)
     {
-        if (is_null($name)) {
-
-        } elseif (is_null($keys)) {
-            $this->tag = $name;
-        } else {
-            $key = 'tag_' . md5($name);
-
-            if (is_string($keys)) {
-                $keys = explode(',', $keys);
-            }
-
-            $keys = array_map([$this, 'getCacheKey'], $keys);
-
-            if ($overlay) {
-                $value = $keys;
-            } else {
-                $value = array_unique(array_merge($this->getTagItem($name), $keys));
-            }
-
-            $this->set($key, implode(',', $value), 0);
-        }
+        $this->tag = (array) $name;
 
         return $this;
     }
@@ -207,7 +185,7 @@ abstract class Driver extends SimpleCache
      * @param  string $tag 缓存标签
      * @return array
      */
-    protected function getTagItem(string $tag): array
+    protected function getTagItems(string $tag): array
     {
         $key   = 'tag_' . md5($tag);
         $value = $this->get($key);

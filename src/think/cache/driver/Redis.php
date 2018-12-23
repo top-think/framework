@@ -32,6 +32,7 @@ class Redis extends Driver
         'persistent' => false,
         'prefix'     => '',
         'serialize'  => true,
+        'tag_prefix' => 'tag_',
     ];
 
     /**
@@ -198,20 +199,14 @@ class Redis extends Driver
     /**
      * 清除缓存
      * @access public
-     * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear($tag = null): bool
+    public function clear(): bool
     {
-        if ($tag) {
-            // 指定标签清除
-            $keys = $this->getTagItem($tag);
-
-            foreach ($keys as $key) {
-                $this->handler->del($key);
+        if ($this->tag) {
+            foreach ($this->tag as $tag) {
+                $this->clearTag($tag);
             }
-
-            $this->handler->del($tag);
             return true;
         }
 
@@ -221,29 +216,26 @@ class Redis extends Driver
         return true;
     }
 
+    public function clearTag(string $tag)
+    {
+        // 指定标签清除
+        $keys = $this->getTagItems($tag);
+
+        $this->handler->del($keys);
+
+        $tagName = $this->getTagKey($tag);
+        $this->handler->del($tagName);
+    }
+
     /**
      * 缓存标签
      * @access public
-     * @param  string        $name 标签名
-     * @param  string|array  $keys 缓存标识
-     * @param  bool          $overlay 是否覆盖
+     * @param  string|array        $name 标签名
      * @return $this
      */
-    public function tag(string $name, $keys = null, bool $overlay = false)
+    public function tag($name)
     {
-        if (is_null($name)) {
-
-        } elseif (is_null($keys)) {
-            $this->tag = $name;
-        } else {
-            if ($overlay) {
-                $this->handler->del($name);
-            }
-
-            foreach ($keys as $key) {
-                $this->handler->sAdd($name, $key);
-            }
-        }
+        $this->tag = (array) $name;
 
         return $this;
     }
@@ -257,18 +249,29 @@ class Redis extends Driver
     protected function setTagItem(string $name): void
     {
         if ($this->tag) {
-            $this->handler->sAdd($this->tag, $name);
+            foreach ($this->tag as $tag) {
+                $tagName = $this->getTagKey($tag);
+                $this->handler->sAdd($tagName, $name);
+            }
+
+            $this->tag = null;
         }
     }
 
     /**
      * 获取标签包含的缓存标识
-     * @access protected
+     * @access public
      * @param  string $tag 缓存标签
      * @return array
      */
-    protected function getTagItem(string $tag): array
+    public function getTagItems(string $tag): array
     {
-        return $this->handler->sMembers($tag);
+        $tagName = $this->getTagKey($tag);
+        return $this->handler->sMembers($tagName);
+    }
+
+    protected function getTagKey(string $tag): string
+    {
+        return $this->options['tag_prefix'] . $tag;
     }
 }

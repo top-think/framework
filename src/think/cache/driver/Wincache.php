@@ -153,22 +153,28 @@ class Wincache extends Driver
     /**
      * 清除缓存
      * @access public
-     * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear($tag = null): bool
+    public function clear(): bool
     {
-        if ($tag) {
-            $keys = $this->getTagItem($tag);
-            foreach ($keys as $key) {
-                wincache_ucache_delete($key);
+        if ($this->tag) {
+            foreach ($this->tag as $tag) {
+                $this->clearTag($tag);
             }
-            $this->rm('tag_' . md5($tag));
             return true;
-        } else {
-            $this->writeTimes++;
-            return wincache_ucache_clear();
         }
+
+        $this->writeTimes++;
+        return wincache_ucache_clear();
+    }
+
+    public function clearTag($tag)
+    {
+        $keys = $this->getTagItem($tag);
+
+        wincache_ucache_delete($keys);
+        $tagName = $this->getTagkey($tag);
+        wincache_ucache_delete($tagName);
     }
 
 }

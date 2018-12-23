@@ -210,15 +210,14 @@ class Sqlite extends Driver
     /**
      * 清除缓存
      * @access public
-     * @param  string $tag 标签名
      * @return boolean
      */
-    public function clear($tag = null): bool
+    public function clear(): bool
     {
-        if ($tag) {
-            $name = sqlite_escape_string($tag);
-            $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
-            sqlite_query($this->handler, $sql);
+        if ($this->tag) {
+            foreach ($this->tag as $tag) {
+                $this->clearTag($tag);
+            }
             return true;
         }
 
@@ -229,5 +228,12 @@ class Sqlite extends Driver
         sqlite_query($this->handler, $sql);
 
         return true;
+    }
+
+    public function clearTag($tag)
+    {
+        $name = sqlite_escape_string($tag);
+        $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
+        sqlite_query($this->handler, $sql);
     }
 }
