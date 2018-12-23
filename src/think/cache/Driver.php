@@ -169,7 +169,12 @@ abstract class Driver extends SimpleCache
             if ($this->has($key)) {
                 $value   = explode(',', $this->get($key));
                 $value[] = $name;
-                $value   = implode(',', array_unique($value));
+
+                if (count($value) > 1000) {
+                    array_shift($value);
+                }
+
+                $value = implode(',', array_unique($value));
             } else {
                 $value = $name;
             }
