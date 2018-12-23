@@ -220,7 +220,7 @@ class Memcached extends Driver
         $this->handler->deleteMulti($keys);
 
         $tagName = $this->getTagKey($tag);
-        $this->handler->delete($tagName);
+        $this->rm($tagName);
     }
 
     /**

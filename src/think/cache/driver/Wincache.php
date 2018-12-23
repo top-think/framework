@@ -176,7 +176,7 @@ class Wincache extends Driver
         wincache_ucache_delete($keys);
 
         $tagName = $this->getTagkey($tag);
-        wincache_ucache_delete($tagName);
+        $this->rm($tagName);
     }
 
 }

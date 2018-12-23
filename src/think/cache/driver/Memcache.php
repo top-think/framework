@@ -207,7 +207,7 @@ class Memcache extends Driver
         }
 
         $tagName = $this->getTagKey($tag);
-        $this->handler->delete($tagName);
+        $this->rm($tagName);
     }
 
 }
