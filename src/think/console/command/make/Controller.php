@@ -46,7 +46,7 @@ class Controller extends Make
 
     protected function getClassName(string $name)
     {
-        return parent::getClassName($name) . (Config::get('controller_suffix') ? ucfirst(Config::get('url_controller_layer')) : '');
+        return parent::getClassName($name) . (Config::get('class_suffix') ? ucfirst(Config::get('url_controller_layer')) : '');
     }
 
     protected function getNamespace(string $app)
