@@ -391,11 +391,7 @@ abstract class Rule
      */
     public function append(array $append = [])
     {
-        if (isset($this->option['append'])) {
-            $this->option['append'] = array_merge($this->option['append'], $append);
-        } else {
-            $this->option['append'] = $append;
-        }
+        $this->option['append'] = $append;
 
         return $this;
     }
@@ -431,17 +427,12 @@ abstract class Rule
     /**
      * 设置Response Header信息
      * @access public
-     * @param  string|array $name  参数名
-     * @param  string       $value 参数值
+     * @param  array $header  头信息
      * @return $this
      */
-    public function header($header, $value = null)
+    public function header(array $header)
     {
-        if (is_array($header)) {
-            $this->option['header'] = $header;
-        } else {
-            $this->option['header'][$header] = $value;
-        }
+        $this->option['header'] = $header;
 
         return $this;
     }
