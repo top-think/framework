@@ -179,7 +179,7 @@ class RuleGroup extends Rule
 
         if ($this->auto) {
             // 自动解析URL地址
-            $result = new UrlDispatch($request, $this, $this->auto . '/' . $url, ['depr' => $depr, 'auto_search' => false]);
+            $result = new UrlDispatch($request, $this, $this->auto . '/' . $url);
         } elseif ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
             $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->mergeGroupOptions());
@@ -368,7 +368,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule(): ?RuleItem
+    public function getMissRule():  ? RuleItem
     {
         return $this->miss;
     }
@@ -378,7 +378,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getAutoRule(): string
+    public function getAutoRule() : string
     {
         return $this->auto;
     }
@@ -553,7 +553,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName(): ?string
+    public function getFullName():  ? string
     {
         return $this->fullName;
     }
@@ -564,7 +564,7 @@ class RuleGroup extends Rule
      * @param  string     $method
      * @return array
      */
-    public function getRules(string $method = ''): array
+    public function getRules(string $method = '') : array
     {
         if ('' === $method) {
             return $this->rules;

@@ -739,7 +739,7 @@ class Route
      */
     public function url($url)
     {
-        return new UrlDispatch($this->request, $this->group, $url, ['auto_search' => $this->autoSearchController]);
+        return new UrlDispatch($this->request, $this->group, $url);
     }
 
     /**
