@@ -508,7 +508,7 @@ class App extends Container
 
         if (class_exists($class)) {
             return $this->make($class, [], true);
-        } elseif (class_exists($emptyClass = $this->parseClass($controllerLayer, 'error'))) {
+        } elseif (class_exists($emptyClass = $this->parseClass($this->controllerLayer, 'error'))) {
             return $this->make($emptyClass, [], true);
         }
 
