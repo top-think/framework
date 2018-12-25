@@ -35,7 +35,7 @@ class RouteCheck
         if ($app->route->config('route_annotation')) {
             // 自动生成注解路由定义
             if ($app->isDebug()) {
-                $suffix = $app->route->config('class_suffix');
+                $suffix = $app->hasClassSuffix();
                 $app->build->buildRoute($suffix);
             }
 

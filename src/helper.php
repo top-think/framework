@@ -604,19 +604,6 @@ if (!function_exists('view')) {
     }
 }
 
-if (!function_exists('widget')) {
-    /**
-     * 渲染输出Widget
-     * @param string    $name Widget名称
-     * @param array     $data 传入的参数
-     * @return mixed
-     */
-    function widget(string $name, array $data = [])
-    {
-        return app()->action($name, $data, 'widget');
-    }
-}
-
 if (!function_exists('xml')) {
     /**
      * 获取\think\response\Xml对象实例

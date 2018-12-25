@@ -93,7 +93,7 @@ class Cache implements CacheItemPoolInterface
         if (is_null($this->handler) || $force) {
             if ('complex' == $options['type']) {
                 $default = $options['default'];
-                $options = isset($options[$default['type']]) ? $options[$default['type']] : $default;
+                $options = $options[$default['type']] ?? $default;
             }
 
             $this->handler = $this->connect($options);

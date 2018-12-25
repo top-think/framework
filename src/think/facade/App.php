@@ -25,13 +25,8 @@ use think\Facade;
  * @method void log(mixed $log, string $type = 'info') static 记录调试信息
  * @method mixed config(string $name='') static 获取配置参数
  * @method \think\route\Dispatch routeCheck() static URL路由检测（根据PATH_INFO)
- * @method \think\App routeMust(bool $must = false) static 设置应用的路由检测机制
- * @method \think\Model model(string $name = '', string $layer = 'model', bool $appendSuffix = false, string $common = 'common') static 实例化模型
- * @method object controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '') static 实例化控制器
- * @method \think\Validate validate(string $name = '', string $layer = 'validate', bool $appendSuffix = false, string $common = 'common') static 实例化验证器类
- * @method \think\db\Query db(mixed $config = [], mixed $name = false) static 数据库初始化
- * @method mixed action(string $url, $vars = [], $layer = 'controller', $appendSuffix = false) static 调用模块的操作方法
- * @method string parseClass(string $layer, string $name, bool $appendSuffix = false) static 解析应用类的类名
+ * @method object controller(string $name) static 实例化控制器
+ * @method string parseClass(string $layer, string $name) static 解析应用类的类名
  * @method string version() static 获取框架版本
  * @method bool isDebug() static 是否为调试模式
  * @method string getRootPath() static 获取应用根目录
@@ -43,10 +38,9 @@ use think\Facade;
  * @method string getConfigExt() static 获取配置后缀
  * @method string setNamespace(string $namespace) static 设置应用类库命名空间
  * @method string getNamespace() static 获取应用类库命名空间
- * @method string getSuffix() static 是否启用类库后缀
+ * @method string hasClassSuffix() static 是否启用类库后缀
  * @method float getBeginTime() static 获取应用开启时间
  * @method integer getBeginMem() static 获取应用初始内存占用
- * @method \think\Container container() static 获取容器实例
  */
 class App extends Facade
 {

@@ -213,10 +213,9 @@ class Debug
      * @param  mixed         $var 变量
      * @param  boolean       $echo 是否输出 默认为true 如果为false 则返回输出字符串
      * @param  string        $label 标签 默认为空
-     * @param  integer       $flags htmlspecialchars flags
      * @return void|string
      */
-    public function dump($var, bool $echo = true, string $label = null, int $flags = ENT_SUBSTITUTE)
+    public function dump($var, bool $echo = true, string $label = null)
     {
         $label = (null === $label) ? '' : rtrim($label) . ':';
         if ($var instanceof Model || $var instanceof ModelCollection) {
@@ -233,12 +232,12 @@ class Debug
             $output = PHP_EOL . $label . $output . PHP_EOL;
         } else {
             if (!extension_loaded('xdebug')) {
-                $output = htmlspecialchars($output, $flags);
+                $output = htmlspecialchars($output, ENT_SUBSTITUTE);
             }
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         }
         return $output;

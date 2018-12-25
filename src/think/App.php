@@ -131,6 +131,12 @@ class App extends Container
     protected $multi = false;
 
     /**
+     * 访问控制器层名称
+     * @var string
+     */
+    protected $controllerLayer = 'controller';
+
+    /**
      * 架构方法
      * @access public
      * @param  string $rootPath 应用根目录
@@ -204,6 +210,18 @@ class App extends Container
     }
 
     /**
+     * 设置控制器层名称
+     * @access public
+     * @param  string $layer 控制器层名称
+     * @return $this
+     */
+    public function controllerLayer(string $layer)
+    {
+        $this->controllerLayer = $layer;
+        return $this;
+    }
+
+    /**
      * 设置应用命名空间
      * @access public
      * @param  string $namespace 应用命名空间
@@ -233,7 +251,7 @@ class App extends Container
      * @param  bool  $suffix 启用应用类库后缀
      * @return $this
      */
-    public function suffix(bool $suffix)
+    public function useClassSuffix(bool $suffix)
     {
         $this->suffix = $suffix;
         return $this;
@@ -274,10 +292,6 @@ class App extends Container
         $this->config->set(include $this->rootPath . 'convention.php');
 
         $this->init();
-
-        if (!$this->suffix) {
-            $this->suffix = $this->config['app.class_suffix'];
-        }
 
         $this->debugModeInit();
 
@@ -485,19 +499,16 @@ class App extends Container
      * 实例化（分层）控制器 格式：[模块名/]控制器名
      * @access public
      * @param  string $name              资源地址
-     * @param  string $layer             控制层名称
-     * @param  bool   $appendSuffix      是否添加类名后缀
-     * @param  string $empty             空控制器名称
      * @return object
      * @throws ClassNotFoundException
      */
-    public function controller(string $name, string $layer = 'controller', bool $appendSuffix = false, string $empty = '')
+    public function controller(string $name)
     {
-        $class = $this->parseClass($layer, $name, $appendSuffix);
+        $class = $this->parseClass($this->controllerLayer, $name);
 
         if (class_exists($class)) {
             return $this->make($class, [], true);
-        } elseif ($empty && class_exists($emptyClass = $this->parseClass($layer, $empty, $appendSuffix))) {
+        } elseif ($empty && class_exists($emptyClass = $this->parseClass($controllerLayer, 'error'))) {
             return $this->make($emptyClass, [], true);
         }
 
@@ -505,46 +516,17 @@ class App extends Container
     }
 
     /**
-     * 远程调用模块的操作方法 参数格式 [模块/控制器/]操作
-     * @access public
-     * @param  string       $url          调用地址
-     * @param  string|array $vars         调用参数 支持字符串和数组
-     * @param  string       $layer        要调用的控制层名称
-     * @param  bool         $appendSuffix 是否添加类名后缀
-     * @return mixed
-     * @throws ClassNotFoundException
-     */
-    public function action(string $url, $vars = [], string $layer = 'controller', bool $appendSuffix = false)
-    {
-        $info       = pathinfo($url);
-        $action     = $info['basename'];
-        $controller = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
-        $class      = $this->controller($controller, $layer, $appendSuffix);
-
-        if (is_scalar($vars)) {
-            if (strpos($vars, '=')) {
-                parse_str($vars, $vars);
-            } else {
-                $vars = [$vars];
-            }
-        }
-
-        return $this->invokeMethod([$class, $action . $this->config['action_suffix']], $vars);
-    }
-
-    /**
      * 解析应用类的类名
      * @access public
      * @param  string $layer  层名 controller model ...
      * @param  string $name   类名
-     * @param  bool   $appendSuffix
      * @return string
      */
-    public function parseClass(string $layer, string $name, bool $appendSuffix = false): string
+    public function parseClass(string $layer, string $name): string
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
+        $class = self::parseName(array_pop($array), 1) . ($this->suffix ? ucfirst($layer) : '');
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . $layer . '\\' . $path . $class;
@@ -685,7 +667,7 @@ class App extends Container
      * @access public
      * @return bool
      */
-    public function getSuffix(): bool
+    public function hasClassSuffix(): bool
     {
         return $this->suffix;
     }
@@ -708,6 +690,16 @@ class App extends Container
     public function getBeginMem(): int
     {
         return $this->beginMem;
+    }
+
+    /**
+     * 获取控制器层名称
+     * @access public
+     * @return string
+     */
+    public function getControllerLayer(): string
+    {
+        return $this->controllerLayer;
     }
 
     // 获取应用根目录
