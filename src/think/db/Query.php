@@ -491,64 +491,6 @@ class Query
     }
 
     /**
-     * 得到分表的的数据表名
-     * @access public
-     * @param  array  $data  操作的数据
-     * @param  string $field 分表依据的字段
-     * @param  array  $rule  分表规则
-     * @return mixed
-     */
-    public function getPartitionTableName(array $data, string $field, array $rule = [])
-    {
-        // 对数据表进行分区
-        if ($field && isset($data[$field])) {
-            $value = $data[$field];
-            $type  = $rule['type'];
-            switch ($type) {
-                case 'id':
-                    // 按照id范围分表
-                    $step = $rule['expr'];
-                    $seq  = floor($value / $step) + 1;
-                    break;
-                case 'year':
-                    // 按照年份分表
-                    if (!is_numeric($value)) {
-                        $value = strtotime($value);
-                    }
-                    $seq = date('Y', $value) - $rule['expr'] + 1;
-                    break;
-                case 'mod':
-                    // 按照id的模数分表
-                    $seq = ($value % $rule['num']) + 1;
-                    break;
-                case 'md5':
-                    // 按照md5的序列分表
-                    $seq = (ord(substr(md5($value), 0, 1)) % $rule['num']) + 1;
-                    break;
-                default:
-                    if (function_exists($type)) {
-                        // 支持指定函数哈希
-                        $seq = (ord(substr($type($value), 0, 1)) % $rule['num']) + 1;
-                    } else {
-                        // 按照字段的首字母的值分表
-                        $seq = (ord($value{0}) % $rule['num']) + 1;
-                    }
-            }
-
-            return $this->getTable() . '_' . $seq;
-        }
-        // 当设置的分表字段不在查询条件或者数据中
-        // 进行联合查询，必须设定 partition['num']
-        $tableName = [];
-
-        for ($i = 0; $i < $rule['num']; $i++) {
-            $tableName[] = 'SELECT * FROM ' . $this->getTable() . '_' . ($i + 1);
-        }
-
-        return ['( ' . implode(" UNION ", $tableName) . ' )' => $this->name];
-    }
-
-    /**
      * 得到某个字段的值
      * @access public
      * @param  string $field   字段名
@@ -1081,21 +1023,6 @@ class Query
         } else {
             $this->table($table);
         }
-
-        return $this;
-    }
-
-    /**
-     * 设置分表规则
-     * @access public
-     * @param  array  $data  操作的数据
-     * @param  string $field 分表依据的字段
-     * @param  array  $rule  分表规则
-     * @return $this
-     */
-    public function partition(array $data, string $field, array $rule = [])
-    {
-        $this->options['table'] = $this->getPartitionTableName($data, $field, $rule);
 
         return $this;
     }
