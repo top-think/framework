@@ -748,7 +748,7 @@ abstract class Builder
             if (strpos($on, '=')) {
                 list($val1, $val2) = explode('=', $on, 2);
 
-                $condition = $this->parseKey($query, $val1, true) . '=' . $this->parseKey($query, $val2, true);
+                $condition = $this->parseKey($query, $val1) . '=' . $this->parseKey($query, $val2);
             } else {
                 $condition = $on;
             }
