@@ -2021,18 +2021,6 @@ class Query
     }
 
     /**
-     * 是否允许返回空数据（或空模型）
-     * @access public
-     * @param  bool $allowEmpty 是否允许为空
-     * @return $this
-     */
-    public function allowEmpty(bool $allowEmpty = true)
-    {
-        $this->options['allow_empty'] = $allowEmpty;
-        return $this;
-    }
-
-    /**
      * 添加查询范围
      * @access public
      * @param  array|string|Closure   $scope 查询范围定义
