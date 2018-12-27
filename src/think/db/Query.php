@@ -716,11 +716,16 @@ class Query
      * @param  mixed  $join      关联的表名
      * @param  mixed  $condition 条件
      * @param  string $type      JOIN类型
+     * @param  array  $bind      参数绑定
      * @return $this
      */
-    public function join($join, $condition = null, string $type = 'INNER')
+    public function join($join, string $condition = null, string $type = 'INNER', array $bind = [])
     {
         $table = $this->getJoinTable($join);
+
+        if ($bind) {
+            $this->bindParams($condition, $bind);
+        }
 
         $this->options['join'][] = [$table, strtoupper($type), $condition];
 
@@ -732,11 +737,12 @@ class Query
      * @access public
      * @param  mixed  $join      关联的表名
      * @param  mixed  $condition 条件
+     * @param  array  $bind      参数绑定
      * @return $this
      */
-    public function leftJoin($join, $condition = null)
+    public function leftJoin($join, string $condition = null, array $bind = [])
     {
-        return $this->join($join, $condition, 'LEFT');
+        return $this->join($join, $condition, 'LEFT', $bind);
     }
 
     /**
@@ -744,11 +750,12 @@ class Query
      * @access public
      * @param  mixed  $join      关联的表名
      * @param  mixed  $condition 条件
+     * @param  array  $bind      参数绑定
      * @return $this
      */
-    public function rightJoin($join, $condition = null)
+    public function rightJoin($join, string $condition = null, array $bind = [])
     {
-        return $this->join($join, $condition, 'RIGHT');
+        return $this->join($join, $condition, 'RIGHT', $bind);
     }
 
     /**
@@ -756,9 +763,10 @@ class Query
      * @access public
      * @param  mixed  $join      关联的表名
      * @param  mixed  $condition 条件
+     * @param  array  $bind      参数绑定
      * @return $this
      */
-    public function fullJoin($join, $condition = null)
+    public function fullJoin($join, string $condition = null, array $bind = [])
     {
         return $this->join($join, $condition, 'FULL');
     }
@@ -1329,7 +1337,7 @@ class Query
             return $this->whereRaw($field, is_array($op) ? $op : []);
         } elseif ($strict) {
             // 使用严格模式查询
-            $where = [$field, $op, $condition];
+            $where = [$field, $op, $condition, $logic];
         } elseif (is_array($field)) {
             // 解析数组批量查询
             return $this->parseArrayWhereItems($field, $logic);
