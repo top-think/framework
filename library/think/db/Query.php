@@ -1520,7 +1520,7 @@ class Query
             return $this->whereRaw($field, is_array($op) ? $op : []);
         } elseif ($strict) {
             // 使用严格模式查询
-            $where = [$field, $op, $condition];
+            $where = [$field, $op, $condition, $logic];
         } elseif (is_array($field)) {
             // 解析数组批量查询
             return $this->parseArrayWhereItems($field, $logic);
