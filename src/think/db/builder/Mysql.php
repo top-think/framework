@@ -15,6 +15,7 @@ namespace think\db\builder;
 use think\db\Builder;
 use think\db\Expression;
 use think\db\Query;
+use think\Exception;
 
 /**
  * mysql数据库驱动

@@ -14,6 +14,7 @@ namespace think\db\builder;
 use think\db\Builder;
 use think\db\Expression;
 use think\db\Query;
+use think\Exception;
 
 /**
  * Sqlsrv数据库驱动
