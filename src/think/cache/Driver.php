@@ -53,7 +53,7 @@ abstract class Driver extends SimpleCache
      * 序列化方法
      * @var array
      */
-    protected static $serialize = ['serialize', 'unserialize', 'think_serialize:', 16];
+    protected static $serialize = ['\think\facade\App::serialize', '\think\facade\App::unserialize', 'think_serialize:', 16];
 
     /**
      * 获取有效期

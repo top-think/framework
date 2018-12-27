@@ -69,7 +69,7 @@ class Route extends Command
         }
 
         $content = '<?php ' . PHP_EOL . 'return ';
-        $content .= var_export(Container::pull('route')->getName(), true) . ';';
+        $content .= '\think\facade\App::unserialize(\'' . \think\facade\App::serialize(Container::pull('route')->getName()) . '\');';
         return $content;
     }
 
