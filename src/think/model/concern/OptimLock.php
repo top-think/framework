@@ -69,7 +69,7 @@ trait OptimLock
         $optimLock = $this->getOptimLockField();
 
         if ($optimLock && !isset($data[$optimLock])) {
-            $data[$this->optimLock] = 0;
+            $data[$optimLock] = 0;
         }
     }
 
