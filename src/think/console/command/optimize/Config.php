@@ -131,7 +131,7 @@ class Config extends Command
             }
         }
 
-        $content .= PHP_EOL . '\think\facade\Config::set(' . var_export($config->get(), true) . ');' . PHP_EOL;
+        $content .= PHP_EOL . '\think\facade\Config::set(\think\facade\App::unserialize(\'' . \think\facade\App::serialize($config->get()) . '\'));' . PHP_EOL;
 
         return $header . str_replace('declare (strict_types = 1);', '', $content);
     }

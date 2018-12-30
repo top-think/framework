@@ -332,7 +332,11 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
             $this->setAttr($field, !is_null($value) ? $value : $default);
         }
+
     }
+
+    protected function checkData(array &$data): void
+    {}
 
     /**
      * 更新是否强制写入数据 而不做比较
@@ -507,6 +511,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
             return false;
         }
 
+        $this->checkData($this->data);
+
         // 获取有更新的数据
         $data = $this->getChangedData();
 
@@ -608,6 +614,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
         if (false === $this->trigger('before_insert')) {
             return false;
         }
+
+        $this->checkData($this->data);
 
         // 检查允许字段
         $allowFields = $this->checkAllowFields($auto);

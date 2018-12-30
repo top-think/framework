@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Opis\Closure\SerializableClosure;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
 
@@ -790,5 +791,23 @@ class App extends Container
         }
 
         throw new ClassNotFoundException('class not exists:' . $class, $class);
+    }
+
+    public static function serialize($data): string
+    {
+        SerializableClosure::enterContext();
+        SerializableClosure::wrapClosures($data);
+        $data = \serialize($data);
+        SerializableClosure::exitContext();
+        return $data;
+    }
+
+    public static function unserialize(string $data)
+    {
+        SerializableClosure::enterContext();
+        $data = \unserialize($data);
+        SerializableClosure::unwrapClosures($data);
+        SerializableClosure::exitContext();
+        return $data;
     }
 }

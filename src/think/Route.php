@@ -737,7 +737,7 @@ class Route
      * @param  string    $url URL地址
      * @return Dispatch
      */
-    public function url($url)
+    public function url(string $url): UrlDispatch
     {
         return new UrlDispatch($this->request, $this->group, $url);
     }
