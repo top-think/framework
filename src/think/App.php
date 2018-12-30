@@ -137,6 +137,12 @@ class App extends Container
     protected $controllerLayer = 'controller';
 
     /**
+     * 空控制器层名称
+     * @var string
+     */
+    protected $emptyController = 'Error';
+
+    /**
      * 架构方法
      * @access public
      * @param  string $rootPath 应用根目录
@@ -218,6 +224,18 @@ class App extends Container
     public function controllerLayer(string $layer)
     {
         $this->controllerLayer = $layer;
+        return $this;
+    }
+
+    /**
+     * 设置空控制器名称
+     * @access public
+     * @param  string $empty 空控制器层名称
+     * @return $this
+     */
+    public function emptyController(string $empty)
+    {
+        $this->emptyController = $empty;
         return $this;
     }
 
@@ -438,7 +456,7 @@ class App extends Container
         }
     }
 
-    protected function loadEvent($event)
+    protected function loadEvent(array $event): void
     {
         if (isset($event['bind'])) {
             $this->event->bind($event['bind']);
@@ -496,7 +514,7 @@ class App extends Container
     }
 
     /**
-     * 实例化（分层）控制器 格式：[模块名/]控制器名
+     * 实例化访问控制器 格式：控制器名
      * @access public
      * @param  string $name              资源地址
      * @return object
@@ -508,7 +526,11 @@ class App extends Container
 
         if (class_exists($class)) {
             return $this->make($class, [], true);
-        } elseif (class_exists($emptyClass = $this->parseClass($this->controllerLayer, 'error'))) {
+        }
+
+        $emptyClass = $this->parseClass($this->controllerLayer, $this->emptyController);
+
+        if (class_exists($emptyClass)) {
             return $this->make($emptyClass, [], true);
         }
 
@@ -703,7 +725,7 @@ class App extends Container
     }
 
     // 获取应用根目录
-    public function getDefaultRootPath()
+    public function getDefaultRootPath(): string
     {
         $path = realpath(dirname($this->scriptName));
 
@@ -714,7 +736,7 @@ class App extends Container
         return $path . DIRECTORY_SEPARATOR;
     }
 
-    protected function getScriptName()
+    protected function getScriptName(): string
     {
         return 'cli' == PHP_SAPI ? realpath($_SERVER['argv'][0]) : $_SERVER['SCRIPT_FILENAME'];
     }
@@ -746,7 +768,7 @@ class App extends Container
      * @param  string|object $class
      * @return string
      */
-    public static function classBaseName($class)
+    public static function classBaseName($class): string
     {
         $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
