@@ -943,6 +943,10 @@ class Query
      */
     public function union($union, $all = false)
     {
+        if (empty($union)) {
+            return $this;
+        }
+
         $this->options['union']['type'] = $all ? 'UNION ALL' : 'UNION';
 
         if (is_array($union)) {
