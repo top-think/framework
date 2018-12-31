@@ -597,88 +597,6 @@ class Query
     }
 
     /**
-     * 设置记录的某个字段值
-     * @access public
-     * @param  string       $field 字段名
-     * @param  mixed        $value 字段值
-     * @return integer
-     */
-    public function setField(string $field, $value): int
-    {
-        return $this->update([$field => $value]);
-    }
-
-    /**
-     * 字段值(延迟)增长
-     * @access public
-     * @param  string  $field    字段名
-     * @param  integer $step     增长值
-     * @param  integer $lazyTime 延时时间(s)
-     * @return integer|true
-     * @throws Exception
-     */
-    public function setInc(string $field, int $step = 1, int $lazyTime = 0)
-    {
-        $condition = $this->options['where'] ?? [];
-
-        if (empty($condition)) {
-            // 没有条件不做任何更新
-            throw new Exception('no data to update');
-        }
-
-        if ($lazyTime > 0) {
-            // 延迟写入
-            $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
-            $step = $this->lazyWrite('inc', $guid, $step, $lazyTime);
-
-            if (false === $step) {
-                // 清空查询条件
-                $this->options = [];
-                return true;
-            }
-        }
-
-        return $this->setField($field, ['INC', $step]);
-    }
-
-    /**
-     * 字段值（延迟）减少
-     * @access public
-     * @param  string  $field    字段名
-     * @param  integer $step     减少值
-     * @param  integer $lazyTime 延时时间(s)
-     * @return integer|true
-     * @throws Exception
-     */
-    public function setDec(string $field, int $step = 1, int $lazyTime = 0)
-    {
-        $condition = $this->options['where'] ?? [];
-
-        if (empty($condition)) {
-            // 没有条件不做任何更新
-            throw new Exception('no data to update');
-        }
-
-        if ($lazyTime > 0) {
-            // 延迟写入
-            $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
-            $step = $this->lazyWrite('dec', $guid, $step, $lazyTime);
-
-            if (false === $step) {
-                // 清空查询条件
-                $this->options = [];
-                return true;
-            }
-
-            $value = ['INC', $step];
-        } else {
-            $value = ['DEC', $step];
-        }
-
-        return $this->setField($field, $value);
-    }
-
-    /**
      * 延时更新检查 返回false表示需要延时
      * 否则返回实际写入的数值
      * @access protected
@@ -937,10 +855,25 @@ class Query
      * @access public
      * @param  string       $field 字段名
      * @param  integer      $step  增长值
+     * @param  integer      $lazyTime 延时时间(s)
      * @return $this
      */
-    public function inc(string $field, int $step = 1, string $op = 'INC')
+    public function inc(string $field, int $step = 1, int $lazyTime = 0, string $op = 'INC')
     {
+        if ($lazyTime > 0) {
+            // 延迟写入
+            $condition = $this->options['where'] ?? [];
+
+            $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
+            $step = $this->lazyWrite($op, $guid, $step, $lazyTime);
+
+            if (false === $step) {
+                return $this;
+            }
+
+            $op = 'INC';
+        }
+
         $this->options['data'][$field] = [$op, $step];
 
         return $this;
@@ -953,7 +886,7 @@ class Query
      * @param  integer      $step  增长值
      * @return $this
      */
-    public function dec(string $field, int $step = 1)
+    public function dec(string $field, int $step = 1, int $lazyTime = 0)
     {
         return $this->inc($field, $step, 'DEC');
     }
@@ -991,7 +924,7 @@ class Query
      * @param  string       $type  JOIN类型
      * @return $this
      */
-    public function view($join, $field = true, $on = null, string $type = 'INNER')
+    public function view($join, $field = true, $on = null, string $type = 'INNER', array $bind = [])
     {
         $this->options['view'] = true;
 
@@ -1027,7 +960,7 @@ class Query
         $this->field($fields);
 
         if ($on) {
-            $this->join($table, $on, $type);
+            $this->join($table, $on, $type, $bind);
         } else {
             $this->table($table);
         }
