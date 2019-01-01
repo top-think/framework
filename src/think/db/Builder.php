@@ -231,7 +231,9 @@ abstract class Builder
         $options = $query->getOptions();
 
         foreach ((array) $tables as $key => $table) {
-            if (!is_numeric($key)) {
+            if ($table instanceof Expression) {
+                $item[] = $table->getValue();
+            } elseif (!is_numeric($key)) {
                 $item[] = $this->parseKey($query, $key) . ' ' . $this->parseKey($query, $table);
             } elseif (isset($options['alias'][$table])) {
                 $item[] = $this->parseKey($query, $table) . ' ' . $this->parseKey($query, $options['alias'][$table]);
