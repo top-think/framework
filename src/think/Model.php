@@ -213,7 +213,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     public function newInstance(array $data = [], bool $isUpdate = false, $where = null): Model
     {
-        return (new static($data))->isUpdate($isUpdate, $where);
+        return (new static($data))
+            ->isUpdate($isUpdate, $where)
+            ->trigger('after_read');
     }
 
     /**

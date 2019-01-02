@@ -1555,8 +1555,9 @@ class Query
                 $table  = [];
 
                 foreach ($tables as $item) {
-                    list($item, $alias) = explode(' ', trim($item));
-                    if ($alias) {
+                    $item = trim($item);
+                    if (strpos($item, ' ')) {
+                        list($item, $alias) = explode(' ', $item);
                         $this->alias([$item => $alias]);
                         $table[$item] = $alias;
                     } else {
