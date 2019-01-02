@@ -30,7 +30,7 @@ trait ModelEvent
      * 模型事件观察
      * @var array
      */
-    protected static $observe = ['before_write', 'after_write', 'before_insert', 'after_insert', 'before_update', 'after_update', 'before_delete', 'after_delete', 'before_restore', 'after_restore'];
+    protected static $observe = ['after_read', 'before_write', 'after_write', 'before_insert', 'after_insert', 'before_update', 'after_update', 'before_delete', 'after_delete', 'before_restore', 'after_restore'];
 
     /**
      * 绑定模型事件观察者类
@@ -45,30 +45,11 @@ trait ModelEvent
     protected $withEvent = true;
 
     /**
-     * 注册回调方法
-     * @access public
-     * @param  string   $event    事件名
-     * @param  callable $callback 回调方法
-     * @param  bool     $override 是否覆盖
-     * @return void
-     */
-    public static function event(string $event, callable $callback, bool $override = false): void
-    {
-        $class = static::class;
-
-        if ($override) {
-            self::$event[$class][$event] = [];
-        }
-
-        self::$event[$class][$event][] = $callback;
-    }
-
-    /**
      * 清除回调方法
      * @access public
      * @return void
      */
-    public static function flushEvent(): void
+    public static function flush(): void
     {
         self::$event[static::class] = [];
     }
@@ -76,17 +57,18 @@ trait ModelEvent
     /**
      * 注册一个模型观察者
      *
-     * @param  object|string  $class
+     * @param  string  $class
      * @return void
      */
-    public static function observe($class): void
+    protected static function observe(string $class): void
     {
         foreach (static::$observe as $event) {
-            $eventFuncName = App::parseName($event, 1, false);
+            $call = 'on' . App::parseName($event, 1, false);
 
             if (method_exists($class, $eventFuncName)) {
-                $class = is_string($class) ? new $class : $class;
-                static::event($event, [$class, $eventFuncName]);
+                $class = Container::getInstance()->invokeClass($class);
+
+                self::$event[static::class][$event][] = [$class, $call];
             }
         }
     }
@@ -124,115 +106,5 @@ trait ModelEvent
         }
 
         return true;
-    }
-
-    /**
-     * 模型before_insert事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function beforeInsert(callable $callback, bool $override = false): void
-    {
-        self::event('before_insert', $callback, $override);
-    }
-
-    /**
-     * 模型after_insert事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function afterInsert(callable $callback, bool $override = false): void
-    {
-        self::event('after_insert', $callback, $override);
-    }
-
-    /**
-     * 模型before_update事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function beforeUpdate(callable $callback, bool $override = false): void
-    {
-        self::event('before_update', $callback, $override);
-    }
-
-    /**
-     * 模型after_update事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function afterUpdate(callable $callback, bool $override = false): void
-    {
-        self::event('after_update', $callback, $override);
-    }
-
-    /**
-     * 模型before_write事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function beforeWrite(callable $callback, bool $override = false): void
-    {
-        self::event('before_write', $callback, $override);
-    }
-
-    /**
-     * 模型after_write事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function afterWrite(callable $callback, bool $override = false): void
-    {
-        self::event('after_write', $callback, $override);
-    }
-
-    /**
-     * 模型before_delete事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function beforeDelete(callable $callback, bool $override = false): void
-    {
-        self::event('before_delete', $callback, $override);
-    }
-
-    /**
-     * 模型after_delete事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function afterDelete(callable $callback, bool $override = false): void
-    {
-        self::event('after_delete', $callback, $override);
-    }
-
-    /**
-     * 模型before_restore事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function beforeRestore(callable $callback, bool $override = false): void
-    {
-        self::event('before_restore', $callback, $override);
-    }
-
-    /**
-     * 模型after_restore事件快捷方法
-     * @access protected
-     * @param callable  $callback
-     * @param bool      $override
-     */
-    protected static function afterRestore(callable $callback, bool $override = false): void
-    {
-        self::event('after_restore', $callback, $override);
     }
 }
