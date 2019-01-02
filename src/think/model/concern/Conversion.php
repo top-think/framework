@@ -198,13 +198,11 @@ trait Conversion
                 $val->hidden($hidden[$key]);
             }
             // 关联模型对象
-            $result = $val->toArray();
-        } else {
-            // 模型属性
-            $result = $this->getAttr($key);
+            return $val->toArray();
         }
 
-        return $result;
+        // 模型属性
+        return $this->getAttr($key);
     }
 
     /**

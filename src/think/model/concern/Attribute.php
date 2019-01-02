@@ -641,7 +641,7 @@ trait Attribute
      * @param  callable     $callback   闭包获取器
      * @return $this
      */
-    public function withAttribute($name, $callback = null)
+    public function withAttribute($name, callable $callback = null)
     {
         if (is_array($name)) {
             foreach ($name as $key => $val) {

@@ -216,7 +216,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
     /**
      * 数据是否足够分页
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function hasPages(): bool
     {

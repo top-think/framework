@@ -66,14 +66,14 @@ abstract class SimpleCache implements CacheInterface
      * 删除缓存
      * @access public
      * @param  string $name 缓存变量名
-     * @return boolean
+     * @return bool
      */
     abstract public function rm(string $name);
 
     /**
      * 清除缓存
      * @access public
-     * @return boolean
+     * @return bool
      */
     abstract public function clear();
 
@@ -81,7 +81,7 @@ abstract class SimpleCache implements CacheInterface
      * 删除缓存
      * @access public
      * @param  string $name 缓存变量名
-     * @return boolean
+     * @return bool
      */
     public function delete($key): bool
     {

@@ -150,7 +150,7 @@ class File extends SplFileObject
      * 检查目录是否可写
      * @access protected
      * @param  string   $path    目录
-     * @return boolean
+     * @return bool
      */
     protected function checkPath(string $path): bool
     {

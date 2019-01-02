@@ -305,7 +305,7 @@ class Template
      * 如果无效则需要重新编译
      * @access private
      * @param  string $cacheFile 缓存文件名
-     * @return boolean
+     * @return bool
      */
     private function checkCache(string $cacheFile): bool
     {
@@ -342,7 +342,7 @@ class Template
      * 检查编译缓存是否存在
      * @access public
      * @param  string $cacheId 缓存的id
-     * @return boolean
+     * @return bool
      */
     public function isCache(string $cacheId): bool
     {

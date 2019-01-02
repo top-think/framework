@@ -137,7 +137,7 @@ class Where implements ArrayAccess
      * 检测数据对象的值
      * @access public
      * @param  string $name 名称
-     * @return boolean
+     * @return bool
      */
     public function __isset($name)
     {

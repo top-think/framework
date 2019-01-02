@@ -483,7 +483,7 @@ class Query
      * 批处理的指令都认为是execute操作
      * @access public
      * @param  array $sql SQL批处理指令
-     * @return boolean
+     * @return bool
      */
     public function batchQuery(array $sql = []): bool
     {
@@ -3010,7 +3010,7 @@ class Query
      * @param  callable     $callback 处理回调方法
      * @param  string|array $column   分批处理的字段名
      * @param  string       $order    字段排序
-     * @return boolean
+     * @return bool
      * @throws DbException
      */
     public function chunk(int $count, callable $callback, $column = null, string $order = 'asc'): bool

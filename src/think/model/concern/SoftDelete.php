@@ -19,7 +19,7 @@ trait SoftDelete
     /**
      * 判断当前实例是否被软删除
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function trashed(): bool
     {

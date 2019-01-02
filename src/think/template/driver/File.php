@@ -64,7 +64,7 @@ class File
      * @access public
      * @param  string  $cacheFile 缓存的文件名
      * @param  int     $cacheTime 缓存时间
-     * @return boolean
+     * @return bool
      */
     public function check(string $cacheFile, int $cacheTime): bool
     {

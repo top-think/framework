@@ -1611,7 +1611,7 @@ abstract class Connection
      * @access public
      * @param  array $sqlArray   SQL批处理指令
      * @param  array $bind       参数绑定
-     * @return boolean
+     * @return bool
      */
     public function batchQuery(array $sqlArray = [], array $bind = []): bool
     {

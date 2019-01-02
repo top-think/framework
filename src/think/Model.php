@@ -55,10 +55,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
     private $updateWhere;
 
     /**
-     * 数据库配置信息
-     * @var array|string
+     * 数据库配置
+     * @var string
      */
-    protected $connection = [];
+    protected $connection;
 
     /**
      * 数据库查询对象类名
@@ -107,12 +107,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * @var Query
      */
     protected $queryInstance;
-
-    /**
-     * 错误信息
-     * @var mixed
-     */
-    protected $error;
 
     /**
      * 软删除字段默认值
@@ -175,10 +169,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $this->dateFormat = $config->get('database.datetime_format');
         }
 
-        if (is_null($this->resultSetType)) {
-            $this->resultSetType = $config->get('database.resultset_type');
-        }
-
         if (is_null($this->query)) {
             // 设置查询对象
             $this->query = $config->get('database.query');
@@ -226,7 +216,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     protected function buildQuery(): Query
     {
-        // 设置当前模型 确保查询返回模型对象
         $query = Db::buildQuery($this->query, $this->connection);
 
         $query->model($this)
@@ -234,16 +223,11 @@ abstract class Model implements JsonSerializable, ArrayAccess
             ->json($this->json, $this->jsonAssoc)
             ->setFieldType($this->schema);
 
-        // 设置当前数据表和模型名
         if (!empty($this->table)) {
             $query->table($this->table);
         }
 
-        if (!empty($this->pk)) {
-            $query->pk($this->pk);
-        }
-
-        return $query;
+        return $query->pk($this->pk);
     }
 
     /**
@@ -290,10 +274,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
     /**
      *  初始化模型
-     * @access protected
+     * @access private
      * @return void
      */
-    protected function initialize(): void
+    private function initialize(): void
     {
         if (!isset(static::$initialized[static::class])) {
             if ($this->observerClass) {
@@ -436,9 +420,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     public function save(array $data = [], string $sequence = null): bool
     {
         // 数据对象赋值
-        foreach ($data as $key => $value) {
-            $this->setAttr($key, $value, $data);
-        }
+        $this->setAttrs($data);
 
         if ($this->isEmpty() || false === $this->trigger('before_write')) {
             return false;
@@ -480,13 +462,13 @@ abstract class Model implements JsonSerializable, ArrayAccess
                 $this->field = $query->getConnection()->getTableFields($table);
             }
 
-            $field = $this->field;
-        } else {
-            $field = array_merge($this->field, $append);
+            return $this->field;
+        }
 
-            if ($this->autoWriteTimestamp) {
-                array_push($field, $this->createTime, $this->updateTime);
-            }
+        $field = array_merge($this->field, $append);
+
+        if ($this->autoWriteTimestamp) {
+            array_push($field, $this->createTime, $this->updateTime);
         }
 
         if ($this->disuse) {
@@ -526,7 +508,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
             }
 
             return false;
-        } elseif ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
+        }
+
+        if ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
             // 自动写入更新时间
             $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
 
@@ -869,16 +853,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
-     * 获取错误信息
-     * @access public
-     * @return mixed
-     */
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    /**
      * 解序列化后处理
      */
     public function __wakeup()
@@ -921,15 +895,11 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * 检测数据对象的值
      * @access public
      * @param  string $name 名称
-     * @return boolean
+     * @return bool
      */
     public function __isset(string $name): bool
     {
-        try {
-            return !is_null($this->getAttr($name));
-        } catch (InvalidArgumentException $e) {
-            return false;
-        }
+        return !is_null($this->getAttr($name));
     }
 
     /**
