@@ -22,6 +22,7 @@ use think\model\relation\BelongsToMany;
 use think\model\relation\HasMany;
 use think\model\relation\HasManyThrough;
 use think\model\relation\HasOne;
+use think\model\relation\HasRelation;
 use think\model\relation\MorphMany;
 use think\model\relation\MorphOne;
 use think\model\relation\MorphTo;
@@ -115,6 +116,37 @@ trait RelationShip
         $this->relation[$name] = $value;
 
         return $this;
+    }
+
+    /**
+     * 查询当前模型的关联数据
+     * @access public
+     * @param  array $relations 关联名
+     * @return void
+     */
+    public function relationQuery(array $relations): void
+    {
+        foreach ($relations as $key => $relation) {
+            $subRelation = '';
+            $closure     = null;
+
+            if ($relation instanceof \Closure) {
+                // 支持闭包查询过滤关联条件
+                $closure  = $relation;
+                $relation = $key;
+            }
+
+            if (is_array($relation)) {
+                $subRelation = $relation;
+                $relation    = $key;
+            } elseif (strpos($relation, '.')) {
+                list($relation, $subRelation) = explode('.', $relation, 2);
+            }
+
+            $method = App::parseName($relation, 1, false);
+
+            $this->relation[$relation] = $this->$method()->getRelation($subRelation, $closure);
+        }
     }
 
     /**
@@ -283,22 +315,6 @@ trait RelationShip
     }
 
     /**
-     * HAS RELATION 关联定义
-     * @access public
-     * @param  string $model      模型名
-     * @param  string $foreignKey 关联外键
-     * @param  string $localKey   当前主键
-     * @return HasOne
-     */
-    public function hasRelation(string $model, $condition): HasRelation
-    {
-        // 记录当前关联信息
-        $model = $this->parseModel($model);
-
-        return new HasRelation($this, $model, $contition);
-    }
-
-    /**
      * HAS ONE 关联定义
      * @access public
      * @param  string $model      模型名
@@ -352,6 +368,24 @@ trait RelationShip
         $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
 
         return new HasMany($this, $model, $foreignKey, $localKey);
+    }
+
+    /**
+     * HAS RELATION 关联定义
+     * @access public
+     * @param  string $model      模型名
+     * @param  string $foreignKey 关联外键
+     * @param  string $localKey   当前主键
+     * @return HasRelation
+     */
+    public function hasRelation(string $model, string $foreignKey = '', string $localKey = ''): HasRelation
+    {
+        // 记录当前关联信息
+        $model      = $this->parseModel($model);
+        $localKey   = $localKey ?: $this->getPk();
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
+
+        return new HasRelation($this, $model, $foreignKey, $localKey);
     }
 
     /**

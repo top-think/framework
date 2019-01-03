@@ -1278,7 +1278,7 @@ class Query
             $where = $field;
         } elseif (is_string($field)) {
             if (preg_match('/[,=\<\'\"\(\s]/', $field)) {
-                return $this->whereRaw($field, $op);
+                return $this->whereRaw($field, is_array($op) ? $op : []);
             } elseif (is_string($op) && strtolower($op) == 'exp') {
                 $bind = isset($param[2]) && is_array($param[2]) ? $param[2] : null;
                 return $this->whereExp($field, $condition, $bind, $logic);
@@ -2214,6 +2214,23 @@ class Query
     }
 
     /**
+     * 设置关联查询
+     * @access public
+     * @param  string|array $relation 关联名称
+     * @return $this
+     */
+    public function relation(array $relation)
+    {
+        if (empty($relation)) {
+            return $this;
+        }
+
+        $this->options['relation'] = $relation;
+
+        return $this;
+    }
+
+    /**
      * 设置关联查询JOIN预查询
      * @access public
      * @param  array $with 关联方法名称(数组)
@@ -2936,6 +2953,11 @@ class Query
 
         if (!empty($options['append'])) {
             $result->append($options['append']);
+        }
+
+        // 关联查询
+        if (!empty($options['relation'])) {
+            $result->relationQuery($options['relation'], $withRelationAttr);
         }
 
         // 预载入查询
