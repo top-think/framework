@@ -887,7 +887,15 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 if (is_array($name)) {
                     // 追加关联对象属性
                     $relation   = $this->getAttr($key);
-                    $item[$key] = $relation->append($name)->toArray();
+                    if (!empty($relation)) {
+                        if (is_array($relation)) {
+                            $item[$key] = collection($relation)->append($name)->toArray();
+                        } else {
+                            $item[$key] = $relation->append($name)->toArray();
+                        }
+                    } else {
+                        $item[$key] = is_array($relation) ? [] : null;
+                    }
                 } elseif (strpos($name, '.')) {
                     list($key, $attr) = explode('.', $name);
                     // 追加关联对象属性
