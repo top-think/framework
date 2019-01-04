@@ -2216,16 +2216,14 @@ class Query
     /**
      * 设置关联查询
      * @access public
-     * @param  string|array $relation 关联名称
+     * @param  array $relation 关联名称
      * @return $this
      */
     public function relation(array $relation)
     {
-        if (empty($relation)) {
-            return $this;
+        if ($relation) {
+            $this->options['relation'] = $relation;
         }
-
-        $this->options['relation'] = $relation;
 
         return $this;
     }
@@ -2238,11 +2236,9 @@ class Query
      */
     public function with(array $with)
     {
-        if (empty($with)) {
-            return $this;
+        if ($with) {
+            $this->options['with'] = $with;
         }
-
-        $this->options['with'] = $with;
 
         return $this;
     }

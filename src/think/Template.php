@@ -1229,7 +1229,7 @@ class Template
             }
 
             if ($this->config['view_base']) {
-                $app  = isset($app) ? $app : $this->app['request']->apache_response_headers();
+                $app  = isset($app) ? $app : $this->app['request']->app();
                 $path = $this->config['view_base'] . ($app ? $app . DIRECTORY_SEPARATOR : '');
             } else {
                 $path = isset($app) ? $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR . basename($this->config['view_path']) . DIRECTORY_SEPARATOR : $this->config['view_path'];
