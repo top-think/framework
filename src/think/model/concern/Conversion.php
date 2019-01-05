@@ -182,9 +182,7 @@ trait Conversion
         } else {
             $value = $this->getAttr($name, $item);
 
-            if (false !== $value) {
-                $item[$name] = $value;
-            }
+            $item[$name] = $value;
         }
     }
 

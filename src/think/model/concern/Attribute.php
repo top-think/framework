@@ -80,6 +80,12 @@ trait Attribute
     protected $jsonAssoc = false;
 
     /**
+     * 是否严格字段大小写
+     * @var bool
+     */
+    protected $caseField = false;
+
+    /**
      * 修改器执行记录
      * @var array
      */
@@ -163,6 +169,17 @@ trait Attribute
     }
 
     /**
+     * 获取实际的字段名
+     * @access public
+     * @param  string $name 字段名
+     * @return $this
+     */
+    protected function getRealFieldName($name)
+    {
+        return $this->caseField ? $name : App::parseName($name);
+    }
+
+    /**
      * 设置数据对象值
      * @access public
      * @param  array    $data  数据
@@ -182,15 +199,19 @@ trait Attribute
             }
         }
 
+        if (!empty($allow)) {
+            $result = [];
+            foreach ($allow as $name) {
+                if (isset($data[$name])) {
+                    $result[$name] = $data[$name];
+                }
+            }
+            $data = $result;
+        }
+
         if ($set) {
             // 数据对象赋值
             $this->setAttrs($data);
-        } elseif (!empty($allow)) {
-            foreach ($allow as $name) {
-                if (isset($data[$name])) {
-                    $this->data[$name] = $data[$name];
-                }
-            }
         } else {
             $this->data = $data;
         }
@@ -244,7 +265,7 @@ trait Attribute
             return $this->data;
         }
 
-        $fieldName = App::parseName($name);
+        $fieldName = $this->getRealFieldName($name);
 
         if (array_key_exists($fieldName, $this->data)) {
             return $this->data[$fieldName];
@@ -293,7 +314,7 @@ trait Attribute
      */
     public function set(string $name, $value): void
     {
-        $name = App::parseName($name);
+        $name = $this->getRealFieldName($name);
 
         $this->data[$name] = $value;
     }
@@ -322,7 +343,7 @@ trait Attribute
      */
     public function setAttr(string $name, $value, array $data = []): void
     {
-        $name = App::parseName($name);
+        $name = $this->getRealFieldName($name);
 
         if (isset($this->set[$name])) {
             return;
@@ -478,7 +499,7 @@ trait Attribute
         }
 
         // 检测属性获取器
-        $fieldName = App::parseName($name);
+        $fieldName = $this->getRealFieldName($name);
         $method    = 'get' . App::parseName($name, 1) . 'Attr';
 
         if (isset($this->withAttr[$fieldName])) {
@@ -494,10 +515,10 @@ trait Attribute
             }
 
             $value = $this->$method($value, $this->data);
-        } elseif (isset($this->type[$name])) {
+        } elseif (isset($this->type[$fieldName])) {
             // 类型转换
-            $value = $this->readTransform($value, $this->type[$name]);
-        } elseif ($this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
+            $value = $this->readTransform($value, $this->type[$fieldName]);
+        } elseif ($this->autoWriteTimestamp && in_array($fieldName, [$this->createTime, $this->updateTime])) {
             if (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
                 'datetime',
                 'date',
@@ -645,12 +666,12 @@ trait Attribute
     {
         if (is_array($name)) {
             foreach ($name as $key => $val) {
-                $key = App::parseName($key);
+                $key = $this->getRealFieldName($key);
 
                 $this->withAttr[$key] = $val;
             }
         } else {
-            $name = App::parseName($name);
+            $name = $this->getRealFieldName($name);
 
             $this->withAttr[$name] = $callback;
         }
