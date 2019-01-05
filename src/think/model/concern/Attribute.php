@@ -83,7 +83,7 @@ trait Attribute
      * 是否严格字段大小写
      * @var bool
      */
-    protected $caseField = false;
+    protected $strict = false;
 
     /**
      * 修改器执行记录
@@ -176,7 +176,7 @@ trait Attribute
      */
     protected function getRealFieldName($name)
     {
-        return $this->caseField ? $name : App::parseName($name);
+        return $this->strict ? $name : App::parseName($name);
     }
 
     /**

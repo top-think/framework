@@ -785,12 +785,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * @param  bool       $replace 使用Replace
      * @return static
      */
-    public static function create(array $data, array $field = [], bool $replace = false): Model
+    public static function create(array $data, array $allowField = [], bool $replace = false): Model
     {
         $model = new static();
 
-        if (!empty($field)) {
-            $model->allowField($field);
+        if (!empty($allowField)) {
+            $model->allowField($allowField);
         }
 
         $model->isUpdate(false)->replace($replace)->save($data);
@@ -802,15 +802,15 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * 更新数据
      * @access public
      * @param  array      $data  数据数组
-     * @param  array      $field 允许字段
+     * @param  array      $allowField 允许字段
      * @return static
      */
-    public static function update(array $data, array $field = [])
+    public static function update(array $data, array $allowField = [])
     {
         $model = new static();
 
-        if (!empty($field)) {
-            $model->allowField($field);
+        if (!empty($allowField)) {
+            $model->allowField($allowField);
         }
 
         $model->isUpdate(true)->save($data);
