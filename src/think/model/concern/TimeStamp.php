@@ -75,22 +75,4 @@ trait TimeStamp
         return $dateTime->format($format);
     }
 
-    /**
-     * 检查时间字段写入
-     * @access protected
-     * @return void
-     */
-    protected function checkTimeStampWrite(): void
-    {
-        // 自动写入创建时间和更新时间
-        if ($this->autoWriteTimestamp) {
-            if ($this->createTime && !isset($this->data[$this->createTime])) {
-                $this->data[$this->createTime] = $this->autoWriteTimestamp($this->createTime);
-            }
-
-            if ($this->updateTime && !isset($this->data[$this->updateTime])) {
-                $this->data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
-            }
-        }
-    }
 }

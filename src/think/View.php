@@ -148,12 +148,11 @@ class View
      * @access public
      * @param  string    $template 模板文件名或者内容
      * @param  array     $vars     模板输出变量
-     * @param  array     $config     模板参数
      * @param  bool      $renderContent     是否渲染内容
      * @return string
      * @throws \Exception
      */
-    public function fetch(string $template = '', array $vars = [], array $config = [], bool $renderContent = false): string
+    public function fetch(string $template = '', array $vars = [], bool $renderContent = false): string
     {
         // 模板变量
         $vars = array_merge(self::$var, $this->data, $vars);
@@ -165,7 +164,7 @@ class View
         // 渲染输出
         try {
             $method = $renderContent ? 'display' : 'fetch';
-            $this->engine->$method($template, $vars, $config);
+            $this->engine->$method($template, $vars);
         } catch (\Exception $e) {
             ob_end_clean();
             throw $e;
@@ -186,12 +185,11 @@ class View
      * @access public
      * @param  string $content 内容
      * @param  array  $vars    模板输出变量
-     * @param  array  $config  模板参数
      * @return string
      */
-    public function display(string $content, array $vars = [], array $config = []): string
+    public function display(string $content, array $vars = []): string
     {
-        return $this->fetch($content, $vars, $config, true);
+        return $this->fetch($content, $vars, true);
     }
 
     /**

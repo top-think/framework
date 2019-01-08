@@ -80,11 +80,6 @@ class Controller extends Dispatch
                 : $this->request->param();
 
                 $vars = array_merge($vars, $this->param);
-            } elseif (is_callable([$instance, '_empty'])) {
-                // 空操作
-                $call    = [$instance, '_empty'];
-                $vars    = [$this->actionName];
-                $reflect = new ReflectionMethod($instance, '_empty');
             } else {
                 // 操作不存在
                 throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');

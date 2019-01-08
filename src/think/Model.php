@@ -596,7 +596,15 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $this->autoCompleteData($auto);
 
         // 时间戳自动写入
-        $this->checkTimeStampWrite();
+        if ($this->autoWriteTimestamp) {
+            if ($this->createTime && !isset($this->data[$this->createTime])) {
+                $this->data[$this->createTime] = $this->autoWriteTimestamp($this->createTime);
+            }
+
+            if ($this->updateTime && !isset($this->data[$this->updateTime])) {
+                $this->data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
+            }
+        }
 
         if (false === $this->trigger('before_insert')) {
             return false;

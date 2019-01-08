@@ -72,7 +72,7 @@ class Controller
     }
 
     // 注册控制器中间件
-    public function registerMiddleware()
+    private function registerMiddleware()
     {
         foreach ($this->middleware as $key => $val) {
             if (!is_int($key)) {
@@ -98,12 +98,11 @@ class Controller
      * @access protected
      * @param  string $template 模板文件名
      * @param  array  $vars     模板输出变量
-     * @param  array  $config   模板参数
      * @return mixed
      */
-    protected function fetch(string $template = '', array $vars = [], array $config = [])
+    protected function fetch(string $template = '', array $vars = [])
     {
-        return $this->view->fetch($template, $vars, $config);
+        return $this->view->fetch($template, $vars);
     }
 
     /**
@@ -111,12 +110,11 @@ class Controller
      * @access protected
      * @param  string $content 模板内容
      * @param  array  $vars    模板输出变量
-     * @param  array  $config  模板参数
      * @return mixed
      */
-    protected function display(string $content = '', array $vars = [], array $config = [])
+    protected function display(string $content = '', array $vars = [])
     {
-        return $this->view->display($content, $vars, $config);
+        return $this->view->display($content, $vars);
     }
 
     /**

@@ -800,14 +800,12 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query, true);
 
-        $bind = $query->getBind();
-
         // 事件回调
         $result = $query->trigger('before_find');
 
         if (!$result) {
             // 执行查询
-            $resultSet = $this->query($sql, $bind, $options['master'], false);
+            $resultSet = $this->query($sql, $query->getBind(), $options['master'], false);
 
             $result = $resultSet[0] ?? null;
         }
@@ -835,12 +833,10 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
-        $bind = $query->getBind();
-
         $condition = $options['where']['AND'] ?? null;
 
         // 执行查询操作
-        return $this->getCursor($sql, $bind, $options['master'], $query->getModel(), $condition);
+        return $this->getCursor($sql, $query->getBind(), $options['master'], $query->getModel(), $condition);
     }
 
     /**
@@ -869,13 +865,11 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
-        $bind = $query->getBind();
-
         $resultSet = $query->trigger('before_select');
 
         if (!$resultSet) {
             // 执行查询操作
-            $resultSet = $this->query($sql, $bind, $options['master'], false);
+            $resultSet = $this->query($sql, $query->getBind(), $options['master'], false);
         }
 
         if (isset($cacheItem) && false !== $resultSet) {
@@ -904,10 +898,8 @@ abstract class Connection
         // 生成SQL语句
         $sql = $this->builder->insert($query, $replace);
 
-        $bind = $query->getBind();
-
         // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
+        $result = '' == $sql ? 0 : $this->execute($sql, $query->getBind(), $query);
 
         if ($result) {
             $sequence  = $sequence ?: ($options['sequence'] ?? null);
@@ -962,9 +954,8 @@ abstract class Connection
                 $count = 0;
 
                 foreach ($array as $item) {
-                    $sql  = $this->builder->insertAll($query, $item, $replace);
-                    $bind = $query->getBind();
-                    $count += $this->execute($sql, $bind, $query);
+                    $sql = $this->builder->insertAll($query, $item, $replace);
+                    $count += $this->execute($sql, $query->getBind(), $query);
                 }
 
                 // 提交事务
@@ -977,10 +968,9 @@ abstract class Connection
             return $count;
         }
 
-        $sql  = $this->builder->insertAll($query, $dataSet, $replace);
-        $bind = $query->getBind();
+        $sql = $this->builder->insertAll($query, $dataSet, $replace);
 
-        return $this->execute($sql, $bind, $query);
+        return $this->execute($sql, $query->getBind(), $query);
     }
 
     /**
@@ -995,10 +985,9 @@ abstract class Connection
     public function selectInsert(Query $query, array $fields, string $table): int
     {
         // 分析查询表达式
-        $sql  = $this->builder->selectInsert($query, $fields, $table);
-        $bind = $query->getBind();
+        $sql = $this->builder->selectInsert($query, $fields, $table);
 
-        return $this->execute($sql, $bind, $query);
+        return $this->execute($sql, $query->getBind(), $query);
     }
 
     /**
@@ -1062,8 +1051,7 @@ abstract class Connection
         $query->setOption('data', $data);
 
         // 生成UPDATE SQL语句
-        $sql  = $this->builder->update($query);
-        $bind = $query->getBind();
+        $sql = $this->builder->update($query);
 
         // 检测缓存
         $cache = Container::pull('cache');
@@ -1076,7 +1064,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
+        $result = '' == $sql ? 0 : $this->execute($sql, $query->getBind(), $query);
 
         if ($result) {
             if (is_string($pk) && isset($options['where']['AND'][$pk])) {
@@ -1125,8 +1113,6 @@ abstract class Connection
         // 生成删除SQL语句
         $sql = $this->builder->delete($query);
 
-        $bind = $query->getBind();
-
         // 检测缓存
         $cache = Container::pull('cache');
 
@@ -1138,7 +1124,7 @@ abstract class Connection
         }
 
         // 执行操作
-        $result = $this->execute($sql, $bind, $query);
+        $result = $this->execute($sql, $query->getBind(), $query);
 
         if ($result) {
             if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
@@ -1195,10 +1181,8 @@ abstract class Connection
             $query->removeOption('field');
         }
 
-        $bind = $query->getBind();
-
         // 执行查询操作
-        $pdo = $this->query($sql, $bind, $options['master'], true);
+        $pdo = $this->query($sql, $query->getBind(), $options['master'], true);
 
         $result = $pdo->fetchColumn();
 
@@ -1272,10 +1256,8 @@ abstract class Connection
             $query->removeOption('field');
         }
 
-        $bind = $query->getBind();
-
         // 执行查询操作
-        $pdo = $this->query($sql, $bind, $options['master'], true);
+        $pdo = $this->query($sql, $query->getBind(), $options['master'], true);
 
         if (1 == $pdo->columnCount()) {
             $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
@@ -1331,10 +1313,8 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
-        $bind = $query->getBind();
-
         // 执行查询操作
-        return $this->query($sql, $bind, $options['master'], true);
+        return $this->query($sql, $query->getBind(), $options['master'], true);
     }
 
     /**

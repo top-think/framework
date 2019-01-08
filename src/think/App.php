@@ -138,12 +138,6 @@ class App extends Container
     protected $controllerLayer = 'controller';
 
     /**
-     * 空控制器层名称
-     * @var string
-     */
-    protected $emptyController = 'Error';
-
-    /**
      * 架构方法
      * @access public
      * @param  string $rootPath 应用根目录
@@ -225,18 +219,6 @@ class App extends Container
     public function controllerLayer(string $layer)
     {
         $this->controllerLayer = $layer;
-        return $this;
-    }
-
-    /**
-     * 设置空控制器名称
-     * @access public
-     * @param  string $empty 空控制器层名称
-     * @return $this
-     */
-    public function emptyController(string $empty)
-    {
-        $this->emptyController = $empty;
         return $this;
     }
 
@@ -527,12 +509,6 @@ class App extends Container
 
         if (class_exists($class)) {
             return $this->make($class, [], true);
-        }
-
-        $emptyClass = $this->parseClass($this->controllerLayer, $this->emptyController);
-
-        if (class_exists($emptyClass)) {
-            return $this->make($emptyClass, [], true);
         }
 
         throw new ClassNotFoundException('class not exists:' . $class, $class);
