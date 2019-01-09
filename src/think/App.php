@@ -132,6 +132,12 @@ class App extends Container
     protected $multi = false;
 
     /**
+     * 是否为自动多应用模式
+     * @var bool
+     */
+    protected $auto = false;
+
+    /**
      * 访问控制器层名称
      * @var string
      */
@@ -150,6 +156,42 @@ class App extends Container
         $this->basePath   = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
 
         $this->multi = is_dir($this->basePath . 'controller') ? false : true;
+    }
+
+    /**
+     * 自动多应用访问
+     * @access public
+     * @param  array $route 应用路由映射
+     * @return $this
+     */
+    public function autoMulti(array $route = [])
+    {
+        $this->multi = true;
+        $this->auto  = true;
+
+        if (!empty($_SERVER['REQUEST_URI'])) {
+            $path = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+
+            $name = $path[0];
+
+            if ($route && isset($route[$name])) {
+                $this->name = $route[$name];
+            } else {
+                $this->name = $name;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * 是否为自动多应用模式
+     * @access public
+     * @return bool
+     */
+    public function isAutoMulti(): bool
+    {
+        return $this->auto;
     }
 
     /**
