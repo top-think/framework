@@ -495,6 +495,17 @@ class App extends Container
         }
     }
 
+    public function getRealPath()
+    {
+        $path = $this->request->path();
+
+        if ($path && $this->auto) {
+            $path = substr_replace($path, '', 0, strpos($path, '/') ? strpos($path, '/') + 1 : strlen($path));
+        }
+
+        return $path;
+    }
+
     /**
      * 执行应用程序
      * @access public
@@ -513,7 +524,7 @@ class App extends Container
             $dispatch = $this->request->dispatch();
 
             if (!$dispatch) {
-                $dispatch = $this->route->url($this->request->path());
+                $dispatch = $this->route->url($this->getRealPath());
             }
 
             // 监听AppBegin

@@ -70,11 +70,7 @@ class RouteCheck
             }
         }
 
-        $path = $app->request->path();
-
-        if ($path && $app->isAutoMulti()) {
-            $path = substr_replace($path, '', 0, strpos($path, '/') ? strpos($path, '/') + 1 : strlen($path));
-        }
+        $path = $app->getRealPath();
 
         // 路由检测 返回一个Dispatch对象
         $dispatch = $app->route->check($path, $app->config->get('url_route_must'));
