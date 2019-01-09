@@ -171,14 +171,9 @@ class App extends Container
 
         if (!empty($_SERVER['REQUEST_URI'])) {
             $path = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
-
             $name = $path[0];
 
-            if ($route && isset($route[$name])) {
-                $this->name = $route[$name];
-            } else {
-                $this->name = $name;
-            }
+            $this->name = $route[$name] ?? $name;
         }
 
         return $this;
