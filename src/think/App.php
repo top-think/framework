@@ -161,10 +161,10 @@ class App extends Container
     /**
      * 自动多应用访问
      * @access public
-     * @param  array $route 应用路由映射
+     * @param  array $map 应用路由映射
      * @return $this
      */
-    public function autoMulti(array $route = [])
+    public function autoMulti(array $map = [])
     {
         $this->multi = true;
         $this->auto  = true;
@@ -173,7 +173,11 @@ class App extends Container
             $path = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
             $name = $path[0];
 
-            $this->name = $route[$name] ?? $name;
+            if (isset($map[$name]) && $map[$name] instanceof \Closure) {
+                $map[$name]($this);
+            } else {
+                $this->name = $map[$name] ?? $name;
+            }
         }
 
         return $this;
