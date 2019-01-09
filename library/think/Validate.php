@@ -131,7 +131,7 @@ class Validate
      * 内置正则验证规则
      * @var array
      */
-    protected $regex = [
+    protected $defaultRegex = [
         'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
         'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
         'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
@@ -177,6 +177,12 @@ class Validate
      * @var array
      */
     protected $append = [];
+
+    /**
+     * 验证正则定义
+     * @var array
+     */
+    protected $regex = [];
 
     /**
      * 架构函数
@@ -1360,6 +1366,8 @@ class Validate
     {
         if (isset($this->regex[$rule])) {
             $rule = $this->regex[$rule];
+        } elseif (isset($this->defaultRegex[$rule])) {
+            $rule = $this->defaultRegex[$rule];
         }
 
         if (0 !== strpos($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
