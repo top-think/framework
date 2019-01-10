@@ -141,23 +141,6 @@ class Url
         } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
-            // 检查别名路由
-            $alias      = $this->app['route']->getAlias();
-            $matchAlias = false;
-
-            if ($alias) {
-                // 别名路由解析
-                foreach ($alias as $key => $item) {
-                    $val = $item->getRoute();
-
-                    if (0 === strpos($url, $val)) {
-                        $url        = $key . substr($url, strlen($val));
-                        $matchAlias = true;
-                        break;
-                    }
-                }
-            }
-
             // 检测URL绑定
             if (!$this->bindCheck) {
                 $bind = $this->app['route']->getBind($domain && is_string($domain) ? $domain : null);
@@ -177,10 +160,8 @@ class Url
                 }
             }
 
-            if (!$matchAlias) {
-                // 路由标识不存在 直接解析
-                $url = $this->parseUrl($url);
-            }
+            // 路由标识不存在 直接解析
+            $url = $this->parseUrl($url);
 
             if (isset($info['query'])) {
                 // 解析地址里面参数 合并到vars

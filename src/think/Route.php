@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think;
 
 use think\exception\RouteNotFoundException;
-use think\route\AliasRule;
 use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
@@ -93,12 +92,6 @@ class Route
     protected $cross;
 
     /**
-     * 路由别名
-     * @var array
-     */
-    protected $alias = [];
-
-    /**
      * 路由是否延迟解析
      * @var bool
      */
@@ -115,12 +108,6 @@ class Route
      * @var bool
      */
     protected $mergeRuleRegex = true;
-
-    /**
-     * 路由解析自动搜索多级控制器
-     * @var bool
-     */
-    protected $autoSearchController = true;
 
     public function __construct(App $app, array $config = [])
     {
@@ -203,18 +190,6 @@ class Route
     }
 
     /**
-     * 设置路由自动解析是否搜索多级控制器
-     * @access public
-     * @param  bool     $auto   是否自动搜索多级控制器
-     * @return $this
-     */
-    public function autoSearchController(bool $auto = true)
-    {
-        $this->autoSearchController = $auto;
-        return $this;
-    }
-
-    /**
      * 初始化默认域名
      * @access protected
      * @return void
@@ -286,10 +261,9 @@ class Route
      * @param  string|array  $name 子域名
      * @param  mixed         $rule 路由规则
      * @param  array         $option 路由参数
-     * @param  array         $pattern 变量规则
      * @return Domain
      */
-    public function domain($name, $rule = '', array $option = [], array $pattern = []): Domain
+    public function domain($name, $rule = '', array $option = []): Domain
     {
         // 支持多个域名使用相同路由规则
         $domainName = is_array($name) ? array_shift($name) : $name;
@@ -299,7 +273,7 @@ class Route
         }
 
         if (!isset($this->domains[$domainName])) {
-            $domain = (new Domain($this, $domainName, $rule, $option, $pattern))
+            $domain = (new Domain($this, $domainName, $rule, $option))
                 ->lazy($this->lazy)
                 ->mergeRuleRegex($this->mergeRuleRegex);
 
@@ -609,38 +583,6 @@ class Route
     public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
     {
         return $this->rule($rule, $route, '*')->redirect()->status($status);
-    }
-
-    /**
-     * 注册别名路由
-     * @access public
-     * @param  string  $rule 路由别名
-     * @param  string  $route 路由地址
-     * @param  array   $option 路由参数
-     * @return AliasRule
-     */
-    public function alias(string $rule, string $route, array $option = []): AliasRule
-    {
-        $aliasRule = new AliasRule($this, $this->group, $rule, $route, $option);
-
-        $this->alias[$rule] = $aliasRule;
-
-        return $aliasRule;
-    }
-
-    /**
-     * 获取别名路由定义
-     * @access public
-     * @param  string    $name 路由别名
-     * @return string|array|null
-     */
-    public function getAlias(string $name = null)
-    {
-        if (is_null($name)) {
-            return $this->alias;
-        }
-
-        return $this->alias[$name] ?? null;
     }
 
     /**

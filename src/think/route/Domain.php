@@ -48,13 +48,6 @@ class Domain extends RuleGroup
      */
     public function check(Request $request, string $url, bool $completeMatch = false)
     {
-        // 检测别名路由
-        $result = $this->checkRouteAlias($request, $url);
-
-        if (false !== $result) {
-            return $result;
-        }
-
         // 检测URL绑定
         $result = $this->checkUrlBind($request, $url);
 
@@ -87,22 +80,6 @@ class Domain extends RuleGroup
         $this->router->bind($bind, $this->domain);
 
         return $this;
-    }
-
-    /**
-     * 检测路由别名
-     * @access private
-     * @param  Request   $request
-     * @param  string    $url URL地址
-     * @return Dispatch|false
-     */
-    private function checkRouteAlias(Request $request, string $url)
-    {
-        $alias = strpos($url, '|') ? strstr($url, '|', true) : $url;
-
-        $item = $this->router->getAlias($alias);
-
-        return $item ? $item->check($request, $url) : false;
     }
 
     /**
