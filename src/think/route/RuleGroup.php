@@ -57,7 +57,7 @@ class RuleGroup extends Rule
      * @param  mixed       $rule     分组路由
      * @param  array       $option   路由参数
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = [], array $option = [])
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, array $option = [])
     {
         $this->router = $router;
         $this->parent = $parent;
@@ -255,8 +255,6 @@ class RuleGroup extends Rule
 
         if ($rule instanceof \Closure) {
             Container::getInstance()->invokeFunction($rule);
-        } elseif (is_array($rule)) {
-            $this->addRules($rule);
         } elseif (is_string($rule) && $rule) {
             $this->router->bind($rule, $this->domain);
         }
@@ -440,41 +438,9 @@ class RuleGroup extends Rule
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, $name, $rule, $route, $method);
 
-        if (!empty($option['cross_domain'])) {
-            $this->router->setCrossDomainRule($ruleItem, $method);
-        }
-
         $this->addRuleItem($ruleItem, $method);
 
         return $ruleItem;
-    }
-
-    /**
-     * 批量注册路由规则
-     * @access public
-     * @param  array     $rules      路由规则
-     * @param  string    $method     请求类型
-     * @param  array     $option     路由参数
-     * @param  array     $pattern    变量规则
-     * @return void
-     */
-    public function addRules(array $rules, string $method = '*', array $option = [], array $pattern = []): void
-    {
-        foreach ($rules as $key => $val) {
-            if (is_numeric($key)) {
-                $key = array_shift($val);
-            }
-
-            if (is_array($val)) {
-                $route   = array_shift($val);
-                $option  = $val ? array_shift($val) : [];
-                $pattern = $val ? array_shift($val) : [];
-            } else {
-                $route = $val;
-            }
-
-            $this->addRule($key, $route, $method, $option, $pattern);
-        }
     }
 
     public function addRuleItem(Rule $rule, string $method = '*')
