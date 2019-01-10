@@ -2055,6 +2055,62 @@ class Query
     }
 
     /**
+     * 查询某个时间间隔数据
+     * @access protected
+     * @param  string    $field 日期字段名
+     * @param  string    $start 开始时间
+     * @param  string    $interval 时间间隔单位
+     * @param  string    $logic AND OR
+     * @return $this
+     */
+    protected function whereTimeInterval(string $field, string $start, $interval = 'day', string $logic = 'AND')
+    {
+        $startTime = strtotime($start);
+        $endTime   = strtotime('+1 ' . $interval, $startTime);
+
+        return $this->parseWhereExp($logic, $field, 'between time', [$startTime, $endTime], [], true);
+    }
+
+    /**
+     * 查询月数据
+     * @access public
+     * @param  string    $field 日期字段名
+     * @param  string    $month 月份信息
+     * @param  string    $logic AND OR
+     * @return $this
+     */
+    public function whereMonth(string $field, string $month, string $logic = 'AND')
+    {
+        return $this->whereTimeInterval($field, $month, 'month', $logic);
+    }
+
+    /**
+     * 查询年数据
+     * @access public
+     * @param  string    $field 日期字段名
+     * @param  string    $year  年份信息
+     * @param  string    $logic AND OR
+     * @return $this
+     */
+    public function whereYear(string $field, string $year, string $logic = 'AND')
+    {
+        return $this->whereTimeInterval($field, $year . '-1-1', 'year', $logic);
+    }
+
+    /**
+     * 查询日数据
+     * @access public
+     * @param  string    $field 日期字段名
+     * @param  string    $day   日期信息
+     * @param  string    $logic AND OR
+     * @return $this
+     */
+    public function whereDay(string $field, string $day, string $logic = 'AND')
+    {
+        return $this->whereTimeInterval($field, $day, 'day', $logic);
+    }
+
+    /**
      * 查询日期或者时间范围
      * @access public
      * @param  string    $field 日期字段名
