@@ -154,19 +154,21 @@ class File
             if (PHP_SAPI == 'cli') {
                 $info['msg']  = $msg;
                 $info['type'] = $type;
-                error_log($this->parseCliLog($info), 3, $destination);
             } else {
                 $info[$type] = $msg;
             }
         }
 
-        if (PHP_SAPI != 'cli') {
+        if (PHP_SAPI == 'cli') {
+            $message = $this->parseCliLog($info);
+        } else {
             // 添加调试日志
             $this->getDebugLog($info, $append, $apart);
 
             $message = $this->parseLog($info);
-            return error_log($message, 3, $destination);
         }
+
+        return error_log($message, 3, $destination);
     }
 
     /**
