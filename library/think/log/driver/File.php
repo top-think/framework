@@ -154,19 +154,23 @@ class File
         $info['timestamp'] = date($this->config['time_format']);
 
         foreach ($message as $type => $msg) {
-            $info[$type] = is_array($msg) ? implode("\r\n", $msg) : $msg;
+            $msg = is_array($msg) ? implode("\r\n", $msg) : $msg;
+            if (PHP_SAPI == 'cli') {
+                $info['msg']  = $msg;
+                $info['type'] = $type;
+                error_log($this->parseCliLog($info), 3, $destination);
+            } else {
+                $info[$type] = $msg;
+            }
         }
 
-        if (PHP_SAPI == 'cli') {
-            $message = $this->parseCliLog($info);
-        } else {
+        if (PHP_SAPI != 'cli') {
             // 添加调试日志
             $this->getDebugLog($info, $append, $apart);
 
             $message = $this->parseLog($info);
+            return error_log($message, 3, $destination);
         }
-
-        return error_log($message, 3, $destination);
     }
 
     /**
