@@ -526,6 +526,8 @@ class Request
                 if (in_array($method, ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'])) {
                     $this->method = $method;
                     $this->{$this->method}($_POST);
+                } else {
+                    $this->method = 'POST';
                 }
             } elseif (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
                 $this->method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
