@@ -85,13 +85,11 @@ class File
      */
     protected function getMasterLogFile()
     {
+        $cli = PHP_SAPI == 'cli' ? '_cli' : '';
         if ($this->config['single']) {
-            $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
-
-            $destination = $this->config['path'] . $name . '.log';
+            $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
+            $destination = $this->config['path'] . $name . $cli . '.log';
         } else {
-            $cli = PHP_SAPI == 'cli' ? '_cli' : '';
-
             if ($this->config['max_files']) {
                 $filename = date('Ymd') . $cli . '.log';
                 $files    = glob($this->config['path'] . '*.log');
@@ -125,15 +123,13 @@ class File
 
         if ($this->config['single']) {
             $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
-
-            $name .= '_' . $type;
         } elseif ($this->config['max_files']) {
-            $name = date('Ymd') . '_' . $type . $cli;
+            $name = date('Ymd');
         } else {
-            $name = date('d') . '_' . $type . $cli;
+            $name = date('d');
         }
 
-        return $path . DIRECTORY_SEPARATOR . $name . '.log';
+        return $path . DIRECTORY_SEPARATOR . $name . '_' . $type . $cli . '.log';
     }
 
     /**
