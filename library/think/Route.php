@@ -137,7 +137,7 @@ class Route
         $this->request = $app['request'];
         $this->config  = $config;
 
-        $this->host = $this->request->host(true) ?: $config['app_host'];
+        $this->host = $this->request->host() ?: $config['app_host'];
 
         $this->setDefaultDomain();
     }
