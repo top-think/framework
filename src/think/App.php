@@ -175,7 +175,7 @@ class App extends Container
 
             if (isset($map[$name]) && $map[$name] instanceof \Closure) {
                 $map[$name]($this);
-            } else {
+            } elseif ($name) {
                 $this->name = $map[$name] ?? $name;
             }
         }
