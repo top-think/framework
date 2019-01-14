@@ -181,10 +181,10 @@ class File
         } elseif ($this->config['max_files']) {
             $name = date('Ymd');
         } else {
-            $name = date('d') ;
+            $name = date('d');
         }
 
-        return $path . DIRECTORY_SEPARATOR . $name .. '_' . $type . $cli. '.log';
+        return $path . DIRECTORY_SEPARATOR . $name . '_' . $type . $cli . '.log';
     }
 
     /**
