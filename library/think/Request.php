@@ -809,9 +809,14 @@ class Request
             return $this->server('REQUEST_METHOD') ?: 'GET';
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
-                $this->method    = strtoupper($_POST[$this->config['var_method']]);
-                $method          = strtolower($this->method);
-                $this->{$method} = $_POST;
+                $method = strtolower($_POST[$this->config['var_method']]);
+                if (in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
+                    $this->method    = strtoupper($method);
+                    $this->{$method} = $_POST;
+                } else {
+                    $this->method = 'POST';
+                }
+                unset($_POST[$this->config['var_method']]);
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
@@ -1320,7 +1325,8 @@ class Request
      * @param array $data 数据源
      * @return void
      */
-    public function arrayReset(array &$data) {
+    public function arrayReset(array &$data)
+    {
         foreach ($data as &$value) {
             if (is_array($value)) {
                 $this->arrayReset($value);
