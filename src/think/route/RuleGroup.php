@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+use Closure;
 use think\Container;
 use think\Exception;
 use think\Request;
@@ -55,15 +56,13 @@ class RuleGroup extends Rule
      * @param  RuleGroup   $parent   上级对象
      * @param  string      $name     分组名称
      * @param  mixed       $rule     分组路由
-     * @param  array       $option   路由参数
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, array $option = [])
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null)
     {
         $this->router = $router;
         $this->parent = $parent;
         $this->rule   = $rule;
         $this->name   = trim($name, '/');
-        $this->option = $option;
 
         $this->setFullName();
 

@@ -457,17 +457,17 @@ class Route
      * 注册路由分组
      * @access public
      * @param  string|array      $name       分组名称或者参数
-     * @param  array|\Closure    $route      分组路由
+     * @param  mixed             $route      分组路由
      * @return RuleGroup
      */
-    public function group($name, $route): RuleGroup
+    public function group($name, $route = null): RuleGroup
     {
-        if (is_array($name)) {
-            $option = $name;
-            $name   = $option['name'] ?? '';
+        if ($name instanceof \Closure) {
+            $route = $name;
+            $name  = '';
         }
 
-        return (new RuleGroup($this, $this->group, $name, $route, $option ?? []))
+        return (new RuleGroup($this, $this->group, $name, $route))
             ->lazy($this->lazy)
             ->mergeRuleRegex($this->mergeRuleRegex);
     }
