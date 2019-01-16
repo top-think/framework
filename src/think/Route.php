@@ -458,17 +458,16 @@ class Route
      * @access public
      * @param  string|array      $name       分组名称或者参数
      * @param  array|\Closure    $route      分组路由
-     * @param  array             $option     路由参数
      * @return RuleGroup
      */
-    public function group($name, $route, array $option = []): RuleGroup
+    public function group($name, $route): RuleGroup
     {
         if (is_array($name)) {
             $option = $name;
             $name   = $option['name'] ?? '';
         }
 
-        return (new RuleGroup($this, $this->group, $name, $route, $option))
+        return (new RuleGroup($this, $this->group, $name, $route, $option ?? []))
             ->lazy($this->lazy)
             ->mergeRuleRegex($this->mergeRuleRegex);
     }
