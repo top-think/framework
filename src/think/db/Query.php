@@ -2072,7 +2072,7 @@ class Query
     }
 
     /**
-     * 查询月数据
+     * 查询月数据 whereMonth('time_field', '2018-1')
      * @access public
      * @param  string    $field 日期字段名
      * @param  string    $month 月份信息
@@ -2085,7 +2085,7 @@ class Query
     }
 
     /**
-     * 查询年数据
+     * 查询年数据 whereYear('time_field', '2018')
      * @access public
      * @param  string    $field 日期字段名
      * @param  string    $year  年份信息
@@ -2098,7 +2098,7 @@ class Query
     }
 
     /**
-     * 查询日数据
+     * 查询日数据 whereDay('time_field', '2018-1-1')
      * @access public
      * @param  string    $field 日期字段名
      * @param  string    $day   日期信息
@@ -2111,7 +2111,7 @@ class Query
     }
 
     /**
-     * 查询日期或者时间范围
+     * 查询日期或者时间范围 whereBetweenTime('time_field', '2018-1-1','2018-1-15')
      * @access public
      * @param  string    $field 日期字段名
      * @param  string    $startTime    开始时间
@@ -2130,7 +2130,7 @@ class Query
     }
 
     /**
-     * 查询当前时间在两个时间字段范围
+     * 查询当前时间在两个时间字段范围 whereBetweenTimeField('start_time', 'end_time')
      * @access public
      * @param  string    $startField    开始时间字段
      * @param  string    $endField      结束时间字段
@@ -2143,7 +2143,7 @@ class Query
     }
 
     /**
-     * 查询当前时间不在两个时间字段范围
+     * 查询当前时间不在两个时间字段范围 whereNotBetweenTimeField('start_time', 'end_time')
      * @access public
      * @param  string    $startField    开始时间字段
      * @param  string    $endField      结束时间字段
