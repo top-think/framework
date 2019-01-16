@@ -293,7 +293,7 @@ class App extends Container
      * @param  bool  $suffix 启用应用类库后缀
      * @return $this
      */
-    public function useClassSuffix(bool $suffix)
+    public function useClassSuffix(bool $suffix = true)
     {
         $this->suffix = $suffix;
         return $this;
