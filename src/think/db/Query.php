@@ -884,11 +884,12 @@ class Query
      * @access public
      * @param  string       $field 字段名
      * @param  integer      $step  增长值
+     * @param  integer      $lazyTime 延时时间(s)
      * @return $this
      */
     public function dec(string $field, int $step = 1, int $lazyTime = 0)
     {
-        return $this->inc($field, $step, 'DEC');
+        return $this->inc($field, $step, $lazyTime, 'DEC');
     }
 
     /**
