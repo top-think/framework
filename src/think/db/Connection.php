@@ -1950,7 +1950,7 @@ abstract class Connection
     {
         if (is_scalar($value)) {
             $data = $value;
-        } elseif (is_array($value) && isset($value[1], $value[2]) && in_array($value[1], ['=', 'eq'])) {
+        } elseif (is_array($value) && isset($value[1], $value[2]) && '=' == $value[1]) {
             $data = $value[2];
         }
 

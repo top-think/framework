@@ -1314,18 +1314,18 @@ class Query
         } elseif (!is_string($op)) {
             $where = [$field, '=', $op];
         } elseif ($field && is_null($condition)) {
-            if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
+            if (is_string($op) && in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
                 $where = [$field, $op, ''];
-            } elseif (in_array($op, ['=', 'eq', 'EQ', null], true)) {
+            } elseif (is_null($op) || '=' == $op) {
                 $where = [$field, 'NULL', ''];
-            } elseif (in_array($op, ['<>', 'neq', 'NEQ'], true)) {
+            } elseif ('<>' == $op) {
                 $where = [$field, 'NOTNULL', ''];
             } else {
                 // 字段相等查询
                 $where = [$field, '=', $op];
             }
-        } elseif (in_array(strtoupper($op), ['REGEXP', 'NOT REGEXP', 'EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
+        } elseif (is_string($op) && in_array(strtoupper($op), ['REGEXP', 'NOT REGEXP', 'EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
             $where = [$field, $op, is_string($condition) ? $this->raw($condition) : $condition];
         } else {
             $where = $field ? [$field, $op, $condition, isset($param[2]) ? $param[2] : null] : [];
