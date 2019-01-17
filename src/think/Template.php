@@ -114,13 +114,13 @@ class Template
     /**
      * 模板变量赋值
      * @access public
-     * @param  mixed $name
-     * @param  mixed $value
-     * @return void
+     * @param  array $vars
+     * @return $this
      */
-    public function assign(array $vars = []): void
+    public function assign(array $vars = [])
     {
         $this->data = array_merge($this->data, $vars);
+        return $this;
     }
 
     /**
@@ -138,11 +138,12 @@ class Template
      * 模板引擎配置
      * @access public
      * @param  array $config
-     * @return void
+     * @return $this
      */
-    public function config(array $config): void
+    public function config(array $config)
     {
         $this->config = array_merge($this->config, $config);
+        return $this;
     }
 
     /**
@@ -186,20 +187,10 @@ class Template
      * 渲染模板文件
      * @access public
      * @param  string    $template 模板文件
-     * @param  array     $vars 模板变量
-     * @param  array     $config 模板参数
      * @return void
      */
-    public function fetch(string $template, array $vars = [], array $config = []): void
+    public function fetch(string $template): void
     {
-        if ($vars) {
-            $this->data = $vars;
-        }
-
-        if ($config) {
-            $this->config($config);
-        }
-
         $cache = $this->app['cache'];
 
         if (!empty($this->config['cache_id']) && $this->config['display_cache']) {
@@ -246,20 +237,10 @@ class Template
      * 渲染模板内容
      * @access public
      * @param  string    $content 模板内容
-     * @param  array     $vars 模板变量
-     * @param  array     $config 模板参数
      * @return void
      */
-    public function display(string $content, array $vars = [], array $config = []): void
+    public function display(string $content): void
     {
-        if ($vars) {
-            $this->data = $vars;
-        }
-
-        if ($config) {
-            $this->config($config);
-        }
-
         $cacheFile = $this->config['cache_path'] . $this->config['cache_prefix'] . md5($content) . '.' . ltrim($this->config['cache_suffix'], '.');
 
         if (!$this->checkCache($cacheFile)) {

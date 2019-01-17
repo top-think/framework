@@ -20,7 +20,7 @@ use think\App;
 class File
 {
     protected $config = [
-        'time_format' => ' c ',
+        'time_format' => 'c',
         'single'      => false,
         'file_size'   => 2097152,
         'path'        => '',

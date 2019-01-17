@@ -35,7 +35,8 @@ class View extends Response
         return Container::pull('view')
             ->init($config->pull('template'))
             ->filter($this->filter)
-            ->fetch($data, $this->vars);
+            ->assign($this->vars)
+            ->fetch($data);
     }
 
     /**
@@ -56,17 +57,12 @@ class View extends Response
     /**
      * 模板变量赋值
      * @access public
-     * @param  mixed $name  变量名
-     * @param  mixed $value 变量值
+     * @param  array $vars  变量
      * @return $this
      */
-    public function assign($name, $value = '')
+    public function assign(array $vars)
     {
-        if (is_array($name)) {
-            $this->vars = array_merge($this->vars, $name);
-        } else {
-            $this->vars[$name] = $value;
-        }
+        $this->vars = array_merge($this->vars, $vars);
 
         return $this;
     }
@@ -77,7 +73,7 @@ class View extends Response
      * @param callable $filter
      * @return $this
      */
-    public function filter(? callable $filter)
+    public function filter(callable $filter = null)
     {
         $this->filter = $filter;
         return $this;
@@ -89,7 +85,7 @@ class View extends Response
      * @param  string  $name 模板名
      * @return bool
      */
-    public function exists($name)
+    public function exists(string $name): bool
     {
         return Container::pull('view')
             ->init(Container::pull('config')->pull('template'))

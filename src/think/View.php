@@ -33,12 +33,6 @@ class View
     protected $filter;
 
     /**
-     * 全局模板变量
-     * @var array
-     */
-    protected static $var = [];
-
-    /**
      * 初始化
      * @access public
      * @param  mixed $engine  模板引擎参数
@@ -55,19 +49,6 @@ class View
     public static function __make(Config $config)
     {
         return (new static())->init($config->pull('template'));
-    }
-
-    /**
-     * 模板变量静态赋值
-     * @access public
-     * @param  array $vars  变量名
-     * @return $this
-     */
-    public function share(array $vars)
-    {
-        self::$var = array_merge(self::$var, $vars);
-
-        return $this;
     }
 
     /**
@@ -147,16 +128,12 @@ class View
      * 解析和获取模板内容 用于输出
      * @access public
      * @param  string    $template 模板文件名或者内容
-     * @param  array     $vars     模板输出变量
      * @param  bool      $renderContent     是否渲染内容
      * @return string
      * @throws \Exception
      */
-    public function fetch(string $template = '', array $vars = [], bool $renderContent = false): string
+    public function fetch(string $template = '', bool $renderContent = false): string
     {
-        // 模板变量
-        $vars = array_merge(self::$var, $this->data, $vars);
-
         // 页面缓存
         ob_start();
         ob_implicit_flush(0);
@@ -164,7 +141,7 @@ class View
         // 渲染输出
         try {
             $method = $renderContent ? 'display' : 'fetch';
-            $this->engine->$method($template, $vars);
+            $this->engine->$method($template, $this->data);
         } catch (\Exception $e) {
             ob_end_clean();
             throw $e;
@@ -184,12 +161,11 @@ class View
      * 渲染内容输出
      * @access public
      * @param  string $content 内容
-     * @param  array  $vars    模板输出变量
      * @return string
      */
-    public function display(string $content, array $vars = []): string
+    public function display(string $content): string
     {
-        return $this->fetch($content, $vars, true);
+        return $this->fetch($content, true);
     }
 
     /**

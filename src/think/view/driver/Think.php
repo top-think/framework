@@ -72,10 +72,9 @@ class Think
      * @access public
      * @param  string    $template 模板文件
      * @param  array     $data 模板变量
-     * @param  array     $config 模板参数
      * @return void
      */
-    public function fetch(string $template, array $data = [], array $config = []): void
+    public function fetch(string $template, array $data = []): void
     {
         if ('' == pathinfo($template, PATHINFO_EXTENSION)) {
             // 获取模板文件名
@@ -91,7 +90,7 @@ class Think
         $this->app['log']
             ->record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
 
-        $this->template->fetch($template, $data, $config);
+        $this->template->assign($data)->fetch($template);
     }
 
     /**
@@ -99,12 +98,11 @@ class Think
      * @access public
      * @param  string    $template 模板内容
      * @param  array     $data 模板变量
-     * @param  array     $config 模板参数
      * @return void
      */
-    public function display(string $template, array $data = [], array $config = []): void
+    public function display(string $template, array $data = []): void
     {
-        $this->template->display($template, $data, $config);
+        $this->template->assign($data)->display($template);
     }
 
     /**

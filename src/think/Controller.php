@@ -97,35 +97,33 @@ class Controller
      * 加载模板输出
      * @access protected
      * @param  string $template 模板文件名
-     * @param  array  $vars     模板输出变量
      * @return mixed
      */
-    protected function fetch(string $template = '', array $vars = [])
+    protected function fetch(string $template = '')
     {
-        return $this->view->fetch($template, $vars);
+        return $this->view->fetch($template);
     }
 
     /**
      * 渲染内容输出
      * @access protected
      * @param  string $content 模板内容
-     * @param  array  $vars    模板输出变量
      * @return mixed
      */
-    protected function display(string $content = '', array $vars = [])
+    protected function display(string $content = '')
     {
-        return $this->view->display($content, $vars);
+        return $this->view->display($content);
     }
 
     /**
      * 模板变量赋值
      * @access protected
-     * @param  array $value 模板变量
+     * @param  array $vars 模板变量
      * @return $this
      */
-    protected function assign(array $value)
+    protected function assign(array $vars)
     {
-        $this->view->assign($value);
+        $this->view->assign($vars);
 
         return $this;
     }
