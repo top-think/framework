@@ -30,6 +30,7 @@ class Jump extends Response
         $config = Container::pull('config');
         return Container::pull('view')
             ->init($config->pull('template'))
-            ->fetch($this->options['jump_template'], $data);
+            ->assign($data)
+            ->fetch($this->options['jump_template']);
     }
 }
