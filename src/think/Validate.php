@@ -12,13 +12,13 @@ declare (strict_types = 1);
 
 namespace think;
 
+use think\exception\ValidateException;
 use think\facade\Db;
 use think\facade\Lang;
 use think\validate\ValidateRule;
 
 class Validate
 {
-
     /**
      * 自定义验证类型
      * @var array
@@ -163,6 +163,12 @@ class Validate
     protected $batch = false;
 
     /**
+     * 验证失败是否抛出异常
+     * @var bool
+     */
+    protected $failException = false;
+
+    /**
      * 场景需要验证的规则
      * @var array
      */
@@ -210,7 +216,7 @@ class Validate
      */
     public static function make(array $rules = [], array $message = [], array $field = [])
     {
-        return new self($rules, $message, $field);
+        return new static($rules, $message, $field);
     }
 
     /**
@@ -318,6 +324,19 @@ class Validate
     public function batch(bool $batch = true)
     {
         $this->batch = $batch;
+
+        return $this;
+    }
+
+    /**
+     * 设置验证失败后是否抛出异常
+     * @access protected
+     * @param  bool $fail 是否抛出异常
+     * @return $this
+     */
+    public function failException(bool $fail = true)
+    {
+        $this->failException = $fail;
 
         return $this;
     }
@@ -449,6 +468,8 @@ class Validate
                     } else {
                         $this->error[$key] = $result;
                     }
+                } elseif ($this->failException) {
+                    throw new ValidateException($result);
                 } else {
                     $this->error = $result;
                     return false;
@@ -456,7 +477,14 @@ class Validate
             }
         }
 
-        return !empty($this->error) ? false : true;
+        if (!empty($this->error)) {
+            if ($this->failException) {
+                throw new ValidateException($this->error);
+            }
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -489,6 +517,10 @@ class Validate
             }
 
             if (true !== $result) {
+                if ($this->failException) {
+                    throw new ValidateException($result);
+                }
+
                 return $result;
             }
         }

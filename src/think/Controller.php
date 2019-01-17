@@ -174,21 +174,20 @@ class Controller
      * @param  string|array $validate 验证器名或者验证规则数组
      * @param  array        $message  提示信息
      * @param  bool         $batch    是否批量验证
-     * @param  mixed        $callback 回调方法（闭包）
      * @return array|string|true
      * @throws ValidateException
      */
-    protected function validate(array $data, $validate, array $message = [], bool $batch = false, callable $callback = null)
+    protected function validate(array $data, $validate, array $message = [], bool $batch = false)
     {
         if (is_array($validate)) {
-            $v = $this->app->validate();
-            $v->rule($validate);
+            $v = new Validate($validate, $message);
         } else {
             if (strpos($validate, '.')) {
                 // 支持场景
                 list($validate, $scene) = explode('.', $validate);
             }
-            $v = $this->app->validate($validate);
+            $class = $this->app->parseClass('validate', $validate);
+            $v     = $class::make([], $message);
             if (!empty($scene)) {
                 $v->scene($scene);
             }
@@ -197,14 +196,6 @@ class Controller
         // 是否批量验证
         if ($batch || $this->batchValidate) {
             $v->batch(true);
-        }
-
-        if (is_array($message)) {
-            $v->message($message);
-        }
-
-        if ($callback && is_callable($callback)) {
-            call_user_func_array($callback, [$v, &$data]);
         }
 
         if (!$v->check($data)) {

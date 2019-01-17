@@ -13,9 +13,9 @@ declare (strict_types = 1);
 namespace think\route;
 
 use think\Container;
-use think\exception\ValidateException;
 use think\Request;
 use think\Response;
+use think\Validate;
 
 abstract class Dispatch
 {
@@ -253,7 +253,7 @@ abstract class Dispatch
      * @access protected
      * @param  array             $option
      * @return void
-     * @throws ValidateException
+     * @throws \think\exception\ValidateException
      */
     protected function autoValidate(array $option): void
     {
@@ -261,28 +261,17 @@ abstract class Dispatch
 
         if (is_array($validate)) {
             // 指定验证规则
-            $v = $this->app->validate();
-            $v->rule($validate);
+            $v = new Validate($validate, $message);
         } else {
             // 调用验证器
-            $v = $this->app->validate($validate);
+            $class = $this->app->parseClass('validate', $validate);
+            $v     = $class::make([], $message);
             if (!empty($scene)) {
                 $v->scene($scene);
             }
         }
 
-        if (!empty($message)) {
-            $v->message($message);
-        }
-
-        // 批量验证
-        if ($batch) {
-            $v->batch(true);
-        }
-
-        if (!$v->check($this->request->param())) {
-            throw new ValidateException($v->getError());
-        }
+        $v->batch($batch)->failException(true)->check($this->request->param());
     }
 
     public function convert(bool $convert)
