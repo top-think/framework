@@ -589,6 +589,38 @@ if (!function_exists('url')) {
     }
 }
 
+if (!function_exists('validate')) {
+    /**
+     * 验证数据
+     * @param  array        $data     数据
+     * @param  string|array $validate 验证器名或者验证规则数组
+     * @param  array        $message  提示信息
+     * @param  bool         $batch    是否批量验证
+     * @return array|string|true
+     * @throws ValidateException
+     */
+    function validate(array $data, $validate, array $message = [], bool $batch = false)
+    {
+        if (is_array($validate)) {
+            $v = new Validate($validate, $message);
+        } else {
+            if (strpos($validate, '.')) {
+                // 支持场景
+                list($validate, $scene) = explode('.', $validate);
+            }
+
+            $class = app()->parseClass('validate', $validate);
+            $v     = $class::make([], $message);
+
+            if (!empty($scene)) {
+                $v->scene($scene);
+            }
+        }
+
+        return $v->batch($batch)->failException(true)->check($data);
+    }
+}
+
 if (!function_exists('view')) {
     /**
      * 渲染模板输出
