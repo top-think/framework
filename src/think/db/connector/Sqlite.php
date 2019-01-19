@@ -28,7 +28,7 @@ class Sqlite extends Connection
      * @param  array $config 连接信息
      * @return string
      */
-    protected function parseDsn(array $config)
+    protected function parseDsn(array $config): string
     {
         $dsn = 'sqlite:' . $config['database'];
 
@@ -41,7 +41,7 @@ class Sqlite extends Connection
      * @param  string $tableName
      * @return array
      */
-    public function getFields(string $tableName)
+    public function getFields(string $tableName): array
     {
         list($tableName) = explode(' ', $tableName);
         $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
@@ -73,7 +73,7 @@ class Sqlite extends Connection
      * @param  string $dbName
      * @return array
      */
-    public function getTables(string $dbName = '')
+    public function getTables(string $dbName = ''): array
     {
         $sql = "SELECT name FROM sqlite_master WHERE type='table' "
             . "UNION ALL SELECT name FROM sqlite_temp_master "
@@ -96,12 +96,12 @@ class Sqlite extends Connection
      * @param  string $sql
      * @return array
      */
-    protected function getExplain(string $sql)
+    protected function getExplain(string $sql): array
     {
         return [];
     }
 
-    protected function supportSavepoint()
+    protected function supportSavepoint(): bool
     {
         return true;
     }

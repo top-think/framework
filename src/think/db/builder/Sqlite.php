@@ -27,7 +27,7 @@ class Sqlite extends Builder
      * @param  mixed     $limit
      * @return string
      */
-    public function parseLimit(Query $query, $limit)
+    public function parseLimit(Query $query, string $limit): string
     {
         $limitStr = '';
 
@@ -49,7 +49,7 @@ class Sqlite extends Builder
      * @param  Query     $query        查询对象
      * @return string
      */
-    protected function parseRand(Query $query)
+    protected function parseRand(Query $query): string
     {
         return 'RANDOM()';
     }
@@ -62,7 +62,7 @@ class Sqlite extends Builder
      * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, $key, bool $strict = false)
+    public function parseKey(Query $query, $key, bool $strict = false): string
     {
         if (is_int($key)) {
             return $key;

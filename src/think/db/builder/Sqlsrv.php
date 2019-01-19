@@ -35,7 +35,7 @@ class Sqlsrv extends Builder
      * @param  mixed     $order
      * @return string
      */
-    protected function parseOrder(Query $query, $order)
+    protected function parseOrder(Query $query, array $order): string
     {
         if (empty($order)) {
             return ' ORDER BY rand()';
@@ -69,7 +69,7 @@ class Sqlsrv extends Builder
      * @param  Query     $query        查询对象
      * @return string
      */
-    protected function parseRand(Query $query)
+    protected function parseRand(Query $query): string
     {
         return 'rand()';
     }
@@ -82,7 +82,7 @@ class Sqlsrv extends Builder
      * @param  bool      $strict   严格检测
      * @return string
      */
-    public function parseKey(Query $query, $key, bool $strict = false)
+    public function parseKey(Query $query, $key, bool $strict = false): string
     {
         if (is_int($key)) {
             return $key;
@@ -129,7 +129,7 @@ class Sqlsrv extends Builder
      * @param  mixed     $limit
      * @return string
      */
-    protected function parseLimit(Query $query, $limit)
+    protected function parseLimit(Query $query, string $limit): string
     {
         if (empty($limit)) {
             return '';
@@ -146,7 +146,7 @@ class Sqlsrv extends Builder
         return 'WHERE ' . $limitStr;
     }
 
-    public function selectInsert(Query $query, $fields, $table)
+    public function selectInsert(Query $query, array $fields, string $table): string
     {
         $this->selectSql = $this->selectInsertSql;
 
