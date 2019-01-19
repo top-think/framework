@@ -1529,7 +1529,7 @@ class Request
      */
     public function has($name, $type = 'param', $checkEmpty = false)
     {
-        if (!in_array($type, ['param', 'get', 'post', 'request', 'put', 'file', 'session', 'cookie', 'env', 'header', 'route'])) {
+        if (!in_array($type, ['param', 'get', 'post', 'request', 'put', 'patch', 'file', 'session', 'cookie', 'env', 'header', 'route'])) {
             return false;
         }
 
