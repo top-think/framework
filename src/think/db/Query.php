@@ -379,9 +379,9 @@ class Query
         // 分析查询表达式
         $options = $this->parseOptions();
 
-        if (!$pdo && !empty($options['cache'])) {
+        if (!empty($options['cache'])) {
             $cacheItem = $options['cache'];
-            $resultSet = $this->getCacheData($cacheItem);
+            $resultSet = Container::pull('cache')->get($cacheItem->getKey());
 
             if (false !== $resultSet) {
                 return $resultSet;
@@ -395,7 +395,7 @@ class Query
 
         $resultSet = $this->connection->query($sql, $bind, $master, $procedure);
 
-        if (!$pdo && isset($cacheItem) && $resultSet) {
+        if (isset($cacheItem) && $resultSet) {
             // 缓存数据集
             $cacheItem->set($resultSet);
             $this->cacheData($cacheItem);
