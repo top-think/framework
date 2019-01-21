@@ -67,7 +67,7 @@ trait TimeStamp
             $dateTime = $time;
         } elseif ($timestamp) {
             $dateTime = new DateTime();
-            $dateTime->setTimestamp($time);
+            $dateTime->setTimestamp((int) $time);
         } else {
             $dateTime = new DateTime($time);
         }
