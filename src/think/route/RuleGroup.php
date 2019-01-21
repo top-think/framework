@@ -70,10 +70,6 @@ class RuleGroup extends Rule
             $this->parent->addRuleItem($this);
         }
 
-        if (!empty($option['cross_domain'])) {
-            $this->router->setCrossDomainRule($this);
-        }
-
         if ($router->isTest()) {
             $this->lazy(false);
         }

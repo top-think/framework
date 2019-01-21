@@ -345,17 +345,12 @@ abstract class Rule
     /**
      * 设置参数过滤检查
      * @access public
-     * @param  string|array     $name
-     * @param  mixed            $value
+     * @param  array     $filter
      * @return $this
      */
-    public function filter($name, $value = null)
+    public function filter(array $filter)
     {
-        if (is_array($name)) {
-            $this->option['filter'] = $name;
-        } else {
-            $this->option['filter'][$name] = $value;
-        }
+        $this->option['filter'] = $name;
 
         return $this;
     }

@@ -260,10 +260,9 @@ class Route
      * @access public
      * @param  string|array  $name 子域名
      * @param  mixed         $rule 路由规则
-     * @param  array         $option 路由参数
      * @return Domain
      */
-    public function domain($name, $rule = '', array $option = []): Domain
+    public function domain($name, $rule = null): Domain
     {
         // 支持多个域名使用相同路由规则
         $domainName = is_array($name) ? array_shift($name) : $name;
@@ -273,7 +272,7 @@ class Route
         }
 
         if (!isset($this->domains[$domainName])) {
-            $domain = (new Domain($this, $domainName, $rule, $option))
+            $domain = (new Domain($this, $domainName, $rule))
                 ->lazy($this->lazy)
                 ->mergeRuleRegex($this->mergeRuleRegex);
 
@@ -549,12 +548,11 @@ class Route
      * @access public
      * @param  string    $rule 路由规则
      * @param  string    $route 路由地址
-     * @param  array     $option 路由参数
      * @return Resource
      */
-    public function resource(string $rule, string $route, array $option = []): Resource
+    public function resource(string $rule, string $route): Resource
     {
-        return (new Resource($this, $this->group, $rule, $route, $option, $this->rest))
+        return (new Resource($this, $this->group, $rule, $route, $this->rest))
             ->lazy($this->lazy);
     }
 
@@ -622,12 +620,11 @@ class Route
      * @access public
      * @param  string    $route 路由地址
      * @param  string    $method 请求类型
-     * @param  array     $option 路由参数
      * @return RuleItem
      */
-    public function miss(string $route, string $method = '*', array $option = []): RuleItem
+    public function miss(string $route, string $method = '*'): RuleItem
     {
-        return $this->group->miss($route, $method, $option);
+        return $this->group->miss($route, $method);
     }
 
     /**

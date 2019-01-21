@@ -27,13 +27,11 @@ class Domain extends RuleGroup
      * @param  Route       $router   路由对象
      * @param  string      $name     路由域名
      * @param  mixed       $rule     域名路由
-     * @param  array       $option   路由参数
      */
-    public function __construct(Route $router, string $name = '', $rule = null, array $option = [])
+    public function __construct(Route $router, string $name = '', $rule = null)
     {
         $this->router = $router;
         $this->domain = $name;
-        $this->option = $option;
         $this->rule   = $rule;
     }
 
@@ -42,7 +40,6 @@ class Domain extends RuleGroup
      * @access public
      * @param  Request      $request  请求对象
      * @param  string       $url      访问地址
-     * @param  string       $depr     路径分隔符
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
