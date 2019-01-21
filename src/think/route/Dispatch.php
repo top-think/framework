@@ -266,6 +266,7 @@ abstract class Dispatch
             // 调用验证器
             $class = $this->app->parseClass('validate', $validate);
             $v     = $class::make([], $message);
+
             if (!empty($scene)) {
                 $v->scene($scene);
             }
