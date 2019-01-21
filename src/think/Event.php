@@ -37,7 +37,6 @@ class Event
         'AppEnd'       => event\AppEnd::class,
         'LogLevel'     => event\LogLevel::class,
         'LogWrite'     => event\LogWrite::class,
-        'ViewFilter'   => event\ViewFilter::class,
         'ResponseSend' => event\ResponseSend::class,
         'ResponseEnd'  => event\ResponseEnd::class,
     ];

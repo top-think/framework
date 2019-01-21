@@ -17,14 +17,20 @@ use think\Facade;
 /**
  * @see \think\App
  * @mixin \think\App
- * @method \think\App bind(string $bind) static 绑定模块或者控制器
+ * @method \think\App multi(bool $multi) static 设置多应用
+ * @method \think\App path(string $path) static 设置应用路径
+ * @method \think\App debug(bool $debug) static 设置应用调试模式
+ * @method \think\App name(string $name) static 设置应用名称
+ * @method \think\App controllerLayer(string $layer) static 设置应用控制器层
+ * @method \think\App emptyController(string $empty) static 设置应用的空控制器名称
+ * @method \think\App setNamespace(string $namespace) static 设置应用的命名空间
+ * @method \think\App setRootNamespace(string $namespace) static 设置应用的根命名空间
+ * @method \think\App useClassSuffix(bool $suffix) static 设置应用是否启用类库后缀
+ * @method \think\App autoMulti(array $map) static 自动多应用
+ * @method bool isAutoMulti(string $bind) static 判断是否为多应用
  * @method void initialize() static 初始化应用
  * @method void init() static 初始化应用
  * @method \think\Response run() static 执行应用
- * @method \think\App dispatch(\think\route\Dispatch $dispatch) static 设置当前请求的调度信息
- * @method void log(mixed $log, string $type = 'info') static 记录调试信息
- * @method mixed config(string $name='') static 获取配置参数
- * @method \think\route\Dispatch routeCheck() static URL路由检测（根据PATH_INFO)
  * @method object controller(string $name) static 实例化控制器
  * @method string parseClass(string $layer, string $name) static 解析应用类的类名
  * @method string version() static 获取框架版本
