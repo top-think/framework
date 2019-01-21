@@ -370,13 +370,38 @@ class Query
      * @param  array       $bind   参数绑定
      * @param  boolean     $master 是否在主服务器读操作
      * @param  bool        $pdo    是否返回PDO对象
-     * @return mixed
+     * @return array
      * @throws BindParamException
      * @throws PDOException
      */
-    public function query(string $sql, array $bind = [], bool $master = false, bool $pdo = false)
+    public function query(string $sql, array $bind = []): array
     {
-        return $this->connection->query($sql, $bind, $master, $pdo);
+        // 分析查询表达式
+        $options = $this->parseOptions();
+
+        if (!$pdo && !empty($options['cache'])) {
+            $cacheItem = $options['cache'];
+            $resultSet = $this->getCacheData($cacheItem);
+
+            if (false !== $resultSet) {
+                return $resultSet;
+            }
+        }
+
+        $master = !empty($options['master']) ? true : false;
+
+        // 是否为存储过程调用
+        $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
+
+        $resultSet = $this->connection->query($sql, $bind, $master, $procedure);
+
+        if (!$pdo && isset($cacheItem) && $resultSet) {
+            // 缓存数据集
+            $cacheItem->set($resultSet);
+            $this->cacheData($cacheItem);
+        }
+
+        return $resultSet;
     }
 
     /**
@@ -1594,6 +1619,18 @@ class Query
     public function using($using)
     {
         $this->options['using'] = $using;
+        return $this;
+    }
+
+    /**
+     * 存储过程调用
+     * @access public
+     * @param  bool $procedure
+     * @return $this
+     */
+    public function procedure($procedure = true)
+    {
+        $this->options['procedure'] = $procedure;
         return $this;
     }
 
@@ -3285,7 +3322,7 @@ class Query
             $options['strict'] = $this->connection->getConfig('fields_strict');
         }
 
-        foreach (['master', 'lock', 'fetch_sql', 'distinct'] as $name) {
+        foreach (['master', 'lock', 'fetch_sql', 'distinct', 'procedure'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }

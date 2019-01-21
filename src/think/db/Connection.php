@@ -628,14 +628,52 @@ abstract class Connection
      * @param  string    $sql sql指令
      * @param  array     $bind 参数绑定
      * @param  bool      $master 是否在主服务器读操作
-     * @param  bool      $pdo 是否返回PDO对象
+     * @param  bool      $procedure 是否存储过程调用
      * @return array
      * @throws BindParamException
      * @throws \PDOException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function query(string $sql, array $bind = [], bool $master = false, bool $pdo = false)
+    public function query(string $sql, array $bind = [], bool $master = false, bool $procedure = false): array
+    {
+        $this->getPDOStatement($sql, $bind, $master, $procedure);
+        return $this->getResult($procedure);
+    }
+
+    /**
+     * 执行查询但只返回PDOStatement对象
+     * @access public
+     * @return \PDOStatement
+     */
+    public function pdo(Query $query)
+    {
+        // 分析查询表达式
+        $options = $query->getOptions();
+
+        // 生成查询SQL
+        $sql = $this->builder->select($query);
+
+        $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
+
+        // 执行查询操作
+        return $this->getPDOStatement($sql, $query->getBind(), $options['master'], $procedure);
+    }
+
+    /**
+     * 执行查询但只返回PDOStatement对象
+     * @access public
+     * @param  string    $sql sql指令
+     * @param  array     $bind 参数绑定
+     * @param  bool      $master 是否在主服务器读操作
+     * @param  bool      $procedure 是否为存储过程调用
+     * @return PDOStatement
+     * @throws BindParamException
+     * @throws \PDOException
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function getPDOStatement(string $sql, array $bind = [], bool $master = false, bool $procedure = false): PDOStatement
     {
         $this->initConnect($master);
 
@@ -653,9 +691,6 @@ abstract class Connection
             // 预处理
             $this->PDOStatement = $this->linkID->prepare($sql);
 
-            // 是否为存储过程调用
-            $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
-
             // 参数绑定
             if ($procedure) {
                 $this->bindParam($bind);
@@ -669,12 +704,7 @@ abstract class Connection
             // 调试结束
             $this->debug(false, '', $master);
 
-            if ($pdo) {
-                // 返回PDOStatement对象处理
-                return $this->PDOStatement;
-            }
-
-            return $this->getResult($procedure);
+            return $this->PDOStatement;
         } catch (\Throwable | \Exception $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->query($sql, $bind, $master, $pdo);
@@ -869,7 +899,7 @@ abstract class Connection
 
         if (!$resultSet) {
             // 执行查询操作
-            $resultSet = $this->query($sql, $query->getBind(), $options['master'], false);
+            $resultSet = $this->query($sql, $query->getBind(), $options['master'], $options['procedure']);
         }
 
         if (isset($cacheItem) && false !== $resultSet) {
@@ -1298,23 +1328,6 @@ abstract class Connection
         }
 
         return $result;
-    }
-
-    /**
-     * 执行查询但只返回PDOStatement对象
-     * @access public
-     * @return PDOStatement
-     */
-    public function pdo(Query $query): PDOStatement
-    {
-        // 分析查询表达式
-        $options = $query->parseOptions();
-
-        // 生成查询SQL
-        $sql = $this->builder->select($query);
-
-        // 执行查询操作
-        return $this->query($sql, $query->getBind(), $options['master'], true);
     }
 
     /**
