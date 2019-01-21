@@ -1212,7 +1212,7 @@ abstract class Connection
         }
 
         // 执行查询操作
-        $pdo = $this->query($sql, $query->getBind(), $options['master'], true);
+        $pdo = $this->getPDOStatement($sql, $query->getBind(), $options['master']);
 
         $result = $pdo->fetchColumn();
 
@@ -1287,7 +1287,7 @@ abstract class Connection
         }
 
         // 执行查询操作
-        $pdo = $this->query($sql, $query->getBind(), $options['master'], true);
+        $pdo = $this->getPDOStatement($sql, $query->getBind(), $options['master']);
 
         if (1 == $pdo->columnCount()) {
             $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
