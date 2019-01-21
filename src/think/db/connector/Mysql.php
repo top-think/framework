@@ -88,7 +88,7 @@ class Mysql extends Connection
         }
 
         $sql    = 'SHOW COLUMNS FROM ' . $tableName;
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
@@ -118,7 +118,7 @@ class Mysql extends Connection
     public function getTables(string $dbName = ''): array
     {
         $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 

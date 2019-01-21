@@ -64,7 +64,7 @@ class Sqlsrv extends Connection
         AND t.table_name    = c.table_name
         WHERE   t.table_name = '$tableName'";
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
@@ -114,7 +114,7 @@ class Sqlsrv extends Connection
             WHERE TABLE_TYPE = 'BASE TABLE'
             ";
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 

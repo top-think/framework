@@ -46,7 +46,7 @@ class Sqlite extends Connection
         list($tableName) = explode(' ', $tableName);
         $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
@@ -79,7 +79,7 @@ class Sqlite extends Connection
             . "UNION ALL SELECT name FROM sqlite_temp_master "
             . "WHERE type='table' ORDER BY name";
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 

@@ -57,7 +57,7 @@ class Pgsql extends Connection
         list($tableName) = explode(' ', $tableName);
         $sql             = 'select fields_name as "field",fields_type as "type",fields_not_null as "null",fields_key_name as "key",fields_default as "default",fields_default as "extra" from table_msg(\'' . $tableName . '\');';
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
@@ -87,7 +87,7 @@ class Pgsql extends Connection
     public function getTables(string $dbName = ''): array
     {
         $sql    = "select tablename as Tables_in_test from pg_tables where  schemaname ='public'";
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
 
