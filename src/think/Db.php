@@ -67,22 +67,11 @@ class Db
     /**
      * 获得查询次数
      * @access public
-     * @param  boolean $execute 是否包含所有查询
      * @return integer
      */
-    public function getQueryTimes(bool $execute = false): int
+    public function getQueryTimes(): int
     {
-        return $this->connection->getQueryTimes($execute);
-    }
-
-    /**
-     * 获得执行次数
-     * @access public
-     * @return integer
-     */
-    public function getExecuteTimes(): int
-    {
-        return $this->connection->getExecuteTimes();
+        return $this->connection->getQueryTimes();
     }
 
     /**

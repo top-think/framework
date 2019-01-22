@@ -368,40 +368,13 @@ class Query
      * @access public
      * @param  string      $sql    sql指令
      * @param  array       $bind   参数绑定
-     * @param  boolean     $master 是否在主服务器读操作
-     * @param  bool        $pdo    是否返回PDO对象
      * @return array
      * @throws BindParamException
      * @throws PDOException
      */
     public function query(string $sql, array $bind = []): array
     {
-        // 分析查询表达式
-        $options = $this->parseOptions();
-
-        if (!empty($options['cache'])) {
-            $cacheItem = $options['cache'];
-            $resultSet = Container::pull('cache')->get($cacheItem->getKey());
-
-            if (false !== $resultSet) {
-                return $resultSet;
-            }
-        }
-
-        $master = !empty($options['master']) ? true : false;
-
-        // 是否为存储过程调用
-        $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
-
-        $resultSet = $this->connection->query($sql, $bind, $master, $procedure);
-
-        if (isset($cacheItem) && $resultSet) {
-            // 缓存数据集
-            $cacheItem->set($resultSet);
-            $this->cacheData($cacheItem);
-        }
-
-        return $resultSet;
+        return $this->connection->query($this, $sql, $bind, true);
     }
 
     /**
@@ -415,7 +388,7 @@ class Query
      */
     public function execute(string $sql, array $bind = []): int
     {
-        return $this->connection->execute($sql, $bind, $this);
+        return $this->connection->execute($this, $sql, $bind);
     }
 
     /**
@@ -512,7 +485,7 @@ class Query
      */
     public function batchQuery(array $sql = []): bool
     {
-        return $this->connection->batchQuery($sql);
+        return $this->connection->batchQuery($this, $sql);
     }
 
     /**

@@ -47,12 +47,6 @@ abstract class Connection
      */
     protected static $queryTimes = 0;
 
-    /**
-     * 执行次数
-     * @var integer
-     */
-    protected static $executeTimes = 0;
-
     /** @var PDO[] 数据库连接ID 支持多个连接 */
     protected $links = [];
 
@@ -165,6 +159,9 @@ abstract class Connection
     // 绑定参数
     protected $bind = [];
 
+    // 缓存对象
+    protected $cache;
+
     /**
      * 架构函数 读取数据库配置信息
      * @access public
@@ -180,6 +177,7 @@ abstract class Connection
         $class = $this->getBuilderClass();
 
         $this->builder = new $class($this);
+        $this->cache   = Container::pull('cache');
 
         // 执行初始化操作
         $this->initialize();
@@ -572,45 +570,16 @@ abstract class Connection
     /**
      * 执行查询 使用生成器返回数据
      * @access public
+     * @param  Query     $query 查询对象
      * @param  string    $sql sql指令
      * @param  array     $bind 参数绑定
-     * @param  bool      $master 是否在主服务器读操作
      * @param  Model     $model 模型对象实例
      * @param  array     $condition 查询条件
      * @return \Generator
      */
-    public function getCursor(string $sql, array $bind = [], bool $master = false, $model = null, $condition = null)
+    public function getCursor(Query $query, string $sql, array $bind = [], $model = null, $condition = null)
     {
-        $this->initConnect($master);
-
-        // 记录SQL语句
-        $this->queryStr = $sql;
-
-        $this->bind = $bind;
-
-        self::$queryTimes++;
-
-        // 调试开始
-        $this->debug(true);
-
-        // 预处理
-        $this->PDOStatement = $this->linkID->prepare($sql);
-
-        // 是否为存储过程调用
-        $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
-
-        // 参数绑定
-        if ($procedure) {
-            $this->bindParam($bind);
-        } else {
-            $this->bindValue($bind);
-        }
-
-        // 执行查询
-        $this->PDOStatement->execute();
-
-        // 调试结束
-        $this->debug(false);
+        $this->queryPDOStatement($query, $sql, $bind);
 
         // 返回结果集
         while ($result = $this->PDOStatement->fetch($this->fetchType)) {
@@ -625,39 +594,59 @@ abstract class Connection
     /**
      * 执行查询 返回数据集
      * @access public
+     * @param  Query     $query 查询对象
      * @param  string    $sql sql指令
      * @param  array     $bind 参数绑定
-     * @param  bool      $master 是否在主服务器读操作
-     * @param  bool      $procedure 是否存储过程调用
+     * @param  bool      $cache 是否支持缓存
      * @return array
      * @throws BindParamException
      * @throws \PDOException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function query(string $sql, array $bind = [], bool $master = false, bool $procedure = false): array
+    public function query(Query $query, string $sql, array $bind = [], bool $cache = false): array
     {
+        // 分析查询表达式
+        $options = $query->parseOptions();
+
+        if ($cache && !empty($options['cache'])) {
+            $cacheItem = $options['cache'];
+            $resultSet = $this->cache->get($cacheItem->getKey());
+
+            if (false !== $resultSet) {
+                return $resultSet;
+            }
+        }
+
+        $master    = !empty($options['master']) ? true : false;
+        $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
+
         $this->getPDOStatement($sql, $bind, $master, $procedure);
-        return $this->getResult($procedure);
+
+        $resultSet = $this->getResult($procedure);
+
+        if (isset($cacheItem) && $resultSet) {
+            // 缓存数据集
+            $cacheItem->set($resultSet);
+            $this->cacheData($cacheItem);
+        }
+
+        return $resultSet;
     }
 
     /**
      * 执行查询但只返回PDOStatement对象
      * @access public
+     * @param  Query         $query 查询对象
      * @return \PDOStatement
      */
     public function pdo(Query $query)
     {
-        // 分析查询表达式
-        $options = $query->getOptions();
-
+        $bind = $query->getBind();
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
-        $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
-
-        // 执行查询操作
-        return $this->getPDOStatement($sql, $query->getBind(), $options['master'], $procedure);
+        return $this->queryPDOStatement($query, $sql, $bind);
     }
 
     /**
@@ -707,7 +696,7 @@ abstract class Connection
             return $this->PDOStatement;
         } catch (\Throwable | \Exception $e) {
             if ($this->isBreak($e)) {
-                return $this->close()->query($sql, $bind, $master, $pdo);
+                return $this->close()->getPDOStatement($sql, $bind, $master, $procedure);
             }
 
             if ($e instanceof \PDOException) {
@@ -721,62 +710,31 @@ abstract class Connection
     /**
      * 执行语句
      * @access public
+     * @param  Query         $query 查询对象
      * @param  string        $sql sql指令
      * @param  array         $bind 参数绑定
-     * @param  Query         $query 查询对象
      * @return int
      * @throws BindParamException
      * @throws \PDOException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function execute(string $sql, array $bind = [], Query $query): int
+    public function execute(Query $query, string $sql, array $bind = []): int
     {
-        $this->initConnect(true);
+        $this->queryPDOStatement($query->master(true), $sql, $bind);
 
-        // 记录SQL语句
-        $this->queryStr = $sql;
+        $this->numRows = $this->PDOStatement->rowCount();
 
-        $this->bind = $bind;
+        return $this->numRows;
+    }
 
-        self::$executeTimes++;
-        try {
-            // 调试开始
-            $this->debug(true);
+    protected function queryPDOStatement(Query $query, string $sql, array $bind = [])
+    {
+        $options   = $query->parseOptions();
+        $master    = !empty($options['master']) ? true : false;
+        $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
 
-            // 预处理
-            $this->PDOStatement = $this->linkID->prepare($sql);
-
-            // 是否为存储过程调用
-            $procedure = in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
-
-            // 参数绑定
-            if ($procedure) {
-                $this->bindParam($bind);
-            } else {
-                $this->bindValue($bind);
-            }
-
-            // 执行语句
-            $this->PDOStatement->execute();
-
-            // 调试结束
-            $this->debug(false, '', true);
-
-            $this->numRows = $this->PDOStatement->rowCount();
-
-            return $this->numRows;
-        } catch (\Throwable | \Exception $e) {
-            if ($this->isBreak($e)) {
-                return $this->close()->execute($sql, $bind, $query);
-            }
-
-            if ($e instanceof \PDOException) {
-                throw new PDOException($e, $this->config, $this->getLastsql());
-            } else {
-                throw $e;
-            }
-        }
+        return $this->getPDOStatement($sql, $bind, $master, $procedure);
     }
 
     /**
@@ -820,7 +778,7 @@ abstract class Connection
         $query->setOption('data', $data);
 
         if (isset($options['key'])) {
-            $result = Container::pull('cache')->get($options['key']);
+            $result = $this->cache->get($options['key']);
 
             if (false !== $result) {
                 return $result;
@@ -835,7 +793,7 @@ abstract class Connection
 
         if (!$result) {
             // 执行查询
-            $resultSet = $this->query($sql, $query->getBind(), $options['master'], false);
+            $resultSet = $this->query($query, $sql, $query->getBind());
 
             $result = $resultSet[0] ?? null;
         }
@@ -866,7 +824,7 @@ abstract class Connection
         $condition = $options['where']['AND'] ?? null;
 
         // 执行查询操作
-        return $this->getCursor($sql, $query->getBind(), $options['master'], $query->getModel(), $condition);
+        return $this->getCursor($query, $sql, $query->getBind(), $options['master'], $query->getModel(), $condition);
     }
 
     /**
@@ -899,7 +857,7 @@ abstract class Connection
 
         if (!$resultSet) {
             // 执行查询操作
-            $resultSet = $this->query($sql, $query->getBind(), $options['master'], $options['procedure']);
+            $resultSet = $this->query($query, $sql, $query->getBind());
         }
 
         if (isset($cacheItem) && false !== $resultSet) {
@@ -929,7 +887,7 @@ abstract class Connection
         $sql = $this->builder->insert($query, $replace);
 
         // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $query->getBind(), $query);
+        $result = '' == $sql ? 0 : $this->execute($query, $sql, $query->getBind());
 
         if ($result) {
             $sequence  = $sequence ?: ($options['sequence'] ?? null);
@@ -985,7 +943,7 @@ abstract class Connection
 
                 foreach ($array as $item) {
                     $sql = $this->builder->insertAll($query, $item, $replace);
-                    $count += $this->execute($sql, $query->getBind(), $query);
+                    $count += $this->execute($query, $sql, $query->getBind());
                 }
 
                 // 提交事务
@@ -1000,7 +958,7 @@ abstract class Connection
 
         $sql = $this->builder->insertAll($query, $dataSet, $replace);
 
-        return $this->execute($sql, $query->getBind(), $query);
+        return $this->execute($query, $sql, $query->getBind());
     }
 
     /**
@@ -1017,7 +975,7 @@ abstract class Connection
         // 分析查询表达式
         $sql = $this->builder->selectInsert($query, $fields, $table);
 
-        return $this->execute($sql, $query->getBind(), $query);
+        return $this->execute($query, $sql, $query->getBind());
     }
 
     /**
@@ -1084,17 +1042,16 @@ abstract class Connection
         $sql = $this->builder->update($query);
 
         // 检测缓存
-        $cache = Container::pull('cache');
 
-        if (isset($key) && $cache->get($key)) {
+        if (isset($key) && $this->cache->get($key)) {
             // 删除缓存
-            $cache->rm($key);
+            $this->cache->rm($key);
         } elseif (isset($cacheItem) && $cacheItem->getTag()) {
-            $cache->clear($cacheItem->getTag());
+            $this->cache->clear($cacheItem->getTag());
         }
 
         // 执行操作
-        $result = '' == $sql ? 0 : $this->execute($sql, $query->getBind(), $query);
+        $result = '' == $sql ? 0 : $this->execute($query, $sql, $query->getBind());
 
         if ($result) {
             if (is_string($pk) && isset($options['where']['AND'][$pk])) {
@@ -1144,17 +1101,15 @@ abstract class Connection
         $sql = $this->builder->delete($query);
 
         // 检测缓存
-        $cache = Container::pull('cache');
-
-        if (isset($key) && $cache->get($key)) {
+        if (isset($key) && $this->cache->get($key)) {
             // 删除缓存
-            $cache->rm($key);
+            $this->cache->rm($key);
         } elseif (isset($cacheItem) && $cacheItem->getTag()) {
-            $cache->clear($cacheItem->getTag());
+            $this->cache->clear($cacheItem->getTag());
         }
 
         // 执行操作
-        $result = $this->execute($sql, $query->getBind(), $query);
+        $result = $this->execute($query, $sql, $query->getBind());
 
         if ($result) {
             if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
@@ -1617,7 +1572,7 @@ abstract class Connection
 
         try {
             foreach ($sqlArray as $sql) {
-                $this->execute($sql, $bind);
+                $this->execute($query, $sql, $bind);
             }
             // 提交事务
             $this->commit();
@@ -1632,22 +1587,11 @@ abstract class Connection
     /**
      * 获得查询次数
      * @access public
-     * @param  boolean $execute 是否包含所有查询
      * @return integer
      */
-    public function getQueryTimes(bool $execute = false): int
+    public function getQueryTimes(): int
     {
-        return $execute ? self::$queryTimes + self::$executeTimes : self::$queryTimes;
-    }
-
-    /**
-     * 获得执行次数
-     * @access public
-     * @return integer
-     */
-    public function getExecuteTimes(): int
-    {
-        return self::$executeTimes;
+        return self::$queryTimes;
     }
 
     /**
@@ -1927,13 +1871,11 @@ abstract class Connection
      */
     protected function cacheData(CacheItem $cacheItem): void
     {
-        $cache = Container::pull('cache');
-
         if ($cacheItem->getTag()) {
-            $cache->tag($cacheItem->getTag());
+            $this->cache->tag($cacheItem->getTag());
         }
 
-        $cache->set($cacheItem->getKey(), $cacheItem->get(), $cacheItem->getExpire());
+        $this->cache->set($cacheItem->getKey(), $cacheItem->get(), $cacheItem->getExpire());
 
     }
 
@@ -1949,7 +1891,7 @@ abstract class Connection
     protected function getCacheData(CacheItem $cacheItem)
     {
         // 判断查询缓存
-        return Container::pull('cache')->get($cacheItem->getKey());
+        return $this->cache->get($cacheItem->getKey());
     }
 
     /**
