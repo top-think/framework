@@ -152,8 +152,21 @@ class Build
                 // 生成相关MVC文件
                 foreach ($file as $val) {
                     $val      = trim($val);
-                    $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $val . ($suffix ? ucfirst($path) : '') . '.php';
-                    $space    = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
+                    // 多级控制器判断
+                    $lv = '';
+                    if ($path == 'controller' || $path == 'view') {
+                        if (strpos($val, '.') !== false) {
+                            list($lv, $val) = explode('.', $val);
+                        }
+                    }
+
+                    if (!empty($lv)) {
+                        $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $lv . DIRECTORY_SEPARATOR . $val . ($suffix ? ucfirst($path) : '') . '.php';
+                        $space    = $namespace . '\\' . ($module ? $module . '\\' : '') . $path . '\\' .$lv;
+                    } else {
+                        $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $val . ($suffix ? ucfirst($path) : '') . '.php';
+                        $space    = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
+                    }
                     $class    = $val . ($suffix ? ucfirst($path) : '');
                     switch ($path) {
                         case 'controller': // 控制器
@@ -163,7 +176,7 @@ class Build
                             $content = "<?php\nnamespace {$space};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
                             break;
                         case 'view': // 视图
-                            $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $val . '.html';
+                            $filename = $modulePath . $path . DIRECTORY_SEPARATOR . ($lv ? $lv . DIRECTORY_SEPARATOR : '') . $val . '.html';
                             $this->checkDirBuild(dirname($filename));
                             $content = '';
                             break;
