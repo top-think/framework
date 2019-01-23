@@ -153,10 +153,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             // 当前模型名
             $name       = str_replace('\\', '/', static::class);
             $this->name = basename($name);
-            if (Container::pull('app')->hasClassSuffix()) {
-                $suffix     = basename(dirname($name));
-                $this->name = substr($this->name, 0, -strlen($suffix));
-            }
         }
 
         if (is_null($this->autoWriteTimestamp)) {

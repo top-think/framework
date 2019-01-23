@@ -77,7 +77,7 @@ class RouteList extends Command
         }
 
         if (Container::pull('config')->get('route_annotation')) {
-            $suffix = App::hasClassSuffix();
+            $suffix = App::hasControllerSuffix();
 
             include Container::pull('build')->buildRoute($suffix);
         }

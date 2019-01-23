@@ -66,12 +66,6 @@ class App extends Container
     protected $namespace = '';
 
     /**
-     * 应用类库后缀
-     * @var bool
-     */
-    protected $suffix = false;
-
-    /**
      * 应用根目录
      * @var string
      */
@@ -142,6 +136,12 @@ class App extends Container
      * @var string
      */
     protected $controllerLayer = 'controller';
+
+    /**
+     * 是否使用控制器类库后缀
+     * @var bool
+     */
+    protected $controllerSuffix = false;
 
     /**
      * 空控制器名称
@@ -306,14 +306,14 @@ class App extends Container
     }
 
     /**
-     * 设置是否启用应用类库后缀
+     * 设置是否启用控制器类库后缀
      * @access public
-     * @param  bool  $suffix 启用应用类库后缀
+     * @param  bool  $suffix 启用控制器类库后缀
      * @return $this
      */
-    public function useClassSuffix(bool $suffix = true)
+    public function controllerSuffix(bool $suffix = true)
     {
-        $this->suffix = $suffix;
+        $this->controllerSuffix = $suffix;
         return $this;
     }
 
@@ -575,11 +575,12 @@ class App extends Container
      */
     public function controller(string $name)
     {
-        $class = $this->parseClass($this->controllerLayer, $name);
+        $suffix = $this->controllerSuffix ? 'Controller' : '';
+        $class  = $this->parseClass($this->controllerLayer, $name . $suffix);
 
         if (class_exists($class)) {
             return $this->make($class, [], true);
-        } elseif ($this->emptyController && class_exists($emptyClass = $this->parseClass($this->controllerLayer, $this->emptyController))) {
+        } elseif ($this->emptyController && class_exists($emptyClass = $this->parseClass($this->controllerLayer, $this->emptyController . $suffix))) {
             return $this->make($emptyClass, [], true);
         }
 
@@ -597,7 +598,7 @@ class App extends Container
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1) . ($this->suffix ? ucfirst($layer) : '');
+        $class = self::parseName(array_pop($array), 1);
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . $layer . '\\' . $path . $class;
@@ -734,13 +735,13 @@ class App extends Container
     }
 
     /**
-     * 是否启用类库后缀
+     * 是否启用控制器类库后缀
      * @access public
      * @return bool
      */
-    public function hasClassSuffix(): bool
+    public function hasControllerSuffix(): bool
     {
-        return $this->suffix;
+        return $this->controllerSuffix;
     }
 
     /**

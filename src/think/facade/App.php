@@ -25,7 +25,7 @@ use think\Facade;
  * @method \think\App emptyController(string $empty) static 设置应用的空控制器名称
  * @method \think\App setNamespace(string $namespace) static 设置应用的命名空间
  * @method \think\App setRootNamespace(string $namespace) static 设置应用的根命名空间
- * @method \think\App useClassSuffix(bool $suffix) static 设置应用是否启用类库后缀
+ * @method \think\App controllerSuffix(bool $suffix) static 设置应用是否启用控制器类库后缀
  * @method \think\App autoMulti(array $map) static 自动多应用
  * @method bool isAutoMulti(string $bind) static 判断是否为多应用
  * @method void initialize() static 初始化应用
@@ -44,7 +44,7 @@ use think\Facade;
  * @method string getConfigExt() static 获取配置后缀
  * @method string setNamespace(string $namespace) static 设置应用类库命名空间
  * @method string getNamespace() static 获取应用类库命名空间
- * @method string hasClassSuffix() static 是否启用类库后缀
+ * @method string hasControllerSuffix() static 是否启用类库后缀
  * @method float getBeginTime() static 获取应用开启时间
  * @method integer getBeginMem() static 获取应用初始内存占用
  */
