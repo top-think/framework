@@ -115,18 +115,15 @@ class Build
     /**
      * 根据注释自动生成路由规则
      * @access public
-     * @param  bool   $suffix 类库后缀
-     * @param  string $layer  控制器层目录名
      * @return string
      */
-    public function buildRoute(bool $suffix = false, string $layer = ''): string
+    public function buildRoute(): string
     {
         $namespace = $this->app->getNameSpace();
         $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
 
-        if (!$layer) {
-            $layer = $this->app['config']->get('app.url_controller_layer');
-        }
+        $layer  = $this->app->getControllerLayer();
+        $suffix = $this->app->hasControllerSuffix();
 
         $path = $this->appPath . $layer . DIRECTORY_SEPARATOR;
         $content .= $this->buildDirRoute($path, $namespace, $suffix, $layer);
