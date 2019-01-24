@@ -1271,10 +1271,7 @@ abstract class Connection
         }
 
         $query->setOption('field', $field);
-
-        if (empty($options['group'])) {
-            $query->setOption('limit', 1);
-        }
+        $query->setOption('limit', 1);
 
         // 生成查询SQL
         $sql = $this->builder->select($query);
