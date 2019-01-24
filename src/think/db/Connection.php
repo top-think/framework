@@ -1158,7 +1158,7 @@ abstract class Connection
         }
 
         // 生成查询SQL
-        $sql = $this->builder->select($query, empty($options['group']) ? true : false);
+        $sql = $this->builder->select($query, true);
 
         if (isset($options['field'])) {
             $query->setOption('field', $options['field']);
