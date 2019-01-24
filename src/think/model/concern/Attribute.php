@@ -83,7 +83,7 @@ trait Attribute
      * 是否严格字段大小写
      * @var bool
      */
-    protected $strict = false;
+    protected $strict = true;
 
     /**
      * 修改器执行记录
