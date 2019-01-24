@@ -567,10 +567,11 @@ class Validate
             } elseif (true !== $result) {
                 // 返回自定义错误信息
                 if (is_string($result) && false !== strpos($result, ':')) {
-                    $result = str_replace(
-                        [':attribute', ':rule'],
-                        [$title, (string) $rule],
-                        $result);
+                    $result = str_replace(':attribute', $title, $result);
+
+                    if (strpos($result, ':rule') && is_scalar($rule)) {
+                        $msg = str_replace(':rule', (string) $rule, $result);
+                    }
                 }
 
                 return $result;
@@ -1471,13 +1472,17 @@ class Validate
             $msg = $title . $lang->get('not conform to the rules');
         }
 
-        if (is_string($msg) && 0 === strpos($msg, '{%')) {
+        if (!is_string($msg)) {
+            return $msg;
+        }
+
+        if (0 === strpos($msg, '{%')) {
             $msg = $lang->get(substr($msg, 2, -1));
         } elseif ($lang->has($msg)) {
             $msg = $lang->get($msg);
         }
 
-        if (is_string($msg) && is_scalar($rule) && false !== strpos($msg, ':')) {
+        if (is_scalar($rule) && false !== strpos($msg, ':')) {
             // 变量替换
             if (is_string($rule) && strpos($rule, ',')) {
                 $array = array_pad(explode(',', $rule), 3, '');
@@ -1485,9 +1490,12 @@ class Validate
                 $array = array_pad([], 3, '');
             }
             $msg = str_replace(
-                [':attribute', ':rule', ':1', ':2', ':3'],
-                [$title, (string) $rule, $array[0], $array[1], $array[2]],
+                [':attribute', ':1', ':2', ':3'],
+                [$title, $array[0], $array[1], $array[2]],
                 $msg);
+            if (strpos($msg, ':rule')) {
+                $msg = str_replace(':rule', (string) $rule, $msg);
+            }
         }
 
         return $msg;
