@@ -356,6 +356,26 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
+     * 刷新模型数据
+     * @access public
+     * @param  bool $relation 是否刷新关联数据
+     * @return $this
+     */
+    public function reflesh(bool $relation = false)
+    {
+        if ($this->exists) {
+            $this->data   = $this->fetchArray()->find($this->getKey());
+            $this->origin = $this->data;
+
+            if ($relation) {
+                $this->relation = [];
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * 设置数据是否存在
      * @access public
      * @param  bool $exists

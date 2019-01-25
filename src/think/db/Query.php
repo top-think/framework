@@ -528,7 +528,7 @@ class Query
     /**
      * COUNT查询
      * @access public
-     * @param  string $field 字段名
+     * @param  string|Expression $field 字段名
      * @return int
      */
     public function count(string $field = '*'): int
@@ -551,7 +551,7 @@ class Query
     /**
      * SUM查询
      * @access public
-     * @param  string $field 字段名
+     * @param  string|Expression $field 字段名
      * @return float
      */
     public function sum($field): float
@@ -592,38 +592,6 @@ class Query
     public function avg($field): float
     {
         return $this->aggregate('AVG', $field, true);
-    }
-
-    /**
-     * 延时更新检查 返回false表示需要延时
-     * 否则返回实际写入的数值
-     * @access protected
-     * @param  string  $type     自增或者自减
-     * @param  string  $guid     写入标识
-     * @param  integer $step     写入步进值
-     * @param  integer $lazyTime 延时时间(s)
-     * @return false|integer
-     */
-    protected function lazyWrite(string $type, string $guid, int $step, int $lazyTime)
-    {
-        $cache = Container::pull('cache');
-
-        if (!$cache->has($guid . '_time')) {
-            // 计时开始
-            $cache->set($guid . '_time', time(), 0);
-            $cache->$type($guid, $step);
-        } elseif (time() > $cache->get($guid . '_time') + $lazyTime) {
-            // 删除缓存
-            $value = $cache->$type($guid, $step);
-            $cache->rm($guid);
-            $cache->rm($guid . '_time');
-            return 0 === $value ? false : $value;
-        } else {
-            // 更新缓存
-            $cache->$type($guid, $step);
-        }
-
-        return false;
     }
 
     /**
@@ -863,7 +831,7 @@ class Query
             $condition = $this->options['where'] ?? [];
 
             $guid = md5($this->getTable() . '_' . $field . '_' . serialize($condition));
-            $step = $this->lazyWrite($op, $guid, $step, $lazyTime);
+            $step = $this->connection->lazyWrite($op, $guid, $step, $lazyTime);
 
             if (false === $step) {
                 return $this;
@@ -1204,7 +1172,7 @@ class Query
      * @param  string $logic     查询逻辑 and or xor
      * @return $this
      */
-    public function whereExp(string $field, $where, array $bind = [], string $logic = 'AND')
+    public function whereExp(string $field, string $where, array $bind = [], string $logic = 'AND')
     {
         if ($bind) {
             $this->bindParams($where, $bind);
