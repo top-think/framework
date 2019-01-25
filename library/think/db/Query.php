@@ -611,9 +611,9 @@ class Query
     /**
      * 聚合查询
      * @access public
-     * @param  string $aggregate    聚合方法
-     * @param  string $field        字段名
-     * @param  bool   $force        强制转为数字类型
+     * @param  string               $aggregate    聚合方法
+     * @param  string|Expression    $field        字段名
+     * @param  bool                 $force        强制转为数字类型
      * @return mixed
      */
     public function aggregate($aggregate, $field, $force = false)
@@ -634,7 +634,7 @@ class Query
     /**
      * COUNT查询
      * @access public
-     * @param  string $field 字段名
+     * @param  string|Expression $field 字段名
      * @return float|string
      */
     public function count($field = '*')
@@ -664,7 +664,7 @@ class Query
     /**
      * SUM查询
      * @access public
-     * @param  string $field 字段名
+     * @param  string|Expression $field 字段名
      * @return float
      */
     public function sum($field)
@@ -675,8 +675,8 @@ class Query
     /**
      * MIN查询
      * @access public
-     * @param  string $field    字段名
-     * @param  bool   $force    强制转为数字类型
+     * @param  string|Expression $field    字段名
+     * @param  bool              $force    强制转为数字类型
      * @return mixed
      */
     public function min($field, $force = true)
@@ -687,8 +687,8 @@ class Query
     /**
      * MAX查询
      * @access public
-     * @param  string $field    字段名
-     * @param  bool   $force    强制转为数字类型
+     * @param  string|Expression $field    字段名
+     * @param  bool              $force    强制转为数字类型
      * @return mixed
      */
     public function max($field, $force = true)
@@ -699,7 +699,7 @@ class Query
     /**
      * AVG查询
      * @access public
-     * @param  string $field 字段名
+     * @param  string|Expression $field 字段名
      * @return float
      */
     public function avg($field)
