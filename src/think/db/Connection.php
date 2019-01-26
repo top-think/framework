@@ -1045,7 +1045,7 @@ abstract class Connection
 
         if (isset($key) && $this->cache->get($key)) {
             // 删除缓存
-            $this->cache->rm($key);
+            $this->cache->delete($key);
         } elseif (isset($cacheItem) && $cacheItem->getTag()) {
             $this->cache->clear($cacheItem->getTag());
         }
@@ -1103,7 +1103,7 @@ abstract class Connection
         // 检测缓存
         if (isset($key) && $this->cache->get($key)) {
             // 删除缓存
-            $this->cache->rm($key);
+            $this->cache->delete($key);
         } elseif (isset($cacheItem) && $cacheItem->getTag()) {
             $this->cache->clear($cacheItem->getTag());
         }
@@ -1191,7 +1191,11 @@ abstract class Connection
      */
     public function aggregate(Query $query, string $aggregate, $field, bool $force = false)
     {
-        $field = $aggregate . '(' . $this->builder->parseKey($query, $field) . ') AS tp_' . strtolower($aggregate);
+        if (is_string($field) && 0 === stripos($field, 'DISTINCT ')) {
+            list($distinct, $field) = explode(' ', $field);
+        }
+
+        $field = $aggregate . '(' . (!empty($distinct) ? 'DISTINCT ' : '') . $this->builder->parseKey($query, $field, true) . ') AS tp_' . strtolower($aggregate);
 
         $result = $this->value($query, $field, 0);
 
@@ -1557,11 +1561,12 @@ abstract class Connection
      * 批处理执行SQL语句
      * 批处理的指令都认为是execute操作
      * @access public
-     * @param  array $sqlArray   SQL批处理指令
-     * @param  array $bind       参数绑定
+     * @param  Query    $query        查询对象
+     * @param  array    $sqlArray   SQL批处理指令
+     * @param  array    $bind       参数绑定
      * @return bool
      */
-    public function batchQuery(array $sqlArray = [], array $bind = []): bool
+    public function batchQuery(Query $query, array $sqlArray = [], array $bind = []): bool
     {
         if (!is_array($sqlArray)) {
             return false;
@@ -1922,4 +1927,33 @@ abstract class Connection
         }
     }
 
+    /**
+     * 延时更新检查 返回false表示需要延时
+     * 否则返回实际写入的数值
+     * @access public
+     * @param  string  $type     自增或者自减
+     * @param  string  $guid     写入标识
+     * @param  integer $step     写入步进值
+     * @param  integer $lazyTime 延时时间(s)
+     * @return false|integer
+     */
+    public function lazyWrite(string $type, string $guid, int $step, int $lazyTime)
+    {
+        if (!$this->cache->has($guid . '_time')) {
+            // 计时开始
+            $this->cache->set($guid . '_time', time(), 0);
+            $this->cache->$type($guid, $step);
+        } elseif (time() > $this->cache->get($guid . '_time') + $lazyTime) {
+            // 删除缓存
+            $value = $this->cache->$type($guid, $step);
+            $this->cache->delete($guid);
+            $this->cache->delete($guid . '_time');
+            return 0 === $value ? false : $value;
+        } else {
+            // 更新缓存
+            $this->cache->$type($guid, $step);
+        }
+
+        return false;
+    }
 }
