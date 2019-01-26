@@ -318,7 +318,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
     }
 
-    protected function checkData(array &$data): void
+    protected function checkData(): void
+    {}
+
+    protected function checkResult($result): void
     {}
 
     /**
@@ -492,7 +495,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             return false;
         }
 
-        $this->checkData($this->data);
+        $this->checkData();
 
         // 获取有更新的数据
         $data = $this->getChangedData();
@@ -516,6 +519,51 @@ abstract class Model implements JsonSerializable, ArrayAccess
         // 检查允许字段
         $allowFields = $this->checkAllowFields($auto);
 
+        $where = $this->getUpdateWhere($data);
+
+        foreach ((array) $this->relationWrite as $name => $val) {
+            if (!is_array($val)) {
+                continue;
+            }
+
+            foreach ($val as $key) {
+                if (isset($data[$key])) {
+                    unset($data[$key]);
+                }
+            }
+        }
+
+        // 模型更新
+        $db = $this->db();
+        $db->startTrans();
+
+        try {
+            $result = $db->where($where)
+                ->strict(false)
+                ->field($allowFields)
+                ->update($data);
+
+            $this->checkResult($result);
+
+            // 关联更新
+            if (!empty($this->relationWrite)) {
+                $this->autoRelationUpdate();
+            }
+
+            $db->commit();
+
+            // 更新回调
+            $this->trigger('after_update');
+
+            return true;
+        } catch (\Exception $e) {
+            $db->rollback();
+            throw $e;
+        }
+    }
+
+    protected function getUpdateWhere(&$data)
+    {
         // 保留主键数据
         foreach ($this->data as $key => $val) {
             if ($this->isPk($key)) {
@@ -538,44 +586,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         } else {
             $where = $this->updateWhere;
         }
-
-        foreach ((array) $this->relationWrite as $name => $val) {
-            if (!is_array($val)) {
-                continue;
-            }
-
-            foreach ($val as $key) {
-                if (isset($data[$key])) {
-                    unset($data[$key]);
-                }
-            }
-        }
-
-        // 模型更新
-        $db = $this->db();
-        $db->startTrans();
-
-        try {
-            $db->where($where)
-                ->strict(false)
-                ->field($allowFields)
-                ->update($data);
-
-            // 关联更新
-            if (!empty($this->relationWrite)) {
-                $this->autoRelationUpdate();
-            }
-
-            $db->commit();
-
-            // 更新回调
-            $this->trigger('after_update');
-
-            return true;
-        } catch (\Exception $e) {
-            $db->rollback();
-            throw $e;
-        }
+        return $where;
     }
 
     /**
@@ -606,7 +617,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             return false;
         }
 
-        $this->checkData($this->data);
+        $this->checkData();
 
         // 检查允许字段
         $allowFields = $this->checkAllowFields($auto);

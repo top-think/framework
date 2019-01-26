@@ -26,112 +26,84 @@ trait OptimLock
     }
 
     /**
-     * 创建新的模型实例
-     * @access public
-     * @param  array    $data 数据
-     * @param  bool     $isUpdate 是否为更新
-     * @param  mixed    $where 更新条件
-     * @return Model
-     */
-    public function newInstance(array $data = [], bool $isUpdate = false, $where = null): Model
-    {
-        // 缓存乐观锁
-        $this->cacheLockVersion($data);
-
-        return (new static($data))->isUpdate($isUpdate, $where);
-    }
-
-    /**
      * 数据检查
      * @access protected
-     * @param  array $data 数据
      * @return void
      */
-    protected function checkData(array &$data = []): void
+    protected function checkData(): void
     {
-        if ($this->isExists()) {
-            if (!$this->checkLockVersion($data)) {
-                throw new Exception('record has update');
-            }
-        } else {
-            $this->recordLockVersion($data);
-        }
+        $this->isExists() ? $this->updateLockVersion() : $this->recordLockVersion();
     }
 
     /**
      * 记录乐观锁
      * @access protected
-     * @param  array $data 数据
      * @return void
      */
-    protected function recordLockVersion(&$data): void
+    protected function recordLockVersion(): void
     {
         $optimLock = $this->getOptimLockField();
 
-        if ($optimLock && !isset($data[$optimLock])) {
-            $data[$optimLock] = 0;
+        if ($optimLock && !isset($this->data[$optimLock])) {
+            $this->data[$optimLock]   = 0;
+            $this->origin[$optimLock] = 0;
         }
     }
 
     /**
-     * 缓存乐观锁
+     * 更新乐观锁
      * @access protected
-     * @param  array $data 数据
-     * @return void
-     */
-    protected function cacheLockVersion($data): void
-    {
-        $optimLock = $this->getOptimLockField();
-        $pk        = $this->getPk();
-
-        if ($optimLock && isset($data[$optimLock]) && is_string($pk) && isset($data[$pk])) {
-            $key = $this->getName() . '_' . $data[$pk] . '_lock_version';
-
-            $_SESSION[$key] = $data[$optimLock];
-        }
-    }
-
-    /**
-     * 检查乐观锁
-     * @access protected
-     * @param  array $data 数据
      * @return bool
      */
-    protected function checkLockVersion(array &$data): bool
+    protected function updateLockVersion(): void
     {
-        // 检查乐观锁
-        $id = $this->getKey();
-
-        if (empty($id)) {
-            return true;
-        }
-
-        $key       = $this->getName() . '_' . $id . '_lock_version';
         $optimLock = $this->getOptimLockField();
 
-        if ($optimLock && isset($_SESSION[$key])) {
-            $lockVer        = $_SESSION[$key];
-            $vo             = $this->field($optimLock)->find($id);
-            $_SESSION[$key] = $lockVer;
-            $currVer        = $vo[$optimLock];
+        if ($optimLock && isset($this->data[$optimLock])) {
+            // 更新乐观锁
+            $this->data[$optimLock]++;
+        }
+    }
 
-            if (isset($currVer)) {
-                if ($currVer > 0 && $lockVer != $currVer) {
-                    // 记录已经更新
-                    return false;
-                }
-
-                // 更新乐观锁
-                $lockVer++;
-
-                if ($data[$optimLock] != $lockVer) {
-                    $data[$optimLock] = $lockVer;
-                }
-
-                $_SESSION[$key] = $lockVer;
+    protected function getUpdateWhere(&$data)
+    {
+        // 保留主键数据
+        foreach ($this->data as $key => $val) {
+            if ($this->isPk($key)) {
+                $data[$key] = $val;
             }
         }
 
-        return true;
+        $pk    = $this->getPk();
+        $array = [];
+
+        foreach ((array) $pk as $key) {
+            if (isset($data[$key])) {
+                $array[] = [$key, '=', $data[$key]];
+                unset($data[$key]);
+            }
+        }
+
+        if (!empty($array)) {
+            $where = $array;
+        } else {
+            $where = $this->updateWhere;
+        }
+
+        $optimLock = $this->getOptimLockField();
+
+        if ($optimLock && isset($this->origin[$optimLock])) {
+            $where[] = [$optimLock, '=', $this->origin[$optimLock]];
+        }
+
+        return $where;
     }
+
+    protected function checkResult($result)
+    {
+        if (!$result) {
+            throw new Exception('record has update');
+        }
+    }
+
 }
