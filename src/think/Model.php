@@ -582,7 +582,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         }
     }
 
-    protected function getUpdateWhere(&$data)
+    protected function getUpdateWhere(array &$data): array
     {
         // 保留主键数据
         foreach ($this->data as $key => $val) {

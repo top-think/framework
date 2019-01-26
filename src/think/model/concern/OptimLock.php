@@ -44,9 +44,8 @@ trait OptimLock
     {
         $optimLock = $this->getOptimLockField();
 
-        if ($optimLock && !isset($this->data[$optimLock])) {
-            $this->data[$optimLock]   = 0;
-            $this->origin[$optimLock] = 0;
+        if ($optimLock) {
+            $this->set($optimLock, 0);
         }
     }
 
@@ -59,47 +58,25 @@ trait OptimLock
     {
         $optimLock = $this->getOptimLockField();
 
-        if ($optimLock && isset($this->data[$optimLock])) {
+        if ($optimLock && $lockVer = $this->getOrigin($optimLock)) {
             // 更新乐观锁
-            $this->data[$optimLock]++;
+            $this->set($optimLock, $lockVer + 1);
         }
     }
 
-    protected function getUpdateWhere(&$data)
+    protected function getUpdateWhere(array &$data): array
     {
-        // 保留主键数据
-        foreach ($this->data as $key => $val) {
-            if ($this->isPk($key)) {
-                $data[$key] = $val;
-            }
-        }
-
-        $pk    = $this->getPk();
-        $array = [];
-
-        foreach ((array) $pk as $key) {
-            if (isset($data[$key])) {
-                $array[] = [$key, '=', $data[$key]];
-                unset($data[$key]);
-            }
-        }
-
-        if (!empty($array)) {
-            $where = $array;
-        } else {
-            $where = $this->updateWhere;
-        }
-
+        $where     = parent::getUpdateWhere($data);
         $optimLock = $this->getOptimLockField();
 
-        if ($optimLock && isset($this->origin[$optimLock])) {
-            $where[] = [$optimLock, '=', $this->origin[$optimLock]];
+        if ($optimLock && $lockVer = $this->getOrigin($optimLock)) {
+            $where[] = [$optimLock, '=', $lockVer];
         }
 
         return $where;
     }
 
-    protected function checkResult($result)
+    protected function checkResult($result): void
     {
         if (!$result) {
             throw new Exception('record has update');
