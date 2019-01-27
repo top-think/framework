@@ -176,8 +176,7 @@ class App extends Container
         $this->auto  = true;
 
         if ($this->request->path()) {
-            $path = explode('/', $this->request->path());
-            $name = $path[0];
+            $name = strstr($this->request->path(), '/', true);
 
             if (isset($map[$name]) && $map[$name] instanceof \Closure) {
                 $map[$name]($this);
