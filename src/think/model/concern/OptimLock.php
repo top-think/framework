@@ -51,7 +51,7 @@ trait OptimLock
     /**
      * 更新乐观锁
      * @access protected
-     * @return bool
+     * @return void
      */
     protected function updateLockVersion(): void
     {

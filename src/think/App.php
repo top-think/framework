@@ -175,8 +175,8 @@ class App extends Container
         $this->multi = true;
         $this->auto  = true;
 
-        if (!empty($_SERVER['REQUEST_URI'])) {
-            $path = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+        if ($this->request->path()) {
+            $path = explode('/', $this->request->path());
             $name = $path[0];
 
             if (isset($map[$name]) && $map[$name] instanceof \Closure) {
