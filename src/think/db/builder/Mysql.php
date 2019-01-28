@@ -94,14 +94,18 @@ class Mysql extends Builder
      * @access protected
      * @param  Query        $query        查询对象
      * @param  string       $key
-     * @param  Expression   $exp
+     * @param  string       $exp
      * @param  mixed        $value
      * @param  string       $field
      * @return string
      */
-    protected function parseRegexp(Query $query, string $key, string $exp, Expression $value, string $field): string
+    protected function parseRegexp(Query $query, string $key, string $exp, $value, string $field): string
     {
-        return $key . ' ' . $exp . ' ' . $value->getValue();
+        if ($value instanceof Expression) {
+            $value = $value->getValue();
+        }
+
+        return $key . ' ' . $exp . ' ' . $value;
     }
 
     /**
