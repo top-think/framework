@@ -533,7 +533,7 @@ if (!function_exists('response')) {
      * @param string     $type
      * @return Response
      */
-    function response($data = [], $code = 200, $header = [], $type = 'html')
+    function response($data = '', $code = 200, $header = [], $type = 'html')
     {
         return Response::create($data, $type, $code, $header);
     }
