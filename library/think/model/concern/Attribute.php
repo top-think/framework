@@ -12,6 +12,7 @@
 namespace think\model\concern;
 
 use InvalidArgumentException;
+use think\db\Expression;
 use think\Exception;
 use think\Loader;
 use think\model\Relation;
@@ -405,6 +406,10 @@ trait Attribute
     {
         if (is_null($value)) {
             return;
+        }
+
+        if ($value instanceof Expression) {
+            return $value;
         }
 
         if (is_array($type)) {
