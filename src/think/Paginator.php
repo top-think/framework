@@ -169,7 +169,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         $page = Container::pull('request')->param($varPage);
 
         if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int) $page >= 1) {
-            return $page;
+            return (int) $page;
         }
 
         return $default;
