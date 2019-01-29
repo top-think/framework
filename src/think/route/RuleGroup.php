@@ -407,11 +407,11 @@ class RuleGroup extends Rule
      * 添加分组下的路由规则或者子分组
      * @access public
      * @param  string    $rule       路由规则
-     * @param  string    $route      路由地址
+     * @param  mixed     $route      路由地址
      * @param  string    $method     请求类型
      * @return RuleItem
      */
-    public function addRule(string $rule, $route, string $method = '*'): RuleItem
+    public function addRule(string $rule, $route = null, string $method = '*'): RuleItem
     {
         // 读取路由标识
         if (is_array($rule)) {

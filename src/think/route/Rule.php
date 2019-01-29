@@ -706,7 +706,9 @@ abstract class Rule
      */
     protected function dispatch(Request $request, $route, array $option): Dispatch
     {
-        if ($route instanceof \Closure) {
+        if ($route instanceof Dispatch) {
+            $result = $route;
+        } elseif ($route instanceof \Closure) {
             // 执行闭包
             $result = new CallbackDispatch($request, $this, $route);
         } elseif ($route instanceof Response) {
@@ -717,10 +719,10 @@ abstract class Rule
             // 路由到重定向地址
             $result = new RedirectDispatch($request, $this, $route, [], isset($option['status']) ? $option['status'] : 301);
         } elseif (false !== strpos($route, '\\')) {
-            // 路由到方法
+            // 路由到类的方法
             $result = $this->dispatchMethod($request, $route);
         } else {
-            // 路由到模块/控制器/操作
+            // 路由到控制器/操作
             $result = $this->dispatchController($request, $route);
         }
 

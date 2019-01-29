@@ -429,7 +429,7 @@ class Route
      * @param  string    $method     请求类型
      * @return RuleItem
      */
-    public function rule(string $rule, $route, string $method = '*'): RuleItem
+    public function rule(string $rule, $route = null, string $method = '*'): RuleItem
     {
         return $this->group->addRule($rule, $route, $method);
     }
