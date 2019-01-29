@@ -84,46 +84,12 @@ class Db
     {
         if (empty($config)) {
             $config = $this->config;
-        } elseif (is_string($config) && false === strpos($config, '/')) {
+        } elseif (is_string($config)) {
             // 支持读取配置参数
-            $config = $this->config[$config] ?? $this->config;
+            $config = $this->config[$config] ?? null;
         }
 
-        return is_string($config) ? $this->parseDsnConfig($config) : $config;
-    }
-
-    /**
-     * DSN解析
-     * 格式： mysql://username:passwd@localhost:3306/DbName?param1=val1&param2=val2#utf8
-     * @access private
-     * @param  string $dsnStr
-     * @return array
-     */
-    private function parseDsnConfig(string $dsnStr): array
-    {
-        $info = parse_url($dsnStr);
-
-        if (!$info) {
-            return [];
-        }
-
-        $dsn = [
-            'type'     => $info['scheme'],
-            'username' => $info['user'] ?? '',
-            'password' => $info['pass'] ?? '',
-            'hostname' => $info['host'] ?? '',
-            'hostport' => $info['port'] ?? '',
-            'database' => !empty($info['path']) ? ltrim($info['path'], '/') : '',
-            'charset'  => $info['fragment'] ?? 'utf8',
-        ];
-
-        if (isset($info['query'])) {
-            parse_str($info['query'], $dsn['params']);
-        } else {
-            $dsn['params'] = [];
-        }
-
-        return $dsn;
+        return $config;
     }
 
     /**

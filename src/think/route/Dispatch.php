@@ -217,8 +217,7 @@ abstract class Dispatch
                 }
 
                 if ($match) {
-                    $query  = strpos($model, '\\') ? $model::where($where) : $this->app->model($model)->where($where);
-                    $result = $query->failException($exception)->find();
+                    $result = $model::where($where)->failException($exception)->find();
                 }
             }
 
