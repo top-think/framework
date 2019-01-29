@@ -16,8 +16,9 @@ use think\Facade;
 /**
  * @see \think\Build
  * @mixin \think\Build
- * @method void run(array $build = [], string $namespace = 'app', bool $suffix = false) static 根据传入的build资料创建目录和文件
- * @method void app(string $name, array $list = [], string $namespace = 'app', bool $suffix = false) static 创建模块
+ * @method void run(array $config = []) static 根据配置文件创建目录和文件
+ * @method void buildApp(string $name, array $list = [], string $namespace = 'app') static 创建应用
+ * @method void buildRoute() static 注解路由生成
  */
 class Build extends Facade
 {
