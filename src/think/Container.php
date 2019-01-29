@@ -44,28 +44,28 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @var array
      */
     protected $bind = [
-        'app'                   => App::class,
-        'build'                 => Build::class,
-        'cache'                 => Cache::class,
-        'config'                => Config::class,
-        'cookie'                => Cookie::class,
-        'db'                    => Db::class,
-        'debug'                 => Debug::class,
-        'env'                   => Env::class,
-        'event'                 => Event::class,
-        'lang'                  => Lang::class,
-        'log'                   => Log::class,
-        'middleware'            => Middleware::class,
-        'request'               => Request::class,
-        'response'              => Response::class,
-        'route'                 => Route::class,
-        'session'               => Session::class,
-        'url'                   => Url::class,
-        'validate'              => Validate::class,
-        'rule_name'             => route\RuleName::class,
+        'app'                     => App::class,
+        'build'                   => Build::class,
+        'cache'                   => Cache::class,
+        'config'                  => Config::class,
+        'cookie'                  => Cookie::class,
+        'db'                      => Db::class,
+        'debug'                   => Debug::class,
+        'env'                     => Env::class,
+        'event'                   => Event::class,
+        'lang'                    => Lang::class,
+        'log'                     => Log::class,
+        'middleware'              => Middleware::class,
+        'request'                 => Request::class,
+        'response'                => Response::class,
+        'route'                   => Route::class,
+        'session'                 => Session::class,
+        'url'                     => Url::class,
+        'validate'                => Validate::class,
+        'rule_name'               => route\RuleName::class,
 
         // 接口依赖注入
-        'think\LoggerInterface' => Log::class,
+        'Psr\Log\LoggerInterface' => Log::class,
     ];
 
     /**

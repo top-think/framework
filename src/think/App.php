@@ -21,7 +21,7 @@ use think\exception\HttpResponseException;
  */
 class App extends Container
 {
-    const VERSION = '5.2.0beta2';
+    const VERSION = '5.2.0beta3';
 
     /**
      * 应用名称

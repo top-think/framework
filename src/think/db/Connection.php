@@ -194,12 +194,12 @@ abstract class Connection
     /**
      * 取得数据库连接类实例
      * @access public
-     * @param  mixed         $config 连接配置
+     * @param  array         $config 连接配置
      * @param  bool|string   $name 连接标识 true 强制重新连接
      * @return Connection
      * @throws Exception
      */
-    public static function instance($config = [], $name = false): Connection
+    public static function instance(array $config = [], $name = false): Connection
     {
         if (false === $name) {
             $name = md5(serialize($config));
