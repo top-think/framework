@@ -173,32 +173,32 @@ class Handle
             }
         }
 
-        //保留一层
-        while (ob_get_level() > 1) {
-            ob_end_clean();
+        $type = Container::pull('config')->get('exception_response_type') ?: 'html';
+
+        if ('html' == $type) {
+            //保留一层
+            while (ob_get_level() > 1) {
+                ob_end_clean();
+            }
+
+            $data['echo'] = ob_get_clean();
+
+            ob_start();
+            extract($data);
+            include Container::pull('config')->get('exception_tmpl');
+
+            // 获取并清空缓存
+            $data = ob_get_clean();
         }
 
-        $data['echo'] = ob_get_clean();
-
-        ob_start();
-        extract($data);
-        include Container::pull('config')->get('exception_tmpl');
-
-        // 获取并清空缓存
-        $content  = ob_get_clean();
-        $response = Response::create($content, 'html');
+        $response = Response::create($data, $type);
 
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();
             $response->header($exception->getHeaders());
         }
 
-        if (!isset($statusCode)) {
-            $statusCode = 500;
-        }
-        $response->code($statusCode);
-
-        return $response;
+        return $response->code($statusCode ?? 500);
     }
 
     /**

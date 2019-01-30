@@ -1525,11 +1525,7 @@ class Request
      */
     public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
     {
-        if (empty($this->$type)) {
-            $param = $this->$type();
-        } else {
-            $param = $this->$type;
-        }
+        $param = empty($this->$type) ? $this->$type() : $this->$type;
 
         // 按.拆分成多维数组进行判断
         foreach (explode('.', $name) as $val) {
