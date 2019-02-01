@@ -119,7 +119,7 @@ class Mysql extends Builder
     public function parseKey(Query $query, $key, bool $strict = false): string
     {
         if (is_int($key)) {
-            return $key;
+            return (string) $key;
         } elseif ($key instanceof Expression) {
             return $key->getValue();
         }
