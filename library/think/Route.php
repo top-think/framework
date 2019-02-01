@@ -1311,8 +1311,8 @@ class Route
      */
     private static function match($url, $rule, $pattern)
     {
-        $m2 = explode('/', $rule);
-        $m1 = explode('|', $url);
+        $m1 = explode('/', $rule);
+        $m2 = explode('|', $url);
 
         $var = [];
         foreach ($m2 as $key => $val) {
