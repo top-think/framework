@@ -133,6 +133,6 @@ class Config extends Command
 
         $content .= PHP_EOL . '\think\facade\Config::set(\think\facade\App::unserialize(\'' . \think\facade\App::serialize($config->get()) . '\'));' . PHP_EOL;
 
-        return $header . preg_replace('/declare\s?\(\s?strict_types\s?=\s?1\)\s?\;/i', '', $content);
+        return $header . preg_replace('/declare\s?\(\s?strict_types\s?=\s?1\s?\)\s?\;/i', '', $content);
     }
 }

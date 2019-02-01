@@ -63,13 +63,9 @@ class Url extends Dispatch
 
         // 解析额外参数
         if ($path) {
-            if ($this->rule->getConfig('url_param_type')) {
-                $var += $path;
-            } else {
-                preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
-                    $var[$match[1]] = strip_tags($match[2]);
-                }, implode('|', $path));
-            }
+            preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
+                $var[$match[1]] = strip_tags($match[2]);
+            }, implode('|', $path));
         }
 
         $panDomain = $this->request->panDomain();

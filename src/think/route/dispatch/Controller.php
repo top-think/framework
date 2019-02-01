@@ -75,11 +75,7 @@ class Controller extends Dispatch
                 $this->request->setAction($actionName);
 
                 // 自动获取请求变量
-                $vars = $this->rule->getConfig('url_param_type')
-                ? $this->request->route()
-                : $this->request->param();
-
-                $vars = array_merge($vars, $this->param);
+                $vars = array_merge($this->request->param(), $this->param);
             } else {
                 // 操作不存在
                 throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');

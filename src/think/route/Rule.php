@@ -759,13 +759,9 @@ abstract class Rule
 
         $action     = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
-        $method     = $request->method();
-
-        // 设置当前请求的路由变量
-        $request->setRoute($var);
 
         // 路由到模块/控制器/操作
-        return new ControllerDispatch($request, $this, [$controller, $action], [], false);
+        return new ControllerDispatch($request, $this, [$controller, $action], $var);
     }
 
     /**
@@ -833,13 +829,9 @@ abstract class Rule
     protected function parseUrlParams(string $url, array &$var = []): void
     {
         if ($url) {
-            if ($this->getConfig('url_param_type')) {
-                $var += explode('|', $url);
-            } else {
-                preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
-                    $var[$match[1]] = strip_tags($match[2]);
-                }, $url);
-            }
+            preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
+                $var[$match[1]] = strip_tags($match[2]);
+            }, $url);
         }
     }
 

@@ -191,15 +191,9 @@ class Url
                 $vars = http_build_query($vars);
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
-                $paramType = $this->app['config']->get('url_param_type');
-
                 foreach ($vars as $var => $val) {
                     if ('' !== $val) {
-                        if ($paramType) {
-                            $url .= $depr . urlencode($val);
-                        } else {
-                            $url .= $depr . $var . $depr . urlencode($val);
-                        }
+                        $url .= $depr . $var . $depr . urlencode($val);
                     }
                 }
 
