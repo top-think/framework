@@ -192,11 +192,11 @@ class Build
     /**
      * 生成控制器类的路由规则
      * @access protected
-     * @param  string $class        控制器完整类名
-     * @param  string $controller   控制器名
+     * @param  \ReflectionClass $class        控制器反射对象
+     * @param  string           $controller   控制器名
      * @return string
      */
-    protected function getControllerRoute(string $class, string $controller): string
+    protected function getControllerRoute(\ReflectionClass $class, string $controller): string
     {
         $content = '';
         $comment = $class->getDocComment();

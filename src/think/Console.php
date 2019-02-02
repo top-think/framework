@@ -51,6 +51,7 @@ class Console
         'optimize:config' => "think\\console\\command\\optimize\\Config",
         'optimize:schema' => "think\\console\\command\\optimize\\Schema",
         'optimize:route'  => "think\\console\\command\\optimize\\Route",
+        'optimize:facade' => "think\\console\\command\\optimize\\Facade",
         'run'             => "think\\console\\command\\RunServer",
         'version'         => "think\\console\\command\\Version",
         'route:list'      => "think\\console\\command\\RouteList",
