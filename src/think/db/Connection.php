@@ -357,7 +357,7 @@ abstract class Connection
 
         if (strpos($tableName, ',')) {
             // 多表不获取字段信息
-            return false;
+            return [];
         }
 
         // 修正子查询作为表名的问题
@@ -640,7 +640,7 @@ abstract class Connection
      * @param  Query         $query 查询对象
      * @return \PDOStatement
      */
-    public function pdo(Query $query)
+    public function pdo(Query $query): PDOStatement
     {
         $bind = $query->getBind();
         // 生成查询SQL
@@ -728,7 +728,7 @@ abstract class Connection
         return $this->numRows;
     }
 
-    protected function queryPDOStatement(Query $query, string $sql, array $bind = [])
+    protected function queryPDOStatement(Query $query, string $sql, array $bind = []): PDOStatement
     {
         $options   = $query->parseOptions();
         $master    = !empty($options['master']) ? true : false;
@@ -741,12 +741,12 @@ abstract class Connection
      * 查找单条记录
      * @access public
      * @param  Query  $query        查询对象
-     * @return array|null
+     * @return array
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    public function find(Query $query)
+    public function find(Query $query): array
     {
         // 分析查询表达式
         $options = $query->parseOptions();
@@ -795,7 +795,7 @@ abstract class Connection
             // 执行查询
             $resultSet = $this->query($query, $sql, $query->getBind());
 
-            $result = $resultSet[0] ?? null;
+            $result = $resultSet[0] ?? [];
         }
 
         if (isset($cacheItem) && $result) {

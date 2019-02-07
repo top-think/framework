@@ -13,8 +13,8 @@ declare (strict_types = 1);
 namespace think\db\builder;
 
 use think\db\Builder;
-use think\db\Expression;
 use think\db\Query;
+use think\db\Raw;
 use think\Exception;
 
 /**
@@ -101,7 +101,7 @@ class Mysql extends Builder
      */
     protected function parseRegexp(Query $query, string $key, string $exp, $value, string $field): string
     {
-        if ($value instanceof Expression) {
+        if ($value instanceof Raw) {
             $value = $value->getValue();
         }
 
@@ -120,7 +120,7 @@ class Mysql extends Builder
     {
         if (is_int($key)) {
             return (string) $key;
-        } elseif ($key instanceof Expression) {
+        } elseif ($key instanceof Raw) {
             return $key->getValue();
         }
 

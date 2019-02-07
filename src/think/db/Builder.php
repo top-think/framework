@@ -116,7 +116,7 @@ abstract class Builder
         foreach ($data as $key => $val) {
             $item = $this->parseKey($query, $key, true);
 
-            if ($val instanceof Expression) {
+            if ($val instanceof Raw) {
                 $result[$item] = $val->getValue();
                 continue;
             } elseif (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $this->connection->getFieldsType($options['table'], $key))) {
@@ -165,7 +165,7 @@ abstract class Builder
      */
     protected function parseDataBind(Query $query, string $key, $data, array $bind = []): string
     {
-        if ($data instanceof Expression) {
+        if ($data instanceof Raw) {
             return $data->getValue();
         }
 
@@ -203,7 +203,7 @@ abstract class Builder
             $array = [];
 
             foreach ($fields as $key => $field) {
-                if ($field instanceof Expression) {
+                if ($field instanceof Raw) {
                     $array[] = $field->getValue();
                 } elseif (!is_numeric($key)) {
                     $array[] = $this->parseKey($query, $key) . ' AS ' . $this->parseKey($query, $field, true);
@@ -231,7 +231,7 @@ abstract class Builder
         $options = $query->getOptions();
 
         foreach ((array) $tables as $key => $table) {
-            if ($table instanceof Expression) {
+            if ($table instanceof Raw) {
                 $item[] = $table->getValue();
             } elseif (!is_numeric($key)) {
                 $item[] = $this->parseKey($query, $key) . ' ' . $this->parseKey($query, $table);
@@ -290,7 +290,7 @@ abstract class Builder
             $str = [];
 
             foreach ($val as $value) {
-                if ($value instanceof Expression) {
+                if ($value instanceof Raw) {
                     $str[] = ' ' . $logic . ' ( ' . $value->getValue() . ' )';
                     continue;
                 }
@@ -391,14 +391,18 @@ abstract class Builder
             $exp = $this->exp[$exp];
         }
 
+        $bindType = $binds[$field] ?? PDO::PARAM_STR;
+
         if ($value instanceof Expression) {
+            return $value->parse($query, $key, $exp, $field, $bindType, $val[2] ?? 'AND');
+        }
+
+        if ($value instanceof Raw) {
 
         } elseif (is_object($value) && method_exists($value, '__toString')) {
             // 对象数据写入
             $value = $value->__toString();
         }
-
-        $bindType = $binds[$field] ?? PDO::PARAM_STR;
 
         if (is_scalar($value) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (is_string($value) && 0 === strpos($value, ':') && $query->isBind(substr($value, 1))) {
@@ -458,12 +462,12 @@ abstract class Builder
      * @param  Query        $query        查询对象
      * @param  string       $key
      * @param  string       $exp
-     * @param  Expression   $value
+     * @param  Raw          $value
      * @param  string       $field
      * @param  integer      $bindType
      * @return string
      */
-    protected function parseExp(Query $query, string $key, string $exp, Expression $value, string $field, int $bindType): string
+    protected function parseExp(Query $query, string $key, string $exp, Raw $value, string $field, int $bindType): string
     {
         // 表达式查询
         return '( ' . $key . ' ' . $value->getValue() . ' )';
@@ -547,7 +551,7 @@ abstract class Builder
         // EXISTS 查询
         if ($value instanceof \Closure) {
             $value = $this->parseClosure($query, $value, false);
-        } elseif ($value instanceof Expression) {
+        } elseif ($value instanceof Raw) {
             $value = $value->getValue();
         } else {
             throw new Exception('where express error:' . $value);
@@ -637,7 +641,7 @@ abstract class Builder
         // IN 查询
         if ($value instanceof \Closure) {
             $value = $this->parseClosure($query, $value, false);
-        } elseif ($value instanceof Expression) {
+        } elseif ($value instanceof Raw) {
             $value = $value->getValue();
         } else {
             $value = array_unique(is_array($value) ? $value : explode(',', $value));
@@ -775,7 +779,7 @@ abstract class Builder
     protected function parseOrder(Query $query, array $order): string
     {
         foreach ($order as $key => $val) {
-            if ($val instanceof Expression) {
+            if ($val instanceof Raw) {
                 $array[] = $val->getValue();
             } elseif (is_array($val) && preg_match('/^[\w\.]+$/', $key)) {
                 $array[] = $this->parseOrderField($query, $key, $val);

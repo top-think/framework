@@ -12,8 +12,8 @@
 namespace think\db\builder;
 
 use think\db\Builder;
-use think\db\Expression;
 use think\db\Query;
+use think\db\Raw;
 
 /**
  * Sqlite数据库驱动
@@ -66,7 +66,7 @@ class Sqlite extends Builder
     {
         if (is_int($key)) {
             return (string) $key;
-        } elseif ($key instanceof Expression) {
+        } elseif ($key instanceof Raw) {
             return $key->getValue();
         }
 

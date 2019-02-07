@@ -12,8 +12,8 @@
 namespace think\db\builder;
 
 use think\db\Builder;
-use think\db\Expression;
 use think\db\Query;
+use think\db\Raw;
 use think\Exception;
 
 /**
@@ -44,7 +44,7 @@ class Sqlsrv extends Builder
         $array = [];
 
         foreach ($order as $key => $val) {
-            if ($val instanceof Expression) {
+            if ($val instanceof Raw) {
                 $array[] = $val->getValue();
             } elseif ('[rand]' == $val) {
                 $array[] = $this->parseRand($query);
@@ -86,7 +86,7 @@ class Sqlsrv extends Builder
     {
         if (is_int($key)) {
             return (string) $key;
-        } elseif ($key instanceof Expression) {
+        } elseif ($key instanceof Raw) {
             return $key->getValue();
         }
 

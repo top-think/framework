@@ -428,9 +428,9 @@ if (!function_exists('parse_name')) {
 
 if (!function_exists('raw')) {
     /**
-     * 生成一个数据库的Expression对象
+     * 生成一个数据库的Raw对象
      * @param string         $str
-     * @return \think\db\Expression
+     * @return \think\db\Raw
      */
     function raw($str)
     {

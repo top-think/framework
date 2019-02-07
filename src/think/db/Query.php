@@ -82,12 +82,6 @@ class Query
     protected static $event = [];
 
     /**
-     * 扩展查询方法
-     * @var array
-     */
-    protected static $extend = [];
-
-    /**
      * 日期查询表达式
      * @var array
      */
@@ -140,12 +134,7 @@ class Query
      */
     public function __call(string $method, array $args)
     {
-        if (isset(self::$extend[strtolower($method)])) {
-            // 调用扩展查询方法
-            array_unshift($args, $this);
-
-            return Container::getInstance()->invoke(self::$extend[strtolower($method)], $args);
-        } elseif (strtolower(substr($method, 0, 5)) == 'getby') {
+        if (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
             $field = App::parseName(substr($method, 5));
             return $this->where($field, '=', $args[0])->find();
@@ -170,24 +159,6 @@ class Query
             return $this;
         } else {
             throw new Exception('method not exist:' . static::class . '->' . $method);
-        }
-    }
-
-    /**
-     * 扩展查询方法
-     * @access public
-     * @param  string|array  $method     查询方法名
-     * @param  callable      $callback
-     * @return void
-     */
-    public static function extend($method, $callback = null): void
-    {
-        if (is_array($method)) {
-            foreach ($method as $key => $val) {
-                self::$extend[strtolower($key)] = $val;
-            }
-        } else {
-            self::$extend[strtolower($method)] = $callback;
         }
     }
 
@@ -516,7 +487,7 @@ class Query
      * 聚合查询
      * @access protected
      * @param  string               $aggregate    聚合方法
-     * @param  string|Expression    $field        字段名
+     * @param  string|Raw           $field        字段名
      * @param  bool                 $force        强制转为数字类型
      * @return mixed
      */
@@ -528,7 +499,7 @@ class Query
     /**
      * COUNT查询
      * @access public
-     * @param  string|Expression $field 字段名
+     * @param  string|Raw $field 字段名
      * @return int
      */
     public function count(string $field = '*'): int
@@ -551,7 +522,7 @@ class Query
     /**
      * SUM查询
      * @access public
-     * @param  string|Expression $field 字段名
+     * @param  string|Raw $field 字段名
      * @return float
      */
     public function sum($field): float
@@ -562,8 +533,8 @@ class Query
     /**
      * MIN查询
      * @access public
-     * @param  string|Expression    $field    字段名
-     * @param  bool                 $force    强制转为数字类型
+     * @param  string|Raw    $field    字段名
+     * @param  bool          $force    强制转为数字类型
      * @return mixed
      */
     public function min($field, bool $force = true)
@@ -574,8 +545,8 @@ class Query
     /**
      * MAX查询
      * @access public
-     * @param  string|Expression    $field    字段名
-     * @param  bool                 $force    强制转为数字类型
+     * @param  string|Raw    $field    字段名
+     * @param  bool          $force    强制转为数字类型
      * @return mixed
      */
     public function max($field, bool $force = true)
@@ -586,7 +557,7 @@ class Query
     /**
      * AVG查询
      * @access public
-     * @param  string|Expression $field 字段名
+     * @param  string|Raw $field 字段名
      * @return float
      */
     public function avg($field): float
@@ -745,7 +716,7 @@ class Query
     {
         if (empty($field)) {
             return $this;
-        } elseif ($field instanceof Expression) {
+        } elseif ($field instanceof Raw) {
             $this->options['field'][] = $field;
             return $this;
         }
@@ -875,11 +846,11 @@ class Query
      * 使用表达式设置数据
      * @access public
      * @param  string $value 表达式
-     * @return Expression
+     * @return Raw
      */
-    public function raw(string $value): Expression
+    public function raw(string $value): Raw
     {
-        return new Expression($value);
+        return new Raw($value);
     }
 
     /**
@@ -1233,7 +1204,7 @@ class Query
             $field = $this->options['via'] . '.' . $field;
         }
 
-        if ($field instanceof Expression) {
+        if ($field instanceof Raw) {
             return $this->whereRaw($field, is_array($op) ? $op : []);
         } elseif ($strict) {
             // 使用严格模式查询
@@ -1312,7 +1283,7 @@ class Query
         if (key($field) !== 0) {
             $where = [];
             foreach ($field as $key => $val) {
-                if ($val instanceof Expression) {
+                if ($val instanceof Raw) {
                     $where[] = [$key, 'exp', $val];
                 } else {
                     $where[] = is_null($val) ? [$key, 'NULL', ''] : [$key, is_array($val) ? 'IN' : '=', $val];
@@ -1586,7 +1557,7 @@ class Query
     {
         if (empty($field)) {
             return $this;
-        } elseif ($field instanceof Expression) {
+        } elseif ($field instanceof Raw) {
             $this->options['order'][] = $field;
             return $this;
         }
@@ -2787,7 +2758,7 @@ class Query
      * 查找单条记录
      * @access public
      * @param  mixed $data
-     * @return array|null|Model
+     * @return array|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException

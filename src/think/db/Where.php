@@ -62,7 +62,7 @@ class Where implements ArrayAccess
         $where = [];
 
         foreach ($this->where as $key => $val) {
-            if ($val instanceof Expression) {
+            if ($val instanceof Raw) {
                 $where[] = [$key, 'exp', $val];
             } elseif (is_null($val)) {
                 $where[] = [$key, 'NULL', ''];

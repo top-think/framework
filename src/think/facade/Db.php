@@ -20,7 +20,7 @@ use think\Facade;
  * @method \think\db\Query master() static 从主服务器读取数据
  * @method \think\db\Query table(string $table) static 指定数据表（含前缀）
  * @method \think\db\Query name(string $name) static 指定数据表（不含前缀）
- * @method \think\db\Expression raw(string $value) static 使用表达式设置数据
+ * @method \think\db\Raw raw(string $value) static 使用表达式设置数据
  * @method \think\db\Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
  * @method \think\db\Query whereRaw(string $where, array $bind = []) static 表达式查询
  * @method \think\db\Query whereExp(string $field, string $condition, array $bind = []) static 字段表达式查询

@@ -12,7 +12,7 @@ declare (strict_types = 1);
 
 namespace think\db;
 
-abstract class Expression
+class Raw
 {
     /**
      * 查询表达式
@@ -24,24 +24,26 @@ abstract class Expression
     /**
      * 创建一个查询表达式
      *
-     * @param  mixed  $value
+     * @param  string  $value
      * @return void
      */
-    public function __construct($value)
+    public function __construct(string $value)
     {
         $this->value = $value;
     }
 
     /**
-     * 分析查询表达式
+     * 获取表达式
      *
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  string    $field
-     * @param  integer   $bindType
      * @return string
      */
-    abstract public function parse(Query $query, string $key, string $exp, string $field, int $bindType): string;
+    public function getValue(): string
+    {
+        return $this->value;
+    }
 
+    public function __toString()
+    {
+        return (string) $this->value;
+    }
 }

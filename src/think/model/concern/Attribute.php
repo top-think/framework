@@ -14,7 +14,7 @@ namespace think\model\concern;
 
 use InvalidArgumentException;
 use think\App;
-use think\db\Expression;
+use think\db\Raw;
 use think\Exception;
 use think\model\Relation;
 
@@ -432,7 +432,7 @@ trait Attribute
             return;
         }
 
-        if ($value instanceof Expression) {
+        if ($value instanceof Raw) {
             return $value;
         }
 
