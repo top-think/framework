@@ -21,7 +21,7 @@ use think\facade\App;
 
 class Facade extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('optimize:facade')
             ->addArgument('app', Argument::OPTIONAL, 'Build app facade .')

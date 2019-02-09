@@ -58,7 +58,7 @@ class Console
     /**
      * @return array
      */
-    public function getNamespaces()
+    public function getNamespaces(): array
     {
         if (null === $this->namespaces) {
             $this->inspectConsole();
@@ -70,7 +70,7 @@ class Console
     /**
      * @return Command[]
      */
-    public function getCommands()
+    public function getCommands(): array
     {
         if (null === $this->commands) {
             $this->inspectConsole();
@@ -84,16 +84,16 @@ class Console
      * @return Command
      * @throws \InvalidArgumentException
      */
-    public function getCommand($name)
+    public function getCommand(string $name): Command
     {
         if (!isset($this->commands[$name]) && !isset($this->aliases[$name])) {
             throw new \InvalidArgumentException(sprintf('Command %s does not exist.', $name));
         }
 
-        return isset($this->commands[$name]) ? $this->commands[$name] : $this->aliases[$name];
+        return $this->commands[$name] ?? $this->aliases[$name];
     }
 
-    private function inspectConsole()
+    private function inspectConsole(): void
     {
         $this->commands   = [];
         $this->namespaces = [];
@@ -129,7 +129,7 @@ class Console
      * @param array $commands
      * @return array
      */
-    private function sortCommands(array $commands)
+    private function sortCommands(array $commands): array
     {
         $namespacedCommands = [];
         foreach ($commands as $name => $command) {

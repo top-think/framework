@@ -43,7 +43,7 @@ class Definition
      * 设置指令的定义
      * @param array $definition 定义的数组
      */
-    public function setDefinition(array $definition)
+    public function setDefinition(array $definition): void
     {
         $arguments = [];
         $options   = [];
@@ -63,7 +63,7 @@ class Definition
      * 设置参数
      * @param Argument[] $arguments 参数数组
      */
-    public function setArguments($arguments = [])
+    public function setArguments(array $arguments = []): void
     {
         $this->arguments          = [];
         $this->requiredCount      = 0;
@@ -77,7 +77,7 @@ class Definition
      * @param Argument[] $arguments 参数数组
      * @api
      */
-    public function addArguments($arguments = [])
+    public function addArguments(array $arguments = []): void
     {
         if (null !== $arguments) {
             foreach ($arguments as $argument) {
@@ -91,7 +91,7 @@ class Definition
      * @param Argument $argument 参数
      * @throws \LogicException
      */
-    public function addArgument(Argument $argument)
+    public function addArgument(Argument $argument): void
     {
         if (isset($this->arguments[$argument->getName()])) {
             throw new \LogicException(sprintf('An argument with name "%s" already exists.', $argument->getName()));
@@ -124,7 +124,7 @@ class Definition
      * @return Argument 参数
      * @throws \InvalidArgumentException
      */
-    public function getArgument($name)
+    public function getArgument($name): Argument
     {
         if (!$this->hasArgument($name)) {
             throw new \InvalidArgumentException(sprintf('The "%s" argument does not exist.', $name));
@@ -141,7 +141,7 @@ class Definition
      * @return bool
      * @api
      */
-    public function hasArgument($name)
+    public function hasArgument($name): bool
     {
         $arguments = is_int($name) ? array_values($this->arguments) : $this->arguments;
 
@@ -152,7 +152,7 @@ class Definition
      * 获取所有的参数
      * @return Argument[] 参数数组
      */
-    public function getArguments()
+    public function getArguments(): array
     {
         return $this->arguments;
     }
@@ -161,7 +161,7 @@ class Definition
      * 获取参数数量
      * @return int
      */
-    public function getArgumentCount()
+    public function getArgumentCount(): int
     {
         return $this->hasAnArrayArgument ? PHP_INT_MAX : count($this->arguments);
     }
@@ -170,7 +170,7 @@ class Definition
      * 获取必填的参数的数量
      * @return int
      */
-    public function getArgumentRequiredCount()
+    public function getArgumentRequiredCount(): int
     {
         return $this->requiredCount;
     }
@@ -179,7 +179,7 @@ class Definition
      * 获取参数默认值
      * @return array
      */
-    public function getArgumentDefaults()
+    public function getArgumentDefaults(): array
     {
         $values = [];
         foreach ($this->arguments as $argument) {
@@ -193,7 +193,7 @@ class Definition
      * 设置选项
      * @param Option[] $options 选项数组
      */
-    public function setOptions($options = [])
+    public function setOptions(array $options = []): void
     {
         $this->options   = [];
         $this->shortcuts = [];
@@ -205,7 +205,7 @@ class Definition
      * @param Option[] $options 选项数组
      * @api
      */
-    public function addOptions($options = [])
+    public function addOptions(array $options = []): void
     {
         foreach ($options as $option) {
             $this->addOption($option);
@@ -218,7 +218,7 @@ class Definition
      * @throws \LogicException
      * @api
      */
-    public function addOption(Option $option)
+    public function addOption(Option $option): void
     {
         if (isset($this->options[$option->getName()]) && !$option->equals($this->options[$option->getName()])) {
             throw new \LogicException(sprintf('An option named "%s" already exists.', $option->getName()));
@@ -249,7 +249,7 @@ class Definition
      * @throws \InvalidArgumentException
      * @api
      */
-    public function getOption($name)
+    public function getOption(string $name): Option
     {
         if (!$this->hasOption($name)) {
             throw new \InvalidArgumentException(sprintf('The "--%s" option does not exist.', $name));
@@ -264,7 +264,7 @@ class Definition
      * @return bool
      * @api
      */
-    public function hasOption($name)
+    public function hasOption(string $name): bool
     {
         return isset($this->options[$name]);
     }
@@ -274,7 +274,7 @@ class Definition
      * @return Option[]
      * @api
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -284,7 +284,7 @@ class Definition
      * @param string $name 短名称
      * @return bool
      */
-    public function hasShortcut($name)
+    public function hasShortcut(string $name): bool
     {
         return isset($this->shortcuts[$name]);
     }
@@ -294,7 +294,7 @@ class Definition
      * @param string $shortcut 短名称
      * @return Option
      */
-    public function getOptionForShortcut($shortcut)
+    public function getOptionForShortcut(string $shortcut): Option
     {
         return $this->getOption($this->shortcutToName($shortcut));
     }
@@ -303,7 +303,7 @@ class Definition
      * 获取所有选项的默认值
      * @return array
      */
-    public function getOptionDefaults()
+    public function getOptionDefaults(): array
     {
         $values = [];
         foreach ($this->options as $option) {
@@ -319,7 +319,7 @@ class Definition
      * @return string
      * @throws \InvalidArgumentException
      */
-    private function shortcutToName($shortcut)
+    private function shortcutToName(string $shortcut): string
     {
         if (!isset($this->shortcuts[$shortcut])) {
             throw new \InvalidArgumentException(sprintf('The "-%s" option does not exist.', $shortcut));
@@ -333,7 +333,7 @@ class Definition
      * @param bool $short 是否简洁介绍
      * @return string
      */
-    public function getSynopsis($short = false)
+    public function getSynopsis(bool $short = false): string
     {
         $elements = [];
 

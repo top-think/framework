@@ -17,21 +17,21 @@ class Validate extends Make
 {
     protected $type = "Validate";
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
         $this->setName('make:validate')
             ->setDescription('Create a validate class');
     }
 
-    protected function getStub()
+    protected function getStub(): string
     {
         $stubPath = __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR;
 
         return $stubPath . 'validate.stub';
     }
 
-    protected function getNamespace(string $app)
+    protected function getNamespace(string $app): string
     {
         return parent::getNamespace($app) . '\\validate';
     }

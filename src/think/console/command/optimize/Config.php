@@ -19,7 +19,7 @@ use think\facade\App;
 
 class Config extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('optimize:config')
             ->addArgument('app', Argument::OPTIONAL, 'Build app config cache .')
@@ -45,7 +45,7 @@ class Config extends Command
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildCacheContent($app)
+    protected function buildCacheContent(string $app): string
     {
         $header  = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL . 'declare (strict_types = 1);' . PHP_EOL;
         $content = '';

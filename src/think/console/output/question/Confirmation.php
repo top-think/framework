@@ -24,7 +24,7 @@ class Confirmation extends Question
      * @param bool   $default         默认答案
      * @param string $trueAnswerRegex 验证正则
      */
-    public function __construct($question, $default = true, $trueAnswerRegex = '/^y/i')
+    public function __construct(string $question, bool $default = true, string $trueAnswerRegex = '/^y/i')
     {
         parent::__construct($question, (bool) $default);
 

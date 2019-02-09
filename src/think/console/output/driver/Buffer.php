@@ -32,7 +32,7 @@ class Buffer
         return $content;
     }
 
-    public function write($messages, $newline = false, $options = Output::OUTPUT_NORMAL)
+    public function write($messages, bool $newline = false, int $options = Output::OUTPUT_NORMAL)
     {
         $messages = (array) $messages;
 

@@ -121,7 +121,7 @@ class Output
         return $answer;
     }
 
-    protected function block($style, $message)
+    protected function block(string $style, string $message): void
     {
         $this->writeln("<{$style}>{$message}</$style>");
     }
@@ -130,7 +130,7 @@ class Output
      * 输出空行
      * @param int $count
      */
-    public function newLine($count = 1)
+    public function newLine(int $count = 1): void
     {
         $this->write(str_repeat(PHP_EOL, $count));
     }
@@ -140,7 +140,7 @@ class Output
      * @param string $messages
      * @param int    $type
      */
-    public function writeln($messages, $type = self::OUTPUT_NORMAL)
+    public function writeln(string $messages, int $type = self::OUTPUT_NORMAL): void
     {
         $this->write($messages, true, $type);
     }
@@ -151,12 +151,12 @@ class Output
      * @param bool   $newline
      * @param int    $type
      */
-    public function write($messages, $newline = false, $type = self::OUTPUT_NORMAL)
+    public function write(string $messages, bool $newline = false, int $type = self::OUTPUT_NORMAL): void
     {
         $this->handle->write($messages, $newline, $type);
     }
 
-    public function renderException(Throwable $e)
+    public function renderException(Throwable $e): void
     {
         $this->handle->renderException($e);
     }
@@ -164,40 +164,40 @@ class Output
     /**
      * {@inheritdoc}
      */
-    public function setVerbosity($level)
+    public function setVerbosity(int $level)
     {
-        $this->verbosity = (int) $level;
+        $this->verbosity = $level;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getVerbosity()
+    public function getVerbosity(): int
     {
         return $this->verbosity;
     }
 
-    public function isQuiet()
+    public function isQuiet(): bool
     {
         return self::VERBOSITY_QUIET === $this->verbosity;
     }
 
-    public function isVerbose()
+    public function isVerbose(): bool
     {
         return self::VERBOSITY_VERBOSE <= $this->verbosity;
     }
 
-    public function isVeryVerbose()
+    public function isVeryVerbose(): bool
     {
         return self::VERBOSITY_VERY_VERBOSE <= $this->verbosity;
     }
 
-    public function isDebug()
+    public function isDebug(): bool
     {
         return self::VERBOSITY_DEBUG <= $this->verbosity;
     }
 
-    public function describe($object, array $options = [])
+    public function describe($object, array $options = []): void
     {
         $descriptor = new Descriptor();
         $options    = array_merge([

@@ -19,7 +19,7 @@ class Command extends Make
 {
     protected $type = "Command";
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
         $this->setName('make:command')
@@ -27,7 +27,7 @@ class Command extends Make
             ->setDescription('Create a new command class');
     }
 
-    protected function buildClass(string $name)
+    protected function buildClass(string $name): string
     {
         $commandName = $this->input->getArgument('commandName') ?: strtolower(basename($name));
         $namespace   = trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
@@ -43,12 +43,12 @@ class Command extends Make
         ], $stub);
     }
 
-    protected function getStub()
+    protected function getStub(): string
     {
         return __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR . 'command.stub';
     }
 
-    protected function getNamespace(string $app)
+    protected function getNamespace(string $app): string
     {
         return parent::getNamespace($app) . '\\command';
     }

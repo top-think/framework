@@ -25,7 +25,7 @@ class Help extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->ignoreValidationErrors();
 
@@ -46,7 +46,7 @@ EOF
      * Sets the command.
      * @param Command $command The command to set
      */
-    public function setCommand(Command $command)
+    public function setCommand(Command $command): void
     {
         $this->command = $command;
     }

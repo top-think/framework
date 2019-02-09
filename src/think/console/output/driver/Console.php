@@ -42,7 +42,7 @@ class Console
         $this->formatter->setDecorated($decorated);
     }
 
-    public function write($messages, $newline = false, $type = Output::OUTPUT_NORMAL, $stream = null)
+    public function write($messages, bool $newline = false, int $type = Output::OUTPUT_NORMAL, $stream = null)
     {
         if (Output::VERBOSITY_QUIET === $this->output->getVerbosity()) {
             return;
@@ -162,7 +162,7 @@ class Console
      * 获取当前终端的尺寸
      * @return array
      */
-    public function getTerminalDimensions()
+    public function getTerminalDimensions(): array
     {
         if ($this->terminalDimensions) {
             return $this->terminalDimensions;
@@ -237,7 +237,7 @@ class Console
         return;
     }
 
-    private function stringWidth($string)
+    private function stringWidth(string $string): int
     {
         if (!function_exists('mb_strwidth')) {
             return strlen($string);
@@ -250,7 +250,7 @@ class Console
         return mb_strwidth($string, $encoding);
     }
 
-    private function splitStringByWidth($string, $width)
+    private function splitStringByWidth(string $string, int $width): array
     {
         if (!function_exists('mb_strwidth')) {
             return str_split($string, $width);
@@ -280,7 +280,7 @@ class Console
         return $lines;
     }
 
-    private function isRunningOS400()
+    private function isRunningOS400(): bool
     {
         $checks = [
             function_exists('php_uname') ? php_uname('s') : '',
@@ -295,7 +295,7 @@ class Console
      *
      * @return bool
      */
-    protected function hasStdoutSupport()
+    protected function hasStdoutSupport(): bool
     {
         return false === $this->isRunningOS400();
     }
@@ -305,7 +305,7 @@ class Console
      *
      * @return bool
      */
-    protected function hasStderrSupport()
+    protected function hasStderrSupport(): bool
     {
         return false === $this->isRunningOS400();
     }
@@ -352,7 +352,7 @@ class Console
      * @param $stream
      * @return bool
      */
-    protected function hasColorSupport($stream)
+    protected function hasColorSupport($stream): bool
     {
         if (DIRECTORY_SEPARATOR === '\\') {
             return

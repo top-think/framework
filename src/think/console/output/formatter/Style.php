@@ -114,7 +114,7 @@ class Style
      * @throws \InvalidArgumentException When the option name isn't defined
      * @api
      */
-    public function setOption($option)
+    public function setOption(string $option): void
     {
         if (!isset(static::$availableOptions[$option])) {
             throw new \InvalidArgumentException(sprintf('Invalid option specified: "%s". Expected one of (%s)', $option, implode(', ', array_keys(static::$availableOptions))));
@@ -130,7 +130,7 @@ class Style
      * @param string $option 格式名
      * @throws \InvalidArgumentException
      */
-    public function unsetOption($option)
+    public function unsetOption(string $option): void
     {
         if (!isset(static::$availableOptions[$option])) {
             throw new \InvalidArgumentException(sprintf('Invalid option specified: "%s". Expected one of (%s)', $option, implode(', ', array_keys(static::$availableOptions))));
@@ -160,7 +160,7 @@ class Style
      * @param string $text 文字
      * @return string
      */
-    public function apply($text)
+    public function apply(string $text): string
     {
         $setCodes   = [];
         $unsetCodes = [];

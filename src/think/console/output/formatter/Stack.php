@@ -37,7 +37,7 @@ class Stack
     /**
      * 重置堆栈
      */
-    public function reset()
+    public function reset(): void
     {
         $this->styles = [];
     }
@@ -46,7 +46,7 @@ class Stack
      * 推一个样式进入堆栈
      * @param Style $style
      */
-    public function push(Style $style)
+    public function push(Style $style): void
     {
         $this->styles[] = $style;
     }
@@ -57,7 +57,7 @@ class Stack
      * @return Style
      * @throws \InvalidArgumentException
      */
-    public function pop(Style $style = null)
+    public function pop(Style $style = null): Style
     {
         if (empty($this->styles)) {
             return $this->emptyStyle;
@@ -86,7 +86,7 @@ class Stack
      * 计算堆栈的当前样式。
      * @return Style
      */
-    public function getCurrent()
+    public function getCurrent(): Style
     {
         if (empty($this->styles)) {
             return $this->emptyStyle;
@@ -109,7 +109,7 @@ class Stack
     /**
      * @return Style
      */
-    public function getEmptyStyle()
+    public function getEmptyStyle(): Style
     {
         return $this->emptyStyle;
     }

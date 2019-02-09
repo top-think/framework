@@ -29,7 +29,7 @@ class RouteList extends Command
         'domain' => 4,
     ];
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('route:list')
             ->addArgument('app', Argument::OPTIONAL, 'app name .')
@@ -57,7 +57,7 @@ class RouteList extends Command
         file_put_contents($filename, 'Route List' . PHP_EOL . $content);
     }
 
-    protected function getRouteList($app)
+    protected function getRouteList(string $app): string
     {
         Container::pull('route')->setTestMode(true);
         Container::pull('route')->clear();

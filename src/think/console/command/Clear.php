@@ -19,7 +19,7 @@ use think\facade\App;
 
 class Clear extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         // 指令配置
         $this
@@ -59,7 +59,7 @@ class Clear extends Command
         $output->writeln("<info>Clear Successed</info>");
     }
 
-    protected function clear(string $path, bool $rmdir)
+    protected function clear(string $path, bool $rmdir): void
     {
         $files = is_dir($path) ? scandir($path) : [];
 

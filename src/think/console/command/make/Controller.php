@@ -20,7 +20,7 @@ class Controller extends Make
 
     protected $type = "Controller";
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
         $this->setName('make:controller')
@@ -29,7 +29,7 @@ class Controller extends Make
             ->setDescription('Create a new resource controller class');
     }
 
-    protected function getStub()
+    protected function getStub(): string
     {
         $stubPath = __DIR__ . DIRECTORY_SEPARATOR . 'stubs' . DIRECTORY_SEPARATOR;
 
@@ -44,12 +44,12 @@ class Controller extends Make
         return $stubPath . 'controller.stub';
     }
 
-    protected function getClassName(string $name)
+    protected function getClassName(string $name): string
     {
         return parent::getClassName($name) . (App::hasControllerSuffix() ? 'Controller' : '');
     }
 
-    protected function getNamespace(string $app)
+    protected function getNamespace(string $app): string
     {
         return parent::getNamespace($app) . '\\controller';
     }

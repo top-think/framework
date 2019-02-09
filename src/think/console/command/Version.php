@@ -19,7 +19,7 @@ use think\facade\App;
 
 class Version extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         // 指令配置
         $this->setName('version')

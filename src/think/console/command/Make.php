@@ -24,7 +24,7 @@ abstract class Make extends Command
 
     abstract protected function getStub();
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('name', Argument::REQUIRED, "The name of the class");
     }
@@ -67,14 +67,14 @@ abstract class Make extends Command
         ], $stub);
     }
 
-    protected function getPathName(string $name)
+    protected function getPathName(string $name): string
     {
         $name = str_replace(App::getRootNamespace() . '\\', '', $name);
 
         return App::getBasePath() . ltrim(str_replace('\\', '/', $name), '/') . '.php';
     }
 
-    protected function getClassName(string $name)
+    protected function getClassName(string $name): string
     {
         if (strpos($name, '\\') !== false) {
             return $name;
@@ -93,7 +93,7 @@ abstract class Make extends Command
         return $this->getNamespace($app) . '\\' . $name;
     }
 
-    protected function getNamespace(string $app)
+    protected function getNamespace(string $app): string
     {
         $namespace = App::getRootNamespace();
 

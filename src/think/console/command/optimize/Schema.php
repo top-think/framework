@@ -20,7 +20,7 @@ use think\facade\Db;
 
 class Schema extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('optimize:schema')
             ->addArgument('app', Argument::OPTIONAL, 'app name .')
@@ -79,7 +79,7 @@ class Schema extends Command
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildModelSchema(string $path, string $class)
+    protected function buildModelSchema(string $path, string $class): void
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
@@ -93,7 +93,7 @@ class Schema extends Command
         }
     }
 
-    protected function buildDataBaseSchema(string $path, array $tables, string $db)
+    protected function buildDataBaseSchema(string $path, array $tables, string $db): void
     {
         if ('' == $db) {
             $dbName = Db::getConfig('database') . '.';

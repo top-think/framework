@@ -20,7 +20,7 @@ use think\facade\App;
 
 class RunServer extends Command
 {
-    public function configure()
+    public function configure(): void
     {
         $this->setName('run')
             ->addOption('host', 'H', Option::VALUE_OPTIONAL,

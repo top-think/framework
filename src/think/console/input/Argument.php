@@ -31,7 +31,7 @@ class Argument
      * @param mixed  $default     默认值 (仅 self::OPTIONAL 类型有效)
      * @throws \InvalidArgumentException
      */
-    public function __construct($name, $mode = null, $description = '', $default = null)
+    public function __construct(string $name, int $mode = null, string $description = '', $default = null)
     {
         if (null === $mode) {
             $mode = self::OPTIONAL;
@@ -50,7 +50,7 @@ class Argument
      * 获取参数名
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -59,7 +59,7 @@ class Argument
      * 是否必须
      * @return bool
      */
-    public function isRequired()
+    public function isRequired(): bool
     {
         return self::REQUIRED === (self::REQUIRED & $this->mode);
     }
@@ -68,7 +68,7 @@ class Argument
      * 该参数是否接受数组
      * @return bool
      */
-    public function isArray()
+    public function isArray(): bool
     {
         return self::IS_ARRAY === (self::IS_ARRAY & $this->mode);
     }
@@ -78,7 +78,7 @@ class Argument
      * @param mixed $default 默认值
      * @throws \LogicException
      */
-    public function setDefault($default = null)
+    public function setDefault($default = null): void
     {
         if (self::REQUIRED === $this->mode && null !== $default) {
             throw new \LogicException('Cannot set a default value except for InputArgument::OPTIONAL mode.');
@@ -108,7 +108,7 @@ class Argument
      * 获取描述
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }

@@ -23,7 +23,7 @@ class Lists extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('list')->setDefinition($this->createDefinition())->setDescription('Lists commands')->setHelp(<<<EOF
 The <info>%command.name%</info> command lists all commands:
@@ -63,7 +63,7 @@ EOF
     /**
      * {@inheritdoc}
      */
-    private function createDefinition()
+    private function createDefinition(): InputDefinition
     {
         return new InputDefinition([
             new InputArgument('namespace', InputArgument::OPTIONAL, 'The namespace name'),
