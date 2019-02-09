@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use think\db\Connection;
+use think\db\Raw;
 
 class Db
 {
@@ -62,6 +63,17 @@ class Db
         $this->connection = Connection::instance($this->parseConfig($config), $name);
 
         return $this;
+    }
+
+    /**
+     * 使用表达式设置数据
+     * @access public
+     * @param  string $value 表达式
+     * @return Raw
+     */
+    public function raw(string $value): Raw
+    {
+        return new Raw($value);
     }
 
     /**

@@ -843,17 +843,6 @@ class Query
     }
 
     /**
-     * 使用表达式设置数据
-     * @access public
-     * @param  string $value 表达式
-     * @return Raw
-     */
-    public function raw(string $value): Raw
-    {
-        return new Raw($value);
-    }
-
-    /**
      * 指定JOIN查询字段
      * @access public
      * @param  string|array $table 数据表
