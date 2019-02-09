@@ -714,7 +714,7 @@ abstract class Rule
         } elseif ($route instanceof Response) {
             $result = new ResponseDispatch($request, $this, $route);
         } elseif (isset($option['view']) && false !== $option['view']) {
-            $result = new ViewDispatch($route, is_array($option['view']) ? $option['view'] : []);
+            $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : []);
         } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
             $result = new RedirectDispatch($request, $this, $route, [], isset($option['status']) ? $option['status'] : 301);
