@@ -14,7 +14,6 @@ namespace think\db\connector;
 
 use PDO;
 use think\db\Connection;
-use think\db\Query;
 
 /**
  * mysql数据库驱动
