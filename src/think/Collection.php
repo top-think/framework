@@ -383,6 +383,78 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
+     * LIKE过滤
+     * @access public
+     * @param  string   $field 字段名
+     * @param  string   $value 数据
+     * @return static
+     */
+    public function whereLike(string $field, string $value)
+    {
+        return $this->where($field, 'like', $value);
+    }
+
+    /**
+     * NOT LIKE过滤
+     * @access public
+     * @param  string   $field 字段名
+     * @param  string   $value 数据
+     * @return static
+     */
+    public function whereNotLike(string $field, string $value)
+    {
+        return $this->where($field, 'not like', $value);
+    }
+
+    /**
+     * IN过滤
+     * @access public
+     * @param  string   $field 字段名
+     * @param  array    $value 数据
+     * @return static
+     */
+    public function whereIn(string $field, array $value)
+    {
+        return $this->where($field, 'in', $value);
+    }
+
+    /**
+     * NOT IN过滤
+     * @access public
+     * @param  string   $field 字段名
+     * @param  array    $value 数据
+     * @return static
+     */
+    public function whereNotIn(string $field, array $value)
+    {
+        return $this->where($field, 'not in', $value);
+    }
+
+    /**
+     * BETWEEN 过滤
+     * @access public
+     * @param  string   $field 字段名
+     * @param  mixed    $value 数据
+     * @return static
+     */
+    public function whereBetween(string $field, $value)
+    {
+        return $this->where($field, 'between', $value);
+    }
+
+    /**
+     * NOT BETWEEN 过滤
+     * @access public
+     * @param  string   $field 字段名
+     * @param  mixed    $value 数据
+     * @return static
+     */
+    public function whereNotBetween(string $field, $value)
+    {
+        return $this->where($field, 'not between', $value);
+    }
+
+    /**
      * 返回数据中指定的一列
      * @access public
      * @param string $columnKey 键名
