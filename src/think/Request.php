@@ -257,12 +257,6 @@ class Request
     protected $filter;
 
     /**
-     * 扩展方法
-     * @var array
-     */
-    protected $hook = [];
-
-    /**
      * php://input内容
      * @var string
      */
@@ -333,32 +327,6 @@ class Request
         $request->env    = $app['env']->get();
 
         return $request;
-    }
-
-    public function __call($method, $args)
-    {
-        if (array_key_exists($method, $this->hook)) {
-            array_unshift($args, $this);
-            return call_user_func_array($this->hook[$method], $args);
-        }
-
-        throw new Exception('method not exists:' . static::class . '->' . $method);
-    }
-
-    /**
-     * Hook 方法注入
-     * @access public
-     * @param  string|array  $method 方法名
-     * @param  mixed         $callback callable
-     * @return void
-     */
-    public function hook($method, $callback = null): void
-    {
-        if (is_array($method)) {
-            $this->hook = array_merge($this->hook, $method);
-        } else {
-            $this->hook[$method] = $callback;
-        }
     }
 
     /**
@@ -1656,12 +1624,7 @@ class Request
      */
     public function ip($type = 0, $adv = true)
     {
-        $type      = $type ? 1 : 0;
-        static $ip = null;
-
-        if (null !== $ip) {
-            return $ip[$type];
-        }
+        $type = $type ? 1 : 0;
 
         $httpAgentIp = $this->config['http_agent_ip'];
 
