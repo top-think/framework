@@ -541,7 +541,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
         $where = $this->getUpdateWhere($data);
 
-        foreach ((array) $this->relationWrite as $name => $val) {
+        foreach ($this->relationWrite as $name => $val) {
             if (!is_array($val)) {
                 continue;
             }

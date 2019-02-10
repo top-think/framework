@@ -19,7 +19,7 @@ class Command extends Make
 {
     protected $type = "Command";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:command')

@@ -17,7 +17,7 @@ class Model extends Make
 {
     protected $type = "Model";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:model')

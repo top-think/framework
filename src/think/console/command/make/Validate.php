@@ -17,7 +17,7 @@ class Validate extends Make
 {
     protected $type = "Validate";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:validate')

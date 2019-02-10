@@ -19,7 +19,7 @@ use think\facade\App;
 
 class Route extends Command
 {
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('optimize:route')
             ->addArgument('app', Argument::OPTIONAL, 'Build app route cache .')

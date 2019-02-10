@@ -23,7 +23,7 @@ class Lists extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('list')->setDefinition($this->createDefinition())->setDescription('Lists commands')->setHelp(<<<EOF
 The <info>%command.name%</info> command lists all commands:
@@ -44,7 +44,7 @@ EOF
     /**
      * {@inheritdoc}
      */
-    public function getNativeDefinition()
+    public function getNativeDefinition(): InputDefinition
     {
         return $this->createDefinition();
     }

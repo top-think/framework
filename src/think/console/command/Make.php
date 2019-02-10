@@ -24,7 +24,7 @@ abstract class Make extends Command
 
     abstract protected function getStub();
 
-    protected function configure(): void
+    protected function configure()
     {
         $this->addArgument('name', Argument::REQUIRED, "The name of the class");
     }

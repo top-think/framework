@@ -29,7 +29,7 @@ class RouteList extends Command
         'domain' => 4,
     ];
 
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('route:list')
             ->addArgument('app', Argument::OPTIONAL, 'app name .')

@@ -19,7 +19,7 @@ use think\facade\App;
 
 class Config extends Command
 {
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('optimize:config')
             ->addArgument('app', Argument::OPTIONAL, 'Build app config cache .')

@@ -20,7 +20,7 @@ class Controller extends Make
 
     protected $type = "Controller";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:controller')

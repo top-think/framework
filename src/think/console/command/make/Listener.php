@@ -16,7 +16,7 @@ class Listener extends Make
 {
     protected $type = "Listener";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:listener')

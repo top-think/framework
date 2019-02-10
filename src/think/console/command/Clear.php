@@ -19,7 +19,7 @@ use think\facade\App;
 
 class Clear extends Command
 {
-    protected function configure(): void
+    protected function configure()
     {
         // 指令配置
         $this

@@ -16,7 +16,7 @@ class Subscribe extends Make
 {
     protected $type = "Subscribe";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:subscribe')

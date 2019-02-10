@@ -16,7 +16,7 @@ class Event extends Make
 {
     protected $type = "Event";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:event')

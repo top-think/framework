@@ -100,9 +100,8 @@ class Command
     /**
      * 配置指令
      */
-    protected function configure(): void
-    {
-    }
+    protected function configure()
+    {}
 
     /**
      * 执行指令
@@ -123,8 +122,7 @@ class Command
      * @param Output $output
      */
     protected function interact(Input $input, Output $output)
-    {
-    }
+    {}
 
     /**
      * 初始化
@@ -132,8 +130,7 @@ class Command
      * @param Output $output An OutputInterface instance
      */
     protected function initialize(Input $input, Output $output)
-    {
-    }
+    {}
 
     /**
      * 执行
@@ -188,10 +185,6 @@ class Command
      */
     public function setCode(callable $code)
     {
-        if (!is_callable($code)) {
-            throw new \InvalidArgumentException('Invalid callable provided to Command::setCode.');
-        }
-
         if (PHP_VERSION_ID >= 50400 && $code instanceof \Closure) {
             $r = new \ReflectionFunction($code);
             if (null === $r->getClosureThis()) {

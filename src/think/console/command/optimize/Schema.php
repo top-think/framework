@@ -20,7 +20,7 @@ use think\facade\Db;
 
 class Schema extends Command
 {
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('optimize:schema')
             ->addArgument('app', Argument::OPTIONAL, 'app name .')

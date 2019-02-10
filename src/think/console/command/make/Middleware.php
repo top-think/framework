@@ -17,7 +17,7 @@ class Middleware extends Make
 {
     protected $type = "Middleware";
 
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
         $this->setName('make:middleware')
