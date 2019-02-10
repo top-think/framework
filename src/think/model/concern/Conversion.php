@@ -17,6 +17,7 @@ use think\Collection;
 use think\Exception;
 use think\Model;
 use think\model\Collection as ModelCollection;
+use think\model\relation\OneToOne;
 
 /**
  * 模型数据转换处理
@@ -180,9 +181,36 @@ trait Conversion
 
             $item[$key] = $relation->append([$attr])->toArray();
         } else {
-            $value = $this->getAttr($name, $item);
+            $value = $this->getAttr($name);
+
+            if ($item) {
+                $this->getBindAttr($name, $value, $item);
+            }
 
             $item[$name] = $value;
+        }
+    }
+
+    protected function getBindAttr($name, $value, array &$item = [])
+    {
+        $relation = $this->isRelationAttr($name);
+        if (!$relation) {
+            return;
+        }
+
+        $modelRelation = $this->$relation();
+
+        if ($modelRelation instanceof OneToOne) {
+            $bindAttr = $modelRelation->getBindAttr();
+            foreach ($bindAttr as $key => $attr) {
+                $key = is_numeric($key) ? $attr : $key;
+
+                if (isset($item[$key])) {
+                    throw new Exception('bind attr has exists:' . $key);
+                }
+
+                $item[$key] = $value ? $value->getAttr($attr) : null;
+            }
         }
     }
 

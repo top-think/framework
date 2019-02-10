@@ -489,20 +489,33 @@ trait Attribute
      * 获取器 获取数据对象的值
      * @access public
      * @param  string $name 名称
-     * @param  array  $item 数据
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function getAttr(string $name, array &$item = [])
+    public function getAttr(string $name)
     {
         try {
-            $notFound = false;
+            $relation = false;
             $value    = $this->getData($name);
         } catch (InvalidArgumentException $e) {
-            $notFound = true;
+            $relation = true;
             $value    = null;
         }
 
+        return $this->getValue($name, $value, $relation);
+    }
+
+    /**
+     * 获取经过获取器处理后的数据对象的值
+     * @access public
+     * @param  string $name 字段名称
+     * @param  mixed  $value 字段值
+     * @param  bool   $relation 是否为关联属性
+     * @return mixed
+     * @throws InvalidArgumentException
+     */
+    public function getValue(string $name, $value, bool $relation = false)
+    {
         // 检测属性获取器
         $fieldName = $this->getRealFieldName($name);
         $method    = 'get' . App::parseName($name, 1) . 'Attr';
@@ -515,7 +528,7 @@ trait Attribute
             $closure = $this->withAttr[$fieldName];
             $value   = $closure($value, $this->data);
         } elseif (method_exists($this, $method)) {
-            if ($notFound) {
+            if ($relation) {
                 $value = $this->getRelationValue($name);
             }
 
@@ -525,21 +538,25 @@ trait Attribute
             $value = $this->readTransform($value, $this->type[$fieldName]);
         } elseif ($this->autoWriteTimestamp && in_array($fieldName, [$this->createTime, $this->updateTime])) {
             if (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
-                'datetime',
-                'date',
-                'timestamp',
+                'datetime', 'date', 'timestamp',
             ])) {
                 $value = $this->formatDateTime($this->dateFormat, $value);
             } else {
                 $value = $this->formatDateTime($this->dateFormat, $value, true);
             }
-        } elseif ($notFound) {
-            $value = $this->getRelationAttribute($name, $item);
+        } elseif ($relation) {
+            $value = $this->getRelationAttribute($name);
         }
 
         return $value;
     }
 
+    /**
+     * 获取关联属性值
+     * @access protected
+     * @param  string   $name  属性名
+     * @return mixed
+     */
     protected function getRelationValue(string $name)
     {
         $relation = $this->isRelationAttr($name);
@@ -554,33 +571,17 @@ trait Attribute
     }
 
     /**
-     * 获取关联属性值
+     * 获取并保存关联属性值
      * @access protected
      * @param  string   $name  属性名
-     * @param  array    $item  数据
      * @return mixed
      */
-    protected function getRelationAttribute(string $name, array &$item)
+    protected function getRelationAttribute(string $name)
     {
         $value = $this->getRelationValue($name);
 
         if (!$value) {
             throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
-        }
-
-        if ($item && method_exists($modelRelation, 'getBindAttr') && $bindAttr = $modelRelation->getBindAttr()) {
-
-            foreach ($bindAttr as $key => $attr) {
-                $key = is_numeric($key) ? $attr : $key;
-
-                if (isset($item[$key])) {
-                    throw new Exception('bind attr has exists:' . $key);
-                }
-
-                $item[$key] = $value ? $value->getAttr($attr) : null;
-            }
-
-            return false;
         }
 
         // 保存关联对象值
