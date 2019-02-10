@@ -181,13 +181,10 @@ trait Conversion
 
             $item[$key] = $relation->append([$attr])->toArray();
         } else {
-            $value = $this->getAttr($name);
-
-            if ($item) {
-                $this->getBindAttr($name, $value, $item);
-            }
-
+            $value       = $this->getAttr($name);
             $item[$name] = $value;
+
+            $this->getBindAttr($name, $value, $item);
         }
     }
 
@@ -195,13 +192,18 @@ trait Conversion
     {
         $relation = $this->isRelationAttr($name);
         if (!$relation) {
-            return;
+            return false;
         }
 
         $modelRelation = $this->$relation();
 
         if ($modelRelation instanceof OneToOne) {
             $bindAttr = $modelRelation->getBindAttr();
+
+            if ($bindAttr) {
+                unset($item[$name]);
+            }
+
             foreach ($bindAttr as $key => $attr) {
                 $key = is_numeric($key) ? $attr : $key;
 

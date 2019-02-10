@@ -15,7 +15,6 @@ namespace think\model\concern;
 use InvalidArgumentException;
 use think\App;
 use think\db\Raw;
-use think\Exception;
 use think\model\Relation;
 
 trait Attribute
