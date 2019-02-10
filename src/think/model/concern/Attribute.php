@@ -39,7 +39,7 @@ trait Attribute
     protected $field = [];
 
     /**
-     * 数据表字段类型
+     * 字段自动类型转换
      * @var array
      */
     protected $type = [];
@@ -221,9 +221,9 @@ trait Attribute
     }
 
     /**
-     * 批量设置数据对象值
+     * 批量追加数据对象值
      * @access public
-     * @param  mixed $data  数据
+     * @param  array $data  数据
      * @param  bool  $set   是否需要进行数据处理
      * @return $this
      */
@@ -284,17 +284,13 @@ trait Attribute
      */
     public function getChangedData(): array
     {
-        if ($this->force) {
-            $data = $this->data;
-        } else {
-            $data = array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
-                if ((empty($a) || empty($b)) && $a !== $b) {
-                    return 1;
-                }
+        $data = $this->force ? $this->data : array_udiff_assoc($this->data, $this->origin, function ($a, $b) {
+            if ((empty($a) || empty($b)) && $a !== $b) {
+                return 1;
+            }
 
-                return is_object($a) || $a != $b ? 1 : 0;
-            });
-        }
+            return is_object($a) || $a != $b ? 1 : 0;
+        });
 
         // 只读字段不允许更新
         foreach ($this->readonly as $key => $field) {
@@ -369,54 +365,6 @@ trait Attribute
 
         // 设置数据对象属性
         $this->data[$name] = $value;
-    }
-
-    /**
-     * 是否需要自动写入时间字段
-     * @access public
-     * @param  bool $auto
-     * @return $this
-     */
-    public function isAutoWriteTimestamp(bool $auto)
-    {
-        $this->autoWriteTimestamp = $auto;
-
-        return $this;
-    }
-
-    /**
-     * 自动写入时间戳
-     * @access protected
-     * @param  string $name 时间戳字段
-     * @return mixed
-     */
-    protected function autoWriteTimestamp(string $name)
-    {
-        $value = time();
-
-        if (isset($this->type[$name])) {
-            $type = $this->type[$name];
-
-            if (strpos($type, ':')) {
-                list($type, $param) = explode(':', $type, 2);
-            }
-
-            switch ($type) {
-                case 'datetime':
-                case 'date':
-                case 'timestamp':
-                    $format = !empty($param) ? $param : $this->dateFormat;
-                    $format .= strpos($format, 'u') || false !== strpos($format, '\\') ? '' : '.u';
-                    $value = $this->formatDateTime($format);
-                    break;
-            }
-        } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),
-            ['datetime', 'date', 'timestamp'])) {
-            $format = strpos($this->dateFormat, 'u') || false !== strpos($this->dateFormat, '\\') ? '' : '.u';
-            $value  = $this->formatDateTime($this->dateFormat . $format);
-        }
-
-        return $value;
     }
 
     /**
@@ -507,21 +455,21 @@ trait Attribute
 
     /**
      * 获取经过获取器处理后的数据对象的值
-     * @access public
+     * @access protected
      * @param  string $name 字段名称
      * @param  mixed  $value 字段值
      * @param  bool   $relation 是否为关联属性
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public function getValue(string $name, $value, bool $relation = false)
+    protected function getValue(string $name, $value, bool $relation = false)
     {
         // 检测属性获取器
         $fieldName = $this->getRealFieldName($name);
         $method    = 'get' . App::parseName($name, 1) . 'Attr';
 
         if (isset($this->withAttr[$fieldName])) {
-            if ($notFound) {
+            if ($relation) {
                 $value = $this->getRelationValue($name);
             }
 
@@ -537,13 +485,7 @@ trait Attribute
             // 类型转换
             $value = $this->readTransform($value, $this->type[$fieldName]);
         } elseif ($this->autoWriteTimestamp && in_array($fieldName, [$this->createTime, $this->updateTime])) {
-            if (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
-                'datetime', 'date', 'timestamp',
-            ])) {
-                $value = $this->formatDateTime($this->dateFormat, $value);
-            } else {
-                $value = $this->formatDateTime($this->dateFormat, $value, true);
-            }
+            $value = $this->getTimestampValue($value);
         } elseif ($relation) {
             $value = $this->getRelationAttribute($name);
         }
