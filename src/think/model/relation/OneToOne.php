@@ -25,11 +25,22 @@ use think\model\Relation;
  */
 abstract class OneToOne extends Relation
 {
-    // 当前关联的JOIN类型
+    /**
+     * JOIN类型
+     * @var string
+     */
     protected $joinType = 'INNER';
-    // 要绑定的属性
+
+    /**
+     * 绑定的关联属性
+     * @var array
+     */
     protected $bindAttr = [];
-    // 关联名
+
+    /**
+     * 关联名
+     * @var string
+     */
     protected $relation;
 
     /**

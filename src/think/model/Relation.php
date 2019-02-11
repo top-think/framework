@@ -24,19 +24,46 @@ use think\Model;
  */
 abstract class Relation
 {
-    // 父模型对象
+    /**
+     * 父模型对象
+     * @var Model
+     */
     protected $parent;
-    /** @var  Model 当前关联的模型类 */
+
+    /**
+     * 当前关联的模型类名
+     * @var string
+     */
     protected $model;
-    /** @var Query 关联模型查询对象 */
+
+    /**
+     * 关联模型查询对象
+     * @var Query
+     */
     protected $query;
-    // 关联表外键
+
+    /**
+     * 关联表外键
+     * @var string
+     */
     protected $foreignKey;
-    // 关联表主键
+
+    /**
+     * 关联表主键
+     * @var string
+     */
     protected $localKey;
-    // 基础查询
+
+    /**
+     * 是否执行关联基础查询
+     * @var bool
+     */
     protected $baseQuery;
-    // 是否为自关联
+
+    /**
+     * 是否为自关联
+     * @var bool
+     */
     protected $selfRelation;
 
     /**

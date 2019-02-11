@@ -34,7 +34,7 @@ trait ModelEvent
 
     /**
      * 绑定模型事件观察者类
-     * @var array
+     * @var string
      */
     protected $observerClass;
 

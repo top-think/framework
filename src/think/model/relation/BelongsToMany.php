@@ -22,13 +22,28 @@ use think\model\Relation;
 
 class BelongsToMany extends Relation
 {
-    // 中间表表名
+    /**
+     * 中间表表名
+     * @var string
+     */
     protected $middle;
-    // 中间表模型名称
+
+    /**
+     * 中间表模型名称
+     * @var string
+     */
     protected $pivotName;
-    // 中间表模型对象
+
+    /**
+     * 中间表模型对象
+     * @var Pivot
+     */
     protected $pivot;
-    // 中间表数据名称
+
+    /**
+     * 中间表数据名称
+     * @var string
+     */
     protected $pivotDataName = 'pivot';
 
     /**
@@ -76,7 +91,7 @@ class BelongsToMany extends Relation
      * @param  string $name
      * @return $this
      */
-    public function pivotDataName(string $name)
+    public function name(string $name)
     {
         $this->pivotDataName = $name;
         return $this;

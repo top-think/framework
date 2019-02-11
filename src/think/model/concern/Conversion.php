@@ -188,7 +188,7 @@ trait Conversion
         }
     }
 
-    protected function getBindAttr($name, $value, array &$item = [])
+    protected function getBindAttr(string $name, $value, array &$item = [])
     {
         $relation = $this->isRelationAttr($name);
         if (!$relation) {

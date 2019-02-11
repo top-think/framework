@@ -20,10 +20,22 @@ use think\model\Relation;
 
 class MorphOne extends Relation
 {
-    // 多态字段
+    /**
+     * 多态关联外键
+     * @var string
+     */
     protected $morphKey;
+
+    /**
+     * 多态字段
+     * @var string
+     */
     protected $morphType;
-    // 多态类型
+
+    /**
+     * 多态类型
+     * @var string
+     */
     protected $type;
 
     /**

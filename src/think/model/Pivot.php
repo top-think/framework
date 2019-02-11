@@ -17,9 +17,16 @@ use think\Model;
 class Pivot extends Model
 {
 
-    /** @var Model */
+    /**
+     * 父模型
+     * @var Model
+     */
     public $parent;
 
+    /**
+     * 是否时间自动写入
+     * @var bool
+     */
     protected $autoWriteTimestamp = false;
 
     /**
@@ -29,7 +36,7 @@ class Pivot extends Model
      * @param  Model    $parent 上级模型
      * @param  string   $table 中间数据表名
      */
-    public function __construct(array $data = [], $parent = null, string $table = '')
+    public function __construct(array $data = [], Model $parent = null, string $table = '')
     {
         $this->parent = $parent;
 

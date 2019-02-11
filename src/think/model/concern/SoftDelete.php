@@ -46,7 +46,7 @@ trait SoftDelete
      * @access public
      * @return Query
      */
-    public static function withTrashed()
+    public static function withTrashed(): Query
     {
         $model = new static();
 

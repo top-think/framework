@@ -46,10 +46,10 @@ trait TimeStamp
     /**
      * 是否需要自动写入时间字段
      * @access public
-     * @param  bool $auto
+     * @param  bool|string $auto
      * @return $this
      */
-    public function isAutoWriteTimestamp(bool $auto)
+    public function isAutoWriteTimestamp($auto)
     {
         $this->autoWriteTimestamp = $auto;
 
