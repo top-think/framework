@@ -19,6 +19,7 @@ use think\Exception;
 use think\Model;
 use think\model\Pivot;
 use think\model\Relation;
+use think\Paginator;
 
 class BelongsToMany extends Relation
 {

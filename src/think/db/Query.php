@@ -769,7 +769,7 @@ class Query
      */
     public function fieldRaw(string $field)
     {
-        $this->options['field'][] = $this->raw($field);
+        $this->options['field'][] = new Raw($field);
 
         return $this;
     }
@@ -838,7 +838,7 @@ class Query
      */
     public function exp(string $field, string $value)
     {
-        $this->options['data'][$field] = $this->raw($value);
+        $this->options['data'][$field] = new Raw($value);
         return $this;
     }
 
@@ -979,7 +979,7 @@ class Query
     public function whereExists($condition, string $logic = 'AND')
     {
         if (is_string($condition)) {
-            $condition = $this->raw($condition);
+            $condition = new Raw($condition);
         }
 
         $this->options['where'][strtoupper($logic)][] = ['', 'EXISTS', $condition];
@@ -996,7 +996,7 @@ class Query
     public function whereNotExists($condition, string $logic = 'AND')
     {
         if (is_string($condition)) {
-            $condition = $this->raw($condition);
+            $condition = new Raw($condition);
         }
 
         $this->options['where'][strtoupper($logic)][] = ['', 'NOT EXISTS', $condition];
@@ -1138,7 +1138,7 @@ class Query
             $this->bindParams($where, $bind);
         }
 
-        $this->options['where'][$logic][] = [$field, 'EXP', $this->raw($where)];
+        $this->options['where'][$logic][] = [$field, 'EXP', new Raw($where)];
 
         return $this;
     }
@@ -1157,7 +1157,7 @@ class Query
             $this->bindParams($where, $bind);
         }
 
-        $this->options['where'][$logic][] = $this->raw($where);
+        $this->options['where'][$logic][] = new Raw($where);
 
         return $this;
     }
@@ -1252,7 +1252,7 @@ class Query
                 $where = [$field, '=', $op];
             }
         } elseif (in_array(strtoupper($op), ['EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
-            $where = [$field, $op, is_string($condition) ? $this->raw($condition) : $condition];
+            $where = [$field, $op, is_string($condition) ? new Raw($condition) : $condition];
         } else {
             $where = $field ? [$field, $op, $condition, isset($param[2]) ? $param[2] : null] : [];
         }
@@ -1461,7 +1461,7 @@ class Query
      */
     public function tableRaw(string $table)
     {
-        $this->options['table'] = $this->raw($table);
+        $this->options['table'] = new Raw($table);
 
         return $this;
     }
@@ -1597,7 +1597,7 @@ class Query
             $this->bindParams($field, $bind);
         }
 
-        $this->options['order'][] = $this->raw($field);
+        $this->options['order'][] = new Raw($field);
 
         return $this;
     }
