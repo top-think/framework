@@ -1799,9 +1799,7 @@ class Query
      */
     public function fetchArray(bool $asArray = true)
     {
-        if ($asArray) {
-            $this->model = null;
-        }
+        $this->options['array'] = $asArray;
         return $this;
     }
 
@@ -2694,7 +2692,7 @@ class Query
         }
 
         // 数据列表读取后的处理
-        if (!empty($this->model)) {
+        if (!empty($this->model) && empty($this->options['array'])) {
             // 生成模型对象
             $resultSet = $this->resultSetToModelCollection($resultSet);
         } else {
@@ -2810,7 +2808,7 @@ class Query
             return $this->resultToEmpty();
         }
 
-        if (!empty($this->model)) {
+        if (!empty($this->model) && empty($this->options['array'])) {
             // 返回模型对象
             $this->resultToModel($result, $this->options);
         } else {
@@ -2834,7 +2832,7 @@ class Query
             $this->throwNotFound($this->options);
         }
 
-        return !empty($this->model) ? $this->model->newInstance([], true) : [];
+        return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance([], true) : [];
     }
 
     /**
@@ -3265,7 +3263,7 @@ class Query
             $options['strict'] = $this->connection->getConfig('fields_strict');
         }
 
-        foreach (['master', 'lock', 'fetch_sql', 'distinct', 'procedure'] as $name) {
+        foreach (['master', 'lock', 'fetch_sql', 'array', 'distinct', 'procedure'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
