@@ -39,7 +39,7 @@ class Mysql extends Builder
 
     protected $selectSql = 'SELECT%DISTINCT%%EXTRA% %FIELD% FROM %TABLE%%PARTITION%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%UNION%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
-    protected $insertSql = '%INSERT%%EXTRA% INTO %TABLE%%PARTITION% (%FIELD%) VALUES (%DATA%) %DUPLICATE%%COMMENT%';
+    protected $insertSql = '%INSERT%%EXTRA% INTO %TABLE%%PARTITION% SET %SET% %DUPLICATE%%COMMENT%';
 
     protected $insertAllSql = '%INSERT%%EXTRA% INTO %TABLE%%PARTITION% (%FIELD%) VALUES %DATA% %DUPLICATE%%COMMENT%';
 
@@ -97,18 +97,18 @@ class Mysql extends Builder
             return '';
         }
 
-        $fields = array_keys($data);
-        $values = array_values($data);
+        foreach ($data as $key => $val) {
+            $set[] = $key . ' = ' . $val;
+        }
 
         return str_replace(
-            ['%INSERT%', '%EXTRA%', '%TABLE%', '%PARTITION%', '%FIELD%', '%DATA%', '%DUPLICATE%', '%COMMENT%'],
+            ['%INSERT%', '%EXTRA%', '%TABLE%', '%PARTITION%', '%SET%', '%DUPLICATE%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseExtra($query, $options['extra'] ?? ''),
                 $this->parseTable($query, $options['table']),
                 $this->parsePartition($query, $options['partition'] ?? ''),
-                implode(' , ', $fields),
-                implode(' , ', $values),
+                implode(' , ', $set),
                 $this->parseDuplicate($query, $options['duplicate'] ?? ''),
                 $this->parseComment($query, $options['comment']),
             ],
@@ -177,8 +177,7 @@ class Mysql extends Builder
     {
         $options = $query->getOptions();
 
-        $table = $this->parseTable($query, $options['table']);
-        $data  = $this->parseData($query, $options['data']);
+        $data = $this->parseData($query, $options['data']);
 
         if (empty($data)) {
             return '';

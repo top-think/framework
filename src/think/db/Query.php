@@ -630,8 +630,8 @@ class Query
      * 获取Join表名及别名 支持
      * ['prefix_table或者子查询'=>'alias'] 'table alias'
      * @access protected
-     * @param  array|string $join
-     * @param  string       $alias
+     * @param  array|string|Raw $join
+     * @param  string           $alias
      * @return string
      */
     protected function getJoinTable($join, &$alias = null)
@@ -640,6 +640,8 @@ class Query
             $table = $join;
             $alias = array_shift($join);
             return $table;
+        } elseif ($join instanceof Raw) {
+            return $join;
         }
 
         $join = trim($join);
@@ -1492,7 +1494,7 @@ class Query
                     }
                 }
             }
-        } else {
+        } elseif (is_array($table)) {
             $tables = $table;
             $table  = [];
 
