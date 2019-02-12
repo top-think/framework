@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use think\exception\RouteNotFoundException;
+use think\facade\RuleName;
 use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
@@ -42,12 +43,6 @@ class Route
      * @var array
      */
     protected $config = [];
-
-    /**
-     * 应用对象
-     * @var App
-     */
-    protected $app;
 
     /**
      * 请求对象
@@ -109,10 +104,9 @@ class Route
      */
     protected $mergeRuleRegex = true;
 
-    public function __construct(App $app, array $config = [])
+    public function __construct(Request $request, array $config = [])
     {
-        $this->app     = $app;
-        $this->request = $app['request'];
+        $this->request = $request;
         $this->config  = $config;
 
         $this->host = $this->request->host(true) ?: $config['app_host'];
@@ -125,10 +119,10 @@ class Route
         return $this->config[$name] ?? null;
     }
 
-    public static function __make(App $app, Config $config)
+    public static function __make(Request $request, Config $config)
     {
         $config = $config->pull('app');
-        return new static($app, $config);
+        return new static($request, $config);
     }
 
     /**
@@ -368,7 +362,7 @@ class Route
      */
     public function getName(string $name = null, string $domain = null, string $method = '*'): array
     {
-        return $this->app['rule_name']->getName($name, $domain, $method);
+        return RuleName::getName($name, $domain, $method);
     }
 
     /**
@@ -379,7 +373,7 @@ class Route
      */
     public function setName(array $name)
     {
-        $this->app['rule_name']->import($name);
+        RuleName::import($name);
         return $this;
     }
 
@@ -396,7 +390,7 @@ class Route
             $domain = $this->domain;
         }
 
-        return $this->app['rule_name']->getRule($rule, $domain);
+        return RuleName::getRule($rule, $domain);
     }
 
     /**
@@ -407,7 +401,7 @@ class Route
      */
     public function getRuleList(string $domain = null): array
     {
-        return $this->app['rule_name']->getRuleList($domain);
+        return RuleName::getRuleList($domain);
     }
 
     /**
@@ -417,7 +411,7 @@ class Route
      */
     public function clear(): void
     {
-        $this->app['rule_name']->clear();
+        RuleName::clear();
         $this->group->clear();
     }
 

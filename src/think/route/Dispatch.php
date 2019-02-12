@@ -301,6 +301,6 @@ abstract class Dispatch
     public function __wakeup()
     {
         $this->app     = Container::pull('app');
-        $this->request = $this->app['request'];
+        $this->request = $this->app->request;
     }
 }
