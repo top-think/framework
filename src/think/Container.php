@@ -221,7 +221,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function make(string $abstract, array $vars = [], bool $newInstance = false)
     {
-        $abstract = isset($this->alias[$abstract]) ? $this->alias[$abstract] : $abstract;
+        $abstract = $this->alias[$abstract] ?? $abstract;
 
         if (isset($this->instances[$abstract]) && !$newInstance) {
             return $this->instances[$abstract];
@@ -256,7 +256,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     public function delete($abstract): void
     {
         foreach ((array) $abstract as $name) {
-            $name = isset($this->alias[$name]) ? $this->alias[$name] : $name;
+            $name = $this->alias[$name] ?? $name;
 
             if (isset($this->instances[$name])) {
                 unset($this->instances[$name]);
@@ -326,7 +326,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
             $args = $this->bindParams($reflect, $vars);
 
-            return $reflect->invokeArgs(isset($class) ? $class : null, $args);
+            return $reflect->invokeArgs($class ?? null, $args);
         } catch (ReflectionException $e) {
             throw new Exception('method not exists: ' . (is_array($method) ? $method[0] . '::' . $method[1] : $method) . '()');
         }

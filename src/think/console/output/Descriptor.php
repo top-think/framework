@@ -82,7 +82,7 @@ class Descriptor
             $default = '';
         }
 
-        $totalWidth   = isset($options['total_width']) ? $options['total_width'] : strlen($argument->getName());
+        $totalWidth   = $options['total_width'] ?? strlen($argument->getName());
         $spacingWidth = $totalWidth - strlen($argument->getName()) + 2;
 
         $this->writeText(sprintf("  <info>%s</info>%s%s%s", $argument->getName(), str_repeat(' ', $spacingWidth), // + 17 = 2 spaces + <info> + </info> + 2 spaces
@@ -115,7 +115,7 @@ class Descriptor
             }
         }
 
-        $totalWidth = isset($options['total_width']) ? $options['total_width'] : $this->calculateTotalWidthForOptions([$option]);
+        $totalWidth = $options['total_width'] ?? $this->calculateTotalWidthForOptions([$option]);
         $synopsis   = sprintf('%s%s', $option->getShortcut() ? sprintf('-%s, ', $option->getShortcut()) : '    ', sprintf('--%s%s', $option->getName(), $value));
 
         $spacingWidth = $totalWidth - strlen($synopsis) + 2;

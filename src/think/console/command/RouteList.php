@@ -115,8 +115,8 @@ class RouteList extends Command
             }
 
             uasort($rows, function ($a, $b) use ($sort) {
-                $itemA = isset($a[$sort]) ? $a[$sort] : null;
-                $itemB = isset($b[$sort]) ? $b[$sort] : null;
+                $itemA = $a[$sort] ?? null;
+                $itemB = $b[$sort] ?? null;
 
                 return strcasecmp($itemA, $itemB);
             });

@@ -154,7 +154,7 @@ class Handle
                     'POST Data'             => $_POST,
                     'Files'                 => $_FILES,
                     'Cookies'               => $_COOKIE,
-                    'Session'               => isset($_SESSION) ? $_SESSION : [],
+                    'Session'               => $_SESSION ?? [],
                     'Server/Request Data'   => $_SERVER,
                     'Environment Variables' => $_ENV,
                     'ThinkPHP Constants'    => $this->getConst(),
@@ -302,6 +302,6 @@ class Handle
     {
         $const = get_defined_constants(true);
 
-        return isset($const['user']) ? $const['user'] : [];
+        return $const['user'] ?? [];
     }
 }

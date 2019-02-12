@@ -218,7 +218,7 @@ class Config implements ArrayAccess
             }
         }
 
-        return isset($this->config[$name]) ? $this->config[$name] : [];
+        return $this->config[$name] ?? [];
     }
 
     /**

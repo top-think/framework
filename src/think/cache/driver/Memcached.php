@@ -64,7 +64,7 @@ class Memcached extends Driver
         // 建立连接
         $servers = [];
         foreach ((array) $hosts as $i => $host) {
-            $servers[] = [$host, (isset($ports[$i]) ? $ports[$i] : $ports[0]), 1];
+            $servers[] = [$host, $ports[$i] ?? $ports[0], 1];
         }
 
         $this->handler->addServers($servers);

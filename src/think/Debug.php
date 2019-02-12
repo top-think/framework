@@ -237,7 +237,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         }
         return $output;
@@ -246,7 +246,7 @@ class Debug
     public function inject(Response $response, &$content)
     {
         $config = $this->config;
-        $type   = isset($config['type']) ? $config['type'] : 'Html';
+        $type   = $config['type'] ?? 'Html';
 
         unset($config['type']);
 

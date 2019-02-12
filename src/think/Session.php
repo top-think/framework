@@ -204,7 +204,7 @@ class Session
         // 不在 init 方法中实例化lockDriver，是因为 init 方法不一定先于 set 或 get 方法调用
         $config = Container::pull('config')->pull('session');
 
-        if (!empty($config['type']) && isset($config['use_lock']) && $config['use_lock']) {
+        if (!empty($config['type']) && !empty($config['use_lock'])) {
             // 读取session驱动
             $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\session\\driver\\' . ucwords($config['type']);
 
@@ -215,7 +215,7 @@ class Session
         }
 
         // 通过cookie获得session_id
-        if (isset($config['name']) && $config['name']) {
+        if (!empty($config['name'])) {
             $this->sessKey = $config['name'];
         }
 
@@ -240,7 +240,7 @@ class Session
         if (null !== $this->lockDriver && method_exists($this->lockDriver, 'lock')) {
             $t = time();
             // 使用 session_id 作为互斥条件，即只对同一 session_id 的会话互斥。第一次请求没有 session_id
-            $sessID = isset($_COOKIE[$this->sessKey]) ? $_COOKIE[$this->sessKey] : '';
+            $sessID = $_COOKIE[$this->sessKey] ?? '';
 
             do {
                 if (time() - $t > $this->lockTimeout) {
@@ -264,7 +264,7 @@ class Session
         $this->pause();
 
         if ($this->lockDriver && method_exists($this->lockDriver, 'unlock')) {
-            $sessID = isset($_COOKIE[$this->sessKey]) ? $_COOKIE[$this->sessKey] : '';
+            $sessID = $_COOKIE[$this->sessKey] ?? '';
             $this->lockDriver->unlock($sessID);
         }
     }

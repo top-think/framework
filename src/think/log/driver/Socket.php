@@ -94,7 +94,7 @@ class Socket
             $trace[] = [
                 'type' => 'groupCollapsed',
                 'msg'  => '[ ' . $type . ' ]',
-                'css'  => isset($this->css[$type]) ? $this->css[$type] : '',
+                'css'  => $this->css[$type] ?? '',
             ];
 
             foreach ($val as $msg) {

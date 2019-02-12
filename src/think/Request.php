@@ -533,7 +533,7 @@ class Request
     {
         if (!$this->url) {
             if ($this->isCli()) {
-                $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+                $this->url = $_SERVER['argv'][1] ?? '';
             } elseif ($this->server('HTTP_X_REWRITE_URL')) {
                 $this->url = $this->server('HTTP_X_REWRITE_URL');
             } elseif ($this->server('REQUEST_URI')) {
@@ -680,7 +680,7 @@ class Request
                 unset($_GET[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php controller/action/params/...
-                $pathinfo = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
+                $pathinfo = $_SERVER['argv'][1] ?? '';
             } elseif ('cli-server' == PHP_SAPI) {
                 $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
             } elseif ($this->server('PATH_INFO')) {

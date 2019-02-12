@@ -76,7 +76,7 @@ class Resource extends RuleGroup
             $item  = [];
 
             foreach ($array as $val) {
-                $item[] = $val . '/<' . (isset($option['var'][$val]) ? $option['var'][$val] : $val . '_id') . '>';
+                $item[] = $val . '/<' . ($option['var'][$val] ?? $val . '_id') . '>';
             }
 
             $rule = implode('/', $item) . '/' . $last;

@@ -517,7 +517,7 @@ class BelongsToMany extends Relation
 
         foreach ($dataSet as $key => $data) {
             if (!$samePivot) {
-                $pivotData = isset($pivot[$key]) ? $pivot[$key] : [];
+                $pivotData = $pivot[$key] ?? [];
             } else {
                 $pivotData = $pivot;
             }

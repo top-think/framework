@@ -438,7 +438,7 @@ class Validate
                 // 字段|描述 用于指定属性名称
                 list($key, $title) = explode('|', $key);
             } else {
-                $title = isset($this->field[$key]) ? $this->field[$key] : $key;
+                $title = $this->field[$key] ?? $key;
             }
 
             // 场景检测
@@ -1029,7 +1029,7 @@ class Validate
             $db = Db::name($rule[0]);
         }
 
-        $key = isset($rule[1]) ? $rule[1] : $field;
+        $key = $rule[1] ?? $field;
 
         if (strpos($key, '^')) {
             // 支持多个字段验证
@@ -1074,7 +1074,7 @@ class Validate
         if (is_string($rule) && strpos($rule, ',')) {
             list($rule, $param) = explode(',', $rule);
         } elseif (is_array($rule)) {
-            $param = isset($rule[1]) ? $rule[1] : null;
+            $param = $rule[1] ?? null;
             $rule  = $rule[0];
         } else {
             $param = null;
@@ -1450,7 +1450,7 @@ class Validate
                 $value = $data = $data[$key];
             }
         } else {
-            $value = isset($data[$key]) ? $data[$key] : null;
+            $value = $data[$key] ?? null;
         }
 
         return $value;

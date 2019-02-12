@@ -1096,7 +1096,7 @@ class Query
     {
         if (is_array($field1)) {
             foreach ($field1 as $item) {
-                $this->whereColumn($item[0], $item[1], isset($item[2]) ? $item[2] : null);
+                $this->whereColumn($item[0], $item[1], $item[2] ?? null);
             }
             return $this;
         }
@@ -1256,7 +1256,7 @@ class Query
         } elseif (in_array(strtoupper($op), ['EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
             $where = [$field, $op, is_string($condition) ? new Raw($condition) : $condition];
         } else {
-            $where = $field ? [$field, $op, $condition, isset($param[2]) ? $param[2] : null] : [];
+            $where = $field ? [$field, $op, $condition, $param[2] ?? null] : [];
         }
 
         return $where;
@@ -2143,7 +2143,7 @@ class Query
         if (!empty($this->pk)) {
             $pk = $this->pk;
         } else {
-            $pk = $this->connection->getPk(is_array($options) && isset($options['table']) ? $options['table'] : $this->getTable());
+            $pk = $this->connection->getPk($options['table'] ?? $this->getTable());
         }
 
         return $pk;

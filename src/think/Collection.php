@@ -339,9 +339,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
             if (strpos($field, '.')) {
                 list($field, $relation) = explode('.', $field);
 
-                $result = isset($data[$field][$relation]) ? $data[$field][$relation] : null;
+                $result = $data[$field][$relation] ?? null;
             } else {
-                $result = isset($data[$field]) ? $data[$field] : null;
+                $result = $data[$field] ?? null;
             }
 
             switch ($operator) {
@@ -497,8 +497,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function order(string $field, string $order = null)
     {
         return $this->sort(function ($a, $b) use ($field, $order) {
-            $fieldA = isset($a[$field]) ? $a[$field] : null;
-            $fieldB = isset($b[$field]) ? $b[$field] : null;
+            $fieldA = $a[$field] ?? null;
+            $fieldB = $b[$field] ?? null;
 
             return 'desc' == strtolower($order) ? strcmp($fieldB, $fieldA) : strcmp($fieldA, $fieldB);
         });
