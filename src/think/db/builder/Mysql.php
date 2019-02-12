@@ -335,7 +335,7 @@ class Mysql extends Builder
             $partition = explode(',', $partition);
         }
 
-        return ' PARTITION (' . implode(',', $partition) . ') ';
+        return ' PARTITION (' . implode(' , ', $partition) . ') ';
     }
 
     /**
@@ -364,13 +364,13 @@ class Mysql extends Builder
             if (is_numeric($key)) {
                 $updates[] = $this->parseKey($query, $val) . ' = VALUES(' . $this->parseKey($query, $val) . ')';
             } elseif ($val instanceof Raw) {
-                $updates[] = $this->parseKey($query, $key) . "=" . $val->getValue();
+                $updates[] = $this->parseKey($query, $key) . " = " . $val->getValue();
             } else {
                 $name      = $query->bind($val, $query->getFieldBindType($key));
-                $updates[] = $this->parseKey($query, $key) . "=:" . $name;
+                $updates[] = $this->parseKey($query, $key) . " = :" . $name;
             }
         }
 
-        return ' ON DUPLICATE KEY UPDATE ' . implode(',', $updates) . ' ';
+        return ' ON DUPLICATE KEY UPDATE ' . implode(' , ', $updates) . ' ';
     }
 }
