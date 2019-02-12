@@ -33,7 +33,6 @@ class Event
     protected $bind = [
         'AppInit'      => event\AppInit::class,
         'AppBegin'     => event\AppBegin::class,
-        'ActionBegin'  => event\ActionBegin::class,
         'AppEnd'       => event\AppEnd::class,
         'LogLevel'     => event\LogLevel::class,
         'LogWrite'     => event\LogWrite::class,
