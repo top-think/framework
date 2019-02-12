@@ -462,7 +462,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $data     = [];
         }
 
-        if (!$this->checkBeforeSave($data, $where)) {
+        if ($this->isEmpty() || !$this->checkBeforeSave($data, $where)) {
             return false;
         }
 
@@ -860,7 +860,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function delete()
     {
-        if (!$this->exists || false === $this->trigger('before_delete')) {
+        if (!$this->exists || $this->isEmpty() || false === $this->trigger('before_delete')) {
             return false;
         }
 
