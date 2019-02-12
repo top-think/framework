@@ -416,7 +416,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * @param  array|bool  $data     数据
      * @return void
      */
-    public function lazySave($data = [])
+    public function lazySave($data = []): void
     {
         if (false === $data) {
             $this->lazySave = false;
@@ -539,7 +539,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         // 检查允许字段
         $allowFields = $this->checkAllowFields($auto);
 
-        $where = $this->getUpdateWhere($data);
+        $where = $this->getWhere();
 
         foreach ($this->relationWrite as $name => $val) {
             if (!is_array($val)) {
@@ -580,33 +580,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $db->rollback();
             throw $e;
         }
-    }
-
-    protected function getUpdateWhere(array &$data): array
-    {
-        // 保留主键数据
-        foreach ($this->data as $key => $val) {
-            if ($this->isPk($key)) {
-                $data[$key] = $val;
-            }
-        }
-
-        $pk    = $this->getPk();
-        $array = [];
-
-        foreach ((array) $pk as $key) {
-            if (isset($data[$key])) {
-                $array[] = [$key, '=', $data[$key]];
-                unset($data[$key]);
-            }
-        }
-
-        if (!empty($array)) {
-            $where = $array;
-        } else {
-            $where = $this->updateWhere;
-        }
-        return $where;
     }
 
     /**
@@ -683,10 +656,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
     /**
      * 获取当前的更新条件
-     * @access protected
+     * @access public
      * @return mixed
      */
-    protected function getWhere()
+    public function getWhere()
     {
         // 删除条件
         $pk = $this->getPk();

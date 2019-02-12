@@ -2600,6 +2600,10 @@ class Query
     {
         $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
 
+        if (empty($this->options['where']) && $this->model) {
+            $this->where($this->model->getWhere());
+        }
+
         return $this->connection->update($this);
     }
 
