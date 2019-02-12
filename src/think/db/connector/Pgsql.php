@@ -63,7 +63,8 @@ class Pgsql extends Connection
 
         if ($result) {
             foreach ($result as $key => $val) {
-                $val                 = array_change_key_case($val);
+                $val = array_change_key_case($val);
+
                 $info[$val['field']] = [
                     'name'    => $val['field'],
                     'type'    => $val['type'],

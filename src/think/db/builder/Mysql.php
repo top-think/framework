@@ -62,9 +62,9 @@ class Mysql extends Builder
             ['%TABLE%', '%PARTITION%', '%DISTINCT%', '%EXTRA%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
             [
                 $this->parseTable($query, $options['table']),
-                $this->parsePartition($query, $options['partition'] ?? ''),
+                $this->parsePartition($query, $options['partition']),
                 $this->parseDistinct($query, $options['distinct']),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 $this->parseField($query, $options['field']),
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
@@ -105,11 +105,11 @@ class Mysql extends Builder
             ['%INSERT%', '%EXTRA%', '%TABLE%', '%PARTITION%', '%SET%', '%DUPLICATE%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 $this->parseTable($query, $options['table']),
-                $this->parsePartition($query, $options['partition'] ?? ''),
+                $this->parsePartition($query, $options['partition']),
                 implode(' , ', $set),
-                $this->parseDuplicate($query, $options['duplicate'] ?? ''),
+                $this->parseDuplicate($query, $options['duplicate']),
                 $this->parseComment($query, $options['comment']),
             ],
             $this->insertSql);
@@ -156,12 +156,12 @@ class Mysql extends Builder
             ['%INSERT%', '%EXTRA%', '%TABLE%', '%PARTITION%', '%FIELD%', '%DATA%', '%DUPLICATE%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 $this->parseTable($query, $options['table']),
-                $this->parsePartition($query, $options['partition'] ?? ''),
+                $this->parsePartition($query, $options['partition']),
                 implode(' , ', $fields),
                 implode(' , ', $values),
-                $this->parseDuplicate($query, $options['duplicate'] ?? ''),
+                $this->parseDuplicate($query, $options['duplicate']),
                 $this->parseComment($query, $options['comment']),
             ],
             $this->insertAllSql);
@@ -191,8 +191,8 @@ class Mysql extends Builder
             ['%TABLE%', '%PARTITION%', '%EXTRA%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
-                $this->parsePartition($query, $options['partition'] ?? ''),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parsePartition($query, $options['partition']),
+                $this->parseExtra($query, $options['extra']),
                 implode(' , ', $set),
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
@@ -218,8 +218,8 @@ class Mysql extends Builder
             ['%TABLE%', '%PARTITION%', '%EXTRA%', '%USING%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
-                $this->parsePartition($query, $options['partition'] ?? ''),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parsePartition($query, $options['partition']),
+                $this->parseExtra($query, $options['extra']),
                 !empty($options['using']) ? ' USING ' . $this->parseTable($query, $options['using']) . ' ' : '',
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
@@ -362,7 +362,8 @@ class Mysql extends Builder
         $updates = [];
         foreach ($duplicate as $key => $val) {
             if (is_numeric($key)) {
-                $updates[] = $this->parseKey($query, $val) . ' = VALUES(' . $this->parseKey($query, $val) . ')';
+                $val       = $this->parseKey($query, $val);
+                $updates[] = $val . ' = VALUES(' . $val . ')';
             } elseif ($val instanceof Raw) {
                 $updates[] = $this->parseKey($query, $key) . " = " . $val->getValue();
             } else {

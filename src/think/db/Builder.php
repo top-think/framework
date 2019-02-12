@@ -995,7 +995,7 @@ abstract class Builder
             [
                 $this->parseTable($query, $options['table']),
                 $this->parseDistinct($query, $options['distinct']),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 $this->parseField($query, $options['field']),
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
@@ -1036,7 +1036,7 @@ abstract class Builder
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($query, $options['table']),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 implode(' , ', $fields),
                 implode(' , ', $values),
                 $this->parseComment($query, $options['comment']),
@@ -1087,7 +1087,7 @@ abstract class Builder
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($query, $options['table']),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 implode(' , ', $fields),
                 implode(' UNION ALL ', $values),
                 $this->parseComment($query, $options['comment']),
@@ -1137,7 +1137,7 @@ abstract class Builder
             ['%TABLE%', '%EXTRA%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 implode(' , ', $set),
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
@@ -1163,7 +1163,7 @@ abstract class Builder
             ['%TABLE%', '%EXTRA%', '%USING%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
-                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseExtra($query, $options['extra']),
                 !empty($options['using']) ? ' USING ' . $this->parseTable($query, $options['using']) . ' ' : '',
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),

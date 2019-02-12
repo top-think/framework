@@ -52,7 +52,8 @@ class Sqlite extends Connection
 
         if ($result) {
             foreach ($result as $key => $val) {
-                $val                = array_change_key_case($val);
+                $val = array_change_key_case($val);
+
                 $info[$val['name']] = [
                     'name'    => $val['name'],
                     'type'    => $val['type'],
