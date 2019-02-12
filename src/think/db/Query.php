@@ -1852,6 +1852,42 @@ class Query
     }
 
     /**
+     * 设置当前查询所在的分区
+     * @access public
+     * @param  string|array  $partition  分区名称
+     * @return $this
+     */
+    public function partition($partition)
+    {
+        $this->options['partition'] = $partition;
+        return $this;
+    }
+
+    /**
+     * 设置DUPLICATE
+     * @access public
+     * @param  array|string|Raw  $duplicate
+     * @return $this
+     */
+    public function duplicate($duplicate)
+    {
+        $this->options['duplicate'] = $duplicate;
+        return $this;
+    }
+
+    /**
+     * 设置查询的额外参数
+     * @access public
+     * @param  string  $extra
+     * @return $this
+     */
+    public function extra(string $extra)
+    {
+        $this->options['extra'] = $extra;
+        return $this;
+    }
+
+    /**
      * 设置需要隐藏的输出属性
      * @access public
      * @param  array $hidden 需要隐藏的字段名

@@ -38,15 +38,15 @@ abstract class Builder
     ];
 
     // SQL表达式
-    protected $selectSql = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%UNION%%ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $selectSql = 'SELECT%DISTINCT%%EXTRA% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%UNION%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
-    protected $insertSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
+    protected $insertSql = '%INSERT%%EXTRA% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
 
-    protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
+    protected $insertAllSql = '%INSERT%%EXTRA% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
 
-    protected $updateSql = 'UPDATE %TABLE% SET %SET%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $updateSql = 'UPDATE%EXTRA% %TABLE% SET %SET%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
-    protected $deleteSql = 'DELETE FROM %TABLE%%USING%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $deleteSql = 'DELETE%EXTRA% FROM %TABLE%%USING%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**
      * 架构函数
@@ -185,6 +185,22 @@ abstract class Builder
     public function parseKey(Query $query, $key, bool $strict = false): string
     {
         return $key;
+    }
+
+    /**
+     * 查询额外参数分析
+     * @access protected
+     * @param  Query  $query    查询对象
+     * @param  string $extra    额外参数
+     * @return string
+     */
+    protected function parseExtra(Query $query, string $extra): string
+    {
+        if (preg_match('/^[\w]+$/i', $extra)) {
+            return ' ' . strtoupper($extra);
+        } else {
+            return '';
+        }
     }
 
     /**
@@ -975,10 +991,11 @@ abstract class Builder
         $options = $query->getOptions();
 
         return str_replace(
-            ['%TABLE%', '%DISTINCT%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
+            ['%TABLE%', '%DISTINCT%', '%EXTRA%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
             [
                 $this->parseTable($query, $options['table']),
                 $this->parseDistinct($query, $options['distinct']),
+                $this->parseExtra($query, $options['extra'] ?? ''),
                 $this->parseField($query, $options['field']),
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
@@ -1015,10 +1032,11 @@ abstract class Builder
         $values = array_values($data);
 
         return str_replace(
-            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            ['%INSERT%', '%TABLE%', '%EXTRA%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($query, $options['table']),
+                $this->parseExtra($query, $options['extra'] ?? ''),
                 implode(' , ', $fields),
                 implode(' , ', $values),
                 $this->parseComment($query, $options['comment']),
@@ -1065,10 +1083,11 @@ abstract class Builder
         }
 
         return str_replace(
-            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            ['%INSERT%', '%TABLE%', '%EXTRA%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($query, $options['table']),
+                $this->parseExtra($query, $options['extra'] ?? ''),
                 implode(' , ', $fields),
                 implode(' UNION ALL ', $values),
                 $this->parseComment($query, $options['comment']),
@@ -1115,9 +1134,10 @@ abstract class Builder
         }
 
         return str_replace(
-            ['%TABLE%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
+            ['%TABLE%', '%EXTRA%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
+                $this->parseExtra($query, $options['extra'] ?? ''),
                 implode(' , ', $set),
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),
@@ -1140,9 +1160,10 @@ abstract class Builder
         $options = $query->getOptions();
 
         return str_replace(
-            ['%TABLE%', '%USING%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
+            ['%TABLE%', '%EXTRA%', '%USING%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
             [
                 $this->parseTable($query, $options['table']),
+                $this->parseExtra($query, $options['extra'] ?? ''),
                 !empty($options['using']) ? ' USING ' . $this->parseTable($query, $options['using']) . ' ' : '',
                 $this->parseJoin($query, $options['join']),
                 $this->parseWhere($query, $options['where']),

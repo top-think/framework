@@ -37,8 +37,83 @@ class Mysql extends Builder
         'parseColumn'      => ['COLUMN'],
     ];
 
-    protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
-    protected $updateSql    = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $selectSql = 'SELECT%DISTINCT%%EXTRA% %FIELD% FROM %TABLE%%PARTITION%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%UNION%%ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    protected $insertSql = '%INSERT%%EXTRA% INTO %TABLE%%PARTITION% (%FIELD%) VALUES (%DATA%) %DUPLICATE%%COMMENT%';
+
+    protected $insertAllSql = '%INSERT%%EXTRA% INTO %TABLE%%PARTITION% (%FIELD%) VALUES %DATA% %DUPLICATE%%COMMENT%';
+
+    protected $updateSql = 'UPDATE%EXTRA% %TABLE%%PARTITION% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    protected $deleteSql = 'DELETE%EXTRA% FROM %TABLE%%PARTITION%%USING%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
+
+    /**
+     * 生成查询SQL
+     * @access public
+     * @param  Query  $query  查询对象
+     * @param  bool   $one    是否仅获取一个记录
+     * @return string
+     */
+    public function select(Query $query, bool $one = false): string
+    {
+        $options = $query->getOptions();
+
+        return str_replace(
+            ['%TABLE%', '%PARTITION%', '%DISTINCT%', '%EXTRA%', '%FIELD%', '%JOIN%', '%WHERE%', '%GROUP%', '%HAVING%', '%ORDER%', '%LIMIT%', '%UNION%', '%LOCK%', '%COMMENT%', '%FORCE%'],
+            [
+                $this->parseTable($query, $options['table']),
+                $this->parsePartition($query, $options['partition'] ?? ''),
+                $this->parseDistinct($query, $options['distinct']),
+                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseField($query, $options['field']),
+                $this->parseJoin($query, $options['join']),
+                $this->parseWhere($query, $options['where']),
+                $this->parseGroup($query, $options['group']),
+                $this->parseHaving($query, $options['having']),
+                $this->parseOrder($query, $options['order']),
+                $this->parseLimit($query, $one ? '1' : $options['limit']),
+                $this->parseUnion($query, $options['union']),
+                $this->parseLock($query, $options['lock']),
+                $this->parseComment($query, $options['comment']),
+                $this->parseForce($query, $options['force']),
+            ],
+            $this->selectSql);
+    }
+
+    /**
+     * 生成Insert SQL
+     * @access public
+     * @param  Query     $query   查询对象
+     * @param  bool      $replace 是否replace
+     * @return string
+     */
+    public function insert(Query $query, bool $replace = false): string
+    {
+        $options = $query->getOptions();
+
+        // 分析并处理数据
+        $data = $this->parseData($query, $options['data']);
+        if (empty($data)) {
+            return '';
+        }
+
+        $fields = array_keys($data);
+        $values = array_values($data);
+
+        return str_replace(
+            ['%INSERT%', '%EXTRA%', '%TABLE%', '%PARTITION%', '%FIELD%', '%DATA%', '%DUPLICATE%', '%COMMENT%'],
+            [
+                $replace ? 'REPLACE' : 'INSERT',
+                $this->parseExtra($query, $options['extra'] ?? ''),
+                $this->parseTable($query, $options['table']),
+                $this->parsePartition($query, $options['partition'] ?? ''),
+                implode(' , ', $fields),
+                implode(' , ', $values),
+                $this->parseDuplicate($query, $options['duplicate'] ?? ''),
+                $this->parseComment($query, $options['comment']),
+            ],
+            $this->insertSql);
+    }
 
     /**
      * 生成insertall SQL
@@ -78,15 +153,83 @@ class Mysql extends Builder
         }
 
         return str_replace(
-            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            ['%INSERT%', '%EXTRA%', '%TABLE%', '%PARTITION%', '%FIELD%', '%DATA%', '%DUPLICATE%', '%COMMENT%'],
             [
                 $replace ? 'REPLACE' : 'INSERT',
+                $this->parseExtra($query, $options['extra'] ?? ''),
                 $this->parseTable($query, $options['table']),
+                $this->parsePartition($query, $options['partition'] ?? ''),
                 implode(' , ', $fields),
                 implode(' , ', $values),
+                $this->parseDuplicate($query, $options['duplicate'] ?? ''),
                 $this->parseComment($query, $options['comment']),
             ],
             $this->insertAllSql);
+    }
+
+    /**
+     * 生成update SQL
+     * @access public
+     * @param  Query     $query  查询对象
+     * @return string
+     */
+    public function update(Query $query): string
+    {
+        $options = $query->getOptions();
+
+        $table = $this->parseTable($query, $options['table']);
+        $data  = $this->parseData($query, $options['data']);
+
+        if (empty($data)) {
+            return '';
+        }
+
+        foreach ($data as $key => $val) {
+            $set[] = $key . ' = ' . $val;
+        }
+
+        return str_replace(
+            ['%TABLE%', '%PARTITION%', '%EXTRA%', '%SET%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
+            [
+                $this->parseTable($query, $options['table']),
+                $this->parsePartition($query, $options['partition'] ?? ''),
+                $this->parseExtra($query, $options['extra'] ?? ''),
+                implode(' , ', $set),
+                $this->parseJoin($query, $options['join']),
+                $this->parseWhere($query, $options['where']),
+                $this->parseOrder($query, $options['order']),
+                $this->parseLimit($query, $options['limit']),
+                $this->parseLock($query, $options['lock']),
+                $this->parseComment($query, $options['comment']),
+            ],
+            $this->updateSql);
+    }
+
+    /**
+     * 生成delete SQL
+     * @access public
+     * @param  Query  $query  查询对象
+     * @return string
+     */
+    public function delete(Query $query): string
+    {
+        $options = $query->getOptions();
+
+        return str_replace(
+            ['%TABLE%', '%PARTITION%', '%EXTRA%', '%USING%', '%JOIN%', '%WHERE%', '%ORDER%', '%LIMIT%', '%LOCK%', '%COMMENT%'],
+            [
+                $this->parseTable($query, $options['table']),
+                $this->parsePartition($query, $options['partition'] ?? ''),
+                $this->parseExtra($query, $options['extra'] ?? ''),
+                !empty($options['using']) ? ' USING ' . $this->parseTable($query, $options['using']) . ' ' : '',
+                $this->parseJoin($query, $options['join']),
+                $this->parseWhere($query, $options['where']),
+                $this->parseOrder($query, $options['order']),
+                $this->parseLimit($query, $options['limit']),
+                $this->parseLock($query, $options['lock']),
+                $this->parseComment($query, $options['comment']),
+            ],
+            $this->deleteSql);
     }
 
     /**
@@ -176,4 +319,59 @@ class Mysql extends Builder
         return 'rand()';
     }
 
+    /**
+     * Partition 分析
+     * @access protected
+     * @param  Query        $query    查询对象
+     * @param  string|array $partition  分区
+     * @return string
+     */
+    protected function parsePartition(Query $query, $partition): string
+    {
+        if ('' == $partition) {
+            return '';
+        }
+
+        if (is_string($partition)) {
+            $partition = explode(',', $partition);
+        }
+
+        return ' PARTITION (' . implode(',', $partition) . ') ';
+    }
+
+    /**
+     * ON DUPLICATE KEY UPDATE 分析
+     * @access protected
+     * @param  Query  $query    查询对象
+     * @param  mixed  $duplicate
+     * @return string
+     */
+    protected function parseDuplicate(Query $query, $duplicate): string
+    {
+        if ('' == $duplicate) {
+            return '';
+        }
+
+        if ($duplicate instanceof Raw) {
+            return ' ON DUPLICATE KEY UPDATE ' . $duplicate->getValue() . ' ';
+        }
+
+        if (is_string($duplicate)) {
+            $duplicate = explode(',', $duplicate);
+        }
+
+        $updates = [];
+        foreach ($duplicate as $key => $val) {
+            if (is_numeric($key)) {
+                $updates[] = $this->parseKey($query, $val) . ' = VALUES(' . $this->parseKey($query, $val) . ')';
+            } elseif ($val instanceof Raw) {
+                $updates[] = $this->parseKey($query, $key) . "=" . $val->getValue();
+            } else {
+                $name      = $query->bind($val, $query->getFieldBindType($key));
+                $updates[] = $this->parseKey($query, $key) . "=:" . $name;
+            }
+        }
+
+        return ' ON DUPLICATE KEY UPDATE ' . implode(',', $updates) . ' ';
+    }
 }
