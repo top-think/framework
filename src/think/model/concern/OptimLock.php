@@ -63,9 +63,9 @@ trait OptimLock
         }
     }
 
-    protected function getUpdateWhere(array &$data): array
+    public function getWhere()
     {
-        $where     = parent::getUpdateWhere($data);
+        $where     = parent::geWhere();
         $optimLock = $this->getOptimLockField();
 
         if ($optimLock && $lockVer = $this->getOrigin($optimLock)) {
