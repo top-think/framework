@@ -337,6 +337,8 @@ abstract class Builder
                     }
 
                     $str[] = ' ' . $logic . ' ( ' . implode(' AND ', $str2) . ' )';
+                } elseif ($field instanceof Raw) {
+                    $str[] = ' ' . $logic . ' ' . $this->parseWhereItem($query, $field, $value, $logic, $binds);
                 } elseif (strpos($field, '|')) {
                     // 不同字段使用相同查询条件（OR）
                     $array = explode('|', $field);
@@ -407,7 +409,11 @@ abstract class Builder
             $exp = $this->exp[$exp];
         }
 
-        $bindType = $binds[$field] ?? PDO::PARAM_STR;
+        if (is_string($field)) {
+            $bindType = $binds[$field] ?? PDO::PARAM_STR;
+        } else {
+            $bindType = PDO::PARAM_STR;
+        }
 
         if ($value instanceof Expression) {
             return $value->parse($query, $key, $exp, $field, $bindType, $val[2] ?? 'AND');
@@ -603,7 +609,7 @@ abstract class Builder
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseCompare(Query $query, string $key, string $exp, $value, string $field, int $bindType): string
+    protected function parseCompare(Query $query, string $key, string $exp, $value, $field, int $bindType): string
     {
         if (is_array($value)) {
             throw new Exception('where express error:' . $exp . var_export($value, true));
