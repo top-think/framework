@@ -20,7 +20,10 @@ use think\db\Connection;
  */
 class Mysql extends Connection
 {
-
+    /**
+     * Builder类
+     * @var string
+     */
     protected $builder = '\\think\\db\\builder\\Mysql';
 
     /**

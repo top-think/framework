@@ -132,6 +132,12 @@ class App extends Container
     protected $auto = false;
 
     /**
+     * 是否需要事件响应
+     * @var bool
+     */
+    protected $withEvent = true;
+
+    /**
      * 访问控制器层名称
      * @var string
      */
@@ -218,6 +224,18 @@ class App extends Container
     public function isMulti(): bool
     {
         return $this->multi;
+    }
+
+    /**
+     * 设置是否使用事件机制
+     * @access public
+     * @param  bool $event
+     * @return $this
+     */
+    public function withEvent(bool $event)
+    {
+        $this->withEvent = $event;
+        return $this;
     }
 
     /**
@@ -359,6 +377,9 @@ class App extends Container
         }
 
         date_default_timezone_set($this->config['app.default_timezone']);
+
+        // 设置开启事件机制
+        $this->event->withEvent($this->withEvent);
     }
 
     protected function debugModeInit(): void
@@ -541,7 +562,7 @@ class App extends Container
             $dispatch = $this->request->dispatch();
 
             if (!$dispatch) {
-                $dispatch = $this->route->url($this->getRealPath());
+                $dispatch = $this->route->url($this->getRealPath())->init();
             }
 
             // 监听AppBegin

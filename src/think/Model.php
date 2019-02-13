@@ -529,17 +529,14 @@ abstract class Model implements JsonSerializable, ArrayAccess
             return false;
         }
 
-        if ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
+        if ($this->autoWriteTimestamp && $this->updateTime && !isset($this->data[$this->updateTime])) {
             // 自动写入更新时间
-            $data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
-
-            $this->data[$this->updateTime] = $data[$this->updateTime];
+            $this->data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
+            $data[$this->updateTime]       = $this->data[$this->updateTime];
         }
 
         // 检查允许字段
         $allowFields = $this->checkAllowFields($auto);
-
-        $where = $this->getWhere();
 
         foreach ($this->relationWrite as $name => $val) {
             if (!is_array($val)) {
@@ -558,6 +555,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $db->startTrans();
 
         try {
+            $where  = $this->getWhere();
             $result = $db->where($where)
                 ->strict(false)
                 ->field($allowFields)
@@ -661,7 +659,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     public function getWhere()
     {
-        // 删除条件
         $pk = $this->getPk();
 
         if (is_string($pk) && isset($this->data[$pk])) {
