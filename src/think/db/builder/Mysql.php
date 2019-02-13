@@ -22,7 +22,10 @@ use think\Exception;
  */
 class Mysql extends Builder
 {
-    // 查询表达式解析
+    /**
+     * 查询表达式解析
+     * @var array
+     */
     protected $parser = [
         'parseCompare'     => ['=', '<>', '>', '>=', '<', '<='],
         'parseLike'        => ['LIKE', 'NOT LIKE'],
@@ -37,14 +40,34 @@ class Mysql extends Builder
         'parseColumn'      => ['COLUMN'],
     ];
 
+    /**
+     * SELECT SQL表达式
+     * @var string
+     */
     protected $selectSql = 'SELECT%DISTINCT%%EXTRA% %FIELD% FROM %TABLE%%PARTITION%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%UNION%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
+    /**
+     * INSERT SQL表达式
+     * @var string
+     */
     protected $insertSql = '%INSERT%%EXTRA% INTO %TABLE%%PARTITION% SET %SET% %DUPLICATE%%COMMENT%';
 
+    /**
+     * INSERT ALL SQL表达式
+     * @var string
+     */
     protected $insertAllSql = '%INSERT%%EXTRA% INTO %TABLE%%PARTITION% (%FIELD%) VALUES %DATA% %DUPLICATE%%COMMENT%';
 
+    /**
+     * UPDATE SQL表达式
+     * @var string
+     */
     protected $updateSql = 'UPDATE%EXTRA% %TABLE%%PARTITION% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
+    /**
+     * DELETE SQL表达式
+     * @var string
+     */
     protected $deleteSql = 'DELETE%EXTRA% FROM %TABLE%%PARTITION%%USING%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**

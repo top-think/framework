@@ -28,48 +28,112 @@ abstract class Connection
 {
     const PARAM_FLOAT = 21;
 
+    /**
+     * 数据库连接实例
+     * @var array
+     */
     protected static $instance = [];
-    /** @var PDOStatement PDO操作实例 */
+
+    /**
+     * PDO操作实例
+     * @var PDOStatement
+     */
     protected $PDOStatement;
 
-    /** @var string 当前SQL指令 */
+    /**
+     * 当前SQL指令
+     * @var string
+     */
     protected $queryStr = '';
-    // 返回或者影响记录数
+
+    /**
+     * 返回或者影响记录数
+     * @var int
+     */
     protected $numRows = 0;
-    // 事务指令数
+
+    /**
+     * 事务指令数
+     * @var int
+     */
     protected $transTimes = 0;
-    // 错误信息
+
+    /**
+     * 错误信息
+     * @var string
+     */
     protected $error = '';
 
     /**
      * 查询次数
-     * @var integer
+     * @var int
      */
     protected static $queryTimes = 0;
 
-    /** @var PDO[] 数据库连接ID 支持多个连接 */
+    /**
+     * 数据库连接ID 支持多个连接
+     * @var PDO[]
+     */
     protected $links = [];
 
-    /** @var PDO 当前连接ID */
+    /**
+     * 当前连接ID
+     * @var PDO
+     */
     protected $linkID;
+
+    /**
+     * 当前读连接ID
+     * @var PDO
+     */
     protected $linkRead;
+
+    /**
+     * 当前写连接ID
+     * @var PDO
+     */
     protected $linkWrite;
 
-    // 查询结果类型
+    /**
+     * 查询结果类型
+     * @var int
+     */
     protected $fetchType = PDO::FETCH_ASSOC;
-    // 字段属性大小写
+
+    /**
+     * 字段属性大小写
+     * @var int
+     */
     protected $attrCase = PDO::CASE_LOWER;
-    // 监听回调
+
+    /**
+     * 监听回调
+     * @var array
+     */
     protected static $event = [];
 
-    // 数据表信息
+    /**
+     * 数据表信息
+     * @var array
+     */
     protected static $info = [];
 
-    // 使用Builder类
+    /**
+     * Builder类名
+     * @var string
+     */
     protected $builderClassName;
-    // Builder对象
+
+    /**
+     * Builder对象
+     * @var Builder
+     */
     protected $builder;
-    // 数据库连接参数配置
+
+    /**
+     * 数据库连接参数配置
+     * @var array
+     */
     protected $config = [
         // 数据库类型
         'type'            => '',
@@ -121,7 +185,10 @@ abstract class Connection
         'break_match_str' => [],
     ];
 
-    // PDO连接参数
+    /**
+     * PDO连接参数
+     * @var array
+     */
     protected $params = [
         PDO::ATTR_CASE              => PDO::CASE_NATURAL,
         PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
@@ -130,7 +197,10 @@ abstract class Connection
         PDO::ATTR_EMULATE_PREPARES  => false,
     ];
 
-    // 参数绑定类型映射
+    /**
+     * 参数绑定类型映射
+     * @var array
+     */
     protected $bindType = [
         'string'  => PDO::PARAM_STR,
         'str'     => PDO::PARAM_STR,
@@ -141,7 +211,10 @@ abstract class Connection
         'float'   => self::PARAM_FLOAT,
     ];
 
-    // 服务器断线标识字符
+    /**
+     * 服务器断线标识字符
+     * @var array
+     */
     protected $breakMatchStr = [
         'server has gone away',
         'no connection to the server',
@@ -156,10 +229,16 @@ abstract class Connection
         'failed with errno',
     ];
 
-    // 绑定参数
+    /**
+     * 绑定参数
+     * @var array
+     */
     protected $bind = [];
 
-    // 缓存对象
+    /**
+     * 缓存对象
+     * @var Cache
+     */
     protected $cache;
 
     /**

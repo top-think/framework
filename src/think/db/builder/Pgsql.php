@@ -21,8 +21,16 @@ use think\db\Raw;
  */
 class Pgsql extends Builder
 {
+    /**
+     * INSERT SQL表达式
+     * @var string
+     */
+    protected $insertSql = 'INSERT INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
 
-    protected $insertSql    = 'INSERT INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
+    /**
+     * INSERT ALL SQL表达式
+     * @var string
+     */
     protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
 
     /**

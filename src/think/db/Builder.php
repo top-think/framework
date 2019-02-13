@@ -17,13 +17,22 @@ use think\Exception;
 
 abstract class Builder
 {
-    // connection对象实例
+    /**
+     * Connection对象
+     * @var Connection
+     */
     protected $connection;
 
-    // 查询表达式映射
+    /**
+     * 查询表达式映射
+     * @var array
+     */
     protected $exp = ['NOTLIKE' => 'NOT LIKE', 'NOTIN' => 'NOT IN', 'NOTBETWEEN' => 'NOT BETWEEN', 'NOTEXISTS' => 'NOT EXISTS', 'NOTNULL' => 'NOT NULL', 'NOTBETWEEN TIME' => 'NOT BETWEEN TIME'];
 
-    // 查询表达式解析
+    /**
+     * 查询表达式解析
+     * @var array
+     */
     protected $parser = [
         'parseCompare'     => ['=', '<>', '>', '>=', '<', '<='],
         'parseLike'        => ['LIKE', 'NOT LIKE'],
@@ -37,15 +46,34 @@ abstract class Builder
         'parseColumn'      => ['COLUMN'],
     ];
 
-    // SQL表达式
+    /**
+     * SELECT SQL表达式
+     * @var string
+     */
     protected $selectSql = 'SELECT%DISTINCT%%EXTRA% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%UNION%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
+    /**
+     * INSERT SQL表达式
+     * @var string
+     */
     protected $insertSql = '%INSERT%%EXTRA% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
 
+    /**
+     * INSERT ALL SQL表达式
+     * @var string
+     */
     protected $insertAllSql = '%INSERT%%EXTRA% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
 
+    /**
+     * UPDATE SQL表达式
+     * @var string
+     */
     protected $updateSql = 'UPDATE%EXTRA% %TABLE% SET %SET%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
+    /**
+     * DELETE SQL表达式
+     * @var string
+     */
     protected $deleteSql = 'DELETE%EXTRA% FROM %TABLE%%USING%%JOIN%%WHERE%%ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**
@@ -461,7 +489,7 @@ abstract class Builder
      * @param  string    $logic
      * @return string
      */
-    protected function parseLike(Query $query, string $key, string $exp, $value, string $field, int $bindType, string $logic): string
+    protected function parseLike(Query $query, string $key, string $exp, $value, $field, int $bindType, string $logic): string
     {
         // 模糊匹配
         if (is_array($value)) {
@@ -529,7 +557,7 @@ abstract class Builder
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseNull(Query $query, string $key, string $exp, $value, string $field, int $bindType): string
+    protected function parseNull(Query $query, string $key, string $exp, $value, $field, int $bindType): string
     {
         // NULL 查询
         return $key . ' IS ' . $exp;
@@ -546,7 +574,7 @@ abstract class Builder
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseBetween(Query $query, string $key, string $exp, $value, string $field, int $bindType): string
+    protected function parseBetween(Query $query, string $key, string $exp, $value, $field, int $bindType): string
     {
         // BETWEEN 查询
         $data = is_array($value) ? $value : explode(',', $value);
@@ -593,7 +621,7 @@ abstract class Builder
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseTime(Query $query, string $key, string $exp, $value, string $field, int $bindType): string
+    protected function parseTime(Query $query, string $key, string $exp, $value, $field, int $bindType): string
     {
         return $key . ' ' . substr($exp, 0, 2) . ' ' . $this->parseDateTime($query, $value, $field, $bindType);
     }
@@ -634,7 +662,7 @@ abstract class Builder
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseBetweenTime(Query $query, string $key, string $exp, $value, string $field, int $bindType): string
+    protected function parseBetweenTime(Query $query, string $key, string $exp, $value, $field, int $bindType): string
     {
         if (is_string($value)) {
             $value = explode(',', $value);
@@ -658,7 +686,7 @@ abstract class Builder
      * @param  integer   $bindType
      * @return string
      */
-    protected function parseIn(Query $query, string $key, string $exp, $value, string $field, int $bindType): string
+    protected function parseIn(Query $query, string $key, string $exp, $value, $field, int $bindType): string
     {
         // IN 查询
         if ($value instanceof \Closure) {
@@ -667,17 +695,14 @@ abstract class Builder
             $value = $value->getValue();
         } else {
             $value = array_unique(is_array($value) ? $value : explode(',', $value));
-
             $array = [];
 
             foreach ($value as $v) {
-
                 $name    = $query->bind($v, $bindType);
                 $array[] = ':' . $name;
             }
 
-            $zone = implode(',', $array);
-
+            $zone  = implode(',', $array);
             $value = empty($zone) ? "''" : $zone;
         }
 
@@ -846,7 +871,6 @@ abstract class Builder
 
         $sort = strtoupper($sort);
         $sort = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
-
         $bind = $query->getFieldBindType();
 
         foreach ($val as $item) {

@@ -19,7 +19,10 @@ use think\db\Connection;
  */
 class Sqlsrv extends Connection
 {
-    // PDO连接参数
+    /**
+     * 默认PDO连接参数
+     * @var array
+     */
     protected $params = [
         PDO::ATTR_CASE              => PDO::CASE_NATURAL,
         PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
@@ -27,6 +30,10 @@ class Sqlsrv extends Connection
         PDO::ATTR_STRINGIFY_FETCHES => false,
     ];
 
+    /**
+     * Builder类
+     * @var string
+     */
     protected $builder = '\\think\\db\\builder\\Sqlsrv';
 
     /**
