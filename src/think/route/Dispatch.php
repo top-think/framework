@@ -303,4 +303,13 @@ abstract class Dispatch
         $this->app     = Container::pull('app');
         $this->request = $this->app->request;
     }
+
+    public function __debugInfo()
+    {
+        return [
+            'dispatch' => $this->dispatch,
+            'param'    => $this->param,
+            'code'     => $this->code,
+        ];
+    }
 }
