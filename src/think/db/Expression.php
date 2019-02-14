@@ -35,11 +35,11 @@ abstract class Expression
     /**
      * 分析查询表达式
      *
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query     $query         查询对象
+     * @param  string    $key           查询字段（处理）
+     * @param  string    $exp           查询表达式
+     * @param  string    $field         查询字段（原始）
+     * @param  integer   $bindType      字段绑定类型
      * @return string
      */
     abstract public function parse(Query $query, string $key, string $exp, string $field, int $bindType): string;
