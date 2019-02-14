@@ -45,7 +45,7 @@ class Url
 
         if (is_file($app->getRuntimePath() . 'route.php')) {
             // 读取路由映射文件
-            $app['route']->setName(include $app->getRuntimePath() . 'route.php');
+            $app->route->setName(include $app->getRuntimePath() . 'route.php');
         }
     }
 
@@ -116,10 +116,10 @@ class Url
             $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
             $checkDomain = $domain && is_string($domain) ? $domain : null;
 
-            $rule = $this->app['route']->getName($checkName, $checkDomain);
+            $rule = $this->app->route->getName($checkName, $checkDomain);
 
             if (is_null($rule) && isset($info['query'])) {
-                $rule = $this->app['route']->getName($url, $checkDomain);
+                $rule = $this->app->route->getName($url, $checkDomain);
                 // 解析地址里面参数 合并到vars
                 parse_str($info['query'], $params);
                 $vars = array_merge($params, $vars);
@@ -143,12 +143,12 @@ class Url
         } else {
             // 检测URL绑定
             if (!$this->bindCheck) {
-                $bind = $this->app['route']->getBind($domain && is_string($domain) ? $domain : null);
+                $bind = $this->app->route->getBind($domain && is_string($domain) ? $domain : null);
 
                 if ($bind && 0 === strpos($url, $bind)) {
                     $url = substr($url, strlen($bind) + 1);
                 } else {
-                    $binds = $this->app['route']->getBind(true);
+                    $binds = $this->app->route->getBind(true);
 
                     foreach ($binds as $key => $val) {
                         if (is_string($val) && 0 === strpos($url, $val) && substr_count($val, '/') > 1) {
@@ -171,7 +171,7 @@ class Url
         }
 
         // 还原URL分隔符
-        $depr = $this->app['config']->get('pathinfo_depr');
+        $depr = $this->app->config->get('pathinfo_depr');
         $url  = str_replace('/', $depr, $url);
 
         // URL后缀
@@ -187,7 +187,7 @@ class Url
         // 参数组装
         if (!empty($vars)) {
             // 添加参数
-            if ($this->app['config']->get('url_common_param')) {
+            if ($this->app->config->get('url_common_param')) {
                 $vars = http_build_query($vars);
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
@@ -207,7 +207,7 @@ class Url
         $domain = $this->parseDomain($url, $domain);
 
         // URL组装
-        $url = $domain . rtrim($this->root ?: $this->app['request']->root(), '/') . '/' . ltrim($url, '/');
+        $url = $domain . rtrim($this->root ?: $this->app->request->root(), '/') . '/' . ltrim($url, '/');
 
         $this->bindCheck = false;
 
@@ -217,7 +217,7 @@ class Url
     // 直接解析URL地址
     protected function parseUrl($url): string
     {
-        $request = $this->app['request'];
+        $request = $this->app->request;
 
         if (0 === strpos($url, '/')) {
             // 直接作为路由地址解析
@@ -229,7 +229,7 @@ class Url
             // 解析到控制器
             $url = substr($url, 1);
         } else {
-            // 解析到 控制器/操作
+            // 解析到 应用/控制器/操作
             $controller = $request->controller();
 
             if ('' == $url) {
@@ -240,12 +240,16 @@ class Url
                 $controller = empty($path) ? $controller : array_pop($path);
             }
 
-            if ($this->app['config']->get('url_convert')) {
+            if ($this->app->config->get('url_convert')) {
                 $action     = strtolower($action);
                 $controller = App::parseName($controller);
             }
 
             $url = $controller . '/' . $action;
+
+            if ($this->app->isAutoMulti()) {
+                $url = $this->app->getName() . '/' . $url;
+            }
         }
 
         return $url;
@@ -258,13 +262,13 @@ class Url
             return '';
         }
 
-        $rootDomain = $this->app['request']->rootDomain();
+        $rootDomain = $this->app->request->rootDomain();
         if (true === $domain) {
 
             // 自动判断域名
-            $domain = $this->app['config']->get('app_host') ?: $this->app['request']->host();
+            $domain = $this->app->config->get('app_host') ?: $this->app->request->host();
 
-            $domains = $this->app['route']->getDomains();
+            $domains = $this->app->route->getDomains();
 
             if ($domains) {
                 $route_domain = array_keys($domains);
@@ -299,7 +303,7 @@ class Url
         if (false !== strpos($domain, '://')) {
             $scheme = '';
         } else {
-            $scheme = $this->app['request']->isSsl() || $this->app['config']->get('is_https') ? 'https://' : 'http://';
+            $scheme = $this->app->request->isSsl() || $this->app->config->get('is_https') ? 'https://' : 'http://';
 
         }
 
@@ -310,7 +314,7 @@ class Url
     protected function parseSuffix($suffix): string
     {
         if ($suffix) {
-            $suffix = true === $suffix ? $this->app['config']->get('url_html_suffix') : $suffix;
+            $suffix = true === $suffix ? $this->app->config->get('url_html_suffix') : $suffix;
 
             if ($pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
@@ -330,15 +334,15 @@ class Url
                 continue;
             }
 
-            if (!in_array($this->app['request']->port(), [80, 443])) {
-                $domain .= ':' . $this->app['request']->port();
+            if (!in_array($this->app->request->port(), [80, 443])) {
+                $domain .= ':' . $this->app->request->port();
             }
 
             if (empty($pattern)) {
                 return [rtrim($url, '?/-'), $domain, $suffix];
             }
 
-            $type = $this->app['config']->get('url_common_param');
+            $type = $this->app->config->get('url_common_param');
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
@@ -367,6 +371,6 @@ class Url
     public function root(string $root): void
     {
         $this->root = $root;
-        $this->app['request']->setRoot($root);
+        $this->app->request->setRoot($root);
     }
 }
