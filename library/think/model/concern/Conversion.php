@@ -187,10 +187,7 @@ trait Conversion
 
                     $item[$key] = $relation->append([$attr])->toArray();
                 } else {
-                    $value = $this->getAttr($name, $item);
-                    if (false !== $value) {
-                        $item[$name] = $value;
-                    }
+                    $item[$name] = $this->getAttr($name, $item);
                 }
             }
         }
