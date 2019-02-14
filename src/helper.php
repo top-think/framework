@@ -20,6 +20,7 @@ use think\exception\HttpResponseException;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
+use think\facade\Db;
 use think\facade\Debug;
 use think\facade\Env;
 use think\facade\Event;
