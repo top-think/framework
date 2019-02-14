@@ -1148,7 +1148,7 @@ class Query
     /**
      * 指定字段Raw查询
      * @access public
-     * @param  string $field     查询字段
+     * @param  string $field     查询字段表达式
      * @param  mixed  $op        查询表达式
      * @param  string $condition 查询条件
      * @param  string $logic     查询逻辑 and or xor

@@ -38,6 +38,7 @@ class Mysql extends Builder
         'parseTime'        => ['< TIME', '> TIME', '<= TIME', '>= TIME'],
         'parseExists'      => ['NOT EXISTS', 'EXISTS'],
         'parseColumn'      => ['COLUMN'],
+        'parseFindInSet'   => ['FIND IN SET'],
     ];
 
     /**
@@ -271,6 +272,25 @@ class Mysql extends Builder
         }
 
         return $key . ' ' . $exp . ' ' . $value;
+    }
+
+    /**
+     * 正则查询
+     * @access protected
+     * @param  Query        $query        查询对象
+     * @param  string       $key
+     * @param  string       $exp
+     * @param  mixed        $value
+     * @param  string       $field
+     * @return string
+     */
+    protected function parseFindInSet(Query $query, string $key, string $exp, $value, string $field): string
+    {
+        if ($value instanceof Raw) {
+            $value = $value->getValue();
+        }
+
+        return 'FIND_IN_SET(' . $value . ', ' . $key . ')';
     }
 
     /**
