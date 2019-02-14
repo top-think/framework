@@ -275,7 +275,7 @@ class Mysql extends Builder
     }
 
     /**
-     * 正则查询
+     * FIND_IN_SET 查询
      * @access protected
      * @param  Query        $query        查询对象
      * @param  string       $key
