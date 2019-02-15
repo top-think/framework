@@ -1221,7 +1221,7 @@ class Request
         $files = $this->file;
         if (!empty($files)) {
             // 处理上传文件
-            $array = $this->dealUploadFile($files);
+            $array = $this->dealUploadFile($files, $name);
 
             if (strpos($name, '.')) {
                 list($name, $sub) = explode('.', $name);
@@ -1240,7 +1240,7 @@ class Request
         return;
     }
 
-    protected function dealUploadFile($files)
+    protected function dealUploadFile($files, $name)
     {
         $array = [];
         foreach ($files as $key => $file) {
@@ -1251,7 +1251,11 @@ class Request
 
                 for ($i = 0; $i < $count; $i++) {
                     if ($file['error'][$i] > 0) {
-                        $this->throwUploadFileError($file['error'][$i]);
+                        if ($name == $key) {
+                            $this->throwUploadFileError($file['error'][$i]);
+                        } else {
+                            continue;
+                        }
                     }
 
                     $temp['key'] = $key;
@@ -1269,7 +1273,11 @@ class Request
                     $array[$key] = $file;
                 } else {
                     if ($file['error'] > 0) {
-                        $this->throwUploadFileError($file['error']);
+                        if ($key == $name) {
+                            $this->throwUploadFileError($file['error']);
+                        } else {
+                            continue;
+                        }
                     }
 
                     $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
