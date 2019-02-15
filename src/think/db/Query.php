@@ -2626,6 +2626,11 @@ class Query
             $this->where($this->model->getWhere());
         }
 
+        if (empty($this->options['where'])) {
+            // 如果没有任何更新条件则不执行
+            throw new Exception('miss update condition');
+        }
+
         $this->options['data'] = $data;
 
         return $this->connection->update($this);

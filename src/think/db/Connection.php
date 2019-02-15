@@ -955,7 +955,7 @@ abstract class Connection
             $data = $options['data'];
 
             if ($lastInsId) {
-                $pk = $query->getPk($options);
+                $pk = $query->getPk();
                 if (is_string($pk)) {
                     $data[$pk] = $lastInsId;
                 }

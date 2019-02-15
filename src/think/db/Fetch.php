@@ -223,26 +223,21 @@ class Fetch
     {
         $options = $this->query->parseOptions();
 
-        $this->query->setOption('data', array_merge($options['data'], $data));
+        $data = array_merge($options['data'], $data);
 
-        if (isset($options['cache']) && is_string($options['cache']['key'])) {
-            $key = $options['cache']['key'];
-        }
-
-        $pk            = $this->query->getPk($options);
-        $data          = $options['data'];
-        $options['pk'] = $pk;
+        $pk   = $this->query->getPk();
+        $data = $options['data'];
 
         if (empty($options['where'])) {
             // 如果存在主键数据 则自动作为更新条件
             if (is_string($pk) && isset($data[$pk])) {
-                $where[$pk] = [$pk, '=', $data[$pk]];
+                $this->query->where($pk, '=', $data[$pk]);
                 unset($data[$pk]);
             } elseif (is_array($pk)) {
                 // 增加复合主键支持
                 foreach ($pk as $field) {
                     if (isset($data[$field])) {
-                        $where[$field] = [$field, '=', $data[$field]];
+                        $this->query->where($field, '=', $data[$field]);
                     } else {
                         // 如果缺少复合主键数据则不执行
                         throw new Exception('miss complex primary data');
@@ -251,12 +246,9 @@ class Fetch
                 }
             }
 
-            if (!isset($where)) {
+            if (empty($this->getOption('where'))) {
                 // 如果没有任何更新条件则不执行
                 throw new Exception('miss update condition');
-            } else {
-                $options['where']['AND'] = $where;
-                $this->query->setOption('where', ['AND' => $where]);
             }
         }
 
@@ -296,7 +288,6 @@ class Fetch
             }
         }
 
-        $this->query->setOption('data', $data);
         // 生成删除SQL语句
         $sql = $this->builder->delete($this->query);
 
@@ -318,8 +309,6 @@ class Fetch
             $this->query->parsePkWhere($data);
         }
 
-        $this->query->setOption('data', $data);
-
         // 生成查询SQL
         $sql = $this->builder->select($this->query);
 
@@ -340,8 +329,6 @@ class Fetch
             // AR模式分析主键条件
             $this->query->parsePkWhere($data);
         }
-
-        $this->query->setOption('data', $data);
 
         // 生成查询SQL
         $sql = $this->builder->select($this->query, true);
