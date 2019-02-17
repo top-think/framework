@@ -789,7 +789,7 @@ class Validate
                 $result = in_array($value, [true, false, 0, 1, '0', '1'], true);
                 break;
             case 'number':
-                $result = ctype_digit((array) $value);
+                $result = ctype_digit((string) $value);
                 break;
             case 'alphaNum':
                 $result = ctype_alnum($value);

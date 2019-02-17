@@ -1220,12 +1220,13 @@ class Request
 
         $files = $this->file;
         if (!empty($files)) {
-            // 处理上传文件
-            $array = $this->dealUploadFile($files);
 
             if (strpos($name, '.')) {
                 list($name, $sub) = explode('.', $name);
             }
+
+            // 处理上传文件
+            $array = $this->dealUploadFile($files, $name);
 
             if ('' === $name) {
                 // 获取全部文件
@@ -1240,7 +1241,7 @@ class Request
         return;
     }
 
-    protected function dealUploadFile($files)
+    protected function dealUploadFile($files, $name)
     {
         $array = [];
         foreach ($files as $key => $file) {
@@ -1251,7 +1252,11 @@ class Request
 
                 for ($i = 0; $i < $count; $i++) {
                     if ($file['error'][$i] > 0) {
-                        $this->throwUploadFileError($file['error'][$i]);
+                        if ($name == $key) {
+                            $this->throwUploadFileError($file['error'][$i]);
+                        } else {
+                            continue;
+                        }
                     }
 
                     $temp['key'] = $key;
@@ -1269,7 +1274,11 @@ class Request
                     $array[$key] = $file;
                 } else {
                     if ($file['error'] > 0) {
-                        $this->throwUploadFileError($file['error']);
+                        if ($key == $name) {
+                            $this->throwUploadFileError($file['error']);
+                        } else {
+                            continue;
+                        }
                     }
 
                     $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
@@ -1618,14 +1627,11 @@ class Request
     /**
      * 获取客户端IP地址
      * @access public
-     * @param  integer   $type 返回类型 0 返回IP地址 1 返回IPV4地址数字
      * @param  boolean   $adv 是否进行高级模式获取（有可能被伪装）
      * @return mixed
      */
-    public function ip($type = 0, $adv = true)
+    public function ip($adv = true)
     {
-        $type = $type ? 1 : 0;
-
         $httpAgentIp = $this->config['http_agent_ip'];
 
         if ($httpAgentIp && $this->server($httpAgentIp)) {
@@ -1655,12 +1661,7 @@ class Request
             $ip = ('ipv4' === $ip_mode) ? '0.0.0.0' : '::';
         }
 
-        // 如果是ipv4地址，则直接使用ip2long返回int类型ip；如果是ipv6地址，暂时不支持，直接返回0
-        $long_ip = ('ipv4' === $ip_mode) ? sprintf("%u", ip2long($ip)) : 0;
-
-        $ip = [$ip, $long_ip];
-
-        return $ip[$type];
+        return $ip;
     }
 
     /**

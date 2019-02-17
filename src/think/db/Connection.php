@@ -829,35 +829,15 @@ abstract class Connection
     {
         // 分析查询表达式
         $options = $query->parseOptions();
-        $pk      = $query->getPk($options);
-        $data    = $options['data'];
 
         if (!empty($options['cache'])) {
             // 判断查询缓存
             $cacheItem = $options['cache'];
-
-            if (!$cacheItem->getKey()) {
-                $key = $this->getCacheKey($query, $data);
-                $cacheItem->setKey($key);
-            }
-
-            $options['key'] = $cacheItem->getKey();
+            $key       = $cacheItem->getKey();
         }
 
-        if (is_string($pk) && !is_array($data)) {
-            if (isset($key) && strpos($key, '|')) {
-                list($a, $val) = explode('|', $key);
-                $item[$pk]     = $val;
-            } else {
-                $item[$pk] = $data;
-            }
-            $data = $item;
-        }
-
-        $query->setOption('data', $data);
-
-        if (isset($options['key'])) {
-            $result = $this->cache->get($options['key']);
+        if (isset($key)) {
+            $result = $this->cache->get($key);
 
             if (false !== $result) {
                 return $result;
@@ -975,7 +955,7 @@ abstract class Connection
             $data = $options['data'];
 
             if ($lastInsId) {
-                $pk = $query->getPk($options);
+                $pk = $query->getPk();
                 if (is_string($pk)) {
                     $data[$pk] = $lastInsId;
                 }
@@ -1074,54 +1054,10 @@ abstract class Connection
             $key       = $cacheItem->getKey();
         }
 
-        $pk   = $query->getPk($options);
-        $data = $options['data'];
-
-        if (empty($options['where'])) {
-            // 如果存在主键数据 则自动作为更新条件
-            if (is_string($pk) && isset($data[$pk])) {
-                $where[$pk] = [$pk, '=', $data[$pk]];
-                if (!isset($key)) {
-                    $key = $this->getCacheKey($query, $data[$pk]);
-
-                }
-                unset($data[$pk]);
-            } elseif (is_array($pk)) {
-                // 增加复合主键支持
-                foreach ($pk as $field) {
-                    if (isset($data[$field])) {
-                        $where[$field] = [$field, '=', $data[$field]];
-                    } else {
-                        // 如果缺少复合主键数据则不执行
-                        throw new Exception('miss complex primary data');
-                    }
-                    unset($data[$field]);
-                }
-            }
-
-            if (!isset($where)) {
-                // 如果没有任何更新条件则不执行
-                throw new Exception('miss update condition');
-            } else {
-                $options['where']['AND'] = $where;
-                $query->setOption('where', ['AND' => $where]);
-            }
-        } elseif (!isset($key) && is_string($pk) && isset($options['where']['AND'])) {
-            foreach ($options['where']['AND'] as $val) {
-                if (is_array($val) && $val[0] == $pk) {
-                    $key = $this->getCacheKey($query, $val);
-                }
-            }
-        }
-
-        // 更新数据
-        $query->setOption('data', $data);
-
         // 生成UPDATE SQL语句
         $sql = $this->builder->update($query);
 
         // 检测缓存
-
         if (isset($key) && $this->cache->get($key)) {
             // 删除缓存
             $this->cache->delete($key);
@@ -1133,14 +1069,6 @@ abstract class Connection
         $result = '' == $sql ? 0 : $this->execute($query, $sql, $query->getBind());
 
         if ($result) {
-            if (is_string($pk) && isset($options['where']['AND'][$pk])) {
-                $data[$pk] = $options['where']['AND'][$pk];
-            } elseif (is_string($pk) && isset($key) && strpos($key, '|')) {
-                list($a, $val) = explode('|', $key);
-                $data[$pk]     = $val;
-            }
-
-            $query->setOption('data', $data);
             $query->trigger('after_update');
         }
 
@@ -1159,21 +1087,10 @@ abstract class Connection
     {
         // 分析查询表达式
         $options = $query->parseOptions();
-        $pk      = $query->getPk($options);
-        $data    = $options['data'];
 
         if (isset($options['cache'])) {
             $cacheItem = $options['cache'];
             $key       = $cacheItem->getKey();
-        } elseif (!is_null($data) && true !== $data && !is_array($data)) {
-            $key = $this->getCacheKey($query, $data);
-        } elseif (is_string($pk) && isset($options['where']['AND'][$pk])) {
-            $key = $this->getCacheKey($query, $options['where']['AND'][$pk]);
-        }
-
-        if (true !== $data && empty($options['where'])) {
-            // 如果条件为空 不进行删除操作 除非设置 1=1
-            throw new Exception('delete without condition');
         }
 
         // 生成删除SQL语句
@@ -1191,14 +1108,6 @@ abstract class Connection
         $result = $this->execute($query, $sql, $query->getBind());
 
         if ($result) {
-            if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
-                list($a, $val) = explode('|', $key);
-                $item[$pk]     = $val;
-                $data          = $item;
-            }
-
-            $options['data'] = $data;
-
             $query->trigger('after_delete');
         }
 
@@ -1976,34 +1885,6 @@ abstract class Connection
     {
         // 判断查询缓存
         return $this->cache->get($cacheItem->getKey());
-    }
-
-    /**
-     * 生成缓存标识
-     * @access protected
-     * @param  Query     $query   查询对象
-     * @param  mixed     $value   缓存数据
-     * @return string
-     */
-    protected function getCacheKey(Query $query, $value): string
-    {
-        if (is_scalar($value)) {
-            $data = $value;
-        } elseif (is_array($value) && isset($value[1], $value[2]) && '=' == $value[1]) {
-            $data = $value[2];
-        }
-
-        $prefix = 'think:' . $this->getConfig('database') . '.';
-
-        if (isset($data)) {
-            return $prefix . $query->getTable() . '|' . $data;
-        }
-
-        try {
-            return md5($prefix . serialize($query->getOptions()) . serialize($query->getBind(false)));
-        } catch (\Exception $e) {
-            throw new Exception('closure not support cache(true)');
-        }
     }
 
     /**

@@ -1148,7 +1148,7 @@ class Query
     /**
      * 指定字段Raw查询
      * @access public
-     * @param  string $field     查询字段
+     * @param  string $field     查询字段表达式
      * @param  mixed  $op        查询表达式
      * @param  string $condition 查询条件
      * @param  string $logic     查询逻辑 and or xor
@@ -1219,7 +1219,11 @@ class Query
             return $this->whereRaw($field, is_array($op) ? $op : []);
         } elseif ($strict) {
             // 使用严格模式查询
-            $where = [$field, $op, $condition, $logic];
+            if ('=' == $op) {
+                $where = $this->whereEq($field, $condition);
+            } else {
+                $where = [$field, $op, $condition, $logic];
+            }
         } elseif (is_array($field)) {
             // 解析数组批量查询
             return $this->parseArrayWhereItems($field, $logic);
@@ -1260,7 +1264,7 @@ class Query
             array_unshift($param, $field);
             $where = $param;
         } elseif (!is_string($op)) {
-            $where = [$field, '=', $op];
+            $where = $this->whereEq($field, $op);
         } elseif ($field && is_null($condition)) {
             if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
@@ -1271,12 +1275,22 @@ class Query
                 $where = [$field, 'NOTNULL', ''];
             } else {
                 // 字段相等查询
-                $where = [$field, '=', $op];
+                $where = $this->whereEq($field, $op);
             }
         } elseif (in_array(strtoupper($op), ['EXISTS', 'NOT EXISTS', 'NOTEXISTS'], true)) {
             $where = [$field, $op, is_string($condition) ? new Raw($condition) : $condition];
         } else {
             $where = $field ? [$field, $op, $condition, $param[2] ?? null] : [];
+        }
+
+        return $where;
+    }
+
+    protected function whereEq($field, $value)
+    {
+        $where = [$field, '=', $value];
+        if ($this->getPk() == $field) {
+            $this->options['key'] = $value;
         }
 
         return $where;
@@ -1668,20 +1682,7 @@ class Query
             return $this;
         }
 
-        if ($key instanceof CacheItem) {
-            $cacheItem = $key;
-        } else {
-            if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
-                $expire = $key;
-                $key    = true;
-            }
-
-            $cacheItem = new CacheItem(true === $key ? null : $key);
-            $cacheItem->expire($expire);
-            $cacheItem->tag($tag);
-        }
-
-        $this->options['cache'] = $cacheItem;
+        $this->options['cache'] = [$key, $expire, $tag];
 
         return $this;
     }
@@ -2153,15 +2154,14 @@ class Query
     /**
      * 获取当前数据表的主键
      * @access public
-     * @param  string|array $options 数据表名或者查询参数
      * @return string|array
      */
-    public function getPk($options = '')
+    public function getPk()
     {
         if (!empty($this->pk)) {
             $pk = $this->pk;
         } else {
-            $pk = $this->connection->getPk($options['table'] ?? $this->getTable());
+            $this->pk = $pk = $this->connection->getPk($this->getTable());
         }
 
         return $pk;
@@ -2616,11 +2616,22 @@ class Query
      */
     public function update(array $data = []): int
     {
-        $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
+        $data = array_merge($this->options['data'] ?? [], $data);
+
+        if (empty($this->options['where'])) {
+            $this->parseUpdateData($data);
+        }
 
         if (empty($this->options['where']) && $this->model) {
             $this->where($this->model->getWhere());
         }
+
+        if (empty($this->options['where'])) {
+            // 如果没有任何更新条件则不执行
+            throw new Exception('miss update condition');
+        }
+
+        $this->options['data'] = $data;
 
         return $this->connection->update($this);
     }
@@ -2638,6 +2649,15 @@ class Query
         if (!is_null($data) && true !== $data) {
             // AR模式分析主键条件
             $this->parsePkWhere($data);
+        }
+
+        if (empty($this->options['where']) && $this->model) {
+            $this->where($this->model->getWhere());
+        }
+
+        if (true !== $data && empty($this->options['where'])) {
+            // 如果条件为空 不进行删除操作 除非设置 1=1
+            throw new Exception('delete without condition');
         }
 
         if (!empty($this->options['soft_delete'])) {
@@ -2701,8 +2721,6 @@ class Query
             // 主键条件分析
             $this->parsePkWhere($data);
         }
-
-        $this->options['data'] = $data;
 
         $resultSet = $this->connection->select($this);
 
@@ -2818,8 +2836,6 @@ class Query
             // AR模式分析主键条件
             $this->parsePkWhere($data);
         }
-
-        $this->options['data'] = $data;
 
         $result = $this->connection->find($this);
 
@@ -3089,7 +3105,7 @@ class Query
     public function chunk(int $count, callable $callback, $column = null, string $order = 'asc'): bool
     {
         $options = $this->getOptions();
-        $column  = $column ?: $this->getPk($options);
+        $column  = $column ?: $this->getPk();
 
         if (isset($options['order'])) {
             if (Container::pull('app')->isDebug()) {
@@ -3213,6 +3229,28 @@ class Query
         }
     }
 
+    protected function parseUpdateData(&$data)
+    {
+        $pk = $this->getPk();
+        // 如果存在主键数据 则自动作为更新条件
+        if (is_string($pk) && isset($data[$pk])) {
+            $this->where($pk, '=', $data[$pk]);
+            $this->options['key'] = $data[$pk];
+            unset($data[$pk]);
+        } elseif (is_array($pk)) {
+            // 增加复合主键支持
+            foreach ($pk as $field) {
+                if (isset($data[$field])) {
+                    $this->where($field, '=', $data[$field]);
+                } else {
+                    // 如果缺少复合主键数据则不执行
+                    throw new Exception('miss complex primary data');
+                }
+                unset($data[$field]);
+            }
+        }
+    }
+
     /**
      * 把主键值转换为查询条件 支持复合主键
      * @access public
@@ -3222,7 +3260,7 @@ class Query
      */
     public function parsePkWhere($data): void
     {
-        $pk = $this->getPk($this->options);
+        $pk = $this->getPk();
 
         if (is_string($pk)) {
             // 获取数据表
@@ -3238,12 +3276,11 @@ class Query
 
             $key = isset($alias) ? $alias . '.' . $pk : $pk;
             // 根据主键查询
-            $where[$pk] = is_array($data) ? [$key, 'in', $data] : [$key, '=', $data];
-
-            if (isset($this->options['where']['AND'])) {
-                $this->options['where']['AND'] = array_merge($this->options['where']['AND'], $where);
+            if (is_array($data)) {
+                $this->where($key, 'in', $data);
             } else {
-                $this->options['where']['AND'] = $where;
+                $this->where($key, '=', $data);
+                $this->options['key'] = $data;
             }
         }
     }
@@ -3304,9 +3341,41 @@ class Query
             $options['limit']      = $offset . ',' . $listRows;
         }
 
+        if (isset($options['cache'])) {
+            $this->parseCache($options['cache']);
+        }
+
         $this->options = $options;
 
         return $options;
+    }
+
+    protected function parseCache(array $cache): void
+    {
+        list($key, $expire, $tag) = $cache;
+
+        if ($key instanceof CacheItem) {
+            $cacheItem = $key;
+        } else {
+            if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
+                $expire = $key;
+                $key    = true;
+            }
+
+            if (true === $key) {
+                if (!empty($this->options['key'])) {
+                    $key = 'think:' . $this->getConfig('database') . '.' . $this->getTable() . '|' . $this->options['key'];
+                } else {
+                    $key = md5($this->getConfig('database') . serialize($this->options) . serialize($this->getBind(false)));
+                }
+            }
+
+            $cacheItem = new CacheItem($key);
+            $cacheItem->expire($expire);
+            $cacheItem->tag($tag);
+        }
+
+        $this->options['cache'] = $cacheItem;
     }
 
     /**
