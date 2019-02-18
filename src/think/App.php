@@ -282,6 +282,16 @@ class App extends Container
     }
 
     /**
+     * 是否为调试模式
+     * @access public
+     * @return bool
+     */
+    public function isDebug(): bool
+    {
+        return $this->appDebug;
+    }
+
+    /**
      * 设置应用名称
      * @access public
      * @param  string $name 应用名称
@@ -354,6 +364,166 @@ class App extends Container
     }
 
     /**
+     * 获取框架版本
+     * @access public
+     * @return string
+     */
+    public function version(): string
+    {
+        return static::VERSION;
+    }
+
+    /**
+     * 获取应用名称
+     * @access public
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name ?: '';
+    }
+
+    /**
+     * 获取应用根目录
+     * @access public
+     * @return string
+     */
+    public function getRootPath(): string
+    {
+        return $this->rootPath;
+    }
+
+    /**
+     * 获取应用基础目录
+     * @access public
+     * @return string
+     */
+    public function getBasePath(): string
+    {
+        return $this->basePath;
+    }
+
+    /**
+     * 获取当前应用目录
+     * @access public
+     * @return string
+     */
+    public function getAppPath(): string
+    {
+        return $this->appPath;
+    }
+
+    /**
+     * 获取应用运行时目录
+     * @access public
+     * @return string
+     */
+    public function getRuntimePath(): string
+    {
+        return $this->runtimePath;
+    }
+
+    /**
+     * 获取核心框架目录
+     * @access public
+     * @return string
+     */
+    public function getThinkPath(): string
+    {
+        return $this->thinkPath;
+    }
+
+    /**
+     * 获取路由目录
+     * @access public
+     * @return string
+     */
+    public function getRoutePath(): string
+    {
+        return $this->routePath;
+    }
+
+    /**
+     * 获取应用配置目录
+     * @access public
+     * @return string
+     */
+    public function getConfigPath(): string
+    {
+        return $this->configPath;
+    }
+
+    /**
+     * 获取配置后缀
+     * @access public
+     * @return string
+     */
+    public function getConfigExt(): string
+    {
+        return $this->configExt;
+    }
+
+    /**
+     * 获取应用类基础命名空间
+     * @access public
+     * @return string
+     */
+    public function getRootNamespace(): string
+    {
+        return $this->rootNamespace;
+    }
+
+    /**
+     * 获取应用类库命名空间
+     * @access public
+     * @return string
+     */
+    public function getNamespace(): string
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * 是否启用控制器类库后缀
+     * @access public
+     * @return bool
+     */
+    public function hasControllerSuffix(): bool
+    {
+        return $this->controllerSuffix;
+    }
+
+    /**
+     * 获取应用开启时间
+     * @access public
+     * @return float
+     */
+    public function getBeginTime(): float
+    {
+        return $this->beginTime;
+    }
+
+    /**
+     * 获取应用初始内存占用
+     * @access public
+     * @return integer
+     */
+    public function getBeginMem(): int
+    {
+        return $this->beginMem;
+    }
+
+    /**
+     * 获取控制器层名称
+     * @access public
+     * @return string
+     */
+    public function getControllerLayer(): string
+    {
+        return $this->controllerLayer;
+    }
+
+    /**
      * 初始化应用
      * @access public
      * @return void
@@ -391,11 +561,11 @@ class App extends Container
 
         $this->debugModeInit();
 
-        if ($this->config['app.exception_handle']) {
-            Error::setExceptionHandler($this->config['app.exception_handle']);
+        if ($this->config->get('exception_handle')) {
+            Error::setExceptionHandler($this->config->get('exception_handle'));
         }
 
-        date_default_timezone_set($this->config['app.default_timezone']);
+        date_default_timezone_set($this->config->get('default_timezone'));
 
         // 设置开启事件机制
         $this->event->withEvent($this->withEvent);
@@ -474,7 +644,6 @@ class App extends Container
 
         $this->env->set('app_namespace', $this->namespace);
         $this->request->setApp($this->name ?: '');
-        $this->request->filter($this->config['app.default_filter']);
     }
 
     /**
@@ -641,176 +810,6 @@ class App extends Container
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . $layer . '\\' . $path . $class;
-    }
-
-    /**
-     * 获取框架版本
-     * @access public
-     * @return string
-     */
-    public function version(): string
-    {
-        return static::VERSION;
-    }
-
-    /**
-     * 获取应用名称
-     * @access public
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name ?: '';
-    }
-
-    /**
-     * 是否为调试模式
-     * @access public
-     * @return bool
-     */
-    public function isDebug(): bool
-    {
-        return $this->appDebug;
-    }
-
-    /**
-     * 获取应用根目录
-     * @access public
-     * @return string
-     */
-    public function getRootPath(): string
-    {
-        return $this->rootPath;
-    }
-
-    /**
-     * 获取应用基础目录
-     * @access public
-     * @return string
-     */
-    public function getBasePath(): string
-    {
-        return $this->basePath;
-    }
-
-    /**
-     * 获取当前应用目录
-     * @access public
-     * @return string
-     */
-    public function getAppPath(): string
-    {
-        return $this->appPath;
-    }
-
-    /**
-     * 获取应用运行时目录
-     * @access public
-     * @return string
-     */
-    public function getRuntimePath(): string
-    {
-        return $this->runtimePath;
-    }
-
-    /**
-     * 获取核心框架目录
-     * @access public
-     * @return string
-     */
-    public function getThinkPath(): string
-    {
-        return $this->thinkPath;
-    }
-
-    /**
-     * 获取路由目录
-     * @access public
-     * @return string
-     */
-    public function getRoutePath(): string
-    {
-        return $this->routePath;
-    }
-
-    /**
-     * 获取应用配置目录
-     * @access public
-     * @return string
-     */
-    public function getConfigPath(): string
-    {
-        return $this->configPath;
-    }
-
-    /**
-     * 获取配置后缀
-     * @access public
-     * @return string
-     */
-    public function getConfigExt(): string
-    {
-        return $this->configExt;
-    }
-
-    /**
-     * 获取应用类基础命名空间
-     * @access public
-     * @return string
-     */
-    public function getRootNamespace(): string
-    {
-        return $this->rootNamespace;
-    }
-
-    /**
-     * 获取应用类库命名空间
-     * @access public
-     * @return string
-     */
-    public function getNamespace(): string
-    {
-        return $this->namespace;
-    }
-
-    /**
-     * 是否启用控制器类库后缀
-     * @access public
-     * @return bool
-     */
-    public function hasControllerSuffix(): bool
-    {
-        return $this->controllerSuffix;
-    }
-
-    /**
-     * 获取应用开启时间
-     * @access public
-     * @return float
-     */
-    public function getBeginTime(): float
-    {
-        return $this->beginTime;
-    }
-
-    /**
-     * 获取应用初始内存占用
-     * @access public
-     * @return integer
-     */
-    public function getBeginMem(): int
-    {
-        return $this->beginMem;
-    }
-
-    /**
-     * 获取控制器层名称
-     * @access public
-     * @return string
-     */
-    public function getControllerLayer(): string
-    {
-        return $this->controllerLayer;
     }
 
     // 获取应用根目录
