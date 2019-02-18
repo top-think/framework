@@ -62,7 +62,7 @@ class Url
 
     public static function __make(App $app, Config $config)
     {
-        return new static($app, $config->pull('app'));
+        return new static($app, $config->pull('route'));
     }
 
     /**
@@ -171,7 +171,7 @@ class Url
         }
 
         // 还原URL分隔符
-        $depr = $this->app->config->get('pathinfo_depr');
+        $depr = $this->config['pathinfo_depr'];
         $url  = str_replace('/', $depr, $url);
 
         // URL后缀
@@ -187,7 +187,7 @@ class Url
         // 参数组装
         if (!empty($vars)) {
             // 添加参数
-            if ($this->app->config->get('url_common_param')) {
+            if ($this->config['url_common_param']) {
                 $vars = http_build_query($vars);
                 $url .= $suffix . '?' . $vars . $anchor;
             } else {
@@ -240,7 +240,7 @@ class Url
                 $controller = empty($path) ? $controller : array_pop($path);
             }
 
-            if ($this->app->config->get('url_convert')) {
+            if ($this->config['url_convert']) {
                 $action     = strtolower($action);
                 $controller = App::parseName($controller);
             }
@@ -264,9 +264,8 @@ class Url
 
         $rootDomain = $this->app->request->rootDomain();
         if (true === $domain) {
-
             // 自动判断域名
-            $domain = $this->app->config->get('app_host') ?: $this->app->request->host();
+            $domain = $this->config['app_host'] ?: $this->app->request->host();
 
             $domains = $this->app->route->getDomains();
 
@@ -303,7 +302,7 @@ class Url
         if (false !== strpos($domain, '://')) {
             $scheme = '';
         } else {
-            $scheme = $this->app->request->isSsl() || $this->app->config->get('is_https') ? 'https://' : 'http://';
+            $scheme = $this->app->request->isSsl() ? 'https://' : 'http://';
 
         }
 
@@ -314,7 +313,7 @@ class Url
     protected function parseSuffix($suffix): string
     {
         if ($suffix) {
-            $suffix = true === $suffix ? $this->app->config->get('url_html_suffix') : $suffix;
+            $suffix = true === $suffix ? $this->config['url_html_suffix'] : $suffix;
 
             if ($pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
@@ -342,7 +341,7 @@ class Url
                 return [rtrim($url, '?/-'), $domain, $suffix];
             }
 
-            $type = $this->app->config->get('url_common_param');
+            $type = $this->config['url_common_param'];
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
