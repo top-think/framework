@@ -221,7 +221,7 @@ abstract class Rule
      * @param  string  $name 变量名
      * @return mixed
      */
-    public function getConfig(string $name = '')
+    public function config(string $name = '')
     {
         return $this->router->config($name);
     }

@@ -37,7 +37,7 @@ class Url extends Dispatch
      */
     protected function parseUrl(string $url): array
     {
-        $depr = $this->rule->getConfig('pathinfo_depr');
+        $depr = $this->rule->config('pathinfo_depr');
         $bind = $this->rule->getRouter()->getBind();
 
         if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {

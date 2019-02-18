@@ -35,14 +35,14 @@ class Controller extends Dispatch
         }
 
         // 是否自动转换控制器和操作名
-        $convert = is_bool($this->convert) ? $this->convert : $this->rule->getConfig('url_convert');
+        $convert = is_bool($this->convert) ? $this->convert : $this->rule->config('url_convert');
         // 获取控制器名
-        $controller = strip_tags($result[0] ?: $this->rule->getConfig('default_controller'));
+        $controller = strip_tags($result[0] ?: $this->rule->config('default_controller'));
 
         $this->controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
-        $this->actionName = strip_tags($result[1] ?: $this->rule->getConfig('default_action'));
+        $this->actionName = strip_tags($result[1] ?: $this->rule->config('default_action'));
 
         // 设置当前请求的控制器、操作
         $this->request
@@ -63,7 +63,7 @@ class Controller extends Dispatch
 
         $this->app['middleware']->controller(function (Request $request, $next) use ($instance) {
             // 获取当前操作名
-            $action = $this->actionName . $this->rule->getConfig('action_suffix');
+            $action = $this->actionName . $this->rule->config('action_suffix');
 
             if (is_callable([$instance, $action])) {
                 // 执行操作方法
