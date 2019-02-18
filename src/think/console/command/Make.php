@@ -38,7 +38,7 @@ abstract class Make extends Command
         $pathname = $this->getPathName($classname);
 
         if (is_file($pathname)) {
-            $output->writeln('<error>' . $this->type . ' already exists!</error>');
+            $output->writeln('<error>' . $this->type . ':' . $classname . ' already exists!</error>');
             return false;
         }
 
@@ -48,7 +48,7 @@ abstract class Make extends Command
 
         file_put_contents($pathname, $this->buildClass($classname));
 
-        $output->writeln('<info>' . $this->type . ' created successfully.</info>');
+        $output->writeln('<info>' . $this->type . ':' . $classname . ' created successfully.</info>');
     }
 
     protected function buildClass(string $name)

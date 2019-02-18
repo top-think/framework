@@ -138,6 +138,12 @@ class App extends Container
     protected $withEvent = true;
 
     /**
+     * 是否需要使用路由
+     * @var bool
+     */
+    protected $withRoute = true;
+
+    /**
      * 访问控制器层名称
      * @var string
      */
@@ -235,6 +241,18 @@ class App extends Container
     public function withEvent(bool $event)
     {
         $this->withEvent = $event;
+        return $this;
+    }
+
+    /**
+     * 设置是否使用路由
+     * @access public
+     * @param  bool $route
+     * @return $this
+     */
+    public function withRoute(bool $route)
+    {
+        $this->withRoute = $route;
         return $this;
     }
 
@@ -559,12 +577,13 @@ class App extends Container
             // 监听AppInit
             $this->event->trigger('AppInit');
 
-            $dispatch = $this->request->dispatch();
-
-            if (!$dispatch) {
-                $dispatch = $this->route->url($this->getRealPath())->init();
+            if ($this->withRoute) {
+                $dispatch = $this->routeCheck();
+            } else {
+                $dispatch = $this->route->url($this->getRealPath());
             }
 
+            $dispatch->init();
             // 监听AppBegin
             $this->event->trigger('AppBegin');
 
@@ -804,6 +823,89 @@ class App extends Container
         }
 
         return $path . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * 路由初始化（路由规则注册）
+     * @access public
+     * @return void
+     */
+    public function routeInit(): void
+    {
+        // 加载路由定义
+        if (is_dir($this->getRoutePath())) {
+            $files = glob($this->getRoutePath() . DIRECTORY_SEPARATOR . '*.php');
+            foreach ($files as $file) {
+                include $file;
+            }
+        }
+
+        if ($this->route->config('route_annotation')) {
+            // 自动生成注解路由定义
+            if ($this->isDebug()) {
+                $suffix = $this->hasControllerSuffix();
+                $this->build->buildRoute($suffix);
+            }
+
+            $filename = $this->getRuntimePath() . 'build_route.php';
+
+            if (is_file($filename)) {
+                include $filename;
+            }
+        }
+
+    }
+
+    /**
+     * URL路由检测（根据PATH_INFO)
+     * @access protected
+     * @return Dispatch
+     */
+    protected function routeCheck(): Dispatch
+    {
+        // 检测路由缓存
+        if (!$this->isDebug() && $this->config->get('route_check_cache')) {
+            $routeKey = $this->getRouteCacheKey();
+            $option   = $this->config->get('route_cache_option');
+
+            if ($option && $this->cache->connect($option)->has($routeKey)) {
+                return $this->cache->connect($option)->get($routeKey);
+            } elseif ($this->cache->has($routeKey)) {
+                return $this->cache->get($routeKey);
+            }
+        }
+
+        // Route init
+        $this->routeInit();
+
+        // 路由检测
+        $dispatch = $this->route->check($this->getRealPath(), $app->config->get('url_route_must'));
+
+        if (!empty($routeKey)) {
+            try {
+                if ($option) {
+                    $this->cache->connect($option)->tag('route_cache')->set($routeKey, $dispatch);
+                } else {
+                    $this->cache->tag('route_cache')->set($routeKey, $dispatch);
+                }
+            } catch (\Exception $e) {
+                // 存在闭包的时候缓存无效
+            }
+        }
+
+        return $dispatch;
+    }
+
+    protected function getRouteCacheKey(): string
+    {
+        if ($this->config->get('route_check_cache_key')) {
+            $closure  = $this->config->get('route_check_cache_key');
+            $routeKey = $closure($this->request);
+        } else {
+            $routeKey = md5($this->request->baseUrl(true) . ':' . $this->request->method());
+        }
+
+        return $routeKey;
     }
 
     protected function getScriptName(): string
