@@ -671,7 +671,7 @@ class App extends Container
 
         include $this->thinkPath . 'helper.php';
 
-        if ($this->multi && is_file($this->basePath . 'middleware')) {
+        if ($this->multi && is_file($this->basePath . 'middleware.php')) {
             $this->middleware->import(include $this->basePath . 'middleware.php');
         }
 
