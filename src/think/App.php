@@ -15,6 +15,7 @@ namespace think;
 use Opis\Closure\SerializableClosure;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpResponseException;
+use think\route\Dispatch;
 
 /**
  * App 应用管理
@@ -578,12 +579,11 @@ class App extends Container
             $this->event->trigger('AppInit');
 
             if ($this->withRoute) {
-                $dispatch = $this->routeCheck();
+                $dispatch = $this->routeCheck()->init();
             } else {
-                $dispatch = $this->route->url($this->getRealPath());
+                $dispatch = $this->route->url($this->getRealPath())->init();
             }
 
-            $dispatch->init();
             // 监听AppBegin
             $this->event->trigger('AppBegin');
 
@@ -827,14 +827,14 @@ class App extends Container
 
     /**
      * 路由初始化（路由规则注册）
-     * @access public
+     * @access protected
      * @return void
      */
-    public function routeInit(): void
+    protected function routeInit(): void
     {
         // 加载路由定义
-        if (is_dir($this->getRoutePath())) {
-            $files = glob($this->getRoutePath() . DIRECTORY_SEPARATOR . '*.php');
+        if (is_dir($this->routePath)) {
+            $files = glob($this->routePath . DIRECTORY_SEPARATOR . '*.php');
             foreach ($files as $file) {
                 include $file;
             }
@@ -843,17 +843,15 @@ class App extends Container
         if ($this->route->config('route_annotation')) {
             // 自动生成注解路由定义
             if ($this->isDebug()) {
-                $suffix = $this->hasControllerSuffix();
-                $this->build->buildRoute($suffix);
+                $this->build->buildRoute($this->controllerSuffix);
             }
 
-            $filename = $this->getRuntimePath() . 'build_route.php';
+            $filename = $this->runtimePath . 'build_route.php';
 
             if (is_file($filename)) {
                 include $filename;
             }
         }
-
     }
 
     /**
@@ -875,11 +873,10 @@ class App extends Container
             }
         }
 
-        // Route init
         $this->routeInit();
 
         // 路由检测
-        $dispatch = $this->route->check($this->getRealPath(), $app->config->get('url_route_must'));
+        $dispatch = $this->route->check($this->getRealPath(), $this->config->get('url_route_must'));
 
         if (!empty($routeKey)) {
             try {
