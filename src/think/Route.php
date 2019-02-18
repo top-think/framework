@@ -108,8 +108,7 @@ class Route
     {
         $this->request = $request;
         $this->config  = $config;
-
-        $this->host = $this->request->host(true) ?: $config['app_host'];
+        $this->host    = $this->request->host(true);
 
         $this->setDefaultDomain();
     }
@@ -121,7 +120,7 @@ class Route
 
     public static function __make(Request $request, Config $config)
     {
-        $config = $config->pull('app');
+        $config = $config->pull('route');
         return new static($request, $config);
     }
 
@@ -636,11 +635,10 @@ class Route
      * 检测URL路由
      * @access public
      * @param  string    $url URL地址
-     * @param  bool      $must 是否强制路由
      * @return Dispatch
      * @throws RouteNotFoundException
      */
-    public function check(string $url, bool $must = false): Dispatch
+    public function check(string $url): Dispatch
     {
         // 自动检测域名路由
         $url = str_replace($this->config['pathinfo_depr'], '|', $url);
@@ -656,7 +654,7 @@ class Route
 
         if (false !== $result) {
             return $result;
-        } elseif ($must) {
+        } elseif ($this->config['url_route_must']) {
             throw new RouteNotFoundException();
         }
 

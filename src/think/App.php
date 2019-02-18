@@ -862,9 +862,9 @@ class App extends Container
     protected function routeCheck(): Dispatch
     {
         // 检测路由缓存
-        if (!$this->isDebug() && $this->config->get('route_check_cache')) {
+        if (!$this->isDebug() && $this->route->config('route_check_cache')) {
             $routeKey = $this->getRouteCacheKey();
-            $option   = $this->config->get('route_cache_option');
+            $option   = $this->route->config('route_cache_option');
 
             if ($option && $this->cache->connect($option)->has($routeKey)) {
                 return $this->cache->connect($option)->get($routeKey);
@@ -876,7 +876,7 @@ class App extends Container
         $this->routeInit();
 
         // 路由检测
-        $dispatch = $this->route->check($this->getRealPath(), $this->config->get('url_route_must'));
+        $dispatch = $this->route->check($this->getRealPath());
 
         if (!empty($routeKey)) {
             try {
@@ -895,8 +895,8 @@ class App extends Container
 
     protected function getRouteCacheKey(): string
     {
-        if ($this->config->get('route_check_cache_key')) {
-            $closure  = $this->config->get('route_check_cache_key');
+        if ($this->route->config('route_check_cache_key')) {
+            $closure  = $this->route->config('route_check_cache_key');
             $routeKey = $closure($this->request);
         } else {
             $routeKey = md5($this->request->baseUrl(true) . ':' . $this->request->method());

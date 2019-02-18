@@ -16,7 +16,7 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
 use think\facade\App;
-use think\facade\Config;
+use think\facade\Route;
 
 abstract class Make extends Command
 {
@@ -61,7 +61,7 @@ abstract class Make extends Command
 
         return str_replace(['{%className%}', '{%actionSuffix%}', '{%namespace%}', '{%app_namespace%}'], [
             $class,
-            Config::get('action_suffix'),
+            Route::config('action_suffix'),
             $namespace,
             App::getNamespace(),
         ], $stub);

@@ -266,7 +266,7 @@ class Build
             $comment = $this->parseRouteComment($comment);
             $action  = $reflectMethod->getName();
 
-            if ($suffix = $this->app['config']->get('app.action_suffix')) {
+            if ($suffix = $this->app['route']->config('action_suffix')) {
                 $action = substr($action, 0, -strlen($suffix));
             }
 
