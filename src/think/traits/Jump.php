@@ -52,7 +52,7 @@ trait Jump
             $type = 'jump';
         }
 
-        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::pull('config')->get('dispatch_success_tmpl')]);
+        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::pull('config')->get('app.dispatch_success_tmpl')]);
 
         throw new HttpResponseException($response);
     }
@@ -88,7 +88,7 @@ trait Jump
             $type = 'jump';
         }
 
-        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::pull('config')->get('dispatch_error_tmpl')]);
+        $response = Response::create($result, $type)->header($header)->options(['jump_template' => Container::pull('config')->get('app.dispatch_error_tmpl')]);
 
         throw new HttpResponseException($response);
     }
@@ -152,7 +152,7 @@ trait Jump
         $config = Container::pull('config');
 
         return $isAjax
-        ? $config->get('default_ajax_return')
-        : $config->get('default_return_type');
+        ? $config->get('route.default_ajax_return')
+        : $config->get('route.default_return_type');
     }
 }

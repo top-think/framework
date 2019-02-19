@@ -12,22 +12,15 @@ declare (strict_types = 1);
 
 namespace think;
 
-use ArrayAccess;
 use Yaconf;
 
-class Config implements ArrayAccess
+class Config
 {
     /**
      * 配置参数
      * @var array
      */
     protected $config = [];
-
-    /**
-     * 配置前缀
-     * @var string
-     */
-    protected $prefix = 'app';
 
     /**
      * 配置文件目录
@@ -64,17 +57,6 @@ class Config implements ArrayAccess
         $ext  = $app->getConfigExt();
 
         return new static($path, $ext);
-    }
-
-    /**
-     * 设置配置参数默认前缀
-     * @access public
-     * @param string    $prefix 前缀
-     * @return void
-     */
-    public function setDefaultPrefix(string $prefix): void
-    {
-        $this->prefix = $prefix;
     }
 
     /**
@@ -192,20 +174,16 @@ class Config implements ArrayAccess
      */
     public function has(string $name): bool
     {
-        if (false === strpos($name, '.')) {
-            $name = $this->prefix . '.' . $name;
-        }
-
         return !is_null($this->get($name));
     }
 
     /**
      * 获取一级配置
-     * @access public
+     * @access protected
      * @param  string    $name 一级配置名
      * @return array
      */
-    public function pull(string $name): array
+    protected function pull(string $name): array
     {
         $name = strtolower($name);
 
@@ -230,17 +208,13 @@ class Config implements ArrayAccess
      */
     public function get(string $name = null, $default = null)
     {
-        if ($name && false === strpos($name, '.')) {
-            $name = $this->prefix . '.' . $name;
-        }
-
         // 无参数时获取所有
         if (empty($name)) {
             return $this->config;
         }
 
-        if ('.' == substr($name, -1)) {
-            return $this->pull(substr($name, 0, -1));
+        if (false === strpos($name, '.')) {
+            return $this->pull($name);
         }
 
         if ($this->yaconf) {
@@ -270,42 +244,22 @@ class Config implements ArrayAccess
     /**
      * 设置配置参数 name为数组则为批量设置
      * @access public
-     * @param  string|array  $name 配置参数名（支持三级配置 .号分割）
-     * @param  mixed         $value 配置值
-     * @return mixed
+     * @param  array    $config 配置参数
+     * @param  string   $name 配置名
+     * @return array
      */
-    public function set($name, $value = null)
+    public function set(array $config, string $name = null): array
     {
-        if (is_string($name)) {
-            if (false === strpos($name, '.')) {
-                $name = $this->prefix . '.' . $name;
-            }
-
-            $name = explode('.', $name, 3);
-
-            if (count($name) == 2) {
-                $this->config[strtolower($name[0])][$name[1]] = $value;
+        if (!empty($name)) {
+            if (isset($this->config[$name])) {
+                $result = array_merge($this->config[$name], $config);
             } else {
-                $this->config[strtolower($name[0])][$name[1]][$name[2]] = $value;
+                $result = $config;
             }
 
-            return $value;
-        } elseif (is_array($name)) {
-            // 批量设置
-            if (!empty($value)) {
-                if (isset($this->config[$value])) {
-                    $result = array_merge($this->config[$value], $name);
-                } else {
-                    $result = $name;
-                }
-
-                $this->config[$value] = $result;
-            } else {
-                $result = $this->config = array_merge($this->config, $name);
-            }
+            $this->config[$name] = $result;
         } else {
-            // 为空直接返回 已有配置
-            $result = $this->config;
+            $result = $this->config = array_merge($this->config, array_change_key_case($config));
         }
 
         return $result;
@@ -319,10 +273,6 @@ class Config implements ArrayAccess
      */
     public function remove(string $name): void
     {
-        if (false === strpos($name, '.')) {
-            $name = $this->prefix . '.' . $name;
-        }
-
         $name = explode('.', $name, 3);
 
         if (count($name) == 2) {
@@ -335,27 +285,16 @@ class Config implements ArrayAccess
     /**
      * 重置配置参数
      * @access public
-     * @param  string    $prefix  配置前缀名
+     * @param  string    $name  配置名
      * @return void
      */
-    public function reset(string $prefix = ''): void
+    public function reset(string $name = ''): void
     {
-        if ('' === $prefix) {
+        if ('' === $name) {
             $this->config = [];
         } else {
-            $this->config[$prefix] = [];
+            $this->config[$name] = [];
         }
-    }
-
-    /**
-     * 设置配置
-     * @access public
-     * @param  string    $name  参数名
-     * @param  mixed     $value 值
-     */
-    public function __set($name, $value)
-    {
-        return $this->set($name, $value);
     }
 
     /**
@@ -380,24 +319,4 @@ class Config implements ArrayAccess
         return $this->has($name);
     }
 
-    // ArrayAccess
-    public function offsetSet($name, $value)
-    {
-        $this->set($name, $value);
-    }
-
-    public function offsetExists($name)
-    {
-        return $this->has($name);
-    }
-
-    public function offsetUnset($name)
-    {
-        $this->remove($name);
-    }
-
-    public function offsetGet($name)
-    {
-        return $this->get($name);
-    }
 }

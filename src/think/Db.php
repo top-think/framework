@@ -47,7 +47,7 @@ class Db
 
     public static function __make(Config $config)
     {
-        return new static($config->pull('database'));
+        return new static($config->get('database'));
     }
 
     /**

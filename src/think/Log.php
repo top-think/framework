@@ -69,7 +69,7 @@ class Log implements LoggerInterface
 
     public static function __make(App $app, Config $config)
     {
-        return (new static($app))->init($config->pull('log'));
+        return (new static($app))->init($config->get('log'));
     }
 
     /**

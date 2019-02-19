@@ -63,7 +63,7 @@ class Route extends Command
             }
         }
 
-        if (Container::pull('config')->get('route_annotation')) {
+        if (Container::pull('config')->get('route.route_annotation')) {
             include Container::pull('build')->buildRoute();
         }
 

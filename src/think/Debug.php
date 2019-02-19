@@ -49,7 +49,7 @@ class Debug
 
     public static function __make(App $app, Config $config)
     {
-        return new static($app, $config->pull('trace'));
+        return new static($app, $config->get('trace'));
     }
 
     public function setConfig(array $config): void
@@ -237,7 +237,7 @@ class Debug
             $output = '<pre>' . $label . $output . '</pre>';
         }
         if ($echo) {
-            echo($output);
+            echo ($output);
             return;
         }
         return $output;

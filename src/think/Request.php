@@ -320,7 +320,7 @@ class Request
 
     public static function __make(App $app, Config $config)
     {
-        $request = new static($config->pull('route'));
+        $request = new static($config->get('route'));
 
         $request->cookie = $app['cookie']->get();
         $request->server = $_SERVER;

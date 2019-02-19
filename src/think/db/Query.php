@@ -1447,7 +1447,7 @@ class Query
             $simple = false;
         }
 
-        $paginate = Container::pull('config')->pull('paginate');
+        $paginate = Container::pull('config')->get('paginate');
 
         if (is_array($listRows)) {
             $config   = array_merge($paginate, $listRows);

@@ -32,7 +32,7 @@ class Middleware
 
     public static function __make(App $app, Config $config)
     {
-        return new static($app, $config->pull('middleware'));
+        return new static($app, $config->get('middleware'));
     }
 
     public function setConfig(array $config): void

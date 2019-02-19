@@ -120,7 +120,7 @@ class Route
 
     public static function __make(Request $request, Config $config)
     {
-        $config = $config->pull('route');
+        $config = $config->get('route');
         return new static($request, $config);
     }
 

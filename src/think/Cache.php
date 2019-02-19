@@ -58,7 +58,7 @@ class Cache implements CacheItemPoolInterface
 
     public static function __make(Config $config)
     {
-        return new static($config->pull('cache'));
+        return new static($config->get('cache'));
     }
 
     /**

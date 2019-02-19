@@ -106,7 +106,7 @@ class Console
         static $console;
 
         if (!$console) {
-            $config  = Container::pull('config')->pull('console');
+            $config  = Container::pull('config')->get('console');
             $console = new self($config['name'], $config['version'], $config['user']);
 
             $commands = $console->getDefinedCommands($config);

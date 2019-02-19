@@ -180,10 +180,6 @@ if (!function_exists('config')) {
     function config($name = '', $value = null)
     {
         if (is_null($value) && is_string($name)) {
-            if ('.' == substr($name, -1)) {
-                return Config::pull(substr($name, 0, -1));
-            }
-
             return 0 === strpos($name, '?') ? Config::has(substr($name, 1)) : Config::get($name);
         }
 

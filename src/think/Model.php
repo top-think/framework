@@ -172,7 +172,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
         if (!empty($this->connection) && is_array($this->connection)) {
             // 设置模型的数据库连接
-            $this->connection = array_merge($config->pull('database'), $this->connection);
+            $this->connection = array_merge($config->get('database'), $this->connection);
         }
 
         // 执行初始化操作

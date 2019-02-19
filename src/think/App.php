@@ -561,11 +561,11 @@ class App extends Container
 
         $this->debugModeInit();
 
-        if ($this->config->get('exception_handle')) {
-            Error::setExceptionHandler($this->config->get('exception_handle'));
+        if ($this->config->get('app.exception_handle')) {
+            Error::setExceptionHandler($this->config->get('app.exception_handle'));
         }
 
-        date_default_timezone_set($this->config->get('default_timezone'));
+        date_default_timezone_set($this->config->get('app.default_timezone'));
 
         // 设置开启事件机制
         $this->event->withEvent($this->withEvent);

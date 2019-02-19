@@ -121,7 +121,7 @@ class Handle
     protected function renderHttpException(HttpException $e)
     {
         $status   = $e->getStatusCode();
-        $template = Container::pull('config')->get('http_exception_template');
+        $template = Container::pull('config')->get('app.http_exception_template');
 
         if (!Container::pull('app')->isDebug() && !empty($template[$status])) {
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
@@ -167,13 +167,13 @@ class Handle
                 'message' => $this->getMessage($exception),
             ];
 
-            if (!Container::pull('config')->get('show_error_msg')) {
+            if (!Container::pull('config')->get('app.show_error_msg')) {
                 // 不显示详细错误信息
-                $data['message'] = Container::pull('config')->get('error_message');
+                $data['message'] = Container::pull('config')->get('app.error_message');
             }
         }
 
-        $type = Container::pull('config')->get('exception_response_type') ?: 'html';
+        $type = Container::pull('config')->get('app.exception_response_type') ?: 'html';
 
         if ('html' == $type) {
             //保留一层
@@ -185,7 +185,7 @@ class Handle
 
             ob_start();
             extract($data);
-            include Container::pull('config')->get('exception_tmpl');
+            include Container::pull('config')->get('app.exception_tmpl');
 
             // 获取并清空缓存
             $data = ob_get_clean();

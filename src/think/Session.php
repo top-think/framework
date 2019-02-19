@@ -59,7 +59,7 @@ class Session
 
     public static function __make(Config $config)
     {
-        return new static($config->pull('session'));
+        return new static($config->get('session'));
     }
 
     /**
@@ -202,7 +202,7 @@ class Session
     protected function initDriver(): void
     {
         // 不在 init 方法中实例化lockDriver，是因为 init 方法不一定先于 set 或 get 方法调用
-        $config = Container::pull('config')->pull('session');
+        $config = Container::pull('config')->get('session');
 
         if (!empty($config['type']) && !empty($config['use_lock'])) {
             // 读取session驱动
