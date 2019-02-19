@@ -39,8 +39,10 @@ class Request
         'url_domain_root'      => '',
         // HTTPS代理标识
         'https_agent_name'     => '',
-        // IP代理获取标识
-        'http_agent_ip'        => 'HTTP_X_REAL_IP',
+        // 前端代理服务器IP
+        'proxy_server_ip'      => '',
+        // 前端代理服务器真实IP头
+        'proxy_server_ip_header' => ['HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'],
         // URL伪静态后缀
         'url_html_suffix'      => 'html',
         // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
@@ -110,6 +112,12 @@ class Request
      * @var string
      */
     protected $path;
+
+    /**
+     * 当前请求的IP地址
+     * @var string
+     */
+    protected $realIP;
 
     /**
      * 当前路由信息
@@ -1627,41 +1635,132 @@ class Request
     /**
      * 获取客户端IP地址
      * @access public
-     * @param  boolean   $adv 是否进行高级模式获取（有可能被伪装）
-     * @return mixed
+     * @return string
      */
-    public function ip($adv = true)
+    public function ip()
     {
-        $httpAgentIp = $this->config['http_agent_ip'];
+        if ( ! empty($this->realIP)) {
+            return $this->realIP;
+        }
 
-        if ($httpAgentIp && $this->server($httpAgentIp)) {
-            $ip = $this->server($httpAgentIp);
-        } elseif ($adv) {
-            if ($this->server('HTTP_X_FORWARDED_FOR')) {
-                $arr = explode(',', $this->server('HTTP_X_FORWARDED_FOR'));
-                $pos = array_search('unknown', $arr);
-                if (false !== $pos) {
-                    unset($arr[$pos]);
+        $this->realIP = $this->server('REMOTE_ADDR');
+
+        // 如果指定了前端代理服务器IP以及其会发送的IP头
+        // 则尝试获取前端代理服务器发送过来的真实IP
+        $proxy_server_ip = $this->config('proxy_server_ip');
+        $proxy_server_ip_header = $this->config('proxy_server_ip_header');
+
+        if ( ! empty($proxy_server_ip) && ! is_array($proxy_server_ip)) {
+            $proxy_server_ip = explode(',', $proxy_server_ip);
+            $proxy_server_ip = array_map('trim', $proxy_server_ip);
+        }
+
+        if (count($proxy_server_ip) > 0 && count($proxy_server_ip_header) > 0) {
+            
+            // 从指定的HTTP头中依次尝试获取IP地址
+            // 直到获取到一个合法的IP地址
+            foreach ($proxy_server_ip_header as $header) {
+                $tempIP = $this->server($header);
+
+                if (empty($tempIP)) {
+                    continue;
                 }
-                $ip = trim(current($arr));
-            } elseif ($this->server('HTTP_CLIENT_IP')) {
-                $ip = $this->server('HTTP_CLIENT_IP');
-            } elseif ($this->server('REMOTE_ADDR')) {
-                $ip = $this->server('REMOTE_ADDR');
+
+                $tempIP = trim(explode(',', $tempIP)[0]);
+
+                if ( ! $this->isValidIP($tempIP)) {
+                    $tempIP = null;
+                }
+                else {
+                    break;
+                }
             }
-        } elseif ($this->server('REMOTE_ADDR')) {
-            $ip = $this->server('REMOTE_ADDR');
+
+            // tempIP不为空，说明获取到了一个IP地址
+            // 这时我们检查 REMOTE_ADDR 是不是指定的前端代理服务器之一
+            // 如果是的话说明该 IP头 是由前端代理服务器设置的
+            // 否则则是伪装的
+            if ($tempIP) {
+                $realIPBin = $this->ip2bin($this->realIP);
+
+                foreach ($proxy_server_ip as $server_ip) {
+                    $serverIPElements = explode('/', $server_ip);
+                    $serverIP = $serverIPElements[0];
+                    $serverIPPrefix = $serverIPElements[1] ?? 128;
+                    $serverIPBin = $this->ip2bin($serverIP);
+
+                    // IP类型不符
+                    if (strlen($realIPBin) !== strlen($serverIPBin)) {
+                        continue;
+                    }
+
+                    if (strncmp($realIPBin, $serverIPBin, $serverIPPrefix) === 0) {
+                        $this->realIP = $tempIP;
+                        break;
+                    }
+                }
+            }
         }
 
-        // IP地址类型
-        $ip_mode = (strpos($ip, ':') === false) ? 'ipv4' : 'ipv6';
-
-        // IP地址合法验证
-        if (filter_var($ip, FILTER_VALIDATE_IP) !== $ip) {
-            $ip = ('ipv4' === $ip_mode) ? '0.0.0.0' : '::';
+        if ( ! $this->isValidIP($this->realIP)) {
+            $this->realIP = '0.0.0.0';
         }
 
-        return $ip;
+        return $this->realIP;
+    }
+
+    /**
+     * 检测是否是合法的IP地址
+     * 
+     * @param string $ip IP地址
+     * @param string $type IP地址类型 (ipv4, ipv6)
+     * 
+     * @return boolean
+     */
+    public function isValidIP(string $ip, string $type = null): bool
+    {
+        $type = strtolower($type);
+
+        switch ($type) {
+            case 'ipv4':
+                $flag = FILTER_FLAG_IPV4;
+                break;
+            case 'ipv6':
+                $flag = FILTER_FLAG_IPV6;
+                break;
+            default:
+                $flag = null;
+                break;
+        }
+
+        return boolval(filter_var($ip, FILTER_VALIDATE_IP, $flag));
+    }
+
+    /**
+     * 将IP地址转换为二进制字符串
+     * 
+     * @param string $ip
+     * 
+     * @return string
+     */
+    public function ip2bin(string $ip): string
+    {
+        if ($this->isValidIP($ip, 'ipv6')) {
+            $IPHex = str_split(bin2hex(inet_pton($ip)), 4);
+            foreach ($IPHex as $key => $value) {
+                $IPHex[$key] = intval($value, 16);
+            }
+            $IPBin = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', $IPHex);
+        }
+        else {
+            $IPHex = str_split(bin2hex(inet_pton($ip)), 2);
+            foreach ($IPHex as $key => $value) {
+                $IPHex[$key] = intval($value, 16);
+            }
+            $IPBin = vsprintf('%08b%08b%08b%08b', $IPHex);
+        }
+
+        return $IPBin;
     }
 
     /**
