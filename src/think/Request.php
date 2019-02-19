@@ -1711,10 +1711,10 @@ class Request
 
     /**
      * 检测是否是合法的IP地址
-     * 
+     *
      * @param string $ip IP地址
      * @param string $type IP地址类型 (ipv4, ipv6)
-     * 
+     *
      * @return boolean
      */
     public function isValidIP(string $ip, string $type = null): bool
@@ -1738,9 +1738,9 @@ class Request
 
     /**
      * 将IP地址转换为二进制字符串
-     * 
+     *
      * @param string $ip
-     * 
+     *
      * @return string
      */
     public function ip2bin(string $ip): string
