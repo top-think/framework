@@ -87,18 +87,6 @@ abstract class Relation
     }
 
     /**
-     * 设置当前关联为自关联
-     * @access public
-     * @param  bool $self 是否自关联
-     * @return $this
-     */
-    public function selfRelation(bool $self = true)
-    {
-        $this->selfRelation = $self;
-        return $this;
-    }
-
-    /**
      * 当前关联是否为自关联
      * @access public
      * @return bool

@@ -24,33 +24,33 @@ class Request
      */
     protected $config = [
         // PATHINFO变量名 用于兼容模式
-        'var_pathinfo'         => 's',
+        'var_pathinfo'           => 's',
         // 兼容PATH_INFO获取
-        'pathinfo_fetch'       => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
+        'pathinfo_fetch'         => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
         // 表单请求类型伪装变量
-        'var_method'           => '_method',
+        'var_method'             => '_method',
         // 表单ajax伪装变量
-        'var_ajax'             => '_ajax',
+        'var_ajax'               => '_ajax',
         // 表单pjax伪装变量
-        'var_pjax'             => '_pjax',
+        'var_pjax'               => '_pjax',
         // 默认全局过滤方法 用逗号分隔多个
-        'default_filter'       => '',
+        'default_filter'         => '',
         // 域名根，如thinkphp.cn
-        'url_domain_root'      => '',
+        'url_domain_root'        => '',
         // HTTPS代理标识
-        'https_agent_name'     => '',
+        'https_agent_name'       => '',
         // 前端代理服务器IP
-        'proxy_server_ip'      => '',
+        'proxy_server_ip'        => '',
         // 前端代理服务器真实IP头
         'proxy_server_ip_header' => ['HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'],
         // URL伪静态后缀
-        'url_html_suffix'      => 'html',
+        'url_html_suffix'        => 'html',
         // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
-        'request_cache'        => false,
+        'request_cache'          => false,
         // 请求缓存有效期
-        'request_cache_expire' => null,
+        'request_cache_expire'   => null,
         // 全局请求缓存排除规则
-        'request_cache_except' => [],
+        'request_cache_except'   => [],
     ];
 
     /**
@@ -1639,7 +1639,7 @@ class Request
      */
     public function ip()
     {
-        if ( ! empty($this->realIP)) {
+        if (!empty($this->realIP)) {
             return $this->realIP;
         }
 
@@ -1647,16 +1647,16 @@ class Request
 
         // 如果指定了前端代理服务器IP以及其会发送的IP头
         // 则尝试获取前端代理服务器发送过来的真实IP
-        $proxy_server_ip = $this->config('proxy_server_ip');
+        $proxy_server_ip        = $this->config('proxy_server_ip');
         $proxy_server_ip_header = $this->config('proxy_server_ip_header');
 
-        if ( ! empty($proxy_server_ip) && ! is_array($proxy_server_ip)) {
+        if (!empty($proxy_server_ip) && !is_array($proxy_server_ip)) {
             $proxy_server_ip = explode(',', $proxy_server_ip);
             $proxy_server_ip = array_map('trim', $proxy_server_ip);
         }
 
         if (count($proxy_server_ip) > 0 && count($proxy_server_ip_header) > 0) {
-            
+
             // 从指定的HTTP头中依次尝试获取IP地址
             // 直到获取到一个合法的IP地址
             foreach ($proxy_server_ip_header as $header) {
@@ -1668,10 +1668,9 @@ class Request
 
                 $tempIP = trim(explode(',', $tempIP)[0]);
 
-                if ( ! $this->isValidIP($tempIP)) {
+                if (!$this->isValidIP($tempIP)) {
                     $tempIP = null;
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -1685,9 +1684,9 @@ class Request
 
                 foreach ($proxy_server_ip as $server_ip) {
                     $serverIPElements = explode('/', $server_ip);
-                    $serverIP = $serverIPElements[0];
-                    $serverIPPrefix = $serverIPElements[1] ?? 128;
-                    $serverIPBin = $this->ip2bin($serverIP);
+                    $serverIP         = $serverIPElements[0];
+                    $serverIPPrefix   = $serverIPElements[1] ?? 128;
+                    $serverIPBin      = $this->ip2bin($serverIP);
 
                     // IP类型不符
                     if (strlen($realIPBin) !== strlen($serverIPBin)) {
@@ -1702,7 +1701,7 @@ class Request
             }
         }
 
-        if ( ! $this->isValidIP($this->realIP)) {
+        if (!$this->isValidIP($this->realIP)) {
             $this->realIP = '0.0.0.0';
         }
 
@@ -1751,8 +1750,7 @@ class Request
                 $IPHex[$key] = intval($value, 16);
             }
             $IPBin = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', $IPHex);
-        }
-        else {
+        } else {
             $IPHex = str_split(bin2hex(inet_pton($ip)), 2);
             foreach ($IPHex as $key => $value) {
                 $IPHex[$key] = intval($value, 16);
