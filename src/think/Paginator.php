@@ -151,7 +151,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
         $url = $path;
         if (!empty($parameters)) {
-            $url .= '?' . http_build_query($parameters, null, '&');
+            $url .= '?' . http_build_query($parameters, '', '&');
         }
 
         return $url . $this->buildFragment();
