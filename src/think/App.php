@@ -555,7 +555,6 @@ class App extends Container
         $this->setDependPath();
 
         $this->configExt = $this->env->get('config_ext', '.php');
-        //$this->config->set(include $this->rootPath . 'convention.php');
 
         $this->init();
 
