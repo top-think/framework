@@ -149,10 +149,8 @@ trait Jump
     protected function getResponseType()
     {
         $isAjax = Container::pull('request')->isAjax();
-        $config = Container::pull('config');
+        $route  = Container::pull('route');
 
-        return $isAjax
-        ? $config->get('route.default_ajax_return')
-        : $config->get('route.default_return_type');
+        return $isAjax ? $route->config('default_ajax_return') : $route->config('default_return_type');
     }
 }
