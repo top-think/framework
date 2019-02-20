@@ -107,7 +107,7 @@ class Console
 
         if (!$console) {
             $config  = Container::pull('config')->get('console');
-            $console = new self($config['name'], $config['version'], $config['user']);
+            $console = new self($config['name'] ?? 'Think Console', $config['version'] ?? '0.2', $config['user'] ?? null);
 
             $commands = $console->getDefinedCommands($config);
 

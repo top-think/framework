@@ -94,7 +94,7 @@ class Session
 
         if (isset($config['var_session_id']) && isset($_REQUEST[$config['var_session_id']])) {
             session_id($_REQUEST[$config['var_session_id']]);
-        } elseif (isset($config['id']) && !empty($config['id'])) {
+        } elseif (!empty($config['id'])) {
             session_id($config['id']);
         }
 
@@ -202,7 +202,7 @@ class Session
     protected function initDriver(): void
     {
         // 不在 init 方法中实例化lockDriver，是因为 init 方法不一定先于 set 或 get 方法调用
-        $config = Container::pull('config')->get('session');
+        $config = $this->config;
 
         if (!empty($config['type']) && !empty($config['use_lock'])) {
             // 读取session驱动
