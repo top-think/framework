@@ -16,7 +16,7 @@ use think\facade\Cookie;
 use think\facade\Session;
 use think\route\Dispatch;
 
-class Request
+class Header
 {
     /**
      * 配置
