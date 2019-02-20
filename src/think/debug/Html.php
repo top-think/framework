@@ -39,7 +39,9 @@ class Html
      */
     public function output(Response $response, array $log = [])
     {
-        $request     = Container::pull('request');
+        $app     = Container::pull('app');
+        $request = $app->request;
+
         $contentType = $response->getHeader('Content-Type');
         $accept      = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
@@ -47,10 +49,11 @@ class Html
         } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
             return false;
         }
+
         // 获取基本信息
-        $runtime = number_format(microtime(true) - Container::pull('app')->getBeginTime(), 10, '.', '');
+        $runtime = number_format(microtime(true) - $app->getBeginTime(), 10, '.', '');
         $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $mem     = number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024, 2);
+        $mem     = number_format((memory_get_usage() - $app->getBeginMem()) / 1024, 2);
 
         // 页面Trace信息
         if ($request->host()) {
@@ -60,7 +63,7 @@ class Html
         }
 
         $base = [
-            '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
+            '请求信息' => date('Y-m-d H:i:s', $request->time()) . ' ' . $uri,
             '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
             '查询信息' => Container::pull('db')->getQueryTimes() . ' queries',
             '缓存信息' => Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes',
@@ -99,7 +102,7 @@ class Html
         }
         // 调用Trace页面模板
         ob_start();
-        include $this->config['file'];
+        include $this->config['file'] ?: __DIR__ . '/../../tpl/page_trace.tpl';
         return ob_get_clean();
     }
 

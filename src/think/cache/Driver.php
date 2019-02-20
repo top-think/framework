@@ -148,7 +148,9 @@ abstract class Driver extends SimpleCache
      */
     public function tag($name)
     {
-        $this->tag = (array) $name;
+        if ($name) {
+            $this->tag = (array) $name;
+        }
 
         return $this;
     }

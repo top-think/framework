@@ -42,7 +42,34 @@ class Route
      * 配置参数
      * @var array
      */
-    protected $config = [];
+    protected $config = [
+        // pathinfo分隔符
+        'pathinfo_depr'         => '/',
+        // 是否开启路由延迟解析
+        'url_lazy_route'        => false,
+        // 是否强制使用路由
+        'url_route_must'        => false,
+        // 合并路由规则
+        'route_rule_merge'      => false,
+        // 路由是否完全匹配
+        'route_complete_match'  => false,
+        // 使用注解路由
+        'route_annotation'      => false,
+        // 是否自动转换URL中的控制器和操作名
+        'url_convert'           => true,
+        // 默认的路由变量规则
+        'default_route_pattern' => '\w+',
+        // 默认输出类型
+        'default_return_type'   => 'html',
+        // 默认AJAX 数据返回格式,可选json xml ...
+        'default_ajax_return'   => 'json',
+        // 默认控制器名
+        'default_controller'    => 'Index',
+        // 默认操作名
+        'default_action'        => 'index',
+        // 操作方法后缀
+        'action_suffix'         => '',
+    ];
 
     /**
      * 请求对象
@@ -107,7 +134,7 @@ class Route
     public function __construct(Request $request, array $config = [])
     {
         $this->request = $request;
-        $this->config  = $config;
+        $this->config  = array_merge($this->config, $config);
         $this->host    = $this->request->host(true);
 
         $this->setDefaultDomain();

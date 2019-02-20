@@ -24,35 +24,31 @@ class Request
      */
     protected $config = [
         // PATHINFO变量名 用于兼容模式
-        'var_pathinfo'           => 's',
+        'var_pathinfo'         => 's',
         // 兼容PATH_INFO获取
-        'pathinfo_fetch'         => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
+        'pathinfo_fetch'       => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
         // 表单请求类型伪装变量
-        'var_method'             => '_method',
+        'var_method'           => '_method',
         // 表单ajax伪装变量
-        'var_ajax'               => '_ajax',
+        'var_ajax'             => '_ajax',
         // 表单pjax伪装变量
-        'var_pjax'               => '_pjax',
+        'var_pjax'             => '_pjax',
         // 默认全局过滤方法 用逗号分隔多个
-        'default_filter'         => '',
+        'default_filter'       => '',
         // 域名根，如thinkphp.cn
-        'url_domain_root'        => '',
+        'url_domain_root'      => '',
         // HTTPS代理标识
-        'https_agent_name'       => '',
-        // 前端代理服务器IP
-        'proxy_server_ip'        => [],
-        // 前端代理服务器真实IP头
-        'proxy_server_ip_header' => ['HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'],
+        'https_agent_name'     => '',
+        // IP代理获取标识
+        'http_agent_ip'        => 'HTTP_X_REAL_IP',
         // URL伪静态后缀
-        'url_html_suffix'        => 'html',
+        'url_html_suffix'      => 'html',
         // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
-        'request_cache'          => false,
+        'request_cache'        => false,
         // 请求缓存有效期
-        'request_cache_expire'   => null,
+        'request_cache_expire' => null,
         // 全局请求缓存排除规则
-        'request_cache_except'   => [],
-        // 请求缓存的Tag
-        'request_cache_tag'      => '',
+        'request_cache_except' => [],
     ];
 
     /**
@@ -114,12 +110,6 @@ class Request
      * @var string
      */
     protected $path;
-
-    /**
-     * 当前请求的IP地址
-     * @var string
-     */
-    protected $realIP;
 
     /**
      * 当前路由信息
@@ -267,6 +257,12 @@ class Request
     protected $filter;
 
     /**
+     * 扩展方法
+     * @var array
+     */
+    protected $hook = [];
+
+    /**
      * php://input内容
      * @var string
      */
@@ -330,13 +326,39 @@ class Request
 
     public static function __make(App $app, Config $config)
     {
-        $request = new static($config->get('route'));
+        $request = new static($config->pull('app'));
 
         $request->cookie = $app['cookie']->get();
         $request->server = $_SERVER;
         $request->env    = $app['env']->get();
 
         return $request;
+    }
+
+    public function __call($method, $args)
+    {
+        if (array_key_exists($method, $this->hook)) {
+            array_unshift($args, $this);
+            return call_user_func_array($this->hook[$method], $args);
+        }
+
+        throw new Exception('method not exists:' . static::class . '->' . $method);
+    }
+
+    /**
+     * Hook 方法注入
+     * @access public
+     * @param  string|array  $method 方法名
+     * @param  mixed         $callback callable
+     * @return void
+     */
+    public function hook($method, $callback = null): void
+    {
+        if (is_array($method)) {
+            $this->hook = array_merge($this->hook, $method);
+        } else {
+            $this->hook[$method] = $callback;
+        }
     }
 
     /**
@@ -814,14 +836,10 @@ class Request
             return $this->server('REQUEST_METHOD') ?: 'GET';
         } elseif (!$this->method) {
             if (isset($_POST[$this->config['var_method']])) {
-                $method = strtolower($_POST[$this->config['var_method']]);
-                if (in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
-                    $this->method    = strtoupper($method);
-                    $this->{$method} = $_POST;
-                } else {
-                    $this->method = 'POST';
-                }
+                $this->method = strtoupper($_POST[$this->config['var_method']]);
+                $method       = strtolower($this->method);
                 unset($_POST[$this->config['var_method']]);
+                $this->{$method} = $_POST;
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
@@ -1230,13 +1248,12 @@ class Request
 
         $files = $this->file;
         if (!empty($files)) {
+            // 处理上传文件
+            $array = $this->dealUploadFile($files);
 
             if (strpos($name, '.')) {
                 list($name, $sub) = explode('.', $name);
             }
-
-            // 处理上传文件
-            $array = $this->dealUploadFile($files, $name);
 
             if ('' === $name) {
                 // 获取全部文件
@@ -1251,7 +1268,7 @@ class Request
         return;
     }
 
-    protected function dealUploadFile($files, $name)
+    protected function dealUploadFile($files)
     {
         $array = [];
         foreach ($files as $key => $file) {
@@ -1262,11 +1279,7 @@ class Request
 
                 for ($i = 0; $i < $count; $i++) {
                     if ($file['error'][$i] > 0) {
-                        if ($name == $key) {
-                            $this->throwUploadFileError($file['error'][$i]);
-                        } else {
-                            continue;
-                        }
+                        $this->throwUploadFileError($file['error'][$i]);
                     }
 
                     $temp['key'] = $key;
@@ -1284,11 +1297,7 @@ class Request
                     $array[$key] = $file;
                 } else {
                     if ($file['error'] > 0) {
-                        if ($key == $name) {
-                            $this->throwUploadFileError($file['error']);
-                        } else {
-                            continue;
-                        }
+                        $this->throwUploadFileError($file['error']);
                     }
 
                     $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
@@ -1512,7 +1521,11 @@ class Request
      */
     public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
     {
-        $param = empty($this->$type) ? $this->$type() : $this->$type;
+        if (empty($this->$type)) {
+            $param = $this->$type();
+        } else {
+            $param = $this->$type;
+        }
 
         // 按.拆分成多维数组进行判断
         foreach (explode('.', $name) as $val) {
@@ -1637,122 +1650,54 @@ class Request
     /**
      * 获取客户端IP地址
      * @access public
-     * @return string
+     * @param  integer   $type 返回类型 0 返回IP地址 1 返回IPV4地址数字
+     * @param  boolean   $adv 是否进行高级模式获取（有可能被伪装）
+     * @return mixed
      */
-    public function ip(): string
+    public function ip($type = 0, $adv = true)
     {
-        if (!empty($this->realIP)) {
-            return $this->realIP;
+        $type      = $type ? 1 : 0;
+        static $ip = null;
+
+        if (null !== $ip) {
+            return $ip[$type];
         }
 
-        $this->realIP = $this->server('REMOTE_ADDR');
+        $httpAgentIp = $this->config['http_agent_ip'];
 
-        // 如果指定了前端代理服务器IP以及其会发送的IP头
-        // 则尝试获取前端代理服务器发送过来的真实IP
-        $proxyIp       = $this->config('proxy_server_ip');
-        $proxyIpHeader = $this->config('proxy_server_ip_header');
-
-        if (count($proxyIp) > 0 && count($proxyIpHeader) > 0) {
-            // 从指定的HTTP头中依次尝试获取IP地址
-            // 直到获取到一个合法的IP地址
-            foreach ($proxyIpHeader as $header) {
-                $tempIP = $this->server($header);
-
-                if (empty($tempIP)) {
-                    continue;
+        if ($httpAgentIp && $this->server($httpAgentIp)) {
+            $ip = $this->server($httpAgentIp);
+        } elseif ($adv) {
+            if ($this->server('HTTP_X_FORWARDED_FOR')) {
+                $arr = explode(',', $this->server('HTTP_X_FORWARDED_FOR'));
+                $pos = array_search('unknown', $arr);
+                if (false !== $pos) {
+                    unset($arr[$pos]);
                 }
-
-                $tempIP = trim(explode(',', $tempIP)[0]);
-
-                if (!$this->isValidIP($tempIP)) {
-                    $tempIP = null;
-                } else {
-                    break;
-                }
+                $ip = trim(current($arr));
+            } elseif ($this->server('HTTP_CLIENT_IP')) {
+                $ip = $this->server('HTTP_CLIENT_IP');
+            } elseif ($this->server('REMOTE_ADDR')) {
+                $ip = $this->server('REMOTE_ADDR');
             }
-
-            // tempIP不为空，说明获取到了一个IP地址
-            // 这时我们检查 REMOTE_ADDR 是不是指定的前端代理服务器之一
-            // 如果是的话说明该 IP头 是由前端代理服务器设置的
-            // 否则则是伪装的
-            if ($tempIP) {
-                $realIPBin = $this->ip2bin($this->realIP);
-
-                foreach ($proxyIp as $ip) {
-                    $serverIPElements = explode('/', $ip);
-                    $serverIP         = $serverIPElements[0];
-                    $serverIPPrefix   = $serverIPElements[1] ?? 128;
-                    $serverIPBin      = $this->ip2bin($serverIP);
-
-                    // IP类型不符
-                    if (strlen($realIPBin) !== strlen($serverIPBin)) {
-                        continue;
-                    }
-
-                    if (strncmp($realIPBin, $serverIPBin, $serverIPPrefix) === 0) {
-                        $this->realIP = $tempIP;
-                        break;
-                    }
-                }
-            }
+        } elseif ($this->server('REMOTE_ADDR')) {
+            $ip = $this->server('REMOTE_ADDR');
         }
 
-        if (!$this->isValidIP($this->realIP)) {
-            $this->realIP = '0.0.0.0';
+        // IP地址类型
+        $ip_mode = (strpos($ip, ':') === false) ? 'ipv4' : 'ipv6';
+
+        // IP地址合法验证
+        if (filter_var($ip, FILTER_VALIDATE_IP) !== $ip) {
+            $ip = ('ipv4' === $ip_mode) ? '0.0.0.0' : '::';
         }
 
-        return $this->realIP;
-    }
+        // 如果是ipv4地址，则直接使用ip2long返回int类型ip；如果是ipv6地址，暂时不支持，直接返回0
+        $long_ip = ('ipv4' === $ip_mode) ? sprintf("%u", ip2long($ip)) : 0;
 
-    /**
-     * 检测是否是合法的IP地址
-     *
-     * @param string $ip    IP地址
-     * @param string $type  IP地址类型 (ipv4, ipv6)
-     *
-     * @return boolean
-     */
-    public function isValidIP(string $ip, string $type = ''): bool
-    {
-        switch (strtolower($type)) {
-            case 'ipv4':
-                $flag = FILTER_FLAG_IPV4;
-                break;
-            case 'ipv6':
-                $flag = FILTER_FLAG_IPV6;
-                break;
-            default:
-                $flag = null;
-                break;
-        }
+        $ip = [$ip, $long_ip];
 
-        return boolval(filter_var($ip, FILTER_VALIDATE_IP, $flag));
-    }
-
-    /**
-     * 将IP地址转换为二进制字符串
-     *
-     * @param string $ip
-     *
-     * @return string
-     */
-    public function ip2bin(string $ip): string
-    {
-        if ($this->isValidIP($ip, 'ipv6')) {
-            $IPHex = str_split(bin2hex(inet_pton($ip)), 4);
-            foreach ($IPHex as $key => $value) {
-                $IPHex[$key] = intval($value, 16);
-            }
-            $IPBin = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', $IPHex);
-        } else {
-            $IPHex = str_split(bin2hex(inet_pton($ip)), 2);
-            foreach ($IPHex as $key => $value) {
-                $IPHex[$key] = intval($value, 16);
-            }
-            $IPBin = vsprintf('%08b%08b%08b%08b', $IPHex);
-        }
-
-        return $IPBin;
+        return $ip[$type];
     }
 
     /**
@@ -2055,15 +2000,14 @@ class Request
     /**
      * 设置当前地址的请求缓存
      * @access public
+     * @param  string $key 缓存标识，支持变量规则 ，例如 item/:name/:id
+     * @param  mixed  $expire 缓存有效期
+     * @param  array  $except 缓存排除
+     * @param  string $tag    缓存标签
      * @return mixed
      */
-    public function cache()
+    public function cache($key, $expire = null, $except = [], $tag = null)
     {
-        $key    = $this->config['request_cache'];
-        $expire = $this->config['request_cache_expire'];
-        $except = $this->config['request_cache_except'];
-        $tag    = $this->config['request_cache_tag'];
-
         if (!is_array($except)) {
             $tag    = $except;
             $except = [];
@@ -2288,7 +2232,7 @@ class Request
      * 检测请求数据的值
      * @access public
      * @param  string $name 名称
-     * @return boolean
+     * @return bool
      */
     public function __isset(string $name): bool
     {

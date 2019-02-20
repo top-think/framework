@@ -23,8 +23,6 @@ class CheckRequestCache
      */
     public function handle($event, App $app): void
     {
-        $app->request->cache($app->route->config('request_cache'),
-            $app->route->config('request_cache_expire'),
-            $app->route->config('request_cache_except'));
+        $app->request->cache();
     }
 }
