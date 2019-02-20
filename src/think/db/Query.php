@@ -1358,6 +1358,7 @@ class Query
     {
         if ('' === $option) {
             $this->options = [];
+            $this->bind    = [];
         } elseif (isset($this->options[$option])) {
             unset($this->options[$option]);
         }
