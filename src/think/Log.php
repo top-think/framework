@@ -13,6 +13,8 @@ declare (strict_types = 1);
 namespace think;
 
 use Psr\Log\LoggerInterface;
+use think\facade\App;
+use think\facade\Event;
 
 class Log implements LoggerInterface
 {
@@ -56,20 +58,9 @@ class Log implements LoggerInterface
      */
     protected $allowWrite = true;
 
-    /**
-     * 应用对象
-     * @var App
-     */
-    protected $app;
-
-    public function __construct(App $app)
+    public static function __make(Config $config)
     {
-        $this->app = $app;
-    }
-
-    public static function __make(App $app, Config $config)
-    {
-        return (new static($app))->init($config->get('log'));
+        return (new static())->init($config->get('log'));
     }
 
     /**
@@ -210,13 +201,13 @@ class Log implements LoggerInterface
         $log = [];
 
         foreach ($this->log as $level => $info) {
-            if (!$this->app->isDebug() && 'debug' == $level) {
+            if (!App::isDebug() && 'debug' == $level) {
                 continue;
             }
 
             if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
                 $log[$level] = $info;
-                $this->app['event']->trigger('LogLevel', [$level, $info]);
+                Event::trigger('LogLevel', [$level, $info]);
             }
         }
 
@@ -251,7 +242,7 @@ class Log implements LoggerInterface
         }
 
         // 监听LogWrite
-        $this->app['event']->trigger('LogWrite', $log);
+        Event::trigger('LogWrite', $log);
 
         // 写入日志
         return $this->driver->save($log, false);
