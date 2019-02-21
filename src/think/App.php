@@ -618,8 +618,6 @@ class App extends Container
             'config_path'  => $this->configPath,
             'route_path'   => $this->routePath,
             'runtime_path' => $this->runtimePath,
-            'extend_path'  => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
-            'vendor_path'  => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
         ]);
     }
 
