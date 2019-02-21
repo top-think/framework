@@ -279,7 +279,7 @@ class Cookie
     private function jsonFormatProtect(&$val, $key, $type = 'encode')
     {
         if (!empty($val) && true !== $val) {
-            $val = 'decode' == $type ? urldecode($val) : urlencode($val);
+            $val = 'decode' == $type ? urldecode($val) : urlencode((string) $val);
         }
     }
 
