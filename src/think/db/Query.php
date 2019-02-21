@@ -3348,7 +3348,7 @@ class Query
         }
 
         if (isset($options['cache'])) {
-            $this->parseCache($options['cache']);
+            $options['cache'] = $this->parseCache($options['cache']);
         }
 
         $this->options = $options;
@@ -3356,7 +3356,7 @@ class Query
         return $options;
     }
 
-    protected function parseCache(array $cache): void
+    protected function parseCache(array $cache): CacheItem
     {
         list($key, $expire, $tag) = $cache;
 
@@ -3381,7 +3381,7 @@ class Query
             $cacheItem->tag($tag);
         }
 
-        $this->options['cache'] = $cacheItem;
+        return $cacheItem;
     }
 
     /**
