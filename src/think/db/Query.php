@@ -1687,6 +1687,11 @@ class Query
             return $this;
         }
 
+        if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
+            $expire = $key;
+            $key    = true;
+        }
+
         $this->options['cache'] = [$key, $expire, $tag];
 
         return $this;

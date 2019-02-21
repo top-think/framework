@@ -1894,11 +1894,6 @@ abstract class Connection
         if ($key instanceof CacheItem) {
             $cacheItem = $key;
         } else {
-            if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
-                $expire = $key;
-                $key    = true;
-            }
-
             if (true === $key) {
                 if (!empty($query->getOptions('key'))) {
                     $key = 'think:' . $this->getConfig('database') . '.' . $query->getTable() . '|' . $query->getOptions('key');
