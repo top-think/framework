@@ -16,7 +16,6 @@ use Closure;
 use PDO;
 use PDOStatement;
 use think\App;
-use think\cache\CacheItem;
 use think\Collection;
 use think\Container;
 use think\db\exception\BindParamException;
@@ -3347,41 +3346,9 @@ class Query
             $options['limit']      = $offset . ',' . $listRows;
         }
 
-        if (isset($options['cache'])) {
-            $options['cache'] = $this->parseCache($options['cache']);
-        }
-
         $this->options = $options;
 
         return $options;
-    }
-
-    protected function parseCache(array $cache): CacheItem
-    {
-        list($key, $expire, $tag) = $cache;
-
-        if ($key instanceof CacheItem) {
-            $cacheItem = $key;
-        } else {
-            if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
-                $expire = $key;
-                $key    = true;
-            }
-
-            if (true === $key) {
-                if (!empty($this->options['key'])) {
-                    $key = 'think:' . $this->getConfig('database') . '.' . $this->getTable() . '|' . $this->options['key'];
-                } else {
-                    $key = md5($this->getConfig('database') . serialize($this->options) . serialize($this->getBind(false)));
-                }
-            }
-
-            $cacheItem = new CacheItem($key);
-            $cacheItem->expire($expire);
-            $cacheItem->tag($tag);
-        }
-
-        return $cacheItem;
     }
 
     /**

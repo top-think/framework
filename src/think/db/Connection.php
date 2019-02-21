@@ -689,7 +689,7 @@ abstract class Connection
         $options = $query->parseOptions();
 
         if ($cache && !empty($options['cache'])) {
-            $cacheItem = $options['cache'];
+            $cacheItem = $this->parseCache($query, $options['cache']);
             $resultSet = $this->cache->get($cacheItem->getKey());
 
             if (false !== $resultSet) {
@@ -832,7 +832,7 @@ abstract class Connection
 
         if (!empty($options['cache'])) {
             // 判断查询缓存
-            $cacheItem = $options['cache'];
+            $cacheItem = $this->parseCache($query, $options['cache']);
             $key       = $cacheItem->getKey();
         }
 
@@ -901,7 +901,7 @@ abstract class Connection
         $options = $query->parseOptions();
 
         if (!empty($options['cache'])) {
-            $cacheItem = $options['cache'];
+            $cacheItem = $this->parseCache($query, $options['cache']);
             $resultSet = $this->getCacheData($cacheItem);
 
             if (false !== $resultSet) {
@@ -1050,7 +1050,7 @@ abstract class Connection
         $options = $query->parseOptions();
 
         if (isset($options['cache'])) {
-            $cacheItem = $options['cache'];
+            $cacheItem = $this->parseCache($query, $options['cache']);
             $key       = $cacheItem->getKey();
         }
 
@@ -1089,7 +1089,7 @@ abstract class Connection
         $options = $query->parseOptions();
 
         if (isset($options['cache'])) {
-            $cacheItem = $options['cache'];
+            $cacheItem = $this->parseCache($query, $options['cache']);
             $key       = $cacheItem->getKey();
         }
 
@@ -1137,7 +1137,7 @@ abstract class Connection
         $query->setOption('field', $field);
 
         if (!empty($options['cache'])) {
-            $cacheItem = $options['cache'];
+            $cacheItem = $this->parseCache($query, $options['cache']);
             $result    = $this->getCacheData($cacheItem);
 
             if (false !== $result) {
@@ -1216,7 +1216,7 @@ abstract class Connection
 
         if (!empty($options['cache'])) {
             // 判断查询缓存
-            $cacheItem = $options['cache'];
+            $cacheItem = $this->parseCache($query, $options['cache']);
             $result    = $this->getCacheData($cacheItem);
 
             if (false !== $result) {
@@ -1885,6 +1885,34 @@ abstract class Connection
     {
         // 判断查询缓存
         return $this->cache->get($cacheItem->getKey());
+    }
+
+    protected function parseCache(Query $query, array $cache): CacheItem
+    {
+        list($key, $expire, $tag) = $cache;
+
+        if ($key instanceof CacheItem) {
+            $cacheItem = $key;
+        } else {
+            if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
+                $expire = $key;
+                $key    = true;
+            }
+
+            if (true === $key) {
+                if (!empty($query->getOptions('key'))) {
+                    $key = 'think:' . $this->getConfig('database') . '.' . $query->getTable() . '|' . $query->getOptions('key');
+                } else {
+                    $key = md5($this->getConfig('database') . serialize($query->getOptions()) . serialize($query->getBind(false)));
+                }
+            }
+
+            $cacheItem = new CacheItem($key);
+            $cacheItem->expire($expire);
+            $cacheItem->tag($tag);
+        }
+
+        return $cacheItem;
     }
 
     /**
