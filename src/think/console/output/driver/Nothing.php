@@ -21,7 +21,7 @@ class Nothing
         // do nothing
     }
 
-    public function write($messages, $newline = false, $options = Output::OUTPUT_NORMAL)
+    public function write($messages, bool $newline = false, int $options = 0)
     {
         // do nothing
     }
