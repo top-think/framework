@@ -73,7 +73,7 @@ class Query
      * @var array
      */
     protected $paginateConfig = [
-        'query'     => '', //url额外参数
+        'query'     => [], //url额外参数
         'fragment'  => '', //url锚点
         'type'      => 'bootstrap', //分页类名
         'var_page'  => 'page', //分页变量
@@ -2185,18 +2185,17 @@ class Query
      * @param  string  $name  绑定标识
      * @return $this|string
      */
-    public function bind($value, int $type = PDO::PARAM_STR, string $name = null)
+    public function bind($value, int $type = null, string $name = null)
     {
         if (is_array($value)) {
             $this->bind = array_merge($this->bind, $value);
+            return $this;
         } else {
             $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1) . '_';
 
-            $this->bind[$name] = [$value, $type];
+            $this->bind[$name] = [$value, $type ?: PDO::PARAM_STR];
             return $name;
         }
-
-        return $this;
     }
 
     /**
