@@ -344,17 +344,25 @@ class Route
     }
 
     /**
+     * 读取路由绑定信息
+     * @access public
+     * @return array
+     */
+    public function getBind(): array
+    {
+        return $this->bind;
+    }
+
+    /**
      * 读取路由绑定
      * @access public
-     * @param  string|true    $domain 域名
-     * @return array|string|null
+     * @param  string    $domain 域名
+     * @return string|null
      */
-    public function getBind($domain = null)
+    public function getDomainBind(string $domain = null)
     {
         if (is_null($domain)) {
             $domain = $this->domain;
-        } elseif (true === $domain) {
-            return $this->bind;
         } elseif (false === strpos($domain, '.')) {
             $domain .= '.' . $this->request->rootDomain();
         }

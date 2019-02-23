@@ -88,9 +88,9 @@ class Domain extends RuleGroup
      */
     private function checkUrlBind(Request $request, string $url)
     {
-        $bind = $this->router->getBind($this->domain);
+        $bind = $this->router->getDomainBind($this->domain);
 
-        if (!empty($bind)) {
+        if ($bind) {
             $this->parseBindAppendParam($bind);
 
             // 记录绑定信息

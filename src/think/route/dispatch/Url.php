@@ -38,9 +38,9 @@ class Url extends Dispatch
     protected function parseUrl(string $url): array
     {
         $depr = $this->rule->config('pathinfo_depr');
-        $bind = $this->rule->getRouter()->getBind();
+        $bind = $this->rule->getRouter()->getDomainBind();
 
-        if (!empty($bind) && preg_match('/^[a-z]/is', $bind)) {
+        if ($bind && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
             // 如果有模块/控制器绑定
             $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
@@ -80,7 +80,7 @@ class Url extends Dispatch
         // 封装路由
         $route = [$controller, $action];
 
-        if ($this->hasDefinedRoute($route, $bind)) {
+        if ($this->hasDefinedRoute($route)) {
             throw new HttpException(404, 'invalid request:' . str_replace('|', $depr, $url));
         }
 
@@ -91,10 +91,9 @@ class Url extends Dispatch
      * 检查URL是否已经定义过路由
      * @access protected
      * @param  array     $route  路由信息
-     * @param  string    $bind   绑定信息
      * @return bool
      */
-    protected function hasDefinedRoute(array $route, string $bind = null): bool
+    protected function hasDefinedRoute(array $route): bool
     {
         list($controller, $action) = $route;
 

@@ -143,12 +143,12 @@ class Url
         } else {
             // 检测URL绑定
             if (!$this->bindCheck) {
-                $bind = $this->app->route->getBind($domain && is_string($domain) ? $domain : null);
+                $bind = $this->app->route->getDomainBind($domain && is_string($domain) ? $domain : null);
 
                 if ($bind && 0 === strpos($url, $bind)) {
                     $url = substr($url, strlen($bind) + 1);
                 } else {
-                    $binds = $this->app->route->getBind(true);
+                    $binds = $this->app->route->getBind();
 
                     foreach ($binds as $key => $val) {
                         if (is_string($val) && 0 === strpos($url, $val) && substr_count($val, '/') > 1) {

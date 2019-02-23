@@ -316,7 +316,7 @@ class Query
      * @access public
      * @return array
      */
-    public function getFieldsType()
+    public function getFieldsType(): array
     {
         return !empty($this->options['field_type']) ? $this->options['field_type'] : $this->getTableFieldsType();
     }
@@ -339,7 +339,7 @@ class Query
      * @access public
      * @return array
      */
-    public function getFieldsBindType()
+    public function getFieldsBindType(): array
     {
         $fieldType = $this->getFieldsType();
 
@@ -350,9 +350,9 @@ class Query
      * 获取字段类型信息
      * @access public
      * @param  string $field 字段名
-     * @return string|null
+     * @return int
      */
-    public function getFieldBindType(string $field)
+    public function getFieldBindType(string $field): int
     {
         $fieldType = $this->getFieldType($field);
 

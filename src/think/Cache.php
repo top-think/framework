@@ -144,6 +144,17 @@ class Cache implements CacheItemPoolInterface
     }
 
     /**
+     * 缓存标签
+     * @access public
+     * @param  string|array        $name 标签名
+     * @return $this
+     */
+    public function tag($name)
+    {
+        return $this->init()->tag($name);
+    }
+
+    /**
      * 返回「键」对应的一个缓存项。
      * @access public
      * @param  string $key 缓存标识

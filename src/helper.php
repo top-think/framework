@@ -508,16 +508,16 @@ if (!function_exists('session')) {
             Session::init($name);
         } elseif (is_null($name)) {
             // 清除
-            Session::clear($value);
+            Session::clear();
         } elseif ('' === $value) {
             // 判断或获取
-            return 0 === strpos($name, '?') ? Session::has(substr($name, 1), $prefix) : Session::get($name, $prefix);
+            return 0 === strpos($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
         } elseif (is_null($value)) {
             // 删除
-            return Session::delete($name, $prefix);
+            return Session::delete($name);
         } else {
             // 设置
-            return Session::set($name, $value, $prefix);
+            return Session::set($name, $value);
         }
     }
 }

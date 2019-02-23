@@ -415,7 +415,7 @@ class BelongsToMany extends Relation
 
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             [
-                'pivot.' . $this->localKey, 'exp', new Raw('=' . $this->parent->getTable() . '.' . $this->parent->getPk()),
+                'pivot.' . $this->localKey, 'exp', new Raw('=' . $this->parent->db(false)->getTable() . '.' . $this->parent->getPk()),
             ],
         ])->fetchSql()->$aggregate($field);
     }
@@ -473,8 +473,8 @@ class BelongsToMany extends Relation
     protected function belongsToManyQuery(string $foreignKey, string $localKey, array $condition = []): Query
     {
         // 关联查询封装
-        $tableName = $this->query->getTable();
-        $table     = $this->pivot->getTable();
+        $tableName = $this->query->db()->getTable();
+        $table     = $this->pivot->db()->getTable();
         $fields    = $this->getQueryFields($tableName);
 
         $query = $this->query
