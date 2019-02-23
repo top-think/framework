@@ -19,6 +19,22 @@ use think\route\Dispatch;
 
 /**
  * App 应用管理
+ * @property Route $route
+ * @property Config $config
+ * @property Request $request
+ * @property Env $env
+ * @property Debug $debug
+ * @property Event $event
+ * @property Middleware $middleware
+ * @property Log $log
+ * @property Lang $lang
+ * @property Db $db
+ * @property Cookie $cookie
+ * @property Session $session
+ * @property Url $url
+ * @property Validate $validate
+ * @property Build $build
+ * @property \think\route\RuleName $rule_name
  */
 class App extends Container
 {

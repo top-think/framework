@@ -245,15 +245,16 @@ abstract class Rule
      * 获取路由参数定义
      * @access public
      * @param  string  $name 参数名
+     * @param  mixed   $default 默认值
      * @return mixed
      */
-    public function getOption(string $name = '')
+    public function getOption(string $name = '', $default = null)
     {
         if ('' === $name) {
             return $this->option;
         }
 
-        return $this->option[$name] ?? null;
+        return $this->option[$name] ?? $default;
     }
 
     /**
@@ -350,7 +351,7 @@ abstract class Rule
      */
     public function filter(array $filter)
     {
-        $this->option['filter'] = $name;
+        $this->option['filter'] = $filter;
 
         return $this;
     }
@@ -358,9 +359,9 @@ abstract class Rule
     /**
      * 绑定模型
      * @access public
-     * @param  array|string      $var  路由变量名 多个使用 & 分割
-     * @param  string|\Closure   $model 绑定模型类
-     * @param  bool              $exception 是否抛出异常
+     * @param  array|string|\Closure    $var  路由变量名 多个使用 & 分割
+     * @param  string|\Closure          $model 绑定模型类
+     * @param  bool                     $exception 是否抛出异常
      * @return $this
      */
     public function model($var, $model = null, bool $exception = true)
@@ -539,6 +540,17 @@ abstract class Rule
     public function redirect(bool $redirect = true)
     {
         return $this->setOption('redirect', $redirect);
+    }
+
+    /**
+     * 设置status
+     * @access public
+     * @param  int   $status
+     * @return $this
+     */
+    public function status(int $status)
+    {
+        return $this->setOption('status', $status);
     }
 
     /**

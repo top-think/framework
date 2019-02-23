@@ -47,7 +47,7 @@ class Db
 
     public static function __make(Config $config)
     {
-        return new static($config->get('database'));
+        return new static($config->get('database', []));
     }
 
     /**
@@ -122,7 +122,7 @@ class Db
      * @param  mixed  $connection   连接配置信息
      * @return mixed
      */
-    public function buildQuery($query, $connection)
+    public function buildQuery(string $query, $connection)
     {
         $connection = Connection::instance($this->parseConfig($connection));
         return new $query($connection);

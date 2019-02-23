@@ -125,7 +125,7 @@ class RuleGroup extends Rule
 
         // 解析分组路由
         if ($this instanceof Resource) {
-            $this->buildResourceRule($this->resource, $this->option);
+            $this->buildResourceRule();
         } elseif ($this->rule) {
             if ($this->rule instanceof Response) {
                 return new ResponseDispatch($request, $this, $this->rule);
@@ -267,8 +267,10 @@ class RuleGroup extends Rule
      */
     protected function checkMergeRuleRegex(Request $request, array &$rules, string $url, bool $completeMatch)
     {
-        $depr = $this->router->config('pathinfo_depr');
-        $url  = $depr . str_replace('|', $depr, $url);
+        $depr  = $this->router->config('pathinfo_depr');
+        $url   = $depr . str_replace('|', $depr, $url);
+        $regex = [];
+        $items = [];
 
         foreach ($rules as $key => $item) {
             if ($item instanceof RuleItem) {
@@ -278,7 +280,7 @@ class RuleGroup extends Rule
                     continue;
                 }
 
-                $complete = null !== $item->getOption('complete_match') ? $item->getOption('complete_match') : $completeMatch;
+                $complete = $item->getOption('complete_match', $completeMatch);
 
                 if (false === strpos($rule, '<')) {
                     if (0 === strcasecmp($rule, $url) || (!$complete && 0 === strncasecmp($rule, $url, strlen($rule)))) {
@@ -414,10 +416,7 @@ class RuleGroup extends Rule
     public function addRule(string $rule, $route = null, string $method = '*'): RuleItem
     {
         // 读取路由标识
-        if (is_array($rule)) {
-            $name = $rule[0];
-            $rule = $rule[1];
-        } elseif (is_string($route)) {
+        if (is_string($route)) {
             $name = $route;
         } else {
             $name = null;

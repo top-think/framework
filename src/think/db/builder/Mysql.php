@@ -410,7 +410,7 @@ class Mysql extends Builder
             } elseif ($val instanceof Raw) {
                 $updates[] = $this->parseKey($query, $key) . " = " . $val->getValue();
             } else {
-                $name      = $query->bind($val, $query->getFieldBindType($key));
+                $name      = $query->bindValue($val, $query->getFieldBindType($key));
                 $updates[] = $this->parseKey($query, $key) . " = :" . $name;
             }
         }

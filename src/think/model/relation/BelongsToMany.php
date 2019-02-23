@@ -15,6 +15,7 @@ use Closure;
 use think\App;
 use think\Collection;
 use think\db\Query;
+use think\db\Raw;
 use think\Exception;
 use think\Model;
 use think\model\Pivot;
@@ -196,9 +197,9 @@ class BelongsToMany extends Relation
     /**
      * 重载paginate方法
      * @access public
-     * @param  null  $listRows
-     * @param  bool  $simple
-     * @param  array $config
+     * @param  int|array    $listRows
+     * @param  int|bool     $simple
+     * @param  array        $config
      * @return Paginator
      */
     public function paginate($listRows = null, $simple = false, $config = []): Paginator
@@ -219,7 +220,7 @@ class BelongsToMany extends Relation
     {
         $result = $this->buildQuery()->find($data);
 
-        if ($result) {
+        if (!$result->isEmpty()) {
             $this->hydratePivot([$result]);
         }
 
@@ -234,7 +235,7 @@ class BelongsToMany extends Relation
      */
     public function selectOrFail($data = null): Collection
     {
-        return $this->failException(true)->select($data);
+        return $this->buildQuery()->failException(true)->select($data);
     }
 
     /**
@@ -245,7 +246,7 @@ class BelongsToMany extends Relation
      */
     public function findOrFail($data = null): Model
     {
-        return $this->failException(true)->find($data);
+        return $this->buildQuery()->failException(true)->find($data);
     }
 
     /**
@@ -255,9 +256,9 @@ class BelongsToMany extends Relation
      * @param  integer $count    个数
      * @param  string  $id       关联表的统计字段
      * @param  string  $joinType JOIN类型
-     * @return Query
+     * @return Model
      */
-    public function has(string $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER'): Query
+    public function has(string $operator = '>=', $count = 1, $id = '*', string $joinType = 'INNER')
     {
         return $this->parent;
     }
@@ -300,11 +301,10 @@ class BelongsToMany extends Relation
      */
     public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation, Closure $closure = null): void
     {
-        $localKey   = $this->localKey;
-        $foreignKey = $this->foreignKey;
+        $localKey = $this->localKey;
+        $pk       = $resultSet[0]->getPk();
+        $range    = [];
 
-        $pk    = $resultSet[0]->getPk();
-        $range = [];
         foreach ($resultSet as $result) {
             // 获取关联外键列表
             if (isset($result->$pk)) {
@@ -415,7 +415,7 @@ class BelongsToMany extends Relation
 
         return $this->belongsToManyQuery($this->foreignKey, $this->localKey, [
             [
-                'pivot.' . $this->localKey, 'exp', $this->query->raw('=' . $this->parent->getTable() . '.' . $this->parent->getPk()),
+                'pivot.' . $this->localKey, 'exp', new Raw('=' . $this->parent->getTable() . '.' . $this->parent->getPk()),
             ],
         ])->fetchSql()->$aggregate($field);
     }

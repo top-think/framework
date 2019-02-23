@@ -128,7 +128,7 @@ abstract class Builder
 
         // 获取绑定信息
         if (empty($bind)) {
-            $bind = $query->getFieldBindType();
+            $bind = $query->getFieldsBindType();
         }
 
         if (empty($fields)) {
@@ -197,7 +197,7 @@ abstract class Builder
             return $data->getValue();
         }
 
-        $name = $query->bind($data, $bind[$key] ?? PDO::PARAM_STR);
+        $name = $query->bindValue($data, $bind[$key] ?? PDO::PARAM_STR);
 
         return ':' . $name;
     }
@@ -240,9 +240,7 @@ abstract class Builder
      */
     protected function parseField(Query $query, $fields): string
     {
-        if ('*' == $fields || empty($fields)) {
-            $fieldsStr = '*';
-        } elseif (is_array($fields)) {
+        if (is_array($fields)) {
             // 支持 'field1'=>'field2' 这样的字段别名定义
             $array = [];
 
@@ -257,6 +255,8 @@ abstract class Builder
             }
 
             $fieldsStr = implode(',', $array);
+        } else {
+            $fieldsStr = '*';
         }
 
         return $fieldsStr;
@@ -305,7 +305,7 @@ abstract class Builder
             // 附加软删除条件
             list($field, $condition) = $options['soft_delete'];
 
-            $binds    = $query->getFieldBindType();
+            $binds    = $query->getFieldsBindType();
             $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
             $whereStr = $whereStr . $this->parseWhereItem($query, $field, $condition, '', $binds);
         }
@@ -328,7 +328,7 @@ abstract class Builder
 
         $whereStr = '';
 
-        $binds = $query->getFieldBindType();
+        $binds = $query->getFieldsBindType();
 
         foreach ($where as $logic => $val) {
             $str = [];
@@ -352,7 +352,7 @@ abstract class Builder
                     // 使用闭包查询
                     $newQuery = $query->newQuery()->setConnection($this->connection);
                     $value($newQuery);
-                    $whereClause = $this->buildWhere($query, $newQuery->getOptions('where'));
+                    $whereClause = $this->buildWhere($query, $newQuery->getOptions('where') ?: []);
 
                     if (!empty($whereClause)) {
                         $str[] = ' ' . $logic . ' ( ' . $whereClause . ' )';
@@ -444,7 +444,7 @@ abstract class Builder
         }
 
         if ($value instanceof Expression) {
-            return $value->parse($query, $key, $exp, $field, $bindType, $val[2] ?? 'AND');
+            return $value->parse($query, $key, $exp, $field, $bindType);
         }
 
         if ($value instanceof Raw) {
@@ -457,7 +457,7 @@ abstract class Builder
         if (is_scalar($value) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
             if (is_string($value) && 0 === strpos($value, ':') && $query->isBind(substr($value, 1))) {
             } else {
-                $name  = $query->bind($value, $bindType);
+                $name  = $query->bindValue($value, $bindType);
                 $value = ':' . $name;
             }
         }
@@ -494,7 +494,7 @@ abstract class Builder
         // 模糊匹配
         if (is_array($value)) {
             foreach ($value as $item) {
-                $name    = $query->bind($item, $bindType);
+                $name    = $query->bindValue($item, $bindType);
                 $array[] = $key . ' ' . $exp . ' :' . $name;
             }
 
@@ -579,8 +579,8 @@ abstract class Builder
         // BETWEEN 查询
         $data = is_array($value) ? $value : explode(',', $value);
 
-        $min = $query->bind($data[0], $bindType);
-        $max = $query->bind($data[1], $bindType);
+        $min = $query->bindValue($data[0], $bindType);
+        $max = $query->bindValue($data[1], $bindType);
 
         return $key . ' ' . $exp . ' :' . $min . ' AND :' . $max . ' ';
     }
@@ -698,7 +698,7 @@ abstract class Builder
             $array = [];
 
             foreach ($value as $v) {
-                $name    = $query->bind($v, $bindType);
+                $name    = $query->bindValue($v, $bindType);
                 $array[] = ':' . $name;
             }
 
@@ -753,23 +753,22 @@ abstract class Builder
 
         if (isset($type[$key])) {
             $info = $type[$key];
-        }
-
-        if (isset($info)) {
             if (is_string($value)) {
                 $value = strtotime($value) ?: $value;
             }
 
-            if (preg_match('/(datetime|timestamp)/is', $info)) {
-                // 日期及时间戳类型
-                $value = date('Y-m-d H:i:s', $value);
-            } elseif (preg_match('/(date)/is', $info)) {
-                // 日期及时间戳类型
-                $value = date('Y-m-d', $value);
+            if (is_int($value)) {
+                if (preg_match('/(datetime|timestamp)/is', $info)) {
+                    // 日期及时间戳类型
+                    $value = date('Y-m-d H:i:s', $value);
+                } elseif (preg_match('/(date)/is', $info)) {
+                    // 日期及时间戳类型
+                    $value = date('Y-m-d', $value);
+                }
             }
         }
 
-        $name = $query->bind($value, $bindType);
+        $name = $query->bindValue($value, $bindType);
 
         return ':' . $name;
     }
@@ -853,6 +852,17 @@ abstract class Builder
     }
 
     /**
+     * 随机排序
+     * @access protected
+     * @param  Query     $query        查询对象
+     * @return string
+     */
+    protected function parseRand(Query $query): string
+    {
+        return '';
+    }
+
+    /**
      * orderField分析
      * @access protected
      * @param  Query     $query        查询对象
@@ -871,7 +881,7 @@ abstract class Builder
 
         $sort = strtoupper($sort);
         $sort = in_array($sort, ['ASC', 'DESC'], true) ? ' ' . $sort : '';
-        $bind = $query->getFieldBindType();
+        $bind = $query->getFieldsBindType();
 
         foreach ($val as $item) {
             $val[] = $this->parseDataBind($query, $key, $item, $bind);
@@ -1006,6 +1016,8 @@ abstract class Builder
 
         if (is_string($lock) && !empty($lock)) {
             return ' ' . trim($lock) . ' ';
+        } else {
+            return '';
         }
     }
 
@@ -1094,7 +1106,7 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $query->getFieldBindType();
+        $bind = $query->getFieldsBindType();
 
         foreach ($dataSet as $k => $data) {
             $data = $this->parseData($query, $data, $allowFields, $bind, '_' . $k);

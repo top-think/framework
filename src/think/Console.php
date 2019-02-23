@@ -89,7 +89,7 @@ class Console
 
         $user = posix_getpwnam($user);
 
-        if ($user) {
+        if (!empty($user)) {
             posix_setuid($user['uid']);
             posix_setgid($user['gid']);
         }
@@ -106,7 +106,7 @@ class Console
         static $console;
 
         if (!$console) {
-            $config  = Container::pull('config')->get('console');
+            $config  = Container::pull('config')->get('console', []);
             $console = new self($config['name'] ?? 'Think Console', $config['version'] ?? '0.2', $config['user'] ?? null);
 
             $commands = $console->getDefinedCommands($config);
@@ -138,7 +138,7 @@ class Console
             // 自动加载指令类
             $files = glob($path . 'command' . DIRECTORY_SEPARATOR . '*.php');
 
-            if ($files) {
+            if (!empty($files)) {
                 $beforeClass = get_declared_classes();
 
                 foreach ($files as $file) {
@@ -406,7 +406,7 @@ class Console
      * @param  string   $name       指令名 留空则自动获取
      * @return Command
      */
-    public function add($command, $name)
+    public function add($command, string $name = '')
     {
         if ($name) {
             $this->commands[$name] = $command;
@@ -725,15 +725,15 @@ class Console
      * 返回命名空间部分
      * @access public
      * @param  string $name  指令
-     * @param  string $limit 部分的命名空间的最大数量
+     * @param  int    $limit 部分的命名空间的最大数量
      * @return string
      */
-    public function extractNamespace(string $name, $limit = null)
+    public function extractNamespace(string $name, int $limit = 0)
     {
         $parts = explode(':', $name);
         array_pop($parts);
 
-        return implode(':', null === $limit ? $parts : array_slice($parts, 0, $limit));
+        return implode(':', 0 === $limit ? $parts : array_slice($parts, 0, $limit));
     }
 
     /**

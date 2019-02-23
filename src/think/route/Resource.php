@@ -53,19 +53,19 @@ class Resource extends RuleGroup
         }
 
         if ($router->isTest()) {
-            $this->buildResourceRule($this->resource, $this->option);
+            $this->buildResourceRule();
         }
     }
 
     /**
      * 生成资源路由规则
      * @access protected
-     * @param  string    $rule       路由规则
-     * @param  array     $option     路由参数
      * @return void
      */
-    protected function buildResourceRule(string $rule, array $option = []): void
+    protected function buildResourceRule(): void
     {
+        $rule   = $this->resource;
+        $option = $this->option;
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
 

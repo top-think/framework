@@ -59,7 +59,7 @@ class Session
 
     public static function __make(Config $config)
     {
-        return new static($config->get('session'));
+        return new static($config->get('session', []));
     }
 
     /**

@@ -19,6 +19,10 @@ use IteratorAggregate;
 use JsonSerializable;
 use Traversable;
 
+/**
+ * @method array all()
+ * @method array toArray()
+ */
 abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
     /**
@@ -74,7 +78,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
         'fragment' => '',
     ];
 
-    public function __construct($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
+    public function __construct($items, int $listRows, int $currentPage = 1, int $total = null, bool $simple = false, array $options = [])
     {
         $this->options = array_merge($this->options, $options);
 
@@ -110,7 +114,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @param array $options
      * @return Paginator
      */
-    public static function make($items, $listRows, $currentPage = null, $total = null, $simple = false, $options = [])
+    public static function make($items, int $listRows, int $currentPage = 1, int $total = null, bool $simple = false, array $options = [])
     {
         return new static($items, $listRows, $currentPage, $total, $simple, $options);
     }
@@ -249,7 +253,7 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * @param  string|null $fragment
      * @return $this
      */
-    public function fragment($fragment)
+    public function fragment(string $fragment = null)
     {
         $this->options['fragment'] = $fragment;
 
@@ -260,19 +264,12 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
      * 添加URL参数
      *
      * @access public
-     * @param  array|string $key
-     * @param  string|null  $value
+     * @param  array $append
      * @return $this
      */
-    public function appends($key, $value = null)
+    public function appends(array $append)
     {
-        if (!is_array($key)) {
-            $queries = [$key => $value];
-        } else {
-            $queries = $key;
-        }
-
-        foreach ($queries as $k => $v) {
+        foreach ($append as $k => $v) {
             if ($k !== $this->options['var_page']) {
                 $this->options['query'][$k] = $v;
             }

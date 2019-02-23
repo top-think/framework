@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use think\exception\HttpResponseException;
 use think\facade\Cookie;
 use think\facade\Session;
 use think\route\Dispatch;
@@ -66,6 +67,12 @@ class Request
      * @var string
      */
     protected $domain;
+
+    /**
+     * HOST（含端口）
+     * @var string
+     */
+    protected $host;
 
     /**
      * 子域名
@@ -330,7 +337,7 @@ class Request
 
     public static function __make(App $app, Config $config)
     {
-        $request = new static($config->get('route'));
+        $request = new static($config->get('route', []));
 
         $request->cookie = $app['cookie']->get();
         $request->server = $_SERVER;
@@ -925,7 +932,7 @@ class Request
     /**
      * 获取当前请求的参数
      * @access public
-     * @param  string        $name 变量名
+     * @param  string|array  $name 变量名
      * @param  mixed         $default 默认值
      * @param  string|array  $filter 过滤方法
      * @return mixed
@@ -950,7 +957,7 @@ class Request
             }
 
             // 当前请求参数和URL地址中的参数合并
-            $this->param = array_merge($this->param, $this->get(false), $vars, $this->route(false), $this->file() ?: []);
+            $this->param = array_merge($this->param, $this->get(false), $vars, $this->route(false));
 
             $this->mergeParam = true;
         }
@@ -1219,10 +1226,10 @@ class Request
     /**
      * 获取上传的文件信息
      * @access public
-     * @param  string|array $name 名称
+     * @param  string $name 名称
      * @return null|array|\think\File
      */
-    public function file($name = '')
+    public function file(string $name = '')
     {
         if (empty($this->file)) {
             $this->file = $_FILES ?? [];
@@ -1645,7 +1652,7 @@ class Request
             return $this->realIP;
         }
 
-        $this->realIP = $this->server('REMOTE_ADDR');
+        $this->realIP = $this->server('REMOTE_ADDR', '');
 
         // 如果指定了前端代理服务器IP以及其会发送的IP头
         // 则尝试获取前端代理服务器发送过来的真实IP
@@ -1689,7 +1696,7 @@ class Request
                         continue;
                     }
 
-                    if (strncmp($realIPBin, $serverIPBin, $serverIPPrefix) === 0) {
+                    if (strncmp($realIPBin, $serverIPBin, (int) $serverIPPrefix) === 0) {
                         $this->realIP = $tempIP;
                         break;
                     }
@@ -1792,7 +1799,7 @@ class Request
      */
     public function query(): string
     {
-        return $this->server('QUERY_STRING');
+        return $this->server('QUERY_STRING', '');
     }
 
     /**
@@ -1828,7 +1835,7 @@ class Request
      */
     public function port(): string
     {
-        return $this->server('SERVER_PORT');
+        return $this->server('SERVER_PORT', '');
     }
 
     /**
@@ -1838,7 +1845,7 @@ class Request
      */
     public function protocol(): string
     {
-        return $this->server('SERVER_PROTOCOL');
+        return $this->server('SERVER_PROTOCOL', '');
     }
 
     /**
@@ -1848,7 +1855,7 @@ class Request
      */
     public function remotePort(): string
     {
-        return $this->server('REMOTE_PORT');
+        return $this->server('REMOTE_PORT', '');
     }
 
     /**

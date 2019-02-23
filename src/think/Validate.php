@@ -110,9 +110,9 @@ class Validate
 
     /**
      * 当前验证场景
-     * @var array
+     * @var string
      */
-    protected $currentScene = null;
+    protected $currentScene;
 
     /**
      * 内置正则验证规则
@@ -243,11 +243,11 @@ class Validate
     /**
      * 注册扩展验证（类型）规则
      * @access public
-     * @param  string    $type  验证规则类型
-     * @param  mixed     $callback callback方法(或闭包)
+     * @param  string|array    $type  验证规则类型
+     * @param  callable        $callback callback方法(或闭包)
      * @return void
      */
-    public static function extend(string $type, callable $callback = null): void
+    public static function extend($type, callable $callback = null): void
     {
         if (is_array($type)) {
             self::$type = array_merge(self::$type, $type);
@@ -600,7 +600,7 @@ class Validate
                     $result = str_replace(':attribute', $title, $result);
 
                     if (strpos($result, ':rule') && is_scalar($rule)) {
-                        $msg = str_replace(':rule', (string) $rule, $result);
+                        $result = str_replace(':rule', (string) $rule, $result);
                     }
                 }
 
@@ -1030,6 +1030,7 @@ class Validate
         }
 
         $key = $rule[1] ?? $field;
+        $map = [];
 
         if (strpos($key, '^')) {
             // 支持多个字段验证

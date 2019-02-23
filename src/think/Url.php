@@ -62,19 +62,19 @@ class Url
 
     public static function __make(App $app, Config $config)
     {
-        return new static($app, $config->get('route'));
+        return new static($app, $config->get('route', []));
     }
 
     /**
      * URL生成 支持路由反射
      * @access public
      * @param  string            $url 路由地址
-     * @param  array             $vars 参数 ['a'=>'val1', 'b'=>'val2']
+     * @param  array|string      $vars 参数 ['a'=>'val1', 'b'=>'val2']
      * @param  string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
      * @param  bool|string       $domain 是否显示域名 或者直接传入域名
      * @return string
      */
-    public function build(string $url = '', array $vars = [], $suffix = true, $domain = false): string
+    public function build(string $url = '', $vars = [], $suffix = true, $domain = false): string
     {
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {

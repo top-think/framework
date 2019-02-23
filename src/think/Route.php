@@ -347,7 +347,7 @@ class Route
      * 读取路由绑定
      * @access public
      * @param  string|true    $domain 域名
-     * @return string|null
+     * @return array|string|null
      */
     public function getBind($domain = null)
     {
@@ -475,8 +475,8 @@ class Route
     /**
      * 注册路由分组
      * @access public
-     * @param  string|array      $name       分组名称或者参数
-     * @param  mixed             $route      分组路由
+     * @param  string|\Closure    $name       分组名称或者参数
+     * @param  mixed              $route      分组路由
      * @return RuleGroup
      */
     public function group($name, $route = null): RuleGroup
@@ -605,7 +605,7 @@ class Route
     /**
      * rest方法定义和修改
      * @access public
-     * @param  string        $name 方法名称
+     * @param  string|array  $name 方法名称
      * @param  array|bool    $resource 资源
      * @return $this
      */

@@ -21,6 +21,30 @@ use think\facade\Db;
  * Class Model
  * @package think
  * @mixin Query
+ * @method Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
+ * @method Query whereRaw(string $where, array $bind = []) static 表达式查询
+ * @method Query whereExp(string $field, string $condition, array $bind = []) static 字段表达式查询
+ * @method Query when(mixed $condition, mixed $query, mixed $otherwise = null) static 条件查询
+ * @method Query join(mixed $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
+ * @method Query view(mixed $join, mixed $field = null, mixed $on = null, string $type = 'INNER') static 视图查询
+ * @method Query with(mixed $with) static 关联预载入
+ * @method Query count(string $field) static Count统计查询
+ * @method Query min(string $field) static Min统计查询
+ * @method Query max(string $field) static Max统计查询
+ * @method Query sum(string $field) static SUM统计查询
+ * @method Query avg(string $field) static Avg统计查询
+ * @method Query field(mixed $field, boolean $except = false) static 指定查询字段
+ * @method Query fieldRaw(string $field, array $bind = []) static 指定查询字段
+ * @method Query union(mixed $union, boolean $all = false) static UNION查询
+ * @method Query limit(mixed $offset, integer $length = null) static 查询LIMIT
+ * @method Query order(mixed $field, string $order = null) static 查询ORDER
+ * @method Query orderRaw(string $field, array $bind = []) static 查询ORDER
+ * @method Query cache(mixed $key = null , integer $expire = null) static 设置查询缓存
+ * @method mixed value(string $field) static 获取某个字段的值
+ * @method array column(string $field, string $key = '') static 获取某个列的值
+ * @method mixed find(mixed $data = null) static 查询单个记录
+ * @method mixed select(mixed $data = null) static 查询多个记录
+ * @method \think\Model withAttr(array $name,\Closure $closure) 动态定义获取器
  */
 abstract class Model implements JsonSerializable, ArrayAccess
 {
@@ -135,7 +159,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     {
         $this->data = $data;
 
-        if ($this->data) {
+        if (!empty($this->data)) {
             // 废弃字段
             foreach ((array) $this->disuse as $key) {
                 if (array_key_exists($key, $this->data)) {
@@ -258,9 +282,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
         }
 
         // 全局作用域
-        $globalScope = is_array($scope) && $scope ? $scope : $this->globalScope;
+        $globalScope = is_array($scope) && !empty($scope) ? $scope : $this->globalScope;
 
-        if ($globalScope && false !== $scope) {
+        if (!empty($globalScope) && false !== $scope) {
             $query->scope($globalScope);
         }
 
@@ -367,7 +391,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     public function reflesh(bool $relation = false)
     {
         if ($this->exists) {
-            $this->data   = $this->fetchArray()->find($this->getKey());
+            $this->data   = $this->db()->fetchArray()->find($this->getKey());
             $this->origin = $this->data;
 
             if ($relation) {
@@ -472,7 +496,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     {
         // 检测字段
         if (empty($this->field)) {
-            if ($this->schema) {
+            if (!empty($this->schema)) {
                 $this->field = array_keys($this->schema);
             } else {
                 $query = $this->db();
@@ -490,7 +514,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             array_push($field, $this->createTime, $this->updateTime);
         }
 
-        if ($this->disuse) {
+        if (!empty($this->disuse)) {
             // 废弃字段
             $field = array_diff($field, $this->disuse);
         }
@@ -662,7 +686,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $pk = $this->getPk();
 
         if (is_string($pk) && isset($this->data[$pk])) {
-            $where[] = [$pk, '=', $this->data[$pk]];
+            $where = [[$pk, '=', $this->data[$pk]]];
         } elseif (!empty($this->updateWhere)) {
             $where = $this->updateWhere;
         } else {
@@ -748,7 +772,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
         try {
             // 删除当前模型数据
-            $result = $db->where($where)->delete();
+            $db->where($where)->delete();
 
             // 关联删除
             if (!empty($this->relationWrite)) {
@@ -850,8 +874,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
         $resultSet = $query->select($data);
 
-        foreach ($resultSet as $data) {
-            $data->force($force)->delete();
+        foreach ($resultSet as $result) {
+            $result->force($force)->delete();
         }
 
         return true;

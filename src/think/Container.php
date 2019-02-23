@@ -411,6 +411,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         reset($vars);
         $type   = key($vars) === 0 ? 1 : 0;
         $params = $reflect->getParameters();
+        $args   = [];
 
         foreach ($params as $param) {
             $name      = $param->getName();

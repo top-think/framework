@@ -314,18 +314,11 @@ class Query
     /**
      * 获取字段类型信息
      * @access public
-     * @param  string $field 字段名
-     * @return string|null
+     * @return array
      */
-    public function getFieldType(string $field = null)
+    public function getFieldsType()
     {
-        $fieldType = !empty($this->options['field_type']) ? $this->options['field_type'] : $this->getTableFieldsType();
-
-        if (is_null($field)) {
-            return $fieldType;
-        }
-
-        return $fieldType[$field] ?? null;
+        return !empty($this->options['field_type']) ? $this->options['field_type'] : $this->getTableFieldsType();
     }
 
     /**
@@ -334,15 +327,36 @@ class Query
      * @param  string $field 字段名
      * @return string|null
      */
-    public function getFieldBindType(string $field = null)
+    public function getFieldType(string $field)
+    {
+        $fieldType = $this->getFieldsType();
+
+        return $fieldType[$field] ?? null;
+    }
+
+    /**
+     * 获取字段类型信息
+     * @access public
+     * @return array
+     */
+    public function getFieldsBindType()
+    {
+        $fieldType = $this->getFieldsType();
+
+        return array_map([$this->connection, 'getFieldBindType'], $fieldType);
+    }
+
+    /**
+     * 获取字段类型信息
+     * @access public
+     * @param  string $field 字段名
+     * @return string|null
+     */
+    public function getFieldBindType(string $field)
     {
         $fieldType = $this->getFieldType($field);
 
-        if (is_null($field)) {
-            return array_map([$this->connection, 'getFieldBindType'], $fieldType);
-        }
-
-        return $this->connection->getFieldBindType($fieldType);
+        return $this->connection->getFieldBindType($fieldType ?: '');
     }
 
     /**
@@ -589,7 +603,7 @@ class Query
     {
         $table = $this->getJoinTable($join);
 
-        if ($bind) {
+        if (!empty($bind) && $condition) {
             $this->bindParams($condition, $bind);
         }
 
@@ -643,7 +657,7 @@ class Query
      * @access protected
      * @param  array|string|Raw $join
      * @param  string           $alias
-     * @return string
+     * @return string|array
      */
     protected function getJoinTable($join, &$alias = null)
     {
@@ -860,7 +874,7 @@ class Query
      * @access public
      * @param  string|array $table 数据表
      * @param  string|array $field 查询字段
-     * @param  string|array $on    JOIN条件
+     * @param  string       $on    JOIN条件
      * @param  string       $type  JOIN类型
      * @return $this
      */
@@ -1105,13 +1119,6 @@ class Query
      */
     public function whereColumn(string $field1, string $operator, string $field2 = null, string $logic = 'AND')
     {
-        if (is_array($field1)) {
-            foreach ($field1 as $item) {
-                $this->whereColumn($item[0], $item[1], $item[2] ?? null);
-            }
-            return $this;
-        }
-
         if (is_null($field2)) {
             $field2   = $operator;
             $operator = '=';
@@ -1147,7 +1154,7 @@ class Query
      */
     public function whereExp(string $field, string $where, array $bind = [], string $logic = 'AND')
     {
-        if ($bind) {
+        if (!empty($bind)) {
             $this->bindParams($where, $bind);
         }
 
@@ -1186,7 +1193,7 @@ class Query
      */
     public function whereRaw(string $where, array $bind = [], string $logic = 'AND')
     {
-        if ($bind) {
+        if (!empty($bind)) {
             $this->bindParams($where, $bind);
         }
 
@@ -1244,7 +1251,7 @@ class Query
             if (preg_match('/[,=\<\'\"\(\s]/', $field)) {
                 return $this->whereRaw($field, is_array($op) ? $op : []);
             } elseif (is_string($op) && strtolower($op) == 'exp') {
-                $bind = isset($param[2]) && is_array($param[2]) ? $param[2] : null;
+                $bind = isset($param[2]) && is_array($param[2]) ? $param[2] : [];
                 return $this->whereExp($field, $condition, $bind, $logic);
             }
 
@@ -1579,8 +1586,8 @@ class Query
     /**
      * 指定排序 order('id','desc') 或者 order(['id'=>'desc','create_time'=>'desc'])
      * @access public
-     * @param  string|array $field 排序字段
-     * @param  string       $order 排序
+     * @param  string|array|Raw $field 排序字段
+     * @param  string           $order 排序
      * @return $this
      */
     public function order($field, string $order = '')
@@ -1634,7 +1641,7 @@ class Query
      */
     public function orderRaw(string $field, array $bind = [])
     {
-        if ($bind) {
+        if (!empty($bind)) {
             $this->bindParams($field, $bind);
         }
 
@@ -2055,6 +2062,8 @@ class Query
             }
 
             $op = is_array($range) ? 'between' : '>=';
+        } elseif (is_array($op)) {
+            throw new Exception('where express error:' . $op);
         }
 
         return $this->parseWhereExp($logic, $field, strtolower($op) . ' time', $range, [], true);
@@ -2119,10 +2128,10 @@ class Query
     /**
      * 查询日期或者时间范围 whereBetweenTime('time_field', '2018-1-1','2018-1-15')
      * @access public
-     * @param  string    $field 日期字段名
-     * @param  string    $startTime    开始时间
-     * @param  string    $endTime 结束时间
-     * @param  string    $logic AND OR
+     * @param  string           $field 日期字段名
+     * @param  string|int       $startTime    开始时间
+     * @param  string|int       $endTime 结束时间
+     * @param  string           $logic AND OR
      * @return $this
      */
     public function whereBetweenTime(string $field, $startTime, $endTime = null, string $logic = 'AND')
@@ -2178,24 +2187,31 @@ class Query
     }
 
     /**
-     * 参数绑定
+     * 批量参数绑定
+     * @access public
+     * @param  array   $value 绑定变量值
+     * @return $this
+     */
+    public function bind(array $value)
+    {
+        $this->bind = array_merge($this->bind, $value);
+        return $this;
+    }
+
+    /**
+     * 单个参数绑定
      * @access public
      * @param  mixed   $value 绑定变量值
      * @param  integer $type  绑定类型
      * @param  string  $name  绑定标识
-     * @return $this|string
+     * @return string
      */
-    public function bind($value, int $type = null, string $name = null)
+    public function bindValue($value, int $type = null, string $name = null)
     {
-        if (is_array($value)) {
-            $this->bind = array_merge($this->bind, $value);
-            return $this;
-        } else {
-            $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1) . '_';
+        $name = $name ?: 'ThinkBind_' . (count($this->bind) + 1) . '_';
 
-            $this->bind[$name] = [$value, $type ?: PDO::PARAM_STR];
-            return $name;
-        }
+        $this->bind[$name] = [$value, $type ?: PDO::PARAM_STR];
+        return $name;
     }
 
     /**
@@ -2220,9 +2236,9 @@ class Query
     {
         foreach ($bind as $key => $value) {
             if (is_array($value)) {
-                $name = $this->bind($value[0], $value[1], $value[2] ?? null);
+                $name = $this->bindValue($value[0], $value[1], $value[2] ?? null);
             } else {
-                $name = $this->bind($value);
+                $name = $this->bindValue($value);
             }
 
             if (is_numeric($key)) {
@@ -2281,7 +2297,7 @@ class Query
      */
     public function relation(array $relation)
     {
-        if ($relation) {
+        if (!empty($relation)) {
             $this->options['relation'] = $relation;
         }
 
@@ -2296,7 +2312,7 @@ class Query
      */
     public function with(array $with)
     {
-        if ($with) {
+        if (!empty($with)) {
             $this->options['with'] = $with;
         }
 
@@ -2412,7 +2428,7 @@ class Query
     /**
      * 关联统计
      * @access protected
-     * @param  array        $relations 关联方法名
+     * @param  array|string $relations 关联方法名
      * @param  string       $aggregate 聚合查询方法
      * @param  string       $field 字段
      * @param  bool         $subQuery 是否使用子查询
@@ -2735,7 +2751,7 @@ class Query
 
         // 返回结果处理
         if (!empty($this->options['fail']) && count($resultSet) == 0) {
-            $this->throwNotFound($this->options);
+            $this->throwNotFound();
         }
 
         // 数据列表读取后的处理
@@ -2874,7 +2890,7 @@ class Query
     protected function resultToEmpty()
     {
         if (!empty($this->options['fail'])) {
-            $this->throwNotFound($this->options);
+            $this->throwNotFound();
         }
 
         return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance([], true) : [];
@@ -3033,7 +3049,7 @@ class Query
 
         // 关联查询
         if (!empty($options['relation'])) {
-            $result->relationQuery($options['relation'], $withRelationAttr);
+            $result->relationQuery($options['relation']);
         }
 
         // 预载入查询
@@ -3057,20 +3073,19 @@ class Query
     /**
      * 查询失败 抛出异常
      * @access protected
-     * @param  array $options 查询参数
      * @return void
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    protected function throwNotFound(array $options = []): void
+    protected function throwNotFound(): void
     {
         if (!empty($this->model)) {
             $class = get_class($this->model);
-            throw new ModelNotFoundException('model data Not Found:' . $class, $class, $options);
+            throw new ModelNotFoundException('model data Not Found:' . $class, $class, $this->options);
         }
 
-        $table = is_array($options['table']) ? key($options['table']) : $options['table'];
-        throw new DataNotFoundException('table data not Found:' . $table, $table, $options);
+        $table = $this->getTable();
+        throw new DataNotFoundException('table data not Found:' . $table, $table, $this->options);
     }
 
     /**
@@ -3371,7 +3386,7 @@ class Query
      * 触发事件
      * @access public
      * @param  string $event   事件名
-     * @return bool
+     * @return mixed
      */
     public function trigger(string $event)
     {

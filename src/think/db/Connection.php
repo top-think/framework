@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use PDO;
 use PDOStatement;
 use think\App;
+use think\Cache;
 use think\cache\CacheItem;
 use think\Container;
 use think\Db;
@@ -321,7 +322,7 @@ abstract class Connection
      * 设置当前的数据库Builder对象
      * @access protected
      * @param  Builder    $builder
-     * @return void
+     * @return $this
      */
     protected function setBuilder(Builder $builder)
     {
@@ -547,7 +548,10 @@ abstract class Connection
      */
     public function getConfig(string $config = '')
     {
-        return $config ? $this->config[$config] : $this->config;
+        if ('' === $config) {
+            return $this->config;
+        }
+        return $this->config[$config] ?? null;
     }
 
     /**
@@ -576,7 +580,7 @@ abstract class Connection
             return $this->links[$linkNum];
         }
 
-        if (!$config) {
+        if (empty($config)) {
             $config = $this->config;
         } else {
             $config = array_merge($this->config, $config);
@@ -602,21 +606,19 @@ abstract class Connection
             }
 
             if ($config['debug']) {
-                $startTime = microtime(true);
-            }
-
-            $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
-
-            if ($config['debug']) {
+                $startTime             = microtime(true);
+                $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
                 // 记录数据库连接信息
                 $this->log('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn']);
+            } else {
+                $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
             }
 
             return $this->links[$linkNum];
         } catch (\PDOException $e) {
             if ($autoConnection) {
                 $this->log($e->getMessage(), 'error');
-                return $this->connect($autoConnection, $linkNum);
+                return $this->connect([], $linkNum);
             } else {
                 throw $e;
             }
@@ -649,11 +651,11 @@ abstract class Connection
     /**
      * 执行查询 使用生成器返回数据
      * @access public
-     * @param  Query     $query 查询对象
-     * @param  string    $sql sql指令
-     * @param  array     $bind 参数绑定
-     * @param  Model     $model 模型对象实例
-     * @param  array     $condition 查询条件
+     * @param  Query            $query 查询对象
+     * @param  string           $sql sql指令
+     * @param  array            $bind 参数绑定
+     * @param  \think\Model     $model 模型对象实例
+     * @param  array            $condition 查询条件
      * @return \Generator
      */
     public function getCursor(Query $query, string $sql, array $bind = [], $model = null, $condition = null)
@@ -663,7 +665,7 @@ abstract class Connection
         // 返回结果集
         while ($result = $this->PDOStatement->fetch($this->fetchType)) {
             if ($model) {
-                yield $model->newInstance($result, $condition);
+                yield $model->newInstance($result, true, $condition);
             } else {
                 yield $result;
             }
@@ -883,7 +885,7 @@ abstract class Connection
         $condition = $options['where']['AND'] ?? null;
 
         // 执行查询操作
-        return $this->getCursor($query, $sql, $query->getBind(), $options['master'], $query->getModel(), $condition);
+        return $this->getCursor($query, $sql, $query->getBind(), $query->getModel(), $condition);
     }
 
     /**
@@ -984,7 +986,7 @@ abstract class Connection
      * @throws \Exception
      * @throws \Throwable
      */
-    public function insertAll(Query $query, array $dataSet = [], bool $replace = false, int $limit = null): int
+    public function insertAll(Query $query, array $dataSet = [], bool $replace = false, int $limit = 0): int
     {
         if (!is_array(reset($dataSet))) {
             return 0;
@@ -1130,11 +1132,7 @@ abstract class Connection
             $query->removeOption('field');
         }
 
-        if (is_string($field)) {
-            $field = array_map('trim', explode(',', $field));
-        }
-
-        $query->setOption('field', $field);
+        $query->setOption('field', (array) $field);
 
         if (!empty($options['cache'])) {
             $cacheItem = $this->parseCache($query, $options['cache']);
@@ -1243,7 +1241,7 @@ abstract class Connection
 
             if ('*' == $field && $key) {
                 $result = array_column($resultSet, null, $key);
-            } elseif ($resultSet) {
+            } elseif (!empty($resultSet)) {
                 $fields = array_keys($resultSet[0]);
                 $count  = count($fields);
                 $key1   = array_shift($fields);
@@ -1409,7 +1407,7 @@ abstract class Connection
 
         do {
             $result = $this->getResult();
-            if ($result) {
+            if (!empty($result)) {
                 $item[] = $result;
             }
         } while ($this->PDOStatement->nextRowset());
@@ -1556,10 +1554,6 @@ abstract class Connection
      */
     public function batchQuery(Query $query, array $sqlArray = [], array $bind = []): bool
     {
-        if (!is_array($sqlArray)) {
-            return false;
-        }
-
         // 自动启动事务支持
         $this->startTrans();
 
