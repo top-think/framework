@@ -11,8 +11,6 @@
 
 namespace think\console\output\driver;
 
-use think\console\Output;
-
 class Nothing
 {
 
