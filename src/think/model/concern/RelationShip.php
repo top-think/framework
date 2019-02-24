@@ -202,10 +202,11 @@ trait RelationShip
      * @param  array  $resultSet 数据集
      * @param  string $relation  关联名
      * @param  array  $withRelationAttr 关联获取器
-     * @param  bool   $join             是否为JOIN方式
+     * @param  array  $withBind  关联绑定（一对一关联）
+     * @param  bool   $join      是否为JOIN方式
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, array $relations, array $withRelationAttr = [], bool $join = false): void
+    public function eagerlyResultSet(array &$resultSet, array $relations, array $withRelationAttr = [], array $withBind = [], bool $join = false): void
     {
         foreach ($relations as $key => $relation) {
             $subRelation = [];
@@ -229,6 +230,10 @@ trait RelationShip
             $relationName = App::parseName($relation);
 
             $relationResult = $this->$relation();
+
+            if (isset($withBind[$relationName])) {
+                $relationResult->bind($withBind[$relationName]);
+            }
 
             if (isset($withRelationAttr[$relationName])) {
                 $relationResult->withAttr($withRelationAttr[$relationName]);
@@ -244,10 +249,11 @@ trait RelationShip
      * @param  Model    $result    数据对象
      * @param  array    $relations 关联
      * @param  array    $withRelationAttr 关联获取器
-     * @param  bool     $join             是否为JOIN方式
+     * @param  array    $withBind  关联绑定（一对一关联）
+     * @param  bool     $join      是否为JOIN方式
      * @return void
      */
-    public function eagerlyResult(Model $result, array $relations, array $withRelationAttr = [], bool $join = false): void
+    public function eagerlyResult(Model $result, array $relations, array $withRelationAttr = [], array $withBind = [], bool $join = false): void
     {
         foreach ($relations as $key => $relation) {
             $subRelation = [];
@@ -271,6 +277,10 @@ trait RelationShip
             $relationName = App::parseName($relation);
 
             $relationResult = $this->$relation();
+
+            if (isset($withBind[$relationName])) {
+                $relationResult->bind($withBind[$relationName]);
+            }
 
             if (isset($withRelationAttr[$relationName])) {
                 $relationResult->withAttr($withRelationAttr[$relationName]);

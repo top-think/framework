@@ -2310,6 +2310,20 @@ class Query
     }
 
     /**
+     * 设置一对一关联查询的属性绑定（必须和with搭配使用）
+     * @access public
+     * @param  string $relation 关联名称
+     * @param  array  $bind     关联属性名称
+     * @return $this
+     */
+    public function withBind(string $relation, array $bind = [])
+    {
+        $this->options['with_bind'][App::parseName($relation)] = $bind;
+
+        return $this;
+    }
+
+    /**
      * 关联预载入 JOIN方式
      * @access protected
      * @param  array        $with 关联方法名
@@ -2792,12 +2806,12 @@ class Query
 
         if (!empty($this->options['with'])) {
             // 预载入
-            $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr);
+            $result->eagerlyResultSet($resultSet, $this->options['with'], $withRelationAttr, $this->options['with_bind'] ?? []);
         }
 
         if (!empty($this->options['with_join'])) {
             // 预载入
-            $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, true);
+            $result->eagerlyResultSet($resultSet, $this->options['with_join'], $withRelationAttr, $this->options['with_bind'] ?? [], true);
         }
 
         // 模型数据集转换
@@ -3044,12 +3058,12 @@ class Query
 
         // 预载入查询
         if (!$resultSet && !empty($options['with'])) {
-            $result->eagerlyResult($result, $options['with'], $withRelationAttr);
+            $result->eagerlyResult($result, $options['with'], $withRelationAttr, $this->options['with_bind'] ?? []);
         }
 
         // JOIN预载入查询
         if (!$resultSet && !empty($options['with_join'])) {
-            $result->eagerlyResult($result, $options['with_join'], $withRelationAttr, true);
+            $result->eagerlyResult($result, $options['with_join'], $withRelationAttr, $this->options['with_bind'] ?? [], true);
         }
 
         // 关联统计
