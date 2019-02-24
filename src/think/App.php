@@ -580,7 +580,7 @@ class App extends Container
             Error::setExceptionHandler($this->config->get('app.exception_handle'));
         }
 
-        date_default_timezone_set($this->config->get('app.default_timezone'));
+        date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
 
         // 设置开启事件机制
         $this->event->withEvent($this->withEvent);

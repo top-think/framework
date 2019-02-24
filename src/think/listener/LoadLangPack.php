@@ -24,9 +24,9 @@ class LoadLangPack
     public function handle($event, App $app): void
     {
         // 读取默认语言
-        $app->lang->range($app->config->get('app.default_lang'));
+        $app->lang->range($app->config->get('app.default_lang', 'zh-cn'));
 
-        if ($app->config->get('app.lang_switch_on')) {
+        if ($app->config->get('app.lang_switch_on', false)) {
             // 开启多语言机制 检测当前语言
             $app->lang->detect();
         }
