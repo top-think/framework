@@ -106,7 +106,7 @@ class Memcache extends Driver
             $expire = $this->options['expire'];
         }
 
-        if ($this->tag && !$this->has($name)) {
+        if (!empty($this->tag) && !$this->has($name)) {
             $first = true;
         }
 
@@ -185,7 +185,7 @@ class Memcache extends Driver
      */
     public function clear(): bool
     {
-        if ($this->tag) {
+        if (!empty($this->tag)) {
             foreach ($this->tag as $tag) {
                 $this->clearTag($tag);
             }

@@ -94,7 +94,7 @@ class Wincache extends Driver
         $expire = $this->getExpireTime($expire);
         $value  = $this->serialize($value);
 
-        if ($this->tag && !$this->has($name)) {
+        if (!empty($this->tag) && !$this->has($name)) {
             $first = true;
         }
 
@@ -158,7 +158,7 @@ class Wincache extends Driver
      */
     public function clear(): bool
     {
-        if ($this->tag) {
+        if (!empty($this->tag)) {
             foreach ($this->tag as $tag) {
                 $this->clearTag($tag);
             }

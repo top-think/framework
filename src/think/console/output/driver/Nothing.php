@@ -16,17 +16,17 @@ use think\console\Output;
 class Nothing
 {
 
-    public function __construct(Output $output)
+    public function __construct()
     {
         // do nothing
     }
 
-    public function write($messages, bool $newline = false, int $options = 0)
+    public function write()
     {
         // do nothing
     }
 
-    public function renderException(\Throwable $e)
+    public function renderException()
     {
         // do nothing
     }

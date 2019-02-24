@@ -284,22 +284,6 @@ class Query
     }
 
     /**
-     * 获取数据表字段类型
-     * @access protected
-     * @param  string $tableName 数据表名
-     * @param  string $field    字段名
-     * @return array|string
-     */
-    protected function getTableFieldsType($tableName = '', string $field = null)
-    {
-        if ('' == $tableName) {
-            $tableName = $this->options['table'] ?? $this->getTable();
-        }
-
-        return $this->connection->getFieldsType($tableName, $field);
-    }
-
-    /**
      * 设置字段类型信息
      * @access public
      * @param  array $type 字段类型信息
@@ -318,7 +302,13 @@ class Query
      */
     public function getFieldsType(): array
     {
-        return !empty($this->options['field_type']) ? $this->options['field_type'] : $this->getTableFieldsType();
+        if (!empty($this->options['field_type'])) {
+            return $this->options['field_type'];
+        }
+
+        $tableName = $this->options['table'] ?? $this->getTable();
+
+        return $this->connection->getFieldsType($tableName);
     }
 
     /**

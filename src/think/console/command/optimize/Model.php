@@ -66,7 +66,7 @@ class Model extends Command
      * 获取字段绑定类型
      * @access public
      * @param  string $type 字段类型
-     * @return integer
+     * @return string
      */
     public function parseFieldType(string $type): string
     {

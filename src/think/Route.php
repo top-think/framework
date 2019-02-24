@@ -140,7 +140,7 @@ class Route
         $this->setDefaultDomain();
     }
 
-    public function config(string $name = null)
+    public function config(string $name)
     {
         return $this->config[$name] ?? null;
     }

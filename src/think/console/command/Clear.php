@@ -16,6 +16,7 @@ use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 use think\facade\App;
+use think\facade\Cache;
 
 class Clear extends Command
 {

@@ -514,10 +514,10 @@ if (!function_exists('session')) {
             return 0 === strpos($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
         } elseif (is_null($value)) {
             // 删除
-            return Session::delete($name);
+            Session::delete($name);
         } else {
             // 设置
-            return Session::set($name, $value);
+            Session::set($name, $value);
         }
     }
 }

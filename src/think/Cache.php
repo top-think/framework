@@ -147,7 +147,7 @@ class Cache implements CacheItemPoolInterface
      * 缓存标签
      * @access public
      * @param  string|array        $name 标签名
-     * @return $this
+     * @return Driver
      */
     public function tag($name)
     {

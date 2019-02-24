@@ -13,8 +13,7 @@ namespace think\console\output\formatter;
 
 class Style
 {
-
-    private static $availableForegroundColors = [
+    protected static $availableForegroundColors = [
         'black'   => ['set' => 30, 'unset' => 39],
         'red'     => ['set' => 31, 'unset' => 39],
         'green'   => ['set' => 32, 'unset' => 39],
@@ -24,7 +23,8 @@ class Style
         'cyan'    => ['set' => 36, 'unset' => 39],
         'white'   => ['set' => 37, 'unset' => 39],
     ];
-    private static $availableBackgroundColors = [
+
+    protected static $availableBackgroundColors = [
         'black'   => ['set' => 40, 'unset' => 49],
         'red'     => ['set' => 41, 'unset' => 49],
         'green'   => ['set' => 42, 'unset' => 49],
@@ -34,7 +34,8 @@ class Style
         'cyan'    => ['set' => 46, 'unset' => 49],
         'white'   => ['set' => 47, 'unset' => 49],
     ];
-    private static $availableOptions = [
+
+    protected static $availableOptions = [
         'bold'       => ['set' => 1, 'unset' => 22],
         'underscore' => ['set' => 4, 'unset' => 24],
         'blink'      => ['set' => 5, 'unset' => 25],

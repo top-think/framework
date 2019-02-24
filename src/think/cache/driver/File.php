@@ -177,7 +177,7 @@ class File extends Driver
         $expire   = $this->getExpireTime($expire);
         $filename = $this->getCacheKey($name, true);
 
-        if ($this->tag && !is_file($filename)) {
+        if (!empty($this->tag) && !is_file($filename)) {
             $first = true;
         }
 
@@ -264,7 +264,7 @@ class File extends Driver
      */
     public function clear(): bool
     {
-        if ($this->tag) {
+        if (!empty($this->tag)) {
             // 指定标签清除
             foreach ($this->tag as $tag) {
                 $this->clearTag($tag);

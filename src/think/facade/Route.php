@@ -20,6 +20,7 @@ use think\Facade;
  * @method \think\Route pattern(mixed $name, string $rule = '') static 注册变量规则
  * @method \think\Route option(mixed $name, mixed $value = '') static 注册路由参数
  * @method \think\Route bind(string $bind) static 设置路由绑定
+ * @method mixed config(string $name) static 获取路由配置
  * @method array getBind() static 读取路由绑定
  * @method mixed getDomainBind(string $domain) static 读取路由绑定
  * @method \think\Route name(string $name) static 设置当前路由标识

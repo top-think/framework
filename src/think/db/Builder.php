@@ -1164,8 +1164,7 @@ abstract class Builder
     {
         $options = $query->getOptions();
 
-        $table = $this->parseTable($query, $options['table']);
-        $data  = $this->parseData($query, $options['data']);
+        $data = $this->parseData($query, $options['data']);
 
         if (empty($data)) {
             return '';

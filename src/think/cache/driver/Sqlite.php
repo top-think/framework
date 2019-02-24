@@ -138,8 +138,8 @@ class Sqlite extends Driver
             $value = gzcompress($value, 3);
         }
 
-        if ($this->tag) {
-            $tag       = $this->tag;
+        if (!empty($this->tag)) {
+            $tag       = current($this->tag);
             $this->tag = null;
         } else {
             $tag = '';
@@ -215,7 +215,7 @@ class Sqlite extends Driver
      */
     public function clear(): bool
     {
-        if ($this->tag) {
+        if (!empty($this->tag)) {
             foreach ($this->tag as $tag) {
                 $this->clearTag($tag);
             }

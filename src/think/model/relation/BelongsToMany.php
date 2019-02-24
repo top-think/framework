@@ -473,7 +473,7 @@ class BelongsToMany extends Relation
     protected function belongsToManyQuery(string $foreignKey, string $localKey, array $condition = []): Query
     {
         // 关联查询封装
-        $tableName = $this->query->db()->getTable();
+        $tableName = $this->query->getTable();
         $table     = $this->pivot->db()->getTable();
         $fields    = $this->getQueryFields($tableName);
 

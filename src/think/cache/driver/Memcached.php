@@ -120,7 +120,7 @@ class Memcached extends Driver
             $expire = $this->options['expire'];
         }
 
-        if ($this->tag && !$this->has($name)) {
+        if (!empty($this->tag) && !$this->has($name)) {
             $first = true;
         }
 
@@ -199,7 +199,7 @@ class Memcached extends Driver
      */
     public function clear(): bool
     {
-        if ($this->tag) {
+        if (!empty($this->tag)) {
             foreach ($this->tag as $tag) {
                 $this->clearTag($tag);
             }
@@ -231,7 +231,7 @@ class Memcached extends Driver
      */
     protected function setTagItem(string $name): void
     {
-        if ($this->tag) {
+        if (!empty($this->tag)) {
             foreach ($this->tag as $tag) {
                 $tagName = $this->getTagKey($tag);
                 if ($this->handler->has($tagName)) {

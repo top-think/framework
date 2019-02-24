@@ -27,7 +27,8 @@ use think\Facade;
  * @method \think\App setRootNamespace(string $namespace) static 设置应用的根命名空间
  * @method \think\App controllerSuffix(bool $suffix) static 设置应用是否启用控制器类库后缀
  * @method \think\App autoMulti(array $map) static 自动多应用
- * @method bool isAutoMulti(string $bind) static 判断是否为多应用
+ * @method bool isAutoMulti() static 判断是否为自动多应用
+ * @method bool isMulti() static 判断是否为多应用
  * @method void initialize() static 初始化应用
  * @method void init() static 初始化应用
  * @method \think\Response run() static 执行应用
@@ -36,6 +37,7 @@ use think\Facade;
  * @method string version() static 获取框架版本
  * @method bool isDebug() static 是否为调试模式
  * @method string getRootPath() static 获取应用根目录
+ * @method string getBasePath() static 获取应用基础目录
  * @method string getAppPath() static 获取应用类库目录
  * @method string getRuntimePath() static 获取应用运行时目录
  * @method string getThinkPath() static 获取核心框架目录
@@ -44,9 +46,12 @@ use think\Facade;
  * @method string getConfigExt() static 获取配置后缀
  * @method string setNamespace(string $namespace) static 设置应用类库命名空间
  * @method string getNamespace() static 获取应用类库命名空间
+ * @method string getRootNamespace() static 获取应用类库根命名空间
  * @method string hasControllerSuffix() static 是否启用类库后缀
  * @method float getBeginTime() static 获取应用开启时间
  * @method integer getBeginMem() static 获取应用初始内存占用
+ * @method string serialize(mixed $data) static 序列化数据
+ * @method mixed unserialize(string $data) static 解序列化
  */
 class App extends Facade
 {

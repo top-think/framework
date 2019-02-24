@@ -16,9 +16,9 @@ class Ini
     public function parse(string $config): array
     {
         if (is_file($config)) {
-            return parse_ini_file($config, true);
+            return parse_ini_file($config, true) ?: [];
         } else {
-            return parse_ini_string($config, true);
+            return parse_ini_string($config, true) ?: [];
         }
     }
 }
