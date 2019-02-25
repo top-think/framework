@@ -52,12 +52,11 @@ trait Conversion
      * 设置需要附加的输出属性
      * @access public
      * @param  array $append   属性列表
-     * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function append(array $append = [], bool $override = false)
+    public function append(array $append = [])
     {
-        $this->append = $override ? $append : array_merge($this->append, $append);
+        $this->append = $append;
 
         return $this;
     }
@@ -98,12 +97,11 @@ trait Conversion
      * 设置需要隐藏的输出属性
      * @access public
      * @param  array $hidden   属性列表
-     * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function hidden(array $hidden = [], bool $override = false)
+    public function hidden(array $hidden = [])
     {
-        $this->hidden = $override ? $hidden : array_merge($this->hidden, $hidden);
+        $this->hidden = $hidden;
 
         return $this;
     }
@@ -112,12 +110,11 @@ trait Conversion
      * 设置需要输出的属性
      * @access public
      * @param  array $visible
-     * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function visible(array $visible = [], bool $override = false)
+    public function visible(array $visible = [])
     {
-        $this->visible = $override ? $visible : array_merge($this->visible, $visible);
+        $this->visible = $visible;
 
         return $this;
     }
@@ -142,7 +139,9 @@ trait Conversion
             if (!empty($array)) {
                 $data = array_intersect_key($data, array_flip($array));
             }
-        } elseif (!empty($this->hidden)) {
+        }
+
+        if (empty($array) && !empty($this->hidden)) {
             $array = $this->parseAttr($this->hidden, $hidden);
             $data  = array_diff_key($data, array_flip($array));
         }
