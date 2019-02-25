@@ -35,13 +35,12 @@ class Collection extends BaseCollection
      * 设置需要隐藏的输出属性
      * @access public
      * @param  array $hidden   属性列表
-     * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function hidden(array $hidden, bool $override = false)
+    public function hidden(array $hidden)
     {
-        $this->each(function (Model $model) use ($hidden, $override) {
-            $model->hidden($hidden, $override);
+        $this->each(function (Model $model) use ($hidden) {
+            $model->hidden($hidden);
         });
 
         return $this;
@@ -51,13 +50,12 @@ class Collection extends BaseCollection
      * 设置需要输出的属性
      * @access public
      * @param  array $visible
-     * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function visible(array $visible, bool $override = false)
+    public function visible(array $visible)
     {
-        $this->each(function (Model $model) use ($visible, $override) {
-            $model->visible($visible, $override);
+        $this->each(function (Model $model) use ($visible) {
+            $model->visible($visible);
         });
 
         return $this;
@@ -67,13 +65,12 @@ class Collection extends BaseCollection
      * 设置需要追加的输出属性
      * @access public
      * @param  array $append   属性列表
-     * @param  bool  $override 是否覆盖
      * @return $this
      */
-    public function append(array $append, bool $override = false)
+    public function append(array $append)
     {
-        $this->each(function (Model $model) use ($append, $override) {
-            $model && $model->append($append, $override);
+        $this->each(function (Model $model) use ($append) {
+            $model && $model->append($append);
         });
 
         return $this;
