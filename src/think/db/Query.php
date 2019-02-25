@@ -1568,6 +1568,18 @@ class Query
     }
 
     /**
+     * 是否允许返回空数据（或空模型）
+     * @access public
+     * @param  bool $allowEmpty 是否允许为空
+     * @return $this
+     */
+    public function allowEmpty(bool $allowEmpty = true)
+    {
+        $this->options['allow_empty'] = $allowEmpty;
+        return $this;
+    }
+
+    /**
      * 指定排序 order('id','desc') 或者 order(['id'=>'desc','create_time'=>'desc'])
      * @access public
      * @param  string|array|Raw $field 排序字段
@@ -2854,7 +2866,7 @@ class Query
      * 查找单条记录
      * @access public
      * @param  mixed $data
-     * @return array|Model
+     * @return array|Model|null
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -2884,6 +2896,17 @@ class Query
     }
 
     /**
+     * 查找单条记录 不存在返回空数据（或者空模型）
+     * @access public
+     * @param  mixed $data
+     * @return array|Model
+     */
+    public function findOrEmpty($data = null)
+    {
+        return $this->allowEmpty(true)->find($data);
+    }
+
+    /**
      * 处理空数据
      * @access protected
      * @return array|Model|null
@@ -2895,9 +2918,9 @@ class Query
     {
         if (!empty($this->options['fail'])) {
             $this->throwNotFound();
+        } elseif (!empty($this->options['allow_empty'])) {
+            return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance([], true) : [];
         }
-
-        return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance([], true) : [];
     }
 
     /**
