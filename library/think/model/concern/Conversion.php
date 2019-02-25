@@ -144,7 +144,7 @@ trait Conversion
                 $data = array_intersect_key($data, array_flip($array));
             }
         } elseif (!empty($this->hidden)) {
-            $array = $this->parseAttr($this->hidden, $hidden, false);
+            $array = $this->parseAttr($this->hidden, $hidden);
             $data  = array_diff_key($data, array_flip($array));
         }
 
