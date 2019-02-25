@@ -108,12 +108,6 @@ class Query
     ];
 
     /**
-     * 日期查询快捷定义
-     * @var array
-     */
-    protected $timeExp = ['d' => 'today', 'w' => 'week', 'm' => 'month', 'y' => 'year'];
-
-    /**
      * 架构函数
      * @access public
      */
@@ -2029,31 +2023,16 @@ class Query
      * 查询日期或者时间
      * @access public
      * @param  string       $field 日期字段名
-     * @param  string|array $op    比较运算符或者表达式
+     * @param  string       $op    比较运算符或者表达式
      * @param  string|array $range 比较范围
      * @param  string       $logic AND OR
      * @return $this
      */
-    public function whereTime(string $field, $op, $range = null, string $logic = 'AND')
+    public function whereTime(string $field, string $op, $range = null, string $logic = 'AND')
     {
-        if (is_null($range)) {
-            if (is_array($op)) {
-                $range = $op;
-            } else {
-                if (isset($this->timeExp[strtolower($op)])) {
-                    $op = $this->timeExp[strtolower($op)];
-                }
-
-                if (isset($this->timeRule[strtolower($op)])) {
-                    $range = $this->timeRule[strtolower($op)];
-                } else {
-                    $range = $op;
-                }
-            }
-
-            $op = is_array($range) ? 'between' : '>=';
-        } elseif (is_array($op)) {
-            throw new Exception('where express error:' . $op);
+        if (is_null($range) && isset($this->timeRule[$op])) {
+            $range = $this->timeRule[$op];
+            $op    = 'between';
         }
 
         return $this->parseWhereExp($logic, $field, strtolower($op) . ' time', $range, [], true);
@@ -2068,12 +2047,12 @@ class Query
      * @param  string    $logic AND OR
      * @return $this
      */
-    protected function whereTimeInterval(string $field, string $start, $interval = 'day', string $logic = 'AND')
+    protected function whereTimeInterval(string $field, string $start, string $interval = 'day', string $logic = 'AND')
     {
         $startTime = strtotime($start);
         $endTime   = strtotime('+1 ' . $interval, $startTime);
 
-        return $this->parseWhereExp($logic, $field, 'between time', [$startTime, $endTime], [], true);
+        return $this->whereTime($field, 'between', [$startTime, $endTime], $logic);
     }
 
     /**
@@ -2084,8 +2063,12 @@ class Query
      * @param  string    $logic AND OR
      * @return $this
      */
-    public function whereMonth(string $field, string $month, string $logic = 'AND')
+    public function whereMonth(string $field, string $month = 'this month', string $logic = 'AND')
     {
+        if (in_array($month, ['this month', 'last month'])) {
+            $month = date('Y-m', strtotime($month));
+        }
+
         return $this->whereTimeInterval($field, $month, 'month', $logic);
     }
 
@@ -2097,8 +2080,12 @@ class Query
      * @param  string    $logic AND OR
      * @return $this
      */
-    public function whereYear(string $field, string $year, string $logic = 'AND')
+    public function whereYear(string $field, string $year = 'this year', string $logic = 'AND')
     {
+        if (in_array($year, ['this year', 'last year'])) {
+            $year = date('Y', strtotime($year));
+        }
+
         return $this->whereTimeInterval($field, $year . '-1-1', 'year', $logic);
     }
 
@@ -2110,8 +2097,12 @@ class Query
      * @param  string    $logic AND OR
      * @return $this
      */
-    public function whereDay(string $field, string $day, string $logic = 'AND')
+    public function whereDay(string $field, string $day = 'today', string $logic = 'AND')
     {
+        if (in_array($day, ['today', 'yesterday'])) {
+            $day = date('Y-m-d', strtotime($day));
+        }
+
         return $this->whereTimeInterval($field, $day, 'day', $logic);
     }
 
@@ -2124,14 +2115,23 @@ class Query
      * @param  string           $logic AND OR
      * @return $this
      */
-    public function whereBetweenTime(string $field, $startTime, $endTime = null, string $logic = 'AND')
+    public function whereBetweenTime(string $field, $startTime, $endTime, string $logic = 'AND')
     {
-        if (is_null($endTime)) {
-            $time    = is_string($startTime) ? strtotime($startTime) : $startTime;
-            $endTime = strtotime('+1 day', $time);
-        }
+        return $this->whereTime($field, 'between', [$startTime, $endTime], $logic);
+    }
 
-        return $this->parseWhereExp($logic, $field, 'between time', [$startTime, $endTime], [], true);
+    /**
+     * 查询日期或者时间范围 whereNotBetweenTime('time_field', '2018-1-1','2018-1-15')
+     * @access public
+     * @param  string           $field 日期字段名
+     * @param  string|int       $startTime    开始时间
+     * @param  string|int       $endTime 结束时间
+     * @return $this
+     */
+    public function whereNotBetweenTime(string $field, $startTime, $endTime)
+    {
+        return $this->whereTime($field, '<', $startTime)
+            ->whereTime($field, '>', $endTime);
     }
 
     /**
@@ -2609,13 +2609,13 @@ class Query
      * @param  integer   $limit   每次写入数据限制
      * @return integer
      */
-    public function insertAll(array $dataSet = [], bool $replace = false, int $limit = null): int
+    public function insertAll(array $dataSet = [], bool $replace = false, int $limit = 0): int
     {
         if (empty($dataSet)) {
             $dataSet = $this->options['data'] ?? [];
         }
 
-        if (empty($limit) && !empty($this->options['limit'])) {
+        if (empty($limit) && !empty($this->options['limit']) && is_numeric($this->options['limit'])) {
             $limit = (int) $this->options['limit'];
         }
 
