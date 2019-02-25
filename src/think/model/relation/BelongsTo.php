@@ -221,7 +221,7 @@ class BelongsTo extends OneToOne
                     $relationModel->isUpdate(true);
                 }
 
-                if (!empty($this->bindAttr)) {
+                if ($relationModel && !empty($this->bindAttr)) {
                     // 绑定关联属性
                     $this->bindAttr($relationModel, $result);
                 } else {
@@ -261,7 +261,7 @@ class BelongsTo extends OneToOne
             $relationModel->isUpdate(true);
         }
 
-        if (!empty($this->bindAttr)) {
+        if ($relationModel && !empty($this->bindAttr)) {
             // 绑定关联属性
             $this->bindAttr($relationModel, $result);
         } else {

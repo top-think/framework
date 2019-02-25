@@ -219,9 +219,9 @@ class HasOne extends OneToOne
                     $relationModel->isUpdate(true);
                 }
 
-                if (!empty($this->bindAttr)) {
+                if ($relationModel && !empty($this->bindAttr)) {
                     // 绑定关联属性
-                    $this->bindAttr($relationModel, $result, $this->bindAttr);
+                    $this->bindAttr($relationModel, $result);
                 } else {
                     // 设置关联属性
                     $result->setRelation($attr, $relationModel);
@@ -259,9 +259,9 @@ class HasOne extends OneToOne
             $relationModel->isUpdate(true);
         }
 
-        if (!empty($this->bindAttr)) {
+        if ($relationModel && !empty($this->bindAttr)) {
             // 绑定关联属性
-            $this->bindAttr($relationModel, $result, $this->bindAttr);
+            $this->bindAttr($relationModel, $result);
         } else {
             $result->setRelation(App::parseName($relation), $relationModel);
         }

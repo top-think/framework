@@ -252,7 +252,7 @@ abstract class OneToOne extends Relation
                 $relationModel->isUpdate(true);
             }
 
-            if (!empty($this->bindAttr)) {
+            if ($relationModel && !empty($this->bindAttr)) {
                 $this->bindAttr($relationModel, $result);
             }
         } else {
