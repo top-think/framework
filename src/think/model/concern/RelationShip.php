@@ -202,11 +202,10 @@ trait RelationShip
      * @param  array  $resultSet 数据集
      * @param  string $relation  关联名
      * @param  array  $withRelationAttr 关联获取器
-     * @param  array  $withBind  关联绑定（一对一关联）
      * @param  bool   $join      是否为JOIN方式
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, array $relations, array $withRelationAttr = [], array $withBind = [], bool $join = false): void
+    public function eagerlyResultSet(array &$resultSet, array $relations, array $withRelationAttr = [], bool $join = false): void
     {
         foreach ($relations as $key => $relation) {
             $subRelation = [];
@@ -230,10 +229,6 @@ trait RelationShip
             $relationName = App::parseName($relation);
 
             $relationResult = $this->$relation();
-
-            if (isset($withBind[$relationName])) {
-                $relationResult->bind($withBind[$relationName]);
-            }
 
             if (isset($withRelationAttr[$relationName])) {
                 $relationResult->withAttr($withRelationAttr[$relationName]);
@@ -249,11 +244,10 @@ trait RelationShip
      * @param  Model    $result    数据对象
      * @param  array    $relations 关联
      * @param  array    $withRelationAttr 关联获取器
-     * @param  array    $withBind  关联绑定（一对一关联）
      * @param  bool     $join      是否为JOIN方式
      * @return void
      */
-    public function eagerlyResult(Model $result, array $relations, array $withRelationAttr = [], array $withBind = [], bool $join = false): void
+    public function eagerlyResult(Model $result, array $relations, array $withRelationAttr = [], bool $join = false): void
     {
         foreach ($relations as $key => $relation) {
             $subRelation = [];
@@ -278,16 +272,38 @@ trait RelationShip
 
             $relationResult = $this->$relation();
 
-            if (isset($withBind[$relationName])) {
-                $relationResult->bind($withBind[$relationName]);
-            }
-
             if (isset($withRelationAttr[$relationName])) {
                 $relationResult->withAttr($withRelationAttr[$relationName]);
             }
 
             $relationResult->eagerlyResult($result, $relation, $subRelation, $closure, $join);
         }
+    }
+
+    /**
+     * 绑定（一对一）关联属性到当前模型
+     * @access protected
+     * @param  string   $relation    关联名称
+     * @param  array    $attrs       绑定属性
+     * @return $this
+     * @throws Exception
+     */
+    public function bindAttr(string $relation, array $attrs = [])
+    {
+        $relation = $this->getRelation($relation);
+
+        foreach ($attrs as $key => $attr) {
+            $key   = is_numeric($key) ? $attr : $key;
+            $value = $this->getOrigin($key);
+
+            if (!is_null($value)) {
+                throw new Exception('bind attr has exists:' . $key);
+            } else {
+                $this->set($key, $relation ? $relation->$attr : null);
+            }
+        }
+
+        return $this;
     }
 
     /**

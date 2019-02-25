@@ -94,6 +94,24 @@ class Collection extends BaseCollection
     }
 
     /**
+     * 绑定（一对一）关联属性到当前模型
+     * @access protected
+     * @param  string   $relation    关联名称
+     * @param  array    $attrs       绑定属性
+     * @return $this
+     * @throws Exception
+     */
+    public function bindAttr($relation, $attrs = [])
+    {
+        $this->each(function ($model) use ($relation, $attrs) {
+            /** @var Model $model */
+            $model && $model->bindAttr($relation, $attrs);
+        });
+
+        return $this;
+    }
+
+    /**
      * 按指定键整理数据
      *
      * @access public
