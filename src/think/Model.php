@@ -22,6 +22,12 @@ use think\facade\Db;
  * @package think
  * @mixin Query
  * @method Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
+ * @method Query whereTime(string $field, string $op, mixed $range = null) static 查询日期和时间
+ * @method Query whereBetweenTime(string $field, mixed $startTime, mixed $endTime) static 查询日期或者时间范围
+ * @method Query whereBetweenTimeField(string $startField, string $endField) static 查询当前时间在两个时间字段范围
+ * @method Query whereYear(string $field, string $year = 'this year') static 查询某年
+ * @method Query whereMonth(string $field, string $month = 'this month') static 查询某月
+ * @method Query whereDay(string $field, string $day = 'today') static 查询某日
  * @method Query whereRaw(string $where, array $bind = []) static 表达式查询
  * @method Query whereExp(string $field, string $condition, array $bind = []) static 字段表达式查询
  * @method Query when(mixed $condition, mixed $query, mixed $otherwise = null) static 条件查询
@@ -42,9 +48,10 @@ use think\facade\Db;
  * @method Query cache(mixed $key = null , integer $expire = null) static 设置查询缓存
  * @method mixed value(string $field) static 获取某个字段的值
  * @method array column(string $field, string $key = '') static 获取某个列的值
- * @method mixed find(mixed $data = null) static 查询单个记录
- * @method mixed select(mixed $data = null) static 查询多个记录
- * @method \think\Model withAttr(array $name,\Closure $closure) 动态定义获取器
+ * @method Model find(mixed $data = null) static 查询单个记录 不存在返回Null
+ * @method Model findOrEmpty(mixed $data = null) static 查询单个记录 不存在返回空模型
+ * @method \think\model\Collection select(mixed $data = null) static 查询多个记录
+ * @method Model withAttr(array $name,\Closure $closure) 动态定义获取器
  */
 abstract class Model implements JsonSerializable, ArrayAccess
 {
