@@ -70,7 +70,7 @@ class Collection extends BaseCollection
     public function append(array $append)
     {
         $this->each(function (Model $model) use ($append) {
-            $model && $model->append($append);
+            $model->append($append);
         });
 
         return $this;
@@ -85,9 +85,8 @@ class Collection extends BaseCollection
      */
     public function withAttr($name, $callback = null)
     {
-        $this->each(function ($model) use ($name, $callback) {
-            /** @var Model $model */
-            $model && $model->withAttribute($name, $callback);
+        $this->each(function (Model $model) use ($name, $callback) {
+            $model->withAttribute($name, $callback);
         });
 
         return $this;
@@ -103,9 +102,8 @@ class Collection extends BaseCollection
      */
     public function bindAttr($relation, $attrs = [])
     {
-        $this->each(function ($model) use ($relation, $attrs) {
-            /** @var Model $model */
-            $model && $model->bindAttr($relation, $attrs);
+        $this->each(function (Model $model) use ($relation, $attrs) {
+            $model->bindAttr($relation, $attrs);
         });
 
         return $this;

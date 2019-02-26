@@ -21,6 +21,7 @@ use think\route\Dispatch;
  * App 应用管理
  * @property Route $route
  * @property Config $config
+ * @property Cache $cache
  * @property Request $request
  * @property Env $env
  * @property Debug $debug
@@ -892,7 +893,7 @@ class App extends Container
 
         if (!empty($routeKey)) {
             try {
-                if ($option) {
+                if (!empty($option)) {
                     $this->cache->connect($option)->tag('route_cache')->set($routeKey, $dispatch);
                 } else {
                     $this->cache->tag('route_cache')->set($routeKey, $dispatch);
