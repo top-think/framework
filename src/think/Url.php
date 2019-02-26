@@ -268,7 +268,7 @@ class Url
             $domain  = $this->app->request->host();
             $domains = $this->app->route->getDomains();
 
-            if ($domains) {
+            if (!empty($domains)) {
                 $route_domain = array_keys($domains);
                 foreach ($route_domain as $domain_prefix) {
                     if (0 === strpos($domain_prefix, '*.') && strpos($domain, ltrim($domain_prefix, '*.')) !== false) {

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yangweijie <yangweijiester@gmail.com>
 // +----------------------------------------------------------------------
-
+declare (strict_types = 1);
 namespace think\debug;
 
 use think\Container;
@@ -26,9 +26,7 @@ class Console
     // 实例化并传入参数
     public function __construct(array $config = [])
     {
-        if (is_array($config)) {
-            $this->config = array_merge($this->config, $config);
-        }
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -36,7 +34,7 @@ class Console
      * @access public
      * @param  Response  $response Response对象
      * @param  array     $log 日志信息
-     * @return bool
+     * @return string|bool
      */
     public function output(Response $response, array $log = [])
     {
@@ -62,7 +60,7 @@ class Console
         // 页面Trace信息
         $base = [
             '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
-            '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
+            '运行时间' => number_format((float) $runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
             '查询信息' => Container::pull('db')->getQueryTimes() . ' queries',
             '缓存信息' => Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes',
         ];
@@ -89,8 +87,8 @@ class Console
                         // 多组信息
                         $names  = explode('|', $name);
                         $result = [];
-                        foreach ($names as $name) {
-                            $result = array_merge($result, $log[$name] ?? []);
+                        foreach ($names as $item) {
+                            $result = array_merge($result, $log[$item] ?? []);
                         }
                         $trace[$title] = $result;
                     } else {
@@ -117,6 +115,7 @@ JS;
     {
         $type       = strtolower($type);
         $trace_tabs = array_values($this->config['tabs']);
+        $line       = [];
         $line[]     = ($type == $trace_tabs[0] || '调试' == $type || '错误' == $type)
         ? "console.group('{$type}');"
         : "console.groupCollapsed('{$type}');";
@@ -128,7 +127,7 @@ JS;
                     if (in_array($var_type, ['array', 'string'])) {
                         $line[] = "console.log(" . json_encode($m) . ");";
                     } else {
-                        $line[] = "console.log(" . json_encode(var_export($m, 1)) . ");";
+                        $line[] = "console.log(" . json_encode(var_export($m, true)) . ");";
                     }
                     break;
                 case '错误':

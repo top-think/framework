@@ -263,7 +263,7 @@ class Handle
         $first = ($line - 9 > 0) ? $line - 9 : 1;
 
         try {
-            $contents = file($exception->getFile());
+            $contents = file($exception->getFile()) ?: [];
             $source   = [
                 'first'  => $first,
                 'source' => array_slice($contents, $first - 1, 19),

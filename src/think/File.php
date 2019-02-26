@@ -18,7 +18,7 @@ class File extends SplFileObject
 {
     /**
      * 错误信息
-     * @var string
+     * @var string|array
      */
     private $error = '';
 
@@ -36,7 +36,7 @@ class File extends SplFileObject
 
     /**
      * 上传文件命名规则
-     * @var string
+     * @var string|\Closure
      */
     protected $rule = 'date';
 

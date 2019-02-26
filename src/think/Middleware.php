@@ -52,6 +52,7 @@ class Middleware
      * @access public
      * @param  array  $middlewares
      * @param  string $type  中间件类型
+     * @return void
      */
     public function import(array $middlewares = [], string $type = 'route'): void
     {
@@ -65,6 +66,7 @@ class Middleware
      * @access public
      * @param  mixed  $middleware
      * @param  string $type  中间件类型
+     * @return void
      */
     public function add($middleware, string $type = 'route'): void
     {
@@ -83,10 +85,11 @@ class Middleware
      * 注册控制器中间件
      * @access public
      * @param  mixed  $middleware
+     * @return void
      */
-    public function controller($middleware)
+    public function controller($middleware): void
     {
-        return $this->add($middleware, 'controller');
+        $this->add($middleware, 'controller');
     }
 
     /**
@@ -95,7 +98,7 @@ class Middleware
      * @param  mixed  $middleware
      * @param  string $type  中间件类型
      */
-    public function unshift($middleware, string $type = 'route'): void
+    public function unshift($middleware, string $type = 'route')
     {
         if (is_null($middleware)) {
             return;
@@ -134,8 +137,9 @@ class Middleware
      * @access protected
      * @param  mixed  $middleware
      * @param  string $type  中间件类型
+     * @return array
      */
-    protected function buildMiddleware($middleware, string $type = 'route')
+    protected function buildMiddleware($middleware, string $type = 'route'): array
     {
         if (is_array($middleware)) {
             list($middleware, $param) = $middleware;
@@ -158,7 +162,8 @@ class Middleware
         }
 
         if (is_array($middleware)) {
-            return $this->import($middleware, $type);
+            $this->import($middleware, $type);
+            return [];
         }
 
         if (strpos($middleware, ':')) {

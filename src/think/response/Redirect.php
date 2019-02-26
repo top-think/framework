@@ -22,9 +22,9 @@ class Redirect extends Response
     // URL参数
     protected $params = [];
 
-    public function __construct($data = '', int $code = 302, array $header = [], array $options = [])
+    public function __construct($data = '', int $code = 302)
     {
-        parent::__construct($data, $code, $header, $options);
+        parent::__construct($data, $code);
 
         $this->cacheControl('no-cache,must-revalidate');
     }

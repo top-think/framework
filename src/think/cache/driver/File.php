@@ -68,6 +68,7 @@ class File extends Driver
                 return true;
             }
         } catch (\Exception $e) {
+            // 写入失败
         }
 
         return false;
@@ -100,6 +101,7 @@ class File extends Driver
             try {
                 mkdir($dir, 0755, true);
             } catch (\Exception $e) {
+                // 创建失败
             }
         }
 

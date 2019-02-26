@@ -56,7 +56,7 @@ class Fetch
      */
     public function aggregate(string $aggregate, string $field): string
     {
-        $options = $this->query->parseOptions();
+        $this->query->parseOptions();
 
         $field = $aggregate . '(' . $this->builder->parseKey($this->query, $field) . ') AS tp_' . strtolower($aggregate);
 
@@ -77,11 +77,7 @@ class Fetch
             $this->query->removeOption('field');
         }
 
-        if (is_string($field)) {
-            $field = array_map('trim', explode(',', $field));
-        }
-
-        $this->query->setOption('field', $field);
+        $this->query->setOption('field', (array) $field);
 
         // 生成查询SQL
         $sql = $this->builder->select($this->query, true);
@@ -181,13 +177,13 @@ class Fetch
         }
 
         if ($limit) {
-            $array = array_chunk($dataSet, $limit, true);
-
+            $array    = array_chunk($dataSet, $limit, true);
+            $fetchSql = [];
             foreach ($array as $item) {
                 $sql  = $this->builder->insertAll($this->query, $item, $replace);
                 $bind = $this->query->getBind();
 
-                $fetchSql[] = $this->getRealSql($sql, $bind);
+                $fetchSql[] = $this->connection->getRealSql($sql, $bind);
             }
 
             return implode(';', $fetchSql);
@@ -225,8 +221,7 @@ class Fetch
 
         $data = array_merge($options['data'], $data);
 
-        $pk   = $this->query->getPk();
-        $data = $options['data'];
+        $pk = $this->query->getPk();
 
         if (empty($options['where'])) {
             // 如果存在主键数据 则自动作为更新条件
@@ -246,7 +241,7 @@ class Fetch
                 }
             }
 
-            if (empty($this->getOption('where'))) {
+            if (empty($this->query->getOptions('where'))) {
                 // 如果没有任何更新条件则不执行
                 throw new Exception('miss update condition');
             }
@@ -403,7 +398,7 @@ class Fetch
      */
     public function sum(string $field): string
     {
-        return $this->aggregate('SUM', $field, true);
+        return $this->aggregate('SUM', $field);
     }
 
     /**

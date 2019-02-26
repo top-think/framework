@@ -171,7 +171,7 @@ class Wincache extends Driver
 
     public function clearTag(string $tag): void
     {
-        $keys = $this->getTagItem($tag);
+        $keys = $this->getTagItems($tag);
 
         wincache_ucache_delete($keys);
 

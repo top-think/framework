@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+use ReflectionClass;
+use ReflectionMethod;
+
 class Build
 {
     /**
@@ -192,11 +195,11 @@ class Build
     /**
      * 生成控制器类的路由规则
      * @access protected
-     * @param  \ReflectionClass $class        控制器反射对象
+     * @param  ReflectionClass  $class        控制器反射对象
      * @param  string           $controller   控制器名
      * @return string
      */
-    protected function getControllerRoute(\ReflectionClass $class, string $controller): string
+    protected function getControllerRoute(ReflectionClass $class, string $controller): string
     {
         $content = '';
         $comment = $class->getDocComment();
@@ -211,7 +214,7 @@ class Build
             $content .= PHP_EOL . $comment;
         }
 
-        $methods = $class->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
 
         foreach ($methods as $method) {
             $comment = $this->getMethodRouteComment($controller, $method);
@@ -254,11 +257,11 @@ class Build
     /**
      * 获取方法的路由注释
      * @access protected
-     * @param  string           $controller 控制器名
-     * @param  \ReflectMethod   $reflectMethod
+     * @param  string             $controller 控制器名
+     * @param  ReflectionMethod   $reflectMethod
      * @return string|void
      */
-    protected function getMethodRouteComment(string $controller, \ReflectMethod $reflectMethod)
+    protected function getMethodRouteComment(string $controller, ReflectionMethod $reflectMethod)
     {
         $comment = $reflectMethod->getDocComment();
 

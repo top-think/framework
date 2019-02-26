@@ -25,11 +25,11 @@ class RuleItem extends Rule
      * @param  Route             $router 路由实例
      * @param  RuleGroup         $parent 上级对象
      * @param  string            $name 路由标识
-     * @param  string|array      $rule 路由规则
+     * @param  string            $rule 路由规则
      * @param  string|\Closure   $route 路由地址
      * @param  string            $method 请求类型
      */
-    public function __construct(Route $router, RuleGroup $parent, string $name = null, string $rule = null, $route = null, string $method = '*')
+    public function __construct(Route $router, RuleGroup $parent, string $name = null, string $rule = '', $route = null, string $method = '*')
     {
         $this->router = $router;
         $this->parent = $parent;

@@ -81,7 +81,7 @@ class BelongsTo extends OneToOne
     public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', &$name = ''): string
     {
         if ($closure) {
-            $closure($this->query);
+            $return = $closure($this->query);
 
             if ($return && is_string($return)) {
                 $name = $return;
@@ -115,7 +115,7 @@ class BelongsTo extends OneToOne
         if ($closure) {
             $return = $closure($this->query);
 
-            if ($resturn && is_string($return)) {
+            if ($return && is_string($return)) {
                 $name = $return;
             }
         }
@@ -157,7 +157,7 @@ class BelongsTo extends OneToOne
      * @param  mixed   $where  查询条件（数组或者闭包）
      * @param  mixed   $fields 字段
      * @param  string  $joinType JOIN类型
-     * @return Query
+     * @return \think\db\Query
      */
     public function hasWhere($where = [], $fields = null, string $joinType = ''): Query
     {

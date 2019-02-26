@@ -21,7 +21,7 @@ abstract class Dispatch
 {
     /**
      * 应用对象
-     * @var App
+     * @var \think\App
      */
     protected $app;
 
@@ -51,7 +51,7 @@ abstract class Dispatch
 
     /**
      * 状态码
-     * @var string
+     * @var int
      */
     protected $code;
 
@@ -61,7 +61,7 @@ abstract class Dispatch
      */
     protected $convert;
 
-    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], $code = null)
+    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], int $code = null)
     {
         $this->request  = $request;
         $this->rule     = $rule;
@@ -185,8 +185,8 @@ abstract class Dispatch
     /**
      * 路由绑定模型实例
      * @access protected
-     * @param  array|\Clousre    $bindModel 绑定模型
-     * @param  array             $matches   路由变量
+     * @param  array    $bindModel 绑定模型
+     * @param  array    $matches   路由变量
      * @return void
      */
     protected function createBindModel(array $bindModel, array $matches): void
@@ -244,7 +244,7 @@ abstract class Dispatch
             $tag    = null;
         }
 
-        $this->request->cache($key, $expire, $tag);
+        $this->request->cache($key, (int) $expire, $tag);
     }
 
     /**

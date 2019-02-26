@@ -937,7 +937,7 @@ abstract class Connection
      * @param  boolean $replace      是否replace
      * @param  boolean $getLastInsID 返回自增主键
      * @param  string  $sequence     自增序列名
-     * @return integer
+     * @return mixed
      */
     public function insert(Query $query, bool $replace = false, bool $getLastInsID = false, string $sequence = null)
     {
@@ -992,7 +992,7 @@ abstract class Connection
             return 0;
         }
 
-        $options = $query->parseOptions();
+        $query->parseOptions();
 
         if ($limit) {
             // 分批写入 自动启动事务支持
@@ -1064,7 +1064,7 @@ abstract class Connection
             // 删除缓存
             $this->cache->delete($key);
         } elseif (isset($cacheItem) && $cacheItem->getTag()) {
-            $this->cache->clear($cacheItem->getTag());
+            $this->cache->tag($cacheItem->getTag())->clear();
         }
 
         // 执行操作
@@ -1103,7 +1103,7 @@ abstract class Connection
             // 删除缓存
             $this->cache->delete($key);
         } elseif (isset($cacheItem) && $cacheItem->getTag()) {
-            $this->cache->clear($cacheItem->getTag());
+            $this->cache->tag($cacheItem->getTag())->clear();
         }
 
         // 执行操作

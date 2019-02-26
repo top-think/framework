@@ -106,12 +106,12 @@ abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, J
 
     /**
      * @access public
-     * @param       $items
-     * @param       $listRows
-     * @param null  $currentPage
-     * @param null  $total
-     * @param bool  $simple
-     * @param array $options
+     * @param  mixex    $items
+     * @param  int      $listRows
+     * @param  int      $currentPage
+     * @param  int      $total
+     * @param  bool     $simple
+     * @param  array    $options
      * @return Paginator
      */
     public static function make($items, int $listRows, int $currentPage = 1, int $total = null, bool $simple = false, array $options = [])

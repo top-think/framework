@@ -89,9 +89,9 @@ class Cookie
      * Cookie 设置
      *
      * @access public
-     * @param  string $name  cookie名称
-     * @param  mixed  $value cookie值
-     * @param  mixed  $option 可选参数 可能会是 null|integer|string
+     * @param  string               $name  cookie名称
+     * @param  mixed                $value cookie值
+     * @param  null|integer|array   $option 可选参数 可能会是
      * @return void
      */
     public function set(string $name, $value = '', $option = null): void
@@ -102,8 +102,6 @@ class Cookie
         if (!is_null($option)) {
             if (is_numeric($option)) {
                 $option = ['expire' => $option];
-            } elseif (is_string($option)) {
-                parse_str($option, $option);
             }
 
             $config = array_merge($this->config, array_change_key_case($option));
@@ -235,7 +233,7 @@ class Cookie
         $name   = $prefix . $name;
 
         if ($config['setcookie']) {
-            $this->setCookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
+            $this->setCookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
         }
 
         // 删除指定cookie

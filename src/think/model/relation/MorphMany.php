@@ -233,9 +233,10 @@ class MorphMany extends Relation
      * @param  Closure  $closure 闭包
      * @param  string   $aggregate 聚合查询方法
      * @param  string   $field 字段
+     * @param  string   $name 统计字段别名
      * @return string
      */
-    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*'): string
+    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string
     {
         if ($closure) {
             $return = $closure($this->query);
@@ -297,7 +298,7 @@ class MorphMany extends Relation
 
     /**
      * 创建关联对象实例
-     * @param array $data
+     * @param array|Model $data
      * @return Model
      */
     public function make($data = []): Model

@@ -104,6 +104,7 @@ class File
         // 检测日志文件大小，超过配置大小则备份日志文件重新生成
         $this->checkLogSize($destination);
 
+        $info = [];
         // 日志信息封装
         $info['timestamp'] = date($this->config['time_format']);
 
@@ -138,6 +139,7 @@ class File
                     unlink($files[0]);
                 }
             } catch (\Exception $e) {
+                //
             }
         }
 
@@ -196,6 +198,7 @@ class File
             try {
                 rename($destination, dirname($destination) . DIRECTORY_SEPARATOR . time() . '-' . basename($destination));
             } catch (\Exception $e) {
+                //
             }
         }
     }

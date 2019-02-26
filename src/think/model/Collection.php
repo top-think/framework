@@ -14,6 +14,7 @@ namespace think\model;
 
 use think\Collection as BaseCollection;
 use think\Model;
+use think\Paginator;
 
 class Collection extends BaseCollection
 {

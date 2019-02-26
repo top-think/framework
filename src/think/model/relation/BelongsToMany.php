@@ -156,9 +156,9 @@ class BelongsToMany extends Relation
         // 关联查询
         $pk = $this->parent->getPk();
 
-        $condition[] = ['pivot.' . $localKey, '=', $this->parent->$pk];
+        $condition = ['pivot.' . $localKey, '=', $this->parent->$pk];
 
-        return $this->belongsToManyQuery($foreignKey, $localKey, $condition);
+        return $this->belongsToManyQuery($foreignKey, $localKey, [$condition]);
     }
 
     /**
@@ -555,7 +555,7 @@ class BelongsToMany extends Relation
             $id         = $data->$relationFk;
         }
 
-        if ($id) {
+        if (!empty($id)) {
             // 保存中间表数据
             $pk                     = $this->parent->getPk();
             $pivot[$this->localKey] = $this->parent->$pk;
@@ -625,6 +625,7 @@ class BelongsToMany extends Relation
 
         // 删除中间表数据
         $pk      = $this->parent->getPk();
+        $pivot   = [];
         $pivot[] = [$this->localKey, '=', $this->parent->$pk];
 
         if (isset($id)) {

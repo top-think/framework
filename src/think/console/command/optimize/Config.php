@@ -37,7 +37,7 @@ class Config extends Command
         $content = '<?php ' . PHP_EOL . $this->buildCacheContent($input->getArgument('app'));
 
         if (!is_dir($runtimePath)) {
-            @mkdir($runtimePath, 0755, true);
+            mkdir($runtimePath, 0755, true);
         }
 
         file_put_contents($runtimePath . 'init.php', $content);

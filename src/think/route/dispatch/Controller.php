@@ -66,9 +66,6 @@ class Controller extends Dispatch
             $action = $this->actionName . $this->rule->config('action_suffix');
 
             if (is_callable([$instance, $action])) {
-                // 执行操作方法
-                $call = [$instance, $action];
-
                 // 严格获取当前操作方法名
                 $reflect    = new ReflectionMethod($instance, $action);
                 $actionName = $reflect->getName();

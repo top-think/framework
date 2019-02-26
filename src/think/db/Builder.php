@@ -423,7 +423,7 @@ abstract class Builder
             } else {
                 array_push($val, $item);
             }
-
+            $str = [];
             foreach ($val as $k => $item) {
                 $str[] = $this->parseWhereItem($query, $field, $item, $rule, $binds);
             }
@@ -493,12 +493,13 @@ abstract class Builder
     {
         // 模糊匹配
         if (is_array($value)) {
+            $array = [];
             foreach ($value as $item) {
                 $name    = $query->bindValue($item, $bindType);
                 $array[] = $key . ' ' . $exp . ' :' . $name;
             }
 
-            $whereStr = '(' . implode($array, ' ' . strtoupper($logic) . ' ') . ')';
+            $whereStr = '(' . implode(' ' . strtoupper($logic) . ' ', $array) . ')';
         } else {
             $whereStr = $key . ' ' . $exp . ' ' . $value;
         }
@@ -824,6 +825,7 @@ abstract class Builder
      */
     protected function parseOrder(Query $query, array $order): string
     {
+        $array = [];
         foreach ($order as $key => $val) {
             if ($val instanceof Raw) {
                 $array[] = $val->getValue();
@@ -907,6 +909,7 @@ abstract class Builder
             $group = explode(',', $group);
         }
 
+        $val = [];
         foreach ($group as $key) {
             $val[] = $this->parseKey($query, $key);
         }
@@ -1106,10 +1109,12 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $query->getFieldsBindType();
+        $bind   = $query->getFieldsBindType();
+        $fields = [];
+        $values = [];
 
         foreach ($dataSet as $k => $data) {
-            $data = $this->parseData($query, $data, $allowFields, $bind, '_' . $k);
+            $data = $this->parseData($query, $data, $allowFields, $bind);
 
             $values[] = 'SELECT ' . implode(',', array_values($data));
 
@@ -1117,8 +1122,6 @@ abstract class Builder
                 $insertFields = array_keys($data);
             }
         }
-
-        $fields = [];
 
         foreach ($insertFields as $field) {
             $fields[] = $this->parseKey($query, $field);
@@ -1170,6 +1173,7 @@ abstract class Builder
             return '';
         }
 
+        $set = [];
         foreach ($data as $key => $val) {
             $set[] = $key . ' = ' . $val;
         }

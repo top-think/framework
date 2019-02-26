@@ -2062,21 +2062,20 @@ class Request
     /**
      * 设置当前地址的请求缓存
      * @access public
+     * @param  mixed  $key 缓存标识，支持变量规则 ，例如 item/:name/:id
+     * @param  int   $expire 缓存有效期
+     * @param  string $tag    缓存标签
+     * @param  array  $except 缓存排除
      * @return mixed
      */
-    public function cache()
+    public function cache($key = null, int $expire = null, string $tag = null, array $except = [])
     {
-        $key    = $this->config['request_cache'];
-        $expire = $this->config['request_cache_expire'];
-        $except = $this->config['request_cache_except'];
-        $tag    = $this->config['request_cache_tag'];
+        $key    = $key ?: $this->config['request_cache'];
+        $expire = $expire ?: $this->config['request_cache_expire'];
+        $except = !empty($except) ? $except : $this->config['request_cache_except'];
+        $tag    = $tag ?: $this->config['request_cache_tag'];
 
-        if (!is_array($except)) {
-            $tag    = $except;
-            $except = [];
-        }
-
-        if (false === $key || !$this->isGet() || $this->isCheckCache || false === $expire) {
+        if (false === $key || !$this->isGet() || $this->isCheckCache) {
             // 关闭当前缓存
             return;
         }

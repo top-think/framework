@@ -129,9 +129,9 @@ class HasMany extends Relation
         $localKey = $this->localKey;
 
         if (isset($result->$localKey)) {
-            $pk      = $result->$localKey;
-            $where[] = [$this->foreignKey, '=', $pk];
-            $data    = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
+            $pk    = $result->$localKey;
+            $where = [$this->foreignKey, '=', $pk];
+            $data  = $this->eagerlyOneToMany([$where], $relation, $subRelation, $closure);
 
             // 关联数据封装
             if (!isset($data[$pk])) {
@@ -166,7 +166,7 @@ class HasMany extends Relation
 
         if ($closure) {
             $return = $closure($this->query);
-            if ($resturn && is_string($return)) {
+            if ($return && is_string($return)) {
                 $name = $return;
             }
         }
@@ -188,7 +188,10 @@ class HasMany extends Relation
     public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string
     {
         if ($closure) {
-            $closure($this->query);
+            $return = $closure($this->query);
+            if ($return && is_string($return)) {
+                $name = $return;
+            }
         }
 
         return $this->query->alias($aggregate . '_table')
@@ -286,7 +289,7 @@ class HasMany extends Relation
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = ''): Query
+    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = 'INNER'): Query
     {
         $table = $this->query->getTable();
 
@@ -296,7 +299,7 @@ class HasMany extends Relation
         return $this->parent->db()
             ->alias($model)
             ->field($model . '.*')
-            ->join([$table => $relation], $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $joinType ?: $this->joinType)
+            ->join([$table => $relation], $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $joinType)
             ->group($relation . '.' . $this->foreignKey)
             ->having('count(' . $id . ')' . $operator . $count);
     }

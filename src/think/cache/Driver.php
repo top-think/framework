@@ -163,7 +163,7 @@ abstract class Driver extends SimpleCache
      */
     protected function setTagItem(string $name): void
     {
-        if ($this->tag) {
+        if (!empty($this->tag)) {
             $tags      = $this->tag;
             $this->tag = null;
 

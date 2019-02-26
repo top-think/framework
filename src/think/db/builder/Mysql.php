@@ -121,6 +121,7 @@ class Mysql extends Builder
             return '';
         }
 
+        $set = [];
         foreach ($data as $key => $val) {
             $set[] = $key . ' = ' . $val;
         }
@@ -159,10 +160,12 @@ class Mysql extends Builder
         }
 
         // 获取绑定信息
-        $bind = $this->connection->getFieldsBind($options['table']);
+        $bind   = $this->connection->getFieldsBind($options['table']);
+        $fields = [];
+        $values = [];
 
         foreach ($dataSet as $data) {
-            $data = $this->parseData($query, $data, $allowFields);
+            $data = $this->parseData($query, $data, $allowFields, $bind);
 
             $values[] = '( ' . implode(',', array_values($data)) . ' )';
 
@@ -171,7 +174,6 @@ class Mysql extends Builder
             }
         }
 
-        $fields = [];
         foreach ($insertFields as $field) {
             $fields[] = $this->parseKey($query, $field);
         }
@@ -206,7 +208,7 @@ class Mysql extends Builder
         if (empty($data)) {
             return '';
         }
-
+        $set = [];
         foreach ($data as $key => $val) {
             $set[] = $key . ' = ' . $val;
         }

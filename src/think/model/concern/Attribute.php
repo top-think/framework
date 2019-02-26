@@ -172,9 +172,9 @@ trait Attribute
      * 获取实际的字段名
      * @access public
      * @param  string $name 字段名
-     * @return $this
+     * @return string
      */
-    protected function getRealFieldName($name)
+    protected function getRealFieldName(string $name): string
     {
         return $this->strict ? $name : App::parseName($name);
     }

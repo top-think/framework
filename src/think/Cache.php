@@ -297,7 +297,7 @@ class Cache implements CacheItemPoolInterface
 
     public function __destruct()
     {
-        if ($this->deferred) {
+        if (!empty($this->deferred)) {
             $this->commit();
         }
     }

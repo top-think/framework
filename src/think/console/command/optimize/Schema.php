@@ -43,7 +43,7 @@ class Schema extends Command
 
         $schemaPath = $runtimePath . 'schema' . DIRECTORY_SEPARATOR;
         if (!is_dir($schemaPath)) {
-            @mkdir($schemaPath, 0755, true);
+            mkdir($schemaPath, 0755, true);
         }
 
         if ($input->hasOption('table')) {

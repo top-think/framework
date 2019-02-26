@@ -52,6 +52,9 @@ use think\Facade;
  * @method integer getBeginMem() static 获取应用初始内存占用
  * @method string serialize(mixed $data) static 序列化数据
  * @method mixed unserialize(string $data) static 解序列化
+ * @method string classBaseName(mixed $class) static 获取类名(不包含命名空间)
+ * @method mixed factory(string $name, string $namespace = '', ...$args) static 工厂方法
+ * @method string parseName(string $name = null, int $type = 0, bool $ucfirst = true) static 字符串命名风格转换
  */
 class App extends Facade
 {

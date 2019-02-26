@@ -230,7 +230,7 @@ class MorphOne extends Relation
 
     /**
      * 创建关联对象实例
-     * @param array $data
+     * @param array|Model $data
      * @return Model
      */
     public function make($data = []): Model

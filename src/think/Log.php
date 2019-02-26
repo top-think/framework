@@ -235,6 +235,8 @@ class Log implements LoggerInterface
             $force = true;
         }
 
+        $log = [];
+
         if (true === $force || in_array($type, $this->config['level'])) {
             $log[$type][] = $msg;
         } else {

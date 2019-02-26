@@ -108,7 +108,7 @@ class MorphTo extends Relation
      * @param  integer $count    个数
      * @param  string  $id       关联表的统计字段
      * @param  string  $joinType JOIN类型
-     * @return Query
+     * @return \think\db\Query
      */
     public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = '')
     {
@@ -241,8 +241,6 @@ class MorphTo extends Relation
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
     {
-        $morphKey  = $this->morphKey;
-        $morphType = $this->morphType;
         // 多态类型映射
         $model = $this->parseModel($result->{$this->morphType});
 

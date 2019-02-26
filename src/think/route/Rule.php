@@ -666,7 +666,7 @@ abstract class Rule
      * @access public
      * @param  Request   $request 请求对象
      * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  mixed     $route 路由地址
      * @param  string    $url URL地址
      * @param  array     $option 路由参数
      * @param  array     $matches 匹配的变量

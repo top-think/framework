@@ -158,7 +158,7 @@ trait Conversion
         return $item;
     }
 
-    protected function appendAttrToArray(array &$item, $key, string $name)
+    protected function appendAttrToArray(array &$item, $key, $name)
     {
         if (is_array($name)) {
             // 追加关联对象属性
@@ -201,7 +201,7 @@ trait Conversion
         if ($modelRelation instanceof OneToOne) {
             $bindAttr = $modelRelation->getBindAttr();
 
-            if ($bindAttr) {
+            if (!empty($bindAttr)) {
                 unset($item[$name]);
             }
 

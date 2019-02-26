@@ -46,7 +46,7 @@ class Lang
 
     /**
      * Accept-Language转义为对应语言包名称 系统默认配置
-     * @var string
+     * @var array
      */
     protected $acceptLanguage = [
         'zh-hans-cn' => 'zh-cn',

@@ -106,7 +106,7 @@ class Resource extends RuleGroup
     /**
      * rest方法定义和修改
      * @access public
-     * @param  string        $name 方法名称
+     * @param  array|string  $name 方法名称
      * @param  array|bool    $resource 资源
      * @return $this
      */

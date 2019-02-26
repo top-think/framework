@@ -56,8 +56,8 @@ class Memcache extends Driver
         foreach ($hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0];
             $this->options['timeout'] > 0 ?
-            $this->handler->addServer($host, $port, $this->options['persistent'], 1, $this->options['timeout']) :
-            $this->handler->addServer($host, $port, $this->options['persistent'], 1);
+            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, $this->options['timeout']) :
+            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
         }
     }
 
@@ -95,7 +95,7 @@ class Memcache extends Driver
      * @access public
      * @param  string        $name 缓存变量名
      * @param  mixed         $value  存储数据
-     * @param  int|DateTime  $expire  有效时间（秒）
+     * @param  int|\DateTime $expire  有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null): bool

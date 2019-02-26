@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-
+declare (strict_types = 1);
 namespace think\debug;
 
 use think\Container;
@@ -35,7 +35,7 @@ class Html
      * @access public
      * @param  Response  $response Response对象
      * @param  array     $log 日志信息
-     * @return bool
+     * @return bool|string
      */
     public function output(Response $response, array $log = [])
     {
@@ -64,7 +64,7 @@ class Html
 
         $base = [
             '请求信息' => date('Y-m-d H:i:s', $request->time()) . ' ' . $uri,
-            '运行时间' => number_format($runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
+            '运行时间' => number_format((float) $runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
             '查询信息' => Container::pull('db')->getQueryTimes() . ' queries',
             '缓存信息' => Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes',
         ];
@@ -91,12 +91,12 @@ class Html
                         // 多组信息
                         $names  = explode('|', $name);
                         $result = [];
-                        foreach ($names as $name) {
-                            $result = array_merge($result, isset($log[$name]) ? $log[$name] : []);
+                        foreach ($names as $item) {
+                            $result = array_merge($result, $log[$item] ?? []);
                         }
                         $trace[$title] = $result;
                     } else {
-                        $trace[$title] = isset($log[$name]) ? $log[$name] : '';
+                        $trace[$title] = $log[$name] ?? '';
                     }
             }
         }
