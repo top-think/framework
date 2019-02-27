@@ -81,6 +81,15 @@ trait TimeStamp
                     $format .= strpos($format, 'u') || false !== strpos($format, '\\') ? '' : '.u';
                     $value = $this->formatDateTime($format);
                     break;
+                default:
+                    if (false !== strpos($type, '\\')) {
+                        // 对象数据写入
+                        $value = new $type();
+                        if (method_exists($value, '__toString')) {
+                            // 对象数据写入
+                            $value = $value->__toString();
+                        }
+                    }
             }
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),
             ['datetime', 'date', 'timestamp'])) {

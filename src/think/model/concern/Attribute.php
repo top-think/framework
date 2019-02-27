@@ -427,6 +427,11 @@ trait Attribute
             case 'serialize':
                 $value = serialize($value);
                 break;
+            default:
+                if (is_object($value) && false !== strpos($type, '\\') && method_exists($value, '__toString')) {
+                    // 对象类型
+                    $value = $value->__toString();
+                }
         }
 
         return $value;

@@ -149,9 +149,6 @@ abstract class Builder
                 continue;
             } elseif (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $this->connection->getFieldsType($options['table'], $key))) {
                 $val = json_encode($val);
-            } elseif (is_object($val) && method_exists($val, '__toString')) {
-                // 对象数据写入
-                $val = $val->__toString();
             }
 
             if (false !== strpos($key, '->')) {
