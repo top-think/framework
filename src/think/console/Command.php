@@ -314,7 +314,7 @@ class Command
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->name ?: '';
     }
 
     /**
@@ -335,7 +335,7 @@ class Command
      */
     public function getDescription(): string
     {
-        return $this->description;
+        return $this->description ?: '';
     }
 
     /**
@@ -356,7 +356,7 @@ class Command
      */
     public function getHelp(): string
     {
-        return $this->help;
+        return $this->help ?: '';
     }
 
     /**
