@@ -59,6 +59,8 @@ class Route
         'url_convert'           => true,
         // 默认的路由变量规则
         'default_route_pattern' => '\w+',
+        // URL伪静态后缀
+        'url_html_suffix'       => 'html',
         // 默认输出类型
         'default_return_type'   => 'html',
         // 默认AJAX 数据返回格式,可选json xml ...
@@ -140,8 +142,12 @@ class Route
         $this->setDefaultDomain();
     }
 
-    public function config(string $name)
+    public function config(string $name = null)
     {
+        if (is_null($name)) {
+            return $this->config;
+        }
+
         return $this->config[$name] ?? null;
     }
 

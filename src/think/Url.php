@@ -60,9 +60,9 @@ class Url
         $this->config = array_merge($this->config, array_change_key_case($config));
     }
 
-    public static function __make(App $app, Config $config)
+    public static function __make(App $app, Route $route)
     {
-        return new static($app, $config->get('route', []));
+        return new static($app, $route->config());
     }
 
     /**

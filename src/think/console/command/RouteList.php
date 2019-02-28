@@ -41,7 +41,7 @@ class RouteList extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $app = $input->getArgument('app');
+        $app = $input->getArgument('app') ?: '';
 
         if (App::isMulti() && $app) {
             $filename = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'route_list_' . $app . '.php';

@@ -293,7 +293,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param  array  $vars     参数
      * @return mixed
      */
-    public function invokeFunction(callable $function, array $vars = [])
+    public function invokeFunction($function, array $vars = [])
     {
         try {
             $reflect = new ReflectionFunction($function);
@@ -313,7 +313,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param  array   $vars   参数
      * @return mixed
      */
-    public function invokeMethod(callable $method, array $vars = [])
+    public function invokeMethod($method, array $vars = [])
     {
         try {
             if (is_array($method)) {
@@ -354,7 +354,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param  array $vars   参数
      * @return mixed
      */
-    public function invoke(callable $callable, array $vars = [])
+    public function invoke($callable, array $vars = [])
     {
         if ($callable instanceof Closure) {
             return $this->invokeFunction($callable, $vars);
