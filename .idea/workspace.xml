@@ -1,7 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="274d6984-f023-49e3-a20d-e12682cb5740" name="Default" comment="" />
+    <list default="true" id="274d6984-f023-49e3-a20d-e12682cb5740" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" />
+      <change beforePath="$PROJECT_DIR$/LICENSE.txt" afterPath="$PROJECT_DIR$/LICENSE.txt" />
+      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change beforePath="$PROJECT_DIR$/helper.php" afterPath="$PROJECT_DIR$/helper.php" />
+      <change beforePath="$PROJECT_DIR$/lang/zh-cn.php" afterPath="$PROJECT_DIR$/lang/zh-cn.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/App.php" afterPath="$PROJECT_DIR$/library/think/App.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Build.php" afterPath="$PROJECT_DIR$/library/think/Build.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Collection.php" afterPath="$PROJECT_DIR$/library/think/Collection.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Config.php" afterPath="$PROJECT_DIR$/library/think/Config.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Controller.php" afterPath="$PROJECT_DIR$/library/think/Controller.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Env.php" afterPath="$PROJECT_DIR$/library/think/Env.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/File.php" afterPath="$PROJECT_DIR$/library/think/File.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Hook.php" afterPath="$PROJECT_DIR$/library/think/Hook.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Lang.php" afterPath="$PROJECT_DIR$/library/think/Lang.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Log.php" afterPath="$PROJECT_DIR$/library/think/Log.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Model.php" afterPath="$PROJECT_DIR$/library/think/Model.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Request.php" afterPath="$PROJECT_DIR$/library/think/Request.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Route.php" afterPath="$PROJECT_DIR$/library/think/Route.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Template.php" afterPath="$PROJECT_DIR$/library/think/Template.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Url.php" afterPath="$PROJECT_DIR$/library/think/Url.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/Validate.php" afterPath="$PROJECT_DIR$/library/think/Validate.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/Driver.php" afterPath="$PROJECT_DIR$/library/think/cache/Driver.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/File.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/File.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Lite.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Lite.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Memcache.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Memcache.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Memcached.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Memcached.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Redis.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Redis.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Sqlite.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Sqlite.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Wincache.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Wincache.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Xcache.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Xcache.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/console/command/optimize/Autoload.php" afterPath="$PROJECT_DIR$/library/think/console/command/optimize/Autoload.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/console/command/optimize/Schema.php" afterPath="$PROJECT_DIR$/library/think/console/command/optimize/Schema.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/console/output/question/Choice.php" afterPath="$PROJECT_DIR$/library/think/console/output/question/Choice.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/Builder.php" afterPath="$PROJECT_DIR$/library/think/db/Builder.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/Connection.php" afterPath="$PROJECT_DIR$/library/think/db/Connection.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/Query.php" afterPath="$PROJECT_DIR$/library/think/db/Query.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/Where.php" afterPath="$PROJECT_DIR$/library/think/db/Where.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/builder/Mysql.php" afterPath="$PROJECT_DIR$/library/think/db/builder/Mysql.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/builder/Sqlsrv.php" afterPath="$PROJECT_DIR$/library/think/db/builder/Sqlsrv.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/connector/Sqlsrv.php" afterPath="$PROJECT_DIR$/library/think/db/connector/Sqlsrv.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/db/connector/pgsql.sql" afterPath="$PROJECT_DIR$/library/think/db/connector/pgsql.sql" />
+      <change beforePath="$PROJECT_DIR$/library/think/exception/DbException.php" afterPath="$PROJECT_DIR$/library/think/exception/DbException.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/facade/Config.php" afterPath="$PROJECT_DIR$/library/think/facade/Config.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/facade/Log.php" afterPath="$PROJECT_DIR$/library/think/facade/Log.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/facade/View.php" afterPath="$PROJECT_DIR$/library/think/facade/View.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/log/driver/File.php" afterPath="$PROJECT_DIR$/library/think/log/driver/File.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/Relation.php" afterPath="$PROJECT_DIR$/library/think/model/Relation.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/concern/Attribute.php" afterPath="$PROJECT_DIR$/library/think/model/concern/Attribute.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/concern/Conversion.php" afterPath="$PROJECT_DIR$/library/think/model/concern/Conversion.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/concern/ModelEvent.php" afterPath="$PROJECT_DIR$/library/think/model/concern/ModelEvent.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/concern/RelationShip.php" afterPath="$PROJECT_DIR$/library/think/model/concern/RelationShip.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/concern/SoftDelete.php" afterPath="$PROJECT_DIR$/library/think/model/concern/SoftDelete.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/concern/TimeStamp.php" afterPath="$PROJECT_DIR$/library/think/model/concern/TimeStamp.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/BelongsTo.php" afterPath="$PROJECT_DIR$/library/think/model/relation/BelongsTo.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/BelongsToMany.php" afterPath="$PROJECT_DIR$/library/think/model/relation/BelongsToMany.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/HasMany.php" afterPath="$PROJECT_DIR$/library/think/model/relation/HasMany.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/HasManyThrough.php" afterPath="$PROJECT_DIR$/library/think/model/relation/HasManyThrough.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/HasOne.php" afterPath="$PROJECT_DIR$/library/think/model/relation/HasOne.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/MorphMany.php" afterPath="$PROJECT_DIR$/library/think/model/relation/MorphMany.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/MorphOne.php" afterPath="$PROJECT_DIR$/library/think/model/relation/MorphOne.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/MorphTo.php" afterPath="$PROJECT_DIR$/library/think/model/relation/MorphTo.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/model/relation/OneToOne.php" afterPath="$PROJECT_DIR$/library/think/model/relation/OneToOne.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/response/Download.php" afterPath="$PROJECT_DIR$/library/think/response/Download.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/AliasRule.php" afterPath="$PROJECT_DIR$/library/think/route/AliasRule.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/Dispatch.php" afterPath="$PROJECT_DIR$/library/think/route/Dispatch.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/Domain.php" afterPath="$PROJECT_DIR$/library/think/route/Domain.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/Rule.php" afterPath="$PROJECT_DIR$/library/think/route/Rule.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/RuleGroup.php" afterPath="$PROJECT_DIR$/library/think/route/RuleGroup.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/RuleName.php" afterPath="$PROJECT_DIR$/library/think/route/RuleName.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/dispatch/Module.php" afterPath="$PROJECT_DIR$/library/think/route/dispatch/Module.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/route/dispatch/Url.php" afterPath="$PROJECT_DIR$/library/think/route/dispatch/Url.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/template/TagLib.php" afterPath="$PROJECT_DIR$/library/think/template/TagLib.php" />
+      <change beforePath="$PROJECT_DIR$/library/think/validate/ValidateRule.php" afterPath="$PROJECT_DIR$/library/think/validate/ValidateRule.php" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -9,11 +83,35 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="Redis.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/library/think/cache/driver/Redis.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-9409">
+              <caret line="45" column="26" lean-forward="false" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="494">
+                <caret line="89" column="3" lean-forward="false" selection-start-line="89" selection-start-column="3" selection-end-line="89" selection-end-column="3" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -23,6 +121,7 @@
       <find>moduleList</find>
       <find>path</find>
       <find>$defaultCommands</find>
+      <find>getTagItem</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -38,7 +137,9 @@
         <option value="$PROJECT_DIR$/library/think/Console.php" />
         <option value="$PROJECT_DIR$/library/think/App.php" />
         <option value="$PROJECT_DIR$/library/think/Container.php" />
+        <option value="$PROJECT_DIR$/library/think/Build.php" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/library/think/cache/driver/Redis.php" />
       </list>
     </option>
   </component>
@@ -68,6 +169,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -87,11 +189,25 @@
               <item name="library" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="think" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
+            <path>
+              <item name="framework" type="b2602c69:ProjectViewProjectNode" />
+              <item name="framework" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="library" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="think" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="cache" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="framework" type="b2602c69:ProjectViewProjectNode" />
+              <item name="framework" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="library" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="think" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="cache" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="driver" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -125,38 +241,41 @@
       <option name="presentableId" value="Default" />
       <updated>1536643907825</updated>
       <workItem from="1536643909972" duration="5741000" />
+      <workItem from="1551683064467" duration="1575000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5741000" />
+    <option name="totallyTimeSpent" value="7316000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1456" height="876" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="PlantUML" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="PlantUML" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="DB Execution Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="DB Execution Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Project Explorer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Job Explorer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Api Debugger" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25358167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project Explorer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Job Explorer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -185,7 +304,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="401">
           <caret line="319" column="26" lean-forward="false" selection-start-line="319" selection-start-column="26" selection-end-line="319" selection-end-column="26" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -193,15 +311,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-798">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/library/think/cache/driver/Redis.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-7980">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -209,7 +318,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-3192">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -217,7 +325,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="399">
           <caret line="34" column="0" lean-forward="true" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -225,7 +332,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -233,7 +339,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -241,7 +346,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1767">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -253,14 +357,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/library/think/Container.php.BASE.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/library/think/Container.php.BASE.php" />
     <entry file="file://$PROJECT_DIR$/base.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="173">
@@ -274,8 +371,7 @@
         <state relative-caret-position="2838">
           <caret line="562" column="31" lean-forward="false" selection-start-line="562" selection-start-column="20" selection-end-line="562" selection-end-column="31" />
           <folding>
-            <element signature="e#6#80#0#PHP" expanded="true" />
-            <element signature="e#613#629#0#PHP" expanded="true" />
+            <element signature="e#6#80#0#PHP" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -284,7 +380,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1467">
           <caret line="183" column="53" lean-forward="false" selection-start-line="183" selection-start-column="53" selection-end-line="183" selection-end-column="53" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -292,7 +387,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -300,7 +394,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -316,7 +409,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -324,7 +416,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -332,7 +423,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -340,7 +430,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -348,7 +437,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -356,7 +444,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -364,7 +451,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -372,7 +458,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -380,7 +465,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1197">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -396,18 +480,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1551">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="1268">
-            <caret line="114" column="15" lean-forward="false" selection-start-line="114" selection-start-column="15" selection-end-line="114" selection-end-column="15" />
-            <folding />
-          </first_editor>
-          <second_editor />
         </state>
       </provider>
     </entry>
@@ -415,9 +487,33 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="76">
           <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding>
-            <element signature="e#628#656#0#PHP" expanded="true" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/think/Build.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="284" column="0" lean-forward="false" selection-start-line="284" selection-start-column="0" selection-end-line="284" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="494">
+            <caret line="89" column="3" lean-forward="false" selection-start-line="89" selection-start-column="3" selection-end-line="89" selection-end-column="3" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/think/cache/driver/Redis.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9409">
+          <caret line="45" column="26" lean-forward="false" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>

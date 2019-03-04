@@ -24,6 +24,7 @@ use think\Loader;
 
 abstract class Connection
 {
+    const PARAM_FLOAT          = 21;
     protected static $instance = [];
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
@@ -303,7 +304,9 @@ abstract class Connection
     {
         if (0 === strpos($type, 'set') || 0 === strpos($type, 'enum')) {
             $bind = PDO::PARAM_STR;
-        } elseif (preg_match('/(int|double|float|decimal|real|numeric|serial|bit)/is', $type)) {
+        } elseif (preg_match('/(double|float|decimal|real|numeric)/is', $type)) {
+            $bind = self::PARAM_FLOAT;
+        } elseif (preg_match('/(int|serial|bit)/is', $type)) {
             $bind = PDO::PARAM_INT;
         } elseif (preg_match('/bool/is', $type)) {
             $bind = PDO::PARAM_BOOL;
@@ -358,7 +361,7 @@ abstract class Connection
 
         list($tableName) = explode(' ', $tableName);
 
-        if (!strpos($tableName, '.')) {
+        if (false === strpos($tableName, '.')) {
             $schema = $this->getConfig('database') . '.' . $tableName;
         } else {
             $schema = $tableName;
@@ -1306,12 +1309,16 @@ abstract class Connection
      * @access public
      * @param  Query     $query     查询对象
      * @param  string    $aggregate 聚合方法
-     * @param  string    $field     字段名
+     * @param  mixed     $field     字段名
      * @return mixed
      */
     public function aggregate(Query $query, $aggregate, $field)
     {
-        $field = $aggregate . '(' . $this->builder->parseKey($query, $field, true) . ') AS tp_' . strtolower($aggregate);
+        if (is_string($field) && 0 === stripos($field, 'DISTINCT ')) {
+            list($distinct, $field) = explode(' ', $field);
+        }
+
+        $field = $aggregate . '(' . (!empty($distinct) ? 'DISTINCT ' : '') . $this->builder->parseKey($query, $field, true) . ') AS tp_' . strtolower($aggregate);
 
         return $this->value($query, $field, 0);
     }
@@ -1343,13 +1350,14 @@ abstract class Connection
         }
 
         if (is_null($field)) {
-            $field = '*';
-        } elseif ($key && '*' != $field) {
-            $field = $key . ',' . $field;
+            $field = ['*'];
+        } elseif (is_string($field)) {
+            $field = array_map('trim', explode(',', $field));
         }
 
-        if (is_string($field)) {
-            $field = array_map('trim', explode(',', $field));
+        if ($key && ['*'] != $field) {
+            array_unshift($field, $key);
+            $field = array_unique($field);
         }
 
         $query->setOption('field', $field);
@@ -1357,6 +1365,7 @@ abstract class Connection
         // 生成查询SQL
         $sql = $this->builder->select($query);
 
+        // 还原field参数
         if (isset($options['field'])) {
             $query->setOption('field', $options['field']);
         } else {
@@ -1378,7 +1387,7 @@ abstract class Connection
         } else {
             $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
 
-            if ('*' == $field && $key) {
+            if (['*'] == $field && $key) {
                 $result = array_column($resultSet, null, $key);
             } elseif ($resultSet) {
                 $fields = array_keys($resultSet[0]);
@@ -1454,19 +1463,18 @@ abstract class Connection
             $value = is_array($val) ? $val[0] : $val;
             $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
 
-            if (PDO::PARAM_STR == $type) {
-                $value = '\'' . addslashes($value) . '\'';
-            } elseif (PDO::PARAM_INT == $type) {
+            if (self::PARAM_FLOAT == $type) {
                 $value = (float) $value;
+            } elseif (PDO::PARAM_STR == $type) {
+                $value = '\'' . addslashes($value) . '\'';
+            } elseif (PDO::PARAM_INT == $type && '' === $value) {
+                $value = 0;
             }
 
             // 判断占位符
             $sql = is_numeric($key) ?
             substr_replace($sql, $value, strpos($sql, '?'), 1) :
-            str_replace(
-                [':' . $key . ')', ':' . $key . ',', ':' . $key . ' ', ':' . $key . PHP_EOL],
-                [$value . ')', $value . ',', $value . ' ', $value . PHP_EOL],
-                $sql . ' ');
+            substr_replace($sql, $value, strpos($sql, ':' . $key), strlen(':' . $key));
         }
 
         return rtrim($sql);
@@ -1485,12 +1493,16 @@ abstract class Connection
     {
         foreach ($bind as $key => $val) {
             // 占位符
-            $param = is_numeric($key) ? $key + 1 : ':' . $key;
+            $param = is_int($key) ? $key + 1 : ':' . $key;
 
             if (is_array($val)) {
                 if (PDO::PARAM_INT == $val[1] && '' === $val[0]) {
                     $val[0] = 0;
+                } elseif (self::PARAM_FLOAT == $val[1]) {
+                    $val[0] = (float) $val[0];
+                    $val[1] = PDO::PARAM_STR;
                 }
+
                 $result = $this->PDOStatement->bindValue($param, $val[0], $val[1]);
             } else {
                 $result = $this->PDOStatement->bindValue($param, $val);
@@ -1517,7 +1529,7 @@ abstract class Connection
     protected function bindParam($bind)
     {
         foreach ($bind as $key => $val) {
-            $param = is_numeric($key) ? $key + 1 : ':' . $key;
+            $param = is_int($key) ? $key + 1 : ':' . $key;
 
             if (is_array($val)) {
                 array_unshift($val, $param);
@@ -2023,7 +2035,7 @@ abstract class Connection
 
         // 分布式数据库配置解析
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
-            $_config[$name] = explode(',', $this->config[$name]);
+            $_config[$name] = is_string($this->config[$name]) ? explode(',', $this->config[$name]) : $this->config[$name];
         }
 
         // 主服务器序号

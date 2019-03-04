@@ -12,6 +12,7 @@
 namespace think\route\dispatch;
 
 use ReflectionMethod;
+use think\Controller;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\Loader;
@@ -72,7 +73,8 @@ class Module extends Dispatch
         // 是否自动转换控制器和操作名
         $convert = is_bool($this->convert) ? $this->convert : $this->rule->getConfig('url_convert');
         // 获取控制器名
-        $controller       = strip_tags($result[1] ?: $this->rule->getConfig('default_controller'));
+        $controller = strip_tags($result[1] ?: $this->rule->getConfig('default_controller'));
+
         $this->controller = $convert ? strtolower($controller) : $controller;
 
         // 获取操作名
@@ -120,6 +122,7 @@ class Module extends Dispatch
                 $vars = $this->rule->getConfig('url_param_type')
                 ? $this->request->route()
                 : $this->request->param();
+                $vars = array_merge($vars, $this->param);
             } elseif (is_callable([$instance, '_empty'])) {
                 // 空操作
                 $call    = [$instance, '_empty'];

@@ -316,7 +316,7 @@ class Url
                     }
                 }
             }
-        } elseif (!strpos($domain, '.')) {
+        } elseif (0 !== strpos($domain, $rootDomain) && false === strpos($domain, '.')) {
             $domain .= '.' . $rootDomain;
         }
 
@@ -348,10 +348,14 @@ class Url
     public function getRuleUrl($rule, &$vars = [], $allowDomain = '')
     {
         foreach ($rule as $item) {
-            list($url, $pattern, $domain, $suffix) = $item;
+            list($url, $pattern, $domain, $suffix, $method) = $item;
 
             if (is_string($allowDomain) && $domain != $allowDomain) {
                 continue;
+            }
+
+            if (!in_array($this->app['request']->port(), [80, 443])) {
+                $domain .= ':' . $this->app['request']->port();
             }
 
             if (empty($pattern)) {

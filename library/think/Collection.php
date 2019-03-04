@@ -429,15 +429,20 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @access public
      * @param  string       $field 排序字段
      * @param  string       $order 排序
+     * @param  bool         $intSort 是否为数字排序
      * @return $this
      */
-    public function order($field, $order = null)
+    public function order($field, $order = null, $intSort = true)
     {
-        return $this->sort(function ($a, $b) use ($field, $order) {
+        return $this->sort(function ($a, $b) use ($field, $order, $intSort) {
             $fieldA = isset($a[$field]) ? $a[$field] : null;
             $fieldB = isset($b[$field]) ? $b[$field] : null;
 
-            return 'desc' == strtolower($order) ? strcmp($fieldB, $fieldA) : strcmp($fieldA, $fieldB);
+            if ($intSort) {
+                return 'desc' == strtolower($order) ? $fieldB >= $fieldA : $fieldA >= $fieldB;
+            } else {
+                return 'desc' == strtolower($order) ? strcmp($fieldB, $fieldA) : strcmp($fieldA, $fieldB);
+            }
         });
     }
 

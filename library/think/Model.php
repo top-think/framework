@@ -18,6 +18,33 @@ use think\db\Query;
  * Class Model
  * @package think
  * @mixin Query
+ * @method Query where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
+ * @method Query whereRaw(string $where, array $bind = []) static 表达式查询
+ * @method Query whereExp(string $field, string $condition, array $bind = []) static 字段表达式查询
+ * @method Query when(mixed $condition, mixed $query, mixed $otherwise = null) static 条件查询
+ * @method Query join(mixed $join, mixed $condition = null, string $type = 'INNER') static JOIN查询
+ * @method Query view(mixed $join, mixed $field = null, mixed $on = null, string $type = 'INNER') static 视图查询
+ * @method Query with(mixed $with) static 关联预载入
+ * @method Query count(string $field) static Count统计查询
+ * @method Query min(string $field) static Min统计查询
+ * @method Query max(string $field) static Max统计查询
+ * @method Query sum(string $field) static SUM统计查询
+ * @method Query avg(string $field) static Avg统计查询
+ * @method Query field(mixed $field, boolean $except = false) static 指定查询字段
+ * @method Query fieldRaw(string $field, array $bind = []) static 指定查询字段
+ * @method Query union(mixed $union, boolean $all = false) static UNION查询
+ * @method Query limit(mixed $offset, integer $length = null) static 查询LIMIT
+ * @method Query order(mixed $field, string $order = null) static 查询ORDER
+ * @method Query orderRaw(string $field, array $bind = []) static 查询ORDER
+ * @method Query cache(mixed $key = null , integer $expire = null) static 设置查询缓存
+ * @method mixed value(string $field) static 获取某个字段的值
+ * @method array column(string $field, string $key = '') static 获取某个列的值
+ * @method mixed find(mixed $data = null) static 查询单个记录
+ * @method mixed select(mixed $data = null) static 查询多个记录
+ * @method mixed get(mixed $data = null,mixed $with =[],bool $cache= false) static 查询单个记录 支持关联预载入
+ * @method mixed getOrFail(mixed $data = null,mixed $with =[],bool $cache= false) static 查询单个记录 不存在则抛出异常
+ * @method mixed findOrEmpty(mixed $data = null,mixed $with =[],bool $cache= false) static 查询单个记录  不存在则返回空模型
+ * @method mixed all(mixed $data = null,mixed $with =[],bool $cache= false) static 查询多个记录 支持关联预载入
  * @method \think\Model withAttr(array $name,\Closure $closure) 动态定义获取器
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
@@ -123,6 +150,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * @var mixed
      */
     protected $defaultSoftDelete;
+
+    /**
+     * 全局查询范围
+     * @var array
+     */
+    protected $globalScope = [];
 
     /**
      * 架构函数
@@ -272,7 +305,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
-     * @param  bool $useBaseQuery 是否调用全局查询范围
+     * @param  bool|array $useBaseQuery 是否调用全局查询范围（或者指定查询范围名称）
      * @return Query
      */
     public function db($useBaseQuery = true)
@@ -289,8 +322,14 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         }
 
         // 全局作用域
-        if ($useBaseQuery && method_exists($this, 'base')) {
+        if (true === $useBaseQuery && method_exists($this, 'base')) {
             call_user_func_array([$this, 'base'], [ & $query]);
+        }
+
+        $globalScope = is_array($useBaseQuery) && $useBaseQuery ? $useBaseQuery : $this->globalScope;
+
+        if ($globalScope && false !== $useBaseQuery) {
+            $query->scope($globalScope);
         }
 
         // 返回当前模型的数据库查询对象
@@ -380,11 +419,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      * 设置数据是否存在
      * @access public
      * @param  bool $exists
-     * @return void
+     * @return $this
      */
     public function exists($exists)
     {
         $this->exists = $exists;
+        return $this;
     }
 
     /**
@@ -395,6 +435,16 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function isExists()
     {
         return $this->exists;
+    }
+
+    /**
+     * 判断模型是否为空
+     * @access public
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return empty($this->data);
     }
 
     /**
@@ -427,6 +477,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 重新记录原始数据
         $this->origin = $this->data;
+        $this->set    = [];
 
         return true;
     }
@@ -1030,7 +1081,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     /**
      * 设置是否使用全局查询范围
      * @access public
-     * @param  bool $use 是否启用全局查询范围
+     * @param  bool|array $use 是否启用全局查询范围（或者用数组指定查询范围名称）
      * @return Query
      */
     public static function useGlobalScope($use)

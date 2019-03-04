@@ -16,7 +16,6 @@ use think\cache\Driver;
 /**
  * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
  * 有需要在业务层实现读写分离、或者使用RedisCluster的需求，请使用Redisd驱动
- *
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
@@ -40,19 +39,19 @@ class Redis extends Driver
     ];
 
     protected $options = [
-        'host' => '127.0.0.1',
-        'port' => 6379,
-        'password' => '',
-        'select' => 0,
-        'timeout' => 0,
-        'expire' => 0,
+        'host'       => '127.0.0.1',
+        'port'       => 6379,
+        'password'   => '',
+        'select'     => 0,
+        'timeout'    => 0,
+        'expire'     => 0,
         'persistent' => false,
-        'prefix' => '',
-        'serialize' => true,
+        'prefix'     => '',
+        'serialize'  => true,
     ];
 
     /**
-     * @title 架构函数
+     * @title  架构函数
      * @access public
      * @param  array $options 缓存参数
      */
@@ -101,6 +100,10 @@ class Redis extends Driver
                 }
             }
 
+            if ('' == $this->options['password']) {
+                unset($this->options['password']);
+            }
+
             $this->handler = new \Predis\Client($this->options, $params);
 
             $this->options['prefix'] = '';
@@ -110,11 +113,11 @@ class Redis extends Driver
     }
 
     /**
-     * @title 重新定制json序列化机制
+     * @title  重新定制json序列化机制
      * @access public
-     * @param  callable $serialize 序列化方法
+     * @param  callable $serialize   序列化方法
      * @param  callable $unserialize 反序列化方法
-     * @param  string   $prefix 序列化前缀标识
+     * @param  string   $prefix      序列化前缀标识
      */
     public static function registerJson($serialize, $unserialize, $prefix = 'think_json:')
     {
@@ -140,7 +143,7 @@ class Redis extends Driver
     }
 
     /**
-     * @title 判断缓存
+     * @title  判断缓存
      * @access public
      * @param  string $name 缓存变量名
      * @return bool
@@ -151,7 +154,7 @@ class Redis extends Driver
     }
 
     /**
-     * @title 判断缓存的别名
+     * @title  判断缓存的别名
      * @access public
      * @param  string $name 缓存变量名
      * @return bool
@@ -162,9 +165,9 @@ class Redis extends Driver
     }
 
     /**
-     * @title 读取缓存
+     * @title  读取缓存
      * @access public
-     * @param  string $name 缓存变量名
+     * @param  string $name    缓存变量名
      * @param  mixed  $default 默认值
      * @return mixed
      */
@@ -182,10 +185,10 @@ class Redis extends Driver
     }
 
     /**
-     * @title 写入缓存
+     * @title  写入缓存
      * @access public
-     * @param  string            $name 缓存变量名
-     * @param  mixed             $value 存储数据
+     * @param  string            $name   缓存变量名
+     * @param  mixed             $value  存储数据
      * @param  integer|\DateTime $expire 有效时间（秒）
      * @return boolean
      */
@@ -201,7 +204,7 @@ class Redis extends Driver
             $first = true;
         }
 
-        $key = $this->getCacheKey($name);
+        $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
 
         $value = $this->serialize($value);
@@ -218,7 +221,7 @@ class Redis extends Driver
     }
 
     /**
-     * @title 自增缓存（针对数值缓存）
+     * @title  自增缓存（针对数值缓存）
      * @access public
      * @param  string $name 缓存变量名
      * @param  int    $step 步长
@@ -242,7 +245,7 @@ class Redis extends Driver
     }
 
     /**
-     * @title 自减缓存（针对数值缓存）
+     * @title  自减缓存（针对数值缓存）
      * @access public
      * @param  string $name 缓存变量名
      * @param  int    $step 步长
@@ -258,7 +261,7 @@ class Redis extends Driver
     }
 
     /**
-     * @title 删除缓存
+     * @title  删除缓存
      * @access public
      * @param  string $name 缓存变量名
      * @return boolean
@@ -267,11 +270,11 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        return $this->handler->delete($this->getCacheKey($name));
+        return $this->handler->del($this->getCacheKey($name));
     }
 
     /**
-     * @title 清除缓存
+     * @title  清除缓存
      * @access public
      * @param  string $tag 标签名
      * @return boolean
@@ -282,11 +285,10 @@ class Redis extends Driver
             // 指定标签清除
             $keys = $this->getTagItem($tag);
 
-            foreach ($keys as $key) {
-                $this->handler->delete($key);
-            }
+            $this->handler->del($keys);
 
-            $this->rm('tag_' . md5($tag));
+            $tagName = $this->getTagKey($tag);
+            $this->handler->del($tagName);
 
             return true;
         }
@@ -495,7 +497,60 @@ class Redis extends Driver
     }
 
     /**
-     * @title 读取session信息
+     * 缓存标签
+     * @access public
+     * @param  string       $name    标签名
+     * @param  string|array $keys    缓存标识
+     * @param  bool         $overlay 是否覆盖
+     * @return $this
+     */
+    public function tag($name, $keys = null, $overlay = false)
+    {
+        if (is_null($keys)) {
+            $this->tag = $name;
+        } else {
+            $tagName = $this->getTagKey($name);
+            if ($overlay) {
+                $this->handler->del($tagName);
+            }
+
+            foreach ($keys as $key) {
+                $this->handler->sAdd($tagName, $key);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * 更新标签
+     * @access protected
+     * @param  string $name 缓存标识
+     * @return void
+     */
+    protected function setTagItem($name)
+    {
+        if ($this->tag) {
+            $tagName = $this->getTagKey($this->tag);
+            $this->handler->sAdd($tagName, $name);
+        }
+    }
+
+    /**
+     * 获取标签包含的缓存标识
+     * @access protected
+     * @param  string $tag 缓存标签
+     * @return array
+     */
+    protected function getTagItem($tag)
+    {
+        $tagName = $this->getTagKey($tag);
+
+        return $this->handler->sMembers($tagName);
+    }
+
+    /**
+     * @title  读取session信息
      * @access public
      * @param  string $sessionId 缓存变量名
      * @return mixed

@@ -87,6 +87,8 @@ class Validate
         'min'         => 'min size of :attribute must be :rule',
         'after'       => ':attribute cannot be less than :rule',
         'before'      => ':attribute cannot exceed :rule',
+        'afterWith'   => ':attribute cannot be less than :rule',
+        'beforeWith'  => ':attribute cannot exceed :rule',
         'expire'      => ':attribute not within :rule',
         'allowIp'     => 'access IP is not allowed',
         'denyIp'      => 'access IP denied',
@@ -129,7 +131,7 @@ class Validate
      * 内置正则验证规则
      * @var array
      */
-    protected $regex = [
+    protected $defaultRegex = [
         'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
         'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
         'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
@@ -175,6 +177,12 @@ class Validate
      * @var array
      */
     protected $append = [];
+
+    /**
+     * 验证正则定义
+     * @var array
+     */
+    protected $regex = [];
 
     /**
      * 架构函数
@@ -329,10 +337,10 @@ class Validate
      * 移除某个字段的验证规则
      * @access public
      * @param  string|array  $field  字段名
-     * @param  mixed         $rule   验证规则 true 移除所有规则
+     * @param  mixed         $rule   验证规则 null 移除所有规则
      * @return $this
      */
-    public function remove($field, $rule = true)
+    public function remove($field, $rule = null)
     {
         if (is_array($field)) {
             foreach ($field as $key => $rule) {
@@ -417,12 +425,12 @@ class Validate
                 continue;
             }
 
-            // 获取数据 支持二维数组
+            // 获取数据 支持多维数组
             $value = $this->getDataValue($data, $key);
 
             // 字段验证
             if ($rule instanceof \Closure) {
-                $result = call_user_func_array($rule, [$value, $data]);
+                $result = call_user_func_array($rule, [$value, $data, $title, $this]);
             } elseif ($rule instanceof ValidateRule) {
                 //  验证因子
                 $result = $this->checkItem($key, $value, $rule->getRule(), $data, $rule->getTitle() ?: $title, $rule->getMsg());
@@ -511,10 +519,12 @@ class Validate
 
         if (isset($this->append[$field])) {
             // 追加额外的验证规则
-            $rules = array_merge($rules, $this->append[$field]);
+            $rules = array_unique(array_merge($rules, $this->append[$field]));
         }
 
-        $i = 0;
+        $i      = 0;
+        $result = true;
+
         foreach ($rules as $key => $rule) {
             if ($rule instanceof \Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
@@ -525,17 +535,18 @@ class Validate
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
 
-                } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
+                } elseif (array_key_exists($field, $this->remove) && (null === $this->remove[$field] || in_array($info, $this->remove[$field]))) {
                     // 规则已经移除
                     $i++;
                     continue;
                 }
 
-                if ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
-                    // 验证类型
-                    $callback = isset(self::$type[$type]) ? self::$type[$type] : [$this, $type];
+                // 验证类型
+                if (isset(self::$type[$type])) {
+                    $result = call_user_func_array(self::$type[$type], [$value, $rule, $data, $field, $title]);
+                } elseif ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                     // 验证数据
-                    $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
+                    $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
                 }
@@ -546,7 +557,7 @@ class Validate
                 if (!empty($msg[$i])) {
                     $message = $msg[$i];
                     if (is_string($message) && strpos($message, '{%') === 0) {
-                        $message = Lang::get(substr($message, 2, -1));
+                        $message = facade\Lang::get(substr($message, 2, -1));
                     }
                 } else {
                     $message = $this->getRuleMsg($field, $title, $info, $rule);
@@ -556,10 +567,11 @@ class Validate
             } elseif (true !== $result) {
                 // 返回自定义错误信息
                 if (is_string($result) && false !== strpos($result, ':')) {
-                    $result = str_replace(
-                        [':attribute', ':rule'],
-                        [$title, (string) $rule],
-                        $result);
+                    $result = str_replace(':attribute', $title, $result);
+
+                    if (strpos($result, ':rule') && is_scalar($rule)) {
+                        $msg = str_replace(':rule', (string) $rule, $result);
+                    }
                 }
 
                 return $result;
@@ -997,10 +1009,16 @@ class Validate
             // 支持多个字段验证
             $fields = explode('^', $key);
             foreach ($fields as $key) {
-                $map[] = [$key, '=', $data[$key]];
+                if (isset($data[$key])) {
+                    $map[] = [$key, '=', $data[$key]];
+                }
             }
-        } else {
+        } elseif (strpos($key, '=')) {
+            parse_str($key, $map);
+        } elseif (isset($data[$field])) {
             $map[] = [$key, '=', $data[$field]];
+        } else {
+            $map = [];
         }
 
         $pk = !empty($rule[3]) ? $rule[3] : $db->getPk();
@@ -1241,9 +1259,10 @@ class Validate
      * @access public
      * @param  mixed     $value  字段值
      * @param  mixed     $rule  验证规则
+     * @param  array     $data  数据
      * @return bool
      */
-    public function after($value, $rule)
+    public function after($value, $rule, $data)
     {
         return strtotime($value) >= strtotime($rule);
     }
@@ -1253,11 +1272,40 @@ class Validate
      * @access public
      * @param  mixed     $value  字段值
      * @param  mixed     $rule  验证规则
+     * @param  array     $data  数据
      * @return bool
      */
-    public function before($value, $rule)
+    public function before($value, $rule, $data)
     {
         return strtotime($value) <= strtotime($rule);
+    }
+
+    /**
+     * 验证日期字段
+     * @access protected
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @param array     $data  数据
+     * @return bool
+     */
+    protected function afterWith($value, $rule, $data)
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) >= strtotime($rule);
+    }
+
+    /**
+     * 验证日期字段
+     * @access protected
+     * @param mixed     $value  字段值
+     * @param mixed     $rule  验证规则
+     * @param array     $data  数据
+     * @return bool
+     */
+    protected function beforeWith($value, $rule, $data)
+    {
+        $rule = $this->getDataValue($data, $rule);
+        return !is_null($rule) && strtotime($value) <= strtotime($rule);
     }
 
     /**
@@ -1321,6 +1369,8 @@ class Validate
     {
         if (isset($this->regex[$rule])) {
             $rule = $this->regex[$rule];
+        } elseif (isset($this->defaultRegex[$rule])) {
+            $rule = $this->defaultRegex[$rule];
         }
 
         if (0 !== strpos($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
@@ -1372,7 +1422,7 @@ class Validate
      * 获取数据值
      * @access protected
      * @param  array     $data  数据
-     * @param  string    $key  数据标识 支持二维
+     * @param  string    $key  数据标识 支持多维
      * @return mixed
      */
     protected function getDataValue($data, $key)
@@ -1380,9 +1430,14 @@ class Validate
         if (is_numeric($key)) {
             $value = $key;
         } elseif (strpos($key, '.')) {
-            // 支持二维数组验证
-            list($name1, $name2) = explode('.', $key);
-            $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
+            // 支持多维数组验证
+            foreach (explode('.', $key) as $key) {
+                if (!isset($data[$key])) {
+                    $value = null;
+                    break;
+                }
+                $value = $data = $data[$key];
+            }
         } else {
             $value = isset($data[$key]) ? $data[$key] : null;
         }
@@ -1417,13 +1472,17 @@ class Validate
             $msg = $title . $lang->get('not conform to the rules');
         }
 
-        if (is_string($msg) && 0 === strpos($msg, '{%')) {
+        if (!is_string($msg)) {
+            return $msg;
+        }
+
+        if (0 === strpos($msg, '{%')) {
             $msg = $lang->get(substr($msg, 2, -1));
         } elseif ($lang->has($msg)) {
             $msg = $lang->get($msg);
         }
 
-        if (is_string($msg) && is_scalar($rule) && false !== strpos($msg, ':')) {
+        if (is_scalar($rule) && false !== strpos($msg, ':')) {
             // 变量替换
             if (is_string($rule) && strpos($rule, ',')) {
                 $array = array_pad(explode(',', $rule), 3, '');
@@ -1431,9 +1490,12 @@ class Validate
                 $array = array_pad([], 3, '');
             }
             $msg = str_replace(
-                [':attribute', ':rule', ':1', ':2', ':3'],
-                [$title, (string) $rule, $array[0], $array[1], $array[2]],
+                [':attribute', ':1', ':2', ':3'],
+                [$title, $array[0], $array[1], $array[2]],
                 $msg);
+            if (strpos($msg, ':rule')) {
+                $msg = str_replace(':rule', (string) $rule, $msg);
+            }
         }
 
         return $msg;
