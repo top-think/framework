@@ -129,17 +129,19 @@ class Fetch
     /**
      * 插入记录
      * @access public
-     * @param  array   $data         数据
-     * @param  boolean $replace      是否replace
+     * @param  array $data 数据
      * @return string
      */
-    public function insert(array $data = [], bool $replace = false): string
+    public function insert(array $data = []): string
     {
         $options = $this->query->parseOptions();
 
-        $this->query->setOption('data', array_merge($options['data'], $data));
+        if (!empty($data)) {
+            $this->query->setOption('data', array_merge($options['data'], $data));
+        }
 
-        $sql = $this->builder->insert($this->query, $replace);
+        $replace = $options['replace'] ?? false;
+        $sql     = $this->builder->insert($this->query, $replace);
 
         return $this->fetch($sql);
     }
@@ -147,13 +149,42 @@ class Fetch
     /**
      * 插入记录并获取自增ID
      * @access public
-     * @param  array   $data     数据
-     * @param  boolean $replace  是否replace
+     * @param  array $data 数据
      * @return string
      */
-    public function insertGetId(array $data, bool $replace = false)
+    public function insertGetId(array $data = []): string
     {
-        return $this->insert($data, $replace);
+        return $this->insert($data);
+    }
+
+    /**
+     * 保存数据 自动判断insert或者update
+     * @access public
+     * @param  array $data        数据
+     * @param  bool  $forceInsert 是否强制insert
+     * @return string
+     */
+    public function save(array $data = [], bool $forceInsert = false): string
+    {
+        if (!empty($data)) {
+            $data = array_merge($this->query->getOptions('data') ?: [], $data);
+        } else {
+            $data = $this->query->getOptions('data');
+        }
+
+        if (empty($data)) {
+            return '';
+        }
+
+        if ($forceInsert) {
+            return $this->insert($data);
+        }
+
+        $isUpdate = $this->query->parseUpdateData($data);
+
+        $this->query->setOption('data', $data);
+
+        return $isUpdate ? $this->update() : $this->insert();
     }
 
     /**

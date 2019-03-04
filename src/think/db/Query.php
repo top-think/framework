@@ -1895,6 +1895,18 @@ class Query
     }
 
     /**
+     * 设置是否REPLACE
+     * @access public
+     * @param  bool $replace 是否使用REPLACE写入数据
+     * @return $this
+     */
+    public function replace(bool $replace = true)
+    {
+        $this->options['replace'] = $replace;
+        return $this;
+    }
+
+    /**
      * 设置当前查询所在的分区
      * @access public
      * @param  string|array $partition 分区名称
@@ -2580,18 +2592,42 @@ class Query
     }
 
     /**
+     * 保存记录 自动判断insert或者update
+     * @access public
+     * @param  array $data        数据
+     * @param  bool  $forceInsert 是否强制insert
+     * @return integer
+     */
+    public function save(array $data = [], bool $forceInsert = false)
+    {
+        if ($forceInsert) {
+            return $this->insert($data);
+        }
+
+        if (!empty($data)) {
+            $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
+        }
+
+        $isUpdate = $this->parseUpdateData($this->options['data']);
+
+        return $isUpdate ? $this->update() : $this->insert();
+    }
+
+    /**
      * 插入记录
      * @access public
      * @param  array   $data         数据
-     * @param  boolean $replace      是否replace
      * @param  boolean $getLastInsID 返回自增主键
      * @param  string  $sequence     自增序列名
      * @return integer
      */
-    public function insert(array $data = [], bool $replace = false, bool $getLastInsID = false, string $sequence = null)
+    public function insert(array $data = [], bool $getLastInsID = false, string $sequence = null)
     {
-        $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
+        if (!empty($data)) {
+            $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
+        }
 
+        $replace = $this->options['replace'] ?? false;
         return $this->connection->insert($this, $replace, $getLastInsID, $sequence);
     }
 
@@ -2599,24 +2635,22 @@ class Query
      * 插入记录并获取自增ID
      * @access public
      * @param  array   $data     数据
-     * @param  boolean $replace  是否replace
      * @param  string  $sequence 自增序列名
      * @return integer|string
      */
-    public function insertGetId(array $data, bool $replace = false, string $sequence = null)
+    public function insertGetId(array $data, string $sequence = null)
     {
-        return $this->insert($data, $replace, true, $sequence);
+        return $this->insert($data, true, $sequence);
     }
 
     /**
      * 批量插入记录
      * @access public
      * @param  array   $dataSet 数据集
-     * @param  boolean $replace 是否replace
      * @param  integer $limit   每次写入数据限制
      * @return integer
      */
-    public function insertAll(array $dataSet = [], bool $replace = false, int $limit = 0): int
+    public function insertAll(array $dataSet = [], int $limit = 0): int
     {
         if (empty($dataSet)) {
             $dataSet = $this->options['data'] ?? [];
@@ -2626,6 +2660,7 @@ class Query
             $limit = (int) $this->options['limit'];
         }
 
+        $replace = $this->options['replace'] ?? false;
         return $this->connection->insertAll($this, $dataSet, $replace, $limit);
     }
 
@@ -2652,7 +2687,9 @@ class Query
      */
     public function update(array $data = []): int
     {
-        $data = array_merge($this->options['data'] ?? [], $data);
+        if (!empty($data)) {
+            $data = array_merge($this->options['data'] ?? [], $data);
+        }
 
         if (empty($this->options['where'])) {
             $this->parseUpdateData($data);
@@ -3276,25 +3313,28 @@ class Query
     }
 
     /**
-     * 分析更新条件
+     * 分析数据是否存在更新条件
      * @access public
      * @param  array $data 数据
-     * @return void
+     * @return bool
      * @throws Exception
      */
-    protected function parseUpdateData(&$data): void
+    public function parseUpdateData(&$data): bool
     {
-        $pk = $this->getPk();
+        $pk       = $this->getPk();
+        $isUpdate = false;
         // 如果存在主键数据 则自动作为更新条件
         if (is_string($pk) && isset($data[$pk])) {
             $this->where($pk, '=', $data[$pk]);
             $this->options['key'] = $data[$pk];
             unset($data[$pk]);
+            $isUpdate = true;
         } elseif (is_array($pk)) {
             // 增加复合主键支持
             foreach ($pk as $field) {
                 if (isset($data[$field])) {
                     $this->where($field, '=', $data[$field]);
+                    $isUpdate = true;
                 } else {
                     // 如果缺少复合主键数据则不执行
                     throw new Exception('miss complex primary data');
@@ -3302,6 +3342,8 @@ class Query
                 unset($data[$field]);
             }
         }
+
+        return $isUpdate;
     }
 
     /**

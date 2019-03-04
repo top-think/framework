@@ -41,8 +41,9 @@ use think\Facade;
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method mixed find(mixed $data = null) static 查询单个记录
  * @method mixed select(mixed $data = null) static 查询多个记录
- * @method integer insert(array $data, boolean $replace = false, boolean $getLastInsID = false, string $sequence = null) static 插入一条记录
- * @method integer insertGetId(array $data, boolean $replace = false, string $sequence = null) static 插入一条记录并返回自增ID
+ * @method integer save(boolean $forceInsert = false) static 保存记录 自动判断insert或者update
+ * @method integer insert(array $data, boolean $getLastInsID = false, string $sequence = null) static 插入一条记录
+ * @method integer insertGetId(array $data, string $sequence = null) static 插入一条记录并返回自增ID
  * @method integer insertAll(array $dataSet) static 插入多条记录
  * @method integer update(array $data) static 更新记录
  * @method integer delete(mixed $data = null) static 删除记录
