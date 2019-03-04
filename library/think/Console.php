@@ -108,6 +108,32 @@ class Console
 
             // 添加指令集
             $console->addCommands($commands);
+    
+            // 扩展读取指令集
+            $path = Container::get('env')->get('group_path');
+           
+            $files = scandir($path);
+            foreach ($files as $file) {
+                if ('.' != $file && '..' != $file) {
+                    $_path = $path . $file . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+                    if (is_dir($_path) && is_file($_path . 'module.json')) {
+                        $filename = $_path . 'command.php';
+                        if(is_file($filename)){
+                            $commands = include $filename;
+                        }
+                    }
+
+                    if (is_array($commands)) {
+                        foreach ($commands as $command) {
+                            if (class_exists($command) && is_subclass_of($command, "\\think\\console\\Command")) {
+                                // 注册指令
+                                $console->add(new $command());
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         if ($run) {

@@ -1,5 +1,7 @@
 ## shuguo framework
+
 本框架以thinkphp5.1.16为核心而打造的可扩展框架, 扩展composer模块化功能, 最新版本为v5.1.24。
+
 例如：http://localhost/sgs-api/api/demo/index
 
 路由解析如下：
@@ -40,7 +42,6 @@ command.php
 module.json 
 
 ThinkPHP 5.1.24 —— 12载初心，你值得信赖的PHP框架
-===============
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/top-think/framework/badges/quality-score.png?b=5.1)](https://scrutinizer-ci.com/g/top-think/framework/?branch=5.1)
 [![Build Status](https://travis-ci.org/top-think/framework.svg?branch=master)](https://travis-ci.org/top-think/framework)

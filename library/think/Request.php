@@ -258,6 +258,7 @@ class Request
      * php://input内容
      * @var string
      */
+    // php://input
     protected $input;
 
     /**

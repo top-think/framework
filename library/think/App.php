@@ -56,7 +56,7 @@ class App extends Container
      * 组织名称
      * @var string
      */
-    protected $groupname = 'chinashuguo';
+    protected $groupname = 'shuguo';
 
     /**
      * 应用类库后缀
@@ -170,9 +170,15 @@ class App extends Container
 
     public function __construct($appPath = '')
     {
-        $this->thinkPath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
-
         $this->path($appPath);
+
+        $this->thinkPath   = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->rootPath    = dirname($this->appPath) . DIRECTORY_SEPARATOR;
+        $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        $this->extendPath  = $this->rootPath . 'extend' . DIRECTORY_SEPARATOR;
+        $this->vendorPath  = $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -253,7 +259,6 @@ class App extends Container
 
         // 注册应用命名空间
         Loader::addNamespace($this->namespace, $this->appPath);
-
 
         // 组织名称
         $this->groupname = $this->env->get('app_groupname', $this->groupname);
@@ -542,7 +547,7 @@ class App extends Container
         $lang = [
             $this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
             $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
-            $this->corePath . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
+            $this->corePath . 'src' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php',
         ];
 
         // 应用语言包
@@ -874,10 +879,10 @@ class App extends Container
      */
     protected function getModuleListClass($class, $module)
     {
-        foreach ($this->moduleList as $_module) {
-            $_class = str_replace('\\' . $module . '\\', '\\' . $_module . '\\', $class);
-            if (class_exists($_class)) {
-                return $_class;
+        foreach ($this->moduleList as $moduleName) {
+            $className = str_replace('\\' . $module . '\\', '\\' . $moduleName . '\\', $class);
+            if (class_exists($className)) {
+                return $className;
             }
         }
     }
@@ -901,13 +906,13 @@ class App extends Container
         }
         
         list($module, $class) = $this->parseModuleAndClass($name, $layer, $appendSuffix);
-        
-        $_class = $this->getModuleListClass($class, $module);
-        
+
+        $className = $this->getModuleListClass($class, $module);
+
         if (class_exists($class)) {
             $object = $this->__get($class);
-        } elseif (class_exists($_class)) {
-            $class  = $_class;
+        } elseif (class_exists($className)) {
+            $class  = $className;
             $object = $this->__get($class);
         } else {
             $class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
@@ -1299,6 +1304,16 @@ class App extends Container
     {
         $this->groupPath = $path;
         $this->env->set('group_path', $path);
+    }
+
+    /**
+     * 获取核心目录
+     * @access public
+     * @return string
+     */
+    public function getCorePath()
+    {
+        return $this->corePath;
     }
 
     /**
