@@ -2,79 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="274d6984-f023-49e3-a20d-e12682cb5740" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" />
-      <change beforePath="$PROJECT_DIR$/LICENSE.txt" afterPath="$PROJECT_DIR$/LICENSE.txt" />
-      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change beforePath="$PROJECT_DIR$/helper.php" afterPath="$PROJECT_DIR$/helper.php" />
-      <change beforePath="$PROJECT_DIR$/lang/zh-cn.php" afterPath="$PROJECT_DIR$/lang/zh-cn.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/App.php" afterPath="$PROJECT_DIR$/library/think/App.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Build.php" afterPath="$PROJECT_DIR$/library/think/Build.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Collection.php" afterPath="$PROJECT_DIR$/library/think/Collection.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Config.php" afterPath="$PROJECT_DIR$/library/think/Config.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Controller.php" afterPath="$PROJECT_DIR$/library/think/Controller.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Env.php" afterPath="$PROJECT_DIR$/library/think/Env.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/File.php" afterPath="$PROJECT_DIR$/library/think/File.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Hook.php" afterPath="$PROJECT_DIR$/library/think/Hook.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Lang.php" afterPath="$PROJECT_DIR$/library/think/Lang.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Log.php" afterPath="$PROJECT_DIR$/library/think/Log.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Model.php" afterPath="$PROJECT_DIR$/library/think/Model.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Request.php" afterPath="$PROJECT_DIR$/library/think/Request.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Route.php" afterPath="$PROJECT_DIR$/library/think/Route.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Template.php" afterPath="$PROJECT_DIR$/library/think/Template.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Url.php" afterPath="$PROJECT_DIR$/library/think/Url.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/Validate.php" afterPath="$PROJECT_DIR$/library/think/Validate.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/Driver.php" afterPath="$PROJECT_DIR$/library/think/cache/Driver.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/File.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/File.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Lite.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Lite.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Memcache.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Memcache.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Memcached.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Memcached.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Redis.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Redis.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Sqlite.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Sqlite.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Wincache.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Wincache.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/cache/driver/Xcache.php" afterPath="$PROJECT_DIR$/library/think/cache/driver/Xcache.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/console/command/optimize/Autoload.php" afterPath="$PROJECT_DIR$/library/think/console/command/optimize/Autoload.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/console/command/optimize/Schema.php" afterPath="$PROJECT_DIR$/library/think/console/command/optimize/Schema.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/console/output/question/Choice.php" afterPath="$PROJECT_DIR$/library/think/console/output/question/Choice.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/Builder.php" afterPath="$PROJECT_DIR$/library/think/db/Builder.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/Connection.php" afterPath="$PROJECT_DIR$/library/think/db/Connection.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/Query.php" afterPath="$PROJECT_DIR$/library/think/db/Query.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/Where.php" afterPath="$PROJECT_DIR$/library/think/db/Where.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/builder/Mysql.php" afterPath="$PROJECT_DIR$/library/think/db/builder/Mysql.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/builder/Sqlsrv.php" afterPath="$PROJECT_DIR$/library/think/db/builder/Sqlsrv.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/connector/Sqlsrv.php" afterPath="$PROJECT_DIR$/library/think/db/connector/Sqlsrv.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/db/connector/pgsql.sql" afterPath="$PROJECT_DIR$/library/think/db/connector/pgsql.sql" />
-      <change beforePath="$PROJECT_DIR$/library/think/exception/DbException.php" afterPath="$PROJECT_DIR$/library/think/exception/DbException.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/facade/Config.php" afterPath="$PROJECT_DIR$/library/think/facade/Config.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/facade/Log.php" afterPath="$PROJECT_DIR$/library/think/facade/Log.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/facade/View.php" afterPath="$PROJECT_DIR$/library/think/facade/View.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/log/driver/File.php" afterPath="$PROJECT_DIR$/library/think/log/driver/File.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/Relation.php" afterPath="$PROJECT_DIR$/library/think/model/Relation.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/concern/Attribute.php" afterPath="$PROJECT_DIR$/library/think/model/concern/Attribute.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/concern/Conversion.php" afterPath="$PROJECT_DIR$/library/think/model/concern/Conversion.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/concern/ModelEvent.php" afterPath="$PROJECT_DIR$/library/think/model/concern/ModelEvent.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/concern/RelationShip.php" afterPath="$PROJECT_DIR$/library/think/model/concern/RelationShip.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/concern/SoftDelete.php" afterPath="$PROJECT_DIR$/library/think/model/concern/SoftDelete.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/concern/TimeStamp.php" afterPath="$PROJECT_DIR$/library/think/model/concern/TimeStamp.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/BelongsTo.php" afterPath="$PROJECT_DIR$/library/think/model/relation/BelongsTo.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/BelongsToMany.php" afterPath="$PROJECT_DIR$/library/think/model/relation/BelongsToMany.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/HasMany.php" afterPath="$PROJECT_DIR$/library/think/model/relation/HasMany.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/HasManyThrough.php" afterPath="$PROJECT_DIR$/library/think/model/relation/HasManyThrough.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/HasOne.php" afterPath="$PROJECT_DIR$/library/think/model/relation/HasOne.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/MorphMany.php" afterPath="$PROJECT_DIR$/library/think/model/relation/MorphMany.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/MorphOne.php" afterPath="$PROJECT_DIR$/library/think/model/relation/MorphOne.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/MorphTo.php" afterPath="$PROJECT_DIR$/library/think/model/relation/MorphTo.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/model/relation/OneToOne.php" afterPath="$PROJECT_DIR$/library/think/model/relation/OneToOne.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/response/Download.php" afterPath="$PROJECT_DIR$/library/think/response/Download.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/AliasRule.php" afterPath="$PROJECT_DIR$/library/think/route/AliasRule.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/Dispatch.php" afterPath="$PROJECT_DIR$/library/think/route/Dispatch.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/Domain.php" afterPath="$PROJECT_DIR$/library/think/route/Domain.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/Rule.php" afterPath="$PROJECT_DIR$/library/think/route/Rule.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/RuleGroup.php" afterPath="$PROJECT_DIR$/library/think/route/RuleGroup.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/RuleName.php" afterPath="$PROJECT_DIR$/library/think/route/RuleName.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/dispatch/Module.php" afterPath="$PROJECT_DIR$/library/think/route/dispatch/Module.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/route/dispatch/Url.php" afterPath="$PROJECT_DIR$/library/think/route/dispatch/Url.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/template/TagLib.php" afterPath="$PROJECT_DIR$/library/think/template/TagLib.php" />
-      <change beforePath="$PROJECT_DIR$/library/think/validate/ValidateRule.php" afterPath="$PROJECT_DIR$/library/think/validate/ValidateRule.php" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -88,12 +16,36 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Redis.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Redis.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/library/think/cache/driver/Redis.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-9409">
-              <caret line="45" column="26" lean-forward="false" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
+            <state relative-caret-position="509">
+              <caret line="567" column="0" lean-forward="false" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Driver.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/library/think/cache/Driver.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="122">
+              <caret line="28" column="19" lean-forward="false" selection-start-line="28" selection-start-column="19" selection-end-line="28" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Builder.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/library/think/db/Builder.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="212">
+              <caret line="170" column="36" lean-forward="false" selection-start-line="170" selection-start-column="23" selection-end-line="170" selection-end-column="36" />
+              <folding>
+                <marker date="1551683025458" expanded="true" signature="1975:2042" ph="UPDATE %TABL... " />
+                <marker date="1551683025458" expanded="true" signature="2074:2143" ph="DELETE FROM " />
+                <marker date="1551683025458" expanded="true" signature="33959:34045" ph="INSERT INTO ${$this-&gt;parseTable($query, $table)}... " />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -122,6 +74,8 @@
       <find>path</find>
       <find>$defaultCommands</find>
       <find>getTagItem</find>
+      <find>json_encode</find>
+      <find>parseDataBind</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -194,15 +148,7 @@
               <item name="framework" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="library" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="think" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="cache" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="framework" type="b2602c69:ProjectViewProjectNode" />
-              <item name="framework" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="library" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="think" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="cache" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="driver" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="db" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
           </expand>
           <select />
@@ -241,12 +187,12 @@
       <option name="presentableId" value="Default" />
       <updated>1536643907825</updated>
       <workItem from="1536643909972" duration="5741000" />
-      <workItem from="1551683064467" duration="1575000" />
+      <workItem from="1551683064467" duration="2163000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7316000" />
+    <option name="totallyTimeSpent" value="7904000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1456" height="876" extended-state="6" />
@@ -311,6 +257,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-798">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -511,9 +458,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/library/think/cache/driver/Redis.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-9409">
-          <caret line="45" column="26" lean-forward="false" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
+        <state relative-caret-position="509">
+          <caret line="567" column="0" lean-forward="false" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/think/cache/Driver.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="28" column="19" lean-forward="false" selection-start-line="28" selection-start-column="19" selection-end-line="28" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/think/db/Builder.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="170" column="36" lean-forward="false" selection-start-line="170" selection-start-column="23" selection-end-line="170" selection-end-column="36" />
+          <folding>
+            <marker date="1551683025458" expanded="true" signature="1975:2042" ph="UPDATE %TABL... " />
+            <marker date="1551683025458" expanded="true" signature="2074:2143" ph="DELETE FROM " />
+            <marker date="1551683025458" expanded="true" signature="33959:34045" ph="INSERT INTO ${$this-&gt;parseTable($query, $table)}... " />
+          </folding>
         </state>
       </provider>
     </entry>
