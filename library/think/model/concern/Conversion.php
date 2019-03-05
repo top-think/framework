@@ -131,8 +131,6 @@ trait Conversion
     public function toArray()
     {
         $item       = [];
-        $visible    = [];
-        $hidden     = [];
         $hasVisible = false;
 
         foreach ($this->visible as $key => $val) {
