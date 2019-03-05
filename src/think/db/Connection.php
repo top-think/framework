@@ -274,8 +274,8 @@ abstract class Connection
     /**
      * 取得数据库连接类实例
      * @access public
-     * @param  array         $config 连接配置
-     * @param  bool|string   $name 连接标识 true 强制重新连接
+     * @param  array       $config 连接配置
+     * @param  bool|string $name 连接标识 true 强制重新连接
      * @return Connection
      * @throws Exception
      */
@@ -321,7 +321,7 @@ abstract class Connection
     /**
      * 设置当前的数据库Builder对象
      * @access protected
-     * @param  Builder    $builder
+     * @param  Builder $builder
      * @return $this
      */
     protected function setBuilder(Builder $builder)
@@ -352,7 +352,7 @@ abstract class Connection
     /**
      * 取得数据表的字段信息
      * @access public
-     * @param  string $tableName
+     * @param  string $tableName 数据表名称
      * @return array
      */
     abstract public function getFields(string $tableName);
@@ -360,7 +360,7 @@ abstract class Connection
     /**
      * 取得数据库的表信息
      * @access public
-     * @param string $dbName
+     * @param string $dbName 数据库名称
      * @return array
      */
     abstract public function getTables(string $dbName);
@@ -368,7 +368,7 @@ abstract class Connection
     /**
      * SQL性能分析
      * @access protected
-     * @param  string $sql
+     * @param  string $sql SQL语句
      * @return array
      */
     abstract protected function getExplain(string $sql);
@@ -495,7 +495,7 @@ abstract class Connection
      * @param  string $tableName 数据表名
      * @return string|array
      */
-    public function getPk($tableName)
+    public function getPk(string $tableName)
     {
         return $this->getTableInfo($tableName, 'pk');
     }
@@ -506,7 +506,7 @@ abstract class Connection
      * @param  string $tableName 数据表名
      * @return array
      */
-    public function getTableFields($tableName): array
+    public function getTableFields(string $tableName): array
     {
         return $this->getTableInfo($tableName, 'fields');
     }
@@ -518,7 +518,7 @@ abstract class Connection
      * @param  string $field    字段名
      * @return array|string
      */
-    public function getFieldsType($tableName, string $field = null)
+    public function getFieldsType(string $tableName, string $field = null)
     {
         $result = $this->getTableInfo($tableName, 'type');
 
@@ -535,7 +535,7 @@ abstract class Connection
      * @param  string $tableName 数据表名
      * @return array
      */
-    public function getFieldsBind($tableName): array
+    public function getFieldsBind(string $tableName): array
     {
         return $this->getTableInfo($tableName, 'bind');
     }
@@ -557,10 +557,10 @@ abstract class Connection
     /**
      * 设置数据库的配置参数
      * @access public
-     * @param  array      $config 配置
+     * @param  array $config 配置
      * @return void
      */
-    public function setConfig($config): void
+    public function setConfig(array $config): void
     {
         $this->config = array_merge($this->config, $config);
     }
@@ -568,9 +568,9 @@ abstract class Connection
     /**
      * 连接数据库方法
      * @access public
-     * @param  array         $config 连接参数
-     * @param  integer       $linkNum 连接序号
-     * @param  array|bool    $autoConnection 是否自动连接主数据库（用于分布式）
+     * @param  array      $config 连接参数
+     * @param  integer    $linkNum 连接序号
+     * @param  array|bool $autoConnection 是否自动连接主数据库（用于分布式）
      * @return PDO
      * @throws Exception
      */
@@ -651,11 +651,11 @@ abstract class Connection
     /**
      * 执行查询 使用生成器返回数据
      * @access public
-     * @param  Query            $query 查询对象
-     * @param  string           $sql sql指令
-     * @param  array            $bind 参数绑定
-     * @param  \think\Model     $model 模型对象实例
-     * @param  array            $condition 查询条件
+     * @param  Query        $query 查询对象
+     * @param  string       $sql sql指令
+     * @param  array        $bind 参数绑定
+     * @param  \think\Model $model 模型对象实例
+     * @param  array        $condition 查询条件
      * @return \Generator
      */
     public function getCursor(Query $query, string $sql, array $bind = [], $model = null, $condition = null)
@@ -675,10 +675,10 @@ abstract class Connection
     /**
      * 执行查询 返回数据集
      * @access public
-     * @param  Query     $query 查询对象
-     * @param  string    $sql sql指令
-     * @param  array     $bind 参数绑定
-     * @param  bool      $cache 是否支持缓存
+     * @param  Query  $query 查询对象
+     * @param  string $sql sql指令
+     * @param  array  $bind 参数绑定
+     * @param  bool   $cache 是否支持缓存
      * @return array
      * @throws BindParamException
      * @throws \PDOException
@@ -718,7 +718,7 @@ abstract class Connection
     /**
      * 执行查询但只返回PDOStatement对象
      * @access public
-     * @param  Query         $query 查询对象
+     * @param  Query $query 查询对象
      * @return \PDOStatement
      */
     public function pdo(Query $query): PDOStatement
@@ -733,10 +733,10 @@ abstract class Connection
     /**
      * 执行查询但只返回PDOStatement对象
      * @access public
-     * @param  string    $sql sql指令
-     * @param  array     $bind 参数绑定
-     * @param  bool      $master 是否在主服务器读操作
-     * @param  bool      $procedure 是否为存储过程调用
+     * @param  string $sql sql指令
+     * @param  array  $bind 参数绑定
+     * @param  bool   $master 是否在主服务器读操作
+     * @param  bool   $procedure 是否为存储过程调用
      * @return PDOStatement
      * @throws BindParamException
      * @throws \PDOException
@@ -791,9 +791,9 @@ abstract class Connection
     /**
      * 执行语句
      * @access public
-     * @param  Query         $query 查询对象
-     * @param  string        $sql sql指令
-     * @param  array         $bind 参数绑定
+     * @param  Query  $query 查询对象
+     * @param  string $sql sql指令
+     * @param  array  $bind 参数绑定
      * @return int
      * @throws BindParamException
      * @throws \PDOException
@@ -821,7 +821,7 @@ abstract class Connection
     /**
      * 查找单条记录
      * @access public
-     * @param  Query  $query        查询对象
+     * @param  Query $query 查询对象
      * @return array
      * @throws DbException
      * @throws ModelNotFoundException
@@ -871,7 +871,7 @@ abstract class Connection
     /**
      * 使用游标查询记录
      * @access public
-     * @param  Query   $query        查询对象
+     * @param  Query $query 查询对象
      * @return \Generator
      */
     public function cursor(Query $query)
@@ -891,7 +891,7 @@ abstract class Connection
     /**
      * 查找记录
      * @access public
-     * @param  Query   $query        查询对象
+     * @param  Query $query 查询对象
      * @return array
      * @throws DbException
      * @throws ModelNotFoundException
@@ -978,10 +978,10 @@ abstract class Connection
     /**
      * 批量插入记录
      * @access public
-     * @param  Query     $query      查询对象
-     * @param  mixed     $dataSet    数据集
-     * @param  bool      $replace    是否replace
-     * @param  integer   $limit      每次写入数据限制
+     * @param  Query   $query   查询对象
+     * @param  mixed   $dataSet 数据集
+     * @param  bool    $replace 是否replace
+     * @param  integer $limit   每次写入数据限制
      * @return integer
      * @throws \Exception
      * @throws \Throwable
@@ -1025,9 +1025,9 @@ abstract class Connection
     /**
      * 通过Select方式插入记录
      * @access public
-     * @param  Query     $query      查询对象
-     * @param  array     $fields     要插入的数据表字段名
-     * @param  string    $table      要插入的数据表名
+     * @param  Query  $query  查询对象
+     * @param  array  $fields 要插入的数据表字段名
+     * @param  string $table  要插入的数据表名
      * @return integer
      * @throws PDOException
      */
@@ -1042,7 +1042,7 @@ abstract class Connection
     /**
      * 更新记录
      * @access public
-     * @param  Query     $query  查询对象
+     * @param  Query $query 查询对象
      * @return integer
      * @throws Exception
      * @throws PDOException
@@ -1119,9 +1119,9 @@ abstract class Connection
     /**
      * 得到某个字段的值
      * @access public
-     * @param  Query     $query 查询对象
-     * @param  string    $field   字段名
-     * @param  mixed     $default   默认值
+     * @param  Query  $query 查询对象
+     * @param  string $field   字段名
+     * @param  mixed  $default   默认值
      * @return mixed
      */
     public function value(Query $query, string $field, $default = null)
@@ -1169,10 +1169,10 @@ abstract class Connection
     /**
      * 得到某个字段的值
      * @access public
-     * @param  Query     $query     查询对象
-     * @param  string    $aggregate 聚合方法
-     * @param  mixed     $field     字段名
-     * @param  bool      $force     强制转为数字类型
+     * @param  Query  $query     查询对象
+     * @param  string $aggregate 聚合方法
+     * @param  mixed  $field     字段名
+     * @param  bool   $force     强制转为数字类型
      * @return mixed
      */
     public function aggregate(Query $query, string $aggregate, $field, bool $force = false)
@@ -1191,9 +1191,9 @@ abstract class Connection
     /**
      * 得到某个列的数组
      * @access public
-     * @param  Query     $query 查询对象
-     * @param  string    $field 字段名 多个字段用逗号分隔
-     * @param  string    $key   索引
+     * @param  Query  $query 查询对象
+     * @param  string $field 字段名 多个字段用逗号分隔
+     * @param  string $key   索引
      * @return array
      */
     public function column(Query $query, string $field, string $key = ''): array
@@ -1278,8 +1278,8 @@ abstract class Connection
     /**
      * 根据参数绑定组装最终的SQL语句 便于调试
      * @access public
-     * @param  string    $sql 带参数绑定的sql语句
-     * @param  array     $bind 参数绑定列表
+     * @param  string $sql 带参数绑定的sql语句
+     * @param  array  $bind 参数绑定列表
      * @return string
      */
     public function getRealSql(string $sql, array $bind = []): string
@@ -1379,7 +1379,7 @@ abstract class Connection
     /**
      * 获得数据集数组
      * @access protected
-     * @param  bool   $procedure 是否存储过程
+     * @param  bool $procedure 是否存储过程
      * @return array
      */
     protected function getResult(bool $procedure = false): array
@@ -1524,7 +1524,7 @@ abstract class Connection
     /**
      * 生成定义保存点的SQL
      * @access protected
-     * @param  $name
+     * @param  string $name 标识
      * @return string
      */
     protected function parseSavepoint(string $name): string
@@ -1535,7 +1535,7 @@ abstract class Connection
     /**
      * 生成回滚到保存点的SQL
      * @access protected
-     * @param  $name
+     * @param  string $name 标识
      * @return string
      */
     protected function parseSavepointRollBack(string $name): string
@@ -1547,9 +1547,9 @@ abstract class Connection
      * 批处理执行SQL语句
      * 批处理的指令都认为是execute操作
      * @access public
-     * @param  Query    $query        查询对象
-     * @param  array    $sqlArray   SQL批处理指令
-     * @param  array    $bind       参数绑定
+     * @param  Query $query        查询对象
+     * @param  array $sqlArray   SQL批处理指令
+     * @param  array $bind       参数绑定
      * @return bool
      */
     public function batchQuery(Query $query, array $sqlArray = [], array $bind = []): bool
@@ -1601,7 +1601,7 @@ abstract class Connection
     /**
      * 是否断线
      * @access protected
-     * @param  \PDOException|\Exception  $e 异常对象
+     * @param  \PDOException|\Exception $e 异常对象
      * @return bool
      */
     protected function isBreak($e): bool
@@ -1634,7 +1634,7 @@ abstract class Connection
     /**
      * 获取最近插入的ID
      * @access public
-     * @param  string  $sequence     自增序列名
+     * @param  string $sequence 自增序列名
      * @return string
      */
     public function getLastInsID(string $sequence = null): string
@@ -1721,10 +1721,10 @@ abstract class Connection
     /**
      * 触发SQL事件
      * @access protected
-     * @param  string    $sql SQL语句
-     * @param  string    $runtime SQL运行时间
-     * @param  mixed     $explain SQL分析
-     * @param  bool      $master 主从标记
+     * @param  string $sql SQL语句
+     * @param  string $runtime SQL运行时间
+     * @param  mixed  $explain SQL分析
+     * @param  bool   $master 主从标记
      * @return void
      */
     protected function triggerSql(string $sql, string $runtime, array $explain = [], bool $master = false): void
@@ -1854,7 +1854,7 @@ abstract class Connection
     /**
      * 缓存数据
      * @access protected
-     * @param  CacheItem    $cacheItem   缓存Item
+     * @param  CacheItem $cacheItem 缓存Item
      */
     protected function cacheData(CacheItem $cacheItem): void
     {
@@ -1869,10 +1869,10 @@ abstract class Connection
     /**
      * 获取缓存数据
      * @access protected
-     * @param  Query     $query   查询对象
-     * @param  mixed     $cache   缓存设置
-     * @param  array     $data    缓存数据
-     * @param  string    $key     缓存Key
+     * @param  Query  $query 查询对象
+     * @param  mixed  $cache 缓存设置
+     * @param  array  $data  缓存数据
+     * @param  string $key   缓存Key
      * @return mixed
      */
     protected function getCacheData(CacheItem $cacheItem)

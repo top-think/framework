@@ -52,7 +52,7 @@ class Url
     /**
      * 初始化
      * @access public
-     * @param  array $config
+     * @param  array $config 配置信息
      * @return void
      */
     public function init(array $config = [])
@@ -68,10 +68,10 @@ class Url
     /**
      * URL生成 支持路由反射
      * @access public
-     * @param  string            $url 路由地址
-     * @param  array|string      $vars 参数 ['a'=>'val1', 'b'=>'val2']
-     * @param  string|bool       $suffix 伪静态后缀，默认为true表示获取配置值
-     * @param  bool|string       $domain 是否显示域名 或者直接传入域名
+     * @param  string       $url 路由地址
+     * @param  array|string $vars 参数 ['a'=>'val1', 'b'=>'val2']
+     * @param  string|bool  $suffix 伪静态后缀，默认为true表示获取配置值
+     * @param  bool|string  $domain 是否显示域名 或者直接传入域名
      * @return string
      */
     public function build(string $url = '', $vars = [], $suffix = true, $domain = false): string
@@ -214,8 +214,13 @@ class Url
         return $url;
     }
 
-    // 直接解析URL地址
-    protected function parseUrl($url): string
+    /**
+     * 直接解析URL地址
+     * @access public
+     * @param  string $url URL
+     * @return string
+     */
+    protected function parseUrl(string $url): string
     {
         $request = $this->app->request;
 
@@ -255,8 +260,14 @@ class Url
         return $url;
     }
 
-    // 检测域名
-    protected function parseDomain(&$url, $domain): string
+    /**
+     * 检测域名
+     * @access public
+     * @param  string      $url URL
+     * @param  string|true $domain 域名
+     * @return string
+     */
+    protected function parseDomain(string &$url, $domain): string
     {
         if (!$domain) {
             return '';
@@ -308,7 +319,12 @@ class Url
         return $scheme . $domain;
     }
 
-    // 解析URL后缀
+    /**
+     * 解析URL后缀
+     * @access public
+     * @param  string|bool $suffix 后缀
+     * @return string
+     */
     protected function parseSuffix($suffix): string
     {
         if ($suffix) {
@@ -322,7 +338,14 @@ class Url
         return (empty($suffix) || 0 === strpos($suffix, '.')) ? $suffix : '.' . $suffix;
     }
 
-    // 匹配路由地址
+    /**
+     * 匹配路由地址
+     * @access public
+     * @param  array $rule 路由规则
+     * @param  array $vars 路由变量
+     * @param  mixed $allowDomain 允许域名
+     * @return array
+     */
     public function getRuleUrl(array $rule, array &$vars = [], $allowDomain = ''): array
     {
         foreach ($rule as $item) {
@@ -365,7 +388,12 @@ class Url
         return [];
     }
 
-    // 指定当前生成URL地址的root
+    /**
+     * 指定当前生成URL地址的root
+     * @access public
+     * @param  string $root ROOT
+     * @return void
+     */
     public function root(string $root): void
     {
         $this->root = $root;

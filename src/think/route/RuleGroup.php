@@ -51,10 +51,10 @@ class RuleGroup extends Rule
     /**
      * 架构函数
      * @access public
-     * @param  Route       $router   路由对象
-     * @param  RuleGroup   $parent   上级对象
-     * @param  string      $name     分组名称
-     * @param  mixed       $rule     分组路由
+     * @param  Route     $router 路由对象
+     * @param  RuleGroup $parent 上级对象
+     * @param  string    $name   分组名称
+     * @param  mixed     $rule   分组路由
      */
     public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null)
     {
@@ -106,9 +106,9 @@ class RuleGroup extends Rule
     /**
      * 检测分组路由
      * @access public
-     * @param  Request      $request  请求对象
-     * @param  string       $url      访问地址
-     * @param  bool         $completeMatch   路由是否完全匹配
+     * @param  Request $request  请求对象
+     * @param  string  $url      访问地址
+     * @param  bool    $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
     public function check(Request $request, string $url, bool $completeMatch = false)
@@ -181,7 +181,7 @@ class RuleGroup extends Rule
     /**
      * 获取当前请求的路由规则（包括子分组、资源路由）
      * @access protected
-     * @param  string      $method
+     * @param  string $method 请求类型
      * @return array
      */
     protected function getMethodRules(string $method): array
@@ -192,7 +192,7 @@ class RuleGroup extends Rule
     /**
      * 分组URL匹配检查
      * @access protected
-     * @param  string     $url
+     * @param  string $url URL
      * @return bool
      */
     protected function checkUrl(string $url): bool
@@ -217,7 +217,7 @@ class RuleGroup extends Rule
     /**
      * 延迟解析分组的路由规则
      * @access public
-     * @param  bool     $lazy   路由是否延迟解析
+     * @param  bool $lazy 路由是否延迟解析
      * @return $this
      */
     public function lazy(bool $lazy = true)
@@ -233,7 +233,7 @@ class RuleGroup extends Rule
     /**
      * 解析分组和域名的路由规则及绑定
      * @access public
-     * @param  mixed        $rule    路由规则
+     * @param  mixed $rule 路由规则
      * @return void
      */
     public function parseGroupRule($rule): void
@@ -253,10 +253,10 @@ class RuleGroup extends Rule
     /**
      * 检测分组路由
      * @access public
-     * @param  Request      $request  请求对象
-     * @param  array        $rules    路由规则
-     * @param  string       $url      访问地址
-     * @param  bool         $completeMatch   路由是否完全匹配
+     * @param  Request $request  请求对象
+     * @param  array   $rules    路由规则
+     * @param  string  $url      访问地址
+     * @param  bool    $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
     protected function checkMergeRuleRegex(Request $request, array &$rules, string $url, bool $completeMatch)
@@ -374,7 +374,7 @@ class RuleGroup extends Rule
     /**
      * 注册自动路由
      * @access public
-     * @param  string     $route   路由规则
+     * @param  string $route 路由规则
      * @return void
      */
     public function addAutoRule(string $route): void
@@ -385,8 +385,8 @@ class RuleGroup extends Rule
     /**
      * 注册MISS路由
      * @access public
-     * @param  string    $route      路由地址
-     * @param  string    $method     请求类型
+     * @param  string $route  路由地址
+     * @param  string $method 请求类型
      * @return RuleItem
      */
     public function miss(string $route, string $method = '*'): RuleItem
@@ -402,9 +402,9 @@ class RuleGroup extends Rule
     /**
      * 添加分组下的路由规则或者子分组
      * @access public
-     * @param  string    $rule       路由规则
-     * @param  mixed     $route      路由地址
-     * @param  string    $method     请求类型
+     * @param  string $rule   路由规则
+     * @param  mixed  $route  路由地址
+     * @param  string $method 请求类型
      * @return RuleItem
      */
     public function addRule(string $rule, $route = null, string $method = '*'): RuleItem
@@ -445,7 +445,7 @@ class RuleGroup extends Rule
     /**
      * 设置分组的路由前缀
      * @access public
-     * @param  string     $prefix
+     * @param  string $prefix 路由前缀
      * @return $this
      */
     public function prefix(string $prefix)
@@ -460,7 +460,7 @@ class RuleGroup extends Rule
     /**
      * 设置资源允许
      * @access public
-     * @param  array     $only
+     * @param  array $only 资源允许
      * @return $this
      */
     public function only(array $only)
@@ -471,7 +471,7 @@ class RuleGroup extends Rule
     /**
      * 设置资源排除
      * @access public
-     * @param  array     $except
+     * @param  array $except 排除资源
      * @return $this
      */
     public function except(array $except)
@@ -482,7 +482,7 @@ class RuleGroup extends Rule
     /**
      * 设置资源路由的变量
      * @access public
-     * @param  array     $vars
+     * @param  array $vars 资源变量
      * @return $this
      */
     public function vars(array $vars)
@@ -493,7 +493,7 @@ class RuleGroup extends Rule
     /**
      * 合并分组的路由规则正则
      * @access public
-     * @param  bool     $merge
+     * @param  bool $merge 是否合并
      * @return $this
      */
     public function mergeRuleRegex(bool $merge = true)
@@ -514,7 +514,7 @@ class RuleGroup extends Rule
     /**
      * 获取分组的路由规则
      * @access public
-     * @param  string     $method
+     * @param  string $method 请求类型
      * @return array
      */
     public function getRules(string $method = '') : array

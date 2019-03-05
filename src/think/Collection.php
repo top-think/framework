@@ -62,7 +62,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 合并数组
      *
      * @access public
-     * @param  mixed $items
+     * @param  mixed $items 数据
      * @return static
      */
     public function merge($items)
@@ -74,8 +74,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 按指定键整理数据
      *
      * @access public
-     * @param  mixed    $items      数据
-     * @param  string   $indexKey   键名
+     * @param  mixed  $items    数据
+     * @param  string $indexKey 键名
      * @return array
      */
     public function dictionary($items = null, string &$indexKey = null)
@@ -101,8 +101,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 比较数组，返回差集
      *
      * @access public
-     * @param  mixed    $items      数据
-     * @param  string   $indexKey   指定比较的键名
+     * @param  mixed  $items    数据
+     * @param  string $indexKey 指定比较的键名
      * @return static
      */
     public function diff($items, string $indexKey = null)
@@ -129,8 +129,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 比较数组，返回交集
      *
      * @access public
-     * @param  mixed    $items      数据
-     * @param  string   $indexKey   指定比较的键名
+     * @param  mixed  $items    数据
+     * @param  string $indexKey 指定比较的键名
      * @return static
      */
     public function intersect($items, string $indexKey = null)
@@ -190,7 +190,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 通过使用用户自定义函数，以字符串返回数组
      *
      * @access public
-     * @param  callable $callback
+     * @param  callable $callback 调用方法
      * @param  mixed    $initial
      * @return mixed
      */
@@ -224,8 +224,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 在数组结尾插入一个元素
      * @access public
-     * @param  mixed  $value
-     * @param  mixed  $key
+     * @param  mixed  $value 元素
+     * @param  string $key KEY
      * @return void
      */
     public function push($value, string $key = null): void
@@ -241,7 +241,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 把一个数组分割为新的数组块.
      *
      * @access public
-     * @param  int  $size
+     * @param  int  $size 块大小
      * @param  bool $preserveKeys
      * @return static
      */
@@ -259,8 +259,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 在数组开头插入一个元素
      * @access public
-     * @param mixed  $value
-     * @param mixed  $key
+     * @param mixed  $value 元素
+     * @param string $key KEY
      * @return void
      */
     public function unshift($value, string $key = null): void
@@ -276,7 +276,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 给每个元素执行个回调
      *
      * @access public
-     * @param  callable $callback
+     * @param  callable $callback 回调
      * @return $this
      */
     public function each(callable $callback)
@@ -297,7 +297,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 用回调函数处理数组中的元素
      * @access public
-     * @param  callable|null $callback
+     * @param  callable|null $callback 回调
      * @return static
      */
     public function map(callable $callback)
@@ -308,7 +308,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 用回调函数过滤数组中的元素
      * @access public
-     * @param  callable|null $callback
+     * @param  callable|null $callback 回调
      * @return static
      */
     public function filter(callable $callback = null)
@@ -323,9 +323,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 根据字段条件过滤数组中的元素
      * @access public
-     * @param  string   $field 字段名
-     * @param  mixed    $operator 操作符
-     * @param  mixed    $value 数据
+     * @param  string $field 字段名
+     * @param  mixed  $operator 操作符
+     * @param  mixed  $value 数据
      * @return static
      */
     public function where(string $field, $operator, $value = null)
@@ -385,8 +385,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * LIKE过滤
      * @access public
-     * @param  string   $field 字段名
-     * @param  string   $value 数据
+     * @param  string $field 字段名
+     * @param  string $value 数据
      * @return static
      */
     public function whereLike(string $field, string $value)
@@ -397,8 +397,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * NOT LIKE过滤
      * @access public
-     * @param  string   $field 字段名
-     * @param  string   $value 数据
+     * @param  string $field 字段名
+     * @param  string $value 数据
      * @return static
      */
     public function whereNotLike(string $field, string $value)
@@ -409,8 +409,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * IN过滤
      * @access public
-     * @param  string   $field 字段名
-     * @param  array    $value 数据
+     * @param  string $field 字段名
+     * @param  array  $value 数据
      * @return static
      */
     public function whereIn(string $field, array $value)
@@ -421,8 +421,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * NOT IN过滤
      * @access public
-     * @param  string   $field 字段名
-     * @param  array    $value 数据
+     * @param  string $field 字段名
+     * @param  array  $value 数据
      * @return static
      */
     public function whereNotIn(string $field, array $value)
@@ -433,8 +433,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * BETWEEN 过滤
      * @access public
-     * @param  string   $field 字段名
-     * @param  mixed    $value 数据
+     * @param  string $field 字段名
+     * @param  mixed  $value 数据
      * @return static
      */
     public function whereBetween(string $field, $value)
@@ -445,8 +445,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * NOT BETWEEN 过滤
      * @access public
-     * @param  string   $field 字段名
-     * @param  mixed    $value 数据
+     * @param  string $field 字段名
+     * @param  mixed  $value 数据
      * @return static
      */
     public function whereNotBetween(string $field, $value)
@@ -470,7 +470,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 对数组排序
      *
      * @access public
-     * @param  callable|null $callback
+     * @param  callable|null $callback 回调
      * @return static
      */
     public function sort(callable $callback = null)
@@ -490,8 +490,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     /**
      * 指定字段排序
      * @access public
-     * @param  string       $field 排序字段
-     * @param  string       $order 排序
+     * @param  string $field 排序字段
+     * @param  string $order 排序
      * @return $this
      */
     public function order(string $field, string $order = null)
@@ -523,9 +523,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 截取数组
      *
      * @access public
-     * @param  int  $offset
-     * @param  int  $length
-     * @param  bool $preserveKeys
+     * @param  int  $offset 起始位置
+     * @param  int  $length 截取长度
+     * @param  bool $preserveKeys preserveKeys
      * @return static
      */
     public function slice(int $offset, int $length = null, bool $preserveKeys = false)
@@ -596,7 +596,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * 转换成数组
      *
      * @access public
-     * @param  mixed $items
+     * @param  mixed $items 数据
      * @return array
      */
     protected function convertToArray($items): array
