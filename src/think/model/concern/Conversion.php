@@ -126,28 +126,52 @@ trait Conversion
      */
     public function toArray(): array
     {
-        $item    = [];
-        $visible = [];
-        $hidden  = [];
+        $item       = [];
+        $hasVisible = false;
+
+        foreach ($this->visible as $key => $val) {
+            if (is_string($val)) {
+                if (strpos($val, '.')) {
+                    list($relation, $name)      = explode('.', $val);
+                    $this->visible[$relation][] = $name;
+                } else {
+                    $this->visible[$val] = true;
+                    $hasVisible          = true;
+                }
+                unset($this->visible[$key]);
+            }
+        }
+
+        foreach ($this->hidden as $key => $val) {
+            if (is_string($val)) {
+                if (strpos($val, '.')) {
+                    list($relation, $name)     = explode('.', $val);
+                    $this->hidden[$relation][] = $name;
+                } else {
+                    $this->hidden[$val] = true;
+                }
+                unset($this->hidden[$key]);
+            }
+        }
 
         // 合并关联数据
         $data = array_merge($this->data, $this->relation);
 
-        // 过滤属性
-        if (!empty($this->visible)) {
-            $array = $this->parseAttr($this->visible, $visible);
-            if (!empty($array)) {
-                $data = array_intersect_key($data, array_flip($array));
-            }
-        }
-
-        if (empty($array) && !empty($this->hidden)) {
-            $array = $this->parseAttr($this->hidden, $hidden);
-            $data  = array_diff_key($data, array_flip($array));
-        }
-
         foreach ($data as $key => $val) {
-            $item[$key] = $this->getArrayData($key, $val, $visible, $hidden);
+            if ($val instanceof Model || $val instanceof ModelCollection) {
+                // 关联模型对象
+                if (isset($this->visible[$key])) {
+                    $val->visible($this->visible[$key]);
+                } elseif (isset($this->hidden[$key])) {
+                    $val->hidden($this->hidden[$key]);
+                }
+                // 关联模型对象
+                $item[$key] = $val->toArray();
+            } elseif (isset($this->visible[$key])) {
+                $item[$key] = $this->getAttr($key);
+            } elseif (!isset($this->hidden[$key]) && !$hasVisible) {
+                $item[$key] = $this->getAttr($key);
+            }
         }
 
         // 追加属性（必须定义获取器）
@@ -217,23 +241,6 @@ trait Conversion
         }
     }
 
-    protected function getArrayData(string $key, $val, array $visible, array $hidden)
-    {
-        if ($val instanceof Model || $val instanceof ModelCollection) {
-            // 关联模型对象
-            if (isset($visible[$key])) {
-                $val->visible($visible[$key]);
-            } elseif (isset($hidden[$key])) {
-                $val->hidden($hidden[$key]);
-            }
-            // 关联模型对象
-            return $val->toArray();
-        }
-
-        // 模型属性
-        return $this->getAttr($key);
-    }
-
     /**
      * 转换当前模型对象为JSON字符串
      * @access public
@@ -287,29 +294,4 @@ trait Conversion
         return $collection;
     }
 
-    /**
-     * 解析隐藏及显示属性
-     * @access protected
-     * @param  array $attrs  属性
-     * @param  array $result 结果集
-     * @return array
-     */
-    protected function parseAttr(array $attrs, array &$result): array
-    {
-        $array = [];
-
-        foreach ($attrs as $key => $val) {
-            if (is_array($val)) {
-                $result[$key] = $val;
-            } elseif (strpos($val, '.')) {
-                list($key, $name) = explode('.', $val);
-
-                $result[$key][] = $name;
-            } else {
-                $array[] = $val;
-            }
-        }
-
-        return $array;
-    }
 }
