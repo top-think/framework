@@ -137,7 +137,7 @@ class Fetch
         $options = $this->query->parseOptions();
 
         if (!empty($data)) {
-            $this->query->setOption('data', array_merge($options['data'], $data));
+            $this->query->setOption('data', $data);
         }
 
         $replace = $options['replace'] ?? false;
@@ -166,9 +166,7 @@ class Fetch
      */
     public function save(array $data = [], bool $forceInsert = false): string
     {
-        if (!empty($data)) {
-            $data = array_merge($this->query->getOptions('data') ?: [], $data);
-        } else {
+        if (empty($data)) {
             $data = $this->query->getOptions('data');
         }
 
@@ -250,7 +248,7 @@ class Fetch
     {
         $options = $this->query->parseOptions();
 
-        $data = array_merge($options['data'], $data);
+        $data = !empty($data) ? $data : $options['data'];
 
         $pk = $this->query->getPk();
 

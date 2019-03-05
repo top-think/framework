@@ -2604,7 +2604,7 @@ class Query
         }
 
         if (!empty($data)) {
-            $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
+            $this->options['data'] = $data;
         }
 
         $isUpdate = $this->parseUpdateData($this->options['data']);
@@ -2623,7 +2623,7 @@ class Query
     public function insert(array $data = [], bool $getLastInsID = false, string $sequence = null)
     {
         if (!empty($data)) {
-            $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
+            $this->options['data'] = $data;
         }
 
         $replace = $this->options['replace'] ?? false;
@@ -2686,8 +2686,8 @@ class Query
      */
     public function update(array $data = []): int
     {
-        if (!empty($data)) {
-            $data = array_merge($this->options['data'] ?? [], $data);
+        if (empty($data)) {
+            $data = $this->options['data'] ?? [];
         }
 
         if (empty($this->options['where'])) {
