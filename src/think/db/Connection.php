@@ -66,12 +66,6 @@ abstract class Connection
     protected $error = '';
 
     /**
-     * 查询次数
-     * @var int
-     */
-    protected static $queryTimes = 0;
-
-    /**
      * 数据库连接ID 支持多个连接
      * @var PDO[]
      */
@@ -752,7 +746,7 @@ abstract class Connection
 
         $this->bind = $bind;
 
-        self::$queryTimes++;
+        Db::$queryTimes++;
 
         try {
             // 调试开始
@@ -1569,16 +1563,6 @@ abstract class Connection
         }
 
         return true;
-    }
-
-    /**
-     * 获得查询次数
-     * @access public
-     * @return integer
-     */
-    public function getQueryTimes(): int
-    {
-        return self::$queryTimes;
     }
 
     /**

@@ -30,6 +30,12 @@ class Db
     protected $config = [];
 
     /**
+     * 查询次数
+     * @var int
+     */
+    public static $queryTimes = 0;
+
+    /**
      * 架构函数
      * @param  array         $config 连接配置
      * @access public
@@ -83,7 +89,7 @@ class Db
      */
     public function getQueryTimes(): int
     {
-        return $this->connection->getQueryTimes();
+        return self::$queryTimes;
     }
 
     /**
