@@ -196,11 +196,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $this->dateFormat = $config->get('database.datetime_format');
         }
 
-        if (is_null($this->query)) {
-            // 设置查询对象
-            $this->query = $config->get('database.query');
-        }
-
         if (!empty($this->connection) && is_array($this->connection)) {
             // 设置模型的数据库连接
             $this->connection = array_merge($config->get('database'), $this->connection);
@@ -243,7 +238,14 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     protected function buildQuery(): Query
     {
-        $query = Db::buildQuery($this->query, $this->connection);
+        $connection = Db::buildConnection($this->connection);
+
+        if ($this->query) {
+            $query = new $this->query($connection);
+        } else {
+            $queryClass = $connection->getConfig('query');
+            $query      = new $queryClass($connection);
+        }
 
         $query->model($this)
             ->name($this->name)

@@ -1863,7 +1863,6 @@ abstract class Connection
         }
 
         $this->cache->set($cacheItem->getKey(), $cacheItem->get(), $cacheItem->getExpire());
-
     }
 
     /**

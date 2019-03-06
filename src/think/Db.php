@@ -116,6 +116,17 @@ class Db
     }
 
     /**
+     * 创建一个新的Connection对象
+     * @access public
+     * @param  mixed  $connection   连接配置信息
+     * @return mixed
+     */
+    public function buildConnection($connection)
+    {
+        return Connection::instance($this->parseConfig($connection));
+    }
+
+    /**
      * 创建一个新的查询对象
      * @access public
      * @param  string $query        查询对象类名
@@ -124,7 +135,7 @@ class Db
      */
     public function buildQuery(string $query, $connection)
     {
-        $connection = Connection::instance($this->parseConfig($connection));
+        $connection = $this->buildConnection($connection);
         return new $query($connection);
     }
 
