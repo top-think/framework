@@ -1778,11 +1778,11 @@ abstract class Connection
      */
     protected function multiConnect(bool $master = false): PDO
     {
-        $_config = [];
+        $config = [];
 
         // 分布式数据库配置解析
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
-            $_config[$name] = is_string($this->config[$name]) ? explode(',', $this->config[$name]) : $this->config[$name];
+            $config[$name] = is_string($this->config[$name]) ? explode(',', $this->config[$name]) : $this->config[$name];
         }
 
         // 主服务器序号
@@ -1798,25 +1798,25 @@ abstract class Connection
                 $r = $this->config['slave_no'];
             } else {
                 // 读操作连接从服务器 每次随机连接的数据库
-                $r = floor(mt_rand($this->config['master_num'], count($_config['hostname']) - 1));
+                $r = floor(mt_rand($this->config['master_num'], count($config['hostname']) - 1));
             }
         } else {
             // 读写操作不区分服务器 每次随机连接的数据库
-            $r = floor(mt_rand(0, count($_config['hostname']) - 1));
+            $r = floor(mt_rand(0, count($config['hostname']) - 1));
         }
         $dbMaster = false;
 
         if ($m != $r) {
             $dbMaster = [];
             foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
-                $dbMaster[$name] = $_config[$name][$m] ?? $_config[$name][0];
+                $dbMaster[$name] = $config[$name][$m] ?? $config[$name][0];
             }
         }
 
         $dbConfig = [];
 
         foreach (['username', 'password', 'hostname', 'hostport', 'database', 'dsn', 'charset'] as $name) {
-            $dbConfig[$name] = $_config[$name][$r] ?? $_config[$name][0];
+            $dbConfig[$name] = $config[$name][$r] ?? $config[$name][0];
         }
 
         return $this->connect($dbConfig, $r, $r == $m ? false : $dbMaster);

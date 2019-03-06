@@ -172,7 +172,7 @@ class Query
      * @access public
      * @return Connection
      */
-    public function getConnection(): Connection
+    public function getConnection()
     {
         return $this->connection;
     }
@@ -183,7 +183,7 @@ class Query
      * @param  Connection      $connection 数据库连接对象
      * @return $this
      */
-    public function setConnection(Connection $connection)
+    public function setConnection($connection)
     {
         $this->connection = $connection;
 
