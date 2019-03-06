@@ -279,7 +279,7 @@ abstract class Connection
      * @return Connection
      * @throws Exception
      */
-    public static function instance(array $config = [], $name = false): Connection
+    public static function instance(array $config = [], $name = false)
     {
         if (false === $name) {
             $name = md5(serialize($config));
