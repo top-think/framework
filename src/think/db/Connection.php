@@ -1186,11 +1186,11 @@ abstract class Connection
      * 得到某个列的数组
      * @access public
      * @param  Query  $query 查询对象
-     * @param  string $field 字段名 多个字段用逗号分隔
+     * @param  string $column 字段名 多个字段用逗号分隔
      * @param  string $key   索引
      * @return array
      */
-    public function column(Query $query, string $field, string $key = ''): array
+    public function column(Query $query, string $column, string $key = ''): array
     {
         $options = $query->parseOptions();
 
@@ -1198,8 +1198,10 @@ abstract class Connection
             $query->removeOption('field');
         }
 
-        if ($key && '*' != $field) {
-            $field = $key . ',' . $field;
+        if ($key && '*' != $column) {
+            $field = $key . ',' . $column;
+        } else {
+            $field = $column;
         }
 
         $field = array_map('trim', explode(',', $field));
@@ -1228,36 +1230,21 @@ abstract class Connection
         // 执行查询操作
         $pdo = $this->getPDOStatement($sql, $query->getBind(), $options['master']);
 
-        if (1 == $pdo->columnCount()) {
-            $result = $pdo->fetchAll(PDO::FETCH_COLUMN);
+        $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($resultSet)) {
+            $result = [];
+        } elseif (('*' == $column || strpos($column, ',')) && $key) {
+            $result = array_column($resultSet, null, $key);
         } else {
-            $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
+            $fields = array_keys($resultSet[0]);
+            $key    = $key ?: array_shift($fields);
 
-            if ('*' == $field && $key) {
-                $result = array_column($resultSet, null, $key);
-            } elseif (!empty($resultSet)) {
-                $fields = array_keys($resultSet[0]);
-                $count  = count($fields);
-                $key1   = array_shift($fields);
-                $key2   = $fields ? array_shift($fields) : '';
-                $key    = $key ?: $key1;
-
-                if (strpos($key, '.')) {
-                    list($alias, $key) = explode('.', $key);
-                }
-
-                if (2 == $count) {
-                    $column = $key2;
-                } elseif (1 == $count) {
-                    $column = $key1;
-                } else {
-                    $column = null;
-                }
-
-                $result = array_column($resultSet, $column, $key);
-            } else {
-                $result = [];
+            if (strpos($key, '.')) {
+                list($alias, $key) = explode('.', $key);
             }
+
+            $result = array_column($resultSet, $column, $key);
         }
 
         if (isset($cacheItem)) {
