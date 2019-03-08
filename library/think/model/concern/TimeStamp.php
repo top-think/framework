@@ -53,7 +53,7 @@ trait TimeStamp
     protected function formatDateTime($format, $time = 'now', $timestamp = false)
     {
         if (empty($time)) {
-            return;
+            return $time;
         }
 
         if (false === $format) {
