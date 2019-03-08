@@ -102,6 +102,12 @@ class App extends Container
     protected $appPath = '';
 
     /**
+     * 默认应用名（多应用模式）
+     * @var string
+     */
+    protected $defaultApp = 'index';
+
+    /**
      * 运行时目录
      * @var string
      */
@@ -314,6 +320,18 @@ class App extends Container
     public function name(string $name)
     {
         $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * 设置默认应用（对多应用有效）
+     * @access public
+     * @param  string $name 应用名
+     * @return $this
+     */
+    public function defaultApp(string $name)
+    {
+        $this->defaultApp = $name;
         return $this;
     }
 
@@ -597,15 +615,18 @@ class App extends Container
         if ($this->multi) {
             $this->namespace = null;
             $this->appPath   = null;
-            $this->name      = null;
 
-            if ($this->auto && $this->request->path()) {
-                $name = current(explode('/', $this->request->path()));
+            $path = $this->request->path();
+
+            if ($this->auto && $path) {
+                $name = current(explode('/', $path));
 
                 if (isset($this->map[$name]) && $this->map[$name] instanceof \Closure) {
                     call_user_func_array($this->map[$name], [$this]);
                 } elseif ($name) {
                     $this->name = $this->map[$name] ?? $name;
+                } else {
+                    $this->name = $this->defaultApp;
                 }
             } else {
                 $this->name = $this->name ?: $this->getScriptName();
@@ -914,7 +935,7 @@ class App extends Container
             $file = realpath($_SERVER['argv'][0]);
         }
 
-        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : '';
+        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : $this->defaultApp;
     }
 
     /**
