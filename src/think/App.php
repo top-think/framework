@@ -48,12 +48,6 @@ class App extends Container
     protected $name;
 
     /**
-     * 应用入口文件
-     * @var string
-     */
-    protected $scriptName;
-
-    /**
      * 应用调试模式
      * @var bool
      */
@@ -144,10 +138,16 @@ class App extends Container
     protected $multi = false;
 
     /**
-     * 是否为自动多应用模式
+     * 是否为自动多应用
      * @var bool
      */
     protected $auto = false;
+
+    /**
+     * 应用映射
+     * @var array
+     */
+    protected $map = [];
 
     /**
      * 是否需要事件响应
@@ -186,12 +186,18 @@ class App extends Container
      */
     public function __construct(string $rootPath = '')
     {
-        $this->scriptName = $this->getScriptName();
-        $this->thinkPath  = dirname(__DIR__) . DIRECTORY_SEPARATOR;
-        $this->rootPath   = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
-        $this->basePath   = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
+        $this->thinkPath = dirname(__DIR__) . DIRECTORY_SEPARATOR;
+        $this->rootPath  = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
+        $this->basePath  = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
 
         $this->multi = is_dir($this->basePath . 'controller') ? false : true;
+
+        static::setInstance($this);
+
+        $this->instance('app', $this);
+
+        // 注册错误和异常处理机制
+        Error::register();
     }
 
     /**
@@ -204,16 +210,7 @@ class App extends Container
     {
         $this->multi = true;
         $this->auto  = true;
-
-        if ($this->request->path()) {
-            $name = current(explode('/', $this->request->path()));
-
-            if (isset($map[$name]) && $map[$name] instanceof \Closure) {
-                $map[$name]($this);
-            } elseif ($name) {
-                $this->name = $map[$name] ?? $name;
-            }
-        }
+        $this->map   = $map;
 
         return $this;
     }
@@ -543,27 +540,12 @@ class App extends Container
     /**
      * 初始化应用
      * @access public
-     * @return void
+     * @return $this
      */
-    public function initialize(): void
+    public function initialize()
     {
-        if ($this->initialized) {
-            return;
-        }
-
-        $this->initialized = true;
-
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
-
-        static::setInstance($this);
-
-        $this->instance('app', $this);
-
-        $this->instance(Container::class, $this);
-
-        // 注册错误和异常处理机制
-        Error::register();
 
         if (is_file($this->rootPath . '.env')) {
             $this->env->load($this->rootPath . '.env');
@@ -585,6 +567,8 @@ class App extends Container
 
         // 设置开启事件机制
         $this->event->withEvent($this->withEvent);
+
+        return $this;
     }
 
     protected function debugModeInit(): void
@@ -593,8 +577,6 @@ class App extends Container
         if (!$this->appDebug) {
             $this->appDebug = $this->env->get('app_debug', false);
         }
-
-        $this->env->set('app_debug', $this->appDebug);
 
         if (!$this->appDebug) {
             ini_set('display_errors', 'Off');
@@ -613,7 +595,22 @@ class App extends Container
     protected function setDependPath(): void
     {
         if ($this->multi) {
-            $this->name        = $this->name ?: pathinfo($this->scriptName, PATHINFO_FILENAME);
+            $this->namespace = null;
+            $this->appPath   = null;
+            $this->name      = null;
+
+            if ($this->auto && $this->request->path()) {
+                $name = current(explode('/', $this->request->path()));
+
+                if (isset($this->map[$name]) && $this->map[$name] instanceof \Closure) {
+                    call_user_func_array($this->map[$name], [$this]);
+                } elseif ($name) {
+                    $this->name = $this->map[$name] ?? $name;
+                }
+            } else {
+                $this->name = $this->name ?: $this->getScriptName();
+            }
+
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
         } else {
@@ -625,16 +622,19 @@ class App extends Container
             $this->appPath = $this->multi ? $this->basePath . $this->name . DIRECTORY_SEPARATOR : $this->basePath;
         }
 
+        if (!$this->namespace) {
+            $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
+        }
+
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
-        // 设置路径环境变量
         $this->env->set([
             'think_path'   => $this->thinkPath,
             'root_path'    => $this->rootPath,
             'app_path'     => $this->appPath,
-            'config_path'  => $this->configPath,
-            'route_path'   => $this->routePath,
             'runtime_path' => $this->runtimePath,
+            'route_path'   => $this->routePath,
+            'config_path'  => $this->configPath,
         ]);
     }
 
@@ -652,12 +652,10 @@ class App extends Container
             $this->loadAppFile();
         }
 
-        if (!$this->namespace) {
-            $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
-        }
-
-        $this->env->set('app_namespace', $this->namespace);
         $this->request->setApp($this->name ?: '');
+
+        // 监听AppInit
+        $this->event->trigger('AppInit');
     }
 
     /**
@@ -755,12 +753,6 @@ class App extends Container
     public function run(): Response
     {
         try {
-            // 初始化应用
-            $this->initialize();
-
-            // 监听AppInit
-            $this->event->trigger('AppInit');
-
             if ($this->withRoute) {
                 $dispatch = $this->routeCheck()->init();
             } else {
@@ -829,11 +821,7 @@ class App extends Container
     // 获取应用根目录
     public function getDefaultRootPath(): string
     {
-        $path = realpath(dirname($this->scriptName));
-
-        if (!is_file($path . DIRECTORY_SEPARATOR . 'think')) {
-            $path = dirname($path);
-        }
+        $path = dirname(dirname(dirname(dirname($this->thinkPath))));
 
         return $path . DIRECTORY_SEPARATOR;
     }
@@ -920,7 +908,13 @@ class App extends Container
 
     protected function getScriptName(): string
     {
-        return 'cli' == PHP_SAPI ? realpath($_SERVER['argv'][0]) : $_SERVER['SCRIPT_FILENAME'];
+        if (isset($_SERVER['SCRIPT_FILENAME'])) {
+            $file = $_SERVER['SCRIPT_FILENAME'];
+        } elseif (isset($_SERVER['argv'][0])) {
+            $file = realpath($_SERVER['argv'][0]);
+        }
+
+        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : '';
     }
 
     /**
