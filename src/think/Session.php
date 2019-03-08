@@ -441,11 +441,12 @@ class Session
      * 重新生成session_id
      * @access public
      * @param  bool $delete 是否删除关联会话文件
-     * @return void
+     * @return string
      */
-    public function regenerate(bool $delete = false): void
+    public function regenerate(bool $delete = false): string
     {
         session_regenerate_id($delete);
+        return session_id();
     }
 
     /**
