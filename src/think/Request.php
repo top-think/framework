@@ -548,21 +548,22 @@ class Request
      */
     public function url(bool $complete = false): string
     {
-        if (!$this->url) {
-            if ($this->isCli()) {
-                $this->url = $_SERVER['argv'][1] ?? '';
-            } elseif ($this->server('HTTP_X_REWRITE_URL')) {
-                $this->url = $this->server('HTTP_X_REWRITE_URL');
-            } elseif ($this->server('REQUEST_URI')) {
-                $this->url = $this->server('REQUEST_URI');
-            } elseif ($this->server('ORIG_PATH_INFO')) {
-                $this->url = $this->server('ORIG_PATH_INFO') . (!empty($this->server('QUERY_STRING')) ? '?' . $this->server('QUERY_STRING') : '');
-            } else {
-                $this->url = '';
-            }
+
+        if ($this->url) {
+            $url = $this->url;
+        } elseif ($this->server('HTTP_X_REWRITE_URL')) {
+            $url = $this->server('HTTP_X_REWRITE_URL');
+        } elseif ($this->server('REQUEST_URI')) {
+            $url = $this->server('REQUEST_URI');
+        } elseif ($this->server('ORIG_PATH_INFO')) {
+            $url = $this->server('ORIG_PATH_INFO') . (!empty($this->server('QUERY_STRING')) ? '?' . $this->server('QUERY_STRING') : '');
+        } elseif (isset($_SERVER['argv'][1])) {
+            $url = $_SERVER['argv'][1];
+        } else {
+            $url = '';
         }
 
-        return $complete ? $this->domain() . $this->url : $this->url;
+        return $complete ? $this->domain() . $url : $url;
     }
 
     /**
@@ -690,35 +691,35 @@ class Request
      */
     public function pathinfo(): string
     {
-        if (is_null($this->pathinfo)) {
-            if (isset($_GET[$this->config['var_pathinfo']])) {
-                // 判断URL里面是否有兼容模式参数
-                $pathinfo = $_GET[$this->config['var_pathinfo']];
-                unset($_GET[$this->config['var_pathinfo']]);
-            } elseif ($this->isCli()) {
-                // CLI模式下 index.php controller/action/params/...
-                $pathinfo = $_SERVER['argv'][1] ?? '';
-            } elseif ('cli-server' == PHP_SAPI) {
-                $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
-            } elseif ($this->server('PATH_INFO')) {
-                $pathinfo = $this->server('PATH_INFO');
-            }
-
-            // 分析PATHINFO信息
-            if (!isset($pathinfo)) {
-                foreach ($this->config['pathinfo_fetch'] as $type) {
-                    if ($this->server($type)) {
-                        $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
-                        substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
-                        break;
-                    }
-                }
-            }
-
-            $this->pathinfo = empty($pathinfo) || '/' == $pathinfo ? '' : ltrim($pathinfo, '/');
+        if ($this->pathinfo) {
+            return $this->pathinfo;
         }
 
-        return $this->pathinfo;
+        if (isset($_GET[$this->config['var_pathinfo']])) {
+            // 判断URL里面是否有兼容模式参数
+            $pathinfo = $_GET[$this->config['var_pathinfo']];
+            unset($_GET[$this->config['var_pathinfo']]);
+        } elseif ($this->server('PATH_INFO')) {
+            $pathinfo = $this->server('PATH_INFO');
+        } elseif ($this->server('REQUEST_URI')) {
+            $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
+        } elseif (isset($_SERVER['argv'][1])) {
+            // CLI模式下 index.php controller/action/params/...
+            $pathinfo = $_SERVER['argv'][1];
+        }
+
+        // 分析PATHINFO信息
+        if (!isset($pathinfo)) {
+            foreach ($this->config['pathinfo_fetch'] as $type) {
+                if ($this->server($type)) {
+                    $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
+                    substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
+                    break;
+                }
+            }
+        }
+
+        return empty($pathinfo) || '/' == $pathinfo ? '' : ltrim($pathinfo, '/');
     }
 
     /**
@@ -728,22 +729,25 @@ class Request
      */
     public function path(): string
     {
-        if (is_null($this->path)) {
-            $suffix   = $this->config['url_html_suffix'];
-            $pathinfo = $this->pathinfo();
-            if (false === $suffix) {
-                // 禁止伪静态访问
-                $this->path = $pathinfo;
-            } elseif ($suffix) {
-                // 去除正常的URL后缀
-                $this->path = preg_replace('/\.(' . ltrim($suffix, '.') . ')$/i', '', $pathinfo);
-            } else {
-                // 允许任何后缀访问
-                $this->path = preg_replace('/\.' . $this->ext() . '$/i', '', $pathinfo);
-            }
+        if ($this->path) {
+            return $this->path;
         }
 
-        return $this->path;
+        $suffix   = $this->config['url_html_suffix'];
+        $pathinfo = $this->pathinfo();
+
+        if (false === $suffix) {
+            // 禁止伪静态访问
+            $path = $pathinfo;
+        } elseif ($suffix) {
+            // 去除正常的URL后缀
+            $path = preg_replace('/\.(' . ltrim($suffix, '.') . ')$/i', '', $pathinfo);
+        } else {
+            // 允许任何后缀访问
+            $path = preg_replace('/\.' . $this->ext() . '$/i', '', $pathinfo);
+        }
+
+        return $path;
     }
 
     /**
