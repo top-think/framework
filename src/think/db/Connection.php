@@ -850,7 +850,7 @@ abstract class Connection
             // 执行查询
             $resultSet = $this->query($query, $sql, $query->getBind());
 
-            $result = $resultSet[0] ?? null;
+            $result = $resultSet[0] ?? [];
         }
 
         if (isset($cacheItem) && $result) {
