@@ -619,9 +619,6 @@ class App extends Container
     protected function parse(): void
     {
         if ($this->multi) {
-            $this->namespace = null;
-            $this->appPath   = null;
-
             $this->parseAppName();
 
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
