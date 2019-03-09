@@ -14,6 +14,7 @@ namespace think;
 
 use Opis\Closure\SerializableClosure;
 use think\exception\ClassNotFoundException;
+use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\route\Dispatch;
 
@@ -569,7 +570,7 @@ class App extends Container
             $this->env->load($this->rootPath . '.env');
         }
 
-        $this->setDependPath();
+        $this->parse();
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
@@ -610,27 +611,18 @@ class App extends Container
         }
     }
 
-    protected function setDependPath(): void
+    /**
+     * 分析应用（参数）
+     * @access protected
+     * @return void
+     */
+    protected function parse(): void
     {
         if ($this->multi) {
             $this->namespace = null;
             $this->appPath   = null;
 
-            $path = $this->request->path();
-
-            if ($this->auto && $path) {
-                $name = current(explode('/', $path));
-
-                if (isset($this->map[$name]) && $this->map[$name] instanceof \Closure) {
-                    call_user_func_array($this->map[$name], [$this]);
-                } elseif ($name) {
-                    $this->name = $this->map[$name] ?? $name;
-                } else {
-                    $this->name = $this->defaultApp;
-                }
-            } else {
-                $this->name = $this->name ?: $this->getScriptName();
-            }
+            $this->parseAppName();
 
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
@@ -657,6 +649,35 @@ class App extends Container
             'route_path'   => $this->routePath,
             'config_path'  => $this->configPath,
         ]);
+    }
+
+    /**
+     * 分析当前请求的应用名（多应用模式下）
+     * @access protected
+     * @return void
+     */
+    protected function parseAppName(): void
+    {
+        $path = $this->request->path();
+
+        if ($this->auto && $path) {
+            // 自动多应用识别
+            $name = current(explode('/', $path));
+
+            if (isset($this->map[$name])) {
+                if ($this->map[$name] instanceof \Closure) {
+                    call_user_func_array($this->map[$name], [$this]);
+                } else {
+                    $this->name = $this->map[$name];
+                }
+            } elseif ($name && array_search($name, $this->map)) {
+                throw new HttpException(404, 'app not exists:' . $name);
+            } else {
+                $this->name = $name ?: $this->defaultApp;
+            }
+        } else {
+            $this->name = $this->name ?: $this->getScriptName();
+        }
     }
 
     /**
