@@ -127,6 +127,12 @@ class App extends Container
     protected $routePath = '';
 
     /**
+     * URL
+     * @var string
+     */
+    protected $urlPath = '';
+
+    /**
      * 配置后缀
      * @var string
      */
@@ -566,49 +572,11 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        if (is_file($this->rootPath . '.env')) {
-            $this->env->load($this->rootPath . '.env');
-        }
-
         $this->parse();
-
-        $this->configExt = $this->env->get('config_ext', '.php');
 
         $this->init();
 
-        $this->debugModeInit();
-
-        if ($this->config->get('app.exception_handle')) {
-            Error::setExceptionHandler($this->config->get('app.exception_handle'));
-        }
-
-        date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
-
-        // 设置开启事件机制
-        $this->event->withEvent($this->withEvent);
-
         return $this;
-    }
-
-    protected function debugModeInit(): void
-    {
-        // 应用调试模式
-        if (!$this->appDebug) {
-            $this->appDebug = $this->env->get('app_debug', false);
-        }
-
-        if (!$this->appDebug) {
-            ini_set('display_errors', 'Off');
-        } elseif (PHP_SAPI != 'cli') {
-            //重新申请一块比较大的buffer
-            if (ob_get_level() > 0) {
-                $output = ob_get_clean();
-            }
-            ob_start();
-            if (!empty($output)) {
-                echo $output;
-            }
-        }
     }
 
     /**
@@ -618,9 +586,55 @@ class App extends Container
      */
     protected function parse(): void
     {
-        if ($this->multi) {
-            $this->parseAppName();
+        if (is_file($this->rootPath . '.env')) {
+            $this->env->load($this->rootPath . '.env');
+        }
 
+        $this->parseAppName();
+
+        $this->parsePath();
+
+        if (!$this->namespace) {
+            $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
+        }
+
+        $this->configExt = $this->env->get('config_ext', '.php');
+    }
+
+    /**
+     * 分析当前请求的应用名
+     * @access protected
+     * @return void
+     */
+    protected function parseAppName(): void
+    {
+        $this->urlPath = $this->request->path();
+
+        if ($this->auto && $this->urlPath) {
+            // 自动多应用识别
+            $name = current(explode('/', $this->urlPath));
+
+            if (isset($this->map[$name])) {
+                if ($this->map[$name] instanceof \Closure) {
+                    call_user_func_array($this->map[$name], [$this]);
+                } else {
+                    $this->name = $this->map[$name];
+                }
+            } elseif ($name && array_search($name, $this->map)) {
+                throw new HttpException(404, 'app not exists:' . $name);
+            } else {
+                $this->name = $name ?: $this->defaultApp;
+            }
+        } elseif ($this->multi) {
+            $this->name = $this->name ?: $this->getScriptName();
+        }
+
+        $this->request->setApp($this->name ?: '');
+    }
+
+    protected function parsePath(): void
+    {
+        if ($this->multi) {
             $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
             $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
         } else {
@@ -630,10 +644,6 @@ class App extends Container
 
         if (!$this->appPath) {
             $this->appPath = $this->multi ? $this->basePath . $this->name . DIRECTORY_SEPARATOR : $this->basePath;
-        }
-
-        if (!$this->namespace) {
-            $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
         }
 
         $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
@@ -649,35 +659,6 @@ class App extends Container
     }
 
     /**
-     * 分析当前请求的应用名（多应用模式下）
-     * @access protected
-     * @return void
-     */
-    protected function parseAppName(): void
-    {
-        $path = $this->request->path();
-
-        if ($this->auto && $path) {
-            // 自动多应用识别
-            $name = current(explode('/', $path));
-
-            if (isset($this->map[$name])) {
-                if ($this->map[$name] instanceof \Closure) {
-                    call_user_func_array($this->map[$name], [$this]);
-                } else {
-                    $this->name = $this->map[$name];
-                }
-            } elseif ($name && array_search($name, $this->map)) {
-                throw new HttpException(404, 'app not exists:' . $name);
-            } else {
-                $this->name = $name ?: $this->defaultApp;
-            }
-        } else {
-            $this->name = $this->name ?: $this->getScriptName();
-        }
-    }
-
-    /**
      * 初始化应用
      * @access public
      * @return void
@@ -688,13 +669,22 @@ class App extends Container
         if (is_file($this->runtimePath . 'init.php')) {
             include $this->runtimePath . 'init.php';
         } else {
-            $this->loadAppFile();
+            $this->load();
         }
 
-        $this->request->setApp($this->name ?: '');
+        if ($this->config->get('app.exception_handle')) {
+            Error::setExceptionHandler($this->config->get('app.exception_handle'));
+        }
+
+        // 设置开启事件机制
+        $this->event->withEvent($this->withEvent);
 
         // 监听AppInit
         $this->event->trigger('AppInit');
+
+        $this->debugModeInit();
+
+        date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
     }
 
     /**
@@ -702,7 +692,7 @@ class App extends Container
      * @access protected
      * @return void
      */
-    protected function loadAppFile(): void
+    protected function load(): void
     {
         if ($this->multi && is_file($this->basePath . 'event.php')) {
             $this->loadEvent(include $this->basePath . 'event.php');
@@ -757,6 +747,37 @@ class App extends Container
         }
     }
 
+    /**
+     * 调试模式设置
+     * @access protected
+     * @return void
+     */
+    protected function debugModeInit(): void
+    {
+        // 应用调试模式
+        if (!$this->appDebug) {
+            $this->appDebug = $this->env->get('app_debug', false);
+        }
+
+        if (!$this->appDebug) {
+            ini_set('display_errors', 'Off');
+        } elseif (PHP_SAPI != 'cli') {
+            //重新申请一块比较大的buffer
+            if (ob_get_level() > 0) {
+                $output = ob_get_clean();
+            }
+            ob_start();
+            if (!empty($output)) {
+                echo $output;
+            }
+        }
+    }
+
+    /**
+     * 注册应用事件
+     * @access protected
+     * @return void
+     */
     protected function loadEvent(array $event): void
     {
         if (isset($event['bind'])) {
@@ -772,9 +793,14 @@ class App extends Container
         }
     }
 
-    public function getRealPath()
+    /**
+     * 获取自动多应用模式下的实际URL Path
+     * @access public
+     * @return string
+     */
+    public function getRealPath(): string
     {
-        $path = $this->request->path();
+        $path = $this->urlPath;
 
         if ($path && $this->auto) {
             $path = substr_replace($path, '', 0, strpos($path, '/') ? strpos($path, '/') + 1 : strlen($path));
@@ -820,9 +846,9 @@ class App extends Container
     }
 
     /**
-     * 实例化访问控制器 格式：控制器名
+     * 实例化访问控制器
      * @access public
-     * @param  string $name              资源地址
+     * @param  string $name 资源地址
      * @return object
      * @throws ClassNotFoundException
      */
@@ -857,8 +883,12 @@ class App extends Container
         return $this->namespace . '\\' . $layer . '\\' . $path . $class;
     }
 
-    // 获取应用根目录
-    public function getDefaultRootPath(): string
+    /**
+     * 获取应用根目录
+     * @access protected
+     * @return string
+     */
+    protected function getDefaultRootPath(): string
     {
         $path = dirname(dirname(dirname(dirname($this->thinkPath))));
 
@@ -933,6 +963,11 @@ class App extends Container
         return $dispatch;
     }
 
+    /**
+     * 获取路由缓存Key
+     * @access protected
+     * @return string
+     */
     protected function getRouteCacheKey(): string
     {
         if ($this->route->config('route_check_cache_key')) {
@@ -945,6 +980,11 @@ class App extends Container
         return $routeKey;
     }
 
+    /**
+     * 获取当前运行入口名称
+     * @access protected
+     * @return string
+     */
     protected function getScriptName(): string
     {
         if (isset($_SERVER['SCRIPT_FILENAME'])) {
