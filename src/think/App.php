@@ -620,7 +620,7 @@ class App extends Container
                 } else {
                     $this->name = $this->map[$name];
                 }
-            } elseif ($name && array_search($name, $this->map)) {
+            } elseif ($name && false !== array_search($name, $this->map)) {
                 throw new HttpException(404, 'app not exists:' . $name);
             } else {
                 $this->name = $name ?: $this->defaultApp;

@@ -2607,7 +2607,11 @@ class Query
             $this->options['data'] = $data;
         }
 
-        $isUpdate = $this->parseUpdateData($this->options['data']);
+        if (!empty($this->options['where'])) {
+            $isUpdate = true;
+        } else {
+            $isUpdate = $this->parseUpdateData($this->options['data']);
+        }
 
         return $isUpdate ? $this->update() : $this->insert();
     }
