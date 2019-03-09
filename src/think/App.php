@@ -632,6 +632,11 @@ class App extends Container
         $this->request->setApp($this->name ?: '');
     }
 
+    /**
+     * 分析应用路径
+     * @access protected
+     * @return void
+     */
     protected function parsePath(): void
     {
         if ($this->multi) {
