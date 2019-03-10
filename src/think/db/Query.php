@@ -1095,6 +1095,19 @@ class Query
     }
 
     /**
+     * 指定FIND_IN_SET查询条件
+     * @access public
+     * @param  mixed  $field     查询字段
+     * @param  mixed  $condition 查询条件
+     * @param  string $logic     查询逻辑 and or xor
+     * @return $this
+     */
+    public function whereFindInSet(string $field, $condition, string $logic = 'AND')
+    {
+        return $this->parseWhereExp($logic, $field, 'FIND IN SET', $condition, [], true);
+    }
+
+    /**
      * 比较两个字段
      * @access public
      * @param  string $field1     查询字段
@@ -2955,6 +2968,8 @@ class Query
             $this->throwNotFound();
         } elseif (!empty($this->options['allow_empty'])) {
             return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance([], true) : [];
+        } elseif (!empty($this->options['array'])) {
+            return [];
         }
     }
 

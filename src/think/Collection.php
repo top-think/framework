@@ -176,6 +176,16 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
+     * 返回数组中所有的值组成的新 Collection 实例
+     * @access public
+     * @return static
+     */
+    public function values()
+    {
+        return new static(array_values($this->items));
+    }
+
+    /**
      * 删除数组的最后一个元素（出栈）
      *
      * @access public
