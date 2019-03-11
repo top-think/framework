@@ -130,6 +130,28 @@ class Log implements LoggerInterface
     }
 
     /**
+     * 记录批量日志信息
+     * @access public
+     * @param  array  $msg       日志信息
+     * @param  string $type      日志级别
+     * @return $this
+     */
+    public function append(array $log, string $type = 'info')
+    {
+        if (!$this->allowWrite || empty($log)) {
+            return $this;
+        }
+
+        if (isset($this->log[$type])) {
+            $this->log[$type] += $log;
+        } else {
+            $this->log[$type] = $log;
+        }
+
+        return $this;
+    }
+
+    /**
      * 清空日志信息
      * @access public
      * @return $this
