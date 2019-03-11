@@ -33,7 +33,7 @@ class Db
      * 查询次数
      * @var int
      */
-    public static $queryTimes = 0;
+    protected $queryTimes = 0;
 
     /**
      * 架构函数
@@ -53,7 +53,17 @@ class Db
 
     public static function __make(Config $config)
     {
-        return new static($config->get('database', []));
+        return new static($config->get('database'));
+    }
+
+    /**
+     * 初始化
+     * @access public
+     * @return void
+     */
+    public function init(): void
+    {
+        $this->queryTimes = 0;
     }
 
     /**
@@ -83,13 +93,23 @@ class Db
     }
 
     /**
+     * 更新查询次数
+     * @access public
+     * @return void
+     */
+    public function updateQueryTimes(): void
+    {
+        $this->queryTimes++;
+    }
+
+    /**
      * 获得查询次数
      * @access public
      * @return integer
      */
     public function getQueryTimes(): int
     {
-        return self::$queryTimes;
+        return $this->queryTimes;
     }
 
     /**

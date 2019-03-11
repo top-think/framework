@@ -19,11 +19,12 @@ use think\App;
 use think\Cache;
 use think\cache\CacheItem;
 use think\Container;
-use think\Db;
 use think\db\exception\BindParamException;
 use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
+use think\facade\Db;
+use think\facade\Log;
 
 abstract class Connection
 {
@@ -286,7 +287,7 @@ abstract class Connection
             }
 
             // 记录初始化信息
-            Container::pull('log')->record('[ DB ] INIT ' . $config['type']);
+            Log::record('[ DB ] INIT ' . $config['type']);
 
             if (true === $name) {
                 $name = md5(serialize($config));
@@ -611,8 +612,8 @@ abstract class Connection
             return $this->links[$linkNum];
         } catch (\PDOException $e) {
             if ($autoConnection) {
-                $this->log($e->getMessage(), 'error');
-                return $this->connect([], $linkNum);
+                Log::error($e->getMessage());
+                return $this->connect($autoConnection, $linkNum);
             } else {
                 throw $e;
             }
@@ -746,7 +747,7 @@ abstract class Connection
 
         $this->bind = $bind;
 
-        Db::$queryTimes++;
+        Db::updateQueryTimes();
 
         try {
             // 调试开始
@@ -1723,9 +1724,18 @@ abstract class Connection
         }
     }
 
-    public function log($log, string $type = 'sql'): void
+    /**
+     * 记录SQL日志
+     * @access protected
+     * @param  string $log SQL日志信息
+     * @param  string $type 日志类型
+     * @return void
+     */
+    protected function log($log, $type = 'sql'): void
     {
-        $this->config['debug'] && Container::pull('log')->record($log, $type);
+        if ($this->config['debug']) {
+            Log::record($log, $type);
+        }
     }
 
     /**
