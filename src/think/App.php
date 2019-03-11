@@ -38,7 +38,6 @@ use think\route\Dispatch;
  */
 class App extends Base
 {
-    const VERSION = '5.2.0RC1';
 
     /**
      * 默认应用名（多应用模式）

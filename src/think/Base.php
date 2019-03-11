@@ -17,27 +17,12 @@ use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 
 /**
- * App 应用管理
- * @property Route $route
- * @property Config $config
- * @property Cache $cache
- * @property Request $request
- * @property Env $env
- * @property Debug $debug
- * @property Event $event
- * @property Middleware $middleware
- * @property Log $log
- * @property Lang $lang
- * @property Db $db
- * @property Cookie $cookie
- * @property Session $session
- * @property Url $url
- * @property Validate $validate
- * @property Build $build
- * @property \think\route\RuleName $rule_name
+ * App 基础类
  */
 abstract class Base extends Container
 {
+    const VERSION = '5.2.0RC1';
+
     /**
      * 应用名称
      * @var string
