@@ -19,19 +19,18 @@ use Throwable;
 
 class Error
 {
-    /**
-     * 异常处理类
-     * @var string
-     */
-    protected static $exceptionHandler;
+    /** @var App */
+    protected $app;
 
     /**
      * 注册异常处理
      * @access public
+     * @param App $app
      * @return void
      */
-    public static function register()
+    public function register(App $app)
     {
+        $this->app = $app;
         error_reporting(E_ALL);
         set_error_handler([__CLASS__, 'appError']);
         set_exception_handler([__CLASS__, 'appException']);
@@ -43,9 +42,9 @@ class Error
      * @access public
      * @param  \Throwable $e
      */
-    public static function appException(Throwable $e): void
+    public function appException(Throwable $e): void
     {
-        $handler = self::getExceptionHandler();
+        $handler = $this->getExceptionHandler();
 
         $handler->report($e);
 
@@ -60,12 +59,12 @@ class Error
      * Error Handler
      * @access public
      * @param  integer $errno   错误编号
-     * @param  integer $errstr  详细错误信息
+     * @param  string  $errstr  详细错误信息
      * @param  string  $errfile 出错的文件
      * @param  integer $errline 出错行号
      * @throws ErrorException
      */
-    public static function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0): void
+    public function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0): void
     {
         $exception = new ErrorException($errno, $errstr, $errfile, $errline);
 
@@ -73,25 +72,23 @@ class Error
             // 将错误信息托管至 think\exception\ErrorException
             throw $exception;
         }
-
-        self::getExceptionHandler()->report($exception);
     }
 
     /**
      * Shutdown Handler
      * @access public
      */
-    public static function appShutdown(): void
+    public function appShutdown(): void
     {
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             // 将错误信息托管至think\ErrorException
             $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
 
-            self::appException($exception);
+            $this->appException($exception);
         }
 
         // 写入日志
-        Container::pull('think\Log')->save();
+        $this->app->make(Log::class)->save();
     }
 
     /**
@@ -101,47 +98,20 @@ class Error
      * @param  int $type
      * @return bool
      */
-    protected static function isFatal(int $type): bool
+    protected function isFatal(int $type): bool
     {
         return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
     }
 
-    /**
-     * 设置异常处理类
-     *
-     * @access public
-     * @param  mixed $handle
-     * @return void
-     */
-    public static function setExceptionHandler($handle): void
-    {
-        self::$exceptionHandler = $handle;
-    }
 
     /**
      * Get an instance of the exception handler.
      *
-     * @access public
+     * @access protected
      * @return Handle
      */
-    public static function getExceptionHandler()
+    protected function getExceptionHandler()
     {
-        static $handle;
-
-        if (!$handle) {
-            // 异常处理handle
-            $class = self::$exceptionHandler;
-
-            if ($class && is_string($class) && class_exists($class) && is_subclass_of($class, "\\think\\exception\\Handle")) {
-                $handle = new $class;
-            } else {
-                $handle = new Handle;
-                if ($class instanceof \Closure) {
-                    $handle->setRender($class);
-                }
-            }
-        }
-
-        return $handle;
+        return $this->app->make(Handle::class);
     }
 }
