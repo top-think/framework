@@ -80,7 +80,7 @@ class Error
      */
     public function appShutdown(): void
     {
-        if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
+        if (!is_null($error = error_get_last()) && $this->isFatal($error['type'])) {
             // 将错误信息托管至think\ErrorException
             $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
 
