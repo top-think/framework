@@ -525,7 +525,7 @@ class Console
             throw new \InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
         }
 
-        return $this->get($exact ? $name : reset($commands));
+        return $this->getCommand($exact ? $name : reset($commands));
     }
 
     /**
