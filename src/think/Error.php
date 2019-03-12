@@ -32,9 +32,9 @@ class Error
     {
         $this->app = $app;
         error_reporting(E_ALL);
-        set_error_handler([__CLASS__, 'appError']);
-        set_exception_handler([__CLASS__, 'appException']);
-        register_shutdown_function([__CLASS__, 'appShutdown']);
+        set_error_handler([$this, 'appError']);
+        set_exception_handler([$this, 'appException']);
+        register_shutdown_function([$this, 'appShutdown']);
     }
 
     /**
@@ -102,7 +102,6 @@ class Error
     {
         return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
     }
-
 
     /**
      * Get an instance of the exception handler.
