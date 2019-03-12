@@ -257,7 +257,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function delete($abstract): void
     {
-        foreach ((array)$abstract as $name) {
+        foreach ((array) $abstract as $name) {
             $name = $this->alias[$name] ?? $name;
 
             if (isset($this->instances[$name])) {
